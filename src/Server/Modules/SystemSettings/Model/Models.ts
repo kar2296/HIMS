@@ -1,0 +1,50 @@
+import * as i from './Interface/Index';
+import * as SequelizeStatic from 'sequelize';
+declare global {
+    interface Models {
+        Organization: SequelizeStatic.Model<i.OrganizationInstance, i.OrganizationAttributes>;
+        Facility: SequelizeStatic.Model<i.FacilityInstance, i.FacilityAttributes>;
+        Department: SequelizeStatic.Model<i.DepartmentInstance, i.DepartmentAttributes>;
+        User: SequelizeStatic.Model<i.UserInstance, i.UserAttributes>;
+        Speciality: SequelizeStatic.Model<i.SpecialityInstance, i.SpecialityAttributes>;
+        ReferenceValueGroup: SequelizeStatic.Model<i.ReferenceValueGroupInstance, i.ReferenceValueGroupAttributes>;
+        ReferenceValue: SequelizeStatic.Model<i.ReferenceValueInstance, i.ReferenceValueAttributes>;
+        DepartmentLocation: SequelizeStatic.Model<i.DepartmentLocationInstance, i.DepartmentLocationAttributes>;
+        Group: SequelizeStatic.Model<i.GroupInstance, i.GroupAttributes>;
+        Role: SequelizeStatic.Model<i.RoleInstance, i.RoleAttributes>;
+        UserDefinedField: SequelizeStatic.Model<i.UserDefinedFieldInstance, i.UserDefinedFieldAttributes>;
+        Module: SequelizeStatic.Model<i.ModuleInstance, i.ModuleAttributes>;
+        Screen: SequelizeStatic.Model<i.ScreenInstance, i.ScreenAttributes>;
+        UserDepartmentMap: SequelizeStatic.Model<i.UserDepartmentMapInstance, i.UserDepartmentMapAttributes>;
+        UserFacilityMap: SequelizeStatic.Model<i.UserFacilityMapInstance, i.UserFacilityMapAttributes>;
+        UserSpecialityMap: SequelizeStatic.Model<i.UserSpecialityMapInstance, i.UserSpecialityMapAttributes>;
+        GroupFacilityMap: SequelizeStatic.Model<i.GroupFacilityMapInstance, i.GroupFacilityMapAttributes>;
+        GroupRoleMap: SequelizeStatic.Model<i.GroupRoleMapInstance, i.GroupRoleMapAttributes>;
+        RoleFacilityMap: SequelizeStatic.Model<i.RoleFacilityMapInstance, i.RoleFacilityMapAttributes>;
+        FacilityDepartmentMap: SequelizeStatic.Model<i.FacilityDepartmentMapInstance, i.FacilityDepartmentMapAttributes>;
+        UserTeam: SequelizeStatic.Model<i.UserTeamInstance, i.UserTeamAttributes>;
+        Team: SequelizeStatic.Model<i.TeamInstance, i.TeamAttributes>;
+        UserTaxDetail: SequelizeStatic.Model<i.UserTaxDetailInstance, i.UserTaxDetailAttributes>;
+        FacilityDefaultService: SequelizeStatic.Model<i.FacilityDefaultServiceInstance, i.FacilityDefaultServiceAttributes>;
+        Control: SequelizeStatic.Model<i.ControlInstance, i.ControlAttributes>;
+        RoleControlMap: SequelizeStatic.Model<i.RoleControlMapInstance, i.RoleControlMapAttributes>;
+        FacilitySetting: SequelizeStatic.Model<i.FacilitySettingInstance, i.FacilitySettingAttributes>;
+        AppInfo: SequelizeStatic.Model<i.AppInfoInstance, i.AppInfoAttributes>;
+        Context: SequelizeStatic.Model<i.ContextInstance, i.ContextAttributes>;
+        ContextControlMap: SequelizeStatic.Model<i.ContextControlMapInstance, i.ContextControlMapAttributes>;
+        FacilityPreference: SequelizeStatic.Model<i.FacilityPreferenceInstance, i.FacilityPreferenceAttributes>;
+        BillingSetting: SequelizeStatic.Model<i.BillingSettingInstance, i.BillingSettingAttributes>;
+        FacilityPreferenceMaster: SequelizeStatic.Model<i.FacilityPreferenceMasterInstance, i.FacilityPreferenceMasterAttributes>;
+        UserPreference: SequelizeStatic.Model<i.UserPreferenceInstance, i.UserPreferenceAttributes>;
+        EventDashboard: SequelizeStatic.Model<i.EventDashboardInstance, i.EventDashboardAttributes>;
+        RolePrivilege: SequelizeStatic.Model<i.RolePrivilegeInstance, i.RolePrivilegeAttributes>;
+        LoginSession: SequelizeStatic.Model<i.LoginSessionInstance, i.LoginSessionAttributes>;
+        EventTemplate: SequelizeStatic.Model<i.EventTemplateInstance, i.EventTemplateAttributes>;
+        CronStatus: SequelizeStatic.Model<i.CronStatusInstance, i.CronStatusAttributes>;
+        UserDefaultService: SequelizeStatic.Model<i.UserDefaultServiceInstance, i.UserDefaultServiceAttributes>;
+        UserCategoryMap: SequelizeStatic.Model<i.UserCategoryMapInstance, i.UserCategoryMapAttributes>;
+        RoleMobileConfigMap: SequelizeStatic.Model<i.RoleMobileConfigMapInstance, i.RoleMobileConfigMapAttributes>;
+        Message: SequelizeStatic.Model<i.MessageInstance, i.MessageAttributes>;
+        OtpVerify: SequelizeStatic.Model<i.OtpVerifyInstance, i.OtpVerifyAttributes>;
+    }
+}

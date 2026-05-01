@@ -1,0 +1,173 @@
+<html>
+
+    <head>
+        <style>
+            .table1 {
+                border: 1px solid black;
+                border-bottom: 0px solid black;
+                border-top: 1px solid black;
+                text-align: left;
+                font-size: 14px;
+            }
+
+            .table2 {
+                border: 1px solid black;
+                border-bottom: 0px solid black;
+                border-top: 1px solid black;
+                text-align: left;
+                font-size: 14px;
+            }
+
+            .table3 {
+                border: 1px solid black;
+                border-bottom: 1px solid black;
+                font-size: 14px;
+            }
+
+            .border {
+                border-collapse: collapse;
+                border-left: 1px solid black;
+                font-size: 14px;
+            }
+
+            .table4 {
+                border: 1px solid black;
+                border-bottom: 0px solid black;
+                text-align: left;
+                font-size: 14px;
+            }
+
+            .table5 {
+                border: 1px solid black;
+                border-bottom: 0px solid black;
+                text-align: center;
+                font-size: 14px;
+            }
+
+            .table6 {
+                border: 1px solid black;
+                border-bottom: 0px solid black;
+                border-top: 0px solid black;
+                text-align: center;
+                font-size: 14px;
+            }
+
+
+            .size {
+                border: 1px solid black;
+                font-size: 14px;
+                border-collapse: collapse;
+                border-top: 0px solid black;
+                border-bottom: 1px solid black;
+            }
+
+            {{include '/Templates/assets/css/core.css'}}
+        </style>
+    </head>
+
+    <body>
+        <div id="pageHeader">
+            {{{include '/Templates/deepam-MMN/common/header.tpl.html' 'tpl'}}}
+        </div>
+        <table style="width:100%;font-size:8px">
+            <tr>
+                <td style="width:20%;"><b>Doctor Name</b></td>
+                <td>:</td>
+                <td style="width:30%;"><b>{{data.DoctorInvoices.Doctor.Title.Description}} {{data.DoctorInvoices.Doctor.FirstName}}  {{data.DoctorInvoices.Doctor.LastName}} </b></td>
+                <td style="width:20%;"><b>Invoice Date</b></td>
+                <td>:</td>
+                <td style="width:30%;"><b>{{datetimeformat data.DoctorInvoices.InvoiceDateTime}}</b></td>
+            </tr>
+            <tr>
+                <td><b>Department</b></td>
+                <td>:</td>
+                <td><b>{{data.DoctorInvoices.Doctor.Department.DepartmentName}}</b></td>
+                <td><b>Invoice No</b></td>
+                <td>:</td>
+                <td><b>{{data.DoctorInvoices.DoctorInvoiceIdentifier}}</b></td>
+            </tr>
+            <tr>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td><b>Created By</b></td>
+                <td>:</td>
+                <td><b>{{data.DoctorInvoices.CreatedUser.Title.Description}} {{data.DoctorInvoices.CreatedUser.FirstName}}  {{data.DoctorInvoices.CreatedUser.LastName}}</b></td>
+            </tr>
+        </table>
+        <hr style="border-top:solid 1px;" />
+        <table style="width:100%;font-size:8px">
+            <tr>
+                <td style="text-align:center;font-size: 1.2em;"><b><u>Doctor Invoice</u></b></td>
+            </tr>
+        </table>
+        <table border class="size" style="width:100%;">
+            <tr>
+                <th style="width:5%" align="left">S.No</th>
+                <th style="width:25%" align="left">Patient Name</th>
+                <th style="width:10%" align="left">Bill No</th>
+                <th style="width:30%" align="left">Billing Service</th>
+                <th style="width:10%" align="left">Amount</th>
+                <th style="width:10%" align="left">Discount</th>
+                <th style="width:10%" align="left">To Be paid</th>
+            </tr>
+        </table>
+
+        <table class="table6" style="width:100%">
+            {{#each data.DoctorInvoices.DoctorInvoiceDetails}}
+            <tr>
+                <td style="width:5%" align="left">{{inc @index}}</td>
+                <td style="width:25%" align="left">{{PatientBillDetail.PatientBill.Patient.Title.Description}} {{PatientBillDetail.PatientBill.Patient.FirstName}}
+                    {{PatientBillDetail.PatientBill.Patient.LastName}}</td>
+                <td style="width:10%" align="left">{{PatientBillDetail.PatientBill.BillNumber}}</td>
+                <td style="width:30%" align="left">{{ServiceName}}</td>
+                <td style="width:10%" align="left">{{currencyformat DoctorShare}}</td>
+                <td style="width:10%" align="left"></td>
+                <td style="width:10%" align="left">{{currencyformat DoctorShare}}</td>
+            </tr>
+            {{/each}}
+        </table>
+        <table class="table2" style="width:100%">
+            <tr>
+                <td style="width:40%;"></td>
+                <td style="width:50%;text-align:right">Total Amount</td>
+                <td>:</td>
+                <td style="width:10%;">{{currencyformat data.DoctorInvoices.InvoiceAmount}}</td>
+            </tr>
+            <tr>
+                <td style="width:40%;"></td>
+                <td style="width:50%;text-align:right">Discount</td>
+                <td>:</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td colspan="2" style="width:90%;text-align:right">To Be Paid</td>
+                <td>:</td>
+                <td>{{currencyformat data.DoctorInvoices.AmountPaid}}</td>
+            </tr>
+        </table>
+        <table class="table4" style="width:100%;">
+            <tr>
+                <td><b>Amount in words</b></td>
+                <td>:</td>
+                <td><b>Rupees {{decimalnrInWords data.DoctorInvoices.InvoiceAmount}} only</b></td>
+            </tr>
+        </table>
+        <table class="table3" style="width:100%;">
+            <tr>
+                <td>
+                    <u>Receipt Details</u>
+                </td>
+                <td style="width:20%;" colspan="4"></td>
+            </tr>
+            <tr>
+                <td>
+                    <u><b></b></u>
+                </td>
+                <td colspan="4"></td>
+            </tr>
+        </table>
+        <div style="width:100%; font-size:10px;">Printed On: {{now}}</div>
+    </body>
+
+    </html>

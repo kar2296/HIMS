@@ -1,0 +1,174 @@
+<html>
+
+<head>
+    <style>
+        * {
+            font-family: sans-serif;
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        td {
+            padding: 3px;
+            vertical-align: top;
+        }
+
+        .content * {
+            font-family: sans-serif;
+            font-size: 19px;
+        }
+
+        th {
+            white-space: break-spaces;
+            border: 1px !important;
+            border-top: 1px solid black !important;
+            border-bottom: 1px solid black !important;
+            font-size: 12px;
+            padding-left: 4px;
+            padding-top: 6px;
+            padding-bottom: 6px;
+        }
+
+        td {
+            border: 1px !important;
+            font-size: 12px;
+        }
+
+        .size td,
+        .size th {
+            border: 0px solid black !important;
+        }
+        .size th {
+            border-top: 1px solid black !important;
+            border-bottom: 1px solid black !important;
+        }
+        .sub-total td {
+            border: 0px !important;
+            border-top: 1px solid black !important;
+            border-bottom: 1px solid black !important;
+        }
+
+        {{include '/Templates/assets/css/core.css'}}
+    </style>
+</head>
+
+<body style="padding-left: 50px;">
+    <div id="pageHeader">
+        {{{include '/Templates/equitas/common/header.tpl.html' 'tpl'}}}
+    </div>
+    <hr>
+    <table class="" style="width:100%;">
+        <tr>
+            <td height="20" style="vertical-align:text-middle; text-align: center;font-size: 22px;"><b>Store
+                    Requisition</b></td>
+        </tr>
+    </table>
+    <hr>
+    <div class="content">
+        <table class="" style="width:100%;">
+            <tr>
+                <td><b>Req No</b></td>
+                <td>:</td>
+                <td><b>{{data.PurchaseRequest.PrNumber}}</b></td>
+            </tr>
+            <tr>
+                <td><b>Req Date</b></td>
+                <td>:</td>
+                <td>{{datetimeformat data.PurchaseRequest.RequestedDate}}</td>
+            </tr>
+            <tr>
+                <td><b>Issue Store</b></td>
+                <td>:</td>
+                <td>{{data.PurchaseRequest.FromStore.StoreName}}</td>
+            </tr>
+            <tr>
+                <td><b>Req Store</b></td>
+                <td>:</td>
+                <td>{{data.PurchaseRequest.ToStore.StoreName}}</td>
+            </tr>
+            <tr>
+                <td><b>Vendor Name</b></td>
+                <td>:</td>
+                <td>{{data.PurchaseRequest.VendorMaster.VendorName}}</td>
+            </tr>
+        </table>
+        <br>
+
+        <table class="size" style="width:100%;">
+            <tr>
+                <!-- <th style="width:5%;" align="left">S.No</th>
+            <th style="width:8%;" align="left">Item Code</th> -->
+                <th style="width:80%;" align="left">Item Name</th>
+                <!-- <th style="width:5%;" align="left">UOM</th>
+            <th style="width:10%;" align="left">Stock In Hand</th>
+            <th style="width:10%;" align="left">Min Qty</th>
+            <th style="width:10%;" align="left">Max Qty</th> -->
+                <th style="width:20%;" align="center">Req Qty</th>
+                <!-- <th style="width:8%;" align="left">Reorder Qty</th>
+            <th style="width:10%;" align="left">Comments</th> -->
+
+            </tr>
+            {{#each data.PurchaseRequestDetail}}
+            <tr>
+                <!-- <td align="left">{{inc @index}}</td>
+            <td align="left">{{ItemCode}}</td> -->
+                <td align="left">{{ItemName}}</td>
+                <!-- <td align="left">{{BaseUom.UomName}}</td>
+            <td align="left">{{QuantityOnHand}}</td>
+            <td align="left">{{VendorItem.MinQty}}</td>
+            <td align="left">{{VendorItem.MaxQty}}</td> -->
+                <td align="center">{{RequestedQuantity}}</td>
+                <!-- <td align="left"></td>
+            <td align="left">{{Comments}}</td> -->
+            </tr>
+            {{/each}}
+            <tr class="sub-total">
+                <td align="right"><b>Total</b></td>
+                <td align="right"> <b>{{currencyformat data.PurchaseRequest.TotalNetAmount}}</b></td>
+            </tr>
+        </table>
+        <!-- <table class="" style="width:100%">
+
+            <tr>
+                <td style="width:20%;"><b>Comments</b></td>
+                <td>:</td>
+                <td style="text-align:left;width:80%;"><b>{{data.PurchaseRequest.Comments}}</b></td>
+            </tr>
+        </table> -->
+        <br>
+        <br>
+        
+    <table style="width:100%;">
+        <tr>
+            <td style="width: 5%;"></td>
+            <td style="width: 30%;" align="center"><b>APPROVED BY </b> <br> {{data.PurchaseRequest.ApprovedUser.Title.Description}}
+                {{data.PurchaseRequest.ApprovedUser.FirstName}}
+                {{data.PurchaseRequest.ApprovedUser.LastName}}</td>
+                <td style="width: 30%;" align="center"><b></b></td>
+                <td style="width: 30%;" align="center"><b>AUTHORIZED BY</b> <br> {{data.PurchaseRequest.AuthorizedUser.Title.Description}}
+                    {{data.PurchaseRequest.AuthorizedUser.FirstName}}
+                    {{data.PurchaseRequest.AuthorizedUser.LastName}}</td>
+            <td style="width: 5%;"></td>
+        </tr>
+    </table>
+    </div>
+    
+  <div id="pageFooter">
+    <table style="width: 100%;">
+      <tr>
+        <td style="width: 80%;">
+          This Bill was printed by {{data.Encounter.Created.FirstName}}{{data.Encounter.Created.LastName}} &nbsp;
+          {{now}}
+        </td>
+        <td style="width: 20%;">
+          {{{include '/Templates/equitas/common/footer.tpl.html' 'tpl'}}}
+        </td>
+      </tr>
+    </table>
+  </div>
+    <br>
+
+    <!-- <div style="width:100%; font-size:8px;">Printed On: {{now}}</div> -->

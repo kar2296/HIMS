@@ -1,0 +1,153 @@
+import * as SequelizeStatic from 'sequelize';
+import { DataTypes, Sequelize } from 'sequelize';
+import * as i from './Interface/Index';
+
+export default function (sequelize: Sequelize, DataTypes: DataTypes):
+    SequelizeStatic.Model<i.ModifiedPatientBillCategoryDetailsInstance, i.ModifiedPatientBillCategoryDetailsAttributes> {
+    let ModifiedPatientBillCategoryDetails = sequelize.define<i.ModifiedPatientBillCategoryDetailsInstance,
+        i.ModifiedPatientBillCategoryDetailsAttributes>('ModifiedPatientBillCategoryDetails', {
+            Id: { type: DataTypes.BIGINT, field: 'ModifiedPatientBillCategoryDetailId', primaryKey: true, autoIncrement: true },
+            ModifiedPatientBillCategoryId: { type: DataTypes.BIGINT, field: 'ModifiedPatientBillCategoryId' },
+            ModifiedPatientBillId: { type: DataTypes.BIGINT, field: 'ModifiedPatientBillId' },
+            ModifiedBillDateTime: { type: DataTypes.DATE, field: 'ModifiedBillDateTime' },
+            PatientBillStatusId: { type: DataTypes.BIGINT, field: 'PatientBillStatusId' },
+            PatientBillDetailId: { type: DataTypes.BIGINT, field: 'PatientBillDetailId' },
+            PatientBillId: { type: DataTypes.BIGINT, field: 'PatientBillId' },
+            ServiceId: { type: DataTypes.BIGINT, field: 'ServiceId' },
+            ServiceCode: { type: DataTypes.STRING, field: 'ServiceCode' },
+            ServiceName: { type: DataTypes.STRING, field: 'ServiceName' },
+            ServiceTypeId: { type: DataTypes.BIGINT, field: 'ServiceTypeId' },
+            ServiceGroupId: { type: DataTypes.BIGINT, field: 'ServiceGroupId' },
+            ServiceCategoryId: { type: DataTypes.BIGINT, field: 'ServiceCategoryId' },
+            MasterTypeId: { type: DataTypes.BIGINT, field: 'MasterTypeId' },
+            MasterItemId: { type: DataTypes.BIGINT, field: 'MasterItemId' },
+            MasterName: { type: DataTypes.STRING, field: 'MasterName' },
+            AliasId: { type: DataTypes.STRING, field: 'AliasId' },
+            AliasName: { type: DataTypes.STRING, field: 'AliasName' },
+            EncounterId: { type: DataTypes.BIGINT, field: 'EncounterId' },
+            Quantity: { type: DataTypes.INTEGER, field: 'Quantity' },
+            ReturnedQuantity: { type: DataTypes.INTEGER, field: 'ReturnedQuantity' },
+            StockItemId: { type: DataTypes.BIGINT, field: 'StockItemId' },
+            StockSerialItemId: { type: DataTypes.BIGINT, field: 'StockSerialItemId' },
+            BatchId: { type: DataTypes.STRING, field: 'BatchId' },
+            ExpiryDate: { type: DataTypes.DATE, field: 'ExpiryDate' },
+            Rate: { type: DataTypes.DECIMAL, field: 'Rate' },
+            Amount: { type: DataTypes.DECIMAL, field: 'Amount' },
+            GrossAmount: { type: DataTypes.DECIMAL, field: 'GrossAmount' },
+            GrossGstAmount: { type: DataTypes.DECIMAL, field: 'GrossGstAmount' },
+            DiscountPercentage: { type: DataTypes.DECIMAL, field: 'DiscountPercentage' },
+            UnitDiscountAmount: { type: DataTypes.DECIMAL, field: 'UnitDiscountAmount' },
+            DiscountAmount: { type: DataTypes.DECIMAL, field: 'DiscountAmount' },
+            UnitProportionateDiscount: { type: DataTypes.DECIMAL, field: 'UnitProportionateDiscount' },
+            ProportionateDiscount: { type: DataTypes.DECIMAL, field: 'ProportionateDiscount' },
+            DoctorDiscountAmount: { type: DataTypes.DECIMAL, field: 'DoctorDiscountAmount' },
+            EducationCess: { type: DataTypes.DECIMAL, field: 'EducationCess' },
+            GstId: { type: DataTypes.BIGINT, field: 'GstId' },
+            GstPercentage: { type: DataTypes.DECIMAL, field: 'GstPercentage' },
+            UnitGstAmount: { type: DataTypes.DECIMAL, field: 'UnitGstAmount' },
+            GstAmount: { type: DataTypes.DECIMAL, field: 'GstAmount' },
+            InGstId: { type: DataTypes.BIGINT, field: 'InGstId' },
+            InGstPercentage: { type: DataTypes.DECIMAL, field: 'InGstPercentage' },
+            UnitInGstAmount: { type: DataTypes.DECIMAL, field: 'UnitInGstAmount' },
+            InGstAmount: { type: DataTypes.DECIMAL, field: 'InGstAmount' },
+            CGstId: { type: DataTypes.BIGINT, field: 'CGstId' },
+            CGstPercentage: { type: DataTypes.DECIMAL, field: 'CGstPercentage' },
+            UnitCGstAmount: { type: DataTypes.DECIMAL, field: 'UnitCGstAmount' },
+            CGstAmount: { type: DataTypes.DECIMAL, field: 'CGstAmount' },
+            SGstId: { type: DataTypes.BIGINT, field: 'SGstId' },
+            SGstPercentage: { type: DataTypes.DECIMAL, field: 'SGstPercentage' },
+            UnitSGstAmount: { type: DataTypes.DECIMAL, field: 'UnitSGstAmount' },
+            SGstAmount: { type: DataTypes.DECIMAL, field: 'SGstAmount' },
+            NetAmountBeforeGST: { type: DataTypes.DECIMAL, field: 'NetAmountBeforeGST' },
+            NetAmount: { type: DataTypes.DECIMAL, field: 'NetAmount' },
+            ReceivedAmount: { type: DataTypes.DECIMAL, field: 'ReceivedAmount' },
+            DoctorId: { type: DataTypes.BIGINT, field: 'DoctorId' },
+            DoctorName: { type: DataTypes.STRING, field: 'DoctorName' },
+            IsPackageItem: { type: DataTypes.BOOLEAN, field: 'IsPackageItem' },
+            PackageId: { type: DataTypes.BIGINT, field: 'PackageId' },
+            PackageName: { type: DataTypes.STRING, field: 'PackageName' },
+            OrderId: { type: DataTypes.BIGINT, field: 'OrderId' },
+            OrderDetailId: { type: DataTypes.BIGINT, field: 'OrderDetailId' },
+            OrderTypeId: { type: DataTypes.BIGINT, field: 'OrderTypeId' },
+            OrderStatusId: { type: DataTypes.BIGINT, field: 'OrderStatusId' },
+            OrderDateTime: { type: DataTypes.DATE, field: 'OrderDateTime' },
+            OTRegisterId: { type: DataTypes.BIGINT, field: 'OTRegisterId' },
+            ProcedureId: { type: DataTypes.BIGINT, field: 'ProcedureId' },
+            PrescriptionId: { type: DataTypes.BIGINT, field: 'PrescriptionId' },
+            PrescriptionDetailId: { type: DataTypes.BIGINT, field: 'PrescriptionDetailId' },
+            PrescriptionTypeId: { type: DataTypes.BIGINT, field: 'PrescriptionTypeId' },
+            PrescriptionStatusId: { type: DataTypes.BIGINT, field: 'PrescriptionStatusId' },
+            PrescriptionDate: { type: DataTypes.DATE, field: 'PrescriptionDate' },
+            ServiceRateCategoryId: { type: DataTypes.BIGINT, field: 'ServiceRateCategoryId' },
+            ServiceRateCategoryName: { type: DataTypes.STRING, field: 'ServiceRateCategoryName' },
+            IsModified: { type: DataTypes.BOOLEAN, field: 'IsModified' },
+            IsSupplementary: { type: DataTypes.BOOLEAN, field: 'IsSupplementary' },
+            IsBillable: { type: DataTypes.BOOLEAN, field: 'IsBillable' },
+            IsPharmacyCredit: { type: DataTypes.INTEGER, field: 'IsPharmacyCredit' },
+            IsPharmacySale: { type: DataTypes.BOOLEAN, field: 'IsPharmacySale' },
+            PharmacySaleTypeId: { type: DataTypes.BIGINT, field: 'PharmacySaleTypeId' },
+            IsPharmacyReturn: { type: DataTypes.BOOLEAN, field: 'IsPharmacyReturn' },
+            PharmacyReturnTypeId: { type: DataTypes.BIGINT, field: 'PharmacyReturnTypeId' },
+            IsDoctorDiscount: { type: DataTypes.BOOLEAN, field: 'IsDoctorDiscount' },
+            IsGstDoctor: { type: DataTypes.BOOLEAN, field: 'IsGstDoctor' },
+            StartDateTime: { type: DataTypes.DATE, field: 'StartDateTime' },
+            EndDateTime: { type: DataTypes.DATE, field: 'EndDateTime' },
+            DiscountTypeId: { type: DataTypes.BIGINT, field: 'DiscountTypeId' },
+            DiscountModeId: { type: DataTypes.BIGINT, field: 'DiscountModeId' },
+            DiscountAuthorizedBy: { type: DataTypes.INTEGER, field: 'DiscountAuthorizedBy' },
+            DoctorShare: { type: DataTypes.DECIMAL, field: 'DoctorShare' },
+            ReferalShare: { type: DataTypes.DECIMAL, field: 'ReferalShare' },
+            CNAmount: { type: DataTypes.DECIMAL, field: 'CNAmount' },
+            CancelReason: { type: DataTypes.STRING, field: 'CancelReason' },
+            CancelledBy: { type: DataTypes.BIGINT, field: 'CancelledBy' },
+            IsInvoicedDoctorShare: { type: DataTypes.INTEGER, field: 'IsInvoicedDoctorShare' },
+            ItemMasterId: { type: DataTypes.BIGINT, field: 'ItemMasterId' },
+            ItemCode: { type: DataTypes.STRING, field: 'ItemCode' },
+            ItemName: { type: DataTypes.STRING, field: 'ItemName' },
+            ScheduleTypeId: { type: DataTypes.BIGINT, field: 'ScheduleTypeId' },
+            ScheduleTypeDescription: { type: DataTypes.STRING, field: 'ScheduleTypeDescription' },
+            GenericId: { type: DataTypes.BIGINT, field: 'GenericId' },
+            GenericName: { type: DataTypes.STRING, field: 'GenericName' },
+            IsPrescribed: { type: DataTypes.BOOLEAN, field: 'IsPrescribed' },
+            ManufacturerId: { type: DataTypes.BIGINT, field: 'ManufacturerId' },
+            ManufacturerName: { type: DataTypes.STRING, field: 'ManufacturerName' },
+            StoreMasterId: { type: DataTypes.BIGINT, field: 'StoreMasterId' },
+            DepartmentId: { type: DataTypes.BIGINT, field: 'DepartmentId' },
+            IsNightCharge: { type: DataTypes.BOOLEAN, field: 'IsNightCharge' },
+            Comments: { type: DataTypes.STRING, field: 'Comments' },
+            Status: { type: DataTypes.INTEGER, field: 'Status' },
+            Rev: { type: DataTypes.INTEGER, field: 'Rev' },
+            CreatedBy: { type: DataTypes.INTEGER, field: 'CreatedBy' },
+            CreatedAt: { type: DataTypes.DATE, field: 'CreatedAt' },
+            UpdatedBy: { type: DataTypes.INTEGER, field: 'UpdatedBy' },
+            UpdatedAt: { type: DataTypes.DATE, field: 'UpdatedAt' },
+        },
+            {
+                indexes: [],
+                timestamps: true,
+                tableName: 'modifiedpatientbillcategorydetails',
+                createdAt: 'CreatedAt',
+                updatedAt: 'UpdatedAt',
+                freezeTableName: true,
+                defaultScope: {
+                    where: {
+                        Status: 1
+                    }
+                }
+            });
+
+    (ModifiedPatientBillCategoryDetails as any).associate = function (models: Models) {
+        ModifiedPatientBillCategoryDetails.belongsTo(models.Department);
+        ModifiedPatientBillCategoryDetails.belongsTo(models.ServiceItem, { foreignKey: 'ServiceId' });
+        ModifiedPatientBillCategoryDetails.belongsTo(models.ServiceCategory, { foreignKey: 'ServiceCategoryId' });
+        ModifiedPatientBillCategoryDetails.belongsTo(models.User, { as: 'CreatedUser', foreignKey: 'CreatedBy' });
+        ModifiedPatientBillCategoryDetails.belongsTo(models.User, { foreignKey: 'DoctorId' });
+        ModifiedPatientBillCategoryDetails.belongsTo(models.StoreMaster, { foreignKey: 'StoreMasterId' });
+        ModifiedPatientBillCategoryDetails.belongsTo(models.ItemMaster, { foreignKey: 'ItemMasterId' });
+        ModifiedPatientBillCategoryDetails.belongsTo(models.Encounter);
+        ModifiedPatientBillCategoryDetails.belongsTo(models.ReferenceValue,
+            { as: 'PatientBillStatus', targetKey: 'ReferenceValueCodeId' });
+        ModifiedPatientBillCategoryDetails.belongsTo(models.OrderStatus);
+    };
+    return ModifiedPatientBillCategoryDetails;
+}

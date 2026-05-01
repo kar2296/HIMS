@@ -1,0 +1,308 @@
+<html>
+
+<head>
+    <style>
+        .content * {
+            font-size: 12px;
+            font-family: sans-serif;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .bot {
+            border: 1px solid !important;
+        }
+
+        .bot td {
+            border: 0px !important;
+            padding: 05px;
+        }
+
+        td {
+            vertical-align: top;
+        }
+
+        .bot tr {
+            border-bottom: 1px solid black !important;
+        }
+
+        .bot-top {
+            border: 1px solid black;
+            border-bottom: 0px;
+        }
+
+        .bot-top td {
+            padding: 5px;
+        }
+
+        [bot-right] {
+            border-right: 1px solid black !important;
+        }
+
+        .bot [bot-right] {
+            border-right: 1px solid black !important;
+        }
+
+        .tab2 tr:last-child {
+            border-bottom: 0px !important;
+        }
+        {{include '/Templates/assets/css/core.css'}}
+    </style>
+</head>
+
+
+<body style="padding-left:55px;padding-right:45px;">
+    <div id="pageHeader">
+            {{{include '/Templates/jsshospital/common/header.tpl.html' 'tpl'}}}
+        </div>
+    <div id="pageFooter">
+        {{{include '/Templates/jsshospital/common/footer.tpl.html' 'tpl'}}}
+    </div>
+    <div class="content">
+        <h3 align="center" style="font-size: 18px;margin-top:10px">
+            Admission Slip
+        </h3>
+        <table class="size" style="width: 100%;padding-right:10px;">
+            <tr>
+                <td style="width:11%">Patient Name</td>
+                <td style="width:25%"><b>: {{data.Patient.Title.Description}} {{data.Patient.FirstName}}
+                        {{data.Patient.LastName}}</b></td>
+                <td rowspan="5" style="vertical-align: middle;width:23%">
+                    <div>UHID : <b>: {{data.Patient.MRN}}</div>
+                    <div> <img style="height: 25px; width: 100px;" src="{{barcode data.Patient.MRN}}" /></div>
+                </td>
+                <td style="width:11%">Requested No</td>
+                <td style="width:20%"><b>: {{data.AdmissionRequest.RequestIdentifier}}</td>
+            </tr>
+            <tr>
+                <td>DOB</td>
+                <td>: {{strtodate data.Patient.DOB}}</td>
+                <td>Requested On</td>
+                <td>: {{datetimeformat data.AdmissionRequest.UpdatedAt}}</td>
+            </tr>
+            <tr>
+                <td>Age / Gender</td>
+                <td><b>: {{age data.Patient.DOB}} / {{data.Patient.Gender.Description}}</td>
+                <td>Advised By</td>
+                <td><b>: {{data.AdmissionRequest.Doctor.Title.Description}}
+                        {{data.AdmissionRequest.Doctor.FirstName}}
+                        {{data.AdmissionRequest.Doctor.LastName}}</b></td>
+            </tr>
+            <tr>
+                <td>OP No</td>
+                <td>: {{data.AdmissionRequest.RequestIdentifier}}</td>
+                <td>STATUS</td>
+                <td><b>: {{data.AdmissionRequest.AdmissionRequestStatus.Description}}</b></td>
+            </tr>
+            <tr>
+                <td style="padding-top:10px;">Address</td>
+                <td colspan="3" style="padding-top:10px;">
+                    : {{data.Patient.AddressLine1}},
+                    {{data.Patient.AddressLine2}},
+                    {{data.Patient.Pincode}},
+                    {{data.Patient.CityMaster.CityName}},
+                    {{data.Patient.DistrictMaster.DistrictName}},
+                    {{data.Patient.StateMaster.StateName}},
+                    {{data.Patient.CountryMaster.CountryName}},
+                    PinCode - {{data.Patient.Pincode}}
+                </td>
+            </tr>
+        </table>
+
+        <br>
+        <table class="bot-top">
+            <tr>
+                <td style="width: 25%;"><b>Admission Type</b></td>
+                <td>: {{data.AdmissionRequest.AdmissionRequestType.Description}}
+                </td>
+            </tr>
+        </table>
+        <table class="bot-top">
+            <tr>
+                <td style="width: 25%;"><b>Admitting Doctor</b></td>
+                <td style="width: 25%;">: {{data.AdmissionRequest.AdvisedDoctor.Title.Description}}
+                    {{data.AdmissionRequest.AdvisedDoctor.FirstName}}
+                    {{data.AdmissionRequest.AdvisedDoctor.LastName}}
+                </td>
+                <td style="width: 15%;"><b>Speciality</b></td>
+                <td style="width: 35%;">:  {{data.AdmissionRequest.AdvisedDoctor.UserDept.DepartmentName}}</td>
+            </tr>
+        </table>
+        <table class="bot">
+            <tr>
+                <td style="width: 25%;">
+                    <b>Advised Date & Time</b>
+                </td>
+                <td colspan="3">
+                    : {{datetimeformat data.AdmissionRequest.AdvisedDateTime}}
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <b>Provisional Diagnosis</b>
+                </td>
+                <td colspan="3">
+                    : {{data.AdmissionRequest.DiagnosisName}}
+                </td>
+            </tr>
+            <tr>
+                <td><b>Reason For Adimission</b></td>
+                <td colspan="3">: {{data.AdmissionRequest.AdmittingRequestReason.Description}}</td>
+            </tr>
+            <tr>
+                <td><b>Surgery and Procedures Name</b></td>
+                <td colspan="3">
+                    : {{data.AdmissionRequest.SurgProceduresNotes}}
+                </td>
+            </tr>
+            <tr>
+                <td><b>Blood Product Requirements</b></td>
+                <td colspan="3">
+                    : {{data.AdmissionRequest.YesNo.Description}}
+                </td>
+            </tr>
+            <tr>
+                <td><b>Expected Duration of Stay:</b></td>
+                <td colspan="3">
+                    : {{data.AdmissionRequest.ExpectedStayDuration}}
+                </td>
+            </tr>
+            <tr>
+                <td><b>Expected Cost of Treatment</b></td>
+                <td colspan="3">
+                    : {{data.AdmissionRequest.ExpectedCost}}
+                </td>
+            </tr>
+            <tr>
+                <td><b>Billing Type</b></td>
+                <td colspan="3">
+                    : {{data.AdmissionRequest.Payer.Description}}
+                </td>
+            </tr>
+            <tr height="120" >
+                <td><b>Instructions to Nurse</b></td>
+                <td colspan="3">
+                    : {{data.AdmissionRequest.NurseInstruction}}
+                </td>
+            </tr>
+            <tr height="120">
+                <td><b>Any Other Instruction</b></td>
+                <td colspan="3">
+                    : {{data.AdmissionRequest.OtherInstruction}}
+                </td>
+            </tr>
+        </table>
+       <!--<table class="bot" style="border-top:0px !important;">
+            <tr>
+                <td bot-right style="width: 25%;padding-bottom: 20px !important;">Doctor Signature</td>
+                <td bot-right style="width: 25%;padding-bottom: 20px !important;">Name</td>
+                <td bot-right style="width: 20%;padding-bottom: 20px !important;">Reg.No</td>
+                <td bot-right style="width: 15%;padding-bottom: 20px !important;">Date</td>
+                <td style="width: 15%;padding-bottom: 20px !important;">Time</td>
+            </tr>
+        </table>
+        <table class="bot" style="border-top:0px !important;">
+            <td>For Admission desk staff only:</td>
+        </table>
+        <table class="bot" style="border-top:0px !important;">
+            <tr>
+                <td style="width: 20%;">Room Category:</td>
+                <td>
+                    <div><input type="checkbox"> General Ward</div>
+                    <div><input type="checkbox"> Semi-Private</div>
+                    <div><input type="checkbox"> Private</div>
+                    <div><input type="checkbox"> Deluxe</div>
+                    <div><input type="checkbox"> Super Delux</div>
+                    <div><input type="checkbox"> Suite</div>
+                    <div><input type="checkbox"> Others</div>
+                </td>
+            </tr>
+        </table>
+        <table class="bot" style="border-top:0px !important;border-bottom:0px !important;">
+            <tr>
+                <td bot-right style="padding: 0 !important;">
+                    <table class="tab2">
+                        <tr>
+                            <td colspan="2">Admission Intimation Receipt Details</td>
+                        </tr>
+                        <tr>
+                            <td bot-right>Date</td>
+                            <td>Time</td>
+                        </tr>
+                        <tr>
+                            <td height="50" bot-right></td>
+                            <td height="50"></td>
+                        </tr>
+                    </table>
+                </td>
+                <td style="padding: 0 !important;">
+                    <table class="tab2">
+                        <tr>
+                            <td colspan="2">Admission Time in HIS</td>
+                        </tr>
+                        <tr>
+                            <td bot-right>Date</td>
+                            <td>Time</td>
+                        </tr>
+                        <tr>
+                            <td height="50" bot-right></td>
+                            <td height="50"></td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
+        <table class="bot" style="border-top:0px !important;">
+            <tr>
+                <td style="width: 20%;">Source:</td>
+                <td>
+                    <div><input type="checkbox"> OPD</div>
+                    <div><input type="checkbox"> ER</div>
+                    <div><input type="checkbox"> Direct</div>
+                </td>
+            </tr>
+        </table>
+        <table class="bot" style="border-top:0px !important;">
+            <tr>
+                <td>
+                    To be Filled only if blood requirement specified by the doctor
+                </td>
+            </tr>
+            <tr>
+                <td>Is Blood Reservation and Blood Bank Clearance completed as advisied: <input type="checkbox"> Yes
+                    <input type="checkbox"> NO
+                </td>
+            </tr>
+        </table>
+        <table class="bot" style="border-top:0px !important;">
+            <tr>
+                <td bot-right style="width: 25%;padding-bottom: 20px !important;">PCS Staff Signature</td>
+                <td bot-right style="width: 25%;padding-bottom: 20px !important;">Name</td>
+                <td bot-right style="width: 20%;padding-bottom: 20px !important;">Emp.No</td>
+                <td bot-right style="width: 15%;padding-bottom: 20px !important;">Date</td>
+                <td style="width: 15%;padding-bottom: 20px !important;">Time</td>
+            </tr>
+        </table>-->
+        <br>
+        <table>
+            <tr>
+                <td style="width:20%;"></td>
+                <td style="width:60%;"></td>
+                <td align="center"><b> {{data.AdmissionRequest.AdvisedDoctor.Title.Description}}
+                    {{data.AdmissionRequest.AdvisedDoctor.FirstName}}
+                    {{data.AdmissionRequest.AdvisedDoctor.LastName}}</b></td>
+            </tr>
+            <tr>
+                <td style="width:20%;padding-top:10px;"><b style="font-size:10px !important;">Staff Signature</b></td>
+                <td style="width:60%;"></td>
+                <td align="center" style="padding-top:10px;"><b style="font-size:10px !important;">Consultant Signature</b></td>
+            </tr>
+        </table>
+
+    </div>
+</body>
+
+</html>

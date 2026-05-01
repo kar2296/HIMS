@@ -1,0 +1,190 @@
+<html>
+
+<head>
+    <style>
+        .table1 {
+            border: 1px solid black;
+            border-bottom: 0px solid black;
+            text-align: center;
+            font-size: 10px;
+        }
+
+        .table2 {
+            border: 1px solid black;
+            border-bottom: 0px solid black;
+            text-align: left;
+            font-size: 10px;
+        }
+
+        .table3 {
+            border: 1px solid black;
+            border-bottom: 1px solid black;
+            font-size: 10px;
+        }
+
+        .border {
+            border-collapse: collapse;
+            border-left: 1px solid black;
+            font-size: 10px;
+        }
+
+        .table4 {
+            border: 1px solid black;
+            border-bottom: 0px solid black;
+            text-align: left;
+            font-size: 10px;
+        }
+
+        .size {
+            font-size: 10px;
+        }
+{{include '/Templates/assets/css/core.css'}}
+        </style>
+    </head>
+    <body style="padding: 20px;">
+	 <div id="pageHeader">
+        {{{include '/Templates/jmhospital/common/header.tpl.html' 'tpl'}}}
+    </div>
+
+    <table class="table1" style="width:100%;">
+        <tr>
+            <td style="vertical-align:text-middle;font-size: 1.2em;"><b>Cancelled/Partially Cancelled Bill</b></td>
+        </tr>
+    </table>
+    <table class="table2" style="width:100%;">
+        <tr>
+            <td style="width:15%;"><b>Name</b></td>
+            <td>:</td>
+            <td style="width:35%;"><b>{{data.Patient.Title.Description}} {{data.Patient.FirstName}} {{data.Patient.MiddleName}} {{data.Patient.LastName}}</b></td>
+            <td style="width:5%;"><b>Age</b></td>
+            <td>:</td>
+            <td style="width:10%;">{{ageonlyyear data.Patient.DOB}}</td>
+            <td style="width:15%;"><b>MR NO</b></td>
+            <td>:</td>
+            <td style="width:20%;"><b>{{data.Patient.MRN}}</b></td>
+
+        </tr>
+        <tr>
+            <td><b>Contact No</b></td>
+            <td>:</td>
+            <td>{{data.Patient.Mobile}}</td>
+            <td><b>Gender</b></td>
+            <td>:</td>
+            <td>{{data.Patient.Gender.Description}}</td>
+            <td colspan="3"><img style="height: 30px; width: 100px;" src="{{barcode data.Patient.MRN}}" /></td>
+        </tr>
+
+        <tr>
+            <td style="vertical-align:text-top"><b>Address</b></td>
+            <td style="vertical-align:text-top">:</td>
+            <td colspan="4">{{data.Patient.AddressLine1}} {{data.Patient.Area}}<br>{{data.Patient.City}} {{data.Patient.State}}{{data.Patient.Pincode}}<br>{{data.Patient.Country}}</td>
+            <td style="vertical-align:text-top"><b>OP/IP/ER NO</b></td>
+            <td style="vertical-align:text-top">:</td>
+            <td style="vertical-align:text-top">{{data.Encounter.VisitIdentifier}}</td>
+        </tr>
+
+    </table>
+    <table class="table2" style="width:100%;">
+        <tr>
+            <td style="width:15%;"><b>Doctor Name</b></td>
+            <td>:</td>
+            <td style="width:50%;" colspan="4">{{data.PatientBills.User.Title.Description}} {{data.PatientBills.User.FirstName}} {{data.PatientBills.User.LastName}} ({{data.PatientBills.Department.DepartmentName}})</td>
+
+            <td style="width:13%;"><b>Bill No</b></td>
+            <td>:</td>
+            <td style="width:22%;">{{data.PatientBills.BillNumber}}</td>
+        </tr>
+          <tr>
+            <td><b>Guarantor</b></td>
+            <td>:</td>
+            <td colspan="4">{{data.PatientBills.GuarantorName}}</td>
+            <td><b>Bill Date</b></td>
+            <td>:</td>
+            <td>{{datetimeformat data.PatientBills.BillDateTime}}</td>
+        </tr>
+    </table>
+    <table class="table2" style="width:100%;">
+        <tr>
+            <th style="width:5%" align="left">S.No</th>
+            <th style="width:40%" align="left">Description</th>
+            <th style="width:15%" align="left">Department</th>
+            <th style="width:5%" align="left">Qty</th>
+            <th style="width:10%" align="left">Rate</th>
+            <th style="width:10%" align="left">Discount</th>
+            <th style="width:15%" align="left">Net Amount</th>
+
+        </tr>
+    </table>
+
+    <table class="table4" style="width:100%">{{#each data.BillDetails}}
+        <tr>
+            <td style="width:5%">{{inc @index}}</td>
+            <td style="width:40%">{{ServiceName}}</td>
+            <td style="width:15%">{{Department.DepartmentName}}</td>
+            <td style="width:5%">{{Quantity}}</td>
+            <td style="width:10%">{{currencyformat Rate}}</td>
+            <td style="width:10%">{{currencyformat DiscountAmount}}</td>
+            <td style="width:15%">{{currencyformat NetAmount}}</td>
+        </tr>
+        {{/each}}
+    </table>
+   <table class="table2" style="width:100%">
+        <tr>
+            <td style="width:15%;"><b>Bill Status</b></td>
+            <td>:</td>
+            <td style="width:60%;"><b>Cancelled</b></td>
+            <td style="width:10%;">Total</td>
+            <td style="width:15%;">{{currencyformat data.PatientBills.BillAmount}}</td>
+        </tr>
+        <tr>
+            <td><b>Cancelled Reasons<b></td>
+            <td>:</td>
+            <td><b>{{data.PatientBills.CancelReason}}</b></td>
+            <td>Discount</td>
+            <td>{{currencyformat data.PatientBills.BillDiscount}}</td>
+        </tr>
+        <tr>
+			<td></td>
+            <td></td>
+            <td></td>
+            <td>Net Amount</td>
+            <td>{{currencyformat data.NetAmount}}</td>
+        </tr>
+        <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td>Paid</td>
+            <td>{{currencyformat data.PatientBills.PaidAmount}}</td>
+        </tr>
+        <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td>Due</td>
+            <td>{{currencyformat data.PatientBills.OutStandingAmount}}</td>
+        </tr>
+    </table>
+    <table class="table3" style="width:100%;">
+        <tr>
+            <td colspan="8"><u>Receipt Details</u></td>
+        </tr>
+        <tr>{{#each data.PatientPaymentDetails}}
+            <td colspan="8"><b>{{ReceiptNumber}} {{datetimeformat ReceiptDateTime}} {{currencyformat AmountPaid}} {{PaymentType.Description}} {{Bank.Description}}</b></td>
+        </tr>{{/each}}
+       <tr>
+            <td ><u>Refund Details</u></td>
+			 <td style="width:20%;" colspan="4">{{data.PatientBills.CancelledUser.Title.Description}} {{data.PatientBills.CancelledUser.FirstName}} {{data.PatientBills.CancelledUser.LastName}}</td>
+        </tr>
+        <tr>
+            <td ><u>{{data.PatientRefund.Refundidentifier}}  {{data.PatientRefund.RefundDateTime}}</u></td>
+            <td colspan="4">Cancelled By</td>
+        </tr>
+      <tr>
+            <td></td>
+        </tr>
+      </table>
+                    <div style="width:100%; font-size:10px;">Printed On: {{now}}</div>
+</body>
+
+</html>

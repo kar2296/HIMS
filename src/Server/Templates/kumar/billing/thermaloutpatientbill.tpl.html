@@ -1,0 +1,136 @@
+<html>
+
+<head>
+    <style>
+        * {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: 10px;
+        }
+
+        .bill-info table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .doted-lines {
+            border-bottom: 1px dotted black;
+            line-height: 20px;
+        }
+
+        .header {
+            text-align: center;
+        }
+
+        td {
+            vertical-align: top;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        {{{data.Preferences.printheader}}}
+    </div>
+    <div class="content">
+        <h3 align="center">OP Bill</h3>
+        <div class="bill-info">
+            <table>
+                <tr>
+                    <td style="width: 10%;">Name</td>
+                    <td style="width: 45%;"> : {{data.PatientBills.Patient.Title.Description}}
+                        {{data.PatientBills.Patient.FirstName}} </td>
+                    <td style="width: 10%;">Bill</td>
+                    <td style="width: 35%;"> : {{data.PatientBills.BillNumber}}</td>
+                </tr>
+                <tr>
+                    <td>Age/Sex</td>
+                    <td> : {{setVariable 'GenderId' data.PatientBills.Patient.GenderId}}
+                        ({{ageonlyyear
+                        data.PatientBills.Patient.DOB}}/ {{#ifCond 'g.GenderId' '==' 1}} M {{/ifCond}}
+                        {{#ifCond 'g.GenderId' '==' 2}} F {{/ifCond}} )
+                    </td>
+                    <td>MRNo</td>
+                    <td> : {{data.PatientBills.Patient.MRN}}</td>
+                </tr>
+                <tr>
+                    <td>Date</td>
+                    <td> : {{datetimeformat data.PatientBills.BillDateTime}}</td>
+                    <td>Visit</td>
+                    <td> : {{data.Encounter.VisitIdentifier}}</td>
+                </tr>
+            </table>
+            <br>
+            <div class="doted-lines"></div>
+            <table>
+                <thead>
+                    <th style="width: 70%;">
+                        <div class="doted-lines" style="width: 20%; text-align: left;">Charges</div>
+                    </th>
+                    <th style="width: 30%;">
+                        <div class="doted-lines">Amount</div>
+                    </th>
+                </thead>
+                <tbody>
+                    {{#each data.BillDetails}}
+                    {{setVariable 'PatientBillStatusId' PatientBillStatusId}} {{setVariable 'ServiceName' ServiceName}}
+                    <tr>
+                        <td>
+                            {{#ifCond 'g.PatientBillStatusId' '==' 2}}
+                            <strike> {{getVariable 'g.ServiceName'}}</strike> {{/ifCond}} {{#ifCond
+                            'g.PatientBillStatusId' '!=' 2}}
+                            {{getVariable 'g.ServiceName'}} {{/ifCond}}
+                            <br>
+                            <div>{{#each ServiceItem.ServiceItemPackageMaps}}</div>
+                            <div></div>{{/each}}
+                        </td>
+                        <td align="end">
+                            ₹ {{NetAmount}}
+                        </td>
+                    </tr>
+                    {{/each}}
+                    {{#if data.PatientBills.BillDiscount}}
+                    <tr>
+                        <td align="end">Discount</td>
+                        <td align="end"><span align="end">: ₹ {{data.PatientBills.BillDiscount}}</span></td>
+                    </tr>
+                    {{/if}}
+                    <tr>
+                        <td align="end">Bill Amount</td>
+                        <td align="end">: ₹ {{data.NetAmount}}</td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="doted-lines" style="margin-top: 10px;"></div>
+            <p style="text-transform: capitalize;">Recived With Thanks : {{decimalnrInWords1
+                data.NetAmount}} only</p>
+            <table>
+                <tr>
+                    <td colspan="8"><u>Receipt Details</u></td>
+                </tr>
+                <tr>{{#each data.PatientPaymentDetails}}
+                    <td colspan="8"><b>{{ReceiptType.Description}} ,{{ReceiptNumber}} {{#if ReceiptDateTime}} , {{/if}}
+                            {{datetimeformat ReceiptDateTime}} {{#if AmountPaid}} , {{/if}} ₹ {{AmountPaid}} {{#if
+                            PaymentType.Description}} , {{/if}} {{PaymentType.Description}} {{#if Bank.Description}} ,
+                            {{/if}}
+                            {{Bank.Description}} {{#if AuthorizedCode}} , {{/if}} {{AuthorizeNumber}} {{#if
+                            AuthorizeNumber}} ,
+                            {{/if}} {{AuthorizedCode}}</b></td>
+                </tr>{{/each}}
+                <tr>
+                    <td colspan="8">{{#if data.PatientRefund.RefundIdentifier}}
+                        <u>Refund Details</u>{{/if}}
+                    </td>
+                </tr>
+                <tr>{{#each data.PatientRefund}}
+                    <td colspan="8"><b>{{RefundIdentifier}} {{#if RefundIdentifier}} , {{/if}} {{#if RefundDateTime}}
+                            {{datetimeformat RefundDateTime}} {{/if}} {{#if RefundDateTime}} , {{/if}} {{#if
+                            RefundAmount}}
+                            {{currencyformat RefundAmount}} {{/if}}</b></td>
+                </tr>{{/each}}
+            </table>
+            <h4>Signature</h4>
+        </div>
+    </div>
+</body>
+
+</html>

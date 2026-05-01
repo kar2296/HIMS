@@ -1,0 +1,20 @@
+import {Router, GetRouter } from '../../../Core/Index';
+import CostDetail from './CostDetailRoute';
+import RadiationBatches from './RadiationBatchesRoute';
+import PowerCost from './PowerCostRoute';
+import LabourCost from './LabourCostRoute';
+import Depreciation from './DepreciationRoute';
+import Consumables from './ConsumablesRoute';
+import NotionalRent from './NotionalRentRoute';
+import Statistics from './StatisticsRoute';
+
+let router: Router = GetRouter();
+router.use('/CostDetail', CostDetail);
+router.use('/RadiationBatches', RadiationBatches);
+router.use('/PowerCost', PowerCost);
+router.use('/LabourCost', LabourCost);
+router.use('/Depreciation', Depreciation);
+router.use('/Consumables', Consumables);
+router.use('/NotionalRent', NotionalRent);
+router.use('/Statistics', Statistics);
+export default router;

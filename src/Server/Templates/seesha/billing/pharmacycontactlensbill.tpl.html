@@ -1,0 +1,266 @@
+<html>
+
+<head>
+    <style>
+        .table1 {
+            border: 1px solid black;
+            border-bottom: 0px solid black;
+            text-align: center;
+            font-size:18px;
+        }
+
+        .table2 {
+            border: 1px solid black;
+            border-bottom: 1px solid black;
+            border-top: 1px solid black;
+            text-align: left;
+            font-size:18px;
+            border-collapse: collapse;
+        }
+
+        .table3 {
+            border: 1px solid black;
+            border-bottom: 1px solid black;
+            font-size:8px;
+        }
+
+        .border {
+            border-collapse: collapse;
+            border-left: 1px solid black;
+            font-size:18px;
+        }
+
+        .table4 {
+            /*border: 1px solid black;
+            border-bottom: 0px solid black;
+            border-top: 1px solid black;*/
+            text-align: left;
+            font-size:18px;
+        }
+
+        .table5 {
+            /*border: 1px solid black;
+            border-bottom: 0px solid black;*/
+            text-align: center;
+            font-size: 10px;
+        }
+
+        .table6 {
+            /*border: 1px solid black;
+            border-bottom: 0px solid black;*/
+            text-align: left;
+            font-size:18px;
+        }
+.pageheader table tr td{
+		padding-left:15px;
+	}
+        .size {
+            font-size:18px;
+        }
+
+        {{include '/Templates/assets/css/core.css'}}
+    </style>
+</head>
+
+<body>
+    <div id="pageHeader"class="pageheader">
+        {{{include '/Templates/chaithanya/common/header.tpl.html' 'tpl'}}}
+    </div>
+    <table class="table6" style="width:100%; border-top: 1px solid black;" >
+        <tr></tr>
+        <tr>
+            <td style="width:15%;"><b>GST #</b></td>
+            <td>:</td>
+            <td style="width:20%;"><b>{{data.PatientBills.StoreMaster.TinNo}}</b></td>
+            <td style="width:10%;"><b></b></td>
+            <td style="width:20%;"><b></b></td>
+            <td style="width:15%;"><b>Invoice No</b></td>
+            <td>:</td>
+            <td style="width:20%;"><b>{{data.PatientBills.BillNumber}}</b></td>
+        </tr>
+        <tr>
+            <td style="width:15%;"><b>Print Date</b></td>
+            <td>:</td>
+            <td style="width:20%;"><b>{{now}}</b></td>
+            <td style="width:10%;"><b></b></td>
+            <td style="width:20%;"><b></b></td>
+            <td style="width:15%;"><b>Sales Date</b></td>
+            <td>:</td>
+            <td style="width:20%;"><b>{{datetimeformat data.PatientBills.BillDateTime}}</b></td>
+        </tr>
+    </table>
+    <table class="table5" style="width:100%;">
+        <tr></tr>
+        <tr>
+            <td style="vertical-align:text-middle;font-size: 1.2em;"><b>INVOICE</b></td>
+        </tr>
+        <tr></tr>
+    </table>
+    <table class="table6" style="width:100%;">
+        <tr>
+            <td style="width:15%;"><b>Name</b></td>
+            <td>:</td>
+            <td style="width:20%;"><b>{{data.PatientBills.Patient.Title.Description}} {{data.PatientBills.Patient.FirstName}} {{data.PatientBills.Patient.MiddleName}}
+                {{data.PatientBills.Patient.LastName}}</b></td>
+            <td style="width:10%;"><b></b></td>
+            <td style="width:20%;"><b></b></td>
+            <td style="width:15%;"><b>OP #</b></td>
+            <td>:</td>
+            <td style="width:20%;"><b>{{data.PatientBills.Patient.MRN}}</b></td>
+
+        </tr>
+        <tr>
+            <td style="width:15%;"><b>Address</b></td>
+            <td>:</td>
+            <td style="width:20%;"><b>{{data.PatientBills.Patient.AddressLine1}}&nbsp;{{data.PatientBills.Patient.AddressLine2}}</b></td>
+            <td style="width:10%;"><b></b></td>
+            <td style="width:20%;"><b></b></td>
+            <td style="width:15%;"><b>Phone #</b></td>
+            <td>:</td>
+            <td style="width:20%;"><b>{{data.PatientBills.Patient.Mobile}}</b></td>
+        </tr>
+        <tr></tr>
+    </table>
+    <table border class="table2" style="width:100%;">
+        <tr>
+            <th style="width:3%" align="center">Sl #</th>
+            <th style="width:17%" align="left">Item</th>
+            <th style="width:13%" align="left">Group</th>
+            <th style="width:5%" align="center">Qty</th>
+            <th style="width:8%" align="right">Price</th>
+            <th style="width:8%" align="right">Gross</th>
+            <th style="width:8%" align="right">Disc</th>
+            <th style="width:8%" align="right">Value</th>
+            <th colspan="2" style="width:12%" align="center">CGST</th>
+            <th colspan="2" style="width:12%" align="center">SGST</th>
+            <th style="width:8%" align="left"></th>
+        </tr>
+
+        <tr>
+            <th colspan="8" style="width:68%" align="left"></th>
+            <th style="width:5%" align="center">Rate%</th>
+            <th style="width:7%" align="right">Amt</th>
+            <th style="width:5%" align="center">Rate%</th>
+            <th style="width:7%" align="right">Amt</th>
+            <th style="width:8%" align="right">Amount</th>
+        </tr>
+    </table>
+    <table class="table2" style="width:100%;">
+        {{#each data.BillDetails}}
+        <tr>
+            <td style="width:3%" align="center">{{inc @index}}</td>
+            <td style="width:17%"><b>{{ServiceName}}<b></td>
+            <td style="width:13%">{{ItemMaster.ProductType.ProductTypeName}}</td>
+            <td style="width:5%;" align="center"><b>{{Quantity}}</b></td>
+            <td style="width:8%" align="right">{{currencyformat Rate}}</td>
+            <td style="width:8%" align="right">{{currencyformat GrossAmount}}</td>
+            <td style="width:8%" align="right">{{currencyformat DiscountAmount}}</td>
+            <td style="width:8%" align="right">{{currencyformat NetAmountBeforeGST}}</td>
+            <td style="width:5%;" align="center">{{CGstPercentage}}</td>
+            <td style="width:7%" align="right">{{currencyformat CGstAmount}}</td>
+            <td style="width:5%;" align="center">{{SGstPercentage}}</td>
+            <td style="width:7%" align="right">{{currencyformat SGstAmount}}</td>
+            <td style="width:8%" align="right">{{currencyformat Amount}}</td>
+        </tr>
+        {{/each}}
+    </table>
+    <!--
+    <table class="table3" style="width:100%">
+         <tr>
+            <td style="width:5%"></td>
+            <td style="width:17%"></td>
+            <td style="width:6%"></td>
+            <td style="width:5%"></td>
+            <td style="width:13%"></td>
+                    <td style="width:7%"></td>
+            <td style="width:5%"></td>
+                    <td style="width:10%"><b>{{currencyformat data.WithoutTax}}</b></td>
+            <td style="width:5%"></td>
+                    <td style="width:7%"><b>{{currencyformat data.PatientBills.CGstAmount}}</b></td>
+                    <td style="width:5%"></td>
+                    <td style="width:7%"><b>{{currencyformat data.PatientBills.SGstAmount}}</b></td>
+                    <td style="width:8%"></td>
+         </tr>
+        </table>
+    -->
+    <table class="table2" style="width:100%;">
+
+        <tr>
+            <td rowspan="6" style="width:80%;font-size:10px">&nbsp;<br>&nbsp;<br> &nbsp;<br> &nbsp;<br>
+            </td>
+
+            <td style="width:10%;">Total</td>
+            <td>:</td>
+            <td style="width:10%;">{{currencyformat data.PatientBills.BillAmount}}</td>
+        </tr>
+        <tr>
+
+            <td>{{#if data.PatientBills.BillDiscount}} Discount {{/if}}</td>
+            <td>{{#if data.PatientBills.BillDiscount}}:{{/if}}</td>
+            <td>{{#if data.PatientBills.BillDiscount}} {{currencyformat data.PatientBills.BillDiscount}} {{/if}}</td>
+        </tr>
+        <tr>
+
+            <td>{{#if data.PatientBills.RoundOffValue}}Round Off {{/if}}</td>
+            <td>{{#if data.PatientBills.RoundOffValue}}: {{/if}}</td>
+            <td>{{#if data.PatientBills.RoundOffValue}} {{currencyformat data.PatientBills.RoundOffValue}} {{/if}}</td>
+        </tr>
+        <tr>
+
+            <td>Net Amount</td>
+            <td>:</td>
+            <td>{{currencyformat data.NetAmount}}</td>
+        </tr>
+        <tr>
+
+            <td>Advance Amount</td>
+            <td>:</td>
+            <td>{{currencyformat data.PatientBills.PaidAmount}}</td>
+        </tr>
+        <tr>
+
+            <td>{{#if data.PatientBills.OutStandingAmount}} Balance Paid {{/if}}</td>
+            <td>{{#if data.PatientBills.OutStandingAmount}}: {{/if}}</td>
+            <td>{{#if data.PatientBills.OutStandingAmount}} {{currencyformat data.PatientBills.OutStandingAmount}} {{/if}}</td>
+        </tr>
+
+    </table>
+    <table class="table4" style="width:100%;">
+        <br>
+        <tr>
+            <td style="width:10%;">Amount in words :</td>
+            <td style="width:90%;">Rupees {{decimalnrInWords data.NetAmount}} only.</td>
+        </tr>
+    </table>
+    <table class="table4" style="width:100%;">
+        <br>
+        <tr>
+            <td style="width:80%;"> </td>
+            <td style="width:20%;">Signature of the Authorized Person</td>
+        </tr>
+    </table>
+<!--
+    <table class="table3" style="width:100%;">
+        <tr>
+            <td colspan="8">
+                <u>Receipt Details</u>
+            </td>
+        </tr>
+        <tr>{{#each data.PatientPaymentDetails}}
+            <td colspan="8">{{ReceiptType.Description}} ,{{ReceiptNumber}} {{#if ReceiptDateTime}} , {{/if}} {{datetimeformat ReceiptDateTime}} {{#if AmountPaid}} , {{/if}} {{currencyformat AmountPaid}} {{#if PaymentType.Description}} , {{/if}} {{PaymentType.Description}} {{#if Bank.Description}} , {{/if}} {{Bank.Description}} {{#if AuthorizedCode}} , {{/if}} {{AuthorizedCode}}</td>
+        </tr>{{/each}}
+        <tr>
+            <td></td>
+            <td style="width:20%;" colspan="4">{{data.PatientBills.CreatedUser.Title.Description}} {{data.PatientBills.CreatedUser.FirstName}} {{data.PatientBills.CreatedUser.LastName}}</td>
+        </tr>
+        <tr>
+            <td> </td>
+            <td colspan="4">Authorized Signature</td>
+        </tr>
+    </table>
+
+    <div style="width:100%; font-size:10px;">Printed On: {{now}}</div>
+-->
+</body>
+
+</html>

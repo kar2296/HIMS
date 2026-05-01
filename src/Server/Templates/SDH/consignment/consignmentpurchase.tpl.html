@@ -1,0 +1,276 @@
+<html>
+
+<head>
+    <style>
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        td {
+            padding: 3px;
+            vertical-align: top;
+        }
+
+        * {
+            font-family: sans-serif;
+        }
+
+        th {
+            border: 1px !important;
+            border-top: 1px solid black !important;
+            border-bottom: 1px solid black !important;
+            padding-left: 4px;
+            padding-top: 6px;
+            padding-bottom: 6px;
+            font-size: 12px !important;
+        }
+
+        td {
+            border: 1px !important;
+            font-size: 12px !important;
+        }
+
+        b {
+            font-size: 12px !important;
+        }
+
+        .size td,
+        .size th {
+            border: 1px solid black !important;
+        }
+
+        .sub-total {
+            border: 0px !important;
+            border-top: 0px solid black !important;
+            border-bottom: 0px solid black !important;
+            width: 100%;
+        }
+        {{include '/Templates/hosmat/assets/css/core.css'}}
+    </style>
+</head>
+
+<body>
+    <div id="pageHeader">
+        {{#if data.Flags.header}}
+        {{{include '/Templates/hosmat/common/header.tpl.html' 'tpl'}}}
+        {{/if}}
+    </div>
+    <table style="width:100%;">
+        <tr>
+            <td height="20" style="vertical-align:text-middle; text-align: center;font-size: 22px;"><b>Consignment
+                    Purchase Order</b></td>
+        </tr>
+    </table>
+    <br>
+    <br>
+    <div class="content">
+        <table>
+            <tr>
+                <td style="width: 15%;"><b>Patient Name</b></td>
+                <td style="width: 50%;"><b>: {{data.PurchaseOrder.Patient.FirstName}}</b></td>
+                <td style="width: 15%;"><b>PO No</b></td>
+                <td style="width: 20%;"><b>: {{data.PurchaseOrder.PoNumber}}</b></td>
+            </tr>
+            <tr>
+                <td><b>Supplier</b></td>
+                <td><b>: {{data.Vendor.VendorName}}</b></td>
+                <td><b>PO Date</b></td>
+                <td><b>: {{datetimeformat data.PurchaseOrder.PoDate}}</b></td>
+            </tr>
+            <tr>
+                <td><b>Ph No</b></td>
+                <td><b>: {{data.PurchaseOrder.VendorMaster.MobileNumber}}</b></td>
+                <td><b>MRN / IP No</b></td>
+                <td><b>: {{data.PurchaseOrder.Patient.MRN}} / {{data.PurchaseOrder.Encounter.VisitIdentifier}}</b></td>
+            </tr>
+            <tr>
+                <td><b>Address</b></td>
+                <td colspan="3"><b>: {{data.PurchaseOrder.VendorMaster.AddressLine1}}</b></td>
+            </tr>
+        </table>
+        <p>Dear Sir,</p>
+        <p>Please Supply the following items of materials to our stores department in accordance with the terms &
+            conditions mentioned herein</p>
+        <br>
+        <table border class="size" style="width:100%;">
+            <tr>
+                <th style="width: 5%;" align="left">No</th>
+                <th style="width: 29%;" align="left">Item Description</th>
+                <!-- <th style="width:6%;" align="center">HSN</th>
+            <th style="width: 11%;" align="center">UOM Stock</th> -->
+                <!-- <th style="width: 11%;" align="left">Stock Qty</th> -->
+                <th style="width: 6%;" align="center">PO.Q</th>
+                <th style="width: 6%;" align="center">Free.Q</th>
+                <th style="width: 6%;" align="center">Pack.Q</th>
+                <th style="width: 6%;" align="center">TOT.Q</th>
+                <th style="width: 6%;" align="right">Rate</th>
+                <!-- <th style="width: 11%;" align="center">GST</th> -->
+                <th style="width: 10%;" align="right">MRP</th>
+                <th style="width: 8%;" align="center">Dis%</th>
+                <!-- <th style="width: 11%;" align="center">Total Value</th> -->
+                <!-- <th style="width: 11%;" align="center">CGST %</th>
+            <th style="width: 11%;" align="center">SGST %</th> -->
+                <th style="width: 5%;" align="center">Tax%</th>
+                <!-- <th style="width: 11%;" align="right">Net Amount</th> -->
+                <th style="width: 13%;" align="right">Total Amt</th>
+            </tr>
+            {{#each data.PurchaseOrderDetail}}
+            <tr>
+                <td align="left">{{inc @index}}</td>
+                <td align="left">{{ItemName}}</td>
+                <!-- <td align="center">{{ItemMaster.ProductRegNo}}</td>
+            <td align="center">{{PurchaseUom.UomName}}</td> -->
+                <!-- <td align="left">{{AvailableQuantity}}</td> -->
+                <td align="center">{{PoQuantity}}</td>
+                <td align="center">{{FreeQty}}</td>
+                <td align="center">{{ConversionQuantity}}</td>
+                <td align="center">{{TotalQuantityAfterConversion}}</td>
+                <td align="right">{{currencyformat UomPrice}}</td>
+                <!-- <td align="right">{{currencyformat GstAmount}}</td> -->
+                <td align="right">{{currencyformat UomCostPrice}}</td>
+                <td align="center">{{Discount}}</td>
+                <!-- <td align="right">{{currencyformat UomDiscountAmount}}</td> -->
+                <!-- <td align="left">{{currencyformat Amt}}</td> -->
+                <!-- <td align="right">{{currencyformat NetAmount}}</td> -->
+                <!-- <td align="center">{{CGstPercentage}}</td> -->
+                <!-- <td align="left">{{currencyformat CGstAmount}}</td> -->
+                <!-- <td align="center">{{SGstPercentage}}</td> -->
+                <td align="center">{{GstPercentage}}%</td>
+                <!-- <td align="right">{{currencyformat GstAmount}}</td> -->
+                <!-- <td  align="left">{{currencyformat NetAmount}}</td> -->
+                <td align="right">{{currencyformat TotalMRP}}</td>
+            </tr>{{/each}}
+        </table>
+        <br>
+        <table style="width:100%">
+            <tr>
+                <td style="width:18%;"><b>Total Amt In Words</b></td>
+                <td>:</td>
+                <td style="width:42%;">Rupees {{numberInWords data.PurchaseOrder.TotalNetAmount}} Only</td>
+                <td style="width:38%;">
+                    <table class="sub-total">
+                        <tr>
+                            <td align="right"><b>Cost Amount</b></td>
+                            <td>:</td>
+                            <td align="right">{{currencyformat data.PurchaseOrder.TotalGrossAmount}}</td>
+                        </tr>
+                        {{#if data.PurchaseOrder.TotalDiscountAmount}}
+                        <tr>
+                            <td align="right"><b>Discount Amount</b></td>
+                            <td>:</td>
+                            <td align="right">{{currencyformat data.PurchaseOrder.TotalDiscountAmount}}</td>
+                        </tr>
+                        {{/if}}
+                        <tr>
+                            <td align="right"><b>Tax Amount</b></td>
+                            <td>:</td>
+                            <td align="right">{{currencyformat data.PurchaseOrder.TotalGstAmount}}</td>
+                        </tr>
+                        {{#if data.PurchaseOrder.RoundOff}}
+                        <tr>
+                            <td align="right"><b>Round Off Amt</b></td>
+                            <td>:</td>
+                            <td align="right">₹ {{data.PurchaseOrder.RoundOff}}</td>
+                        </tr>
+                        {{/if}}
+                        <tr>
+                            <td align="right"><b>Landed Cost</b></td>
+                            <td>:</td>
+                            <td align="right">{{currencyformat data.LandCost}}</td>
+                        </tr>
+                        {{#if data.PurchaseOrder.TransportCharges}}
+                        <tr>
+                            <td align="right"><b>Transportation Charges</b></td>
+                            <td>:</td>
+                            <td align="right">{{currencyformat data.PurchaseOrder.TransportCharges}}</td>
+                        </tr>
+                        {{/if}}
+                        {{#if data.PurchaseOrder.OtherCharges}}
+                        <tr>
+                            <td align="right"><b>Other Charges</b></td>
+                            <td>:</td>
+                            <td align="right">{{currencyformat data.PurchaseOrder.OtherCharges}}</td>
+                        </tr>
+                        {{/if}}
+                        {{#if data.PurchaseOrder.OtherChargesGstAmount}}
+                        <tr>
+                            <td align="right"><b>Other Charges Tax Amount</b></td>
+                            <td>:</td>
+                            <td align="right">{{currencyformat data.PurchaseOrder.OtherChargesGstAmount}}</td>
+                        </tr>
+                        {{/if}}
+                        <tr>
+                            <td align="right"><b>Total Amount</b></td>
+                            <td>:</td>
+                            <td align="right"><b>{{currencyformat data.PurchaseOrder.TotalNetAmount}}</b></td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
+        <hr>
+        <table style="width:100%">
+            <tr>
+                <td style="width:20%;"><b>Delivery Schedule</b></td>
+                <td>:</td>
+                <td style="width:80%;">{{data.PurchaseOrder.DeliverySchedule}}
+                </td>
+            </tr>
+            <tr>
+                <td><b>Terms of payment</b></td>
+                <td>:</td>
+                <td>{{data.PurchaseOrder.LeviesandTaxes}}
+                </td>
+            </tr>
+            <tr>
+                <td><b>Terms of Dispatch</b></td>
+                <td>:</td>
+                <td>{{data.PurchaseOrder.TermsofDispatch}}
+                </td>
+            </tr>
+            <tr>
+                <td><b>Remarks</b></td>
+                <td>:</td>
+                <td>{{data.PurchaseOrder.Remarks}}</td>
+            </tr>
+        </table>
+        <br>
+        <br>
+        <br>
+        <table style="width:100%;">
+            <tr>
+                <td style="width: 5%;"></td>
+                <td style="width: 30%;" align="center"><b>RECEIVED BY</b></td>
+                <td style="width: 30%;" align="center"><b>INSPECTED BY</b></td>
+                <td style="width: 30%;" align="center"><b>PREPARED BY </b> <br>
+                    {{data.PurchaseOrder.ApprovedUser.Title.Description}}
+                    {{data.PurchaseOrder.ApprovedUser.FirstName}} {{data.PurchaseOrder.ApprovedUser.LastName}}</td>
+                <td style="width: 5%;"></td>
+            </tr>
+            <!-- <tr>
+            <td style="width:35%;"><b>{{data.Grn.ApprovedUser.Title.Description}}
+                    {{data.Grn.ApprovedUser.FirstName}} {{data.Grn.ApprovedUser.LastName}}</b></td>
+            <td style="width:30%;"></td>
+            <td style="width:35%;text-align:right;"><b>{{data.Grn.AuthorizedUser.Title.Description}}
+                    {{data.Grn.AuthorizedUser.FirstName}} {{data.Grn.AuthorizedUser.LastName}}</b>
+            </td>
+        </tr>
+        <tr>
+            <td style="width:35%;"><b>Approved By</b></td>
+            <td style="width:30%;"></td>
+            <td style="width:35%;text-align:right;"><b>Authorized By</b></td>
+        </tr> -->
+        </table>
+        {{#if data.Flags.header}}
+        <table style="position:absolute; bottom:10px;">
+            <tr style="position:absolute; bottom:10px;"><b>DL No : KA/BNG/III/20/21/1928</b></tr> <br>
+            <tr style="position:absolute; bottom:10px;"><b>DL No : KA/BNG/III/20/21/1952
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; CST : 01993290/23.11.93</b></tr><br>
+            <tr style="position:absolute; bottom:10px;"><b>Schedule X DL No : KA/BNG/III/20F/42</b></tr><br>
+            <tr style="position:absolute; bottom:10px;"><b>Whole sale license : KA/BNG/III/21B/1195</b></tr><br>
+            <tr style="position:absolute; bottom:10px;"><b>Whole sale license : KA/BNG/III/20B/1225</b></tr>
+        </table> {{/if}}
+    </div>
+    <br>
+    <!-- <div style="width:100%; font-size:10px;">Printed On: {{now}}</div> -->

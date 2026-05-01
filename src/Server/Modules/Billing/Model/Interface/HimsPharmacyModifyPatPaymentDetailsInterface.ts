@@ -1,0 +1,88 @@
+import { IAttributes } from '../../../Base/Index';
+import { Instance } from '../../../../Core/Index';
+
+export interface PharmacyModifyPatPaymentDetailsAttributes extends IAttributes {
+    Id: number;
+    ReceiptDateTime: Date;
+    ReceiptNumber: string;
+    FacilityId: number;
+    OrganizationId: number;
+    PatientId: number;
+    ReceiptTypeId: number;
+    EncounterId: number;
+    EncounterTypeId: number;
+    PatientName: string;
+    OutStandingAmount: number;
+    AmountPaid: number;
+    AmountAdjusted: number;
+    RefundAmount: number;
+    DueAmount: number;
+    DepartmentID: number;
+    PaymentcounterID: number;
+    GuarantorId: number;
+    GuarantorTypeId: number;
+    FamilyLinkId: number;
+    TransferEncounterId: number;
+    TransferPatientId: number;
+    ReceiptGeneratedById: number;
+    ReceiptApprovedById: number;
+    PaymentTypeId: number;
+    DoctorId: number;
+    ServiceId: number;
+    ServiceName: string;
+    PatientBillId: number;
+    BillTypeId: number;
+    IsPharmacyReceipt: boolean;
+    IsConsolidatePay: boolean;
+    IsPharmacyClearance: boolean;
+    IsClaimed: boolean;
+    IsClaimReceipt: boolean;
+    PharmacyReceiptTypeId: number;
+    CardNumber: number;
+    CardDateTime: Date;
+    CardExpiryDate: Date;
+    BankId: number;
+    CardTypeId: number;
+    TerminalNoId: number;
+    CardHolderName: string;
+    AuthorizeNumber: number;
+    AuthorizedCode: string;
+    GurantorName: string;
+    ChequeNo: number;
+    ChequeDate: Date;
+    CollectedOn: Date;
+    DDNumber: number;
+    DDDate: Date;
+    WireTransferId: number;
+    WireTransferDate: Date;
+    Comments: string;
+    CancelReason: string;
+    ReceiptStatusId: number;
+    TDSAmount: number;
+    Disallowance: number;
+    RoundOffValue: number;
+    CreditNoteId: number;
+    CurrencyTypeId: number;
+    PaymentStatusId: number;
+    AdjustmentReceiptId: number;
+    IsAdjustmentReceipt: boolean;
+    IsMultiplePayment: boolean;
+    UPIRefNumber: string;
+    Status: number;
+    Rev: number;
+    CreatedBy: number;
+    CreatedAt: Date;
+    UpdatedBy: number;
+    UpdatedAt: Date;
+    PayModeHistory: string;
+    StoreMasterId: number;
+    ReferenceNumber: string;
+    ErpTransactionId: string;
+}
+
+export interface PharmacyModifyPatPaymentDetailsInstance extends Instance<PharmacyModifyPatPaymentDetailsAttributes> {
+    // I'm exposing every DB column as an instance field to so that tsc won't complain.
+    // CreatedAt: Date;
+    // UpdatedAt: Date;
+    dataValues: PharmacyModifyPatPaymentDetailsAttributes;
+}

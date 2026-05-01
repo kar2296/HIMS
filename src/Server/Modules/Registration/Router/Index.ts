@@ -1,0 +1,37 @@
+import {Router, GetRouter } from '../../../Core/Index';
+import Patient from './PatientRoute';
+import PatientIdentity from './PatientIdentityRoute';
+import PatientKin from './PatientKinRoute';
+import PatientAttachment from './PatientAttachmentRoute';
+import PatientGuarantor from './PatientGuarantorRoute';
+import PatientGuarantorGL from './PatientGuarantorGLRoute';
+import EncounterGuarantor from './EncounterGuarantorRoute';
+import EncounterGuarantorGL from './EncounterGuarantorGLRoute';
+import FamilyLink from './FamilyLinkRoute';
+import OPDDashboard from './OPDDashboardRoute';
+import PatientFollowup from './PatientFollowupRoute';
+import PatientArchive from './PatientArchiveRoute';
+import QMS from './QMSRoute';
+import PatientMerge from './PatientMergeRoute';
+import PatientDeath from './PatientDeathRoute';
+import LocalWellCustomerOrder from './LocalWellCustomerOrderRoute';
+
+
+let router: Router = GetRouter();
+router.use('/Patient', Patient);
+router.use('/PatientIdentity', PatientIdentity);
+router.use('/PatientKin', PatientKin);
+router.use('/PatientAttachment', PatientAttachment);
+router.use('/PatientGuarantor', PatientGuarantor);
+router.use('/PatientGuarantorGL', PatientGuarantorGL);
+router.use('/FamilyLink', FamilyLink);
+router.use('/EncounterGuarantor', EncounterGuarantor);
+router.use('/EncounterGuarantorGL', EncounterGuarantorGL);
+router.use('/OPDDashboard', OPDDashboard);
+router.use('/PatientFollowup', PatientFollowup);
+router.use('/PatientArchive', PatientArchive);
+router.use('/QMS', QMS);
+router.use('/PatientMerge', PatientMerge);
+router.use('/PatientDeath', PatientDeath);
+router.use('/LocalWellCustomerOrder', LocalWellCustomerOrder);
+export default router;

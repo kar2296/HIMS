@@ -1,0 +1,89 @@
+<html>
+
+<head>
+  <style>
+    .table1 {
+      border: 1px solid black;
+      font-size: 13px;
+    }
+
+    .table2 {
+      border: 1px solid black;
+      border-top: 0px solid black;
+      font-size: 13px;
+    }
+
+     {{include '/Templates/cavery/assets/css/core.css'}}
+  </style>
+</head>
+
+<body>
+  <div id="pageHeader">
+    {{{include '/Templates/cavery/common/header.tpl.html' 'tpl'}}}
+  </div>
+  <div style="text-align:center;"><b style="font-size: 16px;">Itemwise Sales Profit Report</b></div>
+  <table class="table1" style="width:100%;">
+    <tr style='vertical-align: top'>
+      <td style="width:5%;"><b>From Date</b></td>
+      <td>:</td>
+      <td style="width:15%;"><b>{{data.FromDate}}</b></td>
+      <td style="width:5%;"><b>To Date</b></td>
+      <td>:</td>
+      <td style="width:15%;"><b>{{data.ToDate}}</b></td>
+      <td style="width:5%;"><b>StoreName</b></td>
+      <td>:</td>
+      <td style="width:25%;"><b>{{data.StoreName}}</b></td>
+      <td style="width:5%;"><b>ProductType</b></td>
+      <td>:</td>
+      <td style="width:25%;"><b>{{data.ProductType}}</b></td>
+    </tr>
+  </table>
+  </br>
+  <table class="table1" style="width:100%;">
+    <tr>
+      <td style="width:10%;"><b>S.No</b></td>
+      <td style="width:10%"><b>Item Nae</b></td>
+      <td style="width:10%"><b>Product Name</b></td>
+      <td style="width:10%"><b>UCP</b></td>
+      <td style="width:10%"><b>MRP</b></td>
+      <td style="width:10%"><b>Sale Qty</b></td>
+      <td style="width:10%"><b>Total Sale Value</b></td>
+      <td style="width:10%"><b>Total Purchase Value</b></td>
+      <td style="width:10%"><b>Total Profit</b></td>
+      <td style="width:10%"><b>Profit %</b></td>
+    </tr>
+  </table>
+  <table class="table2" style="width:100%;">
+    {{#each data.PatientBillDetails}}
+    <tr>
+      <td style="width:10%;">{{inc @index}}</td>
+      <td style="width:10%">{{ItemMaster.ItemName}}</td>
+      <td style="width:10%">{{ItemMaster.ProductType.ProductTypeName}}</td>
+      <td style="width:10%">{{currencyformat StockSerialItem.Ucp}}</td>
+      <td style="width:10%">{{currencyformat Rate}}</td>
+      <td style="width:10%">{{Quantity}}</td>
+      <td style="width:10%">{{currencyformat NetAmount}}</td>
+      <td style="width:10%">{{currencyformat PurchaseValue}}</td>
+      <td style="width:10%;">{{currencyformat Profit}}</td>
+      <td style="width:10%;">{{ProfitPer}}</td>
+    </tr>{{/each}}
+  </table>
+  <table class="table2" style="width:100%">
+    <tr>
+      <td style="width:10%;"></td>
+      <td style="width:10%"></td>
+      <td style="width:10%"></td>
+      <td style="width:10%">{{currencyformat data.TotalUCP}}</td>
+      <td style="width:10%">{{currencyformat data.TotalMRP}}</td>
+      <td style="width:10%">{{data.TotalQty}}</td>
+      <td style="width:10%">{{currencyformat data.TotalSale}}</td>
+      <td style="width:10%">{{currencyformat data.TotalPurchase}}</td>
+      <td style="width:10%;">{{currencyformat data.TotalProfit}}</td>
+      <td style="width:10%;">{{data.TotalProfitPercent}}</td>
+    </tr>
+  </table>
+
+</body>
+<div style="width:100%; font-size:8px;">Printed On: {{now}}</div>
+
+</html>

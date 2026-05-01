@@ -1,0 +1,80 @@
+import { IAttributes } from '../../../Base/Index';
+import { Instance } from '../../../../Core/Index';
+
+export interface ServiceItemAttributes extends IAttributes {
+    Id: number;
+    ItemCode: string;
+    ShortCode: string;
+    Name: string;
+    Description: string;
+    CategoryId: number;
+    SubCategoryId: number;
+    DepartmentId: number;
+    SubDepartmentId: number;
+    MasterTypeId: number;
+    MasterItemId: number;
+    MasterName: string;
+    ItemCost: string;
+    ActiveFrom: Date;
+    ActiveTo: Date;
+    BillingGroupId: number;
+    AccountCodeCredit: string;
+    AccountCodeDebit: string;
+    FacilityId: number;
+    VirtualCategoryId: number;
+    VirtualsubCategoryId: number;
+    IsOrderable: boolean;
+    IsRateEditable: boolean;
+    IsDiscountEditable: boolean;
+    Outsourced: boolean;
+    IsZeroBill: boolean;
+    IsDoctorMandatory: boolean;
+    IsSurgicalProcedure: boolean;
+    IsEquipment: boolean;
+    IsEquipmentHour: boolean;
+    IsEquipmentDaily: boolean;
+    IsBedCharge: boolean;
+    IsBedChargeHour: boolean;
+    IsBedChargeDaily: boolean;
+    IsCalculateGST: boolean;
+    IsPackage: boolean;
+    IsSaveServiceDetails: boolean;
+    IsDoctorDisplay: boolean;
+    OrderTypeId: number;
+    IsNightCharge: boolean;
+    IsHolidayCharge: boolean;
+    IsDuplicateAlert: boolean;
+    IsInstrument: boolean;
+    CanDiscountProportionate: boolean;
+    IsExecutableProcedure: boolean;
+    IsCalculateTax: boolean;
+    IsPhysiotheraphy: boolean;
+    GstId: number;
+    IsActive: boolean;
+    CostCenterId: number;
+    ActiveStatusId: number;
+    IsExecutingService: boolean;
+    IsVirtualService: boolean;
+    IsExternalLab: boolean;
+    IsNonMedical:boolean;
+    IsExecDoctor: boolean;
+    IsDocShare:boolean;
+    IsOTHourlyCharge: boolean;
+    ServiceDetails: string;
+    Imagepath: string;
+    MISSubgroupId: number;
+    Status: number;
+    Rev: number;
+    CreatedBy: number;
+    CreatedAt: Date;
+    UpdatedBy: number;
+    UpdatedAt: Date;
+    IsExcelUpload: boolean;
+}
+
+export interface ServiceItemInstance extends Instance<ServiceItemAttributes> {
+    // I'm exposing every DB column as an instance field to so that tsc won't complain.
+    // CreatedAt: Date;
+    // UpdatedAt: Date;
+    dataValues: ServiceItemAttributes;
+}

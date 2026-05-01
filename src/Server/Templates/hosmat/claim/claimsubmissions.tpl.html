@@ -1,0 +1,158 @@
+<html>
+
+<head>
+  <style>
+    * {
+      font-family: sans-serif;
+    }
+
+    .info table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .info td {
+      border: 1px solid black;
+    }
+
+    p,
+    td {
+      padding: 2px;
+    }
+
+    td,
+    th {
+      font-size: 13px !important;
+      padding-top: 5px !important;
+      padding-bottom: 5px !important;
+    }
+
+    .dot-border td {
+      border-top: 1px dotted;
+      border-bottom: 1px dotted;
+    }
+
+    th {
+      text-align: left;
+      border-top: 1px solid black;
+      border-bottom: 1px solid black;
+    }
+
+    #pageFooter .border-bt {
+      border-bottom: 1px solid black;
+    }
+
+      {{include '/Templates/hosmat/assets/css/core.css'}}
+  </style>
+</head>
+
+<body>
+  <div id="pageHeader">
+    {{{include '/Templates/hosmat/common/header.tpl.html' 'tpl'}}}
+  </div>
+  <div class="content">
+    <h2 align="center"><u>Customer Bill Submission</u></h2>
+    <div class="detail">
+      <table>
+        <tr>
+          <td style="width: 60%;">
+            <b>Welcome, <br>{{data.ClaimSubmission.Guarantor.GuarantorName}}, <br>
+              {{#if data.ClaimSubmission.Guarantor.AddressLine1}}           {{data.ClaimSubmission.Guarantor.AddressLine1}}, <br>
+              {{data.ClaimSubmission.Guarantor.AddressLine2}}. <br>{{/if}}</b>
+          </td>
+          <td>
+            <table>
+              <tr>
+                <td><b>Print Date & Time</b></td>
+                <td>: {{now}}</td>
+              </tr>
+              <tr>
+                <td><b>Submission No.</b></td>
+                <td>: {{data.ClaimSubmission.ClaimNumber}}</td>
+              </tr>
+              <tr>
+                <td><b>Submission Date</b></td>
+                <td>: {{dateformat data.ClaimSubmission.SubmittedOn}}</td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+      </table>
+    </div>
+    <div style="border-bottom: 1px dotted;">
+    </div>
+    <p>Dear Sir / Madam</p>
+    <p style="padding-left: 30px;">We are sending the bills raised for your employee(s) / member(s) :</p>
+    <table>
+      <thead>
+        <th>#</th>
+        <th>Bill Number</th>
+        <th>Bill Date</th>
+        <th>Bill Type</th>
+        <th>UHID</th>
+        <th>Patient Name</th>
+        <th style="text-align: right !important">Bill Amount</th>
+      </thead>
+      <tbody>
+        {{#each data.ClaimSubmissionDetail}}
+        <tr>
+          <td>{{inc @index}}</td>
+          <td>{{PatientBill.BillNumber}}</td>
+          <td>{{datetimeformat PatientBill.BillDateTime}}</td>
+          <td>
+            {{#ifCond PatientBill.Encounter.EncounterTypeId '=='2}}
+            IP Consultation
+            {{else}}
+            OP
+            {{/ifCond}}
+          </td>
+          <td>{{Patient.MRN}}</td>
+          <td>
+            {{Patient.Title.Description}}
+            {{Patient.FirstName}}
+            {{Patient.MiddleName}}
+            {{Patient.LastName}}
+          </td>
+          <td align="right">{{currencyformat PatientBill.OutStandingAmount}}</td>
+        </tr>
+        {{/each}}
+        <tr class="dot-border">
+          <td colspan="6" align="right"><b>Total BillAmount on Submission No. :</b></td>
+          <td align="right"><b>{{currencyformat data.ClaimSubmission.ClaimAmount}}</b></td>
+        </tr>
+        <!-- <tr class="dot-border">
+          <td colspan="6" align="right">Total Outstanding on 
+Submission No. :</td>
+          <td align="right"><b>{{currencyformat data.TotOutStandingAmt}}</b></td>
+        </tr> -->
+        <tr class="dot-border">
+          <!--<td colspan="7" align="left"><b>Rupees {{decimalnrInWords1 data.TotBillAmt}} only -/</b></td>-->
+          <td colspan="7" align="left"><b>Rupees {{decimalnrInWords1 data.ClaimSubmission.ClaimAmount}} only -/</b></td>
+        </tr>
+      </tbody>
+    </table>
+  <div class="border-bt">
+    <p>Thanking You <br>
+      Yours Sincerely <br>
+      HOSMAT HOSPITAL PVT LTD</p>
+    <div style="margin-top: 50px;">
+      Authorised Signatory
+    </div>
+    <p>
+      <b>N. B. : Kindly Acknowledge the receipt</b>
+    </p>
+    </div>
+  </div>
+  <div id="pageFooter">
+    <div class="border-bt">
+      <p>
+        <u>Kindly note that any bill or invoice with an identified discrepance must be returned to the service provider
+          within two weeks from the date submitted otherwise it shall be considered payable on the stated due date. Any
+          concern with the bill or invoice must be indicated in writing for service provider to clarify.</u>
+      </p>
+      {{{include '/Templates/hosmat/common/footer.tpl.html' 'tpl'}}}
+    </div>
+  </div>
+</body>
+
+</html>

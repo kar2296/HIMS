@@ -1,0 +1,210 @@
+<html>
+
+<head>
+    <style>
+        .table1 {
+            border: 1px solid black;
+            border-bottom: 0px solid black;
+            text-align: center;
+            font-size: 11px;
+        }
+
+        .table2 {
+            border: 1px solid black;
+            border-bottom: 0px solid black;
+            border-top: 0px solid black;
+            text-align: left;
+            font-size: 11px;
+            border-collapse: collapse;
+        }
+
+
+        .table3 {
+            border: 1px solid black;
+            border-bottom: 1px solid black;
+            font-size: 11px;
+        }
+
+        .border {
+            border-collapse: collapse;
+            border-left: 1px solid black;
+            font-size: 11px;
+        }
+
+        .table4 {
+            border: 1px solid black;
+            border-bottom: 0px solid black;
+            border-top: 0px solid black;
+            text-align: left;
+            font-size: 11px;
+        }
+
+        .table5 {
+            border: 1px solid black;
+            border-bottom: 0px solid black;
+            text-align: center;
+            font-size: 11px;
+        }
+
+        .table6 {
+            border: 1px solid black;
+            border-bottom: 0px solid black;
+            text-align: left;
+            font-size: 11px;
+        }
+
+        .size {
+            font-size: 11px;
+        }
+
+           {{include '/Templates/assets/css/core.css'}}
+    </style>
+</head>
+
+<body style="padding: 20px;">
+    <div id="pageHeader">
+        {{{include '/Templates/kumar/common/pharmacyheader1.tpl.html' 'tpl'}}}
+    </div>
+
+    <table class="table5" style="width:100%;">
+        <tr>
+            <td style="vertical-align:text-middle;font-size: 13px;"><b>Pharmacy Bill</b></td>
+        </tr>
+    </table>
+    <table class="table6" style="width:100%;">
+        <tr>
+            <td style="width:15%;"><b>Name</b></td>
+            <td>:</td>
+            <td style="width:20%;"><b>{{data.PatientBills.Title.Description}} {{data.PatientBills.PatientName}} </b>
+            </td>
+            <td style="width:10%;"><b> Sex / Age </b></td>
+            <td>:</td>
+            <td style="width:20%;"><b>{{data.PatientBills.Gender.Description}} / {{#if
+                    data.PatientBills.DOB}}{{ageonlyyear data.PatientBills.DOB}} {{/if}} </b></td>
+            <td style="width:15%;"><b>Doctor Name</b></td>
+            <td>:</td>
+            <td style="width:20%;"><b>{{data.PatientBills.Referral.ReferralName}}</b></td>
+
+        </tr>
+        <tr>
+            <td><b>Bill NO</b></td>
+            <td>:</td>
+            <td>{{data.PatientBills.BillNumber}}</td>
+            <td><b>Bill Date</b></td>
+            <td>:</td>
+            <td>{{datetimeformat data.PatientBills.BillDateTime}}</td>
+        </tr>
+    </table>
+    <table border class="table2" style="width:100%;">
+        <tr>
+            <th style="width:5%" align="center">S.No</th>
+            <th style="width:17%" align="center">Description</th>
+            <!-- <th style="width:6%" align="left">HSN</th> -->
+            <th style="width:11%" align="center">Batch</th>
+            <th style="width:13%" align="center">Exp</th>
+            <!-- <th style="width:10%" align="center">Value</th> -->
+            <th style="width:7%" align="center">Qty</th>
+            <th style="width:5%" align="center">MRP</th>
+            <th style="width:8%" align="right">Amount</th>
+        </tr>
+    </table>
+
+    <table class="table3" style="width:100%">
+        {{#each data.BillDetails}}
+        <tr>
+            <td style="width:5%" align="center">{{inc @index}}</td>
+            <td style="width:17%" align="center">{{ServiceName}}</td>
+            <!-- <td style="width:6%">{{ItemMaster.ProductRegNo}}</td> -->
+            <td style="width:11%" align="center">{{BatchId}} </td>
+            <td style="width:13%" align="center"> {{expdateformat ExpiryDate}}</td>
+            <!-- <td style="width:7%" align="center">{{currencyformat NetAmountBeforeGST}}</td> -->
+            <td style="width:7%" align="right"><span>{{Quantity}}</span></td>
+            <td style="width:10%" align="center">{{currencyformat Rate}}</td>
+            <td style="width:8%" align="right">{{currencyformat Amount}}</td>
+        </tr>
+        {{/each}}
+    </table>
+    <table class="table2" style="width:100%">
+        <tr>
+            <td rowspan="6" style="width:80%;font-size:6px">
+                <!-- - Cold Chain Medicines ONCE SOLD CANNOT BE RETURNED/EXCHANGE<br> - Surgical Items ONCE SOLD CANNOT BE RETURNED/EXCHANGE<br>                - Return Of Medicine Accepted Within 15 Days From The Date Of Purchase With Good Condition<br> - Please Get
+                Your Medicines Checked BY Your Doctor Before Use<br> -Production Of Original Bill Essential For Return OF
+                Medicines
+            <br> -->
+            </td>
+            <td style="width:10%;">Total</td>
+            <td>:</td>
+            <td style="width:10%;">{{currencyformat data.PatientBills.BillAmount}}</td>
+        </tr>
+        <tr>
+            <td>{{#if data.PatientBills.BillDiscount}} Discount {{/if}}</td>
+            <td>{{#if data.PatientBills.BillDiscount}}:{{/if}}</td>
+            <td>{{#if data.PatientBills.BillDiscount}} {{currencyformat data.PatientBills.BillDiscount}} {{/if}}</td>
+        </tr>
+        <tr>
+            <td>Round Off</td>
+            <td>:</td>
+            <td>{{currencyformat data.PatientBills.RoundOffValue}}</td>
+        </tr>
+        <tr>
+            <td>Net Amount</td>
+            <td>:</td>
+            <td>{{currencyformat data.NetAmount}}</td>
+        </tr>
+        <tr>
+            <td>Paid</td>
+            <td>:</td>
+            <td>{{currencyformat data.PatientBills.PaidAmount}}</td>
+        </tr>
+        <tr>
+            <td>{{#if data.PatientBills.OutStandingAmount}} Due {{/if}}</td>
+            <td>{{#if data.PatientBills.OutStandingAmount}}: {{/if}}</td>
+            <td>{{#if data.PatientBills.OutStandingAmount}} {{currencyformat data.PatientBills.OutStandingAmount}}
+                {{/if}}</td>
+        </tr>
+    </table>
+    <table class="table4" style="width:100%;">
+        <tr>
+            <td><b>Amount in words</b><span>:</span><span><b>Rupees {{decimalnrInWords1 data.NetAmount}} only</b></span>
+            </td>
+            <td></td>
+            <td></td>
+        </tr>
+    </table>
+    <table class="table3" style="width:100%;">
+        <tr>
+            <td colspan="8">
+                <u>Receipt Details</u>
+            </td>
+        </tr>
+        <tr>{{#each data.PatientPaymentDetails}}
+
+            <td colspan="8"><b>{{ReceiptType.Description}} ,{{ReceiptNumber}} {{#if ReceiptDateTime}} , {{/if}}
+                    {{datetimeformat ReceiptDateTime}} {{#if AmountPaid}} , {{/if}} {{currencyformat AmountPaid}} {{#if
+                    PaymentType.Description}} , {{/if}} {{PaymentType.Description}} {{#if Bank.Description}} , {{/if}}
+                    {{Bank.Description}} {{#if AuthorizedCode}} , {{/if}} {{AuthorizedCode}}</b></td>
+        </tr>{{/each}}
+        <tr>
+            <td style="width:20%;">
+                {{data.PatientBills.CreatedUser.FirstName}} {{data.PatientBills.CreatedUser.LastName}}</td>
+            <td></td>
+
+        </tr>
+        <tr>
+            <td>Users Signature</td>
+            <td> </td>
+
+            <td align="right">Q.P Signature</td>
+
+        </tr>
+    </table>
+    <!--<span style="margin-left: 45vw;font-size: 11px"><strong>Pharmacy Items Once Sold Will Not Be Taken Back</strong></span><br>-->
+    <!-- <span><b style="font-size: 11px">COVID RELATED PRODUCTS - NO RETURNS - NO EXCHANGE</b></span><br>
+        <span style="font-size: 11px;">TALLY THE MEDICINES WITH YOUR PRESCRIPTION BEFORE USE GOODS ONCE SOLD CANNOT BE TAKEN BACK OR EXCHANGED EXCHANGE VALID ONLY ON FULL STRIPS AND SEALED PRODUCTS WITHIN 10 DAYS OF PURCHASE.[24/7 Pharmacy, Free Home Delivery, Surrounding 10 km] </span> -->
+
+
+
+    <!--  <div style="width:100%; font-size:8px;">Printed On: {{now}}</div>-->
+</body>
+
+</html>

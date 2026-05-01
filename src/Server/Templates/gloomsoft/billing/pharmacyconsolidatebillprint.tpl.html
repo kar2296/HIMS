@@ -1,0 +1,130 @@
+<html>
+
+<head>
+    <style>
+        .table1 {
+            border: 1px solid black;
+            font-size: 8px;
+        }
+
+        .table2 {
+            border: 1px solid black;
+            border-top: 0px solid black;
+            font-size: 8px;
+        }
+
+        td.minusamt {
+            color: red;
+        }
+
+           {{include '/Templates/assets/css/core.css'}}
+    </style>
+</head>
+
+<body>
+    <div id="pageHeader">
+        {{{include '/Templates/gloomsoft/common/header1.tpl.html' 'tpl'}}}
+    </div>
+
+    <div id="pageFooter">
+        {{{include '/Templates/gloomsoft/common/footer.tpl.html' 'tpl'}}}
+    </div>
+
+    <div style="text-align:center;font-size: 16px;"><b>Consolidate Bills</b></div>
+    <br>
+    <div style="text-align:center;font-size: 13px;"><b>Pharmacy Bills</b></div>
+    <table class="table1" style="width:100%;">
+        <tr>
+            <td style="width:5%;"><b>S.No</b></td>
+            <td style="width:10%"><b>Bill Number</b></td>
+            <td style="width:10%"><b>Bill Date</b></td>
+            <td style="width:10%"><b>Patient Name</b></td>
+            <td style="width:10%"><b>Visit #</b></td>
+            <td style="width:10%"><b>Doctor</b></td>
+            <td style="width:10%"><b>Bill Amount</b></td>
+            <td style="width:10%"><b>Discount</b></td>
+            <td style="width:10%"><b>Round Off</b></td>
+            <td style="width:10%"><b>Net Amount</b></td>
+            <td style="width:5%"><b>Paid Amount</b></td>
+        </tr>
+    </table>
+    <table class="table2" style="width:100%;">
+        {{#each data.PatientPharmacyBills}}
+        <tr>
+            <td style="width:5%;">{{inc @index}}</td>
+            <td style="width:10%;">{{BillNumber}}</td>
+            <td style="width:10%">{{datetimeformat BillDateTime}}</td>
+            <td style="width:10%">{{Patient.Title.Description}} {{Patient.FirstName}}
+                {{Patient.MiddleName}}
+                {{Patient.LastName}}</td>
+            <td style="width:10%">{{Encounter.VisitIdentifier}}</td>
+            <td style="width:10%">{{User.Title.Description}} {{User.FirstName}} {{User.LastName}}</td>
+            <td style="width:10%">{{currencyformat BillAmount}}</td>
+            <td style="width:10%">{{currencyformat BillDiscount}}</td>
+            <td style="width:10%;">{{currencyformat RoundOffValue}}</td>
+            <td style="width:10%">{{currencyformat NetAmount}}</td>
+            <td style="width:5%">{{currencyformat PaidAmount}}</td>
+        </tr>{{/each}}
+    </table>
+    <div style="text-align:center;font-size: 13px;"><b>Pharmacy Returns</b></div>
+    <table class="table1" style="width:100%;">
+        <tr>
+            <td style="width:5%;"><b>S.No</b></td>
+            <td style="width:5%"><b>Return Number</b></td>
+            <td style="width:5%"><b>Return Date</b></td>
+            <td style="width:10%"><b>Bill Number</b></td>
+            <td style="width:10%"><b>Bill Date</b></td>
+            <td style="width:10%"><b>Patient Name</b></td>
+            <td style="width:5%"><b>Visit #</b></td>
+            <td style="width:10%"><b>Doctor</b></td>
+            <td style="width:10%"><b>Return Amount</b></td>
+            <td style="width:10%"><b>Round Off</b></td>
+            <td style="width:10%"><b>Net Amount</b></td>
+            <td style="width:10%"><b>Refund Amount</b></td>
+        </tr>
+    </table>
+    <table class="table2" style="width:100%;">
+        {{#each data.PatientPharmacyReturns}}
+        <tr>
+            <td style="width:5%;">{{inc @index}}</td>
+            <td style="width:5%;">{{ReturnNumber}}</td>
+            <td style="width:5%">{{datetimeformat ReturnDateTime}}</td>
+            <td style="width:10%;">{{BillNumber}}</td>
+            <td style="width:10%">{{datetimeformat BillDateTime}}</td>
+            <td style="width:10%">{{Patient.Title.Description}} {{Patient.FirstName}}
+                {{Patient.MiddleName}}
+                {{Patient.LastName}}</td>
+            <td style="width:5%">{{Encounter.VisitIdentifier}}</td>
+            <td style="width:10%">{{User.Title.Description}} {{User.FirstName}} {{User.LastName}}</td>
+            <td style="width:10%">{{currencyformat ReturnAmount}}</td>
+            <td style="width:10%;">{{currencyformat RoundOffValue}}</td>
+            <td style="width:10%">{{currencyformat NetReturnAmount}}</td>
+            <td style="width:10%">{{currencyformat RefundedAmount}}</td>
+        </tr>{{/each}}
+    </table>
+    <table class="table2" style="width:100%">
+        <tr>
+            <td style="width:15%;"><b></b></td>
+            <td>:</td>
+            <td style="width:60%;"><b></b></td>
+            <td style="width:10%;">Sale Amount</td>
+            <td style="width:15%;">{{currencyformat data.TotalSalesAmount}}</td>
+        </tr>
+        <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td>Return Amount</td>
+            <td>{{currencyformat data.TotalReturnAmount}}</td>
+        </tr>
+        <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td>Total Amount</td>
+            <td>{{currencyformat data.TotalAmount}}</td>
+        </tr>
+    </table>
+</body>
+
+</html>

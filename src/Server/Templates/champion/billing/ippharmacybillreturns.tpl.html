@@ -1,0 +1,274 @@
+<html>
+
+<head>
+  <style>
+    .table1 {
+      border: 1px solid black;
+      border-bottom: 0px solid black;
+    }
+
+    .table2 {
+      border: 1px solid black;
+      border-bottom: 0px solid black;
+      border-top: 0px solid black;
+      text-align: left;
+      border-collapse: collapse;
+    }
+
+    .table3 {
+      border: 1px solid black;
+      border-bottom: 1px solid black;
+      font-size: 12px;
+    }
+
+    .border {
+      border-collapse: collapse;
+      border-left: 1px solid black;
+    }
+
+    .table4 {
+      border: 1px solid black;
+      border-bottom: 0px solid black;
+      border-top: 0px solid black;
+      text-align: left;
+    }
+
+    .table5 {
+      border: 1px solid black;
+      border-bottom: 0px solid black;
+    }
+
+    .table6 {
+      border: 0px solid;
+      border-bottom: 0px solid;
+      text-align: left;
+    }
+
+    .table2 tr th,
+    .table2 tr td {
+      border: 1px solid black;
+    }
+
+    .table2 {
+      border: 1px solid black;
+    }
+
+    .amt {
+      border-bottom: 0px solid;
+      border-left: 0px solid;
+      border-right: 0px solid;
+    }
+
+    td {
+      padding: 2px !important;
+      font-family: sans-serif;
+      vertical-align: top;
+
+    }
+
+    th {
+      padding: 3px;
+      font-family: sans-serif;
+      vertical-align: top;
+    }
+
+    .table2 td {
+      padding: 3px !important;
+    }
+
+    table {
+      border: 0px !important;
+    }
+
+    .table2 {
+      border: 1px !important;
+    }
+
+    .table5 {
+      border-top: 1px solid !important;
+      border-bottom: 1px solid !important;
+    }
+
+    {{ include '/Templates/champion/assets/css/core.css'}}
+  </style>
+</head>
+<body>
+  <div id="pageHeader">
+    {{#if data.Flags.header}}
+    {{{include '/Templates/champion/common/pharmacyheader1.tpl.html' 'tpl'}}}
+    {{/if}}
+  </div>
+<div class="content"> 
+    <div class="border-top border-bottom">
+  <table style="width:100%;">
+    <tr>
+    <tr> {{setVariable 'EncounterTypeId' data.PatientBills.EncounterTypeId }} {{#ifCond 'g.EncounterTypeId' '==' 1}}
+      <td style="text-align:end;" style="width:80%"><b>PHARMACY TAX INVOICE CUM RECEIPT</b></td>
+      <td style="text-align:right;" style="width:20%"><b>Orginal for Recepient</b></td>
+    </tr>
+    <tr> {{else}}
+      <td style="text-align:end;" style="width:80%"><b>PHARMACY TAX INVOICE CUM RECEIPT</b></td>
+      <td style="text-align:right;" style="width:20%"><b>Orginal for Recepient</b></td>
+    </tr> {{/ifCond}}
+    </tr>
+  </table>
+</div>
+  <table class="table6" style="width:100%;">
+    <tr>
+      <td><b>Registration No.</b></td>
+      <td>:</td>
+      <td><b>{{data.PatientBills.Patient.MRN}}</b></td>
+      <td><b>Bill NO</b></td>
+      <td>:</td>
+      <td><b>{{data.PatientBills.BillNumber}}</b></td>
+    </tr>
+
+    <tr>
+      <td><b>Patient Name</b></td>
+      <td>:</td>
+      <td><b>{{data.PatientBills.Patient.Title.Description}} {{data.PatientBills.Patient.FirstName}}
+          {{data.PatientBills.Patient.MiddleName}}
+          {{data.PatientBills.Patient.LastName}}</b></td>
+      <!-- <td><b>Visit NO</b></td>
+      <td>:</td>
+      <td><b>{{data.PatientBills.Encounter.VisitIdentifier}}</b></td> -->
+      <td><b>Bill Date</b></td>
+      <td>:</td>
+      <td>{{datetimeformat data.PatientBills.BillDateTime}}</td>
+    </tr>
+    <tr>
+      <td><b>Age / Sex</b></td>
+      <td>:</td>
+      <td style="text-transform:uppercase;">{{ageonlyyear data.PatientBills.Patient.DOB}} /
+        {{data.PatientBills.Patient.Gender.Description}}</td>
+
+        <td><b>Doctor Name</b></td>
+        <td>:</td>
+        <td>{{data.PatientBills.User.Title.Description}} {{data.PatientBills.User.FirstName}}
+          {{data.PatientBills.User.LastName}}
+        </td>
+    </tr>
+    <tr>
+        <td><b>Ward</b></td>
+        <td>:</td>
+        <td>{{data.Encounter.WardMaster.WardName}}
+        </td>
+        <td><b>Room</b></td>
+        <td>:</td>
+        <td>{{data.Encounter.WardRoomMaster.RoomNo}}
+        </td>
+
+    </tr>
+  </table>
+
+  <table class="table2" style="width:100%;">
+    <tr>
+        <th style="width:5%" align="left">S.No</th>
+        <th style="width:27%" align="left">Description</th>
+        <th style="width:23%" align="left">Batch /Exp</th>
+        <th style="width:10%" align="center">MRP</th>
+        <th style="width:12%" align="center">Billed Qty</th>
+        <th style="width:13%" align="center">Return Qty</th> 
+        <th style="width:10%" align="right">Amount</th>
+    </tr> 
+{{#each data.Patientreturndetails}}
+    <tr>
+        <td>{{inc @index}}</td>
+        <td>{{ServiceName}}</td>
+        <td>{{BatchId}} / {{dateformat ExpiryDate}}</td>
+        <td>{{currencyformat Rate}}</td>
+        <td align="center">{{BilledQuantity}}</td>
+        <td align="center">{{ReturnQuantity}}</td> 
+        <td align="right">{{currencyformat Amount}}</td>
+    </tr>
+    {{/each}}
+    {{#each data.GstgrpInfo}}
+    <tr>
+      <td colspan="7" style="border-top:1px solid black;font-size: 10px;">Item with {{gstRate}}% GST: {{currencyformat gstAmt}} Item
+        with {{cgstRate}}% CGST: {{currencyformat cgstAmt}} Item with {{sgstRate}}% SGST: {{currencyformat sgstAmt}}</td>
+
+
+    </tr> {{/each}}
+  </table>
+
+  <table class="amt" style="width:100%;border-top:unset !important;">
+    <tr>
+      <td style="width: 60%;">
+        <img class="" style="width10%;" src="https://chart.googleapis.com/chart?chs=90x90&cht=qr&chl={{data.QrInfo}}" />
+      </td>
+      <td>
+        <table style="width:100%;font-size:10px;">
+          <tr>
+            <td colspan=5></td>
+            <td style="width:60%;" align="right"><b>Net Amount</b></td>
+            <td style="width:1%;">:</td>
+            <td style="width:39%;" align="right">{{currencyformat data.PatientReturns.ReturnAmount}}</td>
+          </tr> 
+          {{#if data.PatientReturns.RefundedAmount}}
+          <tr>
+            <td colspan=5></td>
+              <td>Refunded</td>
+              <td>:</td>
+              <td>{{currencyformat data.PatientReturns.RefundedAmount}}</td>
+          </tr>
+          {{/if}}
+          {{#if data.PatientReturns.ToBeRefundAmount}}
+          <tr>
+            <td colspan=5></td>
+              <td>To Be Refunded</td>
+              <td>:</td>
+              <td> {{currencyformat data.PatientReturns.ToBeRefundAmount}}</td>
+          </tr>
+          {{/if}}
+        </table>
+      </td>
+    </tr>
+  </table>
+
+  <table class="table4" style="width:100%;">
+    <tr>
+      <td><b>Amount in words</b><span>:</span> <span>Rupees <span style="text-transform: capitalize">
+            {{decimalnrInWords1 data.PatientReturns.ReturnAmount}}</span> only</span></td>
+      <td></td>
+      <td></td>
+    </tr>
+  </table>
+  <br>
+  <br>
+  <table class="table3" style="width:100%;">
+    <tr>
+      <td align="left">
+      </td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td align="right"><span> Regd. Pharmacist Sign</span></td>
+    </tr>
+  </table>
+  <table class="table3" style="width:100%;">
+    <tr style="border:1px solid;">
+      <td>
+        Whether Tax Payable Under RCM: No
+      </td>
+    </tr>
+    <tr>
+      <td style="list-style-position: inside">
+        Bill Generated By : <b>{{data.PatientBills.CreatedUser.FirstName}}
+          {{data.PatientBills.CreatedUser.LastName}}</b> on <b>{{now}}</b>
+      </td>
+    </tr>
+    <tr>
+      <td style="list-style-position: inside">
+        DL NO: KABNG/III/20&21/1928.|KABNG/III/21F-42
+      </td>
+
+    </tr>
+  </table>
+  </div>
+</body>
+
+</html>

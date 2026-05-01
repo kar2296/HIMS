@@ -1,0 +1,110 @@
+﻿<style>
+    .form-group {
+        height: 62px;
+    }
+
+    button.draftbutton {
+        margin-top: 30px;
+    }
+</style>
+<script type="text/ng-template" id="dyn-text.html">
+    <div class="form-group col-sm-3">
+        <label class="col-sm-12 control-label">{{(item.translate | translate) || item.text}}</label>
+        <div class="col-sm-12 "  >              
+            <input id="{{item.model}}" type="text" class="form-control" ng-model="cvm.modeldata[item.model]"
+            placeholder={{item.placeholder}}>
+            <!-- <patientsearch controlid="'pidreg'" ng-keyup="moveHeaderFocus('pid')" patientid="item.PatientId"
+            class="logo" name="txtpatientsearch" patientinfo="selectedPatient"
+            patientchange="patientChange()" aria-placeholder="Patient Search"
+            tabindex="tabindexmap.patienttabindex" isdisabled="{{SaveCompleted}}"
+            filterconfig="patientfilterconfig"></patientsearch> -->
+        </div>
+    </div>
+    </div>
+</script>
+<script type="text/ng-template" id="dyn-select.html"></script>
+<script type="text/ng-template" id="dyn-select.html">
+    <div class="form-group col-sm-3">
+        <label class="col-sm-12 control-label">{{(item.translate | translate) || item.text}}</label>
+        <div class="col-sm-12">
+            <ui-select id="{{item.model}}" ng-model="cvm.modeldata[item.model]">
+                <ui-select-match>
+                    {{$select.selected.Text | limitTo : 20 : 0}}
+                    <span ng-if="$select.selected.Text.length>20">...</span>
+                </ui-select-match>
+                <ui-select-choices repeat="lookupitem.Id as lookupitem in item.options | filter: { Text: $select.search }">
+                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                </ui-select-choices>
+            </ui-select>
+        </div>
+    </div>
+</script>
+<script type="text/ng-template" id="dyn-date.html">
+    <div class="form-group col-sm-3">
+        <label class="col-sm-12 control-label">{{(item.translate | translate) || item.text}}</label>
+        <div class="col-sm-12">
+            <div class="datepicker" id="datepicker">
+            <input id="{{item.model}}"  type="text" class="form-control" ng-date-object
+                   uib-datepicker-popup="{{cvm.datePickerOptions.dateFormat}}"
+                   placeholder="{{cvm.datePickerOptions.placeholder}}"
+                   ng-click="datePopup = { opened: true }"
+                   is-open="datePopup.opened" ng-model="cvm.modeldata[item.model]"> <i class="fa fa-calendar" aria-hidden="true"></i>
+            </div>
+        </div>
+    </div>
+</script>
+<script type="text/ng-template" id="dyn-textarea.html">
+    <div class="form-group col-sm-3">
+        <label class="col-sm-12">{{(item.translate | translate) || item.text}}</label>
+        <div class="col-sm-12">
+            <textarea id="{{item.model}}" rows="8" cols="30" class="form-control" ng-model="cvm.modeldata[item.model]"></textarea>
+        </div>
+    </div>
+</script>
+<script type="text/ng-template" id="dyn-checkbox.html">
+    <div class="form-group col-sm-3 col-sm-12">
+        <label class="col-sm-12 control-label">{{(item.translate | translate) || item.text}}</label>
+        <div class="col-sm-12">
+            <input id="{{item.model}}" type="checkbox" class="custom-checkbox" ng-model="cvm.modeldata[item.model]">
+        </div>
+    </div>
+</script>
+<script type="text/ng-template" id="dyn-dummy.html">
+    <div class="form-group col-sm-3">
+        <label class="col-sm-12 control-label"></label>
+        <div class="col-sm-12"></div>
+    </div>
+</script>
+<script type="text/ng-template" id="dyn-section.html">
+    <div class="col-sm-3" style="padding-top: 10px;">
+        <div class="panel panel-default">
+            <h4 class="custom-modal-header">{{(item.translate | translate) || item.text}}</h4>
+            <div class="panel-body">
+                <div ng-repeat="item in item.controls" ng-include="item.tmpl"></div>
+            </div>
+        </div>
+    </div>
+</script>
+<script type="text/ng-template" id="dyn-multiselect.html">
+    <div class="form-group col-sm-3">
+        <label class="col-sm-12 control-label">{{(item.translate | translate) || item.text}}</label>
+        <div class="col-sm-12">
+            <multiselectchk id="{{item.model}}" list="item.options" selected="cvm.modeldata[item.model]"></multiselectchk>
+        </div>
+    </div>
+</script>
+<script type="text/ng-template" id="dyn-time.html">
+    <div class="form-group col-sm-3">
+        <label class="col-sm-12 control-label">{{(item.translate | translate) || item.text}}</label>
+        <div class="col-sm-12">
+                <uib-timepicker id="{{item.model}}"
+                 name="nightshiftstartfrom" ng-time-object
+                 ng-model="cvm.modeldata[item.model]"></uib-timepicker>
+        </div>
+    </div>
+</script>
+<!--control templates starts-->
+
+<div>
+    <div ng-repeat="item in cvm.schema.controls" ng-include="item.tmpl"></div>
+</div>

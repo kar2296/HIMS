@@ -1,0 +1,108 @@
+<html>
+
+<head>
+  <style>
+    .table1 {
+      border: 1px solid black;
+      font-size: 8px;
+    }
+    
+    .table2 {
+      border: 1px solid black;
+      border-top: 0px solid black;
+      font-size: 8px;
+    } 
+    {{include '/Templates/assets/css/core.css'}}
+  </style>
+</head>
+
+<body>
+  <div id="pageHeader">
+   {{{include '/Templates/rkdiabetes/common/headerwithqr.tpl.html' 'tpl'}}}
+  </div> 
+    <div style="text-align:center;font-size: 16px;"><b>OP Bill Report</b></div>
+    <table class="table1" style="width:100%;"> 
+      <tr style='vertical-align: top'>
+        <td style="width:5%;"><b>From Date</b></td>
+        <td>:</td>
+        <td style="width:15%;"><b>{{data.FromDate}}</b></td>
+        <td style="width:5%;"><b>To Date</b></td>
+        <td>:</td>
+        <td style="width:15%;"><b>{{data.ToDate}}</b></td>
+        <td style="width:5%;"><b>DoctorName</b></td>
+        <td>:</td>
+        <td style="width:25%;"><b>{{data.DoctorName}}</b></td>
+        <td style="width:5%;"><b>GuarantorName</b></td>
+        <td>:</td>
+        <td style="width:25%;"><b>{{data.GuarantorName}}</b></td>
+      </tr> 
+       <tr>
+        <td style="width:5%;"><b>DepartmentName</b></td>
+        <td>:</td>
+        <td style="width:15%;"><b>{{data.DepartmentName}}</b></td>
+        <td style="width:5%;"><b></b></td>
+        <td></td>
+        <td style="width:15%;"><b></b></td>
+        <td style="width:5%;"><b></b></td>
+        <td></td>
+        <td style="width:25%;"><b></b></td>
+        <td style="width:5%;"><b></b></td>
+        <td></td>
+        <td style="width:25%;"><b></b></td>
+      </tr> 
+    </table> 
+  </br>
+    <table class="table1" style="width:100%;">
+      <tr>
+        <td style="width:5%;"><b>S.No</b></td>
+        <td style="width:10%"><b>Bill Date</b></td>
+        <td style="width:10%"><b>Bill Number</b></td>
+        <td style="width:10%"><b>Patient Name</b></td> 
+        <td style="width:10%"><b>Doctor Name</b></td> 
+        <td style="width:10%"><b>Insurance Name</b></td> 
+        <td style="width:10%"><b>Department</b></td> 
+        <td style="width:10%"><b>Bill Amount</b></td>
+        <td style="width:10%"><b>Bill Discount</b></td>
+        <td style="width:5%"><b>Net Amount</b></td>
+        <td style="width:5%"><b>Paid Amount</b></td>
+        <td style="width:5%"><b>Due Amount</b></td>
+      </tr>
+    </table>
+    <table class="table2" style="width:100%;">
+      {{#each data.PatientBills}}
+      <tr>
+        <td style="width:5%;">{{inc @index}}</td>
+        <td style="width:10%">{{datetimeformat BillDateTime}}</td>
+        <td style="width:10%">{{BillNumber}}</td>
+        <td style="width:10%">{{Patient.Title.Description}} {{Patient.FirstName}} {{Patient.LastName}}</td> 
+        <td style="width:10%">{{User.Title.Description}} {{User.FirstName}} {{User.LastName}}</td> 
+        <td style="width:10%">{{Guarantor.GuarantorName}}</td> 
+        <td style="width:10%">{{Department.DepartmentName}}</td> 
+        <td style="width:10%">{{currencyformat BillAmount}}</td>
+        <td style="width:10%;">{{currencyformat BillDiscount}}</td>
+        <td style="width:5%">{{currencyformat NetAmount}}</td>
+        <td style="width:5%">{{currencyformat PaidAmount}}</td>
+        <td style="width:5%">{{currencyformat OutStandingAmount}}</td>
+      </tr>{{/each}}
+    </table> 
+    <table class="table2" style="width:100%">
+      <tr>
+        <td style="width:5%;"></td>
+        <td style="width:10%"></td>
+        <td style="width:10%"></td>
+        <td style="width:10%"></td> 
+        <td style="width:10%"></td> 
+        <td style="width:10%"></td> 
+        <td style="width:10%"></td> 
+        <td style="width:10%">{{currencyformat data.TotalBillAmount}}</td>
+        <td style="width:10%;">{{currencyformat data.TotalDisAmount}}</td>
+        <td style="width:5%">{{currencyformat data.TotalNetAmount}}</td>
+        <td style="width:5%">{{currencyformat data.TotalPaidAmount}}</td>
+        <td style="width:5%">{{currencyformat data.TotalDueAmount}}</td> 
+      </tr>
+      </table> 
+
+  </body>
+  <div style="width:100%; font-size:8px;">Printed On: {{now}}</div>
+
+</html>

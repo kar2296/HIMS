@@ -1,0 +1,137 @@
+<style>
+    table {
+        border-collapse: collapse;
+    }
+
+    /* table th {
+        min-width: 10px;
+        background-color: #65c4ca;
+        color: #000000 !important;
+        font-size: 16px;
+        text-align: center !important;
+        border: 1px solid #101010 !important;
+    } */
+
+    table td {
+        text-align: left;
+        overflow: visible !important;
+        white-space: nowrap;
+        font-size: 12px;
+        text-overflow: ellipsis;
+        padding: .0em;
+    }
+
+    .rz-handle {
+        background: repeating-linear-gradient(45deg,
+                transparent,
+                transparent 2px,
+                rgba(0, 0, 0, 0.05) 2px,
+                rgba(0, 0, 0, 0.05) 4px);
+    }
+
+    .bg-custom {
+        background-color: #ed143dad !important;
+        color: #fff;
+    }
+
+    /* table.table.table-bordered.table-condensed.dropdown-menu {
+        height: 357px !important;
+        width: 100% !important;
+        overflow: unset;
+        overflow-y: auto;
+    } */
+
+    /* .table-striped > tbody > tr .pack-custom:first-child {
+    border-left: 3px solid green !IMPORTANT;
+}
+.table-striped > tbody > tr .pack-custom:last-child {
+    border-right: 3px solid green !IMPORTANT;
+}
+.pack-custom {
+    border: 2px solid green !important;
+    border-right: 1px solid #a9a6a6 !important;
+    border-left: unset !IMPORTANT;
+}
+.rz-table {
+    width: 99% !IMPORTANT;
+    margin-left: 5px;
+}
+.pack-custom .ui-grid-cell-contents.ng-scope {
+    color: #ffeb3b !important;
+    font-weight: 600;
+} */
+.custom-table.table-striped.table-bordered {
+    overflow: initial !important;
+}
+</style>
+
+<div class="custom-table table-striped table-bordered" style="overflow-x: initial;">
+    <table rz-table rz-model="" rz-mode="'FixedResizer'" id="tblData"
+        class="table table-bordered bordered table-striped table-condensed datatable" ng-init="orderby">
+        <thead>
+            <tr>
+                <th ng-repeat="name in $ctrl.config.columnDefs" rz-col="name['field']"
+                    class="{{name['displayName']}} align" ng-if="true" ng-click="$ctrl.reOrder(name)">
+                    {{name['displayName']}}</th>
+            </tr>
+        </thead>
+        <!-- <tbody  ng-repeat="n in $ctrl.config.data | orderBy:'orderby' track by $index" ng-init="idx=$index" ng-class="{'bg-custom':($ctrl.config['background']&&$ctrl.config['background']['flag']&& n[$ctrl.config['background']['flag']])}" class="{{name['displayName']}}"> -->
+        <tbody class="flip">
+            <tr ng-repeat="n in $ctrl.config.data | orderBy:'orderby' track by $index" ng-init="idx=$index"
+                ng-class="{'bg-custom':($ctrl.config['background']&&$ctrl.config['background']['flag']&& n[$ctrl.config['background']['flag']])}"
+                ng-style="$ctrl.config['background']&&$ctrl.config['background']['style']?$ctrl.config['background']['style']['value'][n[$ctrl.config['background']['style']['field']]]:{}">
+                <td ng-repeat="name in $ctrl.config.columnDefs"
+                    ng-class="{'pack-custom':($ctrl.config['package']&&$ctrl.config['package']['flag']&& n[$ctrl.config['package']['flag']])}"
+                    class="{{name['displayName']}}">
+                    <div ng-if="!name.cellTemplate" class="tbdata">{{n|dotParser:name.field}}</div>
+                    <div ng-if="name.cellTemplate" class="hadeve">
+                        <cell-template entity="n" index="idx" template="name.cellTemplate" event="name.handleEvent">
+                        </cell-template>
+                        <!-- <script type="text/ng-template" id="/tpl.html">
+                              </script>
+                        <div ng-include src="'/tpl.html'"></div> -->
+                    </div>
+                </td>
+
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<script>
+    function exportTableToExcel(tableID, filename = '') {
+        var downloadLink;
+        var dataType = 'application/vnd.ms-excel';
+        var tableSelect = document.getElementById(tableID);
+        var tableHTML = tableSelect.outerHTML.replace(/ /g, '%20');
+
+        // Specify file name
+        filename = filename ? filename + '.xls' : 'excel_data.xls';
+
+        // Create download link element
+        downloadLink = document.createElement("a");
+
+        document.body.appendChild(downloadLink);
+
+        if (navigator.msSaveOrOpenBlob) {
+            var blob = new Blob(['\ufeff', tableHTML], {
+                type: dataType
+            });
+            navigator.msSaveOrOpenBlob(blob, filename);
+        } else {
+            // Create a link to the file
+            downloadLink.href = 'data:' + dataType + ', ' + tableHTML;
+
+            // Setting the file name
+            downloadLink.download = filename;
+
+            //triggering the function
+            downloadLink.click();
+        }
+    }
+</script>
+<script>
+    $('.flip').hover(function () {
+        $('.pack-custom').toggleClass('flipped');
+    });
+</script>

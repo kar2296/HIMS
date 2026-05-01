@@ -1,0 +1,30 @@
+export enum PatientCertificateFilters {
+    Id,
+    CertificateStatus,
+    Doctor,
+    Name,
+    PatientNameMRN,
+    DischargeDate,
+    EncounterId,
+    WardId,
+    AdmissionStatusId,
+    VisitIdentifier,
+    PatientId,
+    PatInfo,
+    GuarantorId,
+    FromDOD,
+    ToDOD,
+    FacilityId
+}
+export enum ReferralFeedbackFilters {
+    Id,
+    PatientNameMRN,
+    VisitNo,
+    PhoneNo,
+    ReferralDate,
+    SourceId,
+    ReferralId,
+    ReferralStatusId,
+    From,
+    To
+}

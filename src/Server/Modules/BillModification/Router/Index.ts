@@ -1,0 +1,11 @@
+import { Router, GetRouter } from '../../../Core/Index';
+import ModifiedPatientBills from './ModifiedPatientBillsRoute';
+import ModifiedPatientBillCategorys from './ModifiedPatientBillCategorysRoute';
+import ModifiedPatientBillCategoryDetails from './ModifiedPatientBillCategoryDetailsRoute';
+import ModifiedPatientPaymentDetails from './ModifiedPatientPaymentDetailsRoute';
+let router: Router = GetRouter();
+router.use('/ModifiedPatientBills', ModifiedPatientBills);
+router.use('/ModifiedPatientBillCategorys', ModifiedPatientBillCategorys);
+router.use('/ModifiedPatientBillCategoryDetails', ModifiedPatientBillCategoryDetails);
+router.use('/ModifiedPatientPaymentDetails', ModifiedPatientPaymentDetails);
+export default router;

@@ -1,0 +1,94 @@
+<html>
+
+<head>
+  <style>
+    .table1 {
+      border: 1px solid black;
+      font-size: 13px;
+    }
+    
+    .table2 {
+      border: 1px solid black;
+      border-top: 0px solid black;
+      font-size: 13px;
+    } 
+    
+    {{include '/Templates/SDH/assets/css/core.css' }}
+  </style>
+</head>
+
+<body>
+  <div id="pageHeader">
+    {{{include '/Templates/SDH/common/header.tpl.html' 'tpl'}}}
+  </div> 
+    <div style="text-align:center;font-size: 13px;"><b>IP Due Report</b></div>
+    <table class="table1" style="width:100%;"> 
+      <tr style='vertical-align: top'>
+        <td style="width:5%;font-size: 13px;"><b>FromDate</b></td>
+        <td>:</td>
+        <td style="width:15%;font-size: 13px;"><b>{{data.FromDate}}</b></td>
+        <td style="width:5%;font-size: 13px;"><b>ToDate</b></td>
+        <td>:</td>
+        <td style="width:15%;font-size: 13px;"><b>{{data.ToDate}}</b></td>
+        <td style="width:5%;font-size: 13px;"><b>DueApproval</b></td>
+        <td>:</td>
+        <td style="width:25%;font-size: 13px;"><b>{{data.DueApproval}}</b></td>
+        <td style="width:5%;font-size: 13px;"><b>GuarantorName</b></td>
+        <td></td>
+        <td style="width:25%;font-size: 13px;"><b>{{data.GuarantorName}}</b></td>
+      </tr> 
+    </table> 
+  </br>
+    <table class="table1" style="width:100%;">
+      <tr>
+        <td style="width:2%;font-size: 13px;"><b>S.No</b></td>
+        <td style="width:10%;font-size: 13px;"><b>Bill Date</b></td>
+        <td style="width:8%;font-size: 13px;"><b>Bill Number</b></td>
+        <td style="width:10%;font-size: 13px;"><b>Patient Name</b></td>
+        <!-- <td style="width:10%;font-size: 13px;"><b>Referral Doctor</b></td> -->
+        <td style="width:10%;font-size: 13px;"><b>Bill Amount</b></td>
+        <td style="width:10%;font-size: 13px;"><b>Bill Discount</b></td>
+        <td style="width:10%;font-size: 13px;"><b>Paid Amount</b></td>
+        <td style="width:10%;font-size: 13px;"><b>Due Amount</b></td>
+        <td style="width:10%;font-size: 13px;"><b>Due Approval</b></td>
+        <td style="width:10%;font-size: 13px;"><b>Remarks</b></td>
+        <td style="width:10%;font-size: 13px;"><b>Billed By</b></td>
+      </tr>
+    </table>
+    <table class="table2" style="width:100%;">
+      {{#each data.PatientBills}}
+      <tr>
+        <td style="width:2%;">{{inc @index}}</td>
+        <td style="width:10%">{{datetimeformat BillDateTime}}</td>
+        <td style="width:8%">{{BillNumber}}</td>
+        <td style="width:10%">{{Patient.Title.Description}} {{Patient.FirstName}} {{Patient.LastName}}</td>
+        <!-- <td style="width:10%">{{ReferralName}}</td> -->
+        <td style="width:10%">{{currencyformat BillAmount}}</td>
+        <td style="width:10%">{{currencyformat BillDiscount}}</td>
+        <td style="width:10%;">{{currencyformat PaidAmount}}</td>
+        <td style="width:10%">{{currencyformat OutStandingAmount}}</td>
+        <td style="width:10%">{{PrivateDue.Title.Description}} {{PrivateDue.FirstName}} {{PrivateDue.LastName}}</td>
+        <td style="width:10%">{{Comments}}</td>
+        <td style="width:10%">{{Updateduser.Title.Description}} {{Updateduser.FirstName}} {{Updateduser.LastName}}</td>
+      </tr>{{/each}}
+    </table>
+    <table class="table2" style="width:100%;"> 
+      <tr>
+        <td style="width:2%;"> </td>
+        <td style="width:10%"></td>
+        <td style="width:8%"></td>
+        <td style="width:10%"></td>
+        <td style="width:10%"></td>
+        <td style="width:10%"></td>
+        <td style="width:10%;"></td>
+        <td style="width:10%">{{currencyformat data.TotalDueAmount}}</td>
+        <td style="width:10%"></td>
+        <td style="width:10%"></td>
+      </tr> 
+    </table>
+
+
+  </body>
+  <div style="width:100%; font-size:11px;">Printed On: {{now}}</div>
+
+</html>

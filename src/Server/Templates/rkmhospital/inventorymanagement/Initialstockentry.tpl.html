@@ -1,0 +1,183 @@
+<html>
+
+    <head>
+        <style>
+            .table1 {
+                border: 1px solid black;
+                border-bottom: 0px solid black;
+                text-align: center;
+                font-size: 11px;
+            }
+
+            .table2 {
+                border: 1px solid black;
+                border-bottom: 0px solid black;
+                font-size: 11px;
+            }
+            .table4 {
+                border: 1px solid black;
+                border-top: 0px solid black;
+                border-bottom: 0px solid black;
+                font-size: 11px;
+            }
+            .size {
+                border: 1px solid black;
+                border-collapse: collapse;
+                font-size: 11px;
+                border-top:0px solid black;
+                border-bottom: 1px solid black;
+            }
+
+            .table3 {
+                border: 1px solid black;
+                border-bottom: 1px solid black;
+                font-size: 11px;
+            }
+            .size2 {
+                border: 1px solid black;
+                font-size: 11px;
+                border-top: 0px solid black;
+                border-bottom: 1px solid black;
+            }
+
+            .header1 {
+                font-size: 11px ;
+                text-align: center;
+            }
+
+             {{include '/Templates/assets/css/core.css'}}
+            </style>
+        </head>
+        <body>
+         <div id="pageHeader">
+        {{{include '/Templates/rkmhospital/common/header1.tpl.html' 'tpl'}}}
+    </div>
+        <table class="table1" style="width:100%;">
+            <tr>
+                <td height="20" style="vertical-align:text-middle;"><b>Initial Stock Entry</b></td>
+            </tr>
+        </table>
+        <table class="table2" style="width:100%;">
+            <tr>
+                <td style="width:20%;"><b>Adjust. No.</b></td>
+                <td>:</td>
+                <td style="width:40%;">{{data.StockEntry.StockEntryNumber}}</td>
+                <td style="width:40%;" rowspan="2"><img style="height: 30px; width: 100px;"  src="{{barcode data.StockEntry.StockEntryNumber}}"/></td>
+            </tr>
+            <tr>
+                <td><b>Adjust Date</b></td>
+                <td>:</td>
+                <td>{{datetimeformat data.StockEntry.StockEntryDate}}</td>
+            </tr>
+        </table>
+        <table class="table2" style="width:100%;">
+            <tr>
+                <td style="width:20%;"><b>Facility</b></td>
+                <td>:</td>
+                <td style="width:30%;">{{data.StockEntry.Facility.FacilityName}}</td>
+                <td style="width:20%;" ><b>Store Type</b></td>
+                <td>:</td>
+                <td style="width:30%;">Medical</td>
+            </tr>
+            <tr>
+                <td><b>Store</b></td>
+                <td>:</td>
+                <td>{{data.StockEntry.StoreMaster.StoreName}}</td>
+                <td><b>Status</b></td>
+                <td>:</td>
+                <td><b>{{data.StockEntry.StockEntryStatus.Description}}</b></td>
+            </tr>
+        </table>
+        <table border class="size" style="width:100%;">
+            <tr>
+                <th style="width:4%;" align="center">S.No</th>
+                <th style="width:10%;" align="center">Material Name</th>
+                <th style="width:10%;" align="center">Batch</th>
+                <th style="width:8%;" align="center">  Exp</th>
+                <th style="width:8%;" align="center">Opening Qty</th>
+                <th style="width:5%;" align="center">UCP</th>
+                <th style="width:8%;" align="center">MRP</th>
+                <th colspan="2" style="width:14%" align="center">Total Value</th>
+                <th colspan="2"style="width:12%" align="center">CGST</th>
+                <th colspan="2"style="width:12%" align="center">SGST</th>
+                <th style="width:8%;" align="left"></th>
+            </tr>
+            <tr>
+                <th colspan="7" style="width:53%" align="left"></th>
+                <th style="width:7%" align="center">Tax</th>
+                <th style="width:7%" align="center">IN-GST</th>
+                <th style="width:6%" align="center">Rate%</th>
+                <th style="width:6%" align="center">Amt</th>
+                <th style="width:6%" align="center">Rate%</th>
+                <th style="width:6%" align="center">Amt</th>
+                <th style="width:8%" align="center">Amount</th>
+            </tr>
+         </table>
+         <table  class="size2" style="width:100%">
+             {{#each data.StockEntryDetail}}
+            <tr>
+                  <tr>
+                <td style="width:4%;"align="center">{{inc @index}}</td>
+                <td style="width:10%;"align="center">{{ItemName}}({{ItemCode}})</td>
+                <td style="width:10%;"align="center">{{BatchId}}</td>
+                <td style="width:8%;"align="center"> {{dateformat ExpiryDate}}</td>
+                <td style="width:8%;" align="center">{{EntryQuantity}}</td>
+                <td style="width:5%;" align="center">{{currencyformat UnitCostPrice}}</td>
+                <td style="width:8%;" align="center">{{currencyformat MrPrice}}</td>
+                <td style="width:7%" align="center">{{currencyformat NetAmountBeforeGst}}</td>
+                <td style="width:7%" align="center">{{currencyformat NetAmount}}</td>
+                <td style="width:6%" align="center">{{CGstPercentage}}</td>
+                <td style="width:6%" align="center">{{currencyformat CgstTax}}</td>
+                <td style="width:6%" align="center">{{SGstPercentage}}</td>
+                <td style="width:6%" align="center">{{currencyformat SgstTax}}</td>
+                <td style="width:8%" align="center">{{currencyformat NetAmount}}</td>
+            </tr>{{/each}}
+        </table>
+        <table  class="table4" style="width:100%">
+            <tr>
+                <td style="width:40%;"></td>
+                <td style="width:50%;" align="right"><b>Gross  Amount</b></td>
+                <td>:</td>
+                <td style="width:10%;"align="right">{{currencyformat data.StockEntry.TotalGrossAmount}}</td>
+            </tr>
+            <tr>
+                <td style="width:40%;"></td>
+                <td style="width:50%;" align="right"><b>GST Amount</b></td>
+                <td>:</td>
+                <td style="width:10%;" align="right">{{currencyformat data.StockEntry.TotalGstAmount}}</td>
+            </tr>
+            <tr>
+                <td colspan="2" style="width:90%;" align="right"><b>Total</b></td>
+                <td>:</td>
+                <td style="width:10%;" align="right">{{currencyformat data.StockEntry.TotalNetAmount}}</td>
+            </tr>
+        </table>
+        <table class="table2" style="width:100%">
+            <tr>
+                <td style="width:20%;"><b>Amount in Words</b></td>
+                <td>:</td>
+                <td style="width:80%;">Rupees {{decimalnrInWords  data.StockEntry.TotalNetAmount}} only</td>
+            </tr>
+            <table class="table2" style="width:100%;">
+                <tr>
+                    <td style="width:20%;"><b>Comments</b></td>
+                    <td>:</td>
+                    <td style="width:80%;" colspan="4">{{data.StockEntry.Comments}}</td>
+                </tr>
+            </table>
+           <table class="table3" style="width:100%;">
+            <tr>
+                <td style="width:35%;"><b>{{data.StockEntry.AuthorizedUser.Title.Description}} {{data.StockEntry.AuthorizedUser.FirstName}} {{data.StockEntry.AuthorizedUser.LastName}}</b></td>
+                <td style="width:30%;"></td>
+                <td style="width:35%;text-align:right;"><b>{{data.StockEntry.ApprovedUser.Title.Description}} {{data.StockEntry.ApprovedUser.FirstName}} {{data.StockEntry.ApprovedUser.LastName}}</b></td>
+            </tr>
+            <tr>
+                <td style="width:35%;"><b>Authorized By</b></td>
+                <td style="width:30%;"></td>
+                <td style="width:35%;text-align:right;"><b>Approved By</b></td>
+            </tr>
+        </table>
+            <br>
+    </body>
+    <div style="width:100%; font-size:8px;">Printed On: {{now}}</div>
+    </html>

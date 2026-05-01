@@ -1,0 +1,34 @@
+﻿<script type="text/ng-template" id="customPopupTemplate.html">
+    <div class="custom-popup-wrapper"  style="display: block;" ng-show="isOpen() && !moveInProgress" aria-hidden="{{!isOpen()}}">
+
+        <table class="table table-bordered table-condensed align" role="listbox">
+            <thead>
+                <th class="{{item.headercls}}" ng-repeat="item in $parent.cvm.config.options">{{item.header}}</th>
+            </thead>
+            <tbody>
+                <tr class="uib-typeahead-match" should-focus="isActive($index)" ng-repeat="match in matches" ng-class="{active: isActive($index) }" ng-mouseenter="selectActive($index)" ng-click="selectMatch($index)" role="option" id="{{::match.model.Id}}">
+
+                    <td class="{{item.fieldcls}}" ng-repeat="item in $parent.$parent.cvm.config.options">
+                        <div class="ndisplay"  ng-if="item.datatype=='string'">{{match.model[item.field]}}</div>
+                        <displaydate ng-if="item.datatype=='date'" date-val='match.model[item.field]'></displaydate>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</script>
+
+<div class="autosearch-div">
+    <input id="{{cvm.controlid}}" type="text" placeholder="Search Your {{cvm.placeholder}}..." class="autosearch-input"
+        ng-model="cvm.autosearchdisplay" uib-typeahead="item for item in cvm.searchItem($viewValue)"
+        typeahead-on-select="cvm.OnSelectItem($item, $model, $label, $event)" class="form-control zfautosearch"
+        tabindex="cvm.tabindex" typeahead-input-formatter="cvm.formatItem($model)" on-enter=cvm.enter()
+        typeahead-popup-template-url="customPopupTemplate.html" name="{{cvm.name}}" ng-disabled="cvm.candisable"
+        ng-required="cvm.isrequired" fieldname="">
+</div>
+
+<!-- <style>
+    table.table.table-bordered.table-condensed.dropdown-menu.align {
+        min-width: 91vh !important;
+    }
+</style> -->

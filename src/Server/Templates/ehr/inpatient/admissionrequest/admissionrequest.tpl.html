@@ -1,0 +1,189 @@
+<html>
+
+<head>
+    <style>
+        .header1 {
+            font-size: 1em;
+        }
+        
+        .center {
+            text-align: center;
+            font-size: 8px;
+        }
+        
+        .right {
+            text-align: right;
+            font-size: 8px;
+        }
+        
+        .table1 {
+            font-size: 8px;
+            border: 1px solid black;
+            border-bottom: 0px solid black;
+        }
+        
+        .table2 {
+            font-size: 8px;
+            border: 1px solid black;
+            border-bottom: 1px solid black;
+        }
+        
+        .size {
+            font-size: 8px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="pageHeader">
+        {{{include '/Templates/ehr/common/header.tpl.html' 'tpl'}}}
+    </div>
+    <div id="pageFooter">
+        {{{include '/Templates/ehr/common/footer.tpl.html' 'tpl'}}}
+    </div>
+    <hr style="border-top:solid 1px;" />
+
+    <div class="border-bottom">
+        <table  class="size" style="width:100%;">
+            <tr>
+
+                <td colspan="3" style="width:40%;"><b>PATIENT INFORMATION</td>
+                <td colspan="2" style="text-align:left;width:28%;">Advised By</td>
+                <td style="width:20%;">Requested No</td>
+                <td>:</td>
+                <td  style="width:22%;">{{data.AdmissionRequest.RequestIdentifier}}</td>       
+            </tr>
+            <tr>
+                
+                <td colspan="3"style="font-size:8px;"><strong>{{data.Patient.Title.Description}} {{data.Patient.FirstName}} {{data.Patient.MiddleName}} {{data.Patient.LastName}}</strong></td>
+              
+                <td colspan="2"style="text-align:left;font-size:8px;"><strong>{{data.AdmissionRequest.Doctor.Title.Description}} {{data.AdmissionRequest.Doctor.FirstName}} {{data.AdmissionRequest.Doctor.LastName}}</strong></td>
+                 <td>Requested On</td>
+                <td>:</td>
+                <td style="width:20%;">{{datetimeformat data.AdmissionRequest.UpdatedAt}}</td>
+            </tr>
+             <tr>
+                <td style="width:10%;">DOB</td>
+                  <td>:</td>
+                <td>{{strtodate data.Patient.DOB}}</td>
+               
+                <td style="width:7%;"> UHID :</td>
+                <td style="text-align:left;width:15%;">{{data.Patient.MRN}}</td>
+                <td colspan="3"></td>
+                
+            </tr> <tr>
+                <td>AGE</td>
+                 <td>:</td>
+                <td> {{age data.Patient.DOB}}</td>
+                <td colspan="2"><img style="height: 30px; width: 100px;"  src="{{barcode data.Patient.MRN}}"/> </td>
+                <td><b>STATUS</b></td>
+                <td>:</td>
+                <td><b>{{data.AdmissionRequest.AdmissionRequestStatus.Description}}</b></td>
+
+            </tr>
+            <tr>
+                <td>GENDER</td>
+                <td>:</td>
+                <td> {{data.Patient.Gender.Description}}</td>
+                <td colspan="2"></td>
+                <td>PRIORITY</td>
+                <td>:</td>
+                <td>{{data.AdmissionRequest.Priority.Description}}</td>
+
+            </tr>
+            <tr>
+                <td>OP No</td>
+                <td>:</td>
+                <td>{{data.AdmissionRequest.RequestIdentifier}}</td>
+                <td colspan="2"></td>
+                <td colspan="3" style="width:20%;"></td>
+            </tr>
+        </table>
+    </div>
+    <hr style="border-top:solid 1px;" />
+    </div>
+    <div class="center header1"><b> Admission Request</b>
+        <div>
+            <div class="table1">
+
+                <table class="size" style="width:100%;">
+                    <tr>
+                        <td style="width:30%;">Request Type </td>
+                        <td>:</td>
+                        <td style="width:70%;">{{data.AdmissionRequest.AdmissionRequestType.Description}}</td>
+                    </tr>
+                    <tr>
+                        <td>Admitting Reason </td>
+                        <td>:</td>
+                        <td>{{data.AdmissionRequest.Reasons}}</td>
+                    </tr>
+                    <tr>
+                        <td>Admission Date </td>
+                        <td>:</td>
+                        <td>{{datetimeformat data.AdmissionRequest.AdmissionDate}}</td>
+                    </tr>
+                    <tr>
+                        <td>Length Of Stay(days)</td>
+                        <td>:</td>
+                        <td>{{data.AdmissionRequest.ALOS}}</td>
+                    </tr>
+                    <tr>
+                        <td>Est. Discharge Date </td>
+                        <td>:</td>
+                        <td>{{dateformat data.AdmissionRequest.ExceptedDisDate}}</td>
+                    </tr>
+                    <tr>
+                        <td>Provisional Diagnosis </td>
+                        <td>:</td>
+                        <td>{{data.AdmissionRequest.Diagnosis.DiagnosisName}}</td>
+                    </tr>
+                    <tr>
+                        <td>Remarks </td>
+                        <td>:</td>
+                        <td>{{data.AdmissionRequest.Remarks}}</td>
+                    </tr>
+                    <tr>
+                        <td>Preferred Ward /Room/Bed </td>
+                        <td>:</td>
+                        <td>{{data.AdmissionRequest.WardMaster.WardName}} {{data.AdmissionRequest.WardRoomMaster.RoomNo}} {{data.AdmissionRequest.WardRoomBedMaster.BedNo}}</td>
+                    </tr>
+                    <tr>
+                        <td style="vertical-align:text-top">Comments </td>
+                        <td style="vertical-align:text-top">:</td>
+                        <td>{{data.AdmissionRequest.Comments}}</td>
+                    </tr>
+                </table>
+            </div>
+            <div class="table2">
+
+                <table class="size" style="width:100%;">
+                    <tr>
+                        <td style="vertical-align:text-top" height="40">Other Clinical Notes </td>
+                        <td style="vertical-align:text-top">:</td>
+                        <td></td>
+                    </tr>
+
+                </table>
+            </div>
+            <div>
+                <table style="width:100%;">
+                    <tr>
+                        <td style="width:10%;"></td>
+                        <td style="width:80%;">
+                            <div class="right">{{data.AdmissionRequest.CreatedUser.Title.Description}} {{data.AdmissionRequest.CreatedUser.FirstName}} {{data.AdmissionRequest.CreatedUser.LastName}}</div>
+                        </td>
+                        <td style="width:10%;"></td>
+                    </tr>
+                    <tr>
+                        <td style="width:30%;"> <div style="width:100%; font-size:8px;text-align:left">Printed On: {{now}}</div></td>
+                        <td style="width:50%;">
+                            <div class="right">Authorized By</div>
+                        </td>
+                        <td style="width:10%;"></td>
+                    </tr>
+                </table>
+            </div>
+           
+</body>
+
+</html>

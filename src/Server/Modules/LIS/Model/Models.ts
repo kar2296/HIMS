@@ -1,0 +1,55 @@
+import * as i from './Interface/Index';
+import * as SequelizeStatic from 'sequelize';
+declare global {
+    interface Models {
+        Containertype: SequelizeStatic.Model<i.ContainertypeInstance, i.ContainertypeAttributes>;
+        Sampletype: SequelizeStatic.Model<i.SampletypeInstance, i.SampletypeAttributes>;
+        Analytemaster: SequelizeStatic.Model<i.AnalytemasterInstance, i.AnalytemasterAttributes>;
+        Analytealiasesmaster: SequelizeStatic.Model<i.AnalytealiasesmasterInstance, i.AnalytealiasesmasterAttributes>;
+        Analyterefmaster: SequelizeStatic.Model<i.AnalyterefmasterInstance, i.AnalyterefmasterAttributes>;
+        Testmaster: SequelizeStatic.Model<i.TestmasterInstance, i.TestmasterAttributes>;
+        Testmasterfacilitymap: SequelizeStatic.Model<i.TestmasterfacilitymapInstance, i.TestmasterfacilitymapAttributes>;
+        Testmasteranalytemap: SequelizeStatic.Model<i.TestmasteranalytemapInstance, i.TestmasteranalytemapAttributes>;
+        Testschemecodemapping: SequelizeStatic.Model<i.TestschemecodemappingInstance, i.TestschemecodemappingAttributes>;
+        Testdiagnosismapping: SequelizeStatic.Model<i.TestdiagnosismappingInstance, i.TestdiagnosismappingAttributes>;
+        Testtemplatemaster: SequelizeStatic.Model<i.TesttemplatemasterInstance, i.TesttemplatemasterAttributes>;
+        Ticksheetmaster: SequelizeStatic.Model<i.TicksheetmasterInstance, i.TicksheetmasterAttributes>;
+        Externalproviders: SequelizeStatic.Model<i.ExternalprovidersInstance, i.ExternalprovidersAttributes>;
+        InvestigationSettings: SequelizeStatic.Model<i.InvestigationSettingsInstance, i.InvestigationSettingsAttributes>;
+        PatientOrders: SequelizeStatic.Model<i.PatientOrdersInstance, i.PatientOrdersAttributes>;
+        PatientOrderdetails: SequelizeStatic.Model<i.PatientOrderdetailsInstance, i.PatientOrderdetailsAttributes>;
+        OrderStatus: SequelizeStatic.Model<i.OrderStatusInstance, i.OrderStatusAttributes>;
+        OrderType: SequelizeStatic.Model<i.OrderTypeInstance, i.OrderTypeAttributes>;
+        PriorityStatus: SequelizeStatic.Model<i.PriorityStatusInstance, i.PriorityStatusAttributes>;
+        PatientWorkorderObservation: SequelizeStatic.Model<i.PatientWorkorderObservationInstance, i.PatientWorkorderObservationAttributes>;
+        PatientWorkorder: SequelizeStatic.Model<i.PatientWorkorderInstance, i.PatientWorkorderAttributes>;
+        PatientWorkorderdetails: SequelizeStatic.Model<i.PatientWorkorderdetailsInstance, i.PatientWorkorderdetailsAttributes>;
+        Drawsite: SequelizeStatic.Model<i.DrawsiteInstance, i.DrawsiteAttributes>;
+        PatientSampledetails: SequelizeStatic.Model<i.PatientSampledetailsInstance, i.PatientSampledetailsAttributes>;
+        WorkOrderStatus: SequelizeStatic.Model<i.WorkOrderStatusInstance, i.WorkOrderStatusAttributes>;
+        ResultStatus: SequelizeStatic.Model<i.ResultStatusInstance, i.ResultStatusAttributes>;
+        PatientOrderStatus: SequelizeStatic.Model<i.PatientOrderStatusInstance, i.PatientOrderStatusAttributes>;
+        TestmasterInst: SequelizeStatic.Model<i.TestmasterInstInstance, i.TestmasterInstAttributes>;
+        TestmasterTemplate: SequelizeStatic.Model<i.TestmasterTemplateInstance, i.TestmasterTemplateAttributes>;
+        TestmasterBOM: SequelizeStatic.Model<i.TestmasterBOMInstance, i.TestmasterBOMAttributes>;
+        WorkOrderSample: SequelizeStatic.Model<i.WorkOrderSampleInstance, i.WorkOrderSampleAttributes>;
+        WorkOrderSampleDetail: SequelizeStatic.Model<i.WorkOrderSampleDetailInstance, i.WorkOrderSampleDetailAttributes>;
+        ExternalProvider: SequelizeStatic.Model<i.ExternalProviderInstance, i.ExternalProviderAttributes>;
+        PriceMapping: SequelizeStatic.Model<i.PriceMappingInstance, i.PriceMappingAttributes>;
+        WorkOrderAttachment: SequelizeStatic.Model<i.WorkOrderAttachmentInstance, i.WorkOrderAttachmentAttributes>;
+        WorkOrderObservation: SequelizeStatic.Model<i.WorkOrderObservationInstance, i.WorkOrderObservationAttributes>;
+        OrderTAT: SequelizeStatic.Model<i.OrderTATInstance, i.OrderTATAttributes>;
+        AnalyzerTest: SequelizeStatic.Model<i.AnalyzerTestInstance, i.AnalyzerTestAttributes>;
+        AnalyzerAnalyteMap: SequelizeStatic.Model<i.AnalyzerAnalyteMapInstance, i.AnalyzerAnalyteMapAttributes>;
+        AnalyserTemplate: SequelizeStatic.Model<i.AnalyserTemplateInstance, i.AnalyserTemplateAttributes>;
+        LISInterfaceResults: SequelizeStatic.Model<i.LISInterfaceResultInstance, i.LISInterfaceResultAttributes>;
+        LISInterfacePatientDetails: SequelizeStatic.Model<i.LISInterfacePatientDetailsInstance, i.LISInterfacePatientDetailsAttributes>;
+        AntibioticMaster: SequelizeStatic.Model<i.AntibioticMasterInstance, i.AntibioticMasterAttributes>;
+        PatientWorkOrderAntibiotics: SequelizeStatic.Model<i.PatientWorkOrderAntibioticsInstance, i.PatientWorkOrderAntibioticsAttributes>;
+        OrgIsolation: SequelizeStatic.Model<i.OrgIsolationInstance, i.OrgIsolationAttributes>;
+        AntibioticOrganismMap: SequelizeStatic.Model<i.AntibioticOrganismMapInstance, i.AntibioticOrganismMapAttributes>;
+        B2BCustomerMaster: SequelizeStatic.Model<i.B2BCustomerMasterInstance, i.B2BCustomerMasterAttributes>;
+        PatientCriticalOrder: SequelizeStatic.Model<i.PatientCriticalOrderInstance, i.PatientCriticalOrderAttributes>;
+        RISInterfaceResult: SequelizeStatic.Model<i.RISInterfaceResultInstance, i.RISInterfaceResultAttributes>;
+    }
+}

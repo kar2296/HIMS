@@ -1,0 +1,69 @@
+<style>
+    table {
+        border-collapse: collapse;
+    }
+
+    /* table th {
+        min-width: 10px;
+        background-color: #65c4ca;
+        color: #101010 !important;
+        font-size: 16px;
+        text-align: center !important;
+        border: 1px solid #101010 !important;
+    } */
+
+    table td {
+        text-align: left;
+        overflow: visible !important;
+        white-space: nowrap;
+        font-size: 12px;
+        text-overflow: ellipsis;
+        padding: .0em;
+    }
+
+    .rz-handle {
+        background: repeating-linear-gradient(45deg,
+                transparent,
+                transparent 2px,
+                rgba(0, 0, 0, 0.05) 2px,
+                rgba(0, 0, 0, 0.05) 4px);
+    }
+
+    .bg-custom {
+        background-color: #ed143dad !important;
+        color: #fff;
+    }
+
+    .customreport-table.table-striped.table-bordered {
+        overflow: unset !important;
+    }
+</style>
+
+<div class="customreport-table table-striped table-bordered">
+    <table rz-table rz-model="" rz-mode="'FixedResizer'" id="table1"
+        class="table table-bordered bordered table-striped table-condensed datatable" ng-init="orderby">
+        <thead>
+            <tr>
+                <th ng-repeat="name in $ctrl.config.columnDefs" rz-col="name['field']" ng-if="true"
+                    ng-click="$ctrl.reOrder(name)">{{name['displayName']}}</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr ng-repeat="n in $ctrl.config.data | orderBy:'orderby' track by $index" ng-init="idx=$index"
+                ng-class="{'bg-custom':($ctrl.config['background']&&$ctrl.config['background']['flag']&& n[$ctrl.config['background']['flag']])}"
+                ng-style="$ctrl.config['background']&&$ctrl.config['background']['style']?$ctrl.config['background']['style']['value'][n[$ctrl.config['background']['style']['field']]]:{}">
+                <td ng-repeat="name in $ctrl.config.columnDefs">
+                    <div ng-if="!name.cellTemplate">{{n|dotParser:name.field}}</div>
+                    <div ng-if="name.cellTemplate">
+                        <cell-template entity="n" index="idx" template="name.cellTemplate" event="name.handleEvent">
+                        </cell-template>
+                        <!-- <script type="text/ng-template" id="/tpl.html">
+                              </script>
+                        <div ng-include src="'/tpl.html'"></div> -->
+                    </div>
+                </td>
+
+            </tr>
+        </tbody>
+    </table>
+</div>

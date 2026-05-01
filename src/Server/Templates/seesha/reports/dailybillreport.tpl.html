@@ -1,0 +1,91 @@
+<html>
+
+<head>
+  <style>
+    .table1 {
+      border: 1px solid black;
+      font-size:18px;
+    }
+    
+    .table2 {
+      border: 1px solid black;
+      border-top: 0px solid black;
+      font-size:18px;
+    } 
+    {{include '/Templates/assets/css/core.css'}}
+  </style>
+</head>
+
+<body>
+  <div id="pageHeader">
+    {{{include '/Templates/gloomsoft/common/header.tpl.html' 'tpl'}}}
+  </div> 
+    <div style="text-align:center;font-size:18px;"><b>DailyBill Report</b></div>
+    <table class="table1" style="width:100%;"> 
+      <tr style='vertical-align: top'>
+        <td style="width:5%;"><b>From Date</b></td>
+        <td>:</td>
+        <td style="width:15%;"><b>{{data.FromDate}}</b></td>
+        <td style="width:5%;"><b>To Date</b></td>
+        <td>:</td>
+        <td style="width:15%;"><b>{{data.ToDate}}</b></td>
+        <td style="width:5%;"><b>Clinics</b></td>
+        <td>:</td>
+        <td style="width:25%;"><b>{{data.FacilityName}}</b></td>
+        <td style="width:5%;"><b>User Name</b></td>
+        <td>:</td>
+        <td style="width:25%;"><b>{{data.UserName}}</b></td>
+      </tr> 
+    </table> 
+  </br>
+    <table class="table1" style="width:100%;">
+      <tr>
+        <td style="width:5%;"><b>S.No</b></td>
+        <td style="width:10%"><b>Bill Date</b></td>
+        <td style="width:10%"><b>Bill Number</b></td>
+        <td style="width:15%"><b>Patient Name</b></td>
+        <td style="width:8%"><b>Referral Doctor</b></td>
+        <td style="width:8%"><b>B2B Referral Doctor</b></td>
+        <td style="width:8%"><b>Bill Amount</b></td>
+        <td style="width:8%"><b>Bill Discount</b></td>
+        <td style="width:8%"><b>Net Amount</b></td>
+        <td style="width:10%"><b>Paid Amount</b></td>
+        <td style="width:10%"><b>Due Amount</b></td>
+      </tr>
+    </table>
+    <table class="table2" style="width:100%;">
+      {{#each data.PatientBills}}
+      <tr>
+        <td style="width:5%;">{{inc @index}}</td>
+        <td style="width:10%">{{datetimeformat BillDateTime}}</td>
+        <td style="width:10%">{{BillNumber}}</td>
+        <td style="width:15%">{{Patient.Title.Description}} {{Patient.FirstName}} {{Patient.LastName}}</td>
+        <td style="width:8%">{{ReferralName}}</td>
+        <td style="width:8%">{{B2BCustomerMaster.B2BCustomerName}}</td>
+        <td style="width:8%">{{currencyformat BillAmount}}</td>
+        <td style="width:8%;">{{currencyformat BillDiscount}}</td>
+        <td style="width:8%">{{currencyformat NetAmount}}</td>
+        <td style="width:10%">{{currencyformat PaidAmount}}</td>
+        <td style="width:10%">{{currencyformat OutStandingAmount}}</td>
+      </tr>{{/each}}
+    </table> 
+    <table class="table2" style="width:100%">
+      <tr>
+        <td style="width:5%;"></td>
+        <td style="width:10%"></td>
+        <td style="width:10%"></td>
+        <td style="width:15%"></td>
+        <td style="width:8%"></td> 
+        <td style="width:8%"></td>
+        <td style="width:8%">{{currencyformat data.TotalBillAmount}}</td>
+        <td style="width:8%;">{{currencyformat data.TotalDisAmount}}</td>
+        <td style="width:8%">{{currencyformat data.TotalNetAmount}}</td>
+        <td style="width:10%">{{currencyformat data.TotalPaidAmount}}</td>
+        <td style="width:10%">{{currencyformat data.TotalDueAmount}}</td> 
+      </tr>
+      </table> 
+
+  </body>
+  <div style="width:100%; font-size:15px;">Printed On: {{now}}</div>
+
+</html>

@@ -1,0 +1,54 @@
+<div id="{{config.name}}_wrapper" class="gridWrapper">
+
+	<div id="{{config.name}}_header"class="grid_header" ng-if="config.label || config.labelKey || config.enableSearch">
+		<div id="{{config.name}}_title" class="grid_titleWrapper" ng-if="config.label || config.labelKey">
+        	<label ng-if="config.label"><span ng-bind-html="config.label"></span></label>
+        	<span id="{{config.name}}_selected_row_count" ng-if="isRowSelectionEnabled() && config.showSelectedCount">
+				(Selected : {{config.selectedRowsCount || 0}})
+			</span>
+    	</div>	
+    	<div id="{{config.name}}_search" class="grid_searchWrapper" ng-if="config.enableSearch">
+        	<div class="search">                             
+                <div class="grid search">
+                	<!-- Wait x milli second before making call to BE on keyup-->
+                	<input type="text" ng-keyup="doSearch($event)" ng-model="config.search.text">
+                	<img class="btnSearch" ng-click="doSearch($event)" src="../lib/uiGridWrapper/images/spacer.png">
+            	</div>
+                <label class="icon_search" ng-click="doSearch($event)"></label> 
+            </div>
+		</div>	
+	</div>
+
+	<div class="grid_container">
+		<div id="{{config.name}}_grid" 
+			ui-grid-selection 
+			ui-grid-resize-columns 
+			ui-grid-auto-resize 
+			ui-grid="config.options" 
+			ng-style="getBodyStyle()">
+			<div class="noDataMark" ng-show="!config.options.data.length" ng-bind="config.noDataText">No data to display</div>	
+		</div>
+	</div>
+	
+	<div id="{{config.name}}_footer" class="grid_footer" ng-class="{'alignCenter':  !config.actions}" ng-if="showFooter()">
+		<div ng-if="config.actions && config.actions.length > 0" id="{{config.name}}_actionWrapper" class="actionWrapper">
+				<a id="{{config.name}}_{{action.id}}_icon" ng-click='footerAction(action)' ng-repeat="action in config.actions" ng-class="action.getClassFn ? action.getClassFn() : ''" ng-hide="action.hideFn ? action.hideFn() : false" class='action {{action.iconCls}}'><span ng-bind="action.text" ng-if="action.text && !action.iconCls"></span></a>
+			</div> 
+			<div id="{{config.name}}_pager" class="paginationWrapper" ng-if="config.pager.enabled">
+                    <span ng-if="hasData()" class="pageText">Page: {{config.pager.page}} / {{config.pager.total}}</span>
+                    <span ng-if="!hasData()" class="pageText">Page: - / - </span>
+                    <div class="pager_new">   
+                        <a id="{{config.name}}_pager_first" href class="prev icosolo icon_arrow_first" ng-class="{disabled: (config.pager.page == 1 || config.pager.total <= 1) }" ng-click="gotTo(config.pager.page, 'first')"></a>
+                        <a id="{{config.name}}_pager_prev" href class="prev icosolo icon_arrow_left" ng-class="{disabled: (config.pager.page <= 1 || config.pager.total <= 1)}" ng-click="gotTo(config.pager.page, 'prev')"></a>                                  
+                        <a id="{{config.name}}_pager_next" href class="next icosolo icon_arrow_right" ng-class="{disabled: (config.pager.page == config.pager.total || config.pager.total <= 1)}" ng-click="gotTo(config.pager.page, 'next')"></a>
+                        <a id="{{config.name}}_pager_last" href class="next icosolo icon_arrow_last" ng-class="{disabled: (config.pager.page == config.pager.total || config.pager.total <= 1)}" ng-click="gotTo(config.pager.page, 'last')"></a>
+                    </div>
+
+                	<div id="{{config.name}}_pager_limit_wrapper" class="page_sizer" ng-if="config.pager.allowResize">
+		            <select id="{{config.name}}_pager_limit" ng-model="config.pager.limit" class="limit_select" ng-change="gotTo(-1, 'limit')" id="{{config.name}}_pager_limit_select">
+		            	<option ng-repeat="size in config.pager.supportedSizes">{{size}}</option>
+		            </select> per page
+			</div>
+            	</div>
+	</div>
+</div>

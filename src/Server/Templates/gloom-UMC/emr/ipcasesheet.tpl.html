@@ -1,0 +1,362 @@
+<html>
+    <head>
+        <style>
+        .center{
+                text-align: center;
+		font-size:13px !important;
+		padding-bottom:0px !important;
+        }
+        .left{
+                text-align: left;
+		font-size:13px !important;
+		padding-bottom:0px !important;
+
+        }
+        .right{
+                text-align: right;
+		font-size:13px;
+        	padding-bottom:0px !important;
+        }
+	.heading{
+
+	margin-bottom:10px;
+
+	}
+.pageheader table tr td:first-child img{
+		width:200px !important;
+		}
+	.headerline{
+	border-top: 1px solid;
+	border-bottom: 1px solid;
+	padding-bottom:0px !important;
+	}
+        .size{	padding-bottom:0px !important;
+		font-size:13px;
+		}
+        {{include '/Templates/assets/css/core.css'}}
+				</style>
+
+    </head>
+    <body style="position:relative;bottom:50px;">
+	 <div id="ipcasesheet" class="pageheader">
+        {{{include '/Templates/gloom-UMC/common/header.tpl.html' 'tpl'}}}
+    </div>
+    <div id="pageFooter">
+        {{{include '/Templates/gloom-UMC/common/footer.tpl.html' 'tpl'}}}
+    </div>
+
+	<table class="size headerline" style="width:100%;">
+        <tr>
+
+            <td colspan="3" style="width:40%;">
+                <b>PATIENT INFORMATION</td>
+
+            <td colspan="2" style="text-align:left;width:38%;"></td>
+            <td style="width:20%;">Consultation No.</td>
+              <td>:</td>
+            <td> </td>
+        </tr>
+        <tr class="heading">
+
+            <td colspan="3" style="font-size:13px;">
+                <strong>{{data.CurrentConsultation.Patient.Title.Description}} {{data.CurrentConsultation.Patient.FirstName}} {{data.CurrentConsultation.Patient.MiddleName}} {{data.CurrentConsultation.Patient.LastName}}</strong>
+            </td>
+
+            <td colspan="2" style="text-align:left;font-size:13px;">
+                <strong>{{data.CurrentConsultation.Encounter.DoctorName}}</strong>
+            </td>
+             <td>OP/IP No.</td>
+            <td>:</td>
+            <td style="width:20%;">{{data.CurrentConsultation.Encounter.VisitIdentifier}}</td>
+        </tr>
+         <tr>
+            <td style="width:10%;">DOB</td>
+              <td>:</td>
+            <td> {{strtodate data.CurrentConsultation.Patient.DOB}}</td>
+
+            <td style="width:7%;">MR # :</td>
+            <td style="text-align:left;width:15%;">
+                <b>{{data.CurrentConsultation.Patient.MRN}}</b>
+            </td>
+            <td>STATUS</td>
+              <td style="width:1%;">: </td>
+            <td>{{data.CurrentConsultation.ProgressNoteStatus.Description}}</td>
+        </tr>
+        <tr>
+            <td>AGE</td>
+             <td>:</td>
+            <td> {{specifiedage data.CurrentConsultation.Patient.DOB}}</td>
+            <td colspan="2">
+                <img style="height: 30px; width: 100px;" src="{{barcode data.CurrentConsultation.Patient.MRN}}" /> </td>
+            <td><b></b></td>
+            <td></td>
+            <td><b></b></td>
+
+        </tr>
+        <tr>
+            <td>GENDER</td>
+            <td>:</td>
+            <td> {{data.CurrentConsultation.Patient.Gender.Description}}</td>
+            <td colspan="2"></td>
+            <td></td>
+            <td></td>
+            <td></td>
+
+        </tr>
+        <!-- <tr>
+            <td>OP/IP No.</td>
+            <td>:</td>
+            <td>{{data.CurrentConsultation.Encounter.VisitIdentifier}}</td>
+            <td colspan="2"></td>
+            <td colspan="3" style="width:20%;"></td>
+        </tr> -->
+    </table>
+</div>
+<br>
+<div>
+    <div class="center header4"><b> IP CASE SHEET NOTES  </b></div>
+
+
+
+            <div>{{#if data.SectionValues.Allergy.Data}}
+                <div class="left"style="background-color: lightgrey;"><b>Allergy</b></div>
+                <table class="size" style="width:90%">
+                    <tr>
+                        <th style="width:33%" align="left">Name</th>
+                        <th style="width:33%" align="left">Type</th>
+                        <th style="width:33%" align="left">Date</th>
+                    </tr>
+                    {{#each data.SectionValues.Allergy.Data}}
+                    <tr>
+                        <td style="width:33%">{{AllergyName}}</td>
+                        <td style="width:33%">{{AllergyType.Description}}</td>
+                        <td style="width:33%">{{datetimeformat StartDate}}</td>
+                    </tr>
+                    {{/each}}
+                </table>
+                {{/if}}
+            </div>
+            <div>{{#if data.SectionValues.Prescription.Data}}
+                <div class="left"style="background-color: lightgrey;"><b>Prescription</b></div>
+                <table class="size" style="width:90%">
+                    <tr>
+                        <th style="width:20%" align="left">Drug</th>
+                        <th style="width:20%" align="left">Dosage</th>
+                        <th style="width:20%" align="left">Route</th>
+                        <th style="width:20%" align="left">Frequency</th>
+                        <th style="width:20%" align="left">Duration</th>
+                    </tr>
+                    {{#each data.SectionValues.Prescription.Data}}
+                        {{#each PrescriptionDetails}}
+                            <tr>
+                                <td style="width:20%">{{DrugName}}</td>
+                                <td style="width:20%">{{Dosage}}</td>
+                                <td style="width:20%">{{DrugRoute.Description}}</td>
+                                <td style="width:20%">{{DrugFrequency.Name}}</td>
+                                <td style="width:20%">{{Duration}}</td>
+                            </tr>
+                        {{/each}}
+                    {{/each}}
+                </table>
+                {{/if}}
+            </div>
+            <div>{{#if data.SectionValues.Condition.Data}}
+                <div class="left" style="background-color: lightgrey;"><b>Condition</b></div>
+                <table class="size" style="width:90%">
+                    <tr>
+                        <th style="width:30%" align="left">Condition Type</th>
+                        <th style="width:40%" align="left">Name</th>
+                    </tr>
+                    {{#each data.SectionValues.Condition.Data}}
+                        <tr>
+                            <td style="width:30%">{{ConditionType.Description}}</td>
+                            <td style="width:40%">{{DiagnosisName}}</td>
+                        </tr>
+                    {{/each}}
+                </table>
+                {{/if}}
+            </div>
+            <div>{{#if data.SectionValues.Vital.Data}}
+                <div class="left" style="background-color: lightgrey;"><b>Vital</b></div>
+                <table class="size" style="width:90%">
+                    <tr>
+                        <th style="width:30%" align="left">Vital</th>
+                        <th style="width:40%" align="left">Value</th>
+                    </tr>
+                    {{#each data.SectionValues.Vital.Data}}
+                        <tr>
+                            <td style="width:30%">{{VitalName}}</td>
+                            <td style="width:40%">{{VitalValue}}{{UOM}}</td>
+                        </tr>
+                    {{/each}}
+                </table>
+                {{/if}}
+            </div>
+            <div>{{#if data.SectionValues.Procedure.Data}}
+                <div class="left" style="background-color: lightgrey;"><b>Procedure</b></div>
+                <table class="size" style="width:90%">
+                    <tr>
+                        <th style="width:30%" align="left">Type</th>
+                        <th style="width:40%" align="left">Name</th>
+                    </tr>
+                    {{#each data.SectionValues.Procedure.Data}}
+                        <tr>
+                            <td style="width:30%">{{ProcedureType.Description}}</td>
+                            <td style="width:40%">{{Procedure.ProcedureName}}</td>
+                        </tr>
+                    {{/each}}
+                </table>
+                {{/if}}
+            </div>
+            <div>{{#if data.SectionValues.Documents.Data}}
+                <div class="left" style="background-color: lightgrey;"><b>Documents</b></div>
+                <table class="size" style="width:90%">
+                    <tr>
+                        <th style="width:30%" align="left">Date</th>
+                        <th style="width:40%" align="left">Name</th>
+                    </tr>
+                    {{#each data.SectionValues.Documents.Data}}
+                        <tr>
+                            <td style="width:30%">{{datetimeformat CreatedDate}}</td>
+                            <td style="width:40%">{{Name}}</td>
+                        </tr>
+                    {{/each}}
+                </table>
+                {{/if}}
+            </div>
+            <div>{{#if data.SectionValues.Familyconditions.Data}}
+                <div class="left" style="background-color: lightgrey;"><b>Family Condition</b></div>
+                <table class="size" style="width:90%">
+                    <tr>
+                        <th style="width:30%" align="left">Name</th>
+                        <th style="width:30%" align="left">Type</th>
+                        <th style="width:30%" align="left">Relationship</th>
+                    </tr>
+                    {{#each data.SectionValues.Familyconditions.Data}}
+                        <tr>
+                            <td style="width:30%">{{DiagnosisName}}</td>
+                            <td style="width:30%">{{ConditionType.Description}}</td>
+                            <td style="width:30%">{{Relationship.Description}}</td>
+                        </tr>
+                    {{/each}}
+                </table>
+                {{/if}}
+            </div>
+            <div>{{#if data.SectionValues.Socialhistory.Data}}
+                <div class="left" style="background-color: lightgrey;"><b>Social History</b></div>
+                <table class="size" style="width:90%">
+                    <tr>
+                        <th style="width:30%" align="left">Type</th>
+                        <th style="width:40%" align="left">Frequency</th>
+                    </tr>
+                    {{#each data.SectionValues.Socialhistory.Data}}
+                        <tr>
+                            <td style="width:30%">{{SocialType.Description}}</td>
+                            <td style="width:40%">{{SocialFrequency.Description}}</td>
+                        </tr>
+                    {{/each}}
+                </table>
+                {{/if}}
+            </div>
+            <div>{{#if data.SectionValues.Familysocialhistory.Data}}
+                <div class="left" style="background-color: lightgrey;"><b>Family Social History</b></div>
+                <table class="size" style="width:90%">
+                    <tr>
+                        <th style="width:30%" align="left">Type</th>
+                        <th style="width:40%" align="left">Frequency</th>
+                    </tr>
+                    {{#each data.SectionValues.Familysocialhistory.Data}}
+                        <tr>
+                            <td style="width:30%">{{SocialType.Description}}</td>
+                            <td style="width:40%">{{SocialFrequency.Description}}</td>
+                        </tr>
+                    {{/each}}
+                </table>
+                {{/if}}
+            </div>
+            <div>{{#if data.SectionValues.Immunization.Data}}
+                <div class="left" style="background-color: lightgrey;"><b>Immunization</b></div>
+                <table class="size" style="width:90%">
+                    <tr>
+                        <th style="width:30%" align="left">Name</th>
+                        <th style="width:40%" align="left">Route</th>
+                    </tr>
+                    {{#each data.SectionValues.Immunization.Data}}
+                        <tr>
+                            <td style="width:30%">{{ImmunizationName}}</td>
+                            <td style="width:40%">{{Route.Description}}</td>
+                        </tr>
+                    {{/each}}
+                </table>
+                {{/if}}
+            </div>
+            <div>{{#if data.SectionValues.Chiefcomplaint.Data}}
+                <div class="left" style="background-color: lightgrey;"><b>Chief Complaint</b></div>
+                <table class="size" style="width:90%">
+                    <tr>
+                        <th style="width:30%" align="left">Date</th>
+                        <th style="width:40%" align="left">Chief Complaint</th>
+                    </tr>
+                    {{#each data.SectionValues.Chiefcomplaint.Data}}
+                        <tr>
+                            <td style="width:30%">{{datetimeformat StartDate}}</td>
+                            <td style="width:40%">{{ChiefComplaint}}</td>
+                        </tr>
+                    {{/each}}
+                </table>
+                {{/if}}
+            </div>
+            <div>{{#if data.SectionValues.Order.Data}}
+                <div class="left" style="background-color: lightgrey;"><b>Order</b></div>
+                <table class="size" style="width:90%">
+                    {{#each data.SectionValues.Order.Data}}
+                        <tr>
+                            <td style="width:30%">{{TESTMASTERTYP.Description}}</td>
+                            <td style="width:40%">
+                                {{#each PatientOrderDetails}}
+                                <span>{{TestName}}({{TestCode}});</span>
+                                {{/each}}
+                            </td>
+                        </tr>
+                    {{/each}}
+                </table>
+                {{/if}}
+            </div>
+            <div>{{#if data.SectionValues.Questions}}
+                {{#each data.SectionValues.Questions}}
+                </div>
+                    {{#if cat.length}}
+                        <div class="left" style="background-color: lightgrey;"><b>{{sectionName}}</b></div>
+                    {{/if}}
+                        {{#each cat}}
+                    <div class="left" style="margin-bottom:5px;margin-top:5px;"> <b>{{CategoryName}}</b></div>
+                            <table class="size" style="width:90%">
+                                {{#each concepts}}
+                                    {{#if Result}}
+                                        <tr>
+                                            <td style="width:25%">{{ConceptName}}</td>
+                                            <td style="width:40%">{{{Result}}}</td>
+                                        </tr>
+                                    {{/if}}
+                                {{/each}}
+                            </table>
+                        {{/each}}
+                {{/each}}
+                {{/if}}
+            </div>
+            <table style="width:100%;">
+                <tr>
+                            <td style="width:40%;"></td>
+
+                            <td style="width:50%; font-size:13px;" align="right"><b>{{data.CurrentConsultation.Encounter.DoctorName}}
+                                    ( {{data.CurrentConsultation.Encounter.Department.DepartmentName}} )</b></td>
+                        </tr>
+                        <tr>
+                            <td style="width:40%;"></td>
+
+                            <td style="width:30%; font-size:13px;" align="right">Approved By</td>
+                        </tr>
+                    </table>
+
+        </body>
+</html>

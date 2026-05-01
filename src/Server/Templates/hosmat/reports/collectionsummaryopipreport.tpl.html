@@ -1,0 +1,107 @@
+<html>
+
+<head>
+  <style>
+    .table1 {
+      border: 1px solid black;
+    }
+
+    .table2 {
+      border: 1px solid black;
+      border-top: 0px solid black;
+    }
+    tr.OP.Refund> td>span:before, tr.Total.Doctor.Share> td>span:before,
+    tr.IP.Refund> td>span:before {
+    content: "-";
+}
+tr.OP.Refund, tr.Total.Doctor.Share {
+    color: red !important;
+}
+tr.OP.Refund> td>span, tr.Total.Doctor.Share> td>span {
+    color: red !important;
+}
+tr.IP.Refund> td>span {
+    color: red !important;
+}
+tr.IP.Refund {
+    color: red !important;
+}
+
+th, td {
+  vertical-align: top;
+  padding: 3px;
+  font-size: 15px !important;
+}
+.content * {
+    font-family: sans-serif;
+    font-size: 16px !important;
+}
+th {
+  border-bottom: 1px solid black;
+  text-align: left;
+}
+    {{include '/Templates/hosmat/assets/css/core.css'}}
+
+  </style>
+</head>
+
+<body>
+  <div id="pageHeader">
+    {{{include '/Templates/hosmat/common/header.tpl.html' 'tpl'}}}
+  </div>
+  <div class="content">
+  <div style="text-align:center;margin-top: 10px;"><b style="font-size: 20px !important;"> Collection Summary OP/IP</b></div>
+  <br>
+  <table class="table1" style="width:100%;">
+    <tr style='vertical-align: top'>
+      <td style="width: 15%;"></td>
+      <td><b>FromDate</b></td>
+      <td>:</td>
+      <td><b>{{data.FromDate}}</b></td>
+      <td style="width: 10%;"></td>
+      <td><b>ToDate</b></td>
+      <td>:</td>
+      <td><b>{{data.ToDate}}</b></td>
+      <td><b></b></td>
+      <td style="width: 15%;"></td>
+    </tr>
+  </table>
+  </br>
+
+  <table class="table1" style="width:100%;">
+    <tr>
+      <th style="width:10%;"><b>S.No</b></th>
+      <th style="width:20%"><b>Collections</b></th>
+      <th style="width:10%"><b>Cash</b></th>
+      <th style="width:20%"><b>Card</b></th>
+      <th style="width:20%"><b>Others</b></th>
+      <th style="width:10%"><b>UPI</b></th>
+      <th style="width:10%"><b>Total</b></th>
+    </tr>
+    {{#each data.CollectionSummary}}
+    <tr class="{{Key}}">
+      <td>{{inc @index}}</td>
+      <td>{{Key}}</td>
+      <td><span>{{currencyformat Value.CashAmount}}</span></td>
+      <td><span>{{currencyformat Value.CardAmount}}</span></td>
+      <td><span>{{currencyformat Value.OtherAmount}}</span></td>
+      <td><span>{{currencyformat Value.UPIAmount}}</span></td>
+      <td><span>{{currencyformat Value.BillAmount}}</span></td>
+    </tr>{{/each}}
+  </table>
+  <table class="table2" style="width:100%;">
+    <tr> 
+      <td style="width:10%;"></td>
+      <td style="width:20%">{{data.Totalbillcollection.Key}}</td>
+      <td style="width:10%">{{currencyformat data.Totalbillcollection.TotalCashAmt}}</td>
+      <td style="width:20%">{{currencyformat data.Totalbillcollection.TotalCardAmt}}</td>
+      <td style="width:20%">{{currencyformat data.Totalbillcollection.TotalOtherAmt}}</td>
+      <td style="width:10%">{{currencyformat data.Totalbillcollection.TotalUPIAmt}}</td>
+      <td style="width:10%">{{currencyformat data.Totalbillcollection.TotalBillAmt}}</td>
+    </tr>
+  </table> 
+  </div>
+
+</body>
+
+</html>

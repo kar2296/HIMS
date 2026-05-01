@@ -1,0 +1,223 @@
+<html>
+
+<head>
+    <style>
+        .table1 {
+            border: 1px solid black;
+            border-bottom: 0px solid black;
+            text-align: left;
+            font-size: 11px;
+        }
+
+        .table2 {
+            border: 1px solid black;
+            border-bottom: 0px solid black;
+                border-top: 1px solid black;
+            text-align: left;
+            font-size: 11px;
+        }
+
+        .table3 {
+            border: 1px solid black;
+            border-bottom: 1px solid black;
+            font-size: 11px;
+        }
+
+        .border {
+            border-collapse: collapse;
+            border-left: 1px solid black;
+            font-size: 11px;
+        }
+
+        .table4 {
+            border: 1px solid black;
+            border-bottom: 0px solid black;
+            text-align: left;
+            font-size: 11px;
+        }
+
+        .table5 {
+            border: 1px solid black;
+            border-bottom: 0px solid black;
+            text-align: center;
+            font-size: 11px;
+        }
+            .table6 {
+                border: 1px solid black;
+                border-bottom: 0px solid black;
+            border-top: 0px solid black;
+                text-align: center;
+                font-size: 11px;
+            }
+
+
+            .size {
+                border: 1px solid black;
+                font-size: 11px;
+                border-collapse: collapse;
+                border-top: 0px solid black;
+            border-bottom: 1px solid black;
+        }
+
+        {{include '/Templates/assets/css/core.css'}}
+    </style>
+</head>
+
+<body style="padding: 20px;">
+    <div id="pageHeader">
+        {{{include '/Templates/kageshwori-mulpani/common/header1.tpl.html' 'tpl'}}}
+    </div>
+        <table class="table5" style="width:100%;">
+            <tr>
+                <td style="vertical-align:text-middle;font-size: 12px;"><b>Direct Pharmacy Return</b></td>
+            </tr>
+        </table>
+
+    <table class="table1" style="width:100%;">
+        <tr>
+            <td style="width:15%;"><b>Name</b></td>
+            <td>:</td>
+                <td style="width:20%;"><b>{{data.PatientReturns.Title.Description}} {{data.PatientReturns.PatientName}}</b></td>
+            <td style="width:10%;"><b>Doctor Name</b></td>
+            <td>:</td>
+            <td style="width:20%;"><b>{{data.PatientReturns.DoctorName}}</b></td>
+            <td style="width:15%;"><b>OP/IP/ER NO</b></td>
+            <td>:</td>
+            <td style="width:20%;"><b></b></td>
+
+        </tr>
+        <tr>
+            <td><b>Age / Sex</b></td>
+            <td>:</td>
+                <td> {{data.PatientReturns.Gender.Description}} {{#if data.PatientReturns.Gender.Description}} / {{/if}}  {{#if data.PatientReturns.DOB}}{{ageonlyyear data.PatientReturns.DOB}} {{/if}} </td>
+            <td><b>Return No</b></td>
+            <td>:</td>
+                <td><b>{{data.PatientReturns.ReturnNumber}}</b></td>
+            <td><b>License No</b></td>
+            <td>:</td>
+            <td></td>
+        </tr>
+
+        <tr>
+            <td><b>Bill NO</b></td>
+            <td>:</td>
+            <td><b></b></td>
+            <td><b>Return Date</b></td>
+            <td>:</td>
+               <td>{{datetimeformat data.PatientReturns.ReturnDateTime}}</td>
+            <td><b>GST No</b></td>
+            <td>:</td>
+            <td><b></b></td>
+        </tr>
+    </table>
+
+    <table border class="size" style="width:100%;">
+        <tr>
+            <th style="width:5%" align="center">S.No</th>
+            <th style="width:17%" align="center">Description</th>
+            <!-- <th style="width:6%" align="center">HSN</th> -->
+            <th style="width:13%" align="center">Batch </th>
+            <th style="width:6%" align="center">Exp</th>
+            <th style="width:10%" align="center">MRP</th>
+            <th style="width:6%" align="center">Billed Qty</th>
+            <th style="width:6%" align="center">Return Qty</th>
+            <th style="width:8%" align="center">Value</th>
+            <!-- <th colspan="2" style="width:12%" align="center">CGST</th>
+            <th colspan="2" style="width:12%" align="center">SGST</th> -->
+            <th style="width:5%" align="center">Amount</th>
+
+        </tr>
+        <tr>
+            <th colspan="8" style="width:71" align="center"></th>
+            <!-- <th style="width:5%" align="center">Rate%</th>
+            <th style="width:7%" align="center">Amt</th>
+            <th style="width:5%" align="center">Rate%</th>
+            <th style="width:7%" align="center">Amt</th> -->
+            <th style="width:5%" align="center"></th>
+        </tr>
+    </table>
+
+    <table class="size" style="width:100%">
+        {{#each data.Patientreturndetails}}
+        <tr>
+            <td style="width:5%" align="center">{{inc @index}}</td>
+            <td style="width:17%" align="center">{{ServiceName}}</td>
+            <!-- <td style="width:6%" align="center">{{ItemMaster.ProductRegNo}}</td> -->
+            <td style="width:13%" align="center">{{BatchId}}</td>
+            <td style="width:6%" align="center">{{dateformat ExpiryDate}}</td>
+            <td style="width:10%" align="center">{{Rate}}</td>
+                <td style="width:6%" align="center">{{SoldQuantity}}</td>
+                <td style="width:6%" align="center">{{ReturnQuantity}}</td>
+                <td style="width:8%" align="center">{{Amt}}</td>
+            <!-- <td style="width:5%" align="center">{{CGstPercentage}}</td>
+            <td style="width:7%" align="center">{{CGstAmount}}</td>
+            <td style="width:5%" align="center">{{SGstPercentage}}</td>
+            <td style="width:7%" align="center">{{SGstAmount}}</td> -->
+            <td style="width:5%" align="center">{{Amount}}</td>
+        </tr>
+        {{/each}}
+    </table>
+        <table class="table6" style="width:100%">
+            <tr>
+               <td style="width:5%"></td>
+               <td style="width:17%"></td>
+               <td style="width:6%"></td>
+               <td style="width:5%"></td>
+               <td style="width:13%"></td>
+               <td style="width:5%"></td>
+               <td style="width:6%"></td>
+               <td style="width:6%"></td>
+               <td style="width:8%;text-align:left"><b>{{data.WithoutTax}}</b></td>
+               <!-- <td style="width:5%"></td>
+               <td style="width:7%;text-align:left"><b>{{data.PatientReturns.CGstAmount}}</b></td>
+               <td style="width:5%"></td>
+               <td style="width:7%;text-align:left"><b>{{data.PatientReturns.SGstAmount}}</b></td> -->
+               <td style="width:5%"></td>
+            </tr>
+           </table>
+
+    <table class="table2" style="width:100%">
+        <tr>
+                <td style="width:40%;"></td>
+            <td style="width:50%;text-align:right">Net Amount</td>
+            <td>:</td>
+            <td style="width:10%;">{{data.PatientReturns.ReturnAmount}}</td>
+        </tr>
+        <tr>
+                <td style="width:40%;"></td>
+            <td style="width:50%;text-align:right">Refunded</td>
+            <td>:</td>
+            <td>{{data.PatientReturns.RefundedAmount}}</td>
+        </tr>
+        <tr>
+            <td colspan="2"style="width:90%;text-align:right">{{#if data.PatientReturns.ToBeRefundAmount}}To Be Refunded{{/if}}</td>
+            <td>{{#if data.PatientReturns.ToBeRefundAmount}}:{{/if}}</td>
+            <td>{{#if data.PatientReturns.ToBeRefundAmount}} {{data.PatientReturns.ToBeRefundAmount}} {{/if}}</td>
+        </tr>
+    </table>
+    <table class="table4" style="width:100%;">
+        <tr>
+            <td><b>Amount in words</b></td>
+            <td>:</td>
+            <td><b>Rupees {{decimalnrInWords data.PatientReturns.ReturnAmount}} only</b></td>
+        </tr>
+    </table>
+    <table class="table3" style="width:100%;">
+        <tr>
+            <td>
+                    <u>{{#if RefundIdentifier}} Refund Details {{/if}}</u>
+            </td>
+            <td style="width:20%;" colspan="4">{{data.PatientReturns.CreatedUser.Title.Description}} {{data.PatientReturns.CreatedUser.FirstName}} {{data.PatientReturns.CreatedUser.LastName}}</td>
+        </tr>
+            <tr>
+                <td>Refund Approved Signature</td>
+            <td>
+                    <u>{{#if RefundIdentifier}}<b>{{RefundIdentifier}}, {{datetimeformat RefundDateTime}},{{RefundAmount}}</b>{{/if}}</u>
+                </td>
+            <td colspan="4">User Signature</td>
+        </tr>
+    </table>
+    <div style="width:100%; font-size:10px;">Printed On: {{now}}</div>
+</body>
+
+</html>

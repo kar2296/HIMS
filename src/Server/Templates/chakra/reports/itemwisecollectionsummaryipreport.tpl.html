@@ -1,0 +1,115 @@
+<html>
+
+<head>
+  <style>
+    .table1 {
+      border: 1px solid black;
+      font-size: 11px;
+    }
+
+    .table2 {
+      border: 1px solid black;
+      border-top: 0px solid black;
+      font-size: 11px;
+    }
+td {
+font-size: 12px;
+}
+
+      {{include '/Templates/assets/css/core.css'}}
+  </style>
+</head>
+
+<body>
+  <div id="pageHeader">
+    {{{include '/Templates/bewell-hospital/common/header.tpl.html' 'tpl'}}}
+  </div>
+  <div style="text-align:center;font-size: 12px;"><b>Item Wise Collection Summary For IP</b></div>
+  <table class="table1" style="width:100%;">
+    <tr style='vertical-align: top'>
+      <td style="font-size: 11px;"><b>FromDate</b></td>
+      <td style="font-size: 11px;">:</td>
+      <td style="font-size: 11px;"><b>{{data.FromDate}}</b></td>
+      <td style="font-size: 11px;"><b>ToDate</b></td>
+      <td style="font-size: 11px;">:</td>
+      <td style="font-size: 11px;"><b>{{data.ToDate}}</b></td>
+      <td style="font-size: 11px;"><b>Billing Group</b></td>
+      <td style="font-size: 11px;">:</td>
+      <td style="font-size: 11px;"><b>{{data.BillingGroup}}</b></td>
+      <td style="font-size: 11px;"><b>Doctor Name</b></td>
+      <td style="font-size: 11px;">:</td>
+      <td style="font-size: 11px;"><b>{{data.DoctorName}}</b></td>
+    </tr>
+    <tr>
+      <td style="font-size: 11px;"><b>Billing Service</b></td>
+      <td style="font-size: 11px;">:</td>
+      <td style="font-size: 11px;"><b>{{data.BillingService}}</b></td>
+      <td><b></b></td>
+      <td></td>
+      <td><b></b></td>
+      <td><b></b></td>
+      <td></td>
+      <td><b></b></td>
+      <td><b></b></td>
+      <td></td>
+      <td><b></b></td>
+    </tr>
+  </table>
+  </br>
+  <table class="table1" style="width:100%;">
+    <tr>
+      <td style="font-size: 11px;"><b>S.No</b></td>
+      <td style="font-size: 11px;"><b>Date</b></td>
+      <td style="font-size: 11px;"><b>Bill No</b></td>
+      <td style="font-size: 11px;"><b>Patient Name</b></td>
+      <td style="font-size: 11px;"><b>UHID</b></td>
+      <td style="font-size: 11px;"><b>Doctor Name</b></td>
+      <td style="font-size: 11px;"><b>Service Name</b></td>
+      <td style="font-size: 11px;"><b>Billing Group</b></td>
+      <td style="font-size: 11px;"><b>Amount</b></td>
+      <td style="font-size: 11px;"><b>Dis Amt</b></td>
+      <td style="font-size: 11px;"><b>Net Amt</b></td>
+      <td style="font-size: 11px;"><b>Doc Share</b></td>
+      <td style="font-size: 11px;"><b>Referral Name</b></td>
+      <td style="font-size: 11px;"><b>Collected By</b></td>
+    </tr>
+    {{#each data.PatientBillDetails}}
+    <tr>
+      <td>{{inc @index}}</td>
+      <td>{{datetimeformat BillDateTime}}</td>
+      <td>{{PatientBill.BillNumber}}</td>
+      <td>{{PatientBill.Patient.Title.Description}} {{PatientBill.Patient.FirstName}}
+        {{PatientBill.Patient.LastName}}</td>
+      <td>{{PatientBill.Patient.MRN}}</td>
+      <td>{{User.Title.Description}} {{User.FirstName}} {{User.LastName}}</td>
+      <td>{{ServiceName}}</td>
+      <td>{{ServiceCategory.ServiceCategoryName}}</td>
+      <td>{{currencyformat GrossAmount}}</td>
+      <td>{{currencyformat DiscountAmount}}</td>
+      <td>{{currencyformat Amount}}</td>
+      <td>{{currencyformat DoctorShare}}</td>
+      <td>{{PatientBill.Patient.Referral.ReferralName}}</td>
+      <td>{{CreatedUser.Title.Description}} {{CreatedUser.FirstName}} {{CreatedUser.LastName}}</td>
+    </tr>{{/each}}
+    <tr>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td>{{currencyformat data.TotalAmount}}</td>
+      <td>{{currencyformat data.TotalDisAmount}}</td>
+      <td>{{currencyformat data.TotalNetAmount}}</td>
+      <td>{{currencyformat data.TotalDocshare}}</td>
+      <td></td>
+      <td></td>
+    </tr>
+  </table>
+
+</body>
+<div style="width:100%; font-size:11px;">Printed On: {{now}}</div>
+
+</html>

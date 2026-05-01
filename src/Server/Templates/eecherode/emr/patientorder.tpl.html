@@ -1,0 +1,177 @@
+<html>
+
+<head>
+    <style>
+        .border-bottom {
+            border-bottom: 1px solid black;
+            font-size: 11px;
+        }
+
+        .center {
+            text-align: center;
+            font-size: 11px;
+        }
+
+        .header4 {
+            font-size: 11px;
+        }
+
+        .border {
+            border: 1px solid black;
+            font-size: 11px;
+        }
+
+        .left {
+            text-align: left;
+            font-size: 11px;
+        }
+
+        .right {
+            text-align: right;
+            font-size: 11px;
+        }
+
+        .size {
+            font-size: 11px;
+        }
+
+        {{include '/Templates/assets/css/core.css'}}
+    </style>
+</head>
+
+<body>
+    <div id="pageHeader">
+        {{{include '/Templates/eecherode/common/header.tpl.html' 'tpl'}}}
+    </div>
+    <div id="pageFooter">
+        {{{include '/Templates/eecherode/common/footer.tpl.html' 'tpl'}}}
+    </div>
+
+    <div class="border-bottom">
+        <table  class="size" style="width:100%;">
+            <tr>
+                <td colspan="3"><b>PATIENT INFORMATION</b></td>
+                <td colspan="2"><b>ORDERED BY</b></td>
+                <td colspan="3"></td>
+            </tr>
+            <tr>
+                <td colspan="3" style="width:35%;font-size:10px;"><b>{{data.Patient.Title.Description}} {{data.Patient.FirstName}}  {{data.Patient.LastName}}</b></td>
+                <td colspan="2" style="width:30%;font-size:10px;"><b>{{data.PatientOrder.User.Title.Description}} {{data.PatientOrder.User.FirstName}} {{data.PatientOrder.User.LastName}} ( {{data.user.Department.DepartmentName}} )</b></td>
+                <td style="width:20%;">PRESCRIBE NO</td>
+                <td>:</td>
+                <td style="width:15%;">{{data.PatientOrder.OrderNumber}}</td>
+
+            </tr>
+            <tr>
+                <td>DOB</td>
+                <td>:</td>
+                <td>{{strtodate data.Patient.DOB}}</td>
+                <td style="width:7%;">MR #:</td>
+                <td><b>{{data.Patient.MRN}}</b></td>
+                <td>PRESCRIBED ON</td>
+                <td>:</td>
+                <td>{{datetimeformat data.PatientOrder.UpdatedAt}}</td>
+            </tr>
+            <tr>
+                <td>AGE</td>
+                <td>:</td>
+                <td>{{specifiedage data.Patient.DOB}}</td>
+                <td colspan="2"><img style="height: 30px; width: 100px;" src="{{barcode data.Patient.MRN}}" /></td>
+                <td>ORDERED ON</td>
+                <td>:</td>
+                <td>{{datetimeformat data.PatientOrder.OrderRequestDate}}</td>
+            </tr>
+            <tr>
+                <td>GENDER</td>
+                <td>:</td>
+                <td>{{data.Patient.Gender.Description}}</td>
+                <td colspan="2"></td>
+                <td>STATUS</td>
+                <td>:</td>
+                <td><b>{{data.PatientOrder.OrderStatus.DisplayName}}</b></td>
+            </tr>
+            <tr>
+                <td>OP / IP NO  </td>
+                <td>:</td>
+                <td>{{data.PatientOrder.Encounter.VisitIdentifier}}</td>
+                <td colspan="2"> </td>
+                <td>PRIORITY</td>
+                <td>:</td>
+                <td>{{data.PatientOrder.OrderPriority.Description}}</td>
+            </tr>
+        </table>
+    </div>
+    <br>
+
+
+    <div class="center header4"> <b> Clinical Order </b> </div>
+    <br>
+    <div class="border">
+        <table  style="width:100%;font-size:10px;">
+            <tr>
+                <th style="width:5%" align="left">S.No</th>
+                <th style="width:20%" align="left">Department</th>
+                <th style="width:35%" align="left">Description</th>
+                <th style="width:10%" align="left">Qty</th>
+                <th style="width:30%" align="left">Notes</th>
+            </tr>
+        </table>
+        <hr style="border-top:solid 1px;" />
+        <table style="width:100%;font-size:11px; ">{{#each data.PatientOrderDetail}}
+            <tr>
+
+                <td style="width:5%;">{{inc @index}}</td>
+                <td style="width:20%">{{Department.DepartmentName}}</td>
+                <td style="width:35%">{{TestName}}</td>
+                <td style="width:10%">{{Quantity}}</td>
+                <td style="width:30%">{{TestInstruction}}</td>
+
+            </tr>
+            {{/each}}
+        </table>
+    </div>
+    <br>
+    <br>
+    <div class="border">
+        <table class="size" height="30" style="width:100%">
+            <tr>
+                <th style="width:20%;vertical-align:text-top" align="left">Clinical Notes</th>
+            </tr>
+        </table>
+        <br>
+    </div>
+    <br>
+    <div class="center header4"> ***** End of Page ***** </div>
+    <div>
+        <table style="width:100%;">
+            <tr>
+                <td style="width:10%;"></td>
+                <td style="width:80%;">
+                    <div class="right"style="font-size:11px"><b> {{data.PatientOrder.User.Title.Description}} {{data.PatientOrder.User.FirstName}} {{data.PatientOrder.User.LastName}}
+                        ( {{data.user.Department.DepartmentName}} ) </b></div>
+                </td>
+                <td style="width:10%;"></td>
+            </tr>
+        </table>
+        <table class="size" style="width:100%;">
+            <tr>
+                <td style="width:80%;"></td>
+                <td style="width:10%;">
+                    <div class="center">{{data.PatientOrder.User.LicenseNo}}</div>
+                </td>
+                <td style="width:10%;"></td>
+            </tr>
+        </table>
+        <table class="size" style="width:100%;">
+            <tr>
+                <td style="width:30%;" style="font-size:8px">Printed On: {{now}}</td>
+                <td style="width:60%;">
+                    <div class="right" style="font-size:11px"> Authorized By</div>
+                </td>
+                <td style="width:10%;"></td>
+            </tr>
+        </table>
+    </div>
+</body>
+
+</html>

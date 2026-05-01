@@ -1,0 +1,146 @@
+﻿<style>
+
+  /* .typeahead-demo .custom-popup-wrapper>.dropdown-menu {
+    position: static;
+    float: none;
+    display: block;
+    min-width: 700px;
+    background-color: transparent;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+  } */
+  .custom-popup-wrapper {
+    max-height: 250px;
+    overflow: auto;
+    position: absolute;
+    /* margin-left: -186px; */
+    z-index: 9999;
+    max-width: 600px;
+}
+table.table.table-bordered.table-condensed.align {
+    background: #fff;
+}
+  .td-title {
+    width: 120px;
+  }
+
+  .td-name {
+    min-width: 100px;
+}
+
+  .td-age {
+    width: 70px;
+  }
+
+  .td-dob {
+    width: 110px !important;
+  }
+
+  .td-mrn {
+    width: 100px;
+  }
+
+  .td-visitid {
+    width: 100px;
+  }
+
+/* .table th {
+    min-width: 10px;
+    background-color: #193b82 !important;
+    background-color: #01748b !important;
+    color: #ffffff !important;
+    font-size: 14px;
+    text-align: center !important;
+    border: 1px solid #101010 !important;
+}
+.billingbanner table thead tr td{
+  background-color: #193b82 !important;
+} */
+.table-bordered > thead > tr > th, .table-bordered > tbody > tr > th, .table-bordered > tfoot > tr > th, .table-bordered > thead > tr > td, .table-bordered > tbody > tr > td, .table-bordered > tfoot > tr > td {
+    border: 1px solid #cbbebe !important;
+}
+/* table.table.table-bordered.table-condensed.dropdown-menu{
+  height:200px !important;
+} */
+#bannerdetails thead tr td{
+  background-color: #0073bc  !important;
+  color: #ffffff;
+}
+/* .billingbanner .td-name, .td-age, .td-mrn{
+  background-color: #193b82;
+} */
+#bannerdetails thead tr td{
+  background-color: #0073bc  !important;
+  color: #ffffff !important;
+}
+</style>
+
+<script type="text/ng-template" id="patientsearchPopupTemplate.html">
+  <div class="custom-popup-wrapper"
+       ng-style="{top: position().top+'px', left: position().left+'px'}"
+       style="display: block;"
+       ng-show="isOpen() && !moveInProgress"
+       aria-hidden="{{!isOpen()}}">
+
+
+      <table class="table table-bordered table-condensed" role="listbox">
+        <thead>
+            <td class="td-title">Title</td>
+            <td class="td-name">Name</td>
+            <td class="td-dob">DOB</td>
+            <td class="td-age">Age/Gender</td>
+            <td class="td-mrn">MRN</td>
+            <td class="td-mrn">Mobile #</td>
+            <!-- <td class="td-visitid">Visit#</td> -->
+        </thead>
+        <tbody>
+          <tr class="uib-typeahead-match" ng-repeat="match in patients" ng-class="{active: isActive($index) }"
+            ng-mouseenter="selectActive($index)" ng-click="selectMatch($index)" role="option" id="{{::match.model.Id}}">
+
+            <td class="td-title">{{match.model.TitleDesc}}</td>
+            <td class="td-name">{{match.model.PatientName}}</td>
+            <td class="td-dob"><displaydate date-val='match.model.DOB' style="white-space: nowrap !important;"></displaydate></td>
+            <td class="td-age">{{match.model.Age}}/{{match.model.GenderCode}}</td>
+            <td class="td-mrn">{{match.model.MRN}}</td>
+            <td class="td-mrn">{{match.model.Mobile}}</td>
+            <!-- <td class="td-visitid">{{match.model.VisitIdentifier}}</td> -->
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </script>
+
+<div class="typeahead-demo">
+  <div class="form-group">
+    <div class="col-sm-12">
+    <input ng-keydown="onSubmit($event)"
+                       ng-model="cvm.patientdisplay"
+                       type="text"
+                       id="searchKey"
+                       class="form-control"
+                       on-select="cvm.OnSelectPatient($item, $model, $label, $event)"
+                       placeholder="Search Name/Phone/UHID...." class="form-control pid">
+                    </div>
+    <!-- <div ng-if="cvm.mrnshortcode">
+      <div class="col-sm-12">
+        <input id="{{cvm.controlid}}"  id="pid" placeholder="Search Name/Phone/UHID...." type="text"
+          ng-model="cvm.patientdisplay" ng-disabled="cvm.candisable"
+          uib-typeahead="patient for patient in cvm.searchPatient($viewValue)"
+          typeahead-on-select="cvm.OnSelectPatient($item, $model, $label, $event)" class="form-control pid"
+          tabindex="cvm.tabindex" typeahead-input-formatter="cvm.formatPatient($model)"
+          typeahead-popup-template-url="patientsearchPopupTemplate.html" focus-if>
+      </div>
+    </div> -->
+    <!-- <div ng-if="!cvm.mrnshortcode" class="col-sm-12">
+      <div class="col-sm-12">
+        <input id="{{cvm.controlid}}" id="pid"placeholder="Patient Name/Phone/UHID search" type="text"
+          ng-model="cvm.patientdisplay" ng-disabled="cvm.candisable"
+          uib-typeahead="patient for patient in cvm.searchPatient($viewValue)"
+          typeahead-on-select="cvm.OnSelectPatient($item, $model, $label, $event)" class="form-control pid"
+          tabindex="cvm.tabindex" typeahead-input-formatter="cvm.formatPatient($model)"
+          typeahead-popup-template-url="patientsearchPopupTemplate.html" focus-if>
+      </div>
+    </div> -->
+  </div>
+</div>

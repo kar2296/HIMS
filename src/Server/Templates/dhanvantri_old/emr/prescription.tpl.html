@@ -1,0 +1,198 @@
+<html>
+
+<head>
+    <style>
+        .table1 {
+            border: 1px solid black;
+            border-bottom: 1px solid black;
+            border-top: 0px solid black;
+            text-align: center;
+            font-size: 9px;
+        }
+
+        .size {
+            font-size: 9px;
+        }
+
+            {
+                {
+                include '/Templates/assets/css/core.css'
+            }
+        }
+        .border-bottom {
+    border-bottom: 2px solid gainsboro;
+}
+th {
+    background: gainsboro;
+    border-left: 1px solid gray;
+    padding: 7px;
+}
+#datatab td {
+    border: 1px solid gainsboro;
+}
+    </style>
+</head>
+
+<body>
+    <div id="pageHeader">
+        {{{include '/Templates/dhanvantri/common/header.tpl.html' 'tpl'}}}
+    </div>
+    <div id="pageFooter">
+        {{{include '/Templates/dhanvantri/common/footer.tpl.html' 'tpl'}}}
+    </div>
+    <div class="border-bottom">
+        <table class="size" style="width:100%;">
+            <tr>
+
+                <td colspan="3" style="width:40%;">
+                    <b>PATIENT INFORMATION</td>
+                <td colspan="2" style="text-align:left;width:38%;">ORDERED BY</td>
+                <td style="width:20%;">PRESCRIBE NO</td>
+                <td>:</td>
+                <td> {{data.Prescription.Identifier}}</td>
+            </tr>
+            <tr>
+
+                <td colspan="3" style="font-size:10px;">
+                    <strong>{{data.Patient.Title.Description}} {{data.Patient.FirstName}} {{data.Patient.MiddleName}}
+                        {{data.Patient.LastName}}</strong>
+                </td>
+
+                <td colspan="2" style="text-align:left;font-size:10px;">
+                    <strong> {{data.Prescription.Doctor.Title.Description}} {{data.Prescription.Doctor.FirstName}}
+                        {{data.Prescription.Doctor.LastName}}</strong>
+                </td>
+                <td>PRESCRIBE ON</td>
+                <td>:</td>
+                <td style="width:20%;">{{datetimeformat data.Prescription.PrescriptionDate}}</td>
+            </tr>
+            <tr>
+                <td style="width:10%;">DOB</td>
+                <td>:</td>
+                <td> {{data.Patient.DOB}}</td>
+
+                <td style="width:7%;">MR # :</td>
+                <td style="text-align:left;width:15%;">
+                    <b>{{data.Patient.MRN}}</b>
+                </td>
+                <td>ORDERED ON</td>
+                <td style="width:1%;">: </td>
+                <td>{{datetimeformat data.Prescription.PrescriptionDate}}</td>
+            </tr>
+            <tr>
+                <td>AGE</td>
+                <td>:</td>
+                <td> {{specifiedage data.Patient.DOB}}</td>
+                <td colspan="2">
+                    <img style="height: 30px; width: 100px;" src="{{barcode data.Patient.MRN}}" /> </td>
+                <td>
+                    <b>STATUS</b>
+                </td>
+                <td>:</td>
+                <td>
+                    <b>{{data.Prescription.PrecriptionStatus.Description}}</b>
+                </td>
+
+            </tr>
+            <tr>
+                <td>GENDER</td>
+                <td>:</td>
+                <td> {{data.Patient.Gender.Description}}</td>
+                <td colspan="2"></td>
+                <td>PRIORITY</td>
+                <td>:</td>
+                <td>{{data.Prescription.PrescriptionPriority.Description}}</td>
+
+            </tr>
+            <tr>
+                <td>OP/IP No.</td>
+                <td>:</td>
+                <td>{{data.Encounter.VisitIdentifier}}</td>
+                <td colspan="2"></td>
+                <td colspan="3" style="width:20%;"></td>
+            </tr>
+        </table>
+    </div>
+    <br>
+    <div>
+        <div class="center header4" style="font-size:12px;text-align: center;"> <b> PRESCRIPTION </b> </div>
+
+        <br>
+        <div class="border">
+            <table class="size" style="width:100%;margin-bottom: -10px; border-bottom: 1px solid gray !important;" >
+                <tr>
+                    <th style="width:6%" align="left">#</th>
+                    <th style="width:40%" align="left">Drug Name</th>
+                    <th style="width:5%" align="left">Mor</th>
+                    <th style="width:5%" align="left">Aft</th>
+                    <th style="width:5%" align="left">Nigt</th>
+                    <th style="width:15%" align="left">Days</th>
+                    <th style="width:30%" align="left">Instruction</th>
+                </tr>
+            </table>
+            <!-- <hr style="" /> {{#each data.PrescriptionDetails}} -->
+            <table class="size" style="width:100%;border-spacing: 0px; margin-top: 10px;" id="datatab">
+                <tr>
+                    <td style="width:6.3%">{{inc @index}}</td>
+                    <td style="width:40%">{{DrugMaster.DrugName}}</td>
+                    <td>{{Morning}}</td>
+                    <td>{{Noon}}</td>
+                    <td>{{Night}}</td>
+                    <td>{{Duration}} {{DurationPeriod.Description}}</td>
+                    <td>{{DrugInstruction.Description}}</td>
+                </tr>
+                {{/each}}
+            </table>
+        </div>
+    </div>
+    <!-- <table class="table1" style="width:100%">
+        <tr>
+            <td style="width:20%"><b>Comments</b></td>
+            <td>:</td>
+            <td style="width:80%" align="left">{{data.Prescription.Comments}}</td>
+        </tr>
+
+    </table> -->
+    </div>
+    <div>
+
+        <table style="width:100%;">
+            <tr>
+                <td colspan="3" style="font-size:10px;"><b>Comments:</b></td>
+
+                <!-- <td align="left">comments</td> -->
+            </tr>
+            <tr>
+                <!-- <td style="width:80%" align="left">{{data.Prescription.Comments}}</td> -->
+
+                <td colspan="3" style="font-size:10px;">{{data.Prescription.Comments}}</td>
+            </tr>
+            <tr>
+                <td style="width:60%;"></td>
+                <td style="width:10%;">
+                <td style="width:30%; font-size:10px;" align="right"> <b>{{data.Prescription.Doctor.Title.Description}}
+                        {{data.Prescription.Doctor.FirstName}} {{data.Prescription.Doctor.LastName}}
+                        ( {{data.Prescription.Department.DepartmentName}} )</b></td>
+            </tr>
+        </table>
+        <table class="size" style="width:100%;">
+            <tr>
+                <td style="width:60%;">Printed On: {{now}}</td>
+                <td style="width:10%;">
+                <td style="width:30%;" align="right">
+                    <img style="height: 30px; width: 100px;"
+                        src="{{include data.Prescription.Doctor.SignPath 'fullpath-img'}}" />
+                </td>
+            </tr>
+        </table>
+        <table style="width:100%;">
+            <tr>
+                <td style="width:60%;"></td>
+                <td style="width:10%;">
+                <td style="width:30%; font-size:8px;" align="right"> Authorized By</td>
+            </tr>
+        </table>
+    </div>
+</body>
+
+</html>

@@ -1,0 +1,42 @@
+﻿<div class="col-sm-12" style="padding-left:0px;padding-right:0px;">
+    <!--1 => Nominal, 2 => Ordinal-->
+    <input type="text" class="form-control" style="width:170px !important;" ng-model="cvm.testvalue" placeholder="" tabindex="{{cvm.tabindex}}" ng-keyup="cvm.keyPress($event)" ng-if="cvm.testvaluetype == 2 || cvm.testvaluetype == 5" ng-blur="cvm.valueChanged()"
+        ng-change="cvm.valueChanged()">
+
+    <textarea ng-if="cvm.testvaluetype == 1" rows="5" style="width:auto;resize:none; height: 73px;" name="textarea" ng-model="cvm.testvalue" ng-change="cvm.valueChanged()" tabindex="{{cvm.tabindex}}" ng-disabled="cvm.candisable" class="form-control notes-textarea"></textarea>
+
+    <!--5 => Quantitat-->
+    <!--<input type="number" step=".01" class="form-control" ng-model="cvm.testvalue" placeholder="" tabindex="cvm.tabindex"
+                ng-if="cvm.testvaluetype == 5" stringtonumber ng-change="cvm.valueChanged()">-->
+
+    <!-- 4 => Multiline -->
+    <ui-select ng-model="cvm.testvalue" ng-if="cvm.testvaluetype == 4" ng-change="cvm.valueChanged()" tabindex="{{cvm.tabindex}}">
+        <ui-select-match>
+            {{$select.selected.Text | limitTo : 20 : 0}}
+            <span ng-if="$select.selected.Text.length>20">...</span>
+        </ui-select-match>
+        <ui-select-choices repeat="lookupitem.Id as lookupitem in cvm.multilineList | filter: { Text: $select.search }">
+            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+        </ui-select-choices>
+    </ui-select>
+
+    <!-- 3- Narrative -->
+    <span ng-if="cvm.testvaluetype == 3" class="lab">
+        <div class="row">
+            <div class="col-sm-11"></div>
+            <div class="col-sm-1 text-ed">
+                <i class="fa fa-pencil-square-o" aria-hidden="true" ng-click="cvm.openRichTextEditor()"
+                    tabindex="cvm.tabindex" ng-hide="cvm.impressionid == 'emr'"></i>
+            </div>
+        </div>
+        <span class="lab-data" ng-bind-html="cvm.testvalue | limitTo : 5000"></span>
+    </span>
+</div>
+
+<!-- 7 - Auto Calculation -->
+<div class="input-group col-sm-12" ng-if="cvm.testvaluetype == 7">
+    <input type="number" class="form-control" style="width:170px !important;" ng-model="cvm.testvalue" placeholder="" stringtonumber ng-blur="cvm.valueChanged()" ng-change="cvm.valueChanged()" tabindex="{{cvm.tabindex}}">
+    <!--<div ng-click="cvm.computeResultValue()" class="input-group-addon" >
+                <i class="fa fa-refresh" aria-hidden="true"></i>
+        </div>-->
+</div>

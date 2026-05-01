@@ -1,0 +1,126 @@
+<html>
+
+<head>
+  <style>
+    .table1 {
+      border: 1px solid black;
+      font-size: 8px;
+    }
+
+    .table2 {
+      border: 1px solid black;
+      border-top: 0px solid black;
+      font-size: 8px;
+    }
+
+    {{include '/Templates/assets/css/core.css'}}
+  </style>
+</head>
+
+<body>
+  <div id="pageHeader">
+    {{{include '/Templates/generic/common/header.tpl.html' 'tpl'}}}
+  </div>
+    <div style="text-align:center;font-size: 8px;"><b>Pharmacy Refund Report</b></div>
+    <table class="table1" style="width:100%;">
+      <tr style='vertical-align: top'>
+        <td style="width:5%;"><b>FromDate</b></td>
+        <td>:</td>
+        <td style="width:15%;"><b>{{data.FromDate}}</b></td>
+        <td style="width:5%;"><b>ToDate</b></td>
+        <td>:</td>
+        <td style="width:15%;"><b>{{data.ToDate}}</b></td>
+        <td style="width:5%;"><b>Clinics</b></td>
+        <td>:</td>
+        <td style="width:25%;"><b>{{data.FacilityName}}</b></td>
+        <td style="width:5%;"><b>Payment Type</b></td>
+        <td>:</td>
+        <td style="width:25%;"><b>{{data.PaymentType}}</b></td>
+      </tr>
+      <tr style='vertical-align: top'>
+        <td><b>User Name</b></td>
+        <td>:</td>
+        <td><b>{{data.UserName}}</b></td>
+      </tr>
+    </table>
+  </br>
+    <table class="table1" style="width:100%;">
+      <tr>
+        <td style="width:5%;"><b>S.No</b></td>
+        <td style="width:10%"><b>Return Date</b></td>
+        <td style="width:10%"><b>Return No</b></td>
+        <td style="width:10%"><b>Patient Name</b></td>
+        <td style="width:5%"><b>UHID</b></td>
+        <td style="width:10%"><b>Return Amt</b></td>
+        <td style="width:10%"><b>Dis</b></td>
+        <td style="width:10%"><b>Sales Amt(total-return)</b></td>
+        <td style="width:10%"><b>Refund Amt</b></td>
+        <td style="width:10%"><b>Paymt Type</b></td>
+        <td style="width:10%"><b>Cashier Name</b></td>
+      </tr>
+    </table>
+    <table class="table2" style="width:100%;">
+      {{#each data.PatientRefund}}
+      <tr>
+        <td style="width:5%;">{{inc @index}}</td>
+        <td style="width:10%">{{datetimeformat PatientReturn.ReturnDateTime}}</td>
+        <td style="width:10%">{{PatientReturn.ReturnNumber}}</td>
+        <td style="width:10%">{{Patient.Title.Description}} {{Patient.FirstName}} {{Patient.LastName}}</td>
+        <td style="width:5%">{{Patient.MRN}}</td>
+        <td style="width:10%">{{currencyformat PatientReturn.ReturnAmount}}</td>
+        <td style="width:10%">{{currencyformat PatientReturn.DiscountAmount}}</td>
+        <td style="width:10%">{{currencyformat PatientReturn.NetAmount}}</td>
+        <td style="width:10%">{{currencyformat RefundAmount}}</td>
+        <td style="width:10%;">{{PaymentType.Description}}</td>
+        <td style="width:10%;">{{CreatedUser.Title.Description}} {{CreatedUser.FirstName}} {{CreatedUser.LastName}}</td>
+      </tr>{{/each}}
+    <!-- </table>
+    <table class="table2" style="width:100%">
+      <tr>
+        <td style="width:3%;"></td>
+        <td style="width:8%"></td>
+        <td style="width:8%"></td>
+        <td style="width:8%"></td>
+        <td style="width:10%"></td>
+        <td style="width:5%"></td>
+        <td style="width:5%">{{currencyformat data.TotalBillAmount}}</td>
+        <td style="width:6%">{{currencyformat data.TotalDisAmount}}</td>
+        <td style="width:6%">{{currencyformat data.TotalAmountPaid}}</td>
+        <td style="width:6%">{{currencyformat data.TotalRefund}}</td>
+        <td style="width:5%;"></td>
+        <td style="width:8%"></td>
+        <td style="width:5%"></td>
+        <td style="width:7%"></td>
+        <td style="width:10%;"></td>
+      </tr>
+      </table>
+    </br> -->
+      <table class="table1" style="width:40%;">
+        <tr>
+            <td style="width:20%;"><b>Summary</b></td>
+            <td style="width:20%;"><b>Collection</b></td>
+        </tr>
+      </table>
+        <table class="table2" style="width:40%;">
+        <tr>
+          <td style="width:20%;"><b>Total Cash</b></td>
+          <td style="width:20%;">{{currencyformat data.TotalCash}}</td>
+      </tr>
+      <tr>
+        <td><b>Total Card</b></td>
+        <td>{{currencyformat data.TotalCard}}</td>
+    </tr>
+    <tr>
+      <td><b>Total Cheque</b></td>
+      <td>{{currencyformat data.TotalCheque}}</td>
+  </tr>
+  <tr>
+    <td><b>Net Total</b></td>
+    <td>{{currencyformat data.TotalSales}}</td>
+</tr>
+        </table>
+
+  </body>
+  <div style="width:100%; font-size:8px;">Printed On: {{now}}</div>
+
+</html>

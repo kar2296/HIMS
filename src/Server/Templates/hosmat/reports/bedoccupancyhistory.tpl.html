@@ -1,0 +1,75 @@
+<html>
+
+<head>
+  <style>
+    .table1 {
+      border: 1px solid black;
+      font-size: 13px;
+      text-align: left;
+    }
+
+    .table2 {
+      border: 1px solid black;
+      border-top: 0px solid black;
+      font-size: 13px;
+      text-align: left;
+
+    }
+      {{include '/Templates/hosmat/assets/css/core.css'}}
+  </style>
+</head>
+
+<body>
+  <div id="pageHeader">
+    {{{include '/Templates/hosmat/common/header.tpl.html' 'tpl'}}}
+  </div>
+  <div style="text-align:center;"><b style="font-size: 16px;">IP Occupancy Report</b></div>
+  <table class="table1" style="width:100%;">
+    <tr style='vertical-align: top'>
+      <td style="width:5%;"><b>Ward</b></td>
+      <td style="width:1%;">:</td>
+      <td style="width:25%;"><b>{{data.WardName}}</b></td>
+      <td style="width:8%;"><b>Sponsor</b></td>
+      <td style="width:1%;">:</td>
+      <td style="width:22%;"><b>{{data.GuarantorName}}</b></td>
+      <td style="width:5%;"><b>Doctor Name</b></td>
+      <td style="width:1%;">:</td>
+      <td style="width:25%;"><b>{{data.DoctorName}}</b></td>
+      <td style="width:5%;"><b>Admission Status</b></td>
+      <td style="width:1%;">:</td>
+      <td style="width:25%;"><b>{{data.AdmissionStatus}}</b></td>
+  </table>
+  </br>
+  <table class="table1" style="width:100%;font-size: 13px;">
+    <tr>
+      <td style="width:4%;"><b>#</b></td>
+      <td style="width:10%"><b>DOA</b></td>
+      <td style="width:8%"><b>IP Number</b></td>
+      <td style="width:17%;"><b>Patient Name</b></td>
+      <td style="width:7%"><b>UHID</b></td>
+      <td style="width:15%"><b>Room Details</b></td>
+      <td style="width:9%"><b>Doctor Name</b></td>
+      <td style="width:10%"><b>Sponsor</b></td>
+      <td style="width:10%"><b>Department</b></td>
+      <td style="width:10%"><b>Admission Status</b></td>
+    </tr>
+  </table>
+  <table class="table2" style="width:100%;">
+    {{#each data.BedDetails}}
+    <tr>
+      <td style="width:4%;">{{inc @index}}</td>
+      <td style="width:10%">{{datetimeformat AdmissionDate}}</td>
+      <td style="width:8%">{{Encounter.VisitIdentifier}}</td>
+      <td style="width:17%"><b>{{Patient.Title.Description}}{{Patient.FirstName}}{{Patient.LastName}}</b></td>
+      <td style="width:7%;">{{Patient.MRN}}</td>
+      <td style="width:15%;">{{WardMaster.WardName}} {{WardRoomMaster.RoomNo}} {{WardRoomBedMaster.BedNo}}</td>
+      <td style="width:9%;">{{Doctor.Title.Description}} {{Doctor.FirstName}} {{Doctor.LastName}}</td>
+      <td style="width:10%">{{Encounter.Guarantor.GuarantorName}} </td>
+      <td style="width:10%">{{Encounter.Department.DepartmentName}}</td>
+      <td style="width:10%">{{Encounter.AdmissionStatus.Description}}</td> 
+    </tr>{{/each}}
+  </table>
+</body>
+<div style="width:100%; font-size:8px;">Printed On: {{now}}</div>
+
+</html>

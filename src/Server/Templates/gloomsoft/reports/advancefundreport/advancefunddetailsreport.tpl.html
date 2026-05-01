@@ -1,0 +1,92 @@
+<html>
+
+<head>
+  <style>
+    .table1 {
+      border: 1px solid black;
+      font-size: 11px;
+    }
+
+    .table2 {
+      border: 1px solid black;
+      border-top: 0px solid black;
+      font-size: 11px;
+    }
+
+      {{include '/Templates/assets/css/core.css'}}
+  </style>
+</head>
+
+<body>
+  <div id="pageHeader">
+    {{{include '/Templates/gloomsoft/common/header.tpl.html' 'tpl'}}}
+  </div>
+  <div style="text-align:center;font-size: 12px;"><b>Advance Fund Details Report</b></div>
+  <table class="table1" style="width:100%;">
+    <tr style='vertical-align: top'>
+      <td style="width:5%;font-size: 11px;"><b>From Date</b></td>
+      <td>:</td>
+      <td style="width:15%;font-size: 11px;"><b>{{data.FromDate}}</b></td>
+      <td style="width:5%;font-size: 11px;"><b>To Date</b></td>
+      <td>:</td>
+      <td style="width:15%;font-size: 11px;"><b>{{data.ToDate}}</b></td>
+      <td style="width:5%;font-size: 11px;"><b>DepartmentName</b></td>
+      <td>:</td>
+      <td style="width:25%;font-size: 11px;"><b>{{data.DepartmentName}}</b></td>
+      <td style="width:5%;"><b></b></td>
+      <td></td>
+      <td style="width:25%;"><b></b></td>
+    </tr>
+  </table>
+  </br>
+  <table class="table1" style="width:100%;">
+    <tr>
+      <td style="width:5%;font-size: 11px;"><b>S.No</b></td>
+      <td style="width:10%;font-size: 11px;"><b>Receipt Date</b></td>
+      <td style="width:10%;font-size: 11px;"><b>Receipt Number</b></td>
+      <td style="width:10%;font-size: 11px;"><b>Patient Mrn</b></td>
+      <td style="width:10%;font-size: 11px;"><b>Patient Name</b></td>
+      <td style="width:10%;font-size: 11px;"><b>Department</b></td>
+      <td style="width:10%;font-size: 11px;"><b>Receipt Amount</b></td>
+      <td style="width:10%;font-size: 11px;"><b>Advance Amt</b></td>
+      <td style="width:10%;font-size: 11px;"><b>Pending Amount</b></td>
+      <td style="width:10%;font-size: 11px;"><b>Payment Type</b></td>
+      <td style="width:5%;font-size: 11px;"><b>Remark</b></td>
+    </tr>
+  </table>
+  <table class="table2" style="width:100%;">
+    {{#each data.AdvanceFundDetails}}
+    <tr>
+      <td style="width:5%;">{{inc @index}}</td>
+      <td style="width:10%">{{datetimeformat ReceiptDateTime}}</td>
+      <td style="width:10%">{{ReceiptNumber}}</td>
+      <td style="width:10%">{{Patient.MRN}}</td>
+      <td style="width:10%">{{Patient.Title.Description}} {{Patient.FirstName}} {{Patient.LastName}}</td>
+      <td style="width:10%">{{Department.DepartmentName}}</td>
+      <td style="width:10%">{{currencyformat AmountPaid}}</td>
+      <td style="width:10%">{{currencyformat AmountAdjusted}}</td>
+      <td style="width:10%">{{currencyformat PendingAmount}}</td>
+      <td style="width:10%">{{PaymentType.Description}}</td>
+      <td style="width:5%">{{Comments}}</td>
+    </tr>{{/each}}
+  </table>
+  <table class="table2" style="width:100%">
+    <tr>
+      <td style="width:5%;"></td>
+      <td style="width:10%"></td>
+      <td style="width:10%"></td>
+      <td style="width:10%"></td>
+      <td style="width:10%"></td> 
+      <td style="width:10%"></td> 
+      <td style="width:10%">{{currencyformat data.TotalReceiptAmt}}</td>
+      <td style="width:10%">{{currencyformat data.TotalAdjustAmt}}</td>
+      <td style="width:10%">{{currencyformat data.TotalPendingAmt}}</td>
+      <td style="width:10%"></td>
+      <td style="width:5%"></td>
+    </tr>
+  </table>
+
+</body>
+<div style="width:100%; font-size:11px;">Printed On: {{now}}</div>
+
+</html>

@@ -1,0 +1,88 @@
+import { IAttributes } from '../../../Base/Index';
+import { Instance } from '../../../../Core/Index';
+
+export interface ItemFacilityMapAttributes extends IAttributes {
+    Id: number;
+    ItemMasterId: number;
+    ItemCode: string;
+    ItemName: string;
+    ItemDescription: string;
+    ItemShortDescription: string;
+    FacilityId: number;
+    CategoryId: number;
+    SubCategoryId: number;
+    ProductTypeId: number;
+    SubProductTypeId: number;
+    GenericId: number;
+    GenericCode: string;
+    GenericName: string;
+    ManufacturerId: number;
+    ManufacturerCode: string;
+    ManufacturerName: string;
+    BaseUomId: number;
+    PurchaseUomId: number;
+    SaleUomId: number;
+    ImagePath: string;
+    DrugId: number;
+    DrugCode: string;
+    DrugName: string;
+    HSNId: number;
+    HSNCode: string;
+    HSNName: string;
+    ScheduleTypeId: number;
+    StorageConditionId: number;
+    GstId: number;
+    InGstId: number;
+    CGstId: number;
+    SGstId: number;
+    AccountCode: string;
+    SubAccountCode: string;
+    ProductRegNo: string;
+    Status: number;
+    IsCssd: boolean;
+    IsConsumable: boolean;
+    IsBatchMandatory: boolean;
+    IsExpiryMandatory: boolean;
+    IsHighAlert: boolean;
+    CalculateTaxonMRP: boolean;
+    DiscountModeId: number;
+    Discount: number;
+    ItemPrice: number;
+    CostPrice: number;
+    MrPrice: number;
+    IsConsignment: boolean;
+    IsGenericAllow: boolean;
+    IsManufacture: boolean;
+    IsBillable: boolean;
+    IsControlled: boolean;
+    IsColdChain: boolean;
+    IsAsset: boolean;
+    IsDescriptionEdit: boolean;
+    IsNarcotic: boolean;
+    IsReusable: boolean;
+    IsMRPRequired: boolean;
+    IsNonClaimable: boolean;
+    CanEditPriceForGrn: boolean;
+    Min: number;
+    Max: number;
+    IndicationId: number;
+    ABCClassId: number;
+    VEDId: number;
+    AllowStaffDiscount: boolean;
+    IsActive: boolean;
+    ActiveStatusId: number;
+    ActiveFrom: Date;
+    ActiveTo: Date;
+    Rev: number;
+    CreatedBy: number;
+    CreatedAt: Date;
+    UpdatedBy: number;
+    UpdatedAt: Date;
+}
+
+export interface ItemFacilityMapInstance extends Instance<ItemFacilityMapAttributes> {
+    // I'm exposing every DB column as an instance field to so that tsc won't complain.
+    // CreatedAt: Date;
+    // UpdatedAt: Date;
+    dataValues: ItemFacilityMapAttributes;
+}

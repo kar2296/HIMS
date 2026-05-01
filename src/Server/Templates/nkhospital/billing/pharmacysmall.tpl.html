@@ -1,0 +1,135 @@
+<html>
+
+<head>
+    <style>
+        .table1 {
+            border: 1px solid black;
+            border-bottom: 0px solid black;
+            text-align: center;
+            font-size: 4px;
+        }
+
+        .table2 {
+            border: 1px solid black;
+            border-bottom: 0px solid black;
+            text-align: left;
+            font-size: 4px;
+        }
+
+        .table3 {
+            border: 1px solid black;
+            border-bottom: 1px solid black;
+            font-size: 4px;
+        }
+
+        .border {
+            border-collapse: collapse;
+            border-left: 1px solid black;
+            font-size: 4px;
+        }
+
+        .table4 {
+            border: 1px solid black;
+            border-bottom: 0px solid black;
+            text-align: left;
+            font-size: 4px;
+        }
+
+        .size {
+            font-size: 4px;
+        }
+{{include '/Templates/assets/css/core.css'}}
+        </style>
+    </head>
+    <body>
+	 <div id="pageHeader">
+        {{{include '/Templates/nkhospital/common/header1.tpl.html' 'tpl'}}}
+    </div>
+
+    <table class="table1" style="width:40%;">
+        <tr>
+            <td style="vertical-align:text-middle;font-size: 1.2em;"><b>Pharmacy Bill</b></td>
+        </tr>
+    </table>
+    <table class="table2" style="width:40%;">
+        <tr>
+            <td style="width:15%;"><b>Name</b></td>
+            <td>:</td>
+            <td style="width:20%;">{{data.Patient.Title.Description}} {{data.Patient.FirstName}} {{data.Patient.MiddleName}} {{data.Patient.LastName}}</td>
+            <td><b>Bill Date</b></td>
+            <td>:</td>
+            <td>{{datetimeformat data.PatientBills.BillDateTime}}</td>
+        </tr>
+		<tr>
+            <td style="width:15%;"><b>Returned By</b></td>
+            <td>:</td>
+            <td colspan="4" style="width:20%;">{{data.PatientBills.CreatedUser.Title.Description}} {{data.PatientBills.CreatedUser.FirstName}} {{data.PatientBills.CreatedUser.LastName}}</td>
+          </tr>
+    </table>
+    <table  class="table2" style="width:40%;">
+        <tr>
+            <th style="width:5%" align="left">S.No</th>
+            <th style="width:25%" align="left">Description</th>
+            <th style="width:15%" align="left">Schedule</th>
+            <th style="width:10%" align="left">BatchID</th>
+            <th style="width:12%" align="left">Expired Date</th>
+            <th style="width:5%" align="left">Qty</th>
+            <th style="width:8%" align="left">Rate</th>
+            <th style="width:10%" align="left">Discount</th>
+            <th style="width:20%" align="left">Net Amount</th>
+
+        </tr>
+    </table>
+
+    <table  class="table4" style="width:40%">{{#each data.BillDetails}}
+        <tr>
+            <td style="width:5%">{{inc @index}}</td>
+            <td style="width:25%">{{ServiceName}}</td>
+            <td style="width:15%">{{ItemMaster.ScheduleType.description}}</td>
+            <td style="width:10%">{{BatchId}}</td>
+            <td style="width:12%">{{dateformat ExpiryDate}}</td>
+            <td style="width:5%">{{Quantity}}</td>
+            <td style="width:8%">{{currencyformat Rate}}</td>
+            <td style="width:10%">{{currencyformat DiscountAmount}}</td>
+            <td style="width:20%">{{currencyformat NetAmount}}</td>
+        </tr>
+        {{/each}}
+    </table>
+    <table  class="table2" style="width:40%">
+        <tr>
+            <td style="width:90%;text-align:right">Total</td>
+            <td>:</td>
+            <td style="width:10%;">{{currencyformat data.PatientBills.BillAmount}}</td>
+        </tr>
+        <tr>
+            <td style="width:90%;text-align:right">Discount</td>
+            <td>:</td>
+            <td style="width:10%;">{{currencyformat data.PatientBills.BillDiscount}}</td>
+        </tr>
+        <tr>
+            <td style="width:90%;text-align:right">Net Amount</td>
+            <td>:</td>
+            <td style="width:10%;">{{currencyformat data.NetAmount}}</td>
+        </tr>
+        <tr>
+            <td style="width:90%;text-align:right">Paid</td>
+            <td>:</td>
+            <td style="width:10%;">{{currencyformat data.PatientBills.PaidAmount}}</td>
+        </tr>
+        <tr>
+            <td style="width:90%;text-align:right">Due</td>
+            <td>:</td>
+            <td style="width:10%;">{{currencyformat data.PatientBills.OutStandingAmount}}</td>
+        </tr>
+    </table>
+    <table class="table3" style="width:40%;">
+        <tr>
+            <td style="width:50%;text-align:left">{{data.PatientBills.CreatedUser.Title.Description}} {{data.PatientBills.CreatedUser.FirstName}} {{data.PatientBills.CreatedUser.LastName}} </td>
+        <tr>
+		 <tr>
+            <td style="width:50%;text-align:left">Prepared By</td>
+        <tr>
+      </table>
+                    <div style="width:40%; font-size:4px;">Printed On: {{now}}</div>
+</body>
+</html>

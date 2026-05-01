@@ -1,0 +1,171 @@
+<html>
+
+<head>
+    <style>
+        
+        
+    .cust_btnouter {
+        background: #f3f3f3;
+        border: 1px solid #ccc;
+        vertical-align: unset;
+    }
+
+    .term-opt {
+        float: left;
+    }
+
+    .all-border {
+        border: 1px solid black;
+        height: 150px;
+        font-size: 18px;
+        font-weight: 700;
+    }
+
+    .border-right {
+        border-right: 1px solid black;
+    }
+
+    .div-qn-text {
+        /* padding: 5px; */
+        /* padding: 20px 5px; */
+      
+    }
+
+    .div-qn-lbl {
+        padding-top: 20px;
+        padding-bottom: 20px;
+        padding-left: 10px;
+        font-size: 18px; 
+        font-weight: 700;
+    }
+
+    .section-div {
+        margin-top: 0px;
+    }
+
+    .div-section-info {
+        padding-left: 10px
+    }
+
+    .div-section-info b {
+        color: #ff0000;
+    }
+
+    .quest-display {
+        padding: 5px;
+    }
+
+    .quest-text {
+        padding: 5px;
+    }
+    .btn-group {
+        border: 1px solid black;
+        padding-left:5px;
+        padding-right: 5px;
+        padding-top: 5px;
+        padding-bottom: 5px;
+    }
+    .btn-selected {
+        border: 1px solid black;
+        padding-left:5px;
+        padding-right: 5px;
+        padding-top: 5px;
+        padding-bottom: 5px;
+        background: orange;
+    }
+    .col-sm-2 { width: 16% !important;float:left; height: 150px; }
+    .col-sm-3 { width: 24% !important; float:left;  height: 150px;}
+    .col-sm-4 { width: 32% !important;float:left;  height: 150px;}
+    .col-sm-5 { width: 40% !important;float:left;  height: 150px;}
+    .col-sm-6 { width: 48% !important;float:left;  height: 150px;}
+    .col-sm-7 { width: 56% !important;float:left;  height: 150px;}
+    .col-sm-8 { width: 64% !important;float:left;  height: 150px;}
+    .col-sm-9 { width: 72% !important; float:left;  height: 150px;}
+    .col-sm-10 {  width: 80% !important;float:left;  height: 150px;}
+    .col-sm-12 { width: 88% !important; float:left;  height: 150px;}
+    .row { width : 100%; }
+    .shoulder-body .panel-body.form-panel{padding:0px 15px;}
+    .float-left { float:left !important; }
+    .div-info {width: 88% !important; float:left;  height: 100px;}
+
+        {{include '/Templates/cavery/assets/css/core.css' }}
+    </style>
+</head>
+
+<body>
+    {{#each data.Sections}}
+        <div class="section-div">
+            <div class="div-info">{{{info}}}</div>
+            {{#each rows}}
+            <div class="row">
+                {{#each cols}}
+                    <div class="col-sm-{{cls}} all-border float-left"> 
+                        {{setVariable 'type' type}}
+                        {{#ifCond 'g.type' '==' 'label'}}
+                            <div class="div-qn-lbl">
+                                {{{../display}}}
+                            </div>
+                        {{/ifCond}}
+                        {{#ifCond 'g.type' '==' 'composite'}}
+                             {{#each ../questions}}
+                             <div class="col-sm-{{cls}}">
+                                    {{setVariable 'questiontype' type}}
+                                    {{#ifCond 'g.questiontype' '==' 'sh_single.html'}}
+                                        <div class="col-sm-{{../cls}} float-left" style="padding-top:10px; padding-left: 40px;">
+                                            {{setVariable 'answers' ../answers}}
+                                            {{#each ../options}}
+                                                {{setVariable 'optiontext' text}}
+                                                {{#ifCond 'g.optiontext' '==' 'g.answers'}}
+                                                    <div class="btn-selected float-left">
+                                                            {{{../text}}}
+                                                    </div>
+                                                {{/ifCond}}
+                                                {{#ifCond 'g.optiontext' '!=' 'g.answers'}}
+                                                    <div class="btn-group float-left">
+                                                            {{{../text}}}
+                                                    </div>
+                                                {{/ifCond}}
+                                            {{/each}}
+                                        </div>
+                                    {{/ifCond}}
+                                    {{#ifCond 'g.questiontype' '==' 'sh_display.html'}}
+                                        <div class="col-sm-{{../cls}} quest-display float-left">
+                                            <div>{{../display}}</div>
+                                        </div>
+                                    {{/ifCond}}
+                                    {{#ifCond 'g.questiontype' '==' 'sh_text.html'}}
+                                        <div class="col-sm-{{../cls}} quest-text float-left">
+                                            <span>{{../answers}}</span>
+                                        </div>
+                                    {{/ifCond}}
+                                    {{#ifCond 'g.questiontype' '==' 'sh_combo.html'}}
+                                    <div class="col-sm-{{../cls}} quest-text float-left">
+                                        <span>{{../answers}}</span>
+                                    </div>
+                                    {{/ifCond}}
+                                    {{#ifCond 'g.questiontype' '==' 'sh_textarea.html'}}
+                                        <div class="col-sm-{{../cls}} quest-text float-left">
+                                            <span>{{{../answers}}}</span>
+                                        </div>
+                                    {{/ifCond}}
+                                </div>
+                             {{/each}}
+                        {{/ifCond}}
+                        {{#ifCond 'g.type' '==' 'text'}}
+                            <div class="div-qn-lbl">
+                                {{{../answers}}}
+                            </div>
+                        {{/ifCond}}
+                        {{#ifCond 'g.type' '==' 'dummy'}}
+                            <div class="div-qn-lbl">
+                                    
+                            </div>
+                        {{/ifCond}}
+                    </div>
+                {{/each}}
+            </div>
+            {{/each}}
+        </div>
+    {{/each}}   
+</body>
+</html>

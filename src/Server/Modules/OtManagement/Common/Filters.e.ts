@@ -1,0 +1,107 @@
+export enum OtRequestFilters {
+    Id,
+    AnaesthesistId,
+    OTRequestStatusId,
+    ProcedureId,
+    PatientNameMRN,
+    PatientId,
+    DoctorId,
+    AnaesthesiaTypeId,
+    AssociateSurgeonId,
+    OTRequestedOn,
+    From,
+    To,
+    ChiefSurgeonId
+}
+export enum SurgeryEntryFilters {
+    Id,
+    PatientNameMRN,
+    PatientId,
+    SurgeryEntryStatus,//3
+    OTIdentifier,
+    Surgeon,//5
+    AssistantSurgeonId,
+    Procedure,
+    Anaesthesist,
+    OTStartedate,
+    OTEndDate,
+    OTRoom,//11
+    ProcedureName,
+    EncounterId,
+    FacilityId,
+    SurgeryRegisteredOn,
+    From,//16
+    To,
+    ConsultationId,
+    IsCathlab,//19
+    SurgeryStatus,
+    SurgeryScheduleId
+}
+export enum OtPatientEquipmentsFilters {
+    Id,
+    OtRegisterId,
+    PatientId,
+    EncounterId
+}
+export enum OtNotesFilters {
+    Id,
+    SurgeryEntryId,
+    OtNoteTypeId,
+    PatientId,
+    EncounterId
+}
+export enum OtDocumentFilters {
+    Id,
+    SurgeryEntryId,
+    PatientId,
+    EncounterId
+}
+export enum OtScheduleFilters {
+    Id,
+    SurgeryType,
+    OTScheduleStatus,
+    Department,
+    Facility,
+    PatientNameMRN,
+    PatientId,
+    DoctorId,
+    SurgeryName,
+    OTScheduledOn,
+    From,
+    To,
+    TeamId,
+    DiagnosisId,
+    SurgeryId,
+    PriorityId,
+    EncounterId,
+    OTRoomId,
+    IsCathlab,
+    Doctor,
+    Otroom
+}
+export enum OtScheduleDetailsFilters {
+    Id,
+    Department,
+    Facility,
+    PatientNameMRN,
+    PatientId,
+    From,
+    To,
+    Status
+}
+export enum SurgeryEntryDetailsFilters {
+    Id,
+    Department,
+    Facility,
+    PatientNameMRN,
+    PatientId,
+    From,
+    To,
+    Status
+}
+export enum SurgeryRoomFilters {
+    Id,
+    CodeName,
+    SurgeryRoomTypeId,
+    ActiveStatus
+}

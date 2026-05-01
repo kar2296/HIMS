@@ -1,0 +1,145 @@
+<html>
+
+<head>
+    <style>
+        .table1 {
+            border: 1px solid black;
+            border-bottom: 0px solid black;
+            text-align: center;
+            font-size: 8px;
+        }
+        
+        .table2 {
+            border: 1px solid black;
+            border-bottom: 0px solid black;
+            font-size: 8px;
+        }
+        
+        .size {
+            border: 1px solid black;
+            font-size: 8px;
+            border-collapse: collapse;
+        }
+        
+        .table3 {
+            border: 1px solid black;
+            border-top: 0px solid black;
+            font-size: 8px;
+        }
+        .table4 {
+            border: 1px solid black;
+            border-top: 0px solid black;
+            font-size: 8px;
+        }
+        .header1 {
+            text-align: center;
+            font-size: 16px;
+        }
+        
+        {{include '/Templates/assets/css/core.css'}}
+        </style>
+    </head>
+    <body>
+	 <div id="pageHeader">
+        {{{include '/Templates/gloomsoft/common/header.tpl.html' 'tpl'}}}
+    </div>
+    <table class="table1" style="width:100%;">
+        <tr>
+            <td height="20" style="vertical-align:text-middle;"><b>Purchase Request</b></td>
+        </tr>
+    </table>
+    <table class="table2" style="width:100%;">
+        <tr>
+            <td style="width:20%;"><b>From Store</b></td>
+            <td>:</td>
+            <td style="width:40%;">{{data.PurchaseRequest.FromStore.StoreName}}</td>
+            <td style="width:20%;"><b>PR Date</b></td>
+            <td>:</td>
+            <td style="width:20%;">{{datetimeformat data.PurchaseRequest.RequestedDate}}</td>
+        </tr>
+        <tr>
+            <td><b>To Store</b></td>
+            <td>:</td>
+            <td>{{data.PurchaseRequest.ToStore.StoreName}}</td>
+            <td><b>PR No</b></td>
+            <td>:</td>
+            <td><b>{{data.PurchaseRequest.PrNumber}}</b></td>
+        </tr>
+        <tr>
+            <td><b>From Facility</b></td>
+            <td>:</td>
+            <td>{{data.PurchaseRequest.Facility.FacilityName}}</td>
+            <td><b>PR Type</b></td>
+            <td>:</td>
+            <td>{{data.PurchaseRequest.PrType.Description}}</td>
+        </tr>
+        <tr>
+            <td><b>To Facility</b></td>
+            <td>:</td>
+            <td>{{data.PurchaseRequest.Facility.FacilityName}}</td>
+            <td><b>Exp.Del.Date</b></td>
+            <td>:</td>
+            <td>{{dateformat data.PurchaseRequest.ExpectedDeliveryDate}}</td>
+        </tr>
+        <tr>
+            <td><b>Vendor Name</b></td>
+            <td>:</td>
+            <td>{{data.PurchaseRequest.VendorMaster.VendorName}}</td>
+            <td><b>PR Status</b></td>
+            <td>:</td>
+            <td><b>{{data.PurchaseRequest.PrStatus.Description}}</b></td>
+        </tr>
+    </table>
+
+    <table border class="size" style="width:100%;">
+        <tr>
+            <th style="width:5%;" align="left">S.No</th>
+            <th style="width:8%;" align="left">Item Code</th>
+            <th style="width:25%;" align="left">Item Name</th>
+            <th style="width:5%;" align="left">UOM</th>
+            <th style="width:10%;" align="left">Stock In Hand</th>
+            <th style="width:10%;" align="left">Min Qty</th>
+            <th style="width:10%;" align="left">Max Qty</th>
+            <th style="width:10%;" align="left">PR Qty</th>
+            <th style="width:8%;" align="left">Reorder Qty</th>
+            <th style="width:10%;" align="left">Comments</th>
+
+        </tr>
+        {{#each data.PurchaseRequestDetail}}
+        <tr>
+            <td align="left">{{inc @index}}</td>
+            <td align="left">{{ItemCode}}</td>
+            <td align="left">{{ItemName}}</td>
+            <td align="left">{{BaseUom.UomName}}</td>
+            <td align="left">{{QuantityOnHand}}</td>
+            <td align="left">{{VendorItem.MinQty}}</td>
+            <td align="left">{{VendorItem.MaxQty}}</td>
+            <td align="left">{{RequestedQuantity}}</td>
+            <td align="left"></td>
+            <td align="left">{{Comments}}</td>
+        </tr>
+        {{/each}}
+    </table>
+<table class="table4" style="width:100%">
+        
+        <tr>
+            <td style="width:20%;"><b>Comments</b></td>
+            <td>:</td>
+            <td style="text-align:left;width:80%;"><b>{{data.PurchaseRequest.Comments}}</b></td>
+        </tr>
+    </table>
+    <table class="table3" style="width:100%;">
+        <tr>
+            <td style="width:35%;"><b>{{data.PurchaseRequest.ApprovedUser.Title.Description}} {{data.PurchaseRequest.ApprovedUser.FirstName}} {{data.PurchaseRequest.ApprovedUser.LastName}}</b></td>
+            <td style="width:30%;"></td>
+            <td style="width:35%;text-align:right;"><b>{{data.PurchaseRequest.AuthorizedUser.Title.Description}} {{data.PurchaseRequest.AuthorizedUser.FirstName}} {{data.PurchaseRequest.AuthorizedUser.LastName}}</b></td>
+        </tr>
+        <tr>
+            <td style="width:35%;"><b>Approved By</b></td>
+            <td style="width:30%;"></td>
+            <td style="width:35%;text-align:right;"><b>Authorized By</b></td>
+        </tr>
+    </table>
+    <br>
+
+    <div style="width:100%; font-size:8px;">Printed On: {{now}}</div>

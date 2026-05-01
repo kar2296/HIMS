@@ -1,0 +1,329 @@
+<html>
+
+<head>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        td,
+        th {
+            font-size: 13px;
+            padding: 2px;
+            vertical-align: top;
+        }
+
+        * {
+            /* font-family: Verdana, Geneva, Tahoma, sans-serif; */
+            font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+        }
+
+        .sub-head {
+            font-size: 14px;
+            background: #d5d5d5;
+            font-weight: 600;
+            padding: 3px;
+        }
+
+        h3.bg-color {
+            background: #d5d5d5;
+            text-align: center;
+            margin: 0;
+            padding: 6px;
+            margin-top: 10px;
+        }
+
+        .content {
+            border: 1px solid black;
+            margin: 20px;
+            margin-left: 40px;
+        }
+
+        .odd-bold td:nth-child(odd) {
+            font-weight: 700;
+        }
+
+        li {
+            font-size: 10px;
+        }
+
+        .fs-9 {
+            font-size: 9px;
+        }
+
+        .bgcolor th,
+        .bgcolor td {
+            border: 1px solid gainsboro;
+        }
+
+        .bgcolor th {
+            background: #d5d5d5;
+            padding: 5px;
+        }
+
+        .bot td {
+            height: 30px !important;
+            text-align: center;
+            padding-top: 5px;
+            border-right: 1px solid gainsboro;
+        }
+
+        .bot.dec td {
+            border-bottom: 1px solid gainsboro;
+        }
+
+        .bot.dec td {
+            border-bottom: 1px solid gainsboro;
+            text-align: left;
+        }
+
+        table.bot.dec span {
+            font-size: 11px;
+            color: #959595;
+        }
+
+        hr {
+            margin: 4px;
+            margin-left: 0;
+            margin-right: 0;
+        }
+{{ include '/Templates/jsshospital/assets/css/core.css'}}
+    </style>
+</head>
+
+<body>
+    <div class="content">
+        <div class="header">
+            {{{include '/Templates/jsshospital/common/header.tpl.html' 'tpl'}}}
+        </div>
+        <div class="pat-data">
+            <h3 class="bg-color">INPATIENT CASE SHEET</h3>
+            <hr>
+            <div class="sub-head">Registration Details</div>
+            <table>
+                <tr>
+                    <td>UHID No:</td>
+                    <td><b>: {{data.Patient.MRN}}</b></td>
+                    <td>Admission Date & Time</td>
+                    <td><b>: {{normaldatetimeformat data.Encounter.AdmissionDate}}</b></td>
+                    <td>IP NO</td>
+                    <td><b>: {{data.Encounter.VisitIdentifier}}</b></td>
+                </tr>
+            </table>
+            <hr>
+            <div class="sub-head">Patient Details</div>
+            <table>
+                <tr>
+                    <td style="width: 50%;">
+                        <table class="odd-bold">
+                            <tr>
+                                <td>Patient Name</td>
+                                <td>: {{data.Patient.Title.Description}} {{data.Patient.FirstName}}
+                                    {{data.Patient.LastName}}</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    Permanent Address
+                                </td>
+                                <td>: {{data.Patient.AddressLine1}},
+                                    {{data.Patient.AddressLine2}},
+                                    {{data.Patient.Area}},
+                                    {{data.Patient.CityMaster.CityName}},
+                                    {{data.Patient.StateMaster.StateName}},{{data.Patient.CountryMaster.CountryName}},
+                                    Pincode-{{data.Patient.Pincode}}.</td>
+                            </tr>
+                        </table>
+                    </td>
+                    <td>
+                        <table class="odd-bold">
+                            <tr>
+                                <td style="width: 30%;">Age / Gender</td>
+                                <td>: {{age data.Patient.DOB}} / {{data.Patient.Gender.Description}}</td>
+                            </tr>
+                            <tr>
+                                <td>Religion</td>
+                                <td>: {{data.Patient.Nationality.Description}}</td>
+                            </tr>
+                            <tr>
+                                <td>Marital Status</td>
+                                <td>: {{data.Patient.MaritalStatus.Description}}</td>
+                            </tr>
+                            <tr>
+                                <td>Relation Name</td>
+                                <td>: {{data.Encounter.GuardianType.Description}}</td>
+                            </tr>
+                            <tr>
+                                <td>Patient Mobile</td>
+                                <td>: {{data.Encounter.AttenderPhone}}</td>
+                            </tr>
+                            <tr>
+                                <td>Aadhar No.</td>
+                                <td>: {{data.Patient.NationalityIdentifier}}</td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>
+            <hr>
+            <div class="sub-head">Admission Details</div>
+            <table class="odd-bold">
+                <tr>
+                    <td style="width: 20%;">Ward Name / Room No</td>
+                    <td style="width: 25%;">: {{data.Encounter.WardMaster.WardName}} /  {{data.Encounter.WardRoomMaster.RoomNo}}</td>
+                    <td style="width: 10%;">Bed No</td>
+                    <td style="width: 15%;">: {{data.Encounter.WardRoomBedMaster.BedNo}}</td>
+                    <td style="width: 10%;">Payer</td>
+                    <td style="width: 20%;">: {{data.Encounter.Guarantor.GuarantorName}}</td>
+                </tr>
+            </table>
+            <hr>
+            <div class="sub-head">Doctor Details</div>
+            <table class="odd-bold">
+                <tr>
+                    <td>Doctor Name</td>
+                    <td>:
+                        {{data.Encounter.Doctor.Title.Description}}{{data.Encounter.Doctor.FirstName}}{{data.Encounter.Doctor.LastName}}
+                    </td>
+                    <td>Department</td>
+                    <td>: {{data.Encounter.Department.DepartmentName}}</td>
+                </tr>
+                <tr>
+                    <td>Referred By</td>
+                    <td>: {{data.Encounter.ReferralName}}</td>
+                </tr>
+            </table>
+            <hr>
+            <div class="sub-head">Previous History / Provisional Diagnosis</div>
+            <div style="height: 80px;"></div>
+            <hr>
+            <table>
+                <tr>
+                    <td colspan="2"></td>
+                </tr>
+                <tr>
+                    <td>ICD Code</td>
+                    <td>
+                        MLC
+                    </td>
+                </tr>
+            </table>
+            <hr>
+            <div class="sub-head">Condition on Discharge :</div>
+            <table class="bot">
+                <tr>
+                    <td>
+                        <div>Discharge Date</div>
+                        <p>{{dateformat data.Encounter.DischargeDate}}</p>
+                    </td>
+                    <td>
+                        <div>Discharge Time</div>
+                        <p>{{datetimeformat data.Encounter.DischargeDate}}</p>
+                    </td>
+                    <td>
+                        <div>Sign of SR</div>
+                    </td>
+                    <td>
+                        <div>Consultant Signature</div>
+                    </td>
+                </tr>
+            </table>
+            <table class="bgcolor">
+                <thead>
+                    <tr>
+                        <th>Hospital Rules & Regulations :</th>
+                        <th>I/We have been briefed on my / our rights :</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            <ul>
+                                <li>Bed allocation will depend on bed availability.</li>
+                                <li> Purchase all medicines from the pharmacy on-site; outside medications are not
+                                    allowed for quality reasons</li>
+                                <li>If the patient initially chooses the General Ward but is later transferred to a
+                                    higher category ward, the charges will reflect the higher category rates.</li>
+                                <li>Relatives are required to leave the room/Bed when a patient is shifted
+                                    to ICU or OT to make space for incoming patients</li>
+                                <li>We do not accept payment by cheque.</li>
+                                <li>Please remember that smoking, alcohol, and chewing tobacco are not permitted
+                                    on hospital premises; violators will be fined</li>
+                                <li>Management will not be held responsible for personal belongings.</li>
+                            </ul>
+                        </td>
+                        <td>
+                            <ul>
+                                <li>I will be treated with respect and non-discrimination</li>
+                                <li>I can avail of information related to me / my relative's treatment.</li>
+                                <li>I will be involved in decision-making related to treatment.</li>
+                                <li>My privacy and confidentiality will be considered at all levels</li>
+                                <li>I will be educated on the medications, nutritional requirements, pain management
+                                    techniques and other related issues.</li>
+                                <li>My safety will be taken care of.</li>
+                                <li>My social needs will be fulfilled to the extent possible.</li>
+                                <li>I can voice my complaints & concerns freely to any of the staff members.</li>
+                            </ul>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <table class="bot dec">
+                <tr>
+                    <td class="fs-9" style="width: 40%;">I/We have been explained about proposed
+                        care, expected results, and possible
+                        complications.</td>
+                    <td style="width: 20%;">
+                        Declaration
+                    </td>
+                    <td class="fs-9" style="width: 40%;">
+                        I/We have been explained about the expected costs.
+                    </td>
+                </tr>
+            </table>
+            <table>
+                <tr>
+                    <td class="fs-9">
+                        *I hereby knowingly express my consent for the admission of " {{data.Patient.Title.Description}} {{data.Patient.FirstName}} {{data.Patient.LastName}} " to JSS
+                        Hospitals and agree to allow doctors nurses and other staff employed by the
+                        hospital or consultants to attend to complete diagnostic and therapeutic procedures as deemed
+                        necessary according to the health conditions of the patient.
+                        I agree to pay fully for all expenses incurred on behalf of the person mentioned earlier for
+                        services rendered by JSS Hospitals and the consultant doctors, nurses and other
+                        staff caring for me/ Patient during my/his/her treatment. I understand that I am financially
+                        responsible for all balances that are not covered by my/his/her health insurance
+                        plan. For example, the payment of non-covered service deductibles and co-payments are considered
+                        the patient's responsibility, which I agree to pay on behalf of the
+                        patient. /By myself.
+                    </td>
+                </tr>
+            </table>
+            <hr style="margin:0px">
+            <table class="bot dec">
+                <tr>
+                    <td>
+                        <span>Signature of the Patient:</span>
+                    </td>
+                    <td>
+                        <span>Patient's Relative Signature:</span>
+                    </td>
+                    <td>
+                        <b>Admission Done By:</b>
+                    </td>
+                </tr>
+            </table>
+            <table>
+                <tr>
+                    <td>Admission Done By <b>{{data.Encounter.Created.FirstName}}
+                            {{data.Encounter.Created.LastName}}</b> ON {{datetimeformat data.Encounter.AdmissionDate}}
+                    </td>
+                    <td align="end">
+                        Printed By ON {{now}}
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</body>
+
+</html>

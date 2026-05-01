@@ -1,0 +1,112 @@
+<html>
+
+<head>
+    <style>
+        .table1 {
+            border: 1px solid black;
+			border-left: none;
+            border-right: none;
+            font-size: 11px;
+        }
+
+        .border {
+            border: 1px solid black;
+            font-size: 11px;
+        }
+        .table3 {
+            border: 1px solid black;
+            height:200px;
+            font-size: 11px;
+            border-collapse: collapse;
+        }
+		.table4 {
+            border: 1px solid black;
+            font-size: 11px;
+            border-collapse: collapse;
+        }
+
+        .center {
+            text-align: center;
+            font-size: 11px;
+        }
+
+        .size {
+            font-size: 11px;
+        }
+
+        {{include '/Templates/assets/css/core.css'}}
+    </style>
+</head>
+<div id="pageHeader">
+    {{{include '/Templates/eecherode/common/header.tpl.html' 'tpl'}}}
+</div>
+<table Class="table1" Style="width:100%;">
+   <tr>
+        <td style="width:14%;"><b> Name</b></td>
+        <td>:</td>
+        <td>{{data.PatientStockRequests.Patient.Title.Description}} {{data.PatientStockRequests.Patient.FirstName}} {{data.PatientStockRequests.Patient.MiddleName}} {{data.PatientStockRequests.Patient.LastName}}</td>
+		<td style="width:14%;"><img style="height: 30px; width: 100px;" src="{{barcode data.PatientStockRequests.Patient.MRN}}" /></td>
+        <td style="width:14%;"><b>Date</b></td>
+        <td>:</td>
+        <td>{{datetimeformat data.PatientStockRequests.PatientRequestDateTime}}</td>
+    </tr>
+	<tr>
+        <td style="width:20%;"><b>IP No</b></td>
+        <td>:</td>
+        <td style="width:30%;">{{data.PatientStockRequests.Encounter.VisitIdentifier}}</td>
+		<td style="width:20%;"></td>
+        <td><b>Requested By</b></td>
+        <td>:</td>
+        <td>{{data.PatientStockRequests.RequestedUser.Title.Description}} {{data.PatientStockRequests.RequestedUser.FirstName}} {{data.PatientStockRequests.RequestedUser.MiddleName}} {{data.PatientStockRequests.RequestedUser.LastName}}</td>
+    </tr>
+
+    <tr>
+        <td><b>Ward / Room / Bed</b></td>
+        <td>:</td>
+        <td>{{data.PatientStockRequests.WardMaster.WardName}} / {{data.PatientStockRequests.WardRoomMaster.RoomNo}} / {{data.PatientStockRequests.WardRoomBedMaster.BedNo}}</td>
+		<td style="width:20%;">{{data.PatientStockRequests.Doctor.Title.Description}} {{data.PatientStockRequests.Doctor.FirstName}} {{data.PatientStockRequests.Doctor.MiddleName}} {{data.PatientStockRequests.Doctor.LastName}}</td>
+        <td><b>Approved By</b></td>
+        <td>:</td>
+        <td>{{data.PatientStockRequests.ApprovedUser.Title.Description}} {{data.PatientStockRequests.ApprovedUser.FirstName}} {{data.PatientStockRequests.ApprovedUser.MiddleName}} {{data.PatientStockRequests.ApprovedUser.LastName}}</td>
+    </tr>
+	<tr>
+        <td><b>Return Store</b></td>
+        <td>:</td>
+        <td>{{data.PatientStockRequests.ToStore.StoreName}}</td>
+	</tr>
+</table>
+<table style="width:100%;">
+    <tr>
+        <td height="30" style="vertical-align:text-middle;font-size:12px;" align="center"><b><u>Medicine Request</u></b></td>
+    </tr>
+</table>
+<table  class="table3 " Style="width:100%; height: 30px;">
+    <tr>
+        <th style="width:5%"  align="left"><b>S.No.</b></th>
+        <th style="width:20%"  align="left"><b>Item Name</b></th>
+        <th style="width:30%"  align="left"><b>Manufacture</b></th>
+        <th style="width:20%" align="left"><b>Quantity</b></th>
+    </tr>
+</table>
+
+<table class="table3 " Style="width:100%;height: 30px;">{{#each data.PatientStockRequestDetails}}
+
+    <tr>
+        <td style="width:5% " align="left ">{{inc @index}}</td>
+        <td style="width:20% " align="left ">{{ItemName}}</td>
+        <td style="width:30% " align="left ">{{ItemMaster.ManufacturerName}}</td>
+        <td style="width:20% " align="left ">{{RequestedQuantity}}</td>
+    </tr>
+    {{/each}}
+</table>
+<br>
+<table  class="table4" Style="width:100%; height: 30px;">
+        <tr>
+                <td style="width:30%;" align="right"><b>({{data.PatientStockRequests.ApprovedUser.Title.Description}} {{data.PatientStockRequests.ApprovedUser.FirstName}} {{data.PatientStockRequests.ApprovedUser.MiddleName}} {{data.PatientStockRequests.ApprovedUser.LastName}})</b></td>
+            </tr>
+            <tr>
+                <td style="width:30%;" align="right">Approved By</td>
+            </tr>
+</table>
+    </body>
+    </html>

@@ -1,0 +1,26 @@
+import { Router, GetRouter } from '../../../Core/Index';
+import Visit from './EncounterRoute';
+import EncounterMLC from './EncounterMLCRoute';
+import EncounterMLCOfficer from './EncounterMLCOfficerRoute';
+import EncounterDoctor from './EncounterDoctorRoute';
+import DoctorDashboard from './DoctorDashboardRoute';
+import EncounterIPPackage from './EncounterIPPackageRoute';
+import EncounterIPPackageDetail from './EncounterIPPackageDetailRoute';
+import EncounterIPPackageServiceInclusion from './EncounterIPPackageServiceInclusionRoute';
+import EncounterIPPackageServiceExclusion from './EncounterIPPackageServiceExclusionRoute';
+import EncounterIPPackageServiceNonmedical from './EncounterIPPackageServiceNonmedicalRoute';
+import PatientComment from './PatientCommentRoute';
+
+let router: Router = GetRouter();
+router.use('/Visit', Visit);
+router.use('/EncounterMLC', EncounterMLC);
+router.use('/EncounterMLCOfficer', EncounterMLCOfficer);
+router.use('/EncounterDoctor', EncounterDoctor);
+router.use('/DoctorDashboard', DoctorDashboard);
+router.use('/EncounterIPPackage', EncounterIPPackage);
+router.use('/EncounterIPPackageDetail', EncounterIPPackageDetail);
+router.use('/EncounterIPPackageServiceInclusion', EncounterIPPackageServiceInclusion);
+router.use('/EncounterIPPackageServiceExclusion', EncounterIPPackageServiceExclusion);
+router.use('/EncounterIPPackageServiceNonmedical', EncounterIPPackageServiceNonmedical);
+router.use('/PatientComment', PatientComment);
+export default router;

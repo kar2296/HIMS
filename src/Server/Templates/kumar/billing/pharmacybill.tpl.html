@@ -1,0 +1,329 @@
+<html>
+
+<head>
+  <style>
+    .table1 {
+      border: 1px solid black;
+      border-bottom: 0px solid black;
+      border-style: dashed;
+      font-size: 11px;
+    }
+
+    .table2 {
+      border: 1px solid black;
+      border-bottom: 0px solid black;
+      border-top: 0px solid black;
+      border-style: dashed;
+      text-align: left;
+      font-size: 11px;
+      border-collapse: collapse;
+    }
+
+    .table3 {
+      border: 1px solid black;
+      border-bottom: 1px solid black;
+border-style: dashed;
+      font-size: 12px;
+    }
+
+    .border {
+      border-collapse: collapse;
+      border-left: 1px solid black;
+border-style: dashed;
+      font-size: 11px;
+    }
+
+    .table4 {
+      border: 1px solid black;
+      border-bottom: 0px solid black;
+      border-top: 0px solid black;
+border-style: dashed;
+      text-align: left;
+      font-size: 11px;
+    }
+
+    .table5 {
+      border: 1px solid black;
+      border-bottom: 0px solid black;
+border-style: dashed;
+      font-size: 11px;
+    }
+
+    .table6 {
+      border: 1px solid;
+      border-bottom: 0px solid;
+border-style: dashed;
+      text-align: left;
+      font-size: 11px;
+    }
+
+    .size {
+      font-size: 11px;
+    }
+
+    .table2 tr th {
+      border: 1px solid black;
+border-style: dashed;
+    }
+    .table6 tr th {
+      border: 1px solid black;
+border-style: dashed;
+    }
+
+    .table2 {
+      border: 1px solid black;
+border-style: dashed;
+    }
+
+    .table6 td {
+      font-size: 12px;
+    }
+    .amt {
+      border-bottom:1px solid;
+      border-left:1px solid;
+      border-right:1px solid;
+border-style: dashed;
+    }
+    .amt td {
+      font-size: 12px;
+    }
+    td {
+      font-size: 12px !important;
+      padding: 2px !important;
+font-family: sans-serif;
+      vertical-align: top;
+
+}
+
+    th {
+      padding:3px;
+font-family: sans-serif;
+      vertical-align: top;
+    }
+    .table2 td {
+      padding:3px !important;
+    }
+
+    {{include '/Templates/assets/css/core.css'}}
+  </style>
+</head>
+
+
+
+<body style="padding-left:40px;">
+  <div id="pageHeader">
+    {{{include '/Templates/kumar/common/pharmacyheader1.tpl.html' 'tpl'}}}
+  </div>
+
+  <table class="table5" style="width:100%;">
+    <tr>
+    <tr> {{setVariable 'EncounterTypeId' data.PatientBills.EncounterTypeId }} {{#ifCond 'g.EncounterTypeId' '==' 1}}
+      <td style="text-align:center;"><b>Pharmacy Bill</b></td>
+    </tr>
+    <tr> {{else}}
+      <td style="text-align:center;"><b>Pharmacy Bill</b></td>
+    </tr> {{/ifCond}}
+    </tr>
+  </table>
+  <table class="table6" style="width:100%;">
+    <tr>
+      <td><b>Name</b></td>
+      <td>:</td>
+      <td><b>{{data.PatientBills.Patient.Title.Description}} {{data.PatientBills.Patient.FirstName}}
+          {{data.PatientBills.Patient.MiddleName}}
+          {{data.PatientBills.Patient.LastName}}</b></td>
+      <td><b>Bill NO</b></td>
+      <td>:</td>
+      <td><b>{{data.PatientBills.BillNumber}}</b></td>
+    </tr>
+
+    <tr>
+      <td><b>Visit NO</b></td>
+      <td>:</td>
+      <td><b>{{data.PatientBills.Encounter.VisitIdentifier}}</b></td>
+      <td><b>Bill Date</b></td>
+      <td>:</td>
+      <td>{{datetimeformat data.PatientBills.BillDateTime}}</td>
+    </tr>
+    <tr>
+      <td><b>Doctor Name</b></td>
+      <td>:</td>
+      <td>{{data.PatientBills.User.Title.Description}} {{data.PatientBills.User.FirstName}}
+        {{data.PatientBills.User.LastName}}
+      </td>
+      <td><b>UHID NO</b></td>
+      <td>:</td>
+      <td><b>{{data.PatientBills.Patient.MRN}}</b></td>
+
+    </tr>
+    <tr>
+      <td><b>Age / Sex</b></td>
+      <td>:</td>
+      <td style="text-transform:uppercase;">{{ageonlyyear data.PatientBills.Patient.DOB}} /
+        {{data.PatientBills.Patient.Gender.Description}}</td>
+
+      <td><b></b></td>
+      <td></td>
+      <td><b></b></td>
+    </tr>
+  </table>
+
+  <table class="table2" style="width:100%;">
+    <tr>
+      <th style="width:10%" align="center">S.No</th>
+      <th style="width:40%" align="left">Description</th>
+      <th style="width:15%" align="left">HSN Code </th>
+      <th style="width:10%" align="left">Batch</th>
+      <th style="width:10%" align="left">Exp</th>
+      <th style="width:10%;" align="right"> MRP</th>
+      <th style="width:10%" align="center">Qty</th>
+      <th style="width:10%" align="right">Amount</th>
+    </tr>
+
+    {{#each data.BillDetails}}
+    <tr>
+      <td style="width:10%" align="center">{{inc @index}}</td>
+      <td style="width:40%" align="left">{{ServiceName}}</td>
+      <td style="width:15%" align="center">{{ItemMaster.ProductRegNo}}</td>
+      <td style="width:10%" align="left">{{BatchId}}</td>
+      <td style="width:10%" align="left">{{expyearformat ExpiryDate}}</td>
+      <td style="width:10%" align="right">₹ {{Rate}}</td>
+      <td style="width:10%" align="center">{{Quantity}}</td>
+      <td style="width:10%" align="right">₹ {{Amount}}</td>
+    </tr>
+
+    {{/each}}
+{{#each data.GstgrpInfo}}
+    <tr>
+      <td colspan="7" style="border-top:1px solid black;font-size: 10px;">Item with {{gstRate}}% GST: ₹{{gstAmt}} Item
+        with {{cgstRate}}% CGST: ₹{{cgstAmt}} Item with {{sgstRate}}% SGST: ₹ {{sgstAmt}}</td>
+
+
+    </tr> {{/each}}
+</table>
+
+
+<table class="table6" style="width:100%;font-size:10px;">
+    <tr>
+      <td colspan=5 style="width:50%;"></td>
+      <td style="width:30%;" align="left">Gross Amount</td>
+      <td style="width:1%;">:</td>
+      <td style="width:19%;" align="right">₹ {{data.PatientBills.BillAmount}}</td>
+    </tr> {{#if data.PatientBills.BillDiscount}}
+
+    <tr>
+      <td style="width:50%;" colspan=5></td>
+      <td style="width:30%;" align="left">Discount</td>
+      <td style="width:1%;"> : </td>
+      <td style="width:19%;" align="right"> ₹ {{data.PatientBills.BillDiscount}} </td>
+    </tr>{{/if}}
+    {{#if data.PatientBills.RoundOffValue}}
+    <tr>
+      <td style="width:50%;" colspan=5></td>
+      <td style="width:30%">Round Off </td>
+      <td style="width:1%">:</td>
+      <td style="width:19%" align="right">₹ {{data.PatientBills.RoundOffValue}}</td>
+    </tr> {{/if}}
+    <tr>
+    <tr>
+      <td style="width:50%;" colspan=5></td>
+      <td style="width:30%">Net Amount</td>
+      <td style="width:1%">:</td>
+      <td style="width:19%" align="right">₹ {{data.NetAmount}}</td>
+    </tr>
+    <tr>
+      <td style="width:50%;" colspan=5></td>
+      <td style="width:30%"><b>Paid</b></td>
+      <td style="width:1%">:</td>
+      <td style="width:19%" align="right"><b>₹{{data.PatientBills.PaidAmount}}</b></td>
+    </tr>
+</table>
+</td>
+</tr>
+
+    <tr style="border-bottom:1px solid black !important;">
+      <td colspan=5></td>
+      <td colspan=3>{{#if data.DueAmount}} Due {{/if}} {{#if data.DueAmount}}: {{/if}} {{#if data.DueAmount}} ₹
+        {{data.DueAmount}} {{/if}} </td>
+    </tr>
+  </table>
+
+  <table class="table4" style="width:100%;">
+    <tr>
+      <td><b>Amount in words</b><span>:</span> <span>Rupees <span style="text-transform: capitalize">
+              {{decimalnrInWords1 data.NetAmount}}</span> only</span></td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td><b>Remarks</b><span>:</span> <span><b>{{data.PatientBills.Comments}}</b></span></td>
+      <td></td>
+      <td></td>
+    </tr>
+  </table>
+  <table class="table3" style="width:100%;">
+    <tr>
+      <td colspan="8"> <u>Receipt Details</u> </td>
+    </tr>
+    <tr>{{#each data.PatientPaymentDetails}}
+      <td colspan="8"><b>{{ReceiptType.Description}} ,{{ReceiptNumber}} {{#if ReceiptDateTime}} , {{/if}}
+          {{datetimeformat ReceiptDateTime}} {{#if AmountPaid}} , {{/if}} ₹ {{AmountPaid}}
+          {{#if PaymentType.Description}} , {{/if}} {{PaymentType.Description}} {{#if Bank.Description}} , {{/if}}
+          {{Bank.Description}} {{#if AuthorizedCode}} , {{/if}} {{AuthorizedCode}}</b></td>
+    </tr>{{/each}}
+
+    <tr>
+</tr>
+    <!--<tr>
+      <td></td>
+      <td></td>
+    </tr>-->
+
+    <tr>
+      <td align="left"><span> {{data.PatientBills.CreatedUser.FirstName}} {{data.PatientBills.CreatedUser.LastName}}</span></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td align="left"><span> Pharmacist Signature</span></td>
+    </tr>
+</table>
+  <table class="table3" style="width:100%;">
+    <tr style="border:1px solid;">
+      <td>
+<span style="font-size:12px;">
+          <b>TERMS & CONDITIONS:</b> </span>
+</td>
+    </tr>
+    <tr>
+      <td style="list-style-position: inside">
+        <li>Goods once Sold will not be takn back</li>
+      </td>
+    </tr>
+    <tr>
+      <td style="list-style-position: inside">
+        <li>Free Homd delivery</li>
+      </td>
+
+    </tr>
+    <tr>
+      <td style="list-style-position: inside">
+        <li>All kind of medicine are available</li>
+      </td>
+</tr>
+  </table>
+<table style="width:100%">
+<tr>
+<td style="width:10%">
+
+
+
+</td>
+</tr>
+</table>
+</body>
+
+</html>

@@ -1,0 +1,147 @@
+<html>
+
+<head>
+    <style>
+        .table1 {
+            border: 1px solid black;
+            border-bottom: 0px solid black;
+            text-align: center;
+            font-size: 13px;
+        }
+
+        .table2 {
+            border: 1px solid black;
+            border-bottom: 0px solid black;
+            text-align: left;
+            font-size: 13px;
+        }
+
+        .table3 {
+            border: 1px solid black;
+            border-bottom: 1px solid black;
+            font-size: 13px;
+        }
+
+        .col {
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+
+    }
+    {{include '/Templates/assets/css/core.css'}}
+            </style>
+        </head>
+<body style="padding: 15px;">
+    <div id="pageHeader">
+        {{{include '/Templates/eastcoast/common/header.tpl.html' 'tpl'}}}
+    </div>
+    <table class="table1" style="width:100%;">
+        <tr>
+            <td height="30" style="vertical-align:text-middle;font-size: 1.4em;"><b>{{data.Title}}</b></td>
+        </tr>
+    </table>
+   <table class="table2" style="width:100%;">
+            <tr>
+                <td style="width:15%;"><b>Name</b></td>
+                <td>:</td>
+                <td style="width:30%;"><b>{{data.Patient.Title.Description}} {{data.Patient.FirstName}}
+                    {{data.Patient.MiddleName}} {{data.Patient.LastName}}
+                    {{setVariable 'GenderId' data.Patient.GenderId}}
+                    ({{ageonlyyear data.Patient.DOB}}/ {{#ifCond 'g.GenderId' '==' 1}} M {{/ifCond}}
+                    {{#ifCond 'g.GenderId' '==' 2}} F {{/ifCond}} )</b></td>
+                <td style="width:10%;"><b>Visit Number</b></td>
+                <td>:</td>
+                <td style="width:10%;">{{data.Encounter.VisitIdentifier}}</td>
+                <td style="width:15%;"><b>UHID NO</b></td>
+                <td>:</td>
+                <td style="width:20%;"><b>{{data.Patient.MRN}}</b></td>
+            </tr>
+            <tr>
+                <td  style="height=30; vertical-align:text-top"><b>Address</b></td>
+                <td  style="height=30; vertical-align:text-top">:</td>
+                <td>{{data.Patient.AddressLine1}} <br>  {{data.Patient.AddressLine2}} <br> {{data.Patient.Area}} <br> {{data.Patient.City}}</td>
+                <td><b>Contact No.</b></td>
+                <td>:</td>
+                <td>{{data.Patient.Mobile}}</td>
+                <td>Ward / Room / Bed</td>
+                <td >: </td>
+                    <td >{{data.Encounter.WardMaster.WardName}} / {{data.Encounter.WardRoomMaster.RoomNo}} / {{data.Encounter.WardRoomBedMaster.Description}} </td>
+                    <!--<img style="height: 30px; width: 100px;"  src="{{barcode data.Patient.MRN}}"/>-->
+               
+            </tr>
+            <tr>
+                <td></td>
+                <td></td>
+                <td>{{data.Patient.State}} {{data.Patient.Pincode}} <br> {{data.Patient.Country}}</td>
+                <td><b></b></td>
+                <td></td>
+                <td></td>
+                <td rowspan="2"><b></b></td>
+                <td rowspan="2"></td>
+                <td rowspan="2"></td>
+            </tr>
+          
+            </table>
+    <table class="table2" style="width:100%;">
+        <tr>
+            <td style="width:15%;"><b>Doctor's Name</b></td>
+            <td>:</td>
+            <td colspan="4" style="width:40%;">{{data.Encounter.Doctor.Title.Description}} {{data.Encounter.Doctor.FirstName}} {{data.Encounter.Doctor.LastName}}</td>
+            <td style="width:25%;"><b>Receipt No</b></td>
+            <td>:</td>
+            <td style="width:20%;">{{data.PatientPaymentDetails.ReceiptNumber}}</td>
+        </tr>
+        <tr>
+            <td><b>Department</b></td>
+            <td>:</td>
+            <td colspan="4">{{data.Encounter.Department.DepartmentName}}</td>
+
+            <td><b>Date</b></td>
+            <td>:</td>
+            <td>{{datetimeformat data.PatientPaymentDetails.ReceiptDateTime}}</td>
+        </tr>
+        <tr>
+            <td colspan="9"></td>
+        </tr>
+    </table>
+    <table class="table2" style="width:100%;">
+        <tr>
+            <td style="width:30%;"><b>{{data.Title}} Amount</b></td>
+            <td>:</td>
+            <td style="width:40%;">₹ {{data.PatientPaymentDetails.AmountPaid}}(Rupees {{decimalnrInWords1  data.PatientPaymentDetails.AmountPaid}} only)</td>
+            <td style="width:20%;"><b>Payment Mode</b></td>
+            <td>:</td>
+            <td style="width:10%;">{{data.PatientPaymentDetails.PaymentType.Description}}</td>
+        </tr>
+       <tr>
+            <td><b></b></td>
+            <td></td>
+            <td><b></b></td>
+            <td><b>{{#if data.PatientPaymentDetails.AuthorizedCode}}Auth Code{{/if}}  {{#if data.PatientPaymentDetails.ChequeNo}}Cheque No {{/if}} {{#if data.PatientPaymentDetails.AuthorizeNumber}}Auth Num{{/if}}</b></td>
+            <td>{{#if data.PatientPaymentDetails.AuthorizedCode}}:{{/if}} {{#if data.PatientPaymentDetails.ChequeNo}} : {{/if}} {{#if data.PatientPaymentDetails.AuthorizeNumber}}:{{/if}}</td>
+            <td>{{data.PatientPaymentDetails.AuthorizedCode}} {{#if data.PatientPaymentDetails.ChequeNo}} {{data.PatientPaymentDetails.ChequeNo}} {{/if}}  {{#if data.PatientPaymentDetails.AuthorizeNumber}} {{data.PatientPaymentDetails.AuthorizeNumber}}{{/if}}
+                </td>
+        </tr>
+    </table>
+    <table class="table2 col" style="width:100%">
+        <tr>
+            <td style="width:85%;" align="right"><b>Total Advance Amount</b></td>
+            <td class="table2" style="width:15%;"  align="right"><span style="margin-left:25px;">₹ {{data.PatientPaymentDetails.AmountPaid}}</span></td>
+        </tr>
+    </table>
+    <table class="table3" style="width:100%; height:50px;">
+        <tr>
+            <td colspan="8" align="right"></td>
+        </tr>
+        <tr>
+                <td></td>
+            <td colspan="8" align="right">{{data.PatientPaymentDetails.CreatedUser.Title.Description}}{{data.PatientPaymentDetails.CreatedUser.FirstName}}
+                {{data.PatientPaymentDetails.CreatedUser.LastName}}</td>
+        </tr>
+      
+    </table>
+    <div style="width:100%; font-size:13px;">Printed On: {{now}}</div>
+</body>
+
+</html>

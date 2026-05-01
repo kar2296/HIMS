@@ -1,0 +1,40 @@
+import { Router, GetRouter } from '../../../Core/Index';
+import Asset from './HimsAssetRoute';
+import AssetWarranty from './HimsAssetWarrantyRoute';
+import AssetMaintanance from './HimsAssetMaintananceRoute';
+import AssetAccessories from './HimsAssetAccessoriesRoute';
+import AssetDocument from './HimsAssetDocumentRoute';
+import AssetTransfer from './HimsAssetTransferRoute';
+import ServiceRequest from './HimsServiceRequestRoute';
+import AssetAudit from './HimsAssetAuditRoute';
+import AssetAuditDetail from './HimsAssetAuditDetailRoute';
+import AssetDashboard from './HimsAssetDashboardRoute';
+import EscalationMatrix from './HimsEscalationMatrixRoute';
+import EquipmentList from './HimsEquipmentListRoute';
+import GatePass from './HimsGatePassRoute';
+import AssetDispose from './HimsAssetDisposeRoute';
+import AssetInsurance from './HimsAssetInsuranceRoute';
+import Preferences from './HimsPreferencesRoute';
+import NewAssetRequest from './HimsNewAssetRequestRoute';
+
+
+
+let router: Router = GetRouter();
+router.use('/Asset', Asset);
+router.use('/AssetWarranty', AssetWarranty);
+router.use('/AssetMaintanance', AssetMaintanance);
+router.use('/AssetAccessories', AssetAccessories);
+router.use('/AssetDocument', AssetDocument);
+router.use('/AssetTransfer', AssetTransfer);
+router.use('/ServiceRequest', ServiceRequest);
+router.use('/AssetAudit', AssetAudit);
+router.use('/AssetAuditDetail', AssetAuditDetail);
+router.use('/AssetDashboard', AssetDashboard);
+router.use('/EscalationMatrix', EscalationMatrix);
+router.use('/EquipmentList', EquipmentList);
+router.use('/GatePass', GatePass);
+router.use('/AssetDispose', AssetDispose);
+router.use('/AssetInsurance', AssetInsurance);
+router.use('/Preferences', Preferences);
+router.use('/NewAssetRequest', NewAssetRequest);
+export default router;

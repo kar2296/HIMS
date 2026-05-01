@@ -1,0 +1,85 @@
+<html>
+
+<head>
+  <style>
+    .table1 {
+      border: 1px solid black;
+      font-size: 8px;
+    }
+    
+    .table2 {
+      border: 1px solid black;
+      border-top: 0px solid black;
+      font-size: 8px;
+    } 
+    {{include '/Templates/assets/css/core.css'}}
+  </style>
+</head>
+
+<body>
+  <div id="pageHeader">
+    {{{include '/Templates/rlcclinic/common/header1.tpl.html' 'tpl'}}}
+  </div> 
+    <div style="text-align:center;font-size: 8px;"><b>Pharmacy Due Report</b></div>
+    <table class="table1" style="width:100%;"> 
+      <tr style='vertical-align: top'>
+        <td style="width:5%;"><b>From Date</b></td>
+        <td>:</td>
+        <td style="width:15%;"><b>{{data.FromDate}}</b></td>
+        <td style="width:5%;"><b>To Date</b></td>
+        <td>:</td>
+        <td style="width:15%;"><b>{{data.ToDate}}</b></td>
+        <td style="width:10%;"><b>Store Name</b></td>
+        <td>:</td>
+        <td style="width:20%;"><b>{{data.StoreName}}</b></td>
+        <td style="width:10%;"><b>Due Approval</b></td>
+        <td>:</td>
+        <td style="width:20%;"><b>{{data.DueApproval}}</b></td>
+      </tr> 
+    </table> 
+  </br>
+    <table class="table1" style="width:100%;">
+      <tr>
+        <td style="width:5%;"><b>S.No</b></td>
+        <td style="width:10%"><b>Bill Date</b></td>
+        <td style="width:10%"><b>Bill Number</b></td>
+        <td style="width:20%"><b>Patient Name</b></td> 
+        <td style="width:10%"><b>Bill Amount</b></td>
+        <td style="width:10%"><b>Bill Discount</b></td>
+        <td style="width:10%"><b>Paid Amount</b></td>
+        <td style="width:10%"><b>Due Amount</b></td> 
+        <td style="width:15%"><b>Due Approval</b></td>  
+      </tr>
+    </table>
+    <table class="table2" style="width:100%;">
+      {{#each data.PatientBills}}
+      <tr>
+        <td style="width:5%;">{{inc @index}}</td>
+        <td style="width:10%">{{datetimeformat BillDateTime}}</td>
+        <td style="width:10%">{{BillNumber}}</td>
+        <td style="width:20%">{{PatientInfo}}</td> 
+        <td style="width:10%">{{currencyformat BillAmount}}</td>
+        <td style="width:10%;">{{currencyformat BillDiscount}}</td> 
+        <td style="width:10%">{{currencyformat PaidAmount}}</td>
+        <td style="width:10%">{{currencyformat OutStandingAmount}}</td> 
+        <td style="width:15%">{{PrivateDue.Title.Description}} {{PrivateDue.FirstName}} {{PrivateDue.LastName}}</td> 
+      </tr>{{/each}}
+    </table> 
+    <table class="table2" style="width:100%">
+      <tr>
+        <td style="width:5%;"></td>
+        <td style="width:10%"></td>
+        <td style="width:10%"></td>
+        <td style="width:20%"></td> 
+        <td style="width:10%"></td>
+        <td style="width:10%;"></td> 
+        <td style="width:10%"></td>
+        <td style="width:10%">{{currencyformat data.TotalDueAmount}}</td>
+        <td style="width:15%"> </td>  
+      </tr>
+      </table> 
+
+  </body>
+  <div style="width:100%; font-size:8px;">Printed On: {{now}}</div>
+
+</html>

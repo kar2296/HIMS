@@ -1,0 +1,100 @@
+<html>
+
+<head>
+  <style>
+    .table1 {
+      border: 1px solid black;
+      font-size: 13px;
+    }
+
+    .table2 {
+      border: 1px solid black;
+      border-top: 0px solid black;
+      font-size: 13px;
+    }
+
+    td.minusamt {
+      color: red;
+    }
+
+     {{include '/Templates/SDH/assets/css/core.css'}}
+  </style>
+</head>
+
+<body>
+  <div id="pageHeader">
+    {{{include '/Templates/SDH/common/header.tpl.html' 'tpl'}}}
+  </div>
+  <div style="text-align:center;"><b style="font-size: 16px;">Supplier Outstanding Report</b></div>
+  <table class="table1" style="width:100%;">
+    <tr style='vertical-align: top'>
+      <td style="width:5%;"><b>FromDate</b></td>
+      <td>:</td>
+      <td style="width:25%;"><b>{{data.FromDate}}</b></td>
+      <td style="width:5%;"><b>ToDate</b></td>
+      <td>:</td>
+      <td style="width:25%;"><b>{{data.ToDate}}</b></td>
+      <td style="width:5%;"><b>VendorName</b></td>
+      <td></td>
+      <td style="width:25%;"><b>{{data.VendorName}}</b></td>
+      <td style="width:5%;"><b></b></td>
+      <td></td>
+      <td style="width:25%;"><b></b></td>
+    </tr>
+  </table>
+  </br>
+  <table class="table1" style="width:100%;">
+    <tr>
+      <td style="width:10%;"><b>S.No</b></td>
+      <td style="width:10%"><b>Transcation Detail</b></td>
+      <td style="width:10%"><b>Date</b></td>
+      <td style="width:10%"><b>Invoice Number</b></td>
+      <td style="width:10%"><b>Grn/Return Number</b></td>
+      <td style="width:10%"><b>Invoice Amount</b></td>
+      <td style="width:10%"><b>CN Amount</b></td>
+      <td style="width:10%"><b>Net Amount</b></td>
+      <td style="width:10%"><b>Return Amount</b></td>
+      <td style="width:10%"><b>Voucher Amount</b></td>
+
+    </tr>
+  </table>
+  <table class="table2" style="width:100%;">
+    {{#each data.NetVendorDetails}}
+    <tr>
+      <td style="width:10%;">{{inc @index}}</td>
+      <td style="width:10%">{{Key}}</td>
+      <td style="width:10%">{{dateformat GrnDate}}</td>
+      <td style="width:10%">{{InvoiceNumber}}</td>
+      <td style="width:10%">{{GrnNumber}} </td>
+      <td style="width:10%">{{currencyformat TotalInvoiceAmount}}</td>
+      <td style="width:10%">{{currencyformat TotalCreditAmount}}</td>
+      <td style="width:10%">{{currencyformat TotalNetAmount}}</td>
+      <td style="width:10%">{{currencyformat TotalReturnAmount}}</td>
+      <td style="width:10%">{{currencyformat VoucherAmount}}</td>
+    </tr>{{/each}}
+  </table>
+  <table class="table2" style="width:100%;">
+    <tr>
+      <td style="width:10%;"></td>
+      <td style="width:10%;"></td>
+      <td style="width:10%"></td>
+      <td style="width:10%">Total</td>
+      <td style="width:10%"> </td>
+      <td style="width:10%">{{currencyformat data.TotInvoiceAmount}}</td>
+      <td style="width:10%">{{currencyformat data.TotCNAmount}} </td>
+      <td style="width:10%">{{currencyformat data.TotNetAmt}}</td>
+      <td style="width:10%">{{currencyformat data.TotRetAmount}}</td>
+      <td style="width:10%">{{currencyformat data.TotVoucherAmount}}</td>
+    </tr>
+  </table>
+  <table class="table2" style="width:100%;">
+    <tr>
+      <td style="width:50%;"></td>
+      <td style="width:30%"><b>Balance Amt(Net- Ret-Voucher) </b></td>
+      <td style="width:20%">{{currencyformat data.FinalOutstanding}} </td>
+    </tr>
+  </table>
+</body>
+<div style="width:100%; font-size:8px;">Printed On: {{now}}</div>
+
+</html>

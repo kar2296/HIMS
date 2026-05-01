@@ -1,0 +1,82 @@
+<html>
+
+<head>
+  <style>
+    .table1 {
+      border: 1px solid black;
+      font-size: 8px;
+    }
+    
+    .table2 {
+      border: 1px solid black;
+      border-top: 0px solid black;
+      font-size: 8px;
+    } 
+    {{include '/Templates/assets/css/core.css'}}
+  </style>
+</head>
+
+<body>
+  <div id="pageHeader">
+    {{{include '/Templates/appasamy/common/header.tpl.html' 'tpl'}}}
+  </div> 
+    <div style="text-align:center;font-size: 8px;"><b>Outstanding Payment Report</b></div>
+    <table class="table1" style="width:100%;"> 
+      <tr style='vertical-align: top'>
+        <td style="width:5%;"><b>From Date</b></td>
+        <td>:</td>
+        <td style="width:15%;"><b>{{data.FromDate}}</b></td>
+        <td style="width:5%;"><b>To Date</b></td>
+        <td>:</td>
+        <td style="width:15%;"><b>{{data.ToDate}}</b></td>
+        <td style="width:5%;"><b>Doctor</b></td>
+        <td>:</td>
+        <td style="width:25%;"><b>{{data.DoctorName}}</b></td>
+        <td style="width:5%;"><b></b></td>
+        <td>:</td>
+        <td style="width:25%;"><b></b></td>
+      </tr> 
+    </table> 
+  </br>
+    <table class="table1" style="width:100%;">
+      <tr>
+        <td style="width:10%;"><b>S.No</b></td>
+        <td style="width:15%"><b>Invoice Date</b></td>
+        <td style="width:15%"><b>Invoice Number</b></td>
+        <td style="width:20%"><b>Doctor Name</b></td> 
+        <td style="width:10%"><b>Invoice Amount</b></td>
+        <td style="width:10%"><b>TDS Amount</b></td> 
+        <td style="width:10%"><b>Paid Amount</b></td>
+        <td style="width:10%"><b>Due Amount</b></td>
+      </tr>
+    </table>
+    <table class="table2" style="width:100%;">
+      {{#each data.DoctorInvoice}}
+      <tr>
+        <td style="width:10%;">{{inc @index}}</td>
+        <td style="width:15%">{{datetimeformat InvoiceDateTime}}</td>
+        <td style="width:15%">{{DoctorInvoiceIdentifier}}</td>
+        <td style="width:20%">{{Doctor.Title.Description}} {{Doctor.FirstName}} {{Doctor.LastName}}</td> 
+        <td style="width:10%">{{currencyformat InvoiceAmount}}</td>
+        <td style="width:10%;">{{currencyformat TDSAmount}}</td> 
+        <td style="width:10%">{{currencyformat AmountPaid}}</td>
+        <td style="width:10%">{{currencyformat DueAmount}}</td>
+      </tr>{{/each}}
+    </table> 
+    <table class="table2" style="width:100%">
+      <tr>
+        <td style="width:10%;"></td>
+        <td style="width:15%"></td>
+        <td style="width:15%"></td>
+        <td style="width:20%"></td> 
+        <td style="width:10%">{{currencyformat data.TotalInvoiceAmount}}</td>
+        <td style="width:10%;">{{currencyformat data.TotalTDSAmount}}</td> 
+        <td style="width:10%">{{currencyformat data.TotalPaidAmount}}</td>
+        <td style="width:10%">{{currencyformat data.TotalDueAmount}}</td> 
+      </tr>
+      </table> 
+
+  </body>
+  <div style="width:100%; font-size:8px;">Printed On: {{now}}</div>
+
+</html>

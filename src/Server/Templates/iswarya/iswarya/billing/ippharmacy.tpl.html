@@ -1,0 +1,235 @@
+<html>
+
+<head>
+  <style>
+    .table1 {
+      border: 1px solid black;
+      border-bottom: 0px solid black;
+      font-size: 11px;
+    }
+
+    .table2 {
+      border: 1px solid black;
+      border-bottom: 0px solid black;
+      border-top: 0px solid black;
+      text-align: left;
+      font-size: 11px;
+      border-collapse: collapse;
+    }
+
+    .table3 {
+      border: 1px solid black;
+      border-bottom: 1px solid black;
+      font-size: 12px;
+    }
+
+    .border {
+      border-collapse: collapse;
+      border-left: 1px solid black;
+      font-size: 11px;
+    }
+
+    .table4 {
+      border: 1px solid black;
+      border-bottom: 0px solid black;
+      border-top: 0px solid black;
+      text-align: left;
+      font-size: 11px;
+    }
+
+    .table5 {
+      border: 1px solid black;
+      border-bottom: 0px solid black;
+      font-size: 11px;
+    }
+
+    .table6 {
+      border: 1px solid;
+      border-bottom: 0px solid;
+      text-align: left;
+      font-size: 11px;
+    }
+
+    .size {
+      font-size: 11px;
+    }
+
+    .table2 tr th {
+      border: 1px solid black;
+    }
+
+    .table2 {
+      border: 1px solid black;
+    }
+
+    .table6 td {
+      font-size: 12px;
+    }
+    .amt {
+      border-bottom:1px solid;
+      border-left:1px solid;
+      border-right:1px solid;
+    }
+    .amt td {
+      font-size: 12px;
+    }
+    td {
+      font-size: 12px !important;
+      padding: 2px !important;
+font-family: sans-serif;
+      vertical-align: top;
+
+}
+
+    th {
+      padding:3px;
+font-family: sans-serif;
+      vertical-align: top;
+    }
+    .table2 td {
+      padding:3px !important;
+    }
+.facilityname b {
+font-size:17px !important; 
+}
+.gstsummary td {
+      border: 1px solid;
+      text-align: center;
+}
+.gstsummary {
+      border-collapse: collapse;
+}
+
+    {{include '/Templates/assets/css/core.css'}}
+  </style>
+</head>
+
+
+
+<body style="padding-left:0px;">
+  <div id="pageHeader">
+    {{{include '/Templates/iswarya/common/pharmacyheader1.tpl.html' 'tpl'}}}
+  </div>
+
+  <table class="table5" style="width:100%;">
+    <tr>
+      <td style="text-align:center;"><b>IP PHARMACY AGAINST ORDER</b></td>
+    </tr>
+  </table>
+  <table class="table6" style="width:100%;">
+    <tr>
+      <td><b>Name</b></td>
+      <td>:</td>
+      <td><b>{{data.PatientBills.Patient.Title.Description}} {{data.PatientBills.Patient.FirstName}}
+          {{data.PatientBills.Patient.MiddleName}}
+          {{data.PatientBills.Patient.LastName}}</b></td>
+      <td><b>Bill NO</b></td>
+      <td>:</td>
+      <td><b>{{data.PatientBills.BillNumber}}</b></td>
+    </tr>
+
+    <tr>
+      <td><b>Visit NO</b></td>
+      <td>:</td>
+      <td><b>{{data.PatientBills.Encounter.VisitIdentifier}}</b></td>
+      <td><b>Bill Date</b></td>
+      <td>:</td>
+      <td>{{datetimeformat data.PatientBills.BillDateTime}}</td>
+    </tr>
+    <tr>
+      <td><b>Doctor Name</b></td>
+      <td>:</td>
+      <td>{{data.PatientBills.User.Title.Description}} {{data.PatientBills.User.FirstName}}
+        {{data.PatientBills.User.LastName}}
+      </td>
+      <td><b>UHID NO</b></td>
+      <td>:</td>
+      <td><b>{{data.PatientBills.Patient.MRN}}</b></td>
+
+    </tr>
+    <tr>
+      <td><b>Age / Sex</b></td>
+      <td>:</td>
+      <td style="text-transform:uppercase;">{{ageonlyyear data.PatientBills.Patient.DOB}} /
+        {{data.PatientBills.Patient.Gender.Description}}</td>
+
+      <td><b></b></td>
+      <td></td>
+      <td><b></b></td>
+    </tr>
+  </table>
+
+  <table class="table2" style="width:100%;">
+    <tr>
+            <th style="width:5%" align="center">S.No</th>
+            <th style="width:30%" align="center">Description</th>
+            <th style="width:12%" align="center">HSN</th>
+            <th style="width:10%" align="center">Batch</th>
+            <th style="width:10%" align="center">Exp</th>
+            <th style="width:15%" align="center">MRP</th>
+            <th style="width:8%" align="center">Qty</th>
+            <th style="width:10%" align="center">Amount</th>
+    </tr>
+
+{{#each data.BillDetails}}
+        <tr>
+            <td align="center">{{inc @index}}</td>
+            <td>{{ServiceName}}</td>
+            <td>{{ItemMaster.ProductRegNo}}</td>
+            <td>{{BatchId}} </td>
+            <td> {{dateformat ExpiryDate}}</td>
+            <td>₹ {{Rate}}</td>
+            <td align="center">{{Quantity}}</td>
+            <td align="right">₹ {{Amount}}</td>
+        </tr>
+        {{/each}}
+</table>
+  <table class="amt" style="width:100%;border-top:unset !important;">
+<tr>
+<td style="width: 60%;"> 
+<img class="" style="width10%;"
+                    src="https://chart.googleapis.com/chart?chs=90x90&cht=qr&chl={{data.QrInfo}}" /> </td>
+<td>
+<table style="width:100%;font-size:10px;">
+    <tr>
+      <td colspan=5></td>
+      <td style="width:60%;" align="left">Total</td>
+      <td style="width:1%;">:</td>
+      <td style="width:39%;" align="right">₹ {{data.PatientBills.BillAmount}}</td>
+    </tr>
+    <tr>
+      <td colspan=5></td>
+      <td style="width:16%">Net Amount</td>
+      <td style="width:1%">:</td>
+      <td style="width:10%" align="right">₹ {{data.NetAmount}}</td>
+    </tr>
+</table>
+</td>
+  </table>
+
+  <table class="table4" style="width:100%;">
+    <tr>
+      <td><b>Amount in words</b><span>:</span> <span>Rupees <span style="text-transform: capitalize">
+              {{decimalnrInWords1 data.NetAmount}}</span> only</span></td>
+      <td></td>
+      <td></td>
+    </tr>
+  </table>
+  <table class="table3" style="width:100%;">
+    <tr>
+      <td style="padding-top:30px !important"> Patient Signature</td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+     <td align="right" style="padding-top:30px !important"><span style="font-size:12px;" >
+          {{data.PatientBills.CreatedUser.FirstName}} {{data.PatientBills.CreatedUser.LastName}}</span></td>
+    </tr>
+</table>
+   <div style="width:100%; font-size:10px;">Printed On: {{now}}</div>
+</body>
+
+</html>

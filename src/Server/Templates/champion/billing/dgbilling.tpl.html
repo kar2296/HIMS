@@ -1,0 +1,341 @@
+<html>
+
+<head>
+    <style>
+        .billdetails {
+            text-align: center;
+        }
+
+        th {
+            border-bottom: 1px solid;
+            padding: 5px;
+        }
+
+        .details td {
+            padding-top: 3px !important;
+            font-weight: 500;
+        }
+
+        td,
+        th {
+            padding: 1px;
+            vertical-align: top;
+            margin: 1px;
+            font-size: 12px;
+            font-family: sans-serif;
+        }
+
+        .border-top {
+            border-top: 1px solid;
+            font-size: 12px;
+        }
+
+        .details tr:first-child td {
+            padding-top: px;
+        }
+
+
+        .border-bottom {
+            border-bottom: 1px solid;
+            font-size: 12px;
+
+        }
+
+        .user-details td {
+            padding: 1.5px;
+        }
+
+        .box {
+            border: 1px solid gainsboro;
+            padding: 2px;
+        }
+
+        .receipt {
+            border-collapse: collapse;
+        }
+
+        .receipt td,
+        .receipt th {
+            vertical-align: top;
+            border: 1px solid;
+        }
+
+         {{include '/Templates/champion/assets/css/core.css'}}
+    </style>
+</head>
+
+<body>
+    <div id="pageHeader">
+        {{#if data.Flags.header}}
+        {{{include '/Templates/champion/common/header.tpl.html' 'tpl'}}}
+        {{/if}}
+    </div>
+    <div class="content">
+        <table style="width:100%;">
+            <tr>
+                <td style="width: 25%;"> GST No: 2312312312321</td>
+                <td style="width: 60%;">
+                    <p align="center">STATIONERY FOR REPORTS & BILLING</p>
+                </td>
+                <td style="width: 15%;"></td>
+            </tr>
+        </table>
+        <div class="box">
+            <table class="billdetails" style="width:100%;">
+                <tr> {{#if data.PatientBills.OutStandingAmount}}
+                    <td style="vertical-align:text-middle;font-size: 1.2em;"><b>CREDIT BILL</b></td>
+                    {{else}}
+                    <td style="vertical-align:text-middle;font-size: 1.2em;"><b>BILL CUM RECEIPT</b></td>
+                </tr> {{/if}}
+
+            </table>
+            <table class="border-top user-details" style="width:100%;">
+                <tr>
+                    <td style="width:15%;"><b>Name</b></td>
+                    <td>:</td>
+                    <td style="width:45%;"><b>{{data.PatientBills.Patient.Title.Description}}
+                            {{data.PatientBills.Patient.FirstName}} {{data.PatientBills.Patient.MiddleName}}
+                            {{data.PatientBills.Patient.LastName}}
+                            {{setVariable 'GenderId' data.PatientBills.Patient.GenderId}}
+                            ({{data.Age}}/ {{#ifCond 'g.GenderId' '==' 1}} M {{/ifCond}}
+                            {{#ifCond 'g.GenderId' '==' 2}} F {{/ifCond}} ) </b></td>
+                    <td style="width:15%;"><b>Visit</b></td>
+                    <td>:</td>
+                    <td style="width:25%;"><b>Direct</b></td>
+
+
+
+                </tr>
+                <tr>
+                    <td><b>Bill No</b></td>
+                    <td>:</td>
+                    <td><b>{{data.PatientBills.BillNumber}}</b></td>
+                    <td><b>Bill Date</b></td>
+                    <td>:</td>
+                    <td>{{datetimeformat data.PatientBills.BillDateTime}}</td>
+                </tr>
+                <tr>
+                    <td><b>UHID NO</b></td>
+                    <td>:</td>
+                    <td>{{data.PatientBills.Patient.MRN}}</td>
+                    <td><b>Contact No</b></td>
+                    <td>:</td>
+                    <td>{{data.PatientBills.Patient.Mobile}}</td>
+
+                </tr>
+
+                <tr>
+                    <td><b>Referral Name</b></td>
+                    <td>:</td>
+                    <td>{{data.PatientBills.ReferralName}}</td>
+                </tr>
+
+            </table>
+            <table class="details border-top " style="width:100%;">
+
+                <tr>
+                    <th style="width:5%" align="center">S.No</th>
+                    <th style="width:40%" align="left">Description</th>
+                    <th style="width:15%" align="left">Department</th>
+                    <th style="width:5%" align="center">Qty</th>
+                    <th style="width:10%" align="right">Rate</th>
+                    <!-- <th style="width:10%" align="right">VAT</th> -->
+                    <th style="width:10%" align="right">{{#if data.BillDetails.DiscountAmount}} Discount {{/if}}</th>
+                    <th style="width:15%" align="right">Net Amount</th>
+
+                </tr>
+
+                {{#each data.BillDetails}}
+                <tr>
+                    {{setVariable 'AliasId' AliasId}}
+                    {{setVariable 'AliasName' AliasName}}
+                    {{setVariable 'PatientBillStatusId' PatientBillStatusId}}
+                    {{setVariable 'ServiceName' ServiceName}}
+                    <td style="width:5%" align="center">{{inc @index}}</td>
+                    <td style="width:40%" align="left">
+                        {{#ifCond 'g.AliasId' '==' null}}
+                        {{#ifCond 'g.PatientBillStatusId' '==' 2}}
+                        <strike> <b> {{getVariable 'g.ServiceName'}} </b> </strike>
+                        {{/ifCond}}
+                        {{#ifCond 'g.PatientBillStatusId' '!=' 2}}
+                        <b> {{getVariable 'g.ServiceName'}} </b>
+                        {{/ifCond}}
+                        <br>
+                        <div>{{#each ServiceItem.ServiceItemPackageMaps}}</div>
+                        <div>{{ServiceName}}</div>{{/each}}
+                        {{/ifCond}}
+                        {{#ifCond 'g.AliasId' '!=' null}}
+                        <b> {{getVariable 'g.AliasName'}} ({{getVariable 'g.AliasId'}}) </b>
+                        {{/ifCond}}
+                    </td>
+                    <td style="width:15%" align="left">{{Department.DepartmentName}}</td>
+                    <td style="width:5%" align="center">{{Quantity}}</td>
+                    <td style="width:10%" align="right">{{currencyformat Rate}}</td>
+                    <!-- <td style="width:10%">{{currencyformat GSTAmount}}</td> -->
+                    <td style="width:10%" align="right">{{#if data.BillDetails.DiscountAmount}} {{currencyformat DiscountAmount}}
+                        {{/if}}</td>
+                    <td style="width:15%" align="right">{{currencyformat NetAmount}}</td>
+                </tr>
+                {{/each}}
+            </table>
+            <hr>
+            <table style="width:100%; border-bottom: 1px solid;">
+                <tr>
+                    <td> <span><b>Amount In Words</b></span>
+                        <span>:</span>
+                        <span>Rupees {{decimalnrInWords1
+                            data.NetAmount}} only</span>
+                    </td>
+                </tr>
+            </table>
+            <table style="width:100%; border-bottom: 1px solid;">
+                <tr>
+                    <td style="width: 60%;">
+                        <img class="" style="width:20%;"
+                            src="https://chart.googleapis.com/chart?chs=90x90&cht=qr&chl={{data.QrInfo}}" />
+                    </td>
+                    <td style="width: 40%;font-size:10px;">
+                        <table style="width:100%;font-size:10px;">
+                            <tr>
+                                <td style="width: 60%;"  align="right"><b>Gross Amount</b></td>
+                                <td>:</td>
+                                <td style="width: 40%;">
+                                    <div align="right"> {{currencyformat data.PatientBills.BillAmount}}</div>
+                                </td>
+                            </tr>
+                            {{#if data.PatientBills.BillDiscount}}
+                            <tr>
+                                <td  align="right"><b>Discount</b></td>
+                                <td>:</td>
+                                <td>
+                                    <div align="right"> {{currencyformat data.PatientBills.BillDiscount}}</div>
+                                </td>
+                            </tr>
+                            {{/if}}
+                            {{#if data.PatientBills.GSTAmount}}
+                            <tr>
+                                <td  align="right"><b>Gst Amount</b></td>
+                                <td>:</td>
+                                <td>
+                                    <div align="right"> {{currencyformat data.PatientBills.GSTAmount}}</div>
+                                </td>
+                            </tr>
+                            {{/if}}
+                            {{#if data.PatientBills.RoundOffValue}}
+                            <tr>
+                                <td  align="right"><b>RoundOffValue</b></td>
+                                <td>:</td>
+                                <td>
+                                    <div align="right"> {{currencyformat data.PatientBills.RoundOffValue}}</div>
+                                </td>
+                            </tr>
+                            {{/if}}
+                            {{#if data.NetAmount}}
+                            <tr>
+                                <td  align="right"><b>Net Amount</b></td>
+                                <td>:</td>
+                                <td>
+                                    <div align="right"> {{currencyformat data.NetAmount}}</div>
+                                </td>
+                            </tr>
+                            {{/if}}
+                            <tr>
+                                <td  align="right"><b>Amount Paid</b></td>
+                                <td>:</td>
+                                <td>
+                                    <div align="right"> {{currencyformat data.PatientBills.PaidAmount}}</div>
+                                </td>
+                            </tr>
+                            {{#if data.PatientBills.OutStandingAmount}}
+                            <tr>
+                                <td  align="right"><b>Due</b></td>
+                                <td>:</td>
+                                <td>
+                                    <div align="right"> {{currencyformat data.PatientBills.OutStandingAmount}}</div>
+                                </td>
+                            </tr>
+                            {{/if}}
+                        </table>
+                    </td>
+                </tr>
+
+            </table>
+            {{#if data.PatientBills.CancelReason}}
+            <table class="border-bottom" style="width:100%;">
+                <tr>
+                    <td style="width:20%;">{{#if data.PatientBills.CancelReason}}<b>Cancelled Reasons<b>{{/if}}</td>
+                    <td>{{#if data.PatientBills.CancelReason}}:{{/if}}</td>
+                    <td style="width:80%;">{{#if
+                        data.PatientBills.CancelReason}}<b>{{data.PatientBills.CancelReason}}</b>{{/if}}</td>
+                </tr>
+            </table>{{/if}}
+            <h4> Payment Details :</h4>
+            <table class="receipt" style="width:100%;">
+                <tr>
+                    <th>SNo</th>
+                    <th>Rec.No</th>
+                    <th>Rec.Date</th>
+                    <th>Pay Mode</th>
+                    <th>Amount</th>
+                    <th>Bank Name</th>
+                </tr>
+                <tr>{{#each data.PatientPaymentDetails}}
+                    <td align="center">{{inc @index}}</td>
+                    <td align="center">{{ReceiptNumber}}</td>
+                    <td align="center">{{datetimeformat ReceiptDateTime}}</td>
+                    <td align="center">{{PaymentType.Description}}</td>
+                    <td align="end">{{currencyformat AmountPaid}}</td>
+                    <td>
+                        {{Bank.Description}} {{#if AuthorizedCode}} , {{/if}} {{AuthorizeNumber}} {{#if
+                        AuthorizeNumber}} ,
+                        {{/if}} {{AuthorizedCode}} {{#if UPIRefNumber }} {{UPIRefNumber}} {{/if}}
+                    </td>
+                </tr>{{/each}}
+            </table>
+            <table style="width:100%; border-bottom: 0px solid;">
+                <tr>
+                    <td colspan="8">{{#if data.PatientRefund.RefundIdentifier}}
+                        <u>Refund Details</u>{{/if}}
+                    </td>
+                </tr>
+                <tr>{{#each data.PatientRefund}}
+                    <td colspan="8"><b>{{RefundIdentifier}} {{#if RefundIdentifier}} , {{/if}} {{#if RefundDateTime}}
+                            {{datetimeformat RefundDateTime}} {{/if}} {{#if RefundDateTime}} , {{/if}} {{#if
+                            RefundAmount}}
+                            {{currencyformat RefundAmount}} {{/if}}</b></td>
+                </tr>{{/each}}
+                </tr>
+            </table>
+            <ul>
+                <li>Refund If any may be collected within 15 days of this Receipt date.
+                </li>
+                <li>Payment of advance charges for dental & other multiple visit procedures are valid for 3 months only.
+                </li>
+                <li>
+                    This receipt should be preserved carefully. Please note that no duplicate receipt will be issued
+                    under
+                    any circumstances.
+                </li>
+                <li>Kindly collect report within one month. Home visit available for blood collection.</li>
+            </ul>
+            <br>
+            <table style="width:100%; border-bottom: 0px solid;">
+                <tr>
+                    <td style="width:17%"><b style="font-size:11px !important;">Bill Generated By</b></td>
+                    <td style="width:25%"><b style="font-size:11px !important;">:
+                            {{data.PatientBills.CreatedUser.Title.Description}}
+                            {{data.PatientBills.CreatedUser.FirstName}}
+                            {{data.PatientBills.CreatedUser.LastName}}</b></td>
+                    <td style="width:12%"><b style="font-size:11px !important;">Date & Time</b></td>
+                    <td style="width:22%"><b style="font-size:11px !important;">: {{now}}</b></td>
+                    <td style="width:22%" align="end"><b align="end" style="font-size:11px !important;">Authorized
+                            Signature</b></td>
+                </tr>
+            </table>
+
+        </div>
+    </div>
+
+</body>
+
+</html>

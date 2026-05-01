@@ -1,0 +1,129 @@
+<html>
+
+<head>
+  <style>
+    .table1 {
+      border: 1px solid black;
+      font-size: 13px;
+    }
+
+    .table2 {
+      border: 1px solid black;
+      border-top: 0px solid black;
+      font-size: 13px;
+    }
+
+     {{ include '/Templates/hosmat/assets/css/core.css'}}
+
+  </style>
+</head>
+
+<body>
+  <div id="pageHeader">
+    {{{include '/Templates/hosmat/common/header.tpl.html' 'tpl'}}}
+  </div>
+  <div style="text-align:center;"><b style="font-size: 16px;">Purchase Order Detail Report</b></div>
+  <table class="table1" style="width:100%;">
+    <tr style='vertical-align: top'>
+      <td style="width:5%;"><b>FromDate</b></td>
+      <td>:</td>
+      <td style="width:15%;"><b>{{data.FromDate}}</b></td>
+      <td style="width:5%;"><b>ToDate</b></td>
+      <td>:</td>
+      <td style="width:15%;"><b>{{data.ToDate}}</b></td>
+      <td style="width:5%;"><b>Supplier</b></td>
+      <td>:</td>
+      <td style="width:25%;"><b>{{data.VendorName}}</b></td>
+      <td style="width:5%;"><b>Store Name</b></td>
+      <td>:</td>
+      <td style="width:25%;"><b>{{data.StoreName}}</b></td>
+    </tr>
+    <tr>
+      <td><b>PoStatus</b></td>
+      <td>:</td>
+      <td><b>{{data.PoStatus}}</b></td>
+      <td><b></b></td>
+      <td</td> <td><b></b></td>
+        <td><b></b></td>
+        <td></td>
+        <td><b></b></td>
+        <td><b></b></td>
+        <td></td>
+        <td><b></b></td>
+    </tr>
+  </table>
+  </br>
+  <table class="table1" style="width:100%;">
+    <tr>
+      <td style="width:5%;"><b>S.No</b></td>
+      <td style="width:5%"><b>PO Number</b></td>
+      <td style="width:5%"><b>PO Date</b></td>
+      <td style="width:10%"><b>Item Name</b></td>
+      <td style="width:5%"><b>Qty</b></td>
+      <td style="width:5%"><b>StoreName</b></td>
+      <td style="width:5%"><b>VendorCode</b></td>
+      <td style="width:5%"><b>VendorName</b></td>
+      <td style="width:10%"><b>VendorAddress</b></td>
+      <td style="width:5%"><b>Exp Delivery Date</b></td>
+      <td style="width:5%"><b>MrPrice</b></td>
+      <td style="width:5%"><b>PurchasePrice</b></td>
+      <td style="width:5%"><b>GrossAmount</b></td>
+      <td style="width:5%"><b>Discount</b></td>
+      <td style="width:5%"><b>GstAmount</b></td>
+      <td style="width:5%"><b>NetAmount</b></td>
+      <td style="width:5%"><b>Approved By</b></td>
+      <td style="width:5%"><b>PO Status</b></td>
+    </tr>
+  </table>
+  <table class="table2" style="width:100%;">
+    {{#each data.PurchaseOrder}}
+    <tr>
+      <td style="width:5%;">{{inc @index}}</td>
+      <td style="width:5%;">{{PurchaseOrder.PoNumber}}</td>
+      <td style="width:5%;">{{datetimeformat PurchaseOrder.PoDate}}</td>
+      <td style="width:10%;">{{ItemName}}</td>
+      <td style="width:5%;">{{PoQuantity}}</td>
+      <td style="width:5%;">{{PurchaseOrder.FromStore.StoreName}}</td>
+      <td style="width:5%;">{{VendorMaster.VendorCode}}</td>
+      <td style="width:5%;">{{VendorMaster.VendorName}}</td>
+      <td style="width:10%;">{{VendorMaster.AddressLine1}} {{VendorMaster.AddressLine2}}</td>
+      <td style="width:5%;">{{datetimeformat PurchaseOrder.DeliveryDate}}</td>
+      <td style="width:5%;">{{currencyformat MrPrice}}</td>
+      <td style="width:5%;">{{currencyformat PurchasePrice}}</td>
+      <td style="width:5%;">{{currencyformat GrossAmount}}</td>
+      <td style="width:5%;">{{currencyformat DiscountAmount}}</td>
+      <td style="width:5%;">{{currencyformat GstAmount}}</td>
+      <td style="width:5%;">{{currencyformat NetAmount}}</td>
+      <td style="width:5%;">{{PurchaseOrder.ApprovedUser.Title.Description}} {{PurchaseOrder.ApprovedUser.FirstName}}
+        {{PurchaseOrder.ApprovedUser.LastName}}</td>
+      <td style="width:5%;">{{PurchaseOrder.PoStatus.Description}}</td>
+    </tr>{{/each}}
+  </table>
+
+  <table class="table2" style="width:100%;">
+    <tr>
+      <td style="width:5%;"></td>
+      <td style="width:5%;"></td>
+      <td style="width:5%;"></td>
+      <td style="width:10%;"></td>
+      <td style="width:5%;"></td>
+      <td style="width:5%;"></td>
+      <td style="width:5%;"></td>
+      <td style="width:5%;"></td>
+      <td style="width:10%;"></td>
+      <td style="width:5%;"></td>
+      <td style="width:5%;">{{currencyformat data.TotalMrPrice}}</td>
+      <td style="width:5%;">{{currencyformat data.TotalPurchasePrice}}</td>
+      <td style="width:5%;">{{currencyformat data.TotalGrossAmt}}</td>
+      <td style="width:5%;">{{currencyformat data.TotalDisAmt}}</td>
+      <td style="width:5%;">{{currencyformat data.TotalGstAmt}}</td>
+      <td style="width:5%;">{{currencyformat data.TotalNetAmt}}</td>
+      <td style="width:5%;"></td>
+      <td style="width:5%;"></td>
+    </tr>
+  </table>
+
+</body>
+<div style="width:100%; font-size:8px;">Printed On: {{now}}</div>
+
+</html>

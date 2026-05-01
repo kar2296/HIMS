@@ -1,0 +1,81 @@
+import { IAttributes } from '../../../Base/Index';
+import { Instance } from '../../../../Core/Index';
+
+export interface TestmasterAttributes extends IAttributes {
+    Id: number;
+    OrganizationId: number;
+    FacilityId: number;
+    TESTMASTERTYPId: number;
+    Code: string;
+    Name: string;
+    Description: string;
+    Mnemonics: string;
+    DepartmentId: number;
+    SubDepartmentId: number;
+    TestFromLocationId: number;
+    TestToLocationId: number;
+    SampletypeId: number;
+    SideId: number;
+    TestMasterPositionId: number;
+    SampleVolume: string;
+    ContainertypeId: number;
+    ScheduleSU: boolean;
+    ScheduleMO: boolean;
+    ScheduleTU: boolean;
+    ScheduleWE: boolean;
+    ScheduleTH: boolean;
+    ScheduleFR: boolean;
+    ScheduleSA: boolean;
+    ScheduleALL: boolean;
+    CutOffTime: number;
+    Footer: string;
+    IsConfidential: boolean;
+    IsNotifyLab: boolean;
+    RefLink: string;
+    Methodology: string;
+    TransportTemp: string;
+    TATInHours: number;
+    Stability: string;
+    CollectionInst: string;
+    SpecimenPreparation: string;
+    UnacceptableConditions: string;
+    PatientPreparation: string;
+    MinSampleVolume: number;
+    SampleDisplay: string;
+    TATGroup_e: number;
+    DisplayOrder: number;
+    PrintOrder: number;
+    TATIgnoreHoliday: boolean;
+    AuthorizationRequired: boolean;
+    SpecialApprovalRequired: boolean;
+    RepeatAllowed: boolean;
+    ProcessTime: number;
+    IsProfile: boolean;
+    ParentProfileId: number;
+    ResourceId: number;
+    Activefrom: Date;
+    Activeto: Date;
+    IsActive: boolean;
+    ActiveStatusId: number;
+    IsFreeBill: boolean;
+    Status: number;
+    Rev: number;
+    CreatedBy: number;
+    CreatedAt: Date;
+    UpdatedBy: number;
+    UpdatedAt: Date;
+    IsSeparateWorkOrder: boolean;
+    IsSeparateSampleId: boolean;
+    IsDirectBill: boolean;
+    IsCulture: boolean;
+    IsNABLTest: boolean;
+    IsRISSync: boolean;
+    IsExcelUpload: boolean;
+}
+
+export interface TestmasterInstance extends Instance<TestmasterAttributes> {
+    // I'm exposing every DB column as an instance field to so that tsc won't complain.
+    // CreatedAt: Date;
+    // UpdatedAt: Date;
+    dataValues: TestmasterAttributes;
+}

@@ -1,0 +1,79 @@
+<html>
+
+<head>
+  <style>
+    .table1 {
+      border: 1px solid black;
+      font-size: 11px;
+    }
+
+    .table2 {
+      border: 1px solid black;
+      border-top: 0px solid black;
+      font-size: 11px;
+    }
+
+       {{ include '/Templates/assets/css/core.css'}}
+  </style>
+</head>
+
+<body>
+  <div id="pageHeader" style="margin-left: 350px;">
+    {{{include '/Templates/ehr/common/header.tpl.html' 'tpl'}}}
+  </div>
+  <div style="text-align:center;font-size: 13px;"><b>Patient Indent Pending Report</b></div>
+  <table class="table1" style="width:100%;">
+    <tr style='vertical-align: top'>
+      <td style="width:5%;"><b>From Date</b></td>
+      <td>:</td>
+      <td style="width:15%;"><b>{{data.FromDate}}</b></td>
+      <td style="width:5%;"><b>To Date</b></td>
+      <td>:</td>
+      <td style="width:15%;"><b>{{data.ToDate}}</b></td>
+      <td style="width:5%;"><b>Ward</b></td>
+      <td>:</td>
+      <td style="width:25%;"><b>{{data.WardName}}</b></td>
+      <td style="width:5%;"><b>StoreName</b></td>
+      <td>:</td>
+      <td style="width:25%;"><b>{{data.StoreName}}</b></td>
+    </tr>
+  </table>
+  </br>
+  <table class="table1" style="width:100%;">
+    <tr>
+      <td style="width:5%;"><b>S.No</b></td>
+      <td style="width:10%"><b>Request Date</b></td>
+      <td style="width:10%"><b>Request Number</b></td>
+      <td style="width:10%"><b>Patient Name</b></td>
+      <td style="width:5%"><b>UHID</b></td>
+      <td style="width:10%"><b>Ward</b></td>
+      <td style="width:10%"><b>Room / Bed</b></td>
+      <td style="width:10%"><b>Created By</b></td>
+      <td style="width:10%"><b>To Pharmacy</b></td>
+      <td style="width:5%"><b>Item Code</b></td>
+      <td style="width:10%"><b>Item Name</b></td>
+      <td style="width:5%"><b>Qty</b></td>
+    </tr>
+  </table>
+  <table class="table2" style="width:100%;">
+    {{#each data.PatientIndentPending}}
+    <tr>
+      <td style="width:5%;">{{inc @index}}</td>
+      <td style="width:10%">{{datetimeformat PatientStockRequests.PatientRequestDateTime}}</td>
+      <td style="width:10%">{{PatientStockRequests.PatientRequestNumber}}</td>
+      <td style="width:10%">{{PatientStockRequests.Patient.Title.Description}} {{PatientStockRequests.Patient.FirstName}} {{PatientStockRequests.Patient.LastName}}</td>
+      <td style="width:5%">{{PatientStockRequests.Patient.MRN}}</td>
+      <td style="width:10%;">{{PatientStockRequests.WardMaster.WardName}}</td>
+      <td style="width:10%">{{PatientStockRequests.WardRoomMaster.RoomNo}}/{{PatientStockRequests.WardRoomBedMaster.BedNo}}</td>
+      <td style="width:10%;">{{CreatedUser.Title.Description}} {{CreatedUser.FirstName}} {{CreatedUser.LastName}}</td>
+      <td style="width:10%;">{{PatientStockRequests.ToStore.StoreName}}</td>
+      <td style="width:5%;">{{ItemMaster.ItemCode}}</td>
+      <td style="width:10%;">{{ItemMaster.ItemName}}</td>
+      <td style="width:5%;">{{RequestedQuantity}}</td>
+    </tr>{{/each}}
+  </table>
+
+</body>
+<div style="width:100%; font-size:8px;">Printed On: {{now}}</div>
+
+</html>

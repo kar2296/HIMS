@@ -1,0 +1,143 @@
+<html>
+
+<head>
+    <style>
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        td {
+            padding: 3px;
+            vertical-align: top;
+        }
+
+        * {
+            font-family: sans-serif;
+        }
+
+        th {
+            white-space: break-spaces;
+            border: 1px !important;
+            border-top: 1px solid black !important;
+            border-bottom: 1px solid black !important;
+            font-size: 12px;
+            padding-left: 4px;
+            padding-top: 6px;
+            padding-bottom: 6px;
+        }
+
+        td {
+            border: 1px !important;
+            font-size: 12px;
+        }
+
+        .size td,
+        .size th {
+            border: 1px solid black !important;
+        }
+
+        .sub-total {
+            border: 0px !important;
+            border-top: 0px solid black !important;
+            border-bottom: 0px solid black !important;
+            width: 100%;
+        }
+
+       {{ include '/Templates/hosmat/assets/css/core.css' }}
+    </style>
+</head>
+
+<body>
+    <div id="pageHeader">
+        {{{include '/Templates/hosmat/common/header.tpl.html' 'tpl'}}}
+    </div>
+    <table style="width:100%;">
+        <tr>
+            <td height="20" style="vertical-align:text-middle; text-align: center;font-size: 22px;"><b>STOCK CONSUMPTION</b>
+            </td>
+        </tr>
+    </table>
+    <br>
+    <br>
+    <table style="width:100%;">
+        <tr>
+            <td style="width:20%;"><b>Facility</b></td>
+            <td>:</td>
+            <td style="width:40%;">{{data.StockConsumptions.Facility.Description}}</td>
+            <td style="width:20%;"><b>Consumption Date</b></td>
+            <td>:</td>
+            <td style="width:20%;">{{dateformat data.StockConsumptions.ConsumptionDate}}</td>
+        </tr>
+        <tr>
+            <td><b>Store</b></td>
+            <td>:</td>
+            <td>{{data.StockConsumptions.StoreMaster.StoreName}}</td>
+            <td><b>Consumption Number</b></td>
+            <td>:</td>
+            <td>{{data.StockConsumptions.StockConsumptionNumber}}</td>
+        </tr>
+        <tr>
+            <td><b>Consumption Type</b></td>
+            <td>:</td>
+            <td>{{data.StockConsumptions.ConsumptionType.Description}}</td>
+            <td><b>Consumed By</b></td>
+            <td>:</td>
+            <td>{{data.StockConsumptions.ConsumedUser.Title.Description}} {{data.StockConsumptions.ConsumedUser.FirstName}} {{data.StockConsumptions.ConsumedUser.LastName}}</td>
+        </tr>
+    </table>
+    <table border class="size" style="width:100%;">
+        <tr>
+            <th align="left" style="width:5%;">S.No</th>
+            <th align="left" style="width:25%;">Material Name</th>
+            <th align="left" style="width:10%;">Qty</th>
+            <th align="left" style="width:10%;">Batch No</th>
+            <th align="left" style="width:10%;">Exp Date</th>
+            <th align="left" style="width:10%;">UCP</th>
+            <th align="left" style="width:10%;">MRP</th>
+            <th align="center" style="width:10%;">Amount</th>
+        </tr>{{#each data.StockConsumptionDetail}}
+        <tr>
+            <td align="left">{{inc @index}}</td>
+            <td align="left">{{ItemName}}</td>
+             <td align="left">{{QtyConsumed}}</td>
+            <td align="left">{{BatchId}}</td>
+            <td align="left">{{dateformat ExpiryDate}}</td>
+            <td align="left">{{currencyformat UnitCostPrice}}</td>
+            <td align="left">{{currencyformat MrPrice}}</td>
+            <td align="right">{{currencyformat NetAmount}}</td>
+        </tr>{{/each}}
+    </table>
+    <br>
+    <table style="width:100%">
+        <tr>
+            <td style="width:15%;"><b>Amount In Words</b></td>
+            <td>:</td>
+            <td style="width:45%;">Rupees {{decimalnrInWords data.StockConsumptions.TotalNetAmount}} Only</td>
+            <td style="width:38%;">
+                <table class="sub-total">
+                    <tr>
+                        <td><b>Gross Amount</b></td>
+                        <td>:</td>
+                        <td align="right">{{currencyformat data.StockConsumptions.TotalGrossAmount}}</td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+    <br>
+    <br>
+    <br>
+    <table style="width:100%;">
+        <tr>
+            <td style="width: 5%;"></td>
+            <td style="width: 30%;" align="center"><b>RECEIVED BY</b></td>
+            <td style="width: 30%;" align="center"><b>INSPECTED BY</b></td>
+            <td style="width: 30%;" align="center"><b>PREPARED BY </b> :
+                {{data.StockConsumptions.ApprovedUser.Title.Description}} {{data.StockConsumptions.ApprovedUser.FirstName}}
+                {{data.StockConsumptions.ApprovedUser.LastName}}
+                <!-- {{data.StockConsumptions.RequestedUser.Title.Description}} {{data.StockConsumptions.RequestedUser.FirstName}} {{data.StockConsumptions.RequestedUser.LastName}} -->
+            </td>
+            <td style="width: 5%;"></td>
+        </tr>
+    </table>

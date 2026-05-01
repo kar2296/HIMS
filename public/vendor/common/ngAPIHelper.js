@@ -1,0 +1,194 @@
+(function () {
+    'use strict';
+    angular
+        .module('common.utils')
+        .factory('ngAPIHelper', ['$http', 'ngAlertHelper', '$translate',
+            function ($http, ngAlertHelper, $translate) {
+
+                var doAction = function (options) {
+                    $("#divgifLoading").show();
+                    options.action = window.appPath.apiroot + options.action;
+                    switch (options.type) {
+                        case "post":
+                            $http.post(options.action,
+                                options.data,
+                                {
+                                    params: options.params ? options.params : {}
+                                    //headers: options.headers
+                                })
+                                .success(function (data) {
+                                    $("#divgifLoading").hide();
+                                    options['onComplete'](null, data, options, false); })
+                                .error(function (data) {
+                                    $("#divgifLoading").hide();
+                                    console.log('post api - error');
+                                    console.log(data);
+                                    if (data.Error && data.Error.Code) {
+                                        if(options['onError']) {
+                                            options['onError'](data, options);
+                                        } else {
+                                            var translateKey = "common.errors." + data.Error.Code + ".lbl";
+                                            ngAlertHelper.showErrorMsg($translate.instant(translateKey));
+                                        }
+                                    }
+                                    else if (data.Error && data.Error.Message) {
+
+                                        ngAlertHelper.showErrorMsg(data.Error.Message);
+                                        if(options['onError']) {
+                                            options['onError'](data, options);
+                                        }
+                                    }  else if (data) {
+                                        if(options['onError']) {
+                                            options['onError'](data, options);
+                                        }
+                                    }
+                                });
+                            break;
+
+                        default:
+                            $http({
+                                url: options.action,
+                                method: (options.type || "GET"),
+                                params: options.params ? options.params : {}
+                                //headers: options.headers
+                            })
+                                .success(function (data) { options['onComplete'](scope, data, options, false); })
+                                .error(function (data) {
+                                    console.log('get api - error');
+                                    console.log(data);
+                                    if (data.Error && data.Error.Message) {
+                                        ngAlertHelper.showErrorMsg(data.Error.Message);
+                                    }
+                                });
+                            break;
+                    }
+                }
+
+                var getRootPath = function () {
+                    return window.appPath.apiroot;
+                }
+                function doDownload(options) {
+                    // $("#divgifLoading").show();
+                    options.action = window.appPath.apiroot + options.action;
+                    $http.post(options.action, options.data, { responseType: 'arraybuffer' })
+                        .then(function (response) {
+                            //console.log(response);
+                            var blob = new Blob([response.data], { type: response.headers('Content-Type') });
+
+                            /*var link = document.createElement('a');
+                            link.href = window.URL.createObjectURL(blob);
+                            link.download = response.headers('Content-Disposition').match(/filename="(.+)"/)[1];
+                            link.click();
+                            window.URL.revokeObjectURL(link.href);
+                            */
+                            var fileURL = URL.createObjectURL(blob);
+                            window.open(fileURL);
+
+                            if (typeof options['onComplete'] === 'function') {
+                                options['onComplete'](null, response.data, options, false);
+                            }
+                        })
+                        .catch(function (data) { });
+                }
+                function doDownloadJsonFile(options) {
+                    // $("#divgifLoading").show();
+                    options.action = window.appPath.apiroot + options.action;
+                    $http.post(options.action, options.data, { responseType: 'arraybuffer' })
+                        .then(function (response) {
+                            //console.log(response);
+        //                     const a = document.createElement("a");
+		//   const file = new Blob([content], { type: contentType });
+		//   a.href = URL.createObjectURL(file);
+		//   a.download = fileName;
+		//   a.click();
+                            var blob = new Blob([response.data], { type: 'text/plain' });
+
+                            var link = document.createElement('a');
+                            link.href = URL.createObjectURL(blob);
+                            link.download = options.data.Data.fileName;
+                            link.click();
+                            // window.URL.revokeObjectURL(link.href);
+
+                            // var fileURL = URL.createObjectURL(blob);
+                            // window.open(fileURL);
+
+                            if (typeof options['onComplete'] === 'function') {
+                                options['onComplete'](null, response.data, options, false);
+                            }
+                        })
+                        .catch(function (data) { });
+                }
+                function doDownloadXslFile(options) {
+                    // $("#divgifLoading").show();
+                    options.action = window.appPath.apiroot + options.action;
+                    $http.post(options.action, options.data, { responseType: 'arraybuffer' })
+                        .then(function (response) {
+                            //console.log(response);
+        //                     const a = document.createElement("a");
+		//   const file = new Blob([content], { type: contentType });
+		//   a.href = URL.createObjectURL(file);
+		//   a.download = fileName;
+		//   a.click();
+                            var blob = new Blob([response.data], { type: 'data:application/vnd.ms-excel' });
+
+                            var link = document.createElement('a');
+                            link.href = URL.createObjectURL(blob);
+                            link.download = options.data.Data.fileName;
+                            link.click();
+                            // window.URL.revokeObjectURL(link.href);
+
+                            // var fileURL = URL.createObjectURL(blob);
+                            // window.open(fileURL);
+
+                            if (typeof options['onComplete'] === 'function') {
+                                options['onComplete'](null, response.data, options, false);
+                            }
+                        })
+                        .catch(function (data) { });
+                }
+                function doPrint(options) {
+                    // $("#divgifLoading").show();
+                    options.action = window.appPath.apiroot + options.action;
+                    $http.post(options.action, options.data, { responseType: 'arraybuffer' })
+                        .then(function (response) {
+                            var blob = new Blob([response.data], { type: response.headers('Content-Type') });
+                            var fileURL = URL.createObjectURL(blob);
+                            var printwWindow = window.open(fileURL);
+                            printwWindow.print();
+
+                            if (typeof options['onComplete'] === 'function') {
+                                options['onComplete'](null, response.data, options, false);
+                            }
+                        })
+                        .catch(function (data) { });
+                }
+
+                function getDownloadedURL(options) {
+                    // $("#divgifLoading").show();
+                    options.action = window.appPath.apiroot + options.action;
+                    $http.post(options.action, options.data, { responseType: 'arraybuffer' })
+                        .then(function (response) {
+                            //console.log(response);
+                            var blob = new Blob([response.data], { type: response.headers('Content-Type') });
+                            var fileurl = URL.createObjectURL(blob);
+                            options.data.Data.fileurl  = fileurl;
+                            if (typeof options['onComplete'] === 'function') {
+                                options['onComplete'](null, response.data, options, false);
+                            }
+                        })
+                        .catch(function (data) { });
+                }
+
+
+                return {
+                    doAction: doAction,
+                    getRootPath: getRootPath,
+                    doDownload: doDownload,
+                    getDownloadedURL: getDownloadedURL,
+                    doPrint : doPrint,
+                    doDownloadJsonFile: doDownloadJsonFile,
+                    doDownloadXslFile: doDownloadXslFile
+                };
+            }]);
+
+})();

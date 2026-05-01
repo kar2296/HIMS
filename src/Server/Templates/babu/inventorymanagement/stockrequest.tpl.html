@@ -1,0 +1,167 @@
+<html>
+<head>
+    <style>
+        .table1 {
+            border: 1px solid black;
+            border-bottom: 0px solid black;
+            text-align: center;
+            font-size: 16px;
+        }
+
+        .table2 {
+            border: 1px solid black;
+            border-bottom: 0px solid black;
+            border-top: 0px solid black;
+            font-size: 12px;
+        }
+
+        .size {
+            border: 1px solid black;
+            border-collapse: collapse;
+            font-size: 12px;
+            border-bottom: 0px solid black;
+        }
+
+        .table3 {
+            border: 1px solid black;
+            border-bottom: 1px solid black;
+            font-size: 12px;
+        }
+
+        .header1 {
+            font-size: 16px;
+            text-align: center;
+        }
+        .table4 {
+            border: 1px solid black;
+            border-bottom: 0px solid black;
+            font-size: 12px;
+        }
+
+
+{{include '/Templates/assets/css/core.css'}}
+        </style>
+    </head>
+    <body>
+	 <div id="pageHeader">
+        {{{include '/Templates/babu/common/header.tpl.html' 'tpl'}}}
+    </div>
+
+    <table class="table1" style="width:100%;">
+        <tr>
+            <td height="20" style="vertical-align:text-middle;"><b>Material Request</b></td>
+        </tr>
+    </table>
+    <table class="table4" style="width:100%;">
+        <tr>
+            <td style="width:20%;"><b>Request No</b></td>
+            <td>:</td>
+            <td style="width:40%;">{{data.StockRequest.RequestNumber}}</td>
+            <td style="width:40%;" rowspan="2"><img style="height: 30px; width: 100px;"  src="{{barcode data.StockRequest.RequestNumber}}"/></td>
+        </tr>
+        <tr>
+            <td><b>Request Date</b></td>
+            <td>:</td>
+            <td>{{datetimeformat data.StockRequest.RequestedDate}}</td>
+        </tr>
+        <tr>
+            <td><b>Status</b></td>
+            <td>:</td>
+            <td><b>{{data.StockRequest.RequestStatus.Description}}</b></td>
+        </tr>
+    </table>
+    <table class="table4" style="width:100%;">
+        <tr>
+            <td style="width:20%;"><b>Request Store</b></td>
+            <td>:</td>
+            <td style="width:40%;">{{data.StockRequest.FromStore.StoreName}}</td>
+            <td style="width:20%;"><b>To Store</b></td>
+            <td>:</td>
+            <td style="width:20%;">{{data.StockRequest.ToStore.StoreName}}</td>
+        </tr>
+        <tr>
+            <td><b>Request Type</b></td>
+            <td>:</td>
+            <td>{{data.StockRequest.StockRequestType.Description}}</td>
+            <td><b>Store Type</b></td>
+            <td>:</td>
+            <td>{{data.StockRequest.FromStore.StoreType.Description}}</td>
+        </tr>
+    </table>
+    <table border class="size" style="width:100%;">
+        <tr>
+            <th align="left" style="width:5%;">S.No</th>
+            <th align="left" style="width:15%;">Code(SKU)</th>
+            <th align="left"style="width:20%;">Material Name</th>
+            <th align="left"style="width:10%;">UOM</th>
+            <th align="left"style="width:10%;">Aval.Qty</th>
+            <th align="left"style="width:10%;">Req.Qty</th>
+            <th align="left"style="width:10%;">UCP</th>
+            <th align="left"style="width:10%;">MRP</th>
+            <th align="left"style="width:10%;">Amount</th>
+        </tr>{{#each data.StockRequestDetail}}
+        <tr>
+            <td align="left">{{inc @index}}</td>
+            <td align="left">{{ItemMaster.ItemCode}}</td>
+            <td align="left">{{ItemMaster.ItemName}}</td>
+            <td align="left">{{BaseUom.UomName}}</td>
+            <td align="left">{{QuantityOnHand}}</td>
+            <td align="left">{{RequestedQuantity}}</td>
+            <td align="left">{{currencyformat UnitCostPrice}}</td>
+            <td align="left">{{currencyformat PurchasePrice}}</td>
+            <td align="left">{{currencyformat NetAmount}}</td>
+        </tr>{{/each}}
+    </table>
+    <table class="table2" style="width:100%;">
+        <tr>
+            <td style="width:90%;text-align:right"><b>Gross Amount</b></td>
+            <td>:</td>
+            <td style="width:10%;" colspan="4">{{currencyformat data.StockRequest.TotalGrossAmount}}</td>
+        </tr>
+        <tr>
+            <td style="width:90%;text-align:right">{{#if data.StockRequest.TotalDiscountAmount}}<b>Total Discount Amount</b>{{/if}}</td>
+            <td>{{#if data.StockRequest.TotalDiscountAmount}}:{{/if}}</td>
+            <td style="width:10%;" colspan="4">{{#if data.StockRequest.TotalDiscountAmount}} {{currencyformat data.StockRequest.TotalDiscountAmount}}{{/if}}</td>
+        </tr>
+        <tr>
+            <td style="width:90%;text-align:right"><b>Total GstAmount</b></td>
+            <td>:</td>
+            <td style="width:10%;" colspan="4">{{currencyformat data.StockRequest.TotalGstAmount}}</td>
+        </tr>
+        <tr>
+            <td style="width:90%;text-align:right"><b>Total NetAmount</b></td>
+            <td>:</td>
+            <td style="width:10%;" colspan="4">{{currencyformat data.StockRequest.TotalNetAmount}}</td>
+        </tr>
+
+    </table>
+    <table class="table4" style="width:100%;">
+        <tr>
+            <td style="width:20%;"><b>Amount In Words</b></td>
+            <td>:</td>
+            <td style="width:80%;" colspan="4">Rupees {{decimalnrInWords data.StockRequest.TotalNetAmount}} Only</td>
+        </tr>
+    </table>
+    <table class="table4" style="width:100%;">
+        <tr>
+            <td style="width:20%;"><b>Comments</b></td>
+            <td>:</td>
+            <td style="width:80%;" colspan="4">{{data.StockRequest.Comments}}</td>
+        </tr>
+    </table>
+    <table class="table3" style="width:100%;">
+        <tr>
+            <td style="width:35%;"><b>{{data.StockRequest.RequestedUser.Title.Description}} {{data.StockRequest.RequestedUser.FirstName}} {{data.StockRequest.RequestedUser.LastName}}</b></td>
+            <td style="width:30%;"></td>
+            <td style="width:35%;text-align:right;"><b>{{data.StockRequest.ApprovedUser.Title.Description}} {{data.StockRequest.ApprovedUser.FirstName}} {{data.StockRequest.ApprovedUser.LastName}}</b></td>
+        </tr>
+        <tr>
+            <td style="width:35%;"><b>Requested By</b></td>
+            <td style="width:30%;"></td>
+            <td style="width:35%;text-align:right;"><b>Approved By</b></td>
+        </tr>
+    </table>
+    <br>
+</body>
+<div style="width:100%; font-size:12px;">Printed On: {{now}}</div>
+</html>

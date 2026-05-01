@@ -1,0 +1,84 @@
+<html>
+
+<head>
+  <style>
+    .table1 {
+      border: 1px solid black;
+      font-size: 11px;
+    }
+    
+    .table2 {
+      border: 1px solid black;
+      border-top: 0px solid black;
+      font-size: 11px;
+    } 
+    {{include '/Templates/assets/css/core.css'}}
+  </style>
+</head>
+
+<body>
+  <div id="pageHeader" style="margin-left: 350px;">
+    {{{include '/Templates/equitas/common/header1.tpl.html' 'tpl'}}}
+  </div> 
+    <div style="text-align:center;font-size: 13px;"><b>Pharmacy Schedule Report</b></div>
+    <table class="table1" style="width:100%;"> 
+      <tr style='vertical-align: top'>
+        <td style="width:5%;"><b>From Date</b></td>
+        <td>:</td>
+        <td style="width:15%;"><b>{{data.FromDate}}</b></td>
+        <td style="width:5%;"><b>To Date</b></td>
+        <td>:</td>
+        <td style="width:15%;"><b>{{data.ToDate}}</b></td>
+        <td style="width:5%;"><b>Schedule Type</b></td>
+        <td>:</td>
+        <td style="width:25%;"><b>{{data.ScheduleType}}</b></td>
+        <td style="width:5%;"><b>Store Name</b></td>
+        <td>:</td>
+        <td style="width:25%;"><b>{{data.StoreName}}</b></td>
+        <td style="width:5%;"><b>Item Name</b></td>
+        <td>:</td>
+        <td style="width:25%;"><b>{{data.ItemName}}</b></td>
+      </tr>  
+    </table> 
+  </br>
+    <table class="table1" style="width:100%;">
+      <tr>
+        <td style="width:3%;"><b>S.No</b></td>
+        <td style="width:8%"><b>Bill Date</b></td>
+        <td style="width:8%"><b>Bill Number</b></td>
+        <td style="width:16%"><b>Patient Name</b></td> 
+        <td style="width:16%"><b>Doctor</b></td>
+        <td style="width:16%"><b>Item Name</b></td>
+        <td style="width:8%"><b>Manufacture</b></td>
+        <td style="width:5%"><b>Batch</b></td> 
+        <td style="width:5%"><b>Expiry</b></td> 
+        <td style="width:5%"><b>Qty</b></td>
+        <!-- <td style="width:8%"><b>Store</b></td> -->
+        <!-- <td style="width:8%"><b>Updated</b></td> -->
+        <td style="width:5%"><b>Schedule Type</b></td>
+        <td style="width:5%"><b>Signature</b></td>
+      </tr>
+    </table>
+    <table class="table2" style="width:100%;">
+      {{#each data.PharmacyScheduleReport}}
+      <tr>
+        <td style="width:3%;">{{inc @index}}</td>
+        <td style="width:8%">{{datetimeformat BillDateTime}}</td>
+        <td style="width:8%">{{PatientBill.BillNumber}}</td>
+        <td style="width:16%">{{PatientInfo}}</td> 
+        <td style="width:16%">{{User.Title.Description}} {{User.FirstName}} {{User.LastName}}</td>
+        <td style="width:16%;">{{ItemName}}</td> 
+        <td style="width:8%">{{ManufacturerName}}</td>
+        <td style="width:5%">{{BatchId}}</td> 
+        <td style="width:5%">{{expdateformat ExpiryDate}}</td>
+        <td style="width:5%">{{Quantity}}</td>
+        <!-- <td style="width:8%">{{StoreMaster.StoreDescription}}</td> -->
+        <!-- <td style="width:8%">{{UpdatedUser.Title.Description}} {{UpdatedUser.FirstName}} {{UpdatedUser.LastName}}</td> -->
+        <td style="width:5%">{{ScheduleTypeDescription}}</td>
+        <td style="width:5%"></td>
+      </tr>{{/each}}
+    </table>  
+  </body>
+  <div style="width:100%; font-size:8px;">Printed On: {{now}}</div>
+
+</html>

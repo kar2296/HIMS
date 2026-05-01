@@ -1,0 +1,159 @@
+<html>
+
+<head>
+    <style>
+        .table1 {
+            border: 1px solid black;
+            border-bottom: 0px solid black;
+            text-align: center;
+            font-size: 10px;
+        }
+
+        .table2 {
+            border: 1px solid black;
+            border-bottom: 0px solid black;
+            font-size: 10px;
+            border-collapse: collapse;
+        }
+
+        .table3 {
+            border: 1px solid black;
+            border-bottom: 1px solid black;
+            font-size: 10px;
+        }
+
+        .table5 {
+            border: 1px solid black;
+            border-bottom: 0px solid black;
+            font-size: 10px;
+        }
+
+        .table6 {
+            border: 1px solid black;
+            border-bottom: 0px solid black;
+            border-top: 0px solid black;
+            font-size: 10px;
+        }
+
+        .col {
+            border-collapse: collapse;
+            font-size: 10px;
+        }
+{{include '/Templates/assets/css/core.css'}}
+        </style>
+    </head>
+    <body>
+
+	<div id="pageHeader">
+        {{{include '/Templates/promed/common/header.tpl.html' 'tpl'}}}
+    </div>
+    <table class="table1" style="width:100%;">
+        <tr>
+            <td height="30" style="vertical-align:text-middle;font-size: 1.2em;"><b>CREDIT NOTE</b></td>
+        </tr>
+    </table>
+    <table class="table2" style="width:100%;">
+        <tr>
+            <td style="width:18%;"><b>Name</b></td>
+            <td>:</td>
+            <td style="width:25%;"><b>{{data.Patient.Title.Description}} {{data.Patient.FirstName}} {{data.Patient.MiddleName}} {{data.Patient.LastName}}</b></td>
+            <td style="width:7%;"><b>Age</b></td>
+            <td>:</td>
+            <td style="width:10%;">{{ageonlyyear data.Patient.DOB}}</td>
+            <td style="width:15%;"><b>UHID NO</b></td>
+            <td>:</td>
+            <td style="width:25%;"><b>{{data.Patient.MRN}}</b></td>
+        </tr>
+        <tr>
+            <td style="height=30; vertical-align:text-top"><b>Address</b></td>
+            <td style="height=30; vertical-align:text-top">:</td>
+            <td style="height=30; vertical-align:text-top">{{data.Patient.AddressLine1}} {{data.Patient.Area}},<br>{{data.Patient.City}} {{data.Patient.State}}
+            <br>{{data.Patient.Pincode}}
+                {{data.Patient.Country}} </td>
+            <td><b>Gender</b></td>
+            <td>:</td>
+            <td>{{data.Patient.Gender.Description}}</td>
+            <td></td>
+            <td colspan="2">
+                <!-- <img style="height: 30px; width: 100px;" src="{{barcode data.Patient.MRN}}" /> -->
+            </td>
+        </tr>
+        <tr>
+            <td><b>Contact No.</b></td>
+            <td>:</td>
+            <td colspan="7">{{data.Patient.Mobile}}</td>
+
+        </tr>
+    </table>
+    <table class="table2" style="width:100%;">
+        <tr>
+            <td style="width:20%;"><b>Bill Date</b></td>
+            <td>:</td>
+            <td colspan="4" style="width:40%;">{{datetimeformat data.PatientBills.BillDateTime}}</td>
+
+            <td style="width:15%;"><b>CN Date</b></td>
+            <td>:</td>
+            <td style="width:25%;">{{datetimeformat data.PatientCreditNotes.CreditNoteDateTime}}</td>
+        </tr>
+        <tr>
+            <td><b>Bill NO</b></td>
+            <td>:</td>
+            <td colspan="4">{{data.PatientBills.BillNumber}}</td>
+
+            <td><b>CN No</b></td>
+            <td>:</td>
+            <td>{{data.PatientCreditNotes.CreditNoteIdentifier}}</td>
+        </tr>
+        <tr>
+            <td colspan="9"></td>
+        </tr>
+    </table>
+    <table border class="table2" style="width:100%;">
+        <tr>
+            <td style="width:5%;"><b>S.No</b></td>
+            <td style="width:10%;"><b>Item Code</b></td>
+            <td style="width:30%;"><b>Item Name</b></td>
+            <td style="width:10%;"><b>CN Type</b></td>
+            <td style="width:25%;"><b>Comments</b></td>
+            <td style="width:20%;"><b>CN Amount</b></td>
+        </tr> {{#each data.PatientCreditNoteDetail}}
+        <tr>
+            <td>{{inc @index}}</td>
+            <td>{{ServiceItem.ItemCode}}</td>
+            <td>{{ServiceName}}</td>
+            <td>{{CreditNoteType.Description}}</td>
+            <td>{{Comments}}</td>
+            <td>{{currencyformat CreditNoteAmount}}</td>
+        </tr> {{/each}}
+    </table>
+    <table class="table6 col" style="width:100%">
+        <tr>
+            <td style="width:80%;" align="right"><b>CN Total Amount</b></td>
+            <td>:</td>
+            <td style="width:20%;" align="left">{{currencyformat data.PatientCreditNotes.CreditNoteAmount}}</td>
+        </tr>
+    </table>
+    <table class="table5 col" style="width:100%">
+        <tr>
+            <td style="width:20%;" align="left"><b>Amount In Words</b></td>
+            <td>:</td>
+            <td style="width:80%;" align="left">Rupees {{decimalnrInWords1  data.PatientCreditNotes.CreditNoteAmount}} Only</td>
+        </tr>
+    </table>
+    <table class="table3" style="width:100%;">
+        <tr>
+            <td colspan="9"></td>
+        </tr>
+        <tr>
+            <td></td>
+            <td colspan="8"align="right">{{data.PatientCreditNotes.CreatedUser.Title.Description}} {{data.PatientCreditNotes.CreatedUser.FirstName}} {{data.PatientCreditNotes.CreatedUser.LastName}}</td>
+        </tr>
+        <tr>
+            <td ></td>
+            <td colspan="8"align="right">Cashier</td>
+        </tr>
+    </table>
+    <div style="width:100%; font-size:10px;">Printed On: {{now}}</div>
+</body>
+
+</html>

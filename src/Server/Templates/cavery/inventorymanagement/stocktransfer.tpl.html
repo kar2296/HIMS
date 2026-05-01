@@ -1,0 +1,150 @@
+<html>
+
+<head>
+    <style>
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        td, th {
+            padding: 3px;
+            vertical-align: top;
+        }
+
+        * {
+            font-family: sans-serif;
+        }
+
+        th {
+            white-space: break-spaces;
+            border: 1px !important;
+            border-top: 1px solid black !important;
+            border-bottom: 1px solid black !important;
+        }
+
+        td {
+            border: 1px !important;
+        }
+
+        .size td,
+        .size th {
+            border: 1px solid black !important;
+        }
+
+        .sub-total {
+            border: 0px !important;
+            border-top: 0px solid black !important;
+            border-bottom: 0px solid black !important;
+            width: 100%;
+        }
+
+         {{ include '/Templates/cavery/assets/css/core.css' }}
+    </style>
+</head>
+
+<body>
+    <div id="pageHeader">
+        {{#if data.Flags.header}}
+        {{{include '/Templates/cavery/common/header.tpl.html' 'tpl'}}}
+        {{/if}}
+    </div>
+    <div class="content">
+
+        <table style="width:100%;">
+            <tr>
+                <td height="20" style="vertical-align:text-middle; text-align: center;font-size: 22px;"><b style="font-size: 22px;">STOCK ISSUE</b>
+                </td>
+            </tr>
+        </table>
+        <br>
+        <br>
+        <table style="width:100%;">
+            <tr>
+                <td style="width:15%;">From Store</td>
+                <td style="width:35%;">: {{data.StockTransfer.FromStore.StoreName}}</td>
+                <td style="width:15%;">To Store</td>
+                <td style="width:35%;">: {{data.StockTransfer.ToStore.StoreName}}</td>
+            </tr>
+            <tr>
+                <td>Issue No</td>
+                <td>: {{data.StockTransfer.TransferNumber}}</td>
+                <td>Issue Date</td>
+                <td>: {{datetimeformat data.StockTransfer.TransferDate}}</td>
+            </tr>
+            <tr>
+                <td>Requested By</td>
+                <td>: {{data.StockTransfer.RequestedUser.Title.Description}} {{data.StockTransfer.RequestedUser.FirstName}}
+                    {{data.StockTransfer.RequestedUser.LastName}}</td>
+                <td>Transferred By</td>
+                <td>: {{data.StockTransfer.TranferedUser.Title.Description}} {{data.StockTransfer.TranferedUser.FirstName}}
+                    {{data.StockTransfer.TranferedUser.LastName}}</td>
+            </tr>
+            <tr>
+                <td>Requested No</td>
+                <td>: {{data.StockTransfer.RequestNumber}}</td>
+                <td>Approved By</td>
+                <td>: {{data.StockTransfer.ApprovedUser.Title.Description}} {{data.StockTransfer.ApprovedUser.FirstName}}
+                    {{data.StockTransfer.ApprovedUser.LastName}}</td>
+            </tr>
+        </table>
+        <table border class="size" style="width:100%;">
+            <tr>
+                <th style="width:5%" align="center">S.No</th>
+                <th style="width:25%" align="left">Description</th>
+                <th style="width:10%" align="center">Batch ID</th>
+                <th style="width:10%" align="center">Expiry Date</th>
+                <th style="width:10%" align="center">Issue Qty</th>
+                <th style="width:8%" align="right">Rate</th>
+                <th style="width:14%" align="right">Net Amount</th>
+                <th style="width:8%" align="right">MRP</th>
+                <th style="width:10%" align="right">Total MRP</th>
+            </tr>
+            {{#each data.StockTransferDetail}}
+            <tr>
+                <td align="center">{{inc @index}}</td>
+                <td>{{ItemName}}</td>
+                <td align="center">{{BatchId}}</td>
+                <td align="center">{{dateformat ExpiryDate}}</td>
+                <td align="center">{{TransferedQuantity}}</td>
+                <td align="right">{{currencyformat MrPrice}}</td>
+                <td align="right">{{currencyformat NetAmount}}</td>
+                <td align="right">{{currencyformat MrPrice}}</td>
+                <td align="right">{{currencyformat TotalMRP}}</td>
+            </tr>
+            {{/each}}
+        </table>
+        <br>
+        <table style="width:100%">
+            <tr>
+                <td style="width:20%;"><b>Amount In Words</b></td>
+                <td>:</td>
+                <td style="width:40%;">Rupees {{decimalnrInWords data.StockTransfer.TotalNetAmount}} Only</td>
+                <td style="width:38%;">
+                    <table class="sub-total">
+                        <tr>
+                            <td align="right"><b>Net Amount</b></td>
+                            <td>:</td>
+                            <td align="right">{{currencyformat data.StockTransfer.TotalNetAmount}}</td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
+        <br>
+        <br>
+        <br>
+        <table style="width:100%;">
+            <tr>
+                <td style="width: 5%;"></td>
+                <td style="width: 30%;" align="center"><b>RECEIVED BY</b></td>
+                <td style="width: 30%;" align="center"><b>INSPECTED BY</b></td>
+                <td style="width: 30%;" align="center"><b>PREPARED BY </b> :
+                    {{data.StockTransfer.ApprovedUser.Title.Description}} {{data.StockTransfer.ApprovedUser.FirstName}} {{data.StockTransfer.ApprovedUser.LastName}}
+                    <!-- {{data.StockRequest.RequestedUser.Title.Description}} {{data.StockRequest.RequestedUser.FirstName}} {{data.StockRequest.RequestedUser.LastName}} -->
+                </td>
+                <td style="width: 5%;"></td>
+            </tr>
+        </table>
+    </div>
+    </body>

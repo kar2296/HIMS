@@ -1,0 +1,99 @@
+<html>
+
+<head>
+  <style>
+    .table1 {
+      border: 1px solid black;
+      font-size: 10px;
+    }
+
+    .table2 {
+      border: 1px solid black;
+      border-top: 0px solid black;
+      font-size: 10px;
+    }
+
+    {{include '/Templates/assets/css/core.css'}}
+  </style>
+</head>
+
+<body>
+  <div id="pageHeader">
+    {{{include '/Templates/nkhospital/common/header.tpl.html' 'tpl'}}}
+  </div>
+    <div style="text-align:center;font-size: 16px;"><b>Refund Report</b></div>
+    <table class="table1" style="width:100%;">
+      <tr style='vertical-align: top'>
+        <td style="width:5%;"><b>FromDate</b></td>
+        <td>:</td>
+        <td style="width:15%;"><b>{{data.FromDate}}</b></td>
+        <td style="width:5%;"><b>ToDate</b></td>
+        <td>:</td>
+        <td style="width:15%;"><b>{{data.ToDate}}</b></td>
+        <td style="width:5%;"><b>Clinics</b></td>
+        <td>:</td>
+        <td style="width:25%;"><b>{{data.FacilityName}}</b></td>
+        <td style="width:5%;"><b>Payment Type</b></td>
+        <td>:</td>
+        <td style="width:25%;"><b>{{data.PaymentType}}</b></td>
+      </tr>
+      <tr style='vertical-align: top'>
+        <td><b>User Name</b></td>
+        <td>:</td>
+        <td><b>{{data.UserName}}</b></td>
+      </tr>
+    </table>
+  </br>
+    <table class="table1" style="width:100%;">
+      <tr>
+        <td style="width:5%;"><b>S.No</b></td>
+        <td style="width:10%"><b>Date</b></td>
+        <td style="width:10%"><b>Refund Number</b></td>
+        <td style="width:10%"><b>Bill Number</b></td>
+        <td style="width:15%"><b>Patient Name</b></td>
+        <td style="width:6%"><b>MRN</b></td>
+        <td style="width:7%"><b>Refund Amount</b></td>
+        <td style="width:6%"><b>Payment Type</b></td>
+        <td style="width:10%"><b>Bank</b></td>
+        <td style="width:5%"><b>Card Type</b></td>
+        <td style="width:6%"><b>Refund Status</b></td>
+        <td style="width:10%"><b>Cashier Name</b></td>
+      </tr>
+    </table>
+    <table class="table2" style="width:100%;">
+      {{#each data.PatientRefund}}
+      <tr>
+        <td style="width:5%;">{{inc @index}}</td>
+        <td style="width:10%">{{datetimeformat RefundDateTime}}</td>
+        <td style="width:10%">{{RefundIdentifier}}</td>
+        <td style="width:10%">{{PatientBill.BillNumber}}</td>
+        <td style="width:15%">{{Patient.Title.Description}} {{Patient.FirstName}} {{Patient.LastName}}</td>
+        <td style="width:6%">{{Patient.MRN}}</td>
+        <td style="width:7%">{{currencyformat RefundAmount}}</td>
+        <td style="width:6%;">{{PaymentType.Description}}</td>
+        <td style="width:10%">{{Bank.Description}}</td>
+        <td style="width:5%">{{CardType.Description}}</td>
+        <td style="width:6%">{{RefundStatus.Description}}</td>
+        <td style="width:10%;">{{CreatedUser.Title.Description}} {{CreatedUser.FirstName}} {{CreatedUser.LastName}}</td>
+      </tr>{{/each}}
+    </table>
+    <table class="table2" style="width:100%;">
+      <tr>
+        <td style="width:5%;"></td>
+        <td style="width:10%"></td>
+        <td style="width:10%"></td>
+        <td style="width:10%"></td>
+        <td style="width:15%"></td>
+        <td style="width:6%"></td>
+        <td style="width:7%">{{currencyformat data.TotalRefAmt}}</td>
+        <td style="width:6%;"></td>
+        <td style="width:10%"></td>
+        <td style="width:5%"></td>
+        <td style="width:6%"></td>
+        <td style="width:10%;"></td>
+      </tr>
+    </table>
+  </body>
+  <div style="width:100%; font-size:8px;">Printed On: {{now}}</div>
+
+</html>

@@ -1,0 +1,250 @@
+<html>
+
+<head>
+    <style>
+        .center {
+            text-align: center;
+            font-size: 13px !important;
+            padding-bottom: 0px !important;
+        }
+
+        .left {
+            text-align: left;
+            font-size: 13px !important;
+            padding-bottom: 0px !important;
+
+        }
+
+        .right {
+            text-align: right;
+            font-size: 13px;
+            padding-bottom: 0px !important;
+        }
+
+        .heading {
+
+            margin-bottom: 10px;
+
+        }
+
+        .pageheader table tr td:first-child img {
+            width: 100px;
+            position: relative;
+            left: 30px;
+        }
+
+        .headerline {
+            border-top: 1px solid;
+            border-bottom: 1px solid;
+            padding-bottom: 0px !important;
+        }
+
+        .pageheader table tr td img {
+            position: relative;
+            bottom: 30px;
+        }
+
+        .size {
+            padding-bottom: 0px !important;
+            font-size: 13px;
+        }
+
+            {{include '/Templates/cavery/assets/css/core.css'}}
+    </style>
+
+</head>
+
+<body>
+
+    <div id="reviewnotesheader" class="pageheader">
+        {{{include '/Templates/cavery/common/header.tpl.html' 'tpl'}}}
+    </div>
+    <div id="pageFooter">
+        {{{include '/Templates/cavery/common/footer.tpl.html' 'tpl'}}}
+    </div>
+
+    <table class="size" style="width:100%;">
+        <tr>
+            <td style="width:35%;padding-left:45px" colspan="3">
+                <b>PATIENT INFORMATION</b>
+            </td>
+            <td style="width:35%;" colspan="3">
+                <b>ADMISSION INFORMATION</b>
+            </td>
+            <td style="width:30%;" colspan="3">
+                <b>DOCTOR INFORMATION</b>
+            </td>
+        </tr>
+
+    </table>
+    <br>
+    <table  class="size" style="width:100%;">
+
+        <tr>
+            <td colspan="3" style="padding-left:45px">
+                <b>{{data.CurrentConsultation.Patient.Title.Description}} {{data.CurrentConsultation.Patient.FirstName}} {{data.CurrentConsultation.Patient.MiddleName}}
+                    {{data.CurrentConsultation.Patient.LastName}}
+                </b>
+            </td>
+            <td style="width:15%;">Room/Bed No</td>
+            <td>:</td>
+            <td style="width:20%;">{{data.CurrentConsultation.Encounter.WardMaster.WardName}} {{#if data.CurrentConsultation.Encounter.WardId}}/{{/if}}
+                {{data.CurrentConsultation.Encounter.WardRoomMaster.RoomNo}} {{#if data.CurrentConsultation.Encounter.RoomId}}/{{/if}}
+                {{data.CurrentConsultation.Encounter.WardRoomBedMaster.Description}}</td>
+            <td style="width:10%;">Admt. Doctor</td>
+            <td>:</td>
+            <td><b>{{data.CurrentConsultation.Encounter.DoctorName}} &nbsp; {{data.CurrentConsultation.Encounter.Doctor.Qualification}}</b>
+                </td>
+        </tr>
+        <tr>
+                <td style="width:10%;padding-left:45px">UHID</td>
+            <td>:</td>
+            <td>
+                <b>{{data.CurrentConsultation.Patient.MRN}}</b>
+            </td>
+            <td>IP/ER No</td>
+            <td>:</td>
+            <td>
+                <b>{{data.CurrentConsultation.Encounter.VisitIdentifier}}
+                    <b>
+            </td>
+            <td>Department</td>
+            <td>:</td>
+            <td>{{data.CurrentConsultation.Encounter.Department.DepartmentName}}</td>
+        </tr>
+        <tr>
+            <td style="width:10%;padding-left:45px">DOB</td>
+            <td>:</td>
+            <td>{{strtodate data.CurrentConsultation.Patient.DOB}}</td>
+            <td>Admission Date</td>
+            <td>:</td>
+            <td>{{#if data.CurrentConsultation.Encounter.AdmissionDate}} {{datetimeformat data.CurrentConsultation.Encounter.AdmissionDate}}
+                {{/if}}
+            </td>
+            <td>Surgery Date</td>
+            <td>:</td>
+            <td>{{#if data.CurrentConsultation.SurgeryDate}} {{datetimeformat data.CurrentConsultation.SurgeryDate}}
+                {{/if}}
+            </td>
+        </tr>
+        <tr>
+            <td style="width:10%;padding-left:45px">Age/Gender</td>
+            <td>:</td>
+            <td>{{age data.CurrentConsultation.Patient.DOB}}/{{data.CurrentConsultation.Patient.Gender.Description}}</td>
+            <td>Discharge Type</td>
+            <td>:</td>
+            <td>
+                <b>{{data.CurrentConsultation.DischargeType.Description}}</b>
+            </td>
+            <td colspan="2">
+                <b>MR # {{data.CurrentConsultation.Patient.MRN}}</td>
+        </tr>
+        <tr>
+            <td style="width:10%;padding-left:45px">Address</td>
+            <td>:</td>
+            <td>{{data.CurrentConsultation.Patient.AddressLine1}}
+                <br> {{data.CurrentConsultation.Patient.Area}} {{data.CurrentConsultation.Patient.City}}
+                <br> {{data.CurrentConsultation.Patient.State}}
+                <br> {{data.CurrentConsultation.Patient.Pincode}} {{data.CurrentConsultation.Patient.Country}}</td>
+                <td>{{#if data.CurrentConsultation.Encounter.DischargeDate}} Discharge Date{{/if}}</td>
+                <td>{{#if data.CurrentConsultation.Encounter.DischargeDate}}:{{/if}}</td>
+                    <td>{{#if data.CurrentConsultation.Encounter.DischargeDate}}{{datetimeformat data.CurrentConsultation.Encounter.DischargeDate}}{{/if}}
+                    </td>
+            <td>
+                <img style="height: 30px; width: 100px;" src="{{barcode data.CurrentConsultation.Patient.MRN}}" />
+            </td>
+            <td> </td>
+            <td rowspan="4" align="left">
+                {{#if data.CurrentConsultation.Patient.PhotoPath}}
+                <img style="height:90px; width:100px;" src="{{include data.CurrentConsultation.Patient.PhotoPath 'fullpath-img'}}" /> {{/if}}
+            </td>
+        </tr>
+        <tr>
+                <td style="width:10%;padding-left:45px">Contact No</td>
+            <td>:</td>
+            <td>{{data.CurrentConsultation.Patient.Mobile}}</td>
+            <td>{{#if data.CurrentConsultation.Encounter.PatientGuarantor.GuarantorName}} Sponsor {{/if}}</td>
+            <td>{{#if data.CurrentConsultation.Encounter.PatientGuarantor.GuarantorName}} : {{/if}}</td>
+            <td>{{#if data.CurrentConsultation.Encounter.PatientGuarantor.GuarantorName}} {{data.CurrentConsultation.Encounter.PatientGuarantor.GuarantorName}}
+                {{/if}}
+            </td>
+        </tr>
+    </table>
+
+    <br>
+    <div class="center header4">
+        <b> Consolidate Lab Result </b>
+    </div>
+    <div>{{#if data.ConsolidateLabresult}}
+        <div class="left" style="background-color: lightgrey;">
+            <b>LAB Results:</b>
+        </div>
+        <br/>
+        <table class="size" width="100%">
+            <thead>
+                <tr style="width:'100%'">
+                    <th style="width:'10%';text-align:left;font-size: 16px;">
+                        <span> Date </span>
+                    </th>
+                    <th style="width:'15%';text-align:left;font-size: 16px;">
+                        <span> Profile </span>
+                    </th>
+                    <th style="width:'25%';text-align:left;font-size: 16px;">
+                        <span> Test / Parameters </span>
+                    </th>
+                    <th style="width:'50%';text-align:left;font-size: 16px;">
+                        <span> Values </span>
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                {{#each data.ConsolidateLabresult}}
+
+                <tr>
+                    <td style="width:'7%';font-size: 16px;font-weight: 700;">
+                        <span>
+                            {{UniqueApprovalDate}}
+                        </span>
+                    </td>
+                    <td style="width:'15%'">
+
+                    </td>
+                    <td style="width:'28%'">
+
+                    </td>
+                    <td style="width:'50%'">
+
+                    </td>
+                </tr>
+                {{#each LabResultWithDate}}
+                {{#each details}}
+                <tr>
+                    <td style="width:'7%'">
+                        <span>
+
+                        </span>
+                    </td>
+                    <td style="width:'15%'">
+                        <span>{{heading}}</span>
+                    </td>
+                    <td style="width:'28%'">
+                        <span>{{Analytename}}</span>
+                    </td>
+                    <td style="width:'50%'">
+                        <div>
+                            {{{Resultvalue}}}
+                        &nbsp;&nbsp;&nbsp;
+                        {{AnalyteUOM}}</div>
+                    </td>
+                </tr>
+                {{/each}}
+                {{/each}}
+                {{/each}}
+            </tbody>
+        </table>
+
+        {{/if}}
+    </div>
+</body>
+
+</html>

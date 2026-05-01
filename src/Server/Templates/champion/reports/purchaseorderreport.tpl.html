@@ -1,0 +1,110 @@
+<html>
+
+<head>
+  <style>
+    .table1 {
+      border: 1px solid black;
+      font-size: 13px;
+    }
+
+    .table2 {
+      border: 1px solid black;
+      border-top: 0px solid black;
+      font-size: 13px;
+    }
+    {{include '/Templates/champion/assets/css/core.css'}}
+
+  </style>
+</head>
+
+<body>
+  <div id="pageHeader">
+    {{{include '/Templates/champion/common/header.tpl.html' 'tpl'}}}
+  </div>
+    <div style="text-align:center;"><b style="font-size: 16px;">Purchase Order Report</b></div>
+    <table class="table1" style="width:100%;">
+        <tr style='vertical-align: top'>
+          <td style="width:5%;"><b>FromDate</b></td>
+          <td>:</td>
+          <td style="width:15%;"><b>{{data.FromDate}}</b></td>
+          <td style="width:5%;"><b>ToDate</b></td>
+          <td>:</td>
+          <td style="width:15%;"><b>{{data.ToDate}}</b></td>
+          <td style="width:5%;"><b>Supplier</b></td>
+          <td>:</td>
+          <td style="width:25%;"><b>{{data.VendorName}}</b></td>
+          <td style="width:5%;"><b>Store Name</b></td>
+          <td>:</td>
+          <td style="width:25%;"><b>{{data.StoreName}}</b></td>
+        </tr>
+        <tr>
+          <td><b>PoStatus</b></td>
+          <td>:</td>
+          <td><b>{{data.PoStatus}}</b></td>
+          <td><b></b></td>
+          <td</td>
+          <td><b></b></td>
+          <td><b></b></td>
+          <td></td>
+          <td><b></b></td>
+          <td><b></b></td>
+          <td></td>
+          <td><b></b></td>
+        </tr>
+      </table>
+    </br>
+    <table class="table1" style="width:100%;">
+      <tr>
+        <td style="width:5%;"><b>S.No</b></td>
+        <td style="width:10%"><b>PO Number</b></td>
+        <td style="width:10%"><b>PO Date</b></td>
+        <td style="width:10%"><b>Supplier</b></td>
+        <td style="width:5%"><b>Exp Delivery Date</b></td>
+        <td style="width:10%"><b>Total Amt</b></td>
+        <td style="width:10%"><b>Dis Amt</b></td>
+        <td style="width:5%"><b>GST Amt</b></td>
+        <td style="width:10%"><b>Other Charges</b></td>
+        <td style="width:10%"><b>Sales Amt(total-return)</b></td>
+        <td style="width:10%"><b>Approved By</b></td>
+        <td style="width:5%"><b>PO Status</b></td>
+      </tr>
+    </table>
+    <table class="table2" style="width:100%;">
+      {{#each data.PurchaseOrder}}
+      <tr>
+        <td style="width:5%;">{{inc @index}}</td>
+        <td style="width:10%;">{{PoNumber}}</td>
+        <td style="width:10%;">{{datetimeformat PoDate}}</td>
+        <td style="width:10%;">{{VendorName}}</td>
+        <td style="width:5%;">{{datetimeformat DeliveryDate}}</td>
+        <td style="width:10%;">{{currencyformat TotalGrossAmount}}</td>
+        <td style="width:10%;">{{currencyformat TotalDiscountAmount}}</td>
+        <td style="width:5%;">{{currencyformat TotalGstAmount}}</td>
+        <td style="width:10%;">{{currencyformat OtherCharges}}</td>
+        <td style="width:10%;">{{currencyformat TotalNetAmount}}</td>
+        <td style="width:10%;">{{ApprovedUser.Title.Description}} {{ApprovedUser.FirstName}} {{ApprovedUser.LastName}}</td>
+        <td style="width:5%;">{{PoStatus.Description}}</td>
+      </tr>{{/each}}
+    </table>
+
+    <table class="table2" style="width:100%;">
+      <tr>
+        <td style="width:5%;"></td>
+        <td style="width:10%;"></td>
+        <td style="width:10%;"></td>
+        <td style="width:10%;"></td>
+        <td style="width:5%;"></td>
+        <td style="width:10%;">{{currencyformat data.TotalGrossAmt}}</td>
+        <td style="width:10%;">{{currencyformat data.TotalDisAmt}}</td>
+        <td style="width:5%;">{{currencyformat data.TotalGstAmt}}</td>
+        <td style="width:10%;">{{currencyformat data.TotalOtherAmt}}</td>
+        <td style="width:10%;">{{currencyformat data.TotalNetAmt}}</td>
+        <td style="width:10%;"></td>
+        <td style="width:5%;"></td>
+      </tr>
+    </table>
+
+  </body>
+  <div style="width:100%; font-size:8px;">Printed On: {{now}}</div>
+
+</html>
