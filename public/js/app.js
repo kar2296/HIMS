@@ -352,13 +352,19 @@
         .module('app.core')
         .run(appRun);
 
-    appRun.$inject = ['$rootScope', '$state', '$stateParams', '$window', '$templateCache', 'Colors'];
+    appRun.$inject = ['$rootScope', '$state', '$stateParams', '$window', '$templateCache', 'Colors', '$http'];
 
-    function appRun($rootScope, $state, $stateParams, $window, $templateCache, Colors) {
+    function appRun($rootScope, $state, $stateParams, $window, $templateCache, Colors, $http) {
         // Set reference to access them from any scope
         $rootScope.$state = $state;
         $rootScope.$stateParams = $stateParams;
         $rootScope.$storage = $window.localStorage;
+
+        // Restore authentication token on page refresh
+        if ($window.localStorage.getItem('token')) {
+            $http.defaults.headers.post.Authorization = 'bearer ' + $window.localStorage.getItem('token');
+            $http.defaults.headers.common.Authorization = 'bearer ' + $window.localStorage.getItem('token');
+        }
 
         // Uncomment this to disable template cache
         /*$rootScope.$on('$stateChangeStart', function(event, toState, toParams, fromState, fromParams) {

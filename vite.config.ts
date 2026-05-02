@@ -11,6 +11,11 @@ export default defineConfig({
       name: 'disable-html-fallback',
       configureServer(server) {
         server.middlewares.use((req, res, next) => {
+          // Rewrite /app/ to / so Vite can find legacy assets in the public folder
+          if (req.url && req.url.startsWith('/app/')) {
+            req.url = req.url.replace(/^\/app/, '');
+          }
+
           if (req.url && req.url.endsWith('.html') && req.url !== '/index.html' && req.url !== '/') {
             // Prevent connect-history-api-fallback from rewriting template requests
             req.headers.accept = 'text/plain'; 

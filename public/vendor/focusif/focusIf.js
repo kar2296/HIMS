@@ -19,7 +19,9 @@
                     $timeout(function() {
                         if(dom.nodeName=="AUTOSEARCH") {
                             //console.log('autosearch');
-                            dom.children[2].children[0].focus()
+                            if (dom.children && dom.children[2] && dom.children[2].children && dom.children[2].children[0]) {
+                                dom.children[2].children[0].focus();
+                            }
                         }
                         if(dom.className && dom.className.indexOf("ui-select-container") > -1) {
                             console.log(dom);
