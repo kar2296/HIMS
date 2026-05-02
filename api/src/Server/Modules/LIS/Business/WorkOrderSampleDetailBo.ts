@@ -343,7 +343,7 @@ export class WorkOrderSampleDetailBo extends BaseBo<WorkOrderSampleDetailInstanc
         // console.log('Sample Type' + req.sampleType);
         // console.log('Sample Id' + req.sampleId);
         let vTestId = req.testId;
-        let siInfo: any = { SampleIdentifier: req.code };
+        let siInfo: any = { Id: 1, SampleIdentifier: req.code };
         await this.Update(siInfo, {
             fields: ['SampleIdentifier'],
             where: {
@@ -364,8 +364,8 @@ export class WorkOrderSampleDetailBo extends BaseBo<WorkOrderSampleDetailInstanc
         // console.log('collected Date ' + vSampleCollectionDt);
         // console.log('patientWorkOrderId ' + vPatientWorkOrderId);
         // console.log('testId' + vTestId);
-        let SampleidCodition: any = { Sampleid: vSampleid, Samplecollectiondate: vSampleCollectionDt };
-        let Sampledata: any = { SampleIdentifier: vSampleid };
+        let SampleidCodition: any = { Id: 1, Sampleid: vSampleid, Samplecollectiondate: vSampleCollectionDt };
+        let Sampledata: any = { Id: vPatientWorkOrderId, SampleIdentifier: vSampleid };
         let workorderDetailBO = BoFactory.GetBo(lisbo.PatientWorkorderdetailsBo, this.Request);
         let workorderBO = BoFactory.GetBo(lisbo.PatientWorkorderBo, this.Request);
         if (!isculture) {
@@ -419,6 +419,7 @@ export class WorkOrderSampleDetailBo extends BaseBo<WorkOrderSampleDetailInstanc
                             Sampleid: null
                         }
                     });
+                    Sampledata.Id = wId;
                     await workorderBO.Update(Sampledata, {
                         fields: ['SampleIdentifier', 'ManualBarcode'],
                         where: {

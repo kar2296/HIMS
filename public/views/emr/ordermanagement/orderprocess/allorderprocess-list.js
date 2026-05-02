@@ -308,7 +308,7 @@
         var wonum = {
             field: "WorkOrderdid",
             displayName: $translate.instant('ordermanagement.myorderprocess-list.workordernumber.lbl'),
-            cellTemplate: "<div class='ui-grid-cell-contents'>\<div style='color: #4407ff;class='col-sm-2'><span>{{entity.WorkOrderdid}}</span></div>\
+            cellTemplate: "<div class='ui-grid-cell-contents'>\<div style='color: #4407ff;' class='col-sm-2'><span>{{entity.WorkOrderdid || entity.WorkOrderId}}</span></div>\
                        &nbsp;\</div>"
         };
         var ordnum = {

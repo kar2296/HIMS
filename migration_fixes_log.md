@@ -87,4 +87,18 @@ Reply "Option 2" if you want a complete physical merge (High risk of breaking th
 * **Date:** May 2, 2026, 10:25 AM (IST)
 * **File Modified:** `public/js/app.js`
 * **Change:** Injected `$http` into the `appRun` block and added logic to read the JWT token from `$window.localStorage.getItem('token')` and restore it to `$http.defaults.headers.post.Authorization` and `$http.defaults.headers.common.Authorization` when the application boots up.
-* **Reason:** When the user successfully logged in, the `access-login.controller.js` set the token into memory for the duration of the page lifecycle. However, upon pressing F5 (Refresh), the Javascript environment was re-initialized and the `$http` authorization header was wiped. This caused any subsequent background API requests (which require the `bearer` token via `passport.authenticate`) to fail with a `401 Unauthorized` error, forcibly logging the user out. Now, the token is properly restored from local storage on every page reload, persisting the user's session.
+### 8. WorkOrder Number Missing in UI Grid Fix
+* **Date:** May 2, 2026, 11:30 AM (IST)
+* **Files Modified:** 
+  - `public/views/emr/ordermanagement/orderprocess/allorderprocess-list.js`
+  - `public/views/emr/ordermanagement/orderprocess/myorderprocess-list.js`
+  - `public/views/emr/ordermanagement/resultapproval/allresultapproval-list.js`
+  - `public/views/emr/ordermanagement/resultapproval/resultapproved-amendment.js`
+  - `public/views/emr/ordermanagement/externalresultentry/externalresultentry.js`
+  - `public/views/emr/ordermanagement/otherhospitalorders/otherhsptlorderprocess-list.js`
+* **Change:** Fixed malformed HTML within the `ui-grid` `cellTemplate` for the `WorkOrderdid` column. Changed `style='color: #4407ff;class='col-sm-2'` to `style='color: #4407ff;' class='col-sm-2'`. Also added `|| entity.WorkOrderId` as a fallback.
+### 9. LIS Sample Identifier Generation Fix
+* **Date:** May 2, 2026, 11:50 AM (IST)
+* **File Modified:** `api/src/Server/Modules/LIS/Business/WorkOrderSampleDetailBo.ts`
+* **Change:** Added a dummy/real `Id` property to the update payloads inside `UpdateSampleTypeInfo` and `UpdatePatientWorkOrderInfo` (`siInfo`, `SampleidCodition`, `Sampledata`). 
+* **Reason:** When `deferSequenceKey` is processed, it triggers `afterEvents` that update `PatientWorkorder` and `PatientWorkorderdetails` with the newly generated `SampleIdentifier`. These updates were failing silently with `Invalid Id. Operation Faild.` because the `BaseBo.Update` method enforces a `CheckId(entity)` validation (requiring `Id > 0`) before checking the `options.where` clause. Adding the `Id` bypasses this validation allowing the partial update to successfully complete and bind the `SampleIdentifier` to the WorkOrder.
