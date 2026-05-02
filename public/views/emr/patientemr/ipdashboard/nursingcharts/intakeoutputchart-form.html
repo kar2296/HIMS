@@ -1,0 +1,239 @@
+<!-- <style>
+    .modal-lg {
+        width: 1000px;
+    }
+
+    .panel-body {
+        padding: 15px;
+        margin-left: 0px;
+        margin-top: -53px;
+        margin-right: 0px;
+        margin-bottom: 0px;
+        background-image: url(app/img/bg-body.jpg);
+        background-repeat: repeat;
+        overflow: auto;
+    }
+
+    .modal-content .panel-body {
+        overflow: inherit;
+    }
+
+    .col-sm-2 {
+        width: 25.666667%;
+    }
+
+    .well {
+        min-height: 20px;
+        padding: 19px;
+        margin-bottom: 0px;
+        border: 1px solid #ededed;
+        border-radius: 4px;
+        background: rgb(233, 246, 253);
+        /* Old browsers */
+        background: -moz-linear-gradient(top, rgba(233, 246, 253, 1) 0%, rgba(211, 238, 251, 1) 100%);
+        /* FF3.6-15 */
+        background: -webkit-linear-gradient(top, rgba(233, 246, 253, 1) 0%, rgba(211, 238, 251, 1) 100%);
+        /* Chrome10-25,Safari5.1-6 */
+        background: linear-gradient(to bottom, rgb(250, 250, 250) 0%, rgb(247, 252, 253) 100%);
+        /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+        filter: progid: DXImageTransform.Microsoft.gradient( startColorstr='#e9f6fd', endColorstr='#d3eefb', GradientType=0);
+        /* IE6-9 */
+        box-shadow: 4px 2px 13px -7px rgba(0, 0, 0, 0.75);
+    }
+
+    /* .formactionbar {
+        padding: 5px 15px;
+        height: 40px;
+        background-color: #ccecf5;
+    } */
+
+    .custom-modal-header {
+        margin-bottom: 10px;
+        background-color: #597a9a;
+        color: #fff;
+    }
+
+    .modal-content {
+        -webkit-box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+        box-shadow: -1px 3px 20px 7px rgba(249, 244, 244, 0.5);
+    }
+
+    .modal-header {
+        padding: 4px 10px;
+        border-bottom: 1px solid #e5e5e5;
+    }
+    td.form-group.uib-time.minutes {
+    border: unset !important;
+}
+td.uib-separator {
+    border: unset !important;
+}
+td.form-group.uib-time.hours {
+    border: unset !important;
+}
+td.form-group.uib-time.hours > input {
+    width: 53px;
+    border: 0.9px dashed !important;
+}
+td.form-group.uib-time.minutes > input {
+    width: 58px;
+    border: 0.9px dashed;
+}
+</style> -->
+<style>
+    .form-horizontal .form-group {
+        height: 60px;
+    }
+
+    table.uib-timepicker {
+        margin-top: -12px;
+    }
+</style>
+<div class="modal-header custom-modal-header">
+    <div class="col-sm-10">
+        <h4 class="modal-title custom-modal-title" translate="patientemr.criticalcharts.manageinout.lbl"></h4>
+    </div>
+    <div class="col-sm-2">
+        <div class="filters">
+            <img src="../../../../../assets/svg/close.svg" ng-click="cancelCallback()">
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <form id="item_form" name="item_form" class="form-horizontal" role="form" ng-submit="saveItem()">
+        <div class="col-sm-12">
+            <div class="form-group col-sm-4">
+                <label class="col-sm-12 control-label" translate="patientemr.criticalcharts.date.lbl"></label>
+                <div class="col-sm-12">
+                    <input type="text" class="form-control" name="fromdate" ng-date-object uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                        placeholder="{{datePickerOptions.placeholder}}" ng-click="fromdatePopup = { opened: true }" is-open="fromdatePopup.opened"
+                        ng-model="item.IntakeOutputChartDate" required>
+                </div>
+            </div>
+            <div class="form-group col-sm-4">
+                <label class="col-sm-4 control-label" translate="patientemr.criticalcharts.time.lbl"></label>
+                <div class="col-sm-12">
+                    <uib-timepicker name="gracetime" ng-model="item.IntakeOutputChartTime" ng-time-object></uib-timepicker>
+                </div>
+            </div>
+            <!-- <div> -->
+            <div class="col-sm-12">
+                <h4 class="col-sm-12 control-label" translate="patientemr.criticalcharts.intake.lbl"></h4>
+            </div>
+            <div class="form-group col-sm-2">
+                <label class="col-sm-12 control-label" for="Name" translate="Name"></label>
+                <div class="col-sm-12">
+                    <input type="text" class="form-control" name="Name" ng-model="item.IVName"
+                        placeholder="">
+                </div>
+            </div>
+            <div class="form-group col-sm-2">
+                <label class="col-sm-12 control-label" for="rate" translate="patientemr.criticalcharts.iv.lbl"></label>
+                <div class="col-sm-12">
+                    <input type="number" ng-keypress="numberwithdecimal($event)" min="0" class="form-control" name="rate" ng-model="item.IV"
+                        ng-change="computeAmount(item)" placeholder="" required>
+                </div>
+            </div>
+            <div class="form-group col-sm-2">
+                <label class="col-sm-12 control-label" for="Name" translate="Name"></label>
+                <div class="col-sm-12">
+                    <input type="text"  class="form-control" name="Name" ng-model="item.OralName"
+                        placeholder="">
+                </div>
+            </div>
+            <div class="form-group col-sm-2">
+                <label class="col-sm-12 control-label" for="tv" translate="patientemr.criticalcharts.oral.lbl"></label>
+                <div class="col-sm-12">
+                    <input type="number" ng-keypress="numberwithdecimal($event)" min="0" class="form-control" name="tv" ng-model="item.Oral"
+                        placeholder="" ng-change="computeAmount(item)">
+                </div>
+            </div>
+            <div class="form-group col-sm-4">
+                <label class="col-sm-12 control-label" for="intotal" translate="patientemr.criticalcharts.total.lbl"></label>
+                <div class="col-sm-12">
+                    <input type="number" ng-keypress="numberwithdecimal($event)" min="0" class="form-control" name="intotal" ng-model="item.IntakeTotal"
+                        placeholder="" disabled>
+                </div>
+            </div>
+            <!-- </div> -->
+            <!-- <div> -->
+            <div class="col-sm-12">
+                <h4 class="col-sm-12 control-label" translate="patientemr.criticalcharts.output.lbl"></h4>
+            </div>
+            <div class="form-group col-sm-4">
+                <label class="col-sm-12 control-label" for="peakpress" translate="patientemr.criticalcharts.urine.lbl"></label>
+                <div class="col-sm-12">
+                    <input type="number" ng-keypress="numberwithdecimal($event)" min="0" class="form-control" name="peakpress" ng-model="item.Urine"
+                        ng-change="calculateAmount(item)" placeholder="" required>
+                </div>
+            </div>
+            <div class="form-group col-sm-4">
+                <label class="col-sm-12 control-label" for="peep" translate="Aspiration"></label>
+                <div class="col-sm-12">
+                    <input type="number" ng-keypress="numberwithdecimal($event)" min="0" class="form-control" name="peep" ng-model="item.Aspiration"
+                        ng-change="calculateAmount(item)" placeholder="">
+                </div>
+            </div>
+            <div class="form-group col-sm-4">
+                <label class="col-sm-12 control-label" for="fio2" translate="patientemr.criticalcharts.diarhoea.lbl"></label>
+                <div class="col-sm-12">
+                    <input type="number" ng-keypress="numberwithdecimal($event)" min="0" class="form-control" name="fio2" ng-model="item.VomitousDiarhoea"
+                        ng-change="calculateAmount(item)" placeholder="">
+                </div>
+            </div>
+            <div class="form-group col-sm-4">
+                <label class="col-sm-12 control-label" for="outtotal" translate="patientemr.criticalcharts.total.lbl"></label>
+                <div class="col-sm-12">
+                    <input type="number" ng-keypress="numberwithdecimal($event)" min="0" class="form-control" name="outtotal" ng-model="item.OutputTotal"
+                        placeholder="" disabled>
+                </div>
+            </div>
+            <div class="form-group col-sm-2">
+                <label class="col-sm-12 control-label" for="Name" translate="Drains"></label>
+                <div class="col-sm-12">
+                    <input type="number" ng-keypress="numberwithdecimal($event)" min="0" class="form-control" name="Name" ng-model="item.Drains"
+                        placeholder="">
+                </div>
+            </div>
+            <!-- </div> -->
+            <div class="form-group col-sm-4">
+                <label class="col-sm-12 control-label" for="signatory" translate="patientemr.criticalcharts.signatory.lbl"></label>
+                <div class="col-sm-12">
+                    <input type="text" class="form-control" ng-model="item.Signatory" placeholder="">
+                </div>
+            </div>
+            <div class="form-group col-sm-4">
+                <label class="col-sm-12 control-label" for="capturedby" translate="patientemr.patientintakeoutput-form.capturedby.lbl"></label>
+                <div class="col-sm-12">
+                    <ui-select ng-model="item.CapturedBy" ng-disabled name="capturedby">
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 20 : 0}}
+                            <span ng-if="$select.selected.Text.length>20">...</span>
+                        </ui-select-match>
+                        <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.User | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-12">
+            <div class="form-group col-sm-4">
+                <label class="col-sm-12 control-label" for="reason" translate="patientemr.criticalcharts.comments.lbl"></label>
+                <div class="col-sm-12">
+                    <textarea rows="3" name="reason" ng-model="item.Comments" maxlength="4000"></textarea>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<div class="">
+    <div class="row">
+        <div class="pull-right">
+            <button type="button" class="draftbutton" translate="common.saveaction.lbl" ng-click="save()"></button>
+            <!-- <button id="btnCancelForm" type="button" class="draftbutton" ng-click="backToList()" translate="common.cancelaction.lbl"></button> -->
+        </div>
+    </div>
+</div>

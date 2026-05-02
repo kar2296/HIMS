@@ -1,0 +1,72 @@
+<div class="row">
+    <button class="btn-add" ng-if="canUpdatePatientInfo()" ng-click="addNew()"
+        uib-tooltip="{{'registration.familylink.addmembers.lbl'| translate}}" tooltip-placement="bottom">
+        <i class="fas fa-plus" aria-hidden="true"></i>
+    </button>
+</div>
+<div class="col-sm-12 drhms-defaultservices">
+    <table class="table table-hover table-responsive table-bordered">
+        <thead class="bg-subhead">
+            <tr>
+                <th class="col-sm-3"><span translate="registration.familylink.members.lbl"></span></th>
+                <th><span translate="registration.familylink.age.lbl"></span></th>
+                <th><span translate="registration.familylink.gender.lbl"></span></th>
+                <th><span translate="registration.familylink.mrn.lbl"></span></th>
+                <th><span translate="registration.familylink.relation.lbl"></span>*</th>
+                <th><span translate="registration.familylink.national.lbl"></span></th>
+                <th><span translate="common.actions_col.lbl"></span></th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr ng-repeat="item in vm.items | filter:{Status:1}">
+                <td>
+                    <autosearch itemid="item.MemberId" iteminfo="item.SelectedItem" rowdata="item"
+                        config="vm.patientconfig" itemchange="PatientChanged($index,item)" class="inputsearchlogo">
+                    </autosearch>
+                </td>
+                <td>
+                    <input type="text" class="form-control" ng-model="item.Age" placeholder="" disabled>
+                </td>
+                <td>
+                    <input type="text" class="form-control" ng-model="item.Gender" placeholder="" disabled>
+                </td>
+                <td>
+                    <input type="text" class="form-control" ng-model="item.MRN" placeholder="" disabled>
+                </td>
+                <td>
+                    <ui-select ng-model="item.RelationshipId" name="type">
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 20 : 0}}
+                            <span ng-if="$select.selected.Text.length>20">...</span>
+                        </ui-select-match>
+                        <ui-select-choices
+                            repeat="lookupitem.Id as lookupitem in lookup.Relationship | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </td>
+                <td align="center">
+                    <input type="text" class="form-control" ng-model="item.NationalId" placeholder="" disabled>
+                </td>
+                <td align="center">
+                    <button class="drhms-edit-button" ng-click="deleteItem($index,item)">
+                        <img  src="assets/svg/delete.svg" alt="">
+                    </button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+<div class="fooder-bgs">
+    <div class="pull-left">
+        <button type="button" class="btn btn-sm pyr-color10" ng-click="backTolist()"><i
+                class="fa fa-angle-left"></i>&nbsp;&nbsp;<span translate="common.backaction.lbl"></span></button>
+    </div>
+    <div class="pull-right">
+        <button type="button" ng-if="canUpdatePatientInfo()" class="draftbutton" translate="common.saveaction.lbl"
+            ng-click="saveItem()"></button>
+        <button type="button" class="draftbutton" ng-click="clear()" translate="common.clearaction.lbl"></button>
+        <button id="btnCancelForm" type="button" class="draftbutton" ng-click="saveCancelled()"
+            translate="common.cancelaction.lbl"></button>
+    </div>
+</div>

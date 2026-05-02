@@ -1,0 +1,129 @@
+<style>
+    .form-group {
+        height: 62px;
+    }
+</style>
+<div class="row">
+    <div class="form-group col-sm-3">
+        <label class="col-sm-12 control-label" translate="patientrequests.patient.lbl"></label>
+        <div class="col-sm-12">
+            <div class="search">
+                <input type="text" class="form-control" on-enter="getList()" ng-model="currentfilter.PatientName"
+                    placeholder="NAME/MRN">
+                <i class="fas fa-search"></i>
+            </div>
+        </div>
+    </div>
+    <div class="form-group col-sm-3">
+        <label class="col-sm-12 control-label" translate="Dispense Number"></label>
+        <div class="col-sm-12">
+            <div class="search">
+                <input type="text" class="form-control" on-enter="getList()" ng-model="currentfilter.DispenseNumber"
+                    translate translate-attr-placeholder="billing.patientdispenses.dispensenumber.lbl"> <i
+                    class="fas fa-search"></i>
+            </div>
+        </div>
+    </div>
+    <div class="form-group col-sm-3">
+        <label class="col-sm-12 control-label" translate="Patient Request Number"></label>
+        <div class="col-sm-12">
+            <div class="search">
+                <input type="text" class="form-control" on-enter="getList()"
+                    ng-model="currentfilter.PatientRequestNumber" translate
+                    translate-attr-placeholder="billing.patientdispenses.orderno.lbl">
+                <i class="fas fa-search"></i>
+            </div>
+        </div>
+    </div>
+    <div class="form-group col-sm-3">
+        <label class="col-sm-12 control-label" translate="billing.patientdispenses.mystore.lbl"></label>
+        <div class="col-sm-12">
+            <ui-select ng-model="currentfilter.StoreMasterId" ng-change="getList()" name="mystore" required>
+                <ui-select-match>
+                    {{$select.selected.Text | limitTo : 30 : 0}}
+                    <span ng-if="$select.selected.Text.length>30">...</span>
+                </ui-select-match>
+                <ui-select-choices
+                    repeat="lookupitem.Id as lookupitem in lookup.UserStores | filter: { Text: $select.search }">
+                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                </ui-select-choices>
+            </ui-select>
+        </div>
+    </div>
+    <!-- <div class="form-group col-sm-3">
+        <label class="col-sm-12 control-label" translate="billing.patientdispenses.mystore.lbl"></label>
+        <div class="col-sm-12">
+            <ui-select ng-model="currentfilter.StoreMasterId" ng-change="getList()" name="mystore" required>
+                <ui-select-match>
+                    {{$select.selected.Text | limitTo : 30 : 0}}
+                    <span ng-if="$select.selected.Text.length>30">...</span>
+                </ui-select-match>
+                <ui-select-choices
+                    repeat="lookupitem.Id as lookupitem in lookup.UserStores | filter: { Text: $select.search }">
+                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                </ui-select-choices>
+            </ui-select>
+        </div>
+    </div> -->
+    <!-- <div class="form-group col-sm-3">
+        <label class="col-sm-12 control-label" translate="billing.patientdispenses.dispensedatetime.lbl"></label>
+        <div class="col-sm-12">
+            <input type="text" class="form-control" name="dispensedatetime" ng-change="getList()" ng-date-object
+                uib-datepicker-popup="{{datePickerOptions.dateFormat}}" placeholder="{{datePickerOptions.placeholder}}"
+                ng-click="dispensedatetimePopup = { opened: true }" is-open="dispensedatetimePopup.opened"
+                ng-model="currentfilter.DispenseDateTime">
+        </div>
+    </div> -->
+    <div class="form-group col-sm-3">
+        <label class="col-sm-12" for="fromdate" translate="From Date"></label>
+        <div class="col-sm-12">
+            <div class="datepicker">
+                <input type="text" class="form-control" name="fromdate" ng-change="getList()" datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}"
+                    uib-datepicker-popup="{{datePickerOptions.dateFormat}}" placeholder="{{datePickerOptions.placeholder}}" ng-click="fromdatePopup = { opened: true }"
+                    is-open="fromdatePopup.opened" ng-model="currentfilter.FromDate">
+                <i class="fa fa-calendar" aria-hidden="true"></i>
+            </div>
+        </div>
+    </div>
+    <div class="form-group col-sm-3">
+        <label class="col-sm-12" for="todate" translate="To Date"></label>
+        <div class="col-sm-12">
+            <div class="datepicker">
+                <input type="text" class="form-control" name="todate" ng-change="getList()" datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}"
+                    uib-datepicker-popup="{{datePickerOptions.dateFormat}}" placeholder="{{datePickerOptions.placeholder}}" ng-click="todatePopup = { opened: true }"
+                    is-open="todatePopup.opened" ng-model="currentfilter.ToDate">
+                <i class="fa fa-calendar" aria-hidden="true"></i>
+            </div>
+        </div>
+    </div>
+    <div class="form-group col-sm-3">
+        <label class="col-sm-12 control-label" translate="patientrequest.ward.lbl"></label>
+        <div class="col-sm-12">
+            <ui-select ng-model="currentfilter.WardId" ng-change="getList()" ng-change="getRoomLookUp()">
+                <ui-select-match>
+                    {{$select.selected.Text | limitTo : 30 : 0}}
+                    <span ng-if="$select.selected.Text.length>30">...</span>
+                </ui-select-match>
+                <ui-select-choices
+                    repeat="lookupitem.Id as lookupitem in lookup.Ward | filter: { Text: $select.search }">
+                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                </ui-select-choices>
+            </ui-select>
+        </div>
+    </div>
+</div>
+<div class="fooder-bgs">
+    <div class="row">
+        <custom-table config="vm.gridConfig"></custom-table>
+    </div>
+    <div class="row">
+        <div class="pull-right">
+            <div class="drhms-due-amount">Total Netamount: {{(TotalNetamount|displaycurrency)}}</div>
+        </div>
+        <div>
+            <ul uib-pagination total-items="vm.gridConfig.pagerObj.totalItems"
+            items-per-page="vm.gridConfig.pagerObj.pageSize" start-index="vm.gridConfig.pagerObj.startIndex"
+            ng-model="vm.gridConfig.pagerObj.currentPage" ng-change="getList()"></ul>
+        </div>
+    </div>
+</div>

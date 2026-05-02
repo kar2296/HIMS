@@ -6,6 +6,30 @@ import babel from '@rolldown/plugin-babel'
 export default defineConfig({
   plugins: [
     react(),
-    babel({ presets: [reactCompilerPreset()] })
+    babel({ presets: [reactCompilerPreset()] }),
+    {
+      name: 'disable-html-fallback',
+      configureServer(server) {
+        server.middlewares.use((req, res, next) => {
+          if (req.url && req.url.endsWith('.html') && req.url !== '/index.html' && req.url !== '/') {
+            // Prevent connect-history-api-fallback from rewriting template requests
+            req.headers.accept = 'text/plain'; 
+          }
+          next();
+        });
+      }
+    }
   ],
+  server: {
+    proxy: {
+      '/api': {
+        target: 'http://localhost:2012',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, '')
+      }
+    },
+    watch: {
+      ignored: ['**/api/**']
+    }
+  }
 })

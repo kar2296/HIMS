@@ -1,0 +1,154 @@
+<style>
+    button.startbtn {
+        background: #24b145;
+        border: unset;
+        color: white;
+        padding: 4px;
+        border-radius: 0px;
+        width: 75px;
+        margin: 0px 21px;
+        margin-left: 0px;
+    }
+
+    button.stopbtn {
+        border: unset;
+        color: white;
+        padding: 4px;
+        border-radius: 0px;
+        width: 75px;
+        margin: 0px 21px;
+        margin-left: 0px;
+        background-color: #f05050;
+    }
+</style>
+<div class="row">
+    <div class="col-sm-8">
+        <h4 class="page-header mt0" translate="otregisterequipment-tab.pagetitle.lbl"></h4>
+    </div>
+    <div class="col-sm-4">
+        <div class="pull-right">
+            <!-- <span class="drhms-billing-btn drhms-outstandingbill-btn" ng-click="doctor_dashboard()"
+                uib-tooltip="{{'patientemr.pmhxdashboard.doctordashboard.lbl' | translate}}" tooltip-placement="bottom">
+                <i class="fas fa-th-large" aria-hidden="true"></i>
+            </span> -->
+            <button class="btn-add" ng-click="addNew()"
+                uib-tooltip="{{ 'otregisterequipment-tab.equipment_tooltipp.lbl' | translate}}"
+                tooltip-placement="bottom">
+                <i class="fa fa-plus" aria-hidden="true"></i>
+            </button>
+        </div>
+    </div>
+</div>
+<emrpatientbanner ng-if="context=='emr'||context=='vorders'" patientid="currentcontext.pid" encounterid="currentcontext.eid">
+</emrpatientbanner>
+<ippatientbanner patientid="currentcontext.pid" encounterid="currentcontext.eid">
+</ippatientbanner>
+<div class="row">
+    <table class="table table-hover table-responsive table-bordered">
+        <thead class="bg-subhead">
+            <tr>
+                <th style="padding: 7px 77px !important;">
+                    <span translate="otregisterequipment-tab.equipments.lbl" name="service"></span>
+                    <span class="mandatory-asterix">*</span>
+                </th>
+                <th>
+                    <span translate="otregisterequipment-tab.charge_type.lbl"></span>
+                    <span class="mandatory-asterix">*</span>
+                </th>
+                <th>
+                    <span translate="otregisterequipment-tab.startdate/time.lbl"></span>
+                    <span class="mandatory-asterix">*</span>
+                </th>
+                <th>
+                    <span translate="otregisterequipment-tab.enddate/time.lbl"></span>
+                    <span class="mandatory-asterix">*</span>
+                </th>
+                <th>
+                    <span translate="otregisterequipment-tab.totalhours.lbl"></span>
+                </th>
+                <th>
+                    <span translate="otregisterequipment-tab.comments.lbl"></span>
+                </th>
+                <th>
+                    <span translate="common.actions_col.lbl"></span>
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr ng-repeat="item in vm.items | filter:{Status:1}">
+                <td>
+                    <autosearch itemid="item.EquipmentId" iteminfo="item.SelectedItem" name="'service'" rowdata="item"
+                        config="vm.serviceitemcontrolconfig" itemchange="equipmentChanged(item)" class="inputsearchlogo"
+                        candisable="item.Id>0||CanShowEquipment" isrequired="true">
+                    </autosearch>
+
+                </td>
+                <td>
+                    <ui-select ng-model="item.ChargeTypeId" name="chargetype" ng-disabled="true"
+                        ng-change="getHours(item)" required>
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 20 : 0}}
+                            <span ng-if="$select.selected.Text.length>20">...</span>
+                        </ui-select-match>
+                        <ui-select-choices
+                            repeat="lookupitem.Id as lookupitem in lookup.ChargeType | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </td>
+                <td>
+                    <div class="datepicker">
+                    <input type="text" class="form-control" name="admissiondate" ng-change="getHours(item)"
+                        datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}"
+                        datetime-picker="{{datePickerOptions.dateTimeFormat}}"
+                        placeholder="{{datePickerOptions.placeholder}}" ng-click="AdmissionDatePopup = { opened: true }"
+                        is-open="AdmissionDatePopup.opened" ng-model="item.StartTime"
+                        ng-disabled="item.EquipmentId==undefined||item.IsStarted||item.IsCompleted||item.StartTime>0"
+                        required>
+                    </div>
+                </td>
+                <td>
+                    <div class="datepicker">
+                    <input type="text" class="form-control" name="admissiondate" ng-change="getHours(item)"
+                        datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}"
+                        datetime-picker="{{datePickerOptions.dateTimeFormat}}"
+                        placeholder="{{datePickerOptions.placeholder}}" ng-click="AdmissionPopup = { opened: true }"
+                        is-open="AdmissionPopup.opened" ng-model="item.StopTime"
+                        ng-disabled="!item.IsStarted||item.IsCompleted" required>
+                    </div>
+                </td>
+                <td align="center">
+                    {{ item.TotalHours ||0}}&nbsp;{{ item.ChargeType ||''}}
+                </td>
+                <td align="center">
+                    <input type="text" class="form-control" ng-model="item.Comments" ng-disabled="item.IsCompleted">
+                </td>
+                <td>
+                    <div class="flex">
+                        <div ng-click="toggle = !toggle" ng-class="{'selected' : toggle}" class="block">
+                            <button class="startbtn" ng-show="item.CanShowStart" ng-click="start(item)">Start</button>
+                            <button class="stopbtn" ng-click="stop(item)" ng-show="item.CanShowStop">Stop</button>
+                        </div>
+                        <!-- <button class="btn btn-success btn-xs mr2" ng-click=""> -->
+                        <!-- <img class="drhms-edit-button" src="assets/svg/edit.svg" aria-hidden="true"> -->
+                        <!--<button class="btn btn-danger btn-xs" style="margin-left:3px;" ng-click="deleteItem($index,item)">
+                                    <i class="fa fa-trash" aria-hidden="true"></i>
+                          </button>-->
+                        <button ng-click="deleteItem($index,item)" class="drhms-edit-button" ng-if="!item.IsCompleted">
+                            <img src="assets/svg/delete.svg" alt="">
+                            <!-- <i class="fa fa-trash" aria-hidden="true"></i> -->
+                        </button>
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+<div class="fooder-bgs">
+    <div class="row">
+        <div class="pull-right">
+            <button type="button" class="draftbutton" ng-click="print()" translate="common.printaction.lbl"></button>
+            <button type="button" class="draftbutton" translate="common.saveaction.lbl" ng-click="saveItem()"></button>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,263 @@
+<!-- <div id="patientorderform " class="tabsizetopcontroller"> -->
+
+<!-- Tab control space  -->
+<div>
+    <label class="btn btn-secondary top-option" ng-repeat="option in options" ng-model="currentcontext.option"
+        uib-btn-radio="option.key">{{option.name}}</label>
+</div>
+<!-- Tab control space  -->
+<div class="row">
+    <form id="item_form" name="item_form" class="form-horizontal" role="form">
+        <div ng-show="canShowOrdersArea()">
+            <div class="row">
+                <!-- middle panel -->
+                <div class="col-sm-4">
+                    <label class="col-sm-4 control-label" for="status"
+                        translate="patientemr.patientorder-form.status.lbl"></label>
+                    <div class="col-sm-8">
+                        <ui-select ng-model="item.OrderStatusId" ng-disabled="true" name="status" tabindex="-1">
+                            <ui-select-match>
+                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                <span ng-if="$select.selected.Text.length>20">...</span>
+                            </ui-select-match>
+                            <ui-select-choices
+                                repeat="lookupitem.Id as lookupitem in lookup.OrderStatus | filter: { Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                </div>
+                <!-- right panel -->
+                <div class="col-sm-4">
+                    <label class="col-sm-4 control-label" for="scheduledateandtime"
+                        translate="patientemr.patientorder-form.scheduledateandtime.lbl"></label>
+                    <div class="col-sm-8">
+                        <input type="text" class="form-control" name="scheduledateandtime" ng-disabled="IsDisabled"
+                            ng-date-object uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                            placeholder="{{datePickerOptions.placeholder}}"
+                            ng-click="scheduledateandtimePopup = { opened: true }"
+                            is-open="scheduledateandtimePopup.opened" ng-model="item.OrderScheduleDate" tabindex="-1">
+                    </div>
+                </div>
+            </div>
+            <!-- PatientOrder Details-->
+            <div class="row">
+                <div class="formRoot" id="mainresponsivetablecontrol">
+                    <table class="table table-hover table-responsive table-bordered">
+                        <thead class="bg-subhead">
+                            <tr>
+                                <th class="fs-12 col-sm-2">
+                                    <span translate="patientemr.patientorder-form.test.lbl" for="test"></span>
+                                    <span class="mandatory-asterix">*</span>
+                                </th>
+                                <th class="fs-12 col-sm-1">
+                                    <span translate="patientemr.patientorder-form.qty.lbl"></span>
+                                    <span class="mandatory-asterix">*</span>
+                                </th>
+                                <th class="fs-12 col-sm-1">
+                                    <span translate="patientemr.patientorder-form.price.lbl"></span>
+                                    <span class="mandatory-asterix">*</span>
+                                </th>
+                                <!-- <th class="fs-12 col-sm-1">
+                                    <span translate="patientemr.patientorder-form.discount.lbl"></span>
+                                </th>
+                                <th class="fs-12 col-sm-1">
+                                    <span translate="patientemr.patientorder-form.tax.lbl"></span>
+                                </th> -->
+                                <th class="fs-12 col-sm-1">
+                                    <span translate="patientemr.patientorder-form.netamt.lbl"></span>
+                                </th>
+                                <!--<th class="fs-12 col-sm-2"><span translate="patientemr.patientorderdetail-form.requestdate.lbl"></span></th>-->
+                                <th class="fs-12 col-sm-2">
+                                    <span translate="patientemr.patientorder-form.priority.lbl"></span>
+                                </th>
+                                <th class="fs-12 col-sm-1">
+                                    <span translate="patientemr.patientorder-form.scheduledateandtime.lbl"></span>
+                                </th>
+                                <th class="fs-12 col-sm-1">
+                                    <span translate="common.actions_col.lbl"></span>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="item in details | filter:{Status:1}">
+                                <td class="fs-12">
+                                    <autosearch itemid="item.TestId" name="'test'" controlid="item.itemidxdesc"
+                                        iteminfo="item.SelectedItem" rowdata="item" config="vm.testcontrolconfig"
+                                        itemchange="testChanged($index,item)" class="inputsearchlogo"
+                                        candisable="IsDisabled" isrequired="true" tabindex="item.tabindex"></autosearch>
+                                    <!--<testcontrol testid="item.TestId" testcode="item.TestCode" testname="item.TestName"
+                                            testinfo="item.testinfo"
+                                            testdescription="item.TestDescription" changeev="testChanged($index, item)"></testcontrol>-->
+                                </td>
+                                <td class="fs-12">
+                                    <input type="text" class="form-control" ng-model="item.Quantity"
+                                        ng-disabled="IsDisabled" placeholder="" ng-change="computeNetAmount(item)"
+                                        tabindex="-1">
+                                </td>
+                                <td class="fs-12">
+                                    <input type="text" class="form-control" ng-disabled="true" ng-model="item.TestPrice"
+                                        placeholder="" ng-change="computeNetAmount(item)" tabindex="-1">
+                                </td>
+                                <!-- <td class="fs-12">
+                                    <input type="text" class="form-control" ng-disabled="true" ng-model="item.Discount" placeholder="" ng-change="computeNetAmount(item)"
+                                        tabindex="-1">
+                                </td>
+                                <td class="fs-12">
+                                    <input type="text" class="form-control" ng-disabled="true" ng-model="item.TaxCost" placeholder="" ng-change="computeNetAmount(item)"
+                                        tabindex="-1">
+                                </td> -->
+                                <td class="fs-12">
+                                    <span>{{item.NetAmount | displaycurrency}}</span>
+                                </td>
+                                <!--<td class="fs-12">
+                                <input type="text" class="form-control" name="requestdate" ng-date-object
+                                                uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                                                placeholder="{{datePickerOptions.placeholder}}"
+                                                ng-click="requestdatePopup = { opened: true }"
+                                                is-open="requestdatePopup.opened" ng-model="item.RequestDate" >
+                            </td>-->
+                                <td class="fs-12">
+                                    <ui-select ng-model="item.OrderPriorityId" ng-disabled="IsDisabled" tabindex="-1">
+                                        <ui-select-match>
+                                            {{$select.selected.Text | limitTo : 20 : 0}}
+                                            <span ng-if="$select.selected.Text.length>20">...</span>
+                                        </ui-select-match>
+                                        <ui-select-choices
+                                            repeat="lookupitem.Id as lookupitem in lookup.OrderPriority | filter: { Text: $select.search }">
+                                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                        </ui-select-choices>
+                                    </ui-select>
+                                </td>
+                                <td class="fs-12">
+                                    <input type="text" class="form-control" ng-disabled="IsDisabled"
+                                        name="admissiondate" ng-change="getList()" ng-date-object
+                                        datepicker-options="datePickerOptions"
+                                        show-button-bar="{{datePickerOptions.showButtonBar}}"
+                                        uib-datepicker-popup="{{datePickerOptions.dateTimeFormat}}"
+                                        placeholder="{{datePickerOptions.placeholder}}"
+                                        ng-click="OrderDateDatePopup = { opened: true }"
+                                        is-open="OrderDateDatePopup.opened" ng-model="item.ScheduleDate" tabindex="-1">
+                                </td>
+                                <td>
+                                    <button class="drhms-edit-button" tabindex="-1" ng-click="editDetail(item)">
+                                        <img src="assets/svg/edit.svg" alt="">
+                                    </button>
+                                    <button class="drhms-edit-button" tabindex="-1" ng-click="deleteDetail($index,item)"
+                                        ng-disabled="IsDisabled">
+                                        <img src="assets/svg/delete.svg" alt="">
+                                    </button>
+                                    <button class="drhms-edit-button" ng-click="testprofiledetails(item.TestId)"
+                                        ng-if="item.TestId>0"
+                                        uib-tooltip="{{ 'patientemr.patientorder-form.testinfo.lbl' | translate }}"
+                                        tooltip-placement="bottom">
+                                        <i class="icon-info-sign" aria-hidden="true"></i>
+                                    </button>
+                                    <button class="drhms-edit-button" tabindex="-1"
+                                        ng-click="getResourceAppointment($index,item)" ng-if="item.ResourceId > 0"
+                                        ng-disabled="IsDisabled">
+                                        <i class="fa-calendar fa" aria-hidden="true"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-8">
+                    <label class="col-sm-4" for="orderinstructions"
+                        translate="patientemr.patientorder-form.orderinstructions.lbl"></label>
+                    <div class="col-sm-8">
+                        <input type="text" class="form-control" name="orderinstructions" ng-model="item.OrderComments"
+                            placeholder="" ng-disabled="IsDisabled" tabindex="-1">
+                    </div>
+                </div>
+                <div class="col-sm-4">
+                    <label class="col-sm-4 control-label" for="ordertotal"
+                        translate="patientemr.patientorder-form.total.lbl"></label>
+                    <div class="col-sm-8">
+                        <label class="control-label drhms-due-amount" for="ordertotal">
+                            <strong>{{item.OrderTotal | displaycurrency}}</strong>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <!-- <div class="fooderctrl"> -->
+            <div class="fooder-bgs">
+                <div class="row">
+                    <!-- <div class="row "> -->
+                    <div class="pull-left">
+                        <button type="button" class="btn pyr-color10 btn-sm" tabindex="-1" ng-click="backTovitallist()"
+                            ng-if="!currentcontext.ismodal">
+                            <i class="fa fa-angle-left" aria-hidden="true"></i>&nbsp;&nbsp;
+                            <span class="btn-fontsize" translate="common.backaction.lbl"></span>
+                        </button>
+                        <button type="button" tabindex="-1" class="draftbutton" ng-show="item.OrderStatusId==1"
+                            ng-click="openattachments()"
+                            uib-tooltip="{{ 'patientemr.patientorder-form.attachment.lbl' | translate }}"
+                            tooltip-placement="top">
+                            <i class="fa fa-paperclip fa-xs"
+                                aria-hidden="true">&nbsp;&nbsp;({{currentcontext.attachmentcount}})</i>
+                        </button>
+                        <button type="button" tabindex="-1" class="draftbutton" uib-tooltip="History"
+                            tooltip-placement="top" ng-click="historypage()">
+                            <i class="fa fa-history fa-xs" aria-hidden="true"></i>
+                        </button>
+                        <button id="btnCancelForm" tabindex="-1" type="button" class="draftbutton"
+                            ng-show="!DisableCancelBtn" ng-click="saveCancelled()"
+                            translate="patientemr.patientorder-form.cancelorder.lbl"></button>
+                        <ul class="nav navbar-nav pull-left" id="pastnotes">
+                            <li uib-dropdown="" class="dropdown dropdown-list custom-li">
+                                <button uib-dropdown-toggle="" class="draftbutton" ng-disabled="">
+                                    <span translate="Previous Notes"></span>
+                                </button>
+                                <ul class="dropdown-menu top" role="menu" aria-labelledby="dLabel">
+                                    <li ng-repeat="item in consultlist| limitTo: currentcontext.recordcount">
+                                        <a class=" " ng-click="viewConsultation(item) ">
+                                            <span>
+                                                <i class="fa fa-angle-right " aria-hidden="true "></i>
+                                            </span>&nbsp;&nbsp;&nbsp;
+                                            <span class="dr_name0 ">{{item.Encounter.DoctorName}} - </span>
+                                            <displaydate class="disp_date0 " datetime-val="item.CreatedAt ">
+                                            </displaydate>
+                                            <span class="dr_profile0 "> - {{item.ProfileMaster.Name}}</span>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </li>
+                        </ul>
+                        <button id="btn" type="button" class="draftbutton" ng-click="labresult()"
+                            uib-tooltip="{{ 'medicalcertificate.dischargesummary-form.labresult.lbl' | translate }}"
+                            tooltip-placement="top">
+                            <i class="fa fa-flask"></i>
+                        </button>
+                        <button id="btn" type="button" class="draftbutton" ng-click="radiologyresult()"
+                            uib-tooltip="{{ 'medicalcertificate.dischargesummary-form.radiology.lbl' | translate }}"
+                            tooltip-placement="top"><i class="fa fa-file-image-o"></i></button>
+                    </div>
+                    <div class="pull-right">
+                        <printcontrol ng-if="canShowPrint()" printclick="print()" entity="'Order'"
+                            originalprintclick="originalprint()" reason="currentcontext.printreason">
+                        </printcontrol>
+
+                        <button type="button" class="draftbutton" translate="common.saveaction.lbl"
+                            ng-hide="IsDisabled" ng-click="saveDraft()"></button>
+                        <button type="button" class="draftbutton"
+                            translate="patientemr.patientorder-form.orderaction.lbl" ng-if="!IsDisabled"
+                            ng-click="createOrder()" ng-disabled="Disabled"></button>
+
+                        <button id="btnClearForm" type="button" class="draftbutton" ng-if="canShowClearBtn()"
+                            ng-click="clear()" translate="common.clearaction.lbl"></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div ng-show="canShowTickSheetArea()">
+                <ticksheetcontrol config="ticksheetconfig" addclick="addTickSheet()" saveclick="saveTickSheets()">
+                </ticksheetcontrol>
+            </div>
+        </div>
+    </form>
+</div>

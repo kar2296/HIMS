@@ -1,0 +1,195 @@
+<style>
+    .header-panel {
+        margin-bottom: 5px !important;
+    }
+
+    /* .header-panel-body {
+        padding: 3px !important;
+        background-color: #e3ecef;
+    } */
+
+    .row {
+        margin: 0px -5px;
+    }
+
+    .pager-div {
+        float: right;
+        right: 0;
+        box-sizing: border-box;
+        position: fixed;
+        box-sizing: border-box;
+    }
+
+    .single-filter .ui-grid-render-container-body .ui-grid-viewport {
+        margin-left: 0!important;
+        margin-right: 0!important;
+        height: 462px !important;
+    }
+</style>
+<!-- <div class="row page-header">
+    <h4 class="mt0 col-sm-6" translate="inventory.facilityvendormastertab.parentpagetitle.lbl"></h4>
+    <div class="col-sm-6">
+        <button class="btn bt-color3 btn-xs pull-right btn-filter" ng-click="openAdvancedFilter()" uib-tooltip="{{ 'inventory.facilityvendormastertab.filter.lbl' | translate }}"
+            tooltip-placement="bottom" ng-click="openAdvancedFilter()">
+            <i class="fas fa-search" aria-hidden="true"></i>&nbsp;
+            <span translate="inventory.facilityvendormasters.search.lbl"></span>
+        </button>
+        <button class="btn bt-color2 btn-xs pull-right btn-filter" ng-click="addNew()" uib-tooltip="{{ 'inventory.facilityvendormastertab.parentpagetitle.lbl' | translate }}"
+            tooltip-placement="bottom">
+            <i class="fa fa-plus" aria-hidden="true"></i>&nbsp;
+            <span translate="inventory.facilityvendormasters.addnew.lbl"></span>
+        </button>
+    </div>
+</div> -->
+<div class="row page-header">
+    <div class="col-sm-12">
+        <div class="col-sm-5">
+            <h4 class="mt0 col-sm-12" translate="inventory.facilityvendormastertab.parentpagetitle.lbl"></h4>
+        </div>
+        <div class="col-sm-7">
+            <div class="filters">
+                <div class="search">
+                    <input type="text" id="pid" class="form-control"on-enter="getList()" ng-model="currentfilter.VendorCode"
+                     translate translate-attr-placeholder="inventory.vendormasters.filter_vendorname.lbl"> <i class="fas fa-search" aria-hidden="true"></i>
+
+                </div>
+                <button type="button" tabindex="-1" class="btn-add"
+                    ng-click="addNew()" uib-tooltip="{{ 'inventory.facilityvendormastertab.parentpagetitle.lbl' | translate }}"
+                    tooltip-placement="bottom">
+                    <i class="fa fa-plus" aria-hidden="true"></i>
+                    <!-- <span translate="clinicalmaster.serviceitem-list.addnew.lbl " class="text-white"></span> -->
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-sm-12">
+        <div class="panel panel-default header-panel">
+            <div class="panel-body form-panel header-panel-body">
+                    <table id="bannerdetails" style="width:101%;">
+                            <tr>
+                                <td> <label class="col-md-4 control-label filter-lbl" for="type" translate="inventory.facilityvendormasters.filter_vendortype.lbl"></label>
+                                </td>
+                                <td> <ui-select ng-model="currentfilter.VendorTypeId" ng-disabled="item.isDisabled" ng-change="getList()" theme="bootstrap" name="type"
+                                    autofocus required>
+                                    <ui-select-match>
+                                        {{$select.selected.Text | limitTo : 20 : 0}}
+                                        <span ng-if="$select.selected.Text.length>20">...</span>
+                                    </ui-select-match>
+                                    <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.VendorType | filter: { Text: $select.search }">
+                                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                    </ui-select-choices>
+                                </ui-select></td>
+                                <td> <label class="col-sm-5 text-right filter-lbl" translate="inventory.facilityvendormasters.filter_status.lbl"></label>
+                                </td>
+                                <td>
+                                        <ui-select ng-model="currentfilter.ActiveStatusId" ng-change="getList()" class="filter-combo">
+                                                <ui-select-match>
+                                                    {{$select.selected.Text | limitTo : 8 : 0}}
+                                                    <span ng-if="$select.selected.Text.length>8">...</span>
+                                                </ui-select-match>
+                                                <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.ActiveStatus | filter: { Text: $select.search }">
+                                                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                                </ui-select-choices>
+                                            </ui-select>
+                                </td>
+                    
+                            </tr>
+                    </table>
+                <!-- <div class="col-sm-4">
+                    <label class="col-sm-5 control-label filter-lbl" translate="inventory.facilityvendormasters.filter_vendorname.lbl"></label>
+                    <div class="input-group col-sm-7">
+                        <div class="input-group-addon">
+                            <i class="fas fa-search" aria-hidden="true"></i>
+                        </div>
+                        <input type="text" class="form-control" on-enter="getList()" ng-model="currentfilter.VendorCode" translate translate-attr-placeholder="inventory.vendormasters.filter_vendorname.lbl">
+                    </div>
+                </div> -->
+                <!-- <div class="col-sm-4">
+                    <label class="col-md-4 control-label filter-lbl" for="type" translate="inventory.facilityvendormasters.filter_vendortype.lbl"></label>
+                    <div class="col-md-8">
+                        <ui-select ng-model="currentfilter.VendorTypeId" ng-disabled="item.isDisabled" ng-change="getList()" theme="bootstrap" name="type"
+                            autofocus required>
+                            <ui-select-match>
+                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                <span ng-if="$select.selected.Text.length>20">...</span>
+                            </ui-select-match>
+                            <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.VendorType | filter: { Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                </div> -->
+                <!-- <div class="col-sm-4">
+                    <label class="col-md-5 control-label filter-lbl" translate="inventory.facilityvendormasters.filter_supplytype.lbl"></label>
+                    <div class="col-md-7">
+                        <ui-select ng-model="currentfilter.SupplyTypeId" ng-change="getList()" theme="bootstrap" ng-disabled="true">
+                            <ui-select-match>
+                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                <span ng-if="$select.selected.Text.length>20">...</span>
+                            </ui-select-match>
+                            <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.SupplyType | filter: { Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                </div> -->
+                <!--
+                <div class="col-sm-4">
+                    <label class="col-md-5 control-label filter-lbl" translate="inventory.facilityvendormaster.businessdomains.lbl"></label>
+                    <div class="col-md-7">
+                        <ui-select ng-model="currentfilter.BusinessDomainId" ng-change="getList()" theme="bootstrap" ng-disabled="item.isDisabled">
+                            <ui-select-match>
+                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                <span ng-if="$select.selected.Text.length>20">...</span>
+                            </ui-select-match>
+                            <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.BusinessDomain | filter: { Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                </div>
+                -->
+                <!--
+                <div class="col-sm-4">
+                    <label class="col-md-5 control-label filter-lbl" translate="inventory.facilityvendormaster.distributiontypes.lbl"></label>
+                    <div class="col-md-7">
+                        <ui-select ng-model="currentfilter.DistributionTypeId" ng-change="getList()" ng-disabled="item.isDisabled" theme="bootstrap">
+                            <ui-select-match>
+                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                <span ng-if="$select.selected.Text.length>20">...</span>
+                            </ui-select-match>
+                            <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.DistributionType | filter: { Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                </div>
+                -->
+                <!-- <div class="col-sm-4">
+                    <label class="col-sm-5 text-right filter-lbl" translate="inventory.facilityvendormasters.filter_status.lbl"></label>
+                    <div class="col-sm-7">
+                        <ui-select ng-model="currentfilter.ActiveStatusId" ng-change="getList()" class="filter-combo">
+                            <ui-select-match>
+                                {{$select.selected.Text | limitTo : 8 : 0}}
+                                <span ng-if="$select.selected.Text.length>8">...</span>
+                            </ui-select-match>
+                            <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.ActiveStatus | filter: { Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                </div> -->
+            </div>
+        </div>
+    </div>
+</div>
+<custom-table config="vm.gridConfig"></custom-table>	  
+<div class="container-fluid single-filter">
+    <!-- <div ui-grid="vm.gridConfig" class="table-uigrid"></div> -->
+    <div class="fooder-bgs">
+        <ul uib-pagination total-items="vm.gridConfig.pagerObj.totalItems" items-per-page="vm.gridConfig.pagerObj.pageSize" start-index="vm.gridConfig.pagerObj.startIndex"
+            ng-model="vm.gridConfig.pagerObj.currentPage" ng-change="getList()"></ul>
+    </div>
+</div>

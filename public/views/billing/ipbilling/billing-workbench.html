@@ -1,0 +1,447 @@
+<link rel="stylesheet" href="app/css/drhms.css">
+<style>
+    .grid {
+        width: 500px;
+        height: 200px;
+    }
+
+    .green {
+        background-color: #2dff07;
+        color: #006400;
+    }
+
+    .ui-grid-cell-contents.billing-list-icon.ng-scope {
+        display: flex;
+    }
+
+    .blue {
+        background-color: #1fe0f0;
+        color: #153ff0;
+    }
+
+    custom-table .ui-grid-cell-contents {
+        white-space: normal;
+    }
+
+    .d-flex-items {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+        margin: 13px 0;
+    }
+
+    .d-flex-item {
+        box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px;
+        width: 12%;
+        padding: 8px;
+        border-radius: 0px;
+        background: #fdfdfd;
+    }
+
+    .d-flex-item-box {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        position: relative;
+    }
+
+    p.Title-name {
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .icons i {
+        color: #fff;
+        padding: 8px;
+        border-radius: 0px;
+        position: absolute;
+        right: 0;
+        bottom: 8px;
+    }
+
+    p.count {
+        font-weight: 700;
+        font-size: 14px;
+    }
+
+    .item1 {
+        color: #5d9cec;
+    }
+
+    .item2 {
+        color: #ff902c;
+    }
+
+    .item3 {
+        color: #B97C3B;
+    }
+
+    .item4 {
+        color: #5EBE28;
+    }
+
+    .item5 {
+        color: #e91e63;
+    }
+
+    .item6 {
+        color: #8c5be4;
+    }
+
+    .item7 {
+        color: #e84646;
+    }
+
+
+    .item1 i {
+        background: #5d9cec;
+    }
+
+    .item2 i {
+        background: #ff902c;
+    }
+
+    .item3 i {
+        background: #B97C3B;
+    }
+
+    .item4 i {
+        background: #5EBE28;
+    }
+
+    .item5 i {
+        background: #e91e63cc;
+    }
+
+    .item6 i {
+        background: #8c5be4e8;
+    }
+
+    .item7 i {
+        background: #e84646;
+    }
+
+    .active {
+        background-color: #75efff59;
+    }
+
+    span.user-icon i {
+        box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px;
+        padding: 10px;
+        border-radius: 50px;
+        border: 2px solid #dc7e9e;
+        font-size: 14px;
+    }
+
+    .patient-name {
+        color: #E91E63;
+        font-weight: 500 !important;
+    }
+
+    span.lable-name {
+        color: #000;
+        font-weight: 500;
+    }
+
+    .doctor-icon {
+        color: #00125a;
+        font-weight: 600 !important;
+    }
+
+    .action-button a {
+        padding-right: 30px;
+        font-size: 16px;
+    }
+
+    .inpatient-table-list {
+        box-shadow: rgba(0, 0, 0, .25) 0px 1px 2px;
+        border: 1px solid #cccccc4a;
+    }
+
+    tr.inpatient-table-list td {
+        border: unset !important;
+    }
+
+    .pager-div {
+        text-align: left;
+    }
+
+    .table>tbody>tr>td {
+        white-space: normal;
+    }
+</style>
+<div class="row">
+    <div class="drhms-header-name" translate="Billing Workbench">
+    </div>
+</div>
+<div class="row">
+    <div class="d-flex-items">
+        <div class="d-flex-item item1" ng-click="applyFilter('occupancy', 0,0)"
+            ng-class="{ 'active': activeFilter === 0 }">
+            <p class="Title-name">Total Occupancy</p>
+            <div class="d-flex-item-box">
+                <p class="count">{{totalOccupancy}}</p>
+                <div class="icons">
+                    <i class="fa-solid fa-bed-pulse"></i>
+                </div>
+            </div>
+        </div>
+        <div class="d-flex-item item2" ng-click="applyFilter('admission', 0,1)"
+            ng-class="{ 'active': activeFilter === 1 }">
+            <p class="Title-name">Today Admissions</p>
+            <div class="d-flex-item-box">
+                <p class="count">{{todayAdmission}}</p>
+                <div class="icons">
+                    <i class="fa-solid fa-hospital-user"></i>
+                </div>
+            </div>
+        </div>
+        <div class="d-flex-item item3" ng-click="applyFilter('today_discharge', 0,2)"
+            ng-class="{ 'active': activeFilter === 2 }">
+            <p class="Title-name">Today Discharged</p>
+            <div class="d-flex-item-box">
+                <p class="count">{{todayDischarge}}</p>
+                <div class="icons">
+                    <i class="fa-solid fa-house-circle-check"></i>
+                </div>
+            </div>
+        </div>
+        <div class="d-flex-item item4" ng-click="applyFilter('pending_discharge', 0,2)"
+            ng-class="{ 'active': activeFilter === 3 }">
+            <p class="Title-name">Pending Discharges</p>
+            <div class="d-flex-item-box">
+                <p class="count">{{pendingDischarge}}</p>
+                <div class="icons">
+                    <i class="fa-solid fa-house-circle-check"></i>
+                </div>
+            </div>
+        </div>
+        <div class="d-flex-item item5" ng-click="applyFilter('guarantor', 1,3)"
+            ng-class="{ 'active': activeFilter === 4 }">
+            <p class="Title-name">Self</p>
+            <div class="d-flex-item-box">
+                <p class="count">{{self}}</p>
+                <div class="icons">
+                    <i class="fa-solid fa-image-portrait"></i>
+                </div>
+            </div>
+        </div>
+        <div class="d-flex-item item6" ng-click="applyFilter('guarantor', 2,4)"
+            ng-class="{ 'active': activeFilter === 5 }">
+            <p class="Title-name">Insurance</p>
+            <div class="d-flex-item-box">
+                <p class="count">{{insurance}}</p>
+                <div class="icons">
+                    <i class="fa-solid fa-house-chimney-crack"></i>
+                </div>
+            </div>
+        </div>
+        <div class="d-flex-item item7" ng-click="applyFilter('guarantor', 3,5)"
+            ng-class="{ 'active': activeFilter === 6 }">
+            <p class="Title-name">Corporate</p>
+            <div class="d-flex-item-box">
+                <p class="count">{{corporate}}</p>
+                <div class="icons">
+                    <i class="fa-solid fa-building-ngo"></i>
+                </div>
+            </div>
+        </div>
+        <div class="d-flex-item item8" ng-click="applyFilter('guarantor', 0,6)"
+            ng-class="{ 'active': activeFilter === 7 }">
+            <p class="Title-name">Government</p>
+            <div class="d-flex-item-box">
+                <p class="count">{{government}}</p>
+                <div class="icons">
+                    <i class="fa-solid fa-building-columns"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="drhms-header">
+        <div class="drhms-header-name">
+        </div>
+        <div>
+            <input type="text" id="drhms-search-box" class="form-control" on-enter="getList()"
+                ng-model="currentfilter.PatientMRN" placeholder="NAME/MRN">
+            <input type="text" id="drhms-search-box" class="form-control" on-enter="getList()"
+                ng-model="currentfilter.VisitIdentifier" placeholder="IP No">
+            <i ng-if=" Context =='frontoffice'|| Context =='billing'" class="fa fa-home" align="right"
+                ng-click="backtoList()" uib-tooltip="Dashboard" tooltip-placement="bottom"></i>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="drhms-common-header">
+        <div class="drhms-header-table">
+            <div class="col-sm-12">
+                <label class="col-md-4 control-label" translate="bedmanagement-grid.filter_doa.lbl"></label>
+                <div class="col-sm-8">
+                    <div class="datepicker">
+                        <input type="text" class="form-control" name="registereddate" ng-change="getList()"
+                            datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}"
+                            uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                            placeholder="{{datePickerOptions.placeholder}}"
+                            ng-click="registereddatePopup = { opened: true }" is-open="registereddatePopup.opened"
+                            ng-model="currentfilter.admissiondate">
+                        <i class="fa fa-calendar" aria-hidden="true"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-12">
+                <label class="col-sm-4 control-label filter-lbl" translate="admissions.filter_ward.lbl"></label>
+                <div class="col-sm-8">
+                    <ui-select ng-model="currentfilter.WardId" ng-change="getList()" class="filter-combo">
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 20 : 0}}
+                            <span ng-if="$select.selected.Text.length>20">...</span>
+                        </ui-select-match>
+                        <ui-select-choices
+                            repeat="lookupitem.Id as lookupitem in lookup.Ward | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+        </div>
+        <div class="drhms-header-table">
+            <div class="col-sm-12">
+                <label class="col-sm-4 control-label filter-lbl" translate="Payer"></label>
+                <div class="col-sm-8">
+                    <ui-select id='GuarantorId' ng-change="getList()" ng-model="currentfilter.GuarantorId">
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 20 : 0}}
+                            <span ng-if="$select.selected.Text.length>20">...</span>
+                        </ui-select-match>
+                        <ui-select-choices
+                            repeat="lookupitem.Id as lookupitem in lookup.Guarantor | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search">
+                            </div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+            <div class="col-sm-12">
+                <label class="col-sm-4 control-label filter-lbl" translate="billing.ipbillingtab.status.lbl"></label>
+                <div class="col-sm-8">
+                    <ui-select ng-model="currentfilter.AdmissionStatusId" ng-change="getList()" class="filter-combo">
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 20 : 0}}
+                            <span ng-if="$select.selected.Text.length > 20">...</span>
+                        </ui-select-match>
+                        <ui-select-choices
+                            repeat="lookupitem.Id as lookupitem in lookup.AdmissionStatus | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+        </div>
+        <div class="drhms-header-table">
+            <div class="col-sm-12">
+                <label class="col-sm-4 control-label filter-lbl" translate="TPA"></label>
+                <div class="col-sm-8">
+                    <ui-select ng-model="currentfilter.TPAId" ng-change="getList()" class="filter-combo">
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 20 : 0}}
+                            <span ng-if="$select.selected.Text.length > 20">...</span>
+                        </ui-select-match>
+                        <ui-select-choices
+                            repeat="lookupitem.Id as lookupitem in lookup.TPA | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+            <div class="col-sm-12">
+                <label class="col-sm-4 control-label filter-lbl" translate="Is Locked / Is Packaged"></label>
+                <div class="col-sm-8">
+                    <input type="checkbox" class="custom-checkbox" name="findlockedbills"
+                        ng-model="currentfilter.FindLockedBills" ng-checked="currentfilter.FindLockedBills == 1"
+                        ng-click="getLockedPatients(currentfilter)">
+                    <input type="checkbox" class="custom-checkbox" name="IsPackageAssigned"
+                        ng-model="currentfilter.FindPackageAssigned" ng-checked="currentfilter.FindPackageAssigned == 1"
+                        ng-click="getPackageassigned(currentfilter)">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="table-responsive">
+        <table class="table">
+            <!-- <thead>
+                <tr>
+                    <th>IP Number</th>
+                    <th>Patient Name</th>
+                    <th>Doctor</th>
+                    <th>Room Details</th>
+                    <th>DOA Insurance</th>
+                    <th>Referral Name</th>
+                    <th>No.Of Days</th>
+                    <th>Debit</th>
+                    <th>Credit</th>
+                    <th>Balance</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead> -->
+            <tbody>
+                <!-- Populate table rows with data -->
+                <tr ng-repeat="item in vm.gridConfig.data" class="inpatient-table-list responsive-table">
+                    <td>
+                        <span class="user-icon"> <i class="fas fa-user"></i></span>
+                    </td>
+                    <td>
+                        <div class="patient-name">{{item.Patient.Gender.Description}} {{item.Patient.FirstName}}
+                            {{Patient.LastName}}</div>
+                        <div><span class="lable-name">IP No:</span> {{item.Patient.MRN}}</div>
+                        <div><span class="lable-name">Age:</span> {{item.Patient.Age}}</div>
+                    </td>
+                    <td>
+                        <div><span class="lable-name">DOA:</span> {{item.AdmissionDate | date : 'dd-MMM-yyyy' }}
+                            {{item.AdmissionDate | date :
+                            'HH:mm' }}</div>
+                        <div><span class="lable-name">Ward/Room:</span>
+                            {{item.WardMaster.WardName}}/{{item.WardRoomMaster.RoomNo}}</div>
+                        <div><span class="lable-name">Bed No:</span> {{item.WardRoomBedMaster.BedNo}}</div>
+                    </td>
+                    <td>
+                        <div class="doctor-icon"><i class="fa-solid fa-user-doctor"></i>
+                            {{item.Doctor.Title.Description}} {{item.Doctor.FirstName}}
+                            {{item.Doctor.LastName}}</div>
+                        <div><span class="lable-name">Ref.Name:</span> {{item.ReferralName}}</div>
+                        <div><span class="lable-name">Insurance:</span> {{item.Guarantor.GuarantorName}}</div>
+                    </td>
+                    <td>
+                        <div><span class="lable-name">Debit:</span> {{item.Debit | displaycurrency}}</div>
+                        <div><span class="lable-name">Credit:</span> {{item.Credit | displaycurrency}}</div>
+                        <div><span class="lable-name">Balance:</span>{{item.Balance | displaycurrency}}</div>
+                    </td>
+                    <td>
+                        <div><span class="lable-name">No.Of days:</span> {{item.NoOfDays}}</div>
+                        <div><span class="lable-name">Status:</span>{{item.AdmissionStatus.Description}}</div>
+                        <div class="action-button">
+                            <a ng-click="handleEvents('edit', item)">
+                                <i class="fas fa-edit" uib-tooltip="Edit"></i>
+                            </a>
+                            <a ng-click="handleEvents('packages', item)">
+                                <i class="fas fa-file-invoice-dollar" uib-tooltip="Packages"></i>
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <!-- <custom-table config="vm.gridConfig"></custom-table> -->
+</div>
+<div class="fooder-bgs">
+    <div class="row">
+        <ul uib-pagination total-items="vm.gridConfig.pagerObj.totalItems"
+            items-per-page="vm.gridConfig.pagerObj.pageSize" start-index="vm.gridConfig.pagerObj.startIndex"
+            ng-model="vm.gridConfig.pagerObj.currentPage" ng-change="getList()"></ul>
+    </div>
+</div>

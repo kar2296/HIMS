@@ -1,0 +1,73 @@
+import { IAttributes } from '../../../Base/Index';
+import { Instance } from '../../../../Core/Index';
+
+export interface StockSerialItemAttributes extends IAttributes {
+    Id: number;
+    StockItemId: number;
+    StoreMasterId: number;
+    BarCodeId: string;
+    ItemMasterId: number;
+    ItemCode: string;
+    ItemName: string;
+    BatchId: string;
+    ExpiryDate: Date;
+    Quantity: number;
+    UomPrice: number;
+    PurchasePrice: number;
+    DiscountModeId: number;
+    Discount: number;
+    UomDiscountAmount: number;
+    DiscountAmount: number;
+    UomPriceAfterDiscount: number;
+    PurchasePriceAfterDiscount: number;
+    Ucp: number;
+    Mrp: number;
+    ConversionMrp: number;
+    IsMultiUse: boolean;
+    TotalTransactions: string;
+    ConsumedTransactions: number;
+    PendingTransactions: number;
+    GstId: number;
+    GstPercentage: number;
+    GstAmount: number;
+    UnitGstAmount: number;
+    InGstId: number;
+    InGstPercentage: number;
+    InGstAmount: number;
+    UnitInGstAmount: number;
+    CGstId: number;
+    CGstPercentage: number;
+    CGstAmount: number;
+    UnitCGstAmount: number;
+    SGstId: number;
+    SGstPercentage: number;
+    SGstAmount: number;
+    UnitSGstAmount: number;
+    PurchaseUomId: number;
+    BaseUomId: number;
+    SaleUomId: number;
+    IsExpiry: boolean;
+    IsSuspended: boolean;
+    ManufacturerId: number;
+    VendorMasterId: number;
+    GrnDetailId: number;
+    GrnId: number;
+    StockEntryDetailId: number;
+    StockEntryId: number;
+    StockTransferDetailId: number;
+    StockTransferId: number;
+    FacilityId: number;
+    BarcodeNo: string;
+    IsConsignment: boolean;
+    OrgId: number;
+    Status: number;
+    Rev: number;
+    CreatedBy: number;
+    CreatedAt: Date;
+    UpdatedBy: number;
+    UpdatedAt: Date;
+}
+
+export interface StockSerialItemInstance extends Instance<StockSerialItemAttributes> {
+    dataValues: StockSerialItemAttributes;
+}

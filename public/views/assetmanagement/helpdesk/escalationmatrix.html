@@ -1,0 +1,234 @@
+<style>
+    /* .nameinfo {
+        font-size: 13px;
+        font-weight: 700;
+        color: #337ab7;
+    }
+
+    .nameinfo.mrninfo {
+        color: black
+    }
+
+    .contactinfo {
+        font-size: 10px;
+        color: #808080
+    }
+    .block {
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+
+    .linkstyle {
+        font-weight: 700;
+        text-align: right;
+    }
+
+    .statusinfo {
+        font-size: 13px;
+    }
+       .formRoot {
+    overflow: auto;
+    height: 495px;
+    }
+    .panel{margin-bottom:0px;}
+    .formactionbar {margin-bottom:0px;}
+    .form-group {
+        margin-bottom: 7px !important;
+    }
+    .sr-only {
+    height: 22px !important;
+}
+    .durationtxt {
+        width : 50px !important;
+        float : left;
+        margin-right : 5px;
+    }
+    .ui-select-grid {
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+
+    .header-panel {
+        margin-bottom: 5px !important;
+    }
+    .header-second-row {
+        margin-bottom: -7px !important;
+    }*/
+
+    .table>thead>tr>th {
+        padding: 14px 8px;
+        background-color: #cdf1e5;
+    }
+
+    .btn-danger,
+    button.btn-danger:hover {
+        background-color: transparent !important;
+        /* color: #f7512cf2 !important; */
+        font-size: medium;
+        border-color: transparent !important;
+    }
+
+    .table>tbody>tr>td {
+        border: 1px solid #ccc !important;
+    }
+
+    div#doublepage-editor span.btn.btn-default.form-control.ui-select-toggle {
+
+        height: 32px !important;
+        border-radius: 4px !important;
+
+    }
+
+    .btn-danger:active,
+    .btn-danger.active,
+    .open>.dropdown-toggle.btn-danger,
+    .btn-danger:focus,
+    .btn-danger.focus {
+        color: #f05050;
+        background-color: transparent !important;
+        border-color: transparent !important;
+    }
+
+    div#doublepage-editor .btn-danger,
+    button.btn-danger:hover {
+        background-color: transparent !important;
+        border-color: transparent !important;
+        color: red;
+        /* text-align: center; */
+    }
+
+    div#doublepage-editor input {
+        margin-bottom: 5px !important;
+        margin-top: 5px !important;
+    }
+
+    div#doublepage-editor table tr td {
+        text-align: center !important;
+    }
+
+    .site-footer.panel-footer {
+        position: fixed;
+        margin-bottom: 60px;
+        height: 52px;
+    }
+</style>
+<div class="row page-header">
+    <h4 class="col-sm-6 mt0" translate="assetmanagement.assets.escalationmanagement.lbl"></h4>
+    <div class="col-sm-6">
+        <!-- <button class="btn bt-color3 btn-xs pull-right btn-filter" ng-click="" uib-tooltip="{{'clinicalmaster.serviceitem-list.filter-tooltip.lbl' | translate }}" tooltip-placement="bottom"><i class="fa fa-filter" aria-hidden="true"></i>&nbsp;&nbsp;<span translate="common.searchaction.lbl"></span></button> -->
+        <button class="btn bt-color2 btn-xs pull-right btn-filter" ng-click="addNew()"
+            uib-tooltip="{{ 'assetmanagement.assets.addnew-tooltip.lbl' | translate }}" tooltip-placement="bottom">
+            <i class="fa fa-plus" aria-hidden="true"></i>
+            <span translate="common.addaction.lbl"></span>
+        </button>
+        <span ng-click="Asset_dashboard()" class="text-right" style="float:right;">
+            <em class="fa fa-home fa-lg dashboardicon"></em>
+        </span>
+    </div>
+</div>
+<div class="tablebox">
+    <div id="doublepage-editor">
+        <!--<div class="col-sm-12" set-grid-height reduce-height="-50">!-->
+        <table class="table table-hover table-responsive table-bordered">
+            <thead class="bg-subhead">
+                <tr>
+                    <th class="">
+                        <span translate="assetmanagement.assets.level.lbl"></span>
+                    </th>
+                    <th class="col-sm-1">
+                        <span translate="assetmanagement.assets.offset.lbl"></span>
+                    </th>
+                    <th class="col-sm-2">
+                        <span translate="assetmanagement.assets.unit.lbl"></span>
+                    </th>
+                    <th class="col-sm-2">
+                        <span translate="assetmanagement.assets.anchor.lbl"></span>
+                    </th>
+                    <th class="col-sm-2">
+                        <span translate="assetmanagement.assets.status.lbl"></span>
+                    </th>
+                    <th class="col-sm-2">
+                        <span translate="assetmanagement.assets.notificationtype.lbl"></span>
+                    </th>
+                    <th class="col-sm-2">
+                        <span translate="assetmanagement.assets.sendnotificationto.lbl"></span>
+                    </th>
+                    <th class="">
+                        <span translate="common.actions_col.lbl"></span>
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="item in vm.items | filter:{Status:1}">
+                    <td class="text-right">
+                        <span> {{ item.Level }}</span>
+                    </td>
+                    <td>
+                        <input type="text" class="form-control" ng-model="item.OffSet" placeholder="">
+                    </td>
+                    <td>
+                        <ui-select ng-model="item.UnitId" class="ui-select-grid">
+                            <ui-select-match>
+                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                <span ng-if="$select.selected.Text.length>20">...</span>
+                            </ui-select-match>
+                            <ui-select-choices
+                                repeat="lookupitem.Id as lookupitem in lookup.EscalationMatrixUnit | filter: { Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                            </ui-select-choices>
+                        </ui-select>
+                    </td>
+                    <td>
+                        <ui-select ng-model="item.AnchorId" class="ui-select-grid">
+                            <ui-select-match>
+                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                <span ng-if="$select.selected.Text.length>20">...</span>
+                            </ui-select-match>
+                            <ui-select-choices
+                                repeat="lookupitem.Id as lookupitem in lookup.EscalationMatrixAnchor | filter: { Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                            </ui-select-choices>
+                        </ui-select>
+                    </td>
+                    <td>
+                        <ui-select ng-model="item.HelpdeskStatusId" class="ui-select-grid">
+                            <ui-select-match>
+                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                <span ng-if="$select.selected.Text.length>20">...</span>
+                            </ui-select-match>
+                            <ui-select-choices
+                                repeat="lookupitem.Id as lookupitem in lookup.AssetTicketStatus | filter: { Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                            </ui-select-choices>
+                        </ui-select>
+                    </td>
+                    <td>
+                        <radiogroupcontrol itemid="item.NotificationTypeId" tabindex="-1"
+                            items="lookup.EscalationMatrixNotificationType"></radiogroupcontrol>
+                    </td>
+                    <td>
+                        <autosearch itemid="item.NotificationToId" iteminfo="" rowdata="" config="vm.usercontrolconfig"
+                            itemchange=""></autosearch>
+                    </td>
+                    <td align="center">
+                        <button class="drhms-edit-button" ng-click="deleteItem($index,item)" uib-tooltip="Delete"
+                            tooltip-placement="bottom">
+                            <img src="assets/svg/delete.svg" alt="">
+                        </button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <custom-table config="vm.gridConfig"></custom-table>
+</div>
+<div class="container-fluid">
+    <div class="site-footer panel-footer">
+        <div class="footer-right">
+            <button type="button" class="draftbutton" translate="common.saveaction.lbl" ng-click="saveItem()"></button>
+            <button id="btnClearForm" type="button" class="btn btn-warning btn-sm" ng-click="clear()"
+                translate="common.clearaction.lbl"></button>
+        </div>
+    </div>
+</div>

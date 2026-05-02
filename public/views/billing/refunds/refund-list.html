@@ -1,0 +1,150 @@
+<style>
+    .well {
+        padding: 5px;
+    }
+
+    .table-uigrid {
+        height: 390px !important;
+    }
+    @media (min-width:1200px) and (min-height:637px){.bill_refundlist .ui-grid-viewport{min-height:369px;height:364px !important;}
+    /* .table-uigrid{min-height:393px;} */
+}
+    @media(min-width:1360px) and (min-height:675px){.bill_refundlist .ui-grid-viewport{min-height:404px;}
+/* .table-uigrid{min-height:429px;} */
+}
+@media (device-width:100vw) and (device-height:100vh){
+    /* .bill_refundlist .ui-grid-viewport{min-height: 502px;}
+    .table-uigrid{min-height:526px;} */
+    .bill_refundlist .ui-grid-viewport{
+    height:66vh !important;
+    min-height:66vh;
+}
+}
+.bill_refundlist .ui-grid-viewport{
+    height:60vh;
+    min-height:60vh;
+}
+</style>
+
+
+
+<div class="row page-header">
+    <h4 class="col-sm-6 mt0" translate="billing.refund-list.pagetitle.lbl"></h4>
+
+
+    <div class="col-sm-6">
+        <!-- <button class="btn bt-color3 btn-xs pull-right btn-filter" ng-click="" uib-tooltip="{{ ' appmanager.specialitys.advancefilter-tooltip.lbl' | translate
+ }}" tooltip-placement="bottom"><i class="fa fa-filter" aria-hidden="true"></i>&nbsp;&nbsp;<span translate="clinicalmaster.serviceitem-list.filter.lbl"></span></button> -->
+        <button class="btn bt-color2 btn-xs pull-right btn-filter" ng-click="addNew()"
+            uib-tooltip="Refunds" tooltip-placement="bottom">
+            <i class="fa fa-plus" aria-hidden="true"></i>
+            <span translate="clinicalmaster.serviceitem-list.addnew.lbl"></span>
+        </button>
+    </div>
+</div>
+<div class="row filter-area">
+    <div class="col-sm-12">
+
+        <div class="col-sm-4">
+            <label class="col-sm-5 control-label filter-lbl" translate="appmanager.specialitys.filter_type.lbl"></label>
+            <div class=" col-sm-7">
+                <ui-select ng-model="currentfilter.RefundTypeId" ng-change="getList()" class="filter-combo">
+                    <ui-select-match placeholder="Please Select">
+                        {{$select.selected.Text | limitTo : 8 : 0}}
+                        <span ng-if="$select.selected.Text.length>8">...</span>
+                    </ui-select-match>
+                    <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.RefundType | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+
+
+
+        <div class="col-sm-4">
+            <div class="form-group">
+                <label class="sr-only col-sm-5  control-label filter-lbl" translate="billing.receipt-list.filter_patient.lbl"></label>
+                <div class="input-group col-sm-7 ">
+                    <div class="input-group-addon">
+                        <i class="fas fa-search" aria-hidden="true"></i>
+                    </div>
+                    <input type="text" class="form-control" on-enter="getList()" ng-model="currentfilter.namemrn" placeholder=" Name/MRN">
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <label class="col-sm-5 control-label" translate="billing.receipt-list.date.lbl"></label>
+            <div class="col-sm-7">
+                <input type="text" class="form-control" name="registereddate" ng-change="getList()" datepicker-options="datePickerOptions"
+                    show-button-bar="{{datePickerOptions.showButtonBar}}" uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                    placeholder="{{datePickerOptions.placeholder}}" ng-click="registereddatePopup = { opened: true }" is-open="registereddatePopup.opened"
+                    ng-model="currentfilter .RefundDateTime">
+            </div>
+        </div>
+    </div>
+
+
+    <div class="col-sm-12">
+
+        <div class="col-sm-4">
+            <label class="col-sm-5 control-label filter-lbl" translate="appmanager.specialitys.filter_status.lbl"></label>
+            <div class="col-sm-7">
+                <ui-select ng-model="currentfilter.RefundStatusId" ng-change="getList()" class="filter-combo">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 8 : 0}}
+                        <span ng-if="$select.selected.Text.length>8">...</span>
+                    </ui-select-match>
+                    <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.RefundStatus | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+
+
+        <div class="col-sm-4">
+
+            <label class="col-sm-5 control-label filter-lbl" translate="billing.refund-list.filter_refund.lbl"></label>
+            <div class="input-group col-sm-7">
+                <div class="input-group-addon">
+                    <i class="fas fa-search" aria-hidden="true"></i>
+                </div>
+                <input type="text" class="form-control" on-enter="getList()" ng-model="currentfilter.Refundidentifier" translate translate-attr-placeholder="billing.refund-list.filter_refund.lbl">
+            </div>
+
+        </div>
+
+
+
+    </div>
+</div>
+
+
+<div class="container-fluid" id="specialitysheight">
+    <div ui-grid="vm.gridConfig" class="table-uigrid table-uigrid-tab bill_refundlist"></div>
+   </div>
+   <div class=" col-sm-12 footerbar bill_subfooter">
+    <div class="col-sm-12 well">
+
+        <div class="col-sm-5 ">
+
+        </div>
+        <div class="col-sm-3 ">
+            <div class="col-sm-6 text-right">
+                <label class="control-label" for="totalamount">Total :</label>
+            </div>
+            <div class="col-sm-6">
+                <input type="text" class="form-control" value="{{TotalAmount}}" disabled>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="fooder-bgs">
+    <div class="row">
+        <ul uib-pagination total-items="vm.gridConfig.pagerObj.totalItems" items-per-page="vm.gridConfig.pagerObj.pageSize" start-index="vm.gridConfig.pagerObj.startIndex"
+            ng-model="vm.gridConfig.pagerObj.currentPage" ng-change="getList()"></ul>
+    </div>
+</div>

@@ -1,0 +1,127 @@
+<div class="row page-header">
+    <div class="col-sm-6">
+        <h4 class="mt0" translate="reports.radiologystasummary.lbl"></h4>
+    </div>
+    <div class="col-sm-6">
+        <div class="filters">
+            <i class="icofont-filter" uib-tooltip="Filter" tooltip-placement="bottom" ng-click="openFilterTab()"></i>
+            <i class="icofont-file-excel" uib-tooltip="Excel" tooltip-placement="bottom"
+                onclick="exportTableToExcel('tblData', 'members-data')"></i>
+            <i class="icofont-print" uib-tooltip="Print" tooltip-placement="bottom" ng-click="print()"></i>
+            <i class="icofont-home" ng-click="backtoReport()" uib-tooltip="Report" tooltip-placement="bottom"></i>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <table id="bannerdetails">
+        <tr>
+            <td translate="reports.fromdate.lbl"></td>
+            <td>
+                <div class="datepicker" id="datepicker">
+                    <input type="text" class="form-control" name="fromdate" ng-date-object
+                        datetime-picker="{{dateTimePickerOptions.dateTimeFormat}}"
+                        placeholder="{{datePickerOptions.placeholder}}" ng-click="fromdatePopup = { opened: true }"
+                        is-open="fromdatePopup.opened" ng-model="currentfilter.From" ng-change="getList()">
+                    <i class="fa fa-calendar"></i>
+                </div>
+            </td>
+            <td translate="reports.todate.lbl"></td>
+            <td>
+                <div class="datepicker" id="datepicker">
+                    <input type="text" class="form-control" name="todate" ng-date-object
+                        datetime-picker="{{dateTimePickerOptions.dateTimeFormat}}"
+                        placeholder="{{datePickerOptions.placeholder}}" ng-click="todatePopup = { opened: true }"
+                        is-open="todatePopup.opened" ng-model="currentfilter.To" ng-change="getList()">
+                    <i class="fa fa-calendar"></i>
+                    <!-- <input type="text" class="form-control" name="from" ng-change="getList()"
+                    datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}"
+                    uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                    placeholder="{{datePickerOptions.placeholder}}" ng-click="todatePopup = { opened: true }"
+                    is-open="todatePopup.opened" ng-model="currentfilter.To">
+                <i class="fa fa-calendar" aria-hidden="true"></i> -->
+                </div>
+            </td>
+        </tr>
+    </table>
+</div>
+<div class="row">
+    <div class="" id="reportsdetail">
+        <table id="tblData">
+            <thead>
+                <tr>
+                    <th class="cus-col tbl-header cust_Particulars" style="font-weight: 700;">
+                        <span translate="Test Name"></span>
+                    </th>
+                    <th class="cus-col tbl-header" style="font-weight: 700;">
+                        <span translate="Created"></span>
+                    </th>
+                    <th class="cus-col tbl-header" style="font-weight: 700;">
+                        <span translate="Accepted"></span>
+                    </th>
+                    <!-- <th class="cus-col tbl-header" style="font-weight: 700;">
+                    <span translate="Sample Collected"></span></th> -->
+                    <th class="cus-col tbl-header" style="font-weight: 700;">
+                        <span translate="Pending Order Process"></span>
+                    </th>
+                    <th class="cus-col tbl-header" style="font-weight: 700;">
+                        <span translate="Complete Order Process"></span>
+                    </th>
+                    <th class="cus-col tbl-header" style="font-weight: 700;">
+                        <span translate="Pending Approval"></span>
+                    </th>
+                    <th class="cus-col tbl-header" style="font-weight: 700;">
+                        <span translate="Result Approval"></span>
+                    </th>
+                    <th class="cus-col tbl-header" style="font-weight: 700;">
+                        <span translate="Result Dispatch"></span>
+                    </th>
+                </tr>
+            </thead>
+            <tr ng-repeat="item in TestSummary">
+                <td class=""><span class="">{{item.Key}}</span></td>
+                <td id="total_clr">{{item.CreatedCount}}</td>
+                <td id="total_clr">{{item.AcceptedCount}}</td>
+                <!-- <td id="total_clr">{{item.SampleCollectedCount}}</td> -->
+                <td id="total_clr">{{item.PendingProcessCount}}</td>
+                <td id="total_clr">{{item.CompleteProcessCount}}</td>
+                <td id="total_clr">{{item.PendingapprovalCount}}</td>
+                <td id="total_clr">{{item.ResultapprovalCount}}</td>
+                <td id="total_clr">{{item.ResultdispatchCount}}</td>
+            </tr>
+        </table>
+    </div>
+</div>
+<div class="fooder-bgs"></div>
+
+<script>
+    function exportTableToExcel(tableID, filename = '') {
+        var downloadLink;
+        var dataType = 'application/vnd.ms-excel';
+        var tableSelect = document.getElementById(tableID);
+        var tableHTML = tableSelect.outerHTML.replace(/ /g, '%20');
+
+        // Specify file name
+        filename = filename ? filename + '.xls' : 'excel_data.xls';
+
+        // Create download link element
+        downloadLink = document.createElement("a");
+
+        document.body.appendChild(downloadLink);
+
+        if (navigator.msSaveOrOpenBlob) {
+            var blob = new Blob(['\ufeff', tableHTML], {
+                type: dataType
+            });
+            navigator.msSaveOrOpenBlob(blob, filename);
+        } else {
+            // Create a link to the file
+            downloadLink.href = 'data:' + dataType + ', ' + tableHTML;
+
+            // Setting the file name
+            downloadLink.download = filename;
+
+            //triggering the function
+            downloadLink.click();
+        }
+    }
+</script>

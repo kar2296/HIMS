@@ -1,0 +1,183 @@
+<!-- <link href="app/css/regbilling.css" rel="stylesheet"> -->
+<style>
+    .currentclr {
+        margin-top: -8px;
+        color: black;
+        background: none;
+        margin-bottom: 9px !important;
+        border: unset;
+        border-bottom: 1px solid gainsboro;
+        display: flex;
+        align-items: center;
+        font-size: 13px;
+    }
+
+    .item-center label {
+        display: unset;
+    }
+
+    h3 {
+        font-size: 15px;
+        margin: 0px 0px;
+    }
+
+    .ht-30 {
+        height: 30px;
+        display: flex;
+        align-content: center;
+        justify-content: center;
+        align-items: center;
+    }
+
+    input.form-control {
+        border-radius: 2px !IMPORTANT;
+        background: none !IMPORTANT;
+        font-weight: 400 !important;
+        border-color: gainsboro;
+    }
+
+    .panel .drhms-table td {
+        padding-left: 11px !IMPORTANT;
+    }
+</style>
+<div class="modal-header custom-modal-header">
+    <div class="col-sm-10">
+        <h4 class="modal-title custom-modal-title" translate="Previous Lab Result"></h4>
+    </div>
+    <div class="col-sm-2">
+        <div class="filters">
+            <img src="../../../../../assets/svg/close.svg" ng-click="cancelCallback()">
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="filters">
+        <div class="col-sm-12">
+            <div class="col-sm-4 col-md-4 col-lg-4">
+                <div class="datepicker" id="datepicker">
+                    <input type="text" class="form-control" name="from" ng-change="getList(tab)" ng-date-object
+                        uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                        placeholder="{{datePickerOptions.placeholder}}" ng-click="fromPopup = { opened: true }"
+                        is-open="fromPopup.opened" ng-model="currentfilter.From">
+                    <i class="fa fa-calendar" aria-hidden="true"></i>
+                </div>
+            </div>
+            <label class="col-sm-1 col-md-1 col-lg-1 control-label filter-lbl ht-30" align="center"
+                translate="to"></label>
+            <div class="col-sm-4 col-md-4 col-lg-4">
+                <div class="datepicker" id="datepicker">
+                    <input type="text" class="form-control" name="to" ng-change="getList()" ng-date-object
+                        uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                        placeholder="{{datePickerOptions.placeholder}}" ng-click="toPopup = { opened: true }"
+                        is-open="toPopup.opened" ng-model="currentfilter.To">
+                    <i class="fa fa-calendar" aria-hidden="true"></i>
+                </div>
+            </div>
+            <button class="btn-gr-round" ng-click="resultview()" style="margin-right: 5px;"
+                uib-tooltip="{{ 'Graphical View' }}" tooltip-placement="bottom">
+                <i class="fa fa-line-chart" aria-hidden="true"></i>
+            </button>
+            <button type="button" ng-show="AttachementImgs" class="btn-gr-round" ng-click="openAttachments()">
+                <i class="fa fa-picture-o" aria-hidden="true"></i>
+            </button>
+        </div>
+    </div>
+
+</div>
+
+<div class="row" aria-multiselectable="true" style="margin-top: 6px;">
+    <div class="" ng-repeat="item in vm.orders">
+        <div class="panel-heading">
+            <div class="col-sm-12 currentclr">
+                <div class="col-sm-3">
+                    <displaydate datetime-val='item.OrderRequestDate'></displaydate>
+                </div>
+                <div class="col-sm-2">
+                    {{item.OrderNumber}}
+                </div>
+                <div class="col-sm-6 hidecontent">
+                    {{item.DoctorName}}
+                </div>
+                <div class="col-sm-2">
+                    <span style="float: right;">
+                        <i class="fa fa-print" style="font-size: 17px;margin-right: 40px;color: #2196f3;" aria-hidden="true"></i>
+                        <button type="button" class="togglebtn" ng-click="toggleCanShowDetails(item)">
+                            <i class="fa fa-angle-down" aria-hidden="true" ng-show="!item.CanShowDetails"></i>
+                            <i class="fa fa-angle-up" aria-hidden="true" ng-show="item.CanShowDetails"></i>
+                        </button>
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div class="panel" ng-show="item.CanShowDetails">
+            <div class="panel-body">
+                <div ng-repeat="order in vm.woorders">
+                    <div id='workorder' ng-repeat="wo in order.PatientWorkorders">
+                        <table class="drhms-table">
+                            <thead>
+                                <tr>
+                                    <th>
+                                        <span translate="Test Name"></span>
+                                    </th>
+                                    <th>
+                                        <span translate="ordermanagement.resultentry-form.result.lbl"></span>
+                                        <span class="mandatory-asterix">*</span>
+                                    </th>
+                                    <th>
+                                        <span translate="ordermanagement.resultentry-form.uom.lbl"></span>
+                                    </th>
+                                    <th>
+                                        <span translate="ordermanagement.resultentry-form.referrence.lbl"></span>
+                                    </th>
+                                    <th>
+                                        <span translate="Condition"></span>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody ng-repeat="test in wo.woDetails">
+                                <tr ng-if="test.RootProfileName">
+                                    <td colspan="9">
+                                        <span class="lbl-profile">{{test.RootProfileName}}</span>
+                                    </td>
+                                </tr>
+                                <tr ng-if="test.ProfileName">
+                                    <td colspan="9">
+                                        <span class="lbl-profile">{{test.ProfileName}}</span>
+                                    </td>
+                                </tr>
+                                <tr
+                                    ng-hide="test.details.length == 1 && test.Testname.toLowerCase() == test.details[0].Analytename.toLowerCase()">
+                                    <td colspan="9">
+                                        <span class="lbl-test"> {{test.Testname}}</span>
+                                    </td>
+                                </tr>
+                                <tr ng-repeat="item in test.details | filter:{Status:1}">
+                                    <td>
+                                        <span>{{item.Analytename}}</span>
+                                    </td>
+                                    <td>
+                                        <span ng-if="item.QualifierId==1||!item.QualifierId"> {{item.Resultvalue}}
+                                        </span>
+                                        <span ng-if="item.QualifierId!=1 && item.QualifierId">
+                                            {{item.Resultvalue}}
+                                        </span>
+                                    </td>
+                                    <td ng-if="item.TestValueType != 3">
+                                        <span ng-model="item.AnalyteUOM">{{item.AnalyteUOM}}</span>
+                                    </td>
+                                    <td>
+                                        <span>{{item.Analyterange}}</span>
+                                    </td>
+                                    <td ng-if="item.TestValueType != 3 && item.TestValueType != 1">
+                                        <span class=" {{item.Qualifier}}"> {{item.Qualifier}}</span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="fooder-bgs"></div>

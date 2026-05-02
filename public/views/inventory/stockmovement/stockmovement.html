@@ -1,0 +1,81 @@
+<link rel="stylesheet" href="app/css/drhms.css">
+<style>
+    table.table.table-bordered.table-condensed.dropdown-menu.align {
+        margin-left: -410px;
+    }
+
+    autosearch.logo .custom-popup-wrapper {
+        margin-left: -400px;
+    }
+</style>
+<div class="row">
+    <div class="drhms-filters">
+        <div class="col-sm-10">
+            <h4 translate="inventory.stockmovement.pagetitle.lbl"></h4>
+        </div>
+        <div class="col-sm-2">
+            <autosearch class="logo" itemid="currentfilter.ItemMasterId" iteminfo="currentfilter.SelectedItem" rowdata=""
+                config="vm.movementitemcontrolconfig" placeholder="'Item Code/Name/Generic'"
+                itemchange="actionSearch(currentfilter.SelectedItem)"></autosearch>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="form-group col-sm-3">
+        <label class="col-sm-4" translate="inventory.stockmovement.storename.lbl"></label>
+        <div class="col-sm-8">
+            <ui-select ng-model="currentfilter.StoreMasterId" ng-change="getList()" class="filter-combo">
+                <ui-select-match>
+                    {{$select.selected.Text | limitTo : 20 : 0}}
+                    <span ng-if="$select.selected.Text.length>20">...</span>
+                </ui-select-match>
+                <ui-select-choices
+                    repeat="lookupitem.Id as lookupitem in lookup.UserStores | filter: { Text: $select.search }">
+                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                </ui-select-choices>
+            </ui-select>
+        </div>
+    </div>
+    <div class="form-group col-sm-3">
+        <label class="col-sm-4" for="fromdate" translate="inventory.stockmovement.fromdate.lbl"></label>
+        <div class="col-sm-8">
+            <div class="datepicker">
+                <input type="text" class="form-control" tabindex="-1" name="fromdate" ng-date-object
+                    uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                    placeholder="{{datePickerOptions.placeholder}}" ng-click="fromdatePopup = { opened: true }"
+                    is-open="fromdatePopup.opened" ng-model="currentfilter.FromDate" ng-change="getList()"
+                    id="disabledInput">
+                <i class="fa fa-calendar" aria-hidden="true"></i>
+            </div>
+        </div>
+    </div>
+    <div class="form-group col-sm-3">
+        <label class="col-sm-4" for="todate" translate="inventory.stockmovement.todate.lbl"></label>
+        <div class="col-sm-8">
+            <div class="datepicker">
+                <input type="text" class="form-control" tabindex="-1" name="ToDate" ng-date-object
+                    uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                    placeholder="{{datePickerOptions.placeholder}}" ng-click="ToDatePopup = { opened: true }"
+                    is-open="ToDatePopup.opened" ng-model="currentfilter.ToDate" ng-change="getList()"
+                    id="disabledInput">
+                <i class="fa fa-calendar" aria-hidden="true"></i>
+            </div>
+        </div>
+    </div>
+    <div class="form-group col-sm-3">
+        <label class="col-sm-4" translate="inventory.stockmovement.name.lbl"></label>
+        <div class="col-sm-8">
+            {{item.ItemName}}
+        </div>
+    </div>
+</div>
+<div class="row">
+    <custom-table config="vm.gridConfig"></custom-table>
+</div>
+<div class="fooder-bgs">
+    <div class="row">
+        <ul uib-pagination total-items="vm.gridConfig.pagerObj.totalItems"
+            items-per-page="vm.gridConfig.pagerObj.pageSize" start-index="vm.gridConfig.pagerObj.startIndex"
+            ng-model="vm.gridConfig.pagerObj.currentPage" ng-change="getList()"></ul>
+    </div>
+</div>

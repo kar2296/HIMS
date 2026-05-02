@@ -1,0 +1,75 @@
+<link href="app/css/emr.css" rel="stylesheet">
+<style>
+    .list-items-d-flex {
+        display: flex;
+        width: 100%;
+        color: #fff;
+        justify-content: space-between;
+         background: #46761b;
+        padding: 6px 3px;
+    }
+    
+    .list-items-d-flex a {
+        color: #fff;
+    }
+    
+    table {
+        width: 100%;
+    }
+</style>
+<div class="row">
+    <div aria-multiselectable="true">
+        <div style="margin-bottom: 10px;" ng-repeat="item in Prescriptions">
+            <div class="list-items-d-flex">
+                <div>
+                    <displaydate datetime-val="item.PrescriptionDate">
+                    </displaydate>
+                </div>
+                <div>{{item.Identifier}}</div>
+                <div class="hidencontent">{{item.Doctor.Title.Description}}&nbsp; {{item.Doctor.FirstName}}&nbsp; {{item.Doctor.LastName}}
+                </div>
+                <div class="hidencontent">{{item.Department.DepartmentName}}</div>
+                <div>{{item.PrecriptionStatus.Description}}</div>
+                <div>
+                    <span> <a ng-click="handleEvents('repeat',item)" class="editbtn" uib-tooltip="{{ 'Repeat' }}"
+                     tooltip-placement="bottom" ng-hide="item.PrecriptionStatusId==2">
+                     <i class="fa fa-edit" aria-hidden="true"></i>
+                  </a></span>
+                    <span> <a ng-click="handleEvents('print',item)" uib-tooltip="{{ 'Print' }}" tooltip-placement="bottom">
+                     <i class="fa fa-print" aria-hidden="true"></i>
+                  </a></span>
+                    <span><a ng-click="handleEvents('cancel',item)" uib-tooltip="{{ 'Cancel Prescription' }}"
+                     tooltip-placement="bottom" ng-hide="item.PrecriptionStatusId==2">
+                     <i class="fas fa-trash"></i>
+                  </a></span>
+                </div>
+                <div> <button type="button" class="btn btn-default btn-xs" ng-click="toggleCanShowDetails(item)">
+                  <i class="fa fa-angle-down" aria-hidden="true" ng-show="!item.CanShowDetails"></i>
+                  <i class="fa fa-angle-up" aria-hidden="true" ng-show="item.CanShowDetails"></i>
+               </button></div>
+            </div>
+            <div class="table-content" ng-show="item.CanShowDetails">
+                <table>
+                    <tr ng-repeat="detail in item.PrescriptionDetails| filter:{Status:1}">
+                        <td class="col-sm-3">
+                            <span class="drugname"> {{detail.DrugName}}({{detail.DrugCode}})</span>
+                        </td>
+                        <td class="col-sm-3">
+                            <span class="duration">
+                        {{detail.Duration}}&nbsp;{{detail.DurationPeriod.Description}}&nbsp;/&nbsp;
+                        {{detail.Morning}}&nbsp;- {{detail.Noon}}&nbsp; {{detail.Night}}&nbsp;
+                     </span>
+                        </td>
+                        <td class="col-sm-3">
+                            <span class="description">{{detail.DrugInstruction.Description}}</span>
+                        </td>
+                        <td class="col-sm-3">
+                            <span class="">{{detail.Notes}}</span>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="fooder-bgs"></div>

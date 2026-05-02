@@ -1,0 +1,354 @@
+<style>
+    label.btn.btn-sm.width.btn-custom-radio:before {
+        content: ".";
+        position: absolute;
+        left: -8px;
+        height: 14px;
+        width: 14px;
+        border: 1px solid black;
+        color: transparent;
+        top: 9px;
+    }
+
+    label.btn.btn-sm.width.btn-custom-radio.active {
+        background: none;
+        border: none;
+        color: black;
+    }
+
+    .admission-form .btn-feedback-selected:hover {
+        color: #000000 !important;
+        background-color: transparent !important;
+    }
+
+    label.btn.btn-sm.width.btn-custom-radio.active:after {
+        left: -4px;
+        top: 10px;
+        width: 6px;
+        height: 10px;
+        border: solid #302d2d;
+        border-width: 0 3px 3px 0;
+        -webkit-transform: rotate(45deg);
+        -ms-transform: rotate(45deg);
+        transform: rotate(45deg);
+        content: ".";
+        position: absolute;
+        color: transparent;
+    }
+
+    label.btn.btn-sm.width.btn-custom-radio {
+        margin-right: 30px;
+    }
+
+    label.btn.btn-sm.width.btn-custom-radio span {
+        position: relative;
+        margin-left: 9px;
+        top: 1px;
+    }
+
+    .admission-form .btn:focus {
+        border: unset !important;
+    }
+
+    .drhms-user_image {
+        height: 190px;
+    }
+
+    .drhms-outer_ilayer {
+        margin-top: 10px;
+        margin-bottom: 20px;
+    }
+
+    img.drhms-img-thumbnail {
+        width: 200px;
+        max-height: 170px;
+        border-radius: 0px;
+        border: 1px solid #ccc;
+    }
+</style>
+<div class="row">
+    <div class="drhms-filters">
+        <div class="col-sm-10">
+            <h4 translate="Manage Adverse Drug Reaction Form"></h4>
+        </div>
+        <div class="col-sm-5">
+            <div class="search">
+                <patientsearch patientid="item.PatientId" ng-disabled="RdoPatientId" id="pid" class="logo"
+                    name="txtpatientsearch" patientinfo="selectedPatient" patientchange="patientChange()"
+                    ng-disabled="item.isCompleted" name="" ng-model="">
+                </patientsearch>
+                <i class="fas fa-search"></i>
+            </div>
+        </div>
+        <div class="col-sm-1">
+            <button class="btn-add" ng-click="addNew()" uib-tooltip="Add Adverse Drug Reaction"
+                tooltip-placement="bottom">
+                <i class="fa fa-plus" aria-hidden="true"></i>
+            </button>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="drhms-table-top-header">
+        <div class="drhms-table-head-border">
+            <div class="col-sm-12">
+                <label class="col-sm-4" translate="Patient Name"></label>
+                <div class="col-sm-8">: {{selectedPatient.Title.Description}} {{selectedPatient.FirstName}}
+                </div>
+            </div>
+            <div class="col-sm-12">
+                <label class="col-sm-4" translate="UHID"></label>
+                <div class="col-sm-8">:
+                    {{selectedPatient.MRN}}
+                </div>
+            </div>
+        </div>
+        <div class="drhms-table-head-border">
+            <div class="col-sm-12">
+                <label class="col-sm-4" translate="Age/Sex"></label>
+                <div class="col-sm-8">:
+                    <span class="head-title">{{selectedPatient.Age}} / {{selectedPatient.Gender.Description}}</span>
+                </div>
+            </div>
+            <div class="col-sm-12">
+                <label class="col-sm-4" translate="Status"></label>
+                <div class="col-sm-8">:
+                    <span class="head-title">{{item.AdverseDrugReactionStatus.Description}}</span>
+                </div>
+            </div>
+        </div>
+        <div class="drhms-table-head-border">
+            <div class="col-sm-12">
+                <label class="col-sm-4" translate="Created By"></label>
+                <div class="col-sm-8">:
+                    <span class="head-title">{{item.CreatedUser.Title.Description}}
+                        {{item.CreatedUser.FirstName}}
+                        {{item.CreatedUser.LastName}}</span>
+                </div>
+            </div>
+            <div class="col-sm-12">
+                <label class="col-sm-4" translate="Approved By"></label>
+                <div class="col-sm-8">:
+                    <span class="head-title">{{item.ApprovedUser.Title.Description}}
+                        {{item.ApprovedUser.FirstName}}
+                        {{item.ApprovedUser.LastName}}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <form id="item_form" name="item_form" class="form-horizontal" role="form">
+        <div class="col-sm-12">
+            <div class="form-group col-sm-4">
+                <label class="col-sm-12 control-label" for="type" translate="Type"></label>
+                <div class="col-sm-12">
+                    <ui-select ng-model="item.AdverseDrugReactionTypeId" name="type" required>
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 20 : 0}}
+                            <span ng-if="$select.selected.Text.length>20">...</span>
+                        </ui-select-match>
+                        <ui-select-choices
+                            repeat="lookupitem.Id as lookupitem in lookup.AdverseDrugReactionType | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+            <div class="form-group col-sm-4">
+                <label class="col-sm-12 control-label0" translate="Diagnosis"></label>
+                <div class="col-sm-12">
+                    <input type="text" class="form-control" name="oreason" ng-model="item.DiagnosisName" placeholder="">
+                </div>
+            </div>
+            <div class="form-group col-sm-4">
+                <label class="col-sm-12 control-label0" translate="Name of Consultant"></label>
+                <div class="col-sm-12">
+                    <input type="text" class="form-control" placeholder="" name="consultantname"
+                        ng-model="item.ConsultantName">
+                </div>
+            </div>
+            <div class="form-group col-sm-4">
+                <label class="col-sm-12 control-label0" translate="Date & originally suspected ADR"></label>
+                <div class="col-sm-12">
+                    <input type="text" class="form-control" placeholder="" name="DateSuspectedADR"
+                        ng-model="item.DateSuspectedADR">
+                </div>
+            </div>
+            <div class="form-group col-sm-4">
+                <label class="col-sm-12 control-label0" translate="Brand Name & Generic"></label>
+                <div class="col-sm-12">
+                    <input type="text" class="form-control" placeholder="" name="BrandNameGeneric"
+                        ng-model="item.BrandNameGeneric">
+                </div>
+            </div>
+            <div class="form-group col-sm-4">
+                <label class="col-sm-12 control-label0" translate="Dosage & Frequency ordered"></label>
+                <div class="col-sm-12">
+                    <input type="text" class="form-control" placeholder="" name="DosageFrequencyOrdered"
+                        ng-model="item.DosageFrequencyOrdered">
+                </div>
+            </div>
+            <div class="form-group col-sm-4">
+                <label class="col-sm-12 control-label0" translate="Route of Administration"></label>
+                <div class="col-sm-12">
+                    <input type="text" class="form-control" placeholder="" name="RouteofAdministration"
+                        ng-model="item.RouteofAdministration">
+                </div>
+            </div>
+            <div class="form-group col-sm-4">
+                <label class="col-sm-12 control-label0" translate="Mfd/Batch No. & Expiry Date"></label>
+                <div class="col-sm-12">
+                    <input type="text" class="form-control" placeholder="" name="BatchNoExpiryDate"
+                        ng-model="item.BatchNoExpiryDate">
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-12">
+            <div class="form-group col-sm-4">
+                <label class="col-sm-12 control-label0" translate="Source of Drug"></label>
+                <div class="col-sm-12">
+                    <radiogroupcontrol itemid="item.SourceofDrugId" items="lookup.SourceofDrug">
+                    </radiogroupcontrol>
+                </div>
+            </div>
+            <div class="form-group col-sm-4">
+                <label class="col-sm-12 control-label0" translate="Details of participant drugs (generic name)"></label>
+                <div class="col-sm-12">
+                    <input type="text" class="form-control" placeholder="" name="DetailGenericName"
+                        ng-model="item.DetailGenericName">
+                </div>
+            </div>
+            <div class="form-group col-sm-4">
+                <label class="col-sm-12 control-label0" translate="Any previous drug allergies"></label>
+                <div class="col-sm-12">
+                    <input type="text" class="form-control" placeholder="" name="PreviousAllergies"
+                        ng-model="item.PreviousAllergies">
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-12">
+            <div class="form-group col-sm-12">
+                <label class="col-sm-12 control-label0" translate="Type of Reaction"></label>
+                <div class="col-sm-12">
+                    <radiogroupcontrol itemid="item.TypeofReactionId" items="lookup.TypeofReaction">
+                    </radiogroupcontrol>
+                </div>
+            </div>
+            <div class="form-group col-sm-4">
+                <label class="col-sm-12 control-label0" translate="If Others, please specify"></label>
+                <div class="col-sm-12">
+                    <input type="text" class="form-control" placeholder="" name="OtherReaction"
+                        ng-model="item.OtherReaction">
+                </div>
+            </div>
+            <div class="form-group col-sm-4">
+                <label class="col-sm-12 control-label0" translate="Level of Reaction"></label>
+                <div class="col-sm-12">
+                    <input type="text" class="form-control" placeholder="" name="LevelofReaction"
+                        ng-model="item.LevelofReaction">
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-12">
+            <div class="form-group col-sm-4">
+                <label class="col-sm-12 control-label0" translate="Outcome of ADR"></label>
+                <div class="col-sm-12">
+                    <input type="text" class="form-control" placeholder="" name="OutcomeofADR"
+                        ng-model="item.OutcomeofADR">
+                </div>
+            </div>
+            <div class="form-group col-sm-4">
+                <label class="col-sm-12 control-label0" translate="Corrective Action"></label>
+                <div class="col-sm-12">
+                    <input type="text" class="form-control" placeholder="" name="CorrectiveAction"
+                        ng-model="item.CorrectiveAction">
+                </div>
+            </div>
+            <div class="form-group col-sm-4">
+                <label class="col-sm-12 control-label0" translate="Preventive Action"></label>
+                <div class="col-sm-12">
+                    <input type="text" class="form-control" placeholder="" name="PreventiveAction"
+                        ng-model="item.PreventiveAction">
+                </div>
+            </div>
+            <div class="form-group col-sm-6">
+                <label class="col-sm-12 control-label" for="itinerary"
+                    translate="Photograph (Other Adverse Drug Reaction)"></label>
+                <div class="drhms-user_image">
+                    <img class="patient-img drhms-img-thumbnail" tabindex="-1" ng-show="!!currentcontext.fileAtt1"
+                        ngf-thumbnail="currentcontext.fileAtt1" />
+                    <img ng-show="!currentcontext.fileAtt1 && item.Attachment1"
+                        data-ng-src="data:image/png;base64,{{currentcontext.Attachment1}}" tabindex="-1"
+                        class="patient-img drhms-img-thumbnail" />
+                    <img ng-show="!currentcontext.fileAtt1 && !item.Attachment1" src="app/img/main/img.jpg"
+                        tabindex="-1" class="drhms-img-thumbnail ">
+                </div>
+                <div class="drhms-outer_ilayer">
+                    <div class="drhms-profile-upload-btn">
+                        <input type="file" ngf-select ng-model="currentcontext.fileAtt1" tabindex="-1" name="file"
+                            id="drhms-input-file" class="inputfile" ngf-max-size="200MB"
+                            ng-change="attachment1FileChanged()" />
+                        <label for="file-1" class="drhms-upload-btn" tabindex="-1" uib-tooltip="Upload"
+                            tooltip-placement="bottom">
+                            <span class="drhms-registration-btn">Upload</span>
+                        </label>
+                        <button type="button" class="drhms-webcam-btn" tabindex="-1" ng-show="item.Attachment1"
+                            ng-click="downloadFile1(item)">
+                            <span class="drhms-registration-btn">Download</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group col-sm-6">
+                <label class="col-sm-12 control-label" for="itinerary"
+                    translate="Photograph (Immediate after Adverse Drug Reaction)"></label>
+                <div class="drhms-user_image">
+                    <img class="patient-img drhms-img-thumbnail" tabindex="-1" ng-show="!!currentcontext.fileAtt2"
+                        ngf-thumbnail="currentcontext.fileAtt2" />
+                    <img ng-show="!currentcontext.fileAtt2 && item.Attachment2"
+                        data-ng-src="data:image/png;base64,{{currentcontext.Attachment2}}" tabindex="-1"
+                        class="patient-img drhms-img-thumbnail" />
+                    <img ng-show="!currentcontext.fileAtt2 && !item.Attachment2" src="app/img/main/img.jpg"
+                        tabindex="-1" class="drhms-img-thumbnail ">
+                </div>
+                <div class="drhms-outer_ilayer">
+                    <div class="drhms-profile-upload-btn">
+                        <input type="file" ngf-select ng-model="currentcontext.fileAtt2" tabindex="-1" name="file"
+                            id="drhms-input-file" class="inputfile" ngf-max-size="200MB"
+                            ng-change="attachment2FileChanged()" />
+                        <label for="file-1" class="drhms-upload-btn" tabindex="-1" uib-tooltip="Upload"
+                            tooltip-placement="bottom">
+                            <span class="drhms-registration-btn">Upload</span>
+                        </label>
+                        <button type="button" class="drhms-webcam-btn" tabindex="-1" ng-show="item.Attachment2"
+                            ng-click="downloadFile2(item)">
+                            <span class="drhms-registration-btn">Download</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+<div class="fooder-bgs">
+    <div class="form-group col-sm-12">
+        <div class="pull-left">
+            <button type="button" class="btn pyr-color10 btn-sm" ng-click="backToList()">
+                <i class="fa fa-angle-left" aria-hidden="true"></i>&nbsp;&nbsp;
+                <span class="btn-fontsize" translate="common.backaction.lbl"></span>
+            </button>
+
+        </div>
+        <div class="pull-right flex">
+            <button type="button" class="drhms-common-btn" ng-click="print()" id="visibility">
+                <i class="fa fa-print"></i> Preview Print
+            </button>
+            <button id="btnSave" type="button" class="draftbutton" translate="common.saveaction.lbl" ng-click="save()"
+                ng-show="item.AdverseDrugReactionStatusId>=1"></button>
+            <button id="btnSaveApprove" tabindex="tabindexmap.patienttabindex" type="button"
+                class="draftbutton focusbtns" translate="common.saveapprove-action.lbl" ng-click="saveAndApprove()"
+                ng-hide="item.InvWorkorderStatusId==2"></button>
+        </div>
+    </div>
+</div>

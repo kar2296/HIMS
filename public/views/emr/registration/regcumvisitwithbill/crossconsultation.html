@@ -1,0 +1,165 @@
+<link href="app/css/emr.css" rel="stylesheet">
+<style>
+    ul.nav.nav-pills.nav>li>a {
+         background: #46761b;
+        color: #fafafa;
+        border-radius: 0;
+        padding: 4px;
+        height: 32px;
+    }
+
+    .nav.nav-pills .active>a {
+        color: #006c9a !important;
+        background: #fff !important;
+        border: 1px solid #006c9a;
+        box-shadow: rgb(50 50 93 / 25%) 0px 2px 5px -1px, rgb(0 0 0 / 30%) 0px 1px 3px -1px;
+        height: unset;
+    }
+
+    .nav>li>a:hover,
+    .nav>li>a:focus {
+         background: #46761b;
+    }
+</style>
+<div class="modal-header custom-modal-header" ng-if="currentcontext.ismodal">
+    <div class="col-sm-10">
+        <h4 class="modal-title custom-modal-title" translate="Multiple Consultation"></h4>
+    </div>
+    <div class="col-sm-2">
+        <div class="filters">
+            <img src="../../../../../assets/svg/close.svg" ng-click="cancelCallback()">
+        </div>
+    </div>
+</div>
+<div class="col-sm-12">
+    <patientbanner patientid="item.PatientId"></patientbanner>
+</div>
+<div class="row">
+    <form id="item_form" name="item_form" class="form-horizontal" role="form">
+        <div class="accordian-button">
+            <div class="drhms-sub-header" translate="Visit"></div>
+            <button type="button" class="drhms-past-visit" tabindex="-1" ng-click="openPastVisit()"
+                uib-tooltip="{{ 'Past Visits'}}" tooltip-placement="top">
+                <i class="fas fa-undo" aria-hidden="true"></i>
+            </button>
+        </div>
+        <div class="form-group col-lg-3">
+            <label class="col-lg-12 control-label" for="VisitType"
+                translate="registration.registrationcumvisit.visittype.lbl"></label>
+            <div class="col-lg-12">
+                <ui-select ng-model="item.VisitTypeId" name="VisitType" required>
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 20 : 0}}
+                        <span ng-if="$select.selected.Text.length>20">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.VisitType | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search">
+                        </div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+        <div class="form-group col-lg-3">
+            <label class="col-lg-12 control-label" for="doctor"
+                translate="registration.registrationcumvisit.doctor.lbl"></label>
+            <div class="col-lg-12 autodrop" id="doctorview">
+
+                <autosearch class="auto-search" controlid="'DoctorId'" itemid="item.DoctorId" iteminfo="" rowdata=""
+                    name="'doctor'" config="vm.doctorcontrolconfig" candisable="SaveCompleted" isrequired="true"
+                    placeholder="'Doctor'">
+                </autosearch>
+            </div>
+        </div>
+        <div class="form-group col-lg-3">
+            <label class="col-lg-12 control-label" for="department"
+                translate="registration.registrationcumvisit.department.lbl"></label>
+            <div class="col-lg-12">
+                <ui-select ng-model="item.DepartmentId" name="department" ng-disabled="true">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 20 : 0}}
+                        <span ng-if="$select.selected.Text.length>20">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.Department | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search">
+                        </div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+        <div class="form-group col-lg-3">
+            <label class="col-lg-12 control-label" for="sourcetype"
+                translate="registration.registrationcumvisit.sourcetype.lbl"></label>
+            <div class="col-lg-12">
+                <ui-select name="sourcetype" ng-model="item.ReferTypeId" ng-change="referralTypeChange()" required
+                    ng-disabled="DisableReferral">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 20 : 0}}
+                        <span ng-if="$select.selected.Text.length>20">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.ReferralType | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search">
+                        </div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+        <div class="form-group col-lg-3">
+            <label class="col-lg-12 control-label" for="referredby"
+                translate="registration.registrationcumvisit.referredby.lbl"></label>
+            <div class="col-lg-10" id="referral">
+                <autosearch itemid="item.ReferrerId" ttabindex="tabindexmap.patienttabindex" iteminfo=""
+                    name="'referredby'" rowdata="" config="vm.referralcontrolconfig" candisable="DisableReferral"
+                    itemchange="referralChange($select.selected)" isrequired="true">
+                </autosearch>
+            </div>
+            <div class="col-lg-2">
+                <button type="button" class="btn-add" tabindex="-1" ng-click="addReferral()"
+                    uib-tooltip="{{ 'registration.fullregistration.addnewref-tooltip.lbl' | translate }}"
+                    tooltip-placement="top">
+                    <i class="fas fa-plus" aria-hidden="true"></i>
+                </button>
+            </div>
+        </div>
+        <div class="form-group col-lg-3">
+            <label class="col-lg-12 control-label" translate="Reason"></label>
+            <div class="col-lg-10" id="reason">
+                <autosearch itemid="item.RemarkId" iteminfo="" rowdata="" config="vm.remarkcontrolconfig">
+                </autosearch>
+            </div>
+            <div class="col-lg-2">
+                <button type="button" class="btn-add" tabindex="-1" ng-click="addRemark()"
+                    uib-tooltip="{{ 'Add New Reason'}}" tooltip-placement="top">
+                    <i class="fas fa-plus" aria-hidden="true"></i>
+                </button>
+            </div>
+        </div>
+        <div class="col-lg-3">
+            <div class="token-num">
+                <label class="col-lg-12 control-label">Token Num</label>
+                <div class="col-sm-12">
+                    <input type="text" ng-disabled="true" ng-model="currentcontext.TokenNo" class="form-control"
+                        placeholder="">
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-12" style="margin-top: 10px;">
+            <div class="pull-right">
+                <button type="submit" class="draftbutton" ng-click="saveItem()"
+                    translate="Create Visit"></button>
+            </div>
+        </div>
+    </form>
+</div>
+<div class="row">
+    <custom-table config="vm.gridConfig"></custom-table>
+</div>
+<div class="fooder-bgs">
+    <div class="row">
+        <ul uib-pagination total-items="vm.gridConfig.pagerObj.totalItems"
+            items-per-page="vm.gridConfig.pagerObj.pageSize" start-index="vm.gridConfig.pagerObj.startIndex"
+            ng-model="vm.gridConfig.pagerObj.currentPage" ng-change="getList()"></ul>
+    </div>
+</div>

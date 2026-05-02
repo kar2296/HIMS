@@ -1,0 +1,201 @@
+<style>
+    .modal-content .panel-body {
+        overflow: inherit;
+    }
+
+    .formRoot {
+        overflow: inherit;
+    }
+
+    .modal-full {
+        width: 91%!important;
+    }
+
+    .btn-addpanel {
+        background-color: #71c2e8;
+        color: #fff;
+        border-color: black;
+    }
+
+    button.btn.pyr-color10.btn-sm {
+        margin-left: 13px;
+    }
+</style>
+
+<div class="row">
+    <!-- <div class="col-sm-12">
+        <label class="btn btn-secondary top-option" ng-repeat="topmenu in topmenus" ng-model="currentcontext.selectedMenu"
+                    uib-btn-radio="topmenu.key">{{topmenu.name}}</label>
+    </div> -->
+
+    <!-- <div class="col-sm-12" ng-show="canShowChartArea()" class="formRoot" >
+        <vitalchart patientid="item.PatientId"></vitalchart>
+    </div> -->
+    <div class="col-sm-12" ng-show="canShowFormArea()">
+        <form id="item_form" name="item_form" class="form-horizontal" role="form">
+            <div class="formRoot">
+                <div class="panel-body form-panel">
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label" for="panel" translate="patientemr.patientvital-form.panel.lbl"></label>
+                            <div class="col-sm-6">
+                                <ui-select ng-model="currentcontext.panelmasterid" name="panel" ng-change="panelChange($select.selected)">
+                                    <ui-select-match>
+                                        {{$select.selected.Text | limitTo : 20 : 0}}
+                                        <span ng-if="$select.selected.Text.length>20">...</span>
+                                    </ui-select-match>
+                                    <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.PanelMaster | filter: { Text: $select.search }">
+                                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                    </ui-select-choices>
+                                </ui-select>
+                            </div>
+                            <div class="col-sm-1">
+                                <button class="btn btn-default btn-sm" ng-click="addpanelClick()">
+                                    <i class="fa fa-plus" aria-hidden="true"></i>
+                                </button>
+                            </div>
+                            <div class="col-sm-1"></div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 pull-right">
+                        <div class="clearfix">
+                            <div class="form-group" style="margin-top: -13px;">
+                                <label class="col-sm-4 control-label" for="vitalname" translate="patientemr.patientvital-form.vitalname.lbl"></label>
+                                <div class="col-sm-4">
+                                    <ui-select id="vitalname" ng-model="currentcontext.vitalid" name="vitalname" ng-change="vitalChange($select.selected)">
+                                        <ui-select-match>
+                                            {{$select.selected.Text | limitTo : 20 : 0}}
+                                            <span ng-if="$select.selected.Text.length>20">...</span>
+                                        </ui-select-match>
+                                        <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.Vital | filter: { Text: $select.search }">
+                                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                        </ui-select-choices>
+                                    </ui-select>
+                                </div>
+                                <div class="col-sm-1">
+                                    <button class="btn btn-xs btn-addpanel btn-sm" uib-tooltip="{{ 'AddVitals' | translate }}" tooltip-placement="bottom" ng-click="addvitalClick()">
+                                        <i class="fa fa-plus" aria-hidden="true"></i>
+                                    </button>
+                                </div>
+                                <div class="col-sm-1">
+                                    <button class="btn bt-color3 btn-xs " uib-tooltip="{{ 'patientemr.patientvital-list.listview.lbl' | translate }}" tooltip-placement="bottom"
+                                        ng-click="listView()">
+                                        <i class="fa fa-list-ul" aria-hidden="true"></i>
+                                    </button>
+                                </div>
+                                <button class="btn btn-xs btn-warning" ng-click="chartview()" uib-tooltip="{{ 'patientemr.patientvital-list.chartview.lbl' | translate }}"
+                                    tooltip-placement="bottom">
+                                    <i class="fa fa-line-chart fa-xs" aria-hidden="true"></i>
+                                </button>
+                                <button class="btn btn-xs btn-info" uib-tooltip="{{ 'GrowthChart' | translate }}" tooltip-placement="bottom" ng-click="showGrowthChart()">
+                                    <i class="fa fa-bar-chart" aria-hidden="true"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Growth Chart area starts
+                    <div class="growth_chart" ng-show='currentcontext.view == "growthchart"'>
+                        <div class="col-sm-12 head_btm">
+                            <label class="btn btn-secondary top-option bscrum_active" ng-repeat="option in growthcharttabs" ng-model="currentcontext.growthchartselected"
+                                uib-btn-radio="option.key" ng-click="growhtchartChange(option)">{{option.name}}</label>
+                        </div>
+                        <div set-form-height reduce-height="50">
+                            <growthchart chartconfig="growthchartconfig"></growthchart>
+                        </div>
+                    </div>
+                     Growth Chart area ends -->
+                    <!-- grid area starts -->
+                    <div class="tableheight" id="mainresponsivetablecontrol" ng-show="canShowFormArea()">
+                        <table class="table table-hover table-responsive table-bordered">
+                            <thead class="bg-subhead">
+                                <tr>
+                                    <th class="fs-12 col-sm-3">
+                                        <span translate="patientemr.patientvital-form.description.lbl"></span>
+                                    </th>
+                                    <th class="fs-12 col-sm-4">
+                                        <span translate="patientemr.patientvital-form.vitalvalue.lbl"></span>
+                                    </th>
+                                    <th class="fs-12 col-sm-1">
+                                        <span translate="patientemr.patientvital-form.uom.lbl"></span>
+                                    </th>
+                                    <th class="fs-12 col-sm-1">
+                                        <span translate="patientemr.patientvital-form.range.lbl"></span>
+                                    </th>
+                                    <th class="fs-12 col-sm-1">
+                                        <span translate="patientemr.patientvital-form.alerts.lbl"></span>
+                                    </th>
+                                    <!-- <th class="fs-12 col-sm-2">
+                                        <span translate="patientemr.patientvital-form.actions.lbl"></span>
+                                    </th> -->
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-repeat="item in vitals | filter:{Status:1}">
+                                    <td class="fs-12">
+                                        {{item.Description}}
+                                    </td>
+                                    <td class="fs-12" class="row">
+                                        <div class="col-sm-12" ng-show="!(IsHeight(item) || IsBP(item))">
+                                            <input type="number" class="form-control" ng-model="item.VitalValue" ng-disabled="IsBMI(item)" ng-change="CalculateBMI()" placeholder="">
+                                        </div>
+                                        <div ng-show="IsHeight(item)">
+                                            <div class="col-sm-5">
+                                                <input type="number" class="form-control" ng-model="item.VitalValue" ng-change="CalculateBMI()" placeholder="">
+                                            </div>
+                                        </div>
+                                        <div ng-show="IsBP(item)">
+                                            <div class="col-sm-5">
+                                                <input type="number" class="form-control" ng-change="CalculateBMI()" ng-model="item.VitalValue1" placeholder="">
+                                            </div>
+                                            <div class="col-sm-2">
+                                                <label class="col-sm-2 control-label">/</label>
+                                            </div>
+                                            <div class="col-sm-5">
+                                                <input type="number" class="form-control" ng-model="item.VitalValue2" placeholder="">
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="fs-12">
+                                        {{item.UOM}}
+                                    </td>
+                                    <td class="fs-12">
+                                        <div ng-show="!item.ReferenceRangeTo">
+                                            {{item.ReferenceRangeFrom}}
+                                        </div>
+                                        <div ng-show="item.ReferenceRangeTo">
+                                            {{item.ReferenceRangeFrom}} - {{item.ReferenceRangeTo}}
+                                        </div>
+                                    </td>
+                                    <td class="fs-12">
+                                        <span class="pull-left" style="color: #ff902b; font-weight: 700;">{{item.VitalQualifier}}</span>
+                                    </td>
+                                    <!-- <td class="fs-12">
+                                        <button class="btn btn-danger btn-xs" ng-click="deleteVital(item)">
+                                            <i class="fa fa-trash" aria-hidden="true"></i>
+                                        </button>
+                                    </td> -->
+                            </tbody>
+                        </table>
+
+                        <p>&nbsp;</p>
+
+                        <p>&nbsp;</p>
+
+                        <p>&nbsp;</p>
+                    </div>
+                </div>
+            </div>
+            <div class="panel-footer formactionbar">
+                <div class="pull-left">
+                    <button type="button" class="btn pyr-color10 btn-sm" tabindex="-1" ng-click="backTovitallist()">
+                        <i class="fa fa-angle-left" aria-hidden="true"></i>&nbsp;&nbsp;
+                        <i class="btn-fontsize" translate="common.backaction.lbl"></i>
+                    </button>
+                </div>
+                <div class="pull-right">
+                    <button type="button" class="draftbutton" ng-click="saveVitals()" translate="common.saveaction.lbl"></button>
+                    <button id="btnCancelForm" type="button" class="draftbutton" ng-click="backToList()" translate="common.cancelaction.lbl"></button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

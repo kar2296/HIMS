@@ -1,0 +1,174 @@
+<html>
+        
+        <head>
+            <style>
+                .table1 {
+                    border: 1px solid black;
+                    border-bottom: 0px solid black;
+                    text-align: center;
+                    font-size: 8px;
+                }
+                
+                .table2 {
+                    border: 1px solid black;
+                    border-bottom: 0px solid black;
+                    text-align: left;
+                    font-size: 8px;
+                }
+                
+                .table3 {
+                    border: 1px solid black;
+                    border-bottom: 1px solid black;
+                    font-size: 8px;
+                }
+                
+                .border {
+                    border-collapse: collapse;
+                    border-left: 1px solid black;
+                    font-size: 8px;
+                }
+                
+                .table4 {
+                    border: 1px solid black;
+                    border-bottom: 0px solid black;
+                    text-align: left;
+                    font-size: 8px;
+                }
+                
+                .size {
+                    font-size: 8px;
+                }
+        {{include '/Templates/champion/assets/css/core.css'}}
+                </style>
+            </head>
+            <body>
+             <div id="pageHeader">
+                {{{include '/Templates/champion/common/header.tpl.html' 'tpl'}}}
+            </div>
+            
+            <table class="table1" style="width:100%;">
+                <tr>
+                    <td style="vertical-align:text-middle;font-size: 1.2em;"><b>Doctor Payment</b></td>
+                </tr>
+            </table>
+            <table class="table2" style="width:100%;">
+                <tr>
+                    <td style="width:15%;"><b>Doctor Name</b></td>
+                    <td>:</td>
+                    <td style="width:50%;" colspan="4">{{data.DoctorPayment.Doctor.Title.Description}} {{data.DoctorPayment.Doctor.FirstName}}  {{data.DoctorPayment.Doctor.LastName}}</td>
+        
+                    <td style="width:13%;"><b>Department</b></td>
+                    <td>:</td>
+                    <td style="width:22%;"><b>{{data.DoctorPayment.Doctor.Department.DepartmentName}}</b></td>
+                </tr>
+                <tr>
+                    <td style="width:15%;">Doctor Payment Identifier</td>
+                    <td>:</td>
+                    <td style="width:50%;" colspan="4">{{data.DoctorPayment.DoctorPaymentIdentifier}}</td>
+                    <td style="width:13%;">Payment Date Time</td>
+                    <td >:</td>
+                   <td style="width:22%;">{{datetimeformat data.DoctorPayment.PaymentDateTime}}</td>
+            </table>
+            <table class="table2" style="width:100%;">
+                <tr>
+                    <th style="width:5%" align="left">S.No</th>
+                    <th style="width:20%" align="left">Invoice Number</th>
+                    <th style="width:15%" align="left">Invoice Date</th>
+                    <th style="width:15%" align="left">Share Amount</th>
+                    <th style="width:10%" align="left">Net Amount</th>
+                    <th style="width:10%" align="left">Paid Amount</th>
+                    <th style="width:15%" align="left">To Be Paid</th>
+                    <th style="width:10%" align="left">Comments</th>
+        
+                </tr>
+            </table>
+        
+            <table class="table4" style="width:100%">
+                    {{#each data.DoctorPayment.DoctorPaymentDetails}}
+                <tr>
+                    <td style="width:5%">{{inc @index}}</td>
+                    <td style="width:20%">{{DoctorInvoice.DoctorInvoiceIdentifier}}</td>
+                    <td style="width:15%">{{datetimeformat DoctorInvoice.InvoiceDateTime}}</td>
+                    <td style="width:15%">{{currencyformat InvoiceAmount}}</td>
+                    <td style="width:10%">{{currencyformat InvoiceAmount}}</td>
+                    <td style="width:10%">{{currencyformat PaymentAmount}}</td>
+                    <td style="width:15%">{{currencyformat PaymentAmount}}</td>
+                    <td style="width:10%"></td>
+                </tr>
+                {{/each}}
+            </table>
+            <table class="table2" style="width:100%">
+                <tr>
+                    <td style="width:15%;"><b>Amount In Words</b></td>
+                    <td>:</td>
+                    <td style="width:60%;"><b>Rupees {{decimalnrInWords data.DoctorPayment.DcotorInvoiceAmount}} only</b></td>
+                    <td style="width:10%;">Gross Amount</td>
+                    <td>:</td>
+                    <td style="width:15%;">{{currencyformat data.DoctorPayment.DcotorInvoiceAmount}}</td>
+                </tr>
+               
+                <tr>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td>Paid</td>
+                    <td>:</td>
+                    <td>{{currencyformat data.DoctorPayment.DoctorPaymentAmount}}</td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td>Due</td>
+                    <td>:</td>
+                    <td>{{data.DoctorPayment.DoctorPaymentDetails.DoctorInvoice.DueAmount}}</td>
+                </tr>
+                <tr>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+            </table>
+           <table class="table2" style="width:100%;">
+                <tr>
+                    <td style="width:20%;"><b>Cancelled Reasons<b></td>
+                    <td>:</td>
+                    <td style="width:80%;"></td>
+                </tr>
+            </table>
+            <table class="table3" style="width:100%;">
+                <tr>
+                    <td colspan="8"><u>Receipt Details</u></td>
+                </tr>
+                <tr>
+                    <td colspan="8"><b></b></td>
+                </tr>
+               <tr>
+                    <td ></td>
+                     <td style="width:20%;" colspan="4">{{data.DoctorPayment.Approved.Title.Description}} {{data.DoctorPayment.Approved.FirstName}}  {{data.DoctorPayment.Approved.LastName}}</td>
+                </tr>
+                <tr>
+                    <td ><u></u></td>
+                    <td colspan="4">Authorized Signature</td>
+                </tr>
+              <tr>
+                    <td></td>
+                </tr>
+              </table>
+                            <div style="width:100%; font-size:8px;">Printed On: {{now}}</div>
+        
+        </body>
+        
+        </html>
+        

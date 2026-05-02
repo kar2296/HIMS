@@ -1,0 +1,233 @@
+    <style>
+    .filter-area {
+        margin-top: 5px;
+    }
+
+    #opbillingcontrol .table-uigrid {
+        height: 434px !important;
+    }
+
+    #opbillingcontrol .ui-grid-viewport {
+        height: 400px;
+    }
+
+    .visualize ul.visualize-key {
+        padding: 0;
+        margin: 0;
+        list-style: none;
+        font-size: 1.2em;
+        margin-top: -6px;
+    }
+
+    .visualize ul,
+    .visualize li {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        font-size: 1em;
+    }
+
+    .visualize ul.visualize-key li {
+        padding: 0;
+        margin: 0;
+        float: left;
+        margin-right: 8px;
+        padding-left: 10px;
+        position: relative;
+        left: 14px;
+        white-space: normal;
+        text-overflow: ellipsis;
+        padding-right: 7px;
+        color: #fff;
+    }
+
+    .visualize ul.visualize-key .visualize-key-color {
+        width: 10px;
+        height: 10px;
+        left: -4px;
+        position: absolute;
+        top: 50%;
+        margin-top: -4px;
+        border-radius: 6px;
+    }
+
+    .visualize ul.visualize-key .visualize-key-label {
+        color: #fff;
+        font-size: 13px;
+    }
+
+    .fullreg-profiles {
+        height: 20px;
+    }
+
+    .billlock {
+        background-color: rgba(255, 16, 0, 0.2);
+    }
+
+    .grid {
+  width: 500px;
+  height: 200px;
+}
+    .green {
+  background-color: #2dff07;
+  color: #006400;
+}
+
+.blue {
+  background-color: #1fe0f0;
+  color: #153ff0;
+}
+    @media (device-width:100vw) and (device-height:100vh) {
+        #opbillingcontrol .table-uigrid {
+            height: 409px !important;
+        }
+        #opbillingcontrol .ui-grid-viewport {
+            height: 380px;
+        }
+    }
+
+    @media screen and (max-width:1024px) {
+        .visualize-key.pull-right {
+            display: none;
+        }
+    }
+</style>
+<link href="app/css/billing-pharmacy-customs.css" rel="stylesheet">
+<div id="opbillingcontrol">
+
+    <div class="row filter-area">
+        <div class="col-sm-12">
+            <div class="col-sm-4">
+                <label class="col-sm-5 control-label filter-lbl" translate="billing.ipbillingtab.ward.lbl"></label>
+                <div class="col-sm-7">
+                    <ui-select ng-model="currentfilter.WardId" ng-disabled="item.isAdmitted" ng-change="getList()">
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 20 : 0}}
+                            <span ng-if="$select.selected.Text.length > 20">...</span>
+                        </ui-select-match>
+                        <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.Ward | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+            <div class="col-sm-4">
+                <label class="col-sm-5 control-label filter-lbl" translate="billing.ipbillingtab.ipno.lbl"></label>
+                <div class="input-group col-sm-7">
+                    <div class="input-group-addon">
+                        <i class="fas fa-search" aria-hidden="true"></i>
+                    </div>
+                    <input type="text" class="form-control" on-enter="getList()" ng-model="currentfilter.VisitIdentifier" placeholder="IP Number">
+                </div>
+            </div>
+            <div class="col-sm-4">
+                <label class="col-sm-5 control-label" translate="billing.ipbillingtab.name.lbl"></label>
+                <div class="input-group col-sm-7">
+                    <div class="input-group-addon">
+                        <i class="fas fa-search" aria-hidden="true"></i>
+                    </div>
+                    <input type="text" class="form-control" on-enter="getList()" ng-model="currentfilter.PatientMRN" placeholder="NAME/MRN">
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-12">
+            <div class="col-sm-4">
+                <label class="col-sm-5 control-label filter-lbl" translate="billing.ipbillingtab.status.lbl"></label>
+                <div class="col-sm-7">
+                    <ui-select ng-model="currentfilter.AdmissionStatusId" ng-change="getList()" class="filter-combo">
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 20 : 0}}
+                            <span ng-if="$select.selected.Text.length > 20">...</span>
+                        </ui-select-match>
+                        <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.AdmissionStatus | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+            <div class="col-sm-4">
+                <label class="col-sm-5 control-label filter-lbl" translate="billing.ipbillingtab.estimatedbill.lbl"></label>
+                <div class="col-sm-7">
+                    <input type="checkbox" class="custom-checkbox" ng-model="currentfilter.IsEstimatedBill"
+                        ng-click="getList()">
+                </div>
+            </div>
+            <div class="col-sm-3">
+                <label class="col-sm-5 control-label filter-lbl" translate="billing.ipbillingtab.lockedbills.lbl"></label>
+                <div class="col-sm-7">
+                    <input type="checkbox" class="custom-checkbox" name="findlockedbills" ng-model="currentfilter.FindLockedBills" ng-checked="currentfilter.FindLockedBills == 1"
+                        ng-click="getLockedPatients(currentfilter)">
+                </div>
+            </div>
+            <div class="col-sm-1">
+                <button style="padding:1px 5px;" class="btn bt-color3 btn-xs pull-right" uib-tooltip="Advance Search" tooltip-placement="bottom"
+                    ng-click="openAdvancedFilter()">
+                    <i class="fa fa-filter fa-xs " aria-hidden="true"></i>&nbsp;&nbsp; Search
+                </button>
+            </div>
+        </div>
+    </div>
+    <div class="container-fluid" id="depsheight">
+        <!-- <div ui-grid="vm.gridConfig" class="table-uigrid table-uigrid-tab"></div> -->
+        <!-- <custom-table config="vm.gridConfig"></custom-table> -->
+        <div id="grid1" ui-grid="vm.gridConfig" class="grid"></div>
+        <!-- <div class="fullreg-profiles visualize">
+            <div class="col-sm-12 col-md-12 col-lg-7">
+                <ul class="visualize-key pull-left">
+                    <li>
+                        <strong style="font-size: 15px; font-weight: 500">STATUS</strong>
+                    </li>
+                    <li>
+                        <span class="visualize-key-color" style="background: #d15ef7"></span>
+                        <span class="visualize-key-label"> Admitted </span>
+                    </li>
+                    <li>
+                        <span class="visualize-key-color" style="background: #FFFF00"></span>
+                        <span class="visualize-key-label"> Fit For Discharge </span>
+                    </li>
+                    <li>
+                        <span class="visualize-key-color" style="background: #EE7700"></span>
+                        <span class="visualize-key-label"> Clinical Discharge </span>
+                    </li>
+                    <li>
+                        <span class="visualize-key-color" style="background: #1CCD85"></span>
+                        <span class="visualize-key-label"> Financial Discharge </span>
+                    </li>
+                    <li>
+                        <span class="visualize-key-color" style="background: #9dc453"></span>
+                        <span class="visualize-key-label"> package patient </span>
+                    </li>
+                </ul>
+            </div>
+            <div class="col-sm-12 col-md-12 col-lg-5">
+                <ul class="visualize-key pull-left">
+                    <li>
+                        <strong style="font-size: 15px; font-weight: 500">Alos</strong>
+                    </li>
+                    <li>
+                        <span class="visualize-key-color" style="background: #1CCD85"></span>
+                        <span class="visualize-key-label"> Normal </span>
+                    </li>
+                    <li>
+                        <span class="visualize-key-color" style="background: #EE7700"></span>
+                        <span class="visualize-key-label"> Watch </span>
+                    </li>
+                    <li>
+                        <span class="visualize-key-color" style="background: #EE2100"></span>
+                        <span class="visualize-key-label"> expedite </span>
+                    </li>
+                    <li>
+                        <span class="visualize-key-color" style="background: #000"></span>
+                        <span class="visualize-key-label"> expedite - Urgent </span>
+                    </li>
+                </ul>
+            </div>
+        </div> -->
+        <div class="fooder-bgs">
+            <div class="row">
+                <ul uib-pagination total-items="vm.gridConfig.pagerObj.totalItems" items-per-page="vm.gridConfig.pagerObj.pageSize" start-index="vm.gridConfig.pagerObj.startIndex"
+                    ng-model="vm.gridConfig.pagerObj.currentPage" ng-change="getList()"></ul>
+            </div>
+        </div>
+    </div>
+</div>

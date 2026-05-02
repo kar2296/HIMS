@@ -1,0 +1,122 @@
+<!-- <style>
+    button {
+        margin: 2px 3px;
+    }
+
+    .ui-grid-render-container-left .ui-grid-viewport {
+        height: 424px !important;
+    }
+
+    .formactionbar {
+        margin-bottom: 5px;
+        padding: 5px 15px;
+        height: 40px;
+        background-color: #ccecf5;
+        position: fixed;
+        bottom: 0px;
+    }
+
+    .table-uigrid {
+        height: 374px !important;
+    }
+
+    .ui-grid-render-container-body .ui-grid-viewport {
+        height: 424px !important;
+    }
+
+    .panel-default>.panel-heading {
+        background-color: #ddd;
+        height: 30px;
+    }
+
+    button.btn.btn-default.btn-xs {
+        border-radius: 51px !important;
+    }
+
+    /* .modal-dialog.modal-full .table-uigrid.ui-grid{
+    height: 56vh !important;
+    min-height: 71vh;
+} */
+    table td.col-sm-1 {
+        border: unset !important;
+    }
+
+    table td.col-sm-3 {
+        border: unset !important;
+    }
+</style> -->
+<script type="text/ng-template" id="patientaddress.html">
+    <div class="contactinfo" ng-if='row.entity.AddressLine1 || row.entity.AddressLine2'>
+        {{row.entity.AddressLine1 + ',' }} {{row.entity.AddressLine2 ? row.entity.AddressLine2 + ',' : ""}} {{row.entity.Area ? row.entity.Area + ',' : ""}} {{row.entity.City ? row.entity.City + ',' : ""}} {{row.entity.State ? row.entity.State + ',' : ""}} {{row.entity.Country
+        ? row.entity.Country : ""}}
+    </div>
+</script>
+
+<div class="modal-header custom-modal-header">
+    <div class="col-sm-6">
+        <h4 class="modal-title custom-modal-title" translate="billing.opbilling-list.pendingorder.lbl"></h4>
+    </div>
+    <div class="col-sm-6">
+        <div class="filters">
+            <img src="../../../../../assets/svg/close.svg" ng-click="cancelCallback()">
+        </div>
+    </div>
+</div>
+<div class="row" aria-multiselectable="true">
+    <div class="panel">
+        <table>
+            <tr ng-repeat="item in items">
+                <td><input type="checkbox" ng-model="item.IsSelected" ng-click="IsOrderSelected(item)"
+                        ng-hide="item.BillingId>0" /></td>
+                <td>
+                    <displaydate datetime-val="item.OrderRequestDate">
+                    </displaydate>
+                </td>
+                <td>{{item.OrderNumber}}</td>
+                <td>{{item.OrderPriority.Description}}</td>
+                <td>{{item.DoctorName}}</td>
+                <td>{{item.OrderFrom.DepartmentName}}</td>
+                <td>{{item.OrderTo.DepartmentName}}</td>
+                <td><button type="button" style="float: right;" class="btn btn-default btn-xs"
+                        ng-click="toggleCanShowDetails(item)">
+                        <i class="fa fa-angle-down" aria-hidden="true" ng-show="!item.CanShowDetails"></i>
+                        <i class="fa fa-angle-up" aria-hidden="true" ng-show="item.CanShowDetails"></i>
+                    </button></td>
+            </tr>
+        </table>
+    </div>
+    <div ng-repeat="item in items">
+        <div class="panel" ng-show="item.CanShowDetails">
+            <h4>Item Details</h4>
+            <div class="panel-body">
+                <div class="">
+                    <div class="row">
+                        <table style="width: 100%;">
+                            <tr ng-repeat="detail in item.PatientOrderDetails">
+                                <td class="col-sm-3">
+                                    <span><b class="fontbold">{{detail.TestCode}}({{detail.TestName}})</b>
+                                    </span>
+                                </td>
+                                <td class="col-sm-1">
+                                    <span>&nbsp;{{detail.PatientOrder.OrderNumber}}
+                                </td>
+                                <td class="col-sm-1">
+                                    <span>&nbsp;<b></b>{{detail.Quantity}}</span>
+                                </td>
+                                <td class="col-sm-1">
+                                    <span>&nbsp;{{detail.OrderComments}}
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="fooder-bgs">
+    <div class="pull-right">
+        <button type="button" class="draftbutton" ng-click="loadorders()" translate="Load"></button>
+    </div>
+</div>
+</div>

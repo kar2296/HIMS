@@ -1,0 +1,54 @@
+{
+    "Title" : "Order Acknowledgement",
+    "ControllerName" : "orderAcknowledgementList",
+    "InitAction" : {
+        "url" : "General/Options/getoptions",
+        "behaviour" : "default",
+        "optionkeys" : [ {"name" : "OrderStatus"}, {"name" : "PriorityStatus"}, {"name" : "PatientType"} ]
+    },
+    "FilterConfig" :[ {
+        "localizationpath" : "lis.orderacknowledgement-list",
+        "controls" :[
+               { "text" : true, "label" : "Order / Bill#", "name" : "filter_ordernumber", "model" : "currentfilter.OrderNumber", "placeholder" : "" },
+               { "combo" : true, "label" : "Patient Type", "name" : "filter_patienttype", "model" : "currentfilter.PatientTypeId", "placeholder" : "", "collection" : "lookup.PatientType", "valuefield" : "Id", "displayfield" : "Text" },
+               { "text" : true, "label" : "Patient", "name" : "filter_patient", "model" : "currentfilter.PatientMRN", "placeholder" : "" },               
+               { "combo" : true, "label" : "Priority", "name" : "filter_priority", "model" : "currentfilter.OrderPriorityId", "placeholder" : "", "collection" : "lookup.PriorityStatus", "valuefield" : "Id", "displayfield" : "Text" },
+               { "date" : true, "label" : "From Date", "name" : "filter_fromdate", "model" : "currentfilter.OrderRequestDate", "placeholder" : "" },
+               { "combo" : true, "label" : "Status", "name" : "filter_status", "model" : "currentfilter.OrderStatusId", "placeholder" : "", "collection" : "lookup.OrderStatus", "valuefield" : "Id", "displayfield" : "Text" }
+            ]
+        }
+    ],
+    "FetchAction" : {
+        "url" : "patientemr/patientorder/GetPatientOrders",
+        "behaviour" : "default"
+    },
+    "EditAction" : {
+                "url": "",
+                "state": "lis.orderacknowledgement",
+                "params": ["id:row.entity.Id"]
+                },
+    "AddAction" : {
+        "url": "",
+        "state": "lis.orderacknowledgement",
+        "params": ["id:0"]
+        },
+    "DeleteAction" : {
+        "url": "patientemr/patientorder/DeletePatientOrder",
+        "behaviour" : "default"
+    },
+    "Localization" : { "localizationmodule" : "lis", "screenkey" : "orderacknowledgement-list" },
+    "GridConfig" :[ {
+        "localizationpath" : "lis.orderacknowledgement-list",
+        "columnDefs": [ { "field": "OrderRequestDate", "displayName": "Order Date", "name" : "orderdate" } ,
+                        { "field": "OrderNumber", "displayName": "Order/Bill No.", "name" : "ordernumber" } , 
+                        { "field": "PatientMRN", "displayName": "Patient Information", "name" : "patientinfo" },
+                        { "field": "OrderPriority.Description", "displayName": "Priority", "name" : "priority" },
+                        { "field": "VisitId", "displayName": "Visit ID", "name" : "visitid" },
+                        { "field": "OrderedBy", "displayName": "Ordered By", "name" : "orderedby" },
+                        { "field": "OrderLocation", "displayName": "Order Location", "name" : "orderlocation" },
+                        { "field": "OrderStatus.Description", "displayName": "Order Status", "name" : "orderstatus" },
+                        { "field": "ActionTODO", "displayName": "Action", "name" : "action" }
+                    ]
+        }
+    ]
+}

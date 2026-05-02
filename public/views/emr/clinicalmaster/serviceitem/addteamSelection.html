@@ -1,0 +1,86 @@
+<div class="modal-header custom-modal-header">
+    <div class="col-sm-10">
+        <h4 class="modal-title custom-modal-title" translate="clinicalmaster.serviceratecategory-form.pagetitle.lbl">
+        </h4>
+    </div>
+    <div class="col-sm-2">
+        <div class="filters">
+            <img src="../../../../../assets/svg/close.svg" ng-click="cancelCallback()">
+        </div>
+    </div>
+</div>
+<div class="row">
+    <form id="item_form" name="item_form" class="form-horizontal" role="form" ng-submit="saveItem()">
+        <div class="col-sm-12">
+            <div class="form-group col-sm-3">
+                <label class="col-sm-12 control-label" for="userteam" translate="Team Selection"></label>
+                <div class="col-sm-12">
+                    <ui-select ng-model="item.TeamId" name="userteam" ng-change="getTeamDrs(item)" required>
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 20 : 0}}
+                            <span ng-if="$select.selected.Text.length>20">...</span>
+                        </ui-select-match>
+                        <ui-select-choices
+                            repeat="lookupitem.Id as lookupitem in lookup.Team| filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+            <div class="form-group col-sm-3">
+                <label class="col-sm-12 control-label" for="serviceratecategory"
+                    translate="clinicalmaster.serviceratecategory-form.serviceratecategory.lbl"></label>
+                <div class="col-sm-12">
+                    <ui-select ng-model="item.ServiceRateCategoryId" for="serviceratecategory"
+                        ng-change="getRateDetails(item)" required>
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 20 : 0}}
+                            <span ng-if="$select.selected.Text.length>20">...</span>
+                        </ui-select-match>
+                        <ui-select-choices
+                            repeat="lookupitem.Id as lookupitem in lookup.ServiceRateCategory | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+            <div class="form-group col-sm-3">
+                <label class="col-sm-12 control-label" for="sharetype" translate="Type"></label>
+                <div class="col-sm-12">
+                    <ui-select ng-model="item.ShareTypeId">
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 20 : 0}}
+                            <span ng-if="$select.selected.Text.length>20">...</span>
+                        </ui-select-match>
+                        <ui-select-choices
+                            repeat="lookupitem.Id as lookupitem in lookup.DiscountMode | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+            <div class="form-group col-sm-3">
+                <label class="col-sm-12 control-label" translate="Dr.Share"></label>
+                <div class="col-sm-12">
+                    <input type="text" class="form-control" name="rate" ng-model="item.DoctorShareValue" placeholder=""
+                        ng-pattern="/^\d+$/" ng-keypress="numberonly($event)" required>
+                </div>
+            </div>
+            <div class="form-group col-sm-3">
+                <label class="col-sm-12 control-label" translate="All Rate Types">
+                </label>
+                <div class="col-sm-7">
+                    <input ng-disabled="SaveCompleted" type="checkbox" class="custom-checkbox cstmckbx ng-pristine
+                                      ng-untouched ng-valid ng-empty" ng-model="item.ForAllRateTypes"
+                        ng-click="selectrateTypes()">
+                </div>
+            </div>
+        </div>
+        <div class="fooder-bgs">
+            <div class="pull-right">
+                <button type="button" class="draftbutton text-white btn-sm" translate="common.saveapprove-action.lbl"
+                    ng-click="save()"></button>
+            </div>
+        </div>
+    </form>
+</div>

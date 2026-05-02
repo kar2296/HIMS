@@ -1,0 +1,259 @@
+<ul class="breadcrumb" ng-if="!currentcontext.ismodal">
+    <li>
+        <a ng-click="backToList()" translate="patientemr.patientimmunization-form.parentpagetitle.lbl"></a>
+    </li>
+    <li class="active" translate="patientemr.patientimmunization-form.pagetitle.lbl"></li>
+</ul>
+<div class="modal-header custom-modal-header" ng-if="currentcontext.ismodal">
+    <div class="col-sm-6">
+        <h4 class="modal-title custom-modal-title" translate="patientemr.patientimmunization-form.pagetitle.lbl"></h4>
+    </div>
+    <div class="col-sm-6">
+        <div class="filters">
+        <img src="../../../../../assets/svg/close.svg" ng-click="cancelCallback()">
+        </div>
+    </div>
+</div>
+<div class="row" ng-show="canShowFormArea()">
+    <form id="item_form0" name="item_form" class="form-horizontal" role="form" ng-submit="saveItem()">
+        <div class="panel-body form-panel">
+            <fieldset class="">
+                <h4 translate="patientemr.patientimmunization-form.vaccinedetails.lbl"></h4>
+                <!-- leftpanel -->
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <label class="col-sm-12 control-label" for="immunizationtype"
+                            translate="patientemr.patientimmunization-form.immunizationtype.lbl"></label>
+                        <div class="col-sm-12">
+                            <ui-select id="immunizationtype" ng-model="item.ImmunizationTypeId" name="immunizationtype"
+                                required>
+                                <ui-select-match>
+                                    {{$select.selected.Text | limitTo : 20 : 0}}
+                                    <span ng-if="$select.selected.Text.length>20">...</span>
+                                </ui-select-match>
+                                <ui-select-choices
+                                    repeat="lookupitem.Id as lookupitem in lookup.ImmunizationType | filter: { Text: $select.search }">
+                                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                </ui-select-choices>
+                            </ui-select>
+                        </div>
+                    </div>
+
+
+
+                    <!-- <div class="form-group">
+                                    <label class="col-sm-12 control-label" for="cvxcode" translate="patientemr.patientimmunization-form.cvxcode.lbl"></label>
+                                    <div class="col-sm-12">
+                                        <input type="text" class="form-control" name="cvxcode" ng-model="item.CVXCode" placeholder="" >
+                                    </div>
+                                </div> -->
+                    <!-- <div class="form-group">
+                                    <label class="col-sm-12 control-label" for="agefrom" translate="patientemr.patientimmunization-form.agefrom.lbl"></label>
+                                    <div class="col-sm-12">
+                                        <input type="text" class="form-control" name="agefrom" ng-model="item.AgeFrom" placeholder="">
+                                    </div>
+                                </div> -->
+                    <div class="form-group">
+                        <label class="col-sm-12 control-label" for="totaldosagecount"
+                            translate="patientemr.patientimmunization-form.totaldosagecount.lbl"></label>
+                        <div class="col-sm-12">
+                            <ui-select id="dosage" ng-disabled="true" ng-model="item.TotalDosageCount"
+                                name="totaldosagecount">
+                                <ui-select-match>
+                                    {{$select.selected.Text | limitTo : 20 : 0}}
+                                    <span ng-if="$select.selected.Text.length>20">...</span>
+                                </ui-select-match>
+                                <ui-select-choices
+                                    repeat="lookupitem.Id as lookupitem in lookup.Dosage | filter: { Text: $select.search }">
+                                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                </ui-select-choices>
+                            </ui-select>
+                        </div>
+                    </div>
+                </div>
+                <!-- rightpanel -->
+                <div class="col-sm-6">
+
+                    <div class="form-group">
+                        <label class="col-sm-12 control-label" for="immunization"
+                            translate="patientemr.patientimmunization-form.immunization.lbl"></label>
+                        <div class="col-sm-12">
+                            <ui-select ng-model="item.ImmunizationId" name="immunization"
+                                ng-change="fillMasterInfo($select.selected)" required>
+                                <ui-select-match>
+                                    {{$select.selected.Text | limitTo : 20 : 0}}
+                                    <span ng-if="$select.selected.Text.length>20">...</span>
+                                </ui-select-match>
+                                <ui-select-choices
+                                    repeat="lookupitem.Id as lookupitem in lookup.Immunization | filter: { Text: $select.search }">
+                                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                </ui-select-choices>
+                            </ui-select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-12 control-label" for="immunizationstatus"
+                            translate="patientemr.patientimmunization-form.immunizationstatus.lbl"></label>
+                        <div class="col-sm-12">
+                            <ui-select ng-model="item.ImmunizationStatusId" name="immunizationstatus">
+                                <ui-select-match>
+                                    {{$select.selected.Text | limitTo : 20 : 0}}
+                                    <span ng-if="$select.selected.Text.length>20">...</span>
+                                </ui-select-match>
+                                <ui-select-choices
+                                    repeat="lookupitem.Id as lookupitem in lookup.ImmunizationStatus | filter: { Text: $select.search }">
+                                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                </ui-select-choices>
+                            </ui-select>
+                        </div>
+                    </div>
+
+                    <!-- <div class="form-group">
+                                    <label class="col-sm-12 control-label" for="uom" translate="patientemr.patientimmunization-form.uom.lbl"></label>
+                                    <div class="col-sm-12">
+                                        <input type="text" class="form-control" name="uom" ng-model="item.UOM" placeholder="">
+                                    </div>
+                                </div> -->
+
+                    <!-- <div class="form-group">
+                                    <label class="col-sm-12 control-label" for="ageto" translate="patientemr.patientimmunization-form.ageto.lbl"></label>
+                                    <div class="col-sm-12">
+                                        <input type="text" class="form-control" name="ageto" ng-model="item.AgeTo" placeholder="">
+                                    </div>
+                                </div> -->
+
+                </div>
+            </fieldset>
+        </div>
+        <div class="panel-body form-panel">
+            <fieldset class="">
+                <h4 translate="patientemr.patientimmunization-form.Administration.lbl"></h4>
+                <!-- leftpanel -->
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <label class="col-sm-12 control-label" for="administrationtype"
+                            translate="patientemr.patientimmunization-form.administrationtype.lbl"></label>
+                        <div class="col-sm-12">
+                            <ui-select ng-model="item.ImmunizationAdministrationTypeId" name="administrationtype">
+                                <ui-select-match>
+                                    {{$select.selected.Text | limitTo : 20 : 0}}
+                                    <span ng-if="$select.selected.Text.length>20">...</span>
+                                </ui-select-match>
+                                <ui-select-choices
+                                    repeat="lookupitem.Id as lookupitem in lookup.ImmunizationAdministrationType | filter: { Text: $select.search }">
+                                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                </ui-select-choices>
+                            </ui-select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-12 control-label" for="siteorroute"
+                            translate="patientemr.patientimmunization-form.siteorroute.lbl"></label>
+                        <div class="col-sm-12">
+                            <ui-select ng-model="item.RouteId" name="route">
+                                <ui-select-match>
+                                    {{$select.selected.Text | limitTo : 20 : 0}}
+                                    <span ng-if="$select.selected.Text.length>20">...</span>
+                                </ui-select-match>
+                                <ui-select-choices
+                                    repeat="lookupitem.Id as lookupitem in lookup.Route | filter: { Text: $select.search }">
+                                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                </ui-select-choices>
+                            </ui-select>
+                        </div>
+                    </div>
+                    <!-- <div class="form-group">
+                                    <label class="col-sm-12 control-label" for="location" translate="patientemr.patientimmunization-form.location.lbl"></label>
+                                    <div class="col-sm-12">
+                                        <input type="text" class="form-control" name="location" ng-model="item.Location" placeholder="">
+                                    </div>
+                                </div> -->
+                </div>
+                <!-- rightpanel -->
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <label class="col-sm-12 control-label" for="administratedby"
+                            translate="patientemr.patientimmunization-form.administratedby.lbl"></label>
+                        <div class="col-sm-12">
+                            <ui-select ng-model="item.AdministeredById" name="administratedby" required>
+                                <ui-select-match>
+                                    {{$select.selected.Text | limitTo : 20 : 0}}
+                                    <span ng-if="$select.selected.Text.length>20">...</span>
+                                </ui-select-match>
+                                <ui-select-choices
+                                    repeat="lookupitem.Id as lookupitem in lookup.User | filter: { Text: $select.search }">
+                                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                </ui-select-choices>
+                            </ui-select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-12 control-label" for="performeddate"
+                            translate="patientemr.patientimmunization-form.performeddate.lbl"></label>
+                        <div class="col-sm-12">
+                            <input type="text" class="form-control" name="performeddate" ng-date-object
+                                uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                                placeholder="{{datePickerOptions.placeholder}}"
+                                ng-click="performeddatePopup = { opened: true }" is-open="performeddatePopup.opened"
+                                ng-model="item.PerformedDate" required>
+                        </div>
+                    </div>
+                </div>
+            </fieldset>
+        </div>
+        <div class="panel-body form-panel">
+            <fieldset class="">
+                <h4 translate="patientemr.patientimmunization-form.manfacturerdetails.lbl"></h4>
+                <!-- leftpanel -->
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <label class="col-sm-12 control-label" for="manufacturer"
+                            translate="patientemr.patientimmunization-form.manufacturer.lbl"></label>
+                        <div class="col-sm-12">
+                            <input type="text" class="form-control" name="manufacturer" ng-model="item.ManufacturerName"
+                                placeholder="">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-12 control-label" for="expirydate"
+                            translate="patientemr.patientimmunization-form.expirydate.lbl"></label>
+                        <div class="col-sm-12">
+                            <input type="text" class="form-control" name="expirydate" ng-date-object
+                                uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                                placeholder="{{datePickerOptions.placeholder}}"
+                                ng-click="expirydatePopup = { opened: true }" is-open="expirydatePopup.opened"
+                                ng-model="item.ExpiryDate">
+                        </div>
+                    </div>
+
+                </div>
+                <!-- rightpanel -->
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <label class="col-sm-12 control-label" for="lotnumber"
+                            translate="patientemr.patientimmunization-form.lotnumber.lbl"></label>
+                        <div class="col-sm-12">
+                            <input type="text" class="form-control" name="lotnumber" ng-model="item.LotNumber"
+                                placeholder="">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-12 control-label" for="comments"
+                            translate="patientemr.patientimmunization-form.comments.lbl"></label>
+                        <div class="col-sm-12">
+                            <commentscontrol comments="item.Comments"></commentscontrol>
+                        </div>
+                    </div>
+                    <p>&nbsp;</p>
+                    <p>&nbsp;</p>
+                </div>
+            </fieldset>
+        </div>
+    </form>
+</div>
+<div class="row">
+    <div class="pull-right">
+        <button type="submit" ng-click="saveItem()" ng-if="canUpdatePatientEMR()" class="draftbutton"
+            translate="common.saveaction.lbl"></button>
+    </div>
+</div>

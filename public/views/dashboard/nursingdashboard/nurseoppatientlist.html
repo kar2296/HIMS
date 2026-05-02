@@ -1,0 +1,66 @@
+<div class="col-sm-12">
+    <h4 class="col-sm-11 mt0 ng-scope" translate="OP Patients"></h4>
+    <div class="col-sm-1">
+        <span class="drhms-billing-btn drhms-home-btn"><i class="fas fa-home" ng-click="appoinment()"
+                uib-tooltip="Dashboard" tooltip-placement="bottom"></i></span>
+        <!-- <i class="fa fa-home" ng-click="appoinment()" uib-tooltip="Dashboard" tooltip-placement="bottom" aria-hidden="true"> </i> -->
+    </div>
+</div>
+
+<div id="checkedinpatients" class="doct_checkedinpatients">
+    <div class="col-sm-12 col-md-12 col-lg-12 clearfix page-header row smpd3"
+        style="    margin-bottom: 10px !important;">
+        <div class="col-sm-12">
+            <div class="col-sm-4">
+                <label class="col-sm-4 control-label filter-lbl" translate="Date"
+                    style="color: black !important;"></label>
+                <div class="col-sm-8">
+                    <div class="datepicker" id="datepicker">
+                        <input type="text" class="form-control cwidth" ng-change="getList()"
+                            uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                            placeholder="{{datePickerOptions.placeholder}}" ng-click="visitdatePopup = { opened: true }"
+                            is-open="visitdatePopup.opened" ng-model="currentfilter.visitdate">
+                        <i class="fa fa-calendar" aria-hidden="true"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-4 ">
+                <label class="col-sm-4 p-0 control-label filter-lbl"
+                    translate="billing.servicebilldiscounts.approvalstatus.lbl"
+                    style="color: black !important;"></label>
+                <div class="col-sm-7">
+                    <ui-select ng-model="currentfilter.consultationstatusid" ng-change="getList()" class="filter-combo">
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 20 : 0}}
+                            <span ng-if="$select.selected.Text.length > 20">...</span>
+                        </ui-select-match>
+                        <ui-select-choices
+                            repeat="lookupitem.Id as lookupitem in lookup.ConsultationStatus | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+            <div class="col-sm-4">
+                <div class="search">
+                    <input type="text" id="pid" class="form-control" on-enter="getList()"
+                        ng-model="currentfilter.patientname" translate
+                        translate-attr-placeholder="registration.checkedinpatients.namemrn.lbl"><i class="fas fa-search"
+                        aria-hidden="true"></i>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <custom-table config="vm.gridConfig"></custom-table>
+    <div class="container-fluid ">
+        <div class="fooder-bgs ">
+            <div class="row">
+                <ul uib-pagination total-items="vm.gridConfig.pagerObj.totalItems"
+                    items-per-page="vm.gridConfig.pagerObj.pageSize" start-index="vm.gridConfig.pagerObj.startIndex"
+                    ng-model="vm.gridConfig.pagerObj.currentPage" ng-change="getList()"></ul>
+            </div>
+        </div>
+    </div>
+
+</div>

@@ -1,0 +1,148 @@
+<!-- <style>
+    table#tblData {
+        width: 98%;
+        margin-left: 10px;
+    }
+
+    #tblData th {
+        background: #0073bc !important;
+        padding: 5px;
+        border: 1px solid black !important;
+        text-align: center;
+    }
+</style> -->
+<div class="row page-header">
+    <div class="col-sm-6">
+        <h4 class="mt0" translate="reports.labsummarybytest.lbl"></h4>
+    </div>
+    <div class="col-sm-6">
+        <div class="filters">
+            <i class="icofont-filter" uib-tooltip="Filter" tooltip-placement="bottom" ng-click="openFilterTab()"></i>
+            <i class="icofont-file-excel" uib-tooltip="Excel" tooltip-placement="bottom"
+                onclick="exportTableToExcel('tblData', 'members-data')"></i>
+            <i class="icofont-print" uib-tooltip="Print" tooltip-placement="bottom" ng-click="print()"></i>
+            <i class="icofont-home" ng-click="backtoReport()" uib-tooltip="Report" tooltip-placement="bottom"></i>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <table id="bannerdetails">
+        <tr>
+            <td translate="reports.fromdate.lbl"></td>
+            <td>
+                <div class="datepicker" id="datepicker">
+                    <input type="text" class="form-control" name="fromdate" ng-date-object
+                        datetime-picker="{{dateTimePickerOptions.dateTimeFormat}}"
+                        placeholder="{{datePickerOptions.placeholder}}" ng-click="fromdatePopup = { opened: true }"
+                        is-open="fromdatePopup.opened" ng-model="currentfilter.From" ng-change="getList()">
+                    <i class="fa fa-calendar"></i>
+                    <!-- <input type="text" class="form-control" name="from" ng-change="getList)"
+                    datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}"
+                    uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                    placeholder="{{datePickerOptions.placeholder}}" ng-click="fromdatePopup = { opened: true }"
+                    is-open="fromdatePopup.opened" ng-model="currentfilter.From">
+                <i class="fa fa-calendar" aria-hidden="true"></i> -->
+                </div>
+            </td>
+            <td translate="reports.todate.lbl"></td>
+            <td>
+                <div class="datepicker" id="datepicker">
+                    <input type="text" class="form-control" name="todate" ng-date-object
+                        datetime-picker="{{dateTimePickerOptions.dateTimeFormat}}"
+                        placeholder="{{datePickerOptions.placeholder}}" ng-click="todatePopup = { opened: true }"
+                        is-open="todatePopup.opened" ng-model="currentfilter.To" ng-change="getList()">
+                    <i class="fa fa-calendar"></i>
+                    <!-- <input type="text" class="form-control" name="from" ng-change="getList()"
+                    datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}"
+                    uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                    placeholder="{{datePickerOptions.placeholder}}" ng-click="todatePopup = { opened: true }"
+                    is-open="todatePopup.opened" ng-model="currentfilter.To">
+                <i class="fa fa-calendar" aria-hidden="true"></i> -->
+                </div>
+            </td>
+        </tr>
+    </table>
+</div>
+<div class="row">
+    <div id="reportsdetail">
+        <table id="tblData">
+            <thead>
+                <th class="cus-col tbl-header cust_Particulars">
+                    <span translate="Test Name"></span>
+                </th>
+                <th class="cus-col tbl-header">
+                    <span translate="OP "></span>
+                </th>
+                <th class="cus-col tbl-header">
+                    <span translate="IP "></span>
+                </th>
+                <th class="cus-col tbl-header">
+                    <span translate="Total"></span>
+                </th>
+            </thead>
+            <tr ng-repeat="item in NetTestData">
+                <td class=""><span class="">{{item.Key}}</span></td>
+                <td id="total_clr">{{ item.OpCount }}</td>
+                <td id="total_clr">{{ item.IpCount}}</td>
+                <td id="total_clr">{{ (item.OpCount + item.IpCount) }}</td>
+            </tr>
+            <tr>
+                <td class="td-highlight">
+                    <span>Total</span>
+                </td>
+                <td class="td-highlight">{{TotOpCount}}</td>
+                <td class="td-highlight">{{TotIpCount}}</td>
+                <td class="td-highlight">{{TotAllCount}}</td>
+            </tr>
+        </table>
+    </div>
+</div>
+
+
+<div class="row">
+    <custom-table config="vm.gridConfig"></custom-table>
+</div>
+<div class="fooder-bgs"></div>
+<!-- <div class="container-fluid " id="patientsearchheight">
+
+    <div class="fooder-bgs" style="margin-bottom:40px;">
+        <div class="row">
+            <ul uib-pagination total-items="vm.gridConfig.pagerObj.totalItems"
+                items-per-page="vm.gridConfig.pagerObj.pageSize" start-index="vm.gridConfig.pagerObj.startIndex"
+                ng-model="vm.gridConfig.pagerObj.currentPage" ng-change="getList()"></ul>
+        </div>
+    </div>
+</div> -->
+
+<script>
+    function exportTableToExcel(tableID, filename = '') {
+        var downloadLink;
+        var dataType = 'application/vnd.ms-excel';
+        var tableSelect = document.getElementById(tableID);
+        var tableHTML = tableSelect.outerHTML.replace(/ /g, '%20');
+
+        // Specify file name
+        filename = filename ? filename + '.xls' : 'excel_data.xls';
+
+        // Create download link element
+        downloadLink = document.createElement("a");
+
+        document.body.appendChild(downloadLink);
+
+        if (navigator.msSaveOrOpenBlob) {
+            var blob = new Blob(['\ufeff', tableHTML], {
+                type: dataType
+            });
+            navigator.msSaveOrOpenBlob(blob, filename);
+        } else {
+            // Create a link to the file
+            downloadLink.href = 'data:' + dataType + ', ' + tableHTML;
+
+            // Setting the file name
+            downloadLink.download = filename;
+
+            //triggering the function
+            downloadLink.click();
+        }
+    }
+</script>

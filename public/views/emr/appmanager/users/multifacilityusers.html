@@ -1,0 +1,199 @@
+<style>
+    .filters div {
+        padding-right: 10px;
+    }
+</style>
+<div class="row">
+    <div class="col-sm-9">
+        <h4 translate="Multi Facility User"></h4>
+    </div>
+    <div class="col-sm-3">
+        <div class="filters">
+            <div class="search">
+                <input type="text" id="drhms-patinet-search-box" class="form-control" on-enter="getList()"
+                    ng-model="currentfilter.username" placeholder="Name/Login">
+                <div class="drhms-search-icon"><i class="fas fa-search" aria-hidden="true"></i></div>
+            </div>
+            <button type="button" tabindex="-1" class="btn-add" ng-click="addNew()"
+                uib-tooltip="{{ 'appmanager.users.addnew-tooltip.lbl' | translate}}" tooltip-placement="bottom">
+                <i class="fa fa-plus" aria-hidden="true"></i>
+            </button>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="drhms-list-filters">
+        <div class="col-sm-4">
+            <label class="col-sm-3" translate="appmanager.users.filter_type.lbl"></label>
+            <div class="col-sm-9">
+                <ui-select ng-model="currentfilter.usertypeid" ng-change="getList()" class="filter-combo">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 15 : 0}}
+                        <span ng-if="$select.selected.Text.length>15">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.UserType | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <label class="col-sm-3" translate="appmanager.users.filter_group.lbl"></label>
+            <div class="col-sm-9">
+                <ui-select ng-model="currentfilter.groupid" ng-change="getList()" class="filter-combo">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 15 : 0}}
+                        <span ng-if="$select.selected.Text.length>15">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.Group | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <label class="col-sm-3" translate="appmanager.users.filter_status.lbl"></label>
+            <div class="col-sm-9">
+                <ui-select ng-model="currentfilter.ActiveStatusId" ng-change="getList()" class="filter-combo">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 15 : 0}}
+                        <span ng-if="$select.selected.Text.length>15">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.ActiveStatus | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <custom-table config="vm.gridConfig"></custom-table>
+</div>
+<div class="fooder-bgs">
+    <div class="row">
+        <ul uib-pagination total-items="vm.gridConfig.pagerObj.totalItems"
+            items-per-page="vm.gridConfig.pagerObj.pageSize" start-index="vm.gridConfig.pagerObj.startIndex"
+            ng-model="vm.gridConfig.pagerObj.currentPage" ng-change="getList()"></ul>
+    </div>
+</div>
+
+<script type="text/ng-template" id="patientListTemplate.html">
+<div class="patientprofilebg">
+    <div class="col-sm-12 block">
+        <div class="ui-grid-cell-contents">
+            <div class="col-sm-1">
+                <img src="app/img/main/no-img-icon.png" class="img-responsive image-height"
+                    ng-show="!row.entity.PhotoPath">
+                <img class="img-responsive image-height" ng-show="row.entity.PhotoPath && row.entity.Photo"
+                    data-ng-src="data:image/png;base64,{{row.entity.Photo}}" />
+            </div>
+            <div class="col-sm-5 block">
+                <div class="nameinfo"> {{row.entity.Title.Description}} {{row.entity.FirstName}} {{row.entity.LastName}}
+                </div>
+                <div class="nameinfo">
+                    <span class="nameinfo mrninfo">MRN - {{row.entity.MRN ? row.entity.MRN : 'N/A' }}</span> &nbsp; |
+                    &nbsp;
+                    {{row.entity.Gender.Description ? row.entity.Gender.Description : 'N/A'}} &nbsp; | &nbsp;
+                    {{row.entity.Age ? ((row.entity.Age <= 1) ? row.entity.Age + 'Yr' : row.entity.Age + ' Yrs' )
+                        : 'N/A' }} &nbsp; | &nbsp; {{row.entity.DOB ? (row.entity.DOB| date : 'dd-MMM-yyyy' ) : 'N/A' }}
+                        </div>
+                        <div class="contactinfo" ng-if='row.entity.AddressLine1 || row.entity.AddressLine2'>
+                            <i class="fa fa-envelope text-address"></i> : &nbsp;
+                            {{row.entity.AddressLine1 + ',' }}
+                            {{row.entity.AddressLine2 ? row.entity.AddressLine2 + ',' : ""}}
+                            {{row.entity.Area ? row.entity.Area + ',' : ""}}
+                            {{row.entity.City ? row.entity.City + ',' : ""}}
+                            {{row.entity.State ? row.entity.State + ',' : ""}}
+                            {{row.entity.Country ? row.entity.Country : ""}}
+                        </div>
+                        <div class="contactinfo" ng-if='!row.entity.AddressLine1 && !row.entity.AddressLine2'>
+                            <i class="fa fa-envelope text-address"></i> : &nbsp; N/A
+                        </div>
+                        <div class="contactinfo">
+                            <i class="fa fa-phone-square text-cell"></i> : {{row.entity.LandLine}} &nbsp; | &nbsp;
+                            NRIC - {{row.entity.NationalityIdentifier ? row.entity.NationalityIdentifier : 'N/A'}}
+                        </div>
+                </div>
+                <div class="col-sm-3">
+                    <ul class="timeline-xs">
+                        <li class="timeline-item success">
+                            <div class="margin-left-15">
+                                <div class="text-muted text-small">
+                                    Registration : <span class="text-primary"> {{row.entity.PatientStatus.Description}}
+                                    </span>
+                                </div>
+                                <p>{{row.entity.RegisteredDate| date : 'dd-MMM-yyyy' }}</p>
+                            </div>
+                        </li>
+                        <li class="timeline-item">
+                            <div class="margin-left-15">
+                                <div class="text-muted text-small">
+                                    Appointment : <span class="text-primary"> Visit in Progress </span>
+                                </div>
+                                <p> {{row.entity.Appointments[0].AppointmentDate | date : 'dd-MMM-yyyy'}}
+                                    {{row.entity.Appointments[0].StartTime}} </p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+
+                <div class="col-sm-3 linkstyle">
+                    <div class=" col-sm-2 patientmenu">
+                        <a ng-click="grid.appScope.handleEvents('edit',row)" uib-tooltip="Demographics "
+                            tooltip-placement="bottom" class=" text-white btn dem-color4  btn-sm"> <strong>DEM</strong>
+                        </a>
+                        <a ng-click="grid.appScope.handleEvents('newvisit',row)" uib-tooltip="New Visit"
+                            tooltip-placement="left" class="text-white new-color5 btn btn-success btn-sm">
+                            <strong>NEW</strong> </a>
+                        <a ng-click="grid.appScope.handleEvents('appointments',row)" uib-tooltip="Appointments"
+                            tooltip-placement="top" class=" text-white app-color6 btn btn-success btn-sm">
+                            <strong>APP</strong> </a>
+
+                    </div>
+                    <div class="col-sm-2 patientmenu">
+                        <a ng-click="" uib-tooltip="Admission" tooltip-placement="bottom"
+                            class=" text-white btn adm-color7  btn-sm"><strong>ADM</strong> </a>
+                        <a ng-click="" uib-tooltip="OP Bill" tooltip-placement="left"
+                            class=" text-white btn  opb-color8 btn-sm"> <strong>OPB</strong> </a>
+                        <a ng-click="" uib-tooltip="IP Bill" tooltip-placement="top"
+                            class=" text-white btn btn-success btn-sm"><strong>IPB</strong> </a>
+
+                    </div>
+                    <div class="col-sm-2 patientmenu">
+                        <a ng-click="" uib-tooltip="Outstanding" tooltip-placement="bottom"
+                            class=" text-white btn due-color9  btn-sm"><strong>DUE</strong> </a>
+                        <a ng-click="" uib-tooltip="Modify Payer" tooltip-placement="right"
+                            class="text-white btn  pyr-color10 btn-sm"><strong>PYR</strong> </a>
+                        <a ng-click="grid.appScope.handleEvents('emr',row)" uib-tooltip="EMR" tooltip-placement="right"
+                            class=" text-white btn emr-color11 btn-sm"> <strong>EMR</strong> </a>
+
+                    </div>
+                    <div class="col-sm-2 patientmenu">
+                        <a ng-click="" uib-tooltip="Past Visits" tooltip-placement="bottom"
+                            class=" text-white btn prv-color12 btn-sm"><strong>PRV</strong> </a>
+                        <a ng-click="" uib-tooltip="Print" tooltip-placement="left"
+                            class=" text-white btn prn-color13 btn-sm"><strong>PRN</strong> </a>
+                        <a ng-click="" uib-tooltip="Result" tooltip-placement="top"
+                            class=" text-white btn res-color14 btn-sm"> <strong>RES</strong> </a>
+                    </div>
+                    <div class="col-sm-2 patientmenu">
+                        <a ng-click="grid.appScope.handleEvents('portalaccess',row)"
+                            uib-tooltip="{{ 'registration.patientsearch.action-portalaccess.lbl' | translate }}"
+                            tooltip-placement="bottom" class=" text-white btn btn-success btn-sm">
+                            <strong><span
+                                    translate="registration.patientsearch.action-portalaccess.lbl"></span></strong>
+                        </a>
+                    </div>
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</script>

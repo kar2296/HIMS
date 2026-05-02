@@ -1,0 +1,193 @@
+<link rel="stylesheet" href="app/css/drhms.css">
+<style>
+    button.draftbutton {
+        margin-top: 27px;
+    }
+
+    div#mainresponsivetablecontrol {
+        overflow: auto !important;
+    }
+</style>
+<div class="row">
+    <div class="drhms-filters">
+        <div class="col-sm-12">
+            <h4 translate="Billing Approval Request"></h4>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <form id="item_form" name="item_form" class="form-horizontal" role="form">
+        <div class="form-group col-sm-3">
+            <label class="col-sm-12" translate="billing.pharmacy-billdetails.fromdate.lbl"></label>
+            <div class="col-sm-12">
+                <input type="text" class="form-control" name="FromBillDate" ng-date-object
+                    datetime-picker="{{datePickerOptions.dateTimeFormat}}" datepicker-append-to-body="true"
+                    placeholder="{{datePickerOptions.placeholder}}" ng-click="FromBillDatePopup = { opened: true }"
+                    is-open="FromBillDatePopup.opened" ng-model="currentfilter.FromBillDate">
+            </div>
+        </div>
+        <div class="form-group col-sm-3">
+            <label class="col-sm-12" translate="billing.pharmacy-billdetails.todate.lbl"></label>
+            <div class="col-sm-12">
+                <input type="text" class="form-control" name="ToBillDate" ng-date-object
+                    datetime-picker="{{datePickerOptions.dateTimeFormat}}" datepicker-append-to-body="true"
+                    placeholder="{{datePickerOptions.placeholder}}" ng-click="ToBillDatePopup = { opened: true }"
+                    is-open="ToBillDatePopup.opened" ng-model="currentfilter.ToBillDate">
+            </div>
+        </div>
+        <div class="form-group col-sm-3">
+            <label class="col-sm-12" translate="billing.opbilling-list.patientsearch.lbl"></label>
+            <div class="col-sm-12">
+                <patientsearch controlid="'pid'" patientid="currentfilter.PatientId" name="txtpatientsearch"
+                    patientinfo="selectedPatient" isdisabled="" filterconfig="patientfilterconfig"></patientsearch>
+            </div>
+        </div>
+        <div class="form-group col-sm-3">
+            <label class="col-sm-12" translate="Bill Number"></label>
+            <div class="col-sm-12">
+                <input type="text" tabindex="-1" class="form-control" ng-model="currentfilter.BillNo" placeholder="">
+            </div>
+        </div>
+        <div class="form-group col-sm-3">
+            <label class="col-sm-12" translate="Request Type"></label>
+            <div class="col-sm-12">
+                <ui-select id='doctorid' ng-keyup="moveHeaderFocus('doctorid')"
+                    ng-model="currentfilter.BillingRequestTypeId" tabindex="-1" name="BillingRequestType"
+                    ng-disabled="RdoDoctorId">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 20 : 0}}
+                        <span ng-if="$select.selected.Text.length>20">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.BillingRequestType | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+        <div class="form-group col-sm-3">
+            <label class="col-sm-12" translate="Status"></label>
+            <div class="col-sm-12">
+                <ui-select id='doctorid' ng-keyup="moveHeaderFocus('doctorid')"
+                    ng-model="currentfilter.BillingRequestStatusId" tabindex="-1" name="BillingRequestStatus"
+                    ng-disabled="RdoDoctorId">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 20 : 0}}
+                        <span ng-if="$select.selected.Text.length>20">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.BillingRequestStatus | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+        <div class="form-group col-sm-3">
+            <button class="draftbutton" ng-click="getList()">
+                <!-- <i class="fas fa-search" aria-hidden="true"></i> -->
+                <span translate="Fetch"></span>
+            </button>
+        </div>
+    </form>
+</div>
+<div class="row">
+    <form id="item_form" name="item_form" class="form-horizontal" role="form">
+        <div class="table-control">
+            <div class="bg-pattern">
+                <div class="formRoot pharmacycollections" id="mainresponsivetablecontrol">
+                    <table class="table table-hover table-responsive table-bordered">
+                        <thead class="bg-subhead" ng-if="PaymentDetails">
+                            <tr>
+                                <th>
+                                    <span translate="billing.paymodechange.billdate.lbl"></span>
+                                </th>
+                                <th>
+                                    <span translate="billing.paymodechange.billno.lbl"></span>
+                                </th>
+                                <!-- <th>
+                                            <span translate="billing.paymodechange.receiptno.lbl"></span>
+                                        </th> -->
+                                <th>
+                                    <span translate="billing.paymodechange.patientname.lbl"></span>
+                                </th>
+                                <th>
+                                    <span translate="billing.paymodechange.doctor.lbl"></span>
+                                </th>
+                                <th>
+                                    <span translate="Bill Amount"></span>
+                                </th>
+                                <th>
+                                    <span translate="Paid Amount"></span>
+                                </th>
+                                <th>
+                                    <span translate="Requested By"></span>
+                                </th>
+                                <th>
+                                    <span translate="Requested At"></span>
+                                </th>
+                                <th>
+                                    <span translate="Cancel Reason"></span>
+                                </th>
+                                <th>
+                                    <span translate="billing.paymodechange.status.lbl"></span>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="PaymentDetail in PaymentDetails">
+                                <td class="text-left">
+                                    <span>
+                                        {{PaymentDetail.BillDateTime | date : 'dd/MMM/yyyy' }}&nbsp;
+                                        {{PaymentDetail.BillDateTime | date:'HH:mm'}}
+                                    </span>
+                                </td>
+                                <td class="text-left">
+                                    <span> {{ PaymentDetail.BillNumber }}</span>
+                                </td>
+                                <!-- <td class="text-left">
+                                            <span> {{ PaymentDetail.ReceiptNumber }}</span>
+                                        </td> -->
+                                <td class="text-left">
+                                    <span> {{ PaymentDetail.Patient.MRN }}
+                                        {{ PaymentDetail.Patient.FirstName }}</span>
+                                    <span ng-if="PaymentDetail.EncounterTypeId == 2"> IP </span>
+                                    <span ng-if="PaymentDetail.EncounterTypeId != 2"> OP </span>
+                                </td>
+                                <td class="text-left">
+                                    <span> {{ PaymentDetail.PatientBill.DoctorName }}</span>
+                                </td>
+                                <td class="text-right">
+                                    <span>{{ PaymentDetail.BillAmount
+                                        | displaycurrency }}</span>
+                                </td>
+                                <td class="text-right">
+                                    <span>{{ PaymentDetail.PaidAmount
+                                        | displaycurrency }}</span>
+                                </td>
+                                <td class="text-left">
+                                    <span> {{ PaymentDetail.BillingRequestUser.FirstName||
+                                        PaymentDetail.BillingRequestUser.LastName }}</span>
+                                </td>
+                                <td class="text-left">
+                                    <span>
+                                        {{PaymentDetail.BillingRequestAt | date : 'dd/MMM/yyyy' }}&nbsp;
+                                        {{PaymentDetail.BillingRequestAt | date:'HH:mm'}}
+                                    </span>
+                                </td>
+                                <td class="text-left">
+                                    <span> {{ PaymentDetail.PatientBill.CancelReason }}</span>
+                                </td>
+                                <td>
+                                    <span ng-click="EditBillingRequest(PaymentDetail)"><img class="drhms-edit-button"
+                                            src="assets/svg/edit.svg" alt=""></span>
+                                    <!-- <button type="button" class="btn btn-sm pyr-color10"></button> -->
+                                </td>
+                            </tr>
+                        </tbody>
+
+                    </table>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>

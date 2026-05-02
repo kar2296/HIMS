@@ -1,0 +1,238 @@
+<style>
+    /* .modal-content .panel-body {
+        overflow: inherit;
+    } */
+
+    /**
+ * The dnd-list should always have a min-height,
+ * otherwise you can't drop to it once it's empty
+ */
+
+    .simpleDemo ul[dnd-list] {
+        min-height: 42px;
+        padding-left: 0px;
+        height: 100%;
+    }
+
+    /**
+ * The dndDraggingSource class will be applied to
+ * the source element of a drag operation. It makes
+ * sense to hide it to give the user the feeling
+ * that he's actually moving it.
+ */
+
+    .simpleDemo ul[dnd-list] .dndDraggingSource {
+        display: none;
+    }
+
+    .simpleDemo ul[dnd-list] li {
+        background-color: #fff;
+        border: 1px solid #ddd;
+        border-top-right-radius: 4px;
+        border-top-left-radius: 4px;
+        padding: 10px 15px;
+        margin-bottom: -1px;
+    }
+
+    .simpleDemo ul[dnd-list] li.selected {
+        background-color: #007ACC;
+        color: #dff0d8;
+    }
+
+    #printSections {
+        /* margin-top: 70px; */
+    }
+
+    #printSections ul[dnd-list] li {
+        background-color: #7ABE53;
+        border: 1px solid #ddd;
+        display: block;
+        color: #fff;
+        font-style: oblique;
+    }
+
+    #totalList ul[dnd-list] li {
+        /* margin-left: 10%; */
+        display: block;
+        width: 90%;
+        background-color: #007ACC;
+        box-shadow: 6px -7px #007ACC;
+        margin-top: 11px;
+    }
+
+    #printSections ul[dnd-list] li {
+        width: 73%;
+        background-color: darkslateblue;
+        box-shadow: 6px -7px mediumslateblue;
+        margin-top: 11px;
+        text-align: center;
+    }
+
+    .panel.panel-default {
+        margin-bottom: 0px;
+    }
+
+    .simpleDemo ul[dnd-list] li {
+        padding: 8px 15px;
+    }
+
+    .psm_listt ul {
+        /* overflow-y: scroll;
+    height: 340px; */
+    }
+
+    .modal-dialog.modal-lg .formRoot.prof_border {
+        /* height:350px !important; */
+        min-height: 340px;
+        height: 350px !important;
+        overflow: hidden;
+    }
+
+    /* .modal-dialog .panel.panel-default{
+    height:350px !important;
+} */
+
+    .modal-dialog.modal-lg .panel-body.form-panel {
+        min-height: 340px;
+        height: 350px !important;
+
+    }
+
+    .profilename {
+        color: #ffffff;
+    font-size: 14px;
+    }
+
+    .profileview {
+        color: #FFEB3B;
+    font-size: 14px;
+    position: relative;
+    left: 15px;
+    }
+    .lst ul[dnd-list] li {
+    /* box-shadow: -9px 4px cadetblue; */
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+    color: #000;
+    /* text-align: center; */
+    font-size: 15px;
+    font-style: oblique;
+    font-weight: 500;
+    background: #d6d3d3;
+    width: 108%;
+    margin-left: -11px;
+}
+.lst ul[dnd-list] li {
+    background-color: #b1acac;
+    border: 1px solid #ddd;
+    border-top-right-radius: 4px;
+    border-top-left-radius: 4px;
+    display: block;
+    padding: 3px 15px;
+    margin-bottom: -1px;
+    margin-top: 5px;
+}
+.lst ul[dnd-list] {
+    height: 305px;
+    padding-left: 10px;
+    padding-right: 10px;
+    overflow: auto;
+    overflow-x: hidden;
+}
+table#values {
+    width: 100%;
+}
+.col-sm-12.sec_body {
+    margin-top: 37px;
+    padding: 0px;
+}
+</style>
+<div class="modal-header custom-modal-header">
+    <div class="col-sm-5">
+
+        <h3 class="panel-title" translate="clinicalmaster.profileprintconfig.pagetitle.lbl"></h3>
+    </div>
+    <div class="col-sm-6">
+        <span class="profilename" translate="clinicalmaster.profilesection.profilename.lbl"></span>
+        <span class="profileview">{{currentcontext.name}}</span>
+    </div>
+    <div class="col-sm-1">
+    <button id="btnCancelForm" type="button" class="draftbutton" ng-click="backToList()" translate="X"></button>
+    </div>        
+</div>
+<div class="row">
+    <div class="col-sm-12">
+        <form id="item_form" name="item_form" class="form-horizontal" role="form" ng-submit="saveItem()">
+            <div class="formRoot section_popup cmaster_sections" set-form-height>               
+                <div>
+                    <div class="col-sm-12">
+                        <div class="col-sm-4">
+                            <input type="text" id="pid" class="form-control" ng-model="currentcontext.searchtext"  placeholder="Search Parameters">
+                        </div>
+                    </div>
+                    <div class="panel panel-default cust_head">
+                        <div class="panel-body form-panel">
+                            <div class="col-sm-12 sec_body">
+                                <div class="panel panel-info col-sm-5 lst">
+                                    <table id="values">
+                                        <tr>
+                                            <th style="height: 38px; background: #3c547f;color: white !important; ">Available Parameters</th>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <ul dnd-list="models.lists.TotalList">
+                                                    <li ng-repeat="item in models.lists.TotalList | filter : currentcontext.searchtext" dnd-draggable="item" dnd-moved="itemMoved(item)"
+                                                        dnd-effect-allowed="move" dnd-selected="models.selected = item" ng-class="{'selected': models.selected === item}">
+                                                        {{item.Text}}
+                                                    </li>
+                                                </ul>
+                                            </td>
+                                        </tr>
+            
+                                    </table>
+            
+                                </div>
+                                <div class="col-sm-2">
+                                    <img class="section_exchange" src="app/img/main/exchange.png" style="margin-top:1px; width:72px;    margin: 0px 19px;">
+            
+                                </div>
+                                <div class="panel panel-info col-sm-5 lst selected_side">
+            
+                                    <table id="values">
+                                        <tr>
+                                            <th style="height: 38px; background: #3c547f;color: white !important;">Selected Parameters</th>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <ul dnd-list="models.lists.PrintSections">
+                                                    <li ng-repeat="item in models.lists.PrintSections" dnd-draggable="item" dnd-moved="models.lists.PrintSections.splice($index, 1)"
+                                                        dnd-effect-allowed="move" dnd-selected="models.selected = item" ng-class="{'selected': models.selected === item}">
+                                                        {{item.Text}}
+                                                    </li>
+                                                </ul>
+                                            </td>
+                                        </tr>
+            
+                                    </table>
+                                </div>
+                                <div class="col-sm-1"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="fooder-bgs" style="margin-bottom: 20px !important;">
+                <div class="pull-left">
+                    <button type="button" class="btn pyr-color10 btn-sm" ng-click="backToList()">
+                        <i class="fa fa-angle-left" aria-hidden="true"></i>&nbsp;&nbsp;
+                        <span class="btn-fontsize" translate="common.backaction.lbl"></span>
+                    </button>
+                </div>
+                <div class="pull-right">
+                    <button type="submit" class="draftbutton" translate="common.saveaction.lbl"></button>
+                 </div>
+            </div>
+        </form>
+    </div>
+</div>

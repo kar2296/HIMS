@@ -1,0 +1,63 @@
+<div class="row page-header">
+    <h4 class="col-sm-5 mt0" translate="Privilege Card Registered List"></h4>
+    <div class="col-sm-7">
+        <div class="filters">
+            <div class="search">
+                <input type="text" id="pid" class="form-control" on-enter="getList()"
+                    ng-model="currentfilter.MembershipNumber" translate translate-attr-placeholder="Location"> <i
+                    class="fas fa-search" aria-hidden="true"></i>
+            </div>
+            <button type="button" tabindex="-1" class="btn-add" ng-click="addNew()"
+                uib-tooltip="{{ 'appmanager.users.addnew-tooltip.lbl' | translate }}" tooltip-placement="bottom">
+                <i class="fa fa-plus" aria-hidden="true"></i>
+            </button>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <form id="item_form" name="item_form" class="form-horizontal" role="form">
+        <div class="form-group col-sm-3">
+            <label class="col-sm-4" translate="From Date"></label>
+            <div class="col-sm-8">
+                <input type="text" class="form-control" name="From" ng-change="getList()" ng-date-object
+                    uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                    placeholder="{{datePickerOptions.placeholder}}" ng-click="FromPopup = { opened: true }"
+                    is-open="FromPopup.opened" ng-model="currentfilter.FromDate">
+            </div>
+        </div>
+        <div class="form-group col-sm-3">
+            <label class="col-sm-4" translate="To Date"></label>
+            <div class="col-sm-8">
+                <input type="text" class="form-control" name="To" ng-change="getList()" ng-date-object
+                    uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                    placeholder="{{datePickerOptions.placeholder}}" ng-click="ToPopup = { opened: true }"
+                    is-open="ToPopup.opened" ng-model="currentfilter.ToDate">
+            </div>
+        </div>
+        <div class="form-group col-sm-3">
+            <label class="col-sm-4" translate="billing.promotionalschemes.schemetype.lbl"></label>
+            <div class="col-sm-8">
+                <ui-select ng-model="currentfilter.CardTypeId" ng-change="getList()" class="filter-combo">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 30 : 0}}
+                        <span ng-if="$select.selected.Text.length>30">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.PromotionSchemeType | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+    </form>
+</div>
+<div class="row">
+    <custom-table config="vm.gridConfig"></custom-table>
+</div>
+<div class="fooder-bgs">
+    <div class="row">
+        <ul uib-pagination total-items="vm.gridConfig.pagerObj.totalItems"
+            items-per-page="vm.gridConfig.pagerObj.pageSize" start-index="vm.gridConfig.pagerObj.startIndex"
+            ng-model="vm.gridConfig.pagerObj.currentPage" ng-change="getList()"></ul>
+    </div>
+</div>

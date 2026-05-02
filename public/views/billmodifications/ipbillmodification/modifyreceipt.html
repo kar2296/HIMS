@@ -1,0 +1,181 @@
+<style>
+    button {
+        margin: 2px 3px;
+    }
+
+
+    .fontsize {
+            font-size: 14.5px;
+            font-weight: 700;
+            color:white;
+            padding: 0px
+        }
+
+
+    .ui-grid-render-container-left .ui-grid-viewport {
+        height: 173px !important;
+    }
+
+    .footerbar .well {
+        padding: 5px !important;
+    }
+
+    .bg-pattern {
+        height: 300px;
+        overflow: auto;
+        overflow-x: hidden;
+    }
+
+    .table-uigrid.ui-grid .ui-grid-viewport {
+        height: 220px !important;
+    }
+
+    .table-uigrid {
+        height: 206px !important;
+    }
+
+    .col-sm-12.grid-div {
+        padding: 0px;
+    }
+</style>
+
+<div class="modal-header custom-modal-header">
+    <div class="col-sm-6">
+        <h4 class="modal-title custom-modal-title" translate="billing.receipt-list.pagetitle.lbl"></h4>
+    </div>
+    <div class="col-sm-6">
+        <button class="btn btn-xs btn-danger pull-right fa fa-remove" ng-if="closebtn" ng-click="cancelCallback()"></button>
+    </div>
+
+</div>
+
+<form id="item_form" name="item_form" class="form-horizontal" role="form">
+    <div class="col-sm-12 pull-right">
+        <button ng-disabled="ReadOnly()" class="pull-right  bt-color2 btn-xs" ng-click="addNewPayment()" uib-tooltip="{{'billing.billing-details.addservices.lbl' | translate }}"
+            tooltip-placement="bottom">
+            <i class="fa fa-plus"></i>
+            <span class="ipbilladd" translate="billing.billing-details.addservices.lbl"></span>
+        </button>
+    </div>
+    <div class="table-control">
+        <patientbanner patientid="PatientId"></patientbanner>
+        <div class="table-height" id="mainresponsivetablecontrol">
+            <table width="100%" class="table table-hover table-responsive table-bordered">
+                <thead class="bg-subhead">
+                    <tr>
+                        <th width="10%"><span translate="billing.receipt-list.receiptno.lbl"></span> </th>
+                        <th width="25%"><span translate="billing.receipt-list.receiptdate.lbl"></span> </th>
+                        <th width="15%"><span translate="billing.receipt-list.type.lbl"></span> </th>
+                        <th width="10%"><span translate="billing.receipt-list.receiptamount.lbl"></span> </th>
+                        <th width="10%"><span translate="billing.receipt-list.paymentmode.lbl"></span> </th>
+                        <th width="10%"><span translate="billing.receipt-list.bankname.lbl"></span> </th>
+                        <th width="10%"><span translate="billing.receipt-list.authcode.lbl"></span> </th>
+                        <th width="10%"><span translate="billing.receipt-list.status.lbl"></span> </th>
+                        <th width="10%" class="col-sm-1">
+                            <span translate="billing.supplementary-details.action.lbl"></span>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="payment in List" ng-if="payment.Status == 1">
+                        <td>
+                            <label>{{payment.ReceiptNumber}}</label>
+                        </td>
+                        <td>
+                            <div class="input-group">
+                                <input type="text" class="form-control" name="receiptdate" ng-date-object
+                                    datetime-picker="{{datePickerOptions.dateTimeFormat}}" placeholder="{{datePickerOptions.placeholder}}"
+                                    ng-click="receiptdatePopup = { opened: true }" is-open="receiptdatePopup.opened"
+                                    ng-model="payment.ReceiptDateTime">
+                            </div>
+                        </td>
+                        <td>
+                            <ui-select ng-model="payment.ReceiptTypeId" name="paymentid" required>
+                                <ui-select-match>
+                                    {{$select.selected.Text | limitTo : 20 : 0}}
+                                    <span ng-if="$select.selected.Text.length>20">...</span>
+                                </ui-select-match>
+                                <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.ReceiptType | filter: { Text: $select.search }">
+                                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                </ui-select-choices>
+                            </ui-select>
+                        </td>
+                        <td>
+                            <input type="text" min="0" ng-keypress="numberonly($event)" ng-pattern="/^\d+$/" class="form-control"
+                                ng-model="payment.AmountPaid" placeholder="" ng-change="calculatePaidAmt()">
+                        </td>
+                        <td>
+                            <ui-select ng-model="payment.PaymentTypeId" name="paymentid" required>
+                                <ui-select-match>
+                                    {{$select.selected.Text | limitTo : 20 : 0}}
+                                    <span ng-if="$select.selected.Text.length>20">...</span>
+                                </ui-select-match>
+                                <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.PaymentType | filter: { Text: $select.search }">
+                                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                </ui-select-choices>
+                            </ui-select>
+                        </td>
+                        <td>
+                            <ui-select ng-model="payment.BankId" name="">
+                                <ui-select-match>
+                                    {{$select.selected.Text | limitTo : 20 : 0}}
+                                    <span ng-if="$select.selected.Text.length>20">...</span>
+                                </ui-select-match>
+                                <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.Bank | filter: { Text: $select.search }">
+                                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                </ui-select-choices>
+                            </ui-select>
+                        </td>
+                        <td>
+                            <input type="text" min="0" class="form-control" ng-model="payment.AuthorizedCode"
+                                placeholder="">
+                        </td>
+                        <td>
+                            <ui-select ng-model="payment.ReceiptStatusId" name="paymentid" required>
+                                <ui-select-match>
+                                    {{$select.selected.Text | limitTo : 20 : 0}}
+                                    <span ng-if="$select.selected.Text.length>20">...</span>
+                                </ui-select-match>
+                                <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.ReceiptStatus | filter: { Text: $select.search }">
+                                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                </ui-select-choices>
+                            </ui-select>
+                        </td>
+                        <td class="text-center">
+                            <button type="button" class="drhms-edit-button" ng-click="deletePayment($index, payment)">
+                                <img src="assets/svg/delete.svg" alt="">
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+        </div>
+    </div>
+
+    <div class="fooder-bg ipbill_footer ">
+        <div class="col-sm-12 pull-right">
+            <div class=" col-sm-3">
+                <span class="fontsize"> Tot Bill Amt: {{currentcontext.TotBillAmt || 0.00 | displaycurrency }} </span>
+            </div>
+            <div class=" col-sm-3">
+                <span class="fontsize"> Tot Bill Discount Amt:
+                    {{currentcontext.TotBillDiscAmt|| 0.00 | displaycurrency}}
+                </span>
+            </div>
+            <div class=" col-sm-3">
+                <span class="fontsize"> Tot Paid Amt: {{currentcontext.TotPaidAmt || 0.00 | displaycurrency }} </span>
+            </div>
+            <div class=" col-sm-3">
+                <button type="button" id="btnsubmit" class="draftbutton" ng-click="update()"> Update
+                </button>
+                <button id="btnCancelForm" type="button" class="draftbutton" ng-click="cancelCallback()"
+                    translate="common.cancelaction.lbl">
+                </button>
+            </div>
+        </div>
+    </div>
+
+
+</form>
+</div>

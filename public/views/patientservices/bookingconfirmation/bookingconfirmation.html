@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Patient Services</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <!-- <link src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/fonts/glyphicons-halflings-regular.woff2"> -->
+    <link rel="stylesheet" href="app/css/patientservices.css">
+</head>
+<style>
+    header .navbar {
+        margin-bottom: 0px !important;
+    }
+
+    * {
+        box-sizing: border-box;
+    }
+    .main_box {
+    margin-bottom: 0px;
+}
+.patientsearchprofilebg .table-uigrid.ui-grid .ui-grid-cell:hover{
+    color:#000;
+}
+.ui-grid-viewport.ng-isolate-scope{
+    height: auto !important;
+}
+</style>
+<header>
+    <nav class="navbar navbar-default0">
+        <div class="header">
+            <div class="navbar-header col-sm-4 col-md-3">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar1">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="http://www.gloomsofttechnologies.com/">
+                    <img src="app/img/patientservices/logo.png" alt="logo">
+                </a>
+                <!-- <h2>Patient Services</h2> -->
+            </div>
+            <div class="head col-sm-7 col-md-6">
+                <h2 class="bold text-center">PATIENT SERVICES</h2>
+            </div>
+            <div class="col-sm-1 col-md-3">
+                <button type="button" class="btn btn-primary btn-md pull-right logout" ng-click="logout()">
+                    <i class="fa fa-sign-out" aria-hidden="true"></i>Logout</button>
+
+            </div>
+            <!--/.nav-collapse -->
+        </div>
+        <!--/.container-fluid -->
+    </nav>
+</header>
+<div class="row page-header ng-scope">
+    <div class="col-sm-12">
+        <div class="col-sm-4 col-md-6 col-lg-6">
+            <!-- <h4 class=" mt0 qr_font" translate="patientservices.newregistration.pagetitle.lbl"></h4> -->
+            <h3 class="mt0 qr_font ng-scope" translate="Booking Confirmation">
+                <span class="ng-scope">Booking Confirmation</span>
+            </h3>
+        </div>
+    </div>
+</div>
+
+<body class="patientservices_bg">
+    <div class="bookingconfirmation clearfix">
+        <div class="col-sm-12 app_box">
+            <img class="img-responsive" src="app/img/no-img-female.png">
+            <div class="col-sm-5 psdrname">
+                <h3>Dr.Kannan MD,MS</h3>
+                <p>Opthalmologist,Dermatologist,etc.</p>
+            </div>
+            <div class="col-sm-3 doctlist_time">
+                <p>
+                    <i class="fa fa-clock-o"></i>10.00AM-02.00PM</p>
+            </div>
+            <!-- <button type="button" class="btn btn-primary btn-md pull-right doctlist_book" ng-click="bookdoctorappointment()">BOOK</button> -->
+        </div>
+
+    </div>
+    <div class="availableslots clearfix">
+        <div class="page-header col-sm-12">
+            <div class="col-sm-4">
+                <h3>Available slots</h3>
+            </div>
+            <div class="col-sm-4">
+                <p>
+                    <i class="fa fa-clock-o"></i>10.00AM-02.00PM</p>
+            </div>
+            <div class="col-sm-4">
+                <button type="button" class="btn btn-primary btn-md pull-right btn-primary" ng-click="searchbyid()">Search ID</button>
+                <button type="button" class="btn btn-primary btn-md pull-right btn-warning" ng-click="bookdoctorappointment()">New User</button>
+            </div>
+        </div>
+    </div>
+    <div class="container pd0 ps_bookform" ng-if='currentcontext.view == "newuser"'>
+        <h2 class="text-center">
+            </i>Book Appointment</h2>
+        <form style="max-width:63%;margin:auto;background:#fff;">
+
+            <div class="input-container">
+                <label class="col-sm-2">Name</label>
+                <i class="fa fa-user icon"></i>
+                <input class="input-field" type="text" placeholder="Username" name="usrnm">
+            </div>
+
+            <div class="input-container">
+                <label class="col-sm-2">Email</label>
+                <i class="fa fa-envelope icon"></i>
+                <input class="input-field" type="text" placeholder="Email" name="email">
+            </div>
+
+            <div class="input-container">
+                <label class="col-sm-2">Age</label>
+                <i class="fa fa-user icon"></i>
+                <input class="input-field" type="text" placeholder="Age" name="age">
+            </div>
+            <div class="input-container">
+                <label class="col-sm-2">Phone</label>
+                <i class="fa fa-mobile icon"></i>
+                <input class="input-field" type="text" placeholder="phone" name="phone">
+            </div>
+            <div class="ps_note">
+                <p>
+                    <span>Note:</span>Booking is free.all fees are payable at clinic.</p>
+                <p>By booking this appointment you agree to the
+                    <a>Terms & conditions</a>
+                </p>
+            </div>
+            <button type="submit" class="btn">BOOK</button>
+        </form>
+    </div>
+    <div class="container-fluid pd0" ng-if='currentcontext.view == "searchbyid"'>
+
+        <div class="col-sm-12 pd0 main_box search ps_bookappsearch">
+            <section>
+                <form class="example">
+                    <h3>Search MRN</h3>
+                    <input type="text" placeholder="Search.." name="search" on-enter="getList()" ng-model="currentfilter.patientname">
+                    <button type="submit">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </form>
+            </section>
+        </div>
+    </div>
+    <div class="container-fluid patientsearchprofilebg" id="patientsearchheight" ng-if='currentcontext.view == "searchbyid"'>
+        <div ui-grid="vm.gridConfig" class="table-uigrid height-control"></div>
+        <!-- <div class="fooder-bg apperance_footer">
+            <div class="row">
+                <ul uib-pagination total-items="vm.gridConfig.pagerObj.totalItems" items-per-page="vm.gridConfig.pagerObj.pageSize" start-index="vm.gridConfig.pagerObj.startIndex"
+                    ng-model="vm.gridConfig.pagerObj.currentPage" ng-change="getList()"></ul>
+            </div>
+        </div> -->
+    </div>
+    <script type="text/ng-template" id="patientListTemplate.html" ng-if='currentcontext.view == "searchbyid"'>
+        <div class="row patientprofilebg">
+            <div class="col-sm-12 block0 clearfix">
+                <div class="ui-grid-cell-contents ps_grid">
+                    <div class="col-sm-1 col-md-1 col-lg-1">
+                        <span ng-show="!row.entity.PhotoPath">
+                        <img src="app/img/no-img-female.png" class="img-responsive image-height" ng-if="row.entity.GenderId == 2">
+                        <img src="app/img/no-img-icon.png" class="img-responsive image-height" ng-if="row.entity.GenderId != 2">
+                    </span>
+                        <img class="img-responsive image-height" ng-show="row.entity.PhotoPath && row.entity.Photo" data-ng-src="data:image/png;base64,{{row.entity.Photo}}"
+                        />
+                    </div>
+                    <div class="col-sm-5 col-md-6 col-lg-5 block">
+                        <div class="nameinfo ps_name"> {{row.entity.Title.Description}} {{row.entity.FirstName}} {{row.entity.LastName}}</div>
+                        <div class="nameinfo">
+                            <span class="nameinfo mrninfo">MRN - {{row.entity.MRN ? row.entity.MRN : 'N/A' }}</span> &nbsp; |
+                            &nbsp; {{row.entity.Gender.Description ? row.entity.Gender.Description : 'N/A'}} &nbsp; | &nbsp;
+                            <agedisplay dob="row.entity.DOB"></agedisplay> &nbsp; | &nbsp; {{row.entity.DOB ? (row.entity.DOB| date : 'dd-MMM-yyyy')
+                            : 'N/A'}} </div>
+                        <div class="contactinfo" ng-if='row.entity.AddressLine1 || row.entity.AddressLine2'>
+                            <i class="fa fa-envelope text-address"></i> : &nbsp; {{row.entity.AddressLine1 + ',' }} {{row.entity.AddressLine2
+                            ? row.entity.AddressLine2 + ',' : ""}} {{row.entity.Area ? row.entity.Area + ',' : ""}} {{row.entity.City
+                            ? row.entity.City + ',' : ""}} {{row.entity.State ? row.entity.State + ',' : ""}} {{row.entity.Country
+                            ? row.entity.Country : ""}}
+                        </div>
+                        <div class="contactinfo" ng-if='!row.entity.AddressLine1 && !row.entity.AddressLine2'>
+                            <i class="fa fa-envelope text-address"></i> : &nbsp; N/A
+                        </div>
+                        <div class="contactinfo">
+                            <i class="fa fa-phone-square text-cell"></i> : {{row.entity.LandLine}} {{row.entity.Mobile}} &nbsp;
+                            | &nbsp; NRIC - {{row.entity.NationalityIdentifier ? row.entity.NationalityIdentifier : 'N/A'}}
+                            <a ng-click="grid.appScope.handleEvents('update',row)" uib-tooltip="{{ 'registration.patientsearch.patientdemographicsaction.lbl' | translate }} "
+                                tooltip-placement="bottom"><i class="icon-info-sign"></i> </a>
+                                {{row.entity.Facility.FacilityName}}
+                        </div>
+                    </div>
+                    <div class="col-sm-3 col-md-3 col-lg-4 pat_search_col2">
+                        <ul class="timeline-xs">
+                            <li class="timeline-item success">
+                                <div class="margin-left-15">
+                                    <div class="text-muted text-small">
+                                        Registration : <span class="text-primary">  {{row.entity.PatientStatus.Description}} </span>
+                                    </div>
+                                    <p style="color:#909fa7;">{{row.entity.RegisteredDate| date : 'dd-MMM-yyyy' }}|
+                                        <span class="text-muted text-small"
+                                        ng-if="row.entity.Encounters[0].EncounterTypeId == 2 && !(row.entity.Encounters[0].DischargeDate)"
+                                         style="color:#15862b;">{{row.entity.Encounters[0].PatientGuarantor.GuarantorName}}</span>
+                                         <span class="text-muted text-small"
+                                         ng-if="row.entity.Encounters[0].EncounterTypeId == 1"
+                                          style="color:#15862b;">{{row.entity.Encounters[0].PatientGuarantor.GuarantorName}}</span>
+                                        </p>
+                                </div>
+                            </li>
+                            <li class="timeline-item">
+                                <div class="margin-left-15">
+                                    <div class="text-muted text-small" ng-if="row.entity.LatestAppointment.AppointmentStatus.Description">
+                                        Appointment :
+                                         <span class="text-primary"ng-if="row.entity.Encounters[0].EncounterStatusId > 0">Checked In</span>
+                                         <span class="text-primary"ng-if="row.entity.Encounters.length==0 && row.entity.Appointments.length > 0">
+                                             {{row.entity.Appointments[0].AppointmentStatus.Description}}
+                                         </span>
+                                        <p>
+                                            <displaydate ng-if="row.entity.LatestEncounter.AdmissionDate" datetime-val="row.entity.LatestEncounter.AdmissionDate"></displaydate>
+                                            <span ng-if="!row.entity.LatestEncounter.AdmissionDate">
+                                            {{row.entity.LatestAppointment.AppointmentDate | date : 'dd-MMM-yyyy'}}
+                                            {{row.entity.LatestAppointment.StartTime}}
+                                        </span>&nbsp;
+                                            <span class="visit">{{row.entity.LatestEncounter.VisitIdentifier}}</span>
+                                        </p>
+                                    </div>
+                                    <div class="text-muted text-small" ng-if="row.entity.Encounters[0].EncounterTypeId == 2 && !(row.entity.Encounters[0].DischargeDate)">
+                                        Ward / Bed  / Room  :
+                                        <span class="text-primary">
+                                            {{ row.entity.Encounters[0].WardMaster.WardName }}  /
+                                            {{ row.entity.Encounters[0].WardRoomBedMaster.BedNo }}  /
+                                            {{ row.entity.Encounters[0].WardRoomMaster.RoomNo }}
+                                        </span>
+                                        <p>
+                                            <displaydate ng-if="row.entity.Encounters[0].AdmissionDate"
+                                            datetime-val="row.entity.Encounters[0].AdmissionDate"></displaydate>
+                                            <span ng-if="!row.entity.Encounters[0].AdmissionDate">
+                                            {{row.entity.Encounters[0].AppointmentDate | date : 'dd-MMM-yyyy'}}
+                                            {{row.entity.Encounters[0].StartTime}}
+                                        </span>&nbsp;
+                                            <span class="visit">{{row.entity.Encounters.VisitIdentifier}}</span>
+                                        </p>
+                                    </div>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>  
+    
+                    <div class="col-sm-6 col-md-5 col-lg-2 linkstyle clearfix">
+                        <div class=" col-sm-2 patientmenu pdl0">
+                            <a ng-click="grid.appScope.handleEvents('edit',row)" uib-tooltip="{{ 'registration.patientsearch.patientdemographicsaction.lbl' | translate }} "
+                                tooltip-placement="bottom" class=" text-white btn dem-color4  btn-sm"
+                                ng-if="grid.appScope.HasPrivilege('Patient', 'PATIENT-DEM')"
+                                > <strong  translate="registration.patientsearch.dem.lbl"></strong> </a>
+                            <a ng-click="grid.appScope.handleEvents('newvisit',row)" uib-tooltip="{{ 'registration.patientsearch.patientnewvisit.lbl' | translate }} "
+                                tooltip-placement="right" class="text-white new-color5 btn btn-sm" ng-disabled="row.entity.PatientStatusId == 3 || row.entity.PatientStatusId == 1"
+                                ng-if="grid.appScope.HasPrivilege('Patient', 'PATIENT-NEW') && row.entity.MRNTypeId != 1"> <strong  translate="registration.patientsearch.new.lbl"></strong>  </a>
+                            <a ng-click="grid.appScope.handleEvents('appointments',row)" uib-tooltip="{{ 'registration.patientsearch.patientappoinment.lbl' | translate }} "
+                                tooltip-placement="top" class=" text-white app-color6 btn btn-success btn-sm" ng-disabled="row.entity.PatientStatusId == 3 || row.entity.PatientStatusId == 1"
+                                ng-if="grid.appScope.HasPrivilege('Patient', 'PATIENT-APP') && row.entity.MRNTypeId != 1"> <strong  translate="registration.patientsearch.app.lbl"></strong>   </a>
+                        </div>
+                        <div class="col-sm-2 patientmenu pdl0">
+                            <a ng-click="grid.appScope.handleEvents('admissionlink',row)" uib-tooltip="{{ 'registration.patientsearch.patientadmission.lbl' | translate }} "
+                                tooltip-placement="bottom" class=" text-white btn adm-color7  btn-sm" ng-disabled="row.entity.PatientStatusId == 3 || row.entity.PatientStatusId == 1"
+                                ng-if="grid.appScope.HasPrivilege('Patient', 'PATIENT-ADM') && row.entity.MRNTypeId != 1"><strong  translate="registration.patientsearch.adm.lbl"></strong>  </a>
+                            <a ng-click="grid.appScope.handleEvents('opbillinglist',row)" uib-tooltip="{{ 'registration.patientsearch.patientopbill.lbl' | translate }}"
+                                tooltip-placement="left" class=" text-white btn  opb-color8 btn-sm" ng-disabled="row.entity.PatientStatusId == 3 || row.entity.PatientStatusId == 1"
+                                ng-if="grid.appScope.HasPrivilege('Patient', 'PATIENT-OPB') && row.entity.MRNTypeId != 1">
+                            <strong><strong  translate="registration.patientsearch.opb.lbl"></strong></strong>
+                        </a>
+                            <a ng-click="grid.appScope.handleEvents('ipbillinglink',row)" uib-tooltip="{{ 'registration.patientsearch.patientdgbill.lbl' | translate }}"
+                                tooltip-placement="right" class=" text-white btn btn-success btn-sm"
+                                ng-disabled="row.entity.PatientStatusId == 3 || row.entity.PatientStatusId == 1"
+                                ng-if="grid.appScope.HasPrivilege('Patient', 'PATIENT-DGB')"><strong  translate="registration.patientsearch.dgb.lbl"></strong>  </a>
+                        </div>
+                        <div class="col-sm-2 patientmenu pdl0">
+                            <a ng-click="grid.appScope.handleEvents('outstandingbillsview',row)" uib-tooltip="{{ 'registration.patientsearch.patientoutstanding.lbl' | translate }}"
+                                tooltip-placement="bottom" class=" text-white btn due-color9  btn-sm" ng-disabled="row.entity.PatientStatusId == 3 || row.entity.PatientStatusId == 1"
+                                ng-if="grid.appScope.HasPrivilege('Patient', 'PATIENT-DUE') && row.entity.MRNTypeId != 1"><strong  translate="registration.patientsearch.due.lbl"></strong>  </a>
+                            <a ng-click="grid.appScope.handleEvents('payer',row)" uib-tooltip="{{ 'registration.patientsearch.patientmodifypayer.lbl' | translate }}"
+                                tooltip-placement="right" class="text-white btn  pyr-color10 btn-sm" ng-disabled="row.entity.PatientStatusId == 3 || row.entity.PatientStatusId == 1"
+                                ng-if="grid.appScope.HasPrivilege('Patient', 'PATIENT-PYR') && row.entity.MRNTypeId != 1"><strong  translate="registration.patientsearch.pyr.lbl"></strong>  </a>
+                            <a ng-click="grid.appScope.handleEvents('emr',row)" uib-tooltip="{{ 'registration.patientsearch.patientemr.lbl' | translate }}"
+                                tooltip-placement="right" class=" text-white btn emr-color11 btn-sm" ng-disabled="row.entity.PatientStatusId == 3 || row.entity.PatientStatusId == 1"
+                                ng-if="grid.appScope.HasPrivilege('Patient', 'PATIENT-EMR') && row.entity.MRNTypeId != 1"> <strong  translate="registration.patientsearch.emr.lbl"></strong> </a>
+    
+                        </div>
+                        <div class="col-sm-2 patientmenu pdl0">
+                            <a ng-click="grid.appScope.handleEvents('preappoinments',row)" uib-tooltip="{{ 'registration.patientsearch.patientpastvisit.lbl' | translate }}"
+                                tooltip-placement="bottom" class=" text-white btn prv-color12 btn-sm" ng-disabled="row.entity.PatientStatusId == 3 || row.entity.PatientStatusId == 1"
+                                ng-if="grid.appScope.HasPrivilege('Patient', 'PATIENT-PRV') && row.entity.MRNTypeId != 1"><strong  translate="registration.patientsearch.prv.lbl"></strong>
+                        </a>
+                            <a ng-click="grid.appScope.handleEvents('portalaccess',row)" uib-tooltip="{{ 'registration.patientsearch.action-portalaccess.lbl' | translate }}"
+                                tooltip-placement="bottom" class=" text-white btn btn-success btn-sm" ng-disabled="row.entity.PatientStatusId == 3 || row.entity.PatientStatusId == 1"
+                                ng-if="grid.appScope.HasPrivilege('Patient', 'PATIENT-Portal') && row.entity.MRNTypeId != 1">
+                            <strong><span translate="registration.patientsearch.action-portalaccess.lbl"></span></strong>
+                        </a>
+                            <a ng-click="grid.appScope.handleEvents('checkout',row)" uib-tooltip="{{ 'registration.patientsearch.action-checkout.lbl' | translate }}"
+                                ng-show="row.entity.LatestEncounter.EncounterStatusId == 1" tooltip-placement="right" class=" text-white btn emr-color11 btn-sm custom-grid-btn"
+                                ng-if="grid.appScope.HasPrivilege('Patient', 'PATIENT-CHK')">
+                              <strong><span translate="registration.patientsearch.action-checkout.lbl"></span></strong>
+                         </a>
+                        </div>
+                        <div class="col-sm-2 patientmenu pdl0">
+                            <a ng-click="grid.appScope.handleEvents('vitals',row)" uib-tooltip="{{'patientemr.patientvital-list.pagetitle.lbl' | translate }}"
+                                ng-show="row.entity.LatestEncounter.EncounterStatusId == 1" tooltip-placement="bottom" class=" text-white btn prv-color btn-sm"
+                                ng-disabled="row.entity.PatientStatusId == 3 || row.entity.PatientStatusId == 1"
+                                ng-if="grid.appScope.HasPrivilege('Patient', 'PATIENT-VIT') && row.entity.MRNTypeId != 1"><strong  translate="registration.patientsearch.vit.lbl"></strong>
+                        </a>
+                            <!--<a ng-click="grid.appScope.handleEvents('print',row)" uib-tooltip="{{'Print'}}" tooltip-placement="bottom" class=" text-white btn prvprint-color btn-sm"
+                            ng-disabled="row.entity.PatientStatusId == 3 || row.entity.PatientStatusId == 1" ng-if="row.entity.MRNTypeId != 1"><strong>PRINT</strong>
+                        </a>-->
+                        </div>
+                        <div class="col-sm-2 patientmenu pdl0"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </script>
+</body>
+<div class="back clearfix">
+    <img class="img-responsive" ng-click="doctorappointment()" src="app/img/patientservices/redo.png">
+    <img class="img-responsive ps_home" ng-click="pshome()" src="app/img/patientservices/home.png">
+</div>
+<div class="footer">
+    <footer class="container-fluid bg-4 text-center">
+        <p>&copy &nbsp
+           <a href="http://www.gloomsoft.com/">Gloomsoft Technologies</a>
+        </p>
+    </footer>
+</div>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+</html>

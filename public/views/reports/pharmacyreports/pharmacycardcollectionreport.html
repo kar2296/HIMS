@@ -1,0 +1,95 @@
+<style>
+    table#bannerdetails .autosearch-div table.table.table-bordered.table-condensed.dropdown-menu {
+        position: absolute;
+        left: -296px;
+    }
+</style>
+<div class="row page-header">
+    <div class="col-sm-12">
+        <div class="col-sm-6">
+            <h4 class="col-sm-12 mt0" translate="reports.pharmacycardcollectionreport.lbl"></h4>
+        </div>
+        <div class="col-sm-6">
+            <div class="filters">
+
+                <i class="icofont-filter" uib-tooltip="Filter" tooltip-placement="bottom"
+                    ng-click="openFilterTab()"></i>
+                <i class="icofont-file-excel" uib-tooltip="Excel" tooltip-placement="bottom"
+                    ng-click="excelDownload()"></i>
+                <!-- <i class="icofont-file-excel"  uib-tooltip="Excel" tooltip-placement="bottom" onclick="exportTableToExcel('tblData', 'members-data')"></i> -->
+                <i class="icofont-print" ng-click="print()" uib-tooltip="Print" tooltip-placement="bottom"></i>
+                <i class="icofont-home" ng-click="backtoReport()" uib-tooltip="Report" tooltip-placement="bottom"></i>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <table id="bannerdetails">
+        <tr>
+            <td translate="reports.fromdate.lbl"></td>
+            <td>
+                <div class="datepicker">
+                    <input type="text" class="form-control" name="from" datepicker-options="datePickerOptions"
+                        show-button-bar="{{datePickerOptions.showButtonBar}}"
+                        uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                        placeholder="{{datePickerOptions.placeholder}}" ng-click="fromdatePopup = { opened: true }"
+                        is-open="fromdatePopup.opened" ng-model="currentfilter.FromDate">
+
+                    <i class="fa fa-calendar" aria-hidden="true"></i>
+                </div>
+            </td>
+            <td translate="reports.todate.lbl"></td>
+            <td>
+                <div class="datepicker">
+                    <input type="text" class="form-control" name="from" datepicker-options="datePickerOptions"
+                        show-button-bar="{{datePickerOptions.showButtonBar}}"
+                        uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                        placeholder="{{datePickerOptions.placeholder}}" ng-click="todatePopup = { opened: true }"
+                        is-open="todatePopup.opened" ng-model="currentfilter.ToDate">
+
+                    <i class="fa fa-calendar" aria-hidden="true"></i>
+                </div>
+            </td>
+            <td translate="reports.user.lbl"></td>
+            <td>
+                <div class="filters">
+                    <autosearch itemid="currentfilter.UserId" onenter="onenter()" iteminfo="item.SelectedItem"
+                        rowdata="item" config="vm.usercontrolconfig" class="inputsearchlogo">
+                    </autosearch>
+                </div>
+            </td>
+            <td style="text-align: center;">
+                <button class="loadbtn" ng-click="getList()">
+                    <i class="fas fa-sync loading-icon" aria-hidden="true" uib-tooltip="Search"
+                        tooltip-placement="bottom"></i> <span>Load</span>
+                </button>
+            </td>
+        </tr>
+    </table>
+</div>
+<!-- <div>
+    <i class="icofont-filter" uib-tooltip="Search" tooltip-placement="bottom" ng-click="getList()"></i>
+</div> -->
+<div class="row">
+    <custom-table config="vm.gridConfig"></custom-table>
+</div>
+<div class="row">
+    <div class="col-sm-6">
+    </div>
+    <div class="col-sm-6">
+        <table id="bannerdetails">
+            <tr>
+                <td for="totalquantity">Total Receipt Amount:</td>
+                <td class="currency-align">{{(TotalAmountPaid|displaycurrency)}}</td>
+            </tr>
+        </table>
+    </div>
+</div>
+
+<div class="fooder-bgs">
+    <div class="row">
+        <ul uib-pagination total-items="vm.gridConfig.pagerObj.totalItems"
+            items-per-page="vm.gridConfig.pagerObj.pageSize" start-index="vm.gridConfig.pagerObj.startIndex"
+            ng-model="vm.gridConfig.pagerObj.currentPage" ng-change="getList()"></ul>
+    </div>
+</div>

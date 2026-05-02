@@ -1,0 +1,121 @@
+(function() {
+    'use strict';
+
+    angular
+        .module('app.pages')
+        .controller('purchasealternatesController', purchasealternatesController);
+
+    function purchasealternatesController($scope, $filter, $stateParams, $state, $translate, utl, $uibModalInstance, modalConfig) {
+        var vm = this;
+
+        $scope.item = {};
+        $scope.currentfilter = {
+            title: 'Alternates for ',
+            itemcode: null,
+            itemname: null,
+            genericid: 0,
+            itemmasterid: 0,
+            storemasterid: 0
+        };
+
+        $scope.currentcontext = {
+            ismodal: modalConfig && modalConfig.params ? true : false
+        };
+
+        $scope.currentcontext.id = modalConfig.params.id;
+
+        if (modalConfig && modalConfig.params) {
+            $scope.confirmCallback = $uibModalInstance.close;
+            $scope.cancelCallback = $uibModalInstance.dismiss;
+
+            if (parseInt(modalConfig.params.itemmasterid) > 0) {
+                $scope.currentfilter.itemmasterid = parseInt(modalConfig.params.itemmasterid);
+            } else {
+                $scope.currentfilter.itemmasterid = 0;
+            }
+
+            if (parseInt(modalConfig.params.genericid) > 0) {
+                $scope.currentfilter.genericid = parseInt(modalConfig.params.genericid);
+                if (parseInt(modalConfig.params.storemasterid) > 0) {
+                    $scope.currentfilter.storemasterid = parseInt(modalConfig.params.storemasterid);
+                } else {
+                    $scope.currentfilter.storemasterid = 0;
+                }
+            } else {
+                $scope.currentfilter.genericid = 0;
+                $scope.currentfilter.storemasterid = 0;
+            }
+
+            $scope.currentfilter.itemcode = modalConfig.params.itemcode;
+            $scope.currentfilter.itemname = modalConfig.params.itemname;
+        }
+
+        $scope.getListCallback = function(scope, res, options, hasError) {
+            $scope.alternateDetails = res.Data || [];
+
+            vm.gridConfig.data = res.Data;
+            vm.gridConfig.pagerObj.totalItems = res.PageContext.TotalRecords;
+        };
+
+        $scope.getList = function () {
+            if ($scope.currentfilter.genericid > 0) {
+                var inputData = {
+                    Params: [
+                        { Key: 8, Value: $scope.currentfilter.genericid },
+                        { Key: 11, Value: $scope.currentfilter.storemasterid }
+                    ]
+                };
+
+                var options = {
+                    action: 'pharmacy/itemmaster/GetGenericItems',
+                    data: inputData,
+                    type: 'post',
+                    onComplete: $scope.getListCallback
+                };
+
+                utl.Http.doAction(options);
+            } else {
+                utl.Alert.showErrorMsg($translate.instant('billing.opbilling-list.genericname.lbl'));
+
+                return false;
+            }
+        };
+
+        $scope.backToList = function() {
+            $state.go('app.purchaseorder', { itemmasterid: 0 });
+        };
+
+        vm.gridConfig = {
+            columnDefs: [
+			{ field: "GenericMaster.Code", displayName: $translate.instant('billing.pharmacyalternates.genericcode.lbl') },
+                { field: "GenericMaster.GenericName", displayName: $translate.instant('billing.pharmacyalternates.genericname.lbl') },
+                { field: "ItemCode", displayName: $translate.instant('billing.pharmacyalternates.itemcode.lbl') },
+                { field: "ItemName", displayName: $translate.instant('billing.pharmacyalternates.itemname.lbl') },
+                { field: "ManufacturerName", displayName: $translate.instant('billing.pharmacyalternates.manufacturer.lbl') },
+                { field: "StockItem.Quantity", displayName: $translate.instant('billing.pharmacyalternates.availableqty.lbl') }
+            ],
+            pagerObj: { totalItems: 0, currentPage: 1, startIndex: 0, pageSize: 25 }
+        };
+
+        $scope.lookupCallback = function(scope, data, options, hasError) {
+            $scope.lookup = hasError ? {} : data;
+            $scope.getList();
+        };
+
+        $scope.initLookup = function () {
+            var inputData = [];
+            var options = {
+                action: 'General/Options/getoptions',
+                data: inputData,
+                type: 'post',
+                onComplete: $scope.lookupCallback
+            };
+            utl.Http.doAction(options);
+        };
+
+        $scope.initLookup();
+    }
+
+    purchasealternatesController.$inject = ['$scope', '$filter', '$stateParams', '$state', '$translate', 'utl', '$uibModalInstance', 'modalConfig'];
+
+})();

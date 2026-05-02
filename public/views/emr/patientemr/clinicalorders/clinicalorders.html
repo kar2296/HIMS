@@ -1,0 +1,255 @@
+<link href="app/css/emr.css" rel="stylesheet">
+<style>
+    ul.nav.nav-pills.nav>li>a {
+         background: #46761b;
+        color: #fafafa;
+        border-radius: 0;
+        height: 32px;
+        padding: 4px;
+    }
+
+    .nav.nav-pills .active>a {
+        color: #006c9a !important;
+        background: #fff !important;
+        border: 1px solid #006c9a;
+        box-shadow: rgb(50 50 93 / 25%) 0px 2px 5px -1px, rgb(0 0 0 / 30%) 0px 1px 3px -1px;
+        height: unset;
+    }
+
+    .nav>li>a:hover,
+    .nav>li>a:focus {
+         background: #46761b;
+    }
+
+    div#orderlisttb table thead tr th {
+        background: #EFEFEF;
+        border: 1px solid #D9D9D9;
+        color: #000;
+        padding: 3px;
+        font-size: 13px;
+        font-weight: 400;
+    }
+    i.caret.pull-right {
+    margin: -2px -6px !important;
+}
+</style>
+<div class="row">
+    <div class="col-sm-4">
+        <ul class="nav nav-pills row">
+            <li class="active"><a data-toggle="pill" ng-click="addorders()"><i class="fas fa-list"></i>
+                    Add Orders</a></li>
+            <li><a data-toggle="pill" ng-click="favorders()"><i class="fas fa-star"></i>
+                    Favorites</a></li>
+        </ul>
+    </div>
+    <div class="col-sm-8">
+        <div class="pull-right">
+            <button class="btn-add" ng-click="addNew()" uib-tooltip="Add New Orders" tooltip-placement="left">
+                <i class="fa fa-plus" aria-hidden="true"></i>
+            </button>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-sm-4">
+        <ul class="nav nav-pills row">
+            <li class="active"><a data-toggle="pill" ng-click="enableInvestigation()">
+                    Investigation</a></li>
+            <li><a data-toggle="pill" ng-click="enableBillService()">
+                    Services/Packages</a></li>
+        </ul>
+    </div>
+    <div class="col-sm-8">
+        <div class="pull-right">
+            <button class="btn-add" ng-click="addNew()" uib-tooltip="Add New Orders" tooltip-placement="left">
+                <i class="fa fa-plus" aria-hidden="true"></i>
+            </button>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <form id="item_form" name="item_form" class="form-horizontal" role="form">
+        <div class="col-sm-12" ng-show="showInvestigation == 1">
+            <div class="col-sm-4">
+                <label for="sel1">Select Template</label>
+                <div class="col-sm-12">
+                    <panelcontrol config="panelconfig" saveclick="savePanels()" changeev="savePanels()">
+                    </panelcontrol>
+                </div>
+            </div>
+            <div class="col-sm-4" ng-hide="IsDisabled">
+                <div class="form-group">
+                    <label class="col-sm-12 col-md-12 control-label filter-lbl ip_label_hide"
+                        translate="Test Name"></label>
+                    <div class="col-sm-12" id="tablesearch">
+                        <autosearch itemid="item.TestId" name="'test'" controlid="'testid'" iteminfo="item.SelectedItem"
+                            rowdata="item" config="vm.testcontrolconfig" itemchange=""
+                            class="inputsearchlogo" candisable="IsDisabled" isrequired="true" tabindex="item.tabindex"
+                            placeholder="'Tests'"></autosearch>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-4" ng-hide="IsDisabled">
+                <div class="form-group">
+                    <label class="col-sm-12 col-md-12 control-label filter-lbl ip_label_hide" translate="Qty"></label>
+                    <div class="col-sm-12">
+                        <input type="text" class="form-control" ng-model="item.Quantity" ng-disabled="IsDisabled"
+                            tabindex="-1">
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-4" ng-hide="IsDisabled">
+                <div class="form-group">
+                    <label class="col-sm-12 col-md-12 control-label filter-lbl ip_label_hide"
+                        translate="Priority"></label>
+                    <div class="col-sm-12">
+                        <ui-select ng-model="item.OrderPriorityId" ng-disabled="IsDisabled" tabindex="-1"
+                            on-select="OnPrioritySelected($select.selected)">
+                            <ui-select-match>
+                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                <span ng-if="$select.selected.Text.length>20">...</span>
+                            </ui-select-match>
+                            <ui-select-choices
+                                repeat="lookupitem.Id as lookupitem in lookup.OrderPriority | filter: { Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                </div>
+            </div>
+            <!-- <div class="col-sm-4" ng-hide="IsDisabled"></div> -->
+            <div class="col-sm-4" ng-hide="IsDisabled" style="margin-top: 20px;">
+                <button class="draftbutton" type="button" id="hello" ng-hide="isModified" ng-click="addOrder()">Add
+                    Investigation</button>
+                <button class="draftbutton" type="button" id="hello" ng-show="isModified" ng-click="updateOrder()">Update
+                    Investigation</button>
+            </div>
+        </div>
+
+        <div class="col-sm-12" ng-show="showbillService == 1">
+            <div class="col-sm-4">
+                <label for="sel1">Select Service</label>
+                <autosearch controlid="item.Serviceididx"
+                    ng-keyup="moveFocus('rate','desc','desc','desc',$index,$event,item)" itemid="item.ServiceId"
+                    tabindex="item.tabindex" name="'service'" iteminfo="item.SelectedItem" rowdata="item"
+                    config="vm.serviceitemcontrolconfig" itemchange="getServiceItem($index, item)" candisable="false"
+                    isrequired="true"></autosearch>
+            </div>
+            <div class="col-sm-4" ng-hide="IsDisabled" style="margin-top: 20px;">
+                <button class="draftbutton" type="button" id="hello" ng-click="addOrder()">Add
+                    Service</button>
+                <!-- <button class="draftbutton" type="button" id="hello" ng-show="isModified" ng-click="updateOrder()">Add
+                    Investigation</button> -->
+            </div>
+        </div>
+        <div class="col-sm-12" id="orderlisttb">
+            <table style="border: solid 1px black;width: 100%;margin-top: 10px;">
+                <thead>
+                    <tr>
+                        <th>S.No</th>
+                        <th><span translate="patientemr.patientorder-form.test.lbl" for="test"></span></th>
+                        <th>Type </th>
+                        <th>Qty</th>
+                        <!-- <th>Price</th> -->
+                        <th>Priority</th>
+                        <th>Instructions </th>
+                        <th>Clinical Data </th>
+                        <td>Test Take On</td>
+                        <th style="width: 11% !important;">Lab </th>
+                        <th ng-hide="IsDisabled">Action </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="item in details | filter: { Status:1 }">
+                        <td>{{$index+1}}</td>
+                        <td>{{item.TestName}}</td>
+                        <td>{{item.TestType}} </td>
+                        <td>{{item.Quantity}}</td>
+                        <!-- <td>{{item.TestPrice}}</td> -->
+                        <td>{{item.OrderPriority}}</td>
+                        <td>
+                            <input type="text" class="form-control" ng-model="item.TestInstruction"
+                                ng-disabled="IsDisabled" placeholder="" tabindex="-1">
+                            <!-- {{item.TestInstruction}} -->
+                        </td>
+                        <td>
+                            <input type="text" class="form-control" ng-model="item.ClinicalData"
+                                ng-disabled="IsDisabled" placeholder="" tabindex="-1">
+                            <!-- {{item.TestInstruction}} -->
+                        </td>
+                        <td>
+                            <div class="col-sm-6">
+                                <input type="text" class="form-control" ng-model="item.Duration"
+                                    ng-disabled="IsDisabled" placeholder="" tabindex="-1">
+                            </div>
+                            <div class="col-sm-6">
+                                <ui-select ng-model="item.DurationPeriodId" ng-disabled="IsDisabled"
+                                    ng-change="onDurationPeriodChange($select.selected)">
+                                    <ui-select-match>
+                                        {{$select.selected.Text | limitTo : 20 : 0}}
+                                        <span ng-if="$select.selected.Text.length>20">...</span>
+                                    </ui-select-match>
+                                    <ui-select-choices
+                                        repeat="lookupitem.Id as lookupitem in lookup.DurationPeriod | filter: { Text: $select.search }">
+                                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                    </ui-select-choices>
+                                </ui-select>
+                            </div>
+                        </td>
+                        <td>
+                            <ui-select ng-model="item.ExternalProviderId" ng-disabled="IsDisabled">
+                                <ui-select-match>
+                                    {{$select.selected.Text | limitTo : 20 : 0}}
+                                    <span ng-if="$select.selected.Text.length>20">...</span>
+                                </ui-select-match>
+                                <ui-select-choices
+                                    repeat="lookupitem.Id as lookupitem in lookup.ExternalProvider | filter: { Text: $select.search }">
+                                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                </ui-select-choices>
+                            </ui-select>
+                        </td>
+                        <td ng-hide="IsDisabled">
+                            <!-- <button class="btn btn-danger btn-xs edit" ng-click="editOrderById(item)">
+                                <i class="fa fa-edit" aria-hidden="true"></i>
+                            </button> -->
+                            <button type="button" class="drhms-edit-button">
+                                <img src="assets/svg/delete.svg" alt="" ng-click="onDelete(item)" ng-click="deleteItem(item)">
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="fooder-bgs">
+            <div class="row">
+                <div class="pull-left">
+                    <button id="btnCancelForm" tabindex="-1" type="button" class="draftbutton"
+                        ng-show="CanShowCancelOrder" ng-click="saveCancelled()"
+                        translate="patientemr.patientorder-form.cancelorder.lbl"></button>
+
+                    <button type="button" tabindex="-1" class="draftbutton" ng-click="saveastemplate()"
+                        ng-hide="IsDisabled && currentcontext.ismodal && canShowPatientControl"
+                        translate="Save As Template"></button>
+                    <button type="button" tabindex="-1" class="draftbutton" ng-click="editOrder()" ng-show="IsDisabled"
+                        translate="Edit"></button>
+                </div>
+                <div class="pull-right">
+                    <button type="button" id="btnsubmit" class="draftbutton" ng-click="print()" ng-show="canShowPrint">
+                        <span><i class="fa fa-print" aria-hidden="true"></i></span>
+                        <span translate="Print"></span>
+                    </button>
+                    <!-- <button type="button" class="draftbutton" translate="patientemr.patientorder-form.orderaction.lbl"
+                        ng-if="IsDisabled||currentcontext.encounter.EncounterStatusId!=2" ng-show="CanShowOrder"
+                        ng-click="createOrder()" ng-disabled="savehitcompleted"></button> -->
+                        <button type="button" class="draftbutton" translate="patientemr.patientorder-form.orderaction.lbl"
+                       ng-show="CanShowOrder || currentcontext.id == 0"
+                        ng-click="createOrder()" ng-disabled="currentcontext.id > 0 | savehitcompleted"></button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+<div ng-show="canShowTickSheetArea()">
+    <ticksheetcontrol config="ticksheetconfig" addclick="addTickSheet()" saveclick="saveTickSheets()">
+    </ticksheetcontrol>
+</div>

@@ -1,0 +1,582 @@
+<style>
+.consultation-clm {
+    float: left;
+}
+tbody td{padding:0px !important;}
+tr.portlet-tr.ng-scope{height: 0px !important; vertical-align: initial;}
+.panel .table {
+    margin-bottom: 0;
+    border: 0;
+}
+.portlet-panel {
+    height: 220px;
+    overflow: auto;
+}
+.panel .panel-heading {
+    border-bottom: 0;
+    font-size: 14px;
+    /* background-color: #93C7E7; */
+    background: #33074ecc;
+    height: 35px;
+    text-align: center;
+}
+.modal.in .modal-dialog .panel .panel-heading{
+    background-color: #93C7E7;
+    text-align: left;
+}
+.layout-fixed .wrapper>section{
+    overflow: scroll;
+    overflow-x: hidden;
+}
+.table-striped > tbody > tr:nth-of-type(odd){
+    background-color: #ece15678;
+}
+font{
+    font-weight:bolder;
+    padding:1px;
+}
+</style>
+ <div class="row page-header">
+    <div class="col-sm-12">
+        <div class="col-xs-5 col-sm-4 col-md-7">
+        <h4 class="page-header mt0" translate="patientemr.consultation-list.notescomparision.lbl"></h4>
+
+        </div>
+         <div class="col-xs-7 col-sm-8 col-md-5 pull-right">
+
+             <span>
+                    <span ng-click="doctor_dashboard()">
+
+                            <img src="app/img/main/download.png" class="img-responsive icon_home"  alt="home" uib-tooltip=" Doctor Dashboard " tooltip-placement="bottom">
+
+                        </span>
+                    <span ng-click="patient_dashboard()">
+                            <!-- <i class="bedicon pull-right" uib-tooltip="Bed Management " tooltip-placement="bottom"></i> -->
+
+                                <img src="app/img/main/patdash.png" class="img-responsive icon_emrboard"  alt="home" uib-tooltip="Patient Dashboard" tooltip-placement="bottom">
+
+                        </span>
+
+             <!-- <button class="text-white btn res-color14 btn-xs pull-right" ng-click="configuration()"
+                      uib-tooltip="{{ 'patientemr.emrconfiguration.tooltiptitle.lbl' | translate }}" tooltip-placement="bottom">
+                      <i class="fa fa-cog" aria-hidden="true"></i>
+            </button> -->
+                     <!-- <button class="btn bt-color2 btn-xs pull-right back_but">
+        <a href="/www/index.html#/app/doctordashboard"><i class="fa fa-arrow-left"></i>&nbsp;&nbsp;<span class="ng-scope">Back</span></a>
+      </button>  -->
+     <!-- <button class="btn btn-xs pull-right btn-filter" id="expand_all" ng-click="addNew()" style="background:rgba(10, 140, 216, 0.83);" uib-tooltip="" tooltip-placement="bottom"><i class="fa fa-" aria-hidden="true"></i>&nbsp;&nbsp;<span translate="" class="ng-scope"><span class="ng-scope">Expand All</span></span></button>
+      <button class="btn btn-xs pull-right btn-filter" id="collapse_hide" ng-click="addNew()" style="background:#6fb944;" uib-tooltip="" tooltip-placement="bottom"><i class="fa fa-" aria-hidden="true"></i>&nbsp;&nbsp;<span translate="" class="ng-scope"><span class="ng-scope">Collapse All</span></span></button> -->
+
+    </span>
+        </div>
+    </div>
+</div>
+<div class="col-sm-12 borderbtm">
+    <div ng-repeat="consultation in consultationDataList">
+        <div class="col-sm-4 consultation-clm">
+            <div ng-repeat="section in currentcontext.sectionList">
+                <div ng-include="consultation[section].tmpl" onLoad="items = consultation[section].data" ></div>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/ng-template " id="cn-allergy-section.html ">
+    <div class="panel portlet-panel">
+        <div class="panel-heading portlet-panel-heading text-white">            
+            <strong translate="patientemr.consultation-compare.allergy.lbl"></strong>
+        </div>
+        <div class="panel-wrapper">
+            <div class="panel-body portlet-panel-body" >
+                <div class="table-responsive">
+                    <table class="table table-striped table-condensed">
+                        <tbody>
+                            <tr class="portlet-tr" ng-repeat="item in items"> 
+                                <td class="lefcol1">{{item.AllergyType.Description}}</td>
+                                <td class="lefcol2">{{item.AllergyName}}</td>
+                                <td class="lefcol3">
+                                    <ngformatdate date-val='item.StartDate'></ngformatdate>
+                                </td>                        
+                            </tr>
+                        </tbody>
+                    </table>
+                </div> 
+            </div>
+        </div> 
+    </div>
+</script>
+<script type="text/ng-template " id="cn-condition-section.html ">
+    <div class="panel portlet-panel">
+        <div class="panel-heading portlet-panel-heading text-white">            
+            <strong translate="patientemr.consultation-compare.condition.lbl"></strong>
+        </div>
+        <div class="panel-wrapper">
+            <div class="panel-body portlet-panel-body" >
+                <div class="table-responsive">
+                    <table class="table table-striped table-condensed">
+                        <tbody>
+                            <tr class="portlet-tr" ng-repeat="item in items">
+                                <td style="color: maroon;font-size: 15px;" class="col-sm-3">{{item.ConditionType.Description}}</td>
+                                <td style="color:blue;" class="col-sm-6">{{item.DiagnosisName}}</td>
+                                <td style="color:red;">({{item.Code}})</td>                             
+                            </tr>
+                        </tbody>
+                    </table>
+                </div> 
+            </div>
+        </div> 
+    </div>
+</script>
+<script type="text/ng-template" id="cn-diagnosis-section.html">
+    <div class="panel portlet-panel">
+        <div class="panel-heading portlet-panel-heading text-white">            
+            <strong translate="patientemr.consultation-compare.diagnosis.lbl"></strong>
+        </div>
+        <div class="panel-wrapper">
+            <div class="panel-body portlet-panel-body" >
+                <div class="table-responsive">
+                    <table class="table table-striped table-condensed">
+                        <tbody>
+                            <tr class="portlet-tr" ng-repeat="item in items">
+                                <td style="color: maroon;font-size: 15px;" class="col-sm-3">{{item.ConditionType.Description}}</td>
+                                <td style="color:blue;" class="col-sm-6">{{item.DiagnosisName}}</td>
+                                <td style="color:red;">({{item.Code}})</td>                             
+                            </tr>
+                        </tbody>
+                    </table>
+                </div> 
+            </div>
+        </div> 
+    </div>    
+</script>
+<script type="text/ng-template" id="cn-vital-section.html">
+    <div class="panel portlet-panel">
+        <div class="panel-heading portlet-panel-heading text-white">            
+            <strong translate="patientemr.consultation-compare.vital.lbl"></strong>
+        </div>
+        <div class="panel-wrapper">
+            <div class="panel-body portlet-panel-body" >
+                <div class="table-responsive">
+                    <table class="table table-striped table-condensed">
+                        <tbody>
+                            <tr class="portlet-tr" ng-repeat="item in items">
+                                <td><p data-ng-bind-html="item.Vitalinfo"></p></td>                                                       
+                            </tr>
+                        </tbody>
+                    </table>
+                </div> 
+            </div>
+        </div>
+    </div>
+</script>
+<script type="text/ng-template" id="cn-procedure-section.html">
+    <div class="panel portlet-panel">
+        <div class="panel-heading portlet-panel-heading text-white">            
+            <strong translate="patientemr.consultation-compare.procedure.lbl"></strong>
+        </div>
+        <div class="panel-wrapper">
+            <div class="panel-body portlet-panel-body" >
+                <div class="table-responsive">
+                    <table class="table table-striped table-condensed">
+                        <tbody>
+                            <tr class="portlet-tr" ng-repeat="item in items">
+                                <td>{{item.ProcedureType.Description}}</td>                                                       
+                                <td>{{item.Procedure.ProcedureName}}({{item.Code}})</td>                                                       
+                            </tr>
+                        </tbody>
+                    </table>
+                </div> 
+            </div>
+        </div>
+    </div>
+</script>
+<script type="text/ng-template" id="cn-documents-section.html">
+    <div class="panel portlet-panel">
+        <div class="panel-heading portlet-panel-heading text-white">            
+            <strong translate="patientemr.consultation-compare.documents.lbl"></strong>
+        </div>
+        <div class="panel-wrapper">
+            <div class="panel-body portlet-panel-body" >
+                <div class="table-responsive">
+                    <table class="table table-striped table-condensed">
+                        <tbody>
+                            <tr class="portlet-tr" ng-repeat="item in items">
+                                <div class="col-sm-3 lefcol3">
+                                    <ngformatdate date-val='item.CreatedDate'></ngformatdate>
+                                </div>
+                                <span class="col-sm-3 lefcol2">{{item.Name}}</span>                                                     
+                            </tr>
+                        </tbody>
+                    </table>
+                </div> 
+            </div>
+        </div>
+    </div>
+</script>
+<script type="text/ng-template" id="cn-familycondition-section.html">
+    <div class="panel portlet-panel">
+        <div class="panel-heading portlet-panel-heading text-white">            
+            <strong translate="patientemr.consultation-compare.familycondition.lbl"></strong>
+        </div>
+        <div class="panel-wrapper">
+            <div class="panel-body portlet-panel-body" >
+                <div class="table-responsive">
+                    <table class="table table-striped table-condensed">
+                        <tbody>
+                            <tr class="portlet-tr" ng-repeat="item in items">
+                                <div class="col-sm-3 lefcol3">
+                                    <ngformatdate date-val='item.ConditionDate'></ngformatdate>
+                                </div>
+                                <span class="col-sm-3 lefcol2" style="text-transform:uppercase;">{{item.DiagnosisName}}</span>
+                                <span class="col-sm-3 lefcol2" style="text-transform:uppercase;">{{item.ConditionType.Description}}</span>
+                                <span class="col-sm-3 lefcol1">{{item.Relationship.Description}}</span>                                                    
+                            </tr>
+                        </tbody>
+                    </table>
+                </div> 
+            </div>
+        </div>
+    </div>
+</script>
+<script type="text/ng-template" id="cn-socialhistory-section.html">
+    <div class="panel portlet-panel">
+        <div class="panel-heading portlet-panel-heading text-white">            
+            <strong translate="patientemr.consultation-compare.socialhistory.lbl"></strong>
+        </div>
+        <div class="panel-wrapper">
+            <div class="panel-body portlet-panel-body" >
+                <div class="table-responsive">
+                    <table class="table table-striped table-condensed">
+                        <tbody>
+                            <tr class="portlet-tr" ng-repeat="item in items">
+                                <div class="lefcol3 col-sm-3">
+                                    <ngformatdate date-val='item.ReviewDate'></ngformatdate>
+                                </div>
+                                <span class="lefcol2 col-sm-3">{{item.SocialType.Description}}</span>
+                                <span class="lefcol2 col-sm-3">{{item.SocialFrequency.Description}}</span>                                                     
+                            </tr>
+                        </tbody>
+                    </table>
+                </div> 
+            </div>
+        </div>
+    </div>
+</script>
+<script type="text/ng-template" id="cn-familysocialhistory-section.html">
+    <div class="panel portlet-panel">
+        <div class="panel-heading portlet-panel-heading text-white">            
+            <strong translate="patientemr.consultation-compare.familysocialhistory.lbl"></strong>
+        </div>
+        <div class="panel-wrapper">
+            <div class="panel-body portlet-panel-body" >
+                <div class="table-responsive">
+                    <table class="table table-striped table-condensed">
+                        <tbody>
+                            <tr class="portlet-tr" ng-repeat="item in items">
+                                <div class="lefcol3 col-sm-3">
+                                    <ngformatdate date-val='item.ReviewDate'></ngformatdate>
+                                </div>
+                                <span class="lefcol2 col-sm-3">{{item.SocialType.Description}}</span>
+                                <span class="lefcol3 col-sm-3">{{item.Relationship.Description}}</span>                                                    
+                            </tr>
+                        </tbody>
+                    </table>
+                </div> 
+            </div>
+        </div>
+    </div>
+</script>
+<script type="text/ng-template" id="cn-immunization-section.html">
+    <div class="panel portlet-panel">
+        <div class="panel-heading portlet-panel-heading text-white">            
+            <strong translate="patientemr.consultation-compare.immunization.lbl"></strong>
+        </div>
+        <div class="panel-wrapper">
+            <div class="panel-body portlet-panel-body" >
+                <div class="table-responsive">
+                    <table class="table table-striped table-condensed">
+                        <tbody>
+                            <tr class="portlet-tr" ng-repeat="item in items">
+                                <div class="col-sm-3 lefcol3">
+                                    <ngformatdate date-val='item.PerformedDate'></ngformatdate>
+                                </div>
+                                <span class="col-sm-3 lefcol2">{{item.ImmunizationName}}</span>
+                                <span class="col-sm-3 lefcol1">{{item.SiteOrRoute}}</span>                                                
+                            </tr>
+                        </tbody>
+                    </table>
+                </div> 
+            </div>
+        </div>
+    </div>
+</script>
+<!--
+
+<script type="text/ng-template" id="cn-prescription-section.html">
+    <div class="panel portlet-panel">
+        <div class="panel-heading portlet-panel-heading text-white">            
+            <strong translate="patientemr.consultation-compare.prescription.lbl"></strong>
+        </div>
+        <div class="panel-wrapper">
+            <div class="panel-body portlet-panel-body" >
+                <div class="table-responsive">
+                    <table class="table table-striped table-condensed">
+                        <tbody>
+                            <tr class="portlet-tr" ng-repeat="item in items">
+                                <td>{{item.ProcedureType.Description}}</td>                                                       
+                                <td>{{item.Procedure.ProcedureName}}({{item.Code}})</td>                                                       
+                            </tr>
+                        </tbody>
+                    </table>
+                </div> 
+            </div>
+        </div>
+    </div>
+</script> -->
+<script type="text/ng-template" id="cn-order-section.html">
+    <div class="panel portlet-panel">
+        <div class="panel-heading portlet-panel-heading text-white">            
+            <strong translate="patientemr.consultation-compare.orders.lbl"></strong>
+        </div>
+        <div class="panel-wrapper">
+            <div class="panel-body portlet-panel-body" >
+                <div class="table-responsive">
+                    <table class="table table-striped table-condensed">
+                        <tbody>
+                            <tr class="portlet-tr" ng-repeat="item in items">
+                                <div class="col-sm-3">
+                                    <span class="lefcol1" style="color:;" class="col-sm-3 lefcol2">{{item.TESTMASTERTYP.Description}}</span>
+
+                                </div>
+                                <div class="col-sm-9">
+                                    <span ng-repeat="detail in item.PatientOrderDetails" class="lefcol2">{{detail.TestName}}({{detail.TestCode}}) ;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+                                        <span class="lefcol1">{{detail.Side.Description}};
+                                        </span>
+                                    </span>
+                                </div>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div> 
+            </div>
+        </div>
+    </div>
+</script>
+<script type="text/ng-template" id="cn-chiefcomplaint-section.html">
+    <div class="panel portlet-panel">
+        <div class="panel-heading portlet-panel-heading text-white">            
+            <strong translate="patientemr.consultation-compare.chiefcomplaints.lbl"></strong>
+        </div>
+        <div class="panel-wrapper">
+            <div class="panel-body portlet-panel-body" >
+                <div class="table-responsive">
+                    <table class="table table-striped table-condensed">
+                        <tbody>
+                            <tr class="portlet-tr" ng-repeat="item in items">
+                                <div class="col-sm-3 fontpink">
+                                    <ngformatdate date-val='item.StartDate'></ngformatdate>
+                                </div>
+                                <span class="col-sm-9 fontgreen">{{item.ChiefComplaint}}</span>                                           
+                            </tr>
+                        </tbody>
+                    </table>
+                </div> 
+            </div>
+        </div>
+    </div>
+</script>
+<script type="text/ng-template" id="cn-followup-section.html">
+    <div class="panel portlet-panel">
+        <div class="panel-heading portlet-panel-heading text-white">            
+            <strong translate="patientemr.consultation-compare.followup.lbl"></strong>
+        </div>
+        <div class="panel-wrapper">
+            <div class="panel-body portlet-panel-body" >
+                <div class="table-responsive">
+                    <table class="table table-striped table-condensed">
+                        <tbody>
+                            <tr class="portlet-tr" ng-repeat="item in items">
+                                <div class="col-sm-12" ng-hide="item.TrackerStatusId==3">
+                                        <span style="color: maroon;font-size: 15px;" class="col-sm-3">Refer To</span>
+                                        <span style="color:blue;" class="col-sm-3">{{item.AttendUser.Title.Description}} {{item.AttendUser.FirstName}} {{item.AttendUserLastName}}</span>
+                                </div>
+                                <div class="col-sm-12">
+                                        <span style="color: maroon;font-size: 15px;" class="col-sm-3">Clinical Status</span>
+                                        <span style="color:blue;" class="col-sm-3">{{item.ReferrerClinicalStatus.Description}}</span>
+                                </div>
+                                <div class="col-sm-12">
+                                        <span style="color: maroon;font-size: 15px;" class="col-sm-3">Followup On</span>
+                                        <span style="color:blue;margin-left: -6px;font-size: 14px;font-weight: 500" class="col-sm-3"><ngformatdate date-val='item.FollowupAppointmentOn'></ngformatdate>
+                                        </span>
+                                </div>
+                                <div class="col-sm-12">
+                                    <span style="color: maroon;font-size: 15px;" class="col-sm-3">Comments</span>
+                                    <span style="color:blue;margin-left: -6px;font-size: 14px;font-weight: 500" class="col-sm-3">{{item.TrackerComments}}</span>
+                                </div>                                                     
+                            </tr>
+                        </tbody>
+                    </table>
+                </div> 
+            </div>
+        </div>
+    </div>
+</script>
+<script type="text/ng-template" id="cn-labresult-section.html">
+    <div class="panel portlet-panel">
+        <div class="panel-heading portlet-panel-heading text-white">            
+            <strong translate="patientemr.consultation-compare.labresult.lbl"></strong>
+        </div>
+        <div class="panel-wrapper">
+            <div class="panel-body portlet-panel-body" >
+                <div class="table-responsive">
+                    <div ng-repeat="order in items">
+                        <div id='workorder' ng-repeat="wo in order.PatientWorkorders">
+                            <table class="table table-hover table-responsive table-bordered">
+                                <tbody ng-repeat="test in wo.woDetails">
+                                    <tr ng-if="test.RootProfileName">
+                                        <td colspan="9">
+                                            <span class="lbl-profile">{{test.RootProfileName}}</span>
+                                        </td>
+                                    </tr>
+                                    <tr ng-if="test.ProfileName">
+                                        <td colspan="9">
+                                            <span class="lbl-profile">{{test.ProfileName}}</span>
+                                        </td>
+                                    </tr>
+                                    <tr ng-hide="test.details.length == 1 && test.Testname.toLowerCase() == test.details[0].Analytename.toLowerCase()">
+                                        <td colspan="9"><span class=" btn btn-primary btn-xs"> {{test.Testname}}</span>
+                                        </td>
+                                    </tr>
+                                    <tr ng-repeat="item in test.details | filter:{Status:1}">
+                                        <td class="col-sm-3">
+                                            <span style="margin-left:24px;  vertical-align: super; color: #0dbef1; font-weight: 700; white-space: nowrap; text-overflow: ellipsis; overflow: auto;">{{item.Analytename}}</span>
+                                        </td>
+                                        <td class="col-sm-3" colspan="{{item.TestValueType == 3 ? '3' : '1'}}">
+                                            <span> {{item.Resultvalue}} </span>
+                                        </td>
+                                        <td class="col-sm-3" ng-if="item.TestValueType != 3">
+                                            <span ng-model="item.AnalyteUOM">{{item.AnalyteUOM}}</span>
+                                        </td>
+                                        <td class="col-sm-3" ng-if="item.TestValueType != 3">
+                                            <span class="pull-left">{{item.Analyterange}}</span>
+                                            <span class="pull-right" style="color: #ff902b; font-weight: 700;">{{item.Qualifier}}</span>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div> 
+            </div>
+        </div>
+    </div>
+</script>
+<!--
+<script type="text/ng-template" id="cn-radiologyresult-section.html">
+    <div class="panel portlet-panel">
+        <div class="panel-heading portlet-panel-heading text-white">            
+            <strong translate="patientemr.consultation-compare.radiologyresult.lbl"></strong>
+        </div>
+        <div class="panel-wrapper">
+            <div class="panel-body portlet-panel-body" >
+                <div class="table-responsive">
+                    <table class="table table-striped table-condensed">
+                        <tbody>
+                            <tr class="portlet-tr" ng-repeat="item in items">
+                                <td>{{item.ProcedureType.Description}}</td>                                                       
+                                <td>{{item.Procedure.ProcedureName}}({{item.Code}})</td>                                                       
+                            </tr>
+                        </tbody>
+                    </table>
+                </div> 
+            </div>
+        </div>
+    </div>
+</script> -->
+<script type="text/ng-template" id="cn-mlc-section.html">
+    <div class="panel portlet-panel">
+        <div class="panel-heading portlet-panel-heading text-white">            
+            <strong translate="patientemr.consultation-compare.mlc.lbl"></strong>
+        </div>
+        <div class="panel-wrapper">
+            <div class="panel-body portlet-panel-body" >
+                <div class="table-responsive">
+                    <table class="table table-striped table-condensed">
+                        <tbody>
+                            <tr class="portlet-tr" ng-repeat="item in items">
+                                <td class="col-sm-12">
+                                        <span style="color: maroon;font-size: 15px;" class="col-sm-3">MLC No : </span>
+                                        <span style="color:blue;" class="col-sm-3">{{item.MLCNo}}</span>
+                                </td>
+                                <td class="col-sm-12">
+                                        <span style="color: maroon;font-size: 15px;" class="col-sm-3">Accident Type : </span>
+                                        <span style="color:blue;" class="col-sm-3">{{item.AccidentType.Description}}</span>
+                                </td>
+                                <td class="col-sm-12">
+                                        <span style="color: maroon;font-size: 15px;" class="col-sm-3">Escort Type : </span>
+                                        <span style="color:blue;" class="col-sm-3">{{item.EscortType.Description}}</span>
+                                </td>
+                                <td class="col-sm-12">
+                                        <span style="color: maroon;font-size: 15px;" class="col-sm-3">Accident in Brief : </span>
+                                        <span style="color:blue;" class="col-sm-3">{{item.BriefOfAccident}}</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div> 
+            </div>
+        </div>
+    </div>
+</script>
+<script type="text/ng-template" id="cn-question-section.html">
+    <div class="panel portlet-panel">
+        <div class="panel-heading portlet-panel-heading text-white">            
+            <strong>{{items.sectionName}}</strong>
+        </div>
+        <div class="panel-wrapper">
+            <div class="panel-body portlet-panel-body" >
+                <div ng-repeat="category in  items.cat" style="height:100%">
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <h4 class="align-left control-label category-lable" style="">{{category.CategoryName}}</h4>
+                        </div>
+                    </div>
+                    <div class="row portlet-tr" ng-repeat="concept in category.concepts">
+
+                        <div class="concept-lable" ng-if="concept.ValueTypeId !=3 && concept.ValueTypeId !=12 && concept.ValueTypeId != 8" ng-show="concept.Result">
+                            <span class="col-sm-3 lefcol1 4x">{{concept.ConceptName}}</span>
+                            <span class="col-sm-9 lefcol2"style="word-wrap: break-word;">{{concept.Result}}</span>
+                        </div>
+                        <div class="concept-lable" ng-if="concept.ValueTypeId == 12 || concept.ValueTypeId == 8" ng-show="concept.Result">
+                            <span class="col-sm-3 lefcol1 4x">{{concept.ConceptName}}</span>
+                            <span class="col-sm-9 lefcol2"style="word-wrap: break-word;" ng-bind-html="concept.Result"></span>
+                        </div>
+                        <div class="concept-lable" ng-if="concept.ValueTypeId ==3 && concept.IsMultiple == false" ng-show="concept.Result">
+                            <span class="col-sm-3 lefcol1 5x">{{concept.ConceptName}}</span>
+                            <span class="col-sm-9 lefcol2">{{concept.Result}}<span ng-if="concept.Comments"> - {{concept.Comments}}</span></td>
+                        </div>
+                        <div class="concept-lable" ng-if="concept.ValueTypeId ==3 && concept.IsMultiple == true" ng-show="concept.Terms && concept.Terms.length > 0">
+                            <span class="col-sm-3 lefcol1 6x">{{concept.ConceptName}}</span>
+                            <span class="col-sm-9 lefcol2">
+                                <span ng-repeat="term in concept.Terms">
+                                    {{term.TermName}}
+                                    <span ng-if="term.Comments"> - {{term.Comments}}</span>
+                                    <span ng-if="$index != concept.Terms.length-1">,</span>
+                                </span>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div> 
+    </div>
+</script>
+<div class="fooder-bgs">
+    <div class="pull-left">
+            <button id="btnCancelForm" type="button" class="btn pyr-color10 btn-sm" ng-click="backToList()">
+                    <i class="fa fa-angle-left"></i>&nbsp;&nbsp;
+                    <span translate="common.backaction.lbl" class="ng-scope"><span class="ng-scope">Back</span></span>
+                </button>
+    </div>
+   
+</div>

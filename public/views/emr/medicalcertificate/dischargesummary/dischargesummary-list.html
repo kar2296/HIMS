@@ -1,0 +1,129 @@
+<div class="row">
+    <h4 class="col-sm-6 mt0" translate="medicalcertificate.dischargesummary-list.pagetitle.lbl"></h4>
+    <div class="col-sm-4">
+        <div class="filters">
+            <div class="search" ng-hide="context=='emr'">
+                <input type="text" id="pid" class="form-control" on-enter="getList()"
+                    ng-model="currentfilter.patientnamemrn" placeholder="Search Patient/UHID/Visit#/Mobile#"> <i
+                    class="fas fa-search" aria-hidden="true"></i>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-2">
+        <button class="drhms-billing-btn drhms-home-btn" ng-click="currentpatient()" ng-show="context=='emr'"
+            uib-tooltip="{{'bedmanagement-grid.pagetitle.lbl' | translate}}" tooltip-placement="bottom">
+            <i class="fas fa-hospital"></i>
+        </button>
+        <button class="btn-add" ng-click="addNew()"
+            uib-tooltip="{{ 'medicalcertificate.dischargesummary-list.pagetitle.lbl' | translate }}"
+            tooltip-placement="bottom">
+            <i class="fa fa-plus" aria-hidden="true"></i>
+        </button>
+    </div>
+</div>
+<div class="row" ng-hide="context=='emr'">
+    <div class="col-sm-2 form-group">
+        <label class="col-sm-12 control-label"
+            translate="medicalcertificate.dischargesummary-list.filter_dateofdischarge.lbl"></label>
+        <div class="col-sm-12">
+            <div class="datepicker">
+                <input type="text" class="form-control" name="dateofbirth" ng-change="getList()"
+                    datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}"
+                    uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                    placeholder="{{datePickerOptions.placeholder}}" ng-click="dateofbirthPopup = { opened: true }"
+                    is-open="dateofbirthPopup.opened" ng-model="currentfilter.dischargedatte"><i class="fa fa-calendar"
+                    aria-hidden="true"></i>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-2 form-group">
+        <label class="col-sm-12 control-label" translate="medicalcertificate.dischargesummary-list.ward.lbl"></label>
+        <div class="col-sm-12">
+            <ui-select ng-model="currentfilter.WardId" ng-change="getList()" class="filter-combo">
+                <ui-select-match>
+                    {{$select.selected.Text | limitTo : 20 : 0}}
+                    <span ng-if="$select.selected.Text.length>20">...</span>
+                </ui-select-match>
+                <ui-select-choices
+                    repeat="lookupitem.Id as lookupitem in lookup.Ward | filter: { Text: $select.search }">
+                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                </ui-select-choices>
+            </ui-select>
+        </div>
+    </div>
+    <div class="col-sm-2 form-group">
+        <label class="col-sm-12 control-label" for="guarantortype"
+            translate="medicalcertificate.dischargesummary-list.insurance.lbl"></label>
+        <div class="col-sm-12">
+            <ui-select ng-model="currentfilter.GuarantorId" ng-change="getList()">
+                <ui-select-match>
+                    {{$select.selected.Text | limitTo : 20 : 0}}
+                    <span ng-if="$select.selected.Text.length>20">...</span>
+                </ui-select-match>
+                <ui-select-choices
+                    repeat="lookupitem.Id as lookupitem in lookup.Guarantor | filter: { Text: $select.search }">
+                    <div ng-bind-html="lookupitem.Text | highlight: $select.search">
+                    </div>
+                </ui-select-choices>
+            </ui-select>
+        </div>
+    </div>
+    <div class="col-sm-2 form-group">
+        <label class="col-sm-12 control-label" translate="admissionrequests.doctor.lbl"></label>
+        <div class="col-sm-12">
+            <ui-select ng-model="currentfilter.DoctorId" ng-change="getList()" class="filter-combo">
+                <ui-select-match>
+                    {{$select.selected.Text | limitTo : 20 : 0}}
+                    <span ng-if="$select.selected.Text.length>20">...</span>
+                </ui-select-match>
+                <ui-select-choices
+                    repeat="lookupitem.Id as lookupitem in lookup.Doctor | filter: { Text: $select.search }">
+                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                </ui-select-choices>
+            </ui-select>
+        </div>
+    </div>
+
+    <div class="col-sm-2 form-group">
+        <label class="col-sm-12 control-label"
+            translate="medicalcertificate.dischargesummary-list.adminstatus.lbl"></label>
+        <div class="col-sm-12">
+            <ui-select ng-model="currentfilter.admissionstatusid" ng-change="getList()" class="filter-combo">
+                <ui-select-match>
+                    {{$select.selected.Text | limitTo : 20 : 0}}
+                    <span ng-if="$select.selected.Text.length>20">...</span>
+                </ui-select-match>
+                <ui-select-choices
+                    repeat="lookupitem.Id as lookupitem in lookup.AdmissionStatus | filter: { Text: $select.search }">
+                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                </ui-select-choices>
+            </ui-select>
+        </div>
+    </div>
+    <div class="col-sm-2 form-group">
+        <label class="col-sm-12 control-label"
+            translate="medicalcertificate.dischargesummary-list.summarystatus.lbl"></label>
+        <div class="col-sm-12">
+            <ui-select ng-model="currentfilter.CertificateStatusId" ng-change="getList()" class="filter-combo">
+                <ui-select-match>
+                    {{$select.selected.Text | limitTo : 20 : 0}}
+                    <span ng-if="$select.selected.Text.length>20">...</span>
+                </ui-select-match>
+                <ui-select-choices
+                    repeat="lookupitem.Id as lookupitem in lookup.CertificateStatus | filter: { Text: $select.search }">
+                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                </ui-select-choices>
+            </ui-select>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <custom-table config="vm.gridConfig"></custom-table>
+</div>
+<div class="fooder-bgs">
+    <div class="row">
+            <ul uib-pagination total-items="vm.gridConfig.pagerObj.totalItems"
+                items-per-page="vm.gridConfig.pagerObj.pageSize" start-index="vm.gridConfig.pagerObj.startIndex"
+                ng-model="vm.gridConfig.pagerObj.currentPage" ng-change="getList()"></ul>
+        </div>
+</div>

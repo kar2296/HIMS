@@ -1,0 +1,82 @@
+<div class="row">
+    <button class="btn-add" ng-if="canUpdatePatientInfo()" ng-click="addNew()"
+        uib-tooltip="{{ 'registration.patientidentity-form.pagetitle.lbl' | translate }}" tooltip-placement="bottom">
+        <i class="fas fa-plus" aria-hidden="true"></i>
+    </button>
+</div>
+<div class="col-sm-12 drhms-defaultservices">
+    <table class="table table-hover table-responsive table-bordered">
+        <thead class="bg-subhead">
+            <tr>
+                <th class="col-sm-4">
+                    <span translate="registration.patientidentity-list.type.lbl"></span>
+                    <span class="mandatory-asterix">*</span>
+                </th>
+                <th class="col-sm-2">
+                    <span translate="registration.patientidentity-list.idnumber.lbl"></span>
+                    <span class="mandatory-asterix">*</span>
+                </th>
+                <th class="col-sm-4">
+                    <span translate="registration.patientidentity-list.comments.lbl"></span>
+                </th>
+                <th class="col-sm-1">
+                    <span translate="registration.patientidentity-list.status.lbl"></span>
+                </th>
+                <th class="col-sm-1" ng-if="currentcontext.canShowUpload">
+                    <span translate="registration.patientidentity-list.upload.lbl"></span>
+                </th>
+                <th class="col-sm-1">
+                    <span translate="common.actions_col.lbl"></span>
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr ng-repeat="item in vm.items | filter:{Status:1}">
+                <td>
+                    <ui-select ng-model="item.PatientIdentityTypeId" name="type">
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 20 : 0}}
+                            <span ng-if="$select.selected.Text.length>20">...</span>
+                        </ui-select-match>
+                        <ui-select-choices
+                            repeat="lookupitem.Id as lookupitem in lookup.PatientIdentityType | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </td>
+                <td>
+                    <input type="text" class="form-control" ng-model="item.IDNumber" placeholder="">
+                </td>
+                <td>
+                    <input type="text" class="form-control" ng-model="item.Comments" placeholder="">
+                </td>
+                <td align="center">
+                    <input type="checkbox" class="custom-checkbox" ng-model="item.StatusId">
+                </td>
+                <td ng-if="currentcontext.canShowUpload">
+                    <a ng-click="upload(item)" class="upload-icon" uib-tooltip="Upload" tooltip-placement="bottom">
+                        <i class="fas fa-file-upload" aria-hidden="true"></i>
+                    </a>
+                </td>
+                <td>
+                    <button class="drhms-edit-button" ng-click="deleteItem($index,item)">
+                        <img  src="assets/svg/delete.svg" alt="">
+                    </button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+<div class="fooder-bgs">
+    <div class="pull-left">
+        <button type="button" class="btn btn-sm pyr-color10" ng-click="addNewFull()"><i
+                class="fa fa-angle-left"></i>&nbsp;&nbsp;<span translate="common.backaction.lbl"></span></button>
+    </div>
+    <div class="pull-right">
+        <button type="button" ng-if="canUpdatePatientInfo()" class="draftbutton" translate="common.saveaction.lbl"
+            ng-click="saveItem()"></button>
+        <button type="button" class="draftbutton" ng-click="clear()" translate="common.clearaction.lbl"></button>
+        <button id="btnCancelForm" type="button" class="draftbutton" ng-click="saveCancelled()"
+            translate="common.cancelaction.lbl"></button>
+    </div>
+</div>

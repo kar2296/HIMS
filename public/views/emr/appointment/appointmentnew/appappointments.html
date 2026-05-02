@@ -1,0 +1,98 @@
+<script type="text/javascript">
+    $(document).ready(function () {
+        $("#calenderid").click(function () {
+            $("i", this).toggleClass("fa fa-calendar fa fa-list");
+        });
+    });
+</script>
+<style>
+    .btn-add i {
+        font-size: 12px;
+    }
+</style>
+<div class="row">
+    <div class="col-sm-5">
+        <h4 class="mt0" translate="Appointments"></h4>
+    </div>
+    <div class="col-sm-7">
+        <div class="filters">
+            <button class="btn-add" id="calenderid" ng-click="toggleView()">
+                <i class="fa fa-calendar" aria-hidden="true"></i>
+            </button>
+        </div>
+    </div>
+</div>
+<div class="row" ng-show="!vm.appointment.ShowCalendar">
+    <div class="drhms-list-filters">
+        <div class="col-sm-3">
+            <label class="col-sm-3" translate="appointment.appointment-list.filter_type.lbl"></label>
+            <div class="col-sm-9">
+                <ui-select ng-model="currentfilter.AppointmentTypeId" ng-change="appointmenttypechange()"
+                    class="filter-combo" ng-disabled="currentcontext.candisableappttype">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 10 : 0}}
+                        <span ng-if="$select.selected.Text.length>8">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.AppointmentType | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+        <div class="col-sm-3">
+            <label class="col-sm-3" translate="appointment.appointment-form.appointmentdate.lbl"></label>
+            <div class="col-sm-9">
+                <input type="text" class="form-control" name="appointmentdate" ng-change="getList()"
+                    datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}"
+                    uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                    placeholder="{{datePickerOptions.placeholder}}" ng-click="appointmentdatePopup = { opened: true }"
+                    is-open="appointmentdatePopup.opened" ng-model="currentfilter.appointmentdate">
+            </div>
+        </div>
+        <div class="col-sm-3">
+            <label class="col-sm-3" translate="appointment.appointment-list.filter_doctor.lbl"></label>
+            <div class="col-sm-9">
+                <multiselectchk list="lookup.Doctor" selected="currentfilter.DoctorId" change="doctorFilterChange()">
+                </multiselectchk>
+            </div>
+        </div>
+        <div class="col-sm-3">
+            <label class="col-sm-3" translate="appointment.appointment-list.filter_appointmentstatus.lbl"></label>
+            <div class="col-sm-9">
+                <ui-select ng-model="currentfilter.AppointmentStatusId" ng-change="getList()" class="filter-combo">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 15 : 0}}
+                        <span ng-if="$select.selected.Text.length>8">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.AppointmentStatus | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+<div id="myModal" class="modal">
+    <!-- Modal content -->
+    <div class="modal-content" style="width:88%;margin:0 auto; left:6%;">
+        <div class="modal-body">
+            <span ng-click="hideprocessflow()" class="close link_close">&times;</span>
+            <img src="mock/usermanual/appointments/Appointments.jpg" class="imag-responsive"></img>
+        </div>
+    </div>
+</div>
+
+<div class="row" id="appoinmentsheight">
+    <custom-table config="vm.gridConfig" ng-show="!vm.appointment.ShowCalendar"></custom-table>
+    <jqx-scheduler jqx-settings="settings" id="scheduler" ng-show="vm.appointment.ShowCalendar"></jqx-scheduler>
+</div>
+<div class="fooder-bgs">
+    <div class="row">
+        <ul uib-pagination total-items="vm.gridConfig.pagerObj.totalItems"
+            items-per-page="vm.gridConfig.pagerObj.pageSize" start-index="vm.gridConfig.pagerObj.startIndex"
+            ng-model="vm.gridConfig.pagerObj.currentPage" ng-change="getList()"></ul>
+    </div>
+</div>

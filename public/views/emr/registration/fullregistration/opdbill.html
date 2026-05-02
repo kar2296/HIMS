@@ -1,0 +1,346 @@
+<style>
+    .margin-left-15 {
+        margin-left: 15px!important;
+        height: 20px;
+    }
+</style>
+<div class="modal-header custom-modal-header">
+    <h4 class="col-sm-12 active mt0" translate="billing.billing-details.regpagetitle.lbl"></h4>
+</div>
+<div class="col-sm-12 fullreg-profiles ">
+    <span ng-module="currentcontext.patinfo" ng-if="selectedPatient.MRN.length > 0" class="forpadd">
+                 <span>{{selectedPatient.Title.Description}} {{selectedPatient.FirstName}}</span> |
+    <span>{{selectedPatient.MRN}} </span> |
+    <span> {{selectedPatient.Gender.Description}}</span> |
+    <span> {{selectedPatient.Age}}  Years </span> |
+    <span>{{selectedPatient.DOB | date : 'dd/MMM/yyyy' }} </span>
+    <span ng-click="patientprofiledetails()"><i class="icon-info-sign"></i>
+                 </span>
+    </span>
+</div>
+<div class="row">
+    <div class="col-sm-12">
+        <form id="item_form" name="item_form" class="form-horizontal" role="form" ng-submit="">
+            <div class="row filter-area">
+                <div class="col-sm-12">
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                            <label class="col-sm-5 control-label" for="doctor" translate="billing.billing-details.doctor.lbl"></label>
+                            <div class="col-sm-7">
+                                <ui-select ng-model="Encounter.DoctorId" name="doctor">
+                                    <ui-select-match>
+                                        {{$select.selected.Text | limitTo : 20 : 0}}
+                                        <span ng-if="$select.selected.Text.length>20">...</span>
+                                    </ui-select-match>
+                                    <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.Doctor | filter: { Text: $select.search }">
+                                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                    </ui-select-choices>
+                                </ui-select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                            <label class="col-sm-5 control-label" for="department" translate="billing.billing-details.department.lbl"></label>
+                            <div class="col-sm-7">
+                                <ui-select ng-model="Encounter.DepartmentId" name="department">
+                                    <ui-select-match>
+                                        {{$select.selected.Text | limitTo : 20 : 0}}
+                                        <span ng-if="$select.selected.Text.length>20">...</span>
+                                    </ui-select-match>
+                                    <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.Department | filter: { Text: $select.search }">
+                                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                    </ui-select-choices>
+                                </ui-select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                            <label class="col-sm-5 control-label" for="guarantor" translate="billing.billing-details.guarantor.lbl"></label>
+                            <div class="col-sm-7">
+                                <ui-select ng-model="Encounter.GuarantorId" name="guarantor">
+                                    <ui-select-match>
+                                        {{$select.selected.Text | limitTo : 20 : 0}}
+                                        <span ng-if="$select.selected.Text.length>20">...</span>
+                                    </ui-select-match>
+                                    <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.Guarantor | filter: { Text: $select.search }">
+                                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                    </ui-select-choices>
+                                </ui-select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-12">
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                            <label class="col-sm-5 control-label" for="tariff" translate="billing.billing-details.serviceratecategory.lbl"></label>
+                            <div class="col-sm-7">
+                                <ui-select ng-model="Encounter.ServiceRateCategoryId" name="tariff">
+                                    <ui-select-match>
+                                        {{$select.selected.Text | limitTo : 20 : 0}}
+                                        <span ng-if="$select.selected.Text.length>20">...</span>
+                                    </ui-select-match>
+                                    <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.ServiceRateCategory | filter: { Text: $select.search }">
+                                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                    </ui-select-choices>
+                                </ui-select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="formRoot">
+                <div class="panel-body form-panel" style="height: 300px;">
+                    <div class="col-sm-12 padding-top5">
+
+                        <div class="" id="mainresponsivetablecontrol">
+
+                            <table class="table table-hover table-responsive table-bordered">
+                                <thead class="bg-subhead">
+                                    <tr>
+                                        <th width="30%"><span translate="billing.billing-details.itemname.lbl"></span> </th>
+                                        <th><span translate="billing.billing-details.rate.lbl"></span> </th>
+                                        <th><span translate="billing.billing-details.qty.lbl"></span> </th>
+                                        <th><span translate="billing.billing-details.gross.lbl"></span> </th>
+                                        <th><span translate="billing.billing-details.doctorshare.lbl"></span> </th>
+                                        <th><span translate="billing.billing-details.discountinrs.lbl"></span> </th>
+                                        <th><span translate="billing.billing-details.netamount.lbl"></span> </th>
+                                        <th><span translate="billing.billing-details.action.lbl"></span></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr ng-repeat="item in PatientBillDetails | filter:{Status:1}">
+                                        <td>
+                                            <ui-select ng-model="item.ServiceId" ng-change="getServiceItem($index)" name="">
+                                                <ui-select-match>
+                                                    {{$select.selected.Text | limitTo : 20 : 0}}
+                                                    <span ng-if="$select.selected.Text.length>20">...</span>
+                                                </ui-select-match>
+                                                <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.ServiceItem | filter: { Text: $select.search }">
+                                                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                                </ui-select-choices>
+                                            </ui-select>
+                                        </td>
+                                        <td class=" " align="center">
+                                            <input type="text" class="form-control" ng-model="item.Rate" disabled>
+                                        </td>
+                                        <td>
+                                            <input type="text" class="form-control" ng-model="item.Quantity" ng-change="calcAmt($index)">
+                                        </td>
+                                        <td class=" " align="center">
+                                            <input type="text" class="form-control" ng-model="item.GrossAmount" disabled>
+                                        </td>
+                                        <td class=" " align="center">
+                                            <input type="text" class="form-control" ng-model="item.DoctorShare">
+                                        </td>
+                                        <td>
+                                            <input type="text" class="form-control" ng-model="item.DiscountAmount"ng-change="RestictAmount($index)" >
+                                        </td>
+                                        <td>
+                                            <span disabled>{{item.NetAmount}}</span>
+                                        </td>
+                                        <td class="text-center">
+                                            <button class="btn btn-danger btn-xs" uib-tooltip="Delete" tooltip-placement="top" ng-click="deleteDetail($index,item)" ng-disabled="item.isDisabled"><i class="fa fa-trash" aria-hidden="true"></i></button>
+                                        </td>
+
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="footerbar">
+                    <div class="sub-footer">
+                        <div class="col-sm-12 fullreg-profiles ">
+                            <div class="col-sm-2">
+                                <span><i class="fa fa-building text-info" aria-hidden="true"></i></span> comments
+                            </div>
+                            <div class="col-sm-3">
+                                <span><i class="fa fa-calculator text-success" aria-hidden="true"></i></span> calculator
+                            </div>
+                            <div class="col-sm-3">
+                                Discount : <span class="countbg">{{item.BillDiscount}}</span>
+                            </div>
+                            <div class="col-sm-2">
+                                Total : <span class="countbg">{{item.TotalNet}}</span>
+                            </div>
+                            <div class="col-sm-2">
+                                Round Off : <span class="countbg">{{item.TotRndoffAmt}}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row filter-area">
+                    <div class="col-sm-12">
+                        <label class="col-sm-1 " for="patientbills" translate="billing.opbilling-list.discount.lbl" readonly></label>
+                        <div class="col-sm-1">
+                            <input type="text" class="form-control" name="patientbills" ng-change="HeaderCalc()" ng-disabled=""
+                                ng-model="HeaderDiscount" placeholder="">
+                        </div>
+                        <label class="col-sm-2 " for="patientbills" translate="billing.opbilling-list.approvedby.lbl"></label>
+                        <div class="col-sm-2">
+                            <ui-select ng-model="item.ApprovedById" ng-disabled="RdoApprovedById" name="patientbills">
+                                <ui-select-match>
+                                    {{$select.selected.Text | limitTo : 20 : 0}}
+                                    <span ng-if="$select.selected.Text.length>20">...</span>
+                                </ui-select-match>
+                                <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.User | filter: { Text: $select.search }">
+                                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                </ui-select-choices>
+                            </ui-select>
+                        </div>
+                        <label class="col-sm-1 " for="patientbills" translate="billing.receipt-form.remarks.lbl"></label>
+                        <div class="col-sm-3">
+                            <input type="text" class="form-control" name="patientbills" ng-change="" ng-model="item.Remarks" placeholder="Service Bill">
+                        </div>
+                    </div>
+                </div>
+                <div class="panel panel-body panel-default">
+                    <div class="page-header">
+                        <h3 class="panel-title" translate="billing.billing-details.payments.lbl"></h3>
+                    </div>
+                    <div class="row filter-area">
+                        <div class="col-sm-6 ">
+                            <div class="form-group paddingtop">
+                                <label class="col-sm-4 control-label" for="payments" translate="billing.receipt-form.paymentmode.lbl"></label>
+                                <div class="col-sm-8">
+                                    <ui-select ng-model="item.PaymentTypeId" name="payments" ng-disabled="IsCompleted" required>
+                                        <ui-select-match>
+                                            {{$select.selected.Text | limitTo : 20 : 0}}
+                                            <span ng-if="$select.selected.Text.length>20">...</span>
+                                        </ui-select-match>
+                                        <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.PaymentType | filter: { Text: $select.search }">
+                                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                        </ui-select-choices>
+                                    </ui-select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label" for="receiptamount" translate="billing.receipt-form.receiptamount.lbl"></label>
+                                <div class="col-sm-5">
+                                    <input type="text" class="form-control" name="receiptamount" ng-model="item.PaidAmount" aria-label="amount" ng-change="calcAmt()"
+                                        ng-disabled="IsCompleted" placeholder="" required>
+                                </div>
+                                <!--<div class="col-sm-3">
+                                    <ui-select ng-model="item.CurrencyTypeId" ng-disabled="IsCompleted">
+                                        <ui-select-match>
+                                            {{$select.selected.Text | limitTo : 20 : 0}}
+                                            <span ng-if="$select.selected.Text.length>20">...</span>
+                                        </ui-select-match>
+                                        <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.CurrencyType | filter: { Text: $select.search }">
+                                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                        </ui-select-choices>
+                                    </ui-select>
+                                </div>-->
+                            </div>
+                        </div>
+                        <div class="col-sm-6 paddingtop ">
+                            <div class="form-group" ng-if="item.PaymentTypeId != 1">
+                                <label class="col-sm-4 control-label" for="bankname" translate="billing.receipt-form.bankname.lbl"></label>
+                                <div class="col-sm-8">
+                                    <ui-select ng-model="item.BankId" name="bankname" ng-disabled="item.isCompleted" required>
+                                        <ui-select-match>
+                                            {{$select.selected.Text | limitTo : 20 : 0}}
+                                            <span ng-if="$select.selected.Text.length>20">...</span>
+                                        </ui-select-match>
+                                        <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.Bank | filter: { Text: $select.search }">
+                                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                        </ui-select-choices>
+                                    </ui-select>
+                                </div>
+                            </div>
+                            <div class="form-group" ng-if="item.PaymentTypeId==2">
+                                <label class="col-sm-4 control-label" for="chequeno" translate="billing.receipt-form.chequeno.lbl"></label>
+                                <div class="col-sm-8">
+                                    <input type="text" class="form-control" name="chequeno" ng-model="item.ChequeNo" ng-disabled="item.isCompleted" placeholder=""
+                                        required>
+                                </div>
+                            </div>
+                            <div class="form-group" ng-if="item.PaymentTypeId==3">
+                                <label class="col-sm-4 control-label" for="ddno" translate="billing.receipt-form.ddno.lbl"></label>
+                                <div class="col-sm-8">
+                                    <input type="text" class="form-control" name="ddno" ng-model="item.DDNumber" ng-disabled="item.isCompleted" placeholder=""
+                                        ng-minlength="" ng-pattern="/^\d+$/" required>
+                                </div>
+                            </div>
+                            <div class="form-group" ng-if="item.PaymentTypeId != 1">
+                                <label class="col-sm-4 control-label" translate="billing.receipt-form.Collected On.lbl"></label>
+                                <div class="col-sm-8">
+                                    <input type="text" class="form-control" name="Collected On" ng-date-object datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}"
+                                        uib-datepicker-popup="{{datePickerOptions.dateFormat}}" placeholder="{{datePickerOptions.placeholder}}"
+                                        ng-click="activefromPopup = { opened: true }" is-open="activefromPopup.opened" ng-model="item.CollectedOn"
+                                        ng-disabled="item.isCompleted">
+                                </div>
+                            </div>
+                            <div class="form-group" ng-if="item.PaymentTypeId==2">
+                                <label class="col-sm-4 control-label" translate="billing.receipt-form.Chequedate.lbl"></label>
+                                <div class="col-sm-8">
+                                    <input type="text" class="form-control" name="Chequedate" ng-date-object datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}"
+                                        uib-datepicker-popup="{{datePickerOptions.dateFormat}}" placeholder="{{datePickerOptions.placeholder}}"
+                                        ng-click="activefromPopup = { opened: true }" is-open="activefromPopup.opened" ng-model="item.ChequeDate"
+                                        ng-disabled="item.isCompleted">
+                                </div>
+                            </div>
+                            <div class="form-group" ng-if="item.PaymentTypeId==3">
+                                <label class="col-sm-4 control-label" translate="billing.receipt-form.dddate.lbl"></label>
+                                <div class="col-sm-8">
+                                    <input type="text" class="form-control" name="dddate" ng-date-object datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}"
+                                        uib-datepicker-popup="{{datePickerOptions.dateFormat}}" placeholder="{{datePickerOptions.placeholder}}"
+                                        ng-click="activetoPopup = { opened: true }" is-open="activetoPopup.opened" ng-model="item.DDDate"
+                                        ng-disabled="item.isCompleted">
+                                </div>
+                            </div>
+                            <div class="form-group" ng-if="item.PaymentTypeId==4">
+                                <label class="col-sm-4 control-label" for="transationno" translate="billing.receipt-form.transationno.lbl"></label>
+                                <div class="col-sm-8">
+                                    <input type="text" class="form-control" name="transationno" ng-model="item.WireTransferId" placeholder="" ng-disabled="item.isCompleted"
+                                        required>
+                                </div>
+                            </div>
+                            <div class="form-group" ng-if="item.PaymentTypeId==4">
+                                <label class="col-sm-4 control-label" translate="billing.receipt-form.transferredon.lbl"></label>
+                                <div class="col-sm-8">
+                                    <input type="text" class="form-control" name="transferredon" ng-date-object datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}"
+                                        uib-datepicker-popup="{{datePickerOptions.dateFormat}}" placeholder="{{datePickerOptions.placeholder}}"
+                                        ng-click="transationfromPopup = { opened: true }" is-open="transationfromPopup.opened"
+                                        ng-model="item.WireTransferDate" ng-disabled="item.isCompleted">
+                                </div>
+                            </div>
+                            <div class="form-group" ng-if="item.PaymentTypeId==5">
+                                <label class="col-sm-4 control-label" for="cardtype" translate="billing.receipt-form.cardtype.lbl"></label>
+                                <div class="col-sm-8">
+                                    <ui-select ng-model="item.CardTypeId" name="cardtype" ng-disabled="item.isCompleted" required>
+                                        <ui-select-match>
+                                            {{$select.selected.Text | limitTo : 20 : 0}}
+                                            <span ng-if="$select.selected.Text.length>20">...</span>
+                                        </ui-select-match>
+                                        <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.CardType | filter: { Text: $select.search }">
+                                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                        </ui-select-choices>
+                                    </ui-select>
+                                </div>
+                            </div>
+                            <div class="form-group" ng-if="item.PaymentTypeId==5">
+                                <label class="col-sm-4 control-label" for="cardno" translate="billing.receipt-form.cardno.lbl"></label>
+                                <div class="col-sm-8">
+                                    <input type="text" class="form-control" name="cardno" ng-model="item.CardNumber" ng-disabled="item.isCompleted" placeholder=""
+                                        required>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="fooder-bgs">
+                <div class="pull-right">
+                    <div class="col-sm-12">
+                        <button type="button"  class="draftbutton" ng-click="print()" translate="common.printaction.lbl"></button>
+                        <button type="button" class="btn btn-info btn-sm" translate="billing.opbilling-list.saveandapprove.lbl" ng-click="saveAndApprove()"></button></div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

@@ -1,0 +1,84 @@
+<style>
+    .img {
+        border: 1px solid #e6e0e0;
+        height: 200px;
+        width: 91%;
+        margin-bottom: 25px;
+        margin-top: 30px;
+    }
+
+    .item-logo-img {
+        width: 100% !important;
+        height: 100% !important;
+    }
+
+    textarea.text-comment {
+        width: 100%;
+        height: 100px;
+    }
+
+    button.cnl-button {
+        background: transparent;
+        border: 1px solid;
+        position: absolute;
+        right: 52px;
+        top: 32px;
+        color: #f05050;
+        border-radius: 5px;
+    }
+</style>
+<div class="col-sm-12">
+    <div class="col-sm-6">
+        <div class="col-sm-12 img">
+            <img class="item-logo-img" ng-show="!!currentcontext.file" ngf-thumbnail="currentcontext.file" />
+            <img class="item-logo-img" ng-show="!currentcontext.file && item.Attachment"
+                data-ng-src="data:image/png;base64,{{currentcontext.Image}}" />
+        </div>
+        <div class="col-sm-1">
+            <button type="button" ng-disabled="SaveCompleted" class="cnl-button" tabindex="-1" ng-click="clearimage()"
+                uib-tooltip="Clear" tooltip-placement="bottom">
+                <img class="drhms-edit-button" src="assets/svg/delete.svg" alt="">
+            </button>
+        </div>
+    </div>
+    <div class="col-sm-6">
+        <div class="form-group col-sm-12">
+            <label class="col-sm-12 control-label" for="name"
+                translate="virtualhealth.successstory.category.lbl"></label>
+            <div class="col-sm-12">
+                <ui-select ng-model="item.CategoryId" ng-change="getList()" class="filter-combo">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 20 : 0}}
+                        <span ng-if="$select.selected.Text.length>8">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.VirtualCategory | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+        <div class="form-group col-sm-12" style="height: 137px;">
+            <label class="col-sm-12 control-label" for="name" translate="Content"></label>
+            <div class="col-sm-12">
+                <textarea class="text-comment" ng-model="item.Content"></textarea>
+                <!-- <richtexteditor richtext="item.Content"></richtexteditor> -->
+            </div>
+        </div>
+        <div class="form-group col-sm-12">
+            <label class="col-sm-12 control-label" translate="appmanager.dept.logo.lbl"></label>
+            <div class="col-sm-12">
+                <input type="file" ngf-select ng-model="currentcontext.file" name="file" ngf-max-size="200MB" />
+            </div>
+        </div>
+    </div>
+</div>
+<div class="fooder-bgs" style="margin-bottom: 1px;">
+    <!-- <button type="button" class="btn btn-sm pyr-color10" ng-click="backToList()"><i class="fa fa-angle-left"></i>&nbsp;&nbsp;<span translate="common.backaction.lbl"></span></button> -->
+    <div class="pull-right">
+        <button type="button" class="draftbutton" ng-click="save()"
+            translate="common.saveaction.lbl"></button>
+        <!-- <button type="button" class="draftbutton" translate="common.saveapprove-action.lbl"
+                        ng-click="saveandApprove()"></button> -->
+    </div>
+</div>

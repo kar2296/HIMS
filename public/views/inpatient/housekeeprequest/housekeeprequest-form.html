@@ -1,0 +1,226 @@
+<link rel="stylesheet" href="app/css/drhms.css">
+<div class="modal-header custom-modal-header">
+    <div class="col-sm-10">
+        <h4 class="modal-title custom-modal-title" translate="housekeeprequest.pagetitle.lbl"></h4>
+    </div>
+    <div class="col-sm-2">
+        <div class="filters">
+            <img src="../../../../../assets/svg/close.svg" ng-click="cancelCallback()">
+        </div>
+    </div>
+</div>
+<div class="row">
+    <patientbanner patientid="PatientId"></patientbanner>
+</div>
+<div class="row">
+    <form id="item_form" name="item_form" class="form-horizontal" role="form">
+        <div class="drhms-table-top-header">
+            <div class="drhms-table-head-border">
+                <div class="col-sm-12">
+                    <label class="col-sm-4" translate="housekeeprequest.patient.lbl" for="patientname"></label>
+                    <div class="col-sm-8">
+                        <autosearch itemid="item.EncounterId" iteminfo="item.SelectedItem" rowdata="item"
+                            config="vm.patientcontrolconfig" itemchange="getEncounterInfo()" name="patientname"
+                            candisable="isDisabled||IsBedScreen" isrequired="true"></autosearch>
+                    </div>
+                </div>
+                <div class="col-sm-12">
+                    <label class="col-sm-4" translate="housekeeprequest.location.lbl" for="location"></label>
+                    <div class="col-sm-8">
+                        <ui-select ng-model="item.LocationId" name="location" ng-change="wardLookUp()"
+                            ng-disabled="item.HousekeepingStatusId==4||item.HousekeepingStatusId==5||IsBedScreen"
+                            required>
+                            <ui-select-match>
+                                {{$select.selected.Text | limitTo : 10 : 0}}
+                                <span ng-if="$select.selected.Text.length>20">...</span>
+                            </ui-select-match>
+                            <ui-select-choices
+                                repeat="lookupitem.Id as lookupitem in lookup.Location | filter: { Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                </div>
+                <div class="col-sm-12">
+                    <label class="col-sm-4" translate="housekeeprequest.ward.lbl" for="ward"></label>
+                    <div class="col-sm-8">
+                        <ui-select ng-model="item.WardId" ng-change="roomLookUp()"
+                            ng-disabled="item.HousekeepingStatusId==4||item.HousekeepingStatusId==5||IsBedScreen">
+                            <ui-select-match>
+                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                <span ng-if="$select.selected.Text.length>20">...</span>
+                            </ui-select-match>
+                            <ui-select-choices
+                                repeat="lookupitem.Id as lookupitem in lookup.Ward | filter: { Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                </div>
+            </div>
+            <div class="drhms-table-head-border">
+                <div class="col-sm-12">
+                    <label class="col-sm-4" translate="housekeeprequest.room.lbl" for="room"></label>
+                    <div class="col-sm-8">
+                        <ui-select ng-model="item.RoomId" name="room" ng-change="bedlook()"
+                            ng-disabled="item.HousekeepingStatusId==4||item.HousekeepingStatusId==5||IsBedScreen"
+                            required>
+                            <ui-select-match>
+                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                <span ng-if="$select.selected.Text.length>20">...</span>
+                            </ui-select-match>
+                            <ui-select-choices
+                                repeat="lookupitem.Id as lookupitem in lookup.Room | filter: { Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                </div>
+                <div class="col-sm-12">
+                    <label class="col-sm-4" translate="housekeeprequest.bed.lbl" for="bed"></label>
+                    <div class="col-sm-8">
+                        <ui-select ng-model="item.BedId" name="bed"
+                            ng-disabled="item.HousekeepingStatusId==4||item.HousekeepingStatusId==5||IsBedScreen"
+                            ng-change="changeServiceRateCategory($select.selected)" required>
+                            <ui-select-match>
+                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                <span ng-if="$select.selected.Text.length>20">...</span>
+                            </ui-select-match>
+                            <ui-select-choices
+                                repeat="lookupitem.Id as lookupitem in lookup.Bed | filter: { Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                </div>
+                <div class="col-sm-12">
+                    <label class="col-sm-4" translate="housekeeprequest.status.lbl"></label>
+                    <div class="col-sm-8">
+                        <ui-select ng-model="item.HousekeepingStatusId" name="" ng-disabled=true>
+                            <ui-select-match>
+                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                <span ng-if="$select.selected.Text.length>20">...</span>
+                            </ui-select-match>
+                            <ui-select-choices
+                                repeat="lookupitem.Id as lookupitem in lookup.HousekeepingStatus | filter: { Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                </div>
+            </div>
+            <div class="drhms-table-head-border">
+                <div class="col-sm-12">
+                    <label class="col-sm-4" translate="housekeeprequest.requestedon.lbl"></label>
+                    <div class="col-sm-8">:
+                        {{item.CreatedAt | date : 'dd-MMM-yyyy'}} &nbsp; {{item.CreatedAt | date : 'HH:mm'}}
+                    </div>
+                </div>
+                <div class="col-sm-12">
+                    <label class="col-sm-4" translate="housekeeprequest.requestedno.lbl"></label>
+                    <div class="col-sm-8">:
+                        {{item.RequestIdentifier}}
+                    </div>
+                </div>
+                <div class="col-sm-12">
+                    <label class="col-sm-4" translate="housekeeprequest.createdby.lbl"></label>
+                    <div class="col-sm-8">:{{CreatedUser.CreatedById.Title.Description}} &nbsp;
+                        {{CreatedUser.CreatedById.FirstName}}
+                        &nbsp;{{CreatedUser.CreatedById.LastName}}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+<div class="row">
+    <form id="item_form" name="item_form" class="form-horizontal" role="form">
+        <div class="form-group col-sm-4">
+            <label class="col-sm-12 control-label" for="requesttype"
+                translate="housekeeprequest.requesttype.lbl"></label>
+            <div class="col-sm-12">
+                <ui-select ng-model="item.RequestTypeId" name="requesttype"
+                    ng-disabled="item.HousekeepingStatusId==4||item.HousekeepingStatusId==5" required>
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 20 : 0}}
+                        <span ng-if="$select.selected.Text.length>20">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.RequestType | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+        <div class="form-group col-sm-4">
+            <label class="col-sm-12 control-label" for="activity" translate="housekeeprequest.activitytype.lbl"></label>
+            <div class="col-sm-12">
+                <ui-select ng-model="item.HousekeepingActivityId" name="activity" required
+                    ng-disabled="item.HousekeepingStatusId==4||item.HousekeepingStatusId==5">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 20 : 0}}
+                        <span ng-if="$select.selected.Text.length>20">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.HousekeepingActivity | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+        <div class="form-group col-sm-4" ng-if="assigned">
+            <label class="col-sm-12 control-label" for="assignedto" translate="housekeeprequest.assignedto.lbl"></label>
+            <div class="col-sm-12">
+                <ui-select ng-model="item.AssignedId" name="assignedto"
+                    ng-disabled="item.HousekeepingStatusId==4||item.HousekeepingStatusId==5">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 20 : 0}}
+                        <span ng-if="$select.selected.Text.length>20">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.User | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+        <div class="form-group col-sm-4">
+            <label class="col-sm-12 control-label" for="comments" translate="housekeeprequest.comments.lbl"></label>
+            <div class="col-sm-12">
+                <textarea rows="3" name="storageinst" ng-model="item.Comments" maxlength="4000" style="width:100%;"
+                    class="notes-textarea"></textarea>
+            </div>
+        </div>
+    </form>
+</div>
+<div class="">
+    <div class="row">
+        <div class="pull-left">
+            <button type="button" class="btn pyr-color10 btn-sm" ng-click="backToList()" ng-if="backBtn"> <i
+                    class="fa fa-angle-left" aria-hidden="true"></i><strong class="btn-fontsize"> &nbsp;
+                    Back</strong></button>
+            <!--<button class="draftbutton" uib-tooltip="Attachments" tooltip-placement="top"><i class="fa fa-paperclip fa-xs" aria-hidden="true">&nbsp;&nbsp;(0)</i></button>-->
+            <button class="draftbutton" uib-tooltip="History" tooltip-placement="top" ng-click="housekeephistory()"><i
+                    class="fa fa-history fa-xs" aria-hidden="true"></i></button>
+            <button type="button" class="draftbutton" translate="Cancel Request" ng-if="cancelBtn"
+                ng-click="CancelRequest()"></button>
+        </div>
+        <div class="pull-right">
+            <button type="button" class="draftbutton" ng-click="print()" translate="common.printaction.lbl"
+                ng-if="printBtn"></button>
+            <!-- ng-if="item.DisposeStatusId==2" -->
+            <button id="btnSave" type="button" class="draftbutton" translate="common.saveaction.lbl"
+                ng-click="save()"></button>
+            <button id="btnSaveApprove" type="button" class="draftbutton"
+                translate="housekeeprequest.saveapprove-action.lbl" ng-click="saveAndApprove()"
+                ng-if="approveBtn"></button>
+            <button type="button" class="draftbutton" translate="Assign" ng-click="saveAndAssign()"
+                ng-if="assignBtn"></button>
+            <button type="button" class="draftbutton" translate="Completed" ng-click="confirmation()"
+                ng-if="completedBtn"></button>
+            <button id="btnClearForm" type="button" class="draftbutton" ng-click="clearItem()"
+                translate="common.clearaction.lbl" ng-if="clearBtn"></button>
+            <!--<button id="btnCancelForm" type="button" class="draftbutton" ng-click="backToList()" translate="common.cancelaction.lbl"></button>-->
+        </div>
+    </div>
+</div>

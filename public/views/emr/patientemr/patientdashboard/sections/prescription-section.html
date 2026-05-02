@@ -1,0 +1,151 @@
+<style>
+    .date {
+        color: #546587;
+        font-weight:bolder;
+    }
+
+    .name {
+        color: rgb(73, 5, 5) !important;
+        font-weight:bolder;
+    }
+
+    .test {
+        color: #503e05;
+        font-weight:bolder;
+    }
+
+    .text {
+        color: #2719b9;
+        font-weight:bolder;
+    }
+
+    .dose {
+        color: #bb890b;
+        font-weight:bolder;
+        padding: 0px 15px;
+    }
+
+    .stat {
+        color: #ff9900;
+        font-weight:bolder;
+    }
+
+    .autosearch-div .custom-popup-wrapper {
+        position: absolute;
+        width: 50%;
+        top: 100%;
+        left: 0;
+        z-index: 1000;
+        display: none;
+        background-color: lightslategrey;
+        height: 306px;
+        color: black;
+        font-weight: 700;
+    }
+    .lefcol1 strong{padding:0px 10px;}
+    .lefcol1 strong {
+    padding: 0px 20px;
+}
+.lefcol strong{padding:0px 10px;}
+div#prescription_toogle{
+    /* background: rgb(119, 59, 5); */
+}
+tbody td{padding:0px !important;}
+   </style>
+<div class="panel {{currentcontext.paneltype}} portlet-panel" ng-controller="prescriptionSectionController as vm">
+    <div class="panel-heading portlet-panel-heading" id="prescription_toogle">
+            <!-- <div class="col-xs-12 col-sm-5 col-md-5 col-lg-5 bg-round resp_img pull-right">
+                    <img class="img-responsive dash_icons" ng-src="app/img/emr/M_88.png">
+                </div>
+                <h4 class="ip_dashbname">
+        <strong translate="patientemr.ipdashboard.prescription.lbl"></strong></h4>
+        <button class="emr_vmore info btn-md pull-right">View more...</button> -->
+        <strong translate="patientemr.ipdashboard.prescription.lbl"></strong>
+         <i class="fa fa-angle-down cust_downarrow prescommon_arrow"></i>
+        <i class="fa fa-angle-right cust_rightarrow pres2common_arrow"></i>
+        <a ng-click="handleEvents('list')" class="pull-right lnk-portlet-header-action " uib-tooltip="{{ 'common.moredetailsaction.lbl' | translate }}"
+            tooltip-placement="bottom">
+            <i class="fa fa-info btn-circle" aria-hidden="true"></i>
+        </a>
+        <a ng-click="handleEvents('add')" class="pull-right lnk-portlet-header-action" uib-tooltip="{{ 'common.addnewaction.lbl' | translate }}"
+            tooltip-placement="bottom">
+            <i class="fa fa-plus btn-circle" aria-hidden="true"></i>
+        </a> 
+    </div>
+     <div class="panel-wrapper">
+        <div class="panel-body portlet-panel-body prescription_toggle">
+            <div class="table-responsive">
+                <table class="table table-hover table-responsive table-bordered custom-table">
+                    <tbody>
+                        <tr ng-repeat="item in items| limitTo: currentcontext.recordcount">
+                            <td colspan="9">
+                                <table class="table table-hover table-responsive table-bordered custom-table">
+                                    <thead>
+                                        <tr>
+                                            <td style="padding:0px;">
+                                                <span class="lefcol3">{{item.PrescriptionDate|date:'dd:MM:yyyy'}} {{item.PrescriptionDate|date:'HH:mm'}}</b>:&nbsp;&nbsp;&nbsp;
+                                                    <span class="lefcol5">{{item.Identifier}}</span>&nbsp;
+                                                    <span class="lefcol1">{{item.PrescriptionPriority.Description}} </span>
+                                                    <span class="status">{{item.PrecriptionStatus.Description}}</span>
+                                                    <span class="lefcol6">{{item.Doctor.Title.Description}} {{item.Doctor.FirstName}} {{item.Doctor.LastName}}</span>
+
+                                                </span>
+                                                 <tr ng-repeat="item in item.PrescriptionDetails">
+                                                    <td class="lefcol">
+                                                        <span class="text-highlight3 plain-text"> {{item.DrugName}} </span>
+                                                        <strong class="lefcol2">
+                                                        <span class="lefcol1">{{item.Dosage}}</span></strong>
+                                                        <strong class="lefcol2">
+                                                        <span class="lefcol1">{{item.DrugRoute.Description}}</span></strong>
+                                                        <strong class="lefcol2">
+                                                        <span class="lefcol1">{{item.DrugFrequency.Name}}</span></strong>
+                                                        <strong class="lefcol2"></strong>
+                                                        <span class="lefcol1">{{item.Duration}} {{item.DurationPeriod.Description}}</span>
+                                                    </td>
+                                                </tr>
+                                            </td> 
+                                            <!-- <div>
+                                                        <span class="text-highlight3 plain-text">{{item.PrescriptionDetails[0].DrugName}}</span>
+                                                        <strong>Dosage:</strong>
+                                                        <span class="dose">{{item.PrescriptionDetails[0].Dosage}}</span>;
+                                                        <strong>Drug Route:</strong>
+                                                        <span class="dose">{{item.PrescriptionDetails[0].DrugRoute.Description}}</span>;
+                                                        <strong>Drug Frequency:</strong>
+                                                        <span class="dose">{{item.PrescriptionDetails[0].DrugFrequency.Name}}</span>;
+                                                        <strong>Duration:</strong>
+                                                        <span class="dose">{{item.PrescriptionDetails[0].Duration}} {{item.PrescriptionDetails[0].DurationPeriod.Description}}</span>
+                                                    <!-- </div> -->
+                                         </tr>
+                                    </thead>
+                                </table>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div> 
+             <!-- <button type="button" class="btn btn-danger" style="position:relative;top:25px;padding:0px;float:right;">View more > ></button>  -->
+        </div>
+    </div>
+</div>
+<script>
+        $(document).ready(function(){
+         $(".prescommon_arrow").click(function(){
+
+                $(".prescription_toggle").toggle("slow");
+
+               });
+           });
+
+        </script>
+        <style>
+        .prescription_toggle{
+            height:150px;
+            width:100%;
+        }
+        .prescommon_arrow{
+            float: right;
+            padding-left: 47px;
+            font-size:24px;
+           }
+      .pres2common_arrow{display: none;}
+        </style>

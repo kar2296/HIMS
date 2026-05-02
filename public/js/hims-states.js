@@ -19,7 +19,7 @@
         $stateProvider
             .state('page', {
                 url: '/page',
-                templateUrl: 'app/pages/page.html',
+                templateUrl: 'pages/page.html',
                 resolve: helper.resolveFor('modernizr', 'icons', 'angularjs-crypto', 'common.utils'),
                 controller: ['$rootScope', function ($rootScope) {
                     $rootScope.app.layout.isBoxed = false;
@@ -28,10 +28,10 @@
             .state('page.login', {
                 url: '/login',
                 title: 'Login',
-                templateUrl: 'app/pages/login.html',
+                templateUrl: 'pages/login.html',
                 resolve: {
                     loadCtrl: ['$ocLazyLoad', function ($ocLazyLoad) {
-                        return $ocLazyLoad.load('app/pages/access-login.controller.js');
+                        return $ocLazyLoad.load('pages/access-login.controller.js');
                     }]
                 }
             })
@@ -716,14 +716,14 @@
             .state('page.appinfo', {
                 url: '/appinfo',
                 title: 'AppInfo',
-                templateUrl: 'app/pages/appinfo.html',
+                templateUrl: 'pages/appinfo.html',
                 controller: 'appInfoController as vm',
                 resolve: {
                     $uibModalInstance: function () {
                         return null;
                     },
                     loadCtrl: ['$ocLazyLoad', function ($ocLazyLoad) {
-                        return $ocLazyLoad.load('app/pages/appinfo.js');
+                        return $ocLazyLoad.load('pages/appinfo.js');
                     }]
                 }
             })
@@ -19415,9 +19415,9 @@
             size: 'full'
         });
         modalConfigProvider.add('page.appinfo', {
-            templateUrl: 'app/pages/appinfo.html',
+            templateUrl: 'pages/appinfo.html',
             controller: 'appInfoController',
-            controllerUrl: 'app/pages/appinfo.js',
+            controllerUrl: 'pages/appinfo.js',
             size: 'lg'
         });
         modalConfigProvider.add('patientemr.patientintakeoutput', {

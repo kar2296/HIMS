@@ -1,0 +1,344 @@
+<style>
+    .ui-grid-viewport,
+    #depsheight .ui-grid-viewport,
+    #depsheight>.table-uigrid,
+    .fullreg-profiles:before,
+    #opbillingcontrol .formRoot {
+        height: 40vh;
+        min-height: 40vh;
+    }
+
+    @media (device-height:100vh) and (evice-width:100vw) {
+
+        .ui-grid-viewport,
+        #depsheight .ui-grid-viewport {
+            height: 45vh;
+            min-height: 45vh;
+        }
+    }
+
+    .ipbill_height {
+        height: 32vh;
+    }
+
+    .round_off {
+        text-align: center;
+        margin: 0px;
+        background-color: #ece4be;
+        /* margin-bottom: 30px; */
+    }
+
+    .card {
+        padding-top: 0px;
+    }
+
+    h4.round_off {
+        font-size: 17px !important;
+    }
+
+    .billing_received {
+        float: left;
+        width: 100%;
+        background: #1a1a9cf5;
+        color: #fff;
+        margin-top: 20px;
+        margin-bottom: 2px;
+        font-size: 17px;
+    }
+
+    .billing_balance {
+        float: left;
+        width: 100%;
+        background: #e4143bf7;
+        color: #fff;
+        font-size: 17px;
+    }
+
+    .lab1 {
+        float: left;
+    }
+
+    fieldset.fsStyle.col-sm-12.bill_div10 .text-right {
+        font-size: 17px;
+        color: #000;
+        font-weight: 700;
+    }
+
+    .ui-grid-viewport.ng-isolate-scope {
+        height: 35vh !important;
+        min-height: 35vh !important;
+    }
+
+    #opbillingcontrol .formRoot {
+        height: 40vh !important;
+        overflow: scroll;
+        overflow-x: hidden;
+    }
+</style>
+
+
+<link href="app/css/billing-pharmacy-customs.css" rel="stylesheet">
+<script>
+    $(document).ready(function () {
+        $("#clickdownctrl1").click(function () {
+            $("#hideshow1").fadeToggle();
+            $("i", this).toggleClass("fa fa-minus fa fa-plus");
+        });
+    });
+</script>
+<div id="opbillingcontrol">
+    <div class="row filter-area">
+        <div class="col-sm-12">
+            <div class="col-sm-3">
+                <label class="col-sm-5 control-label filter-lbl pdl0"
+                    translate="billing.ip-insurancebill.servicename.lbl"></label>
+                <div class="col-sm-7">
+                    <input type="text" class="form-control" on-enter="getDetails()" ng-model="currentfilter.ServiceName"
+                        placeholder="Service Name">
+                </div>
+            </div>
+            <div class="col-sm-3">
+                <label class="col-sm-5 control-label filter-lbl"
+                    translate="billing.ip-insurancebill.fromdate.lbl"></label>
+                <div class="col-sm-7">
+                    <input type="text" class="form-control" name="dddate" ng-date-object
+                        datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}"
+                        uib-datepicker-popup="{{datePickerOptions.dateTimeFormat}}" ng-change="getDetails()"
+                        placeholder="{{datePickerOptions.placeholder}}" ng-click="activetoPopup = { opened: true }"
+                        is-open="activetoPopup.opened" ng-model="currentfilter.FromDate">
+
+                </div>
+            </div>
+            <div class="col-sm-3">
+                <label class="col-sm-4 control-label filter-lbl"
+                    translate="billing.ip-insurancebill.todate.lbl"></label>
+                <div class="col-sm-8">
+                    <input type="text" class="form-control" name="dddate" ng-date-object
+                        datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}"
+                        uib-datepicker-popup="{{datePickerOptions.dateTimeFormat}}" ng-change="getDetails()"
+                        placeholder="{{datePickerOptions.placeholder}}" ng-click="billdatePopup = { opened: true }"
+                        is-open="billdatePopup.opened" ng-model="currentfilter.ToDate" class="col-sm-11">
+
+                </div>
+            </div>
+            <div class="col-sm-3">
+                <div class="col-sm-6">
+                    <button type="button" class="text-white btn dem-color4 btn-xs"
+                        translate="billing.summary.previousorders.lbl" ng-click="previousOrders()"></button>
+                </div>
+                <div class="col-sm-6">
+                    <button class="pull-right  bt-color2 btn-xs" ng-click="addNewServiceItem()"
+                        uib-tooltip="{{'billing.billing-details.additems.lbl' | translate }}"
+                        ng-disabled="item.PatientBillDetails.length === 0" tooltip-placement="bottom">
+                        <i class="fa fa-plus"></i>
+                        <span class="ipbilladd" translate="clinicalmaster.serviceitem-list.addnew.lbl"></span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!------row ends------------>
+    <!----body-->
+    <div class="row clearfix" id="mainresponsivetablecontrol">
+        <div class="col-sm-5 pdr0">
+            <div class=" bg-pattern1 ">
+                <div class="container-fluid" id="depsheight">
+                    <div ui-grid="vm.gridConfig" class="table-uigrid table-uigrid-tab "></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-7 pdl0">
+            <div class=" bg-pattern2 table-height formRoot">
+                <table class="table table-hover table-responsive table-bordered">
+                    <thead class="bg-subhead">
+                        <tr>
+                            <th>
+                                <span translate="billing.billing-details.date.lbl"></span>
+                            </th>
+                            <!-- <th>
+                                <span translate="billing.billing-details.code.lbl"></span>
+                            </th> -->
+                            <th class="col-sm-4">
+                                <span translate="billing.ip-insurancebill.servicename.lbl"></span>
+                            </th>
+                            <th>
+                                <span translate="billing.billing-details.qty.lbl"></span>
+                            </th>
+                            <th>
+                                <span translate="billing.billing-details.rate.lbl"></span>
+                            </th>
+                            <th>
+                                <span translate="billing.billing-details.discount.lbl"></span>
+                            </th>
+                            <th>
+                                <span translate="billing.billing-details.amount.lbl"></span>
+                            </th>
+                            <th>
+                                <span translate="common.actions_col.lbl"></span>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody class="container-fluid">
+                        <tr ng-repeat="PatientBillDetail in item.PatientBillDetails | filter:{Status:1}">
+                            <td style="width: 13%">
+                                <displaydate date-val="PatientBillDetail.BillDateTime"></displaydate>
+                            </td>
+                            <!-- <td>
+                                <input type="text" class="form-control" ng-model="PatientBillDetail.ServiceCode" disabled>
+                            </td> -->
+                            <td>
+                                <autosearch itemid="PatientBillDetail.ServiceId"
+                                    iteminfo="PatientBillDetail.SelectedItem" rowdata="PatientBillDetail"
+                                    config="vm.serviceitemcontrolconfig"
+                                    itemchange="getServiceItem($index, PatientBillDetail)"
+                                    candisable="PatientBillDetail.Id > 0"></autosearch>
+                            </td>
+
+                            <td>
+                                <input type="text" class="form-control" ng-model="PatientBillDetail.Quantity"
+                                    ng-change="updateAmountbyQtyRate(PatientBillDetail)" />
+                            </td>
+                            <td class=" " align="center">
+                                <input type="text" class="form-control" ng-model="PatientBillDetail.Rate"
+                                    ng-change="updateAmountbyQtyRate(PatientBillDetail)">
+                            </td>
+                            <td>
+                                <span disabled>{{PatientBillDetail.DiscountAmount || 0 | displaycurrency}}</span>
+                            </td>
+                            <td>
+                                <span disabled>{{PatientBillDetail.Amount || 0 | displaycurrency}}</span>
+                            </td>
+                            <td>
+                                <span class="grid-action"
+                                    ng-click="deleteBillDetails(PatientBillDetail, PatientBillDetail.ServiceName)">
+                                    <i class="btn btn-danger btn-rounded fa fa-close" aria-hidden="true"></i>
+                                </span>
+                            </td>
+
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <!---bodyends---->
+
+    <div class="footerbar">
+        <div class="sub-footer" style="position: fixed ;bottom:0px" ;>
+            <div class=" bgfoot ">
+                <div class="col-sm-12 ipbill_height">
+                    <div class="col-sm-6">
+                        <fieldset class="fsStyle col-sm-12 bill_div10">
+                            <div class="form-group">
+                                <label class="col-sm-7 ng-scope" for="receivedamt">Gross Amount</label>
+                                <div class="col-sm-5 text-right">
+                                    <span type="text" class="" name="receivedamt"
+                                        ng-model="currentcontext.TotGrossAmount"
+                                        placeholder="">{{currentcontext.TotGrossAmount | displaycurrency}}</span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="  col-sm-7 ng-scope" for="patientbills"
+                                    translate="billing.dischargedpatients.discountamount.lbl"> </label>
+                                <div class="col-sm-5 text-right">
+                                    <span type="text" class="" name=""
+                                        ng-model="currentcontext.TotDiscAmount">{{currentcontext.TotDiscAmount | displaycurrency}}</span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="  col-sm-7 ng-scope" for="patientbills"
+                                    translate="billing.opbilling-list.netamount.lbl"></label>
+                                <div class="col-sm-5 text-right">
+                                    <span type="text" class="" name=""
+                                        ng-model="currentcontext.TotNetAmount">{{currentcontext.TotNetAmount | displaycurrency}}</span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-7" for="patientbills"
+                                    translate="billing.opbilling-list.balance.lbl"></label>
+                                <div class="col-sm-5 text-right">
+                                    <span type="text" class="" name=""
+                                        ng-model="currentcontext.TotBalanceAmt">{{currentcontext.TotBalanceAmt | displaycurrency}}</span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-8" for="patientbills"
+                                    translate="billing.opbilling-list.disallowed_amount.lbl"></label>
+                                <div class="col-sm-4 text-right">
+                                    <span type="text" class="" name=""
+                                        ng-model="currentcontext.TotalRefundAmount">{{currentcontext.Disallowed||0.00|displaycurrency}}</span>
+                                </div>
+                            </div>
+                        </fieldset>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="container">
+                            <div class="card">
+                                <h4 class="round_off">
+                                    <span class="lab1">Roundoff Amount:</span>
+                                    <span>{{currentcontext.RoundOffValue||0.00|displaycurrency}}</span>
+                                </h4>
+                                <h1 class="title custom_div3">
+                                    {{currentcontext.TotNetAmount | displaycurrency}}
+                                </h1>
+                                <div class="billing_received">
+                                    <span class="fontsize">Received : {{item.Received | displaycurrency}}</span>
+                                </div>
+                                <div class="billing_balance">
+                                    <span class=" fontsize"> Balance :
+                                        {{currentcontext.TotBalanceAmt | displaycurrency}}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+</div>
+
+<!---foooter-->
+<div class="fooder-bg cust_ftr">
+    <div class="pull-left">
+        <button id="btn" type="button" class="btn bt-color3 btn-sm" ng-click="labresult()"
+            translate="medicalcertificate.dischargesummary-form.labresult.lbl"></button>
+        <button id="btn" type="button" class="btn bt-color15 btn-sm bill_mod_result" ng-click="radiologyresult()"
+            translate="medicalcertificate.dischargesummary-form.radiology.lbl"></button>
+    </div>
+    <div class="col-sm-2 pull-right">
+        <div class=" col-sm-2">
+            <ul class="nav navbar-nav" id="print">
+                <li uib-dropdown="" class="dropdown dropdown-list custom-li">
+                    <button uib-dropdown-toggle="" class="dropdown-toggle btn btn-inverse btn-sm billmod_print">
+                        <span translate="common.printaction.lbl"></span>&nbsp;&nbsp;&nbsp;
+                        <i class="fa fa-caret-up" aria-hidden="true"></i>
+                    </button>
+                    <ul class="dropdown-menu top" role="menu" aria-labelledby="dLabel">
+                        <li>
+                            <a class="" ng-click="print()">
+                                <span>
+                                    <i class="fa fa-angle-right" aria-hidden="true"></i>
+                                </span>&nbsp;&nbsp;&nbsp;
+                                <span translate="billing.receipt-form.billsummary.lbl"></span>
+                            </a>
+                        </li>
+                        <li>
+                            <a ng-click="print2()">
+                                <span>
+                                    <i class="fa fa-angle-right" aria-hidden="true"></i>
+                                </span>&nbsp;&nbsp;&nbsp;
+                                <span translate="billing.receipt-form.billdetails.lbl"></span>
+                            </a>
+                        </li>
+
+                    </ul>
+                </li>
+            </ul>
+        </div>
+        <button id="btnSaveApprove" type="button" class=" pull-right btn dem-color4 text-white btn-sm billmod_update"
+            translate="common.update-action.lbl" ng-click="saveItem()" ng-disabled="IsDisabled"></button>
+    </div>
+</div>

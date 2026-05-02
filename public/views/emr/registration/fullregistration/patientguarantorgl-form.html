@@ -1,0 +1,165 @@
+<style>
+    .head-label {
+        color: #fff;
+        text-shadow: 0 1px 1px #194B7E;
+        border-left: 0 solid #ccc;
+    }
+
+    .head-value {
+        color: #000;
+        text-shadow: 0 1px 1px #194B7E;
+    }
+</style>
+<!--<ul class="breadcrumb">
+    <li><a ng-click="backToList()" translate="registration.guarantor-form-form.parentpagetitle.lbl"></a></li>
+    <li class="active" translate="registration.guarantor-form-form.pagetitle.lbl"></li>
+</ul>	-->
+<div class="modal-header custom-modal-header">
+    <h4 class="modal-title custom-modal-title" translate="registration.guarantorgl-form.pagetitle.lbl"></h4>
+</div>
+<div class="col-sm-12 fullreg-profiles">
+    <div class="col-sm-7  fullreg-profiles">
+        <div class="col-sm-4">
+            <span></span><span>{{SelectedPatient.Title.Description}} {{SelectedPatient.FirstName}}</span> <span ng-click="patientprofiledetails()"> &nbsp;&nbsp;&nbsp; <i class="icon-info-sign"></i> </span>            | <span>{{SelectedPatient.MRN}} </span>|<span> {{SelectedPatient.Gender.Description}}</span>
+        </div>
+        <div class="col-sm-4">
+            <span>&nbsp;&nbsp; Age : </span><span>{{SelectedPatient.Age}}  Years </span>
+        </div>
+        <div class="col-sm-4">
+            <span>&nbsp;&nbsp; DOB : </span><span>{{SelectedPatient.DOB | date : 'dd/MMM/yyyy' }}</span>
+        </div>
+    </div>
+    <div class="col-sm-5">
+        <div class="col-sm-6">
+            <span class="head-label">Guarantor</span> : <span class="head-value">{{currentcontext.gname}}</span>
+        </div>
+        <div class="col-sm-6">
+            <span class="head-label">GuarantorType</span> : <span class="head-value">{{currentcontext.gtypedes}}</span>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-sm-12">
+        <form id="item_form" name="item_form" class="form-horizontal" role="form">
+            <div>
+                <div class="">
+                    <div class="panel-body form-panel">
+                        <div class="col-sm-12">
+
+                            <!--left panel-->
+                            <div class="col-sm-6 ">
+                                <div class="col-sm-12 well">
+                                    <div class="form-group">
+                                        <label class="col-sm-4 control-label" for="glrefno" translate="registration.guarantorgl-form.glrefno.lbl"></label>
+                                        <div class="col-sm-8">
+                                            <input type="text" class="form-control" name="glrefno" ng-model="item.GuarantorLetterNo" placeholder="" required>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-sm-4 control-label" for="gldate" translate="registration.guarantorgl-form.gldate.lbl"></label>
+                                        <div class="col-sm-8">
+                                            <input type="text" class="form-control" name="gldate" ng-date-object datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}"
+                                                uib-datepicker-popup="{{datePickerOptions.dateFormat}}" placeholder="{{datePickerOptions.placeholder}}"
+                                                ng-click="gldatePopup = { opened: true }" is-open="gldatePopup.opened" ng-model="item.GuarantorLetterDate"
+                                                required>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-sm-4 control-label" translate="registration.guarantorgl-form.maxdays.lbl"></label>
+                                        <div class="col-sm-8">
+                                            <input type="text" class="form-control" ng-model="item.MaxNoOfdays" placeholder="">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-sm-4 control-label" translate="registration.guarantorgl-form.currentvisitno.lbl"></label>
+                                        <div class="col-sm-8">
+                                            <input type="text" class="form-control" ng-model="item.CurrentVisitNumber" placeholder="">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-sm-4 control-label" translate="registration.guarantorgl-form.maxvisitno.lbl"></label>
+                                        <div class="col-sm-8">
+                                            <input type="text" class="form-control" ng-model="item.MaximumVisitNumber" placeholder="">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-sm-4 control-label" translate="registration.guarantorgl-form.duration.lbl"></label>
+                                        <div class="col-sm-8">
+                                            <input type="text" class="form-control" ng-model="item.DurationMedicine" placeholder="">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-sm-4 control-label ng-scope" translate="registration.guarantorgl-form.attachment.lbl"><span class="ng-scope">Select File</span></label>
+                                        <div class="col-sm-8">
+                                            <input type="file" ngf-select="" ng-model="cvm.currentcontext.file" name="file" ngf-max-size="200MB" ngf-change="cvm.fileSelected()"
+                                                class="ng-pristine ng-valid ng-empty ng-touched">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!--Right Panel-->
+                            <div class="col-sm-6 ">
+                                <div class="col-sm-12 well">
+                                        <div class="form-group">
+                                                <label class="col-sm-4 control-label" for="activefrom" translate="registration.guarantorgl-form.activefrom.lbl"></label>
+                                                <div class="col-sm-8">
+                                                    <input type="text" class="form-control" name="activefrom" ng-date-object datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}"
+                                                        uib-datepicker-popup="{{datePickerOptions.dateFormat}}" placeholder="{{datePickerOptions.placeholder}}"
+                                                        ng-click="activefromPopup = { opened: true }" is-open="activefromPopup.opened"
+                                                        ng-model="item.ActiveFrom" required>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="col-sm-4 control-label"  translate="registration.guarantorgl-form.activeto.lbl"></label>
+                                                <div class="col-sm-8">
+                                                    <input type="text" class="form-control"  ng-date-object datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}"
+                                                        uib-datepicker-popup="{{datePickerOptions.dateFormat}}" placeholder="{{datePickerOptions.placeholder}}"
+                                                        ng-click="activetoPopup = { opened: true }" is-open="activetoPopup.opened" ng-model="item.ActiveTo">
+                                                </div>
+                                                </div >
+                                    <div class="form-group">
+                                        <label class="col-sm-4 control-label" translate="registration.guarantorgl-form.limit.lbl"></label>
+                                        <div class="col-sm-8">
+                                            <input type="text" class="form-control" ng-model="item.GLLimit" placeholder="">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-sm-4 control-label" translate="registration.guarantorgl-form.consumed.lbl"></label>
+                                        <div class="col-sm-8">
+                                            <input type="text" class="form-control" ng-model="item.ConsumedLimit" placeholder="">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-sm-4 control-label" translate="registration.guarantorgl-form.balance.lbl"></label>
+                                        <div class="col-sm-8">
+                                            <input type="text" class="form-control" ng-model="item.BalanceLimit" placeholder="">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-sm-4 control-label" translate="registration.guarantorgl-form.r&b.lbl"></label>
+                                        <div class="col-sm-8">
+                                            <input type="text" class="form-control" ng-model="item.RandB" placeholder="">
+                                        </div>
+                                    </div>
+                                      </div>
+                                </div>
+                            </div>
+                        <div class="formactionbar col-sm-12">
+                            <button type="button" id="btnsubmit" class="btn btn-primary btn-sm pull-right" style="background:#24b145" translate="registration.guarantorgl-form.add.lbl"
+                                ng-click="saveItem()"></button>
+                        </div>
+                    </div>
+                </div>
+                <div ui-grid="vm.gridConfig" class="table-uigrid" set-grid-height></div>
+            </div>
+            <div class="panel-footer formactionbar">
+                <div class="pull-right">
+                    <!--<button type="button" id="btnsubmit" class="btn btn-primary btn-sm ng-scope" translate="common.saveaction.lbl" ng-click="save()"><span class="ng-scope">Save</span></button>
+                    <button type="button" class="btn btn-primary btn-sm ng-scope" translate="common.saveapprove-action.lbl" ng-click="saveAndApprove()"><span class="ng-scope">Save &amp; Approve</span></button>-->
+                    <button id="btnCancelForm" type="button" class="btn btn-danger btn-sm ng-scope" ng-click="backToList()" translate="common.cancelaction.lbl"><span class="ng-scope">Cancel</span></button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

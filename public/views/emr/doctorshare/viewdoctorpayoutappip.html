@@ -1,0 +1,98 @@
+<link rel="stylesheet" href="app/css/drhms.css">
+
+<div class="modal-header custom-modal-header">
+    <div class="col-sm-10">
+        <h4 class="modal-title custom-modal-title" translate="Doctor Payout Approval for IP"></h4>
+    </div>
+    <div class="col-sm-2">
+        <div class="filters">
+            <img src="../../../../../assets/svg/close.svg" ng-click="cancelCallback()">
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="drhms-bg-pattern">
+        <div class="">
+            <table class="drhms-responsive-table" ng-show="DrShareDetails.length > 0">
+                <thead class="bg-subhead">
+                    <tr>
+                        <th translate="Date"></th>
+                        <th translate="Bill No"></th>
+                        <th translate="Patient Name"></th>
+                        <th translate="Department"></th>
+                        <th translate="PAN No"></th>
+                        <th translate="Payer"></th>
+                        <th translate="Billing Service"></th>
+                        <th class="text-right" translate="Service Amount"></th>
+                        <th class="text-right" translate="Hospital Amount"></th>
+                        <th class="text-right" translate="Pharmacy Amount"></th>
+                        <th class="text-right" translate="Net Amount"></th>
+                        <th class="text-right" translate="Total Doc Share"></th>
+                        <th class="text-right" translate="Hospital Share"></th>
+                        <th class="text-right" translate="Hospital %"></th>
+
+
+
+
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            <displaydate datetime-val="item.UpdatedAt"></displaydate>
+                        </td>
+                        <!-- <td>{{item.PatientBill.BillNumber}}</td> -->
+                        <td>{{item.ParentBill.BillNumber}}</td>
+                        <td>{{item.PatientBill.Patient.Title.Description}}&nbsp;{{item.PatientBill.Patient.FirstName}}&nbsp;{{item.PatientBill.Patient.LastName}}
+                        </td>
+
+                        <td>{{item.User.Department.DepartmentName}}</td>
+                        <td>{{item.User.PANNo}}</td>
+                        <td>{{item.Encounter.Guarantor.GuarantorName}}</td>
+                        <td>{{item.ServiceName}}</td>
+                        <td class="text-right">{{item.ServiceAmount| number : 2}}</td>
+                        <td class="text-right">{{item.HospitalAmount| number : 2}}</td>
+                        <td class="text-right">{{item.PharmacyAmount| number : 2}}</td>
+                        <td class="text-right">{{item.TotalAmount| number : 2}}</td>
+                        <td class="text-right">{{item.TotalDocShare| number : 2}}</td>
+                        <td class="text-right">{{item.Hospitalshare | number : 2}}</td>
+                        <td class="text-right">{{item.HospitalPercent | number : 2}}</td>
+
+
+                    </tr>
+                </tbody>
+            </table>
+
+            <table class="drhms-responsive-table" ng-show="DrShareDetails.length > 0">
+                <thead class="bg-subhead">
+                    <tr>
+                        <th translate="Doctor Name"></th>
+                        <th class="text-right" translate="Dr. Share"></th>
+                        <th translate="Status"></th>
+
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="item in DrShareDetails">
+                        <td>{{item.User.Title.Description}}&nbsp;{{item.User.FirstName}}&nbsp;{{item.User.LastName}}
+                        </td>
+                        <td class="text-right">{{item.DoctorShareAmount| number : 2}}</td>
+                        <td>
+                            <ui-select ng-model="item.DoctorShareStatusIPId" class="filter-combo" ng-disabled="true">
+                                <ui-select-match>
+                                    {{$select.selected.Text | limitTo : 15 : 0}}
+                                    <span ng-if="$select.selected.Text.length>15">...</span>
+                                </ui-select-match>
+                                <ui-select-choices
+                                    repeat="lookupitem.Id as lookupitem in lookup.DoctorShareStatusIP | filter: { Text: $select.search }">
+                                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                </ui-select-choices>
+                            </ui-select>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,64 @@
+<style>
+    .form-horizontal .control-label {
+        padding-top: 5px !important;
+    }
+
+    .billingbanner {
+        width: 98%;
+    }
+</style>
+<div id="opbillingcontrol">
+    <div class="row">
+        <h4 class="col-sm-5 mt0" translate="Manage Devices"></h4>
+        <div class="col-sm-7">
+            <div class="filters">
+                <button type="button" class="btn-add" uib-tooltip="Manage Device"
+                    style="border-radius: 7px;width: 37px;" tooltip-placement="bottom" ng-click="addNew()">
+                    <i class="fa fa-plus" aria-hidden="true"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-12">
+        <div class="billingbanner">
+            <table id="bannerdetails">
+                <tr>
+                    <td translate="Device"></td>
+                    <td><input type="text" class="form-control" on-enter="getList()" ng-model="currentfilter.DeviceName" translate translate-attr-placeholder="Code/Name">
+                    </td>
+                    <td translate="Device Manufacturer"></td>
+                    <td>
+                        <ui-select ng-model="currentfilter.DeviceManufacturerId" ng-disabled="item.isAdmitted"
+                            ng-change="getList()">
+                            <ui-select-match>
+                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                <span ng-if="$select.selected.Text.length > 20">...</span>
+                            </ui-select-match>
+                            <ui-select-choices
+                                repeat="lookupitem.Id as lookupitem in lookup.DeviceManufacturer | filter: { Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                            </ui-select-choices>
+                        </ui-select>
+                    </td>
+                    <td translate="Status"></td>
+                    <td>
+                        <ui-select ng-model="currentfilter.ActiveStatusId" ng-disabled="item.isAdmitted"
+                            ng-change="getList()">
+                            <ui-select-match>
+                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                <span ng-if="$select.selected.Text.length > 20">...</span>
+                            </ui-select-match>
+                            <ui-select-choices
+                                repeat="lookupitem.Id as lookupitem in lookup.ActiveStatus | filter: { Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                            </ui-select-choices>
+                        </ui-select>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div class="col-sm-12">
+            <custom-table config="vm.gridConfig"></custom-table>
+        </div>
+    </div>
+</div>

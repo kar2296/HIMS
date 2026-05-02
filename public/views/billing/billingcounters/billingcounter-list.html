@@ -1,0 +1,147 @@
+<style>
+    .panel-footer {
+        background-color: #ccecf5 !important;
+    }
+
+    .grid1485611170638 .ui-grid-coluiGrid-00AD {
+        min-width: 163px;
+        max-width: 163px;
+    }
+
+    .custom_marbot {
+        margin-bottom: 10px;
+    }
+
+    ul.uib-datepicker-popup.dropdown-menu.ng-scope {
+        left: -30px !important;
+    }
+
+    .pl-3 {
+        padding-left: 3%;
+    }
+
+    .status {
+        background-color: rgba(241, 208, 63, 0.34);
+    }
+
+    .m_bottom {
+        margin-bottom: 7px;
+    }
+
+    #patientidentitiesheight .ui-grid-viewport {
+        height: 69vh;
+        min-height: 69vh;
+    }
+
+    @media (device-width:100vw) and (device-height:100vh) {
+        #patientidentitiesheight .ui-grid-viewport {
+            height: 75vh;
+            min-height: 75vh !important;
+        }
+    }
+
+    .custom-table.table-striped.table-bordered .btn-success {
+        border-radius: 7px !important;
+        width: 32px;
+        height: 31px;
+        font-size: 17px !important;
+    }
+    .custom-table.table-striped.table-bordered .viewoption i.fa.fa-eye{
+        height: 29px;
+    width: 26px;
+    font-size: 18px !important;
+    }
+</style>
+<div class="row page-header">
+    <div class="col-sm-12">
+        <div class="col-sm-5">
+            <h4 class="page-header mt0" translate="billing.billingcounters.pagetitle.lbl"></h4>
+        </div>
+        <div class="col-sm-7">
+            <div class="filters">
+                <button class="btn-add" ng-click="addNew()"
+                    uib-tooltip="{{ 'billing.billingcounters.addnew-tooltip.lbl' | translate }}"
+                    tooltip-placement="bottom">
+                    <i class="fa fa-plus" aria-hidden="true"></i>
+                </button>
+                <button class="btn-add" ng-click="openAdvancedFilter()"
+                    uib-tooltip="{{ 'clinicalmaster.serviceitem-list.filter-tooltip.lbl' | translate }}"
+                    tooltip-placement="bottom">
+                    <i class="fas fa-search" aria-hidden="true"></i>&nbsp;&nbsp;
+                    <span translate="clinicalmaster.serviceitem-list.filter.lbl"></span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-sm-12">
+        <table id="bannerdetails">
+            <tr>
+                <td>
+                    <label class="control-label" for="billingcounter"
+                        translate="billing.billingcounters.billingcounters.lbl"></label>
+                </td>
+                <td>
+                    <ui-select ng-model="currentfilter.BillingCounterId" name="billingcounter" ng-change="getList()">
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 8 : 0}}
+                            <span ng-if="$select.selected.Text.length>8">...</span>
+                        </ui-select-match>
+                        <ui-select-choices
+                            repeat="lookupitem.Id as lookupitem in lookup.BillingCounter | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </td>
+                <td><label class="control-label" for="billingcounterstatus"
+                        translate="billing.billingcounters.documentstatus.lbl"></label>
+                </td>
+                <td>
+                    <ui-select ng-model="currentfilter.BillingCounterStatusId" ng-change="getList()"
+                        class="filter-combo">
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 8 : 0}}
+                            <span ng-if="$select.selected.Text.length>8">...</span>
+                        </ui-select-match>
+                        <ui-select-choices
+                            repeat="lookupitem.Id as lookupitem in lookup.BillingCounterStatus | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </td>
+                <td><label class="control-label" for="documentdate"
+                        translate="billing.billingcounters.documentdate.lbl"></label>
+                </td>
+                <td>
+                    <input type="text" class="form-control" name="documentdate" ng-change="getList()"
+                        datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}"
+                        uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                        placeholder="{{datePickerOptions.placeholder}}" ng-click="documentdatePopup = { opened: true }"
+                        is-open="documentdatePopup.opened" ng-model="currentfilter.DocumentDate">
+                </td>
+                <td> <label class="control-label filter-lbl"
+                        translate="billing.billingcounters.documentnumber.lbl"></label></td>
+                <td>
+                    <input type="text" class="form-control" on-enter="getList()" ng-model="currentfilter.DocumentNumber"
+                        placeholder="Document No#">
+
+                </td>
+
+            </tr>
+        </table>
+    </div>
+</div>
+
+
+
+<custom-table config="vm.gridConfig"></custom-table>
+<div class="container-fluid single-filter">
+    <div class="fooder-bgs">
+        <div class="row">
+            <ul uib-pagination total-items="vm.gridConfig.pagerObj.totalItems"
+                items-per-page="vm.gridConfig.pagerObj.pageSize" start-index="vm.gridConfig.pagerObj.startIndex"
+                ng-model="vm.gridConfig.pagerObj.currentPage" ng-change="getList()"></ul>
+        </div>
+    </div>
+</div>

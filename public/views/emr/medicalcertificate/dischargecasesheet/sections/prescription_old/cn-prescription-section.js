@@ -1,0 +1,1113 @@
+(function () {
+    'use strict';
+
+    angular
+        .module('app.pages')
+        .controller('discasshtcnPrescriptionSectionController', discasshtcnPrescriptionSectionController);
+
+    function discasshtcnPrescriptionSectionController($scope, $stateParams, $state, $translate, utl, $filter, uibButtonConfig, lodash, $uibModalInstance, modalConfig) {
+        var vm = this;
+
+        uibButtonConfig.activeClass = "opt-selected";
+        $scope.item = {
+            FacilityId: utl.Session.getCurrentFacilityId(),
+            EncounterId: utl.Session.getEncounterId(),
+            PharmacyId: 0
+        };
+        $scope.lookup = {};
+        $scope.tabindexmap = {
+            patienttabindex: 1,
+            detailtabindex: 2
+        };
+        $scope.consult = {};
+        $scope.currentcontext = {
+            attachmentcount: 0,
+            copyid: 0,
+            ismodal: modalConfig && modalConfig.params ? true : false
+        };
+
+        $scope.currentcontext.ConsultationId = $scope.$parent.cncontext.consultationid;
+        $scope.item.ConsultationId = $scope.$parent.cncontext.consultationid;
+        $scope.currentcontext.id = 0;
+        if ($stateParams.copyid && $stateParams.copyid > 0) {
+            $scope.currentcontext.copyid = parseInt($stateParams.copyid)
+        }
+        $scope.currentcontext.pid = parseInt(utl.Session.getEMRPatientId());
+        $scope.currentcontext.option = 'ticksheet';
+        $scope.item.PatientId = $scope.currentcontext.pid;
+        $scope.prescriptionDetails = [];
+        $scope.deletedprescriptionDetails = [];
+        $scope.item.PrescriptionDate = utl.Formatter.getCurrentDate();
+        $scope.item.PrescriptionPriorityId = 1;
+        $scope.item.DurationPeriodId = 1;
+        $scope.IsDisabled = false;
+
+        var parentState = 'patientemr.prescriptions';
+        if ($stateParams.ct == 'consultation') {
+            parentState = 'patientemr.consultation';
+        }
+
+        // $scope.item.PharmacyId = utl.Session.getCurrentUserId();
+        if (modalConfig && modalConfig.params) {
+            $scope.currentcontext.id = modalConfig.params.id;
+            $scope.item.EncounterId = modalConfig.params.eid;
+            $scope.item.PatientId = modalConfig.params.pid;
+            $scope.item.ConsultationId = modalConfig.params.cid ? parseInt(modalConfig.params.cid) : null;
+
+            $scope.confirmCallback = $uibModalInstance.close;
+            $scope.cancelCallback = $uibModalInstance.dismiss;
+        }
+
+        $scope.options = [
+            { key: 'detail', name: $translate.instant('patientemr.prescription-form.prescription.lbl') },
+            { key: 'ticksheet', name: $translate.instant('patientemr.prescription-form.ticksheet.lbl') },
+            { key: 'panels', name: $translate.instant('patientemr.prescription-form.panels.lbl') }
+        ];
+
+        $scope.currentcontext.encounter = utl.Session.getPatientEncounter();
+        if ($scope.currentcontext.encounter) {
+            $scope.item.DoctorId = $scope.currentcontext.encounter.DoctorId;
+            $scope.item.DepartmentId = $scope.currentcontext.encounter.DepartmentId;
+            $scope.item.EncounterTypeId = $scope.currentcontext.encounter.EncounterTypeId;
+        }
+        //Visibility rules starts
+        $scope.applyVisibilityRules = function () { }
+
+        //Visibility rules ends
+
+        $scope.panelconfig = {
+            paneltypeid: 1,
+            selectedlist: []
+        };
+
+        function checkExist(item) {
+            for (var idx in $scope.prescriptionDetails) {
+                if ((item.DrugId == $scope.prescriptionDetails[idx].DrugId) && ($scope.prescriptionDetails[idx].Status == 1)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        $scope.savePanels = function () {
+            $scope.prescriptionDetails.splice(-1, 1);
+            for (var idx in $scope.panelconfig.selectedlist) {
+                var panelitem = $scope.panelconfig.selectedlist[idx];
+                for (var indx in panelitem.PanelMasterDetails) {
+                    var item = {
+                        DrugId: panelitem.PanelMasterDetails[indx].ItemId,
+                        IsGeneric: false,
+                        Dosage: '',
+                        Duration: 0,
+                        DurationPeriodId: 1,
+                        Quantity: 0,
+                        AvailQuantity: 220,
+                        Status: 1,
+                        StartDate: utl.Formatter.getCurrentDate(),
+                        RxName: panelitem.PanelMasterDetails[indx].DisplayName
+                    };
+                    if (!checkExist(item)) {
+                        $scope.prescriptionDetails.push(item);
+                    }
+                }
+            }
+            $scope.addNewLineItem();
+            $scope.currentcontext.option = 'detail';
+        };
+
+        $scope.saveasRxPanel = function () {
+            var userObj = utl.Lookup.getObject($scope.lookup.User, utl.Session.getCurrentUserId());
+            if (userObj) {
+                $scope.currentcontext.userDepartmentId = userObj.DepartmentId;
+                $scope.currentcontext.userId = userObj.Id;
+            }
+            var drugs = [];
+            for (var idx in $scope.prescriptionDetails) {
+                var prescriptionDetail = $scope.prescriptionDetails[idx];
+                if (!prescriptionDetail.IsGeneric && prescriptionDetail.Status == 1 && prescriptionDetail.RxName) {
+                    var item = {
+                        PanelMasterId: 0,
+                        PanelTypeId: 1,
+                        ItemId: prescriptionDetail.DrugId,
+                        DisplayName: prescriptionDetail.RxName,
+                        Comments: '',
+                        Diagnosis: '',
+                        Physiotheraphy: '',
+                        ReviewDate: utl.Formatter.getCurrentDate(),
+                        Status: 1
+                    };
+                    drugs.push(item);
+                }
+            }
+            utl.Modal.open('app.panelmaster', {
+                params: { id: 0, paneltypeid: 1, deptid: $scope.currentcontext.userDepartmentId, userid: $scope.currentcontext.userId, items: drugs }
+            });
+        };
+
+        $scope.ticksheetconfig = {
+            ticksheetmastertypeid: 1,
+            selectedlist: [],
+            selecteddetail: {},
+            departmentid: -1
+        };
+
+        $scope.saveTickSheets = function () {
+            $scope.prescriptionDetails.splice(-1, 1);
+            for (var idx in $scope.ticksheetconfig.selectedlist) {
+                var ticksheetitem = $scope.ticksheetconfig.selectedlist[idx];
+                var item = {
+                    DrugId: ticksheetitem.ItemId,
+                    IsGeneric: false,
+                    Duration: 0,
+                    DurationPeriodId: 1,
+                    Quantity: 0,
+                    AvailQuantity: 0,
+                    Status: 1,
+                    StartDate: utl.Formatter.getCurrentDate(),
+                    DrugName: ticksheetitem.DrugMaster.DrugName,
+                    DrugCode: ticksheetitem.DrugMaster.DrugCode,
+                    DrugRouteId: ticksheetitem.DrugMaster.DrugRouteId,
+                    DrugFrequencyId: ticksheetitem.DrugMaster.DrugFrequencyId,
+                    Dosage: ticksheetitem.DrugMaster.MaxDosagePerDay,
+                    DrugFormId: ticksheetitem.DrugMaster.DrugFormId,
+                    Duration: ticksheetitem.DrugMaster.Duration,
+                    DurationPeriodId: ticksheetitem.DrugMaster.DurationPeriodId,
+                    DrugInstructionId: ticksheetitem.DrugMaster.DrugInstructionId,
+                };
+
+                if (!checkExist(item)) {
+                    $scope.prescriptionDetails.push(item);
+                }
+            }
+            $scope.addNewLineItem();
+            $scope.currentcontext.option = 'detail';
+        };
+        /*
+        $scope.addNewLineItem = function() {
+            var detail = getNewItem();
+
+            if ($scope.currentcontext.id > 0) {
+                detail.PrescriptionId = $scope.currentcontext.id;
+            }
+
+            $scope.details.push(detail);
+        }
+        */
+        function getNewItem() {
+            var detail = {
+                Id: 0,
+                PatientId: $scope.item.PatientId,
+                DrugId: -1,
+                DrugFrequencyId: $scope.item.DrugFrequencyId,
+                DrugRouteId: $scope.item.DrugRouteId,
+                PrescriptionDate: $scope.item.PrescriptionDate,
+                Dosage: $scope.item.Dosage,
+                DurationPeriodId: $scope.item.DurationPeriodId,
+                Status: 1,
+                tabindex: $scope.tabindexmap.detailtabindex++
+            };
+            detail.autoSearchName = getAutoSearchName();
+            return detail;
+        }
+
+        function getAutoSearchName() {
+            return 'drug_';
+        }
+        $scope.addTickSheet = function () {
+            var testmaster = $scope.ticksheetconfig.selecteddetail.DrugMaster;
+            var currentItem = getNewItem();
+            currentItem.DrugId = $scope.ticksheetconfig.selecteddetail.ItemId;
+            currentItem.DrugName = testmaster.DrugName;
+            currentItem.DrugCode = testmaster.DrugCode;
+            utl.Modal.open('patientemr.prescriptiondetail', {
+                params: { id: 0, pid: $scope.currentcontext.pid, current_item: currentItem },
+                confirmCallback: $scope.onDetailSave
+            });
+        };
+        $scope.backToList = function () {
+            $state.go('patientemr.dischargecasesheets', { pid: $scope.currentcontext.pid });
+        }
+        $scope.addNewLineItem = function () {
+            var prescriptionDetail = {
+                Id: 0,
+                DrugId: -1,
+                IsGeneric: false,
+                GenericId: -1,
+                Dosage: '',
+                DrugRouteId: -1,
+                DrugFrequencyId: -1,
+                Duration: 0,
+                DurationPeriodId: 1,
+                Quantity: 0,
+                AvailQuantity: 0,
+                DrugInstructionId: -1,
+                Status: 1,
+                PrescriptionIdentifier: null,
+                DisplayPrecriptionStatus: null,
+                StartDate: utl.Formatter.getCurrentDate(),
+                tabindex: $scope.tabindexmap.detailtabindex++
+            };
+
+            if ($scope.currentcontext.id > 0) {
+                prescriptionDetail.PrescriptionId = $scope.currentcontext.id;
+            }
+            $scope.prescriptionDetails.push(prescriptionDetail);
+        };
+
+        $scope.canShowPrescriptionArea = function () {
+            return $scope.currentcontext.option == 'detail';
+        };
+
+        $scope.canShowTickSheetArea = function () {
+            return $scope.currentcontext.option == 'ticksheet';
+        };
+
+        $scope.canShowPanelsArea = function () {
+            return $scope.currentcontext.option == 'panels';
+        };
+
+        $scope.openattachments = function () {
+            if ($scope.item.PatientId > 0) {
+                utl.Modal.open('app.patientattachments', {
+                    params: { pid: $scope.item.PatientId, itemid: $scope.item.Id, objecttypeid: 1 },
+                    confirmCallback: $scope.getPatientAttachments,
+                    cancelCallback: $scope.getPatientAttachments
+                });
+            }
+        };
+
+        $scope.getPatientAttachmentsCallback = function (scope, res, options, hasError) {
+            $scope.currentcontext.attachmentcount = res.PageContext.TotalRecords;
+        };
+
+        $scope.getPatientAttachments = function () {
+
+            var inputData = {
+                Params: [{ Key: 2, Value: $scope.item.PatientId }],
+                PageContext: {
+                    PageSize: 1000,
+                    PageNumber: 1
+                }
+            };
+
+            var options = {
+                action: 'registration/PatientAttachment/GetPatientAttachments',
+                data: inputData,
+                type: 'post',
+                onComplete: $scope.getPatientAttachmentsCallback
+            };
+            utl.Http.doAction(options);
+        };
+
+        // $scope.add_new = function () {
+        //     utl.Modal.open('patientemr.prescriptiondetail', {
+        //         params: { id: 0, pid: $scope.currentcontext.pid },
+        //         confirmCallback: $scope.onDetailSave
+        //     });
+        // };
+        $scope.addNew = function () {
+            $state.go('patientemr.prescription', { id: 0, pid: $scope.currentcontext.pid });
+        }
+        // $scope.historypage = function() {
+        //     utl.Modal.open('app.appointmenthistory', {
+        //         params: { id: 0, pid: $scope.currentcontext.pid },
+        //         confirmCallback: $scope.onDetailSave
+        //     });
+        // };
+
+        $scope.print = function () {
+            var inputData = {
+                Id: $scope.currentcontext.id
+            };
+            var options = {
+                action: 'emr/Prescription/PrintPrescription',
+                data: inputData,
+                type: 'post'
+            };
+            utl.Http.doDownload(options);
+        };
+
+        $scope.onDetailSave = function (itemFromModal) {
+            var isaddnew = true;
+            $scope.prescriptionDetails.splice(-1, 1);
+            for (var idx in $scope.prescriptionDetails) {
+                var item = $scope.prescriptionDetails[idx];
+                if (item.currenteditable) {
+                    item = itemFromModal;
+                    item.currenteditable = false;
+                    isaddnew = false;
+                }
+            }
+            if (isaddnew) {
+                itemFromModal.Status = 1;
+                if ($scope.currentcontext.id > 0) {
+                    itemFromModal.PrescriptionId = $scope.currentcontext.id;
+                }
+                if (!checkExist(itemFromModal) && (itemFromModal.DrugId)) {
+                    $scope.prescriptionDetails.push(itemFromModal);
+                }
+            }
+            $scope.addNewLineItem();
+            $scope.currentcontext.option = 'detail';
+        };
+
+        $scope.editPrescriptionDetail = function (item) {
+            item.currenteditable = true;
+
+            utl.Modal.open('patientemr.prescriptiondetail', {
+                params: { id: 0, pid: $scope.currentcontext.pid, current_item: item, isedit: true },
+                confirmCallback: $scope.onDetailSave
+            });
+        };
+
+        $scope.clear = function () {
+            $scope.IsDisabled = false;
+            $scope.prescriptionDetails = [];
+            $scope.addNewLineItem();
+        };
+
+        function checkDuplicateEnrty() { }
+
+        $scope.drugChanged = function (idx, item) {
+            var isDuplicate = utl.Common.isDuplicateRec($scope.prescriptionDetails, { pivotkey: 'DrugId', displaykey: 'RxName' });
+            if (isDuplicate) {
+                item.RxName = '';
+                item.DrugId = null;
+                return;
+            }
+
+            if (item.GenericId == -1) {
+                item.DrugCode = item.SelectedItem.DrugCode;
+                item.DrugName = item.SelectedItem.DrugName;
+                item.DrugRouteId = item.SelectedItem.DrugRouteId;
+                item.DrugFrequencyId = item.SelectedItem.DrugFrequencyId;
+                item.Dosage = item.SelectedItem.MaxDosagePerDay;
+                item.DrugFormId = item.SelectedItem.DrugFormId;
+                item.AvailQuantity = item.SelectedItem.Quantity;
+                item.DrugGenericId = item.SelectedItem.GenericId;
+                item.DrugGenericCode = item.SelectedItem.GenericCode;
+                item.DrugGenericName = item.SelectedItem.GenericName;
+                item.Duration = item.SelectedItem.Duration;
+                item.DurationPeriodId = item.SelectedItem.DurationPeriodId;
+                item.DrugInstructionId = item.SelectedItem.DrugInstructionId;
+            }
+            else if (item.GenericId) {
+                item.GenericId = item.GenericId;
+                item.GenericCode = item.Code;
+                item.GenericName = item.GenericName;
+            }
+
+            var activeRecords = $filter('filterArrayItems')($scope.prescriptionDetails, [
+                { search: 1, fields: ['Status'] }
+            ]);
+            var lastIndex = activeRecords.length - 1;
+            if (idx == lastIndex) {
+                $scope.addNewLineItem();
+            }
+            $scope.computeQuantity(item);
+        };
+
+        $scope.computeQuantity = function (item) {
+            if (item.DrugFrequencyId != -1 && item.Duration && item.DurationPeriodId != -1) {
+                var drugFrequencyObj = utl.Lookup.getObject($scope.lookup.DrugFrequency, item.DrugFrequencyId);
+                var noOfTimes = drugFrequencyObj.NoOfTimes;
+                var totalDays = 0;
+                if (item.DurationPeriodId == 1) { //Days
+                    totalDays = item.Duration * 1;
+                } else if (item.DurationPeriodId == 2) { //Weeks
+                    totalDays = item.Duration * 7;
+                } else if (item.DurationPeriodId == 3) { //Months
+                    totalDays = item.Duration * 30;
+                }
+
+                item.Quantity = noOfTimes * totalDays;
+            }
+        };
+
+        $scope.onDeleteConfirmed = function (item) {
+            item.Status = 2;
+        };
+
+        $scope.deletePrescriptionDetail = function (idx, item) {
+            if (item.DrugId > 0) {
+                var name = item.RxName || '';
+                utl.Dialog.confirmDelete($scope.onDeleteConfirmed, item, name);
+            }
+        };
+
+        $scope.getPrescriptionDetailsCallback = function (scope, res, options, hasError) {
+            $scope.prescriptionDetails = res.Data || [];
+            $scope.addNewLineItem();
+        };
+
+        $scope.copyDetailsCallback = function (scope, res, options, hasError) {
+            $scope.prescriptionDetails = res.Data || [];
+            for (var idx in $scope.prescriptionDetails) {
+                $scope.prescriptionDetails[idx].Id = 0;
+            }
+            $scope.addNewLineItem();
+        };
+        $scope.getPrescriptionDetails = function (pageNo) {
+            if ($scope.currentcontext.id && $scope.currentcontext.id > 0) {
+                var inputData = {
+                    Params: [
+                        { Key: 2, Value: $scope.currentcontext.id }
+                    ]
+                };
+                var options = {
+                    action: 'emr/prescriptiondetail/GetPrescriptionDetails',
+                    data: inputData,
+                    type: 'post',
+                    onComplete: $scope.getPrescriptionDetailsCallback
+                };
+                utl.Http.doAction(options);
+            } else if ($scope.currentcontext.copyid && $scope.currentcontext.copyid > 0) {
+                var inputData = {
+                    Params: [
+                        { Key: 2, Value: $scope.currentcontext.copyid }
+                    ]
+                };
+                var options = {
+                    action: 'emr/prescriptiondetail/GetPrescriptionDetails',
+                    data: inputData,
+                    type: 'post',
+                    onComplete: $scope.copyDetailsCallback
+                };
+                utl.Http.doAction(options);
+            }
+        };
+         //popup
+         $scope.labresult = function () {
+            utl.Modal.open('patientemr.labresults', {
+                params: {
+                    eid: $scope.currentcontext.eid, pid: $scope.item.PatientId
+                },
+                confirmCallback: $scope.getItem
+            });
+        };
+
+        $scope.radiologyresult = function () {
+            utl.Modal.open('patientemr.radiologyresults', {
+                params: {
+                    eid: $scope.currentcontext.eid, pid: $scope.item.PatientId
+                },
+                confirmCallback: $scope.getItem
+            });
+        };
+
+        $scope.saveItemCallback = function (scope, data, options, hasError) {
+            utl.Alert.showSuccessMsg($translate.instant('common.successmsg.lbl'));
+            $scope.backToList();
+        };
+
+        //getItem
+        $scope.getItemCallback = function (scope, res, options, hasError) {
+            if (res.Data && res.Data.length > 0) {
+                var data = res.Data[0];
+                $scope.item = data;
+
+                if ($scope.item.PrecriptionStatusId == 2 || $scope.item.PrecriptionStatusId == 3) {
+                    $scope.IsDisabled = true;
+                }
+                if (data.PrecriptionStatusId == 1) {
+                    $scope.item.DisplayPrecriptionStatus = 'Draft';
+                }
+                if (data.PrecriptionStatusId == 2) {
+                    $scope.item.DisplayPrecriptionStatus = 'Cancelled';
+                }
+                if (data.PrecriptionStatusId == 3) {
+                    $scope.item.DisplayPrecriptionStatus = 'Completed';
+                }
+
+                $scope.currentcontext.id = $scope.item.Id;
+
+                $scope.getPrescriptionDetails();
+            } else {
+                $scope.addNewLineItem();
+            }
+
+        };
+        $scope.getItem = function () {
+            var inputData = {
+                Params: [
+                    { Key: 13, Value: $scope.currentcontext.ConsultationId },
+                ]
+            };
+
+            var options = {
+                action: 'emr/prescription/GetPrescriptions',
+                data: inputData,
+                type: 'post',
+                onComplete: $scope.getItemCallback
+            };
+
+            utl.Http.doAction(options);
+        };
+
+        $scope.previousmedication = function () {
+            utl.Modal.open('patientemr.previousmedications', {
+                params: {}
+            });
+        };
+
+        $scope.patientallergy = function () {
+            utl.Modal.open('patientemr.patientallergies', {
+                params: { pid: $scope.currentcontext.pid }
+            });
+        };
+
+        $scope.vital = function () {
+            utl.Modal.open('patientemr.patientvitals', {
+                params: { pid: $scope.currentcontext.pid }
+            });
+        };
+
+
+        $scope.saveItemCallback = function (scope, data, options, hasError) {
+            utl.Alert.showSuccessMsg($translate.instant('common.successmsg.lbl'));
+            if (data === true) {
+                $scope.currentcontext.id = options.data.Data.Header.Id;
+            } else {
+                $scope.currentcontext.id = data;
+            }
+            $scope.getItem();
+        };
+
+        $scope.saveDraft = function () {
+            $scope.saveItem(1);
+        };
+
+        $scope.prescribe = function () {
+            $scope.saveItem(3);
+        };
+
+        $scope.onOrderConfirmed = function () {
+            $scope.saveItem(3);
+        };
+
+        $scope.prescribeAndOrder = function () {
+            var confirmOptions = {
+                headingKey: 'common.confirm-modal-header.lbl',
+                messageKey: 'patientemr.prescription-form.ordermsg.lbl',
+                yesKey: 'common.yeskey.lbl',
+                noKey: 'common.nokey.lbl',
+                onSuccessMethod: $scope.onOrderConfirmed,
+            };
+            utl.Dialog.confirmMessage(confirmOptions);
+        };
+
+        $scope.onCancelConfirmed = function () {
+            $scope.saveItem(2);
+        };
+
+        $scope.saveCancelled = function () {
+            var confirmOptions = {
+                headingKey: 'common.confirm-modal-header.lbl',
+                messageKey: 'patientemr.prescription-form.cancelmsg.lbl',
+                yesKey: 'common.yeskey.lbl',
+                noKey: 'common.nokey.lbl',
+                onSuccessMethod: $scope.onCancelConfirmed,
+            };
+            utl.Dialog.confirmMessage(confirmOptions);
+        };
+
+        function checkMandatoryFields() {
+            var activeRecords = $filter('filterArrayItems')($scope.prescriptionDetails, [
+                { search: 1, fields: ['Status'] }
+            ]);
+            if (activeRecords.length == 1) {
+                utl.Alert.showErrorMsg($translate.instant('common.req-validation-msg.lbl'));
+                return false;
+            }
+            for (var idx in activeRecords) {
+                var item = activeRecords[idx];
+                if ((item.DrugId > 0) && (!item.Dosage || item.Dosage === 0)) {
+                    utl.Alert.showErrorMsg($translate.instant('common.req-validation-msg.lbl'));
+                    $('#dgdoesage' + idx).focus();
+                    return false;
+                }
+                else if ((item.DrugId > 0) && (!item.DrugRouteId || item.DrugRouteId == -1)) {
+                    utl.Alert.showErrorMsg($translate.instant('common.req-validation-msg.lbl'));
+                    $('#dgroute' + idx).focus();
+                    return false;
+                }
+                else if ((item.DrugId > 0) && (!item.DrugFrequencyId || item.DrugFrequencyId == -1)) {
+                    utl.Alert.showErrorMsg($translate.instant('common.req-validation-msg.lbl'));
+                    $('#dgfreq' + idx).focus();
+                    return false;
+                }
+                else if ((item.DrugId > 0) && (!item.Duration || item.Duration === 0)) {
+                    utl.Alert.showErrorMsg($translate.instant('common.req-validation-msg.lbl'));
+                    $('#dgduration' + idx).focus();
+                    return false;
+                }
+                else if ((item.DrugId > 0) && (!item.DurationPeriodId || item.DurationPeriodId === 0)) {
+                    utl.Alert.showErrorMsg($translate.instant('common.req-validation-msg.lbl'));
+                    $('#dgduraperiod' + idx).focus();
+                    return false;
+                }
+                // if ((item.DrugId > 0) && (!item.Dosage || item.Dosage === 0 || !item.DrugRouteId || item.DrugRouteId == -1 || !item.DrugFrequencyId ||
+                //     item.DrugFrequencyId == -1 || !item.Duration || item.Duration === 0 || !item.DurationPeriodId ||
+                //     item.DurationPeriodId == -1 || !item.Quantity || item.Quantity === 0)) {
+                //     utl.Alert.showErrorMsg($translate.instant('common.req-validation-msg.lbl'));
+                //     return false;
+                // }
+            }
+            return true;
+        }
+
+
+        $scope.saveItem = function (StatusId) {
+
+            if (checkMandatoryFields()) {
+
+                $scope.item.PrecriptionStatusId = StatusId;
+
+                var lines = getLinesForSave();
+
+                var actionName = 'emr/prescription/AddPrescription';
+                if ($scope.currentcontext.id && $scope.currentcontext.id > 0) {
+                    actionName = 'emr/prescription/UpdatePrescription';
+                }
+
+                var inputData = { Header: $scope.item, Details: lines };
+                var options = {
+                    action: actionName,
+                    data: { Data: inputData },
+                    type: 'post',
+                    onComplete: $scope.saveItemCallback
+                };
+                utl.Http.doAction(options);
+            }
+        };
+
+        $scope.previousprescription = function () {
+            utl.Modal.open('patientemr.previousprescription', {
+                params: { pid: $scope.currentcontext.pid }
+            });
+        }
+
+
+        function getLinesForSave() {
+            var result = [];
+            for (var idx in $scope.prescriptionDetails) {
+                var item = $scope.prescriptionDetails[idx];
+                if (item.DrugId > 0 || item.GenericId > 0) {
+                    item.PharmacyId = $scope.item.PharmacyId;
+                    result.push(item);
+                }
+            }
+            return result;
+        }
+
+        $scope.doctorChange = function () {
+            var doctorObj = utl.Lookup.getObject($scope.lookup.Doctor, $scope.item.DoctorId);
+            $scope.item.DepartmentId = doctorObj.DepartmentId;
+            $scope.item.Comments = doctorObj.PrescriptionAdvice;
+        };
+
+        function loadData() {
+            $scope.getItem();
+            $scope.getPatientAttachments();
+            // $scope.loadTickSheet();   // function not implemented
+        }
+
+        vm.drugcontrolconfig = {
+            query: '',
+            searchbyid: false,
+            options: [
+                { header: 'Code', field: 'DrugCode', datatype: 'string', headercls: 'td-code', fieldcls: 'td-code' },
+                { header: 'Name', field: 'DrugName', datatype: 'string', headercls: 'td-name', fieldcls: 'td-name' },
+                { header: 'Qty', field: 'Quantity', datatype: 'string', headercls: 'td-qty', fieldcls: 'td-qty' },
+                { header: 'Type', field: 'DrugType', datatype: 'string', headercls: 'td-type', fieldcls: 'td-type' },
+                { header: 'Generic', field: 'GenericMaster', datatype: 'string', headercls: 'td-generic', fieldcls: 'td-generic' },
+                { header: 'Forms', field: 'DrugForm', datatype: 'string', headercls: 'td-form', fieldcls: 'td-form' },
+                { header: 'Frequency', field: 'DrugFrequency', datatype: 'string', headercls: 'td-frequency', fieldcls: 'td-frequency' },
+            ],
+            searchparams: {},
+            result: {},
+            api: 'clinicalmaster/DrugMaster/GetDrugMasters',
+            formatdisplay: formatselecteddrugs,
+            presearch: presearchdrugs,
+            postsearch: postsearchdrugs
+        };
+
+        function formatselecteddrugs() {
+            var selectedItem = vm.drugcontrolconfig.selected;
+            var result = '';
+            if (selectedItem && !utl.Common.isEmptyJSONObject(selectedItem)) {
+                result = [selectedItem.DrugName + '(' + selectedItem.DrugCode + ')'].join('  ');
+            } else if (vm.drugcontrolconfig.rowdata) {
+                result = [vm.drugcontrolconfig.rowdata.DrugCode, vm.drugcontrolconfig.rowdata.DrugName].join(' ');
+            }
+            return result;
+        }
+
+        function presearchdrugs() {
+            var query = vm.drugcontrolconfig.query;
+
+            var inputData = {
+                Params: [{ Key: 5, Value: $scope.item.PharmacyId }],
+                PageContext: {
+                    PageSize: 25,
+                    PageNumber: 1
+                }
+            };
+
+            if (vm.drugcontrolconfig.searchbyid === true) {
+                inputData.Params.push({ Key: 0, Value: query });
+            } else if (query && query.length > 2) {
+                inputData.Params.push({ Key: 1, Value: query }, { Key: 6, Value: query });
+            }
+            vm.drugcontrolconfig.searchparams = inputData;
+        }
+
+        function postsearchdrugs() {
+            for (var idx in vm.drugcontrolconfig.result) {
+
+                var item = vm.drugcontrolconfig.result[idx];
+                item.DrugCode = item.DrugCode;
+                item.DrugName = item.DrugName;
+                item.DrugType = item.DrugType.Description;
+                if (item.ItemMaster) {
+                    if (item.ItemMaster.StockItem) {
+                        item.Quantity = item.ItemMaster.StockItem.Quantity;
+                    }
+                }
+                if (item.GenericMaster)
+                    item.GenericMaster = item.GenericMaster.GenericName;
+                if (item.DrugForm)
+                    item.DrugForm = item.DrugForm.Description;
+                if (item.DrugFrequency)
+                    item.DrugFrequency = item.DrugFrequency.Name;
+            }
+        }
+
+        vm.genericcontrolconfig = {
+            query: '',
+            searchbyid: false,
+            options: [
+                { header: 'Code', field: 'Code', datatype: 'string', headercls: 'td-code', fieldcls: 'td-code' },
+                { header: 'Name', field: 'GenericName', datatype: 'string', headercls: 'td-name', fieldcls: 'td-name' },
+                { header: 'Type', field: 'AllergenType', datatype: 'string', headercls: 'td-type', fieldcls: 'td-type' },
+            ],
+            searchparams: {},
+            result: {},
+            api: 'clinicalmaster/GenericMaster/GetGenericMasters',
+            formatdisplay: formatselectedgenerics,
+            presearch: presearchgenerics,
+            postsearch: postsearchgenerics
+        };
+
+        function formatselectedgenerics() {
+            var selectedItem = vm.genericcontrolconfig.selected;
+            var result = '';
+            if (selectedItem && !utl.Common.isEmptyJSONObject(selectedItem)) {
+                result = [selectedItem.GenericName + '(' + selectedItem.Code + ')'].join('  ');
+            } else if (vm.genericcontrolconfig.rowdata) {
+                result = [vm.genericcontrolconfig.rowdata.Code, vm.genericcontrolconfig.rowdata.GenericName].join(' ');
+            }
+            return result;
+        }
+
+        function presearchgenerics() {
+            var query = vm.genericcontrolconfig.query;
+
+            var inputData = {
+                Params: [],
+                PageContext: {
+                    PageSize: 25,
+                    PageNumber: 1
+                }
+            };
+
+            if (vm.genericcontrolconfig.searchbyid === true) {
+                inputData.Params.push({ Key: 0, Value: query });
+            } else if (query && query.length > 2) {
+                inputData.Params.push({ Key: 1, Value: query });
+            }
+
+            vm.genericcontrolconfig.searchparams = inputData;
+        }
+
+        function postsearchgenerics() {
+            for (var idx in vm.genericcontrolconfig.result) {
+                var item = vm.genericcontrolconfig.result[idx];
+                item.GenericCode = item.Code;
+                item.GenericName = item.GenericName;
+                item.AllergenType = item.AllergenType.Description;
+            }
+        }
+
+        vm.doctorcontrolconfig = {
+            query: '',
+            searchbyid: false,
+            options: [
+                { header: 'Doctor Id', field: 'DoctorId', datatype: 'string', headercls: 'td-code', fieldcls: 'td-code' },
+                { header: 'Doctor Name', field: 'DoctorName', datatype: 'string', headercls: 'td-name', fieldcls: 'td-name' },
+                { header: 'Qualification', field: 'Qualification', datatype: 'string', headercls: 'td-Qualification', fieldcls: 'td-Qualification' },
+                { header: 'Speciality', field: 'Speciality', datatype: 'string', headercls: 'td-dept', fieldcls: 'td-dept' },
+            ],
+            searchparams: {},
+            result: {},
+            api: 'SystemSettings/User/GetUsers',
+            formatdisplay: formatselecteddoctor,
+            presearch: presearchdoctor,
+            postsearch: postsearchdoctor
+        };
+
+        function formatselecteddoctor() {
+            var selectedItem = vm.doctorcontrolconfig.selected;
+            var result = '';
+            if (selectedItem && !utl.Common.isEmptyJSONObject(selectedItem)) {
+                result = [selectedItem.DoctorName].join('  ');
+            } else if (vm.doctorcontrolconfig.rowdata) {
+                result = [vm.doctorcontrolconfig.rowdata.DoctorId, vm.doctorcontrolconfig.rowdata.DoctorName,
+                vm.doctorcontrolconfig.rowdata.Qualification, vm.doctorcontrolconfig.rowdata.Speciality
+                ].join(' ');
+            }
+            return result;
+        }
+
+        function presearchdoctor() {
+            var query = vm.doctorcontrolconfig.query;
+            var inputData = {
+                Params: [
+                    { Key: 3, Value: 2 }
+                ],
+                PageContext: {
+                    PageSize: 25,
+                    PageNumber: 1
+                }
+            };
+
+            if (vm.doctorcontrolconfig.searchbyid === true) {
+                inputData.Params.push({ Key: 0, Value: query });
+            } else if (query && query.length > 2) {
+                inputData.Params.push({ Key: 1, Value: query });
+            }
+            vm.doctorcontrolconfig.searchparams = inputData;
+        }
+
+        function postsearchdoctor() {
+            for (var idx in vm.doctorcontrolconfig.result) {
+                var item = vm.doctorcontrolconfig.result[idx];
+                item.DoctorId = item.Id;
+                item.DoctorName = item.Title.Description + ' ' + item.FirstName;
+                item.Qualification = item.Qualification;
+                item.Speciality = item.Department.DepartmentName;
+            }
+        }
+
+        function checkDrugAllergyCallback(scope, res, options, hasError) {
+            if (res.Data && res.Data.length > 0) {
+                $scope.currentcontext.isPatientHasAllergy = true;
+            }
+        }
+        $scope.alternateDetails = function (idx, item) {
+            utl.Modal.open('app.prescriptionalternates', {
+                params: {
+                    genericid: item.DrugGenericId,
+                    drugid: item.DrugId,
+                    pharmacyid: $scope.item.PharmacyId,
+                    drugcode: item.DrugCode,
+                    drugname: item.DrugName,
+                    lineindex: idx
+                },
+                confirmCallback: replaceAlternate
+            });
+        };
+
+        function replaceAlternate(alternatedata) {
+            var ActualItem = {};
+            var alternateprescriptionDetail = {};
+            ActualItem.DrugId = alternatedata.drugid;
+            $scope.CleanDrugItem(ActualItem);
+            var StockQty = 0;
+            if (alternatedata.ItemData.StockItem) {
+                StockQty = alternatedata.ItemData.StockItem.Quantity;
+            }
+            alternateprescriptionDetail = {
+                Id: 0,
+                DrugId: alternatedata.ItemData.DrugId || -1,
+                DrugCode: alternatedata.ItemData.DrugCode || '',
+                DrugName: alternatedata.ItemData.DrugName || '',
+                DrugRouteId: alternatedata.ItemData.DrugMaster.DrugRouteId || -1,
+                DrugFrequencyId: alternatedata.ItemData.DrugMaster.DrugFrequencyId || -1,
+                Dosage: alternatedata.ItemData.DrugMaster.MaxDosagePerDay || 0,
+                DrugFormId: alternatedata.ItemData.DrugMaster.DrugFormId || -1,
+                Price: parseFloat(alternatedata.ItemData.MrPrice).toFixed(2) || 0,
+                AvailQuantity: StockQty || 0,
+                DrugGenericId: alternatedata.ItemData.DrugMaster.GenericId || -1,
+                DrugGenericCode: alternatedata.ItemData.DrugMaster.GenericCode || '',
+                DrugGenericName: alternatedata.ItemData.DrugMaster.GenericName || '',
+                Duration: alternatedata.ItemData.DrugMaster.Duration || 0,
+                DurationPeriodId: alternatedata.ItemData.DrugMaster.DurationPeriodId || 1,
+                DrugInstructionId: alternatedata.ItemData.DrugMaster.DrugInstructionId || -1,
+                Status: 1
+            };
+            $scope.prescriptionDetails.push(alternateprescriptionDetail);
+            $scope.addNewLineItem();
+        }
+
+        $scope.CleanDrugItem = function (item) {
+            for (var count = 0; count < $scope.prescriptionDetails.length; count++) {
+                var cllitem = $scope.prescriptionDetails[count];
+                if (cllitem.DrugId == item.DrugId) {
+                    cllitem.Status = 2;
+                    $scope.deletedprescriptionDetails.push(cllitem);
+                    var index1 = $scope.prescriptionDetails.indexOf(cllitem);
+                    $scope.prescriptionDetails.splice(index1, 1);
+                    count = count - 1;
+                }
+            }
+            for (var clsidx in $scope.prescriptionDetails) {
+                var clsitem = $scope.prescriptionDetails[clsidx];
+                if (clsitem.DrugId == -1) {
+                    clsitem.Status = 2;
+                    $scope.deletedprescriptionDetails.push(clsitem);
+                    var index2 = $scope.prescriptionDetails.indexOf(clsitem);
+                    $scope.prescriptionDetails.splice(index2, 1);
+                }
+            }
+        };
+        $scope.checkDrugAllergy = function () {
+            var inputData = {
+                Params: [
+                    { Key: 2, Value: $scope.currentcontext.pid },
+                    { Key: 3, Value: 1 }, //Drug
+                    { Key: 4, Value: 1 }
+                ],
+                PageContext: {
+                    PageSize: 100,
+                    PageNumber: 1
+                }
+            };
+
+            var options = {
+                action: 'emr/patientallergy/GetPatientAllergys',
+                data: inputData,
+                type: 'post',
+                onComplete: checkDrugAllergyCallback
+            };
+
+            utl.Http.doAction(options);
+        }
+        //viewConsultation
+            $scope.viewConsultation = function (item) {
+                utl.Modal.open('patientemr.reviewnotes', {
+                    params: { cid: item.Id, pid: $scope.currentcontext.pid }
+                });
+            }
+            //previousnotes
+            $scope.getAllConsultationCallback = function (scope, res, options, hasError) {
+                $scope.consultlist = res.Data;
+                // consultlist = res.Data;
+            };
+            $scope.getallConsultation = function (pageNo) {
+                var inputData = {
+                    Params: [
+                        { Key: 2, Value: $scope.currentcontext.eid },
+                        { Key: 3, Value: $scope.currentcontext.pid },
+                         { Key: 11, Value: 2 },
+                    ],
+                    PageContext: {
+                        PageSize: 100,
+                        PageNumber: 1
+                    }
+                };
+                var options = {
+                    action: 'emr/consultation/GetConsultations',
+                    data: inputData,
+                    type: 'post',
+                    onComplete: $scope.getAllConsultationCallback
+                };
+                utl.Http.doAction(options);
+            };
+            //get consultation
+            $scope.getCurrentConsultationCallback = function (scope, data, options, hasError) {
+            $scope.consult = data;
+                $scope.currentcontext.eid = data.EncounterId;
+                $scope.getallConsultation();
+                //loadSectionData();
+            };
+
+            $scope.getCurrentConsultation = function (pageNo) {
+            if ($scope.currentcontext.ConsultationId && $scope.currentcontext.ConsultationId > 0) {
+                    var options = {
+                        action: 'emr/consultation/GetConsultationById',
+                    data: { Id: $scope.currentcontext.ConsultationId },
+                        type: 'post',
+                        onComplete: $scope.getCurrentConsultationCallback
+                    };
+                    utl.Http.doAction(options);
+                }
+            };
+        $scope.lookupCallback = function (scope, data, options, hasError) {
+            forEach(data, function (value, key) {
+                $scope.lookup[key] = value;
+                if (key == 'StoreMaster' && $scope.item.PharmacyId === 0) {
+                    /* $scope.item.PharmacyId = value[0].Id; */
+                    for (var idx in value) {
+                        var store = value[idx];
+                        if (store.IsDefaultPrescriptionStore) {
+                            $scope.item.PharmacyId = store.Id;
+                        }
+                    }
+                }
+                // if (key == 'StoreMaster' && $scope.item.PharmacyId === 0) {
+                //     $scope.item.PharmacyId = value[0].Id;
+                // }
+            });
+            loadData();
+            $scope.checkDrugAllergy();
+            $scope.doctorChange();
+        };
+
+        $scope.initLookup = function () {
+            var inputData = [
+                { "Key": "Department" },
+                { "Key": "User" },
+                {
+                    "Key": "Doctor",
+                    Request: {
+                        Params: [{
+                            Key: 2,
+                            Value: [-1, utl.Session.getCurrentFacilityId()]
+                        }]
+                    }
+                },
+                { "Key": "PrescriptionPriority" },
+                { "Key": "DrugRoute" },
+                { "Key": "DrugFrequency" },
+                { "Key": "DrugInstruction" },
+                { "Key": "DurationPeriod", Default: false },
+                {
+                    "Key": "StoreMaster",
+                    Request: {
+                        Params: [
+                            { Key: 2, Value: 1 },
+                            { Key: 3, Value: 2 },
+                            { Key: 7, Value: 2 }
+                        ]
+                    },
+                    Default: false
+                }
+            ];
+
+            var options = {
+                action: 'General/Options/getoptions',
+                data: inputData,
+                type: 'post',
+                onComplete: $scope.lookupCallback
+            };
+            utl.Http.doAction(options);
+        };
+
+        $scope.initLookup();
+        $scope.getCurrentConsultation();
+    }
+
+    discasshtcnPrescriptionSectionController.$inject = ['$scope', '$stateParams', '$state', '$translate', 'utl', '$filter', 'uibButtonConfig', 'lodash', '$uibModalInstance', 'modalConfig'];
+
+})();

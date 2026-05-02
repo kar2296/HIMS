@@ -1,0 +1,120 @@
+<div class="modal-header custom-modal-header" ng-if="currentcontext.ismodal">
+    <div class="col-sm-10">
+        <h4 class="modal-title custom-modal-title" translate="patientemr.physiotheraphy.addphysiotreatement.lbl"></h4>
+    </div>
+    <div class="col-sm-2">
+        <div class="filters">
+            <img src="../../../../../assets/svg/close.svg" ng-click="backToList()">
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <form id="item_form0" name="item_form" class="form-horizontal" role="form">
+        <div class="form-group col-sm-6">
+            <label class="col-sm-12 control-label" for="TratementModality"
+                translate="patientemr.physiotheraphy.treatementmodality.lbl"></label>
+            <div class="col-sm-12">
+                <ui-select ng-model="item.TreatementModalityId" required name="TratementModality">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 20 : 0}}
+                        <span ng-if="$select.selected.Text.length>20">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.TreatementModality | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+        <div class="col-sm-6">
+            <div class="form-group col-sm-6 otprocedure_name">
+                <label class="col-sm-12 control-label" for="startdate"
+                    translate="otschedule-form.starttime.lbl"></label>
+                <div class="col-sm-12 custom_dropdwn" id="startdate">
+                    <uib-timepicker name="startdate" ng-model="item.StartTime" ng-time-object>
+                    </uib-timepicker>
+                </div>
+            </div>
+
+            <div class="col-sm-6" style="padding: 0;">
+                <label class="col-sm-12 control-label" for="endtime" translate="otschedule-form.endtime.lbl"></label>
+                <div class="col-sm-12 custom_dropdwn" id="endtime">
+                    <uib-timepicker name="endtime" ng-model="item.EndTime" ng-change="getDuration(item)" ng-time-object>
+                    </uib-timepicker>
+                </div>
+            </div>
+        </div>
+        <div class="form-group col-sm-6">
+            <label class="col-sm-12 control-label" for="createddate"
+                translate="patientemr.physiotheraphy.date.lbl"></label>
+            <div class="col-sm-12">
+                <input type="text" class="form-control" name="startdateandtime" ng-date-object
+                    datetime-picker="{{datePickerOptions.dateTimeFormat}}"
+                    placeholder="{{datePickerOptions.placeholder}}" ng-click="createddatePopup = { opened: true }"
+                    is-open="createddatePopup.opened" ng-model="item.PhysiotheraphyDate">
+            </div>
+        </div>
+        <div class="form-group col-sm-6">
+            <label class="col-sm-12 control-label" for="documenttype"
+                translate="patientemr.physiotheraphy.duration.lbl"></label>
+            <div class="col-sm-12">
+                <input type="text" class="form-control" ng-model="item.Duration" placeholder="">
+            </div>
+        </div>
+        <div class="form-group col-sm-6">
+            <label class="col-sm-12 control-label" for="documenttype"
+                translate="patientemr.physiotheraphy.bpmmhg.lbl"></label>
+            <div class="col-sm-12">
+                <input type="text" class="form-control" ng-model="item.BP" placeholder="BP">
+            </div>
+        </div>
+        <div class="form-group col-sm-6">
+            <label class="col-sm-12 control-label" for="documenttype"
+                translate="patientemr.physiotheraphy.rbs/fbs.lbl"></label>
+            <div class="col-sm-12">
+                <input type="text" class="form-control" ng-model="item.RBSFBS" placeholder="RBS/FBS">
+            </div>
+        </div>
+        <div class="form-group col-sm-6">
+            <label class="col-sm-12 control-label" for="physiotherapist"
+                translate="patientemr.physiotheraphy.physiotherapist.lbl"></label>
+            <div class="col-sm-12">
+                <ui-select ng-model="item.PhysiotherapistId" required name="physiotherapist">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 20 : 0}}
+                        <span ng-if="$select.selected.Text.length>20">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.User | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+                <!-- <input type="text" class="form-control" name="physiotherapist" required
+                        ng-model="item.PhysiotherapistName"> -->
+            </div>
+        </div>
+        <div class="form-group col-sm-6">
+            <label class="col-sm-12 control-label" translate="patientemr.physiotheraphy.signature.lbl"></label>
+            <div class="col-sm-12">
+                <input type="text" class="form-control" ng-model="item.Signature" placeholder="Signature">
+            </div>
+
+        </div>
+        <div class="form-group col-sm-6">
+            <label class="col-sm-12 control-label" translate="Clinic Notes"></label>
+            <div class="col-sm-12">
+                <!-- <input type="text" class="form-control"  placeholder=""> -->
+                <textarea ng-model="item.ClinicNotes"></textarea>
+            </div>
+
+        </div>
+    </form>
+</div>
+<div class="row">
+    <div class="pull-right">
+        <button type="submit" ng-if="canUpdatePatientEMR()" ng-click="save()" class="draftbutton"
+            translate="common.saveaction.lbl"></button>
+        <!-- <button id="btnCancelForm" type="button" class="draftbutton" ng-click="backToList()" translate="common.cancelaction.lbl"></button>						 -->
+    </div>
+</div>

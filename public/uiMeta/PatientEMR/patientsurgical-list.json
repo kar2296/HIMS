@@ -1,0 +1,45 @@
+{
+    "Title" : "Surgical",
+    "ControllerName" : "patientSurgicalList",
+    "InitAction" : {
+        "url" : "General/Options/getoptions",
+        "behaviour" : "default",
+        "optionkeys" : [ {"name" : "Procedure"}, {"name" : "ProcedureType"} ]
+    },
+    "FilterConfig" :[ {
+        "localizationpath" : "patientemr.patientsurgical-list",
+        "controls" :[
+               { "combo" : true, "label" : "Procedure", "name" : "filter_procedure", "model" : "currentfilter.ProcedureId", "placeholder" : "", "collection" : "lookup.Procedure", "valuefield" : "Id", "displayfield" : "Text" },
+               { "combo" : true, "label" : "Type", "name" : "filter_proceduretype", "model" : "currentfilter.ProcedureTypeId", "placeholder" : "", "collection" : "lookup.ProcedureType", "valuefield" : "Id", "displayfield" : "Text" }
+            ]
+        }
+    ],
+    "FetchAction" : {
+        "url" : "patientemr/patientsurgical/GetPatientProcedures",
+        "behaviour" : "default"
+    },
+    "EditAction" : {
+                "url": "",
+                "state": "patientemr.patientsurgical",
+                "params": ["id:row.entity.Id", "pid: $scope.currentcontext.pid"]
+                },
+    "AddAction" : {
+        "url": "",
+        "state": "patientemr.patientsurgical",
+        "params": ["id:0", "pid: $scope.currentcontext.pid"]
+        },
+    "DeleteAction" : {
+        "url": "patientemr/patientprocedure/DeletePatientProcedure",
+        "behaviour" : "default"
+    },
+    "Localization" : { "localizationmodule" : "patientemr", "screenkey" : "patientsurgical-list" },
+    "GridConfig" :[ {
+        "localizationpath" : "patientemr.patientsurgical-list",
+        "columnDefs": [ { "field": "Procedure", "displayName": "Procedure", "name" : "procedure" } ,
+                        { "field": "ProcedureType.Description", "displayName": "Type", "name" : "proceduretype" } , 
+                        { "field": "PerformedDate", "displayName": "Performed Date", "name" : "performeddate" },
+                        { "field": "StatusTODO", "displayName": "Status", "name" : "status" }
+                    ]
+        }
+    ]
+}

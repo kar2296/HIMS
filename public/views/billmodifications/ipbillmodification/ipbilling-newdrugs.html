@@ -1,0 +1,206 @@
+<style>
+    .table {
+        width: 100% !important;
+        max-width: 1000% !important;
+    }
+
+    .table-bordered>thead>tr>td {
+        border-bottom-width: 1px;
+        white-space: nowrap;
+    }
+
+    .aside-collapsed,
+    .fooder-bg {
+        position: static !important;
+        width: 100%!important;
+        left: 0 !important;
+    }
+
+    .modal-title.panel-body {
+        overflow: inherit;
+    }
+
+    /* table.table.table-bordered.table-condensed.dropdown-menu {
+        overflow-x: hidden;
+    } */
+
+    .formRoot.popupheight {
+        height: 385px;
+    }
+
+    span.countbg {
+        color: #fff;
+    }
+
+    .page-calendar .event-name {
+        border-left: 0px;
+    }
+</style>
+<div class="modal-header custom-modal-header">
+    <div class="col-sm-7 active mt0 page-calendar">
+        <div class="event-name b-greensea ">
+            <span ng-module="currentcontext.patinfo" ng-if="selectedPatient.MRN.length > 0" class="forpadd">
+                <span>{{selectedPatient.Title.Description}} {{selectedPatient.FirstName}}</span> |
+                <span>{{selectedPatient.MRN}} </span> |
+                <span> {{selectedPatient.Gender.Description}}</span> |
+                <span> {{selectedPatient.Age}} Years </span> |
+                <span>{{selectedPatient.DOB | date : 'dd/MMM/yyyy' }} </span>
+                <span ng-click="patientprofiledetails()">
+                    <i class="icon-info-sign"></i>
+                </span>
+            </span>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-sm-12">
+        <form id="item_form" name="item_form" class="form-horizontal" role="form" ng-submit="">
+            <div class="row filter-area">
+                <div class="col-sm-12">
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                            <label class="col-sm-5 control-label" for="doctor" translate="billing.billing-details.doctor.lbl"></label>
+                            <div class="col-sm-7">
+                                <ui-select ng-model="Encounter.DoctorId" tabindex="-1" name="doctor" ng-change="onDoctorSelected()">
+                                    <ui-select-match>
+                                        {{$select.selected.Text | limitTo : 20 : 0}}
+                                        <span ng-if="$select.selected.Text.length>20">...</span>
+                                    </ui-select-match>
+                                    <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.Doctor | filter: { Text: $select.search }">
+                                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                    </ui-select-choices>
+                                </ui-select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                            <label class="col-sm-5 control-label" for="department" translate="billing.billing-details.department.lbl"></label>
+                            <div class="col-sm-7">
+                                <ui-select ng-model="Encounter.DepartmentId" tabindex="-1" name="department">
+                                    <ui-select-match>
+                                        {{$select.selected.Text | limitTo : 20 : 0}}
+                                        <span ng-if="$select.selected.Text.length>20">...</span>
+                                    </ui-select-match>
+                                    <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.Department | filter: { Text: $select.search }">
+                                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                    </ui-select-choices>
+                                </ui-select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                            <label class="col-sm-5 control-label" for="guarantor" translate="billing.billing-details.guarantor.lbl"></label>
+                            <div class="col-sm-7">
+                                <ui-select ng-model="Encounter.GuarantorId" tabindex="-1" name="guarantor">
+                                    <ui-select-match>
+                                        {{$select.selected.Text | limitTo : 20 : 0}}
+                                        <span ng-if="$select.selected.Text.length>20">...</span>
+                                    </ui-select-match>
+                                    <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.PatientGuarantor | filter: { Text: $select.search }">
+                                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                    </ui-select-choices>
+                                </ui-select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="formRoot popupheight">
+                <div class="panel-body form-panel" style="height: 355px;">
+                    <div class="col-sm-12 padding-top5">
+                        <div class="" id="mainresponsivetablecontrol">
+                            <table class="table table-hover table-responsive table-bordered">
+                                <thead class="bg-subhead">
+                                    <tr>
+                                        <th width="30%">
+                                            <span translate="billing.billing-details.itemname.lbl" for="service"></span>
+                                        </th>
+                                        <th>
+                                            <span translate="billing.billing-details.qty.lbl"></span>
+                                        </th>
+                                        <th>
+                                            <span translate="billing.billing-details.rate.lbl"></span>
+                                        </th>
+                                        <th width="15%">
+                                            <span translate="billing.billing-details.doctor.lbl"></span>
+                                        </th>
+                                        <th>
+                                            <span translate="billing.billing-details.doctorshare.lbl"></span>
+                                        </th>
+                                        <th>
+                                            <span translate="billing.billing-details.discount.lbl"></span>
+                                        </th>
+                                        <th>
+                                            <span translate="billing.billing-details.netamount.lbl"></span>
+                                        </th>
+                                        <th>
+                                            <span translate="billing.billing-details.action.lbl"></span>
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr ng-repeat="item in PatientBillDetails | filter:{Status:1}">
+                                        <td>
+                                            <autosearch itemid="item.ItemMasterId" tabindex="item.tabindex" name="'itemmaster'" iteminfo="item.SelectedItem" rowdata="item"
+                                                config="vm.itemcontrolconfig" itemchange="getDrugItem($index, item)" candisable=""
+                                                isrequired="true"></autosearch>
+                                        </td>
+                                        <td>
+                                            <input type="text" class="form-control" ng-model="item.Quantity" ng-disabled="item.ServiceId < 1" ng-change="calcAmt($index,item)">
+                                        </td>
+                                        <td class=" " align="center">
+                                            <input type="text" class="form-control" ng-model="item.Rate" ng-change="calcAmt($index,item)">
+                                        </td>
+                                        <td>
+                                            <autosearch itemid="item.DoctorId" tabindex="-1" iteminfo="" rowdata="" name="" config="vm.doctorcontrolconfig" itemchange="doctorChange()"
+                                                candisable=""></autosearch>
+                                        </td>
+                                        <td class=" " align="center">
+                                            <input type="text" tabindex="-1" class="form-control" ng-model="item.DoctorShare" ng-change="calcAmt($index,item)">
+                                        </td>
+                                        <td>
+                                            <input type="text" tabindex="-1" class="form-control" ng-model="item.DiscountAmount" ng-change="calcAmt($index,item)">
+                                        </td>
+                                        <td class="currency-align">
+                                            <span disabled>{{item.Amount | }}</span>
+                                        </td>
+                                        <td class="text-center">
+                                            <button class="drhms-edit-button" tabindex="-1" type="button" uib-tooltip="Delete" tooltip-placement="top" ng-click="deleteDetail($index,item)">
+                                                <img src="assets/svg/delete.svg" alt="">
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="footerbar">
+                    <div class="sub-footer">
+                        <div class="col-sm-12 fullreg-profiles ">
+                            <div class="col-sm-3"></div>
+                            <div class="col-sm-3">
+                            </div>
+                            <div class="col-sm-3">
+                            </div>
+                            <div class="col-sm-3">
+                                <span>{{TotalNet | displaycurrency}}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="fooder-bgs">
+                <div class="pull-right">
+                    <div class="col-sm-12">
+                        <button type="button" class="draftbutton" translate="common.saveaction.lbl" ng-click="completeBill()"></button>
+                        <button type="button" class="draftbutton" translate="common.cancelaction.lbl" ng-click="backToList()"></button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

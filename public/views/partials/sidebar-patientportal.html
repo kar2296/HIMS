@@ -1,0 +1,233 @@
+<!-- Inline template with sidebar items markup and ng-directives-->
+<script type="text/ng-template" id="sidebar-renderer.html">
+    <span ng-if="item.heading">{{(item.translate | translate) || item.text}}</span>
+    <a ng-if="!item.heading" ng-href="{{$state.href(item.sref, item.params)}}" title="{{item.text}}">
+        <div ng-if="item.alert" ng-class="item.label || 'label label-success'" class="pull-right">{{item.alert}}</div>
+        <em ng-if="item.icon" class="{{item.icon}}"></em><span>{{(item.translate | translate) || item.text}}</span></a>
+        <ul ng-if="item.submenu" uib-collapse="isCollapse(pIndex)" ng-init="addCollapse(pIndex, item)" class="nav sidebar-subnav">
+            <li class="sidebar-subnav-header">{{(item.translate | translate) || item.text}}</li>
+            <li ng-repeat="item in item.submenu" ng-include="'sidebar-renderer.html'" ng-class="getMenuItemPropClasses(item)" ng-init="pIndex=(pIndex+'-'+$index); inSubmenu = true" ng-click="toggleCollapse(pIndex)"></li></ul>
+</script>
+<!-- START Sidebar (left)-->
+<div class="aside-inner">
+    <nav sidebar="" sidebar-anyclick-close="" ng-class="{'show-scrollbar': app.layout.asideScrollbar}" class="sidebar">
+        <!-- START sidebar nav-->
+        <ul class="nav">
+            <!-- Iterates over all sidebar items-->
+            <li ng-class="getMenuItemPropClasses(item)" ng-repeat="item in menuItems" ng-init="pIndex = $index"
+                ng-include="'sidebar-renderer.html'" ng-click="toggleCollapse(pIndex, true)"></li>
+        </ul>
+        <!-- END sidebar nav-->
+    </nav>
+</div>
+<!-- END Sidebar (left)-->
+<style>
+    .sidebar>.nav>li>a,
+    .sidebar>.nav>li>.nav-item {
+        padding: 10px !important;
+        background-color: #091938;
+        border-bottom: 1px solid papayawhip;
+        font-style: oblique;
+    }
+
+    ul.nav.sidebar-subnav.ng-scope.in.collapse {
+        border-right: 2px solid darkslateblue;
+    }
+  
+
+    .sidebar {
+        padding-bottom: 0px;
+        background-color: #09192a !important;
+    }
+
+    .sidebar>.nav>li {
+        border-left: 0px;
+    }
+
+    .sidebar-subnav>li>a,
+    .sidebar-subnav>li>.nav-item {
+        /* color: #000;
+    font-weight: 500;
+    background-color: #000000 !important; */
+        background-color: rgba(0, 255, 170, .25);
+        color: #000;
+        font-size: 14px;
+        font-weight: 700;
+        /* border-color: #00f9a6;
+    box-shadow: 0 2px 12px 0 rgba(0,255,170,.25) */
+    }
+
+    .sidebar>.nav>li.active,
+    .sidebar>.nav>li.open,
+    .sidebar>.nav>li.active>a,
+    .sidebar>.nav>li.open>a,
+    .sidebar>.nav>li.active>.nav-item,
+    .sidebar>.nav>li.open>.nav-item,
+    .sidebar>.nav>li.active .nav,
+    .sidebar>.nav>li.open .nav {
+        background-color: none;
+    }
+
+    nav.sidebar li a:hover {
+        /* border:1px solid #000 !important; */
+    }
+
+    /* em.fa.fa-tachometer.fa-lg{
+        color:aqua;
+    }
+    em.fa.fa-pencil-square-o.fa-lg{
+        color: cornflowerblue;  
+    }
+    em.fa.fa-table.fa-lg{
+        color: chartreuse;
+    }
+    em.fa.fa-heartbeat.fa-lg{
+        color: crimson;
+    }
+    em.fa.fa-medkit.fa-lg{
+        color:brown;
+    }
+    em.fa.fa-calendar-o.fa-lg{
+        color:dodgerblue;
+    }
+    em.fa.fa-plus-square.fa-lg{
+        color:darkorange;
+    }
+    em.fa.fa-hospital-o.fa-lg{
+        color:#ff3600;
+    }
+    em.fa.fa-cart-plus.fa-lg{
+        color:yellowgreen;
+    }
+    em.fa.fa-flask.fa-lg{
+        color:yellow;
+    }
+    em.fa.fa-medkit.fa-lg{
+        color:skyblue;
+    }
+    em.fa.fa-ambulance.fa-lg{
+        color:darkred;
+    }
+    em.fa.fa-book.fa-lg{
+        color:springgreen;
+    }
+    em.fa.fa-info-circle.fa-lg{
+        color:steelblue;
+    }
+    em.fa.fa-building.fa-lg{
+        color:indianred;
+    }
+    em.fa.fa-sticky-note-o.fa-lg{
+        color:violet;
+    }
+    em.fa.fa-gears.fa-lg{
+        color:steelblue;
+    }
+    em.fa.fa-hospital-o.fa-lg{
+        color:crimson;
+    }
+    em.fa.fa-spoon.fa-lg{
+        color:lawngreen;
+    }
+    em.fa.fa-money.fa-lg{
+        color:burlywood;
+    }
+    em.fa.fa-calculator.fa-lg{
+        color:dodgerblue;
+    }
+    em.fa.fa-dashboard.fa-lg{
+        color:aqua;
+    } */
+    .sidebar-subnav>li a {
+        border-bottom: 1px solid grey;
+        padding: 7px 21px;
+    }
+
+    .sidebar-subnav>li>a:hover {
+        color: #ff3600 !important;
+    }
+
+    span.caret.custom_caret {
+        position: absolute;
+        right: 3%;
+        top: 47%;
+    }
+
+    .sidebar-subnav>.sidebar-subnav-header {
+        color: red;
+    }
+
+    .sidebar-subnav>li.active>a,
+    .sidebar-subnav>li.active>.nav-item {
+        background-color: lightgray !important;
+    }
+
+    .sidebar>.nav>li.active>a {
+        background-color: #3b599f !important;
+        color: #fff;
+    }
+
+    .sidebar-subnav>li a {
+        padding: 7px 21px;
+        font-weight: 600;
+    }
+
+    .sidebar-subnav>li a .caret {
+        display: none;
+    }
+
+    .sidebar>.nav>li>a:focus,
+    .sidebar>.nav>li>.nav-item:focus,
+    .sidebar>.nav>li>a:hover,
+    .sidebar>.nav>li>.nav-item:hover {
+        color: #23B702;
+    }
+
+    a.visible-xs.sidebar-toggle em {
+        color: #006064 !important;
+    }
+
+    em.fa.fa-dashboard.fa-lg {
+        color: aqua;
+    }
+
+    em.fa.fa-calendar.fa-lg {
+        color: dodgerblue;
+    }
+
+    em.fa.fa-heartbeat.fa-lg {
+        color: red;
+    }
+
+    em.fa.fa-wheelchair.fa-lg {
+        color: yellow;
+    }
+
+    em.fa.fa-file-text-o.fa-lg {
+        color: blueviolet;
+    }
+
+    em.fa.fa-clipboard.fa-lg {
+        color: dodgerblue;
+    }
+
+    em.fa.fa-cc-visa.fa-lg {
+        color: orangered;
+    }
+
+    em.fa.fa-credit-card-alt.fa-lg {
+        color: turquoise;
+    }
+
+    em.fa.fa-user-md.fa-lg {
+        color: lightsalmon;
+    }
+
+    em.fa.fa-pencil-square-o.fa-lg {
+        color: hotpink;
+    }
+
+    em.fa.fa-envelope.fa-lg {
+        color: gold;
+    }
+</style>

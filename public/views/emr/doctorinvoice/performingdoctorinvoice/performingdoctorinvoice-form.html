@@ -1,0 +1,236 @@
+<style>
+    
+.autosearch-div .custom-popup-wrapper {
+    position: absolute;
+    width: 600px;
+    /* left: 0; */
+    right: 0;
+}
+</style>
+<div class="row page-header">
+    <div class="col-sm-12">
+        <div class="col-sm-6">
+            <h4 class="page-header mt0" translate="doctorinvoice-form.pagetitle1.lbl"></h4>
+        </div>
+        <div class="col-sm-6">
+            <span class="col-sm-8">
+                <autosearch itemid="item.DoctorId" iteminfo="" rowdata="" name="'doctorid'" config="vm.doctorcontrolconfig" itemchange="loadBills()"
+                    candisable="" isrequired="true">
+                </autosearch>
+            </span>
+            <span class="pull-right col-sm-4">
+                <button type="button" tabindex="-1" class="btn-add" style="padding: 8px 12px !important;"
+                    ng-click="addNew()" uib-tooltip="{{ 'doctorinvoice-list.pagetitle.lbl' | translate}}" tooltip-placement="bottom">
+                    <i class="fa fa-plus" aria-hidden="true"></i>
+                </button>
+            </span>
+        </div>
+    </div>
+</div>
+
+<form id="item_form" name="item_form" class="form-horizontal" role="form">
+    <div class="billingbanner">
+        <table id="bannerdetails">
+            <tr>
+                <td>
+                    <label class="control-label" for="doctor" translate="doctorinvoice-list.filter_doctorname.lbl"></label>
+                </td>
+                <td>
+                    {{item.DoctorName}}
+                </td>
+                <td>
+                    <label class="control-label" translate="doctorinvoice-form.filter_fromdate.lbl"></label>
+                </td>
+                <td>
+                    <input type="text" class="form-control" name="invoicedate" datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}"
+                        uib-datepicker-popup="{{datePickerOptions.dateFormat}}" placeholder="{{datePickerOptions.placeholder}}"
+                        ng-click="invoicefromdatePopup = { opened: true }" is-open="invoicefromdatePopup.opened" ng-change="loadBills()"
+                        ng-model="currentfilter.billingfromdate">
+                </td>
+                <td>
+                    <label class="control-label" for="billno" translate="doctorinvoice-form.invoicenumber.lbl"></label>
+                </td>
+                <td>{{item.DoctorInvoiceIdentifier}}</td>
+            </tr>
+            <tr>
+                <td>
+                    <label class="control-label" for="" translate="doctorinvoice-form.filter_visittype.lbl"></label>
+                </td>
+                <td>
+                    <ui-select ng-model="currentfilter.encountertypeid" ng-change="loadBills()" name="" class="filter-combo">
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 20 : 0}}
+                            <span ng-if="$select.selected.Text.length>20">...</span>
+                        </ui-select-match>
+                        <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.EncounterType | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </td>
+                <td>
+                    <label class="control-label filter-lbl" translate="doctorinvoice-form.filter_todate.lbl"></label>
+                </td>
+                <td>
+                    <input type="text" class="form-control" name="invoicetodate" datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}"
+                        uib-datepicker-popup="{{datePickerOptions.dateFormat}}" placeholder="{{datePickerOptions.placeholder}}"
+                        ng-click="invoicetodatePopup = { opened: true }" is-open="invoicetodatePopup.opened" ng-change="loadBills()"
+                        ng-model="currentfilter.billingtodate">
+                </td>
+                <td>
+                    <label class="control-label filter-lbl" translate="doctorinvoice-form.filter_invoicedate.lbl"></label>
+                </td>
+                <td>
+                    <displaydate date-val="item.InvoiceDateTime"></displaydate>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <label class="control-label" for="" translate="doctorinvoice-form.billinggroup.lbl"></label>
+                </td>
+                <td>
+                    <ui-select ng-model="currentfilter.CategoryId" ng-change="loadBills()" name="" class="filter-combo">
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 20 : 0}}
+                            <span ng-if="$select.selected.Text.length>20">...</span>
+                        </ui-select-match>
+                        <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.ServiceCategory | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </td>
+                <td>
+                    <label class="control-label" for="" translate="doctorinvoice-form.billingservices.lbl"></label>
+                </td>
+                <td>
+                    <autosearch controlid="bi.itemidxdesc" ng-keyup="moveFocus('qty','desc','desc','desc',$index,$event, bi)" itemid="item.ServiceId"
+                        iteminfo="bi.SelectedItem" name="'service'" rowdata="bi" config="vm.serviceitemcontrolconfig" class="inputsearchlogo"
+                       tabindex="bi.tabindex">
+                    </autosearch>
+
+                </td>
+                <td>
+                    <label class="control-label" for="" translate="doctorinvoice-form.createdby.lbl"></label>
+                </td>
+                <td>{{CreatedUser.Title.Description}}{{CreatedUser.FirstName}}</td>
+            </tr>
+        </table>
+    </div>
+
+    <table class="table table-responsive table-bordered">
+        <thead class="bg-subhead">
+            <tr>
+                <th class="col-sm-1">
+                    <span>
+                        <input type="checkbox" ng-model="currentcontext.selectall" ng-click="selectAllItems()">
+                    </span>
+                </th>
+                <th class="col-sm-1">
+                    <span translate="doctorinvoice-form.billdate.lbl"></span>
+                </th>
+                <th class="col-sm-1">
+                    <span translate="doctorinvoice-form.billno.lbl"></span>
+                </th>
+                <th class="col-sm-2">
+                    <span translate="doctorinvoice-form.patientname.lbl"></span>
+                </th>
+                <th class="col-sm-1">
+                    <span translate="doctorinvoice-form.doctorname.lbl"></span>
+                </th>
+                <th class="col-sm-5">
+                    <span translate="doctorinvoice-form.servicename.lbl"></span>
+                </th>
+                <th class="col-sm-1">
+                    <span translate="doctorinvoice-form.serviceamount.lbl"></span>
+                </th>
+                <th class="col-sm-1">
+                    <span translate="doctorinvoice-form.doctorshare.lbl"></span>
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr ng-repeat="item in detail  | filter:{Status:1}">
+                <td class="col-sm-1">
+                    <center>
+                        <span>
+                            <input type="checkbox" class="case" ng-disabled="item.IsAllOrderReadOnly" ng-model="item.IsAllOrderSelected" ng-click="IsAllOrderSelectedChange(detail, item)"
+                            />
+                        </span>
+                    </center>
+                </td>
+                <td class="col-sm-1">
+                    <displaydate datetime-val="item.BillDateTime"></displaydate>
+                </td>
+                <td class="col-sm-1">
+                    {{item.BillNumber}}
+                </td>
+                <td class="col-sm-2">
+                    <span>{{item.Patient.Title.Description}}{{item.Patient.FirstName}}{{item.Patient.LastName}}</span>
+                </td>
+                <td class="col-sm-1">
+                    <!-- <pre id="default-spacing">{{item.doctors|json}}</pre> -->
+                    <ui-select ng-model="item.DoctorId" ng-change="OnSelectDoctor($index,$select.selected,item)" name="" class="filter-combo">
+                        <ui-select-match>
+                            {{$select.selected.DoctorName | limitTo : 20 : 0}}
+                            <span ng-if="$select.selected.DoctorName.length>20">...</span>
+                        </ui-select-match>
+                        <ui-select-choices repeat="lookupitem.Id as lookupitem in item.doctors | filter: { DoctorName: $select.search }">
+                            <div ng-bind-html="lookupitem.DoctorName | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </td>
+                <td class="col-sm-5">
+                    <span>{{item.ServiceName}}</span>
+                </td>
+                <td class="col-sm-1">
+                    <span> {{item.ServiceAmount}}</span>
+                </td>
+                <td class="col-sm-1">
+                    <span> {{item.DoctorShare}}</span>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <!-- <div ng-if="currentcontext.id==0">
+        <custom-table config="vm.gridConfig"></custom-table>
+    </div>
+    <div ng-if="currentcontext.id>0">
+        <custom-table config="vm.getgridConfig"></custom-table>
+    </div> -->
+    <div class="col-sm-12">
+        <div class="col-sm-6"></div>
+        <div class="col-sm-6">
+            <div class="col-sm-10">
+                <label class="control-label filter-lbl" translate="doctorinvoice-list.totalinvamount.lbl"></label>
+            </div>
+            <div class="col-sm-2">
+                {{TotalNetamount}}
+            </div>
+        </div>
+    </div>
+    <div class="container-fluid single-filter">
+        <div class="fooder-bgs">
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="pull-left">
+                        <button type="button" class="btn pyr-color10 btn-sm" ng-click="backToList()" ss>
+                            <i class="fa fa-angle-left" aria-hidden="true"></i>
+                            <span class="btn-fontsize"> &nbsp; Back</span>
+                        </button>
+                        <button id="btnCancelForm" type="button" ng-hide="item.DoctorInvoiceStatusId != 2" class="draftbutton" ng-click="cancel()"
+                            translate="doctorinvoice-form.cancelinvoice.lbl"></button>
+                    </div>
+                    <div class="pull-right">
+                        <button type="button" id=""  class="draftbutton" ng-show="item.DoctorInvoiceStatusId == 2 || item.DoctorInvoiceStatusId == 3"
+                            translate="common.printaction.lbl" ng-click="print()"></button>
+                        <button id="btnSaveApprove" type="button" class="btn dem-color4 text-white btn-sm" ng-hide="item.DoctorInvoiceStatusId == 2||item.DoctorInvoiceStatusId == 3||item.DoctorInvoiceStatusId == 4"
+                            translate="doctorinvoice-form.geninvoice.lbl" ng-click="saveAndApprove()"></button>
+                        <button id="btnSave" type="button" class="draftbutton" ng-show="item.DoctorInvoiceStatusId == 2" translate="doctorinvoice-form.payment.lbl"
+                            ng-click="payment()"></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</form>

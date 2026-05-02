@@ -1,0 +1,92 @@
+<style>
+    .modal-content {
+        width: 35%;
+    }
+
+    .modal-dialog.modal-lg {
+        height: 90%;
+        display: flex;
+        align-content: center;
+        justify-content: center;
+        align-items: center;
+    }
+
+    label.col-sm-4 {
+        margin-bottom: 20px;
+    }
+
+    .fooder-bgs {
+        margin-bottom: 20px !important;
+        min-height: 7%;
+    }
+</style>
+<div class="modal-header custom-modal-header">
+    <div class="col-sm-10">
+        <h4 class="modal-title custom-modal-title" translate="Apply Discount -- {{currentcontext.ServiceName}}"></h4>
+    </div>
+    <div class="col-sm-2">
+        <div class="filters">
+            <img src="../../../../../assets/svg/close.svg" ng-click="cancelCallback()">
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-sm-12">
+        <label class="col-sm-4" for="discountvalue" translate="billing.opbilling-list.discount.lbl" readonly></label>
+        <div class="col-sm-4" id="discountdrp">
+            <ui-select ng-model="currentcontext.DiscountModeId" ng-disabled="currentcontext.RdoBillDiscountMode"
+                ng-change="BillDiscountModechange($select.selected)" tabindex="-1" name="headerdiscountmode">
+                <ui-select-match>
+                    {{$select.selected.Text | limitTo : 20 : 0}}
+                    <span ng-if="$select.selected.Text.length>20">...</span>
+                </ui-select-match>
+                <ui-select-choices
+                    repeat="lookupitem.Id as lookupitem in lookup.DiscountMode | filter: { Text: $select.search }">
+                    <div ng-bind-html="lookupitem.Text | highlight: $select.search">
+                    </div>
+                </ui-select-choices>
+            </ui-select>
+        </div>
+        <div></div>
+    <!-- </div>
+    <div class="col-sm-12">
+        <label class="col-sm-6" for="discountvalue" translate="Discount Amount" readonly></label> -->
+        <div class="col-sm-4">
+            <input type="text" class="form-control" name="discountvalue" tabindex="9"
+                ng-change="HeaderDiscountValueChange()" ng-disabled="currentcontext.RdoBillDiscount"
+                ng-model="currentcontext.BillDiscount" placeholder="Enter Value..." ng-show="currentcontext.DiscountModeId === 2">
+                <input type="text" class="form-control" name="discountvalue" tabindex="9"
+                    ng-change="HeaderDiscountValueChange()" ng-disabled="currentcontext.RdoBillDiscount"
+                    ng-model="currentcontext.BillDiscount" placeholder="Enter Amount..." ng-show="currentcontext.DiscountModeId != 2">
+        </div>
+        <div></div>
+    </div>
+</div>
+<div class="col-sm-12">
+    <label class="col-sm-4" translate="Remarks"></label>
+    <div class="col-sm-8">
+        <textarea type="text" class="form-control" name="" ng-model="currentcontext.Remarks"></textarea>
+    </div>
+    <div></div>
+</div>
+
+
+</div>
+</div>
+
+
+<div class="fooder-bgs">
+    <div class="row">
+        <!-- <label class="col-sm-3 control-label pull-left" translate="billing.consolidate.billamount.lbl"> :
+            {{currentcontext.BillAmount | displaycurrency}}</label>
+        <label class="col-sm-3 control-label pull-left" translate="billing.consolidate.discount.lbl"> :
+            {{currentcontext.BillDiscount | displaycurrency}}</label>
+        <label class="col-sm-3 control-label pull-left" translate="billing.consolidate.netamount.lbl"> :
+            {{currentcontext.TotalNet | displaycurrency}}</label> -->
+        <div class="pull-right">
+            <button type="button" class="draftbutton" ng-click="applyDiscount()" translate="Apply Discount" style="margin-top: 10px;"
+                tabindex="-1"></button>
+        </div>
+    </div>
+</div>

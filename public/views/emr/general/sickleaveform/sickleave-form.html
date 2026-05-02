@@ -1,0 +1,240 @@
+<style>
+    .form-horizontal .form-group {
+        height: 72px;
+    }
+
+    .leavebuttons {
+        text-align: right;
+        margin-bottom: 10px;
+    }
+</style>
+<div class="row">
+    <div class="page-header">
+        <div class="col-sm-5">
+            <h4 translate="patientemr.sickleave-form.pagetitle.lbl"></h4>
+        </div>
+        <div class="col-sm-5 col-md-5 col-lg-5">
+            <h4 class="emr-status">Status:{{EncounterStatus}}</h4>
+        </div>
+        <!-- <div class="pull-right">
+        <span class="drhms-billing-btn drhms-outstandingbill-btn" ng-click="doctor_dashboard()"
+            uib-tooltip="{{'patientemr.pmhxdashboard.doctordashboard.lbl' | translate}}" tooltip-placement="bottom">
+            <i class="fas fa-th-large" aria-hidden="true"></i>
+        </span>
+        <span class="drhms-billing-btn drhms-home-btn" ng-click="checkedinpatients()" ng-if="context=='emr'"
+            uib-tooltip="{{'patientemr.pmhxdashboard.oplist.lbl' | translate}}" tooltip-placement="bottom">
+            <i class="fas fa-user-injured"></i>
+        </span>
+    </div> -->
+    </div>
+</div>
+<emrpatientbanner patientid="currentcontext.pid"></emrpatientbanner>
+<div class="row">
+    <form id="item_form" name="item_form" class="form-horizontal" role="form">
+        <div class="col-sm-12">
+            <div class="form-group col-sm-3">
+                <label class="col-sm-12 control-label filter-lbl"
+                    translate="patientemr.sickleave-form.leavetype.lbl"></label>
+                <div class="col-sm-12 claim_sub">
+                    <ui-select ng-model="item.LeaveDayTypeId" ng-change="changeDate($select.selected)"
+                        class="filter-combo">
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 8 : 0}}
+                            <span ng-if="$select.selected.Text.length>8">...</span>
+                        </ui-select-match>
+                        <ui-select-choices
+                            repeat="lookupitem.Id as lookupitem in lookup.LeaveDayType | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search">
+                            </div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+            <div class="form-group col-sm-3">
+                <label class="col-sm-12 control-label filter-lbl"
+                    translate="patientemr.sickleave-form.validfrom.lbl"></label>
+                <div class="col-sm-12 claim_sub">
+                    <input type="text" ng-disabled="dateenable" class="form-control" name="validfrom" ng-date-object
+                        datepicker-options="datePickerOptions" uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                        placeholder="{{datePickerOptions.placeholder}}" ng-click="validfromPopup = { opened: true }"
+                        is-open="validfromPopup.opened" ng-change="getDaysCount()" ng-model="item.ValidFrom" required>
+                </div>
+            </div>
+            <div class="form-group col-sm-3">
+                <label class="col-sm-12 control-label filter-lbl"
+                    translate="patientemr.sickleave-form.validto.lbl"></label>
+                <div class="col-sm-12 claim_sub">
+                    <input type="text" ng-disabled="dateenable" class="form-control" name="validto" ng-date-object
+                        datepicker-options="datePickerOptions" uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                        placeholder="{{datePickerOptions.placeholder}}" ng-click="validtoPopup = { opened: true }"
+                        is-open="validtoPopup.opened" ng-change="getDaysCount()" ng-model="item.ValidTo" required>
+                </div>
+            </div>
+            <div class="form-group col-sm-3">
+                <label class="col-sm-12 control-label" for="dayscount"
+                    translate="patientemr.sickleave-form.dayscount.lbl"></label>
+                <div class="col-sm-12">
+                    <input type="text" class="form-control" name="dayscount" ng-model="item.DaysCount"
+                        placeholder="Days Count" required>
+                </div>
+            </div>
+            <div class="form-group col-sm-3">
+                <label class="col-sm-12 control-label filter-lbl"
+                    translate="patientemr.sickleave-form.issuedate.lbl"></label>
+                <div class="col-sm-12 claim_sub">
+                    <!--<input type="text" ng-disabled="true" class="form-control" name="issuedate" datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}"
+                                                    uib-datepicker-popup="{{datePickerOptions.dateFormat}}" placeholder="{{datePickerOptions.placeholder}}" ng-click="issuedatePopup = { opened: true }"
+                                                    is-open="issuedatePopup.opened" ng-model="item.IssueDate">-->
+                    <input type="text" ng-disabled="true" class="form-control" name="issuedate" ng-date-object
+                        datepicker-options="datePickerOptions" uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                        placeholder="{{datePickerOptions.placeholder}}" ng-click="issuedatePopup = { opened: true }"
+                        is-open="issuedatePopup.opened" ng-model="item.IssueDate" required>
+                </div>
+            </div>
+            <div class="form-group col-sm-3">
+                <label class="col-sm-12 control-label">
+                    <span class="ng-scope" translate="Executed from duty"></span>
+                </label>
+                <div class="col-sm-12">
+                    <input type="checkbox" class="custom-checkbox" name="Executed" ng-model="item.IsExecutedFromDuty">
+                </div>
+            </div>
+            <div class="form-group col-sm-3">
+                <label class="col-sm-12 control-label">
+                    <span class="ng-scope" translate="Fit for light duty "></span>
+                </label>
+                <div class="col-sm-12">
+                    <input type="checkbox" class="custom-checkbox" name="IsFitforlightduty"
+                        ng-model="item.IsFitforlightduty">
+                </div>
+            </div>
+            <div class="form-group col-sm-3">
+                <label class="col-sm-12 control-label">
+                    <span class="ng-scope" translate="Proof of attendance at practice"></span>
+                </label>
+                <div class="col-sm-12">
+                    <input type="checkbox" class="custom-checkbox" name="Isproofofattandanceatpractice"
+                        ng-model="item.Isproofofattandanceatpractice">
+                </div>
+            </div>
+            <div class="form-group col-sm-3">
+                <label class="col-sm-12 control-label filter-lbl" translate="Doctor Name"></label>
+                <div class="col-sm-12 claim_sub">
+                    <ui-select ng-model="item.DoctorId" class="filter-combo">
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 8 : 0}}
+                            <span ng-if="$select.selected.Text.length>8">...</span>
+                        </ui-select-match>
+                        <ui-select-choices
+                            repeat="lookupitem.Id as lookupitem in lookup.Doctor | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search">
+                            </div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+            <div class="form-group col-sm-3">
+                <label class="col-sm-12 control-label" for="LeaveFormNumber" translate="Referrance No"></label>
+                <div class="col-sm-12">
+                    <input type="text" class="form-control" name="LeaveFormNumber" ng-model="item.LeaveFormNumber"
+                        placeholder="" required>
+                </div>
+            </div>
+            <div class="form-group col-sm-3">
+                <label class="col-sm-12 control-label">
+                    <span class="ng-scope" translate="patientemr.sickleave-form.chiefcomplaints.lbl"></span>
+                </label>
+                <div class="col-sm-12">
+                    <textarea name="chiefcomplaints" ng-model="item.ChiefComplaints" maxlength="4000"
+                        class=" ng-pristine ng-valid ng-empty ng-valid-maxlength ng-touched" tabindex="-1"></textarea>
+                </div>
+            </div>
+            <div class="form-group col-sm-3">
+                <label class="col-sm-12 control-label">
+                    <span class="ng-scope" translate="patientemr.sickleave-form.diagnosis.lbl"></span>
+                </label>
+                <div class="col-sm-12">
+                    <textarea name="diagnosis" ng-model="item.Diagnosis" maxlength="4000"
+                        class=" ng-pristine ng-valid ng-empty ng-valid-maxlength ng-touched" tabindex="-1"></textarea>
+                </div>
+            </div>
+            <div class="form-group col-sm-3">
+                <label class="col-sm-12 control-label">
+                    <span class="ng-scope" translate="patientemr.sickleave-form.additionalnotes.lbl"></span>
+                </label>
+                <div class="col-sm-12">
+                    <textarea name="notes" ng-model="item.Notes" maxlength="4000"
+                        class=" ng-pristine ng-valid ng-empty ng-valid-maxlength ng-touched" tabindex="-1"></textarea>
+                </div>
+            </div>
+            <div class="col-sm-12  leavebuttons">
+                <button type="button" class="draftbutton" ng-click="print()"
+                    translate="common.printaction.lbl"></button>
+                <button type="button" class="draftbutton" translate="Save" ng-click="saveItem()"></button>
+            </div>
+        </div>
+        <div class="col-sm-12" id="clmb_form1">
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>
+                            <span translate="S.NO"></span>
+                        </th>
+                        <th>
+                            <span translate="patientemr.sickleave-form.ref.lbl"></span>
+                        </th>
+                        <th>
+                            <span translate="patientemr.sickleave-form.validfrom.lbl"></span>
+                        </th>
+                        <th>
+                            <span translate="patientemr.sickleave-form.validto.lbl"></span>
+                        </th>
+                        <th>
+                            <span translate="patientemr.sickleave-form.doctor.lbl"></span>
+                        </th>
+                        <th>
+                            <span translate="patientemr.sickleave-form.additionalnotes.lbl"></span>
+                        </th>
+                        <th>
+                            <span translate="patientemr.sickleave-form.action.lbl"></span>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="Detail in PatientSickLeaveFormDetails">
+                        <td>{{$index+1}}</td>
+                        <td>{{Detail.LeaveFormNumber}}</td>
+                        <td>
+                            <displaydate date-val="Detail.ValidFrom">
+                            </displaydate>
+                        </td>
+                        <td>
+                            <displaydate date-val="Detail.ValidTo">
+                            </displaydate>
+                        </td>
+                        <td>{{Detail.Doctor.Title.Description}} &nbsp; {{Detail.Doctor.FirstName}} &nbsp;
+                            {{Detail.Doctor.LastName}}
+                        </td>
+                        <td>{{Detail.Notes}}</td>
+                        <td>
+                            <span ng-click="getPatientSickLeaveFormById(Detail.Id)" aria-hidden="true"
+                                uib-tooltip="Edit" tooltip-placement="left"><img src="assets/svg/edit.svg"
+                                    alt="Edit"></span>
+                            <span ng-click="printSickLeaveForm(Detail.Id)" aria-hidden="true"
+                                uib-tooltip="Sick Leave Form" tooltip-placement="left"> <img src="assets/svg/edit.svg"
+                                    alt="Edit"></span>
+                            <span ng-click="printMedicalLeaveForm(Detail.PatientId, Detail.EncounterId)"
+                                aria-hidden="true" uib-tooltip="Medical Leave Form" tooltip-placement="left"> <img
+                                    src="assets/svg/edit.svg" alt="Edit"></span>
+                            <!-- <span class="fa fa-file-text-o grid-action btn res-colortrack btn-xs"
+                                                        ng-click="printMedicalRecord(Detail.PatientId, Detail.EncounterId)"
+                                                        aria-hidden="true" uib-tooltip="Medical Record"
+                                                        tooltip-placement="left"></span> -->
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </form>
+</div>
+<div class="fooder-bgs"></div>

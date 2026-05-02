@@ -1,0 +1,153 @@
+<style>
+    .formRoot {
+        overflow: inherit;
+    }
+
+    .modal-content .panel-body {
+        overflow: inherit;
+    }
+
+    .modal-dialog.modal-lg {
+        width: 50%;
+    }
+
+    .autosearch-div>input {
+        background-size: 10.7% !important;
+    }
+
+    .formactionbar {
+        margin: 0px;
+    }
+
+    .panel-footer.formactionbar {
+        width: 100% !important;
+        left: 0px !important;
+    }
+    @media screen and (max-width: 500px) and (min-width: 300px) {
+        .modal-content {
+    width: 53vh;
+    height: 72vh;
+}
+button.btn-upload {
+    margin-top: 16px;
+    margin-left: -32px;
+}   
+    }
+    button.btn-upload>span:before {
+    content: "\ef08";
+    box-sizing: border-box;
+    font-family: IcoFont!important;
+    }
+    button.btn-upload {
+    background: #008000b8;
+    color: white;
+    border: 1px;
+    padding: 5px;
+    border-radius: 4px;
+}
+@media screen and (min-width: 700px){
+    button.btn-upload {
+    margin-top: 20px;
+}
+}
+@media screen and (max-width: 750px) and (min-width: 500px) {
+    .modal-content {
+        position: fixed;
+    top: 50%;
+    left: 50%;
+}
+}
+</style>
+
+<div class="modal-header custom-modal-header" ng-if="currentcontext.ismodal">
+
+    <div class="col-xs-10 col-sm-6">
+        <h4 class="modal-title custom-modal-title" translate="patientemr.patientdocument-form.pagetitle.lbl"></h4>
+    </div>
+    <div class="col-sm-6">
+        <button type="button" class="btn btn-danger btn-sm pull-right" translate="x" ng-click="backToList()"></button>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-sm-12">
+        <form id="item_form0" name="item_form" class="form-horizontal" role="form" ng-submit="saveItem()">
+            <div class="formRoot">
+                <div class="">
+                    <div class="panel-body form-panel" style="height:273px;">
+                        <div class="col-sm-12" style="padding-top: 2px">
+                            <div class="form-group col-sm-6">
+                                <label class="col-sm-12 control-label" for="documenttype"
+                                    translate="patientemr.patientdocument-form.documenttype.lbl"></label>
+                                <div class="col-sm-12">
+                                    <ui-select ng-model="item.DocumentTypeId" name="documenttype">
+                                        <ui-select-match>
+                                            {{$select.selected.Text | limitTo : 20 : 0}}
+                                            <span ng-if="$select.selected.Text.length>20">...</span>
+                                        </ui-select-match>
+                                        <ui-select-choices
+                                            repeat="lookupitem.Id as lookupitem in lookup.DocumentType | filter: { Text: $select.search }">
+                                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                        </ui-select-choices>
+                                    </ui-select>
+                                </div>
+                            </div>
+                            <div class="form-group col-sm-6">
+                                <label class="col-sm-12 control-label" for="createddate"
+                                    translate="patientemr.patientdocument-form.createddate.lbl"></label>
+                                <div class="col-sm-12">
+                                    <!-- <input type="text" class="form-control" name="createddate" ng-date-object
+                                        datetime-picker="{{datePickerOptions.dateTimeFormat}}"
+                                        placeholder="{{datePickerOptions.placeholder}}"
+                                        ng-click="createddatePopup = { opened: true }" is-open="createddatePopup.opened"
+                                        ng-model="item.CreatedDate"> -->
+                                    <input type="text" class="form-control" name="createddate" ng-date-object
+                                        uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                                        placeholder="{{datePickerOptions.placeholder}}"
+                                        ng-click="createddatePopup = { opened: true }" is-open="createddatePopup.opened"
+                                        ng-model="item.CreatedDate">
+                                </div>
+                            </div>
+                            <!-- <div class="form-group col-sm-6">
+                                    <label class="col-sm-12 control-label" for="releasetopatient" translate="patientemr.patientdocument-form.releasetopatient.lbl"></label>
+                                    <div class="col-sm-12">
+                                        <radiogroupcontrol itemid="item.ReleaseToPatientId" items="lookup.YesNo"></radiogroupcontrol>
+                                    </div>
+                                </div> -->
+                            <div class="col-sm-12">
+                                <div class="form-group col-sm-6">
+                                    <label class="col-sm-12 control-label" style="padding: 0;" for="comments"
+                                        translate="patientemr.patientdocument-form.comments.lbl"></label>
+                                    <div class="col-sm-12" style="padding: 0;">
+                                        <textarea name="textarea" ng-model="cvm.comments" ng-disabled="cvm.candisable"
+                                            class="" style="width: 256px;height: 100px; margin: 1px;"></textarea>
+                                    </div>
+                                </div>
+                                <div class="form-group col-sm-6">
+                                    <!-- <label class="col-sm-12 control-label" for="file" translate="patientemr.patientdocument-form.document.lbl"></label> -->
+                                    <div class="col-sm-12">
+                                        <!-- <input type="file" ngf-select ng-model="currentcontext.file" name="file" ngf-max-size="200MB"
+                                    ngf-change="fileSelected()"/> -->
+                                        <button type="submit" ngf-select ng-model="currentcontext.file" name="file"
+                                            ngf-max-size="200MB" ngf-change="fileSelected()" class="btn-upload"
+                                            translate="Upload"></button>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- rightpanel -->
+                            <!-- <div class="col-sm-6">
+                            </div> -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="fooder-bgs" style="margin-bottom:1px;">
+                <div class="pull-right">
+                    <button type="submit" class="draftbutton" translate="common.saveaction.lbl"></button>
+                    <!-- <button id="btnCancelForm" type="button" class="draftbutton" ng-click="backToList()" translate="common.cancelaction.lbl"></button>						 -->
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

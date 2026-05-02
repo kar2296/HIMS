@@ -1,0 +1,114 @@
+<style>
+    .number {
+        color: #c709fd;
+        font-weight:bold;
+    }
+
+    .order {
+        color: #671205;
+        font-weight: 500;
+        font-style: italic;
+    }
+
+    .details {
+        color: #bf3330;
+    }
+
+    .text {
+        color: #2719b9;
+        font-weight:bold;
+    }
+
+    .status {
+        color: #067707;
+        font-weight:bold;
+    }
+
+    .section {
+        color: #EE7723;
+        font-weight:bold;
+    }
+    div#clinicalorders_toogle{
+        /* background: rgb(44, 16, 195);  */
+    }
+</style>
+<div class="panel {{currentcontext.paneltype}} portlet-panel" ng-controller="disclinicalorderSectionController as vm">
+    <div class="panel-heading portlet-panel-heading" id="clinicalorders_toogle">
+        <strong translate="{{panelheading}}"></strong>
+         <i class="fa fa-angle-down cust_downarrow clicommon_arrow"></i>
+        <i class="fa fa-angle-right cust_rightarrow cli2common_arrow"></i>
+        <a ng-click="handleEvents('list')" class="pull-right lnk-portlet-header-action " uib-tooltip="{{ 'common.moredetailsaction.lbl' | translate }}"
+            tooltip-placement="bottom">
+            <i class="fa fa-info btn-circle" aria-hidden="true"></i>
+        </a>
+        <a ng-click="handleEvents('add')" class="pull-right lnk-portlet-header-action" uib-tooltip="{{ 'common.addnewaction.lbl' | translate }}"
+            tooltip-placement="bottom">
+            <i class="fa fa-plus btn-circle" aria-hidden="true"></i>
+        </a>
+    </div>
+     <div class="panel-wrapper">
+        <div class="panel-body portlet-panel-body clinicalorders_toggle">
+            <div class="table-responsive">
+                <table class="table table-hover table-responsive table-bordered custom-table">
+                    <tbody>
+                        <tr ng-repeat="item in items| limitTo: currentcontext.recordcount">
+                            <td colspan="9">
+                                <table class="table table-hover table-responsive table-bordered custom-table">
+                                    <thead>
+                                        <tr>
+                                            <td>
+                                                <span>
+                                                    <b class="lefcol7 plain-text">{{item.TESTMASTERTYP.Description}}</b>&nbsp;&nbsp;&nbsp;
+                                                </span>
+                                                <span class="lefcol5">{{item.OrderNumber}}</span>;&nbsp;
+                                                <span class="lefcol3">{{item.OrderRequestDate|date:'dd:MM:yyyy'}} {{item.OrderRequestDate|date:'HH:mm'}}</span>;
+                                                <span class="lefcol6">{{item.User.Title.Description}} {{item.User.FirstName}} {{item.User.LastName}}</span>;
+                                                <span class="lefcol1">{{item.OrderPriority.Description}}</span>;
+                                                <span class="status">{{item.OrderStatus.DisplayName}}</span>;
+                                                 <span style="padding-left:10px">
+                                                <span ng-repeat="item in item.PatientOrderDetails | limitTo: currentcontext.recordcount" class="lefcol2"> {{item.TestName}}, </span>
+                                                </span>
+                                                <!-- <tr ng-repeat="item in item.PatientOrderDetails | limitTo: currentcontext.recordcount">
+                                                     <td>
+                                                         <span class="order"> {{item.TestName}} </span>
+                                                    </td> -->
+                                                 </tr>
+                                            </td>
+
+                                        </tr>
+                                    </thead>
+                                </table>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+             <button type="button" class="btn btn-danger" style="position:relative;top:25px;padding:0px;float:right;">View more > ></button>
+         </div>
+    </div>
+</div>
+<script>
+        $(document).ready(function(){
+         $(".clicommon_arrow").click(function(){
+
+                $(".clinicalorders_toggle").toggle("slow");
+
+               });
+           });
+
+        </script>
+        <style>
+        .clinicalorders_toggle{
+            height:150px;
+
+            width:100%;
+        }
+
+        .clicommon_arrow{
+            float: right;
+            padding-left: 47px;
+            font-size:24px;
+
+        }
+      .cli2common_arrow{display:none;}
+        </style>

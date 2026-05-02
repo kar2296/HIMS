@@ -1,0 +1,104 @@
+<style>
+    .nameinfo {
+        font-size: 13px;
+        font-weight: bold;
+        color: #337ab7;
+    }
+    .nameinfo.mrninfo {
+        color: black
+    }
+    .contactinfo {
+        font-size: 10px;
+        color: #808080
+    }
+    .block {
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+    .linkstyle {
+        font-weight: bold;
+        text-align: right;
+    }
+    .statusinfo {
+        font-size: 13px;
+    }
+    .sr-only {
+    height: 22px !important;}
+    .filter-area{padding-top:0px !important;}
+
+</style>
+<div class="row page-header ">
+    <h4 class="col-sm-6 mt0 ng-scope" translate="linenandlaundry.linenitemmaster-list.pagetitle.lbl"></h4>
+    <div class="col-sm-6">
+        <!--<button class="btn bt-color3 btn-xs pull-right btn-filter" ng-click="" uib-tooltip="Advance Filter" tooltip-placement="bottom"><i class="fas fa-search" aria-hidden="true"></i>&nbsp;&nbsp;<span translate="clinicalmaster.serviceitem-list.filter.lbl"></span></button>-->
+        <button class="btn-add" ng-click="addNew()" uib-tooltip="{{ 'linenandlaundry.linenitemmaster-list.addnew.lbl' | translate }}"
+            tooltip-placement="bottom">
+                <i class="fa fa-plus" aria-hidden="true"></i></button>
+    </div>
+</div>
+<div class="row filter-area">
+    <table id="bannerdetails">
+        <tbody>
+            <tr>
+                <td>  <label class="col-sm-5 control-label filter-lbl" translate="linenandlaundry.linenitemmaster-list.filter_code.lbl"></label></td>
+                <td>
+                    <input type="text" class="form-control" on-enter="getList()" ng-model="currentfilter.Code" placeholder="{{'linenandlaundry.linenitemmaster-list.filter_code.lbl'|translate}}">
+                </td>
+                <td>
+                    <label class="col-sm-4 control-label filter-lbl" translate="linenandlaundry.linenitemmaster-list.filter_linentype.lbl"></label>
+                </td>
+                <td>
+                    <ui-select ng-model="currentfilter.LinenTypeId" ng-change="getList()" class="filter-combo">
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 8 : 0}}
+                            <span ng-if="$select.selected.Text.length>8">...</span>
+                        </ui-select-match>
+                        <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.LinenType | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </td>
+            </tr>
+            <tr>
+                <td>  <label class="col-sm-5 control-label filter-lbl" translate="linenandlaundry.linenitemmaster-list.filter_linencategory.lbl"></label></td>
+           <td>
+            <ui-select ng-model="currentfilter.LinenCategoryId" ng-change="getList()" class="filter-combo">
+                <ui-select-match>
+                    {{$select.selected.Text | limitTo : 8 : 0}}
+                    <span ng-if="$select.selected.Text.length>8">...</span>
+                </ui-select-match>
+                <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.LinenCategory | filter: { Text: $select.search }">
+                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                </ui-select-choices>
+            </ui-select>
+           </td>
+           <td>
+            <label class="col-sm-4 control-label filter-lbl" translate="linenandlaundry.linenitemmaster-list.filter_status.lbl"></label>
+           </td>
+           <td>
+            <ui-select ng-model="currentfilter.ActiveStatusId" ng-change="getList()" class="filter-combo">
+                <ui-select-match>
+                    {{$select.selected.Text | limitTo : 8 : 0}}
+                    <span ng-if="$select.selected.Text.length>8">...</span>
+                </ui-select-match>
+                <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.ActiveStatus | filter: { Text: $select.search }">
+                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                </ui-select-choices>
+            </ui-select>
+           </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<!-- <div class="container-fluid onerow-filter">
+    <div ui-grid="vm.gridConfig" class="table-uigrid"></div>
+</div> -->
+<custom-table config="vm.gridConfig"></custom-table>    
+<div class="fooder-bgs">
+    <div class="row">
+        <ul uib-pagination total-items="vm.gridConfig.pagerObj.totalItems" items-per-page="vm.gridConfig.pagerObj.pageSize" start-index="vm.gridConfig.pagerObj.startIndex"
+            ng-model="vm.gridConfig.pagerObj.currentPage" ng-change="getList()"></ul>
+    </div>
+</div>

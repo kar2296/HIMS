@@ -1,0 +1,70 @@
+<div class="row page-header">
+    <div class="col-sm-11">
+        <h4 class="mt0" translate="generalmaster.feedbackmasters.pagetitle.lbl"></h4>
+    </div>
+    <div class="col-sm-1">
+        <button class="btn-add" ng-click="addNew()"
+            uib-tooltip="{{ 'generalmaster.feedbackmasters.pagetitle.lbl' | translate }}" tooltip-placement="bottom">
+            <i class="fa fa-plus" aria-hidden="true"></i>
+        </button>
+    </div>
+</div>
+<div class="row">
+    <form id="item_form" name="item_form" class="form-horizontal" role="form">
+        <div class="form-group col-sm-4">
+            <label class="col-sm-4" translate="generalmaster.feedbackmasters.filter_type.lbl"></label>
+            <div class="col-sm-8">
+                <ui-select ng-model="currentfilter.FeedbackTypeId" ng-change="getList()" class="filter-combo">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 20 : 0}}
+                        <span ng-if="$select.selected.Text.length>20">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.FeedbackType | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+        <div class="form-group col-sm-4">
+            <label class="col-sm-4" translate="generalmaster.feedbackmasters.filter_category.lbl"></label>
+            <div class="col-sm-8">
+                <ui-select ng-model="currentfilter.FeedbackCategoryId" ng-change="getList()" class="filter-combo">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 20 : 0}}
+                        <span ng-if="$select.selected.Text.length>20">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.FeedbackCategory| filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+        <div class="form-group col-sm-4">
+            <label class="col-sm-4" translate="generalmaster.feedbackmasters.filter_status.lbl"></label>
+            <div class="col-sm-8">
+                <ui-select ng-model="currentfilter.ActiveStatusId" ng-change="getList()" class="filter-combo">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 20 : 0}}
+                        <span ng-if="$select.selected.Text.length>20">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.ActiveStatus | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+    </form>
+</div>
+<div class="row">
+    <custom-table config="vm.gridConfig"></custom-table>
+</div>
+<div class="fooder-bgs">
+    <div class="row">
+        <ul uib-pagination total-items="vm.gridConfig.pagerObj.totalItems"
+            items-per-page="vm.gridConfig.pagerObj.pageSize" start-index="vm.gridConfig.pagerObj.startIndex"
+            ng-model="vm.gridConfig.pagerObj.currentPage"></ul>
+    </div>
+</div>

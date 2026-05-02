@@ -1,0 +1,672 @@
+<link href="app/css/pharmacy.css" rel="stylesheet">
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<style>
+    #ftr {
+        background-image: url(app/img/billing/cheque-bg.jpg) !important;
+        background-size: cover;
+    }
+
+    .bt-color3 span {
+        color: #000000 !important;
+    }
+
+    label.col-sm-12.control-label {
+        text-align: left;
+    }
+
+    #mainresponsivetablecontrol .bg-subhead,
+    .ui-grid-header-viewport {
+        background: #164360;
+    }
+
+
+    #mainresponsivetablecontrol .table>tbody>tr>td,
+    #mainresponsivetablecontrol .table>thead:first-child>tr:first-child>td {
+        border-top: 0;
+        padding: 12px;
+        white-space: nowrap;
+        font-weight: 500;
+        color: #000;
+    }
+
+    .billingcollections_ftr {
+        position: relative;
+        bottom: 0%;
+        background-position: bottom;
+        background-repeat: repeat;
+    }
+
+    #ftr {
+        background-image: unset !important;
+        background-size: cover;
+        background: white;
+    }
+
+    .site-footer {
+        height: 40px;
+        position: relative;
+    }
+
+    .billing_collection {
+        height: 25vh;
+        min-height: 30vh;
+        margin: 0px 0px 0px 10px;
+    }
+
+    .billing_collection {
+        height: 100% !important;
+        min-height: 100% !important;
+        margin: 0px 0px 0px 10px;
+        border: 1px;
+    }
+
+    .wrapper>section {
+        position: relative;
+        z-index: 111;
+        background-color: #ffffff;
+        margin-bottom: 0 !important;
+    }
+
+    .site-footer.panel-footer.ng-scope {
+        margin-bottom: 50px !important;
+        border: 0px !important;
+    }
+
+    .site-footer.panel-footer.ng-scope {
+        margin-bottom: 50px !important;
+        border: 0px !important;
+        box-shadow: unset !important;
+    }
+
+    .cancelbutton {
+        color: white;
+        padding: 5px 10px;
+    }
+
+    .bgfoot .ui-select-match-text {
+        width: 100%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    table#opcollectionstable {
+        width: 100%;
+        background-color: white;
+    }
+
+
+    #opcollectionstable tr td:nth-child(odd) {
+        background: #a0bfd44f !important;
+        color: #076dad !important;
+    }
+
+    table#opcollectionstable td {
+        text-align: left;
+        overflow: visible !important;
+        white-space: nowrap;
+        background: #ffffff;
+        border: 1px solid #aaa !important;
+        text-overflow: ellipsis;
+        padding: .0em;
+        height: 45px !important;
+        padding: 0px 10px;
+    }
+
+    table#opcollectionstable td input {
+        border: none !important;
+        background: transparent;
+    }
+
+    .site-footer {
+        height: 40px;
+        position: relative;
+        box-shadow: unset !important;
+    }
+
+    .fetch {
+        background-color: #6d83bc;
+        height: 100% !important;
+        padding: 9px 20px !important;
+        color: white !important;
+        border: 0px !important;
+
+    }
+
+    .mt0 {
+        /* margin-top: 5px!important; */
+        font-size: 0px !important;
+    }
+</style>
+
+<body>
+    <div class="row page-header">
+        <h4 style="
+        padding: 1px 19px;
+    ">OP Billing Collection</h4>
+    </div>
+    <div class="container-fluid">
+        <!-----form------>
+        <form id="item_form" name="item_form" class="form-horizontal" role="form">
+            <!-- <div class="filter-area row">
+                <div class="col-sm-12 clearfix sale_coll">
+                    <div class="col-sm-3">
+                        <label class="col-sm-12 control-label filter-lbl"
+                            translate="billing.pharmacy-billdetails.fromdate.lbl"></label>
+                        <div class="col-sm-12 claim_sub">
+                            <input type="text" class="form-control" name="FromBillDate" ng-date-object
+                                datetime-picker="{{datePickerOptions.dateTimeFormat}}" datepicker-append-to-body="true"
+                                placeholder="{{datePickerOptions.placeholder}}"
+                                ng-click="FromBillDatePopup = { opened: true }" is-open="FromBillDatePopup.opened"
+                                ng-model="currentfilter.FromBillDate">
+                        </div>
+                    </div>
+                    <div class="col-sm-3">
+                        <label class="col-sm-12 control-label filter-lbl"
+                            translate="billing.pharmacy-billdetails.todate.lbl"></label>
+                        <div class="col-sm-12 claim_sub">
+                            <input type="text" class="form-control" name="ToBillDate" ng-date-object
+                                datetime-picker="{{datePickerOptions.dateTimeFormat}}" datepicker-append-to-body="true"
+                                placeholder="{{datePickerOptions.placeholder}}"
+                                ng-click="ToBillDatePopup = { opened: true }" is-open="ToBillDatePopup.opened"
+                                ng-model="currentfilter.ToBillDate">
+                        </div>
+                    </div>
+                    <!--
+                    <div class="col-sm-3">
+                        <label class="col-sm-6 control-label" translate="billing.billingcollections.username.lbl"></label>
+                        <div class="input-group col-sm-6">
+                            <div class="input-group-addon">
+                                <i class="fas fa-search" aria-hidden="true"></i>
+                            </div>
+                            <autosearch itemid="item.UserId" iteminfo="" name="username" rowdata="" config="vm.usercontrolconfig">
+                            </autosearch>
+                        </div>
+                    </div>
+                    --
+                    <div class="col-sm-4">
+                        <label class="col-sm-12 control-label filter-lbl"
+                            translate="billing.opbilling-list.paymenttype.lbl"></label>
+                        <div class="col-sm-12 claim_sub" style="padding: 8px;">
+                            <ui-select ng-model="currentfilter.PaymentTypeId" class="filter-combo">
+                                <ui-select-match>
+                                    {{$select.selected.Text | limitTo : 20 : 0}}
+                                    <span ng-if="$select.selected.Text.length>20">...</span>
+                                </ui-select-match>
+                                <ui-select-choices
+                                    repeat="lookupitem.Id as lookupitem in lookup.PaymentType | filter: { Text: $select.search }">
+                                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                </ui-select-choices>
+                            </ui-select>
+                        </div>
+                    </div>
+                    <div class="col-sm-2">
+                        <div class="col-sm-12 claim_sub" style="padding: 27px 15px;">
+                            <button class="fetch" ng-click="getList()">
+                                <!-- <i class="fas fa-search" aria-hidden="true"></i>&nbsp;&nbsp; --
+                                <span class="text-white" translate="Fetch">Fetch</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div> -->
+            <table id="bannerdetails">
+                <tr>
+                    <td translate="billing.pharmacy-billdetails.fromdate.lbl"></td>
+                    <td> <input type="text" class="form-control" name="FromBillDate" ng-date-object
+                            datetime-picker="{{datePickerOptions.dateTimeFormat}}" datepicker-append-to-body="true"
+                            placeholder="{{datePickerOptions.placeholder}}"
+                            ng-click="FromBillDatePopup = { opened: true }" is-open="FromBillDatePopup.opened"
+                            ng-model="currentfilter.FromBillDate">
+                    </td>
+                    <td translate="billing.pharmacy-billdetails.todate.lbl"></td>
+                    <td><input type="text" class="form-control" name="ToBillDate" ng-date-object
+                            datetime-picker="{{datePickerOptions.dateTimeFormat}}" datepicker-append-to-body="true"
+                            placeholder="{{datePickerOptions.placeholder}}"
+                            ng-click="ToBillDatePopup = { opened: true }" is-open="ToBillDatePopup.opened"
+                            ng-model="currentfilter.ToBillDate">
+                    </td>
+                    <td translate="billing.opbilling-list.paymenttype.lbl"></td>
+                    <td>
+                        <ui-select ng-model="currentfilter.PaymentTypeId" class="filter-combo">
+                            <ui-select-match>
+                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                <span ng-if="$select.selected.Text.length>20">...</span>
+                            </ui-select-match>
+                            <ui-select-choices
+                                repeat="lookupitem.Id as lookupitem in lookup.PaymentType | filter: { Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                            </ui-select-choices>
+                        </ui-select>
+                    </td>
+                    <td><button class="fetch" style="    background: #2750c2 !important;" ng-click="getList()">
+                            <!-- <i class="fas fa-search" aria-hidden="true"></i>&nbsp;&nbsp; -->
+                            <span translate="clinicalmaster.serviceitem-list.filter.lbl"></span>
+                        </button></td>
+                </tr>
+            </table>
+        </form>
+        <!--form-ends-->
+        <div class="row">
+            <div class="col-sm-12">
+                <form id="item_form" name="item_form" class="form-horizontal" role="form">
+                    <div class="row clearfix billingcollections_ftr" id="ftr">
+                        <!-- Sales -->
+                        <table id="opcollectionstable">
+                            <tr>
+                                <td translate="billing.billingcollections.totalcash.lbl"></td>
+                                <td class="currency-align"> {{TotalCashSales | displaycurrency}}</td>
+                                <td translate="billing.billingcollections.totalcard.lbl"></td>
+                                <td class="currency-align">{{ TotalCardSales | displaycurrency}}
+                                </td>
+                                <td translate="billing.billingcollections.totalcheque.lbl"></td>
+                                <td class="currency-align">{{TotalChequeOtherSales | displaycurrency}}</td>
+                            </tr>
+                            <tr>
+                                <td translate="billing.billingcollections.refundcash.lbl"></td>
+                                <td class="currency-align"> {{ TotalCashRefunds |displaycurrency}}</td>
+                                <td translate="billing.billingcollections.refundcard.lbl"></td>
+                                <td class="currency-align"> {{TotalCardRefunds|displaycurrency}}</td>
+                                <td translate="billing.billingcollections.refundcheque.lbl"></td>
+                                <td class="currency-align">{{TotalChequeOtherRefunds|displaycurrency}}</td>
+                            </tr>
+
+                            <tr>
+                                <td translate="billing.billingcollections.cashcancelled.lbl"></td>
+                                <td class="currency-align">{{TotalCashCancels|displaycurrency}}</td>
+                                <td translate="billing.billingcollections.cardcancelled.lbl"></td>
+                                <td class="currency-align">{{TotalCardCancels|displaycurrency}}</td>
+                                <td translate="billing.billingcollections.othercancelled.lbl"></td>
+                                <td class="currency-align">{{TotalCardCancels | displaycurrency}}</td>
+                            </tr>
+                            <tr>
+                                <td translate="billing.billingcollections.netcash.lbl"></td>
+                                <td class="currency-align"> {{TotalCashSales - TotalCashRefunds | number : 2 | displaycurrency}} </td>
+                                <td translate="billing.billingcollections.netcard.lbl"></td>
+                                <td class="currency-align"> {{TotalCardSales - TotalCardRefunds | number : 2 | displaycurrency}}</td>
+                                <td translate="billing.billingcollections.netothers.lbl"></td>
+                                <td class="currency-align"> {{TotalChequeOtherSales - TotalChequeOtherRefunds | number : 2 | displaycurrency}}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td> </td>
+                                <td style="background: #e24b8fd6 !important; color: white !important;" translate="billing.billingcollections.netsubmission.lbl"></td>
+                                <td style="background: #e24b8fd6 !important; color: white !important;"> {{TotalSales - TotalRefunds | number : 2 | displaycurrency}} </td>                               
+                            </tr>
+
+                        </table>
+                    </div>
+
+                    <!-- Table Data -->
+
+                    <div class=" table-control">
+                        <div class=" bg-pattern">
+                            <div class="table-control formRoot pharmacycollections billing_collection"
+                                id="mainresponsivetablecontrol">
+                                <table class="table table-hover table-responsive table-bordered">
+                                    <thead class="bg-subhead" ng-if="PatientBills">
+                                        <tr>
+                                            <th>
+                                                <span translate="billing.pharmacy.sno.lbl"></span>
+                                            </th>
+                                            <th>
+                                                <span translate="billing.billingcollections.billdate.lbl"></span>
+                                            </th>
+                                            <th>
+                                                <span translate="billing.billingcollections.billno.lbl"></span>
+                                            </th>
+                                            <th>
+                                                <span translate="billing.billingcollections.receiptno.lbl"></span>
+                                            </th>
+                                            <th>
+                                                <span translate="billing.billingcollections.patientname.lbl"></span>
+                                            </th>
+                                            <th>
+                                                <span translate="billing.billingcollections.doctor.lbl"></span>
+                                            </th>
+                                            <th>
+                                                <span translate="billing.billingcollections.cash.lbl"></span>
+                                            </th>
+                                            <th>
+                                                <span translate="billing.billingcollections.card.lbl"></span>
+                                            </th>
+                                            <th>
+                                                <span translate="billing.billingcollections.cheque/others.lbl"></span>
+                                            </th>
+                                            <!--
+                                            <th>
+                                                <span translate="billing.billingcollections.status.lbl"></span>
+                                            </th>
+                                            -->
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr ng-repeat="PatientBill in PaymentOPDGSales">
+                                            <td class="text-left">
+                                                <span> {{ PatientBill.SNo }}</span>
+                                            </td>
+                                            <td class="text-left">
+                                                <span>
+                                                    {{PatientBill.BillDt | date : 'dd/MMM/yyyy' }}&nbsp;
+                                                    {{PatientBill.BillDt | date:'HH:mm'}}
+                                                </span>
+                                            </td>
+                                            <td class="text-left">
+                                                <span> {{ PatientBill.Billnumber }}</span>
+                                            </td>
+                                            <td class="text-left">
+                                                <span> {{ PatientBill.Receiptnumber }}</span>
+                                            </td>
+                                            <td class="text-left">
+                                                <span> {{ PatientBill.PatientName }}</span>
+                                            </td>
+                                            <td class="text-left">
+                                                <span> {{ PatientBill.Drname }}</span>
+                                            </td>
+                                            <td class="text-right">
+                                                <span> {{ PatientBill.Cash | displaycurrency }}</span>
+                                            </td>
+                                            <td class="text-right">
+                                                <span> {{ PatientBill.Card | displaycurrency }}</span>
+                                            </td>
+                                            <td class="text-right">
+                                                <span> {{ PatientBill.ChequeOthers | displaycurrency }}</span>
+                                            </td>
+                                            <!--
+                                            <td class="text-left">
+                                                <span> {{ PatientBill.Status }}</span>
+                                            </td>
+                                            -->
+                                        </tr>
+                                    </tbody>
+                                    <thead class="bg-subhead" ng-if="PatientBillCancellations">
+                                        <tr>
+                                            <th>
+                                                <span translate="billing.pharmacy.sno.lbl"></span>
+                                            </th>
+                                            <th>
+                                                <span translate="billing.billingcollections.billdate.lbl"></span>
+                                            </th>
+                                            <th>
+                                                <span translate="billing.billingcollections.billno.lbl"></span>
+                                            </th>
+                                            <th>
+                                                <span translate="billing.billingcollections.receiptno.lbl"></span>
+                                            </th>
+                                            <th>
+                                                <span translate="billing.billingcollections.patientname.lbl"></span>
+                                            </th>
+                                            <th>
+                                                <span translate="billing.billingcollections.doctor.lbl"></span>
+                                            </th>
+                                            <th>
+                                                <span translate="billing.billingcollections.cash.lbl"></span>
+                                            </th>
+                                            <th>
+                                                <span translate="billing.billingcollections.card.lbl"></span>
+                                            </th>
+                                            <th>
+                                                <span translate="billing.billingcollections.cheque/others.lbl"></span>
+                                            </th>
+                                            <!--
+                                            <th>
+                                                <span translate="billing.billingcollections.status.lbl"></span>
+                                            </th>
+                                            -->
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr
+                                            ng-repeat="PatientBillCancellation in PaymentOPDGCancels">
+                                            <td class="text-left">
+                                                <span ng-style="{'color':'red'}">
+                                                    {{ PatientBillCancellation.SNo }}</span>
+                                            </td>
+                                            <td class="text-left">
+                                                <span ng-style="{'color':'red'}">
+                                                    {{PatientBillCancellation.BillDt | date : 'dd/MMM/yyyy' }}&nbsp;
+                                                    {{PatientBillCancellation.BillDt | date:'HH:mm'}}
+                                                </span>
+                                            </td>
+                                            <td class="text-left">
+                                                <span ng-style="{'color':'red'}">
+                                                    {{ PatientBillCancellation.Billnumber }}</span>
+                                            </td>
+                                            <td class="text-left">
+                                                <span ng-style="{'color':'red'}">
+                                                    {{ PatientBillCancellation.Receiptnumber }}</span>
+                                            </td>
+                                            <td class="text-left">
+                                                <span ng-style="{'color':'red'}">
+                                                    {{ PatientBillCancellation.PatientName }}</span>
+                                            </td>
+                                            <td class="text-left">
+                                                <span ng-style="{'color':'red'}">
+                                                    {{ PatientBillCancellation.Drname }}</span>
+                                            </td>
+                                            <td class="text-right">
+                                                <span ng-style="{'color':'red'}">
+                                                    {{ PatientBillCancellation.Cash | displaycurrency }}</span>
+                                            </td>
+                                            <td class="text-right">
+                                                <span ng-style="{'color':'red'}">
+                                                    {{ PatientBillCancellation.Card | displaycurrency }}</span>
+                                            </td>
+                                            <td class="text-right">
+                                                <span ng-style="{'color':'red'}">
+                                                    {{ PatientBillCancellation.ChequeOthers | displaycurrency }}</span>
+                                            </td>
+                                            <!--
+                                            <td class="text-left">
+                                                <span ng-style="{'color':'red'}"> {{ PatientBillCancellation.Status }}</span>
+                                            </td>
+                                            -->
+                                        </tr>
+                                    </tbody>
+                                    <thead class="bg-subhead" ng-if="PatientRefunds">
+                                        <tr>
+                                            <th>
+                                                <span translate="billing.pharmacy.sno.lbl"></span>
+                                            </th>
+                                            <th>
+                                                <span translate="billing.billingcollections.refunddate.lbl"></span>
+                                            </th>
+                                            <th>
+                                                <span translate="billing.billingcollections.refundno.lbl"></span>
+                                            </th>
+                                            <th>
+                                                <span translate="billing.billingcollections.billno.lbl"></span>
+                                            </th>
+                                            <th>
+                                                <span translate="billing.billingcollections.patientname.lbl"></span>
+                                            </th>
+                                            <th>
+                                                <span translate="billing.billingcollections.doctor.lbl"></span>
+                                            </th>
+                                            <th>
+                                                <span translate="billing.billingcollections.cash.lbl"></span>
+                                            </th>
+                                            <th>
+                                                <span translate="billing.billingcollections.card.lbl"></span>
+                                            </th>
+                                            <th>
+                                                <span translate="billing.billingcollections.cheque/others.lbl"></span>
+                                            </th>
+                                            <!--
+                                            <th>
+                                                <span translate="billing.billingcollections.status.lbl"></span>
+                                            </th>
+                                            -->
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr
+                                            ng-repeat="PatientBillRefund in PaymentOPDGRefunds">
+                                            <td class="text-left">
+                                                <span> {{ PatientBillRefund.SNo }}</span>
+                                            </td>
+                                            <td class="text-left">
+                                                <span>{{PatientBillRefund.RefundDt | date : 'dd/MMM/yyyy' }}&nbsp; {{PatientBillRefund.RefundDt
+                                                    | date:'HH:mm'}}</span>
+                                            </td>
+                                            <td class="text-left">
+                                                <span> {{ PatientBillRefund.Refundnumber }}</span>
+                                            </td>
+                                            <td class="text-left">
+                                                <span> {{ PatientBillRefund.Billnumber }}</span>
+                                            </td>
+                                            <td class="text-left">
+                                                <span> {{ PatientBillRefund.PatientName }}</span>
+                                            </td>
+                                            <td class="text-left">
+                                                <span> {{ PatientBillRefund.Drname }}</span>
+                                            </td>
+                                            <td class="text-right">
+                                                <span> {{ PatientBillRefund.Cash | displaycurrency }}</span>
+                                            </td>
+                                            <td class="text-right">
+                                                <span> {{ PatientBillRefund.Card | displaycurrency }}</span>
+                                            </td>
+                                            <td class="text-right">
+                                                <span> {{ PatientBillRefund.ChequeOthers | displaycurrency }}</span>
+                                            </td>
+                                            <!--
+                                            <td class="text-left">
+                                                <span> {{ PatientBillRefund.Status }}</span>
+                                            </td>
+                                            -->
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+
+
+
+
+                    <!-- <div class="form-group col-sm-4">
+                            <label class="col-sm-12 control-label" translate="billing.billingcollections.totalcash.lbl"></label>
+                            <div class="col-sm-12">
+                                <input type="text" class="form-control" name="totalcashsales" ng-model="TotalCashSales" ng-disabled="true" placeholder=""> {{displaycurrency}}
+                            </div>
+                        </div>
+                        <div class="form-group col-sm-4">
+                            <label class="col-sm-12 control-label" translate="billing.billingcollections.totalcard.lbl"></label>
+                            <div class="col-sm-12">
+                                <input type="text" min="0" class="form-control" name="totalcardsales" ng-model="TotalCardSales" ng-disabled="true" placeholder=""> {{displaycurrency}}
+                            </div>
+                        </div>
+                        <div class="form-group col-sm-4">
+                            <label class="col-sm-12 control-label" translate="billing.billingcollections.totalcheque.lbl"></label>
+                            <div class="col-sm-12">
+                                <input type="text" min="0" class="form-control" name="totalchequeothersales" ng-model="TotalChequeOtherSales" ng-disabled="true"
+                                    placeholder=""> {{displaycurrency}}
+                            </div>
+                        </div> -->
+                    <!-- Refund -->
+                    <!-- <div class="form-group col-sm-4">
+                            <label class="col-sm-12 control-label" translate="billing.billingcollections.refundcash.lbl"></label>
+                            <div class="col-sm-12">
+                                <input type="text" class="form-control" name="totalcashrefunds" ng-model="TotalCashRefunds" ng-disabled="true" placeholder=""> {{displaycurrency}}
+                            </div>
+                        </div>
+                        <div class="form-group col-sm-4">
+                            <label class="col-sm-12 control-label" translate="billing.billingcollections.refundcard.lbl"></label>
+                            <div class="col-sm-12">
+                                <input type="text" min="0" class="form-control" name="totalcardrefunds" ng-model="TotalCardRefunds" ng-disabled="true" placeholder=""> {{displaycurrency}}
+                            </div>
+                        </div>
+                        <div class="form-group col-sm-4">
+                            <label class="col-sm-12 control-label" translate="billing.billingcollections.refundcheque.lbl"></label>
+                            <div class="col-sm-12">
+                                <input type="text" min="0" class="form-control" name="totalchequeotherrefunds" ng-model="TotalChequeOtherRefunds" ng-disabled="true"
+                                    placeholder=""> {{displaycurrency}}
+                            </div>
+                        </div> -->
+                    <!-- Cancellations -->
+                    <!-- <div class="form-group col-sm-4">
+                            <label class="col-sm-12 control-label" translate="billing.billingcollections.cashcancelled.lbl"></label>
+                            <div class="col-sm-12">
+                                <input type="text" min="0" class="form-control" name="totalcashcancels" ng-model="TotalCashCancels" ng-disabled="true" placeholder=""> {{displaycurrency}}
+                            </div>
+                        </div>
+                        <div class="form-group col-sm-4">
+                            <label class="col-sm-12 control-label" translate="billing.billingcollections.cardcancelled.lbl"></label>
+                            <div class="col-sm-12">
+                                <input type="text" min="0" class="form-control" name="totalcardcancels" ng-model="TotalCardCancels" ng-disabled="true" placeholder=""> {{displaycurrency}}
+                            </div>
+                        </div>
+                        <div class="form-group col-sm-4">
+                            <label class="col-sm-12 control-label" translate="billing.billingcollections.othercancelled.lbl"></label>
+                            <div class="col-sm-12">
+                                <input type="text" min="0" class="form-control" name="totalchequeothercancels" ng-model="TotalChequeOtherCancels" ng-disabled="true"
+                                    placeholder="">
+                            </div>
+                        </div> -->
+                    <!-- Balance -->
+                    <!-- <div class="form-group col-sm-4">
+                            <label class="col-sm-12 control-label" translate="billing.billingcollections.netcash.lbl"></label>
+                            <div class="col-sm-12">
+                                <span> {{TotalCashSales - TotalCashRefunds | number : 2 }} </span>
+                            </div>
+                        </div>
+                        <div class="form-group col-sm-4">
+                            <label class="col-sm-12 control-label" translate="billing.billingcollections.netcard.lbl"></label>
+                            <div class="col-sm-12">
+                                <span> {{TotalCardSales - TotalCardRefunds | number : 2 }} </span>
+                            </div>
+                        </div>
+                        <div class="form-group col-sm-4">
+                            <label class="col-sm-12 control-label" translate="billing.billingcollections.netothers.lbl"></label>
+                            <div class="col-sm-12">
+                                <span> {{TotalChequeOtherSales - TotalChequeOtherRefunds | number : 2 }} </span>
+                            </div>
+                        </div> -->
+                    <!-- Total Balance -->
+                    <!-- <div class="form-group col-sm-4">
+                        </div> -->
+                    <!--
+                        <div class="form-group col-sm-4">
+                            <button id="btnCancelForm" type="button" class="btn btn-danger btn-sm ng-scope" ng-click="getList()" translate="common.searchaction.lbl"></button>
+                        </div>
+                        -->
+                    <!-- <div class="form-group col-sm-4">
+                        </div>
+                        <div class="form-group col-sm-4">
+                            <label class="col-sm-12 control-label" translate="billing.billingcollections.netsubmission.lbl"></label>
+                            <div class="col-sm-12">
+                                <span> {{TotalSales - TotalRefunds | number : 2 }} </span>
+                            </div>
+                        </div>
+                    </div> -->
+
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
+<div class="fooder-bgs">
+    <!-- <button type="button" class="btn btn-sm pyr-color10" ng-click="backToList()">
+        <i class="fa fa-angle-left"></i>&nbsp;&nbsp;
+        <span translate="common.backaction.lbl" class="ng-scope">
+            <span class="ng-scope">Back</span>
+        </span>
+    </button>
+    <div class="pull-right">
+        <button id="btnCancelForm" type="button" class="cancelbutton ng-scope" ng-click="backToList()" translate="common.cancelaction.lbl">
+            <span class="ng-scope">Cancel</span>
+        </button>
+    </div> -->
+</div>
+
+</html>

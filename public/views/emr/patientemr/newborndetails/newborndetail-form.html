@@ -1,0 +1,752 @@
+<style>
+    .form-horizontal .form-group {
+        height: 50px;
+    }
+
+    .form-horizontal .control-label {
+        padding-top: 0px;
+    }
+</style>
+<div class="row">
+    <h4 translate="patientemr.newborndetails-list.pagetitle.lbl"></h4>
+</div>
+<div class="row">
+    <form id="item_form" name="item_form" class="form-horizontal" role="form">
+        <!-- leftpanel -->
+        <div class="col-sm-6">
+            <div class="col-sm-12 well">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label"
+                        translate="patientemr.newborndetails-form.deliverydate.lbl"></label>
+                    <div class="col-sm-8">
+                        <!--<input type="text" class="form-control" name="Chequedate" ng-date-object datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}"
+                                    uib-datepicker-popup="{{datePickerOptions.dateFormat}}" placeholder="{{datePickerOptions.placeholder}}"
+                                    ng-click="activefromPopup = { opened: true }" is-open="activefromPopup.opened"
+                                    ng-model="item.IncidentDate" ng-disabled="!item.IsMLC">-->
+                        <input type="text" class="form-control" name="admissiondate" name="admissiondate"
+                            ng-change="populateEstimateDisDate()" datepicker-options="datePickerOptions"
+                            show-button-bar="{{datePickerOptions.showButtonBar}}"
+                            datetime-picker="{{datePickerOptions.dateTimeFormat}}"
+                            placeholder="{{datePickerOptions.placeholder}}"
+                            ng-click="AdmissionDatePopup = { opened: true }" is-open="AdmissionDatePopup.opened"
+                            ng-model="item.DeliveryDate" ng-disabled="item.IsMLC">
+
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-4 control-label" for="gender"
+                        translate="patientemr.newborndetails-form.gender.lbl"></label>
+                    <div class="col-sm-8">
+                        <ui-select id="gender" ng-model="item.GenderId" name="gender" ng-disabled="item.isl" required>
+                            <ui-select-match>
+                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                <span ng-if="$select.selected.Text.length>20">...</span>
+                            </ui-select-match>
+                            <ui-select-choices
+                                repeat="lookupitem.Id as lookupitem in lookup.Gender | filter: { Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-4 control-label" for="weight"
+                        translate="patientemr.newborndetails-form.weigth.lbl"></label>
+                    <div class="col-sm-3">
+                        <input type="number" class="form-control" name="weight" ng-model="item.Weight"
+                            ng-disabled="item.isl" placeholder="" only-num required>
+                    </div>
+                    <label class="col-sm-2 control-label" translate="lis.containertype.Units.lbl"></label>
+                    <div class="col-sm-3">
+                        <ui-select ng-model="item.WeightUnitsId">
+                            <ui-select-match>
+                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                <span ng-if="$select.selected.Text.length>20">...</span>
+                            </ui-select-match>
+                            <ui-select-choices
+                                repeat="lookupitem.Id as lookupitem in lookup.WeightUnits | filter: { Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-4 control-label" for="length"
+                        translate="patientemr.newborndetails-form.lenght.lbl"></label>
+                    <div class="col-sm-3">
+                        <input type="number" class="form-control" name="length" ng-model="item.Length"
+                            ng-disabled="item.isl" placeholder="" only-num required>
+                    </div>
+                    <label class="col-sm-2 control-label" translate="lis.containertype.Units.lbl"></label>
+                    <div class="col-sm-3">
+                        <ui-select ng-model="item.HEIGHTUNITSId">
+                            <ui-select-match>
+                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                <span ng-if="$select.selected.Text.length>20">...</span>
+                            </ui-select-match>
+                            <ui-select-choices
+                                repeat="lookupitem.Id as lookupitem in lookup.HEIGHTUNITS | filter: { Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-4 control-label" for="remarks"
+                        translate="patientemr.newborndetails-form.btlr.lbl"></label>
+                    <div class="col-sm-6 ">
+                        <input type="number" class="form-control" ng-model="item.BtLr" ng-disabled="item.isl"
+                            placeholder="" only-num>
+                    </div>
+                    <div class="col-sm-2">
+                        <label class=" control-label" translate="C"></label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-4 control-label" for="remarks"
+                        translate="patientemr.newborndetails-form.btnsy.lbl"></label>
+                    <div class="col-sm-6">
+                        <input type="number" class="form-control" name="otherdiagnosis" ng-model="item.BtNsy"
+                            ng-disabled="item.isl" only-num placeholder="">
+                    </div>
+                    <div class="col-sm-2">
+                        <label class=" control-label" translate="C"></label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-4 control-label"
+                        translate="patientemr.newborndetails-form.cordbloodfor.lbl"></label>
+                    <div class="col-sm-4">
+                        <ui-select ng-model="item.CordBloodForId" ng-disabled="item.isl">
+                            <ui-select-match>
+                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                <span ng-if="$select.selected.Text.length>20">...</span>
+                            </ui-select-match>
+                            <ui-select-choices
+                                repeat="lookupitem.Id as lookupitem in lookup.CordBloodFor | filter: { Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                    <div class="col-sm-4 ">
+                        <input type="text" class="form-control" name="otherdiagnosis" ng-model="item.CordBlood"
+                            ng-disabled="item.isl" placeholder="">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-4 control-label" for="remarks"
+                        translate="patientemr.newborndetails-form.headcircumference.lbl"></label>
+                    <div class="col-sm-6">
+                        <input type="number" class="form-control" name="otherdiagnosis"
+                            ng-model="item.HeadCircumference" ng-disabled="item.isl" only-num placeholder="">
+                    </div>
+                    <div class="col-sm-2">
+                        <label class=" control-label" translate="Cms"></label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-4 control-label" for="remarks"
+                        translate="patientemr.newborndetails-form.chestcircumference.lbl"></label>
+                    <div class="col-sm-6">
+                        <input type="number" class="form-control" name="otherdiagnosis"
+                            ng-model="item.ChestCircumference" ng-disabled="item.isl" only-num placeholder="">
+                    </div>
+                    <div class="col-sm-2">
+                        <label class=" control-label" translate="Cms"></label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-4 control-label" for="remarks"
+                        translate="patientemr.newborndetails-form.Comments.lbl"></label>
+                    <div class="col-sm-8">
+                        <input type="text" class="form-control" name="otherdiagnosis" ng-model="item.Comments"
+                            ng-disabled="item.isl" placeholder="">
+                    </div>
+
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-4 control-label" for="modeofdelivery"
+                        translate="patientemr.newborndetails-form.modeofdelivery.lbl"></label>
+                    <div class="col-sm-8">
+                        <ui-select ng-model="item.ModeOfDeliveryId" name="modeofdelivery" ng-disabled="item.isl"
+                            required>
+                            <ui-select-match>
+                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                <span ng-if="$select.selected.Text.length>20">...</span>
+                            </ui-select-match>
+                            <ui-select-choices
+                                repeat="lookupitem.Id as lookupitem in lookup.ModeOfDelivery | filter: { Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-4 control-label"
+                        translate="patientemr.newborndetails-form.birthoutcome.lbl"></label>
+                    <div class="col-sm-8">
+                        <ui-select ng-model="item.BirthOutComeId" ng-disabled="item.isl">
+                            <ui-select-match>
+                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                <span ng-if="$select.selected.Text.length>20">...</span>
+                            </ui-select-match>
+                            <ui-select-choices
+                                repeat="lookupitem.Id as lookupitem in lookup.BirthOutCome | filter: { Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-4 control-label" for="remarks"
+                        translate="patientemr.newborndetails-form.urine.lbl"></label>
+                    <div class="col-sm-8">
+                        <ui-select ng-model="item.UrineId" ng-disabled="item.isl">
+                            <ui-select-match>
+                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                <span ng-if="$select.selected.Text.length>20">...</span>
+                            </ui-select-match>
+                            <ui-select-choices
+                                repeat="lookupitem.Id as lookupitem in lookup.Urine | filter: { Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-4 control-label"
+                        translate="patientemr.newborndetails-form.Blood Group.lbl"></label>
+                    <div class="col-sm-3">
+                        <ui-select ng-model="item.BloodGroupId" ng-disabled="item.isl">
+                            <ui-select-match>
+                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                <span ng-if="$select.selected.Text.length>20">...</span>
+                            </ui-select-match>
+                            <ui-select-choices
+                                repeat="lookupitem.Id as lookupitem in lookup.BloodGroup | filter: { Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                    <label class="col-sm-3 control-label"
+                        translate="patientemr.newborndetails-form.Rh Factor.lbl"></label>
+                    <div class="col-sm-2">
+                        <ui-select ng-model="item.RhFactorId" ng-disabled="item.isl">
+                            <ui-select-match>
+                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                <span ng-if="$select.selected.Text.length>20">...</span>
+                            </ui-select-match>
+                            <ui-select-choices
+                                repeat="lookupitem.Id as lookupitem in lookup.RhFactor | filter: { Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-4 control-label"
+                        translate="patientemr.newborndetails-form.patencyofanus.lbl"></label>
+                    <div class="col-sm-3">
+                        <ui-select ng-model="item.PatencyOfAnusId" ng-disabled="item.isl">
+                            <ui-select-match>
+                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                <span ng-if="$select.selected.Text.length>20">...</span>
+                            </ui-select-match>
+                            <ui-select-choices
+                                repeat="lookupitem.Id as lookupitem in lookup.PatencyOfAnus | filter: { Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                    <label class="col-sm-2 control-label" translate="patientemr.newborndetails-form.stools.lbl"></label>
+                    <div class="col-sm-3">
+                        <ui-select ng-model="item.StoolsId" ng-disabled="item.isl">
+                            <ui-select-match>
+                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                <span ng-if="$select.selected.Text.length>20">...</span>
+                            </ui-select-match>
+                            <ui-select-choices
+                                repeat="lookupitem.Id as lookupitem in lookup.Stools | filter: { Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-4 control-label" for="Pediatrician"
+                        translate="patientemr.newborndetails-form.pediatrician.lbl"></label>
+                    <div class="col-sm-8">
+                        <ui-select ng-model="item.PediatricianId" name="Pediatrician" ng-change="getReferralLookUp()"
+                            ng-disabled="item.isl" required>
+                            <ui-select-match>
+                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                <span ng-if="$select.selected.Text.length>20">...</span>
+                            </ui-select-match>
+                            <ui-select-choices
+                                repeat="lookupitem.Id as lookupitem in lookup.Doctor | filter: { Text: $select.search }">
+                                <span ng-bind-html="lookupitem.Title.Description | highlight: $select.search"></span>
+                                <!--<span ng-bind-html="lookupitem.LastName | highlight: $select.search"></span>-->
+                                <span ng-bind-html="lookupitem.Text | highlight: $select.search"></span>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-4 control-label"
+                        translate="patientemr.newborndetails-form.jellycordtype.lbl"></label>
+                    <div class="col-sm-8">
+                        <ui-select ng-model="item.JellyCordTypeId" ng-disabled="item.isl">
+                            <ui-select-match>
+                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                <span ng-if="$select.selected.Text.length>20">...</span>
+                            </ui-select-match>
+                            <ui-select-choices
+                                repeat="lookupitem.Id as lookupitem in lookup.JellyCordType | filter: { Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-4 control-label"
+                        translate="patientemr.newborndetails-form.jellycordcutby.lbl"></label>
+                    <div class="col-sm-8">
+                        <ui-select ng-model="item.JellyCordCutById" ng-disabled="item.isl">
+                            <ui-select-match>
+                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                <span ng-if="$select.selected.Text.length>20">...</span>
+                            </ui-select-match>
+                            <ui-select-choices
+                                repeat="lookupitem.Id as lookupitem in lookup.JellyCordCutBy | filter: { Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+        <!-- rightpanel -->
+        <div class="col-sm-6">
+            <div class="col-sm-12 well">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label"
+                        translate="patientemr.newborndetails-form.congentialanomalies.lbl"></label>
+                    <div class="col-sm-8">
+                        <ui-select ng-model="item.CongentialAnomaliesId" ng-disabled="item.isl">
+                            <ui-select-match>
+                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                <span ng-if="$select.selected.Text.length>20">...</span>
+                            </ui-select-match>
+                            <ui-select-choices
+                                repeat="lookupitem.Id as lookupitem in lookup.CongentialAnomalies | filter: { Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-4 control-label"
+                        translate="patientemr.newborndetails-form.deliverycomplications.lbl"></label>
+                    <div class="col-sm-8">
+                        <ui-select ng-model="item.DeliveryComplicationsId" ng-disabled="item.isl">
+                            <ui-select-match>
+                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                <span ng-if="$select.selected.Text.length>20">...</span>
+                            </ui-select-match>
+                            <ui-select-choices
+                                repeat="lookupitem.Id as lookupitem in lookup.DeliveryComplications | filter: { Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-4 control-label" for="remarks"
+                        translate="patientemr.newborndetails-form.resustitation.lbl"></label>
+                    <div class="col-sm-8">
+                        <input type="text" class="form-control" name="otherdiagnosis" ng-model="item.Resuscitation"
+                            ng-disabled="item.isl" placeholder="">
+                    </div>
+
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-4 control-label" for="remarks"
+                        translate="patientemr.newborndetails-form.tribandnumber.lbl"></label>
+                    <div class="col-sm-8">
+                        <input type="number" class="form-control" name="otherdiagnosis" ng-model="item.TribandNumber"
+                            ng-disabled="item.isl" only-num placeholder="">
+                    </div>
+
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-3 control-label" translate="patientemr.newborndetails-form.Sign.lbl"></label>
+                    <label class="col-sm-3 control-label"
+                        translate="patientemr.newborndetails-form.Score@1min.lbl"></label>
+                    <label class="col-sm-3 control-label"
+                        translate="patientemr.newborndetails-form.Score@5min.lbl"></label>
+                    <label class="col-sm-3 control-label"
+                        translate="patientemr.newborndetails-form.Score@10min.lbl"></label>
+
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-3 control-label" translate="patientemr.newborndetails-form.color.lbl"></label>
+                    <div class="col-sm-3">
+                        <ui-select ng-model="item.ColourId1min" ng-disabled="item.isl">
+                            <ui-select-match>
+                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                <span ng-if="$select.selected.Text.length>20">...</span>
+                            </ui-select-match>
+                            <ui-select-choices
+                                repeat="lookupitem.Id as lookupitem in lookup.Colour | filter: { Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                    <div class="col-sm-3">
+                        <ui-select ng-model="item.ColourId5min" ng-disabled="item.isl">
+                            <ui-select-match>
+                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                <span ng-if="$select.selected.Text.length>20">...</span>
+                            </ui-select-match>
+                            <ui-select-choices
+                                repeat="lookupitem.Id as lookupitem in lookup.Colour | filter: { Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                    <div class="col-sm-3">
+                        <ui-select ng-model="item.ColourId10min" ng-disabled="item.isl">
+                            <ui-select-match>
+                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                <span ng-if="$select.selected.Text.length>20">...</span>
+                            </ui-select-match>
+                            <ui-select-choices
+                                repeat="lookupitem.Id as lookupitem in lookup.Colour | filter: { Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-3 control-label"
+                        translate="patientemr.newborndetails-form.heartrate.lbl"></label>
+                    <div class="col-sm-3">
+                        <ui-select ng-model="item.HeartRateId1min" ng-disabled="item.isl">
+                            <ui-select-match>
+                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                <span ng-if="$select.selected.Text.length>20">...</span>
+                            </ui-select-match>
+                            <ui-select-choices
+                                repeat="lookupitem.Id as lookupitem in lookup.HeartRate | filter: { Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                    <div class="col-sm-3">
+                        <ui-select ng-model="item.HeartRateId5min" ng-disabled="item.isl">
+                            <ui-select-match>
+                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                <span ng-if="$select.selected.Text.length>20">...</span>
+                            </ui-select-match>
+                            <ui-select-choices
+                                repeat="lookupitem.Id as lookupitem in lookup.HeartRate | filter: { Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                    <div class="col-sm-3">
+                        <ui-select ng-model="item.HeartRateId10min" ng-disabled="item.isl">
+                            <ui-select-match>
+                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                <span ng-if="$select.selected.Text.length>20">...</span>
+                            </ui-select-match>
+                            <ui-select-choices
+                                repeat="lookupitem.Id as lookupitem in lookup.HeartRate | filter: { Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-3 control-label"
+                        translate="patientemr.newborndetails-form.relexes.lbl"></label>
+                    <div class="col-sm-3">
+                        <ui-select ng-model="item.ReflexesId1min" ng-disabled="item.isl">
+                            <ui-select-match>
+                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                <span ng-if="$select.selected.Text.length>20">...</span>
+                            </ui-select-match>
+                            <ui-select-choices
+                                repeat="lookupitem.Id as lookupitem in lookup.Reflexes | filter: { Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                    <div class="col-sm-3">
+                        <ui-select ng-model="item.ReflexesId5min" ng-disabled="item.isl">
+                            <ui-select-match>
+                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                <span ng-if="$select.selected.Text.length>20">...</span>
+                            </ui-select-match>
+                            <ui-select-choices
+                                repeat="lookupitem.Id as lookupitem in lookup.Reflexes | filter: { Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                    <div class="col-sm-3">
+                        <ui-select ng-model="item.ReflexesId10min" ng-disabled="item.isl">
+                            <ui-select-match>
+                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                <span ng-if="$select.selected.Text.length>20">...</span>
+                            </ui-select-match>
+                            <ui-select-choices
+                                repeat="lookupitem.Id as lookupitem in lookup.Reflexes | filter: { Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-3 control-label"
+                        translate="patientemr.newborndetails-form.muscletone.lbl"></label>
+                    <div class="col-sm-3">
+                        <ui-select ng-model="item.MuscleToneId1min" ng-disabled="item.isl">
+                            <ui-select-match>
+                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                <span ng-if="$select.selected.Text.length>20">...</span>
+                            </ui-select-match>
+                            <ui-select-choices
+                                repeat="lookupitem.Id as lookupitem in lookup.MuscleTone | filter: { Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                    <div class="col-sm-3">
+                        <ui-select ng-model="item.MuscleToneId5min" ng-disabled="item.isl">
+                            <ui-select-match>
+                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                <span ng-if="$select.selected.Text.length>20">...</span>
+                            </ui-select-match>
+                            <ui-select-choices
+                                repeat="lookupitem.Id as lookupitem in lookup.MuscleTone | filter: { Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                    <div class="col-sm-3">
+                        <ui-select ng-model="item.MuscleToneId10min" ng-disabled="item.isl">
+                            <ui-select-match>
+                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                <span ng-if="$select.selected.Text.length>20">...</span>
+                            </ui-select-match>
+                            <ui-select-choices
+                                repeat="lookupitem.Id as lookupitem in lookup.MuscleTone | filter: { Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-3 control-label"
+                        translate="patientemr.newborndetails-form.Respiration.lbl"></label>
+                    <div class="col-sm-3">
+                        <ui-select ng-model="item.RespirationId1min" ng-disabled="item.isl">
+                            <ui-select-match>
+                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                <span ng-if="$select.selected.Text.length>20">...</span>
+                            </ui-select-match>
+                            <ui-select-choices
+                                repeat="lookupitem.Id as lookupitem in lookup.Respiration | filter: { Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                    <div class="col-sm-3">
+                        <ui-select ng-model="item.RespirationId5min" ng-disabled="item.isl">
+                            <ui-select-match>
+                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                <span ng-if="$select.selected.Text.length>20">...</span>
+                            </ui-select-match>
+                            <ui-select-choices
+                                repeat="lookupitem.Id as lookupitem in lookup.Respiration | filter: { Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                    <div class="col-sm-3">
+                        <ui-select ng-model="item.RespirationId10min" ng-disabled="item.isl">
+                            <ui-select-match>
+                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                <span ng-if="$select.selected.Text.length>20">...</span>
+                            </ui-select-match>
+                            <ui-select-choices
+                                repeat="lookupitem.Id as lookupitem in lookup.Respiration | filter: { Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-3 control-label" for="usergroup"
+                        translate="patientemr.newborndetails-form.APGARScore.lbl"></label>
+                    <div class="col-sm-3">
+                        <input type="number" class="form-control" name="otherdiagnosis" ng-model="item.APGARScore1min"
+                            ng-disabled="item.isl" only-num placeholder="">
+
+                    </div>
+                    <div class="col-sm-3">
+                        <input type="number" class="form-control" name="otherdiagnosis" ng-model="item.APGARScore5min"
+                            ng-disabled="item.isl" only-num placeholder="">
+
+                    </div>
+                    <div class="col-sm-3">
+                        <input type="number" class="form-control" name="otherdiagnosis" ng-model="item.APGARScore10min"
+                            ng-disabled="item.isl" only-num placeholder="">
+
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-3 control-label" for="usergroup"
+                        translate="patientemr.newborndetails-form.Min.lbl"></label>
+                    <div class="col-sm-3">
+                        <input type="number" class="form-control" name="otherdiagnosis" ng-model="item.Min1min"
+                            ng-disabled="item.isl" placeholder="" only-num>
+
+                    </div>
+                    <div class="col-sm-3">
+                        <input type="number" class="form-control" name="otherdiagnosis" ng-model="item.Min5min"
+                            ng-disabled="item.isl" placeholder="" only-num>
+
+                    </div>
+                    <div class="col-sm-3">
+                        <input type="number" class="form-control" name="otherdiagnosis" ng-model="item.Min10min"
+                            ng-disabled="item.isl" only-num placeholder="">
+
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-3 control-label" for="usergroup"
+                        translate="patientemr.newborndetails-form.Oxygen.lbl"></label>
+                    <div class="col-sm-3">
+                        <input type="number" class="form-control" name="otherdiagnosis" ng-model="item.Oxygen1min"
+                            ng-disabled="item.isl" only-num placeholder="">
+
+                    </div>
+                    <div class="col-sm-3">
+                        <input type="number" class="form-control" name="otherdiagnosis" ng-model="item.Oxygen5min"
+                            ng-disabled="item.isl" only-num placeholder="">
+
+                    </div>
+                    <div class="col-sm-3">
+                        <input type="number" class="form-control" name="otherdiagnosis" ng-model="item.Oxygen10min"
+                            ng-disabled="item.isl" only-num placeholder="">
+
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-3 control-label" for="usergroup"
+                        translate="patientemr.newborndetails-form.PPV/NCPAP.lbl"></label>
+                    <div class="col-sm-3">
+                        <input type="number" class="form-control" name="otherdiagnosis" ng-model="item.PPV1min"
+                            ng-disabled="item.isl" placeholder="" only-num>
+
+                    </div>
+                    <div class="col-sm-3">
+                        <input type="number" class="form-control" name="otherdiagnosis" ng-model="item.PPV5min"
+                            ng-disabled="item.isl" placeholder="" only-num>
+
+                    </div>
+                    <div class="col-sm-3">
+                        <input type="number" class="form-control" name="otherdiagnosis" ng-model="item.PPV10min"
+                            ng-disabled="item.isl" only-num placeholder="">
+
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-3 control-label" for="usergroup"
+                        translate="patientemr.newborndetails-form.ETT.lbl"></label>
+                    <div class="col-sm-3">
+                        <input type="number" class="form-control" name="otherdiagnosis" ng-model="item.ETT1min"
+                            ng-disabled="item.isl" placeholder="" only-num>
+
+                    </div>
+                    <div class="col-sm-3">
+                        <input type="number" class="form-control" name="otherdiagnosis" ng-model="item.ETT5min"
+                            ng-disabled="item.isl" placeholder="" only-num>
+
+                    </div>
+                    <div class="col-sm-3">
+                        <input type="number" class="form-control" name="otherdiagnosis" ng-model="item.ETT10min"
+                            ng-disabled="item.isl" only-num placeholder="">
+
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="col-sm-3 control-label" for="usergroup"
+                        translate="patientemr.newborndetails-form.chestcompression.lbl"></label>
+                    <div class="col-sm-3">
+                        <input type="number" class="form-control" name="otherdiagnosis"
+                            ng-model="item.ChestCompression1min" ng-disabled="item.isl" only-num placeholder="">
+
+                    </div>
+                    <div class="col-sm-3">
+                        <input type="number" class="form-control" name="otherdiagnosis"
+                            ng-model="item.ChestCompression5min" ng-disabled="item.isl" only-num placeholder="">
+
+                    </div>
+                    <div class="col-sm-3">
+                        <input type="number" class="form-control" name="otherdiagnosis"
+                            ng-model="item.ChestCompression10min" ng-disabled="item.isl" only-num placeholder="">
+
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-3 control-label" for="usergroup"
+                        translate="patientemr.newborndetails-form.Ephinephrine.lbl"></label>
+                    <div class="col-sm-3">
+                        <input type="number" class="form-control" name="otherdiagnosis" ng-model="item.Epinephrine1min"
+                            ng-disabled="item.isl" only-num placeholder="">
+
+                    </div>
+                    <div class="col-sm-3">
+                        <input type="number" class="form-control" name="otherdiagnosis" ng-model="item.Epinephrine5min"
+                            ng-disabled="item.isl" only-num placeholder="">
+
+                    </div>
+                    <div class="col-sm-3">
+                        <input type="number" class="form-control" name="otherdiagnosis" ng-model="item.Epinephrine10min"
+                            ng-disabled="item.isl" only-num placeholder="">
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+<div class="fooder-bgs">
+    <div class="row">
+        <div class="pull-left">
+            <button type="button" class="btn pyr-color10 btn-sm" ng-click="backToList()"><i class="fa fa-angle-left"
+                    aria-hidden="true"></i>&nbsp;&nbsp;<span class="btn-fontsize"
+                    translate="common.backaction.lbl"></span></button>
+        </div>
+        <div class="pull-right">
+            <button type="button" class="draftbutton" ng-click="print()" ng-show="canShowprintBtn"
+                translate="common.printaction.lbl"></button>
+
+            <button type="button" id="btnsubmit" class="draftbutton" translate="common.saveaction.lbl"
+                ng-show="canShowSaveBtn" ng-click="save()"></button>
+            <button id="btnSaveApprove" type="button" class="draftbutton" translate="common.saveapprove-action.lbl"
+                ng-show="canShowSaveandActiveBtn" ng-click="saveactive()"></button>
+            <!-- <button id="btnClearForm" type="button" class="btn btn-warning btn-sm" ng-show="canShowClearBtn"
+                ng-click="clear()" translate="common.clearaction.lbl"></button> -->
+        </div>
+    </div>
+</div>

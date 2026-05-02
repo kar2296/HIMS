@@ -1,0 +1,80 @@
+<div class="row page-header">
+    <div class="col-sm-5">
+        <h4 class="mt0" translate="inventory.storemaster.pnlstoremaster.lbl"></h4>
+    </div>
+    <div class="col-sm-7">
+        <div class="filters">
+            <div class="search">
+                <input type="text" id="pid" class="form-control" on-enter="getList()" ng-model="currentfilter.storename"
+                    translate translate-attr-placeholder="inventory.storemasters.filter_storename.lbl">
+                <div class="drhms-search-icon"><i class="fas fa-search" aria-hidden="true"></i></div>
+            </div>
+            <button type="button" class="btn-add" ng-click="addNew()" uib-tooltip="Store Master"
+                tooltip-placement="bottom">
+                <i class="fa fa-plus" aria-hidden="true"></i>
+                <!-- <span translate="clinicalmaster.serviceitem-list.addnew.lbl " class="text-white"></span> -->
+            </button>
+            <span class="drhms-billing-btn drhms-home-btn" ng-if="Context =='inventory'" ng-click="backtoList()"
+                uib-tooltip="Dashboard" tooltip-placement="bottom"><i class="fas fa-home"></i></span>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="drhms-list-filters">
+        <div class="col-sm-4">
+            <label class="col-sm-3" translate="inventory.storemaster.storetype.lbl"></label>
+            <div class="col-sm-9">
+                <ui-select ng-model="currentfilter.StoreTypeId" name="storetype" ng-change="getList()" required>
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 20 : 0}}
+                        <span ng-if="$select.selected.Text.length>20">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.StoreType | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <label class="col-sm-3" translate="inventory.storemaster.department.lbl"></label>
+            <div class="col-sm-9">
+                <ui-select ng-model="currentfilter.DepartmentId" name="department" ng-change="getList()" required>
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 20 : 0}}
+                        <span ng-if="$select.selected.Text.length>20">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.Department | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <label class="col-sm-3" translate="inventory.storemasters.filter_status.lbl"></label>
+            <div class="col-sm-9">
+                <ui-select ng-model="currentfilter.ActiveStatusId" ng-change="getList()" class="filter-combo">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 20 : 0}}
+                        <span ng-if="$select.selected.Text.length>20">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.ActiveStatus | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <custom-table config="vm.gridConfig"></custom-table>
+</div>
+<div class="fooder-bgs">
+    <div class="row">
+        <ul uib-pagination total-items="vm.gridConfig.pagerObj.totalItems"
+            items-per-page="vm.gridConfig.pagerObj.pageSize" start-index="vm.gridConfig.pagerObj.startIndex"
+            ng-model="vm.gridConfig.pagerObj.currentPage" ng-change="getList()"></ul>
+    </div>
+</div>

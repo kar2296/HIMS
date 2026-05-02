@@ -1,0 +1,233 @@
+<link rel="stylesheet" href="app/css/drhms.css">
+<style>
+    .drhms-receipt span {
+        font-size: 12px;
+    }
+</style>
+<div class="row">
+    <div class="drhms-filters">
+        <div class="col-sm-10">
+            <h4 translate="Customer Medicine Returns"></h4>
+        </div>
+        <div class="col-sm-5">
+            <button type="button" tabindex="-1" class="drhms-billing-btn drhms-add-btn" uib-tooltip="Add New(F7)"
+                tooltip-placement="bottom" ng-click="clear()">
+                <i class="fa fa-plus" aria-hidden="true"></i>
+            </button>
+            <button type="button" class="drhms-billing-btn drhms-previousbill-btn" uib-tooltip="Previous Bills(F8)"
+                tooltip-placement="bottom" ng-if="IsNewBill" ng-click="findBill()">
+                <i class="fa fa-search-plus" aria-hidden="true"></i>
+            </button>
+
+            <button type="button" class="drhms-billing-btn drhms-ipbill-btn" uib-tooltip="Previous Return Bills(F9)"
+                tooltip-placement="bottom" ng-click="findReturn()">
+                <i class="fa fa-calendar" aria-hidden="true"></i>
+            </button>
+            <button type="button" class="drhms-billing-btn drhms-outstandingbill-btn" uib-tooltip="Pick List"
+                tooltip-placement="bottom" ng-click="pickreturns()">
+                <i class="fa fa-search-plus" aria-hidden="true"></i>
+            </button>
+            <span class="drhms-billing-btn drhms-home-btn" ng-if="Context =='pharmacy'"><i class="fas fa-home"
+                    ng-click="backtoList()" uib-tooltip="Dashboard" tooltip-placement="bottom"></i></span>
+        </div>
+    </div>
+</div>
+<div class="col-sm-12" ng-if="item.ReturnNumber">
+    <div class="drhms-refund-table">
+        <table>
+            <tr>
+                <td ng-if="item.BillNumber">
+                    <span translate="billing.opbilling-list.returnnumber.lbl"></span> :
+                </td>
+                <td ng-if="item.BillNumber">{{item.ReturnNumber}}</td>
+                <td ng-if="item.BillDateTime">Date</td>
+                <td ng-if="item.BillDateTime">
+                    <span>{{item.ReturnDateTime | date : 'dd-MMM-yyyy'}}&nbsp;{{item.ReturnDateTime | date : 'HH:mm'
+                        }}</span>
+                </td>
+                <td ng-if="encounter.VisitIdentifier">
+                    <span translate="billing.opbilling-list.encounterno.lbl"></span>:
+                </td>
+                <td ng-if="encounter.VisitIdentifier">{{encounter.VisitIdentifier}}</td>
+                <td>Refund Status</td>
+                <td style="color: #f44336 !important;">{{item.RefundStatus}}</td>
+            </tr>
+        </table>
+    </div>
+</div>
+<div class="col-sm-12">
+    <form id="item_form" name="item_form" class="form-horizontal" role="form">
+        <div class="drhms-table-control">
+            <div class="drhms-bg-pattern">
+                <div class="drhms-table-height">
+                    <table class="drhms-responsive-table">
+                        <thead class="bg-subhead">
+                            <tr>
+                                <th>
+                                    <span translate="billing.pharmacy-return.codename.lbl"></span>
+                                </th>
+                                <th>
+                                    <span translate="billing.pharmacy-return.genericname.lbl"></span>
+                                </th>
+                                <!-- <th>
+                                    <span translate="billing.pharmacy-return.rack.lbl"></span>
+                                </th> -->
+                                <th>
+                                    <span translate="billing.pharmacy-return.saledqty.lbl"></span>
+                                </th>
+                                <th>
+                                    <span translate="billing.pharmacy-return.returnedqty.lbl"></span>
+                                </th>
+                                <th>
+                                    <span translate="billing.pharmacy-return.qtytoreturn.lbl"></span>
+                                </th>
+                                <th>
+                                    <span translate="billing.pharmacy-return.batch.lbl"></span>
+                                </th>
+                                <th>
+                                    <span translate="billing.pharmacy-return.expirydate.lbl"></span>
+                                </th>
+                                <th>
+                                    <span translate="billing.pharmacy-return.rate.lbl"></span>
+                                </th>
+                                <th>
+                                    <span translate="billing.pharmacy-return.gst.lbl"></span>
+                                </th>
+                                <th>
+                                    <span translate="billing.pharmacy-return.discount.lbl"></span>
+                                </th>
+                                <th>
+                                    <span translate="billing.pharmacy-return.amount.lbl"></span>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="customeritem in CustomerReturnDetails | filter:{Status:1}">
+                                <td>
+                                    <span> {{ customeritem.ItemName }} </span>
+                                </td>
+                                <td>
+                                    <span uib-tooltip="{{ customeritem.GenericName }}" tooltip-placement="bottom">{{
+                                        customeritem.GenericName | limitTo : 18 : 0}}
+                                        <span ng-if="customeritem.GenericName.length>20">...</span>
+                                    </span>
+                                </td>
+                                <!-- <td>
+                                    <span> {{ customeritem.RST }}</span>
+                                </td> -->
+                                <td>
+                                    <span> {{ customeritem.SoldQuantity||customeritem.Quantity }}</span>
+                                </td>
+                                <td>
+                                    <span> {{ customeritem.ReturnedQuantity }}</span>
+                                </td>
+                                <td>
+                                    <input type="text" id='qty{{$index}}' ng-keypress="numberonly($event)"
+                                        ng-pattern="/^\d+$/"
+                                        ng-keyup="moveFocus('qty','qty','qty','qty',$index,$event, customeritem)"
+                                        class="form-control" min="0" class="form-control"
+                                        ng-model="customeritem.ReturnQuantity" placeholder="Return Qty"
+                                        ng-change="CalcualteAmt(customeritem)"
+                                        ng-disabled="customeritem.IsRefundCompleted" required />
+                                </td>
+                                <td>
+                                    <span> {{ customeritem.BatchId}}</span>
+                                </td>
+                                <td>
+                                    {{customeritem.ExpiryDate &nbsp;|&nbsp; date : 'dd-MMM-yyyy'}}
+                                </td>
+                                <td class="currency-align">
+                                    <span> {{ customeritem.Rate | displaycurrency}}</span>
+                                </td>
+                                <td>
+                                    <span> {{ customeritem.GSTPercentage }} </span>
+                                    <!--<span>{{ customeritem.GSTAmount | displaycurrency }}</span>-->
+                                </td>
+                                <td>
+                                    <span> {{ customeritem.DiscountData}}</span>
+                                    <!--
+                                            <span ng-if="customeritem.DiscountModeId == 0">{{ customeritem.DiscountAmount | displaycurrency }}</span>
+                                            <span ng-if="customeritem.DiscountModeId == 1">{{ customeritem.DiscountAmount | displaycurrency }}</span>
+                                            <span ng-if="customeritem.DiscountModeId == 2">{{ customeritem.DiscountAmount }}</span>
+                                        -->
+                                </td>
+                                <td class="currency-align">
+                                    <span> {{ customeritem.NetAmount | displaycurrency}}</span>
+                                </td>
+                                <!-- <td>
+                                            <button type="button" class="btn btn-danger btn-xs" ng-click="deletePatientBillDetails($index,item)"><img class="drhms-edit-button" src="assets/svg/delete.svg" alt=""></button>
+                                        </td> -->
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="cols-sm-12 pending-order">
+                <div class="col-sm-4"></div>
+                <div class="col-sm-4"></div>
+                <div class="col-sm-4">
+                    <div class="drhms-due-amount">Balance : {{currentcontext.TotBalanceAmt | displaycurrency}}
+                    </div>
+                </div>
+            </div>
+            <div class="footerbars">
+                <div class="sub-footer">
+                    <div class="bgfoot" style="overflow: unset !important;">
+                        <div class="col-sm-12">
+                            <div class="col-sm-6"></div>
+                            <div class="col-sm-6">
+                                <table id="bannerdetails">
+                                    <tr>
+                                        <td>
+                                            Return Amount</td>
+                                        <td ng-model="item.GrossAmount" class="currency-align">
+                                            {{item.GrossAmount |
+                                            displaycurrency}}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            Discount</td>
+                                        <td ng-model="item.TotDiscAmount" class="currency-align">
+                                            {{ item.TotDiscAmount | displaycurrency }}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="drhms-special-count">
+                                            Net Amount</td>
+                                        <td ng-model="currentcontext.TotNetAmount"
+                                            class="drhms-special-count currency-align">
+                                            {{ currentcontext.TotNetAmount | displaycurrency }}</td>
+                                    </tr>
+
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+<div class="fooder-bgs">
+    <div class="pull-right d-flex-buttons">
+        <button type="button" class="draftbutton" ng-click="dmPrint()" ng-show="!HidePrintBtn">DM
+            Print</button>
+        <!-- <button type="button"   ng-keyup="FooterFocus('btnsubmit')"
+        class="draftbutton" ng-show="canShowSaveBtn"
+        translate="common.saveaction.lbl" ng-click="saveDraft()"></button> -->
+        <button type="button" ng-keyup="FooterFocus('saveAndApproveid')" class="draftbutton"
+            translate="billing.opbilling-list.saveandapprove.lbl" ng-show="canShowSaveapproveBtn"
+            ng-click="saveAndApprove()"></button>
+        <!-- <button type="button" class="btn btn-warning btn-sm hidden-sm " tabindex="-1"
+        ng-show="canShowClearBtn" ng-click="clear()"
+        translate="common.clearaction.lbl"></button> -->
+        <button type="button" ng-show="!HidePrintBtn" ng-if="HasAccess('PharmacySales', 'PS_DMPrint')"
+            class="draftbutton" ng-click="dmPrint()">DM Print</button>
+        <button type="button" class="draftbutton" ng-click="saleandreturnprint()" ng-show="!HidePrintBtn"  withheader="item.WithHeader" withoutheader="item.WithoutHeader">Sales And Return Print</button>
+        <printcontrol ng-if="!HidePrintBtn" printclick="print()" originalprintclick="originalprint()"
+            hotkey="{'alt+p': print}" reason="currentcontext.printreason" entity="'OPbilling'" withheader="item.WithHeader" withoutheader="item.WithoutHeader">
+        </printcontrol>
+    </div>
+</div>

@@ -1,0 +1,444 @@
+<!-- <style>
+    .form-group.col-sm-6 {
+    height: 54px;
+}
+.form-group.img {
+    position: relative;
+    top: 0px;
+    left: 76px;
+    margin-bottom: 0px !important;
+}
+.user_image img {
+    width: 40% !important;
+    height: 153px !important;
+    border-radius: 56%;
+    float: left;
+    border: 1px solid #0000009e;
+    background: #fff;
+    margin-right: 131px;
+}
+.table-responsive {
+    overflow-x: auto;
+    min-height: 0.01%;
+    height: 120px;
+    border: 1px solid #bbbaba;
+}
+.form-group.col-sm-12 {
+    padding: 0;
+}
+h4.mt0.ng-scope {
+    background: #3fa9a06b !important;
+    color: #164360 !important;
+    padding: 10px 10px;
+}
+h4.mt0.ng-scope span {
+    color: #164360 !important;
+    font-weight: 600 !IMPORTANT;
+}
+h4.col-sm-6.mt0.ng-scope {
+    height: 40px;
+}
+.form-group.col-sm-4 {
+    padding: 0 2px;
+}
+</style> -->
+<div class="row page-header">
+    <div class="col-sm-6">
+        <h4 class="" translate="billing.claimprocess.pagetitle.lbl"></h4>
+    </div>
+    <!-- <div class="col-sm-6">
+        <h4 class="mt0" translate="billing.claimprocess.claimno.lbl">:</h4>
+    </div> -->
+</div>
+<div class="row">
+    <div class="col-sm-12">
+        <div class="form-group col-sm-12">
+            <h4 class="mt0" translate="Patient Info"></h4>
+            
+            <div class="col-sm-4 img">
+                <div class="user_image" ng-show="!item.iswebcamphoto">
+                    <img class="patient-img img-responsive img-circle image-height-control img-thumbnail  center-block ng-hide" tabindex="-1"
+                        ng-show="!!currentcontext.file" ngf-thumbnail="currentcontext.file">
+                    <img ng-show="!currentcontext.file &amp;&amp; item.PhotoPath" data-ng-src="data:image/png;base64," tabindex="-1" class="patient-img img-responsive img-circle image-height-control img-thumbnail center-block ng-hide"
+                        src="data:image/png;base64,">
+                    <img ng-show="!currentcontext.file &amp;&amp; !item.PhotoPath" src="app/img/main/no-img-icon.png" tabindex="-1" class="img-responsive img-circle image-height-control img-thumbnail center-block">
+                </div>
+            </div>
+            <div class="form-group col-sm-4">
+                <label class="col-sm-12 control-label" for="firstname" translate="registration.fullregistration.firstname.lbl"></label>
+                <div class="col-sm-12">
+                    <input type="text" class="form-control" name="firstname" ng-model="item.FirstName" tabindex="tabindexmap.patienttabindex"
+                        placeholder="" required uppercase>
+                </div>
+            </div>
+            
+            <div class="form-group col-sm-4">
+                <label class="col-sm-12 control-label" for="lastname" translate="registration.fullregistration.lastname.lbl"></label>
+                <div class="col-sm-12">
+                    <input type="text" class="form-control" name="lastname" ng-model="item.LastName" placeholder="" required uppercase>
+                </div>
+            </div>
+            <div class="form-group col-sm-4">
+                <label class="col-sm-12 control-label" translate="registration.fullregistration.middlename.lbl"></label>
+                <div class="col-sm-12">
+                    <input type="text" class="form-control" name="middlename" tabindex="-1" ng-model="item.MiddleName" placeholder="" uppercase>
+                </div>
+            </div>
+            <div class="form-group col-sm-4">
+                <label class="col-sm-12 control-label" translate="registration.fullregistration.age.lbl"></label>
+                <div class="col-sm-12">
+                    <input type="text" class="form-control" name="age" ng-model="item.Age" placeholder="" ng-change="calculateDOB(item.Age, 'years')">
+                </div>
+
+            </div>
+            <div class="form-group col-sm-4">
+                <label class="col-sm-12 control-label" for="dob" translate="registration.fullregistration.dob.lbl"></label>
+                <div class="col-sm-12">
+                    <input type="text" class="form-control" name="dob" ng-date-object datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}"
+                        uib-datepicker-popup="{{datePickerOptions.dateFormat}}" placeholder="{{datePickerOptions.placeholder}}"
+                        ng-click="dobPopup = { opened: true }" is-open="dobPopup.opened" ng-model="item.DOB" ng-change="calculateAge()"
+                        required>
+                </div>
+            </div>
+            <div class="form-group col-sm-4">
+                <label class="col-sm-12 control-label" for="gender" translate="registration.registrationcumvisit.gender.lbl"></label>
+                <div class="col-sm-12">
+                        <input type="text" ng-disabled="SaveCompleted" class="form-control ng-pristine ng-untouched ng-valid ng-empty" name="nationalityid"
+                        tabindex="tabindexmap.patienttabindex"  placeholder="">
+                </div>
+            </div>
+            
+            <div class="form-group col-sm-4">
+                <label class="col-sm-12 control-label" for="nationality" translate="registration.fullregistration.nationality.lbl"></label>
+                <div class="col-sm-12">
+                        <input type="text" ng-disabled="SaveCompleted" class="form-control ng-pristine ng-untouched ng-valid ng-empty" name="nationalityid"
+                        tabindex="tabindexmap.patienttabindex"  placeholder="">
+                </div>
+            </div>
+            <div class="form-group col-sm-4">
+                <label class="col-sm-12 control-label ng-scope text_dark" translate="registration.registrationcumvisit.nationalityid.lbl">
+                    <span class="ng-scope">Nationality ID</span>
+                </label>
+                <div class="col-sm-12">
+                    <input type="text" ng-disabled="SaveCompleted" class="form-control ng-pristine ng-untouched ng-valid ng-empty" name="nationalityid"
+                        tabindex="tabindexmap.patienttabindex"  placeholder="">
+                </div>
+            </div>
+            <div class="form-group col-sm-4">
+                <label class="col-sm-12 control-label ng-scope" for="mobile" translate="billing.claimprocess.mobileno.lbl">
+                    <span class="ng-scope">Mobile</span>
+                </label>
+                <div class="col-sm-12">
+                    <input type="text" ng-disabled="SaveCompleted" class="form-control ng-pristine ng-untouched ng-empty ng-valid-pattern ng-valid-minlength ng-valid-maxlength ng-valid ng-valid-required"
+                        tabindex="tabindexmap.patienttabindex" ng-model="item.Mobile" placeholder="" ng-minlength="10"
+                        ng-maxlength="15" ng-pattern="/^\d+$/" ng-required="false" name="item.Mobile">
+                    <div class="validation ng-scope" ng-show="attrs.required==''|| attrs.required">
+                        <ul class="list-unstyled validation-errors ng-inactive ng-hide" ng-messages="field.$error" ng-show="field.$invalid &amp;&amp; (field.$touched || field.$dirty || form.$triedSubmit)">
+
+                        </ul>
+                        <div class="validation-success" ng-show="field.$valid &amp;&amp; !field.$invalid"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="form-group col-sm-12">
+            <h4 class="mt0" translate="billing.claimprocess.visitdrinfo.lbl"></h4>
+            <div class="form-group col-sm-4">
+                <label class="col-sm-12 control-label ng-scope" translate="billing.claimprocess.visitno.lbl">
+                </label>
+                <div class="col-sm-12">
+                    <input type="text" ng-disabled="SaveCompleted" class="form-control ng-pristine ng-untouched ng-valid ng-empty" name="nationalityid"
+                        tabindex="tabindexmap.patienttabindex"  placeholder="">
+                </div>
+            </div>
+            <div class="form-group col-sm-4">
+                <label class="col-sm-12 control-label ng-scope" translate="billing.claimprocess.doctorcode.lbl">
+                </label>
+                <div class="col-sm-12">
+                    <input type="text" ng-disabled="SaveCompleted" class="form-control ng-pristine ng-untouched ng-valid ng-empty" name="nationalityid"
+                        tabindex="tabindexmap.patienttabindex"  placeholder="">
+                </div>
+            </div>
+            <div class="form-group col-sm-4">
+                <label class="col-sm-12 control-label ng-scope" translate="billing.claimprocess.doctorname.lbl">
+                </label>
+                <div class="col-sm-12">
+                    <input type="text" ng-disabled="SaveCompleted" class="form-control ng-pristine ng-untouched ng-valid ng-empty" name="nationalityid"
+                        tabindex="tabindexmap.patienttabindex"  placeholder="">
+                </div>
+            </div>
+            <div class="form-group col-sm-4">
+                <label class="col-sm-12 control-label" for="VisitType" translate="registration.registrationcumvisit.visittype.lbl"></label>
+                <div class="col-sm-12">
+                        <input type="text" ng-disabled="SaveCompleted" class="form-control ng-pristine ng-untouched ng-valid ng-empty" name="nationalityid"
+                        tabindex="tabindexmap.patienttabindex" placeholder="">
+                </div>
+            </div>
+            <div class="form-group col-sm-4">
+                <label class="col-sm-12 control-label ng-scope" translate="registration.registrationcumvisit.department.lbl">
+                </label>
+                <div class="col-sm-12">
+                    <input type="text" ng-disabled="SaveCompleted" class="form-control ng-pristine ng-untouched ng-valid ng-empty" name="nationalityid"
+                        tabindex="tabindexmap.patienttabindex"  placeholder="">
+                </div>
+            </div>
+            <div class="form-group col-sm-4">
+                <label class="col-sm-12 control-label ng-scope" translate="billing.claimprocess.visitdate.lbl">
+                </label>
+                <div class="col-sm-12">
+                    <input type="text" ng-disabled="SaveCompleted" class="form-control ng-pristine ng-untouched ng-valid ng-empty" name="nationalityid"
+                        tabindex="tabindexmap.patienttabindex"  placeholder="">
+                </div>
+            </div>
+        </div>
+        <div class="form-group col-sm-12">
+            <h4 class="mt0" translate="billing.claimprocess.claimdetails.lbl"></h4>            
+            <div class="form-group col-sm-4">
+                <label class="col-sm-12 control-label ng-scope" translate="billing.opbilling-list.amount.lbl">
+                </label>
+                <div class="col-sm-12">
+                    <input type="text" ng-disabled="SaveCompleted" class="form-control ng-pristine ng-untouched ng-valid ng-empty" name="nationalityid"
+                        tabindex="tabindexmap.patienttabindex"  placeholder="">
+                </div>
+            </div>
+            <div class="form-group col-sm-4">
+                <label class="col-sm-12 control-label ng-scope" translate="billing.claimprocess.patientshare.lbl">
+                </label>
+                <div class="col-sm-12">
+                    <input type="text" ng-disabled="SaveCompleted" class="form-control ng-pristine ng-untouched ng-valid ng-empty" name="nationalityid"
+                        tabindex="tabindexmap.patienttabindex"  placeholder="">
+                </div>
+            </div>
+            
+            <div class="form-group col-sm-4">
+                <label class="col-sm-12 control-label ng-scope pdr0" translate="billing.dischargedpatients.discountamount.lbl">
+                </label>
+                <div class="col-sm-12">
+                    <input type="text" ng-disabled="SaveCompleted" class="form-control ng-pristine ng-untouched ng-valid ng-empty" name="nationalityid"
+                        tabindex="tabindexmap.patienttabindex"  placeholder="">
+                </div>
+            </div>
+            <div class="form-group col-sm-4">
+                <label class="col-sm-12 control-label ng-scope pdr0" translate="billing.uaebilling.insuranceamount.lbl">
+                </label>
+                <div class="col-sm-12">
+                    <input type="text" ng-disabled="SaveCompleted" class="form-control ng-pristine ng-untouched ng-valid ng-empty" name="nationalityid"
+                        tabindex="tabindexmap.patienttabindex"  placeholder="">
+                </div>
+            </div>
+        </div>
+        <div class="form-group col-sm-12">
+            <h4 class="mt0" translate="billing.claimprocess.claimdetails.lbl"></h4>
+            <div class="form-group col-sm-4">
+                <label class="col-sm-12 control-label ng-scope" translate="billing.claimprocess.insurancename.lbl">
+                </label>
+                <div class="col-sm-12">
+                    <input type="text" ng-disabled="SaveCompleted" class="form-control ng-pristine ng-untouched ng-valid ng-empty" name="nationalityid"
+                        tabindex="tabindexmap.patienttabindex"  placeholder="">
+                </div>
+            </div>
+            <div class="form-group col-sm-4">
+                <label class="col-sm-12 control-label ng-scope text_dark" translate="billing.claimprocess.memberid.lbl">
+                </label>
+                <div class="col-sm-12">
+                    <input type="text" ng-disabled="SaveCompleted" class="form-control ng-pristine ng-untouched ng-valid ng-empty" name="nationalityid"
+                        tabindex="tabindexmap.patienttabindex"  placeholder="">
+                </div>
+            </div>
+            <div class="form-group col-sm-4">
+                <label class="col-sm-12 control-label ng-scope text_dark" translate="billing.uaebilling.policyceno.lbl">
+                </label>
+                <div class="col-sm-12">
+                    <input type="text" ng-disabled="SaveCompleted" class="form-control ng-pristine ng-untouched ng-valid ng-empty" name="nationalityid"
+                        tabindex="tabindexmap.patienttabindex"  placeholder="">
+                </div>
+            </div>
+            <div class="form-group col-sm-4">
+                <label class="col-sm-12 control-label ng-scope" translate="billing.claimprocess.plantype.lbl">
+                </label>
+                <div class="col-sm-12">
+                    <input type="text" ng-disabled="SaveCompleted" class="form-control ng-pristine ng-untouched ng-valid ng-empty" name="nationalityid"
+                        tabindex="tabindexmap.patienttabindex"  placeholder="">
+                </div>
+            </div>
+            <div class="form-group col-sm-4">
+                <label class="col-sm-12 control-label ng-scope" translate="billing.findcustomerbill-list.customername.lbl">
+                </label>
+                <div class="col-sm-12">
+                    <input type="text" ng-disabled="SaveCompleted" style="width:87%" class="form-control ng-pristine ng-untouched ng-valid ng-empty"
+                        name="nationalityid" tabindex="tabindexmap.patienttabindex" 
+                        placeholder="">
+                    <button type="button" class="btn-add" tabindex="-1" ng-click="addReferral()" uib-tooltip="Add New Referral"
+                        tooltip-placement="top">
+                        <i class="fa fa-plus" aria-hidden="true"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="form-group col-sm-4">
+                <label class="col-sm-12 control-label ng-scope text_dark" translate="billing.claimprocess.approvalno.lbl">
+                </label>
+                <div class="col-sm-12">
+                    <input type="text" ng-disabled="SaveCompleted" class="form-control ng-pristine ng-untouched ng-valid ng-empty" name="nationalityid"
+                        tabindex="tabindexmap.patienttabindex"  placeholder="">
+                </div>
+            </div>
+        </div>
+        <div class="form-group col-sm-6" style="height: 30vh;padding: 0;">
+            <div class="row page-header display_detail pd0">
+                <h4 class="col-sm-6 mt0" translate="patientemr.patientdashboard.vitals.lbl"></h4>
+                <div class="panel-heading0 portlet-panel-heading col-sm-6" id="vital_toogle">
+                    <a ng-click="handleEvents('list')" class="pull-right lnk-portlet-header-action cmnprlist" uib-tooltip="{{ 'common.moredetailsaction.lbl' | translate }}"
+                        tooltip-placement="top">
+                        <i id="vital_toggle1" class="fa fa-info btn-circle" aria-hidden="true"></i>
+                    </a>
+                    <a ng-click="handleEvents('add')" class="pull-right lnk-portlet-header-action cmpradd" uib-tooltip="{{ 'common.addnewaction.lbl' | translate }}"
+                        tooltip-placement="top">
+                        <i id="vital_toggle1" class="fa fa-plus btn-circle" aria-hidden="true"></i>
+                    </a>
+                    <a ng-click="handleEvents('chart')" class="pull-right lnk-portlet-header-action cmprmore" uib-tooltip="{{ 'patientemr.patientdashboard.vitalchart.lbl' | translate }}"
+                        tooltip-placement="top">
+                        <i class="fa fa-line-chart btn-circle" aria-hidden="true"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-striped table-condensed">
+                    <tbody>
+                        <tr class="portlet-tr" ng-repeat="item in items | limitTo: currentcontext.recordcount">
+
+                            <th class="lefcol3" style="width: 140px;display: block;">{{item.PerformedDate}}</th>
+                            <td class="lefcol2">
+                                <p data-ng-bind-html="item.Vitalinfo"></p>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="form-group col-sm-6">
+            <div class="row page-header display_detail pd0">
+                <h4 class="col-sm-6 mt0" translate="physiotheraphy.physiotheraphy-form.diagnosis.lbl"></h4>
+                <div class="panel-heading0 portlet-panel-heading col-sm-6" id="vital_toogle">
+                     <a ng-click="handleEvents('list')" class="pull-right lnk-portlet-header-action cmnprlist" uib-tooltip="{{ 'common.moredetailsaction.lbl' | translate }}"
+                        tooltip-placement="top">
+                        <i id="vital_toggle1" class="fa fa-info btn-circle" aria-hidden="true"></i>
+                    </a>
+                    <a ng-click="handleEvents('add')" class="pull-right lnk-portlet-header-action cmpradd" uib-tooltip="{{ 'common.addnewaction.lbl' | translate }}"
+                        tooltip-placement="top">
+                        <i id="vital_toggle1" class="fa fa-plus btn-circle" aria-hidden="true"></i>
+                    </a>
+
+                </div>
+            </div>
+            <div class="body" style="height:120px;border:1px solid #ccc;"></div>
+        </div>
+        <div class="form-group col-sm-12">
+            <h4 class="mt0" translate="billing.claimprocess.invoicedetails.lbl"></h4>
+            
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>
+                            <span translate="billing.claimsubmission-form.invoicenumber.lbl"></span>
+                        </th>
+                        <th>
+                            <span translate="billing.claimprocess.claimno.lbl"></span>
+                        </th>
+                        <th>
+                            <span translate="billing.opbilling-list.billdate.lbl"></span>
+                        </th>
+                        <th>
+                            <span translate="billing.opbilling-list.department.lbl"></span>
+                        </th>
+                        <th>
+                            <span translate="billing.claimprocess.crossamount.lbl"></span>
+                        </th>
+                        <th>
+                            <span translate="billing.claimprocess.disamount.lbl"></span>
+                        </th>
+                        <th>
+                            <span translate="billing.claimprocess.detamount.lbl"></span>
+                        </th>
+                        <th>
+                            <span translate="billing.claimprocess.insamount.lbl"></span>
+                        </th>
+                        <th>
+                            <span translate="billing.opbilling-list.action.lbl"></span>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>test</td>
+                        <td>test</td>
+                        <td>test</td>
+                        <td>test</td>
+                        <td>test</td>
+                        <td>test</td>
+                        <td>test</td>
+                        <td>test</td>
+
+                        <td>
+                            <a class="grid-action btn btn-warning btn-xs">
+                                <span class="fa fa-usd" aria-hidden="true"></span>
+                            </a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="form-group col-sm-12">            
+            <h4 class="mt0" translate="billing.claimprocess.clinicalresults.lbl"></h4>
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>
+                            <span translate="billing.claimprocess.order.lbl"></span>
+                        </th>
+                        <th>
+                            <span translate="billing.opbilling-list.filter_type.lbl"></span>
+                        </th>
+                        <th>
+                            <span translate="billing.opbilling-list.action.lbl"></span>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>L-test</td>
+                        <td>Lab</td>
+                        <td>
+                            <button class="btn btn-info btn-xs clprvw">
+                                <span class="fa fa-eye-open"></span>View</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <div class="fooder-bgs">
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="pull-left">
+                    <button type="button" class="btn pyr-color10 btn-sm" ng-click="backToList()" ss>
+                        <i class="fa fa-angle-left" aria-hidden="true"></i>
+                        <span class="btn-fontsize"> &nbsp; Back</span>
+                    </button>
+                    <!-- <button class="btn btn-info texthover btn-sm ng-scope" tabindex="-1" type="button" uib-tooltip="History" tooltip-placement="top"
+                        ng-click="historyLink()" ng-if="currentcontext.id > 0">
+                        <i class="fa fa-history fa-xs" aria-hidden="true"></i>
+                    </button> -->
+                </div>
+                <div class="pull-right">
+                    <button type="button" class="draftbutton" ng-click="dispatch()" translate="billing.claimprocess.bupaform.lbl"></button>
+                    <button type="button" class="draftbutton" translate="billing.claimprocess.covinvoice.lbl"></button>
+                    <button id="btnSave" type="button" class="draftbutton" translate="billing.claimprocess.claimform.lbl"></button>
+                    <button id="btnSave" type="button" class="draftbutton" translate="common.saveaction.lbl"></button>
+                    <!-- <button class="btn btn-info texthover btn-sm ng-scope" uib-tooltip="" tooltip-placement="top" ng-click="" translate="billing.claimsubmission-form.coverletter.lbl"></button> -->
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

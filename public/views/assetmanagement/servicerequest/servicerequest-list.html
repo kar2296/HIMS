@@ -1,0 +1,156 @@
+<style>
+    .form-horizontal .form-group {
+        height: 70px;
+    }
+
+    .ui-grid-cell-contents.list {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+</style>
+<div class="row page-header">
+    <h4 class="col-sm-6 mt0" translate="assetmanagement.servicerequest.pagetitle.lbl"></h4>
+    <div class="col-sm-6">
+        <!-- <button class="btn bt-color3 btn-xs pull-right btn-filter" ng-click="openAdvancedFilter()" uib-tooltip="{{ '  clinicalmaster.serviceitem-list.filter-tooltip.lbl' | translate }}"
+            tooltip-placement="bottom"><i class="fa fa-filter" aria-hidden="true"></i>&nbsp;&nbsp;
+            <span translate="common.searchaction.lbl"></span>
+            </button> -->
+        <!--<button class="btn prv-color12 btn-xs pull-right" ng-click="findAsset()"   uib-tooltip="{{ 'assetmanagement.assets.findasset-tooltip.lbl' | translate }}" tooltip-placement="bottom">
+        <i class="fas fa-search" aria-hidden="true"></i>&nbsp;&nbsp;<strong class="btn-fontsize" translate="assetmanagement.assettab.pickasset.lbl"></strong>
+        </button>-->
+        <button class="btn-add" ng-click="addNew()"
+            uib-tooltip="{{ 'assetmanagement.servicerequest.tooltip.lbl' | translate }}" tooltip-placement="bottom">
+            <i class="fas fa-plus" aria-hidden="true"></i>
+        </button>
+    </div>
+</div>
+
+<div class="row">
+    <form id="item_form" name="item_form" class="form-horizontal" role="form">
+        <!--<div class="col-sm-2 form-group">
+            <label class="col-sm-12 control-label" translate="assetmanagement.servicerequest.fromdepartment.lbl"></label>
+            <div class="col-sm-12">
+                <ui-select ng-model="currentfilter.FromDepartmentId" ng-change="getList()" class="filter-combo">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 25 : 0}}
+                        <span ng-if="$select.selected.Text.length>25">...</span>
+                    </ui-select-match>
+                    <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.Department | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>-->
+        <!-- <div class="col-sm-2 form-group">
+            <label class="col-sm-12 control-label" translate="assetmanagement.servicerequest.type.lbl"></label>
+            <div class="col-sm-12">
+                <ui-select ng-model="currentfilter.ServiceTypeId" ng-change="getList()" class="filter-combo">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 25 : 0}}
+                        <span ng-if="$select.selected.Text.length>25">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.ServiceType | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div> -->
+        <div class="col-sm-2 form-group">
+            <label class="col-sm-12" for="from" translate="From Date"></label>
+            <div class="col-sm-12">
+                <input type="text" class="text-box form-control" name="from" ng-date-object datepicker-options="datePickerOptions"
+                    show-button-bar="{{datePickerOptions.showButtonBar}}"
+                    uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                    placeholder="{{datePickerOptions.placeholder}}" ng-click="targetfrom = { opened: true }"
+                    is-open="targetfrom.opened"  ng-model="currentfilter.From"
+                    ng-change="getList()" tabindex="tabindexmap.patienttabindex">
+            </div>
+        </div>
+        <div class="col-sm-2 form-group">
+            <label class="col-sm-12" for="to" translate="To Date"></label>
+            <div class="col-sm-12">
+                <input type="text" class="form-control" name="to" ng-change="getList()"
+                    datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}"
+                    uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                    placeholder="{{datePickerOptions.placeholder}}" ng-click="todatePopup = { opened: true }"
+                    is-open="todatePopup.opened" ng-model="currentfilter.To">
+            </div>
+        </div>
+
+        <div class="col-sm-2 form-group">
+            <div class="form-group">
+                <label class="col-sm-12control-label" translate="assetmanagement.servicerequest.request#.lbl"></label>
+                <div class="col-sm-12">
+                    <div class="search">
+                        <input type="text" id="pid" class="form-control" on-enter="getList()"
+                            ng-model="currentfilter.TicketNumberIdentifier" placeholder="">
+                        <div class="drhms-search-icon"><i class="fas fa-search" aria-hidden="true"></i></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- <div class="col-sm-2 form-group">
+            <label class="col-sm-12control-label" translate="assetmanagement.asset.shortcode.lbl"></label>
+            <div class="col-sm-12">
+                <div class="search">
+                    <input type="text" id="pid" class="form-control" on-enter="getList()"
+                        ng-model="currentfilter.ShortCode" placeholder="">
+                    <div class="drhms-search-icon"><i class="fas fa-search" aria-hidden="true"></i></div>
+                </div>
+            </div>
+        </div> -->
+        <!-- <div class="col-sm-2 form-group">
+            <label class="col-sm-12control-label" translate="assetmanagement.servicerequest.date.lbl"></label>
+            <div class="col-sm-12">
+                <input type="text" class="form-control" name="date" ng-change="getList()"
+                    datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}"
+                    uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                    placeholder="{{datePickerOptions.placeholder}}" ng-click="dateofbirthPopup = { opened: true }"
+                    is-open="dateofbirthPopup.opened" ng-model="currentfilter.ExpectedDate">
+            </div>
+        </div> -->
+        <div class="col-sm-2 form-group">
+            <label class="col-sm-12 control-label" translate="assetmanagement.assignment-list.department.lbl"></label>
+            <div class="col-sm-12">
+                <ui-select ng-model="currentfilter.DepartmentId" ng-change="getList()" class="filter-combo">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 25 : 0}}
+                        <span ng-if="$select.selected.Text.length>25">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.Department | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+        <div class="col-sm-2 form-group">
+            <label class="col-sm-12 control-label" translate="assetmanagement.assets.filter_status.lbl"></label>
+            <div class="col-sm-12">
+                <ui-select ng-model="currentfilter.AssetTicketStatusId" ng-change="getList()" class="filter-combo">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 25 : 0}}
+                        <span ng-if="$select.selected.Text.length>25">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.AssetTicketStatus | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+    </form>
+</div>
+</div>
+<div class="row">
+    <custom-table config="vm.gridConfig"></custom-table>
+</div>
+<div class="fooder-bgs">
+    <div class="row">
+        <ul uib-pagination total-items="vm.gridConfig.pagerObj.totalItems"
+            items-per-page="vm.gridConfig.pagerObj.pageSize" start-index="vm.gridConfig.pagerObj.startIndex"
+            ng-model="vm.gridConfig.pagerObj.currentPage" ng-change="getList()"></ul>
+    </div>
+</div>

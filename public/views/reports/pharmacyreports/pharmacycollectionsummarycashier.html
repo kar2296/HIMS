@@ -1,0 +1,220 @@
+<!-- <style>
+    #reportsdetail table td {
+        text-align: left;
+    }
+
+    td#total_clr\ align-right {
+        text-align: right !important;
+    }
+
+    div#reportsdetail {
+        overflow: auto;
+        height: 70vh;
+        width: 99% !important;
+    }
+
+    td.ng-binding {
+        WHITE-SPACE: nowrap !important;
+
+    }
+</style> -->
+<div class="row page-header">
+    <div class="col-sm-6">
+        <h4 class="mt0" translate="reports.pharmcollectioncashier.lbl"></h4>
+    </div>
+    <div class="col-sm-6">
+        <div class="filters">
+            <i class="icofont-filter" uib-tooltip="Filter" tooltip-placement="bottom" ng-click="openFilterTab()"></i>
+            <!-- <i class="icofont-file-excel" uib-tooltip="Excel" tooltip-placement="bottom"
+                onclick="exportTableToExcel('tblData', 'members-data')"></i> -->
+            <i class="icofont-print" uib-tooltip="Print" tooltip-placement="bottom" ng-click="print()"></i>
+            <i class="icofont-home" ng-click="backtoReport()" tabindex="-1" uib-tooltip="Report"
+                tooltip-placement="bottom"></i>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <table id="bannerdetails">
+        <tr>
+            <td translate="reports.fromdate.lbl"></td>
+            <td>
+                <div class="datepicker" id="datepicker">
+                    <input type="text" class="form-control" name="fromdate" ng-date-object
+                        datetime-picker="{{dateTimePickerOptions.dateTimeFormat}}"
+                        placeholder="{{datePickerOptions.placeholder}}" ng-click="fromdatePopup = { opened: true }"
+                        is-open="fromdatePopup.opened" ng-model="currentfilter.From">
+                    <i class="fa fa-calendar"></i>
+                </div>
+            </td>
+            <td translate="reports.todate.lbl"></td>
+            <td>
+                <div class="datepicker" id="datepicker">
+                    <input type="text" class="form-control" name="todate" ng-date-object
+                        datetime-picker="{{dateTimePickerOptions.dateTimeFormat}}"
+                        placeholder="{{datePickerOptions.placeholder}}" ng-click="todatePopup = { opened: true }"
+                        is-open="todatePopup.opened" ng-model="currentfilter.To">
+                    <i class="fa fa-calendar"></i>
+                </div>
+            </td>
+            <!-- <td translate="reports.user.lbl"></td>
+            <td>
+                <div class="filters">
+                    <autosearch itemid="currentfilter.UserId" onenter="onenter()" iteminfo="item.SelectedItem"
+                        rowdata="item" config="vm.usercontrolconfig" class="inputsearchlogo" isrequired="true">
+                    </autosearch>
+                </div>
+            </td> -->
+            <td translate="inventory.purchaseorders.store.lbl"></td>
+            <td>
+                <ui-select ng-model="currentfilter.StoreMasterId" on-select="SelectedFromStore($select.selected)"
+                    name="fromstore" required>
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 20 : 0}}
+                        <span ng-if="$select.selected.Text.length>20">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.UserStores | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </td>
+            <td style="text-align: center;">
+                <button class="loadbtn" ng-click="GetPharmacyOptions()">
+                    <i class="fas fa-sync loading-icon" aria-hidden="true" uib-tooltip="Search"
+                        tooltip-placement="bottom"></i> <span>Load</span>
+                </button>
+            </td>
+        </tr>
+    </table>
+</div>
+<!-- 
+<div>
+    <i class="icofont-filter" uib-tooltip="Search" tooltip-placement="bottom" ng-click="GetPharmacyOptions()"></i>
+</div> -->
+<div class="row">
+    <div id="reportsdetail">
+        <table id="tblData">
+            <thead>
+                <th class="cus-col tbl-header cust_Particulars">
+                    <span translate="User Name"></span>
+                </th>
+                <th class="cus-col tbl-header">
+                    <span translate="Bill Amount"></span>
+                </th>
+                <th class="cus-col tbl-header">
+                    <span translate="Due Balance"></span>
+                </th>
+                <th class="cus-col tbl-header">
+                    <span translate="Previous Due Collection"></span>
+                </th>
+                <th class="cus-col tbl-header">
+                    <span translate="Advance Collection"></span>
+                </th>
+                <th class="cus-col tbl-header">
+                    <span translate="Cash Sales"></span>
+                </th>
+                <th class="cus-col tbl-header">
+                    <span translate="Cash Return"></span>
+                </th>
+                <th class="cus-col tbl-header">
+                    <span translate="Net Cash"></span>
+                </th>
+                <th class="cus-col tbl-header">
+                    <span translate="Card Sales"></span>
+                </th>
+                <th class="cus-col tbl-header">
+                    <span translate="Card Return"></span>
+                </th>
+                <th class="cus-col tbl-header">
+                    <span translate="Net Card"></span>
+                </th>
+                <th class="cus-col tbl-header">
+                    <span translate="Others Sales"></span>
+                </th>
+                <th class="cus-col tbl-header">
+                    <span translate="Others Return"></span>
+                </th>
+                <th class="cus-col tbl-header">
+                    <span translate="Net Others"></span>
+                <th class="cus-col tbl-header">
+                    <span translate="UPI Sales"></span>
+                </th>
+                <th class="cus-col tbl-header">
+                    <span translate="UPI Return"></span>
+                </th>
+                <th class="cus-col tbl-header">
+                    <span translate="Net UPI"></span>
+                </th>
+                <th class="cus-col tbl-header">
+                    <span translate="IP Sales(Credit)"></span>
+                </th>
+                <th class="cus-col tbl-header">
+                    <span translate="IP Return"></span>
+                </th>
+                <th class="cus-col tbl-header">
+                    <span translate="Net IP"></span>
+                </th>
+                <th class="cus-col tbl-header">
+                    <span translate="Sales"></span>
+                </th>
+                <th class="cus-col tbl-header">
+                    <span translate="Return"></span>
+                </th>
+                <th class="cus-col tbl-header">
+                    <span translate="Net Sales"></span>
+                </th>
+            </thead>
+            <tr ng-repeat="item in NetUserCollection">
+                <td class=""><span class="">{{item.Key}}</span></td>
+                <td id="total_clr align-right">{{ item.TotalBillAmt | displaycurrency }}</td>
+                <td id="total_clr align-right">{{ item.DueBalance | displaycurrency }}</td>
+                <td id="total_clr align-right">{{ item.DueCollectAmt | displaycurrency }}</td>
+                <td id="total_clr align-right">{{ item.AdvanceCollectAmt | displaycurrency }}</td>
+                <td id="total_clr align-right">{{ item.CashAmt | displaycurrency }}</td>
+                <td id="total_clr align-right">{{ item.CashReturnAmt | displaycurrency }}</td>
+                <td id="total_clr align-right">{{ item.NetCash | displaycurrency }}</td>
+                <td id="total_clr align-right">{{ item.CardAmt | displaycurrency }}</td>
+                <td id="total_clr align-right">{{ item.CardReturnAmt | displaycurrency }}</td>
+                <td id="total_clr align-right">{{ item.NetCard | displaycurrency }}</td>
+                <td id="total_clr align-right">{{ item.OtherAmt | displaycurrency }}</td>
+                <td id="total_clr align-right">{{ item.OtherReturnAmt | displaycurrency }}</td>
+                <td id="total_clr align-right">{{ item.NetOther | displaycurrency }}</td>
+                <td id="total_clr align-right">{{ item.UPIAmt | displaycurrency }}</td>
+                <td id="total_clr align-right">{{ item.UPIReturnAmt | displaycurrency }}</td>
+                <td id="total_clr align-right">{{ item.NetUPI | displaycurrency }}</td>
+                <td id="total_clr align-right">{{ item.IPSaleAmt | displaycurrency }}</td>
+                <td id="total_clr align-right">{{ item.IPReturnAmt | displaycurrency }}</td>
+                <td id="total_clr align-right">{{ item.NetIP | displaycurrency }}</td>
+                <td id="total_clr align-right">{{ item.Sales | displaycurrency }}</td>
+                <td id="total_clr align-right">{{ item.Return | displaycurrency }}</td>
+                <td id="total_clr align-right">{{ item.NetSales | displaycurrency }}</td>
+            </tr>
+            <tr class="highlite">
+                <td class=""><span class="">Total</span></td>
+                <td id="total_clr align-right">{{ TotBillAmt | displaycurrency }}</td>
+                <td id="total_clr align-right">{{ TotDueBl | displaycurrency }}</td>
+                <td id="total_clr align-right">{{ TotDueCol | displaycurrency }}</td>
+                <td id="total_clr align-right">{{ TotAdvanceCol | displaycurrency }}</td>
+                <td id="total_clr align-right">{{ TotalCashAmt | displaycurrency }}</td>
+                <td id="total_clr align-right">{{ TotalCashRetAmt | displaycurrency }}</td>
+                <td id="total_clr align-right">{{ TotalNetCash | displaycurrency }}</td>
+                <td id="total_clr align-right">{{ TotalCardAmt | displaycurrency }}</td>
+                <td id="total_clr align-right">{{ TotalCardRetAmt | displaycurrency }}</td>
+                <td id="total_clr align-right">{{ TotalNetCard | displaycurrency }}</td>
+                <td id="total_clr align-right">{{ TotalOtherAmt | displaycurrency }}</td>
+                <td id="total_clr align-right">{{ TotalOtherRetAmt | displaycurrency }}</td>
+                <td id="total_clr align-right">{{ TotalNetOther | displaycurrency }}</td>
+                <td id="total_clr align-right">{{ TotalUPIAmt | displaycurrency }}</td>
+                <td id="total_clr align-right">{{ TotalUPIRetAmt | displaycurrency }}</td>
+                <td id="total_clr align-right">{{ TotalNetUPI | displaycurrency }}</td>
+                <td id="total_clr align-right">{{ TotalIPSale | displaycurrency }}</td>
+                <td id="total_clr align-right">{{ TotalIPRet | displaycurrency }}</td>
+                <td id="total_clr align-right">{{ TotalNetIP | displaycurrency }}</td>
+                <td id="total_clr align-right">{{ TotalSales | displaycurrency }}</td>
+                <td id="total_clr align-right">{{ TotalReturn | displaycurrency }}</td>
+                <td id="total_clr align-right">{{ TotalNetSales | displaycurrency }}</td>
+            </tr>
+        </table>
+    </div>
+</div>
+<div class="fooder-bgs"></div>

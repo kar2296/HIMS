@@ -1,0 +1,495 @@
+<style>
+    input.form-control {
+        background: #F8F8F8 0% 0% no-repeat padding-box;
+        border: 2px solid #666666;
+        border-radius: 15px;
+    }
+
+    span.btn.btn-default.form-control.ui-select-toggle {
+        height: 32px;
+        background: #F8F8F8 0% 0% no-repeat padding-box !important;
+        border: 2px solid #666666;
+        border-radius: 15px;
+    }
+
+    h2.page-title {
+        color: #003366;
+        margin-top: 10px;
+    }
+
+    table {
+        width: 100%;
+        border: 1px solid #666666 !important;
+        border-collapse: separate;
+        overflow: hidden;
+        border-top-right-radius: 16px;
+        border-top-left-radius: 16px;
+    }
+
+    td,
+    th {
+        border: 1px solid #666666 !important;
+    }
+
+    select {
+        width: 100%;
+        border: 0;
+        color: green;
+    }
+
+    th.board-header {
+        background: #008A1D;
+        text-align: center;
+        color: #fff;
+        font-weight: 600;
+    }
+
+    td.first-name {
+        color: #008A1D;
+        font-weight: bold !important;
+    }
+
+    td.last-name {
+        color: #666666;
+        font-weight: bold !important;
+    }
+
+    td.nth-name {
+        color: #666666;
+        font-weight: bold !important;
+    }
+
+    .preformance-dashbaord {
+        margin-top: 10px;
+        display: flex;
+        justify-content: space-between;
+    }
+
+    th.first-name {
+        color: #008a1d;
+        padding: 8px;
+    }
+
+    .content-wrapper.ng-scope.ng-fadeInUp {
+        margin-bottom: 100px !important;
+    }
+
+    td.first-name-title {
+        color: #003366;
+        font-weight: bold !important;
+    }
+
+    .last-name-doc {
+        color: #008A1D;
+        font-weight: bold !important;
+    }
+
+    .performance-section-one {
+        width: 70%;
+        margin: 8px;
+    }
+
+    .performance-section-two {
+        width: 30%;
+        margin: 8px;
+    }
+
+    th.bed {
+        color: #008A1D;
+        padding: 8px;
+    }
+    td.bed {
+    color: green;
+    font-weight: bold !important;
+}
+th.beds-bg {
+    background: #008A1D;
+    text-align: center;
+    color: #fff;
+    font-weight: 600;
+}
+td.nth-name-title {
+    color: #008a1d;
+    font-weight: bold !important;
+}
+td.last-name-letter {
+    color: #3f51b5;
+    font-weight: bold !important;
+}
+</style>
+
+<div class="row page-header">
+    <div class="col-sm-6">
+        <h2 class="page-title">Dashboard</h2>
+    </div>
+    <div class="col-sm-6">
+        <div class="col-sm-6">
+            <input type="text" class="form-control" name="expirydate" ng-date-object
+                uib-datepicker-popup="{{datePickerOptions.dateFormat}}" placeholder="{{datePickerOptions.placeholder}}"
+                ng-click="expirydatePopup = { opened: true }" is-open="expirydatePopup.opened"
+                ng-model="item.ExpiryDate">
+        </div>
+        <div class="col-sm-6">
+            <ui-select ng-model="currentfilter.AppointmentStatusId" ng-change="getList()" class="filter-combo">
+                <ui-select-match>
+                    {{$select.selected.Text | limitTo : 15 : 0}}
+                    <span ng-if="$select.selected.Text.length>15">...</span>
+                </ui-select-match>
+                <ui-select-choices
+                    repeat="lookupitem.Id as lookupitem in lookup.AppointmentStatus | filter: { Text: $select.search }">
+                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                </ui-select-choices>
+            </ui-select>
+        </div>
+    </div>
+</div>
+<div class="preformance-dashbaord">
+    <div class="performance-section-one">
+        <table>
+            <tr>
+                <th></th>
+                <th class="board-header">For The Date <br>
+                    07-Jan-2007</th>
+                <th class="board-header">Month to Date</th>
+                <th class="board-header">Current Year to Date (FY)</th>
+                <th class="board-header">Previous Year Same Period</th>
+                <th class="board-header">Growth in Current Year</th>
+            </tr>
+            <tr>
+                <td class="first-name">OP Registration</td>
+                <td class="nth-name">UNITS</td>
+                <td class="nth-name">UNITS</td>
+                <td class="nth-name">UNITS</td>
+                <td class="nth-name">UNITS</td>
+                <td class="nth-name">YTD%</td>
+            </tr>
+            <tr>
+                <td class="last-name">Drilldown Level 1</td>
+                <td><select name="" id="">All UNITS
+                        <option value="">One</option>
+                    </select></td>
+                <td><select name="" id="">All UNITS
+                        <option value="">One</option>
+                    </select></td>
+                <td><select name="" id="">All UNITS
+                        <option value="">One</option>
+                    </select></td>
+                <td><select name="" id="">All UNITS
+                        <option value="">One</option>
+                    </select></td>
+                <td></td>
+            </tr>
+            <tr>
+                <td class="last-name">Drilldown Level 2</td>
+                <td class="nth-name">Bills (sorted by time)</td>
+                <td class="nth-name">Bills (sorted by time)</td>
+                <td class="nth-name">Monthwise Summary</td>
+                <td class="nth-name">Monthwise Summary</td>
+                <td class="nth-name">YTD%</td>
+            </tr>
+        </table>
+    </div>
+    <div class="performance-section-two">
+        <table>
+            <tr>
+                <th class="bed">Bed Occupancy</th>
+                <th class="beds-bg">For The Date 07-Jan-2007</th>
+            </tr>
+            <tr>
+                <td class="bed">Total Beds</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td></td>
+                <td class="nth-name">UNITS</td>
+
+            </tr>
+            <tr>
+                <td class="last-name">Drilldown Level 1</td>
+                <td><select name="" id="">All UNITS
+                        <option value="">One</option>
+                    </select></td>
+            </tr>
+            <tr>
+                <td class="last-name">Drilldown Level 2</td>
+                <td class="nth-name">Bed Occupied</td>
+            </tr>
+        </table>
+    </div>
+</div>
+<div class="preformance-dashbaord">
+    <div class="performance-section-one">
+        <table>
+            <tr>
+                <th></th>
+                <th class="board-header">For The Date <br>
+                    07-Jan-2007</th>
+                <th class="board-header">Month to Date</th>
+                <th class="board-header">Current Year to Date (FY)</th>
+                <th class="board-header">Previous Year Same Period</th>
+                <th class="board-header">Growth in Current Year</th>
+            </tr>
+            <tr>
+                <td class="first-name">IP Admission</td>
+                <td class="nth-name">UNITS</td>
+                <td class="nth-name">UNITS</td>
+                <td class="nth-name">UNITS</td>
+                <td class="nth-name">UNITS</td>
+                <td class="nth-name">YTD%</td>
+            </tr>
+            <tr>
+                <td class="last-name">Drilldown Level 1</td>
+                <td><select name="" id="">All UNITS
+                        <option value="">One</option>
+                    </select></td>
+                <td><select name="" id="">All UNITS
+                        <option value="">One</option>
+                    </select></td>
+                <td><select name="" id="">All UNITS
+                        <option value="">One</option>
+                    </select></td>
+                <td><select name="" id="">All UNITS
+                        <option value="">One</option>
+                    </select></td>
+                <td></td>
+            </tr>
+            <tr>
+                <td class="last-name">Drilldown Level 2</td>
+                <td class="nth-name">Bills (sorted by time)</td>
+                <td class="nth-name">Bills (sorted by time)</td>
+                <td class="nth-name">Monthwise Summary</td>
+                <td class="nth-name">Monthwise Summary</td>
+                <td class="nth-name">YTD%</td>
+            </tr>
+        </table>
+    </div>
+    <div class="performance-section-two">
+        <table>
+            <tr>
+                <th class="bed">Current IP Due</th>
+                <th class="beds-bg">For The Date 07-Jan-2007</th>
+            </tr>
+            <tr>
+                <td class="last-name">Drilldown Level 1</td>
+                <td><select name="" id="">All UNITS
+                        <option value="">One</option>
+                    </select></td>
+            </tr>
+            <tr>
+                <td><span>Excluding insurance & Corporate</span></td>
+                <td></td>
+            </tr>
+            <tr>
+                <td class="last-name">Drilldown Level 2</td>
+                <td class="nth-name">Patient Wise (Sorted)</td>
+            </tr>
+        </table>
+    </div>
+
+</div>
+<div class="preformance-dashbaord">
+    <div class="performance-section-one">
+        <table>
+            <tr>
+                <th class="first-name">Revenue</th>
+                <th class="board-header">For The Date <br>
+                    07-Jan-2007</th>
+                <th class="board-header">Month to Date</th>
+                <th class="board-header">Current Year to Date (FY)</th>
+                <th class="board-header">Previous Year Same Period</th>
+                <th class="board-header">Growth in Current Year</th>
+            </tr>
+            <tr>
+                <td class="first-name-title">Cash</td>
+                <td class="nth-name">UNITS</td>
+                <td class="nth-name">UNITS</td>
+                <td class="nth-name">UNITS</td>
+                <td class="nth-name">UNITS</td>
+                <td class="nth-name">YTD%</td>
+            </tr>
+            <tr>
+                <td class="last-name">Drilldown Level 1</td>
+                <td><select name="" id="">All UNITS
+                        <option value="">One</option>
+                    </select></td>
+                <td><select name="" id="">All UNITS
+                        <option value="">One</option>
+                    </select></td>
+                <td><select name="" id="">All UNITS
+                        <option value="">One</option>
+                    </select></td>
+                <td><select name="" id="">All UNITS
+                        <option value="">One</option>
+                    </select></td>
+                <td></td>
+            </tr>
+            <tr>
+                <td class="last-name">Drilldown Level 2</td>
+                <td class="nth-name">OP/IP/Pharmacy</td>
+                <td class="nth-name">OP/IP/Pharmacy</td>
+                <td class="nth-name">OP/IP/Pharmacy</td>
+                <td class="nth-name">OP/IP/Pharmacy</td>
+                <td class="nth-name">YTD%</td>
+            </tr>
+            <tr>
+                <td class="first-name-title">Credit</td>
+                <td class="nth-name">UNITS</td>
+                <td class="nth-name">UNITS</td>
+                <td class="nth-name">UNITS</td>
+                <td class="nth-name">UNITS</td>
+                <td class="nth-name">YTD%</td>
+            </tr>
+            <tr>
+                <td class="last-name">Drilldown Level 1</td>
+                <td><select name="" id="">All UNITS
+                        <option value="">One</option>
+                    </select></td>
+                <td><select name="" id="">All UNITS
+                        <option value="">One</option>
+                    </select></td>
+                <td><select name="" id="">All UNITS
+                        <option value="">One</option>
+                    </select></td>
+                <td><select name="" id="">All UNITS
+                        <option value="">One</option>
+                    </select></td>
+                <td></td>
+            </tr>
+            <tr>
+                <td class="last-name">Drilldown Level 2</td>
+                <td class="nth-name">OP/IP/Pharmacy</td>
+                <td class="nth-name">OP/IP/Pharmacy</td>
+                <td class="nth-name">OP/IP/Pharmacy</td>
+                <td class="nth-name">OP/IP/Pharmacy</td>
+                <td class="nth-name">YTD%</td>
+            </tr>
+        </table>
+    </div>
+    <div class="performance-section-two">
+        <table>
+            <tr>
+                <th class="bed">Duty Dr/Dr Referral Petty Cash Expenses</th>
+                <th class="beds-bg"></th>
+                <th class="beds-bg"></th>
+            </tr>
+            <tr>
+                <td class="nth-name"></td>
+                <td class="nth-name">UNITS</td>
+                <td class="nth-name">UNITS</td>
+            </tr>
+            <tr>
+                <td class="nth-name">Drilldown Level 2</td>
+                <td class="last-name">Sorted by Value</td>
+                <td class="last-name">Sorted by Value</td>
+
+            </tr>
+            <tr>
+                <td class="nth-name-title">Billable Item Expenses</td>
+                <td class="last-name-letter">UNITS</td>
+                <td class="last-name-letter">UNITS</td>
+            </tr>
+            <tr>
+                <td class="last-name">Billable Item Expenses</td>
+                <td class="nth-name">UNITS</td>
+                <td class="nth-name">UNITS</td>
+            </tr>
+            <tr>
+                <td class="nth-name-title">Non Billable Item Expenses</td>
+                <td class="last-name-letter">UNITS</td>
+                <td class="last-name-letter">UNITS</td>
+            </tr>
+            <tr>
+                <td class="last-name">Drilldown Level 2</td>
+                <td class="nth-name">UNITS</td>
+                <td class="nth-name">UNITS</td>
+            </tr>
+            <tr>
+                <td class="nth-name-title">Receivable</td>
+                <td class="last-name-letter">UNITS</td>
+                <td class="last-name-letter">UNITS</td>
+            </tr>
+        </table>
+    </div>
+</div>
+
+<div class="preformance-dashbaord">
+    <div class="performance-section-one">
+        <table>
+            <tr>
+                <th></th>
+                <th class="board-header">For The Date <br>
+                    07-Jan-2007</th>
+                <th class="board-header">Month to Date</th>
+                <th class="board-header">Current Year to Date (FY)</th>
+                <th class="board-header">Previous Year Same Period</th>
+                <th class="board-header">Growth in Current Year</th>
+            </tr>
+            <tr>
+                <td class="first-name"></td>
+                <td class="nth-name">UNITS</td>
+                <td class="nth-name">UNITS</td>
+                <td class="nth-name">UNITS</td>
+                <td class="nth-name">UNITS</td>
+                <td class="nth-name">YTD%</td>
+            </tr>
+            <tr>
+                <td class="last-name-doc">Doctor Pay Out</td>
+                <td><select name="" id="">All UNITS
+                        <option value="">One</option>
+                    </select></td>
+                <td><select name="" id="">All UNITS
+                        <option value="">One</option>
+                    </select></td>
+                <td><select name="" id="">All UNITS
+                        <option value="">One</option>
+                    </select></td>
+                <td><select name="" id="">All UNITS
+                        <option value="">One</option>
+                    </select></td>
+                <td></td>
+            </tr>
+            <tr>
+                <td class="last-name"></td>
+                <td class="nth-name">Dr Wise with Billed Value, Count & Margin %</td>
+                <td class="nth-name">Dr Wise with Billed Value, Count & Margin %</td>
+                <td class="nth-name">Dr Wise with Billed Value, Count & Margin %</td>
+                <td class="nth-name">Dr Wise with Billed Value, Count & Margin %</td>
+                <td class="nth-name">YTD%</td>
+            </tr>
+        </table>
+    </div>
+    <div class="performance-section-two">
+        <table>
+            <tr>
+                <th class="bed">Pharmacy</th>
+                <th class="beds-bg">Value</th>
+            </tr>
+            <tr>
+                <td class="small">Opening Stock (Cost)</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td class="small">Material in</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td class="small">Material Out</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td class="small">Closing Stock</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td class="nth-name">Drilldown Level 1</td>
+                <td class="nth-name"><select name="" id="">All UNITS
+                        <option value="">One</option>
+                    </select></td>
+            </tr>
+            <tr>
+                <td class="nth-name">Drilldown Level 2</td>
+                <td class="nth-name">Supplier Wise Stock</td>
+            </tr>
+        </table>
+    </div>
+</div>

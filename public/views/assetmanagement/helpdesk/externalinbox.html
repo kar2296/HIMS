@@ -1,0 +1,365 @@
+<style>
+    .top-option:nth-child(1) {
+        background: #00d0ff;
+        color: #fff;
+    }
+
+    .top-option:nth-child(2) {
+        background: #003380;
+        color: #fff;
+    }
+
+    .top-option:nth-child(3) {
+        background: #e09202;
+        color: #fff;
+    }
+
+    */
+    /* .top-option:active {
+        color: #000000 !important;
+        background: crimson !important;
+    } */
+
+    .table>thead>tr>th {
+        padding: 3px;
+    }
+
+    .fooder-bg {
+        height: 35px;
+        border: none;
+        box-shadow: unset;
+        width: 100%;
+        left: 0px;
+    }
+
+
+    .modal .fooder-bg {
+        height: 40px;
+    }
+
+    .layout-fixed .wrapper>section {
+        height: 93vh !important;
+    }
+
+    i.fa.fa-user {
+        color: #ff6347;
+    }
+
+    .btn.btn-default {
+        padding: 0px;
+        border: none;
+    }
+
+    i.fa.fa-check-square.fa-2x {
+        color: #ff8c00;
+    }
+
+    h3 {
+        color: #000;
+    }
+
+    table.uib-daypicker .btn.btn-default {
+        padding: 4px 9px;
+    }
+
+    .nav-tabs>li>a {
+
+        padding: 4px 15px;
+    }
+
+    /* .border_shadow.active {
+        background: crimson !important;
+    } */
+
+    hm {
+        margin: 0px 1px;
+    }
+
+    .layout-fixed .wrapper>section {
+        overflow-x: auto !important;
+    }
+
+    .layout-fixed .wrapper>aside {
+        display: none;
+    }
+
+    .layout-fixed .wrapper>section {
+        margin: 48px 0px 0px 0px;
+    }
+
+    a.hidden-xs.ng-scope {
+        display: none;
+    }
+
+    .himsdash {
+        background: #3B156A;
+        color: #fff;
+        border: none;
+    }
+</style>
+
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+
+    <link rel="stylesheet" type="text/css" href="app/css/helpdesk.css">
+</head>
+
+<header class="clearfix mgt2 hlphdr" ng-click="">
+    <div class="col-sm-12 clearfix">
+
+        <div class="col-xs-3 col-sm-4 col-md-3 col-lg-4" ng-click="">
+            <h2 class="mg2 font_initial hlphead">Help Desk</h2>
+        </div>
+        <div class="col-xs-9 col-sm-8 col-md-9 col-lg-8 pdl0 text-right">
+            <div class="col-xs-3 col-sm-2 col-md-3 col-lg-3 text-center pd0 mg0 topicon " ng-click="addnewticket()">
+                <span class="badge badge-notify hlp_badge"></span>
+                <i class="fa fa-user-plus fa-2x" style="color:#ff7f50"></i>
+                <em>New Ticket</em>
+            </div>
+            <div class="col-xs-3 col-sm-2 col-md-3 col-lg-3 text-center pd0 mg0 topicon" ng-click="">
+                <span class="badge badge-notify hlp_badge">{{Items.AllInProgressCount}}</span>
+                <i class="fa fa-envelope fa-2x" style="color:#2f00ffba"></i>
+                <em>Inbox</em>
+            </div>
+            <!-- <div class="col-xs-3 col-sm-2 col-md-3 col-lg-2 text-center pd0 mg0 topicon" ng-click="">
+                <span class="badge badge-notify hlp_badge"></span>
+                <i class="fa fa-envelope fa-2x" style="color:#0084ffc4"></i>
+                <em>Report</em>
+            </div> -->
+            <div class="col-xs-3 col-sm-2 col-md-3 col-lg-2" ng-click="helpdesk()">
+                <i class="fa fa-arrow-circle-left fa-2x" style="color:#0084ffc4"></i>
+                <em>Back</em>
+            </div>
+            <!-- <div class="col-xs-3 col-sm-2 col-md-3 col-lg-2">
+                <button class="himsdash pull-right" ng-click="hmisprofile()" uib-tooltip="{{'HMIS DashBoard' | translate }}" tooltip-placement="bottom">
+                    <i class="fa fa-dashboard fa-2x"></i>
+                </button>
+            </div> -->
+        </div>
+    </div>
+</header>
+
+<body id="helpdesk">
+    <div class="">
+        <h3 class="mg2 font_initial hlphead">Inbox</h3>
+    </div>
+    <div class="tblhdr ">
+        <div class="col-sm-4 ">
+            <label class="col-sm-6 control-label " for="facility " translate="assetmanagement.assettransfer.frominstitutename.lbl "></label>
+            <div class="col-sm-6">
+                <ui-select ng-model="currentfilter.FacilityId " ng-change="getList() ">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 20 : 0}}
+                        <span ng-if="$select.selected.Text.length>20">...</span>
+                    </ui-select-match>
+                    <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.Company | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <label class="col-sm-6 control-label filter-lbl" translate="assetmanagement.servicerequest.fromdepartment.lbl"></label>
+            <div class="col-sm-6">
+                <ui-select ng-model="currentfilter.FromDepartmentId" ng-change="getList()" class="filter-combo">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 8 : 0}}
+                        <span ng-if="$select.selected.Text.length>8">...</span>
+                    </ui-select-match>
+                    <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.Department | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <div class="form-group">
+                <label class=" sr-only col-sm-5 col-md-4 control-label filter-lbl" translate="assetmanagement.servicerequest.request#.lbl"></label>
+                <div class="input-group col-sm-7 col-md-8">
+                    <input type="text" class="form-control" on-enter="getList()" ng-model="currentfilter.TicketNumberIdentifier" placeholder="">
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <label class="col-sm-6 control-label" translate="assetmanagement.assets.filter_assetcetegory.lbl"></label>
+            <div class="col-sm-6">
+                <ui-select ng-model="currentfilter.CategoryId" ng-change="getList()">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 20 : 0}}
+                        <span ng-if="$select.selected.Text.length>20">...</span>
+                    </ui-select-match>
+                    <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.TicketCategory | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <div class="form-group">
+                <label class=" col-sm-6 control-label filter-lbl" translate="assetmanagement.helpdesk.phoneno.lbl"></label>
+                <div class="col-sm-6">
+                    <input type="text" class="form-control" on-enter="getalltickets()" ng-model="currentfilter.PhoneNo" placeholder="">
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <label class="col-sm-6 control-label" translate="bedmanagement-grid.filter_status.lbl"></label>
+            <div class="col-sm-6">
+                <multiselectchk list="lookup.AssetTicketStatus" selected="currentfilter.AssetTicketStatusId" change="getMyticket()"></multiselectchk>
+            </div>
+        </div>
+    </div>
+    <table class="table table-bordered hlptbl">
+        <thead>
+            <tr>
+                <th scope="col">
+                    <span translate="assetmanagement.helpdesk.slno.lbl"></span>
+                </th>
+                <th scope="col">
+                    <span translate="assetmanagement.helpdesk.createddate.lbl"></span>
+                </th>
+                <th scope="col">
+                    <span translate="assetmanagement.helpdesk.ticketid.lbl"></span>
+                </th>
+                <th scope="col">
+                    <span translate="assetmanagement.helpdesk.subject.lbl"></span>
+                </th>
+                <th scope="col">
+                    <span translate="assetmanagement.helpdesk.category.lbl"></span>
+                </th>
+                <th scope="col">
+                    <span translate="assetmanagement.helpdesk.frminstutn.lbl"></span>
+                </th>
+                <th scope="col">
+                    <span translate="assetmanagement.helpdesk.fromdept.lbl"></span>
+                </th>
+                <th scope="col">
+                    <span translate="assetmanagement.helpdesk.priority.lbl"></span>
+                </th>
+                <th scope="col">
+                    <span translate="assetmanagement.helpdesk.attachment.lbl"></span>
+                </th>
+                <th scope="col">
+                    <span translate="assetmanagement.helpdesk.status.lbl"></span>
+                </th>
+                <th class="col-sm-1" scope="col">Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr ng-repeat="item in servicerequest| filter:{Status:1}" ng-hide="item.AssetTicketStatusId==9||item.AssetTicketStatusId==10">
+                <td scope="row">{{$index+1}}</td>
+                <td>
+                    <displaydate datetime-val="item.CreatedAt"></displaydate>
+                </td>
+                <td>{{item.TicketNumberIdentifier}}</td>
+                <td>{{item.Subject}}</td>
+                <td>{{item.TicketCategory.Description}}</td>
+                <td>{{item.Facility.FacilityName}}</td>
+                <td>{{item.FromDepartment.DepartmentName}}</td>
+                <td>
+                    <span ng-show="item.PriorityId==1" style="color:#ff0000;text-decoration: underline;">{{item.Priority.Description}}</span>
+                    <span ng-if="item.PriorityId==2||item.PriorityId==3">{{item.Priority.Description}}</span>
+                </td>
+                <td>
+                    <button type="button" class="btn btn-primary btn-xs" tabindex="-1" uib-tooltip="{{'common.viewaction.lbl' | translate }}"
+                        tooltip-placement="bottom" ng-hide="item.FilePath==null" ng-click="download($index,item)">
+                        <img class="drhms-edit-button" src="assets/svg/edit.svg" alt="">
+                    </button>
+                    <span ng-Show="item.FilePath==null">No File Attached</span>
+                </td>
+                <td>{{item.AssetTicketStatus.Description}}</td>
+                <td>
+                    <button type="button" class="btn btn-default btn-xs" uib-tooltip="{{'common.viewaction.lbl' | translate }}" tooltip-placement="bottom"
+                        tabindex="-1" ng-click="view($index,item)" ng-if="HasPrivilege('HelpDesk', 'ViewTicket')">
+                        <i class="fa fa-eye fa-2x" aria-hidden="true"></i>
+                    </button>
+                    <button type="button" class="btn btn-default btn-xs" uib-tooltip="{{'common.resolve.lbl' | translate }}" tooltip-placement="bottom"
+                        tabindex="-1" ng-click="resolve($index,item)" ng-if="HasPrivilege('HelpDesk', 'ResolveTicket')" ng-hide="item.AssetTicketStatusId==1||item.AssetTicketStatusId==2||item.AssetTicketStatusId>=7">
+                        <i class="fa fa-check-square fa-2x" aria-hidden="true"></i>
+                    </button>
+                </td>
+            </tr>
+            <tr ng-repeat="item in servicerequest| filter:{Status:1}" style="background-color:#fd7057" ng-show="item.AssetTicketStatusId==9">
+                <td scope="row">{{$index+1}}</td>
+                <td>
+                    <displaydate datetime-val="item.CreatedAt"></displaydate>
+                </td>
+                <td>{{item.TicketNumberIdentifier}}</td>
+                <td>{{item.Subject}}</td>
+                <td>{{item.TicketCategory.Description}}</td>
+                <td>{{item.Facility.FacilityName}}</td>
+                <td>{{item.FromDepartment.DepartmentName}}</td>
+                <td>
+                    <span ng-show="item.PriorityId==1" style="color:#ff0000;text-decoration: underline;">{{item.Priority.Description}}</span>
+                    <span ng-if="item.PriorityId==2||item.PriorityId==3">{{item.Priority.Description}}</span>
+                </td>
+                <td>
+                    <button type="button" class="btn btn-primary btn-xs" tabindex="-1" uib-tooltip="{{'common.viewaction.lbl' | translate }}"
+                        tooltip-placement="bottom" ng-hide="item.FilePath==null" ng-click="download($index,item)">
+                        <img class="drhms-edit-button" src="assets/svg/edit.svg" alt="">
+                    </button>
+                    <span ng-Show="item.FilePath==null">No File Attached</span>
+                </td>
+                <td>{{item.AssetTicketStatus.Description}}</td>
+                <td>
+                    <button type="button" class="btn btn-default btn-xs" uib-tooltip="{{'common.viewaction.lbl' | translate }}" tooltip-placement="bottom"
+                        tabindex="-1" ng-click="view($index,item)" ng-if="HasPrivilege('HelpDesk', 'ViewTicket')">
+                        <i class="fa fa-eye fa-2x" aria-hidden="true"></i>
+                    </button>
+                    <button type="button" class="btn btn-default btn-xs" uib-tooltip="{{'common.resolve.lbl' | translate }}" tooltip-placement="bottom"
+                        tabindex="-1" ng-click="resolve($index,item)" ng-if="HasPrivilege('HelpDesk', 'ResolveTicket')" ng-hide="item.AssetTicketStatusId==1||item.AssetTicketStatusId==2||item.AssetTicketStatusId>=7">
+                        <i class="fa fa-check-square fa-2x" aria-hidden="true"></i>
+                    </button>
+                </td>
+            </tr>
+            <tr ng-repeat="item in servicerequest| filter:{Status:1}" style="background-color:#fde457" ng-show="item.AssetTicketStatusId==10">
+                <td scope="row">{{$index+1}}</td>
+                <td>
+                    <displaydate datetime-val="item.CreatedAt"></displaydate>
+                </td>
+                <td>{{item.TicketNumberIdentifier}}</td>
+                <td>{{item.Subject}}</td>
+                <td>{{item.TicketCategory.Description}}</td>
+                <td>{{item.Facility.FacilityName}}</td>
+                <td>{{item.FromDepartment.DepartmentName}}</td>
+                <td>
+                    <span ng-show="item.PriorityId==1" style="color:#ff0000;text-decoration: underline;">{{item.Priority.Description}}</span>
+                    <span ng-if="item.PriorityId==2||item.PriorityId==3">{{item.Priority.Description}}</span>
+                </td>
+                <td>
+                    <button type="button" class="btn btn-primary btn-xs" tabindex="-1" uib-tooltip="{{'common.viewaction.lbl' | translate }}"
+                        tooltip-placement="bottom" ng-hide="item.FilePath==null" ng-click="download($index,item)">
+                        <img class="drhms-edit-button" src="assets/svg/edit.svg" alt="">
+                    </button>
+                    <span ng-Show="item.FilePath==null">No File Attached</span>
+                </td>
+                <td>{{item.AssetTicketStatus.Description}}</td>
+                <td>
+                    <button type="button" class="btn btn-default btn-xs" uib-tooltip="{{'common.viewaction.lbl' | translate }}" tooltip-placement="bottom"
+                        tabindex="-1" ng-click="view($index,item)" ng-if="HasPrivilege('HelpDesk', 'ViewTicket')">
+                        <i class="fa fa-eye fa-2x" aria-hidden="true"></i>
+                    </button>
+                    <button type="button" class="btn btn-default btn-xs" uib-tooltip="{{'common.resolve.lbl' | translate }}" tooltip-placement="bottom"
+                        tabindex="-1" ng-click="resolve($index,item)" ng-if="HasPrivilege('HelpDesk', 'ResolveTicket')" ng-hide="item.AssetTicketStatusId==1||item.AssetTicketStatusId==2||item.AssetTicketStatusId>=7">
+                        <i class="fa fa-check-square fa-2x" aria-hidden="true"></i>
+                    </button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <!---ends ng-show="currentcontext.IsShowTab==true&&currentcontext.option!='myworkorder'"
+                            ng-click="resolve($index,item)"-->
+    <div class="fooder-bgs">
+        <div class="row">
+            <!-- <p class="summary_footer">&copy; 2018
+                <a href="http://www.gloomsofttechnologies.com/">gloomsoft Technologies India Private Ltd</a>
+            </p> -->
+        </div>
+    </div>
+</body>
+
+</html>

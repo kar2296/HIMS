@@ -1,0 +1,73 @@
+<style>
+.dem-color4{
+background-color: #3c5a76 !important;
+    color: #000000 !important;
+    font-size: 11px;
+    width: 100% !important;
+}</style>
+<div class="row page-header">
+    <div class="col-sm-12">
+        <h4 class="mt0" translate="Send To MRD"></h4>
+    </div>
+</div>
+<div class="row">
+    <div class="drhms-list-filters">
+        <div class="col-sm-3">
+            <label class="col-sm-12" translate="Patient Name"></label>
+            <div class="col-sm-12">
+                <div class="search">
+                    <input type="text" class="form-control" on-enter="getList()" ng-model="currentfilter.PatientName"
+                        placeholder="NAME/MRN">
+                    <i class="fas fa-search" aria-hidden="true"></i>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-3">
+            <label class="col-sm-12" translate="VisitNo"></label>
+            <div class="col-sm-12">
+                <div class="search">
+                    <input type="text" class="form-control" on-enter="getList()" ng-model="currentfilter.VisitNo"
+                        placeholder="VisitNo">
+                    <i class="fas fa-search" aria-hidden="true"></i>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-3">
+            <label class="col-sm-12" translate="DOD"></label>
+            <div class="col-sm-12">
+                <div id="datepicker">
+                    <input type="text" class="form-control" name="dateofbirth" ng-change="getList()"
+                        datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}"
+                        uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                        placeholder="{{datePickerOptions.placeholder}}" ng-click="dateofbirthPopup = { opened: true }"
+                        is-open="dateofbirthPopup.opened" ng-model="currentfilter.DOD">
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-3">
+            <label class="col-sm-12" translate="Doctor"></label>
+            <div class="col-sm-12">
+                <ui-select ng-model="currentfilter.DoctorId" ng-change="getList()" class="filter-combo">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 20 : 0}}
+                        <span ng-if="$select.selected.Text.length>20">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.User | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <custom-table config="vm.gridConfig"></custom-table>
+</div>
+<div class="fooder-bgs">
+    <div class="row">
+        <ul uib-pagination total-items="vm.gridConfig.pagerObj.totalItems"
+            items-per-page="vm.gridConfig.pagerObj.pageSize" start-index="vm.gridConfig.pagerObj.startIndex"
+            ng-model="vm.gridConfig.pagerObj.currentPage" ng-change="getList()"></ul>
+    </div>
+</div>

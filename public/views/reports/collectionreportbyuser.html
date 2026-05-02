@@ -1,0 +1,330 @@
+<style>
+    .nameinfo {
+        font-size: 13px;
+        font-weight: 700;
+        color: #337ab7;
+    }
+
+    .nameinfo.mrninfo {
+        color: black
+    }
+
+    .contactinfo {
+        font-size: 10px;
+        color: #808080
+    }
+
+    .block {
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        overflow: hidden;
+    }
+
+    #facilitysheight .ui-grid-viewport {
+        width: 100%;
+        /* height: 460px!important; */
+        height: 72vh;
+        min-height: 70vh;
+    }
+
+    @media (device-width:100vw) and (device-height:100vh) {
+        #facilitysheight .ui-grid-viewport {
+            height: 76vh;
+            min-height: 74vh;
+        }
+    }
+
+    .table-uigrid {
+        margin-left: 10px;
+        margin-right: 10px;
+        height: 488px !important;
+    }
+
+    .linkstyle {
+        font-weight: 700;
+        text-align: right;
+    }
+
+    .statusinfo {
+        font-size: 13px;
+    }
+
+    .form-group {
+        margin-bottom: 7px !important;
+    }
+
+    .sr-only {
+        height: 22px !important;
+    }
+</style>
+
+
+<div class="row page-header">
+    <h4 class="col-sm-10 mt0" translate="reports.collectionreportbyuser.lbl"></h4>
+    <div class="col-sm-2">
+        <div class="filters">                
+            <i class="icofont-filter" uib-tooltip="Filter" tooltip-placement="bottom" ng-click="openFilterTab()"></i>
+            <i class="icofont-file-excel"  uib-tooltip="Excel" tooltip-placement="bottom" onclick="exportTableToExcel('tblData', 'members-data')"></i>
+            <i class="icofont-print" uib-tooltip="Print" tooltip-placement="bottom"  ng-click="print()"></i>
+            <i class="icofont-home" ng-click="backtoReport()" tabindex="-1" uib-tooltip="Report" tooltip-placement="bottom"></i>
+        </div>
+        </div>
+</div>
+<div class="">
+    <div class="col-sm-12">
+        <!-- <div class="col-sm-6">
+            <label class="col-sm-4 control-label filter-lbl" translate="reports.fromdate.lbl"></label>
+            <div class="col-sm-8 ">
+                <input type="text" class="form-control" name="from" ng-change="getList()"
+                    datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}"
+                    uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                    placeholder="{{datePickerOptions.placeholder}}" ng-click="fromdatePopup = { opened: true }"
+                    is-open="fromdatePopup.opened" ng-model="currentfilter.FromDate">
+            </div>
+        </div> -->
+        <!-- <div class="col-sm-6">
+            <label class="col-sm-4 control-label filter-lbl" translate="reports.todate.lbl"></label>
+            <div class="col-sm-8 ">
+                <input type="text" class="form-control" name="from" ng-change="getList()"
+                    datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}"
+                    uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                    placeholder="{{datePickerOptions.placeholder}}" ng-click="todatePopup = { opened: true }"
+                    is-open="todatePopup.opened" ng-model="currentfilter.ToDate">
+            </div>
+        </div> -->
+      <div class="row">
+        <table id="bannerdetails">
+            <tr>
+                <td translate="reports.fromdate.lbl"></td>
+                <td>
+                        <div class="datepicker">
+                               
+                      <input type="text" class="form-control" name="from" ng-change="getList()"
+                    datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}"
+                    uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                    placeholder="{{datePickerOptions.placeholder}}" ng-click="fromdatePopup = { opened: true }"
+                    is-open="fromdatePopup.opened" ng-model="currentfilter.FromDate">
+                    <i class="fa fa-calendar" aria-hidden="true"></i>
+                </div>
+            </td>
+                <td translate="reports.todate.lbl"></td>
+                <td><div class="datepicker">
+                       
+                    <input type="text" class="form-control" name="from" ng-change="getList()"
+                    datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}"
+                    uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                    placeholder="{{datePickerOptions.placeholder}}" ng-click="todatePopup = { opened: true }"
+                    is-open="todatePopup.opened" ng-model="currentfilter.ToDate">
+                    <i class="fa fa-calendar" aria-hidden="true"></i>
+                </div></td>
+            </tr>
+        </table>
+      </div>
+            
+            
+        <div id='reportslist'>
+            <div>
+                <table class="table table-hover table-responsive table-bordered"  id="tblData">
+                    <thead class="bg-subhead">
+                        <tr>
+                            <th rowspan="2" style="text-align: center;">
+                                <span translate="reports.snum.lbl"></span>
+                            </th>
+                            <th rowspan="2" style="text-align: center;">
+                                <span translate="reports.username.lbl"></span>
+                            </th>
+                            <th colspan="4" style="text-align: center;">
+                                <span translate="reports.coll.lbl"></span>
+                            </th>
+                            <th colspan="4" style="text-align: center;">
+                                <span translate="reports.refund.lbl"></span>
+                            </th>
+                            <!-- <th colspan="3" style="text-align: center;">
+                                <span translate="patientemr.criticalcharts.cns.lbl"></span>
+                            </th>
+                            <th rowspan="2" style="text-align: center;">
+                                <span translate="patientemr.criticalcharts.git.lbl"></span>
+                            </th>
+                            <th rowspan="2" style="text-align: center;">
+                                <span translate="patientemr.criticalcharts.spo2.lbl"></span>
+                            </th>
+                            <th rowspan="2" style="text-align: center;">
+                                <span translate="patientemr.criticalcharts.remarks.lbl"></span>
+                            </th>
+                            <th rowspan="2" style="text-align: center;">
+                                <span translate="common.actions_col.lbl"></span>
+                            </th> -->
+                        </tr>
+                        <tr>
+                            <th style="text-align: center;">
+                                <span translate="reports.cash.lbl"></span>
+                            </th>
+                            <th style="text-align: center;">
+                                <span translate="reports.card.lbl"></span>
+                            </th>
+                            <th style="text-align: center;">
+                                <span translate="reports.others.lbl"></span>
+                            </th>
+                            <th style="text-align: center;">
+                                <span translate="reports.netcoll.lbl"></span>
+                            </th>
+                            <th style="text-align: center;">
+                                <span translate="reports.cash.lbl"></span>
+                            </th>
+                            <th style="text-align: center;">
+                                <span translate="reports.card.lbl"></span>
+                            </th>
+                            <th style="text-align: center;">
+                                <span translate="reports.others.lbl"></span>
+                            </th>
+                            <th style="text-align: center;">
+                                <span translate="reports.netrefund.lbl"></span>
+                            </th>
+                            <!-- <th style="text-align: center;">
+                                <span translate="patientemr.criticalcharts.leftpupils.lbl"></span>
+                            </th>
+                            <th style="text-align: center;">
+                                <span translate="patientemr.criticalcharts.rightpupils.lbl"></span>
+                            </th> -->
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="item in Paymentdetails ">
+                            <!-- <td>
+                                <span>{{item.MonitorChartDate}} {{item.MonitorChartTime}} </span>
+                            </td> -->
+                            <td>
+                                <span>{{item.SNo}}</span>
+                            </td>
+                            <td>
+                                <span>{{item.UserName}}</span>
+                            </td>
+                            <td>
+                                <span>{{item.Cash}}</span>
+                            </td>
+                            <td>
+                                <span>{{item.Card}}</span>
+                            </td>
+                            <td>
+                                <span>{{item.Others}}</span>
+                            </td>
+                            <td>
+                                <span>{{item.NetCollection}}</span>
+                            </td>
+                            <td>
+                                <span>{{item.RightPupil}}</span>
+                                <span>{{item.DiscountMode.Description}}</span>
+                            </td>
+                            <td>
+                                <span>{{item.LeftPupil}}</span>
+                                <span>{{item.DiscountMode.Description}}</span>
+                            </td>
+                            <td>
+                                <span>{{item.GIT}}</span>
+                                <span>{{item.DiscountMode.Description}}</span>
+                            </td>
+                            <td>
+                                <span>{{item.SPO2}}</span>
+                                <span>{{item.DiscountMode.Description}}</span>
+                            </td>
+                            <!-- <td>
+                                <span>{{item.Remarks}}</span>
+                            </td> -->
+                            <!-- <td>
+                                <button class="btn btn-danger btn-xs" tabindex="-1" style="vertical-align: super;" ng-click="openObservations(item)">
+                                    <i class="fa fa-comment" aria-hidden="true"></i>
+                                </button>
+                                <button class="btn btn-success btn-xs" tabindex="-1" style="vertical-align: super;" ng-click="edit(item, $index)">
+                                    <i class="fa fa-pencil" aria-hidden="true"></i>
+                                </button>
+                            </td> -->
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <!-- <div class="col-sm-3">
+            <label class="col-sm-4 control-label filter-lbl" translate="reports.clinics.lbl"></label>
+            <div class="col-sm-8">
+                <ui-select ng-model="currentfilter.FacilityId" ng-change="getList()" class="filter-combo">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 8 : 0}}
+                        <span ng-if="$select.selected.Text.length>8">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.Facility | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+        <div class="col-sm-3">
+            <label class="col-sm-4 control-label filter-lbl" translate="reports.referraldoctor.lbl"></label>
+            <div class="col-sm-8">
+                <autosearch itemid="currentfilter.ReferrerId" iteminfo="" name="'referredby'" rowdata=""
+                    config="vm.referralcontrolconfig" itemchange="getList()" onenter="onenter(data)">
+                </autosearch>
+            </div>
+        </div> -->
+    </div>
+</div>
+<div class="fooder-bgs"></div>
+<!-- <div class="container-fluid " id="patientsearchheight">
+    <div ui-grid="vm.gridConfig" class="table-uigrid table-uigrid-tab"></div>
+    <div class="site-footer panel-footer">
+        <div class="footer-right">
+            <button type="button"   class="pull-left btn btn-inverse btn-sm"
+                translate="common.printaction.lbl" ng-click="print()"></button>
+        </div>
+        <div class="row">
+            <ul uib-pagination total-items="vm.gridConfig.pagerObj.totalItems"
+                items-per-page="vm.gridConfig.pagerObj.pageSize" start-index="vm.gridConfig.pagerObj.startIndex"
+                ng-model="vm.gridConfig.pagerObj.currentPage" ng-change="getList()"></ul>
+        </div>
+    </div>
+</div> -->
+<!--<div class=" container-fluid " id="facilitysheight ">
+    <div ui-grid="vm.gridConfig " class="table-uigrid table-uigrid-tab "></div>
+
+    <div class="fooder-bg ">
+        <div class="row ">
+                                    <button type="button"   class="btn btn-inverse0 btn-sm btn-primary" translate="Biochemistry" ng-click="printbiochemistry()"
+                            ng-if="HasPrivilege('LISResultApproval', 'Biochemistry')&&HasPrivilege('LISOrderProcess', 'L_OP_Biochemistry')&&item.WorkOrderStatusId > 2"></button>
+            <ul uib-pagination total-items="vm.gridConfig.pagerObj.totalItems " items-per-page="vm.gridConfig.pagerObj.pageSize
+                    " start-index="vm.gridConfig.pagerObj.startIndex " ng-model="vm.gridConfig.pagerObj.currentPage " ng-change="getList() "></ul>
+        </div>
+    </div>
+</div>-->
+
+<script>
+    function exportTableToExcel(tableID, filename = ''){
+            var downloadLink;
+            var dataType = 'application/vnd.ms-excel';
+            var tableSelect = document.getElementById(tableID);
+            var tableHTML = tableSelect.outerHTML.replace(/ /g, '%20');
+            
+            // Specify file name
+            filename = filename?filename+'.xls':'excel_data.xls';
+            
+            // Create download link element
+            downloadLink = document.createElement("a");
+            
+            document.body.appendChild(downloadLink);
+            
+            if(navigator.msSaveOrOpenBlob){
+                var blob = new Blob(['\ufeff', tableHTML], {
+                    type: dataType
+                });
+                navigator.msSaveOrOpenBlob( blob, filename);
+            }else{
+                // Create a link to the file
+                downloadLink.href = 'data:' + dataType + ', ' + tableHTML;
+            
+                // Setting the file name
+                downloadLink.download = filename;
+                
+                //triggering the function
+                downloadLink.click();
+            }
+        }
+</script>

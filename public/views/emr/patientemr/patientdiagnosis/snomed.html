@@ -1,0 +1,223 @@
+<style>
+    .container-fluid {
+        margin-left: 0px;
+        margin-right: 0px;
+        margin-bottom: 0px;
+        background-image: url(app/img/bg-body.jpg);
+        background-repeat: repeat;
+    }
+
+    .modal-header {
+        padding: 9px 10px;
+        /* background-color: #597a9a; */
+        color: #000;
+    }
+
+    .custom-modal-header {
+        margin-bottom: 10px !important;
+    }
+
+    .panel-footer {
+        padding: 2px 15px !important;
+        ;
+    }
+
+    .modal-content {
+        height: 500px !important;
+    }
+
+    /* .modal-lg {
+        width: 1200px !important;
+    } */
+
+    .cus-col {
+        width: 120px !important;
+        padding-left: 3px !important;
+
+    }
+
+    .custom-table {
+        margin-bottom: 0px !important;
+    }
+
+    .date {
+        color: #ff902b;
+        font-size: 14px;
+        font-style: inherit;
+    }
+
+    .doctor {
+        color: #ec2c3c;
+        font-size: 14px;
+        font-weight: 700;
+    }
+
+    .type {
+        color: teal;
+    }
+
+    .condition {
+        color: #0070ff;
+        font-size: 14px;
+        font-style: italic;
+        font-weight: 600;
+    }
+
+    .name {
+        color: #ef3cdf;
+        font-size: 14px;
+        font-weight: 500;
+    }
+
+    .code {
+        color: #02770c;
+        font-size: 14px;
+        font-weight: 500;
+    }
+</style>
+<div ng-if="BlockScreen" id="divgifLoading">Loading<span class="lod"></span></div>
+<div class="modal-header custom-modal-header">
+    <h4 class="modal-title custom-modal-title" translate="patientemr.snomed.pagetitle.lbl"></h4>
+</div>
+<div class="col-sm-12 pd0">
+    <div class="table-responsive" id="mainresponsivetablecontrol" style="height:400px;">
+        <div class="col-sm-12">
+            <div class="col-sm-5">
+                <table class="table table-hover table-responsive table-bordered custom-table">
+                    <tbody>
+                        <tr>
+                            <td width="80%">
+                                <input type="text" class="form-control" name="snomed" ng-model="item.Description"
+                                    placeholder="">
+                            </td>
+                            <td width="20%">
+                                <button type="button" class="btn btn-warning" autofocus tabindex="-1"
+                                    ng-click="getSNOMED()" translate="patientemr.snomed.fetch.lbl"
+                                    tooltip-placement="top">
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <table class="table table-hover table-responsive table-bordered custom-table">
+                    <thead class="bg-subhead">
+                        <tr>
+                            <th width="30%">
+                                <span>Concept Id</span>
+                            </th>
+                            <th width="60%">
+                                <span>Concept Name</span>
+                            </th>
+                            <th width="10%">
+                                <span>Action</span>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="concept in Concepts">
+                            <td width="30%">
+                                {{concept.ConceptId | limitTo: 12}}{{concept.ConceptName.length > 12 ? '...' : ''}}
+                            </td>
+                            <td width="60%">
+                                {{concept.ConceptName | limitTo: 20}}{{concept.ConceptName.length > 20 ? '...' : ''}}
+                            </td>
+                            <td width="10%">
+                                <span class="grid-action" ng-click="MappedItems(concept)">
+                                    <i class="btn btn-success btn-rounded fa fa-eye" aria-hidden="true"></i>
+                                </span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="col-sm-7">
+                <div class="col-sm-12 modal-header custom-modal-header">
+                    <h4 class="modal-title custom-modal-title" translate="patientemr.snomed.mappinglist.lbl"></h4>
+                </div>
+                <div class="col-sm-12">
+                    <h4 style="background-color: yellow;color:red;"> {{SelectedConcept}} </h4>
+                </div>
+                <div class="col-sm-12">
+                    <h4> Parent Data </h4>
+                    <table class="table table-hover table-responsive table-bordered custom-table">
+                        <thead class="bg-subhead">
+                            <tr>
+                                <th width="30%">
+                                    <span>Concept Id</span>
+                                </th>
+                                <th width="60%">
+                                    <span>Concept Name</span>
+                                </th>
+                                <th width="10%">
+                                    <span>Action</span>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="parentitem in ParentConcept">
+                                <td width="30%">
+                                    {{parentitem.ConceptId}}
+                                </td>
+                                <td width="60%">
+                                    {{parentitem.ConceptName}}
+                                </td>
+                                <td width="10%">
+                                    <span class="grid-action" ng-click="MappedItems(parentitem)">
+                                        <i class="btn btn-success btn-rounded fa fa-eye" aria-hidden="true"></i>
+                                    </span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <h4> Child Data </h4>
+                    <table class="table table-hover table-responsive table-bordered custom-table">
+                        <thead class="bg-subhead">
+                            <tr>
+                                <th width="30%">
+                                    <span>Concept Id</span>
+                                </th>
+                                <th width="60%">
+                                    <span>Concept Name</span>
+                                </th>
+                                <th width="10%">
+                                    <span>Action</span>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="childitem in ChildConcept">
+                                <td width="30%">
+                                    {{childitem.ConceptId}}
+                                </td>
+                                <td width="60%">
+                                    {{childitem.ConceptName}}
+                                </td>
+                                <td width="10%">
+                                    <span class="grid-action" ng-click="MappedItems(childitem)">
+                                        <i class="btn btn-success btn-rounded fa fa-eye" aria-hidden="true"></i>
+                                    </span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="fooder-bgs">
+        <div class="row ">
+            <div class="col-sm-12">
+                <div class="pull-left">
+
+                </div>
+                <div class="pull-right">
+                    <button type="submit" class="draftbutton" ng-click="AddPatientCondition()"
+                        translate="common.saveaction.lbl"></button>
+                    <button id="btnCancelForm" type="button" class="draftbutton" ng-click="cancelCallback()"
+                        translate="common.cancelaction.lbl"></button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

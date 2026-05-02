@@ -1,0 +1,90 @@
+<div class="modal-header custom-modal-header">
+    <div class="col-sm-4">
+        <h4 class="modal-title custom-modal-title" translate="Procedures Favorites"></h4>
+    </div>
+</div>
+
+<div class="row">
+    <div class="form-group col-sm-4">
+        <label class="col-sm-4" translate="Speciality"></label>
+        <div class="col-sm-8">
+            <ui-select ng-model="currentfilter.SpecialityId" ng-change="getpmrs()" class="filter-combo">
+                <ui-select-match>
+                    {{$select.selected.Text | limitTo : 20 : 0}}
+                    <span ng-if="$select.selected.Text.length>20">...</span>
+                </ui-select-match>
+                <ui-select-choices
+                    repeat="lookupitem.Id as lookupitem in lookup.Department | filter: { Text: $select.search }">
+                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                </ui-select-choices>
+            </ui-select>
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="col-sm-4">
+            <label class="col-sm-5 control-label" translate="Name"></label>
+            <div class="input-group col-sm-7">
+                <ui-select ng-model="currentfilter.PMRId" ng-change="getList()">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 20 : 0}}
+                        <span ng-if="$select.selected.Text.length>20">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.PMR | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="table-control">
+        <div class=" bg-pattern">
+            <div class="table-height formRoot" id="mainresponsivetablecontrol">
+                <table class="table table-hover table-responsive table-bordered">
+                    <thead class="bg-subhead">
+                        <tr>
+                            <th>
+                                <span translate="inventory.pmrmaster.itemname.lbl"></span>
+                            </th>
+                            <th>
+                                <span translate="inventory.pmrmaster.genericname.lbl"></span>
+                            </th>
+                            <th>
+                                <span translate="inventory.pmrmaster.producttype.lbl"></span>
+                            </th>
+                            <th>
+                                <span translate="inventory.pmrmaster.quantity.lbl"></span>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="item in pmrDetails | filter:{Status:1}">
+                            <td class="text-center  col-sm-2">
+                                {{item.ItemInfo}}
+                            </td>
+                            <td>
+                                <span> {{item.GenericName}}</span>
+                            </td>
+                            <td>
+                                <span> {{item.ProductType }}</span>
+                            </td>
+                            <td class="col-sm-3 text-center">
+                                <input type="number" class="form-control" ng-model="item.Quantity">
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="fooder-bgs">
+    <div class="row">
+        <div class="pull-right">
+            <button type="button" id="loadbtnsubmit" class="draftbutton" translate="pickdispenselist.load.lbl"
+                ng-click="Load()"></button>
+        </div>
+    </div>
+</div>

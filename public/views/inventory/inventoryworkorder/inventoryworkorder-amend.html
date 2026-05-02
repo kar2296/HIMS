@@ -1,0 +1,606 @@
+<link rel="stylesheet" href="app/css/drhms.css">
+<style>
+    table.drhms-responsive-table thead th {
+        padding: 5px 20px;
+        white-space: nowrap;
+    }
+
+    input#desc0 {
+        width: 260px
+    }
+
+    autosearch.inputsearchlogo table.table.table-bordered.table-condensed.dropdown-menu.align {
+        margin-left: -200px;
+    }
+
+    .drhms-table-responsive-height {
+        min-height: 300px;
+        overflow: unset !important;
+        overflow-x: scroll !important;
+    }
+
+    button.drhms-add-btn {
+        margin: 10px;
+        border-radius: 16px;
+        background: #E91E63;
+        border: 0px;
+        height: 30px;
+        width: 30px;
+        color: white;
+    }
+
+    .form-group.commnet {
+        margin-bottom: 20px;
+    }
+</style>
+<div class="row">
+    <div class="drhms-filters">
+        <div class="col-sm-8">
+            <h4 translate="Work Order Amend"></h4>
+        </div>
+        <div class="col-sm-4">
+            <span translate="inventory.inventoryworkorder.status.lbl"></span>:
+            <span class="status">{{item.DisplayRequestStatus}}</span>
+            <!-- <span class="update-status" translate="inventory.purchaseorders.status.lbl">: {{item.DisplayPoStatus}} -->
+            </span>
+        </div>
+        <div class="col-sm-4">
+            <autosearch itemid="item.VendorMasterId" name="'stockingpoint'" iteminfo="" rowdata=""
+                config="vm.vendorcontrolconfig" itemchange="" placeholder="'Supplier'"></autosearch>
+        </div>
+        <div class="col-sm-2">
+            <button type="button" tabindex="-1" class="btn-add" ng-click="addNew()"
+                uib-tooltip="{{ 'inventory.inventoryworkorder.pagetitle.lbl' | translate }}" tooltip-placement="bottom">
+                <i class="fa fa-plus" aria-hidden="true"></i>
+            </button>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <form id="item_form" name="item_form" class="form-horizontal" role="form">
+        <div class="drhms-table-top-header">
+            <div class="drhms-table-head-border">
+                <div class="col-sm-12">
+                    <label class="col-sm-4" for="type" translate="inventory.inventoryworkorder.type.lbl"></label>
+                    <div class="col-sm-8">
+                        <ui-select ng-model="item.InvWorkorderTypeId" ng-disabled="isDisabled" ng-change="getList()"
+                            name="type" required>
+                            <ui-select-match>
+                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                <span ng-if="$select.selected.Text.length>20">...</span>
+                            </ui-select-match>
+                            <ui-select-choices
+                                repeat="lookupitem.Id as lookupitem in lookup.InvWorkorderType | filter: { Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                </div>
+                <div class="col-sm-12">
+                    <label class="col-sm-4" translate="inventory.inventoryworkorder.workorderno.lbl"></label>
+                    <div class="col-sm-8">: {{item.InvWorkorderNo}}
+                    </div>
+                </div>
+                <div class="col-sm-12">
+                    <label class="col-sm-4" for="Location" translate="Location/Branch"></label>
+                    <div class="col-sm-8">
+                        <ui-select ng-model="item.FacilityId" ng-disabled="isDisabled" ng-change="getList()"
+                            name="Location" required>
+                            <ui-select-match>
+                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                <span ng-if="$select.selected.Text.length>20">...</span>
+                            </ui-select-match>
+                            <ui-select-choices
+                                repeat="lookupitem.Id as lookupitem in lookup.Facility | filter: { Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                </div>
+            </div>
+            <div class="drhms-table-head-border">
+                <div class="col-sm-12">
+                    <label class="col-sm-4" for="StoreMaster" translate="Store"></label>
+                    <div class="col-sm-8">
+                        <ui-select ng-model="item.StoreMasterId" ng-disabled="isDisabled" ng-change="getList()"
+                            name="StoreMaster" required>
+                            <ui-select-match>
+                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                <span ng-if="$select.selected.Text.length>20">...</span>
+                            </ui-select-match>
+                            <ui-select-choices
+                                repeat="lookupitem.Id as lookupitem in lookup.UserStores | filter: { Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                </div>
+                <div class="col-sm-12">
+                    <label class="col-sm-4" translate="Vendor"></label>
+                    <div class="col-sm-8">: {{item.VendorCode}}&nbsp;{{item.VendorName}}
+                    </div>
+                </div>
+
+
+            </div>
+            <div class="drhms-table-head-border">
+                <div class="col-sm-12">
+                    <label class="col-sm-4" for="stockingpoint"
+                        translate="inventory.inventoryworkorder.department.lbl"></label>
+                    <div class="col-sm-8">
+                        <ui-select ng-model="item.DepartmentId" ng-disabled="isDisabled" ng-change="getList()"
+                            name="stockingpoint">
+                            <ui-select-match>
+                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                <span ng-if="$select.selected.Text.length>20">...</span>
+                            </ui-select-match>
+                            <ui-select-choices
+                                repeat="lookupitem.Id as lookupitem in lookup.Department | filter: { Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                </div>
+                <div class="col-sm-12">
+                    <label class="col-sm-4" translate="inventory.stockrequest.date.lbl"></label>
+                    <div class="col-sm-8">:
+                        <span class="head-title">
+                            <displaydate datetime-val="item.InvWorkorderDate"></displaydate>
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div class="drhms-table-head-border">
+                <div class="col-sm-12">
+                    <label class="col-sm-4" for="diposeddate" translate="WO Date"></label>
+                    <div class="col-sm-8">
+                        <div class="datepicker">
+                            <input type="text" class="form-control" name="diposeddate" ng-date-object
+                                datepicker-options="datePickerOptions" ng-disabled="isDisabled"
+                                show-button-bar="{{datePickerOptions.showButtonBar}}"
+                                uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                                placeholder="{{datePickerOptions.placeholder}}"
+                                ng-click="expirydatePopup = { opened: true }" is-open="expirydatePopup.opened"
+                                ng-model="item.InvWorkorderDate" ng-change="getList()">
+                            <i class="fa fa-calendar" aria-hidden="true"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-12">
+                    <label class="col-sm-4" for="disposeddate" translate="WO Instructions"></label>
+                    <div class="col-sm-8">
+                        <textarea name="otherinformation" rows="2" ng-disabled="isDisabled" ng-model="item.Comments"
+                            class="form-control notes-textarea "></textarea>
+                    </div>
+                </div>
+                <div class="col-sm-12">
+                    <label class="col-sm-4" for="head" translate="Head"></label>
+                    <div class="col-sm-8">
+                        <ui-select ng-model="item.ParticularId" name="head" required class="filter-combo"
+                            ng-disabled="item.isDisabled" ng-change="onHeadSelected()">
+                            <ui-select-match>
+                                {{$select.selected.Text | limitTo : 8 : 0}}
+                                <span ng-if="$select.selected.Text.length > 8">...</span>
+                            </ui-select-match>
+                            <ui-select-choices
+                                repeat="lookupitem.Id as lookupitem in lookup.Particular | filter: { Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+<div class="pull-right">
+    <button  class="drhms-add-btn" ng-click="addNewLineItem()"
+        uib-tooltip="{{ 'Add Particulars' | translate }}" tooltip-placement="bottom">
+        <i class="fas fa-plus-square"></i>
+    </button>
+</div>
+<div class="col-sm-12">
+    <form id="item_form" name="item_form" class="form-horizontal" role="form">
+        <div class="drhms-table-control">
+            <div class="drhms-bg-pattern">
+                <div class="drhms-table-responsive-height">
+                    <table class="drhms-responsive-table">
+                        <thead class="bg-subhead">
+                            <tr>
+                                <th>
+                                    <span translate="inventory.inventoryworkorder.sno#.lbl"></span>
+                                </th>
+                                <th style="width: 15%;">
+                                    <span translate="Head"></span>
+                                </th>
+                                <th style="width: 18%;">
+                                    <span translate="Work Description"></span>
+                                </th>
+                                <th>
+                                    <span translate="inventory.inventoryworkorder.qty.lbl"></span>
+                                </th>
+                                <th>
+                                    <span translate="Rate"></span>
+                                </th>
+                                <th style="width: 5%;">
+                                    <span translate="inventory.purchaseorder.discountmode.lbl"></span>
+                                </th>
+                                <th>
+                                    <span translate="inventory.inventoryworkorder.discount.lbl"></span>
+                                </th>
+                                <th style="width: 5%;">
+                                    <span translate="inventory.purchaseorder.taxorgst.lbl"></span>
+                                </th>
+                                <th>
+                                    <span translate="inventory.inventoryworkorder.netamount.lbl"></span>
+                                </th>
+                                <th>
+                                    <span translate="SAC Code"></span>
+                                </th>
+                                <!-- <th>
+                                    <span translate="inventory.inventoryworkorder.remarks.lbl"></span>
+                                </th> -->
+                                <th>
+                                    <span translate="inventory.inventoryworkorder.action.lbl"></span>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+
+                            <tr ng-repeat="item in invworkorderDetails | filter:{Status:1}">
+                                <td class="">
+                                    <!-- <span> {{item.SNo + 1}}</span> -->
+                                    <span> {{$index + 1}}</span>
+                                </td>
+                                <td class="">
+                                    <ui-select ng-model="item.ParticularId" class="filter-combo"
+                                        ng-disabled="true">
+                                        <ui-select-match>
+                                            {{$select.selected.Text | limitTo : 8 : 0}}
+                                            <span ng-if="$select.selected.Text.length > 8">...</span>
+                                        </ui-select-match>
+                                        <ui-select-choices
+                                            repeat="lookupitem.Id as lookupitem in lookup.Particular | filter: { Text: $select.search }">
+                                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                        </ui-select-choices>
+                                    </ui-select>
+                                    <!-- <input type="text" class="form-control" ng-model="item.ParticularHead" ng-disabled="isDisabled"> -->
+                                </td>
+                                <td class="">
+                                    <!-- <textarea  type="text"  class="form-control" ng-model="item.Particulars" onenter="AddNewRow()" ng-disabled="isDisabled"></textarea> -->
+                                    <textarea type="text" class="form-control" ng-model="item.Particulars"> </textarea>
+                                </td>
+                                <td>
+                                    <input type="text" class="form-control" ng-model="item.Quantity"
+                                         ng-change="calculatetotalAmount(item)"
+                                        onChange="numberonly($event)" onKeyUp="numberonly($event)"
+                                        ng-keypress="numberonly($event)">
+                                </td>
+
+                                <td class="">
+                                    <input type="text" class="form-control" ng-change="calculatetotalAmount(item)"
+                                        ng-model="item.Amount" onChange="numberwithdecimal($event)"
+                                        onKeyUp="numberwithdecimal($event)" ng-keypress="numberwithdecimal($event)">
+                                </td>
+                                <td>
+                                    <ui-select ng-model="item.DiscountModeId" ng-change="computeforgivenDiscount(item)"
+                                        class="filter-combo"
+                                        on-select="onDiscountModeChange(item, $select.selected, $index)">
+                                        <ui-select-match>
+                                            {{$select.selected.Text | limitTo : 8 : 0}}
+                                            <span ng-if="$select.selected.Text.length > 8">...</span>
+                                        </ui-select-match>
+                                        <ui-select-choices
+                                            repeat="lookupitem.Id as lookupitem in lookup.DiscountMode | filter: { Text: $select.search }">
+                                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                        </ui-select-choices>
+                                    </ui-select>
+                                </td>
+                                <td class="">
+                                    <input type="text" class="form-control" onChange="numberwithdecimal($event)"
+                                        onKeyUp="numberwithdecimal($event)" ng-keypress="numberwithdecimal($event)"
+                                        ng-change="computeforgivenDiscount(item)" ng-model="item.Discount">
+                                </td>
+                                <td>
+                                    <ui-select ng-model="item.GstId" class="filter-combo"
+                                        on-select="OnSelectGst(item,$select.selected,$index)">
+                                        <ui-select-match>
+                                            {{$select.selected.Text | limitTo : 8 : 0}}
+                                            <span ng-if="$select.selected.Text.length > 8">...</span>
+                                        </ui-select-match>
+                                        <ui-select-choices
+                                            repeat="lookupitem.Id as lookupitem in lookup.GstMaster | filter: { Text: $select.search }">
+                                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                        </ui-select-choices>
+                                    </ui-select>
+                                </td>
+                                <td class="">
+                                    <input type="text" class="form-control" ng-model="item.NetAmount">
+                                </td>
+                                <td class="">
+                                    <input type="text" class="form-control" ng-model="item.SACCode">
+                                </td>
+                                <!-- <td class="">
+                                    <input type="text" class="form-control" ng-model="item.Remarks">
+                                </td> -->
+                                <td>
+                                    <button type="button" class="drhms-edit-button"
+                                        ng-click="deleteinvworkorderDetail(item,$index)"
+                                        ng-hide="item.InvWorkorderStatusId>1">
+                                        <img src="assets/svg/delete.svg" alt="">
+                                    </button>
+                                    <!-- <button ng-hide="item.InvWorkorderStatusId>1" type="button"
+                                        class="btn btn-danger btn-xs" uib-tooltip="Delete" tooltip-placement="bottom"
+                                        ng-click="deleteinvworkorderDetail(item,$index)">
+                                        <img class="drhms-edit-button" src="assets/svg/delete.svg" alt="">
+                                    </button> -->
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="footerbars">
+                <div class="sub-footer">
+                    <div class="bgfoot">
+                        <div class="col-sm-12">
+                            <div class="col-sm-6">
+                                <div class="form-group commnet col-sm-12">
+                                    <label class="col-sm-4 control-label" translate="Levies and Taxes"></label>
+                                    <div class="col-sm-8">
+                                        <input type="text" class="inputbox form-control" ng-model="item.LeviesandTaxes">
+                                    </div>
+                                </div>
+                                <div class="form-group commnet col-sm-12">
+                                    <label class="col-sm-4 control-label" translate="Delivery Schedule"></label>
+                                    <div class="col-sm-8">
+                                        <input type="text" class="inputbox form-control"
+                                            ng-model="item.DeliverySchedule">
+                                    </div>
+                                </div>
+                                <div class="form-group commnet col-sm-12">
+                                    <label class="col-sm-4 control-label" translate="Terms of Dispatch"></label>
+                                    <div class="col-sm-8">
+                                        <input type="text" class="inputbox form-control"
+                                            ng-model="item.TermsofDispatch">
+                                    </div>
+                                </div>
+                                <div class="form-group commnet col-sm-12">
+                                    <label class="col-sm-4 control-label" translate="Terms of Payment"></label>
+                                    <div class="col-sm-8">
+                                        <ui-select ng-model="item.PaymentTermsId" ng-disabled="item.isDisabled"
+                                            theme="bootstrap">
+                                            <ui-select-match>
+                                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                                <span ng-if="$select.selected.Text.length>20">...</span>
+                                            </ui-select-match>
+                                            <ui-select-choices
+                                                repeat="lookupitem.Id as lookupitem in lookup.PaymentTerms | filter: { Text: $select.search }">
+                                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                            </ui-select-choices>
+                                        </ui-select>
+                                        <!-- <input type="text" class="inputbox form-control" ng-model="item.TermsofPayment"> -->
+                                    </div>
+                                </div>
+                                <div class="form-group commnet col-sm-12">
+                                    <label class="col-sm-4 control-label" translate="Remarks"></label>
+                                    <div class="col-sm-8">
+                                        <textarea ng-model="item.Remarks"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- <div class="col-sm-6">
+                                <div class="billingbanner">
+                                    <table id="bannerdetails" class="foot">
+                                        <tr>
+                                            <td translate="inventory.purchaseorders.grossamount.lbl"></td>
+                                            <td class="currency-align">
+                                                {{(item.TotalGrossAmount | displaycurrency)}}
+                                            </td>
+                                            <td translate="inventory.purchaseorders.othercharges.lbl"></td>
+                                            <td class="currency-align">
+                                                <input type="number" min="0" tabindex="-1" class="form-control" name="othercharges" ng-model="item.OtherCharges" ng-change="computeOtherCharges(item)"
+                                                    placeholder="0.00">
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td translate="GST(%) for Other Charges"></td>
+                                            <td class="currency-align">
+                                                <ui-select ng-model="item.OtherChargesGstId" class="filter-combo" on-select="OnSelectGstothercharges(item,$select.selected,$index)"
+                                                    ng-disabled="item.isDisabled">
+                                                    <ui-select-match>
+                                                        {{$select.selected.Text | limitTo : 8 : 0}}
+                                                        <span ng-if="$select.selected.Text.length > 8">...</span>
+                                                    </ui-select-match>
+                                                    <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.GstMaster | filter: { Text: $select.search }">
+                                                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                                    </ui-select-choices>
+                                                </ui-select>
+                                            </td>
+                                            <td translate="GST Amount for Other Charges"></td>
+                                            <td class="currency-align">
+                                                <input type="number" min="0" tabindex="-1" class="form-control" name="othercharges" ng-model="item.OtherChargesGstAmount"
+                                                    ng-change="computeOtherCharges(item)" placeholder="0.00">
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td translate="inventory.purchaseorders.discountamount.lbl"></td>
+                                            <td class="currency-align">
+                                                {{(item.TotalDiscountAmount | displaycurrency)}}
+                                            </td>
+                                            <td class="drhms-special-count" translate="inventory.purchaseorders.netamount.lbl"></td>
+                                            <td class="currency-align drhms-special-count">
+                                                <span>{{(item.TotalNetAmount | displaycurrency)}}</span>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td translate="inventory.purchaseorders.taxorgstamt.lbl"></td>
+                                            <td class="currency-align">
+                                                {{(item.TotalGstAmount | displaycurrency)}}
+                                            </td>
+                                            <td translate="Round Off"></td>
+                                            <td class="currency-align">
+                                                <input type="number" min="0" tabindex="-1" class="form-control" name="othercharges" ng-model="item.RoundOff" ng-change="computeRoundoff(item)"
+                                                    placeholder="0.00">
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td translate="Transport Charges"></td>
+                                            <td class="currency-align">
+                                                <input type="number" min="0" tabindex="-1" class="form-control" name="othercharges" ng-model="item.TransportCharges" ng-change="computeTransportCharges(item)"
+                                                    placeholder="0.00" ng-disabled="item.isDisabled">
+                                            </td>
+                                            <td translate="inventory.purchaserequest.totalamount.lbl"></td>
+                                            <td class="currency-align">
+                                                <input type="text" value="{{(item.TotalAmount | displaycurrency)}}" tabindex="-1" class="inputbox form-control" disabled>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </div> -->
+                            <div class="col-sm-6">
+                                <div class="billingbanner">
+                                    <table id="bannerdetails" class="foot">
+                                        <tr>
+                                            <td translate="inventory.purchaseorders.grossamount.lbl"></td>
+                                            <td class="currency-align">
+                                                {{ item.TotalGrossAmount | displaycurrency }}
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td translate="inventory.purchaseorders.discountamount.lbl"></td>
+                                            <td class="currency-align">
+                                                {{ item.TotalDiscountAmount | displaycurrency }}
+                                            </td>
+                                        </tr>
+
+                                        <tr>
+                                            <td translate="inventory.purchaseorders.taxorgstamt.lbl"></td>
+                                            <td class="currency-align">
+                                                {{ item.TotalGstAmount | displaycurrency }}
+                                            </td>
+                                        </tr>
+
+                                        <tr>
+                                            <td translate="inventory.purchaseorders.othercharges.lbl"></td>
+                                            <td class="currency-align">
+                                                <input type="number" min="0" tabindex="-1" class="form-control"
+                                                    name="othercharges" ng-model="item.OtherCharges"
+                                                    ng-change="computeOtherCharges(item)" placeholder="0.00"
+                                                    ng-disabled="item.isDisabled">
+                                            </td>
+                                        </tr>
+
+                                        <tr>
+                                            <td translate="GST(%) for Other Charges"></td>
+                                            <td class="currency-align">
+                                                <ui-select ng-model="item.OtherChargesGstId" class="filter-combo"
+                                                    on-select="OnSelectGstothercharges(item,$select.selected,$index)"
+                                                    ng-disabled="item.isDisabled">
+                                                    <ui-select-match>
+                                                        {{$select.selected.Text | limitTo : 8 : 0}}
+                                                        <span ng-if="$select.selected.Text.length > 8">...</span>
+                                                    </ui-select-match>
+                                                    <ui-select-choices
+                                                        repeat="lookupitem.Id as lookupitem in lookup.GstMaster | filter: { Text: $select.search }">
+                                                        <div ng-bind-html="lookupitem.Text | highlight: $select.search">
+                                                        </div>
+                                                    </ui-select-choices>
+                                                </ui-select>
+                                            </td>
+                                        </tr>
+
+                                        <tr>
+                                            <td translate="GST Amount for Other Charges"></td>
+                                            <td class="currency-align">
+                                                <input type="number" min="0" tabindex="-1" class="form-control"
+                                                    name="othercharges" ng-model="item.OtherChargesGstAmount"
+                                                    ng-change="computeOtherCharges(item)" ng-disabled="true"
+                                                    placeholder="0.00">
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td translate="Transport Charges"></td>
+                                            <td class="currency-align">
+                                                <input type="number" min="0" tabindex="-1" class="form-control"
+                                                    name="othercharges" ng-model="item.TransportCharges"
+                                                    ng-change="computeTransportCharges(item)" placeholder="0.00"
+                                                    ng-disabled="item.isDisabled">
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td translate="GST(%) for Transport Charges"></td>
+                                            <td class="currency-align">
+                                                <ui-select ng-model="item.TransportChargesGstId" class="filter-combo"
+                                                    on-select="OnSelectGsttransportcharges(item,$select.selected,$index)"
+                                                    ng-disabled="item.isDisabled">
+                                                    <ui-select-match>
+                                                        {{$select.selected.Text | limitTo : 8 : 0}}
+                                                        <span ng-if="$select.selected.Text.length > 8">...</span>
+                                                    </ui-select-match>
+                                                    <ui-select-choices
+                                                        repeat="lookupitem.Id as lookupitem in lookup.GstMaster | filter: { Text: $select.search }">
+                                                        <div ng-bind-html="lookupitem.Text | highlight: $select.search">
+                                                        </div>
+                                                    </ui-select-choices>
+                                                </ui-select>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td translate="GST Amount for Transport Charges"></td>
+                                            <td class="currency-align">
+                                                <input type="number" min="0" tabindex="-1" class="form-control"
+                                                    name="othercharges" ng-model="item.TransportChargesGstAmount"
+                                                    ng-change="computeTransportGstAmountCharges(item)"
+                                                    placeholder="0.00">
+                                            </td>
+                                        </tr>
+                                        <!-- <tr>
+                                            <td translate="inventory.grn.roundoff.lbl"></td>
+                                            <td>
+                                                <input type="text" class="form-control currency-align" name="roundoff " ng-model="item.RoundOff" placeholder="0.00" tabindex="-1"
+                                                    ng-change="computeRoundOff(item)" ng-disabled="item.isDisabled">
+                                            </td>
+                                        </tr> -->
+                                        <tr>
+                                            <td class="drhms-special-count"
+                                                translate="inventory.purchaseorders.netamount.lbl"></td>
+                                            <td class="currency-align drhms-special-count">
+                                                <span>{{ item.TotalNetAmount | displaycurrency }}</span>
+                                            </td>
+                                        </tr>
+
+
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="fooder-bgs">
+                <div class="pull-left">
+                    <button type="button" class="btn pyr-color10 btn-sm" uib-tooltip="Back to List"
+                        tooltip-placement="top" tabindex="-1" ng-click="backtolist()">
+                        <i class="fa fa-angle-left" aria-hidden="true"></i>
+                        <span class="btn-fontsize"> &nbsp; Back</span>
+                    </button>
+                    <!-- <button type="button" id="cancelbtnsubmit" class="draftbutton" ng-show="item.InvWorkorderStatusId==3" translate="common.cancelaction.lbl" 
+                        ng-click="Cancel()"></button> -->
+                </div>
+                <div class="pull-right">
+                    <button type="button" class="draftbutton" ng-show="item.InvWorkorderStatusId>=3" tabindex="-1"
+                        hotkey="{'alt+p' : printInventoryWorkorder}" ng-click="withheaderprintInventoryWorkorder()">
+                        <i class="fa fa-print"></i> With Header</button>
+                    <button type="button" class="draftbutton" ng-show="item.InvWorkorderStatusId>=3" tabindex="-1"
+                        hotkey="{'alt+p' : printInventoryWorkorder}" ng-click="withoutheaderprintInventoryWorkorder()">
+                        <i class="fa fa-print"></i> Without Header</button>
+                    <button type="button" class="draftbutton" translate="common.saveapprove-action.lbl"
+                        ng-click="saveandapprove()"></button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>

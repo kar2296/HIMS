@@ -1,0 +1,140 @@
+<style>
+    .nameinfo {
+         font-size: 13px;
+         font-weight: 700;
+         color: #337ab7;
+     }
+     
+     .nameinfo.mrninfo {
+         color: black
+     }
+     
+     .contactinfo {
+         font-size: 10px;
+         color: #808080
+     }
+     .block {
+     white-space: nowrap;
+     text-overflow: ellipsis;
+     overflow: hidden;
+ }
+ #usersheight .ui-grid-viewport {
+     width: 100%;
+     /* height: 460px!important; */
+ }
+ .table-uigrid {
+     margin-left: 10px;
+     margin-right: 10px;
+     height: 488px!important;
+ }
+     
+     .linkstyle {
+         font-weight: 700;
+         text-align: right;
+     }
+     
+     .statusinfo {
+         font-size: 13px;
+     }
+     
+     
+     
+     .form-group {
+         margin-bottom: 7px !important;
+     }
+     
+     .sr-only {
+     height: 22px !important;
+ }
+  .col-sm-5 {
+         padding-left: 5px !important;
+ }
+ </style>
+ 
+ <!-- <div class="row page-header">
+ <h4 class="col-sm-6 mt0" translate="appmanager.users.pagetitle.lbl"></h4>
+   <div class="col-sm-6">
+       <button class="btn bt-color3 btn-xs pull-right" uib-tooltip="Advance Filter" tooltip-placement="bottom" id="btnadvanced" ng-click="openAdvancedFilter()">
+                   <i class="fa fa-search fa-xs " aria-hidden="true"></i>&nbsp;&nbsp;<strong class="btn-fontsize ng-scope" translate="common.advanceaction.lbl"><span class="ng-scope">Advance</span></strong>
+ </button>
+             <button class="btn bt-color2 btn-xs pull-right btn-filter" ng-click="addNew()"
+                         uib-tooltip="{{ 'appmanager.users.addnew-tooltip.lbl' | translate }}" tooltip-placement="bottom">
+                 <i class="fa fa-plus" aria-hidden="true"></i><span translate="clinicalmaster.serviceitem-list.addnew.lbl"></span></button>
+             </div>
+ </div> -->
+ <div class="row page-header">
+     <div class="col-sm-12">
+         <div class="col-sm-5">
+             <h4 class="col-sm-6 mt0" translate="dashboard.totalcall.lbl"></h4>
+         </div>
+         <div class="col-sm-7">
+             <div class="filters" style="margin-left: 60%;">
+                 <div class="search">
+                     <input type="text" id="pid" class="form-control" on-enter="getList()" 
+                     ng-model="currentfilter.username" placeholder="Name/Login"> <i class="fas fa-search" aria-hidden="true"></i>
+ 
+                 </div>
+                 <button type="button" tabindex="-1" class="btn-add"
+                     ng-click="addNew()"  uib-tooltip="{{ 'appmanager.users.addnew-tooltip.lbl' | translate }}"
+                     tooltip-placement="bottom">
+                     <i class="fa fa-plus" aria-hidden="true"></i>
+                     <!-- <span translate="clinicalmaster.serviceitem-list.addnew.lbl " class="text-white"></span> -->
+                 </button>
+             </div>
+         </div>
+     </div>
+ </div>
+   
+     <div class="">
+         <div class="col-sm-12">
+                 <table id="bannerdetails">
+                         <tr>
+                             <td><label class="col-sm-4 control-label filter-lbl" translate="appmanager.users.filter_type.lbl"></label></td>
+                             <td><ui-select ng-model="currentfilter.usertypeid" ng-change="getList()" class="filter-combo">
+                                     <ui-select-match>
+                                         {{$select.selected.Text | limitTo : 8 : 0}}
+                                         <span ng-if="$select.selected.Text.length>8">...</span>
+                                     </ui-select-match>
+                                     <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.UserType | filter: { Text: $select.search }">
+                                         <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                     </ui-select-choices>
+                                 </ui-select></td>
+                             <td> <label class="col-sm-4 control-label filter-lbl" translate="appmanager.users.filter_group.lbl"></label>
+                             </td>
+                             <td>
+                                     <ui-select ng-model="currentfilter.groupid" ng-change="getList()" class="filter-combo">
+                                             <ui-select-match>
+                                                 {{$select.selected.Text | limitTo : 8 : 0}}
+                                                 <span ng-if="$select.selected.Text.length>8">...</span>
+                                             </ui-select-match>
+                                             <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.Group | filter: { Text: $select.search }">
+                                                 <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                             </ui-select-choices>
+                                         </ui-select>
+                             </td>
+                             <td> <label class="col-sm-4 control-label filter-lbl" translate="appmanager.users.filter_status.lbl"></label>
+                             </td>
+                             <td>  <ui-select ng-model="currentfilter.ActiveStatusId" ng-change="getList()" class="filter-combo">
+                                     <ui-select-match>
+                                         {{$select.selected.Text | limitTo : 8 : 0}}
+                                         <span ng-if="$select.selected.Text.length>8">...</span>
+                                     </ui-select-match>
+                                     <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.ActiveStatus | filter: { Text: $select.search }">
+                                         <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                     </ui-select-choices>
+                                 </ui-select></td>
+                 
+                         </tr>
+                 </table>
+              
+         </div>
+ </div>
+ <custom-table config="vm.gridConfig"></custom-table>	    
+ <div class="container-fluid" id="usersheight"> 
+    <div class="fooder-bgs" style="margin-bottom: 37px !important;">
+         <div class="row">
+             <ul uib-pagination total-items="vm.gridConfig.pagerObj.totalItems" items-per-page="vm.gridConfig.pagerObj.pageSize" start-index="vm.gridConfig.pagerObj.startIndex"
+                 ng-model="vm.gridConfig.pagerObj.currentPage" ng-change="getList()"></ul>
+         </div>
+     </div>
+ </div>

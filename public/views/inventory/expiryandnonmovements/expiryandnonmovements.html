@@ -1,0 +1,201 @@
+<link rel="stylesheet" href="app/css/drhms.css">
+<div class="row page-header">
+    <h4 class="mt0" translate="inventory.expiryandnonmovements.pagetitle.lbl"></h4>
+</div>
+<div class="row">
+    <form id="item_form" name="item_form" class="form-horizontal" role="form">
+        <div class="drhms-table-top-header">
+            <div class="drhms-table-head-border">
+                <div class="col-sm-12">
+                    <label class="col-sm-4" for="stockreturntype"
+                        translate="inventory.expiryandnonmovements.stockreturntype.lbl"></label>
+                    <div class="col-sm-8">
+                        <ui-select ng-model="currentfilter.StockReturnTypeId" tabindex="-1" name="stockreturntype"
+                            on-select="onReturnTypeSelected($select.selected)">
+                            <ui-select-match>
+                                {{$select.selected.Text | limitTo : 8 : 0}}
+                                <span ng-if="$select.selected.Text.length>8">...</span>
+                            </ui-select-match>
+                            <ui-select-choices
+                                repeat="lookupitem.Id as lookupitem in lookup.StockReturnType | filter: { Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                </div>
+                <div class="col-sm-12">
+                    <label class="col-sm-4" for="fromdate"
+                        translate="inventory.expiryandnonmovements.fromdate.lbl"></label>
+                    <div class="col-sm-8">
+                        <input type="text" class="form-control" name="fromdate" ng-date-object
+                            uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                            placeholder="{{datePickerOptions.placeholder}}" ng-click="fromdatePopup = { opened: true }"
+                            is-open="fromdatePopup.opened" ng-model="currentfilter.FromDate">
+                    </div>
+                </div>
+                <div class="col-sm-12">
+                    <label class="col-sm-4" for="todate" translate="inventory.expiryandnonmovements.todate.lbl"></label>
+                    <div class="col-sm-8">
+                        <input type="text" class="form-control" name="todate" ng-date-object
+                            uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                            placeholder="{{datePickerOptions.placeholder}}" ng-click="todatePopup = { opened: true }"
+                            is-open="todatePopup.opened" ng-model="currentfilter.ToDate">
+                    </div>
+                </div>
+            </div>
+            <div class="drhms-table-head-border">
+                <div class="col-sm-12">
+                    <label class="col-sm-4" translate="inventory.expiryandnonmovements.mystore.lbl"></label>
+                    <div class="col-sm-8">
+                        <ui-select ng-model="currentfilter.StoreMasterId" ng-change="StoreChange($select.selected)"
+                            class="filter-combo">
+                            <ui-select-match>
+                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                <span ng-if="$select.selected.Text.length>20">...</span>
+                            </ui-select-match>
+                            <ui-select-choices
+                                repeat="lookupitem.Id as lookupitem in lookup.UserStores | filter: { Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                </div>
+               
+                <div class="col-sm-12">
+                    <label class="col-sm-4" translate="inventory.expiryandnonmovements.vendor.lbl"></label>
+                    <div class="col-sm-8">
+                        <autosearch itemid="currentfilter.VendorMasterId" iteminfo="" rowdata=""
+                            config="vm.vendorcontrolconfig" itemchange=""></autosearch>
+                    </div>
+                </div>
+                <div class="col-sm-12">
+                    <label class="col-sm-4" translate="inventory.expiryandnonmovements.item.lbl"></label>
+                    <div class="col-sm-8">
+                        <autosearch itemid="currentfilter.ItemMasterId" iteminfo="" rowdata=""
+                            config="vm.stockitemcontrolconfig" itemchange="getList()"></autosearch>
+                    </div>
+                </div>
+            </div>
+            <div class="drhms-table-head-border">
+                <div class="col-sm-12">
+                    <label class="col-sm-4" translate="inventory.expiryandnonmovements.product.lbl"></label>
+                    <div class="col-sm-8">
+                        <ui-select ng-model="currentfilter.ProductTypeId" class="filter-combo">
+                            <ui-select-match>
+                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                <span ng-if="$select.selected.Text.length>20">...</span>
+                            </ui-select-match>
+                            <ui-select-choices
+                                repeat="lookupitem.Id as lookupitem in lookup.ProductType | filter: { Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                </div>
+                <div class="col-sm-12">
+                    <label class="col-sm-4" translate="Facility"></label>
+                    <div class="col-sm-8">
+                        <ui-select ng-model="currentfilter.FacilityId" 
+                            class="filter-combo">
+                            <ui-select-match>
+                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                <span ng-if="$select.selected.Text.length>20">...</span>
+                            </ui-select-match>
+                            <ui-select-choices
+                                repeat="lookupitem.Id as lookupitem in lookup.Facility | filter: { Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                </div>
+                <div class="col-sm-12">
+                    <button class="draftbutton" ng-click="getList()" uib-tooltip="Fetch"
+                        tooltip-placement="bottom">&nbsp;&nbsp;
+                        <span translate="Fetch"></span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+<div class="row">
+    <div class="drhms-table-control">
+        <div class="drhms-bg-pattern">
+            <div class="drhms-table-responsive-height">
+                <table class="drhms-responsive-table">
+                    <thead class="bg-subhead">
+                        <tr>
+                            <th>
+                                <span>
+                                    <input type="checkbox" ng-model="currentcontext.selectall"
+                                        ng-click="selectAllItems()">
+                                </span>
+                            </th>
+                            <th>
+                                <span translate="inventory.updateexpiryprice.itemcode.lbl"></span>
+                            </th>
+                            <th>
+                                <span translate="inventory.updateexpiryprice.itemname.lbl"></span>
+                            </th>
+                            <th>
+                                <span translate="inventory.updateexpiryprice.producttype.lbl"></span>
+                            </th>
+                            <th>
+                                <span translate="inventory.updateexpiryprice.batchid.lbl"></span>
+                            </th>
+                            <th>
+                                <span translate="inventory.updateexpiryprice.expirydate.lbl"></span>
+                            </th>
+                            <th>
+                                <span translate="inventory.updateexpiryprice.quantity.lbl"></span>
+                            </th>
+                            <th>
+                                <span translate="inventory.updateexpiryprice.vendorname.lbl"></span>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="serialitem in PurchaseReturnDetails | filter:{Status:1}">
+                            <td>
+                                <span>
+                                    <input type="checkbox" class="case" ng-disabled="item.IsAllReadOnly"
+                                        ng-model="serialitem.IsAllSelected"
+                                        ng-click="IsAllSelectedChange(PurchaseReturnDetails, serialitem)" />
+                                </span>
+                            </td>
+                            <td>
+                                <span> {{ serialitem.ItemCode }} </span>
+                            </td>
+                            <td>
+                                <span> {{ serialitem.ItemName }} </span>
+                            </td>
+                            <td>
+                                <span> {{ serialitem.ProductTypeName }} </span>
+                            </td>
+                            <td>
+                                <span> {{ serialitem.BatchId }} </span>
+                            </td>
+                            <td>
+                                <span> {{ serialitem.ExpiryDate &nbsp;|&nbsp; date : 'dd-MMM-yyyy' }} </span>
+                            </td>
+                            <td>
+                                <span> {{ serialitem.Quantity }} </span>
+                            </td>
+                            <td>
+                                <span> {{ serialitem.VendorName }} </span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="fooder-bgs">
+    <div class="row">
+        <div class="pull-right">
+            <button type="button" class="draftbutton" translate="inventory.expiryandnonmovements.return.lbl"
+                ng-click="Return()"></button>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,174 @@
+<!-- <style>
+    table.table.table-bordered.table-condensed.dropdown-menu {
+        width: 46% !important;
+        overflow: scroll;
+    }
+</style> -->
+<div class="tabsizetopcontroller">
+    <!-- <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+        <div class="panel panel-default">
+            <div class="panel-heading" role="tab" id="headingOne">
+                <h4 class="panel-title">
+                    <a data-toggle="collapse" data-parent="#accordion" aria-expanded="true" aria-controls="collapseOne">
+                        Previously Recommended for this Patient On &nbsp;<displaydate
+                            datetime-val="LastDiagnosis.ConditionDate">
+                            &nbsp;|&nbsp;<span>Diagnosed By &nbsp; {{LastDiagnosis.Encounter.DoctorName}}</span>
+                        </displaydate><i class="accordion_icon fa fa-plus"></i>
+                    </a>
+                </h4>
+            </div>
+            <div id="collapseOne" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingOne">
+                <div class="">
+                    <div class="">
+                        <div class="col-sm-12">
+                            <div class="col-sm-4 decoration" ng-repeat="item in Items">
+                                {{item.DiagnosisName}}
+                            </div>
+                            <div class="col-md-12 text-right">
+                                <a class="link" style="color: blue !important;" ng-click="diagnosis_history()">View
+                                    Previous Diagnosis</a>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div> -->
+    <!-- <div class="col-sm-12">
+        <div class="col-sm-12">
+            <ul class="nav nav-pills row">
+                <li class="active col-md-6"><a data-toggle="pill" ng-click="adddiagnosis()"><i
+                            class="fa fa-file-text"></i> Add
+                        Diagnosis</a></li>
+                <li class="col-md-6" style="margin-left: -276px;width: 236px;"><a data-toggle="pill"
+                        ng-click="favoriteDiagnosis()"><i class="fa fa-file-text"></i>
+                        Favorites</a></li>
+            </ul>
+        </div>
+    </div> -->
+
+    <div class="row">
+        <div class="panel-body form-panel pd5">
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="form-group col-sm-4">
+                        <label class="col-sm-12 control-label" for="otherdiagnosis"
+                            translate="patientemr.patientdiagnosis-list.otherdiagnosis.lbl"></label>
+                        <div class="col-sm-12">
+                            <textarea rows="3" name="otherdiagnosis" ng-model="item.OtherDiagnosis"
+                                maxlength="1000"></textarea>
+                        </div>
+                    </div>
+                    <div class="form-group col-sm-4">
+                        <label class="col-sm-12 control-label filter-lbl"
+                            translate="patientemr.patientdiagnosis-list.icd.lbl"></label>
+                        <div class="col-sm-12">
+                            <autosearch id='provisionaldiagnosis' itemid="item.DiagnosisId" iteminfo="item.selectedItem"
+                                rowdata="item" config="vm.diagnosiscontrolconfig" itemchange="" tabindex="-1">
+                            </autosearch>
+                        </div>
+                    </div>
+
+                    <div class="form-group col-sm-4">
+                        <label class="col-sm-12 control-label" for="conditiontype"
+                            translate="patientemr.patientcondition-form.conditiontype.lbl"></label>
+                        <div class="col-sm-12">
+                            <ui-select id="conditiontype" ng-model="item.ConditionTypeId" name="conditiontype">
+                                <ui-select-match>
+                                    {{$select.selected.Text | limitTo : 20 : 0}}
+                                    <span ng-if="$select.selected.Text.length>20">...</span>
+                                </ui-select-match>
+                                <ui-select-choices
+                                    repeat="lookupitem.Id as lookupitem in lookup.ConditionType | filter: { Text: $select.search }">
+                                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                </ui-select-choices>
+                            </ui-select>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-12">
+                    <div class="pull-right">
+                        <button type="submit" class="draftbutton" ng-click="AddPatientCondition()"
+                            ng-disabled="ConsultData.ProgressNoteStatusId==2 || Disabled"
+                            translate="common.saveaction.lbl"></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <custom-table config="vm.gridConfig"></custom-table>
+    <div class="container-fluid">
+        <!-- <div ui-grid="vm.gridConfig" class="table-uigrid"></div> -->
+        <div class="fooder-bgs" style="margin-bottom: 8px !important;">
+            <div class="row">
+                <ul uib-pagination total-items="vm.gridConfig.pagerObj.totalItems"
+                    items-per-page="vm.gridConfig.pagerObj.pageSize" start-index="vm.gridConfig.pagerObj.startIndex"
+                    ng-model="vm.gridConfig.pagerObj.currentPage" ng-change="getList()"></ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- <div class="row page-header">
+        <div class="col-sm-12">
+            <div class="col-sm-6 col-md-9">
+                <h4 class="page-header mt0" translate="patientemr.patientdiagnosis-list.pagetitle.lbl"></h4>
+            </div>
+            <div class="col-sm-6 col-md-3">
+                <button class="btn btn-warning btn-xs pull-right"
+                    uib-tooltip="{{ 'patientemr.patientdiagnosis-list.history.lbl' | translate }}"
+                    tooltip-placement="bottom" ng-click="diagnosis_history()">
+                    <i class="fa fa-history fa-xs " aria-hidden="true"></i>&nbsp;&nbsp;
+                    <span translate="patientemr.patientdiagnosis-list.history.lbl"></span>
+                </button>
+                <button class="btn-add" ng-click="addNew()"
+                    ng-hide="currentcontext.encounter.EncounterStatusId==2"
+                    uib-tooltip="{{ 'patientemr.patientdiagnosis-list.pagetitle.lbl' | translate }}"
+                    tooltip-placement="bottom">
+                    <i class="fa fa-plus" aria-hidden="true"></i>
+
+                </button>
+
+            </div>
+        </div>
+    </div>
+    <div class="container-fluid">
+        <favoritecontrol config="favconfig" addclick="addFavorite()" saveclick="loadDiagnosisList()"></favoritecontrol>
+        <div ui-grid="vm.gridConfig" class="table-uigrid"></div>
+        <div class="fooder-bgs">
+            <div class="col-sm-6">
+
+                <ul class="nav navbar-nav pull-left" id="pastnotes">
+                    <li uib-dropdown="" class="dropdown dropdown-list custom-li">
+                        <button uib-dropdown-toggle="" class="draftbutton"
+                            ng-disabled="">
+                            <span translate="Previous Notes"></span>&nbsp;&nbsp;&nbsp;
+                        </button>
+                        <ul class="dropdown-menu top" role="menu" aria-labelledby="dLabel">
+                            <li ng-repeat="item in consultlist| limitTo:5">
+                                <a class=" " ng-click="viewConsultation(item) ">
+                                    <span>
+                                        <i class="fa fa-angle-right " aria-hidden="true "></i>
+                                    </span>&nbsp;&nbsp;&nbsp;
+                                    <span class="dr_name0 ">{{item.Encounter.DoctorName}} - </span>
+                                    <displaydate class="disp_date0 " datetime-val="item.CreatedAt "></displaydate>
+                                    <span class="dr_profile0 "> - {{item.ProfileMaster.Name}}</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+                <button type="button" class="btn pyr-color10 btn-sm pull-left" tabindex="-1" ng-click="backToList()">
+                    <i class="fa fa-angle-left" aria-hidden="true"></i>&nbsp;&nbsp;
+                    <i class="btn-fontsize" translate="common.backaction.lbl"></i>
+                </button>
+            </div>
+            <div class="col-sm-6">
+                <ul uib-pagination total-items="vm.gridConfig.pagerObj.totalItems"
+                    items-per-page="vm.gridConfig.pagerObj.pageSize" start-index="vm.gridConfig.pagerObj.startIndex"
+                    ng-model="vm.gridConfig.pagerObj.currentPage" ng-change="getList()"></ul>
+            </div>
+        </div>
+    </div> -->

@@ -1,0 +1,215 @@
+<html>
+
+<head>
+    <style>
+        .billdetails {
+            text-align: center;
+        }
+
+        th {
+            border-bottom: 1px solid;
+            padding: 5px;
+        }
+
+        .details td {
+            padding-top: 3px !important;
+            font-weight: 500;
+        }
+
+        td,
+        th {
+            padding: 1px;
+            vertical-align: top;
+            margin: 1px;
+            font-size: 12px;
+            font-family: sans-serif;
+        }
+
+        .border-top {
+            border-top: 1px solid;
+            font-size: 12px;
+        }
+
+        .details tr:first-child td {
+            padding-top: px;
+        }
+
+
+        .border-bottom {
+            border-bottom: 1px solid;
+            font-size: 12px;
+
+        }
+
+        .user-details td {
+            padding: 1.5px;
+        }
+
+        .box {
+            border: 1px solid gainsboro;
+            padding: 2px;
+        }
+
+        .receipt {
+            border-collapse: collapse;
+        }
+
+        .receipt td,
+        .receipt th {
+            vertical-align: top;
+            border: 1px solid;
+        }
+
+        {{include '/Templates/hosmat/assets/css/core.css'}}
+    </style>
+</head>
+
+<body>
+    <div id="pageHeader">
+        {{#if data.Flags.header}}
+        {{{include '/Templates/hosmat/common/header.tpl.html' 'tpl'}}}
+        {{/if}}
+    </div>
+    <div class="content">
+        <div class="box">
+            <table class="billdetails" style="width:100%;">
+                <tr>
+                    <td style="vertical-align:text-middle;font-size: 1.6em;"><b style="font-size: 18px;">REFUND</b></td>
+                </tr>
+
+            </table>
+            <table class="border-top border-bottom user-details" style="width:100%;">
+                <tr>
+                    <td style="width:15%;"><b>Name</b></td>
+                    <td>:</td>
+                    <td style="width:45%;"><b>
+                            {{data.Patient.Title.Description}} {{data.Patient.FirstName}} {{data.Patient.MiddleName}}
+                            {{data.Patient.LastName}} </b></td>
+                    <td style="width:15%;"><b>Visit No</b></td>
+                    <td>:</td>
+                    <td style="width:25%;">{{data.Encounter.VisitIdentifier}}</td>
+                </tr>
+                <tr>
+                    <td><b>Age/Gender</b></td>
+                    <td>:</td>
+                    <td>{{ageonlyyear data.Patient.DOB}}/{{data.Patient.Gender.Description}}</td>
+                    <td><b>UHID</b></td>
+                    <td>:</td>
+                    <td>{{data.Patient.MRN}}</td>
+                    </td>
+                </tr>
+                <tr>
+                    <td><b>Contact No.</b></td>
+                    <td>:</td>
+                    <td>{{data.Patient.Mobile}}</td>
+                    <td><b>Refund Type</b></td>
+                    <td>:</td>
+                    <td>{{data.PatientRefund.RefundType.Description}}</td>
+                </tr>
+                <tr>
+                    <td><b>Doctor's Name</b></td>
+                    <td>:</td>
+                    <td>{{data.Encounter.Doctor.Title.Description}}
+                        {{data.Encounter.Doctor.FirstName}} {{data.Encounter.Doctor.LastName}}</td>
+
+                    <td><b>Refund No</b></td>
+                    <td>:</td>
+                    <td>{{data.PatientRefund.RefundIdentifier}}</td>
+                </tr>
+                <tr>
+                    <td><b>Address</b></td>
+                    <td>:</td>
+                    <td colspan="4">{{data.Patient.Area}} , {{data.Patient.City}}, {{data.Patient.District}},
+                        {{data.Patient.State}}
+                        {{data.Patient.Country}}-{{data.Patient.Pincode}}
+                    </td>
+                </tr>
+
+            </table>
+            <h4> Refund Details :</h4>
+            <table class="receipt" style="width:100%;">
+                <tr>
+                    <th>Date</th>
+                    <th>Refund Amount</th>
+                    <th>Refund Status</th>
+                    <th>Refund Comments</th>
+                </tr>
+                <tr>
+                    <td align="center">{{datetimeformat data.PatientRefund.RefundDateTime}}</td>
+                    <td align="center">{{currencyformat data.PatientRefund.RefundAmount}}</td>
+                    <td align="center">{{data.PatientRefund.RefundStatus.Description}}</td>
+                  <td align="center">{{data.PatientRefund.Comments}}</td>
+                </tr>
+            </table>
+            <table class="table2" style="width:100%;">
+                {{#if data.PatientRefund.PatientPaymentDetail.ReceiptNumber}}
+                <tr>
+                    <td style="width:15%;">
+                        <b>Ref.Receipt</b> 
+                    </td>
+                    <td>: </td>
+                    <td colsspan="4" style="width:40%;">
+                        {{data.PatientRefund.PatientPaymentDetail.ReceiptNumber}} 
+                    </td>
+                    <td style="width:25%;">
+                        <b>Receipt Date</b>
+                    </td>
+                    <td>:</td>
+                    <td style="width:20%;">
+                        {{datetimeformat data.PatientRefund.PatientPaymentDetail.ReceiptDateTime}}
+                    </td>
+                </tr>
+                {{/if}}
+                {{#if data.PatientRefund.PatientBill.BillNumber}} 
+                <tr>
+                    <td style="width:15%;">
+                        <b>Ref.Bill</b>
+                    </td>
+                    <td>:</td>
+                    <td colsspan="4" style="width:40%;">
+                        {{data.PatientRefund.PatientBill.BillNumber}}
+                    </td>
+                    <td style="width:25%;">
+                        <b>Bill Date</b>
+                    </td>
+                    <td>:</td>
+                    <td style="width:20%;">
+                        {{datetimeformat data.PatientRefund.PatientBill.BillDateTime}} 
+                    </td>
+                </tr>
+                {{/if}}
+            </table>
+            <br>
+            <table style="width:100%;" class="border-bottom border-top">
+                <tr>
+                    <td style="padding: 10px 0 10px 0;"> <span><b>Amount In Words</b></span>
+                        <span>:</span>
+                        <span>Rupees {{decimalnrInWords1 data.PatientRefund.RefundAmount}} only</span>
+                    </td>
+                    <td style="text-align: end;padding: 10px 0 10px 0;"> <span><b>C/O</b></span>
+                        <span>:</span>
+                        <span> {{data.Encounter.Guarantor.GuarantorName}}</span>
+                    </td>
+                </tr>
+            </table>
+            <br>
+            <br>
+            <table style="width:100%; border-bottom: 0px solid;">
+                <tr>
+                    <td style="width:17%"><b style="font-size:11px !important;">Bill Generated By</b></td>
+                    <td style="width:25%"><b style="font-size:11px !important;">:
+                            {{data.PatientRefund.CreatedUser.FirstName}} {{data.PatientRefund.CreatedUser.LastName}}</b>
+                    </td>
+                    <td style="width:22%" align="left"><b align="left" style="font-size:11px !important;">Patient
+                            Signature</b></td>
+                    <td style="width:22%" align="end"><b align="end" style="font-size:11px !important;">Authorized
+                            Signature</b></td>
+                </tr>
+            </table>
+
+        </div>
+    </div>
+
+</body>
+
+</html>

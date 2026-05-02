@@ -1,0 +1,49 @@
+<style>
+    .form-horizontal .control-label {
+        padding-top: 5px !important;
+    }
+
+    .billingbanner {
+        width: 98%;
+    }
+</style>
+<div id="opbillingcontrol">
+    <div class="row page-header mt1" style="color: #50a893 !important;">
+        <h4 class="col-sm-5 mt0" translate="Device Manufacturer"></h4>
+        <div class="col-sm-7">
+            <div class="filters">
+                <button type="button" class="btn-add" uib-tooltip="Add Device" style="border-radius: 7px;width: 37px;"
+                    tooltip-placement="bottom" ng-click="addNew()">
+                    <i class="fa fa-plus" aria-hidden="true"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-12">
+        <div class="billingbanner">
+            <table id="bannerdetails">
+                <tr>
+                    <td>Device Name</td>
+                    <td>
+                        <input type="text" class="form-control" on-enter="getList()" ng-model="currentfilter.DeviceManufacturerName" translate translate-attr-placeholder="Code/Name">
+                    </td>
+                    <td translate="Status"></td>
+                    <td>
+                        <ui-select ng-model="currentfilter.ActiveStatusId" ng-change="getList()">
+                            <ui-select-match>
+                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                <span ng-if="$select.selected.Text.length > 20">...</span>
+                            </ui-select-match>
+                            <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.ActiveStatus | filter: { Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                            </ui-select-choices>
+                        </ui-select>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div class="col-sm-12">
+            <custom-table config="vm.gridConfig"></custom-table>
+        </div>
+    </div>
+</div>

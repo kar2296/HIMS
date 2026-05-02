@@ -1,0 +1,156 @@
+<style>
+    .nav-tabs>li>a {
+        padding: 4px 15px;
+    }
+
+    .profile-header {
+        color: white;
+        padding-top: 2px;
+        padding-bottom: 2px;
+    }
+
+    /*.page-header {margin-top: 69px !important;margin-bottom: 0px !important;}*/
+
+    #overwrite {
+        border-bottom: none !important;
+        color: #fff;
+        border-top: none !important;
+        background: none !important;
+        border-left: none !important;
+        border-right: none !important;
+    }
+
+    #overwrite>div table tr>td {
+        padding-left: 20px;
+        white-space: nowrap;
+    }
+
+    #overwrite>div table tr td>b {
+        color: #fff5b8;
+    }
+
+    .static {
+        color: #e066d9;
+    }
+
+    button.btn.bt-color2.btn-xs.pull-right.btn-filter {
+        margin: 0px !important;
+    }
+
+    .label {
+        color: teal;
+        font-weight: 500;
+        font-size: 14px;
+    }
+
+    .data {
+        color: deeppink;
+        font-size: 14px;
+        font-weight: 700;
+    }
+
+    .icon_home {
+        width: 12%;
+        float: right;
+    }
+
+    .mt0 {
+        margin-top: 0 !important;
+        color: black;
+    }
+
+    .nav-tabs>li.active>a,
+    .nav-tabs>li.active>a {
+        background: white !important;
+    }
+
+    .nav-tabs>li>a {
+        background: white;
+        color: #000;
+    }
+
+    .nav-tabs>li>.active {
+        background:white !important;
+    }
+    .row{
+        margin-top:20px;
+        margin-left:5px;
+    }
+    .doctor{
+        margin-top:10px;
+    }
+   
+    @media (min-height: 637px) and (min-width: 1200px) {
+        #fullregistrationheight .formRoot {
+            height: 460px !important;
+            min-height: 460px;
+        }
+    }
+
+    @media (min-height: 675px) and (min-width: 1360px) {
+        #fullregistrationheight .formRoot {
+            height: 500px;
+            min-height: 500px;
+        }
+    }
+
+    @media (device-height:100vh) and (device-width:100vw) {
+        #fullregistrationheight .formRoot {
+            min-height: 590px;
+        }
+    }
+</style>
+
+<div class="row page-header mt0">
+    <div class="col-sm-12">
+        <div class="col-sm-12 pd0">
+            <h4 class="mt0" translate="patientemr.bloodbank.requestform.lbl"></h4>
+        </div>
+    </div>
+</div>
+<div class="col-sm-12">
+    <div class="col-sm-4 mt0">
+        <label class="col-sm-4 control-label doctor" style="margin-top:10px" for="orderedby" translate="patientemr.bloodbank.docname.lbl"></label>
+        <div class="col-sm-6">
+            <ui-select ng-model="item.DoctorId" tabindex="-1" name="orderedby">
+                <ui-select-match>
+                    {{$select.selected.Text | limitTo : 20 : 0}}
+                    <span ng-if="$select.selected.Text.length>20">...</span>
+                </ui-select-match>
+                <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.Doctor | filter: { Text: $select.search }">
+                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                </ui-select-choices>
+            </ui-select>
+        </div>
+    </div>
+    <div class="col-sm-2 mt0">
+        <span>
+            <label class="label">Date :</label>
+            <span class="data">{{SelectedItem.BloodRequestDate | date : 'dd-MMM-yyyy'}}&nbsp;{{SelectedItem.BloodRequestDate | date : 'HH:mm'
+                }}
+                <!-- <span class="data">{{SelectedItem.BloodRequestDate}}</span> -->
+            </span>
+    </div>
+    <div class="col-sm-2 mt0">
+        <span>
+            <label class="label">Status :</label>
+            <span class="data">{{SelectedItem.BloodBankStatusId}}</span>
+        </span>
+    </div>
+    <div class="col-sm-4 mt0">
+        <span>
+            <label class="label">Requested By :</label>
+            <span class="data">{{SelectedItem.CreatedUser}}</span>
+        </span>
+    </div>
+</div>
+<br>
+<div class="row">
+    <div class="col-sm-12">
+        <uib-tabset active="active">
+            <uib-tab index="$index" ng-repeat="tab in tabs" heading="{{tab.title}}" ng-click="switchTab(tab)" disable="tab.canDisable">
+            </uib-tab>
+        </uib-tabset>
+        <div ui-view></div>
+    </div>
+</div>

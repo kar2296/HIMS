@@ -1,0 +1,180 @@
+<!-- <link href="app/css/regbilling.css" rel="stylesheet"> -->
+<style>
+    .ui-grid-cell-contents.list {
+    white-space: normal !important;
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+}
+</style>
+<div class="row">
+        <h4 class="col-sm-9 mt0" translate="admission.pagetitle.lbl"></h4>
+    <div class="col-sm-3">
+        <div class="filters">
+            <div class="search">
+                <input type="text" id="pid" class="form-control" on-enter="getList()"
+                    ng-model="currentfilter.patientnamemrn" placeholder="Search Patient/UHID/Visit#/Mobile#">
+                <div class="drhms-search-icon"><i class="fas fa-search" aria-hidden="true"></i></div>
+            </div> &nbsp;&nbsp;
+            <button type="button" tabindex="-1" class="btn-add" ng-click="addNew()"
+                uib-tooltip="{{ 'admissions.addnew-tooltip.lbl' | translate}}" tooltip-placement="bottom">
+                <i class="fa fa-plus" aria-hidden="true"></i>
+            </button>
+            <span class="drhms-billing-btn drhms-home-btn" ng-if="Context =='frontoffice'|| Context =='billing'"><i
+                    class="fas fa-home" ng-click="backtoList()" uib-tooltip="Dashboard"
+                    tooltip-placement="bottom"></i></span>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="form-group col-sm-2">
+        <label class="col-sm-12" translate="bedmanagement-grid.filter_doa.lbl"></label>
+        <div class="col-sm-12">
+            <div class="datepicker">
+                <input type="text" class="form-control" name="registereddate" ng-change="getList()"
+                    datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}"
+                    uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                    placeholder="{{datePickerOptions.placeholder}}" ng-click="registereddatePopup = { opened: true }"
+                    is-open="registereddatePopup.opened" ng-model="currentfilter.admissiondate"><i
+                    class="fa fa-calendar" aria-hidden="true"></i>
+            </div>
+        </div>
+    </div>
+    <div class="form-group col-sm-2">
+        <label class="col-sm-12" translate="admissions.filter_ward.lbl"></label>
+        <div class="col-sm-12">
+            <ui-select ng-model="currentfilter.WardId" ng-change="getList()" class="filter-combo">
+                <ui-select-match>
+                    {{$select.selected.Text | limitTo : 20 : 0}}
+                    <span ng-if="$select.selected.Text.length>20">...</span>
+                </ui-select-match>
+                <ui-select-choices
+                    repeat="lookupitem.Id as lookupitem in lookup.Ward | filter: { Text: $select.search }">
+                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                </ui-select-choices>
+            </ui-select>
+        </div>
+    </div>
+    <div class="form-group col-sm-2">
+        <label class="col-sm-12" translate="admissions.filter_guarantor.lbl"></label>
+        <div class="col-sm-12">
+            <ui-select ng-model="currentfilter.GuarantorId" ng-change="getList()">
+                <ui-select-match>
+                    {{$select.selected.Text | limitTo : 20 : 0}}
+                    <span ng-if="$select.selected.Text.length>20">...</span>
+                </ui-select-match>
+                <ui-select-choices
+                    repeat="lookupitem.Id as lookupitem in lookup.Guarantor | filter: { Text: $select.search }">
+                    <div ng-bind-html="lookupitem.Text | highlight: $select.search">
+                    </div>
+                </ui-select-choices>
+            </ui-select>
+        </div>
+    </div>
+    <div class="form-group col-sm-2">
+        <label class="col-sm-12" translate="admissionrequests.doctor.lbl"></label>
+        <div class="col-sm-12">
+            <ui-select ng-model="currentfilter.DoctorId" ng-change="getList()" class="filter-combo">
+                <ui-select-match>
+                    {{$select.selected.Text | limitTo : 20 : 0}}
+                    <span ng-if="$select.selected.Text.length>20">...</span>
+                </ui-select-match>
+                <ui-select-choices
+                    repeat="lookupitem.Id as lookupitem in lookup.Doctor | filter: { Text: $select.search }">
+                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                </ui-select-choices>
+            </ui-select>
+        </div>
+    </div>
+    <div class="form-group col-sm-2">
+        <label class="col-sm-12" translate="admissions.filter_guarantortype.lbl"></label>
+        <div class="col-sm-12">
+            <ui-select id='GuarantorTypeId' ng-change="getList()" ng-model="currentfilter.GuarantorTypeId">
+                <ui-select-match>
+                    {{$select.selected.Text | limitTo : 20 : 0}}
+                    <span ng-if="$select.selected.Text.length>20">...</span>
+                </ui-select-match>
+                <ui-select-choices
+                    repeat="lookupitem.Id as lookupitem in lookup.GuarantorType | filter: { Text: $select.search }">
+                    <div ng-bind-html="lookupitem.Text | highlight: $select.search">
+                    </div>
+                </ui-select-choices>
+            </ui-select>
+        </div>
+    </div>
+    <div class="form-group col-sm-2">
+        <label class="col-sm-12" translate="bedtransfer-list.filter_status.lbl"></label>
+        <div class="col-sm-12">
+            <ui-select ng-model="currentfilter.admissionstatusid" ng-change="getList()" class="filter-combo">
+                <ui-select-match>
+                    {{$select.selected.Text | limitTo : 20 : 0}}
+                    <span ng-if="$select.selected.Text.length>20">...</span>
+                </ui-select-match>
+                <ui-select-choices
+                    repeat="lookupitem.Id as lookupitem in lookup.AdmissionStatus | filter: { Text: $select.search }">
+                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                </ui-select-choices>
+            </ui-select>
+        </div>
+    </div>
+</div>
+<div id="myModal" class="modal">
+    <!-- Modal content -->
+    <div class="modal-content" style="width:88%;margin:0 auto; left:6%;top:4%;">
+        <div class="modal-body">
+            <span ng-click="hideprocessflow()" class="close link_close">&times;</span>
+            <img src="mock/usermanual/admissions/admissions.jpg" style="margin:0px auto;height: -webkit-fill-available;"
+                class="img-responsive"></img>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <custom-table config="vm.gridConfig"></custom-table>
+</div>
+<div class="container-fluid admission_list" id="depsheight">
+    <div class="fooder-bgs">
+        <div class="row">
+            <div class="col-sm-12 clearfix ng-isolate-scope ng-not-empty ng-valid" uib-pagination=""
+                total-items="vm.gridConfig.pagerObj.totalItems" items-per-page="vm.gridConfig.pagerObj.pageSize"
+                start-index="vm.gridConfig.pagerObj.startIndex" ng-model="vm.gridConfig.pagerObj.currentPage"
+                ng-change="getList()">
+                <div class="col-sm-4 pager-msg ng-binding">Showing 1-15 of 15 items</div>
+                <div class="col-sm-8">
+                    <ul class="pagination pagination-sm">
+                        <!-- ngIf: ::boundaryLinks -->
+                        <li ng-if="::boundaryLinks" ng-class="{disabled: noPrevious()||ngDisabled}"
+                            class="pagination-first ng-scope disabled">
+                            <a href="" ng-click="selectPage(1, $event)" class="ng-binding">First</a>
+                        </li>
+                        <!-- end ngIf: ::boundaryLinks -->
+                        <!-- ngIf: ::directionLinks -->
+                        <li ng-if="::directionLinks" ng-class="{disabled: noPrevious()||ngDisabled}"
+                            class="pagination-prev ng-scope disabled">
+                            <a href="" ng-click="selectPage(page - 1, $event)" class="ng-binding">Previous</a>
+                        </li>
+                        <!-- end ngIf: ::directionLinks -->
+                        <!-- ngRepeat: page in pages track by $index -->
+                        <li ng-repeat="page in pages track by $index"
+                            ng-class="{active: page.active,disabled: ngDisabled&amp;&amp;!page.active}"
+                            class="pagination-page ng-scope active">
+                            <a href="" ng-click="selectPage(page.number, $event)" class="ng-binding">1</a>
+                        </li>
+                        <!-- end ngRepeat: page in pages track by $index -->
+                        <!-- ngIf: ::directionLinks -->
+                        <li ng-if="::directionLinks" ng-class="{disabled: noNext()||ngDisabled}"
+                            class="pagination-next ng-scope disabled">
+                            <a href="" ng-click="selectPage(page + 1, $event)" class="ng-binding">Next</a>
+                        </li>
+                        <!-- end ngIf: ::directionLinks -->
+                        <!-- ngIf: ::boundaryLinks -->
+                        <li ng-if="::boundaryLinks" ng-class="{disabled: noNext()||ngDisabled}"
+                            class="pagination-last ng-scope disabled">
+                            <a href="" ng-click="selectPage(totalPages, $event)" class="ng-binding">Last</a>
+                        </li>
+                        <!-- end ngIf: ::boundaryLinks -->
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

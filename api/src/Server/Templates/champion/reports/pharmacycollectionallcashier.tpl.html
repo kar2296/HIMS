@@ -1,0 +1,206 @@
+<html>
+
+<head>
+  <style>
+    .table1 {
+      border: 1px solid black;
+    }
+    
+    .table2 {
+      border: 1px solid black;
+      border-top: 0px solid black;
+    } 
+    td.minusamt {
+        color: red;
+    }
+
+    th, td {
+      vertical-align: top;
+      padding: 3px;
+    }
+
+    th {
+      border-bottom: 1px solid black;
+      text-align: left;
+    }
+    
+    {{include '/Templates/champion/assets/css/core.css'}}
+  </style>
+</head>
+
+<body>
+  <div id="pageHeader">
+    {{{include '/Templates/champion/common/header.tpl.html' 'tpl'}}}
+  </div>  
+  <div class="content">
+    <div style="text-align:center;"><b style="font-size: 20px;">Pharmacy Collection Report For All Cashier</b></div>
+    <table class="table1" style="width:100%;"> 
+      <tr style='vertical-align: top'>
+        <td><b>FromDate</b></td>
+        <td>:</td>
+        <td><b>{{data.FromDate}}</b></td>
+        <td><b>ToDate</b></td>
+        <td>:</td>
+        <td><b>{{data.ToDate}}</b></td>
+        <td><b>UserName</b></td>
+        <td>:</td>
+        <td><b>{{data.UserName}}</b></td>
+        <td><b>Store Name</b></td>
+        <td>:</td>
+        <td><b>{{data.StoreMaster}}</b></td>
+      </tr>  
+    </table> 
+  </br>
+  <div style="text-align:center;"><b style="font-size: 17px;">Collection Bill Details</b></div>
+    <table class="table1" style="width:100%;">
+      <tr>
+        <th style="width:5%;"><b>S.No</b></th>
+        <th style="width:10%"><b>Date</b></th>
+        <th style="width:10%"><b>Bill No</b></th>
+        <th style="width:10%"><b>Receipt No</b></th>
+        <th style="width:15%"><b>Patient Name</b></th>
+        <th style="width:10%"><b>Doctor</b></th>
+        <th style="width:10%"><b>Billed By</b></th>
+        <th style="width:10%"><b>Cash</b></th>
+        <th style="width:10%"><b>Card</b></th>
+        <th style="width:10%"><b>UPI</b></th>
+        <th style="width:10%"><b>Others</b></th>
+      </tr>
+
+      {{#each data.PaymentOPSales}}
+      <tr>
+        <td>{{inc @index}}</td>
+        <td>{{datetimeformat BillDate}}</td>
+        <td>{{BillNumber}}</td>
+        <td>{{ReceiptNumber}}</td> 
+        <td>{{PatientName}}</td> 
+        <td>{{DoctorName}}</td>
+        <td>{{Billedby}}</td>
+        <td>{{currencyformat Cash}}</td>
+        <td>{{currencyformat Card}}</td>
+        <td>{{currencyformat UPI}}</td>
+        <td>{{currencyformat ChequeOthers}}</td> 
+      </tr>{{/each}}
+    </table>
+    
+    <div style="text-align:center;"><b style="font-size: 17px;">Due Collect</b></div>
+    <table class="table1" style="width:100%;padding-top:10px;">
+      <tr>
+        <th style="width:5%;"><b>S.No</b></th>
+        <th style="width:10%"><b>Date</b></th>
+        <th style="width:10%"><b>Bill No</b></th>
+        <th style="width:10%"><b>Receipt No</b></th>
+        <th style="width:15%"><b>Patient Name</b></th>
+        <th style="width:10%"><b>Doctor</b></th>
+        <th style="width:10%"><b>Billed by</b></th>
+        <th style="width:10%"><b>Cash</b></th>
+        <th style="width:10%"><b>Card</b></th>
+        <th style="width:10%"><b>UPI</b></th>
+        <th style="width:10%"><b>Others</b></th>
+      </tr>
+      {{#each data.PaymentOPDueCollections}}
+      <tr>
+        <td>{{inc @index}}</td>
+        <td>{{datetimeformat ReceiptDate}}</td>
+        <td>{{BillNumber}}</td>
+        <td>{{ReceiptNumber}}</td> 
+        <td>{{PatientName}}</td> 
+        <td>{{DoctorName}}</td>
+        <td>{{Billedby}}</td>
+        <td>{{currencyformat Cash}}</td>
+        <td>{{currencyformat Card}}</td>
+        <td>{{currencyformat UPI}}</td>
+        <td>{{currencyformat ChequeOthers}}</td> 
+      </tr>{{/each}}
+    </table>
+    
+    <div style="text-align:center;"><b style="font-size: 17px;">Return Bill Details</b></div>
+    <table class="table1" style="width:100%; padding-top:10px;">
+      <tr>
+        <th style="width:5%;"><b>S.No</b></th>
+        <th style="width:10%"><b>Date</b></th>
+        <th style="width:10%"><b>Refund No</b></th>
+        <th style="width:10%"><b>Bill No</b></th>
+        <th style="width:15%"><b>Patient Name</b></th>
+        <th style="width:10%"><b>Doctor</b></th>
+        <th style="width:10%"><b>Doctor</b></th>
+        <th style="width:10%"><b>Cash</b></th>
+        <th style="width:10%"><b>Card</b></th>
+        <th style="width:10%"><b>UPI</b></th>
+        <th style="width:10%"><b>Others</b></th>
+      </tr>
+
+      {{#each data.PaymentOPReturn}}
+      <tr>
+        <td>{{inc @index}}</td>
+        <td>{{datetimeformat ReturnDate}}</td>
+        <td>{{ReturnNumber}}</td>
+        <td>{{BillNumber}}</td> 
+        <td>{{PatientName}}</td>
+        <td>{{DoctorName}}</td>
+        <td>{{Billedby}}</td>
+        <td>{{currencyformat Cash}}</td>
+        <td>{{currencyformat Card}}</td> 
+        <td>{{currencyformat UPI}}</td> 
+        <td>{{currencyformat ChequeOthers}}</td> 
+      </tr>{{/each}}
+    </table>
+  </br>
+  <table class="table1" style="width:100%;">
+    <tr>
+      <td style="width:15%;"><b>Total Cash</b></td>
+      <td style="width:15%"><b></b>{{currencyformat data.TotCash}}</td>
+      <td style="width:15%"><b>Total Card</b></td>
+      <td style="width:15%"><b>{{currencyformat data.TotCard}}</b></td>
+      <td style="width:15%"><b>Total UPI</b></td>
+      <td style="width:15%"><b>{{currencyformat data.TotUPI}}</b></td> 
+      <td style="width:15%"><b>Total Others</b></td>
+      <td style="width:15%"><b>{{currencyformat data.TotChequeOthers}}</b></td> 
+    </tr>
+    <tr>
+      <td style="width:15%;"><b>Due Cash</b></td>
+      <td style="width:15%"><b>{{currencyformat data.TotCashDue}}</b></td>
+      <td style="width:15%"><b>Due Card</b></td>
+      <td style="width:15%"><b>{{currencyformat data.TotCardDue}}</b></td>
+      <td style="width:15%"><b>Due UPI</b></td>
+      <td style="width:15%"><b>{{currencyformat data.TotUPIDue}}</b></td> 
+      <td style="width:15%"><b>Due Others</b></td>
+      <td style="width:15%"><b>{{currencyformat data.TotChequeOthersDue}}</b></td> 
+    </tr>
+    <tr>
+      <td style="width:15%;"><b>Return Cash</b></td>
+      <td class ="minusamt" style="width:15%"><b><span>-</span>{{currencyformat data.TotCashReturn}}</b></td>
+      <td style="width:15%"><b>Return Card</b></td>
+      <td class ="minusamt" style="width:15%"><b><span>-</span>{{currencyformat data.TotCardReturn}}</b></td>
+      <td style="width:15%"><b>Return UPI</b></td>
+      <td class ="minusamt" style="width:15%"><b><span>-</span>{{currencyformat data.TotUPIReturn}}</b></td> 
+      <td style="width:15%"><b>Return Others</b></td>
+      <td class ="minusamt" style="width:15%"><b><span>-</span>{{currencyformat data.TotChequeOthersReturn}}</b></td> 
+    </tr>
+    <tr>
+      <td style="width:15%;"><b>Net Cash</b></td>
+      <td style="width:15%"><b>{{currencyformat data.TotalNetCash}}</b></td>
+      <td style="width:15%"><b>Net Card</b></td>
+      <td style="width:15%"><b>{{currencyformat data.TotalNetCard}}</b></td>
+      <td style="width:15%"><b>Net UPI</b></td>
+      <td style="width:15%"><b>{{currencyformat data.TotalNetUPI}}</b></td> 
+      <td style="width:15%"><b>Net Others</b></td>
+      <td style="width:15%"><b>{{currencyformat data.TotalNetCheque}}</b></td>
+    </tr>
+    </table> 
+<table>
+<tr>
+      <td style="width:15%;"><b></b></td>
+      <td style="width:15%"><b></b></td>
+      <td style="width:15%"><b></b></td>
+<td style="width:15%"><b></b></td>
+      <td style="width:15%"><b></b></td>
+      <td style="width:15%"><b>Net Submission</b></td>
+      <td style="width:15%"><b>{{currencyformat data.NetSubmission}}</b></td> 
+    </tr>
+  </table>
+</div>
+  </body>
+  <div style="width:100%; font-size:8px;">Printed On: {{now}}</div>
+
+</html>

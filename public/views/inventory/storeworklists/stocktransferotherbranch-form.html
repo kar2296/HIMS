@@ -1,0 +1,367 @@
+<link href="app/css/billing-pharmacy-customs.css" rel="stylesheet">
+<link href="app\css\inventory.css">
+<div id="" class="stocktrans">
+    <div class="row page-header">
+        <h4 class="col-sm-4" translate="inventory.stocktransfers.pagetitle.lbl"></h4>
+        <!-- <div class="col-sm-8">
+            <div class="col-sm-6">
+                <div class="col-sm-6"></div>
+                
+                <div class="col-sm-4"></div>
+            </div>
+            <div class=" col-sm-6">
+                <span class="col-sm-9">
+                    <ui-select ng-model="item.StoreMasterId" ng-change="SelectedFromStore($select.selected)" name="store" class="filter-combo"
+                        ng-disabled="item.isDisabled" required>
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 20 : 0}}
+                            <span ng-if="$select.selected.Text.length>20">...</span>
+                        </ui-select-match>
+                        <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.UserStores | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </span>
+                <button type="button" id="addnew" class="btn-add" ng-click="addNew()" ng-if="HasAccess('StockTransfer', 'AddNew')" uib-tooltip="{{ 'inventory.stocktransfer.addnew-tooltip.lbl' | translate }}"
+                    tooltip-placement="bottom">
+                    <i class="fa fa-plus" aria-hidden="true"></i>
+                    <strong class="btn-fontsize" translate="common.addnewaction.lbl"></strong>
+                </button>
+
+            </div>
+        </div> -->
+        <div class="col-sm-8">
+            <div class="col-sm-6">
+                <div class="col-sm-6"></div>
+                <div class="col-sm-6">
+                    <!-- <span class="" uib-tooltip="{{item.DisplayPoStatus}} " tooltip-placement="bottom"> -->
+                    <span translate="inventory.purchaseorders.status.lbl"></span>:
+                    <span>{{item.DisplayTransferStatus}} </span>
+                    <!-- </span> -->
+                </div>
+                <div class="col-sm-4"></div>
+            </div>
+            <div class="col-sm-6">
+                <span class="col-sm-9">
+                    <ui-select ng-model="item.StoreMasterId" ng-change="SelectedFromStore($select.selected)" name="store" class="filter-combo"
+                        ng-disabled="item.isDisabled" required>
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 20 : 0}}
+                            <span ng-if="$select.selected.Text.length>20">...</span>
+                        </ui-select-match>
+                        <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.UserStores | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </span>
+                <button class="btn-add" ng-click="addNew()" uib-tooltip="{{ 'inventory.stockrequests.pagetitle.lbl' | translate }}" tooltip-placement="bottom">
+                    <i class="fa fa-plus" aria-hidden="true"></i>
+                    <!-- <strong class="btn-fontsize" translate="common.addnewaction.lbl"> </strong> -->
+                </button>
+            </div>
+        </div>
+    </div>
+    <form id="item_form" name="item_form" class="form-horizontal" role="form">
+        <div class="billingbanner">
+            <table id="bannerdetails">
+                <tr>
+                    <!-- <td translate="My Facility">
+                        <span style="color:red">*</span>
+                    </td>
+                    <td>
+                        <ui-select ng-model="item.ToFacilityId" name="tofacility" ng-disabled="item.isDisabled" required>
+                            <ui-select-match>
+                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                <span ng-if="$select.selected.Text.length>20">...</span>
+                            </ui-select-match>
+                            <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.Facility | filter: { Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                            </ui-select-choices>
+                        </ui-select>
+                    </td> -->
+                    <td translate="Indent Facility">
+                        <span style="color:red">*</span>
+                    </td>
+                    <td>
+                        <ui-select ng-model="item.ToFacilityId" name="tofacility" ng-disabled="item.isDisabled" required>
+                            <ui-select-match>
+                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                <span ng-if="$select.selected.Text.length>20">...</span>
+                            </ui-select-match>
+                            <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.Facility | filter: { Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                            </ui-select-choices>
+                        </ui-select>
+                    </td>
+                    <td translate="Type"></td>
+                    <td>
+                        <ui-select id="transfertype" ng-keyup="moveHeaderFocus('transfertype')" ng-model="item.TransferTypeId" name="transfertype"
+                            ng-disabled="item.isDisabled" required>
+                            <ui-select-match>
+                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                <span ng-if="$select.selected.Text.length>20">...</span>
+                            </ui-select-match>
+                            <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.TransferType | filter: { Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                            </ui-select-choices>
+                        </ui-select>
+                    </td>
+
+                    <td translate="Indent Store">
+                        <span style="color:red">*</span>
+                    </td>
+                    <td>
+                        <ui-select id="tostoreid" ng-keyup="moveHeaderFocus('tostoreid')" ng-model="item.ToStoreMasterId" name="tostore" ng-change="SelectedToStore($select.selected)"
+                            ng-disabled="item.isDisabled" required>
+                            <ui-select-match>
+                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                <span ng-if="$select.selected.Text.length>20">...</span>
+                            </ui-select-match>
+                            <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.ToStore | filter: { Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                            </ui-select-choices>
+                        </ui-select>
+                    </td>
+                </tr>
+                <tr>
+                    <td translate="Indent By"></td>
+                    <td>
+                        <span> {{RequestedBy}}</span>
+                    </td>
+                    <td translate="Indent Date"></td>
+                    <td>
+                        <span>
+                            <displaydate datetime-val="item.RequestedDate"></displaydate>
+                        </span>
+                        <!-- <span> {{item.isDisabled ? (item.RequestedDate &nbsp;|&nbsp; date : 'dd-MMM-yyyy HH:MM a') : ''}} -->
+                    </td>
+                    <td translate="Indent Number"></td>
+                    <td>
+                        <span>{{item.RequestNumber}}</span>
+                    </td>
+                </tr>
+
+                <tr>
+
+                    <td translate="Transferred By"></td>
+                    <td>
+                        <span>
+                            {{item.TranferedUser.Title.Description}}{{item.TranferedUser.FirstName}}{{item.TranferedUser.LastName}}
+                        </span>
+                    </td>
+                    <td translate="Transfer Date"></td>
+                    <td>
+                        <span> {{item.isDisabled ? (item.TransferDate &nbsp;|&nbsp; date : 'dd-MMM-yyyy HH:MM a') : ''}}
+                        </span>
+                    </td>
+                    <td translate="Stock Issue Voucher #"></td>
+                    <td>
+                        {{item.isDisabled ? item.TransferNumber : ''}}
+                    </td>
+
+                </tr>
+            </table>
+        </div>
+
+        <div class="table-control">
+            <div class=" bg-pattern im_purodrhg">
+                <div class="table-height formRoot" id="mainresponsivetablecontrolstock">
+                    <table class="table table-hover table-responsive table-bordered">
+                        <thead class="bg-subhead">
+                            <tr>
+                                <th class="fs-12 ">
+                                    <span translate="inventory.stocktransfer.sno.lbl"></span>
+                                </th>
+                                <th class="fs-12 col-sm-3">
+                                    <span translate="inventory.stocktransfer.itemname.lbl"></span>
+                                </th>
+                                <!--<th class="fs-12 ">
+                                            <span translate="inventory.stocktransfer.manufacturer.lbl"></span>
+                                        </th>-->
+                                <th class="fs-12 ">
+                                    <span translate="inventory.stocktransfer.availableqty.lbl"></span>
+                                </th>
+                                <th class="fs-12 ">
+                                    <span translate="inventory.stocktransfer.batchqty.lbl"></span>
+                                </th>
+                                <th class="fs-12 col-sm-1">
+                                    <span translate="inventory.stocktransfer.reqqty.lbl"></span>
+                                </th>
+                                <th class="fs-12 col-sm-1">
+                                    <span translate="inventory.stocktransfer.transferedqty.lbl"></span>
+                                </th>
+                                <th class="fs-12 col-sm-1">
+                                    <span translate="inventory.stocktransfer.qty.lbl"></span>
+                                </th>
+                                <th class="fs-12 col-sm-2">
+                                    <span translate="inventory.stocktransfer.batch.lbl"></span>
+                                </th>
+                                <th class="fs-12 col-sm-1">
+                                    <span translate="inventory.stocktransfer.expirydate.lbl"></span>
+                                </th>
+                                <th class="fs-12 ">
+                                    <span translate="inventory.stocktransfer.ucp.lbl"></span>
+                                </th>
+                                <th class="fs-12 ">
+                                    <span translate="inventory.stockconsumption.mrp.lbl"></span>
+                                </th>
+                                <th class="fs-12 col-sm-1">
+                                    <span translate="inventory.stocktransfer.amount.lbl"></span>
+                                </th>
+                                <th class="fs-12 col-sm-1">
+                                    <span translate="inventory.stocktransfer.action.lbl"></span>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="stocktransfer in stocktransferDetails | filter:{Status:1}">
+                                <td class="fs-12">
+                                    <span> {{stocktransfer.SNo }}</span>
+                                </td>
+                                <td class="fs-12">
+                                    <autosearch controlid="stocktransfer.itemidxdesc" ng-keyup="moveFocus('qty','desc','desc','desc',$index,$event,stocktransfer)"
+                                        itemid="stocktransfer.ItemMasterId" iteminfo="stocktransfer.SelectedItem" rowdata="stocktransfer"
+                                        config="vm.stocktransferitemcontrolconfig" itemchange="onItemSelected($index, stocktransfer)"
+                                        candisable="item.isDisabled">
+                                    </autosearch>
+                                </td>
+                                <!--<td class="fs-12">
+                                            <span> {{stocktransfer.ManufacturerName }}</span>
+                                        </td>-->
+                                <td class="fs-12">
+                                    <span> {{stocktransfer.TotalAvailableQuantity }}</span>
+                                </td>
+                                <td class="fs-12">
+                                    <span> {{stocktransfer.BatchQuantity }}</span>
+                                </td>
+                                <td class="fs-12">
+                                    <span> {{stocktransfer.RequestedQuantity }}</span>
+                                </td>
+                                <td class="fs-12">
+                                    <span> {{stocktransfer.IssuedQuantity }}</span>
+                                </td>
+                                <td class="fs-12">
+                                    <input type="text" min="0" id="{{stocktransfer.itemidxqty}}" ng-keypress="numberonly($event)" ng-pattern="/^\d+$/" ng-keyup="moveFocus('desc','desc','qty','qty',$index,$event,stocktransfer)"
+                                        class="form-control" ng-disabled="item.isDisabled" ng-model="stocktransfer.TransferedQuantity"
+                                        tabindex="stocktransfer.tabindex" ng-change="computeAmount(stocktransfer)" placeholder=""
+                                        required>
+                                </td>
+                                <td class="fs-12">
+                                    <span class="pharmabatch_id" uib-tooltip="{{ stocktransfer.BatchId }}" tooltip-placement="bottom">{{ stocktransfer.BatchId }}</span>
+                                    <button ng-if="stocktransfer.Batch" type="button" class="btn btn-info btn-xs pull-right" tabindex="-1" ng-click="batchDetails($index, stocktransfer)">
+                                        <i class="fa fa-bold" aria-hidden="true"></i>
+                                    </button>
+                                </td>
+                                <td class="fs-12">
+                                    <span ng-if="stocktransfer.HaveNoExpiry"> {{stocktransfer.ExpiryDate &nbsp;|&nbsp; date : 'dd-MMM-yyyy'}} </span>
+                                    <span ng-if="stocktransfer.HaveExpiry"> {{stocktransfer.ExpiryDate &nbsp;|&nbsp; date : 'dd-MMM-yyyy'}} </span>
+                                    <span ng-if="stocktransfer.ExpiryStop" ng-style="{'color':'red'}">
+                                        {{stocktransfer.ExpiryDate &nbsp;|&nbsp; date : 'dd-MMM-yyyy'}} </span>
+                                    <span ng-if="stocktransfer.ExpiryAlert" ng-style="{'color':'orange'}">
+                                        {{stocktransfer.ExpiryDate &nbsp;|&nbsp; date : 'dd-MMM-yyyy'}} </span>
+                                    <span ng-if="stocktransfer.ExpiryProceed"> {{stocktransfer.ExpiryDate &nbsp;|&nbsp; date : 'dd-MMM-yyyy'}} </span>
+                                </td>
+                                <td class="fs-12 currency-align">
+                                    <span>{{stocktransfer.UnitCostPrice | displaycurrency}}</span>
+                                </td>
+                                <td class="fs-12 currency-align">
+                                    <span>{{stocktransfer.MrPrice | displaycurrency}}</span>
+                                </td>
+                                <td class="fs-12 currency-align">
+                                    <span>{{stocktransfer.NetAmount | displaycurrency}}</span>
+                                    <!--<input type="text" value="{{stocktransfer.NetAmount | displaycurrency}}" class="inputbox form-control" disabled>-->
+                                </td>
+                                <td class="text-center">
+                                    <button type="button" class="btn btn-info texthover btn-xs ng-scope" tabindex="-1" uib-tooltip="History" tooltip-placement="top"
+                                        ng-click="History(stocktransfer, $index)">
+                                        <img class="imgsrc" src="app/img/main/history.png" style="margin-top:1px; width:25px;    margin: 1px 2px;">
+                                    </button>
+                                    <!-- <button type="button" class="text-white btn dem-color4 btn-xs " tabindex="-1" uib-tooltip="Stock" tooltip-placement="top"
+                                        ng-click="Stock(stocktransfer,$index)">
+                                        <i class="fa fa-database fa-xs" aria-hidden="true"></i>
+                                    </button>
+                                    <button type="button" class="btn btn-danger btn-xs" tabindex="-1" uib-tooltip="Delete" tooltip-placement="top" ng-click="deleteStockTransferDetail(stocktransfer,$index)"
+                                        ng-disabled="item.isDisabled">
+                                        <i class="fa fa-trash" aria-hidden="true"></i>
+                                    </button> -->
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="pofooter">
+                <div class="col-sm-12">
+                    <div class="col-sm-4">
+                        <div class="form-group" style="margin-top: 10px;">
+                            <label class="col-sm-4 control-label" for="comments" translate="inventory.grn.comments.lbl"></label>
+                            <div class="col-sm-8">
+                                <input type="text" tabindex="-1" class="form-control field-height inputheightctrl" name="comments" ng-model="item.TransfererComments"
+                                    ng-disabled="item.isDisabled" placeholder="Comments">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-sm-4">
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="billingbanner" style="padding: 4% 0px;">
+                            <table id="bannerdetails" class="foot">
+                                <tr>
+                                    <td translate="inventory.purchaseorders.grossamount.lbl"></td>
+                                    <td>
+                                        {{(item.TotalNetAmount | displaycurrency)}}
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <div class="fooder-bgs">
+            <div class="pull-left" style="    margin-left: 38px;    ">
+                <button type="button" class="btn pyr-color10 btn-sm" uib-tooltip="Back to List" tooltip-placement="top" tabindex="-1" ng-click="backToList()">
+                    <i class="fa fa-angle-left" aria-hidden="true"></i>
+                    <span class="btn-fontsize"> &nbsp; Back</span>
+                </button>
+                <!-- <button type="button" class="draftbutton" uib-tooltip="Attachments" tabindex="-1" tooltip-placement="top"
+                        ng-if="HasAccess('PurchaseOrder', 'Attachment')" ng-click="openAttachments()">
+                        <i class="fa fa-paperclip fa-xs" aria-hidden="true">({{currentcontext.attachmentcount}})</i>
+                    </button> -->
+                <!-- <button type="button" class="btn btn-info texthover btn-sm ng-scope" uib-tooltip="History" tabindex="-1" tooltip-placement="top"
+                            ng-click="history()" ng-if="HasAccess('PurchaseOrder','History')" ng-show="canShowHistoryBtn">
+                            <i class="fa fa-history fa-xs" aria-hidden="true"></i>
+                        </button> -->
+
+                <!-- <button type="button" class="cancelbutton" uib-tooltip="Cancel PO" tooltip-placement="top" tabindex="-1" ng-click="CancelPO()"
+                            ng-if="HasAccess('PurchaseOrder', 'Cancel')" ng-show="canShowCancelpoBtn" translate="inventory.purchaserequest.cancelpo.lbl"></button> -->
+                <!-- <button type="button" class="text-white btn adm-color7  btn-sm" ng-show="canShowDeleteBtn" tabindex="-1" ng-click="draftDelete()"
+                    ng-if="HasAccess('PurchaseOrder', 'Delete')" translate="inventory.purchaseorder.deletepo.lbl"></button> -->
+
+            </div>
+            <div class="pull-right" style=" margin-right: 24px;">
+                <button type="button" id="" class="draftbutton" tabindex="-1" ng-if="HasAccess('PurchaseOrder', 'ORIGINAL_PRINT')" hotkey="{'alt+p' : print}"
+                    ng-show="canShowPrintBtn" ng-click="print()">
+                    <i class="fa fa-print"></i> Preview Print</button>
+                <!-- <button type="button" ng-show="canShowDMPrintBtn" id="btndmprint" class="draftbutton" ng-if="HasAccess('PurchaseOrder', 'PO-DMPrint')"
+                    ng-click="dmPrint()">DM Print</button> -->
+                <!-- <button type="button" id="savebtnsubmit" class="draftbutton" translate="common.saveaction.lbl" hotkey="{'alt+t' : SaveandDraft}"
+                        ng-if="HasAccess('PurchaseOrder', 'Save')" ng-show="canShowSaveBtn" ng-click="SaveandDraft()"></button> -->
+                <!-- <button type="button" id="approvebtnsubmit" ng-keyup="moveHeaderFocus('approvebtnsubmit')"
+                    class="draftbutton" translate="common.transfer-action.lbl"
+                    ng-if="HasAccess('PurchaseOrder', 'Approve')" id="btnTransfer" hotkey="{'alt+a': SaveandApprove}"
+                    ng-show="canShowTransferBtn" ng-click="Transfer()"></button> -->
+                <button type="button" id="approvebtnsubmit" ng-keyup="moveHeaderFocus('approvebtnsubmit')" class="draftbutton" translate="common.transfer-action.lbl"
+                    id="btnTransfer" hotkey="{'alt+a': SaveandApprove}" ng-show="canShowTransferBtn" ng-click="Transfer()"></button>
+                <!-- <button type="button" id="authorizebtnsubmit" ng-keyup="moveFocus('authorizebtnsubmit')" class="btn btn-info btn-sm" translate="common.authorize.lbl"
+                    ng-show="canShowAuthorizeBtn" ng-if="HasAccess('PurchaseOrder', 'Authorize')" ng-click="SaveandAuthorize() "></button> -->
+                <!-- <button type="button" id="clearbtnsubmit" tabindex="-1" class="btn btn-warning btn-sm" translate="common.clearaction.lbl"
+                    ng-show="canShowClearBtn" ng-click="Clear()"></button>
+                <button type="button" id="cancelbtnsubmit" tabindex="-1" class="cancelbutton" translate="common.cancelaction.lbl" ng-show="canShowCancelBtn"
+                    ng-click="Cancel()"></button> -->
+            </div>
+        </div>
+    </form>
+</div>

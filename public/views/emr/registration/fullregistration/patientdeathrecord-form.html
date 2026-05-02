@@ -1,0 +1,158 @@
+<style>
+    .custom-modal-header h4 {
+        margin: 0px;
+    }
+
+    .modal-dialog.modal-lg {
+        width: 55%;
+    }
+    .form-horizontal .form-group {
+    margin-left: -15px;
+    margin-right: -15px;
+    height: 68px;
+}
+</style>
+<div class="col-sm-12 custom-modal-header">
+    <h4 translate="registration.patientdeathrecord-form.pagetitle.lbl" class="col-sm-11">
+        <span class="ng-scope"></span>
+    </h4>
+    <div class="col-sm-1">
+    <button id="btnCancelForm" type="button" class="draftbutton" ng-click="backToList()"
+    translate="X"></button>
+    </div>
+</div>
+<div class="row">
+    <div class="col-sm-12">
+        <form id="item_form" name="item_form" class="form-horizontal" role="form">
+            <div class="panel-body form-panel">
+                <div class="col-sm-12">
+
+                    <!-- leftpanel -->
+                    <div class="col-sm-12">
+                        <div class=" ">
+                            <div class="form-group col-sm-6">
+                                <label class="col-sm-12 control-label" for="dateofdeath"
+                                    translate="registration.patientdeathrecord-form.dateofdeath.lbl"></label>
+                                <div class="col-sm-12">
+                                    <input type="text" class="form-control" name="dateofdeath" ng-date-object
+                                        uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                                        placeholder="{{datePickerOptions.placeholder}}"
+                                        ng-click="dateofdeathPopup = { opened: true }" is-open="dateofdeathPopup.opened"
+                                        ng-model="item.DeathDate" required>
+                                </div>
+                            </div>
+                            <div class="form-group col-sm-6">
+                                <label class="col-sm-12 control-label" for="deceasetype"
+                                    translate="registration.patientdeathrecord-form.deceasetype.lbl"></label>
+                                <div class="col-sm-12">
+                                    <ui-select ng-model="item.DeathTypeId" name="deceasetype" required>
+                                        <ui-select-match>
+                                            {{$select.selected.Text | limitTo : 20 : 0}}
+                                            <span ng-if="$select.selected.Text.length>20">...</span>
+                                        </ui-select-match>
+                                        <ui-select-choices
+                                            repeat="lookupitem.Id as lookupitem in lookup.DeathType | filter: { Text: $select.search }">
+                                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                        </ui-select-choices>
+                                    </ui-select>
+                                </div>
+                            </div>
+                            <div class="form-group col-sm-6">
+                                <label class="col-sm-12 control-label" for="placeofdeath"
+                                    translate="registration.patientdeathrecord-form.placeofdeath.lbl"></label>
+                                <div class="col-sm-12">
+                                    <ui-select ng-model="item.DeathPlaceId" name="placeofdeath" required>
+                                        <ui-select-match>
+                                            {{$select.selected.Text | limitTo : 20 : 0}}
+                                            <span ng-if="$select.selected.Text.length>20">...</span>
+                                        </ui-select-match>
+                                        <ui-select-choices
+                                            repeat="lookupitem.Id as lookupitem in lookup.DeathPlace | filter: { Text: $select.search }">
+                                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                        </ui-select-choices>
+                                    </ui-select>
+                                </div>
+                            </div>
+                            <div class="form-group col-sm-6">
+                                <label class="col-sm-12 control-label" for="isconfirmed"
+                                    translate="registration.patientdeathrecord-form.isconfirmed.lbl"></label>
+                                <div class="col-sm-12">
+                                    <input type="checkbox" name="isconfirmed" class="custom-checkbox"
+                                        ng-model="item.IsDeathConfirmed">
+                                </div>
+                            </div>
+                            <div class="form-group col-sm-6">
+                                <label class="col-sm-12 control-label" for="confirmedby"
+                                    translate="registration.patientdeathrecord-form.confirmedby.lbl"></label>
+                                <div class="col-sm-12">
+                                    <ui-select ng-model="item.DeathConfirmedBy" name="confirmedby"
+                                        ng-disabled="!item.IsDeathConfirmed">
+                                        <ui-select-match>
+                                            {{$select.selected.Title.Description + ' ' + $select.selected.FirstName + '
+                                            ' + $select.selected.LastName | limitTo : 20
+                                            : 0}}
+                                            <span ng-if="$select.selected.Text.length>20">...</span>
+                                        </ui-select-match>
+                                        <ui-select-choices
+                                            repeat="lookupitem.Id as lookupitem in lookup.Doctor | filter: { Text: $select.search }">
+                                            <div
+                                                ng-bind-html="lookupitem.Title.Description + ' ' + lookupitem.FirstName + ' ' + lookupitem.LastName | highlight: $select.search">
+                                            </div>
+                                        </ui-select-choices>
+                                    </ui-select>
+                                </div>
+                            </div>
+                            <div class="form-group col-sm-6">
+                                <label class="col-sm-12 control-label" for="deathcomments"
+                                    translate="registration.patientdeathrecord-form.deathcomments.lbl"></label>
+                                <div class="col-sm-12">
+                                    <input type="text" class="form-control" name="deathcomments"
+                                        ng-model="item.DeathComents" placeholder="">
+                                </div>
+                            </div>
+                            <div class="form-group col-sm-6">
+                                <label class="col-sm-12 control-label text-muted"
+                                    translate="registration.patientdeathrecord-form.createddatetime.lbl"></label>
+                                <div class="col-sm-12">
+                                    <!-- <displaydate date-val='item.DeathUpdatedDate'></displaydate> -->
+                                    <input type="text" class="form-control" name="deathcomments" placeholder="">
+                                </div>
+                            </div>
+                            <div class="form-group col-sm-6">
+                                <label class="col-sm-12 control-label text-muted"
+                                    translate="registration.patientdeathrecord-form.createdby.lbl"></label>
+                                <div class="col-sm-12">
+                                    <!-- <displayuserlbl user='item.DeathUpdated'></displayuserlbl> -->
+                                    <input type="text" class="form-control" name="" placeholder="">
+                                </div>
+                            </div>
+                            <div class="form-group col-sm-6">
+                                <label class="col-sm-12 control-label text-muted"
+                                    translate="registration.patientdeathrecord-form.approvedby.lbl"></label>
+                                <div class="col-sm-12">
+                                    <!-- <displayuserlbl user='item.DeathApproved'></displayuserlbl> -->
+                                    <input type="text" class="form-control" name="" placeholder="">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- rightpanel -->
+                    <div class="col-sm-4">
+                    </div>
+                </div>
+            </div>
+            <div class="fooderbgs" style="margin-bottom: 45px !important;">
+                <div class="pull-right">
+                    <button id="btnSave" type="button" class="draftbutton" ng-show="item.PatientStatusId==2"
+                        translate="common.saveaction.lbl" ng-click="save()"></button>
+                    <button id="btnApproveForm" type="button" class="btn dem-color4 text-white btn-sm"
+                        ng-show="item.PatientStatusId==2" ng-click="approveItem()"
+                        translate="common.approveaction.lbl"></button>
+                    <button id="btnReverseForm" type="button" class="btn btn-primary btn-sm" ng-click="reverseItem()"
+                        translate="common.reverseaction.lbl"></button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

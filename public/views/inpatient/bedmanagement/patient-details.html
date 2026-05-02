@@ -1,0 +1,106 @@
+<style>
+    img.img-responsive-modal {
+        width: 200px;
+        height: 200px;
+        object-fit: cover;
+        background: #d9d9d9;
+        border: 1px solid #d9d9d9;
+        border-radius: 10px;
+    }
+
+    button.btn-discharge {
+        background: #006e99;
+        border: 0;
+        color: #fff;
+        padding: 5px 12px;
+        border-radius: 4px;
+    }
+
+    .font-eweight {
+        font-weight: 600;
+    }
+
+    a.nativatain-btn {
+        border: 1.5px solid #2196F3;
+        color: #9E9E9E;
+        width: 200px;
+        text-align: center;
+        display: block;
+        padding: 3px 10px;
+        border-radius: 4px;
+        box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 6px -1px, rgba(0, 0, 0, 0.06) 0px 2px 4px -1px;
+    }
+
+    h4.patient-details {
+        font-weight: 500 !important;
+        padding-left: 8px;
+    }
+
+    i.fa.fa-info-circle {
+        color: #F44336;
+    }
+</style>
+<div class="modal-header custom-modal-header">
+    <div class="col-sm-10">
+        <h4 class="modal-title custom-modal-title">{{item.WardName}} / {{item.RoomNo}} / {{item.Bed}}</h4>
+    </div>
+    <div class="col-sm-2">
+        <div class="filters">
+            <img src="../../../../../assets/svg/close.svg" ng-click="backToList()">
+        </div>
+    </div>
+</div>
+<div class="row">
+    <form id="item_form" name="item_form" class="form-horizontal" role="form">
+        <h4 class="patient-details">
+            Patient Detail
+        </h4>
+        <div class="col-sm-3">
+            <p ng-show="item.PhotoPath">
+                <img class="img-responsive-modal" data-ng-src="data:image/png;base64,{{item.Photo}}" />
+            </p>
+            <p ng-show="!item.PhotoPath">
+                <img src="app/img/main/img.jpg" class="img-responsive-modal" ng-if="item.GenderId == 2">
+                <img src="app/img/main/no-img-icon.png" class="img-responsive-modal" ng-if="item.GenderId != 2">
+            </p>
+        </div>
+        <div class="col-sm-9">
+            <div class="col-sm-2 font-eweight">Name</div>
+            <div class="col-sm-10 font-eweight">: {{item.PatientInformation}} <span
+                    ng-click="patientprofiledetails()"><i class="fa fa-info-circle" aria-hidden="true"></i></span></div>
+            <div class="col-sm-2 font-eweight">IP. No</div>
+            <div class="col-sm-10 font-eweight">: {{item.VisitIdentifier}}</div>
+            <div class="col-sm-2 font-eweight">Doctor</div>
+            <div class="col-sm-10 font-eweight">: {{item.Doctor}}</div>
+            <div class="col-sm-2 font-eweight">Status</div>
+            <div class="col-sm-10 font-eweight">: <span>{{item.Status}}</span></div>
+            <div class="col-sm-2 font-eweight">DOA</div>
+            <div class="col-sm-10 font-eweight">: {{item.AdmissionDate | date : 'dd/MMM/yyyy'
+                }}&nbsp;{{item.AdmissionDate|date:'HH:mm'}}</div>
+            <div class="col-sm-2 font-eweight">Reason</div>
+            <div class="col-sm-10 font-eweight">: {{item.AdmitReason}}</div>
+            <div class="col-sm-2 font-eweight">ALOS</div>
+            <div class="col-sm-10 font-eweight">: <span>{{item.LengthOfStay}} Days</span>
+            </div>
+            <div class="col-sm-2 font-eweight">Guarantor</div>
+            <div class="col-sm-10 font-eweight">: <span> {{item.GuarantorName}}</div>
+            <div class="">
+                <button class="btn-discharge" ng-if="currentcontext.IsAttender"
+                    ng-click="DischargeAttenderBed()">Discharge</button>
+            </div>
+        </div>
+        <div class="col-sm-12" ng-if="!currentcontext.IsAttender">
+            <div class="col-sm-4" style="margin-bottom: 10px;" ng-repeat="item in LinkItems">
+                <span><a class="nativatain-btn" ng-click="Navigateto(item)">{{item.Text}}</a></span>
+            </div>
+        </div>
+    </form>
+</div>
+<!--<p>
+Name <span style="margin-left:8px;">:</span> {{item.PatientInformation}} <br /> 
+IP.No <span style="margin-left:12px;">:</span> {{item.VisitIdentifier}}<br />
+Doctor <span style="margin-left:3px;">:</span> {{item.Doctor}}<br/>
+Status <span style="margin-left:5px;">:</span> {{item.Status}}<br /> 
+Reason <span style="margin-left:0px;">:</span> {{item.AdmitReason}}<br /> 
+ALOS <span style="margin-left:12px;">:</span> <span class="label label-danger">{{item.LengthOfStay}}</span>
+<br /></p>-->

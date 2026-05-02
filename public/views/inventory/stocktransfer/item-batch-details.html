@@ -1,0 +1,166 @@
+<style>
+    .filter-area {
+        padding-top: 0px!important;
+    }
+
+    #mainresponsivetablecontrol .height-controler {
+        height: 250px;
+    }
+    .row.container-fluid {
+    padding-left: 20px;
+    padding-right: 21px;
+}
+</style>
+
+<div class="modal-header custom-modal-header">
+  
+    <div class="col-sm-6">
+            <strong>
+                    <span class="modal-title custom-modal-title" translate="billing.pharmacy.batchdetails.lbl" style="font-size: 18px;line-height: 2 !important;"></span>
+                </strong>
+                <span>of {{item.ItemDescription}}</span>
+                        </div>
+            <div class="col-sm-6">
+                    <button type="button" class="btn btn-danger btn-sm pull-right" translate="x"
+                    ng-click="cancelCallback()"></button>
+                    </div>
+        </div>
+</div>
+<div class="bg-pattern  padding-top5">
+    <div class="row  container-fluid">
+        <div class="col-sm-3">
+            <span translate="billing.pharmacy.rack.lbl"> </span> :
+            <span>
+                <strong>A1</strong>
+            </span>
+        </div>
+        <div class="col-sm-3">
+            <span translate="billing.pharmacy.minqty.lbl"> </span> :
+            <span>
+                <strong>{{item.MinQty}}</strong>
+            </span>
+        </div>
+        <div class="col-sm-3">
+            <span translate="billing.pharmacy.availableqty.lbl"> </span> :
+            <span>
+                <strong>{{item.QuantityBeforeTransfer}}</strong>
+            </span>
+        </div>
+        <div class="col-sm-3">
+            <span translate="billing.pharmacy.maxqty.lbl"> </span> :
+            <span>
+                <strong>{{item.MaxQty}}</strong>
+            </span>
+        </div>
+    </div>
+    <div class="row  container-fluid " id="">
+        <div class="height-controler">
+            <table class="table table-hover table-responsive table-bordered">
+                <thead class="bg-subhead">
+                    <tr>
+                        <th class="col-sm-1">
+                            <span translate="billing.pharmacy.batchno.lbl"></span>
+                        </th>
+                        <th class="col-sm-1">
+                            <span translate="billing.pharmacy.expirydates.lbl"></span>
+                        </th>
+                        <!-- <th class="col-sm-1">
+                            <span translate="billing.pharmacy.batchmrp.lbl"></span>
+                        </th> -->
+                        <th class="col-sm-1">
+                            <span translate="billing.pharmacy.availableqty.lbl"></span>
+                        </th>
+                        <!-- <th class="col-sm-1">
+                            <span translate="billing.pharmacy.blockedqty.lbl"></span>
+                        </th> -->
+                        <th class="col-sm-1">
+                            <span translate="billing.pharmacy.transitqty.lbl"></span>
+                        </th>
+                        <th class="col-sm-1">
+                            <span translate="billing.pharmacy.issueqty.lbl"></span>
+                        </th>
+                        <th class="col-sm-1">
+                            <span translate="billing.pharmacy.totalamount.lbl"></span>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="batch in ItemBatchDetails | filter:{Status:1}">
+                        <td>
+                            <span class="form-control input-sm pull-left" style="border: 1px;">{{ batch.BatchId }} </span>
+                        </td>
+                        <td>
+                            <span ng-if="batch.ExpiryStop" class="btn btn-danger btn-sm col-sm-12 text-white">{{
+                                batch.ExpiryDate &nbsp;|&nbsp; date : 'dd-MMM-yyyy' }}</span>
+                            <span ng-if="batch.ExpiryAlert" class="btn btn-warning btn-sm col-sm-12 text-white">{{
+                                batch.ExpiryDate &nbsp;|&nbsp; date : 'dd-MMM-yyyy' }}</span>
+                            <span ng-if="batch.ExpiryProceed" class="btn btn-success btn-sm col-sm-12 text-white">{{
+                                batch.ExpiryDate &nbsp;|&nbsp; date : 'dd-MMM-yyyy' }}</span>
+                        </td>
+                        <!-- <td>
+                            <span class="form-control input-sm pull-right">{{ batch.Mrp | displaycurrency }} </span>
+                        </td> -->
+                        <td>
+                            <span class="form-control input-sm pull-right" style="border: 1px;">{{ batch.Quantity }} </span>
+                        </td>
+                        <!-- <td>
+                            <span class="form-control input-sm pull-right">0 </span>
+                        </td> -->
+                        <td>
+                            <span class="form-control input-sm pull-right" style="border: 1px;">0 </span>
+                        </td>
+                        <td>
+                            <input type="text" min="0" ng-keypress="numberonly($event)" ng-pattern="/^\d+$/" class="form-control input-sm"
+                                ng-model="batch.IssueQty" ng-change="ValidateIssueQty(batch)" placeholder="0">
+                        </td>
+                        <td>
+                            <span class="form-control input-sm pull-right" style="border: 1px;">{{ batch.TotalAmount }} </span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <!-- <div class="row">
+            <div class="col-sm-12 fullreg-profiles">
+                <div class="col-sm-7"></div>
+                <div class="col-sm-2 text-white">
+                    Total Qty:
+                    <span class="countbg">{{ TotalIssueQty }}</span>
+                </div>
+                <div class="col-sm-3 text-white">
+                    Total Amount:
+                    <span class="countbg">{{ TotalIssueAmount }}</span>
+                </div>
+            </div>
+        </div> -->
+    </div>
+    <div class="container-fluid">
+   
+        <!-- <div class="col-sm-4 ">
+            <span class="pull-right col-sm-6">
+                <i class="fa fa-exclamation-triangle text-danger" aria-hidden="true"></i> Critical Level</span>
+            <span class="pull-right col-sm-6 ">
+                <i class="fa fa-exclamation-triangle text-warning " aria-hidden="true"></i> Buffer Level</span>
+        </div> -->
+    </div>
+    <div class="fooder-bgs">
+            <div class="pull-left">
+            <!-- <div class="col-sm-12">
+                    <button class="btn btn-success btn-xs" ng-click="save()">
+                        <i class="fa fa-floppy-o" aria-hidden="true"></i>&nbsp;&nbsp;
+                        <strong class="btn-fontsize ng-scope" translate="common.saveaction.lbl"></strong>
+                    </button>
+                    <button type="button"   class="btn btn-warning btn-xs" translate="common.cancelaction.lbl"
+                        ng-click="save()"></button>
+                </div> -->
+            </div>
+        <div class="pull-right">
+            <div class="col-sm-12">
+                <button id="btnUpdateForm" type="button" class="draftbutton" ng-click="updateItemBatches()"
+                    translate="common.updateaction.lbl"></button>
+                <!-- <button id="btnCancelForm" type="button" class="draftbutton" ng-click="cancelCallback()"
+                    translate="common.cancelaction.lbl"></button> -->
+            </div>
+        </div>
+    </div>
+</div>

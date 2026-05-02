@@ -1,0 +1,84 @@
+<div class="modal-header custom-modal-header" ng-if="currentcontext.ismodal">
+    <div class="col-sm-10">
+        <h4 class="modal-title custom-modal-title" translate="Surgical Notes"></h4>
+    </div>
+    <!-- <div class="col-sm-2">
+        <div class="filters">
+            <img src="../../../../../assets/svg/close.svg" ng-click="backToDetail()">
+        </div>
+    </div> -->
+</div>
+
+<!-- <div class="modal-header custom-modal-header" ng-if="currentcontext.ismodal">
+    <h4 class="col-sm-11 modal-title custom-modal-title" translate="Surgical Notes"></h4>
+    <div class="col-sm-1">
+        <button id="btnCancelForm" type="button" class="draftbutton" ng-click="backToDetail()" translate="X"></button>             
+    </div>
+</div> -->
+<div class="row">
+    <form id="item_form" name="item_form" class="form-horizontal" role="form">
+        <div class="col-sm-4">
+            <!-- <div class="form-group"> -->
+            <label class="col-sm-12 control-label" for="notetype"
+                translate="medicalcertificate.dischargesummary-form.notetype.lbl"></label>
+            <div class="col-sm-12">
+                <ui-select ng-model="NoteTypeId" name="notetype" ng-disabled="true">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 20 : 0}}
+                        <span ng-if="$select.selected.Text.length>20">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.NoteType | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+                <!-- </div> -->
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <div class="form-group">
+                <label class="col-sm-12 control-label" for="templatename"
+                    translate="medicalcertificate.dischargesummary-form.templatename.lbl"></label>
+                <div class="col-sm-12">
+                    <ui-select ng-model="item.TemplateTypeId" name="templatename" ng-disabled="item.isCompleted"
+                        ng-change="onNoteTemplateChange()" required>
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 20 : 0}}
+                            <span ng-if="$select.selected.Text.length>20">...</span>
+                        </ui-select-match>
+                        <ui-select-choices
+                            repeat="lookupitem.Id as lookupitem in lookup.NoteTemplate | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+<div class="row">
+    <richtexteditor richtext="item.DataTemplate"></richtexteditor>
+</div>
+<div class="fooder-bgs">
+    <div class="row">
+        <div class="pull-left">
+            <button type="button" class="btn pyr-color10 btn-sm" ng-click="backToDetail()"
+                ng-hide="currentcontext.ismodal">
+                <i class="fa fa-angle-left" aria-hidden="true"></i>&nbsp;&nbsp;
+                <span class="btn-fontsize" translate="common.backaction.lbl"></span>
+            </button>
+            <!--<button type="button" class="btn prv-color12 btn-sm" ng-click="openPreviousAppointment()" translate="patientemr.patientdashboard.pastvisit.lbl"></button>
+                            <button type="button" class="draftbutton" ng-click="patientorders()" translate="patientemr.patientorder-list.clinicalorders.lbl"></button>-->
+        </div>
+        <div class="pull-right">
+            <button type="button" class="draftbutton" ng-click="print()" ng-hide="currentcontext.ismodal"
+                ng-if="item.ActiveStatusId==1" translate="common.printaction.lbl"></button>
+            <button id="btnSave" type="button" class="draftbutton" ng-hide="item.OTRegisterStatusId==4"
+                translate="common.saveaction.lbl" ng-click="saveItem()"></button>
+            <!--<button type="button" class="btn dem-color4 text-white btn-sm" translate="common.saveapprove-action.lbl" ng-click="saveAndApprove()"></button>-->
+            <button id="btnClearForm" type="button" class="draftbutton" ng-click="clear()"
+                ng-hide="item.OTRegisterStatusId==4||currentcontext.ismodal"
+                translate="common.clearaction.lbl"></button>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,477 @@
+<link href="api/node_modules/morrisjs/morris.css" rel="stylesheet">
+<link href="app/css/dashboard1.css" rel="stylesheet">
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+<script src="app/js/waves.js"></script>
+<style>
+    /* .charts {
+        width: 206px !important;
+        height: 121px !important;
+    } */
+
+    .col-md-4.col-sm-12.col-xs-12 .card {
+        min-height: 27px !important;
+        height: 316px;
+    }
+
+
+    .charts {
+        width: 206px !important;
+        height: 121px !important;
+        position: relative;
+        left: 44px;
+        margin-top: 60px;
+    }
+
+    .card {
+        box-shadow: unset;
+    }
+
+    /* #bannerdetails tr td:nth-child(odd) {
+        background: #ffffff !important;
+        color: #080364 !important;
+    } */
+
+    td,
+    th {
+        padding: 0;
+        border: unset !IMPORTANT;
+        border-bottom: 1px solid #f5f7f9 !important;
+    }
+
+    thead tr td span {
+        color: black !IMPORTANT;
+        font-weight: 600;
+    }
+
+    td {
+        font-size: 14px;
+        color: #1a1919 !important;
+        font-weight: 500;
+        font-family: Poppins, sans-serif !important;
+    }
+
+    .col-md-6.col-lg-6.col-sm-12.col-xs-12 .card-body {
+        width: 68%;
+        height: 415px;
+    }
+
+    .page-wrapper.ng-scope {
+        margin-bottom: 140px;
+    }
+
+    .layout-fixed.aside-collapsed .col-md-6.col-lg-6.col-sm-12.col-xs-12 .card-body {
+        height: 470px !important;
+    }
+
+    /* .info_table2.clearfix {
+        height: 369px;
+    } */
+
+    table#bannerdetails {
+        WIDTH: 100%;
+    }
+
+    tr.Total {
+        /* position: absolute; */
+        bottom: 0;
+    }
+
+    td.revenue {
+        width: 130px;
+    }
+
+    /* #bannerdetails tr.Total td.revenue {
+        background: #f6abd3 !important;
+    } */
+
+    /* .card.section-item {
+        height: 40vh;
+        overflow: auto;
+    } */
+
+    /* table#bannerdetails tbody tr:nth-child(even) {
+        background-color: transparent !important;
+    } */
+
+    table th {
+        padding: 6px !important;
+        font-size: 13px;
+        font-weight: 700;
+        color: #01145f;
+        white-space: nowrap;
+        text-transform: capitalize;
+        font-family: nunito, sans-serif;
+        background: #0074d930;
+        height: 40px;
+    }
+
+
+    tr.backgroundColor-propertity {
+        font-weight: 400;
+        white-space: nowrap;
+        text-transform: capitalize;
+        /* font-family: barlow, sans-serif; */
+        /* background: #f6f7f8; */
+    }
+
+    tr.backgroundColor-propertity td {
+        color: #ff7f57 !important;
+        background: #fff0eb;
+        font-weight: 700;
+    }
+
+    tr.backgroundColor-propertity1:last-child td {
+        color: #ff7f57 !important;
+        background: #fff0eb;
+        font-weight: 700;
+    }
+
+    /* ::-webkit-scrollbar-thumb {
+        background: #64c5b1;
+    } */
+
+    ::-webkit-scrollbar {
+        width: 3px;
+    }
+
+    .card-box {
+        padding: 8px;
+        -webkit-transition: .3s ease;
+        transition: .5s;
+        height: 40vh;
+        overflow: auto;
+        border: 1px solid #f2f2f2;
+        display: inline-block;
+        position: relative;
+        width: 100%;
+        border-radius: 4px;
+        color: rgba(0, 0, 0, .87);
+        background: #fff;
+        box-shadow: 0 2px 2px 0 rgb(0 0 0 / 14%), 0 3px 1px -2px rgb(0 0 0 / 20%), 0 1px 5px 0 rgb(0 0 0 / 12%);
+    }
+
+    /* .background-color {
+        background: #edf1f5;
+    } */
+
+    .currencyAlign {
+        text-align: right;
+    }
+
+    .container-fluid,
+    .container-lg,
+    .container-md,
+    .container-sm,
+    .container-xl {
+        width: 100% !important;
+        padding-right: 10px;
+        padding-left: 10px;
+        margin-right: auto;
+        margin-left: auto;
+    }
+
+    .card-box-item {
+        margin-bottom: 10px;
+    }
+
+    input[type=search],
+    input[type=text],
+    input[type=email] {
+        margin-bottom: 7px !important;
+    }
+
+    .table>tbody>tr>td {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .table th {
+        background: #0074d930;
+    }
+
+    .row {
+        margin-right: -1px;
+        margin-left: -3px;
+    }
+</style>
+<div class="row" style="background: white;">
+    <div class="container-fluid">
+        <div class="row page-titles">
+            <div class="col-md-6 col-xs-12 align-self-center">
+                <h4 class="text-themecolor">Dashboard</h4>
+            </div>
+            <div class="col-md-6 col-xs-12">
+                <div class="col-md-4">
+                    <input type="text" class="form-control" name="from" datepicker-options="datePickerOptions"
+                        show-button-bar="{{datePickerOptions.showButtonBar}}"
+                        uib-datepicker-popup="{{datePickerOptions.dateFormat}}" ng-change="LoadDashboard()"
+                        placeholder="{{datePickerOptions.placeholder}}" ng-click="fromdatePopup = { opened: true }"
+                        is-open="fromdatePopup.opened" ng-model="currentcontext.CurrentDate">
+
+                </div>
+                <div class="col-md-4">
+                    <ui-select ng-model="currentcontext.FacilityId" class="filer-combo" ng-change="LoadDashboard()">
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo: 25 : 0}}
+                            <span ng-if="$select.selected.Text.length>25">...</span>
+                        </ui-select-match>
+                        <ui-select-choices
+                            repeat="lookupitem.Id as lookupitem in lookup.Facility | filter: {Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search">
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+            <div class="col-md-4 align-self-center text-right">
+                <div class="d-flex justify-content-end align-items-center">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="javascript:void(0)">Home</a></li>
+                        <li class="breadcrumb-item active">Dashboard</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-lg-3 col-sm-3 col-md-3 col-xs-12" ng-click="patientlistreports()">
+        <div class="card-box-item box-bg-color1">
+            <div class="card-box-header"><i class="fas fa-user-injured" aria-hidden="true"></i>
+                <div translate="dashboard.newpatient.lbl"></div>
+            </div>
+            <div>{{FacilityInfo.patient.RegistrationCount}}</div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-sm-3 col-md-3 col-xs-12" ng-click="outpatientreport()">
+        <div class="card-box-item box-bg-color2">
+            <div class="card-box-header"><i class="fas fa-user" aria-hidden="true"></i>
+                <div translate="Visit"></div>
+            </div>
+            <div>{{FacilityInfo.encounter.OPVisitCount}}</div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-sm-3 col-md-3 col-xs-12" ng-click="appointmentschedulereport()">
+        <div class="card-box-item box-bg-color3">
+            <div class="card-box-header"><i class="far fa-calendar-check" aria-hidden="true"></i>
+                <div translate="dashboard.appoitments.lbl"></div>
+            </div>
+            <div>{{FacilityInfo.appointment.AppointmentCount}}</div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-sm-3 col-md-3 col-xs-12" ng-click="ipoccupancyreport()">
+        <div class="card-box-item box-bg-color4">
+            <div class="card-box-header"><i class="far fa-calendar-times" aria-hidden="true"></i>
+                <div translate="Total Occupancy"></div>
+            </div>
+            <div>{{Items.TotalOccupancyCount}}</div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-sm-3 col-md-3 col-xs-12" ng-click="ipadmissionreport()">
+        <div class="card-box-item box-bg-color5">
+            <div class="card-box-header"><i class="fas fa-user-plus" aria-hidden="true"></i>
+                <div translate="dashboard.admissions.lbl"></div>
+            </div>
+            <div>{{FacilityInfo.encounter.AdmissionCount}}</div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-sm-3 col-md-3 col-xs-12" ng-click="ipdischargereport()">
+        <div class="card-box-item box-bg-color6">
+            <div class="card-box-header"><i class="fa fa-indent" aria-hidden="true"></i>
+                <div translate="dashboard.discharges.lbl"></div>
+            </div>
+            <div>{{FacilityInfo.encounter.DischargeCount}}</div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-sm-3 col-md-3 col-xs-12" ng-click="">
+        <div class="card-box-item box-bg-color7">
+            <div class="card-box-header"><i class="fa fa-indent" aria-hidden="true"></i>
+                <div translate="Pending Discharge"></div>
+            </div>
+            <div>{{FacilityInfo.encounter.PendingdischargeCount}}</div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-sm-3 col-md-3 col-xs-12" ng-click="revenuesummarybydept()">
+        <div class="card-box-item box-bg-color8">
+            <div class="card-box-header"><i class="fas fa-user-times" aria-hidden="true"></i>
+                <div translate="Total Revenue"></div>
+            </div>
+            <div>{{TotalAmount | displaycurrency}}</div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-sm-3 col-md-3 col-xs-12" ng-click="dailypurchasesummary()">
+        <div class="card-box-item box-bg-color9">
+            <div class="card-box-header"><i class="fas fa-users" aria-hidden="true"></i>
+                <div translate="Total Purchase"></div>
+            </div>
+            <div>{{TotalGrossAmt | displaycurrency}}</div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-sm-3 col-md-3 col-xs-12" ng-click="patientipdispensedreport()">
+        <div class="card-box-item box-bg-color1">
+            <div class="card-box-header"><i class="fas fa-users" aria-hidden="true"></i>
+                <div translate="Pharmacy Consumption"></div>
+            </div>
+            <div>{{FacilityInfo.dispense.DispenseAmount | displaycurrency}}</div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-sm-3 col-md-3 col-xs-12" ng-click="inpatientbilling()">
+        <div class="card-box-item box-bg-color2">
+            <div class="card-box-header"><i class="fas fa-users" aria-hidden="true"></i>
+                <div translate="Billing WorkBench"></div>
+            </div>
+            <div>{{Items.TotalOccupancyCount}}</div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-sm-3 col-md-3 col-xs-12" ng-click="dischargedpatients()">
+        <div class="card-box-item box-bg-color3">
+            <div class="card-box-header"><i class="fas fa-users" aria-hidden="true"></i>
+                <div translate="Discharge Billing"></div>
+            </div>
+            <div>{{FacilityInfo.encounter.DischargeCount}}</div>
+        </div>
+    </div>
+
+    <div class="col-lg-3 col-sm-3 col-md-3 col-xs-12" ng-click="revenuesummarybydoctor()">
+        <div class="card-box-item box-bg-color4">
+            <div class="card-box-header"><i class="fas fa-users" aria-hidden="true"></i>
+                <div translate="Doctor Revenue"></div>
+            </div>
+            <div>{{DrRevenue | displaycurrency}}</div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-sm-3 col-md-3 col-xs-12" ng-click="billingrequestlist()">
+        <div class="card-box-item box-bg-color5">
+            <div class="card-box-header"><i class="fas fa-users" aria-hidden="true"></i>
+                <div translate="OP Bill Approval"></div>
+            </div>
+            <div></div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-sm-3 col-md-3 col-xs-12" ng-click="ipbillingrequestlist()">
+        <div class="card-box-item box-bg-color6">
+            <div class="card-box-header"><i class="fas fa-users" aria-hidden="true"></i>
+                <div translate="IP Bill Approval"></div>
+            </div>
+            <div></div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-sm-3 col-md-3 col-xs-12" ng-click="discountapproval()">
+        <div class="card-box-item box-bg-color7">
+            <div class="card-box-header"><i class="fas fa-users" aria-hidden="true"></i>
+                <div translate="Discount Approval"></div>
+            </div>
+            <div></div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-sm-3 col-md-3 col-xs-12" ng-click="otschedulereport()">
+        <div class="card-box-item box-bg-color8">
+            <div class="card-box-header"><i class="fas fa-users" aria-hidden="true"></i>
+                <div translate="Surgery Schedule"></div>
+            </div>
+            <div>{{Items.OtSchedule}}</div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-sm-3 col-md-3 col-xs-12" ng-click="otschedulereport()">
+        <div class="card-box-item box-bg-color9">
+            <div class="card-box-header"><i class="fas fa-users" aria-hidden="true"></i>
+                <div translate="Surgery Entries"></div>
+            </div>
+            <div>{{Items.OtEntries}}</div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-sm-3 col-md-3 col-xs-12" ng-click="cathlabschedulereport()">
+        <div class="card-box-item box-bg-color1">
+            <div class="card-box-header"><i class="fas fa-users" aria-hidden="true"></i>
+                <div translate="Cath Lab Schedule"></div>
+            </div>
+            <div>{{Items.CathLabSchedule}}</div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-sm-3 col-md-3 col-xs-12" ng-click="opreferraldoctorreport()">
+        <div class="card-box-item box-bg-color2">
+            <div class="card-box-header"><i class="fas fa-users" aria-hidden="true"></i>
+                <div translate="OP Referral Patient"></div>
+            </div>
+            <div>{{Items.OPReferral}}</div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-sm-3 col-md-3 col-xs-12" ng-click="ipreferraldoctorreport()">
+        <div class="card-box-item box-bg-color3">
+            <div class="card-box-header"><i class="fas fa-users" aria-hidden="true"></i>
+                <div translate="IP Referral Patient"></div>
+            </div>
+            <div>{{Items.IPReferral}}</div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-sm-3 col-md-3 col-xs-12" ng-click="insuranceagingreport()">
+        <div class="card-box-item box-bg-color4">
+            <div class="card-box-header"><i class="fas fa-users" aria-hidden="true"></i>
+                <div translate="Insurance Ageing"></div>
+            </div>
+            <div></div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 info_table2 clearfix">
+        <div class="card-box section-item">
+            <table class="card-body" id="bannerdetails">
+                <thead>
+                    <th colspan="2"><span translate="Revenue Summary"></span></th>
+                </thead>
+                <tr ng-repeat="item in HosRev">
+                    <td class="cus-col tbl-header"><span>{{item.Key}}</span></td>
+                    <td class="currencyAlign"><span>{{ item.BillAmount | displaycurrency }}</span> </td>
+                </tr>
+                <tr class="backgroundColor-propertity">
+                    <td translate="dashboard.Total.lbl"></td>
+                    <td class="currencyAlign">{{ TotalAmount | displaycurrency}}
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 info_table2 clearfix">
+        <div class="card-box section-item">
+            <table id="bannerdetails" style="background: #5d9cec;color: #fff;">
+                <tr>
+                    <td translate="Summary"></td>
+                </tr>
+            </table>
+            <table id="bannerdetails">
+                <tr>
+                    <td>Today Registrations</td>
+                    <td>{{Items.RegistrationCount}}</td>
+                </tr>
+                <tr>
+                    <td>Followup Consultations</td>
+                    <td>{{Items.OPVisitCount}}</td>
+                </tr>
+
+                <tr>
+                    <td>Today Admitted</td>
+                    <td>{{Items.AdmittedCount}}</td>
+                </tr>
+                <tr>
+                    <td>Today Discharges</td>
+                    <td>{{Items.DischargeCount}}</td>
+                </tr>
+                <tr>
+                    <td>Total Occupancy</td>
+                    <td>{{Items.TotalOccupancyCount}}</td>
+                </tr>
+                <tr>
+                    <td>Pending Discharges</td>
+                    <td>{{Items.PendingdischargeCount}}</td>
+                </tr>
+                <tr>
+                    <td>Present Occupancy</td>
+                    <td>{{Items.PresentOccupancyCount}}</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</div>
+<div class="fooder-bgs"></div>

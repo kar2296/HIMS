@@ -1,0 +1,125 @@
+<style>
+    .page-header h4 {
+        height: 14px;
+    }
+    
+    .pager-div {
+        float: right;
+    }
+    
+    .ui-select-bootstrap .ui-select-toggle {
+        position: absolute;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        overflow: hidden;
+    }
+    
+    .pagination {
+        margin: 14px 20px 0!important;
+    }
+    
+    .ui-select-bootstrap>.ui-select-choices {
+        width: initial;
+    }
+    
+    .well {
+        min-height: 10px;
+        margin-bottom: 2px!important;
+        padding: 5px;
+    }
+    
+    .autosearch-div .custom-popup-wrapper {
+        position: absolute;
+        width: 483%!important;
+    }
+    /*.autosearch-div>input {
+        background-size: 24.7%!important;
+    }*/
+</style>
+<div class="row page-header">
+    <h4 class="mt0 col-sm-6" translate="cssd.cssdpreparation.pagetitle.lbl"></h4>
+</div>
+<div class="row filter-area">
+    <div class="col-sm-12">
+        <div class="col-sm-3">
+            <label class="col-sm-5 control-label filter-lbl" translate="inventory.stockstatus.itemname.lbl"></label>
+            <div class="col-sm-7">
+                <autosearch itemid="currentfilter.ItemMasterId" iteminfo="" rowdata="" config="vm.stockitemcontrolconfig" itemchange="getList()"></autosearch>
+            </div>
+        </div>
+        <div class="col-sm-3">
+            <label class="col-sm-4 control-label filter-lbl" translate="inventory.stockstatus.facility.lbl"></label>
+            <div class="col-sm-8">
+                <ui-select ng-model="currentfilter.FacilityId" ng-change="getList()" class="filter-combo">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 20 : 0}}
+                        <span ng-if="$select.selected.Text.length>20">...</span>
+                    </ui-select-match>
+                    <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.Facility | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+        <div class="col-sm-3">
+            <label class="col-sm-4 control-label filter-lbl" translate="inventory.stockstatus.store.lbl"></label>
+            <div class="col-sm-8">
+                <ui-select ng-model="currentfilter.StoreMasterId" ng-change="getList()" class="filter-combo">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 20 : 0}}
+                        <span ng-if="$select.selected.Text.length>20">...</span>
+                    </ui-select-match>
+                    <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.UserStores | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+        
+        <div class="col-sm-3">
+            <label class="col-sm-5 control-label filter-lbl" translate="inventory.stockstatus.itemcategory.lbl"></label>
+            <div class="col-sm-7">
+                <ui-select ng-model="currentfilter.CategoryId" class="filter-combo">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 20 : 0}}
+                        <span ng-if="$select.selected.Text.length>20">...</span>
+                    </ui-select-match>
+                    <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.ItemCategory | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="container-fluid" id="stockstatus">
+    <div ui-grid="vm.gridConfig" class="table-uigrid"></div>
+
+    <div class=" col-sm-12 footerbar">
+        <div class="col-sm-12 well">
+
+            <div class="col-sm-9 ">
+            </div>
+            <div class="col-sm-3 ">
+                <div class="col-sm-6 text-right">
+                    <label class="control-label" for="totalquantity">Total Quantity</label>
+                </div>
+                <div class="col-sm-6">
+                    <input type="text" class="form-control" name="totalquantity" ng-model="TotalQuantity" placeholder="0.00" id="disabledInput"
+                        disabled>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="fooder-bgs">
+    <div class=" col-sm-12">
+        <div class=" col-sm-11">
+            <ul uib-pagination total-items="vm.gridConfig.pagerObj.totalItems" items-per-page="vm.gridConfig.pagerObj.pageSize" start-index="vm.gridConfig.pagerObj.startIndex"
+                ng-model="vm.gridConfig.pagerObj.currentPage" ng-change="getList()"></ul>
+        </div>
+        <div class=" col-sm-1">
+            <button type="button" id="btnsubmit" class="pull-right btn btn-inverse btn-sm" translate="common.printaction.lbl" ng-click="print()"></button>
+        </div>
+    </div>
+</div>

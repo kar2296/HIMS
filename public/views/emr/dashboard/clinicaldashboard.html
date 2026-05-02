@@ -1,0 +1,837 @@
+<link href="api/node_modules/morrisjs/morris.css" rel="stylesheet">
+<link href="app/css/dashboard1.css" rel="stylesheet">
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+<script src="app/js/waves.js"></script>
+<style>
+    /* .charts {
+        width: 206px !important;
+        height: 121px !important;
+    } */
+
+    .col-md-4.col-sm-12.col-xs-12 .card {
+        min-height: 27px !important;
+        height: 316px;
+    }
+
+
+    .charts {
+        width: 206px !important;
+        height: 121px !important;
+        position: relative;
+        left: 44px;
+        margin-top: 60px;
+    }
+
+    .card {
+        box-shadow: unset;
+    }
+
+    /* #bannerdetails tr td:nth-child(odd) {
+        background: #ffffff !important;
+        color: #080364 !important;
+    } */
+
+    td,
+    th {
+        padding: 0;
+        border: unset !IMPORTANT;
+        border-bottom: 1px solid #f5f7f9 !important;
+    }
+
+    thead tr td span {
+        color: black !IMPORTANT;
+        font-weight: 600;
+    }
+
+    td {
+        font-size: 14px;
+        color: #1a1919 !important;
+        font-weight: 500;
+        font-family: Poppins, sans-serif !important;
+    }
+
+    .col-md-6.col-lg-6.col-sm-12.col-xs-12 .card-body {
+        width: 68%;
+        height: 415px;
+    }
+
+    .page-wrapper.ng-scope {
+        margin-bottom: 140px;
+    }
+
+    .layout-fixed.aside-collapsed .col-md-6.col-lg-6.col-sm-12.col-xs-12 .card-body {
+        height: 470px !important;
+    }
+
+    /* .info_table2.clearfix {
+        height: 369px;
+    } */
+
+    table#bannerdetails {
+        WIDTH: 100%;
+    }
+
+    tr.Total {
+        /* position: absolute; */
+        bottom: 0;
+    }
+
+    td.revenue {
+        width: 130px;
+    }
+
+    /* #bannerdetails tr.Total td.revenue {
+        background: #f6abd3 !important;
+    } */
+
+    /* .card.section-item {
+        height: 40vh;
+        overflow: auto;
+    } */
+
+    /* table#bannerdetails tbody tr:nth-child(even) {
+        background-color: transparent !important;
+    } */
+
+    table th {
+        padding: 6px !important;
+        font-size: 13px;
+        font-weight: 700;
+        color: #01145f;
+        white-space: nowrap;
+        text-transform: capitalize;
+        font-family: nunito, sans-serif;
+        background: #0074d930;
+        height: 40px;
+    }
+
+
+    tr.backgroundColor-propertity {
+        font-weight: 400;
+        white-space: nowrap;
+        text-transform: capitalize;
+        /* font-family: barlow, sans-serif; */
+        /* background: #f6f7f8; */
+    }
+
+    tr.backgroundColor-propertity td {
+        color: #ff7f57 !important;
+        background: #fff0eb;
+        font-weight: 700;
+    }
+
+    tr.backgroundColor-propertity1:last-child td {
+        color: #ff7f57 !important;
+        background: #fff0eb;
+        font-weight: 700;
+    }
+
+    /* ::-webkit-scrollbar-thumb {
+        background: #64c5b1;
+    } */
+
+    ::-webkit-scrollbar {
+        width: 3px;
+    }
+
+    .card-box {
+        padding: 8px;
+        -webkit-transition: .3s ease;
+        transition: .5s;
+        height: 40vh;
+        overflow: auto;
+        border: 1px solid #f2f2f2;
+        display: inline-block;
+        position: relative;
+        width: 100%;
+        border-radius: 4px;
+        color: rgba(0, 0, 0, .87);
+        background: #fff;
+        box-shadow: 0 2px 2px 0 rgb(0 0 0 / 14%), 0 3px 1px -2px rgb(0 0 0 / 20%), 0 1px 5px 0 rgb(0 0 0 / 12%);
+    }
+
+    .background-color {
+        background: #edf1f5;
+    }
+
+    .currencyAlign {
+        text-align: right;
+    }
+</style>
+<div class="row">
+
+    <div class="background-color">
+        <div class="container-fluid">
+            <div class="row page-titles">
+                <div class="col-md-8 align-self-center">
+                    <h4 class="text-themecolor">Dashboard</h4>
+                </div>
+                <div class="col-md-4">
+                    <div class="col-md-8">
+                        <ui-select ng-model="currentfilter.FilterMonthId" class="filer-combo"
+                            ng-change="LoadDashboard()">
+                            <ui-select-match>
+                                {{$select.selected.Text | limitTo: 25 : 0}}
+                                <span ng-if="$select.selected.Text.length>25">...</span>
+                            </ui-select-match>
+                            <ui-select-choices
+                                repeat="lookupitem.Id as lookupitem in lookup.Month | filter: {Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search">
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="col-md-8">
+                        <ui-select ng-model="currentfilter.FinancialYearId" class="filer-combo"
+                            ng-change="LoadDashboard()">
+                            <ui-select-match>
+                                {{$select.selected.Text | limitTo: 25 : 0}}
+                                <span ng-if="$select.selected.Text.length>25">...</span>
+                            </ui-select-match>
+                            <ui-select-choices
+                                repeat="lookupitem.Id as lookupitem in lookup.FinancialYear | filter: {Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search">
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                </div>
+                <div class="col-md-4 align-self-center text-right">
+                    <div class="d-flex justify-content-end align-items-center">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="javascript:void(0)">Home</a></li>
+                            <li class="breadcrumb-item active">Dashboard</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-12">
+            <div class="card-flex-box-appointment">
+                <div class="card-box-item box-bg-color1">
+                    <div class="card-box-header"><i class="fas fa-user-injured" aria-hidden="true"></i>
+                        <div translate="dashboard.newpatient.lbl"></div>
+                    </div>
+                    <div>{{FacilityInfo.encounter.opNewVisitCount}}</div>
+                </div>
+                <div class="card-box-item box-bg-color2">
+                    <div class="card-box-header">
+                        <div><i class="fas fa-user" aria-hidden="true"></i></div>
+                        <div translate="dashboard.follow.lbl"></div>
+                    </div>
+                    <div>{{FacilityInfo.encounter.opFollowUpVisitCount}}</div>
+                </div>
+                <div class="card-box-item box-bg-color3">
+                    <div class="card-box-header">
+                        <div><i class="far fa-calendar-check" aria-hidden="true"></i></div>
+                        <div translate="dashboard.appoitments.lbl"></div>
+                    </div>
+                    <div>{{FacilityInfo.appointment.AppointmentCount}}</div>
+                </div>
+                <div class="card-box-item box-bg-color4">
+                    <div class="card-box-header">
+                        <div><i class="far fa-calendar-times" aria-hidden="true"></i></div>
+                        <div translate="dashboard.inactive.lbl"></div>
+                    </div>
+                    <div>{{FacilityInfo.appointment.AppointmentCount}}</div>
+                </div>
+                <div class="card-box-item box-bg-color5">
+                    <div class="card-box-header">
+                        <div><i class="fas fa-user-plus" aria-hidden="true"></i></div>
+                        <div translate="dashboard.admissions.lbl"></div>
+                    </div>
+                    <div>{{FacilityInfo.encounter.AdmissionCount}}</div>
+                </div>
+                <div class="card-box-item box-bg-color6">
+                    <div class="card-box-header">
+                        <div><i class="fa fa-indent" aria-hidden="true"></i></div>
+                        <div translate="dashboard.discharges.lbl"></div>
+                    </div>
+                    <div>{{FacilityInfo.encounter.DischargeCount}}</div>
+                </div>
+                <div class="card-box-item box-bg-color7">
+                    <div class="card-box-header">
+                        <div><i class="fas fa-user-times" aria-hidden="true"></i></div>
+                        <div translate="dashboard.diseased.lbl"></div>
+                    </div>
+                    <div>{{FacilityInfo.patient.DeseasedCount}}</div>
+                </div>
+                <div class="card-box-item box-bg-color8">
+                    <div class="card-box-header">
+                        <div><i class="fas fa-users" aria-hidden="true"></i></div>
+                        <div translate="dashboard.newborn.lbl"></div>
+                    </div>
+                    <div>{{FacilityInfo.newborn.NewBornCount}}</div>
+                </div>
+            </div>
+        </div>
+        <div id="dash-board">
+            <div class="col-sm-12 clearfix" style=" margin-top: 18px;">
+                <div class="col-sm-12 col-md-6 col-lg-6 info_table2 clearfix">
+                    <div class="card-box section-item">
+                        <table class="card-body" id="bannerdetails">
+                            <thead>
+                                <th><span translate="dashboard.Collection.lbl"></span></th>
+                                <th class="cus-col tbl-header currencyAlign">
+                                    <span translate="dashboard.cash.lbl"></span>
+                                </th>
+                                <th class="cus-col tbl-header currencyAlign">
+                                    <span translate="dashboard.card.lbl"></span>
+                                </th>
+                                <th class="cus-col tbl-header currencyAlign">
+                                    <span translate="dashboard.others.lbl"></span>
+                                </th>
+                                <th class="cus-col tbl-header currencyAlign">
+                                    <span translate="dashboard.Total.lbl"></span>
+                                </th>
+                            </thead>
+                            <tr ng-repeat="item in FacilityInfo.receipt" class="{{item.Key}}">
+                                <td class="cus-col tbl-header {{item.Key}}"><span>{{item.Key}}</span></td>
+                                <td class="currencyAlign"><span>{{ item.Value.CashAmount | displaycurrency }}</span>
+                                </td>
+                                <td class="currencyAlign"><span>{{ item.Value.CardAmount | displaycurrency }}</span>
+                                </td>
+                                <td class="currencyAlign"><span>{{ item.Value.OtherAmount | displaycurrency }}</span>
+                                </td>
+                                <td class="currencyAlign"><span>{{ item.Value.BillAmount | displaycurrency }}</span>
+                                </td>
+                            </tr>
+                            <tr class="backgroundColor-propertity">
+                                <td translate="dashboard.Total.lbl"></td>
+                                <td class="currencyAlign">{{ TotCashAmt | displaycurrency}}
+                                </td>
+                                <td class="currencyAlign">{{ TotCardAmt | displaycurrency}}
+                                </td>
+                                <td class="currencyAlign">{{ TotOtherAmt | displaycurrency}}
+                                </td>
+                                <td class="currencyAlign">{{ TotAmt | displaycurrency }}
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+
+
+                <div class="col-sm-12 col-md-6 col-lg-6 info_table2 clearfix revenue">
+                    <!-- <div class="row page-header title col-sm-12" >
+                               <h4 class="mt0"  translate="Revenue By Category"></h4>
+                           </div> -->
+                    <div class="card-box section-item">
+                        <table class="card-body" id="bannerdetails">
+                            <thead>
+                                <th class="cus-col tbl-header cust_Particulars">
+                                    <span translate="Revenue"></span>
+                                </th>
+                                <th class="cus-col tbl-header currencyAlign">
+                                    <span translate="OP "></span>
+                                </th>
+                                <th class="cus-col tbl-header currencyAlign">
+                                    <span translate="IP "></span>
+                                </th>
+                                <th class="cus-col tbl-header currencyAlign">
+                                    <span translate="Total"></span>
+                                </th>
+                            </thead>
+                            <tbody>
+                                <tr class="backgroundColor-propertity1" ng-repeat="item in FacilityInfo.category"
+                                    class="{{item.Key}}">
+                                    <td class="revenue">{{item.Key}}
+                                    </td>
+                                    <td class="revenue currencyAlign">{{ item.Value.OP | displaycurrency }}</td>
+                                    <td class="revenue currencyAlign">{{ item.Value.IP | displaycurrency }}</td>
+                                    <td class="revenue currencyAlign">{{ (item.Value.OP + item.Value.IP) |
+                                        displaycurrency }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+
+                <div class="col-sm-12 col-md-6 col-lg-6 info_table" style=" margin-top: 18px;">
+                    <div class="card-box section-item">
+                        <table class="card-body" id="bannerdetails">
+                            <thead>
+                                <th style="width: 165px;">
+                                    <span translate="Bed Occupancy"></span>
+                                </th>
+                                <th class="cus-col tbl-header tab2 currencyAlign">
+                                    <span translate="dashboard.available.lbl"></span>
+                                </th>
+                                <th class="cus-col tbl-header tab2 currencyAlign">
+                                    <span translate="dashboard.occupied.lbl"></span>
+                                </th>
+                                <th class="cus-col tbl-header tab2 currencyAlign">
+                                    <span translate="dashboard.other.lbl"></span>
+                                </th>
+                                <th class="cus-col tbl-header tab2 currencyAlign">
+                                    <span translate="Total"></span>
+                                </th>
+                            </thead>
+                            <tbody>
+                                <tr ng-repeat="ward in Wards">
+                                    <td class="cus-col tbl-header"><span>{{ward.WardName}}</span></td>
+                                    <td class="currencyAlign">{{ward.AvailableBeds}}</td>
+                                    <td class="currencyAlign">{{ward.OccupiedBeds}}</td>
+                                    <td class="currencyAlign">{{ward.OtherBeds}}</td>
+                                    <td class="currencyAlign">{{ward.BedsCount}}</td>
+                                </tr>
+                                <tr ng-if="Wards.length>0" class="backgroundColor-propertity">
+                                    <td class="cus-col tbl-header cust_total0 ">
+                                        Total
+                                    </td>
+                                    <td class="cus-col tbl-header cust_total0 currencyAlign">
+                                        {{wardtotal.AvailableBeds}}
+                                    </td>
+                                    <td class="cus-col tbl-header cust_total0 currencyAlign">
+                                        {{wardtotal.OccupiedBeds}}
+                                    </td>
+                                    <td class="cus-col tbl-header cust_total0 currencyAlign">
+                                        {{wardtotal.OtherBeds}}
+                                    </td>
+                                    <td class="cus-col tbl-header cust_total0 currencyAlign">
+                                        {{wardtotal.BedsCount}}
+                                    </td>
+                                </tr>
+                                <tr ng-if="Wards.length==0">
+                                    <td colspan="5">No Data Available</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="col-sm-12 col-md-6 col-lg-6 info_table" style=" margin-top: 18px;">
+                    <div class="card-box section-item">
+                        <table class="card-body" id="bannerdetails">
+                            <thead>
+                                <th class="" style="width: 165px;">
+                                    <span translate="Doctor"></span>
+                                </th>
+                                <th class="cus-col tbl-header tab2 currencyAlign">
+                                    <span translate="New"></span>
+                                </th>
+                                <th class="cus-col tbl-header tab2 currencyAlign">
+                                    <span translate="Followup"></span>
+                                </th>
+                            </thead>
+                            <tbody>
+                                <tr ng-repeat="dcount in doctor">
+                                    <td class="cus-col tbl-header"><span>{{dcount.Key}}</span></td>
+                                    <td class="currencyAlign">{{dcount.NewCount}}</td>
+                                    <td class="currencyAlign">{{dcount.FollowUpCount}}</td>
+                                </tr>
+                                <tr ng-if="doctor.length>0" class="backgroundColor-propertity">
+                                    <td class="cus-col tbl-header cust_total0 ">
+                                        Total
+                                    </td>
+                                    <td class="cus-col tbl-header cust_total0 currencyAlign">
+                                        {{TotNewCount}}
+                                    </td>
+                                    <td class="cus-col tbl-header cust_total0 currencyAlign">
+                                        {{TotFollowupCpunt}}
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="col-sm-12 col-md-6 col-lg-6 info_table" style=" margin-top: 18px;">
+                    <div class="card-box section-item">
+                        <table class="card-body" id="bannerdetails">
+                            <thead>
+                                <th style="width: 165px;">
+                                    <span translate="Insurance Aging"></span>
+                                </th>
+                                <th class="cus-col tbl-header tab2 currencyAlign">
+                                    <span translate="30 Days"></span>
+                                </th>
+                                <th class="cus-col tbl-header tab2 currencyAlign">
+                                    <span translate="60 Days"></span>
+                                </th>
+                                <th class="cus-col tbl-header tab2 currencyAlign">
+                                    <span translate="90 Days"></span>
+                                </th>
+                                <th class="cus-col tbl-header tab2 currencyAlign">
+                                    <span translate="Over 90 Days"></span>
+                                </th>
+                            </thead>
+                            <tbody>
+                                <tr ng-repeat="insurance in InsAgeData">
+                                    <td class="cus-col tbl-header"><span>{{insurance.InsuranceName}}</span></td>
+                                    <td class="currencyAlign">{{insurance.Lessthan30Days| displaycurrency }}</td>
+                                    <td class="currencyAlign">{{insurance.Lessthan60Days | displaycurrency}}</td>
+                                    <td class="currencyAlign">{{insurance.Lessthan90Days | displaycurrency}}</td>
+                                    <td class="currencyAlign">{{insurance.Above90Days | displaycurrency}}</td>
+                                </tr>
+                                <tr ng-if="Wards.length>0" class="backgroundColor-propertity">
+                                    <td class="cus-col tbl-header cust_total0 ">
+                                        Total
+                                    </td>
+                                    <td class="cus-col tbl-header cust_total0 currencyAlign">
+                                        {{ TotLessthan30Days | number : 2 }}
+                                    </td>
+                                    <td class="cus-col tbl-header cust_total0 currencyAlign">
+                                        {{ TotLessthan60Days | number : 2 }}
+                                    </td>
+                                    <td class="cus-col tbl-header cust_total0 currencyAlign">
+                                        {{ TotLessthan90Days | number : 2 }}
+                                    </td>
+                                    <td class="cus-col tbl-header cust_total0 currencyAlign">
+                                        {{ TotAbove90Days | number : 2 }}
+                                    </td>
+                                </tr>
+                                <tr ng-if="Wards.length==0">
+                                    <td colspan="5">No Data Available</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="col-sm-12 col-md-6 col-lg-6 info_table" style=" margin-top: 18px;">
+                    <div class="card-box section-item">
+                        <table class="card-body" id="bannerdetails">
+                            <thead>
+                                <th class="" style="width: 165px;">
+                                    <span translate="Insurance DisAllowance"></span>
+                                </th>
+                                <th class="cus-col tbl-header tab2 currencyAlign">
+                                    <span translate="OP"></span>
+                                </th>
+                                <th class="cus-col tbl-header tab2 currencyAlign">
+                                    <span translate="IP"></span>
+                                </th>
+                                <th class="cus-col tbl-header tab2 currencyAlign">
+                                    <span translate="Total"></span>
+                                </th>
+                            </thead>
+                            <tbody>
+                                <tr ng-repeat="ins in InsuranceDis">
+                                    <td class="cus-col tbl-header"><span>{{ins.Key}}</span></td>
+                                    <td class="currencyAlign">{{ins.opamt}}</td>
+                                    <td class="currencyAlign">{{ins.ipamt}}</td>
+                                    <td class="currencyAlign">{{ins.Total}}</td>
+                                </tr>
+                                <tr ng-if="doctor.length>0" class="backgroundColor-propertity">
+                                    <td class="cus-col tbl-header cust_total0 ">
+                                        Total
+                                    </td>
+                                    <td class="cus-col tbl-header cust_total0 currencyAlign">
+                                        {{TotOPAmt}}
+                                    </td>
+                                    <td class="cus-col tbl-header cust_total0 currencyAlign">
+                                        {{TotIPAmt}}
+                                    </td>
+                                    <td class="cus-col tbl-header cust_total0 currencyAlign">
+                                        {{TotTotal}}
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+        <!-- Row -->
+        <!-- .row -->
+        <div class="col-sm-12">
+            <div class="col-md-4 col-sm-12 col-xs-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title"><small class="float-right text-success"><i class="fa fa-sort-asc"></i>
+                                18% High then last month</small> New Patient</h5>
+                        <div class="stats-row">
+                            <div class="stat-item">
+                                <h6>Overall</h6>
+                                <b>80.40%</b>
+                            </div>
+                            <div class="stat-item">
+                                <h6>Montly</h6>
+                                <b>15.40%</b>
+                            </div>
+                            <div class="stat-item">
+                                <h6>Day</h6>
+                                <b>5.50%</b>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12 col-sm-12 col-xs-12">
+                        <div class="charts">
+                            <canvas id="myChartmulti" width="400" height="400"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 col-sm-12 col-xs-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title"><small class="float-right text-danger"><i class="fa fa-sort-desc"></i>
+                                18% less then last month</small>OP/IP Patients</h5>
+                        <div class="stats-row">
+                            <div class="stat-item">
+                                <h6>Overall</h6>
+                                <b>80.40%</b>
+                            </div>
+                            <div class="stat-item">
+                                <h6>Montly</h6>
+                                <b>15.40%</b>
+                            </div>
+                            <div class="stat-item">
+                                <h6>Day</h6>
+                                <b>5.50%</b>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="sparkline9" class="minus-mar"><canvas width="346" height="130"
+                            style="display: inline-block; width: 346.328px; height: 130px; vertical-align: top;"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 col-sm-12 col-xs-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title"><small class="float-right text-success"><i class="fa fa-sort-asc"></i>
+                                18% High then last month</small>Treatment</h5>
+                        <div class="stats-row">
+                            <div class="stat-item">
+                                <h6>Overall Growth</h6>
+                                <b>80.40%</b>
+                            </div>
+                            <div class="stat-item">
+                                <h6>Montly</h6>
+                                <b>15.40%</b>
+                            </div>
+                            <div class="stat-item">
+                                <h6>Day</h6>
+                                <b>5.50%</b>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12 col-sm-12 col-xs-12">
+                        <div class="charts">
+                            <canvas id="myChartop" width="400" height="400"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- /.row -->
+        <!--row -->
+        <div class="col-sm-12">
+            <div class="col-md-6 col-lg-6 col-sm-12 col-xs-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Patients In</h5>
+                        <ul class="list-inline text-center">
+                            <li>
+                                <h5><i class="fa fa-circle m-r-5" style="color: #00bfc7;"></i>OPD</h5>
+                            </li>
+                            <li>
+                                <h5><i class="fa fa-circle m-r-5" style="color: #b4becb;"></i>ICU</h5>
+                            </li>
+                        </ul>
+                        <canvas id="myChart" width="400" height="400"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-6 col-sm-12 col-xs-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Hospital Revenue</h5>
+                        <ul class="list-inline text-center">
+                            <li>
+                                <h5><i class="fa fa-circle m-r-5" style="color: #00bfc7;"></i>OPD</h5>
+                            </li>
+                            <li>
+                                <h5><i class="fa fa-circle m-r-5" style="color: #b4becb;"></i>ICU</h5>
+                            </li>
+                        </ul>
+                        <canvas id="myCharts" width="400" height="400"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+<script>
+    var ctx = document.getElementById('myChart').getContext('2d');
+    var myChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+            datasets: [{
+                label: '# of Votes',
+                data: [12, 19, 3, 5, 2, 3],
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.2)',
+                    'rgba(54, 162, 235, 0.2)',
+                    'rgba(255, 206, 86, 0.2)',
+                    'rgba(75, 192, 192, 0.2)',
+                    'rgba(153, 102, 255, 0.2)',
+                    'rgba(255, 159, 64, 0.2)'
+                ],
+                borderColor: [
+                    'rgba(255, 99, 132, 1)',
+                    'rgba(54, 162, 235, 1)',
+                    'rgba(255, 206, 86, 1)',
+                    'rgba(75, 192, 192, 1)',
+                    'rgba(153, 102, 255, 1)',
+                    'rgba(255, 159, 64, 1)'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+
+    var ctx = document.getElementById('myCharts').getContext('2d');
+    var myChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+            datasets: [{
+                label: '# of Votes',
+                data: [12, 19, 3, 5, 2, 3],
+                backgroundColor: [
+                    'rgba(54, 162, 235, 0.2)',
+                    'rgba(54, 162, 235, 0.2)',
+                    'rgba(255, 206, 86, 0.2)',
+                    'rgba(75, 192, 192, 0.2)',
+                    'rgba(153, 102, 255, 0.2)',
+                    'rgba(255, 159, 64, 0.2)'
+                ],
+                borderColor: [
+                    'rgba(54, 162, 235, 0.2)',
+                    'rgba(54, 162, 235, 1)',
+                    'rgba(255, 206, 86, 1)',
+                    'rgba(75, 192, 192, 1)',
+                    'rgba(153, 102, 255, 1)',
+                    'rgba(255, 159, 64, 1)'
+                ],
+                borderWidth: 1
+            },
+            {
+                label: '# of Votes',
+                data: [3, 6, 16, 9, 2, 20],
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.2)',
+                    'rgba(54, 162, 235, 0.2)',
+                    'rgba(255, 206, 86, 0.2)',
+                    'rgba(75, 192, 192, 0.2)',
+                    'rgba(153, 102, 255, 0.2)',
+                    'rgba(255, 159, 64, 0.2)'
+                ],
+                borderColor: [
+                    'rgba(255, 99, 132, 1)',
+                    'rgba(54, 162, 235, 1)',
+                    'rgba(255, 206, 86, 1)',
+                    'rgba(75, 192, 192, 1)',
+                    'rgba(153, 102, 255, 1)',
+                    'rgba(255, 159, 64, 1)'
+                ],
+                borderWidth: 1
+            }
+            ]
+        },
+    });
+
+    var ctx = document.getElementById('myChartmulti').getContext('2d');
+    var myChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+            datasets: [{
+                label: '# of Votes',
+                data: ["12", 19, 3, 5, 2, 3],
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.2)',
+                    'rgba(54, 162, 235, 0.2)',
+                    'rgba(255, 206, 86, 0.2)',
+                    'rgba(75, 192, 192, 0.2)',
+                    'rgba(153, 102, 255, 0.2)',
+                    'rgba(255, 159, 64, 0.2)'
+                ],
+                borderColor: [
+                    'rgba(255, 99, 132, 1)',
+                    'rgba(54, 162, 235, 1)',
+                    'rgba(255, 206, 86, 1)',
+                    'rgba(75, 192, 192, 1)',
+                    'rgba(153, 102, 255, 1)',
+                    'rgba(255, 159, 64, 1)'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            interaction: {
+                mode: 'index',
+                intersect: false,
+            },
+            stacked: false,
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Chart.js Line Chart - Multi Axis'
+                }
+            },
+            scales: {
+                y: {
+                    type: 'linear',
+                    display: true,
+                    position: 'left',
+                },
+                y1: {
+                    type: 'linear',
+                    display: true,
+                    position: 'right',
+
+                    // grid line settings
+                    grid: {
+                        drawOnChartArea: false, // only want the grid lines for one axis to show up
+                    },
+                },
+            }
+        },
+    });
+
+
+    var ctx = document.getElementById('myChartop').getContext('2d');
+    var myChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+            datasets: [{
+                label: '# of Votes',
+                data: [3, 6, 16, 9, 2, 20],
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.2)',
+                    'rgba(54, 162, 235, 0.2)',
+                    'rgba(255, 206, 86, 0.2)',
+                    'rgba(75, 192, 192, 0.2)',
+                    'rgba(153, 102, 255, 0.2)',
+                    'rgba(255, 159, 64, 0.2)'
+                ],
+                borderColor: [
+                    'rgba(255, 99, 132, 1)',
+                    'rgba(54, 162, 235, 1)',
+                    'rgba(255, 206, 86, 1)',
+                    'rgba(75, 192, 192, 1)',
+                    'rgba(153, 102, 255, 1)',
+                    'rgba(255, 159, 64, 1)'
+                ],
+                borderWidth: 1
+            }]
+        },
+    });
+</script>

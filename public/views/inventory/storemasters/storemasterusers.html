@@ -1,0 +1,42 @@
+<div class="row">
+    <div class="col-sm-6">
+    </div>
+    <div class="col-sm-6">
+        <div class="col-sm-4">
+            <div class="search">
+                <autosearch itemid="item.UserId" iteminfo="" rowdata="" rowdata="" placeholder="'UserName'"
+                    config="vm.usercontrolconfig" itemchange="getList()" onenter="onenter(data)"></autosearch>
+                <div class="drhms-search-icon"><i class="fas fa-search" aria-hidden="true"></i></div>
+            </div>
+        </div>
+        <div class="col-sm-7">
+            <label class="col-sm-3" translate="inventory.itemmasters.filter_status.lbl"></label>
+            <div class="col-sm-9">
+                <ui-select ng-model="currentfilter.ActiveStatusId" ng-change="getList()" class="filter-combo">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 20 : 0}}
+                        <span ng-if="$select.selected.Text.length > 20">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.ActiveStatus | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+        <div class="col-sm-1">
+            <button class="btn-add" ng-click="addNew()"
+                uib-tooltip="{{ 'inventory.storeusermap.tabuser.lbl' | translate }}" tooltip-placement="bottom">
+                <i class="fa fa-plus" aria-hidden="true"></i>
+            </button>
+        </div>
+    </div>
+</div>
+<div class="fooder-bgs">
+    <div class="row">
+        <custom-table config="vm.gridConfig"></custom-table>
+        <ul uib-pagination total-items="vm.gridConfig.pagerObj.totalItems"
+            items-per-page="vm.gridConfig.pagerObj.pageSize" start-index="vm.gridConfig.pagerObj.startIndex"
+            ng-model="vm.gridConfig.pagerObj.currentPage" ng-change="getList()"></ul>
+    </div>
+</div>

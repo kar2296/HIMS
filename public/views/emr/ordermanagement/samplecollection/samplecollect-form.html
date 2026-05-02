@@ -1,0 +1,256 @@
+<style>
+    label>span {
+        vertical-align: baseline;
+        color: #494949;
+        margin-top: 1px;
+        font-size: 13px;
+    }
+    
+    .patient-banner-table-section span.btn.btn-default.form-control.ui-select-toggle,
+    .patient-banner-table-section input.form-control {
+        border-radius: unset !important;
+        border-color: gainsboro;
+        background: white !important;
+        width: 85% !important;
+        border-right: 1px solid gainsboro !important;
+    }
+    
+    .patient-banner-table.lis .patient-banner-table-section>div {
+        background: none;
+        padding: 0;
+        height: 30px;
+    }
+    
+    .patient-banner-table-section {
+        border: 1.5px solid #dadada;
+        width: 100%;
+        margin-right: 8px;
+        padding: 9px 0px 3px 9px;
+        margin-bottom: 10px;
+    }
+    
+    span.head-title {
+        font-size: 12px;
+        color: #494949 !important;
+        font-size: 13px;
+    }
+    
+    a {
+        font-weight: 400;
+        color: #494949;
+        font-size: 13px;
+    }
+    
+    button#btnSaveForm {
+        border-radius: 20px;
+    }
+</style>
+<div class="row page-header">
+    <div class="col-sm-12">
+        <div class="col-sm-6">
+            <h4 class="page-header mt0" translate="ordermanagement.samplecollect-form.sample_collections.lbl"></h4>
+        </div>
+    </div>
+
+</div>
+<div class="row">
+
+    <div class="patient-banner-table lis">
+        <div class="patient-banner-table-section">
+            <div class="col-sm-12">
+                <label class="col-sm-4" translate="Patient Name"></label>
+                <div class="col-sm-8 item-center">
+                    <span class="head-title">
+                        <strong>: &nbsp;
+                            <b>{{EncounterInfo.Patient.Title.Description}}&nbsp;{{EncounterInfo.Patient.FirstName}}&nbsp;{{EncounterInfo.Patient.LastName}}</b>
+                        </strong>
+                    </span>
+                </div>
+            </div>
+            <div class="col-sm-12">
+                <label class="col-sm-4" translate="Patient ID / Case ID"></label>
+                <div class="col-sm-8 item-center">
+                    <span class="head-title">: &nbsp;{{EncounterInfo.Patient.MRN}} / {{EncounterInfo.Patient.Age}}</span>
+                </div>
+            </div>
+            <div class="col-sm-12">
+                <label class="col-sm-4" translate="Age/Gender"></label>
+                <div class="col-sm-8 item-center">
+                    <span class="head-title">: &nbsp;{{EncounterInfo.Patient.Age}} | {{EncounterInfo.Patient.Gender.Description}}
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div class="patient-banner-table-section">
+            <div class="col-sm-12">
+                <label class="col-sm-4" translate="Order Date"></label>
+                <div class="col-sm-8 item-center">
+                    : &nbsp;
+                    <displaydate datetime-val='item.PatientOrder.OrderRequestDate'></displaydate>
+                </div>
+            </div>
+            <div class="col-sm-12">
+                <label class="col-sm-4" translate="Referred by"></label>
+                <div class="col-sm-8 item-center">
+                    <span class="head-title">
+                        : &nbsp; {{EncounterInfo.Referral.ReferralName}}
+                    </span>
+                </div>
+            </div>
+            <div class="col-sm-12">
+                <label class="col-sm-4" translate="Order No/Bill No"></label>
+                <div class="col-sm-8 item-center">
+                    <span class="head-title">: &nbsp;{{item.PatientOrder.OrderNumber}}/{{item.PatientOrder.BillNumber}}
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div class="patient-banner-table-section">
+            <div class="col-sm-12">
+                <label class="col-sm-4" translate="Order Status"></label>
+                <div class="col-sm-8 item-center">
+                    <span class="head-title">
+                        : &nbsp;{{item.SampleStatus.Description}}
+                    </span>
+                </div>
+            </div>
+            <div class="col-sm-12">
+                <label class="col-sm-4" translate="Hospital"></label>
+                <div class="col-sm-8 item-center">
+                    <span class="head-title">: &nbsp;{{EncounterInfo.Facility.FacilityName}}
+                    </span>
+                </div>
+            </div>
+            <div class="col-sm-12">
+                <label class="col-sm-4" translate="Patient Location"></label>
+                <div class="col-sm-8 item-center">
+                    <span class="head-title">
+                        : &nbsp; {{EncounterInfo.WardMaster.WardName}}/{{EncounterInfo.WardRoomBedMaster.BedNo}}/{{EncounterInfo.WardRoomMaster.RoomNo}}
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <!-- <div class="col-sm-12">
+        <patientbanner patientid="item.PatientId"></patientbanner>
+    </div> -->
+    <div class="col-sm-12">
+        <form id="item_form" name="item_form" class="form-horizontal " role="form">
+            <div class="formRoot lis_samplecollection" set-form-height style="background-color: #fff; ">
+                <div id="" class="lisdrpctrl">
+                    <table class="table table-responsive table-bordered">
+                        <thead class="bg-subhead">
+                            <tr>
+                                <th class="col-sm-1">
+                                    <span>
+                                        <input type="checkbox" ng-model="currentcontext.selectall" ng-click="selectAllItems()" ng-disabled="(item.SampleStatusId==3 || item.SampleStatusId==5)">
+                                    </span>
+                                </th>
+                                <th class="col-sm-1">
+                                    <span translate="ordermanagement.samplecollect-form.specimen.lbl"></span>
+                                </th>
+                                <th class="col-sm-1">
+                                    <span translate="ordermanagement.samplecollect-form.testid.lbl"></span>
+                                </th>
+                                <th class="col-sm-2">
+                                    <span translate="ordermanagement.samplecollect-form.testname.lbl"></span>
+                                </th>
+                                <th class="col-sm-1">
+                                    <span translate="ordermanagement.samplecollect-form.priority.lbl"></span>
+                                </th>
+                                <th class="col-sm-1">
+                                    <span translate="ordermanagement.samplecollect-form.status.lbl"></span>
+                                </th>
+                                <th class="col-sm-2">
+                                    <span translate="ordermanagement.samplecollect-form.collecteddate.lbl"></span>
+                                </th>
+                                <th class="col-sm-1">
+                                    <span translate="ordermanagement.samplecollect-form.sampleid.lbl"></span>
+                                </th>
+                                <th class="col-sm-1">
+                                    <span translate="common.actions_col.lbl"></span>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody ng-repeat="test in currentcontext.testList">
+                            <tr ng-if="test.SubDepartmentName">
+                                <td colspan="9">
+                                    <span class=" btn btn-primary btn-xs">{{test.SubDepartmentName}}</span>
+                                </td>
+                            </tr>
+                            <tr ng-repeat="item in test.details | orderBy:'SampleType' | filter:{Status:1}" ng-class="{separatesample: item.IsSeparateSampleId > 0}">
+                                <td>
+                                    <span ng-if="item.SampleTypeIndex == 0">
+                                        <input type="checkbox" class="case" ng-disabled="item.IsAllSampleTypeReadOnly" ng-model="item.IsAllSampleTypeSelected" ng-click="sampletypeSelectionChange(test.details, item)"
+                                        />
+                                    </span>
+                                    <span ng-if="item.SampleTypeIndex > 0" style="white-space: normal;">&nbsp;</span>
+                                </td>
+                                <td style="white-space: normal">
+                                    <span ng-if="item.SampleTypeIndex == 0"> {{item.SampleType}} </span>
+                                    <span ng-if="item.SampleTypeIndex > 0">&nbsp;</span>
+                                </td>
+                                <td>
+                                    <span ng-if="item.SampleType">
+                                        <input type="checkbox" class="case" ng-disabled="item.IsReadOnly" ng-model="item.IsSelected" ng-click="detailSelectionChanged(item)">
+                                    </span>
+                                    <span>{{item.Testmaster.Code}}</span>
+                                    <span ng-if="!item.Testmaster.Code">&nbsp;</span>
+                                </td>
+                                <td style="white-space: normal">
+                                    <span ng-click="testprofiledetails(item.TestId)">{{item.TestName}}</span>
+                                </td>
+                                <td>
+                                    <span>{{item.OrderPriority.Description}}</span>
+                                    <span ng-if="!item.OrderPriority.Description">&nbsp;</span>
+                                </td>
+                                <td>
+                                    <span>{{item.SampleStatus.Description}}</span>
+                                    <span ng-if="!item.SampleStatus.Description">&nbsp;</span>
+                                </td>
+                                <td>
+                                    <input type="text" class="form-control" name="collectedDate" ng-date-object datetime-picker="{{datePickerOptions.dateTimeFormat}}" datepicker-append-to-body="true" placeholder="{{datePickerOptions.placeholder}}" ng-click="collectedDatePopup = { opened: true }"
+                                        is-open="collectedDatePopup.opened" ng-model="item.CollectedDate" ng-disabled="item.IsReadOnly">
+                                </td>
+                                <td>
+                                    <span>{{item.SampleIdentifier}}</span>
+                                    <span ng-if="!item.SampleIdentifier">&nbsp;</span>
+                                </td>
+                                <td>
+                                    <button class="btn-gr-round" ng-click="testtat(item)">
+                                        <i class="feather icon-eye" uib-tooltip="Edit" tooltip-placement="bottom"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="col-sm-12">
+                <div class="col-sm-6">
+                    <label class="col-sm-5 " for="remarks" translate="billing.receipt-form.remarks.lbl"></label>
+                    <div class="col-sm-7">
+                        <input type="text" class="form-control" name="remarks" tooltip-placement="bottom" ng-model="item.RejectionComments" placeholder="Remarks">
+                    </div>
+                </div>
+            </div>
+            <div class="fooder-bgs">
+                <div class="pull-left">
+                    <button type="button" class="btn pyr-color10 btn-sm" ng-click="backToList()">
+                        <i class="fa fa-angle-left" aria-hidden="true"></i>&nbsp;&nbsp;
+                        <span class="btn-fontsize" translate="common.backaction.lbl"></span>
+                    </button>
+                    <button id="btnSaveForm" type="button" class="btn btn-danger btn-sm" ng-show="(item.SampleStatusId==3 || item.SampleStatusId==2)" ng-click="rejectSample()" translate="Reject Sample"></button>
+                </div>
+                <div class="pull-right">
+                    <button id="btnSaveForm" type="button" class="draftbutton" ng-show="CanShowSave" ng-click="saveItem()" translate="common.saveaction.lbl"></button>
+                    <button id="btnSaveForm" type="button" class="draftbutton" ng-show="canShowBarcodeButton" ng-click="generatebarcode()" translate="Sample 2.5mm X 5mm"></button>
+                    <button id="btnSaveForm" type="button" class="draftbutton" ng-show="canShowBarcodeButton" ng-click="pathologistbarcode()" translate="slide 2.5mm X 5mm"></button>
+                    <button id="btnSaveForm" type="button" class="draftbutton" ng-show="canShowBarcodeButton" ng-click="histobarcode()" translate="histo barcode 5mm X 10mm"></button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

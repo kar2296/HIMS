@@ -1,0 +1,102 @@
+<div class="row">
+    <h4 class="col-sm-11" translate="billing.claim-checklist.pagetitle.lbl"></h4>
+    <div class="col-sm-1">
+        <button type="button" tabindex="-1" class="draftbutton" ng-click="openAdvancedFilter()"
+            uib-tooltip="{{'clinicalmaster.serviceitem-list.filter-tooltip.lbl' | translate}}"
+            tooltip-placement="bottom" translate="clinicalmaster.serviceitem-list.filter.lbl">
+            <i class="fa fa-plus" aria-hidden="true"></i>
+        </button>
+    </div>
+</div>
+<div class="row">
+    <div class="form-group col-sm-3">
+        <label class="col-sm-12 control-lable" translate="billing.claim-checklist.patient.lbl"></label>
+        <div class="col-sm-12">
+            <input type="text" class="form-control" on-enter="getList()" ng-model="currentfilter.PatientMRN"
+                placeholder="NAME/MRN">
+        </div>
+    </div>
+    <div class="form-group col-sm-3">
+        <label class="col-sm-12 control-lable" translate="billing.claim-checklist.visitype.lbl"></label>
+        <div class="col-sm-12">
+            <ui-select ng-model="currentfilter.VisitTypeId" ng-change="getList()" class="filter-combo">
+                <ui-select-match>
+                    {{$select.selected.Text | limitTo : 25 : 0}}
+                    <span ng-if="$select.selected.Text.length>25">...</span>
+                </ui-select-match>
+                <ui-select-choices
+                    repeat="lookupitem.Id as lookupitem in lookup.EncounterType | filter: { Text: $select.search }">
+                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                </ui-select-choices>
+            </ui-select>
+        </div>
+    </div>
+    <div class="form-group col-sm-3">
+        <label class="col-sm-12 control-lable" translate="billing.claimmanagement.receiptdate.lbl"></label>
+        <div class="col-sm-12">
+            <input type="text" class="form-control" name="receiptdate" ng-change="getList()"
+                datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}"
+                uib-datepicker-popup="{{datePickerOptions.dateFormat}}" placeholder="{{datePickerOptions.placeholder}}"
+                ng-click="receiptdatePopup = { opened: true }" is-open="receiptdatePopup.opened"
+                ng-model="currentfilter.PaymentDate">
+        </div>
+    </div>
+    <div class="form-group col-sm-3">
+        <label class="col-sm-12 control-lable" translate="billing.claim-checklist.billno.lbl"></label>
+        <div class="col-sm-12">
+            <input type="text" class="form-control" on-enter="getList()" ng-model="currentfilter.BillNo"
+                placeholder="BILLNO">
+        </div>
+    </div>
+
+    <div class="form-group col-sm-3">
+        <label class="col-sm-12 control-lable" translate="billing.claim-checklist.guarantor.lbl"></label>
+        <div class="col-sm-12">
+            <ui-select ng-model="currentfilter.GuarantorId" ng-change="getList()" class="filter-combo">
+                <ui-select-match>
+                    {{$select.selected.Text | limitTo : 25 : 0}}
+                    <span ng-if="$select.selected.Text.length>25">...</span>
+                </ui-select-match>
+                <ui-select-choices
+                    repeat="lookupitem.Id as lookupitem in lookup.Guarantor | filter: { Text: $select.search }">
+                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                </ui-select-choices>
+            </ui-select>
+        </div>
+    </div>
+    <div class="form-group col-sm-3">
+        <label class="col-sm-12 control-lable" translate="billing.claim-checklist.fromdate.lbl"></label>
+        <div class="col-sm-12">
+            <input type="text" class="form-control" name="dateofbirth" ng-change="getList()"
+                datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}"
+                uib-datepicker-popup="{{datePickerOptions.dateFormat}}" placeholder="{{datePickerOptions.placeholder}}"
+                ng-click="dateofbirthPopup = { opened: true }" is-open="dateofbirthPopup.opened"
+                ng-model="currentfilter.billdate">
+        </div>
+    </div>
+    <div class="form-group col-sm-3">
+        <label class="col-sm-12 control-lable" translate="billing.claim-checklist.status.lbl"></label>
+        <div class="col-sm-12">
+            <ui-select ng-model="currentfilter.ChecklistStatusId" ng-change="getList()" class="filter-combo">
+                <ui-select-match>
+                    {{$select.selected.Text | limitTo : 25 : 0}}
+                    <span ng-if="$select.selected.Text.length>25">...</span>
+                </ui-select-match>
+                <ui-select-choices
+                    repeat="lookupitem.Id as lookupitem in lookup.ChecklistStatus | filter: { Text: $select.search }">
+                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                </ui-select-choices>
+            </ui-select>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <custom-table config="vm.gridConfig"></custom-table>
+</div>
+<div class="fooder-bgs">
+    <div class="row">
+        <ul uib-pagination total-items="vm.gridConfig.pagerObj.totalItems"
+            items-per-page="vm.gridConfig.pagerObj.pageSize" start-index="vm.gridConfig.pagerObj.startIndex"
+            ng-model="vm.gridConfig.pagerObj.currentPage" ng-change="getList()"></ul>
+    </div>
+</div>

@@ -1,0 +1,101 @@
+<link href="app/css/regbilling.css" rel="stylesheet">
+
+<div class="row ">
+    <div class="col-sm-12">
+        <div class="col-sm-9">
+            <h4 class="mt0" translate="IP Clearence"></h4>
+        </div>
+        <div class="col-sm-3">
+            <div class="filters">
+                <div class="search">
+                    <input type="text" id="pid" class="form-control" on-enter="getList()" ng-model="currentfilter.patientnamemrn" placeholder="NAME/MRN">
+                    <div class="drhms-search-icon">
+                        <i class="fas fa-search" aria-hidden="true"></i>
+                    </div>
+                </div>
+               
+                <button class="default-color" ng-if=" Context =='frontoffice'|| Context =='nursing'" ng-click="backtoList()">
+                    <i class="fa fa-home" uib-tooltip="Dashboard" tooltip-placement="bottom"></i>
+                </button>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="myModal" class="modal">
+
+    <!-- Modal content -->
+    <div class="modal-content" style="width:88%;margin:0 auto; left:6%;top:4%;">
+
+        <div class="modal-body">
+            <span class="close link_close">&times;</span>
+            <img src="mock/usermanual/admissions/admissions.jpg" style="margin:0px auto;height: -webkit-fill-available;" class="img-responsive"></img>
+
+
+        </div>
+
+    </div>
+
+</div>
+<div class="row">
+    <div class="drhms-list-filters">
+        <div class="col-sm-3">
+            <label class="col-sm-3" translate="Name"></label>
+            <div class="col-sm-9">
+                <input type="text" class="form-control textbox-search" on-enter="getList()" ng-model="currentfilter.PatientName" translate translate-attr-placeholder="Name">
+            </div>
+        </div>
+        <div class="col-sm-3">
+            <label class="col-sm-3" translate="Department"></label>
+            <div class="col-sm-9">
+                <ui-select ng-model="currentfilter.DepartmentId" ng-change="getList()" class="filter-combo">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 15 : 0}}
+                        <span ng-if="$select.selected.Text.length>15">...</span>
+                    </ui-select-match>
+                    <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.Department | filter: {Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+
+        <div class="col-sm-3">
+            <label class="col-sm-3" translate="Date"></label>
+            <div class="col-sm-9">
+                <div class="datepicker" id="datepicker">
+                    <input type="text" class="form-control" name="registereddate" ng-change="getList()" datepicker-options="datePickerOptions"
+                        show-button-bar="{{datePickerOptions.showButtonBar}}" uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                        placeholder="{{datePickerOptions.placeholder}}" ng-click="registereddatePopup = { opened: true }" is-open="registereddatePopup.opened"
+                        ng-model="currentfilter.IPClearenceDate">
+                    <i class="fa fa-calendar" aria-hidden="true"></i>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-3">
+            <label class="col-sm-3" translate="bedtransfer-list.filter_status.lbl"></label>
+            <div class="col-sm-9">
+                <ui-select ng-model="currentfilter.IPClearenceStatusId" ng-change="getList()" class="filter-combo">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 15 : 0}}
+                        <span ng-if="$select.selected.Text.length>15">...</span>
+                    </ui-select-match>
+                    <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.IPClearenceStatus | filter: {Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+    </div>
+</div>
+<custom-table config="vm.gridConfig"></custom-table>
+<div class="container-fluid single-filter">
+    <!-- <div ui-grid="vm.gridConfig" class="table-uigrid"></div> -->
+    <div class="fooder-bgs" style="margin-bottom:10px;">
+        <div class="row">
+            <ul uib-pagination total-items="vm.gridConfig.pagerObj.totalItems" items-per-page="vm.gridConfig.pagerObj.pageSize" start-index="vm.gridConfig.pagerObj.startIndex"
+                ng-model="vm.gridConfig.pagerObj.currentPage" ng-change="getList()"></ul>
+        </div>
+    </div>
+</div>

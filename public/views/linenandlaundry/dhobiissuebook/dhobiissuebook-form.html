@@ -1,0 +1,285 @@
+<link href="app/css/billing-pharmacy-customs.css" rel="stylesheet">
+<style>
+    .table {
+        margin-bottom: 1px;
+        /* min-width: 109%; */
+    }
+
+    input[type=text] {
+        margin-bottom: 2px;
+    }
+
+    /* .fsStyle .form-group {
+        margin-bottom: 2px !important;
+    } */
+
+
+
+    .page-header h4 {
+        padding-top: 2px;
+        padding-left: 9px;
+    }
+
+    .padding-top1 {
+        padding-top: 2px;
+    }
+
+    .filter-area {
+        margin: 3px 11px 3px !important;
+        box-shadow: 1px 9px 10px -13px rgba(0, 0, 0, .75);
+        padding-bottom: 7px;
+    }
+
+    .autosearch-div>input,
+    .form-group patientsearch.logo {
+        background-size: 12.7% !important;
+    }
+
+    #mainresponsivetablecontrol>.table>tbody>tr:nth-child(1)>td>autosearch>.autosearch-div>.custom-popup-wrapper>.dropdown-menu {
+        background-color: rgba(245, 249, 238, 0) !important;
+        border: 0px solid #ccc !important;
+    }
+
+    #pmrmaster .formRoot {
+        height: 303px !important;
+    }
+
+    #pmrmaster .table-control {
+        overflow: auto;
+    }
+
+    .aside-collapsed .fooder-bg {
+        position: sticky;
+        bottom: 0;
+        width: 99.5% !important;
+    }
+
+    .fooder-bg {
+        width: 87%;
+        text-align: center;
+        margin: 0px auto;
+        bottom: 0;
+    }
+
+    .aside-collapsed .fooder-bg {
+        position: sticky;
+        bottom: 0;
+        width: 97.5% !important;
+    }
+
+    .pull-left {
+        padding-left: 1% !important;
+    }
+
+    #mainresponsivetablecontrol>.table>tbody>tr>td>autosearch>.autosearch-div>.custom-popup-wrapper>.dropdown-menu {
+        overflow-x: hidden;
+    }
+
+    table.table.table-bordered.table-condensed.dropdown-menu {
+        height: auto !important;
+    }
+
+    /* #mainresponsivetablecontrol>.table>tbody>tr>td>autosearch>.autosearch-div>.custom-popup-wrapper>.dropdown-menu {
+        height: auto !important;
+        max-height: 130px;
+        min-height: 54px;
+        margin-top: -152px !important;
+    } */
+
+    .footerbar {
+        margin-top: 0px;
+    }
+
+    @media (device-height:100vh) and (device-width:100vw) {
+        #pmrmaster .formRoot {
+            height: 438px !important;
+        }
+    }
+
+    .custom-popup-wrapper>table>tbody>tr {
+        height: 30px;
+    }
+
+    table.table.table-bordered.table-condensed.dropdown-menu {
+        height: 151px !important;
+    }
+
+</style>
+<div id="pmrmaster">
+    <div class="row page-header">
+        <h4 class="page-header col-sm-6" translate="linenandlaundry.dhobiissuebook.pagetitle1.lbl"></h4>
+
+        <div class="col-sm-6 text-right">
+            <span>
+                <button class="btn-add" ng-click="addNew()" uib-tooltip="{{ 'linenandlaundry.dhobiissuebook.pagetitle.lbl' | translate }}"
+                    tooltip-placement="bottom">
+                    <i class="fa fa-plus" aria-hidden="true"></i>
+                  
+                </button>
+                <!-- <span ng-click="linendashboard()" ng-hide="context == 'emr'">
+                    <img src="app/img/icons/laundry.png" class="img-responsive emr-drdashicon" alt="home" uib-tooltip="{{'Linen Dashboard'| translate}} "
+                        tooltip-placement="bottom">
+                </span> -->
+            </span>
+        </div>
+    </div>
+    <div class="row ">
+        <div class="col-sm-12">
+            <form id="item_form" name="item_form" role="form">
+                <div class="filter-area row">
+                    <table  id="bannerdetails">
+                        <tr>
+                            <td>
+                                <label  for="fromfacility" translate="linenandlaundry.dhobiissuebook.fromfacility.lbl"></label>
+                            </td>
+                            <td>
+                                <ui-select ng-model="item.FromFacilityId" ng-disabled="isDisabled" ng-change="getList()" name="fromfacility" required>
+                                    <ui-select-match>
+                                        {{$select.selected.Text | limitTo : 20 : 0}}
+                                        <span ng-if="$select.selected.Text.length>20">...</span>
+                                    </ui-select-match>
+                                    <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.Facility | filter: { Text: $select.search }">
+                                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                    </ui-select-choices>
+                                </ui-select>
+                            </td>
+                            <td>
+                                <label  for="stockingpoint" translate="linenandlaundry.dhobiissuebook.stockingpoint.lbl"></label>
+                            </td>
+                            <td>
+                                <ui-select ng-model="item.FromDepartmentId" ng-disabled="isDisabled" ng-change="getList()" name="stockingpoint">
+                                    <ui-select-match>
+                                        {{$select.selected.Text | limitTo : 20 : 0}}
+                                        <span ng-if="$select.selected.Text.length>20">...</span>
+                                    </ui-select-match>
+                                    <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.Department | filter: { Text: $select.search }">
+                                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                    </ui-select-choices>
+                                </ui-select>
+                            </td>
+                            <td>
+                                <label  for="disposeddate" translate="linenandlaundry.dhobiissuebook.issueby.lbl"></label>
+                            </td>
+                            <td>
+                                <autosearch itemid="item.IssuedById" iteminfo="" candisable="isDisabled" rowdata="" config="vm.usercontrolconfig" itemchange="getList()" onenter="getList()"></autosearch>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <label  for="tofacility" translate="linenandlaundry.dhobiissuebook.tofacility.lbl"></label>
+                            </td>
+                            <td>
+                                <ui-select ng-model="item.ToFacilityId" ng-disabled="isDisabled" ng-change="getList()" name="tofacility" required>
+                                    <ui-select-match>
+                                        {{$select.selected.Text | limitTo : 20 : 0}}
+                                        <span ng-if="$select.selected.Text.length>20">...</span>
+                                    </ui-select-match>
+                                    <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.ToFacility | filter: { Text: $select.search }">
+                                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                    </ui-select-choices>
+                                </ui-select>
+                            </td>
+                            <td>
+                                <label  for="issueto" translate="linenandlaundry.dhobiissuebook.issueto.lbl"></label>
+                            </td>
+                            <td>
+                                <ui-select ng-model="item.ToDepartmentId" ng-disabled="isDisabled" name="issueto" required>
+                                    <ui-select-match>
+                                        {{$select.selected.Text | limitTo : 20 : 0}}
+                                        <span ng-if="$select.selected.Text.length>20">...</span>
+                                    </ui-select-match>
+                                    <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.Department | filter: { Text: $select.search }">
+                                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                    </ui-select-choices>
+                                </ui-select>
+                            </td>
+                            <td>
+
+                            </td>
+                        </tr>
+                    </table>
+                
+
+                </div>
+                <div class=" table-control">
+                    <div class=" bg-pattern">
+                        <div class="table-height formRoot" id="mainresponsivetablecontrol">
+                            <table class="table table-hover table-responsive table-bordered">
+                                <thead class="bg-subhead">
+                                    <tr>
+                                        <th>
+                                            <span translate="linenandlaundry.dhobiissuebook.sno#.lbl"></span>
+                                        </th>
+                                        <th>
+                                            <span translate="linenandlaundry.dhobiissuebook.itemname.lbl"></span>
+                                        </th>
+                                        <th>
+                                            <span translate="linenandlaundry.dhobiissuebook.itemcode.lbl"></span>
+                                        </th>
+                                        <th>
+                                            <span translate="linenandlaundry.dhobiissuebook.availableqty.lbl"></span>
+                                        </th>
+                                        <th>
+                                            <span translate="linenandlaundry.dhobiissuebook.requestedqty.lbl"></span>
+                                        </th>
+                                        <th>
+                                            <span translate="linenandlaundry.dhobiissuebook.issueqty.lbl"></span>
+                                        </th>
+                                        <th>
+                                            <span translate="linenandlaundry.dhobiissuebook.action.lbl"></span>
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+
+                                    <tr ng-repeat="item in issuebookDetails | filter:{Status:1}">
+                                        <td class="">
+                                            <span> {{item.SNo}}</span>
+                                        </td>
+                                        <td class="">
+                                            <autosearch itemid="item.LinenItemMasterId" candisable="isDisabled" rowdata="item" iteminfo="item.SelectedItem" config="vm.linenitemmastercontrolconfig"
+                                                itemchange="OnItemselected($index, item)"></autosearch>
+                                        </td>
+                                        <td>
+                                            <span> {{item.LinenItemCode}}</span>
+                                        </td>
+
+                                        <td class="">
+                                            <input type="number" class="form-control" ng-disabled="true" ng-model="item.AvailableQuantity">
+                                        </td>
+                                        <td class="">
+                                            <input type="text" class="form-control" ng-disabled="true" ng-model="item.RequestedQuantity">
+                                        </td>
+                                        <td class="">
+                                            <input type="number" class="form-control" ng-disabled="isDisabled" ng-model="item.IssuedQuantity">
+                                        </td>
+
+                                        <td>
+                                            <button type="button" class="btn btn-danger btn-xs" ng-disabled="isDisabled"  uib-tooltip="Delete"  tooltip-placement="bottom"  ng-click="deletedhobiissuebookDetail(item,$index)">
+                                                <i class="fa fa-trash" aria-hidden="true"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="col-sm-12 fooder-bg">
+                        <div class="pull-left">
+                            <button type="button" class="btn pyr-color10 btn-sm" uib-tooltip="Back to List" tooltip-placement="top" tabindex="-1" ng-click="backtolist()">
+                                <i class="fa fa-angle-left" aria-hidden="true"></i>
+                                <span class="btn-fontsize"> &nbsp; Back</span>
+                            </button>
+                        </div>
+                        <div class="pull-right">
+                            <button type="button" class="draftbutton" translate="common.saveaction.lbl" ng-click="save()"></button>
+                            <button type="button" class="btn dem-color4 text-white btn-sm" translate="common.saveapprove-action.lbl" ng-click="saveandapprove()"></button>
+                            <button type="button" class="btn btn-warning btn-sm" translate="common.clearaction.lbl" ng-click="clear()"></button>
+                            <button type="button" class="draftbutton" translate="common.cancelaction.lbl" ng-click="backtolist()"></button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

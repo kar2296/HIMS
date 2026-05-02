@@ -1,0 +1,115 @@
+<div class="tabsizetopcontroller">
+    <div class="row page-header">
+        <div class="col-sm-12">
+            <div class="col-sm-6 col-md-9">
+                <h4 class="page-header mt0" translate="patientemr.patientcondition-list.pagetitle.lbl"></h4>
+            </div>
+            <div class="col-sm-6 col-md-3">
+
+                <!-- <button class="btn bt-color3 btn-xs pull-right" uib-tooltip="{{ 'clinicalmaster.serviceitem-list.filter-tooltip.lbl' | translate }}"
+             tooltip-placement="bottom"> <i class="fa fa-filter fa-xs " aria-hidden="true"></i>&nbsp;&nbsp;<span translate="clinicalmaster.serviceitem-list.filter.lbl"></span>
+           </button> -->
+
+                <button class="btn-add" ng-click="addNew()"
+                    uib-tooltip="{{ 'patientemr.patientcondition-list.pagetitle.lbl' | translate }}"
+                    tooltip-placement="bottom">
+                    <i class="fa fa-plus" aria-hidden="true"></i>
+
+                </button>
+
+            </div>
+        </div>
+    </div>
+    <!-- <div class="row filter-area">
+    <div class="col-sm-12">
+        <div class="col-sm-4">
+            <label class="col-sm-4 control-label filter-lbl" translate="patientemr.patientcondition-list.filter_conditiontype.lbl"></label>
+            <div class="col-sm-8">
+                <ui-select ng-model="currentfilter.ConditionTypeId" ng-change="getList()" class="filter-combo">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 8 : 0}}
+                        <span ng-if="$select.selected.Text.length>8">...</span>
+                    </ui-select-match>
+                    <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.ConditionType | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <label class="col-sm-4 control-label filter-lbl"  translate="patientemr.patientcondition-list.conditionname.lbl"></label>
+            <div class="input-group col-sm-8">
+                    <span class="input-group-addon"> <i class="fas fa-search"></i> </span>
+                <input type="text" class="form-control" name="conditionname" on-enter="getList()" ng-model="currentfilter.Name"
+                            translate translate-attr-placeholder="patientemr.patientcondition-list.conditionname.lbl">
+            </div>
+        </div>
+         <div class="col-sm-4">
+              <div class="form-group">
+                                    <label class="col-sm-4 control-label" for="conditionstatus" translate="patientemr.patientcondition-form.conditionstatus.lbl"></label>
+                                    <div class="col-sm-8">
+                                        <ui-select ng-model="currentfilter.ConditionStatusId" name="conditionstatus">
+                                            <ui-select-match>
+                                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                                <span ng-if="$select.selected.Text.length>20">...</span>
+                                            </ui-select-match>
+                                            <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.ConditionStatus | filter: { Text: $select.search }">
+                                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                            </ui-select-choices>
+                                        </ui-select>
+                                    </div>
+                                </div>
+         </div>
+    </div>
+</div> -->
+
+    <div class="container-fluid">
+        <favoritecontrol config="favconfig" addclick="addFavorite()" saveclick="saveFavorites()"></favoritecontrol>
+        <!-- <div ui-grid="vm.gridConfig" class="table-uigrid"></div> -->
+        <custom-table config="vm.gridConfig"></custom-table>
+        <div class="fooder-bgs">
+            <div class="col-sm-6 pull-left">
+                <button type="button" class="btn pyr-color10 btn-sm pull-left" tabindex="-1" ng-click="backToList()">
+                    <i class="fa fa-angle-left" aria-hidden="true"></i>&nbsp;&nbsp;
+                    <span class="btn-fontsize" translate="common.backaction.lbl"></span>
+                </button>
+                <ul class="nav navbar-nav pull-left" id="pastnotes">
+                    <li uib-dropdown="" class="dropdown dropdown-list custom-li">
+                        <button uib-dropdown-toggle="" class="draftbutton" ng-disabled="">
+                            <span translate="Previous Notes"></span>
+                            <!-- <span>
+                                            <i class="fa fa-caret-up" aria-hidden="true"></i>
+                                        </span> -->
+                        </button>
+                        <ul class="dropdown-menu top" role="menu" aria-labelledby="dLabel">
+                            <li ng-repeat="item in consultlist| limitTo: currentcontext.recordcount">
+                                <a class=" " ng-click="viewConsultation(item) ">
+                                    <span>
+                                        <i class="fa fa-angle-right " aria-hidden="true "></i>
+                                    </span>&nbsp;&nbsp;&nbsp;
+                                    <span class="dr_name0 ">{{item.Encounter.DoctorName}} - </span>
+                                    <displaydate class="disp_date0 " datetime-val="item.CreatedAt "></displaydate>
+                                    <span class="dr_profile0 "> - {{item.ProfileMaster.Name}}</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+                <button id="btn" type="button" class="btn bt-color3 btn-sm pull-left" ng-click="labresult()"
+                    uib-tooltip="{{ 'medicalcertificate.dischargesummary-form.labresult.lbl' | translate }}"
+                    tooltip-placement="top">
+                    <i class="fa fa-flask"></i>
+                </button>
+                <button id="btn" type="button" class="btn bt-color1 btn-sm pull-left ml10" ng-click="radiologyresult()"
+                    uib-tooltip="{{ 'medicalcertificate.dischargesummary-form.radiology.lbl' | translate }}"
+                    tooltip-placement="top"><i class="fa fa-file-image-o"></i></button>
+
+
+            </div>
+            <div class="col-sm-6">
+                <!-- <ul uib-pagination total-items="vm.gridConfig.pagerObj.totalItems" items-per-page="vm.gridConfig.pagerObj.pageSize" start-index="vm.gridConfig.pagerObj.startIndex"
+                    ng-model="vm.gridConfig.pagerObj.currentPage" ng-change="getList()"></ul> -->
+            </div>
+        </div>
+    </div>
+</div>

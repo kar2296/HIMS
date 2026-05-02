@@ -1,0 +1,407 @@
+(function() {
+    'use strict';
+
+    angular
+        .module('app.pages')
+        .controller('transportRequestFormController', transportRequestFormController);
+
+    function transportRequestFormController($scope, $stateParams, $state, $translate, utl, $uibModalInstance, modalConfig) {
+        var vm = this;
+        $scope.item = {
+            TransportActivityId: 1,
+            RequestTypeId: 1
+        };
+
+        $scope.currentcontext = {
+            ismodal: modalConfig && modalConfig.params ? true : false
+        };
+        $scope.lookup = {};
+        $scope.currentcontext.id = parseInt($stateParams.id);
+        $scope.selectedPatient = {};
+        if (modalConfig && modalConfig.params) {
+            $scope.currentcontext.id = modalConfig.params.id;
+            $scope.item.EncounterId = modalConfig.params.eid;
+            if (modalConfig.params.isbed)
+                $scope.IsBedScreen = true;
+            $scope.confirmCallback = $uibModalInstance.close;
+            $scope.cancelCallback = $uibModalInstance.dismiss;
+        }
+        $scope.IsBedScreen = false;
+        $scope.getPatientInfo = function(scope, data, options, hasError) {
+                $scope.selectedPatient = data;
+            }
+            //$scope.currentfilter = { PatientId: -1 };
+        $scope.patientChange = function() {
+            //console.log($scope.item.PatientId);
+            if ($scope.item.PatientId > 0) {
+                var options = {
+                    action: 'registration/patient/GetPatientById',
+                    data: { Id: $scope.item.PatientId },
+                    type: 'post',
+                    onComplete: $scope.getPatientInfo
+                };
+                utl.Http.doAction(options);
+            }
+        }
+        $scope.getCreatedUserCallback = function(scope, res, options, hasError) {
+            $scope.CreatedUser = res.Data[0];
+            vm.gridConfig.pagerObj.totalItems = res.PageContext.TotalRecords;
+        };
+
+        $scope.getCreatedUser = function() {
+            var inputData = {
+                Params: [
+                    { Key: 0, Value: $scope.currentcontext.id }
+                ]
+            };
+
+            var options = {
+                action: 'IPManagement/BedTransportation/GetBedTransportations',
+                data: inputData,
+                type: 'post',
+                onComplete: $scope.getCreatedUserCallback
+            };
+
+            utl.Http.doAction(options);
+        };
+        $scope.visiblityRule = function() {
+            if ($scope.item.TransportStatusId == 1 || $scope.currentcontext.id == 0) {
+                $scope.backBtn = true;
+                $scope.cancelBtn = false;
+                $scope.printBtn = false;
+                $scope.assignBtn = false;
+                $scope.saveBtn = true;
+                $scope.approveBtn = true;
+                $scope.clearBtn = true;
+                $scope.completedBtn = false;
+            } else if ($scope.item.TransportStatusId == 2) {
+                $scope.backBtn = true;
+                $scope.cancelBtn = true;
+                $scope.printBtn = true;
+                $scope.assignBtn = true;
+                $scope.saveBtn = true;
+                $scope.approveBtn = false;
+                $scope.clearBtn = false;
+                $scope.completedBtn = false;
+                $scope.assigned = true;
+            } else if ($scope.item.TransportStatusId == 3) {
+                $scope.backBtn = true;
+                $scope.cancelBtn = true;
+                $scope.printBtn = true;
+                $scope.assignBtn = false;
+                $scope.saveBtn = true;
+                $scope.approveBtn = false;
+                $scope.clearBtn = false;
+                $scope.completedBtn = true;
+                $scope.assigned = true;
+            } else if ($scope.item.TransportStatusId == 4 || $scope.item.TransportStatusId == 5) {
+                $scope.backBtn = true;
+                $scope.cancelBtn = false;
+                $scope.printBtn = true;
+                $scope.assignBtn = false;
+                $scope.saveBtn = false;
+                $scope.approveBtn = false;
+                $scope.clearBtn = false;
+                $scope.completedBtn = false;
+                if ($scope.item.TransportStatusId == 4) { $scope.assigned = true; }
+            }
+        }
+        $scope.getItemCallback = function(scope, data, options, hasError) {
+            $scope.item = data;
+            //$scope.currentfilter.PatientId = $scope.item.PatientId;
+            // $scope.item.AdmissionDate = new Date(data.AdmissionDate);
+            if ($scope.item.TransportStatusId >= 2) { $scope.isDisabled = true; }
+            $scope.loadAdditionalLookup();
+            $scope.getCreatedUser();
+            $scope.visiblityRule();
+            $scope.patientChange();
+        };
+
+        $scope.getItem = function(pageNo) {
+            if ($scope.currentcontext.id && $scope.currentcontext.id > 0) {
+                $scope.IsDisbled = false;
+                var options = {
+                    action: 'IPManagement/BedTransportation/GetBedTransportationById',
+                    data: { Id: $scope.currentcontext.id },
+                    type: 'post',
+                    onComplete: $scope.getItemCallback
+                };
+                utl.Http.doAction(options);
+            }
+            $scope.visiblityRule();
+        };
+
+        $scope.patientprofiledetails = function() {
+            utl.Modal.open('registration.patientprofile', {
+                params: { pid: $scope.item.PatientId },
+                confirmCallback: $scope.getList
+            });
+        }
+
+        $scope.backToList = function() {
+            if ($scope.currentcontext.ismodal) {
+                $scope.confirmCallback();
+            } else
+                $state.go('app.transportrequests');
+        }
+
+        $scope.clearItem = function() {
+            $scope.item = {};
+            $scope.fillDefaultValues();
+        }
+
+        $scope.save = function() {
+            if ($scope.currentcontext.id == 0) { $scope.item.TransportStatusId = 1; }
+
+            $scope.saveItem();
+        };
+
+        $scope.confirmation = function() {
+            var confirmOptions = {
+                headingKey: 'common.confirm-modal-header.lbl',
+                               messageKey: 'transportrequest.complete.lbl',
+        
+                yesKey: 'common.yeskey.lbl',
+                noKey: 'common.nokey.lbl',
+                onSuccessMethod: $scope.saveAndComplete,
+            };
+            utl.Dialog.confirmMessage(confirmOptions);
+        }
+        $scope.saveAndApprove = function() {
+            if ($scope.currentcontext.id == 0 || $scope.item.TransportStatusId == 1) { $scope.item.TransportStatusId = 2; }
+            $scope.saveItem();
+        };
+        $scope.saveAndAssign = function() {
+            if (!utl.Validator.validate($scope)) {
+                return;
+            }
+            $scope.item.TransportStatusId = 3;
+            $scope.saveItem();
+        }
+        $scope.saveAndComplete = function() {
+            $scope.item.TransportStatusId = 4;
+            $scope.saveItem();
+        }
+        $scope.onCancelConfirmed = function() {
+            $scope.item.TransportStatusId = 5;
+            var actionName = 'ipmanagement/BedTransportation/UpdateBedTransportation';
+            var options = {
+                action: actionName,
+                data: { Data: $scope.item },
+                type: 'post',
+                onComplete: $scope.saveItemCallback
+            };
+            utl.Http.doAction(options);
+        }
+        $scope.CancelRequest = function() {
+            utl.Dialog.confirmCancel($scope.onCancelConfirmed, $scope.currentcontext.id, $scope.item.TransportIdentifier);
+        }
+        $scope.saveItemCallback = function(scope, data, options, hasError) {
+            utl.Alert.showSuccessMsg($translate.instant('common.successmsg.lbl'));
+            $scope.backToList();
+        };
+
+
+        // $scope.changeServiceRateCategory = function (selectedItem) {
+        //     $scope.item.ServiceRateCategoryId = selectedItem.ServiceRateCategory.Id;
+        // }
+        $scope.saveItem = function() {
+            if (!utl.Validator.validate($scope)) {
+                return;
+            }
+            var actionName = 'ipmanagement/BedTransportation/AddBedTransportation';
+            if ($scope.currentcontext.id && $scope.currentcontext.id > 0) {
+                actionName = 'ipmanagement/BedTransportation/UpdateBedTransportation';
+                if ($scope.item.TransportStatusId == 1) {
+                    $scope.item.TransportStatusId = 2;
+                }
+            }
+
+            var options = {
+                action: actionName,
+                data: { Data: $scope.item },
+                type: 'post',
+                onComplete: $scope.saveItemCallback
+            };
+            $scope.GlobalSave = options;
+            utl.Http.doAction(options);
+        };
+
+        $scope.getEncounterInfo = function() {
+                var Encounter = $scope.item.SelectedItem;
+                $scope.item.PatientId = Encounter.PatientId;
+                $scope.item.FromLocationId = Encounter.LocationId;
+                $scope.item.FromWardId = Encounter.WardId;
+                $scope.item.FromRoomId = Encounter.RoomId;
+                $scope.item.FromBedId = Encounter.BedId;
+                $scope.patientChange();
+            }
+            //autosearch related code starts - 
+        vm.patientcontrolconfig = {
+            query: '',
+            searchbyid: false,
+            options: [
+                { header: 'Patient Name', field: 'PatientName', datatype: 'string', headercls: 'td-code', fieldcls: 'td-code' },
+                { header: 'Ward Name', field: 'WardName', datatype: 'string', headercls: 'td-code', fieldcls: 'td-code' },
+                { header: 'Room No.', field: 'RoomNo', datatype: 'string', headercls: 'td-code', fieldcls: 'td-code' },
+                { header: 'Bed No.', field: 'BedNo', datatype: 'string', headercls: 'td-code', fieldcls: 'td-code' },
+            ],
+            searchparams: {},
+            result: {},
+            api: 'Visit/Visit/GetEncounters',
+            presearch: presearchencounter,
+            formatdisplay: formatselectedencounter,
+            postsearch: postsearchencounter
+        };
+
+        function formatselectedencounter() {
+            var selectedItem = vm.patientcontrolconfig.selected;
+            var result = '';
+            $scope.item.PatientId = result.PatientId;
+            if (selectedItem && !utl.Common.isEmptyJSONObject(selectedItem)) {
+                result = [selectedItem.Patient.Title.Description, selectedItem.Patient.FirstName, selectedItem.Patient.LastName].join(' ');
+            } else if (vm.patientcontrolconfig.rowdata) {
+                result = [vm.patientcontrolconfig.rowdata.Patient.Title.Description, vm.patientcontrolconfig.rowdata.Patient.FirstName].join(' ');
+            }
+            $scope.getEncounterInfo();
+            return result;
+        }
+
+        function presearchencounter() {
+            var query = vm.patientcontrolconfig.query;
+
+            //Search only active patients
+            var inputData = {
+                Params: [
+                    { Key: 15, Value: 2 }
+                ],
+                PageContext: {
+                    PageSize: 25,
+                    PageNumber: 1
+                }
+            };
+
+            if (vm.patientcontrolconfig.searchbyid == true) {
+                inputData.Params.push({ Key: 0, Value: query });
+            } else if (query && query.length > 2) {
+                inputData.Params.push({ Key: 11, Value: query });
+            }
+
+            vm.patientcontrolconfig.searchparams = inputData;
+        }
+
+        function postsearchencounter() {
+            for (var idx in vm.patientcontrolconfig.result) {
+                var item = vm.patientcontrolconfig.result[idx];
+                item.PatientName = item.Patient.FirstName;
+                item.WardName = item.WardMaster.WardName;
+                item.RoomNo = item.WardRoomMaster.RoomNo;
+                item.BedNo = item.WardRoomBedMaster.BedNo;
+
+            }
+        }
+        //autosearch related code ends - 
+        $scope.lookupCallback = function(scope, data, options, hasError) {
+            forEach(data, function(value, key) {
+                $scope.lookup[key] = value;
+            });
+        }
+
+        $scope.print = function() {
+            var actionName = 'ipmanagement/BedTransportation/PrintBedTransportation';
+            var options = {
+                action: actionName,
+                data: { Data: $scope.item },
+                type: 'post',
+                onComplete: $scope.saveItemCallback
+            };
+            utl.Http.doDownload(options);
+        }
+
+        $scope.lookupCall = function(inputData) {
+            var options = {
+                action: 'General/Options/getoptions',
+                data: inputData,
+                type: 'post',
+                onComplete: $scope.lookupCallback
+            };
+            utl.Http.doAction(options);
+        }
+
+        $scope.initAllLookup = function() {
+            var inputData = [
+                { "Key": "Location" },
+                { "Key": "TransportActivity" },
+                { "Key": "RequestType" },
+                { "Key": "TransportStatus" },
+                { "Key": "Block" },
+                { "Key": "User" }
+            ]
+            $scope.lookupCall(inputData);
+            $scope.getItem();
+            $scope.loadAdditionalLookup();
+        }
+
+        $scope.wardLookUp = function() {
+            var inputData = [{
+                "Key": "Ward",
+                Request: {
+                    Params: [{ Key: 2, Value: $scope.item.FacilityId || 0 },
+                        { Key: 5, Value: $scope.item.LocationId || 0 }
+                    ]
+                }
+            }, ];
+            $scope.lookupCall(inputData);
+            $scope.item.WardId = $scope.item.WardId || 0;
+            $scope.item.RoomId = $scope.item.RoomId || 0;
+            $scope.item.BedId = $scope.item.BedId || 0;
+        }
+
+        $scope.getRoomLookUp = function() {
+            var inputData = [{
+                "Key": "Room",
+                Request: {
+                    Params: [
+                        { Key: 2, Value: $scope.item.WardId || 0 }
+                    ]
+                }
+            }];
+            $scope.lookupCall(inputData);
+        }
+
+        $scope.getBedLookUp = function() {
+            var inputData = [{
+                "Key": "Bed",
+                Request: {
+                    Params: [
+                        { Key: 1, Value: $scope.item.WardId || 0 },
+                        { Key: 2, Value: $scope.item.RoomId || 0 }
+                    ]
+                }
+            }];
+            $scope.lookupCall(inputData);
+        }
+        $scope.getDeptUser = function() {
+            var inputData = [{
+                "Key": "User",
+                Request: {
+                    Params: [
+                        { Key: 6, Value: 117 }
+                    ]
+                }
+            }];
+            $scope.lookupCall(inputData);
+        }
+
+        $scope.loadAdditionalLookup = function() {
+            $scope.wardLookUp();
+            $scope.getRoomLookUp();
+            $scope.getBedLookUp();
+            $scope.getDeptUser();
+        }
+
+        $scope.initAllLookup();
+    }
+    transportRequestFormController.$inject = ['$scope', '$stateParams', '$state', '$translate', 'utl', '$uibModalInstance', 'modalConfig'];
+
+})();

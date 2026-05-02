@@ -1,0 +1,104 @@
+<html>
+
+<head>
+  <style>
+    .table1 {
+      border: 1px solid black;
+      font-size: 8px;
+    }
+
+    .table2 {
+      border: 1px solid black;
+      border-top: 0px solid black;
+      font-size: 8px;
+    } 
+    {{include '/Templates/assets/css/core.css'}}
+
+  </style>
+</head>
+
+<body>
+  <div id="pageHeader">
+    {{{include '/Templates/iswarya/common/header1.tpl.html' 'tpl'}}}
+  </div> 
+    <div style="text-align:center;font-size: 16px;"><b>Purchase Return Report</b></div>
+    <table class="table1" style="width:100%;"> 
+        <tr style='vertical-align: top'>
+          <td style="width:5%;"><b>FromDate</b></td>
+          <td>:</td>
+          <td style="width:15%;"><b>{{data.FromDate}}</b></td>
+          <td style="width:5%;"><b>ToDate</b></td>
+          <td>:</td>
+          <td style="width:15%;"><b>{{data.ToDate}}</b></td>
+          <td style="width:5%;"><b>Supplier</b></td>
+          <td>:</td>
+          <td style="width:25%;"><b>{{data.VendorName}}</b></td>
+          <td style="width:5%;"><b>Store Name</b></td>
+          <td>:</td>
+          <td style="width:25%;"><b>{{data.StoreName}}</b></td>
+        </tr>  
+      </table> 
+    </br>
+    <table class="table1" style="width:100%;">
+      <tr>
+        <td style="width:5%;"><b>S.No</b></td>
+        <td style="width:5%"><b>Prn Number</b></td> 
+        <td style="width:5%"><b>Prn Date</b></td>
+        <td style="width:5%"><b>Grn Number</b></td> 
+        <td style="width:5%"><b>Grn Date</b></td>
+        <td style="width:10%"><b>Supplier</b></td> 
+        <td style="width:10%"><b>StoreName</b></td>
+        <td style="width:5%"><b>Invoice Number</b></td>
+        <td style="width:10%"><b>Total Gross Amount</b></td>
+        <td style="width:5%"><b>Discount</b></td>
+        <td style="width:5%"><b>Other Charges</b></td>
+        <td style="width:10%"><b>Net Amount</b></td>
+        <td style="width:5%"><b>GST</b></td>
+        <td style="width:5%"><b>PrnStatus</b></td> 
+        <td style="width:10%"><b>Returned By</b></td> 
+      </tr>
+    </table>
+    <table class="table2" style="width:100%;">
+      {{#each data.PurchaseReturn}}
+      <tr>
+        <td style="width:5%;">{{inc @index}}</td>
+        <td style="width:5%;">{{PrnNumber}}</td>
+        <td style="width:5%;">{{datetimeformat PrnDate}}</td>
+        <td style="width:5%;">{{Grn.GrnNumber}}</td>
+        <td style="width:5%;">{{datetimeformat Grn.GrnDate}}</td>
+        <td style="width:10%;">{{VendorMaster.VendorName}}</td>
+        <td style="width:10%;">{{StoreMaster.StoreName}}</td>
+        <td style="width:5%;">{{Grn.InvoiceNumber}}</td> 
+        <td style="width:10%;">{{currencyformat TotalGrossAmount}}</td>
+        <td style="width:5%;">{{currencyformat TotalDiscountAmount}}</td>
+        <td style="width:5%;">{{currencyformat OtherCharges}}</td>
+        <td style="width:10%;">{{currencyformat TotalNetAmount}}</td>
+        <td style="width:5%;">{{currencyformat TotalGstAmount}}</td> 
+        <td style="width:5%;">{{PrnStatus.Description}}</td>  
+        <td style="width:10%;">{{ReturnedUser.Title.Description}} {{ReturnedUser.FirstName}} {{ReturnedUser.LastName}}</td>  
+      </tr>{{/each}}
+    </table>
+    <table class="table2" style="width:100%;"> 
+      <tr>
+        <td style="width:5%;"></td>
+        <td style="width:5%;"></td>
+        <td style="width:5%;"></td>
+        <td style="width:5%;"></td>
+        <td style="width:5%;"></td>
+        <td style="width:10%;"></td>
+        <td style="width:10%;"></td>
+        <td style="width:5%;"></td> 
+        <td style="width:10%;">{{currencyformat data.TotalGrossAmount}}</td>
+        <td style="width:5%;">{{currencyformat data.TotalDiscountAmount}}</td>
+        <td style="width:5%;">{{currencyformat data.TotalOtherAmount}}</td>
+        <td style="width:10%;">{{currencyformat data.TotalNetAmount}}</td>
+        <td style="width:5%;">{{currencyformat data.TotalGstAmount}}</td> 
+        <td style="width:5%;"></td>  
+        <td style="width:10%;"></td>  
+      </tr> 
+    </table>
+
+  </body>
+  <div style="width:100%; font-size:8px;">Printed On: {{now}}</div>
+
+</html>

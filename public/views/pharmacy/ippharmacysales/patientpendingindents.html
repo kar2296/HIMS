@@ -1,0 +1,74 @@
+<style>
+   .btn.btn-default {
+      border-radius: 0px;
+   }
+   b.text-highlight12.plain-text {
+    background-color: #dce512;
+    color: #fff;
+    font-size: 12px;
+    padding: 3px 10px;
+    border-radius: 15px;
+}
+</style>
+<div class="modal-header custom-modal-header">
+   <div class="col-sm-6">
+      <h4 class="modal-title custom-modal-title" translate="Pending Indents"></h4>
+   </div>
+   <div class="col-sm-6">
+      <div class="filters">
+         <img src="../../../../../assets/svg/close.svg" ng-click="cancelCallback()">
+      </div>
+   </div>
+</div>
+<div class="panel-group" aria-multiselectable="true">
+   <div class="panel panel-default" ng-repeat="item in items">
+      <div class="row">
+         <div class="col-sm-12" style="color: #1414ab;">
+            <div class="col-sm-2">
+               <displaydate datetime-val="item.PatientRequestDateTime">
+               </displaydate>
+            </div>
+            <div class="col-sm-1">
+               {{item.PatientRequestNumber}}
+            </div>
+            <div class="col-sm-1">
+               {{item.PatientRequestPriority.Description}}
+            </div>
+            <div class="col-sm-4">
+               <displayuserlbl user="item.RequestedUser"></displayuserlbl>
+            </div>
+            <div class="col-sm-2">
+               {{item.ToStore.StoreName}}
+            </div>
+            <div class="col-sm-1">
+               <b class="text-highlight12 plain-text ng-binding" ng-click="loadData(item)">Load</b>
+            </div>
+            <div class="col-sm-1">
+               <button type="button" class="btn btn-default btn-xs" ng-click="toggleCanShowDetails(item)">
+                  <i class="fa fa-angle-down" aria-hidden="true" ng-show="!item.CanShowDetails"></i>
+                  <i class="fa fa-angle-up" aria-hidden="true" ng-show="item.CanShowDetails"></i>
+               </button>
+            </div>
+         </div>
+      </div>
+      <div class="panel" ng-show="item.CanShowDetails">
+         <div class="panel-body">
+            <div class="">
+               <div class="row" style="margin-top: -20px;margin-bottom: -14px;">
+                  <table style="width: 100%;">
+                     <tr ng-repeat="detail in item.PatientStockRequestDetails" style="border-bottom: 1px solid gainsboro;">
+                        <td class="col-sm-3">
+                           <span><b class="text-highlight3 plain-text">{{detail.ItemName}}({{detail.ItemCode}})</b>
+                           </span>
+                        </td>
+                        <td class="col-sm-1">
+                           <span>&nbsp;<b></b>{{detail.RequestedQuantity}}</span>
+                        </td>
+                     </tr>
+                  </table>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</div>

@@ -1,0 +1,98 @@
+<html>
+
+<head>
+  <style>
+    .table1 {
+      border: 1px solid black;
+      font-size: 8px;
+    }
+    
+    .table2 {
+      border: 1px solid black;
+      border-top: 0px solid black;
+      font-size: 8px;
+    } 
+    
+    {{include '/Templates/assets/css/core.css'}}
+  </style>
+</head>
+
+<body style="margin:0px 40px">
+  <div id="pageHeader">
+    {{{include '/Templates/welcarehospital/common/header.tpl.html' 'tpl'}}}
+  </div>  
+    <div style="text-align:center;font-size: 16px;"><b>Pharmacy Card Collection Report</b></div>
+    <table class="table1" style="width:100%;"> 
+      <tr style='vertical-align: top'>
+        <td style="width:5%;"><b>FromDate</b></td>
+        <td>:</td>
+        <td style="width:15%;"><b>{{data.FromDate}}</b></td>
+        <td style="width:5%;"><b>ToDate</b></td>
+        <td>:</td>
+        <td style="width:15%;"><b>{{data.ToDate}}</b></td>
+        <td style="width:5%;"><b>User Name</b></td>
+        <td>:</td>
+        <td style="width:25%;"><b>{{data.UserName}}</b></td>
+        <td style="width:5%;"><b></b></td>
+        <td></td>
+        <td style="width:25%;"><b></b></td>
+      </tr> 
+    </table> 
+  </br>
+    <table class="table1" style="width:100%;">
+      <tr>
+        <td style="width:6%;"><b>S.No</b></td>
+        <td style="width:9%"><b>Receipt Date</b></td>
+        <td style="width:9%"><b>Receipt No</b></td>
+        <td style="width:9%"><b>Bill No</b></td>
+        <td style="width:12%"><b>Patient Name</b></td>
+        <!-- <td style="width:7%"><b>MRN</b></td> -->
+        <td style="width:9%"><b>Bill Amt</b></td>
+        <td style="width:9%"><b>Receipt Amt</b></td>
+        <td style="width:9%"><b>Payment Type</b></td>
+        <!-- <td style="width:8%"><b>Card Number</b></td> -->
+        <td style="width:9%"><b>Bank Name</b></td>
+        <td style="width:9%"><b>Auth Code</b></td> 
+        <td style="width:10%"><b>Cashier</b></td>
+      </tr>
+    </table>
+    <table class="table2" style="width:100%;">
+      {{#each data.PatientDailyBills}}
+      <tr>
+        <td style="width:6%;">{{inc @index}}</td>
+        <td style="width:9%">{{datetimeformat ReceiptDateTime}}</td>
+        <td style="width:9%">{{ReceiptNumber}}</td>
+        <td style="width:9%">{{PatientBill.BillNumber}}</td>
+        <td style="width:12%">{{PatientInfo}}</td>
+        <!-- <td style="width:7%">{{Patient.MRN}}</td> -->
+        <td style="width:9%">{{currencyformat PatientBill.BillAmount}}</td>
+        <td style="width:9%">{{currencyformat AmountPaid}}</td>
+        <td style="width:9%;">{{PaymentType.Description}}</td>
+        <!-- <td style="width:8%">{{CardNumber}}</td> -->
+        <td style="width:9%">{{Bank.Description}}</td>
+        <td style="width:9%">{{AuthorizedCode}}</td> 
+        <td style="width:10%">{{CreatedUser.Title.Description}} {{CreatedUser.FirstName}} {{CreatedUser.LastName}}</td> 
+      </tr>{{/each}}
+    </table>
+    <table class="table2" style="width:100%">
+      <tr>
+        <td style="width:6%;"></td>
+        <td style="width:9%"></td>
+        <td style="width:9%"></td>
+        <td style="width:9%"></td>
+        <td style="width:12%"></td>
+        <!-- <td style="width:7%"></td> -->
+        <td style="width:9%"></td>
+        <td style="width:9%">{{currencyformat data.TotalAmountPaid}}</td>
+        <td style="width:9%;"></td>
+        <!-- <td style="width:8%"></td> -->
+        <td style="width:9%"></td>
+        <td style="width:9%"></td> 
+        <td style="width:10%"></td> 
+      </tr>
+      </table> 
+      
+  </body>
+  <div style="width:100%; font-size:8px;">Printed On: {{now}}</div>
+
+</html>

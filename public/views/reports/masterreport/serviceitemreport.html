@@ -1,0 +1,181 @@
+<!-- <style>
+    .pager-div {
+        float: right;
+        right: 0;
+        box-sizing: border-box;
+        position: fixed;
+        box-sizing: border-box;
+    }
+    /* .table th{
+    min-width: 10px;
+    background-color: #193b82 !important;
+    color: white !important;
+    font-size: 14px;
+    text-align: center !important;
+    border: 1px solid #101010 !important;
+    WHITE-SPACE: nowrap;
+} */
+.table>thead>tr>th {
+    padding: 9px 5px !important;
+    color: #888;
+}
+</style> -->
+<div class="row page-header">
+    <div class="col-sm-10">
+        <h4 class="mt0" translate="reports.serviceitem.lbl"></h4>
+    </div>
+    <div class="col-sm-2">
+        <div class="filters">
+            <i class="icofont-filter" uib-tooltip="Filter" tooltip-placement="bottom" ng-click="openFilterTab()"></i>
+            <i class="icofont-file-excel" uib-tooltip="Excel" tooltip-placement="bottom"
+                onclick="exportTableToExcel('tblData', 'members-data')"></i>
+            <i class="icofont-print" uib-tooltip="Print" tooltip-placement="bottom" ng-click="print()"></i>
+            <i class="icofont-home" ng-click="backtoReport()" tabindex="-1" uib-tooltip="Report"
+                tooltip-placement="bottom"></i>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <table id="bannerdetails">
+        <tr>
+            <td translate="clinicalmaster.serviceitem-list.filter_department.lbl"></td>
+            <td>
+                <ui-select ng-model="currentfilter.DepartmentId" class="filter-combo">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 15 : 0}}
+                        <span ng-if="$select.selected.Text.length>15">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.Department | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </td>
+            <td translate="clinicalmaster.serviceitem-list.category.lbl"></td>
+            <td>
+                <ui-select ng-model="currentfilter.CategoryId" class="filter-combo">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 15 : 0}}
+                        <span ng-if="$select.selected.Text.length>15">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.ServiceCategory | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </td>
+            <td translate="clinicalmaster.serviceitem-list.filter_status.lbl"></td>
+            <td>
+                <ui-select ng-model="currentfilter.ActiveStatusId" class="filter-combo">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 15 : 0}}
+                        <span ng-if="$select.selected.Text.length>15">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.ActiveStatus | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </td>
+              <td translate="reports.clinics.lbl"></td>
+        <td>
+            <ui-select ng-model="currentfilter.FacilityId" class="filter-combo">
+                <ui-select-match>
+                    {{$select.selected.Text | limitTo : 8 : 0}}
+                    <span ng-if="$select.selected.Text.length>8">...</span>
+                </ui-select-match>
+                <ui-select-choices
+                    repeat="lookupitem.Id as lookupitem in lookup.Facility | filter: { Text: $select.search }">
+                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                </ui-select-choices>
+            </ui-select>
+        </td>
+            <td style="text-align: center;">
+                <button class="loadbtn" ng-click="getList()">
+                    <i class="fas fa-sync loading-icon" aria-hidden="true" uib-tooltip="Search"
+                        tooltip-placement="bottom"></i> <span>Load</span>
+                </button>
+            </td>
+        </tr>
+    </table>
+</div>
+<!-- <div>
+    <i class="icofont-filter" uib-tooltip="Search" tooltip-placement="bottom" ng-click="getList()"></i>
+</div> -->
+<!-- <custom-table config="vm.gridConfig"></custom-table> -->
+<div class="row">
+    <table class="table-hover table-responsive table-bordered" id="tblData">
+        <thead>
+            <tr>
+                <th style="width: 10%;" translate="clinicalmaster.serviceitem-list.itemcode.lbl"></th>
+                <th style="width: 20%;" translate="clinicalmaster.serviceitem-list.itemname.lbl"></th>
+                <th style="width: 18%;" translate="clinicalmaster.serviceitem-list.description.lbl"></th>
+                <th style="width: 10%;" translate="clinicalmaster.serviceitem-list.department.lbl"></th>
+                <th style="width: 18%;" translate="clinicalmaster.serviceitem-list.category.lbl"></th>
+                <th style="width: 10%;" translate="clinicalmaster.serviceitem-list.subcategory.lbl"></th>
+                <th style="width: 10%;" translate="clinicalmaster.serviceitem-list.ratetype.lbl"></th>
+                <th style="width: 6%;" translate="clinicalmaster.serviceitem-list.status.lbl"></th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr ng-repeat="item in ServiceItemData">
+                <td>{{item.ItemCode}}</td>
+                <td>{{item.Name}}</td>
+                <td>{{item.Description}}</td>
+                <td>{{item.Department.DepartmentName}}</td>
+                <td>{{item.ParentCategory.ServiceCategoryName}}</td>
+                <td>{{item.SubCategory.ServiceCategoryName}}</td>
+                <td>
+                    <table>
+                        <tr ng-repeat="tariff in item.ServiceItemTariffDetails">
+                            <td>{{tariff.ServiceRateCategory.Description}}</td>
+                            <td>{{tariff.Rate}}</td>
+                        </tr>
+                    </table>
+                </td>
+                <td>{{item.ActiveStatus.Description}}</td>
+            </tr>
+
+        </tbody>
+    </table>
+</div>
+<div class="fooder-bgs">
+    <div class="row">
+        <ul uib-pagination total-items="vm.gridConfig.pagerObj.totalItems"
+            items-per-page="vm.gridConfig.pagerObj.pageSize" start-index="vm.gridConfig.pagerObj.startIndex"
+            ng-model="vm.gridConfig.pagerObj.currentPage" ng-change="getList()"></ul>
+    </div>
+</div>
+
+<script>
+    function exportTableToExcel(tableID, filename = '') {
+        var downloadLink;
+        var dataType = 'application/vnd.ms-excel';
+        var tableSelect = document.getElementById(tableID);
+        var tableHTML = tableSelect.outerHTML.replace(/ /g, '%20');
+
+        // Specify file name
+        filename = filename ? filename + '.xls' : 'excel_data.xls';
+
+        // Create download link element
+        downloadLink = document.createElement("a");
+
+        document.body.appendChild(downloadLink);
+
+        if (navigator.msSaveOrOpenBlob) {
+            var blob = new Blob(['\ufeff', tableHTML], {
+                type: dataType
+            });
+            navigator.msSaveOrOpenBlob(blob, filename);
+        } else {
+            // Create a link to the file
+            downloadLink.href = 'data:' + dataType + ', ' + tableHTML;
+
+            // Setting the file name
+            downloadLink.download = filename;
+
+            //triggering the function
+            downloadLink.click();
+        }
+    }
+</script>

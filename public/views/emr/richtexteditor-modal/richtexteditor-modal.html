@@ -1,0 +1,161 @@
+<!-- <style>
+    .modal-full {
+        width: 90%!important;
+    }
+
+    button.btn.btn-biotic.btn-xs {
+        background-color: sandybrown;
+        color: white;
+    }
+
+    .modal-dialog.modal-full .row.ng-scope {
+        margin-top: 0px !important;
+    }
+
+    .ui-select-bootstrap>.ui-select-choices,
+    .ui-select-bootstrap>.ui-select-no-choice {
+        width: 125% !important;
+        height: auto;
+        max-height: 200px;
+        overflow-x: hidden;
+        margin-top: -1px;
+    }
+    button.btn.btn-biotic.btn-sm.ng-scope{
+        background: #0b40fff7;
+        border: 1px solid #ffa500;
+        color: #fff;
+    }
+        body.cke_editable.cke_editable_themed.cke_contents_ltr.cke_show_borders {
+        font-size: 32px;
+    }
+    .form-group {
+    margin: 3px !important;
+    border-bottom: unset;
+}
+</style> -->
+<style>
+    button.draftbutton.btns {
+        padding: 0 20px;
+        margin-top: 30px;
+    }
+</style>
+<div class="modal-header custom-modal-header">
+    <div class="col-sm-10">
+        <h4 class="modal-title custom-modal-title" translate="common.richtexteditor.lbl"></h4>
+    </div>
+    <div class="col-sm-2">
+        <div class="filters">
+            <img src="../../../../../assets/svg/close.svg" ng-click="cancelCallback()">
+        </div>
+    </div>
+</div>
+
+<!-- <div class="modal-header custom-modal-header">
+    <h4 class="modal-title custom-modal-title col-sm-10" translate="common.richtexteditor.lbl"></h4>
+    <div class="col-sm-2"> 
+        <button id="btnCancelForm"  style="float: right;" type="button" class="draftbutton" ng-click="cancelCallback()" translate="X"></button>
+    </div>
+</div> -->
+
+<div class="row">
+    <div class="col-sm-12">
+        <form id="item_form" name="item_form" class="form-horizontal" role="form" ng-submit="saveItem()">
+            <div class="formRoot">
+                <div class="panel-body form-panel">
+                    <div class="col-sm-12" style="margin-top:10px">
+                        <div class="col-sm-3" ng-if="currentcontext.CanShowNoteTemplate">
+                            <div class="form-group">
+                                <label class="col-sm-12 control-label" for="templatename"
+                                    translate="common.templatename.lbl"></label>
+                                <div class="col-sm-12">
+                                    <ui-select ng-model="currentcontext.NoteTemplateId" name="templatename"
+                                        ng-change="onNoteTemplateChange()">
+                                        <ui-select-match>
+                                            {{$select.selected.Text | limitTo : 35 : 0}}
+                                            <span ng-if="$select.selected.Text.length>35">...</span>
+                                        </ui-select-match>
+                                        <ui-select-choices
+                                            repeat="lookupitem.Id as lookupitem in Template | filter: { Text: $select.search }">
+                                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                        </ui-select-choices>
+                                    </ui-select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-3" ng-if="currentcontext.CanShowNoteTemplate">
+                            <div class="form-group">
+                                <label class="col-sm-12 control-label" for="templatename"
+                                    translate="clinicalmaster.impressionmaster.impressions.lbl"></label>
+                                <div class="col-sm-10">
+                                    <ui-select ng-model="currentcontext.ImpressionId" name="templatename"
+                                        ng-change="onImpressionChange()">
+                                        <ui-select-match>
+                                            {{$select.selected.Text | limitTo : 35 : 0}}
+                                            <span ng-if="$select.selected.Text.length>35">...</span>
+                                        </ui-select-match>
+                                        <ui-select-choices
+                                            repeat="lookupitem.Id as lookupitem in lookup.Impression | filter: { Text: $select.search }">
+                                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                        </ui-select-choices>
+                                    </ui-select>
+                                </div>
+                                <div class="col-sm-1">
+                                    <button type="button" class="btn-add"
+                                        style="margin-right: -21px !important; margin-top: -1px !important;"
+                                        tabindex="-1" ng-click="addimpresion()"
+                                        uib-tooltip="{{ 'clinicalmaster.impressionmaster.impressions.lbl' | translate }}"
+                                        tooltip-placement="bottom">
+                                        <i class="fa fa-plus" aria-hidden="true"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-3" ng-if="currentcontext.CanShowNoteTemplate">
+                            <div class="form-group">
+                                <label class="col-sm-12 control-label" for="templatename"
+                                    translate="clinicalmaster.clinicalfindings.pagetitle.lbl"></label>
+                                <div class="col-sm-10">
+                                    <ui-select ng-model="currentcontext.ClinicalFindingsId" name="templatename"
+                                        ng-change="onFindingsChange()">
+                                        <ui-select-match>
+                                            {{$select.selected.Text | limitTo : 35 : 0}}
+                                            <span ng-if="$select.selected.Text.length>35">...</span>
+                                        </ui-select-match>
+                                        <ui-select-choices
+                                            repeat="lookupitem.Id as lookupitem in lookup.ClinicalFindings | filter: { Text: $select.search }">
+                                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                        </ui-select-choices>
+                                    </ui-select>
+                                </div>
+                                <div class="col-sm-1">
+                                    <button type="button" class="btn-add" tabindex="-1"
+                                        style="margin-right: -21px !important; margin-top: -1px !important;"
+                                        ng-click="addfindings()"
+                                        uib-tooltip="{{ 'clinicalmaster.clinicalfindings.pagetitle.lbl' | translate }}"
+                                        tooltip-placement="bottom">
+                                        <i class="fa fa-plus" aria-hidden="true"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-3">
+                            <button type="button" class="draftbutton btns" tabindex="-1" ng-click="antibiotics()"
+                                uib-tooltip=" Antibiotics" tooltip-placement="bottom">
+                                <span>Antibiotics</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="col-sm-12" style="padding-top:10px">
+                        <richtexteditor height="90%" inserthtml="addondata" richtext="vm.editortext"></richtexteditor>
+                    </div>
+                </div>
+            </div>
+            <div class="fooder-bgs" style="margin-bottom: 4px !important;">
+                <div class="pull-right">
+                    <button type="button" class="draftbutton" translate="common.applyaction.lbl"
+                        ng-click="vm.applyClick()"></button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

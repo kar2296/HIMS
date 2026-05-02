@@ -1,0 +1,134 @@
+<style>
+    .nav-tabs>li>a {
+        padding: 4px 15px;
+    }
+    .profile-header {
+        color: white;
+        padding-top: 2px;
+        padding-bottom: 2px;
+    }
+    #overwrite {
+        border-bottom: none !important;
+        color: #fff;
+        border-top: none !important;
+        background: none !important;
+        border-left: none !important;
+        border-right: none !important;
+    }
+    #overwrite>div table tr>td {
+        padding-left: 20px;
+        white-space: nowrap;
+    }
+    #overwrite>div table tr td>b {
+        color: #fff5b8;
+    }
+    .static {
+        color: #e066d9;
+    }
+    button.btn.bt-color2.btn-xs.pull-right.btn-filter {
+        margin: 0px !important;
+    }
+    .label {
+        color: teal;
+        font-weight: 500;
+        font-size: 14px;
+    }
+    .data {
+        color: deeppink;
+        font-size: 14px;
+        font-weight: 700;
+    }
+    .mt0 {
+        margin-top: 0 !important;
+        color: black;
+    }
+    .nav-tabs>li.active>a,
+    .nav-tabs>li.active>a {
+        background: crimson !important;
+    }
+     .nav-tabs>li>a {
+        background: #eadfb5;
+        color: #000;
+    }
+    .nav-tabs>li>.active {
+        background: crimson !important;
+    }
+    #fullregistrationheight .formRoot {
+        height: 72vh !important;
+    }
+    .ottabdoct_name {
+        text-overflow: ellipsis;
+        overflow: hidden;
+        width: 138px;
+        float: right;
+        white-space: nowrap;
+        display: block;
+        clear: both;
+    }
+</style>
+
+<div class="row page-header mt0">
+    <div class="col-sm-12">
+        <div class="col-sm-2 pd0">
+            <h4 class="mt0" translate="otregister-list.pagetitle.lbl"></h4>
+        </div>
+        <div class="col-sm-2 pd0">
+            <span ng-if="SelectedItem.OTIdentifier">
+                <label class="label">OT Entry No. :</label>
+                <span class="data">{{SelectedItem.OTIdentifier}}</span>
+            </span>
+        </div>
+        <div class="col-sm-2 pd0">
+            <span ng-if="SelectedItem.OtDate">
+                <label class="label">OT Date :</label>
+                <span
+                    class="data">{{SelectedItem.OtDate | date : 'dd-MMM-yyyy'}}&nbsp;{{SelectedItem.OtDate | date : 'HH:mm' }}
+                </span>
+            </span>
+        </div>
+        <div class="col-sm-2 pd0">
+            <span ng-if="SelectedItem.ChiefSurgeon">
+                <label class="label">Doctor :</label>
+                <span class="data ottabdoct_name">{{SelectedItem.ChiefSurgeon}}</span>
+            </span>
+        </div>
+        <div class="col-sm-2">
+            <span ng-if="SelectedItem.OTRegisterStatusId">
+                <label class="label">Status :</label>
+                <span class="data">{{SelectedItem.OTRegisterStatusId}}</span>
+            </span>
+        </div>
+        <div class="col-sm-2 pull-right pd0">
+            <span ng-click="bedboard()" ng-if="userid == 2">
+                <a href="/www/index.html#/app/doctordashboard">
+                    <img src="app/img/main/download.png" class="img-responsive icon_home" alt="home"
+                        uib-tooltip=" Doctor Dashboard " tooltip-placement="bottom">
+                </a>
+            </span>
+            <button type="button" ng-hide="userid == 2" class="pull-right text-white btn prv-color12 btn-xs"
+                uib-tooltip="{{'OT Requests'}}" tooltip-placement="bottom" ng-click="findRequests()"
+                ng-if="currentcontext.id==0">OT Requests</button>
+            <button type="button" class="pull-right btn bt-color2 btn-xs" uib-tooltip="OT Schedule"
+                tooltip-placement="bottom" ng-click="otSchedule()" ng-if="currentcontext.id == 0">OT Schedule</button>
+            <button type="button" class="btn bt-color2 btn-xs pull-right btn-filter" ng-hide="userid == 2"
+                ng-click="addNew()" uib-tooltip="{{ 'otregister-list.addnew-tooltip.lbl' | translate }}"
+                tooltip-placement="bottom">
+                <i class="fa fa-plus" aria-hidden="true"></i>
+                &nbsp;&nbsp;
+                <!-- <span translate="clinicalmaster.serviceitem-list.addnew.lbl"></span> -->
+            </button>
+        </div>
+    </div>
+</div>
+<patientbanner patientid="SelectedItem.PatientId" ng-if="SelectedItem.PatientId"></patientbanner>
+<br>
+<div class="row">
+    <div class="col-sm-12">
+        <uib-tabset active="active">
+            <uib-tab index="$index" ng-repeat="tab in tabs" heading="{{tab.title}}" ng-click="switchTab(tab)"
+                disable="tab.canDisable">
+            </uib-tab>
+        </uib-tabset>
+        <div ui-view></div>
+    </div>
+</div>

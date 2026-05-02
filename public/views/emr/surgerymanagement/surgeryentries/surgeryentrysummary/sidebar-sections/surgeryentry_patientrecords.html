@@ -1,0 +1,407 @@
+<link rel="stylesheet" href="app/css/drhms.css">
+<style>
+    body {
+        color: #1e1e1e;
+    }
+
+    .patient-record-boxshadow {
+        background: #FFFFFF;
+        box-shadow: 0px 0px 10px rgb(0 0 0 / 25%);
+        padding: 5px;
+    }
+
+    .patient-record-header {
+        display: flex;
+        justify-content: space-between;
+        border-bottom: 2px solid #00bcd4;
+        margin-bottom: 10px;
+        box-shadow: #00bcd4 0px 7px 7px -11px;
+    }
+
+    .patient-record-title {
+        font-weight: 500;
+    }
+
+    .profile-pic-info {
+        width: 90%;
+    }
+
+    .patient-profile-info {
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .contact-info-hr-lines {
+        border: 1.5px solid #00bcd4;
+        display: flex;
+        position: relative;
+        justify-content: space-between;
+        margin-top: 20px;
+    }
+
+    .contact-info-hr-lines:before {
+        content: "Name & Contact";
+        position: absolute;
+        color: #00bcd4;
+        left: 23px;
+        top: -12px;
+        background: #fff;
+        padding: 0 20px;
+        padding: 0 10px;
+    }
+
+    .contact-info-hr-lines:after {
+        content: "\f04d Emergency";
+        position: absolute;
+        background: #fff;
+        color: #e09478;
+        padding: 0 20px;
+        right: 40px;
+        font-family: 'FontAwesome';
+        top: -12px;
+    }
+
+    .contact-info {
+        width: 90%;
+        margin-top: 20px;
+    }
+
+    .profile-pic img {
+        width: 100px;
+        height: 100px;
+        border-radius: 50px;
+        border: 1px solid #ccc;
+        padding: 2px;
+    }
+
+    .contact-person-profile img {
+        width: 100px;
+    }
+
+    .contact-person-profile {
+        margin: 14px 10px;
+    }
+
+    .patient-mrn-number {
+        display: flex;
+        justify-content: space-between;
+        border-bottom: 1.5px solid #00bcd4;
+        color: #00bcd4;
+    }
+
+    .content-details {
+        display: flex;
+        /* justify-content: space-between; */
+        font-size: 12px;
+    }
+
+    .content-details span {
+        padding-right: 25px;
+    }
+
+    .visit-info {
+        display: flex;
+        /* justify-content: space-between; */
+        font-size: 12px;
+    }
+
+    .visit-info span {
+        padding-right: 40px;
+    }
+
+    .allergy {
+        font-size: 12px;
+    }
+
+    .specil-color {
+        color: #DA0404;
+        font-weight: 500;
+    }
+
+    .content-details span i {
+        padding-right: 8px;
+    }
+
+    .navyblue {
+        color: #00bcd4;
+    }
+
+    .contact-info div p {
+        margin: 0;
+    }
+
+    .update-pic-button {
+        display: flex;
+        justify-content: space-evenly;
+        margin-top: 10px
+    }
+
+    button.update-profile-btn {
+        background: #4caf50;
+        color: #fff;
+        border: 0;
+        border-radius: 4px;
+    }
+
+    button.remove-profile-btn {
+        background: #DA0404;
+        color: #fff;
+        border: 0;
+        border-radius: 4px;
+    }
+
+    .general-details {
+        border: 1.5px solid #00bcd4;
+        height: 50vh;
+        margin-top: 20px;
+        position: relative;
+    }
+
+    .general-details div p {
+        margin: 0;
+    }
+
+    .general-details:before {
+        content: "General Details";
+        position: absolute;
+        color: #00bcd4;
+        left: 23px;
+        top: -12px;
+        background: #fff;
+        padding: 0 10px;
+    }
+
+    .visit-details {
+        border: 1.5px solid #00bcd4;
+        height: 30vh;
+        margin-top: 20px;
+        position: relative;
+    }
+
+    .visit-details div p {
+        margin: 0;
+    }
+
+    .visit-details:before {
+        content: "Visit Information";
+        position: absolute;
+        color: #00bcd4;
+        left: 23px;
+        top: -12px;
+        background: #fff;
+        padding: 0 10px;
+    }
+
+    .manditary-lable {
+        color: #e91e63;
+    }
+</style>
+<div class="row">
+    <div class="patient-record-boxshadow">
+        <div class="patient-record-header">
+            <div class="patient-record-title" translate="patientemr.patientdiagnosis-list.patientrecords.lbl"></div>
+            <div>
+                <span class="drhms-billing-btn drhms-outstandingbill-btn" ng-click="surgerydashboard()"
+                    uib-tooltip="{{'surgeryschedule-list.pagetitle1.lbl' | translate}}" tooltip-placement="bottom">
+                    <i class="fas fa-th-large" aria-hidden="true"></i>
+                </span>
+            </div>
+        </div>
+        <div class="patient-profile-info">
+            <div class="profile-pic" ng-show="!item.iswebcamphoto">
+                <img tabindex="-1" ng-show="!!currentcontext.file" ngf-thumbnail="currentcontext.file">
+                <img ng-show="!currentcontext.file &amp;&amp; item.PhotoPath"
+                    data-ng-src="data:image/png;base64,{{currentcontext.Photo}}" tabindex="-1"
+                    src="app/img/main/img.jpg">
+                <img ng-show="!currentcontext.file &amp;&amp; !item.PhotoPath" src="app/img/main/img.jpg" tabindex="-1">
+            </div>
+            <div class="profile-pic-info">
+                <div class="patient-mrn-number">
+                    <div>{{item.PatientName ? item.PatientName: '-'}}</div>
+                    <div>{{item.MRN ? item.MRN: '-'}} &nbsp;
+                        <i class="fas fa-user"></i>
+                    </div>
+                </div>
+                <div class="content-details">
+                    <span>
+                        <i class="fas fa-mobile"></i>{{item.Mobile ? item.Mobile : '-'}}</span>
+                    <span>
+                        <i class="fas fa-envelope"></i> {{item. Email ? item.Email:'-'}}</span>
+                    <span>
+                        <i class="fas fa-flag"></i>{{item.Nationality ? item.Nationality: '-'}}</span>
+                    <span class="specil-color">
+                        <i class="fas fa-tint"></i>
+                        {{item.BloodGroup ? item.BloodGroup: '-'}}</span>
+                    <span>
+                        <i class="fas fa-id-card"> </i>
+                        NationalityId:{{item.NationalityIdentifier ? item.NationalityIdentifier: '-'}}</span>
+
+                </div>
+                <div class="visit-info">
+                    <span>Admission Date &nbsp;&nbsp;
+                        <span class="navyblue">
+                            <displaydate datetime-val="item.AdmissionDate"></displaydate>
+                        </span>
+                    </span>
+                    <span>Record From &nbsp;&nbsp;
+                        <span class="navyblue">
+                            <displaydate datetime-val="item.CreatedAt"></displaydate>
+                        </span>
+                    </span>
+                </div>
+                <div class="allergy">Allergy &nbsp;&nbsp;
+                    <span class="specil-color">{{AdmissionRequestType.Description ? AdmissionRequestType.Description: '-'}}</span>
+                </div>
+            </div>
+        </div>
+        <div class="contact-info-hr-lines">
+            <div class="contact-info">
+                <div class="col-sm-3">
+                    <label for="">Salutation</label>
+                    <p>{{item.Title ? item.Title: '-'}}</p>
+                </div>
+                <div class="col-sm-3">
+                    <label for="" class="manditary-lable">First Name</label>
+                    <p>{{item.FirstName ? item.FirstName: '-'}}</p>
+                </div>
+                <div class="col-sm-3">
+                    <label for="">Middle Name</label>
+                    <p>{{item.MiddleName ? item.MiddleName: '-'}}</p>
+                </div>
+                <div class="col-sm-3">
+                    <label for="" class="manditary-lable">Last Name</label>
+                    <p>{{item.LastName ? item.LastName: '-'}}</p>
+                </div>
+                <div class="col-sm-3">
+                    <label for="" class="manditary-lable">Mobile No.</label>
+                    <p>+91 {{item.Mobile ? item.Mobile: '-'}}</p>
+                </div>
+                <div class="col-sm-3">
+                    <label for="">Country Code</label>
+                    <p>
+                        <i class="fas fa-globe-asia"></i>
+                        <span>{{item.CityId ? item.CityId: '-'}}</span>
+                    </p>
+                </div>
+                <div class="col-sm-3">
+                    <label for="" class="manditary-lable">Default Email ID</label>
+                    <p>{{item.Email ? item.Email : '-'}}</p>
+                </div>
+            </div>
+        </div>
+        <div class="general-details">
+            <div class="col-sm-3">
+                <label for="" class="manditary-lable">DOB</label>
+                <p>{{item.DOB ? item.DOB: '-'}}</p>
+            </div>
+            <div class="col-sm-3">
+                <label for="">Age</label>
+                <p>{{item.Age ? item.Age: '-'}}</p>
+            </div>
+            <div class="col-sm-3">
+                <label for="" class="manditary-lable">Gender</label>
+                <p>{{item.Gender ? item.Gender: '-'}}</p>
+            </div>
+            <div class="col-sm-3">
+                <label for="">Blood Group</label>
+                <p>{{item.BloodGroup ? item.BloodGroup: '-'}}</p>
+            </div>
+            <div class="col-sm-3">
+                <label for="">VIP Status</label>
+                <p>{{item.VIP ? item.VIP: '-'}}</p>
+            </div>
+            <div class="col-sm-3">
+                <label for="">Country</label>
+                <p>{{item.Country ? item.Country: '-'}}</p>
+            </div>
+            <div class="col-sm-3">
+                <label for="">State</label>
+                <p>{{item.State ? item.State: '-'}}</p>
+            </div>
+            <div class="col-sm-3">
+                <label for="">City</label>
+                <p>{{item.City ? item.City: '-'}}</p>
+            </div>
+            <div class="col-sm-3">
+                <label for="">Area</label>
+                <p>{{item.AddressLine1}},{{item.AddressLine2}}</p>
+            </div>
+            <div class="col-sm-3">
+                <label for="">Payer Name</label>
+                <p>{{item.GuarantorName ? item.GuarantorName: '-'}}</p>
+            </div>
+            <div class="col-sm-3">
+                <label for="" class="manditary-lable">Nationality</label>
+                <p>{{item.Nationality ? item.Nationality: '-'}}</p>
+            </div>
+            <!-- <div class="col-sm-3">
+                <label for="">Nationality ID</label>
+                <p>{{item.NationalityId}}</p>
+            </div> -->
+            <div class="col-sm-3">
+                <label for="">Passpost No.</label>
+                <p>{{item.PasspostNumber ? item.PasspostNumber: '-'}}</p>
+            </div>
+            <div class="col-sm-3">
+                <label for="">Attender Name</label>
+                <p>{{item.AttenderName ? item.AttenderName: '-'}}</p>
+            </div>
+            <div class="col-sm-3">
+                <label for="">Attender Phone</label>
+                <p>{{item.AttenderPhone ? item.AttenderPhone: '-'}}</p>
+            </div>
+        </div>
+        <div class="visit-details">
+            <div class="col-sm-3">
+                <label for="" class="manditary-lable">Doctor Name</label>
+                <p>{{item.DoctorName ? item.DoctorName: '-'}}</p>
+            </div>
+            <div class="col-sm-3">
+                <label for="">Department</label>
+                <p>{{item.Department ? item.Department: '-'}}</p>
+            </div>
+            <div class="col-sm-3">
+                <label for="" class="manditary-lable">Admission Date</label>
+                <p>
+                    <displaydate datetime-val="item.AdmissionDate"></displaydate>
+                </p>
+            </div>
+            <div class="col-sm-3">
+                <label for="">Visit No.</label>
+                <p>{{item.VisitIdentifier ? item.VisitIdentifier: '-'}}</p>
+            </div>
+            <div class="col-sm-3" ng-if="item.EncounterTypeId==1">
+                <label for="">Visit Type</label>
+                <p>{{item.VisitType}}</p>
+            </div>
+            <div class="col-sm-3" ng-if="item.EncounterTypeId==1">
+                <label for="">Encounter Type</label>
+                <p>{{item.EncounterType}}</p>
+            </div>
+            <div class="col-sm-3" ng-if="item.EncounterTypeId==2">
+                <label for="" class="manditary-lable">WardDetails</label>
+                <p>{{item.WardName}}</p>
+            </div>
+            <div class="col-sm-3" ng-if="item.EncounterTypeId==2">
+                <label for="">Encounter Type</label>
+                <p>{{item.EncounterType}}</p>
+            </div>
+            <div class="col-sm-3">
+                <label for="">Visit Reason</label>
+                <p>{{item.Remark ? item.Remark: '-'}}</p>
+            </div>
+            <div class="col-sm-3">
+                <label for="">Diagnosis</label>
+                <p>{{item.OtherDiagnosis ? item.OtherDiagnosis: '-'}}</p>
+            </div>
+            <div class="col-sm-3">
+                <label for="">Referral Type</label>
+                <p>{{Encounter.ReferralType.Description ? Encounter.ReferralType.Description: '-'}}</p>
+            </div>
+            <div class="col-sm-3">
+                <label for="">Referral Name</label>
+                <p>{{Encounter.ReferralName ? Encounter.ReferralName: '-'}}</p>
+            </div>
+        </div>
+    </div>
+</div>

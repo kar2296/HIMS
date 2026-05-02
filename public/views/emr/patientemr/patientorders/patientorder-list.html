@@ -1,0 +1,271 @@
+<style>
+    .priority {
+        background-color: rgba(241, 208, 63, 0.34);
+    }
+
+    .icon_emrboard {
+        width: 5%;
+        float: right;
+        margin-right: 1%;
+    }
+
+    .icon_home {
+        width: 5%;
+        float: right;
+    }
+
+    @media (min-height: 637px) and (min-width: 1200px) {
+        #patientsearchheight .ui-grid-viewport {
+            height: 388px !important;
+            min-height: 420px;
+        }
+    }
+
+    @media (min-height: 675px) and (min-width: 1360px) {
+        #patientsearchheight .ui-grid-viewport {
+            height: 440px;
+            min-height: 447px;
+        }
+    }
+
+    @media (device-height:100vh) and (device-width:100vw) {
+        #patientsearchheight .ui-grid-viewport {
+            min-height: 520px;
+        }
+    }
+
+    .nopad {
+        padding: 0px;
+    }
+</style>
+<div id="prescriptionpagecontrol">
+    <div class="row page-header">
+        <div class="col-sm-12">
+            <div class="col-sm-6">
+                <h4 class="page-header mt0" translate="patientemr.patientorder-list.pagetitle.lbl"></h4>
+            </div>
+            <div class="col-sm-6">
+                <div class="filters">
+                    <div class="search">
+                        <!-- <span ng-click="doctor_dashboard()" ng-hide="currentcontext.context == 'main'">
+                    <img src="app/img/download.png" class="img-responsive icon_home" alt="home" uib-tooltip=" Doctor Dashboard " tooltip-placement="bottom">
+                </span>
+                <span ng-click="patient_dashboard()" ng-hide="currentcontext.context == 'main'">
+                    <!-- <i class="bedicon pull-right" uib-tooltip="Bed Management " tooltip-placement="bottom"></i> --
+                    <img src="app/img/patdash.png" class="img-responsive icon_emrboard" alt="home" uib-tooltip="Patient Dashboard" tooltip-placement="bottom">
+                </span> -->
+                        <input type="text" id="pid" class="form-control" name="filter_patient" on-enter="getList()"
+                            ng-model="currentfilter.patient" translate
+                            translate-attr-placeholder="patientemr.patientorder-list.filter_patient.lbl">
+                        <i class="fas fa-search" aria-hidden="true"></i>
+                    </div>
+                    <!-- <button class="btn bt-color3 btn-xs pull-right btn-filter" ng-click="openAdvancedFilter()" uib-tooltip="{{'clinicalmaster.serviceitem-list.filter-tooltip.lbl' | translate }}"
+                    tooltip-placement="bottom">
+                    <i class="fas fa-search" aria-hidden="true"></i>&nbsp;&nbsp;
+                    <span translate="clinicalmaster.serviceitem-list.filter.lbl"></span>
+                </button> -->
+                    <button class="btn-add" ng-click="addNewOrder()"
+                        uib-tooltip="{{ 'patientemr.patientorder-list.pagetitle.lbl' | translate }}"
+                        tooltip-placement="bottom">
+                        <i class="fa fa-plus" aria-hidden="true"></i>
+                        <!--  -->
+                    </button>
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <table id="bannerdetails">
+        <tr>
+            <td translate="patientemr.patientorder-list.filter_priority.lbl"></td>
+            <td> <ui-select ng-model="currentfilter.orderpriorityid" ng-change="getList()" class="filter-combo">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 8 : 0}}
+                        <span ng-if="$select.selected.Text.length>8">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.OrderPriority | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select></td>
+            <td translate="patientemr.patientorder-form.orderdateandtime.lbl"></td>
+            <td>
+                <input type="text" class="form-control" ng-disabled="item.isAdmitted" name="admissiondate"
+                    ng-change="getList()" ng-date-object datepicker-options="datePickerOptions"
+                    show-button-bar="{{datePickerOptions.showButtonBar}}"
+                    uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                    placeholder="{{datePickerOptions.placeholder}}" ng-click="OrderDateDatePopup = { opened: true }"
+                    is-open="OrderDateDatePopup.opened" ng-model="currentfilter.OrderDate" tabindex="-1">
+            </td>
+            <td translate="patientemr.patientorder-list.filter_status.lbl"></td>
+            <td>
+                <ui-select ng-model="currentfilter.orderstatusid" ng-change="getList()" class="filter-combo">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 8 : 0}}
+                        <span ng-if="$select.selected.Text.length>8">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.OrderStatus | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </td>
+        </tr>
+    </table>
+    <!-- <div class="row filter-area">
+        <div class="col-sm-12 nopad">
+            <div class="col-sm-3" ng-if="canShowPatientFilter()">
+                <label class="col-sm-4 control-label filter-lbl" translate="patientemr.patientorder-list.filter_patient.lbl"></label>
+                <div class="col-sm-8">
+                    <input type="text" class="form-control" name="filter_patient" on-enter="getList()" ng-model="currentfilter.patient" translate
+                        translate-attr-placeholder="patientemr.patientorder-list.filter_patient.lbl">
+                </div>
+            </div> -->
+    <!-- <div class="col-sm-3">
+                <label class="col-sm-4 control-label filter-lbl" translate="patientemr.patientorder-list.filter_priority.lbl"></label>
+                <div class="col-sm-8">
+                    <ui-select ng-model="currentfilter.orderpriorityid" ng-change="getList()" class="filter-combo">
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 8 : 0}}
+                            <span ng-if="$select.selected.Text.length>8">...</span>
+                        </ui-select-match>
+                        <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.OrderPriority | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div> -->
+    <!-- <div class="col-sm-3 nopad" ng-if="canShowPatientFilter()">
+                <label class="col-sm-4 nopad control-label filter-lbl" translate="patientemr.patientorder-list.visit.lbl"></label>
+                <div class="col-sm-8">
+                    <ui-select ng-model="currentfilter.VisitTypeId" ng-change="getList()" class="filter-combo">
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 8 : 0}}
+                            <span ng-if="$select.selected.Text.length>8">...</span>
+                        </ui-select-match>
+                        <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.EncounterType | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div> -->
+    <!-- <div class="col-sm-3" ng-if="!canShowPatientFilter()">
+                <label class="col-sm-4 control-label filter-lbl" translate="patientemr.patientorder-list.ordertype.lbl"></label>
+                <div class="col-sm-8">
+                    <ui-select ng-model="currentfilter.TestTypeId" ng-change="getList()" class="filter-combo">
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 8 : 0}}
+                            <span ng-if="$select.selected.Text.length>8">...</span>
+                        </ui-select-match>
+                        <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.TESTMASTERTYP | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div> -->
+    <!-- <div class="col-sm-3" ng-if="!canShowPatientFilter()">
+                <label class="col-sm-4 control-label filter-lbl" translate="patientemr.patientorder-list.filter_status.lbl"></label>
+                <div class="col-sm-8">
+                    <ui-select ng-model="currentfilter.orderstatusid" ng-change="getList()" class="filter-combo">
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 8 : 0}}
+                            <span ng-if="$select.selected.Text.length>8">...</span>
+                        </ui-select-match>
+                        <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.OrderStatus | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div> -->
+    <!-- </div>
+            <div class="col-sm-3 nopad" ng-if="canShowPatientFilter()">
+                <label class="col-sm-4 control-label filter-lbl" translate="patientemr.patientorder-list.opipno.lbl"></label>
+                <div class="col-sm-8">
+                    <input type="text" class="form-control" name="order" on-enter="getList()" ng-model="currentfilter.VisitIdentifier" placeholder="OP/IP No">
+                </div>
+            </div> -->
+    <!--<div class="col-sm-4" ng-if="!canShowPatientFilter()"></div>-->
+    <!-- </div> -->
+    <!-- <div class="col-sm-12 nopad">
+            <div class="col-sm-3" ng-if="canShowPatientFilter()">
+                <label class="col-sm-4 control-label filter-lbl" translate="patientemr.patientorder-list.order.lbl"></label>
+                <div class="col-sm-8">
+                    <input type="text" class="form-control" name="order" on-enter="getList()" ng-model="currentfilter.OrderNumber" placeholder="Order#">
+                </div>
+            </div> -->
+    <!--<div class="col-sm-3">
+                <label class="col-sm-4 control-label filter-lbl" for="orderedby" translate="patientemr.patientorder-form.orderedby.lbl"></label>
+                <div class="col-sm-8">
+                    <ui-select ng-model="currentfilter.DoctorId" ng-change="getList()" c
+                    lass="filter-combo">
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 8 : 0}}
+                            <span ng-if="$select.selected.Text.length>8">...</span>
+                        </ui-select-match>
+                        <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.Doctor | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+            <div class="col-sm-3" ng-if="canShowPatientFilter()">
+                <label class="col-sm-4 control-label" for="orderfrom" translate="patientemr.patientorder-form.orderfrom.lbl"></label>
+                <div class="col-sm-8">
+                    <ui-select ng-model="currentfilter.OrderFromId" ng-change="getList()" class="filter-combo">
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 8 : 0}}
+                            <span ng-if="$select.selected.Text.length>8">...</span>
+                        </ui-select-match>
+                        <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.Department | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>-->
+    <!-- <div class="col-sm-3 nopad" ng-if="canShowPatientFilter()">
+                <label class="col-sm-4 control-label filter-lbl" translate="patientemr.patientorder-form.orderdateandtime.lbl"></label>
+                <div class="col-sm-8">
+                        translate="patientemr.patientorder-form.orderdateandtime.lbl"
+                    <input type="text" class="form-control" ng-disabled="item.isAdmitted" name="admissiondate" ng-change="getList()" ng-date-object
+                        datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}" uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                        placeholder="{{datePickerOptions.placeholder}}" ng-click="OrderDateDatePopup = { opened: true }" is-open="OrderDateDatePopup.opened"
+                        ng-model="currentfilter.OrderDate" tabindex="-1">
+                </div>
+            </div> -->
+    <!-- <div class="col-sm-3 nopad" ng-if="canShowPatientFilter()">
+                <label class="col-sm-4 control-label filter-lbl" translate="patientemr.patientorder-list.filter_status.lbl"></label>
+                <div class="col-sm-8">
+                        translate="patientemr.patientorder-list.filter_status.lbl"
+                    <ui-select ng-model="currentfilter.orderstatusid" ng-change="getList()" class="filter-combo">
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 8 : 0}}
+                            <span ng-if="$select.selected.Text.length>8">...</span>
+                        </ui-select-match>
+                        <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.OrderStatus | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div> -->
+    <!--<div class="col-sm-3">
+                <label class="col-sm-5 col-md-4 control-label filter-lbl" translate="patientemr.patientorder-form.orderdateandtime.lbl"></label>
+                <div class="col-sm-7 col-md-8">
+                    <input type="text" class="form-control" name="OrderReqDate" ng-change="getList()" datepicker-options="datePickerOptions"
+                        show-button-bar="{{datePickerOptions.showButtonBar}}" uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                        placeholder="{{datePickerOptions.placeholder}}" ng-click="OrderReqDatePopup = { opened: true }" is-open="OrderReqDatePopup.opened"
+                        ng-model="currentfilter.OrderDate">
+                </div>
+            </div>-->
+    <!--<div class="col-sm-4" ng-if="!canShowPatientFilter()"></div>-->
+    <!-- </div>
+    </div> -->
+
+    <div class="container-fluid" id="patientsearchheight">
+        <custom-table config="vm.gridConfig"></custom-table>
+        <div class="fooder-bgs">
+            <ul uib-pagination total-items="vm.gridConfig.pagerObj.totalItems"
+                items-per-page="vm.gridConfig.pagerObj.pageSize" start-index="vm.gridConfig.pagerObj.startIndex"
+                ng-model="vm.gridConfig.pagerObj.currentPage" ng-change="getList()"></ul>
+
+        </div>
+    </div>
+</div>

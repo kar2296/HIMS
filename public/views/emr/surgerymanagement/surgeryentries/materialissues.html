@@ -1,0 +1,177 @@
+<style>
+    .pl-3 {
+        padding-left: 3%;
+    }
+
+    .priority {
+        background-color: rgba(241, 208, 63, 0.34);
+    }
+
+    .icon_emrboard {
+        width: 5%;
+        float: right;
+        margin-right: 1%;
+    }
+
+    .icon_home {
+        width: 5%;
+        float: right;
+    }
+
+    .m_bottom {
+        margin-bottom: 7px;
+    }
+    #bannerdetails tr td {
+    padding: 5px !IMPORTANT;
+}
+
+    @media (min-height: 675px) and (min-width: 1360px) {
+        #patientidentitiesheight .ui-grid-viewport {
+            height: 425px !important;
+            min-height: 428px !important;
+
+        }
+    }
+
+    @media (min-height: 637px) and (min-width: 1200px) {
+        #patientidentitiesheight .ui-grid-viewport {
+            height: 387px !important;
+            min-height: 387px;
+        }
+    }
+
+    @media (device-width:100vw) and (device-height:100vh) {
+        #patientidentitiesheight .ui-grid-viewport {
+            height: 520px !important;
+            min-height: 520px;
+        }
+    }
+</style>
+<div class="row page-header">
+    <h4 class="col-sm-6 mt0" translate="Medicine Issues"></h4>
+    <div class="col-sm-6">
+        <button class="btn-add" ng-click="addNew()" uib-tooltip="{{ 'otregistermaterialissue-tab.pagetitle.lbl' | translate }}" tooltip-placement="bottom">
+            <i class="fa fa-plus" aria-hidden="true"></i>
+        </button>
+    </div>
+</div>
+
+<ippatientbanner patientid="item.PatientId"></ippatientbanner>
+<div class="col-sm-12">
+    <table id="bannerdetails">
+        <tbody ng-hide="context=='emr'">
+            <tr>
+                <td>
+                    <label class="control-label" for="mystore" translate="billing.patientdispenses.mystore.lbl"></label>
+                </td>
+                <td>
+                    <ui-select ng-model="currentfilter.StoreMasterId" ng-change="getList()" name="mystore" required>
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 20 : 0}}
+                            <span ng-if="$select.selected.Text.length>20">...</span>
+                        </ui-select-match>
+                        <ui-select-choices
+                            repeat="lookupitem.Id as lookupitem in lookup.UserStores | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </td>
+                <td>
+                    <label class="control-label" for="dispensenumber"
+                    translate="billing.patientdispenses.dispensenumber.lbl"></label>
+                </td>
+                <td>
+                    <input type="text" class="form-control" on-enter="getList()" ng-model="currentfilter.DispenseNumber"
+                    translate translate-attr-placeholder="billing.patientdispenses.dispensenumber.lbl">
+                </td>
+                <td>
+                    <label class="control-label" for="dispensestatus"
+                    translate="billing.patientdispenses.dispensestatus.lbl"></label>
+                </td>
+                <td>
+                    <multiselectchk list="lookup.DispenseStatus" selected="currentfilter.DispenseStatusId"
+                    change="getList()"></multiselectchk>
+                </td>
+
+
+                <td>
+                    <label class="control-label" for="dispensedatetime"
+                    translate="billing.patientdispenses.dispensedatetime.lbl"></label>
+                </td>
+                <td>
+                    <input type="text" class="form-control" name="dispensedatetime" ng-change="getList()" ng-date-object
+                    uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                    placeholder="{{datePickerOptions.placeholder}}" ng-click="dispensedatetimePopup = { opened: true }"
+                    is-open="dispensedatetimePopup.opened" ng-model="currentfilter.DispenseDateTime">
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<!-- <div class="row filter-area">
+    <div class="col-sm-12 m_bottom">
+        <div class="col-sm-3">
+            <label class="col-sm-6 control-label" for="mystore"
+                translate="billing.patientdispenses.mystore.lbl"></label>
+            <div class="col-sm-6">
+                <ui-select ng-model="currentfilter.StoreMasterId" ng-change="getList()" name="mystore" required>
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 20 : 0}}
+                        <span ng-if="$select.selected.Text.length>20">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.UserStores | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+        <div class="col-sm-3">
+            <label class="col-sm-6 control-label" for="dispensenumber"
+                translate="billing.patientdispenses.dispensenumber.lbl"></label>
+            <div class="input-group col-sm-6">
+                <div class="input-group-addon">
+                    <i class="fas fa-search" aria-hidden="true"></i>
+                </div>
+                <input type="text" class="form-control" on-enter="getList()" ng-model="currentfilter.DispenseNumber"
+                    translate translate-attr-placeholder="billing.patientdispenses.dispensenumber.lbl">
+            </div>
+        </div>
+        <div class="col-sm-3">
+            <label class="col-sm-4 control-label" for="dispensestatus"
+                translate="billing.patientdispenses.dispensestatus.lbl"></label>
+            <div class="col-sm-8">
+                <multiselectchk list="lookup.DispenseStatus" selected="currentfilter.DispenseStatusId"
+                    change="getList()"></multiselectchk>
+            </div>
+        </div>
+        <div class="col-sm-3">
+            <label class="col-sm-5 control-label" for="dispensedatetime"
+                translate="billing.patientdispenses.dispensedatetime.lbl"></label>
+            <div class="col-sm-5">
+                <input type="text" class="form-control" name="dispensedatetime" ng-change="getList()" ng-date-object
+                    uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                    placeholder="{{datePickerOptions.placeholder}}" ng-click="dispensedatetimePopup = { opened: true }"
+                    is-open="dispensedatetimePopup.opened" ng-model="currentfilter.DispenseDateTime">
+            </div>
+            <div class="col-sm-2">
+                <button class="btn bt-color2 btn-xs pull-right btn-filter" ng-click="addNew()"
+                    uib-tooltip="{{ 'otregistermaterialissue-tab.pagetitle.lbl' | translate }}"
+                    tooltip-placement="bottom">
+                    <i class="fa fa-plus" aria-hidden="true"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</div> -->
+<custom-table config="vm.gridConfig"></custom-table>
+<div class="container-fluid onerow-filter" id="patientsearchheight">
+    <div class="fooder-bgs" style="margin-bottom: 55px;">
+        <div class="row">
+            <ul uib-pagination total-items="vm.gridConfig.pagerObj.totalItems"
+                items-per-page="vm.gridConfig.pagerObj.pageSize" start-index="vm.gridConfig.pagerObj.startIndex"
+                ng-model="vm.gridConfig.pagerObj.currentPage" ng-change="getList()"></ul>
+        </div>
+    </div>
+</div>

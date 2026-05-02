@@ -1,0 +1,139 @@
+<div class="modal-header custom-modal-header">
+    <div class="col-sm-10">
+        <h4 class="modal-title custom-modal-title" translate="billing.opbilling-list.ipbilllist.lbl"></h4>
+    </div>
+    <div class="col-sm-2">
+        <div class="filters">
+            <img src="../../../../../assets/svg/close.svg" ng-click="cancelCallback()">
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-sm-12">
+        <div class="col-sm-4">
+            <label class="col-sm-5 control-label filter-lbl" translate="billing.ip-insurancebill.fromdate.lbl"></label>
+            <div class="col-sm-7">
+                <input type="text" class="form-control" name="fromDate" ng-date-object
+                    datetime-picker="{{datePickerOptions.dateTimeFormat}}" ng-change="getDetails()"
+                    placeholder="{{datePickerOptions.placeholder}}" ng-click="fromDatePopup = { opened: true }"
+                    is-open="fromDatePopup.opened" ng-model="currentfilter.FromDate">
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <label class="col-sm-4 control-label filter-lbl" translate="billing.ip-insurancebill.todate.lbl"></label>
+            <div class="col-sm-8">
+                <input type="text" class="form-control" name="toDate" ng-date-object
+                    datetime-picker="{{datePickerOptions.dateTimeFormat}}" ng-change="getDetails()"
+                    placeholder="{{datePickerOptions.placeholder}}" ng-click="toDatePopup = { opened: true }"
+                    is-open="toDatePopup.opened" ng-model="currentfilter.ToDate">
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <label class="col-sm-5 control-label filter-lbl"
+                translate="billing.package-assignment.serviceratecategory.lbl"></label>
+            <div class="col-sm-7">
+                <ui-select ng-model="currentfilter.ServiceCategoryId" ng-change="getDetails()" tabindex="-1">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 20 : 0}}
+                        <span ng-if="$select.selected.Text.length>20">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.ServiceCategory | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <table class="table table-responsive table-bordered">
+        <thead class="bg-subhead">
+            <tr>
+                <th style="width:3%;">
+                    <input type="checkbox" class="custom-checkbox popbox" ng-model="currentcontext.isEditable"
+                        ng-click="SelectAll(currentcontext.isEditable)" ng-disabled="IsDisabled">
+                </th>
+                <th class="col-sm-1">
+                    <span translate="billing.opbilling-list.doctor.lbl"></span>
+                </th>
+                <th class="col-sm-1">
+                    <span translate="billing.opbilling-list.billdatetime.lbl"></span>
+                </th>
+                <th class="col-sm-1">
+                    <span translate="billing.opbilling-list.billnumber.lbl"></span>
+                </th>
+                <th class="col-sm-2">
+                    <span translate="billing.creditnote.servicename.lbl"></span>
+                </th>
+                <th class="col-sm-1">
+                    <span translate="billing.opbilling-list.qty.lbl"></span>
+                </th>
+                <th class="col-sm-1">
+                    <span translate="billing.opbilling-list.rate.lbl"></span>
+                </th>
+                <th class="col-sm-1">
+                    <span translate="billing.opbilling-list.discount.lbl"></span>
+                </th>
+                <th class="col-sm-1">
+                    <span translate="billing.opbilling-list.netamount.lbl"></span>
+                </th>
+                <th class="col-sm-1">
+                    <span translate="billing.ipbillingtab.ward.lbl"></span>
+                </th>
+                <th class="col-sm-1">
+                    <span translate="billing.ipbillingtab.status.lbl"></span>
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr ng-repeat="bill in PatientBillDetails | orderBy:'ServiceName' | filter:{PatientBillStatusId: 3}"
+                ng-class="{ipbilltoopbill: bill.isCompleted}">
+                <td style="padding-left:1% !important;">
+                    <input type="checkbox" class="custom-checkbox" ng-model="bill.isEditable"
+                        ng-change="canEditable(bill, bill.isEditable)" ng-disabled="bill.isCompleted">
+                </td>
+                <td> {{bill.DoctorName}} </td>
+                <td>
+                    {{bill.BillDateTime | date : 'dd-MMM-yyyy HH:mm'}}
+                </td>
+                <td> {{bill.PatientBill.BillNumber}} </td>
+                <td>
+                    {{bill.ServiceName}}
+                </td>
+                <td>
+                    {{bill.Quantity}}
+                </td>
+                <td class="currency-align">
+                    {{bill.Rate | displaycurrency }}
+                </td>
+                <td class="currency-align">
+                    {{bill.DiscountAmount | displaycurrency }}
+                </td>
+                <td class="currency-align">
+                    {{bill.NetAmount | displaycurrency }}
+                </td>
+                <td> {{bill.Encounter.WardRoomMaster.RoomNo}} - {{bill.Encounter.WardRoomBedMaster.BedNo}} </td>
+                <td>
+                    {{bill.PatientBillStatus.Description}}
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+<div class="fooder-bgs">
+    <div class="row">
+        <label class="col-sm-3 control-label pull-left" translate="billing.consolidate.billamount.lbl"> :
+            {{currentcontext.BillAmount | displaycurrency}}</label>
+        <label class="col-sm-3 control-label pull-left" translate="billing.consolidate.discount.lbl"> :
+            {{currentcontext.BillDiscount | displaycurrency}}</label>
+        <label class="col-sm-3 control-label pull-left" translate="billing.consolidate.netamount.lbl"> :
+            {{currentcontext.TotalNet | displaycurrency}}</label>
+        <div class="col-sm-3">
+            <button type="button" class="draftbutton" ng-click="load()"
+                translate="billing.pharmacy-billdetails.loadbill.lbl" tabindex="-1"></button>
+        </div>
+    </div>
+</div>

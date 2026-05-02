@@ -1,0 +1,73 @@
+<link href="app/css/regbilling.css" rel="stylesheet">
+<div class="row">
+    <div class="col-sm-6">
+        <h4 class="mt0" translate="Virtual Order Acceptance"></h4>
+    </div>
+    <div class="col-sm-6">
+        <div class="filters">
+            <div class="search">
+                <input type="text" id="pid" class="form-control bill" name="filter_billnumber" on-enter="getList()"
+                    ng-model="currentfilter.Patient" translate placeholder="PatientId/PhoneNo">
+                <div class="drhms-search-icon"><i class="fas fa-search" aria-hidden="true"></i></div>
+            </div>
+            <div class="search">
+                <input type="text" id="pid" class="form-control bill" name="filter_billnumber" on-enter="getList()"
+                    ng-model="currentfilter.BillOrderNumber" translate placeholder="Order#/Bill#">
+                <div class="drhms-search-icon"><i class="fas fa-search" aria-hidden="true"></i></div>
+            </div>
+            <button class="default-color" style="margin-left: 10px;">
+                <i class="fa fa-home" ng-click="backtoList()" uib-tooltip="Dashboard" tooltip-placement="bottom">
+                </i>
+            </button>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="drhms-list-filters">
+        <div class="col-sm-4">
+            <label class="col-sm-4" translate="ordermanagement.orderacknowledgement-list.filter_fromdate.lbl"></label>
+            <div class="col-sm-8">
+                <div class="datepicker">
+                    <input type="text" class="form-control" name="Orderassignment" ng-change="getList()" ng-date-object
+                        datepicker-options="datePickerOptions" uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                        placeholder="{{datePickerOptions.placeholder}}"
+                        ng-click="OrderassignmentPopup = { opened: true }" is-open="OrderassignmentPopup.opened"
+                        ng-model="currentfilter.OrderRequestDate">
+                    <i class="fa fa-calendar" aria-hidden="true"></i>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <label class="col-sm-4" translate="Sub Dept"></label>
+            <div class="col-sm-8">
+                <ui-select ng-model="currentfilter.Subdepartmentid" ng-change="getList()" class="filter-combo">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 25 : 0}}
+                        <span ng-if="$select.selected.Text.length>25">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.SubDepartment | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <label class="col-sm-4" translate="ordermanagement.orderacknowledgement-list.filter_status.lbl"></label>
+            <div class="col-sm-8">
+                <multiselectchk list="lookup.OrderStatus" selected="currentfilter.OrderStatusId" change="getList()">
+                </multiselectchk>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <custom-table config="vm.gridConfig"></custom-table>
+</div>
+<div class="fooder-bgs">
+    <div class="row">
+        <ul uib-pagination total-items="vm.gridConfig.pagerObj.totalItems"
+            items-per-page="vm.gridConfig.pagerObj.pageSize" start-index="vm.gridConfig.pagerObj.startIndex"
+            ng-model="vm.gridConfig.pagerObj.currentPage" ng-change="getList()"></ul>
+    </div>
+</div>

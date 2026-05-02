@@ -1,0 +1,158 @@
+<style>
+    .panel-body .well {
+        min-height: 142px !important;
+        padding: 9px !important;
+        /* width: 505px; */
+    }
+
+    /* .modal-content {
+        width: 1065px;
+    } */
+
+    .modal-content .panel-body {
+        overflow: inherit;
+    }
+
+    .modal-header {
+        padding: 4px 10px;
+        border-bottom: 1px solid #e5e5e5;
+    }
+
+    .btn-group,
+    .btn-group-vertical {
+        position: relative;
+        display: -webkit-inline-box;
+        vertical-align: middle;
+    }
+</style>
+
+<div class="modal-header custom-modal-header">
+    <h4 class="col-sm-6 modal-title custom-modal-title" translate="assetmanagement.assignment-form.executiontitle.lbl"></h4>
+    <span class="pull-right">
+        <button type="button" class="btn btn-xs btn-danger float-right" ng-click="cancelCallback()" aria-label="Close">
+            <span aria-hidden="true">X</span>
+        </button>
+    </span>
+</div>
+<div class="col-sm-12 fullreg-profiles" style="color:white;">
+    <div>
+        <div class="col-sm-2">
+            <span translate="assetmanagement.assignment-list.ticket.lbl"></span> :
+            <label ng-bind="item.TicketNumberIdentifier"></label>
+        </div>
+        <div class="col-sm-4">
+            <span translate="assetmanagement.assignment-form.date.lbl"></span> :
+            <span>&nbsp; {{item.CreatedAt | date : 'dd-MMM-yyyy'}} &nbsp; {{item.CreatedAt | date : 'HH:mm'}}</span>
+        </div>
+        <div class="col-sm-3">
+            <span translate="assetmanagement.assignment-form.assetname.lbl"></span> :
+            <span>{{item.AssetName}}</span>
+        </div>
+        <div class="col-sm-3">
+            <span translate="assetmanagement.assignment-form.status.lbl"></span> :
+            <span>&nbsp; {{item.AssetTicketStatus}}</span>
+        </div>
+    </div>
+</div>
+<div class="col-sm-12 ">
+    <div>
+        <div class="col-sm-6">
+            <span translate="assetmanagement.helpdesk.subject.lbl"></span> :
+            <label ng-bind="item.Subject"></label>
+        </div>
+        <div class="col-sm-6">
+            <span translate="assetmanagement.helpdesk.details.lbl"></span> :
+            <label ng-bind="item.SubjectDetail"></label>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-sm-12">
+        <form id="item_form" name="item_form" class="form-horizontal" role="form">
+            <div class="panel panel-default">
+                <div class="panel-body form-panel bg-footer">
+                    <div class="col-sm-12 well">
+                        <!-- leftpanel -->
+                        <div class="col-sm-6">
+                            <!-- <div class="col-sm-12 well"> -->
+                            <div class="form-group">
+                                <label class="col-sm-7 col-md-5 control-label" translate="assetmanagement.assignment-form.assigntype.lbl"></label>
+                                <div class="col-sm-5 col-md-7">
+                                    <span>&nbsp; {{item.AssignType}}</span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-7 col-md-5 control-label" translate="assetmanagement.assettransfer.fromdepartment.lbl"></label>
+                                <div class="col-sm-5 col-md-7">
+                                    <label ng-bind="item.FromDepartment.DepartmentName"></label>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-7 col-md-5 control-label" translate="assetmanagement.assignment-form.assigndate.lbl"></label>
+                                <div class="col-sm-5 col-md-7">
+                                    <displaydate datetime-val="item.AssignedOn"></displaydate>
+                                </div>
+                            </div>
+                            <div class="form-group" ng-if="currentcontext.id>0&&item.FilePath!=null">
+                                <label class="col-sm-7 col-md-5 control-label" translate="assetmanagement.assignment-form.attchment.lbl"></label>
+                                <div class="col-sm-5 col-md-7">
+                                    <a ng-click="download(item)">
+                                        <i>View</i>
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="form-group" ng-if="currentcontext.id>0&&item.FilePath==null">
+                                    <label class="col-sm-7 col-md-5 control-label" for="file" translate="assetmanagement.servicerequest.attachments.lbl"></label>
+                                    <div class="col-sm-5 col-md-7">
+                                        No File Attached
+                                    </div>
+                                </div>
+                            <div class="form-group">
+                                <label class="col-sm-7 col-md-5 control-label" translate="assetmanagement.assignment-form.anypartsreplaced.lbl"></label>
+                                <div class="col-sm-5 col-md-7">
+                                    <textarea rows="2" name="comments" ng-model="item.ServiceDescription" maxlength="4000" style="width:100%;" class="notes-textarea"
+                                        ng-disabled="item.AssetTicketStatusId==7"></textarea>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-7 col-md-5 control-label" translate="assetmanagement.assignment-form.comments.lbl"></label>
+                                <div class="col-sm-5 col-md-7">
+                                    <textarea rows="3" name="comments" ng-model="item.Comments" maxlength="4000" style="width:100%;" class="notes-textarea" ng-disabled="item.AssetTicketStatusId==7"></textarea>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-7 col-md-5 control-label" translate="assetmanagement.assignment-form.reopencomment.lbl"></label>
+                                <div class="col-sm-5 col-md-7">
+                                    <textarea rows="3" name="comments" ng-model="item.ReopenComments" maxlength="4000" style="width:100%;" class="notes-textarea"></textarea>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-7 col-md-5 control-label" translate="assetmanagement.assignment-form.feedback.lbl"></label>
+                                <div class="col-sm-5 col-md-7">
+                                    <checkboxgroupcontrol itemid="item.Rating" rstitems="item.Rating" items="lookup.Rating" isdisabled="IsCompleted"></checkboxgroupcontrol>
+                                    <!-- <radiogroupcontrol itemid="item.RatingId" items="lookup.Rating" isdisabled="IsCompleted"></radiogroupcontrol> -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="fooder-bgs">
+                <div class="row ">
+                    <div class="col-sm-12">
+                        <div class="pull-left">
+                            <!-- <button id="btnCancelForm" type="button" class="draftbutton" translate="common.cancelaction.lbl" ng-if="CanShowCancel&&HasPrivilege('TicketExecution', 'CancelTicket')"
+                                ng-click="closePopUp()"></button> -->
+                        </div>
+                        <div class="pull-right">
+                            <button type="button" class="btn btn-danger text-white btn-sm" translate="Reopen" ng-if="HasPrivilege('TicketExecution', 'Reopen')"
+                                ng-click="Reopened() "></button>
+                            <button type="button" class="btn btn-info text-white btn-sm" translate="Closed" ng-if="HasPrivilege('TicketExecution', 'Closed')"
+                                ng-click="Closed() "></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

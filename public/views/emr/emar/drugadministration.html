@@ -1,0 +1,153 @@
+<style>
+    .bdrnone {
+        border: none !important;
+    }
+
+    body {
+        color: #000;
+    }
+
+    .cstmbg {
+        background: #0287a5b8;
+        color: #fff;
+    }
+
+    .whtbg {
+        background: #fff;
+        color: #000 !important;
+    }
+
+    .fontblack {
+        color: #e80505;
+    }
+
+    .injection-popup th {
+        border: 1px solid #ad9c9c;
+    }
+
+    div.fsStyle {
+        border: 1px solid #000000a8;
+    }
+
+    .injection-popup>thead>tr>th {
+        color: #000;
+        border: 1px solid #000 !important;
+    }
+
+    .form-group {
+        height: 45px;
+    }
+
+    button#btnSaveApprove {
+        margin-right: 20px;
+    }
+
+    .fooder-bgs {
+        text-align: center;
+        margin-bottom: 20px !important;
+    }
+</style>
+<div class="modal-header custom-modal-header">
+    <h4 class="modal-title custom-modal-title col-sm-10" translate="patientemr.injectionadmin.administration.lbl"></h4>
+    <div class="col-sm-2">
+        <button id="btnCancelForm" style="float: right;" type="button" class="btn btn-danger" ng-click="backToList()" translate="X"></button>
+    </div>
+</div>
+<div class="class">
+    <patientbanner patientid="item.BannerPatientId"></patientbanner>
+    <div class="row" style="margin-bottom: 20px;">
+        <div class="col6control" id="textboxctrlmaster">
+            <div class="col-sm-12 billingpart pd0 bill_tbl">
+                <div class="fsStyle bdrnone">
+                    <table class="table table-bordered mgb0 injection-popup">
+                        <thead>
+                            <tr>
+                                <th class="col-sm-2">Drug Name</th>
+                                <th class="col-sm-4 whtbg">{{item.DrugName}}</th>
+                                <th class="col-sm-2">Prescribed Date</th>
+                                <th class="col-sm-4 whtbg">{{item.CreatedAt &nbsp;|&nbsp; date : 'dd-MMM-yyyy'}}</th>
+                            </tr>
+                            <tr>
+                                <th class="col-sm-2">Frequency</th>
+                                <th class="col-sm-4 whtbg">{{item.Frequency}}</th>
+                                <th class="col-sm-2">Prescribed By</th>
+                                <th class="col-sm-4 whtbg">{{item.PrescribedBy}}</th>
+                            </tr>
+                            <tr>
+                                <th class="col-sm-2">Duration</th>
+                                <th class="col-sm-4 whtbg">{{item.DurationInfo}}</th>
+                                <th class="col-sm-2">Instructions</th>
+                                <th class="col-sm-4 whtbg">{{item.Instructions}}</th>
+                            </tr>
+                            <tr>
+                                <th class="col-sm-2">Prescribed Qty</th>
+                                <th class="col-sm-4 whtbg">{{item.PrescribedQuantity}}</th>
+                                <th class="col-sm-2">Administered Status</th>
+                                <th class="col-sm-4 whtbg">{{item.AdministeredStatus}}</th>
+                            </tr>
+                        </thead>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-6">
+            <div class="col-sm-12">
+                <label class="col-sm-5" for="administerby" translate="patientemr.injectionadmin.administredby.lbl"></label>
+                <div class="col-sm-7 form-group">
+                    <autosearch itemid="item.AdministeredBy" ng-disabled="true" iteminfo="" name="assignto" rowdata="" config="vm.usercontrolconfig"
+                        itemchange="" placeholder="'Administer By'">
+                        <!-- <input type="text" class="form-control" name="administerby" ng-model="item.AdministeredBy" placeholder="Administer By"> -->
+                </div>
+            </div>
+            <div class="col-sm-12">
+                <label class="col-sm-5" for="administerdate" translate="patientemr.injectionadmin.date.lbl"></label>
+                <div class="col-sm-7 form-group">
+                    <input type="text" class="form-control" name="administerdate" ng-change="getList()" ng-date-object datepicker-options="datePickerOptions"
+                        show-button-bar="{{datePickerOptions.showButtonBar}}" uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                        placeholder="{{datePickerOptions.placeholder}}" ng-click="AdministerDatePopup = { opened: true }" is-open="AdministerDatePopup.opened"
+                        ng-model="item.AdministeredDate" ng-disabled="true" tabindex="-1">
+                </div>
+            </div>
+            <div class="col-sm-12">
+                <label class="col-sm-5" for="administerqty" translate="patientemr.injectionadmin.administerqty.lbl"></label>
+                <div class="col-sm-7 form-group">
+                    <input type="text" min="0" name="administerqty" ng-keypress="[0-9]($event)" ng-pattern="/^\d+$/" ng-disabled="CanDisable"
+                        ng-model="item.AdministerQuantity" ng-change="CheckAdministerQty(item)" placeholder="Administer Qty">
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6">
+            <div class="col-sm-12">
+                <label class="col-sm-5" for="Administereddosage" translate="Administered Dosage"></label>
+                <div class="col-sm-7 form-group">
+                    <input type="text" class="form-control" name="Administereddosage" ng-model="item.AdministerDosage">
+                </div>
+            </div>
+
+            <div class="col-sm-12">
+                <label class="col-sm-5" for="Administeredcmd" translate="Administered Comments"></label>
+                <div class="col-sm-7 form-group">
+                    <input type="text" class="form-control" name="Administeredcmd" ng-model="item.AdministerInstructions" placeholder="Administer Comments">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="fooder-bgs">
+    <div class="row">
+        <button type="button" id="btnSaveApprove" class="btn dem-color4 text-white btn-sm" translate="Administer" ng-show="CanShowSaveApprove"
+            ng-click="saveAndApprove()"></button>
+        <button type="button" id="btnSaveApprove" class="btn dem-color4 text-white btn-sm" translate="Discontinued" ng-show="CanShowDiscontinue"
+            ng-click="discontinued()"></button>
+        <button type="button" id="btnSaveApprove" class="btn dem-color4 text-white btn-sm" translate="Hold" ng-show="CanShowHold"
+            ng-click="hold()"></button>
+
+        <button type="button" id="btnSaveApprove" class="btn dem-color4 text-white btn-sm" translate="Clinical Manifestation" ng-show="CanShowClinicalMainfestation"
+            ng-click="clinicalmanifestration()"></button>
+        <button type="button" id="btnSaveApprove" class="btn dem-color4 text-white btn-sm" translate="Refusal" ng-show="CanShowRefusal"
+            ng-click="refusal()"></button>
+
+    </div>
+</div>

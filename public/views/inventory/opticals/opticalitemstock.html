@@ -1,0 +1,245 @@
+<style>
+    .panel-footer {
+        padding: 4px 15px;
+        background-color: #ccecf5;
+        border-top: 1px solid #eeeeee;
+        border-bottom-right-radius: 3px;
+        border-bottom-left-radius: 3px;
+        margin: 0px -5px;
+    }
+
+    .panel-body .well {
+        min-height: 425px;
+    }
+
+    .formRoot {
+        overflow: inherit;
+    }
+
+    .modal-content .panel-body {
+        overflow: inherit;
+    }
+
+    .uib-datepicker-popup.dropdown-menu {
+        top: -251px !important;
+    }
+    .form-horizontal .form-group {
+    height: 70px;
+}
+</style>
+<div class="modal-header custom-modal-header">
+    <h4 class="mt0 col-sm-11 text-white" translate="inventory.opticalitemmaster.itemstock.lbl"></h4>
+    <div class="col-sm-1">        
+            <button id="btnCancelForm" type="button" class="btn btn-danger btn-sm ng-scope"
+            ng-click="cancelCallback()">
+            <span class="ng-scope">X</span>
+        </button>
+    </div>
+</div>
+<div class="row">
+    <div class="col-sm-12">
+        <form id="item_form" name="item_form" class="form-horizontal" role="form">
+            <div class="">
+                <div class="">
+                    <div class="">
+                        <div class="col-sm-12">
+                            <!-- leftpanel -->
+                            <div class="col-sm-6">
+                                <div class="">
+                                    <div class="form-group">
+                                        <label class="col-sm-12 col-md-12 control-label" for="facility"
+                                            translate="inventory.opticalitemmaster.facility.lbl"></label>
+                                        <div class="col-sm-12 col-md-12">
+                                            <ui-select ng-model="item.FacilityId" name="facility" class="filter-combo"
+                                                ng-disabled="true">
+                                                <ui-select-match>
+                                                    {{$select.selected.Text | limitTo : 25 : 0}}
+                                                    <span ng-if="$select.selected.Text.length > 25">...</span>
+                                                </ui-select-match>
+                                                <ui-select-choices
+                                                    repeat="lookupitem.Id as lookupitem in lookup.Facility | filter: { Text: $select.search }">
+                                                    <div ng-bind-html="lookupitem.Text | highlight: $select.search">
+                                                    </div>
+                                                </ui-select-choices>
+                                            </ui-select>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-sm-12 col-md-12 control-label"
+                                            translate="inventory.opticalitemmaster.filter_itemcode.lbl"></label>
+                                        <div class="col-sm-12 col-md-12">
+                                            <input type="text" class="form-control" name="ItemCode"
+                                                ng-model="item.ItemCode" placeholder="" disabled>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-sm-12 col-md-12 control-label"
+                                            translate="inventory.opticalitemmaster.filter_itemname.lbl"></label>
+                                        <div class="col-sm-12 col-md-12">
+                                            <input type="text" class="form-control" name="ItemName"
+                                                ng-model="item.ItemName" placeholder="" disabled>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-sm-12 control-label" for="OpticalProductType"
+                                            translate="inventory.opticalitemmaster.filter_producttype.lbl"></label>
+                                        <div class="col-sm-12">
+                                            <ui-select ng-model="item.OpticalProductTypeId" name="OpticalProductType"
+                                                ng-disabled="true">
+                                                <ui-select-match>
+                                                    {{$select.selected.Text | limitTo : 20 : 0}}
+                                                    <span ng-if="$select.selected.Text.length>20">...</span>
+                                                </ui-select-match>
+                                                <ui-select-choices
+                                                    repeat="lookupitem.Id as lookupitem in lookup.OpticalProductType | filter: { Text: $select.search }">
+                                                    <div ng-bind-html="lookupitem.Text | highlight: $select.search">
+                                                    </div>
+                                                </ui-select-choices>
+                                            </ui-select>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-sm-12 control-label" for="Rate"
+                                            translate="inventory.opticalitemmaster.rate.lbl"></label>
+                                        <div class="col-sm-12">
+                                            <input type="text" class="form-control" name="Rate" ng-model="item.Rate"
+                                                placeholder="" disabled>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-sm-12 control-label" for="GSTPercentage"
+                                            translate="inventory.opticalitemmaster.gst.lbl"></label>
+                                        <div class="col-sm-12">
+                                            <input type="text" class="form-control" name="GSTPercentage"
+                                                ng-model="item.GSTPercentage" placeholder="" disabled>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-sm-12 control-label" for="HikePercentage"
+                                            translate="inventory.opticalitemmaster.hike.lbl"></label>
+                                        <div class="col-sm-12">
+                                            <input type="text" class="form-control" name="HikePercentage"
+                                                ng-model="item.HikePercentage" placeholder="" disabled>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- rightpanel -->
+                            <div class="col-sm-6">
+                                <div class="">
+                                    <div class="form-group">
+                                        <label class="col-sm-12 control-label filter-lbl" for="storemaster"
+                                            translate="inventory.opticalitemmaster.store.lbl"></label>
+                                        <div class="col-sm-12">
+                                            <ui-select ng-model="item.StoreMasterId" name="storemaster"
+                                                class="filter-combo">
+                                                <ui-select-match>
+                                                    {{$select.selected.Text | limitTo : 30 : 0}}
+                                                    <span ng-if="$select.selected.Text.length>30">...</span>
+                                                </ui-select-match>
+                                                <ui-select-choices
+                                                    repeat="lookupitem.Id as lookupitem in lookup.StoreMaster | filter: { Text: $select.search }">
+                                                    <div ng-bind-html="lookupitem.Text | highlight: $select.search">
+                                                    </div>
+                                                </ui-select-choices>
+                                            </ui-select>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-sm-12 control-label" for="Quantity"
+                                            translate="inventory.opticalitemmaster.availableqty.lbl"></label>
+                                        <div class="col-sm-12">
+                                            <input type="text" class="form-control" name="Quantity"
+                                                ng-model="item.Quantity" placeholder="" required>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-sm-12 control-label" for="ReOrderQuantity"
+                                            translate="inventory.opticalitemmaster.reorderqty.lbl"></label>
+                                        <div class="col-sm-12">
+                                            <input type="text" class="form-control" name="ReOrderQuantity"
+                                                ng-model="item.ReOrderQuantity" placeholder="">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-sm-12 col-md-12 control-label" for="baseuomId"
+                                            translate="inventory.opticalitemmaster.baseuom.lbl"></label>
+                                        <div class="col-sm-12 col-md-12">
+                                            <ui-select id="baseuomid" ng-keyup="moveHeaderFocus('baseuomid')"
+                                                ng-model="item.BaseUomId" theme="bootstrap" name="baseuomId" autofocus
+                                                required>
+                                                <ui-select-match>
+                                                    {{$select.selected.UomName | limitTo : 20 : 0}}
+                                                    <span ng-if="$select.selected.UomName.length>20">...</span>
+                                                </ui-select-match>
+                                                <ui-select-choices
+                                                    repeat="lookupitem.Id as lookupitem in lookup.UomMaster | filter: { UomName: $select.search }">
+                                                    <div ng-bind-html="lookupitem.UomName | highlight: $select.search">
+                                                    </div>
+                                                </ui-select-choices>
+                                            </ui-select>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-sm-12 col-md-12 control-label" for="purchaseuomId"
+                                            translate="inventory.opticalitemmaster.purchaseuom.lbl"></label>
+                                        <div class="col-sm-12 col-md-12">
+                                            <ui-select id="purchaseuomid" ng-keyup="moveHeaderFocus('purchaseuomid')"
+                                                ng-model="item.PurchaseUomId" theme="bootstrap" name="purchaseuomId"
+                                                autofocus required>
+                                                <ui-select-match>
+                                                    {{$select.selected.UomName | limitTo : 20 : 0}}
+                                                    <span ng-if="$select.selected.UomName.length>20">...</span>
+                                                </ui-select-match>
+                                                <ui-select-choices
+                                                    repeat="lookupitem.Id as lookupitem in lookup.UomMaster | filter: { UomName: $select.search }">
+                                                    <div ng-bind-html="lookupitem.UomName | highlight: $select.search">
+                                                    </div>
+                                                </ui-select-choices>
+                                            </ui-select>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-sm-12 col-md-12 control-label" for="saleuomId"
+                                            translate="inventory.opticalitemmaster.saleuom.lbl"></label>
+                                        <div class="col-sm-12 col-md-12">
+                                            <ui-select id="salesuomid" ng-keyup="moveHeaderFocus('salesuomid')"
+                                                ng-model="item.SaleUomId" theme="bootstrap" name="saleuomId" autofocus
+                                                required>
+                                                <ui-select-match>
+                                                    {{$select.selected.UomName | limitTo : 20 : 0}}
+                                                    <span ng-if="$select.selected.UomName.length>20">...</span>
+                                                </ui-select-match>
+                                                <ui-select-choices
+                                                    repeat="lookupitem.Id as lookupitem in lookup.UomMaster | filter: { UomName: $select.search }">
+                                                    <div ng-bind-html="lookupitem.UomName | highlight: $select.search">
+                                                    </div>
+                                                </ui-select-choices>
+                                            </ui-select>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-sm-12 control-label" for="SalesPrice"
+                                            translate="inventory.opticalitemmaster.salesprice.lbl"></label>
+                                        <div class="col-sm-12">
+                                            <input type="text" class="form-control" name="SalesPrice"
+                                                ng-model="item.SalesPrice" placeholder="" disabled>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="fooder-bgs" style="margin-bottom: 38px !important;">
+                <div class="col-sm-12">
+                    <div class="pull-right">
+                        <button type="button" class="draftbutton"
+                            translate="common.saveapprove-action.lbl" ng-click="saveItem()"></button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

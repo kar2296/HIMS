@@ -1,0 +1,90 @@
+
+<div class="row page-header">
+    <h4 class="col-sm-5 mt0" translate="mrd.pagetitle.lbl"></h4>
+    <div class="col-sm-7">
+        <div class="filters">
+            <div class="search">
+                <input type="text" id="pid" class="form-control" on-enter="getList()"
+                    ng-model="currentfilter.PatientNameMRN" placeholder=" MRN/Name"> <i class="fas fa-search"
+                    aria-hidden="true"></i>
+            </div> &nbsp;
+            <div class="search">
+                <input type="text" class="form-control" id="pid" on-enter="getList()"
+                    ng-model="currentfilter.VisitIdentifier" placeholder="Visit #">
+                <i class="fas fa-search" aria-hidden="true"></i>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-sm-2 form-group">
+        <label class="col-sm-12" translate="mrd.encountertype.lbl"></label>
+        <div class="col-sm-12">
+            <ui-select ng-model="currentfilter.EncounterTypeId" ng-change="getList()" class="filter-combo">
+                <ui-select-match>
+                    {{$select.selected.Text | limitTo : 20 : 0}}
+                </ui-select-match>
+                <ui-select-choices
+                    repeat="lookupitem.Id as lookupitem in lookup.EncounterType | filter: { Text: $select.search }">
+                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                </ui-select-choices>
+            </ui-select>
+        </div>
+    </div>
+    <div class="col-sm-2 form-group">
+        <label class="col-sm-12" translate="mrd.department.lbl"></label>
+        <div class="col-sm-12">
+            <ui-select ng-model="currentfilter.DepartmentId" ng-change="getList()" class="filter-combo">
+                <ui-select-match>
+                    {{$select.selected.Text | limitTo : 20 : 0}}
+                </ui-select-match>
+                <ui-select-choices
+                    repeat="lookupitem.Id as lookupitem in lookup.Department | filter: { Text: $select.search }">
+                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                </ui-select-choices>
+            </ui-select>
+        </div>
+    </div>
+    <div class="col-sm-2 form-group">
+        <label class="col-sm-12" translate="mrd.doa.lbl"></label>
+        <div class="col-sm-12">
+            <input type="text" class="form-control" name="todate" ng-change="getList()"
+                datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}"
+                uib-datepicker-popup="{{datePickerOptions.dateFormat}}" placeholder="{{datePickerOptions.placeholder}}"
+                ng-click="DOAPopup = { opened: true }" is-open="DOAPopup.opened" ng-model="currentfilter.DOA">
+        </div>
+    </div>
+    <div class="col-sm-2 form-group">
+        <label class="col-sm-12" translate="mrd.dod.lbl"></label>
+        <div class="col-sm-12">
+            <input type="text" class="form-control" name="todate" ng-change="getList()"
+                datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}"
+                uib-datepicker-popup="{{datePickerOptions.dateFormat}}" placeholder="{{datePickerOptions.placeholder}}"
+                ng-click="DODPopup = { opened: true }" is-open="DODPopup.opened" ng-model="currentfilter.DOD">
+        </div>
+    </div>
+    <div class="col-sm-2 form-group">
+        <label class="col-sm-12" translate="mrd.status.lbl"></label>
+        <div class="col-sm-12">
+            <ui-select ng-model="currentfilter.admissionstatusid" ng-change="getList()" class="filter-combo">
+                <ui-select-match>
+                    {{$select.selected.Text | limitTo : 20 : 0}}
+                </ui-select-match>
+                <ui-select-choices
+                    repeat="lookupitem.Id as lookupitem in lookup.AdmissionStatus | filter: { Text: $select.search }">
+                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                </ui-select-choices>
+            </ui-select>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <custom-table config="vm.gridConfig"></custom-table>
+</div>
+<div class="fooder-bgs">
+    <div class="row">
+        <ul uib-pagination total-items="vm.gridConfig.pagerObj.totalItems"
+            items-per-page="vm.gridConfig.pagerObj.pageSize" start-index="vm.gridConfig.pagerObj.startIndex"
+            ng-model="vm.gridConfig.pagerObj.currentPage" ng-change="getList()"></ul>
+    </div>
+</div>

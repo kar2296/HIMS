@@ -1,0 +1,190 @@
+<style>
+    .panel-favorite .panel-body {
+        height: 155px;
+    }
+
+    .tabsizetopcontroller .ui-grid-viewport {
+        height: 160px !important;
+    }
+
+    .schedulediv {
+        padding-top: 30px;
+    }
+    .schedule-actions {
+        margin-top: 10px;
+        margin-bottom: 10px;
+    }
+    /* .icon_home {
+    width: 10%;
+    float: right;
+}
+.icon_emrboard {
+    width: 10%;
+    float: right;
+    margin-right: 1%;
+  
+} */
+/* @media (min-height: 675px) and (min-width: 1360px){
+.tabsizetopcontroller .ui-grid-viewport {
+    height: 200px !important;
+    min-height:200px !important;
+}} */
+@media (min-height: 637px) and (min-width: 1200px){
+    .tabsizetopcontroller .ui-grid-viewport {
+    height: 166px !important;
+    min-height:166px;
+} 
+}
+.layout-fixed .wrapper{
+    overflow: scroll;
+    overflow-x: hidden;
+    height: 93vh;
+    min-height: 93vh;
+}
+@media (max-width:992px){
+    .page-header{padding:0px;}
+}
+</style>
+
+<script type="text/ng-template" id="newimmuschedule.html">
+    <div class="row schedulediv">
+        <div class="col-sm-12">
+            <div class="col-sm-12">
+                <label class="col-sm-4 control-label" translate="patientemr.patientimmunization-list.scheduletype.lbl"></label>
+                <div class="col-sm-8">
+                    <ui-select ng-model="currentcontext.ScheduleName" class="filter-combo">
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 15 : 0}}
+                            <span ng-if="$select.selected.Text.length>15">...</span>
+                        </ui-select-match>
+                        <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.ScheduleName | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+            <!-- <div class="col-sm-12">
+                <label class="col-sm-4 control-label" for="comments" translate="patientemr.patientimmunization-list.comments.lbl"></label>
+                <div class="col-sm-8">
+                    <commentscontrol comments="currentcontext.Comments"></commentscontrol>
+                </div>
+            </div> -->
+            <div class="col-sm-12 schedule-actions">
+                    <div class="pull-right">
+                        <button id="btnSave" ng-if="canUpdatePatientEMR()" class="draftbutton" ng-click="saveSchedule()" translate="common.saveaction.lbl"></button>
+                        <button id="btnCancelForm" type="button" class="draftbutton" ng-click="closeScheduledModal()" translate="common.cancelaction.lbl"></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</script>
+
+<div class="tabsizetopcontroller">
+    <div class="row page-header">
+        <div class="col-sm-12">
+            <div class="col-sm-6 col-md-9">
+                <h4 class="page-header mt0" translate="patientemr.patientimmunization-list.pagetitle.lbl"></h4>
+            </div>
+            <div class="col-sm-6 col-md-3">
+                    <span ng-click="doctor_dashboard()">   
+                       
+                            <img src="app/img/main/download.png" class="img-responsive icon_home" alt="home" uib-tooltip=" Doctor Dashboard " tooltip-placement="bottom">
+                       
+                        </span> 
+                    <span ng-click="bedboard()">
+                            <a href="/www/index.html#/EMR/emrdashboard//">  
+                                <img src="app/img/main/patdash.png" class="img-responsive icon_emrboard"  uib-tooltip="Patient Dashboard" tooltip-placement="bottom">
+                            </a>
+                        </span>
+
+                <!-- <button class="btn bt-color3 btn-xs pull-right" uib-tooltip="{{ 'clinicalmaster.serviceitem-list.filter-tooltip.lbl' | translate }}"
+            tooltip-placement="bottom"> <i class="fa fa-filter fa-xs " aria-hidden="true"></i>&nbsp;&nbsp;<span translate="clinicalmaster.serviceitem-list.filter.lbl"></span>
+            </button>-->
+
+                <button class="btn-add" ng-if="canUpdatePatientEMR()" ng-click="addNew()" uib-tooltip="{{ 'patientemr.patientimmunization-list.pagetitle.lbl' | translate }}"
+                    tooltip-placement="bottom">
+                      <i class="fa fa-plus" aria-hidden="true"></i>
+            </button>
+                <button class="btn bt-color1 btn-xs pull-right" id="btnschedule" ng-click="schedulebtnclick()">
+                        <i class="fa fa-calendar" aria-hidden="true"></i>
+                      <i aria-hidden="true"></i>&nbsp;&nbsp;<strong class="btn-fontsize" translate="patientemr.patientimmunization-list.schedule.lbl"></strong>
+            </button>
+           
+            </div>
+        </div>
+    </div>
+    <div class="row filter-area">
+        <div class="col-sm-12">
+            <div class="col-sm-4">
+                <label class="col-sm-4 control-label filter-lbl" translate="patientemr.patientimmunization-list.filter_name.lbl"></label>
+                <div class="col-sm-8">
+                    <ui-select ng-model="currentfilter.ImmunizationId" ng-change="getList()" class="filter-combo">
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 8 : 0}}
+                            <span ng-if="$select.selected.Text.length>8">...</span>
+                        </ui-select-match>
+                        <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.Immunization | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+            <div class="col-sm-4">
+                <label class="col-sm-4 control-label filter-lbl" translate="patientemr.patientimmunization-list.filter_immunizationtype.lbl"></label>
+                <div class="col-sm-8">
+                    <ui-select ng-model="currentfilter.ImmunizationTypeId" ng-change="getList()" class="filter-combo">
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 8 : 0}}
+                            <span ng-if="$select.selected.Text.length>8">...</span>
+                        </ui-select-match>
+                        <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.ImmunizationType | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+            <div class="col-sm-4">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label" for="immunizationstatus" translate="patientemr.patientimmunization-list.status.lbl"></label>
+                    <div class="col-sm-8">
+                        <ui-select ng-model="currentfilter.ImmunizationStatusId" ng-change="getList()" name="immunizationstatus">
+                            <ui-select-match>
+                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                <span ng-if="$select.selected.Text.length>20">...</span>
+                            </ui-select-match>
+                            <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.ImmunizationStatus | filter: { Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container-fluid">
+        <favoritecontrol ng-if="canUpdatePatientEMR()" config="favconfig" addclick="addFavorite()" saveclick="saveFavorites()"></favoritecontrol>
+        <!-- <div ui-grid="vm.gridConfig" class="table-uigrid"></div> -->
+        <!-- <custom-table config="vm.gridConfig"></custom-table> -->
+        <div class="fooder-bgs">
+            <div class="col-sm-2">
+                <button class="text-white btn prv-color12 btn-sm pull-left " ng-click="dashboard()"><i class="fa fa-tachometer" aria-hidden="true"></i>&nbsp;&nbsp;<strong class="btn-fontsize ng-scope" translate="patientemr.mock.emrdashboard.lbl"></strong></button>
+            </div>
+            <div class="col-sm-10">
+                <!-- <ul uib-pagination total-items="vm.gridConfig.pagerObj.totalItems" items-per-page="vm.gridConfig.pagerObj.pageSize" start-index="vm.gridConfig.pagerObj.startIndex"
+                    ng-model="vm.gridConfig.pagerObj.currentPage" ng-change="getList()"></ul> -->
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <custom-table config="vm.gridConfig"></custom-table>
+    </div>
+    <div class="fooder-bgs">
+        <div class="row">
+            <ul uib-pagination total-items="vm.gridConfig.pagerObj.totalItems"
+                items-per-page="vm.gridConfig.pagerObj.pageSize" start-index="vm.gridConfig.pagerObj.startIndex"
+                ng-model="vm.gridConfig.pagerObj.currentPage" ng-change="getList()"></ul>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,80 @@
+<style>
+    /* table.table.table-bordered.table-condensed.dropdown-menu {
+        overflow: unset !important;
+        margin-left: -335px;
+    } */
+    patientsearch.logo .custom-popup-wrapper {
+        margin-left: -440px;
+    }
+</style>
+<div class="row page-header">
+    <div class="col-sm-4">
+        <h4 class="mt0" translate="Patient Feedback Analyzer"></h4>
+    </div>
+    <div class="col-sm-8">
+        <div class="filters">
+            <div class="search">
+                <patientsearch ng-keyup="moveHeaderFocus('pid')" patientid="currentfilter.PatientId" class="logo"
+                    name="txtpatientsearch" patientinfo="selectedPatient" patientchange="getList()"
+                    aria-placeholder="Patient Search" tabindex="tabindexmap.patienttabindex"
+                    isdisabled="{{SaveCompleted}}" filterconfig="patientfilterconfig"></patientsearch>
+                <i class="fas fa-search" aria-hidden="true"></i>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <form id="item_form" name="item_form" class="form-horizontal" role="form">
+        <div class="form-group col-sm-4">
+            <label class="col-sm-4" translate="ordermanagement.orderacknowledgement-list.filter_fromdate.lbl"></label>
+            <div class="col-sm-8">
+                <div class="datepicker">
+                    <input type="text" class="form-control" name="Orderassignment" ng-change="getList()" ng-date-object
+                        datepicker-options="datePickerOptions" uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                        placeholder="{{datePickerOptions.placeholder}}"
+                        ng-click="OrderassignmentPopup = { opened: true }" is-open="OrderassignmentPopup.opened"
+                        ng-model="currentfilter.FromDate">
+                    <i class="fa fa-calendar" aria-hidden="true"></i>
+                </div>
+            </div>
+        </div>
+        <div class="form-group col-sm-4">
+            <label class="col-sm-4" translate="reports.todate.lbl"></label>
+            <div class="col-sm-8">
+                <div class="datepicker">
+                    <input type="text" class="form-control" name="from" ng-change="getList()"
+                        datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}"
+                        uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                        placeholder="{{datePickerOptions.placeholder}}" ng-click="todatePopup = { opened: true }"
+                        is-open="todatePopup.opened" ng-model="currentfilter.ToDate">
+                    <i class="fa fa-calendar" aria-hidden="true"></i>
+                </div>
+            </div>
+        </div>
+        <div class="form-group col-sm-4">
+            <label class="col-sm-4" translate="generalmaster.feedbackmasters.filter_type.lbl"></label>
+            <div class="col-sm-8">
+                <ui-select ng-model="currentfilter.FeedbackTypeId" ng-change="getList()" class="filter-combo">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 20 : 0}}
+                        <span ng-if="$select.selected.Text.length>20">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.FeedbackType | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+    </form>
+</div>
+<div class="row">
+    <custom-table config="vm.gridConfig"></custom-table>
+</div>
+<div class="fooder-bgs">
+    <div class="row">
+        <ul uib-pagination total-items="vm.gridConfig.pagerObj.totalItems"
+            items-per-page="vm.gridConfig.pagerObj.pageSize" start-index="vm.gridConfig.pagerObj.startIndex"
+            ng-model="vm.gridConfig.pagerObj.currentPage"></ul>
+    </div>
+</div>

@@ -1,0 +1,328 @@
+<style>
+.card{background:#fff;min-height:118px;box-shadow:none;position:relative;transition:.5s;border:1px solid #f2f2f2;border-radius:0}.card .title{position:relative;z-index:1;border-left:5px solid #01c0c8;padding:1px 0 0px 38px;color:#01c0c8;font-size:34px;font-weight:600;text-transform:uppercase}.card .title span{font-size:13px;display:block;margin:0;line-height:18px;font-weight:400;color:#444}.card .title .msg{font-size:13px;color:#666;display:block;margin:0;padding:0;font-weight:normal;line-height:18px;margin-top:10px;text-transform:none}.fontsize{font-size:16px;font-weight:bold;padding:0px 7px}.bgfoot .btn-sm,.btn-group-sm>.btn{padding:0px 6px;font-size:10px;line-height:1.5;border-radius:3px}.topright .dropdown-menu{top:-60px !important;left:15px !important;max-height:120px}.padding-top1{padding-top:1px}.page-header h4{padding-top:2px;height:7px;padding-left:17px}#opbillingcontrol .formRoot{height:304px !important;overflow-x: hidden;}#opbillingcontrol .table-control{height:496px !important;overflow:auto}
+
+.container {
+    width: 100%;
+}
+
+#cndropdownctrl .ui-select-bootstrap > .ui-select-choices {
+    width: 100%;
+    height: auto;
+    height: 85px;
+    overflow-x: hidden;
+    margin-top: -1px;
+}
+.bgfoot .ui-select-match-text {
+    width: 98px !important;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.fs-12 input[type=text] {
+       margin-bottom: 13px;
+}
+/* .ui-select-container{ padding: 4px 0px 0px 2px;} */
+.custom-checkbox{
+    /* margin-top: -17px !important; */
+}
+.billreceived_amt {
+    float: left;
+    width: 100%;
+    /* background: #1a1a9cf5; */
+    color: #fff;
+     margin-top: 20px; 
+    margin-bottom: 2px;
+}
+@media (device-width:100vw) and (device-height:100vh){
+    #opbillingcontrol .table-control{
+        height: 606px;
+        min-height:606px;
+    }
+    #opbillingcontrol .formRoot{
+        height:60vh !important;
+        min-height:60vh;
+    }
+    #opbillingcontrol .table-control{
+        height:81vh;
+    }
+}
+#opbillingcontrol .formRoot{
+    height:49vh;
+    min-height:49vh;
+}
+</style>
+
+
+<link href="app/css/billing-pharmacy-customs.css" rel="stylesheet">
+
+<!---Header-->
+<div id="opbillingcontrol">
+
+<div class="row page-header">
+            <h4 class="col-sm-2 page-header" translate="billing.creditnote.pagetitle.lbl"></h4>
+            <div class="col-sm-3 page-calendar" >
+                    <div class="event-name b-greensea  ">
+                        <span class="forpadd" uib-tooltip="{{item.PatientName}} | {{item.Patient.MRN}} | {{PatientBillInfo[0].Patient.Age}} | {{item.BillDateTime | date : 'dd/MMM/yyyy' }}"
+                    tooltip-placement="bottom"> 
+                      <span>{{item.PatientName}}</span>&nbsp;<span ng-click="patientprofiledetails()"><i class="icon-info-sign"></i></span> |<span>{{item.Patient.MRN}}</span>
+                       | <span> {{PatientBillInfo[0].Patient.Age}}</span>|<span>{{item.BillDateTime | date : 'dd/MMM/yyyy' }}&nbsp;{{item.BillDateTime | date : 'HH:mm' }}</span>
+                        </span>
+                    </div>
+                </div>
+       
+        <div class="col-sm-7 padding-top1 " >
+            <div class="page-calendar1">
+                <div class="col-sm-4">
+                    <div class="event-name b-greensea  ">
+                        <span class="forpadd" uib-tooltip="{{item.BillNumber}}"
+                    tooltip-placement="bottom" uib-tooltip="{{item.BillNumber}}"
+                    tooltip-placement="bottom"> 
+                      <span translate="billing.opbilling-list.billnumber.lbl" ></span> : <span>{{item.BillNumber}}</span>
+                        </span>
+                    </div>
+                </div>
+                <div class="col-sm-3">
+                    <div class="event-name b-greensea  " uib-tooltip="{{item.VisitNo}}"
+                    tooltip-placement="bottom">
+                        <span class="forpadd"> 
+                      <span translate="billing.opbilling-list.encounterno.lbl"></span>:<span>{{item.VisitIdentifier}}</span>
+                        </span>
+                    </div>
+                </div>
+                <div class="col-sm-5">
+                    <div class="alertbtn" ng-click="alertviewclick()"  uib-tooltip="{{'common.patientalert.lbl' | translate }}"  tooltip-placement="bottom">
+                    <span><i class="fa fa-exclamation-triangle" aria-hidden="true"></i></span> 
+                     <a>{{currentcontext.patientAlertsCount}}</a>
+                 </div>
+                    <div class="pull-right">
+                       <button type="button" class=" text-white btn  adm-color7  btn-xs" ng-click="cnPicker()" translate="billing.receipt-form.findcn.lbl"></button>
+                       <button class="btn prv-color12 btn-xs  btn-filter" ng-click="findBill()">Find Bills</button>
+                         <button class="btn bt-color2 btn-xs pull-right btn-filter" ng-click="addNew()" uib-tooltip="{{ 'billing.creditnote.addnew-tooltip.lbl' | translate
+}}" tooltip-placement="bottom"><i class="fa fa-plus" aria-hidden="true"></i><span translate="clinicalmaster.serviceitem-list.addnew.lbl"></span></button>
+                   </div>
+                 </div>
+            </div>
+        </div>
+    </div>
+    <div class="row ">
+        <div class="col-sm-12">
+            <form id="item_form" name="item_form" class="form-horizontal" role="form">
+                <div class="filter-area row">
+                    <!-- filter area -->
+ <div class="">
+                        <div class="form-group col-sm-4">
+                            <label class="col-sm-5 control-label" for="date" translate="billing.creditnote.date.lbl"></label>
+                            <div class="col-sm-7">
+                                <input type="text" class="form-control" name="Collected On" ng-date-object datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}"
+                                    uib-datepicker-popup="{{datePickerOptions.dateFormat}}" placeholder="{{datePickerOptions.placeholder}}"
+                                    ng-click="CreditDatePopup = { opened: true }" is-open="CreditDatePopup.opened" ng-model="item.CreditNoteDateTime"
+                                    ng-disabled="true">
+                            </div>
+                        </div>
+                        <div class="form-group col-sm-4">
+                            <label class="col-sm-5 control-label" translate="billing.creditnote.creditnote.lbl"></label>
+                            <div class="col-sm-7">
+                                <input type="text" class="form-control" ng-model="item.CreditNoteIdentifier" maxlength="8" ng-disabled="true" placeholder="">
+                            </div>
+                        </div>
+                        <div class="form-group col-sm-4">
+                            <label class="col-sm-4 control-label" for="facility" translate="billing.creditnote.facility.lbl"></label>
+                            <div class="col-sm-7">
+                            <ui-select ng-model="item.FacilityId" ng-disabled="true">
+                                <ui-select-match>
+                                    {{$select.selected.Text | limitTo : 20 : 0}}
+                                    <span ng-if="$select.selected.Text.length>20">...</span>
+                                </ui-select-match>
+                                <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.Facility | filter: { Text: $select.search }">
+                                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                </ui-select-choices>
+                            </ui-select>
+                        </div>
+                        </div>
+                    </div>
+                </div>
+                <div class=" table-control">
+                    <div class=" bg-pattern">
+                        <div class="table-height formRoot bill_creditnoteform" id="mainresponsivetablecontrol">
+
+                            <table class="table table-hover table-responsive table-bordered">
+                                <thead class="bg-subhead">
+                                         <tr>
+                                        <th><span translate=""></span></th>
+                                        <th class="fs-12 col-sm-3"><span translate="billing.creditnote.servicename.lbl"></span>&nbsp;*</th>
+                                        <th class="fs-12"><span translate="billing.creditnote.billamt.lbl"></span></th>
+                                        <th class="fs-12"><span translate="billing.creditnote.discount.lbl"></span></th>
+                                        <th class="fs-12"><span translate="billing.creditnote.netamt.lbl"></span></th>
+                                        <th class="fs-12"><span translate="billing.creditnote.cnamt.lbl"></span></th>
+                                        <th class="fs-12 col-sm-2"><span translate="billing.creditnote.cntype.lbl"></span></th>
+                                        <th class="fs-12 "><span translate="billing.creditnote.cnamt.lbl"></span></th>
+                                        <th class="fs-12 col-sm-2"><span translate="billing.creditnote.cmnts.lbl"></span></th>
+
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr ng-repeat="creditnote in CreditNoteDetails | filter:{Status:1}">
+                                        <td class="fs-12">
+                                            <input type="checkbox" class="custom-checkbox" ng-model="creditnote.IsEditable" ng-disabled="creditnote.CNCompleted||item.isCompleted" placeholder="">
+                                        </td>
+                                        <!--<td class="fs-12">
+                                            <input type="text" class="form-control" ng-model="creditnote.ServiceItem.ItemCode||creditnote.Code" placeholder="" ng-disabled="true">
+                                        </td>-->
+                                        <td class="fs-12">
+                                            <input type="text" class="form-control" ng-model="creditnote.ServiceName" placeholder="" ng-disabled="true">
+                                        </td>
+                                        <td class=" fs-12 ">
+                                            <span> {{creditnote.ServiceAmount | displaycurrency }}</span>
+                                        </td>
+                                        <td class="fs-12 ">
+                                            <span>{{creditnote.Discount | displaycurrency}}</span>
+                                        </td>
+                                        <td class="fs-12 ">
+                                            <span>{{creditnote.NetAmount | displaycurrency}}</span>
+                                        </td>
+                                        <td class="fs-12 ">
+                                            <span>{{creditnote.CNAmount | displaycurrency}}</span>
+                                        </td>
+                                        <td class="fs-12 ">
+                                            <ui-select ng-model="creditnote.CreditNoteTypeId" ng-disabled="!creditnote.IsEditable" ng-change="getCreditNoteType(creditnote)">
+                                                <ui-select-match>
+                                                    {{$select.selected.Text | limitTo : 20 : 0}}
+                                                    <span ng-if="$select.selected.Text.length>20">...</span>
+                                                </ui-select-match>
+                                                <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.CreditNoteType | filter: { Text: $select.search }">
+                                                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                                </ui-select-choices>
+                                            </ui-select>
+                                        </td>
+                                        <td class="fs-12 ">
+                                            <input type="text" class="form-control" ng-model="creditnote.CreditNoteAmount" ng-pattern="/^\d+$/" ng-change="calCreditAmount($index)"
+                                                placeholder="" ng-disabled="!creditnote.IsEditable">
+                                        </td>
+                                        <td class="fs-12 ">
+                                            <input type="text" class="form-control" ng-model="creditnote.Comments" ng-disabled="!creditnote.IsEditable" placeholder="">
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <!-- grid area ends -->
+                        </div>
+
+                        <div class="col-sm-12 fullreg-profiles ">
+                            <div class="col-sm-2">
+
+                            </div>
+                            <div class="col-sm-3">
+
+                            </div>
+                            <div class="col-sm-3">
+
+                            </div>
+                            <div class="col-sm-2">
+                               <span class="text-white">Total :</span>  <span class="countbg">{{item.CreditNoteAmount | displaycurrency}}</span>
+                            </div>
+                            <div class="col-sm-2">
+
+                            </div>
+                        </div>
+                    </div>
+                    <div class="footerbar">
+                        <div class="sub-footer">
+                            <div class=" bgfoot ">
+                                <div class="col-sm-12">
+                                    <div class="col-sm-9">
+                                  <fieldset class="fsStyle  col6control" style="height: 145px;">
+                                            <div class="col-sm-3"> </div>
+                                            <div class="col-sm-6">
+                                                <div class="form-group">
+                                                    <label class="  col-sm-5 ng-scope" for="cntype" translate="billing.creditnote.cntype.lbl">  </label>
+                                                      <div class="col-sm-7" id="cndropdownctrl">
+                                                        <ui-select ng-model="item.CreditNoteTypeId" name="cntype" ng-disabled="item.isCompleted" required>
+                                                            <ui-select-match>
+                                                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                                                <span ng-if="$select.selected.Text.length>20">...</span>
+                                                            </ui-select-match>
+                                                            <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.CreditNoteType | filter: { Text: $select.search }">
+                                                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                                            </ui-select-choices>
+                                                        </ui-select>
+                                                    </div>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label class="  col-sm-5 ng-scope" for="cnamounnt" translate="billing.creditnote.cnamt.lbl">  </label>
+                                                    <div class="col-sm-7">
+                                                        <input type="text" class="form-control" ng-pattern="/^\d+$/" name="cnamounnt" ng-disabled="true" ng-change="headerCalc()"
+                                                            ng-model="item.CreditNoteAmount" required>
+                                                    </div>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label class="  col-sm-5 ng-scope" for="approvedby" translate="billing.creditnote.aprvdby.lbl">  </label>
+                                                    <div class="col-sm-7 topright">
+                                                        <ui-select ng-model="item.CreditNoteApprovedById" name="approvedby" ng-disabled="item.isCompleted" required>
+                                                            <ui-select-match>
+                                                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                                                <span ng-if="$select.selected.Text.length>20">...</span>
+                                                            </ui-select-match>
+                                                            <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.User | filter: { Text: $select.search }">
+                                                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                                            </ui-select-choices>
+                                                        </ui-select>
+                                                    </div>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label class="col-sm-5" for="patientbills" translate="billing.creditnote.cmnts.lbl"></label>
+                                                    <div class="col-sm-7">
+                                                        <input type="text" class="form-control" name="" ng-model="item.Comments" ng-disabled="item.isCompleted">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-3"> </div> 
+                                        </fieldset>
+                                    </div>
+                                    <div class="col-sm-3">
+                                        <div class="container">
+                                            <div class="card ">
+                                                <div class="billreceived_amt">
+                                                <h1 class="title ">{{item.CreditNoteAmount | displaycurrency}}
+                                                    <!-- <div class="msg">Rs Only/-</div> -->
+                                                </h1>
+                                            </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="fooder-bgs">
+    <div class="col-sm-12">
+        <div class="col-sm-4">
+            <button type="button" class="btn pyr-color10 btn-sm pull-left" ng-click="backToList()" ss> <i class="fa fa-angle-left" aria-hidden="true"></i><span class="btn-fontsize"> &nbsp; Back</span></button>
+        </div>
+        <div class="col-sm-4">
+
+            <label class="control-label">CN Status</label>&nbsp; : &nbsp;
+            <span class="countbg" ng-if="UpdatedStatus==1">&nbsp; Draft &nbsp;</span>
+            <span class="countbg" ng-if="UpdatedStatus==2">&nbsp; Completed &nbsp;</span>
+            <span class="countbg" ng-if="UpdatedStatus==3">&nbsp; Cancelled &nbsp;</span>
+
+        </div>
+        <div class="pull-right">
+            <button type="button" class="draftbutton" ng-show="item.isCompleted" ng-click="Refund()" translate="billing.creditnote.refundbtn.lbl"></button>
+            <!--<button type="button"  class="draftbutton" ng-click="print()" translate="common.printaction.lbl" ng-if="item.isCompleted"></button>-->
+            <printcontrol ng-if="item.isCompleted" printclick="print()"
+                                 originalprintclick="originalprint()" hotkey="{'alt+p': print}" reason="currentcontext.printreason"></printcontrol>
+            <!--<button type="button" id="btnsubmit" class="draftbutton" translate="common.saveaction.lbl" ng-click="saveDraft()"
+                ng-if="!item.isCompleted"></button>-->
+            <button type="button" class="btn btn-info btn-sm" translate="billing.opbilling-list.saveandapprove.lbl" ng-click="saveAndApprove()"
+                ng-if="!item.isCompleted"></button>
+            <button type="button" class="btn btn-warning btn-sm hidden-sm " ng-click="clear()" ng-if="!item.isCompleted" translate="common.clearaction.lbl"></button>
+        </div>
+    </div>
+</div>
+
+</div>

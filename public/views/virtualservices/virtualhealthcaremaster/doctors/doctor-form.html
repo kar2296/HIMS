@@ -1,0 +1,554 @@
+<link href="app/css/regbilling.css" rel="stylesheet">
+<style>
+    .token-num input {
+        border-radius: 103px;
+        width: 46px;
+        height: 46px !important;
+        text-align: center;
+        font-size: 13px;
+        color: #2196f3;
+    }
+
+    .form-horizontal .form-group {
+        height: 72px;
+    }
+
+    td.drhms-special-count {
+        color: #f44336 !important;
+    }
+
+    .filters {
+        margin: 5px auto;
+    }
+</style>
+<div class="row">
+    <form id="item_form" name="item_form" class="form-horizontal" role="form">
+        <div class="row">
+            <div class="drhms-sub-header-border" translate="virtualhealth.doctors.info_details.lbl">
+            </div>
+            <div class="col-sm-4" style="margin-top: 30px;">
+                <div class="drhms-user_image" ng-show="!item.iswebcamphoto">
+                    <img class="patient-img drhms-img-thumbnail" tabindex="-1" ng-show="!!currentcontext.file"
+                        ngf-thumbnail="currentcontext.file" />
+                    <img ng-show="!currentcontext.file && item.PhotoPath"
+                        data-ng-src="data:image/png;base64,{{currentcontext.Photo}}" tabindex="-1"
+                        class="patient-img drhms-img-thumbnail" />
+                    <img ng-show="!currentcontext.file && !item.PhotoPath" src="app/img/main/img.jpg" tabindex="-1"
+                        class="drhms-img-thumbnail ">
+                </div>
+                <div class="drhms-webcam-pic" ng-show="item.iswebcamphoto">
+                    <img data-ng-src="data:image/png;base64,{{item.webcamphoto}}" tabindex="-1"
+                        class="patient-img drhms-img-thumbnail" />
+                </div>
+                <div class="drhms-outer_ilayer">
+                    <div class="drhms-profile-upload-btn">
+                        <input type="file" ng-disabled="SaveCompleted" ngf-select ng-model="currentcontext.file"
+                            tabindex="-1" name="file" id="drhms-input-file" class="inputfile" ngf-max-size="200MB"
+                            ng-change="photoFileChanged()" />
+                        <label for="file-1" class="drhms-upload-btn" tabindex="-1" ng-disabled="SaveCompleted"
+                            uib-tooltip="Upload" tooltip-placement="bottom">
+                            <span class="drhms-registration-btn">Upload</span>
+                        </label>
+                        <button type="button" ng-disabled="SaveCompleted" class="drhms-webcam-btn" tabindex="-1"
+                            ng-click="openWebCam()" uib-tooltip="webcam" tooltip-placement="bottom">
+                            <span class="drhms-registration-btn">Web Camera</span>
+                        </button>
+                        <button type="button" ng-disabled="SaveCompleted" class="drhms-clear-btn" tabindex="-1"
+                            ng-click="clearimage()" uib-tooltip="Clear" tooltip-placement="bottom">
+                            <span class="drhms-registration-btn">Remove</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group col-sm-3">
+                <label class="col-sm-12 control-label0" for="title" translate="virtualhealth.doctors.title.lbl"></label>
+                <div class="col-sm-12">
+                    <ui-select ng-model="item.TitleId" name="title" ng-change="fillGenderInfo()" required>
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 20 : 0}}
+                            <span ng-if="$select.selected.Text.length>20">...</span>
+                        </ui-select-match>
+                        <ui-select-choices
+                            repeat="lookupitem.Id as lookupitem in lookup.Title | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search">
+                            </div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+            <div class="form-group col-sm-3">
+                <label class="col-sm-12 control-label0" for="firstname"
+                    translate="virtualhealth.doctors.firstname.lbl"></label>
+                <div class="col-sm-12">
+                    <input type="text" class="form-control" name="firstname" ng-model="item.FirstName" placeholder=""
+                        required>
+                </div>
+            </div>
+            <!-- <div class="form-group col-sm-3">
+                <label class="col-sm-12 control-label0"
+                    translate="virtualhealth.doctors.middlename.lbl"></label>
+                <div class="col-sm-12">
+                    <input type="text" class="form-control" name="middlename" ng-model="item.MiddleName"
+                        placeholder="">
+                </div>
+            </div> -->
+            <div class="form-group col-sm-3">
+                <label class="col-sm-12 control-label0" translate="virtualhealth.doctors.lastname.lbl"></label>
+                <div class="col-sm-12">
+                    <input type="text" class="form-control" name="lastname" ng-model="item.LastName" placeholder="">
+                </div>
+            </div>
+            <div class="form-group col-sm-3">
+                <label class="col-sm-12 control-label0" for="age" translate="virtualhealth.doctors.age.lbl"></label>
+                <div class="col-sm-12">
+                    <input type="text" class="form-control" name="age" ng-model="item.Age" placeholder=""
+                        ng-change="calculateDOB()" required>
+                </div>
+            </div>
+            <div class="form-group col-sm-3">
+                <label class="col-sm-12 control-label0" for="dob" translate="virtualhealth.doctors.dob.lbl"></label>
+                <div class="col-sm-12">
+                    <div class="datepicker">
+                        <input type="text" class="form-control" name="dob" ng-date-object
+                            uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                            placeholder="{{datePickerOptions.placeholder}}" ng-click="dobPopup = { opened: true }"
+                            is-open="dobPopup.opened" ng-model="item.DOB" ng-change="calculateAge()" required>
+                        <i class="fa fa-calendar" aria-hidden="true"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group col-sm-3">
+                <label class="col-sm-12 control-label0" translate="virtualhealth.doctors.gender.lbl"></label>
+                <div class="col-sm-12">
+                    <ui-select ng-model="item.GenderId">
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 20 : 0}}
+                            <span ng-if="$select.selected.Text.length>20">...</span>
+                        </ui-select-match>
+                        <ui-select-choices
+                            repeat="lookupitem.Id as lookupitem in lookup.Gender | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search">
+                            </div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+            <div class="form-group col-sm-3">
+                <label class="col-sm-12 control-label0" translate="virtualhealth.doctors.qualification.lbl"></label>
+                <div class="col-sm-12">
+                    <input type="text" class="form-control" name="qualification" ng-model="item.Qualification"
+                        placeholder="">
+                </div>
+            </div>
+            <div class="form-group col-sm-3">
+                <label class="col-sm-12 control-label0" translate="virtualhealth.doctors.experience.lbl"></label>
+                <div class="col-sm-12">
+                    <input type="text" class="form-control" name="experience" ng-model="item.Experience" placeholder="">
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="form-group col-sm-3">
+                <label class="col-sm-12 control-label0" for="designation"
+                    translate="virtualhealth.doctors.designation.lbl"></label>
+                <div class="col-sm-12">
+                    <input type="text" class="form-control" name="designation" ng-model="item.Designation"
+                        placeholder="">
+                </div>
+            </div>
+            <div class="form-group col-sm-3">
+                <label class="col-sm-12 control-label0" for="address"
+                    translate="virtualhealth.doctors.address1.lbl"></label>
+                <div class="col-sm-12">
+                    <input type="text" id="Manualadd" class="form-control" name="address" ng-model="item.AddressLine1"
+                        ng-disabled="item.candisable" placeholder="Address">
+                </div>
+            </div>
+            <div class="form-group col-sm-3">
+                <label class="col-sm-12 control-label0" for="address"
+                    translate="virtualhealth.doctors.address2.lbl"></label>
+                <div class="col-sm-12">
+                    <input type="text" id="Manualadd" class="form-control" name="address" ng-model="item.AddressLine2"
+                        ng-disabled="item.candisable" placeholder="Address">
+                </div>
+            </div>
+            <div class="form-group col-sm-3">
+                <label class="col-sm-12 control-label0" for="area" translate="virtualhealth.doctors.area.lbl"></label>
+                <div class="col-sm-12">
+                    <input type="text" id="Manualadd" class="form-control" name="area" ng-model=""
+                        ng-disabled="item.candisable" placeholder="">
+                </div>
+            </div>
+            <div class="form-group col-sm-3">
+                <label class="col-sm-12 control-label0" for="city" translate="virtualhealth.doctors.city.lbl"></label>
+                <div class="col-sm-12">
+                    <ui-select ng-model="vm.item.CityId">
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 50 : 0}}
+                            <span ng-if="$select.selected.Text.length>20">...</span>
+                        </ui-select-match>
+                        <ui-select-choices
+                            repeat="lookupitem.Id as lookupitem in lookup.Nationality | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+            <div class="form-group col-sm-3">
+                <label class="col-sm-12 control-label0" for="state" translate="virtualhealth.doctors.state.lbl"></label>
+                <div class="col-sm-12">
+                    <ui-select ng-model="item.StateId" name="type">
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 20 : 0}}
+                            <span ng-if="$select.selected.Text.length>20">...</span>
+                        </ui-select-match>
+                        <ui-select-choices
+                            repeat="lookupitem.Id as lookupitem in lookup.State | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+            <div class="form-group col-sm-3">
+                <label class="col-sm-12 control-label0" for="country"
+                    translate="virtualhealth.doctors.country.lbl"></label>
+                <div class="col-sm-12">
+                    <ui-select ng-model="item.CountryId" name="type">
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 20 : 0}}
+                            <span ng-if="$select.selected.Text.length>20">...</span>
+                        </ui-select-match>
+                        <ui-select-choices
+                            repeat="lookupitem.Id as lookupitem in lookup.State | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+            <div class="form-group col-sm-3">
+                <label class="col-sm-12 control-label0" for="pincode"
+                    translate="virtualhealth.doctors.pincode.lbl"></label>
+                <div class="col-sm-12">
+                    <input type="text" id="vm.item.Pincode" class="form-control" name="address"
+                        ng-model="vm.item.PinCodeId" ng-disabled="item.candisable" placeholder="">
+                </div>
+            </div>
+            <div class="form-group col-sm-3">
+                <label class="col-sm-12 control-label0" for="mobile"
+                    translate="virtualhealth.doctors.mobile.lbl"></label>
+                <div class="col-sm-12">
+                    <input type="text" class="form-control" name="mobile" ng-model="item.Mobile" placeholder=""
+                        MINLENGTH="10" MAXLENGTH="10" size="10" value="" name="mobile" onChange="numberonly($event)"
+                        onKeyUp="numberonly($event)" ng-keypress="numberonly($event)" required>
+                </div>
+            </div>
+            <div class="form-group col-sm-3">
+                <label class="col-sm-12 control-label0" translate="virtualhealth.doctors.email.lbl"></label>
+                <div class="col-sm-12">
+                    <input type="email" class="form-control" name="email" ng-model="item.Email" placeholder=""
+                        ng-required="false">
+                </div>
+            </div>
+            <div class="form-group col-sm-3">
+                <label class="col-sm-12 control-label0" translate="virtualhealth.doctors.isactive.lbl"></label>
+                <div class="col-sm-2">
+                    <input type="checkbox" name="isactive" class="custom-checkbox" ng-model="item.IsActive">
+                </div>
+            </div>
+            <div class="form-group col-sm-3">
+                <label class="col-sm-12 control-label0" translate="virtualhealth.doctors.issurgeon.lbl"></label>
+                <div class="col-sm-2">
+                    <input type="checkbox" name="issurgeon" class="custom-checkbox" ng-model="item.IsSurgeon">
+                </div>
+            </div>
+            <div class="form-group col-sm-3">
+                <label class="col-sm-12 control-label0" translate="virtualhealth.doctors.isanaesthisist.lbl"></label>
+                <div class="col-sm-2">
+                    <input type="checkbox" name="isanaesthisist" class="custom-checkbox" ng-model="item.IsAnaesthisist">
+                </div>
+            </div>
+            <div class="form-group col-sm-3">
+                <label class="col-sm-12 control-label0" translate="virtualhealth.doctors.isdueapprover.lbl"></label>
+                <div class="col-sm-2">
+                    <input type="checkbox" name="isdueapprover" class="custom-checkbox" ng-model="item.IsPrivate">
+                </div>
+            </div>
+            <div class="form-group col-sm-3" ng-if="item.IsPrivate">
+                <label class="col-sm-12 control-label0" translate="virtualhealth.doctors.duelimit.lbl"></label>
+                <div class="col-sm-12">
+                    <input type="text" class="form-control" ng-model="item.PrivateDueLimit" ng-change="amount()"
+                        placeholder="">
+                </div>
+            </div>
+            <div class="form-group col-sm-3">
+                <label class="col-sm-12 control-label0" translate="virtualhealth.doctors.isdiscount.lbl"></label>
+                <div class="col-sm-2">
+                    <input type="checkbox" name="isdiscount" class="custom-checkbox" ng-model="item.IsDiscount">
+                </div>
+            </div>
+            <div class="form-group col-sm-3" ng-if="item.IsDiscount">
+                <label class="col-sm-12 control-label0" translate="virtualhealth.doctors.discountlimit.lbl"></label>
+                <div class="col-sm-8">
+                    <ui-select ng-model="item.DiscountModeId" ng-change="item.DiscountLimit=null">
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 20 : 0}}
+                            <span ng-if="$select.selected.Text.length>20">...</span>
+                        </ui-select-match>
+                        <ui-select-choices
+                            repeat="lookupitem.Id as lookupitem in lookup.DiscountMode | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+                <div class="col-sm-4">
+                    <input type="text" class="form-control" ng-if="item.DiscountModeId>0" ng-model="item.DiscountLimit"
+                        placeholder="">
+                </div>
+            </div>
+            <div class="form-group col-sm-3">
+                <label class="col-sm-12 control-label0" for="istds" translate="virtualhealth.doctors.istds.lbl"></label>
+                <div class="col-sm-2">
+                    <input type="checkbox" name="istds" class="custom-checkbox" ng-model="item.IsTDS">
+                </div>
+            </div>
+            <div class="form-group col-sm-3" ng-if="item.IsTDS">
+                <label class="col-sm-12 control-label0" translate="virtualhealth.doctors.tds%.lbl"></label>
+                <div class="col-sm-8">
+                    <ui-select ng-model="item.TDSId">
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 20 : 0}}
+                            <span ng-if="$select.selected.Text.length>20">...</span>
+                        </ui-select-match>
+                        <ui-select-choices
+                            repeat="lookupitem.Id as lookupitem in lookup.GstMaster | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+                <div class="col-sm-4">
+                    <input type="text" class="form-control" ng-if="item.DiscountModeId>0" ng-model="item.DiscountLimit"
+                        placeholder="">
+                </div>
+            </div>
+            <div class="form-group col-sm-3">
+                <label class="col-sm-12 control-label0" for="staff" translate="virtualhealth.doctors.staff.lbl"></label>
+                <div class="col-sm-2">
+                    <input type="checkbox" name="staff" class="custom-checkbox" ng-model="item.Staff">
+                </div>
+            </div>
+            <div class="form-group col-sm-5">
+                <div class="col-sm-12" style="border: 1px dashed;height: 100px !important;">
+                    <div class="col-sm-10">
+                        <img ng-if="item.signimagedata" height="100" width="250" ng-src="{{item.signimagedata}}">
+                        <img height="100" width="250" ng-if="!item.signimagedata && item.SignPath"
+                            data-ng-src="data:image/png;base64,{{currentcontext.SignPhoto}}" />
+                    </div>
+                    <div class="col-sm-2">
+                        <button type="button" style="margin-top: 4px;margin-left: -13px;" class="btn btn-info btn-xs"
+                            translate="virtualhealth.doctors.signaction.lbl" ng-click="openSignModal()"></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <h4 class="drhms-sub-header-border" translate="virtualhealth.doctors.pnlorganizationsecurity.lbl"></h4>
+            <div class="form-group col-sm-3">
+                <label class="col-sm-12 control-label0" for="organisationname"
+                    translate="virtualhealth.doctors.organizationname.lbl"></label>
+                <div class="col-sm-12">
+                    <ui-select ng-model="item.OrgId" name="organisationname" required>
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 20 : 0}}
+                            <span ng-if="$select.selected.Text.length>20">...</span>
+                        </ui-select-match>
+                        <ui-select-choices
+                            repeat="lookupitem.Id as lookupitem in lookup.Organization | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search">
+                            </div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+            <div class="form-group col-sm-3">
+                <label class="col-sm-12 control-label0" for="facilityname"
+                    translate="virtualhealth.doctors.facilityname.lbl"></label>
+                <div class="col-sm-12">
+                    <ui-select ng-model="item.FacilityId" name="facilityname" required>
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 20 : 0}}
+                            <span ng-if="$select.selected.Text.length>20">...</span>
+                        </ui-select-match>
+                        <ui-select-choices
+                            repeat="lookupitem.Id as lookupitem in lookup.Facility | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search">
+                            </div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+            <div class="form-group col-sm-3">
+                <label class="col-sm-12 control-label0" for="department"
+                    translate="virtualhealth.doctors.department.lbl"></label>
+                <div class="col-sm-12">
+                    <ui-select ng-model="item.DepartmentId" name="department" ng-change="getsubdeptUsers()" required>
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 20 : 0}}
+                            <span ng-if="$select.selected.Text.length>20">...</span>
+                        </ui-select-match>
+                        <ui-select-choices
+                            repeat="lookupitem.Id as lookupitem in lookup.Department | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search">
+                            </div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+            <div class="form-group col-sm-3">
+                <label class="col-sm-12 control-label0" translate="virtualhealth.doctors.subdepartment.lbl"></label>
+                <div class="col-sm-12">
+                    <ui-select ng-model="item.SubDepartmentId" on-select="onDeptSelected($select.selected)">
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 20 : 0}}
+                            <span ng-if="$select.selected.Text.length>20">...</span>
+                        </ui-select-match>
+                        <ui-select-choices
+                            repeat="lookupitem.Id as lookupitem in lookup.SubDepartment | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search">
+                            </div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+            <div class="form-group col-sm-3">
+                <label class="col-sm-12 control-label0" for="category"
+                    translate="virtualhealth.doctors.category.lbl"></label>
+                <div class="col-sm-12">
+                    <ui-select ng-model="item.VirtualCategoryId" name="category" ng-change="getvirtualsubcategory()"
+                        required>
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 20 : 0}}
+                            <span ng-if="$select.selected.Text.length>20">...</span>
+                        </ui-select-match>
+                        <ui-select-choices
+                            repeat="lookupitem.Id as lookupitem in lookup.VirtualCategory | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search">
+                            </div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+            <div class="form-group col-sm-3">
+                <label class="col-sm-12 control-label0" for="subcategory"
+                    translate="virtualhealth.doctors.subcategory.lbl"></label>
+                <div class="col-sm-12">
+                    <ui-select ng-model="item.VirtualSubCategoryId" name="subcategory" required>
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 20 : 0}}
+                            <span ng-if="$select.selected.Text.length>20">...</span>
+                        </ui-select-match>
+                        <ui-select-choices
+                            repeat="lookupitem.Id as lookupitem in lookup.VirtualSubCategory | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search">
+                            </div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+            <div class="form-group col-sm-3">
+                <label class="col-sm-12 control-label0" for="usergroup"
+                    translate="virtualhealth.doctors.usergroup.lbl"></label>
+                <div class="col-sm-12">
+                    <ui-select ng-model="item.UserGroupId" name="usergroup" required>
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 20 : 0}}
+                            <span ng-if="$select.selected.Text.length>20">...</span>
+                        </ui-select-match>
+                        <ui-select-choices
+                            repeat="lookupitem.Id as lookupitem in lookup.Group | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search">
+                            </div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+            <div class="form-group col-sm-3">
+                <label class="col-sm-12 control-label0" for="usertype"
+                    translate="virtualhealth.doctors.usertype.lbl"></label>
+                <div class="col-sm-12">
+                    <ui-select ng-model="item.UserTypeId" name="usertype" required>
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 20 : 0}}
+                            <span ng-if="$select.selected.Text.length>20">...</span>
+                        </ui-select-match>
+                        <ui-select-choices
+                            repeat="lookupitem.Id as lookupitem in lookup.UserType | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search">
+                            </div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+            <div class="form-group col-sm-3">
+                <label class="col-sm-12 control-label0" for="loginname"
+                    translate="virtualhealth.doctors.loginname.lbl"></label>
+                <div class="col-sm-12">
+                    <input type="text" class="form-control" name="loginname" ng-model="item.UserName" placeholder=""
+                        required>
+                </div>
+                <div class="col-sm-12">
+                    <a title="{{currentcontext.usernamecriteriamsg}}" ng-show="currentcontext.loginsetting">
+                        <i class="icon-info-sign btn-circle" aria-hidden="true"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="form-group col-sm-3">
+                <label class="col-sm-12 control-label0" for="password"
+                    translate="virtualhealth.doctors.password.lbl"></label>
+                <div class="col-sm-12">
+                    <input type="password" class="form-control" name="password" ng-model="item.Password" placeholder=""
+                        required>
+                </div>
+                <div class="col-sm-12">
+                    <a title="{{currentcontext.pwdcriteriamsg}}" ng-show="currentcontext.loginsetting">
+                        <i class="icon-info-sign btn-circle" aria-hidden="true"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="form-group col-sm-3">
+                <label class="col-sm-12 control-label0" for="usertype"
+                    translate="virtualhealth.doctors.confirmpassword.lbl"></label>
+                <div class="col-sm-12">
+                    <input type="password" class="form-control" name="confirmpassword" ng-model="item.ConfirmPassword"
+                        ng-fab-match="item.Password" placeholder="" required>
+                </div>
+            </div>
+            <div class="form-group col-sm-3">
+                <label class="col-sm-12 control-label0"
+                    translate="virtualhealth.doctors.applicationlognpermission.lbl"></label>
+                <div class="col-sm-12">
+                    <input type="checkbox" name="applicationlognpermission" class="custom-checkbox"
+                        ng-model="item.LoginPermission" ng-checked="item.LoginPermission == 1">
+                </div>
+            </div>
+        </div>
+        <div class="fooder-bgs">
+            <div class="row">
+                <div class="pull-left">
+                    <button class="btn pyr-color10 btn-sm" type="button" ng-click="backToList()">
+                        <i class="fa fa-angle-left" aria-hidden="true"></i>&nbsp;&nbsp;
+                        <span class="btn-fontsize" translate="common.backaction.lbl"></span>
+                    </button>
+
+                </div>
+                <div class="pull-right">
+                    <button type="button"   class="draftbutton"
+                        translate="common.saveaction.lbl" ng-click="save()"></button>
+                    <button id="btnSaveApprove" type="button" class="draftbutton"
+                        translate="common.saveapprove-action.lbl" ng-click="saveAndApprove()"></button>
+                    <button type="button" class="draftbutton" ng-click="clear()"
+                        translate="common.clearaction.lbl"></button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>

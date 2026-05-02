@@ -1,0 +1,110 @@
+<style>
+    .modal-lg {
+        width: 65%;
+    }
+
+    /**@media screen and (min-width:1360px){.fooder-bg.ipbill_footer{position: absolute;
+        top: 141px;left: -5px !important;
+        width: 100% !important;}}**/
+</style>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        $("#itembtn").click(function () {
+            $(".items").toggle();
+        });
+    });
+    $(document).ready(function () {
+        $("#categorybtn").click(function () {
+            $(".catogories").toggle();
+        });
+    });
+
+</script>
+<div class="modal-header custom-modal-header">
+    <h4 class="modal-title custom-modal-title col-sm-11">{{ServiceCategoryName}}</h4>
+    <div class="col-sm-1">
+    <button id="btnCancelForm" type="button" class="draftbutton" ng-click="cancelCallback()" translate="X"></button>
+</div>
+</div>
+<div class="bg-pattern">
+    <patientbanner patientid="PatientId"></patientbanner>
+    <div class=" table-control">
+        <div class="table-height" id="mainresponsivetablecontrol">
+            <table class="table table-hover table-responsive table-bordered">
+                <thead class="bg-subhead">
+                    <tr>
+                        <th class="col-sm-3">
+                            <span translate="billing.supplementary-details.serviceitem.lbl"></span>
+                        </th>
+                        <th class="col-sm-2">
+                            <span translate="billing.supplementary-details.date.lbl"></span>
+                        </th>
+                        <th class="col-sm-1">
+                            <span translate="billing.supplementary-details.qty.lbl"></span>
+                        </th>
+                        <th class="col-sm-1">
+                            <span translate="billing.supplementary-details.rate.lbl"></span>
+                        </th>
+                        <th class="col-sm-1">
+                            <span translate="billing.supplementary-details.discount.lbl"></span>
+                        </th>
+                        <th class="col-sm-2">
+                            <span translate="billing.supplementary-details.netamount.lbl"></span>
+                        </th>
+                        <th class="col-sm-1">
+                            <span translate="billing.supplementary-details.issupplimentary.lbl"></span>
+                        </th>
+                        <th class="col-sm-1">
+                            <span translate="billing.supplementary-details.action.lbl"></span>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="supplementarycategorydetail in SupplementaryCategoryDetails | filter:{Status:1}">
+                        <td>
+                            <label>{{supplementarycategorydetail.ServiceName}}</label>
+                        </td>
+                        <td>
+                            <input type="text" class="form-control" name="modifiedbilldatetime" ng-date-object datetime-picker="{{datePickerOptions.dateTimeFormat}}"
+                                datepicker-append-to-body="true" placeholder="{{datePickerOptions.placeholder}}" ng-click="modifiedbilldatetimePopup = { opened: true }"
+                                is-open="modifiedbilldatetimePopup.opened" ng-model="supplementarycategorydetail.ModifiedBillDateTime">
+                        </td>
+                        <td>
+                            <input type="text" min="0" ng-keypress="numberonly($event)" ng-pattern="/^\d+$/" class="form-control" ng-model="supplementarycategorydetail.Quantity"
+                                placeholder="" ng-change="computeAmount($index, supplementarycategorydetail)">
+                        </td>
+                        <td>
+                            <input type="text" min="0" ng-keypress="numberonly($event)" ng-pattern="/^\d+$/" class="form-control" ng-model="supplementarycategorydetail.Rate"
+                                placeholder="" ng-change="computeAmount($index, supplementarycategorydetail)">
+                        </td>
+                        <td>
+                            <input type="text" min="0" ng-keypress="numberonly($event)" ng-pattern="/^\d+$/" class="form-control" ng-model="supplementarycategorydetail.DiscountAmount"
+                                placeholder="" ng-change="computeAmount($index, supplementarycategorydetail)">
+                        </td>
+                        <td class="currency-align">
+                            <label>{{supplementarycategorydetail.NetAmount | displaycurrency}}</label>
+                        </td>
+                        <td>
+                            <input type="checkbox" class="custom-checkbox" name="issupplementary" ng-model="supplementarycategorydetail.IsSupplementary"
+                                ng-checked="supplementarycategorydetail.IsSupplementary == 1">
+                        </td>
+                        <td class="text-center">
+                            <button type="button" class="drhms-edit-button" ng-click="deleteSupplementaryCategoryDetail($index,supplementarycategorydetail)">
+                                <img src="assets/svg/delete.svg" alt="">
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<div class="fooder-bg ipbill_footer ">
+    <div class="pull-right">
+        <div class="col-sm-12">
+            <button type="button" ng-if="SupplementaryCategoryDetails.length > 0" class="draftbutton" ng-click="updateSupplementaryCategoryDetails()"
+                translate="common.updateaction.lbl"></button>            
+        </div>
+    </div>
+</div>

@@ -1,0 +1,221 @@
+<style>
+    .modal-content .panel-body {
+        overflow: inherit;
+    }
+
+    .autosearch-div>input {
+        background-size: 10.7%!important;
+    }
+
+    .typeahead-demo>input {
+        background: url(app/img/patterns-bg/search.png) 102.2% center no-repeat #fff;
+        background-size: 10.7%!important;
+    }
+
+    .custom-popup-wrapper>.table>thead>tr>td:nth-child(4) {
+        width: 23%;
+    }
+
+    .btn:focus {
+        border: 2px solid black;
+    }
+
+    .autosearch-div .custom-popup-wrapper>.dropdown-menu {
+        width: 71% !important;
+    }
+
+    #Diagnosis .autosearch-div .custom-popup-wrapper {
+        width: 250% !important;
+        margin-left: -191px;
+    }
+
+    .fullreg-profiles {
+        min-height: 21px;
+        padding: 0px;
+        background: #081473c7 !important;
+        color: #fff;
+    }
+</style>
+<div class="modal-header custom-modal-header">
+    <div class="col-sm-12 ">
+        <h3 class="panel-title" translate="frequest.pagetitle.lbl"></h3>
+    </div>
+</div>
+<div class="col-sm-12 fullreg-profiles">
+    <span ng-module="currentcontext.patinfo" ng-if="selectedPatient.MRN.length > 0" class="forpadd">
+        <b>
+            <span>{{selectedPatient.Title.Description}} {{selectedPatient.FirstName}}</span> |
+            <span>{{selectedPatient.MRN}} </span> |
+            <span> {{selectedPatient.Gender.Description}}</span> |
+            <span> {{selectedPatient.Age}} Years </span> |
+            <span>{{selectedPatient.DOB | date : 'dd/MMM/yyyy' }}</span>
+        </b>
+        <span ng-click="patientprofiledetails()">
+            <i class="icon-info-sign"></i>
+        </span>
+    </span>
+</div>
+<div class="row">
+    <div class="col-sm-12 ">
+        <form id="item_form" name="item_form" class="form-horizontal" role="form">
+            <div>
+                <div class="">
+                    <div class="panel-body form-panel">
+                        <div class="col-sm-12">
+                            <!-- leftpanel -->
+                            <div class="col-sm-6 ">
+                                <div class="col-sm-12 well">
+                                    <div class="form-group">
+                                        <label class="col-sm-7 col-md-5 control-label" for="fromdepartment" translate="frequest.reqfrom.lbl"></label>
+                                        <div class="col-sm-5 col-md-7">
+                                            <ui-select ng-model="item.FromDepartmentId" name="fromdepartment" ng-disabled="IsDisabled" required>
+                                                <ui-select-match>
+                                                    {{$select.selected.Text | limitTo : 25 : 0}}
+                                                    <!--<span ng-if="$select.selected.Text.length>20">...</span>-->
+                                                </ui-select-match>
+                                                <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.Department | filter: { Text: $select.search }">
+                                                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                                </ui-select-choices>
+                                            </ui-select>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-sm-7 col-md-5 control-label" for="todepartment" translate="frequest.reqto.lbl"></label>
+                                        <div class="col-sm-5 col-md-7">
+                                            <ui-select ng-model="item.ToDepartmentId" name="todepartment" ng-disabled="IsDisabled" required>
+                                                <ui-select-match>
+                                                    {{$select.selected.Text | limitTo : 20 : 0}}
+                                                    <span ng-if="$select.selected.Text.length>20">...</span>
+                                                </ui-select-match>
+                                                <ui-select-choices repeat="lookupitem.Id as lookupitem in      lookup.Department | filter: { Text: $select.search }">
+                                                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                                </ui-select-choices>
+                                            </ui-select>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-sm-7 col-md-5 control-label" for="graphtype" translate="frequest.patientname.lbl"></label>
+                                        <div class="col-sm-5 col-md-7">
+                                            <autosearch itemid="item.PatientId" iteminfo="item.SelectedItem" rowdata="item" config="vm.patientconfig" itemchange="patientChange($index,item)"
+                                                class="inputsearchlogo"></autosearch>
+                                            <!-- <patientsearch patientid="item.PatientId" candisable="item.isRequested" class="" name="txtpatientsearch" patientinfo="selectedPatient"
+                                                patientchange="patientChange()" required></patientsearch> -->
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label class="col-sm-7 col-md-5 control-label" for="type" translate="frequest.type.lbl"></label>
+                                        <div class="col-sm-5 col-md-7">
+                                            <ui-select ng-model="item.MRDTypeId" name="type" ng-disabled="IsDisabled">
+                                                <ui-select-match>
+                                                    {{$select.selected.Text | limitTo : 20 : 0}}
+                                                    <span ng-if="$select.selected.Text.length>20">...</span>
+                                                </ui-select-match>
+                                                <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.EncounterType | filter: { Text: $select.search }">
+                                                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                                </ui-select-choices>
+                                            </ui-select>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-sm-7 col-md-5 control-label" for="doctor" translate="frequest.requestedby.lbl"></label>
+                                        <div class="col-sm-5 col-md-7">
+                                            <ui-select ng-model="item.RequestedDoctorId" name="doctor" ng-disabled="IsDisabled" required>
+                                                <ui-select-match>
+                                                    {{$select.selected.Text | limitTo : 20 : 0}}
+                                                    <span ng-if="$select.selected.Text.length>20">...</span>
+                                                </ui-select-match>
+                                                <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.User| filter: { Text: $select.search }">
+                                                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                                </ui-select-choices>
+                                            </ui-select>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-sm-7 col-md-5 control-label" for="requesttype" translate="frequest.requesttype.lbl"></label>
+                                        <div class="col-sm-5 col-md-7">
+                                            <ui-select ng-model="item.RequestTypeId" name="requesttype" ng-disabled="IsDisabled" required>
+                                                <ui-select-match>
+                                                    {{$select.selected.Text | limitTo : 20 : 0}}
+                                                    <span ng-if="$select.selected.Text.length>20">...</span>
+                                                </ui-select-match>
+                                                <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.MRDRequestType| filter: { Text: $select.search }">
+                                                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                                </ui-select-choices>
+                                            </ui-select>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-sm-7 col-md-5 control-label" for="status" translate="frequest.status.lbl"></label>
+                                        <div class="col-sm-5 col-md-7">
+                                            <input type="text" class="form-control" name="status" ng-model="item.DisplayMRDMovementStatus" id="disabledInput" placeholder=""
+                                                disabled>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- rightpanel -->
+                            <div class="col-sm-6">
+                                <div class="col-sm-12 well">
+                                    <div class="form-group">
+                                        <label class="col-sm-7 col-md-5 control-label" for="volume" translate="frequest.volume.lbl"></label>
+                                        <div class="col-sm-5 col-md-7">
+                                            <input type="text" class="form-control" name="volume" ng-disabled="IsDisabled" ng-model="item.Volume" placeholder="">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-sm-7 col-md-5 control-label" for="priority" translate="frequest.priority.lbl"></label>
+                                        <div class="col-sm-5 col-md-7">
+                                            <ui-select ng-model="item.PriorityId" name="priority" ng-disabled="IsDisabled" required>
+                                                <ui-select-match>
+                                                    {{$select.selected.Text | limitTo : 20 : 0}}
+                                                    <span ng-if="$select.selected.Text.length>20">...</span>
+                                                </ui-select-match>
+                                                <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.Priority | filter: { Text: $select.search }">
+                                                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                                </ui-select-choices>
+                                            </ui-select>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-sm-7 col-md-5 control-label" translate="frequest.doctor.lbl"></label>
+                                        <div class="col-sm-5 col-md-7">
+                                            <autosearch itemid="item.DoctorId" iteminfo="vm.doctorcontrolconfig.iteminfo" rowdata="" config="vm.doctorcontrolconfig"
+                                                candisable="IsDisabled"></autosearch>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-sm-7 col-md-5 control-label" for="reason" translate="frequest.reason.lbl"></label>
+                                        <div class="col-sm-5 col-md-7">
+                                            <textarea rows="3" name="reason" ng-model="item.Reason" ng-disabled="IsDisabled" maxlength="4000" style="width: 100%; margin-top: 10px; margin-bottom: 0px; height: 85px;"
+                                                class="notes-textarea ng-pristine ng-valid ng-empty ng-valid-maxlength ng-touched"></textarea>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-sm-7 col-md-5 control-label" translate="frequest.ismanual.lbl"></label>
+                                        <div class="col-sm-5 col-md-7">
+                                            <input type="checkbox" name="ismanual" class="custom-checkbox" ng-model="item.IsManual" ng-checked="item.IsManual == 1">
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="panel-footer formactionbar">
+                <div class="pull-left">
+                    <button id="btnCancelForm" type="button" class="draftbutton" ng-click="cancelrequest()" translate="worklists.cancel.lbl"
+                        ng-if="item.MRDMovementStatusId==1"></button>
+                </div>
+                <div class="pull-right">
+                    <button type="button"   class="draftbutton" translate="common.saveaction.lbl" ng-click="saverequest()"
+                        ng-hide="item.MRDMovementStatusId==1||item.MRDMovementStatusId==2||item.MRDMovementStatusId==3||item.MRDMovementStatusId==4"></button>
+                    <button id="btnCancelForm" type="button" class="draftbutton" ng-click="backToList()" translate="common.cancelaction.lbl"
+                        ng-hide="item.MRDMovementStatusId==1||item.MRDMovementStatusId==2||item.MRDMovementStatusId==3"></button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

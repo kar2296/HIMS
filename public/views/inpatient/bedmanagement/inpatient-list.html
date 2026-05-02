@@ -1,0 +1,93 @@
+<style>
+    .pl-3 {padding-left: 2%;}
+</style>
+
+<div class="row page-header">
+    <h4 class="col-sm-6 mt0" translate="InPatient List"></h4>
+    <div class="col-sm-6">
+        <button class="btn bt-color3 btn-xs pull-right btn-filter" ng-click="openAdvancedFilter()" uib-tooltip="{{'clinicalmaster.serviceitem-list.filter-tooltip.lbl' | translate}}"
+            tooltip-placement="bottom"><i class="fas fa-search" aria-hidden="true"></i>&nbsp;&nbsp;<span translate="clinicalmaster.serviceitem-list.filter.lbl"></span></button>
+    </div>
+</div>
+<div class="row filter-area">
+    <div class="col-sm-12">
+        <div class="col-sm-3">
+            <div class="form-group">
+              <label class="sr-only col-sm-5 control-label filter-lbl" translate="bedmanagement-grid.filter_patient.lbl"></label>
+                <div class="input-group col-sm-7">
+                    <div class="input-group-addon"><i class="fas fa-search" aria-hidden="true"></i></div>
+                    <input type="text" class="form-control" on-enter="getList()" ng-model="currentfilter.patientnamemrn" placeholder="NAME/MRN">
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-3">
+            <div class="form-group">
+                <label class="sr-only col-sm-5 control-label filter-lbl" translate="medicalcertificate.dischargesummary-list.ipno.lbl"></label>
+                <div class="input-group col-sm-7">
+                    <div class="input-group-addon"><i class="fas fa-search" aria-hidden="true"></i></div>
+                    <input type="text" class="form-control" on-enter="getList()" ng-model="currentfilter.VisitIdentifier" placeholder="IP No">
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-3">
+            <label class="col-sm-5 col-md-4 control-label filter-lbl" translate="bedmanagement-grid.filter_doa.lbl"></label>
+            <div class="col-sm-7 col-md-8">
+                <input type="text" class="form-control" name="dateofbirth" ng-change="getList()" datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}"
+                    uib-datepicker-popup="{{datePickerOptions.dateFormat}}" placeholder="{{datePickerOptions.placeholder}}" ng-click="dateofbirthPopup = { opened: true }"
+                    is-open="dateofbirthPopup.opened" ng-model="currentfilter.DOA">
+            </div>
+        </div>
+        <div class="col-sm-3">
+            <label class="col-sm-5 control-label filter-lbl" translate="bedmanagement-grid.filter_roomtype.lbl"></label>
+            <div class="col-sm-7">
+                <ui-select ng-model="currentfilter.RoomId" ng-change="getList()" class="filter-combo">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 8 : 0}}
+                        <span ng-if="$select.selected.Text.length>8">...</span>
+                    </ui-select-match>
+                    <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.Room | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-12 searchpadding">
+          <div class="col-sm-3">
+            <label class="col-sm-5 control-label filter-lbl" translate="medicalcertificate.dischargesummary-list.ward.lbl"></label>
+            <div class="input-group col-sm-7">
+                <ui-select ng-model="currentfilter.WardId" ng-change="getList()" class="filter-combo">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 8 : 0}}
+                        <span ng-if="$select.selected.Text.length>8">...</span>
+                    </ui-select-match>
+                    <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.Ward | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+        <div class="col-sm-3">
+            <label class="col-sm-5 control-label filter-lbl" translate="bedmanagement-grid.filter_doctor.lbl"></label>
+            <div class="input-group col-sm-7">
+                <autosearch itemid="currentfilter.DoctorId" iteminfo="" rowdata="" name="'doctorid'" config="vm.doctorcontrolconfig" itemchange="getList()" onenter="onEnter(data)" candisable="item.isAdmitted"  isrequired="true"></autosearch>
+            </div>
+        </div>
+         <div class="col-sm-3">
+            <label class="col-sm-5 control-label filter-lbl" translate="bedmanagement-grid.filter_status.lbl"></label>
+            <div class="col-sm-7">
+                <multiselectchk list="lookup.AdmissionStatus" selected="currentfilter.admissionstatusid" change="getList()"></multiselectchk>
+            </div>
+        </div>
+        <div class="col-sm-2">
+
+        </div>
+    </div>
+</div>
+<div class="container-fluid" id="patientidentitiesheight">
+    <div ui-grid="vm.gridConfig" class="table-uigrid"></div>
+    <div class="fooder-bgs">
+        <ul uib-pagination total-items="vm.gridConfig.pagerObj.totalItems" items-per-page="vm.gridConfig.pagerObj.pageSize" start-index="vm.gridConfig.pagerObj.startIndex"
+            ng-model="vm.gridConfig.pagerObj.currentPage" ng-change="getList()"></ul>
+    </div>
+</div>

@@ -1,0 +1,161 @@
+<style>
+    .panel-footer {
+        background-color: #ccecf5 !important;
+    }
+
+    .grid1485611170638 .ui-grid-coluiGrid-00AD {
+        min-width: 163px;
+        max-width: 163px;
+    }
+
+    .custom_marbot {
+        margin-bottom: 10px;
+    }
+
+    ul.uib-datepicker-popup.dropdown-menu.ng-scope {
+        left: -30px !important;
+    }
+
+    .pl-3 {
+        padding-left: 3%;
+    }
+
+    .status {
+        background-color: #f1d03f57;
+    }
+
+    .m_bottom {
+        margin-bottom: 7px;
+    }
+</style>
+<div class="row page-header">
+    <div class="col-sm-12">
+        <div class="col-sm-6">
+            <h4 class="page-header mt0" translate="inventory.inventoryworkorder.pagetitle1.lbl"></h4>
+        </div>
+        <div class="col-sm-6 text-right">
+            <span>
+                <!-- <span ng-click="OTdashboard()" ng-hide="context == 'emr'">
+                    <img src="app/img/icons/laundry.png" class="img-responsive emr-drdashicon" alt="home" uib-tooltip="{{'otrequest-list.OTdashboard.lbl'| translate}} "
+                        tooltip-placement="bottom">
+                </span> -->
+                <button class="btn bt-color2 btn-xs pull-right  btn-filter" ng-click="addNew()" uib-tooltip="{{ 'inventory.inventoryworkorder.pagetitle.lbl' | translate }}"
+                    tooltip-placement="bottom">
+                    <i class="fa fa-plus" aria-hidden="true"></i>
+                    <strong class="btn-fontsize" translate="common.addnewaction.lbl"> </strong>
+                </button>
+
+            </span>
+        </div>
+    </div>
+</div>
+<div class="row filter-area">
+    <div class="col-sm-12 ">
+        <div class="row custom_marbot">
+            <div class="col-sm-3 ">
+                <div class="col-sm-5">
+                    <label class="control-label" for="stockingpoint" translate="inventory.inventoryworkorder.department.lbl"></label>
+                </div>
+                <div class="col-sm-7">
+                    <ui-select ng-model="currentfilter.DepartmentId" ng-change="getList()" name="stockingpoint">
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 20 : 0}}
+                            <span ng-if="$select.selected.Text.length>20">...</span>
+                        </ui-select-match>
+                        <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.Department | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+            <div class="col-sm-3 ">
+                <div class="col-sm-5">
+                    <label class="control-label" for="diposeddate" translate="inventory.inventoryworkorder.date.lbl"></label>
+                </div>
+                <div class="col-sm-7">
+                    <input type="text" class="form-control" name="diposeddate" ng-date-object datepicker-options="datePickerOptions"
+                        show-button-bar="{{datePickerOptions.showButtonBar}}" uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                        placeholder="{{datePickerOptions.placeholder}}" ng-click="expirydatePopup = { opened: true }"
+                        is-open="expirydatePopup.opened" ng-model="currentfilter.ServiceBillDate" ng-change="getList()">
+                </div>
+            </div>
+            <div class="col-sm-3 ">
+                <div class="col-sm-5">
+                    <label class="control-label" for="status" translate="inventory.inventoryworkorder.type.lbl"></label>
+                </div>
+                <div class="col-sm-7">
+                    <ui-select ng-model="currentfilter.ServiceBillTypeId" ng-change="getList()" name="status">
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 20 : 0}}
+                            <span ng-if="$select.selected.Text.length>20">...</span>
+                        </ui-select-match>
+                        <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.ServiceBillType | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+            <div class="col-sm-3 ">
+                <div class="col-sm-5">
+                    <label class="control-label" for="transactionno" translate="inventory.inventoryworkorder.billno.lbl"></label>
+                </div>
+                <div class="input-group col-sm-7 ">
+                    <div class="input-group-addon">
+                        <i class="fas fa-search" aria-hidden="true"></i>
+                    </div>
+                    <input type="text" class="form-control" on-enter="getList()" ng-model="currentfilter.ServiceBillNo"
+                        translate translate-attr-placeholder="inventory.inventoryworkorder.billno.lbl">
+                </div>
+            </div>
+
+            <div class="col-sm-3 ">
+                <div class="col-sm-5">
+                    <label class="control-label" for="status" translate="inventory.inventoryworkorder.status.lbl"></label>
+                </div>
+                <div class="col-sm-7">
+                    <ui-select ng-model="currentfilter.ServiceBillStatusId" ng-change="getList()" name="status">
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 20 : 0}}
+                            <span ng-if="$select.selected.Text.length>20">...</span>
+                        </ui-select-match>
+                        <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.ServiceBillStatus | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="container-fluid im_stockstatus" id="stockstatus">
+    <div ui-grid="vm.gridConfig" class="table-uigrid custom_grid ">
+
+    </div>
+    <div class=" col-sm-12 footerbar0 pd0 fullreg-profiles total_footer">
+        <div class="col-sm-12">
+
+            <div class="col-sm-8 ">
+            </div>
+            <div class="col-sm-4 ">
+                <div class="col-sm-6 text-right">
+                    <label class="control-label text-white" for="totalquantity">Total Netamount:</label>
+                </div>
+                <div class="col-sm-6">
+                    <!-- <input type="text" class="form-control" name="totalquantity" ng-model="TotalNetamount" placeholder="0.00" id="disabledInput"
+                            disabled> -->
+                    <span class="countbg text-white">{{(TotalNetamount|displaycurrency)}}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+<div class="container-fluid" id="patientidentitiesheight">
+    <div ui-grid="vm.gridConfig" class="table-uigrid table-uigrid-tab "></div>
+    <div class="fooder-bgs">
+        <div class="row">
+            <ul uib-pagination total-items="vm.gridConfig.pagerObj.totalItems" items-per-page="vm.gridConfig.pagerObj.pageSize"
+                start-index="vm.gridConfig.pagerObj.startIndex" ng-model="vm.gridConfig.pagerObj.currentPage" ng-change="getList()"></ul>
+        </div>
+    </div>
+</div>

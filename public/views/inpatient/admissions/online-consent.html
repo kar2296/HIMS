@@ -1,0 +1,402 @@
+<link href="app/css/regbilling.css" rel="stylesheet">
+<style>
+    button.tab {
+        border: unset;
+        height: 40px;
+        width: 100%;
+        border-radius: 0px;
+        background: #ececec;
+        color: black;
+    }
+
+    ul li:nth-child(2) button.tab:after {
+        content: "\f03d";
+        font-family: 'FontAwesome';
+        margin-left: 6px;
+        color: #00125a;
+    }
+
+    ul li:last-child button.tab:after {
+        content: "\f130";
+        font-family: 'FontAwesome';
+        margin-left: 6px;
+        color: #00125a;
+    }
+
+    button.tab.is-active {
+        background: #0598f6;
+        color: white;
+    }
+
+    button.tab.is-active:after {
+        color: white !important;
+    }
+
+    video.videostream {
+        width: 30%;
+    }
+
+    table#reportdetails th {
+        background: #EFEFEF !important;
+        border: 1px solid #D9D9D9 !important;
+        color: #373737 !important;
+        font-size: 13px;
+        padding: 10px;
+    }
+
+    .rec-table {
+        padding: 10px;
+        margin-top: 21px;
+    }
+
+
+    .tabs {
+        width: 25%;
+    }
+
+    button.is-active {
+        background-color: red;
+    }
+
+    .tab-content__outer {
+        width: 75%;
+    }
+
+    .tab-content {
+        display: none;
+    }
+
+    .tab-content.is-open {
+        display: block;
+    }
+
+    ul.tabs li {
+        list-style: none;
+        margin-right: 10px;
+    }
+
+    ul.tabs {
+        display: flex;
+        padding: 0;
+    }
+
+    .tabs {
+        width: 100%;
+        margin-top: 0px;
+    }
+
+    div#lH {
+        position: absolute;
+        width: 30px;
+        height: 30px;
+        overflow: hidden;
+        z-index: 1;
+        font-size: 25px;
+        text-align: center;
+        margin-top: -17px;
+        margin-left: -7px;
+    }
+
+    audio#aH {
+        position: absolute;
+        top: 2px;
+        left: -5px;
+        z-index: 2;
+        opacity: 0.01;
+        height: 30px;
+    }
+
+    i.fa.fa-play-circle {
+        color: #00125a;
+    }
+</style>
+<div class="row">
+    <div class="col-sm-9">
+        <h4 translate="Online Consent"></h4>
+    </div>
+    <div class="col-sm-3">
+    </div>
+</div>
+<div class="row">
+    <div class="patient-banner-table lis">
+        <div class="patient-banner-table-section">
+            <div class="col-sm-12">
+                <label class="col-sm-4" translate="Patient Name"></label>
+                <div class="col-sm-8 item-center">
+                    <span class="head-title">: &nbsp;
+                        <strong>{{selectedPatient.Title.Description}} {{selectedPatient.FirstName}}
+                        </strong>
+                    </span>&nbsp;&nbsp;&nbsp;&nbsp;
+                    <span class="comments pull-right" type="button" ng-click="patcmnts()" title="Comments">
+                        <i class="fas fa-comments"></i>
+                    </span>
+                </div>
+            </div>
+            <div class="col-sm-12">
+                <label class="col-sm-4" translate="Patient ID "></label>
+                <div class="col-sm-8 item-center">
+                    <span class="head-title">: &nbsp;{{selectedPatient.MRN}}/{{selectedPatient.VisitIdentifier}}
+                    </span>
+                </div>
+            </div>
+            <div class="col-sm-12">
+                <label class="col-sm-4" translate="Age/Gender"></label>
+                <div class="col-sm-8 item-center">
+                    <span class="head-title">
+                        <a>: &nbsp;{{selectedPatient.Age}} / {{selectedPatient.Gender.Description}}
+                        </a>
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div class="patient-banner-table-section">
+            <div class="col-sm-12">
+                <label class="col-sm-4" translate="Date Of Admission"></label>
+                <div class="col-sm-8 item-center">
+                    : &nbsp; {{Data.AdmissionDate|date:'dd-MMM-yyyy'}}&nbsp;{{Data.AdmissionDate|date:'HH:mm'}}
+                </div>
+            </div>
+            <div class="col-sm-12">
+                <label class="col-sm-4" translate="Doctor Name"></label>
+                <div class="col-sm-8 item-center">
+                    : &nbsp;
+                    <span style="width: 90%;">
+                        <ui-select ng-model="item.DoctorId" name="approvedby"
+                            ng-change="onDoctorSelected($select.selected)">
+                            <ui-select-match>
+                                <span ng-if="$select.selected.Id==-1">{{$select.selected.Text | limitTo : 8 : 0}}</span>
+                                <span
+                                    ng-if="$select.selected.Id!=-1">{{$select.selected.Title.Description}}&nbsp;{{$select.selected.FirstName}}&nbsp;{{$select.selected.LastName
+                                    | limitTo : 10: 0}}</span>
+                                <span ng-if="$select.selected.Text.length>20">...</span>
+                            </ui-select-match>
+                            <ui-select-choices
+                                repeat="lookupitem.Id as lookupitem in lookup.Doctor | filter: { Text: $select.search }">
+                                <div ng-if="lookupitem.Id==-1">
+                                    <span ng-bind-html="lookupitem.Text | highlight: $select.search"></span>
+                                </div>
+                                <div ng-if="lookupitem.Id!=-1">
+                                    <span>{{lookupitem.Title.Description}}</span>
+                                    <span ng-bind-html="lookupitem.FirstName | highlight: $select.search"></span>
+                                    <span>{{lookupitem.LastName}}</span>
+                                </div>
+                            </ui-select-choices>
+                        </ui-select>
+                    </span>
+                </div>
+            </div>
+            <div class="col-sm-12">
+                <label class="col-sm-4" translate="Date Of Discharge"></label>
+                <div class="col-sm-8 item-center">
+                    <span class="head-title">
+                        <a>: &nbsp;
+                        </a>
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div class="patient-banner-table-section">
+            <div class="col-sm-12">
+                <label class="col-sm-4" translate="Payer Name"></label>
+                <div class="col-sm-8 item-center">
+                    <span class="head-title">
+                        : &nbsp;{{item.Guarantor.GuarantorName}}
+                    </span>
+                </div>
+            </div>
+            <div class="col-sm-12">
+                <label class="col-sm-4" translate="Referral"></label>
+                <div class="col-sm-8 item-center">
+                    <span class="head-title">
+                        <a>: &nbsp;{{item.ReferralName}}
+                        </a>
+                    </span>
+                </div>
+            </div>
+            <div class="col-sm-12">
+                <label class="col-sm-4" translate="Patient Location"></label>
+                <div class="col-sm-8 item-center">
+                    <span class="head-title">
+                        : &nbsp; {{item.WardMaster.WardName}} / {{item.WardRoomMaster.RoomNo}} /
+                        {{item.WardRoomBedMaster.BedNo}}
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="form-group col-sm-4">
+        <label class="col-sm-12 control-label" for="approvedby" translate="Consent"></label>
+        <div class="col-sm-12">
+            <ul class="tabs">
+                <li style="display: none;">
+                    <button class="tab is-active" data-tab-trigger="1">
+                    </button>
+                </li>
+                <li>
+                    <button class="tab" data-tab-trigger="2">
+                        <span id="toggles">
+                            <span class="capture-button">
+                                Start Video
+                            </span>
+                        </span>
+                        <span id="toggles">
+                            <span class="stop-button">
+                                Stop Video
+                            </span>
+                        </span>
+                    </button>
+                </li>
+                <li>
+                    <button class="tab" data-tab-trigger="3">
+                        <span id="toggles">
+                            <span id="stop-button">Audio</span>
+                            <button class="start-button" ng-if="!isRecording && !blobUrl" ng-click="startRecording()">Start Recording</button>
+
+	<button class="stop-button" ng-if="isRecording && !blobUrl" ng-click="stopRecording()">Stop Recording</button>
+                        </span>
+                    </button>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div class="form-group col-sm-4">
+        <label class="col-sm-12 control-label" for="approvedby" translate="Remarks"></label>
+        <div class="col-sm-12">
+            <input type="date" class="form-control" name="code" placeholder="">
+        </div>
+    </div>
+    <div class="form-group col-sm-4">
+        <label class="col-sm-12 control-label" for="approvedby" translate="Comments"></label>
+        <div class="col-sm-12">
+            <textarea></textarea>
+        </div>
+    </div>
+</div>
+<div class="tab-content__outer">
+    <div class="tab-content is-open" data-tab-content="1" style="display: none;">
+    </div>
+    <div class="tab-content" data-tab-content="2">
+        <div id="toggles" style="text-align:center;">
+            <video class="videostream" autoplay="" controls></video>
+            <audio class="audiostream" autoplay=""></audio>
+        </div>
+
+    </div>
+    <div class="tab-content" data-tab-content="3">
+        <div id="toggles" style="text-align:center;">
+            <audio controls>
+                <source src="../../../../app/img/audio/drhms.mp3" type="audio/mpeg">
+            </audio>
+        </div>
+    </div>
+</div>
+<div class="rec-table">
+    <table id="reportdetails">
+        <tbody class="">
+            <thead>
+                <th>Date</th>
+                <th>Type</th>
+                <th>Captured By</th>
+                <th>Remarks</th>
+                <th>Video/audio</th>
+                <th>Action</th>
+            </thead>
+
+            <tr>
+                <td class="">18/06/2023</td>
+                <td>Video</td>
+                <td>Admin</td>
+                <td>test</td>
+                <td>Video</td>
+                <td>
+                    <a href="../../../../app/img/video/deepam.3gp" target_="blank"><i class="fa fa-play-circle"></i></a>
+                </td>
+            </tr>
+            <tr>
+                <td class="">18/06/2023</td>
+                <td>Audio</td>
+                <td>Admin</td>
+                <td>test</td>
+                <td>Audio</td>
+                <td>
+                    <div id="lH">
+                        <audio controls id="aH">
+                            <source src="../../../../app/img/audio/drhms.mp3" type="audio/mpeg">
+                        </audio>
+                        <i class="fa fa-play-circle"></i>
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+<div class="fooder-bgs">
+    <div class="pull-left">
+        <button type="button" class="btn pyr-color10 btn-sm" tabindex="-1" ng-click="backToList()">
+            <i class="fa fa-angle-left" aria-hidden="true"></i>
+            <span class="btn-fontsize"> &nbsp; Back</span>
+        </button>
+    </div>
+</div>
+
+<script>
+    function myFunctionbtn(e) {
+        var elems = document.querySelectorAll(".active");
+        [].forEach.call(elems, function (el) {
+            el.classList.remove("active");
+        });
+        e.target.className = "active";
+    }
+
+    var tabTriggerBtns = document.querySelectorAll('.tabs li button');
+
+    tabTriggerBtns.forEach(function (tabTriggerBtn, index) {
+        tabTriggerBtn.addEventListener('click', function () {
+            var currentTabData = document.querySelector('.tab-content[data-tab-content="' + this.dataset.tabTrigger + '"]');
+
+            // remove classess
+            document.querySelector('.tab-content.is-open').classList.remove('is-open');
+            document.querySelector('.tabs li button.is-active').classList.remove('is-active');
+            // add classes
+            currentTabData.classList.add('is-open');
+            this.classList.add('is-active');
+        });
+    });
+</script>
+<script>
+    (function () {
+        const video = document.querySelector("#toggles video");
+        const audio = document.querySelector("#toggles audio");
+
+        const captureVideoButton = document.querySelector("#toggles .capture-button");
+        const stopVideoButton = document.querySelector("#toggles #stop-button");
+
+        //Capture Video
+        captureVideoButton.onclick = function () {
+            navigator.mediaDevices
+                .getUserMedia({
+                    audio: true,
+                    video: true
+                })
+                .then((stream) => {
+                    window.localStream = stream;
+                    video.srcObject = stream;
+                    audio.srcObject = stream;
+                })
+                .catch((err) => {
+                    console.log(err);
+                });
+            video.in = "";
+        };
+
+        stopVideoButton.onclick = function () {
+            localStream.getVideoTracks()[0].stop();
+            video.src = "";
+
+            // localStream.getAudioTracks()[0].stop();
+            // audio.src = "";
+        };
+    })();
+</script>

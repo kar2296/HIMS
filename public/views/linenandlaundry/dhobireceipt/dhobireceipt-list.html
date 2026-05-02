@@ -1,0 +1,117 @@
+<style>
+    .panel-footer {
+        background-color: #ccecf5 !important;
+    }
+
+    .grid1485611170638 .ui-grid-coluiGrid-00AD {
+        min-width: 163px;
+        max-width: 163px;
+    }
+
+    .custom_marbot {
+        margin-bottom: 10px;
+    }
+
+    ul.uib-datepicker-popup.dropdown-menu.ng-scope {
+        left: -30px !important;
+    }
+
+    .pl-3 {
+        padding-left: 3%;
+    }
+
+    .status {
+        background-color: rgba(241, 208, 63, 0.34);
+    }
+
+    .m_bottom {
+        margin-bottom: 7px;
+    }
+</style>
+<div class="row page-header">
+    <h4 class="page-header col-sm-6 col-sm-6" translate="linenandlaundry.dhobiissuebook.pagetitle2.lbl"></h4>
+    <div class="col-sm-6 text-right">
+        <span>
+            <!-- <button class="btn bt-color2 btn-sm btn-filter" ng-click="addNew()" uib-tooltip="{{ 'linenandlaundry.dhobiissuebook.pagetitle2.lbl' | translate }}"
+                tooltip-placement="bottom">
+                <i class="fa fa-plus" aria-hidden="true"></i>
+                <strong class="btn-fontsize" translate="common.addnewaction.lbl"> </strong>
+            </button> -->
+            <span ng-click="linendashboard()" ng-hide="context == 'emr'">
+                <img src="app/img/icons/laundry.png" class="img-responsive emr-drdashicon" alt="home" uib-tooltip="{{'Linen Dashboard'| translate}} "
+                    tooltip-placement="bottom">
+            </span>
+        </span>
+    </div>
+</div>
+
+<div class="row filter-area">
+    <div class="col-sm-12 ">
+        <div class="row custom_marbot">
+            <div class="col-sm-3 ">
+                <div class="col-sm-5">
+                    <label class="control-label" for="stockingpoint" translate="linenandlaundry.dhobiissuebook.stockingpoint1.lbl"></label>
+                </div>
+                <div class="col-sm-7">
+                    <ui-select ng-model="currentfilter.FromDepartmentId" ng-change="getList()" name="stockingpoint">
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 20 : 0}}
+                            <span ng-if="$select.selected.Text.length>20">...</span>
+                        </ui-select-match>
+                        <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.Department | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+
+            <div class="col-sm-3 ">
+                <div class="col-sm-5">
+                    <label class="control-label" for="transactionno" translate="linenandlaundry.dhobiissuebook.issueno.lbl"></label>
+                </div>
+                <div class="input-group col-sm-7 ">
+                    <div class="input-group-addon">
+                        <i class="fas fa-search" aria-hidden="true"></i>
+                    </div>
+                    <input type="text" class="form-control" on-enter="getList()" ng-model="currentfilter.LinenStockTransferNo" translate translate-attr-placeholder="linenandlaundry.dhobiissuebook.issueno.lbl">
+                </div>
+            </div>
+            <div class="col-sm-3 ">
+                <div class="col-sm-5">
+                    <label class="control-label" for="diposeddate" translate="linenandlaundry.dhobiissuebook.date.lbl"></label>
+                </div>
+                <div class="col-sm-7">
+                    <input type="text" class="form-control" name="diposeddate" ng-date-object datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}"
+                        uib-datepicker-popup="{{datePickerOptions.dateFormat}}" placeholder="{{datePickerOptions.placeholder}}"
+                        ng-click="expirydatePopup = { opened: true }" is-open="expirydatePopup.opened" ng-model="currentfilter.LinenStockTransferDate"
+                        ng-change="getList()">
+                </div>
+            </div>
+            <div class="col-sm-3 ">
+                <div class="col-sm-5">
+                    <label class="control-label" for="status" translate="linenandlaundry.dhobiissuebook.status.lbl"></label>
+                </div>
+                <div class="col-sm-7">
+                    <ui-select ng-model="currentfilter.LinenStockTransferStatusId" ng-change="getList()" name="status">
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 20 : 0}}
+                            <span ng-if="$select.selected.Text.length>20">...</span>
+                        </ui-select-match>
+                        <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.LinenStockTransferStatus | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="container-fluid" id="patientidentitiesheight">
+    <div ui-grid="vm.gridConfig" class="table-uigrid table-uigrid-tab "></div>
+    <div class="fooder-bgs">
+        <div class="row">
+            <ul uib-pagination total-items="vm.gridConfig.pagerObj.totalItems" items-per-page="vm.gridConfig.pagerObj.pageSize" start-index="vm.gridConfig.pagerObj.startIndex"
+                ng-model="vm.gridConfig.pagerObj.currentPage" ng-change="getList()"></ul>
+        </div>
+    </div>
+</div>

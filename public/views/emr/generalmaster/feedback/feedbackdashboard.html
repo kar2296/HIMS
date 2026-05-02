@@ -1,0 +1,223 @@
+<link href="app/css/dashboard.css" rel="stylesheet">
+<style>
+  table#pendingorder>thead>tr>th {
+    background: #193b82;
+    padding: 4px;
+    color: white;
+  }
+
+  .au-card.recent-report {
+    position: relative;
+    float: left;
+    width: 100%;
+    height: 300px;
+    box-shadow: 0 0 6px 0 grey;
+    margin-bottom: 23px;
+    border-radius: 11px;
+    padding: 15px;
+    padding-top: 0px;
+  }
+
+  .table-stats.order-table.ov-h .table td {
+    min-width: 10px;
+    background-color: #ffffff !important;
+    color: #444141 !important;
+    font-size: 14px;
+    text-align: center !important;
+    border: unset !important;
+    padding: 8px !important;
+    text-align: left !IMPORTANT;
+  }
+
+  .table-stats.order-table.ov-h .table tr {
+    border: 1px solid gainsboro;
+  }
+
+  .table-stats.order-table.ov-h .table-stats.order-table.ov-h {
+    height: 229px;
+    overflow: auto;
+  }
+
+  .table-stats.order-table.ov-h .table tr:nth-child(even) td {
+    background: #f3f3f3 !IMPORTANT;
+  }
+
+  h3.fs-40.text-white {
+    font-size: 37px !important;
+    height: 54px;
+    padding: 0 !important;
+    margin: 0 !important;
+    padding-top: 1px !important;
+  }
+
+  td.td-rating table {
+    width: 100%;
+  }
+
+  .table-stats.order-table.ov-h .table td.td-rating {
+    padding: 0 !important;
+  }
+
+  .table-stats.order-table.ov-h .table td.td-rating table tr {
+    border: unset;
+  }
+
+  .table-stats.order-table.ov-h .table td.td-rating table td {
+    padding: 8px !important;
+    text-align: center !important;
+  }
+
+  .table-stats.order-table.ov-h .table td.td-rating table.rating tr td {
+    text-align: left !IMPORTANT;
+  }
+
+  /* td#total_clr {
+    text-align: center !important;
+  } */
+  .table-stats.order-table.ov-h {
+    overflow: auto;
+    height: 40vh;
+}
+::-webkit-scrollbar {
+  width: 4px;
+}
+
+  h3.title-2 {
+    color: #004e77;
+  }
+</style>
+<div class="row page-header">
+  <h4 translate="appointment.doctordashboard.pagetitle.lbl"></h4>
+</div>
+<div class="col-sm-12" style="margin-top: 20px;">
+  <div class="card-flex-box-appointment">
+    <div class="card-box-item box-bg-color1" ng-click="patientfeedback()">
+      <div class="card-box-header"><i class="fa fa-registered" aria-hidden="true"></i>
+        <div translate="Today FeedBack"></div>
+      </div>
+      <div>{{Items.TodayFeedbackCount}}</div>
+    </div>
+    <div class="card-box-item box-bg-color2" ng-click="overallfeedback()">
+      <div class="card-box-header" >
+        <div> <i class="fa fa-user" aria-hidden="true"></i></div>
+        <div translate="Today OP FeedBack"></div>
+      </div>
+      <div>{{Items.OPFeedbackCount}}</div>
+    </div>
+    <div class="card-box-item box-bg-color3" ng-click="ipfeedback()">
+      <div class="card-box-header">
+        <div><i class="fa fa-file-text-o" aria-hidden="true"></i></div>
+        <div translate="Today IP FeedBack"></div>
+      </div>
+      <div>{{Items.IPFeedbackCount}}</div>
+    </div>
+    <div class="card-box-item box-bg-color4" ng-click="overallfeedback()">
+      <div class="card-box-header">
+        <div> <i class="fa fa-usd" aria-hidden="true"></i></div>
+        <div translate="Over All Feedback"></div>
+      </div>
+      <div>{{Items.OverallFeedbackCount}}</div>
+    </div>
+  </div>
+</div>
+
+<div class="col-sm-12" style="margin-top: 20px;">
+  <div class="col-lg-6" style="padding-right: 28px;">
+    <div class="au-card recent-report">
+      <div class="au-card-inner">
+        <h3 class="title-2" translate="Today FeedBack"></h3>
+        <div class="recent-report__chart">
+          <div class="table-stats order-table ov-h">
+            <table class="table ">
+              <thead>
+                <tr>
+                  <th class="cus-col tbl-header cust_Particulars" style="font-weight: 700;">
+                    <span translate="Rating"></span>
+                  </th>
+                  <th class="cus-col tbl-header" style="font-weight: 700;">
+                    <span translate="OP"></span>
+                  </th>
+                  <th class="cus-col tbl-header" style="font-weight: 700;">
+                    <span translate="IP"></span>
+                  </th>
+                </tr>
+              </thead>
+              <tr ng-repeat="item in NetTodayFeedback">
+                <td class="">
+                  <span class="">{{item.Key}}</span>
+                </td>
+                <td id="total_clr">{{ item.OPCount }}</td>
+                <td id="total_clr">{{ item.IPCount}}</td>
+              </tr>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-6">
+    <div class="au-card recent-report">
+      <div class="au-card-inner">
+        <h3 class="title-2" translate="Over All Feed Back"></h3>
+        <div class="recent-report__chart">
+          <div class="table-stats order-table ov-h">
+            <table class="table ">
+              <thead>
+                <tr>
+                  <th translate="Patient Name"></th>
+                  <th>Excellent</th>
+                  <th>Good</th>
+                  <th>Satisfactory</th>
+                  <th>Poor</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr ng-repeat="item in overallfeedback">
+                  <td>{{item.Title}}&nbsp;{{item.FirstName}}&nbsp;{{item.LastName}}</td>
+                  <td class="center">{{item.GoodCount}}</td>
+                  <td class="center">{{item.FairCount}}</td>
+                  <td class="center">{{item.PoorCount}}</td>
+                  <td class="center">{{item.VeryPoorCount}}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-6" style="padding-right: 28px;">
+    <div class="au-card recent-report">
+      <div class="au-card-inner">
+        <h3 class="title-2" translate="Monthly FeedBack"></h3>
+        <div class="recent-report__chart">
+          <div class="table-stats order-table ov-h">
+            <table class="table ">
+              <thead>
+                <tr>
+                  <th class="cus-col tbl-header cust_Particulars" style="font-weight: 700;">
+                    <span translate="Rating"></span>
+                  </th>
+                  <th class="cus-col tbl-header" style="font-weight: 700;">
+                    <span translate="OP"></span>
+                  </th>
+                  <th class="cus-col tbl-header" style="font-weight: 700;">
+                    <span translate="IP"></span>
+                  </th>
+                </tr>
+              </thead>
+              <tr ng-repeat="item in NetMonthFeedback">
+                <td class="">
+                  <span class="">{{item.Key}}</span>
+                </td>
+                <td id="total_clr">{{ item.OPCount }}</td>
+                <td id="total_clr">{{ item.IPCount}}</td>
+              </tr>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="fooder-bgs"></div>

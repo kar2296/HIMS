@@ -1,0 +1,72 @@
+<div class="row page-header">
+    <div class="col-sm-5">
+        <h4 class="mt0" translate="transportrequests.pagetitle.lbl"></h4>
+    </div>
+    <div class="col-sm-7">
+        <div class="filters">
+            <button type="button" tabindex="-1" class="btn-add" ng-click="openAdvancedFilter()" uib-tooltip="{{ '  clinicalmaster.serviceitem-list.filter-tooltip.lbl' | translate 
+        }}" tooltip-placement="bottom">
+                <i class="fas fa-search" aria-hidden="true"></i>
+            </button>
+            <button type="button" tabindex="-1" class="btn-add" ng-click="addNew()"
+                uib-tooltip="{{ 'transportrequest.addnew-tooltip.lbl' | translate }}" tooltip-placement="bottom">
+                <i class="fa fa-plus" aria-hidden="true"></i>
+            </button>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-sm-3">
+        <label class="col-sm-12" translate="admissionrequest.patient.lbl"></label>
+        <div class="col-sm-8">
+            <input type="text" class="form-control autosearch-input" on-enter="getList()"
+                ng-model="currentfilter.patientnamemrn" placeholder="NAME/MRN">
+        </div>
+    </div>
+    <div class="col-sm-3">
+        <label class="col-sm-12" translate="transportrequests.filter_requestedno.lbl"></label>
+        <div class="col-sm-8">
+            <input type="text" class="form-control autosearch-input" on-enter="getList()"
+                ng-model="currentfilter.TransportIdentifier" placeholder="Requested No">
+        </div>
+    </div>
+    <div class="col-sm-3">
+        <label class="col-sm-12" translate="transportrequests.filter_activity.lbl"></label>
+        <div class="col-sm-8">
+            <ui-select ng-model="currentfilter.TransportActivityId" ng-change="getList()" class="filter-combo">
+                <ui-select-match>
+                    {{$select.selected.Text | limitTo : 8 : 0}}
+                    <span ng-if="$select.selected.Text.length>8">...</span>
+                </ui-select-match>
+                <ui-select-choices
+                    repeat="lookupitem.Id as lookupitem in lookup.TransportActivity | filter: { Text: $select.search }">
+                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                </ui-select-choices>
+            </ui-select>
+        </div>
+    </div>
+    <div class="col-sm-3">
+        <label class="col-sm-12" translate="transportrequests.filter_status.lbl"></label>
+        <div class="col-sm-8">
+            <ui-select ng-model="currentfilter.TransportStatusId" ng-change="getList()" class="filter-combo">
+                <ui-select-match>
+                    {{$select.selected.Text | limitTo : 8 : 0}}
+                    <span ng-if="$select.selected.Text.length>8">...</span>
+                </ui-select-match>
+                <ui-select-choices
+                    repeat="lookupitem.Id as lookupitem in lookup.TransportStatus | filter: { Text: $select.search }">
+                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                </ui-select-choices>
+            </ui-select>
+        </div>
+    </div>
+</div>
+<div class="fooder-bgs">
+    <div class="row">
+        <custom-table config="vm.gridConfig"></custom-table>
+        <ul uib-pagination total-items="vm.gridConfig.pagerObj.totalItems"
+            items-per-page="vm.gridConfig.pagerObj.pageSize" start-index="vm.gridConfig.pagerObj.startIndex"
+            ng-model="vm.gridConfig.pagerObj.currentPage" ng-change="getList()"></ul>
+    </div>
+</div>

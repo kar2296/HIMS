@@ -1,0 +1,145 @@
+<link rel="stylesheet" href="app/css/drhms.css">
+<style>
+    .align-buttion {
+        display: flex;
+        justify-content: space-around;
+    }
+    
+    .form-horizontal .form-group {
+        height: 40px;
+    }
+    .col-sm-3{
+        width:23%;
+    }
+    
+  
+
+</style>
+<div class="row">
+    <div class="drhms-filters">
+        <div class="col-sm-12">
+            <div class="col-sm-6">
+                <h4 translate="Discharge Billing"></h4>
+            </div>
+            <div class="col-sm-5">
+                <div class="col-sm-4 form-group">
+                    <div class="search">
+                        <input type="text" id="drhms-patinet-search-box" class="form-control" on-enter="getList()" ng-model="currentfilter.PatientMRN" placeholder="NAME/MRN">
+                        <div class="drhms-search-icon">
+                            <i class="fas fa-search" aria-hidden="true"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-4 form-group">
+                    <div class="search">
+                        <input type="text" id="drhms-patinet-search-box" class="form-control" on-enter="getList()" ng-model="currentfilter.BillNumber" placeholder="Bill#">
+                        <div class="drhms-search-icon">
+                            <i class="fas fa-search" aria-hidden="true"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-4 form-group">
+                    <div class="search">
+                        <input type="text" id="drhms-patinet-search-box" class="form-control" on-enter="getList()"
+                            ng-model="currentfilter.VisitIdentifier" placeholder="IP#">
+                        <div class="drhms-search-icon">
+                            <i class="fas fa-search" aria-hidden="true"></i>
+                        </div>
+                    </div>
+                </div>                
+            </div>
+            <div class="col-sm-1">
+                <span class="drhms-billing-btn drhms-home-btn" ng-if="Context =='billing'">
+                    <i class="fas fa-home" ng-click="backtoList()" uib-tooltip="Dashboard"
+                        tooltip-placement="bottom"></i>
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <form id="item_form" name="item_form" class="form-horizontal" role="form">
+            <!-- <div class="col-sm-3 form-group">
+            <label class="col-sm-4" translate="billing.ipbillingtab.dischargeddod.lbl"></label>
+            <div class="col-sm-8">
+                <input type="text" class="form-control" name="" ng-change="getList()"
+                    datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}"
+                    uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                    placeholder="{{datePickerOptions.placeholder}}" ng-click="doddatePopup = { opened: true }"
+                    is-open="doddatePopup.opened" ng-model="currentfilter.doddate">
+            </div>
+        </div> -->
+            <div class="col-sm-3 form-group">
+                <label class="col-sm-4" translate="From"></label>
+                <div class="col-sm-8">
+                    <input type="text" class="text-box form-control" ng-date-object datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}" uib-datepicker-popup="{{datePickerOptions.dateFormat}}" placeholder="{{datePickerOptions.placeholder}}"
+                        ng-click="fromdatePopup = { opened: true }" is-open="fromdatePopup.opened" ng-change="getList()" ng-model="currentfilter.fromdate">
+                    <!-- <input type="text" class="form-control" name="" ng-change="getList()" datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}" uib-datepicker-popup="{{datePickerOptions.dateFormat}}" placeholder="{{datePickerOptions.placeholder}}"
+                        ng-click="fromdatePopup = { opened: true }" is-open="fromdatePopup.opened" ng-model="currentfilter.fromdate"> -->
+                </div>
+            </div>
+            <div class="col-sm-3 form-group">
+                <label class="col-sm-4" translate="To"></label>
+                <div class="col-sm-8">
+                    <input type="text" class="form-control" name="" ng-change="getList()" datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}" uib-datepicker-popup="{{datePickerOptions.dateFormat}}" placeholder="{{datePickerOptions.placeholder}}"
+                        ng-click="todatePopup = { opened: true }" is-open="todatePopup.opened" ng-model="currentfilter.todate">
+                </div>
+            </div>
+            <div class="col-sm-3 form-group">
+                <label class="col-sm-4" translate="Select Ward"></label>
+                <div class="col-sm-8">
+                    <ui-select ng-model="currentfilter.WardId" ng-disabled="item.isAdmitted" ng-change="getList()">
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 20 : 0}}
+                            <span ng-if="$select.selected.Text.length > 20">...</span>
+                        </ui-select-match>
+                        <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.Ward | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+            <div class="col-sm-3 form-group">
+                <label class="col-sm-4" translate="Payer"></label>
+                <div class="col-sm-8">
+                    <ui-select ng-model="currentfilter.GuarantorId" ng-disabled="item.isAdmitted" ng-change="getList()">
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 20 : 0}}
+                            <span ng-if="$select.selected.Text.length > 20">...</span>
+                        </ui-select-match>
+                        <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.Guarantor | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+            <div class="col-sm-3 form-group">
+                <label class="col-sm-4" translate="Doctor"></label>
+                <div class="col-sm-8">
+                    <ui-select ng-model="currentfilter.DoctorId" ng-change="getList()">
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 20 : 0}}
+                            <span ng-if="$select.selected.Text.length > 20">...</span>
+                        </ui-select-match>
+                        <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.Doctor | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+            <div class="col-sm-3 form-group">
+                <label class="col-sm-4" translate="Is Due"></label>
+                <div class="col-sm-8">
+                    <input type="checkbox" class="custom-checkbox" ng-model="currentfilter.IsPaidFully" ng-click="isduebill()">
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="row">
+        <custom-table config="vm.gridConfig"></custom-table>
+    </div>
+    <div class="fooder-bgs">
+        <div class="row">
+            <ul uib-pagination total-items="vm.gridConfig.pagerObj.totalItems" items-per-page="vm.gridConfig.pagerObj.pageSize" start-index="vm.gridConfig.pagerObj.startIndex" ng-model="vm.gridConfig.pagerObj.currentPage" ng-change="getList()"></ul>
+        </div>
+    </div>

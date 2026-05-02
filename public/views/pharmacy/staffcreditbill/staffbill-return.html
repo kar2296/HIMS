@@ -1,0 +1,315 @@
+<link href="app/css/billing-pharmacy-customs.css" rel="stylesheet">
+<style>
+    .fooder-bgs {
+    margin-bottom: 93px !important;
+    height: 1% !important;
+    margin-top: 2px;
+    position: relative;
+    top: 8px;
+}
+</style>
+<div id="opbillingcontrol">
+    <div class="row page-header mt1" style="color: #50a893 !important;">
+        <h4 class="col-sm-5 mt0" translate="Staff Credit Return"></h4>
+        <div class="col-sm-7">
+            <div class="filters">
+                <!-- <div class="search">
+                           <patientsearch controlid="'pid'" ng-keyup="moveHeaderFocus('pid')" patientid="currentfilter.PatientId"
+                class="col-sm-8 logo" name="txtpatientsearch" patientinfo="selectedPatient"
+                patientchange="patientChange()" tabindex="tabindexmap.patienttabindex" isdisabled=""
+                filterconfig="patientfilterconfig"></patientsearch> -->
+                <button type="button" class="addbutton btn bt-color2 btn-xs" uib-tooltip="Add New(F7)"
+                    tooltip-placement="bottom" ng-click="addNew()">
+                    <i class="fa fa-plus"></i>
+                </button>
+                <!-- <button type="button" class="findbillbutton" uib-tooltip="Previous Bills(F8)" tooltip-placement="bottom"
+                    style="height: 40px; width: 32px;" ng-if="IsNewBill" ng-click="findBill()">
+                    <i class="fa fa-search-plus" aria-hidden="true"></i>
+                </button> -->
+                <!-- <button type="button" class="returnbutton" uib-tooltip="Previous Return Bills(F9)"
+                    tooltip-placement="bottom" style="height: 40px;width: 32px;" ng-click="findReturn()">
+                    <i class="fa fa-search-plus" aria-hidden="true"></i>
+                </button> -->
+                <i ng-if="Context =='pharmacy'" class="fa fa-home" align="right" ng-click="dashboard()"
+                    uib-tooltip="Dashboard" tooltip-placement="bottom"></i>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="billingbanner" ng-if="item.ReturnNumber">
+    <table id="bannerdetails">
+        <tr>
+            <td ng-if="item.BillNumber"><span translate="billing.opbilling-list.returnnumber.lbl"></span> : </td>
+            <td ng-if="item.BillNumber">{{item.ReturnNumber}}</td>
+            <td ng-if="item.BillDateTime">Date</td>
+            <td ng-if="item.BillDateTime">
+                <span>{{item.ReturnDateTime | date : 'dd-MMM-yyyy'}}&nbsp;{{item.ReturnDateTime | date : 'HH:mm' }}</span>
+            </td>
+            <td ng-if="encounter.VisitIdentifier"><span translate="billing.opbilling-list.encounterno.lbl"></span>:</td>
+            <td ng-if="encounter.VisitIdentifier">{{encounter.VisitIdentifier}}</td>
+            <td> Refund Status</td>
+            <td style="color:red">{{item.RefundStatus}}</td>
+        </tr>
+    </table>
+</div>
+<div class="row filter-area" style="padding-top:0px;">
+    <div class="billingbanner">
+        <table id="bannerdetails">
+            <tr>
+                <td>Patient Name</td>
+                <td> {{selectedPatient.Title.Description}} {{selectedPatient.FirstName}}</td>
+                <!-- <td>{{currentfilter.FirstName}}&nbsp;{{currentfilter.LastName}}</td> -->
+                <td>Bill # </td>
+                <td><input type="text" class="form-control" name="billnumber" ng-model="item.BillNumber"
+                        placeholder="Bill Number" id="disabledInput" disabled></td>
+                <td>Return Date</td>
+                <td> {{item.ReturnDateTime | date : 'dd-MMM-yyyy'}}&nbsp;{{item.ReturnDateTime | date : 'HH:mm' }}</td>
+
+            </tr>
+            <tr>
+                <td>Age / Sex</td>
+                <td>{{selectedPatient.Age}} / {{selectedPatient.Gender.Description}}</td>
+                <td>Bill Date</td>
+                <td> <input type="text" class="form-control" name="billdatetime" tabindex="-1" ng-date-object
+                        uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                        placeholder="{{datePickerOptions.placeholder}}" ng-click="billdatetimePopup = { opened: true }"
+                        is-open="billdatetimePopup.opened" ng-model="item.BillDateTime" id="disabledInput" disabled>
+                </td>
+                <td>Return By</td>
+                <td>{{item.ReturnBy}}</td>
+            </tr>
+            <tr>
+                <td>UHID</td>
+                <td> {{selectedPatient.MRN}}</td>
+                <td>Doctor</td>
+                <td>
+                    <autosearch itemid="item.DoctorId" iteminfo="" rowdata="" tabindex="-1" name="'doctorid'"
+                        config="vm.doctorcontrolconfig" itemchange="doctorChange()" candisable="RdoDoctorId"
+                        isrequired="true">
+                    </autosearch>
+                </td>
+                <td>Discount Type</td>
+                <td>
+                    <ui-select ng-model="currentfilter.DiscountModeId" name="screen" tabindex="-1"
+                        class="ui-select-grid" ng-disabled="isSaving">
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 20 : 0}}
+                            <span ng-if="$select.selected.Text.length>20">...</span>
+                        </ui-select-match>
+                        <ui-select-choices
+                            repeat="lookupitem.Id as lookupitem in lookup.DiscountMode | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="col-sm-12">
+        <form id="item_form" name="item_form" class="form-horizontal" role="form">
+            <div class=" table-control">
+                <div class=" bg-pattern">
+                    <div class="table-height formRoot bill_opbilling" id="mainresponsivetablecontrol">
+                        <table class="table table-hover table-responsive table-bordered">
+                            <thead class="bg-subhead">
+                                <tr>
+                                    <th>
+                                        <span translate="billing.pharmacy.sno.lbl"></span>
+                                    </th>
+                                    <th>
+                                        <span translate="billing.pharmacy-return.codename.lbl"></span>
+                                    </th>
+                                    <th>
+                                        <span translate="billing.pharmacy-return.genericname.lbl"></span>
+                                    </th>
+                                    <th>
+                                        <span translate="billing.pharmacy-return.rack.lbl"></span>
+                                    </th>
+                                    <th>
+                                        <span translate="billing.pharmacy-return.saledqty.lbl"></span>
+                                    </th>
+                                    <th>
+                                        <span translate="billing.pharmacy-return.returnedqty.lbl"></span>
+                                    </th>
+                                    <th>
+                                        <span translate="billing.pharmacy-return.qtytoreturn.lbl"></span>
+                                    </th>
+                                    <th>
+                                        <span translate="billing.pharmacy-return.batch.lbl"></span>
+                                    </th>
+                                    <th>
+                                        <span translate="billing.pharmacy-return.expirydate.lbl"></span>
+                                    </th>
+                                    <th>
+                                        <span translate="billing.pharmacy-return.rate.lbl"></span>
+                                    </th>
+                                    <th>
+                                        <span translate="billing.pharmacy-return.gst.lbl"></span>
+                                    </th>
+                                    <th>
+                                        <span translate="billing.pharmacy-return.discount.lbl"></span>
+                                    </th>
+                                    <th>
+                                        <span translate="billing.pharmacy-return.amount.lbl"></span>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-repeat="pharmacyitem in PatientReturnDetails | filter:{Status:1}">
+                                    <td class="text-right">
+                                        <span> {{ pharmacyitem.SNo }}</span>
+                                    </td>
+                                    <td>
+                                        <span> {{ pharmacyitem.ServiceName }} </span>
+                                    </td>
+                                    <td class="col-sm-2">
+                                        <span ng-if="pharmacyitem.IsPrescribed" ng-style="{'color':'orange'}"
+                                            uib-tooltip="{{ pharmacyitem.GenericName }}"
+                                            tooltip-placement="bottom">{{ pharmacyitem.GenericName | limitTo : 18 : 0}}
+                                            <span ng-if="pharmacyitem.GenericName.length>20">...</span>
+                                        </span>
+
+                                        <span ng-if="!pharmacyitem.IsPrescribed"
+                                            uib-tooltip="{{ pharmacyitem.GenericName }}"
+                                            tooltip-placement="bottom">{{ pharmacyitem.GenericName | limitTo : 18 : 0}}
+                                            <span ng-if="pharmacyitem.GenericName.length>20">...</span>
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span> {{ pharmacyitem.RST }}</span>
+                                    </td>
+                                    <td>
+                                        <span> {{ pharmacyitem.SoldQuantity||pharmacyitem.Quantity }}</span>
+                                    </td>
+                                    <td>
+                                        <span> {{ pharmacyitem.ReturnedQuantity }}</span>
+                                    </td>
+                                    <td>
+                                        <input type="text" id='qty{{$index}}' ng-keypress="numberonly($event)"
+                                            ng-pattern="/^\d+$/"
+                                            ng-keyup="moveFocus('qty','qty','qty','qty',$index,$event, pharmacyitem)"
+                                            class="form-control" min="0" class="form-control"
+                                            ng-model="pharmacyitem.ReturnQuantity" placeholder="Return Qty"
+                                            ng-change="CalcualteAmt(pharmacyitem)"
+                                            ng-disabled="pharmacyitem.IsRefundCompleted" required />
+                                    </td>
+                                    <td>
+                                        <span> {{ pharmacyitem.BatchId}}</span>
+                                    </td>
+                                    <td>
+                                        {{pharmacyitem.ExpiryDate &nbsp;|&nbsp; date : 'dd-MMM-yyyy'}}
+                                    </td>
+                                    <td class="currency-align">
+                                        <span> {{ pharmacyitem.Rate | displaycurrency}}</span>
+                                    </td>
+                                    <td>
+                                        <span> {{ pharmacyitem.GSTPercentage }} </span>
+                                        <!--<span>{{ pharmacyitem.GSTAmount | displaycurrency }}</span>-->
+                                    </td>
+                                    <td>
+                                        <span> {{ pharmacyitem.DiscountPercentage}}</span>
+                                        <!--
+                                                <span ng-if="pharmacyitem.DiscountModeId == 0">{{ pharmacyitem.DiscountAmount | displaycurrency }}</span>
+                                                <span ng-if="pharmacyitem.DiscountModeId == 1">{{ pharmacyitem.DiscountAmount | displaycurrency }}</span>
+                                                <span ng-if="pharmacyitem.DiscountModeId == 2">{{ pharmacyitem.DiscountAmount }}</span>
+                                            -->
+                                    </td>
+                                    <td class="currency-align">
+                                        <span> {{ pharmacyitem.NetAmount | displaycurrency}}</span>
+                                    </td>
+
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="footerbars" style="margin-bottom: 20px;">
+                    <div class="sub-footer">
+                        <div class=" bgfoot ">
+                            <div class="col-sm-12">
+                                <h3 class="red" style="text-align: center;">Balance Return :
+                                    {{currentcontext.TotBalanceAmt | displaycurrency}}</h3>
+
+                                <div class="col-sm-8">
+                                </div>
+                                <div class="col-sm-4">
+                                    <div class="billingbanner">
+                                        <table id="bannerdetails">
+                                            <tr>
+                                                <td
+                                                    style="background: #a0bfd44f !important ; color: black !important; font-weight: 500">
+                                                    Gross Amount</td>
+                                                <td ng-model="item.GrossAmount" class="fontbold currency-align">
+                                                    {{item.GrossAmount | displaycurrency}}
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td
+                                                    style="background: #a0bfd44f !important ; color: black !important; font-weight: 500">
+                                                    Discount</td>
+                                                <td ng-model="item.TotDiscAmount" class="fontbold currency-align">
+                                                    {{ item.TotDiscAmount | displaycurrency }}
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td
+                                                    style="background: #a0bfd44f !important ; color: black !important; font-weight: 500">
+                                                    Net Amount</td>
+                                                <td ng-model="currentcontext.TotNetAmount" class="fontbold currency-align">
+                                                    {{ currentcontext.TotNetAmount | displaycurrency }}</td>
+                                            </tr>
+                                            <!-- <tr>
+                                                <td
+                                                    style="background: #a0bfd44f !important ; color: black !important; font-weight: 500">
+                                                    Refund Amount</td>
+                                                <td  class="fontbold">{{ currentcontext.RefundedAmount | displaycurrency }}</td>
+                                            </tr>
+                                            <tr>
+                                                <td
+                                                    style="background: #a0bfd44f !important ; color: black !important; font-weight: 500">
+                                                    To be Refund </td>
+                                                <td  class="fontbold">{{ currentcontext.ToBeRefundAmount | displaycurrency }}</td>
+                                            </tr> -->
+
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="fooder-bgs" style="margin-bottom: 170px !important;">
+                    <div class="col-sm-12">
+                        <div class=" col-sm-6">
+                            <div class="pull-left">
+                                <button type="button" class="btn btn-sm pyr-color10" ng-click="backToList()">
+                                    <i class="fa fa-angle-left"></i>&nbsp;&nbsp;
+                                    <span translate="common.backaction.lbl"></span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class=" col-sm-6 pd0">
+                            <div class="pull-right ">
+                                <button type="button" style="position: relative; top: 3px;"  class="draftbutton" ng-click="print()" tabindex="-1"
+                                 ng-hide="HidePrintBtn"> <i class="fa fa-print"></i> Preview Print</button>
+                                <button type="button" id="btndmprint" class="draftbutton"
+                                    ng-click="dmPrint()" ng-show="!HidePrintBtn">DM Print</button>
+                                <!-- <button type="button"   ng-keyup="FooterFocus('btnsubmit')"
+                                    class="draftbutton" ng-show="canShowSaveBtn"
+                                    translate="common.saveaction.lbl" ng-click="saveDraft()"></button> -->
+                                <button type="button" id="saveAndApproveid" ng-keyup="FooterFocus('saveAndApproveid')"
+                                    class="draftbutton" translate="billing.opbilling-list.saveandapprove.lbl"
+                                    ng-show="canShowSaveapproveBtn" ng-click="saveAndApprove()"></button>
+                                <printcontrol ng-if="!HidePrintBtn" id="" printclick="print()"
+                                    originalprintclick="originalprint()" hotkey="{'alt+p': print}"
+                                    reason="currentcontext.printreason" entity="'OPbilling'">
+                                </printcontrol>
+                                <button type="button" ng-show="!HidePrintBtn" id="btndmprint"
+                                    ng-if="HasAccess('PharmacySales', 'PS_DMPrint')" class="draftbutton"
+                                    ng-click="dmPrint()">DM Print</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>

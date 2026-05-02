@@ -1,0 +1,117 @@
+<html>
+
+<head>
+  <style>
+    .table1 {
+      border: 1px solid black;
+      font-size: 13px;
+    }
+
+    .table2 {
+      border: 1px solid black;
+      border-top: 0px solid black;
+      font-size: 13px;
+    }
+
+      {{include '/Templates/hosmat/assets/css/core.css'}}
+
+  </style>
+</head>
+
+<body>
+  <div id="pageHeader">
+    {{{include '/Templates/hosmat/common/header.tpl.html' 'tpl'}}}
+  </div>
+  <div style="text-align:center;font-size: 13px;"><b>Doctor Share Refer-Preform Detail Report</b></div>
+  <table class="table1" style="width:100%;">
+    <tr style='vertical-align: top'>
+      <td style="width:5%;font-size: 13px;"><b>From Date</b></td>
+      <td>:</td>
+      <td style="width:15%;font-size: 13px;"><b>{{data.FromDate}}</b></td>
+      <td style="width:5%;font-size: 13px;"><b>To Date</b></td>
+      <td>:</td>
+      <td style="width:15%;font-size: 13px;"><b>{{data.ToDate}}</b></td>
+      <td style="width:5%;font-size: 13px;"><b>DoctorName</b></td>
+      <td>:</td>
+      <td style="width:25%;font-size: 13px;"><b>{{data.DoctorName}}</b></td>
+      <td style="width:5%;font-size: 13px;"><b>Type</b></td>
+      <td>:</td>
+      <td style="width:25%;font-size: 13px;"><b>{{data.EncounterType}}</b></td>
+    </tr>
+    <!-- <tr>
+        <td style="width:5%;font-size: 13px;"><b>DepartmentName</b></td>
+        <td>:</td>
+        <td style="width:15%;font-size: 13px;"><b>{{data.DepartmentName}}</b></td>
+        <td style="width:5%;"><b></b></td>
+        <td></td>
+        <td style="width:15%;"><b></b></td>
+        <td style="width:5%;"><b></b></td>
+        <td></td>
+        <td style="width:25%;"><b></b></td>
+        <td style="width:5%;"><b></b></td>
+        <td></td>
+        <td style="width:25%;"><b></b></td>
+      </tr>  -->
+  </table>
+  </br>
+  <table class="table1" style="width:100%;">
+    <tr>
+      <td style="width:5%;font-size: 13px;"><b>S.No</b></td>
+      <td style="width:10%;font-size: 13px;"><b>Bill Date</b></td>
+      <td style="width:10%;font-size: 13px;"><b>Bill Number</b></td>
+      <td style="width:10%;font-size: 13px;"><b>UHID</b></td>
+      <td style="width:10%;font-size: 13px;"><b>Patient Name</b></td>
+      <td style="width:10%;font-size: 13px;"><b>Doctor Name</b></td>
+      <td style="width:5%;font-size: 13px;"><b>Share Type</b></td>
+      <td style="width:10%;font-size: 13px;"><b>ServiceName</b></td>
+      <td style="width:5%;font-size: 13px;"><b>Bill Amount</b></td>
+      <td style="width:5%;font-size: 13px;"><b>Bill Discount</b></td>
+      <td style="width:5%;font-size: 13px;"><b>Net Amount</b></td>
+      <td style="width:5%;font-size: 13px;"><b>DoctorShareAmount</b></td>
+      <td style="width:5%;font-size: 13px;"><b>TDS Amount</b></td>
+      <td style="width:5%;font-size: 13px;"><b>Net Dr.Share Amount</b></td>
+    </tr>
+  </table>
+  <table class="table2" style="width:100%;">
+    {{#each data.PatientDoctorShare}}
+    <tr>
+      <td style="width:5%;">{{inc @index}}</td>
+      <td style="width:10%">{{datetimeformat BillDateTime}}</td>
+      <td style="width:10%">{{PatientBill.BillNumber}}</td>
+      <td style="width:10%">{{PatientBill.Patient.MRN}}</td>
+      <td style="width:10%">{{PatientBill.Patient.Title.Description}} {{PatientBill.Patient.FirstName}}
+        {{PatientBill.Patient.LastName}}</td>
+      <td style="width:10%">{{DoctorName}}</td>
+      <td style="width:5%">{{DrShareType.Description}}</td>
+      <td style="width:10%">{{ServiceName}}</td>
+      <td style="width:5%">{{currencyformat PatientBillDetail.GrossAmount}}</td>
+      <td style="width:5%;">{{currencyformat PatientBillDetail.DiscountAmount}}</td>
+      <td style="width:5%">{{currencyformat ServiceAmount}}</td>
+      <td style="width:5%">{{currencyformat DoctorShareAmount}}</td>
+      <td style="width:5%">{{currencyformat TdsAmount}}</td>
+      <td style="width:5%">{{currencyformat NetDrAmount}}</td>
+    </tr>{{/each}}
+  </table>
+  <table class="table2" style="width:100%">
+    <tr>
+      <td style="width:5%;"></td>
+      <td style="width:10%"></td>
+      <td style="width:10%"></td>
+      <td style="width:10%"></td>
+      <td style="width:10%"></td>
+      <td style="width:5%"></td>
+      <td style="width:10%"></td>
+      <td style="width:10%"></td>
+      <td style="width:5%">{{currencyformat data.TotalBillAmount}}</td>
+      <td style="width:5%;">{{currencyformat data.TotalDisAmount}}</td>
+      <td style="width:5%">{{currencyformat data.TotalNetAmount}}</td>
+      <td style="width:5%">{{currencyformat data.TotalDoctorShareAmt}}</td>
+      <td style="width:5%">{{currencyformat data.TotalTdsAmt}}</td>
+      <td style="width:5%">{{currencyformat data.TotalNetDrAmt}}</td>
+    </tr>
+  </table>
+
+</body>
+<div style="width:100%; font-size:11px;">Printed On: {{now}}</div>
+
+</html>

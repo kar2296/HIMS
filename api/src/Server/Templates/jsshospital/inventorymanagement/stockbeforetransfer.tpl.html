@@ -1,0 +1,237 @@
+<html>
+
+<head>
+    <style>
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        td {
+            padding: 3px;
+            vertical-align: top;
+        }
+
+        * {
+            font-family: sans-serif;
+        }
+
+        th {
+            white-space: break-spaces;
+            border: 1px !important;
+            border-top: 1px solid black !important;
+            border-bottom: 1px solid black !important;
+            font-size: 10px;
+            padding-left: 4px;
+            padding-top: 6px;
+            padding-bottom: 6px;
+        }
+
+        td {
+            border: 1px !important;
+            font-size: 10px;
+        }
+
+        p {
+            font-size: 10px;
+        }
+
+        .size td,
+        .size th {
+            border: 1px solid black !important;
+        }
+
+        .secondary-tab {
+            position: absolute;
+            width: 97.5%;
+            margin-left: 0px;
+        }
+
+        .table2 tr th,
+        .table2 tr td {
+            border: 1px solid black !important;
+            font-size: 10px !important;
+        }
+
+        .table2 .secondary-tab table tr td,
+        .table2 .secondary-tab table tr th {
+            border: 0px solid black !important;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            word-break: break-all;
+        }
+
+        .table2 .secondary-tab table {
+            border: unset !important;
+            border-collapse: collapse;
+            width: 94%;
+        }
+
+        .secondary-tab td div {
+            word-break: break-all;
+        }
+
+        .content * {
+            font-size: 13px !important;
+        }
+
+        .bg-color {
+            background: #c5c5c5;
+        }
+
+        table.calc {
+            border: 1px solid;
+            border-top: 0;
+        }
+
+        .sub-total {
+            border: 0px !important;
+            border-top: 0px solid black !important;
+            border-bottom: 0px solid black !important;
+            width: 100%;
+        }
+
+        .no-bot tr td {
+            border: 0px !important;
+            padding-bottom: 15px;
+        }
+
+        .table2 .sub-total td {
+            border-color: white !important;
+        }
+
+        .table2 .sub-total td:nth-child(odd) {
+            border-right: 1px solid black !important;
+        }
+
+        .table2 .sub-total td {
+            border-bottom: 1px solid black !important;
+        }
+
+        .table2 .sub-total tr:last-child td {
+            border-bottom: 0px solid black !important;
+        }
+
+
+        .image-fit {
+            height: 60px !important;
+            width: 80px !important;
+            position: relative;
+            left: 50px;
+            bottom: 0px;
+        }
+
+        .wrap {
+            white-space: nowrap;
+            text-overflow: unset !important;
+            overflow: hidden !important;
+            width: 26px !important;
+            margin-left: 10px !important;
+        }
+
+        .table2 td,
+        .table2 th {
+            padding-bottom: 2px !important;
+            text-align: center !important;
+        }
+
+        .wrap {
+            white-space: nowrap;
+            text-overflow: unset !important;
+            overflow: hidden !important;
+            width: 26px !important;
+            margin-left: 10px !important;
+        }
+
+        {{include '/Templates/assets/css/core.css'}}
+    </style>
+</head>
+
+<body style="padding-left: 50px;">
+    <div id="pageHeader">
+        {{{include '/Templates/jsshospital/common/pharmacyheader1.tpl.html' 'tpl'}}}
+    </div>
+    <table style="width:100%;">
+        <tr>
+            <td style="text-align: center;font-size: 15px;" class="bg-color"><b>STOCK INDENT ISSUE TO DEPARTMENT PICKLIST</b>
+            </td>
+        </tr>
+    </table>
+    <br>
+    <div class="content">
+        <table>
+            <tr>
+                <td style="width:20%;">Requested Store</td>
+                <td style="width:30%;">: {{data.StockRequest.FromStore.StoreName}}</td>
+                <td style="width:20%;">To Store</td>
+                <td style="width:30%;">: {{data.StockRequest.ToStore.StoreName}}</td>
+            </tr>
+            <tr>
+                <td style="width:20%;">Request No</td>
+                <td style="width:30%;">: {{data.StockRequest.RequestNumber}}</td>
+                <td style="width:20%;">Request Date</td>
+                <td style="width:30%;">: {{datetimeformat data.StockRequest.RequestedDate}}</td>
+            </tr> 
+        </table>
+        <div border>
+            <table class="table2" style="width:100%;">
+                <tr>
+                    <th style="width: 6%;" align="left">No</th>
+                    <th style="width: 9%;" align="center">Item Code</th>
+                    <th style="width: 24%;" align="left">Item Name</th>
+                    <th style="width: 8%;" align="center">Mfr</th>
+                    <th style="width: 8%;" align="center">Batch</th>
+                    <th style="width: 9%;" align="left">Exp</th>
+                    <th style="width: 9%;" align="center">Pack</th>
+                    <th style="width: 8%;" align="center">Batch.Qty</th>
+                    <th style="width: 8%;" align="center">Req.Qty</th>
+                    <th style="width: 9%;" align="right">MRP</th>
+                    <th style="width: 9%;" align="right">Total Amt</th>
+                </tr>
+            {{#each data.StockRequestDetail}}
+            <tr>
+                <td align="center">{{inc @index}}</td>
+                <td>{{ItemCode}}</td>
+                <td>{{ItemName}}</td>
+                                    <td align="left">
+                                        <div class="wrap">{{ManufacturerName}}</div>
+                                    </td>
+                <td align="center">{{BatchId}}</td>
+                <td align="center">{{dateformat ExpiryDate}}</td>
+             <td align="center">{{packqty}}</td>
+               <!-- <td align="center">{{ItemMaster.ConversionQuantity}}</td>-->
+                <td align="center">{{BatchQuantity}}</td>
+                <td align="center">{{RequestedQuantity}}</td>
+               <!-- <td align="right">{{currencyformat UnitCostPrice}}</td>-->
+                <td align="right">{{currencyformat MrPrice}}</td>
+                <td align="right">{{currencyformat NetAmount}}</td>
+            </tr>
+            {{/each}}
+                <tr class="total">
+                    <td style="text-align:right !important" colspan=10>NET Amount</td>
+                    <td align="right">{{data.StockRequest.TotalNetAmount}}</td>
+                </tr>
+            </table>
+            </td>
+            </tr>
+            </table>
+        </div>
+        <br>
+        <table style="width:100%;">
+            <tr>
+                <td style="width: 32%;" align="center"><b>PREPARED BY</b><br>
+                    {{data.StockRequest.RequestedUser.Title.Description}}
+                    {{data.StockRequest.RequestedUser.FirstName}} {{data.StockRequest.TranferedUser.LastName}}</td>
+                <td style="width: 31%;" align="center">
+                    <b>APPROVED BY </b><br>
+                    {{data.StockRequest.ApprovedUser.Title.Description}}
+                    {{data.StockRequest.ApprovedUser.FirstName}} {{data.StockRequest.ApprovedUser.LastName}}
+                </td>
+                <td style="width: 33%;" align="center">
+                    <b>STORE INCHARGE</b> <br>
+                    {{data.StockRequest.AuthorizedUser.Title.Description}}
+                    {{data.StockRequest.AuthorizedUser.FirstName}} {{data.StockRequest.AuthorizedUser.LastName}}
+                </td>
+            </tr>
+        </table>
+    </div>

@@ -1,0 +1,171 @@
+<link rel="stylesheet" href="app/css/drhms.css">
+<div class="row page-header">
+    <div class="col-sm-5">
+        <h4 class="mt0" translate="OT Schedules"></h4>
+    </div>
+    <div class="col-sm-7">
+        <div class="filters">
+            <div class="search">
+                <input type="text" id="pid" class="form-control" on-enter="getList()" ng-model="currentfilter.patient"
+                    placeholder="Patient Name"> <i class="fas fa-search" aria-hidden="true"></i>
+            </div>
+            <!-- <button class="btn-add" ng-click="addNew()"
+                uib-tooltip="{{ 'otschedule-list.otschedule_tooltip.lbl' | translate }}" tooltip-placement="bottom">
+                <i class="fa fa-plus" aria-hidden="true"></i>
+            </button> -->
+            <span class="drhms-billing-btn drhms-outstandingbill-btn" ng-click="doctor_dashboard()"
+                uib-tooltip="Doctor Dashboard" tooltip-placement="bottom">
+                <i class="fas fa-th-large" aria-hidden="true"></i>
+            </span>
+        </div>
+    </div>
+</div>
+<div>
+    <label class="btn btn-secondary top-option" ng-repeat="option in options" ng-click="getList()"
+        ng-model="currentcontext.option" uib-btn-radio="option.key">{{option.name}}</label>
+</div>
+<div class="row">
+    <div class="col-sm-4">
+        <label class="col-sm-4" translate="otrequest-form.surgeryname.lbl"></label>
+        <div class="col-sm-8">
+            <input type="text" class="form-control" on-enter="getList()" ng-model="currentfilter.surgeryname"
+                placeholder="">
+        </div>
+    </div>
+    <div class="col-sm-4">
+        <label class="col-sm-4" translate="patientemr.prescription-form.date.lbl"></label>
+        <div class="col-sm-8">
+            <input type="text" class="form-control" ng-change="getList()"
+                uib-datepicker-popup="{{datePickerOptions.dateFormat}}" placeholder="{{datePickerOptions.placeholder}}"
+                ng-click="visitdatePopup = { opened: true }" is-open="visitdatePopup.opened"
+                ng-model="currentfilter.OTScheduledOn">
+        </div>
+    </div>
+    <div class="col-sm-4">
+        <label class="col-sm-4" translate="billing.opbilling-list.status.lbl"></label>
+        <div class="col-sm-8">
+            <ui-select ng-model="currentfilter.OTScheduleStatusId" ng-change="getList()">
+                <ui-select-match>
+                    {{$select.selected.Text | limitTo : 20 : 0}}
+                    <span ng-if="$select.selected.Text.length>20">...</span>
+                </ui-select-match>
+                <ui-select-choices
+                    repeat="lookupitem.Id as lookupitem in lookup.OTScheduleStatus | filter: { Text: $select.search }">
+                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                </ui-select-choices>
+            </ui-select>
+        </div>
+    </div>
+    <!-- <div class="col-sm-3">
+        <label class="col-sm-4" translate="billing.opbilling-list.doctor.lbl"></label>
+        <div class="col-sm-8">
+            <ui-select ng-model="currentfilter.DoctorId" ng-change="getList()">
+                <ui-select-match>
+                    {{$select.selected.Text | limitTo : 20 : 0}}
+                    <span ng-if="$select.selected.Text.length>20">...</span>
+                </ui-select-match>
+                <ui-select-choices
+                    repeat="lookupitem.Id as lookupitem in lookup.Doctor | filter: { Text: $select.search }">
+                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                </ui-select-choices>
+            </ui-select>
+        </div>
+    </div> -->
+</div>
+<div class="row">
+    <custom-table config="vm.gridConfig"></custom-table>
+</div>
+<div class="fooder-bgs">
+    <div class="row">
+        <ul uib-pagination total-items="vm.gridConfig.pagerObj.totalItems"
+            items-per-page="vm.gridConfig.pagerObj.pageSize" start-index="vm.gridConfig.pagerObj.startIndex"
+            ng-model="vm.gridConfig.pagerObj.currentPage" ng-change="getList()"></ul>
+    </div>
+</div>
+<script type="text/ng-template" id="prescriptionTemplate.html">
+    <div class="patientprofilebg">
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 block">
+            <div class="ui-grid-cell-contents">
+                <div class="col-xs-2 col-sm-2 col-md-1 col-lg-1 ip_pat_img">
+                    <span ng-show="!row.entity.Patient.PhotoPath">
+                    <img src="app/img/main/no-img-female.png" class="img-responsive image-height" ng-if="row.entity.Patient.GenderId == 2">
+                    <img src="app/img/main/no-img-icon.png" class="img-responsive image-height" ng-if="row.entity.Patient.GenderId != 2">
+                </span>
+                    <img class="img-responsive image-height" ng-show="row.entity.Patient.PhotoPath && row.entity.Patient.Photo" data-ng-src="data:image/png;base64,{{row.entity.Patient.Photo}}"
+                    />
+                </div>
+                <div class="col-xs-8 col-sm-8 col-md-4 col-lg-4 block">
+                    <div class="nameinfo"> {{row.entity.Patient.Title.Description}} {{row.entity.Patient.FirstName}} {{row.entity.Patient.LastName}}</div>
+                    <div class="nameinfo">
+                        <span class="nameinfo mrninfo">MRN - {{row.entity.Patient.MRN ? row.entity.Patient.MRN : 'N/A' }}</span>                        &nbsp; | &nbsp; {{row.entity.Patient.Gender.Description ? row.entity.Patient.Gender.Description :
+                        'N/A'}} &nbsp; | &nbsp; {{row.entity.Patient.Age ? ((row.entity.Patient.Age
+                        <=1 ) ? row.entity.Patient.Age + 'Yr': row.entity.Patient.Age + ' Yrs') : 'N/A' }} &nbsp; | &nbsp; {{row.entity.Patient.DOB
+                            ? (row.entity.Patient.DOB| date : 'dd-MMM-yyyy') : 'N/A'}} </div>
+                            <div class="contactinfo" ng-if='row.entity.Patient.AddressLine1 || row.entity.Patient.AddressLine2'>
+                                <i class="fa fa-envelope text-address"></i> : &nbsp; {{row.entity.Patient.AddressLine1 +
+                                ',' }} {{row.entity.Patient.AddressLine2 ? row.entity.Patient.AddressLine2 + ',' : ""}} {{row.entity.Patient.Area
+                                ? row.entity.Patient.Area + ',' : ""}} {{row.entity.Patient.City ? row.entity.Patient.City
+                                + ',' : ""}} {{row.entity.Patient.State ? row.entity.Patient.State + ',' : ""}} {{row.entity.Patient.Country
+                                ? row.entity.Patient.Country : ""}}
+                            </div>
+                            <div class="contactinfo" ng-if='!row.entity.Patient.AddressLine1 && !row.entity.Patient.AddressLine2'>
+                                <i class="fa fa-envelope text-address"></i> : &nbsp; N/A
+                            </div>
+                            <div class="contactinfo">
+                                <i class="fa fa-phone-square text-cell"></i> : {{row.entity.Patient.LandLine}} &nbsp; | &nbsp;
+                                NRIC - {{row.entity.Patient.NationalityIdentifier ? row.entity.Patient.NationalityIdentifier
+                                : 'N/A'}}
+                            </div>
+                    </div>
+                    <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3 ip_hide">
+                        <ul class="timeline-xs">
+                            <li class="timeline-item">
+                                <div class="margin-left-15">
+                                    <div class="text-muted text-small">
+                                        <label class="label label-warning">{{ row.entity.Identifier }}</label>
+                                        <div class="displaydate">
+                                            <displaydate datetime-val="row.entity.OTScheduledOn"></displaydate>&nbsp;
+                                            <div>
+                                                <label class="label label-success"> {{row.entity.OTScheduleStatus.Description}}</label>|
+                                                <span class="text-primary">{{row.entity.Doctor.Title.Description}}</span>
+                                                <span class="text-primary"></span>
+                                                <span class="text-primary">{{row.entity.Doctor.FirstName}}</span>
+                                                <span class="text-primary"></span>
+                                                <span class="text-primary">{{row.entity.Doctor.LastName}}</span>
+                                            </div>
+                                            <div>
+                                                <label class="surgery"> {{row.entity.SurgeryName}}</label>|
+                                                <span class="room">{{row.entity.OTRoom.RoomNo}}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                            </li>
+                        </ul>
+                        </div>
+                        <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3 ip_hide">
+                            <ul class="timeline-xs">
+                                <li class="timeline-item">
+                                    <div class="margin-left-15">
+                                        <div class="text-muted text-small">
+                                            <div style="height: 24px;">&nbsp;</div>
+                                        </div>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="col-xs-1 col-sm-1 col-md-1 col-lg-1 ">
+                            <div>
+                            <a style="margin-left: -100px;margin-top: 7px;"ng-click="grid.appScope.handleEvents('otnotes',row)"
+                            uib-tooltip="{{'OT Notes'}}" tooltip-placement="right"
+                            class="text-white btn btn-success btn-xs"><strong>OT Notes</strong></a>
+                            </div>
+                            <div>
+                            <a style="margin-left: -100px;margin-top: 10px;" ng-click="grid.appScope.handleEvents('schedule',row)"
+                            uib-tooltip="{{'View Schedule'}}" tooltip-placement="right"
+                            class="text-white btn btn-schedule btn-xs"><strong>Schedule</strong></a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+</script>

@@ -1,0 +1,127 @@
+<html>
+
+<head>
+    <style>
+        .center {
+            text-align: center;
+            font-size: 11px;
+        }
+
+        .table {
+            font-size: 11px;
+        }
+
+        .size {
+            font-size: 11px;
+        }
+
+        td {
+            padding: 5px;
+        }
+
+        .bottom {
+            position: absolute;
+            bottom: 0px;
+            font-size: 11px;
+        }
+
+        {{include '/Templates/assets/css/core.css'}}
+    </style>
+</head>
+
+<body>
+
+    <div id="pageHeader">
+        {{{include '/Templates/equitas/common/header.tpl.html' 'tpl'}}}
+    </div>
+    <div id="pageFooter">
+        {{{include '/Templates/equitas/common/footer.tpl.html' 'tpl'}}}
+    </div>
+
+    <table class="size" style="width: 100%;padding-left:45px;padding-top:25px">
+        <tr>
+            <td style="width:13%">Patient Name</td>
+            <td style="width:22%"><b>: {{data.Patient.Title.Description}} {{data.Patient.FirstName}} {{data.Patient.LastName}}</b></td>
+            <td rowspan="5" style="vertical-align: middle;width:25%">
+                <div>UHID : <b>: {{data.Patient.MRN}}</div>
+                <div> <img style="height: 30px; width: 100px;" src="{{barcode data.Patient.MRN}}" /></div>
+            </td>
+            <td style="width:10%">Token No</td>
+            <td style="width:20%"><b>: {{data.AppointmentDisplay.TokenNo}}</td>
+        </tr>
+        <tr>
+            <td>DOB</td>
+            <td>: {{strtodate data.Patient.DOB}}</td>
+            <td>Visit Date</td>
+            <td>: {{data.Appointment.AppointmentDate}}</td>
+        </tr>
+        <tr>
+            <td>Age / Gender</td>
+            <td><b>: {{age data.Patient.DOB}} / {{data.Patient.Gender.Description}}</td>
+            <td>Visit Time</td>
+            <td><b>: {{data.Appointment.StartTime}}</b></td>
+        </tr>
+        <tr>
+            <td>Phone No</td>
+            <td>: {{data.Patient.Mobile}}</td>
+            <td>Reason</td>
+            <td><b>: {{data.Appointment.Remarks}}</b></td>
+        </tr>
+        <tr>
+            <td>Dr Name</td>
+            <td><b>: {{data.EncounterDoctor.Doctor.Title.Description}} {{data.EncounterDoctor.Doctor.FirstName}} {{data.EncounterDoctor.Doctor.LastName}}</td>
+            <td>Ref Name</td>
+            <td><b>: {{data.Encounter.Referral.ReferralName}}</b></td>
+        </tr>
+        <tr>
+            <td>Address</td>
+            <td colspan="3">
+                : {{data.Patient.AddressLine1}},
+                {{data.Patient.AddressLine2}},
+                {{data.Patient.Pincode}},
+                {{data.Patient.CityMaster.CityName}},
+                {{data.Patient.DistrictMaster.DistrictName}},
+                {{data.Patient.StateMaster.StateName}},
+                {{data.Patient.CountryMaster.CountryName}},
+                PinCode - {{data.Patient.Pincode}}
+            </td>
+        </tr>
+    </table>
+    <div style="width:100%;padding-left:45px">
+        <hr style="border-top:solid 1px;" />
+    </div>
+    <table class='table' style="width:100%;">
+        <tr>
+            <td colspan="9" style="width:20%;padding-left:45px">{{#if data.patientvital}}
+                <u>Vitals</u>{{/if}}
+            </td>
+        </tr>
+    </table>
+    <table class='size' style="width:100%;">
+        {{#each data.patientvital}}
+        <tr>
+            <td style="width:30%;padding-left:45px">{{VitalName}}</td>
+            <td>:</td>
+            <td style="width:70%;">{{VitalValue}} {{UOM}}</td>
+
+        </tr> {{/each}}
+
+        <table class='bottom' style="width:100%;">
+            <div id="pageFooter">
+                <tr>
+                    <td></td>
+                    <td colspan="4" style="width:30%;bottom:0px;"><b>{{data.user.Title.Description}}
+                            {{data.user.FirstName}} {{data.user.LastName}} <br>
+{{data.user.LicenseNo}}</b></td>
+                </tr>
+
+                <tr>
+                    <td></td>
+                    <td colspan="4" style="width:30%;"><b>{{data.user.Department.DepartmentName}}</b></td>
+                </tr>
+            </div>
+        </table>
+
+</body>
+
+</html>

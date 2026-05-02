@@ -1,0 +1,217 @@
+<!-- <style>
+    .modal-lg {
+        width: 1000px;
+    }
+
+    .panel-body {
+        padding: 15px;
+        margin-left: 0px;
+        margin-top: -53px;
+        margin-right: 0px;
+        margin-bottom: 0px;
+        background-image: url(app/img/bg-body.jpg);
+        background-repeat: repeat;
+        overflow: auto;
+    }
+
+    .modal-content .panel-body {
+        overflow: inherit;
+    }
+
+    .col-sm-2 {
+        width: 25.666667%;
+    }
+
+    .well {
+        min-height: 20px;
+        padding: 19px;
+        margin-bottom: 0px;
+        border: 1px solid #ededed;
+        border-radius: 4px;
+        background: rgb(233, 246, 253);
+        /* Old browsers */
+        background: -moz-linear-gradient(top, rgba(233, 246, 253, 1) 0%, rgba(211, 238, 251, 1) 100%);
+        /* FF3.6-15 */
+        background: -webkit-linear-gradient(top, rgba(233, 246, 253, 1) 0%, rgba(211, 238, 251, 1) 100%);
+        /* Chrome10-25,Safari5.1-6 */
+        background: linear-gradient(to bottom, rgb(250, 250, 250) 0%, rgb(247, 252, 253) 100%);
+        /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+        filter: progid: DXImageTransform.Microsoft.gradient( startColorstr='#e9f6fd', endColorstr='#d3eefb', GradientType=0);
+        /* IE6-9 */
+        box-shadow: 4px 2px 13px -7px rgba(0, 0, 0, 0.75);
+    }
+
+    /* .formactionbar {
+            padding: 5px 15px;
+            height: 40px;
+            background-color: #ccecf5;
+        } */
+
+    .custom-modal-header {
+        margin-bottom: 10px;
+        background-color: #597a9a;
+        color: #fff;
+    }
+
+    .modal-content {
+        -webkit-box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+        box-shadow: -1px 3px 20px 7px rgba(249, 244, 244, 0.5);
+    }
+
+    .modal-header {
+        padding: 4px 10px;
+        border-bottom: 1px solid #e5e5e5;
+    }
+    .custom-popup-wrapper {
+    position: absolute;
+    right: 0;
+}
+</style> -->
+<style>
+    .form-horizontal .form-group {
+        height: 60px;
+    }
+
+    table.uib-timepicker {
+        margin-top: -12px;
+    }
+</style>
+<div class="modal-header custom-modal-header">
+    <div class="col-sm-10">
+        <h4 class="modal-title custom-modal-title" translate="patientemr.criticalcharts.managediabetes.lbl"></h4>
+    </div>
+    <div class="col-sm-2">
+        <div class="filters">
+            <img src="../../../../../assets/svg/close.svg" ng-click="cancelCallback()">
+        </div>
+    </div>
+</div>
+<div class="row">
+    <form id="item_form" name="item_form" class="form-horizontal" role="form" ng-submit="saveItem()">
+        <div class="col-sm-12">
+            <div class="form-group col-sm-4">
+                <label class="col-sm-12 control-label" translate="patientemr.criticalcharts.date.lbl"></label>
+                <div class="col-sm-12">
+                    <input type="text" class="form-control" name="fromdate" ng-date-object
+                        uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                        placeholder="{{datePickerOptions.placeholder}}" ng-click="fromdatePopup = { opened: true }"
+                        is-open="fromdatePopup.opened" ng-model="item.DiabetesChartDate" required>
+                </div>
+            </div>
+            <div class="form-group col-sm-4">
+                <label class="col-sm-4 control-label" translate="patientemr.criticalcharts.time.lbl"></label>
+                <div class="col-sm-12">
+                    <uib-timepicker name="gracetime" ng-model="item.DiabetesChartTime" ng-time-object></uib-timepicker>
+                </div>
+            </div>
+            <div class="form-group col-sm-4">
+                <label class="col-sm-12 control-label" for="method"
+                    translate="patientemr.criticalcharts.orderby.lbl"></label>
+                <div class="col-sm-12">
+                    <autosearch itemid="item.DoctorId" iteminfo="" rowdata="" name="'doctorid'"
+                        config="vm.doctorcontrolconfig" itemchange="doctorChange()" candisable="IsDisabled"
+                        isrequired="true"></autosearch>
+                </div>
+            </div>
+            <div class="form-group col-sm-4">
+                <label class="col-sm-12 control-label" for="method"
+                    translate="patientemr.criticalcharts.method.lbl"></label>
+                <div class="col-sm-12">
+                    <input type="text" class="form-control" name="method" ng-model="item.Method" placeholder="">
+                </div>
+            </div>
+        </div>
+        <div class="">
+            <div class="col-sm-12">
+                <h4 class="col-sm-12 control-label" translate="patientemr.criticalcharts.bloodsugar.lbl"></h4>
+            </div>
+            <div class="form-group col-sm-4">
+                <label class="col-sm-12 control-label" for="bfasting"
+                    translate="patientemr.criticalcharts.fasting.lbl"></label>
+                <div class="col-sm-12">
+                    <input type="text" class="form-control" name="bfasting" ng-model="item.BloodSugarFasting"
+                        placeholder="" required>
+                </div>
+            </div>
+            <div class="form-group col-sm-4">
+                <label class="col-sm-12 control-label" for="bpp" translate="patientemr.criticalcharts.pp.lbl"></label>
+                <div class="col-sm-12">
+                    <input type="text" class="form-control" name="bpp" ng-model="item.BloodSugarPP" placeholder=""
+                        required uppercase>
+                </div>
+            </div>
+            <div class="form-group col-sm-4">
+                <label class="col-sm-12 control-label" for="brandom"
+                    translate="patientemr.criticalcharts.random.lbl"></label>
+                <div class="col-sm-12">
+                    <input type="text" class="form-control" name="brandom" ng-model="item.BloodSugarRandom"
+                        placeholder="" uppercase>
+                </div>
+            </div>
+        </div>
+        <div class="">
+            <div class="col-sm-12">
+                <h4 class="col-sm-12 control-label" translate="patientemr.criticalcharts.urinesugar.lbl"></h4>
+            </div>
+            <div class="form-group col-sm-4">
+                <label class="col-sm-12 control-label" for="ufasting"
+                    translate="patientemr.criticalcharts.fasting.lbl"></label>
+                <div class="col-sm-12">
+                    <input type="text" class="form-control" name="ufasting" ng-model="item.UrineSugarFasting"
+                        placeholder="" required>
+                </div>
+            </div>
+            <div class="form-group col-sm-4">
+                <label class="col-sm-12 control-label" for="upp" translate="patientemr.criticalcharts.pp.lbl"></label>
+                <div class="col-sm-12">
+                    <input type="text" class="form-control" name="upp" ng-model="item.UrineSugarPP" placeholder=""
+                        required uppercase>
+                </div>
+            </div>
+            <div class="form-group col-sm-4">
+                <label class="col-sm-12 control-label" for="urandom"
+                    translate="patientemr.criticalcharts.random.lbl"></label>
+                <div class="col-sm-12">
+                    <input type="text" class="form-control" name="urandom" ng-model="item.UrineSugarRandom"
+                        placeholder="" uppercase>
+                </div>
+            </div>
+            <div class="form-group col-sm-4">
+                <label class="col-sm-12 control-label" for="HBA1C" translate="HbA1C"></label>
+                <div class="col-sm-12">
+                    <input type="text" class="form-control" name="HBA1C" ng-model="item.HBA1C" placeholder="">
+                </div>
+            </div>
+            <div class="form-group col-sm-4">
+                <label class="col-sm-12 control-label" for="eag" translate="Estimate Average Glucose"></label>
+                <div class="col-sm-12">
+                    <input type="text" class="form-control" name="eag" ng-model="item.EAG" placeholder="" uppercase>
+                </div>
+            </div>
+            <div class="form-group col-sm-4">
+                <label class="col-sm-12 control-label" for="micalb" translate="Micro Albumin"></label>
+                <div class="col-sm-12">
+                    <input type="text" class="form-control" name="micalb" ng-model="item.MicroAlbumin" placeholder=""
+                        uppercase>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-12">
+            <div class="form-group col-sm-4">
+                <label class="col-sm-12 control-label" for="comments"
+                    translate="patientemr.criticalcharts.comments.lbl"></label>
+                <div class="col-sm-12">
+                    <textarea rows="3" name="comments" ng-model="item.Comments" maxlength="4000"></textarea>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+<div class="">
+    <div class="row">
+        <div class="pull-right">
+            <button type="button" class="draftbutton" translate="common.saveaction.lbl" ng-click="save()"></button>
+            <!-- <button id="btnCancelForm" type="button" class="draftbutton" ng-click="backToList()" translate="common.cancelaction.lbl"></button> -->
+        </div>
+    </div>
+</div>

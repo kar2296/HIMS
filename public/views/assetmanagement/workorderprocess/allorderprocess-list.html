@@ -1,0 +1,85 @@
+<div class="row filter-area">
+    <div class="col-sm-12">
+        <div class="col-sm-4">
+            <label class=" sr-only col-sm-5 col-md-4 control-label filter-lbl" translate="assetmanagement.myorder-list.filter-WO#.lbl"></label>
+            <div class="input-group col-sm-7 col-md-8">
+                <div class="input-group-addon">
+                    <i class="fas fa-search" aria-hidden="true"></i>
+                </div>
+                <input type="text" class="form-control" on-enter="getList()" ng-model="currentfilter.TicketNumberIdentifier" placeholder="">
+            </div>
+        </div>
+
+
+        <div class="col-sm-4">
+            <label class="col-sm-4 control-label filter-lbl" translate="assetmanagement.myorder-list.filter-assigned.lbl"></label>
+            <div class="col-sm-8">
+                <ui-select ng-model="currentfilter.AssignedId" ng-change="getList()" class="filter-combo">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 8 : 0}}
+                        <span ng-if="$select.selected.Text.length>8">...</span>
+                    </ui-select-match>
+                    <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.User | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <label class="col-sm-4 control-label filter-lbl" translate="assetmanagement.myorder-list.filter-status.lbl"></label>
+            <div class="col-sm-8">
+                <ui-select ng-model="currentfilter.AssetTicketStatusId" ng-change="getList()" class="filter-combo">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 8 : 0}}
+                        <span ng-if="$select.selected.Text.length>8">...</span>
+                    </ui-select-match>
+                    <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.AssetTicketStatus | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <label class="col-sm-4 control-label filter-lbl" translate="assetmanagement.myorder-list.filter-department.lbl"></label>
+            <div class="col-sm-8">
+                <ui-select ng-model="currentfilter.FromDepartmentId" ng-change="getList()" class="filter-combo">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 8 : 0}}
+                        <span ng-if="$select.selected.Text.length>8">...</span>
+                    </ui-select-match>
+                    <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.Department | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+
+        </div>
+        <div class="col-sm-4">
+            <label class="col-sm-4 control-label filter-lbl" translate="assetmanagement.myorder-list.filter-fromdate.lbl"></label>
+            <div class="col-sm-7 col-md-8">
+                <input type="text" class="form-control" name="filter_fromdate" ng-change="getList()" ng-date-object datepicker-options="datePickerOptions"
+                    show-button-bar="{{datePickerOptions.showButtonBar}}" uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                    placeholder="{{datePickerOptions.placeholder}}" ng-click="filter_fromdatePopup = { opened: true }" is-open="filter_fromdatePopup.opened"
+                    ng-model="currentfilter.ExpectedDate">
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <label class="col-sm-4 control-label filter-lbl" translate="assetmanagement.myorder-list.filter-priority.lbl"></label>
+            <div class="col-sm-8">
+                <ui-select ng-model="currentfilter.PriorityId" ng-change="getList()" class="filter-combo">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 8 : 0}}
+                        <span ng-if="$select.selected.Text.length>8">...</span>
+                    </ui-select-match>
+                    <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.Priority | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+
+    </div>
+</div>
+<div class="container-fluid onerow-filter">
+    <div ui-grid="vm.gridConfig" class="table-uigrid"></div>
+</div>

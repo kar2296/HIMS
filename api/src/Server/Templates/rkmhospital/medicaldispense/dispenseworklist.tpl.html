@@ -1,0 +1,238 @@
+<html>
+
+    <head>
+        <style>
+            .table1 {
+                border: 1px solid black;
+                border-bottom: 0px solid black;
+                text-align: left;
+                font-size: 11px !important;
+            }
+
+            .table2 {
+                border: 1px solid black;
+                border-bottom: 0px solid black;
+                border-top: 0px solid black;
+                text-align: left;
+                font-size: 11px;
+            }
+
+            .table3 {
+                border: 1px solid black;
+                border-bottom: 1px solid black;
+                font-size: 11px;
+            }
+
+            .border {
+                border-collapse: collapse;
+                border-left: 1px solid black;
+                font-size: 11px;
+            }
+
+            .table4 {
+                border: 1px solid black;
+                border-bottom: 0px solid black;
+                text-align: left;
+                font-size: 11px;
+            }
+
+            .table5 {
+                border: 1px solid black;
+                border-bottom: 1px solid black;
+                border-top: 0px solid black;
+                text-align: left;
+                font-size: 11px;
+            }
+
+            .size {
+                border: 1px solid black;
+                font-size: 11px;
+                border-collapse: collapse;
+                border-top: 0px solid black;
+                border-bottom: 1px solid black;
+            }
+ 	    .header1 {
+               font-size: 11px;
+               text-align: center;
+           }
+
+
+            {{include '/Templates/assets/css/core.css'}}
+        </style>
+    </head>
+
+    <body>
+       
+        <div id="pageHeader">
+
+                {{{include '/Templates/rkmhospital/common/header1.tpl.html' 'tpl'}}}
+
+            </div>
+
+           <div class=""style="vertical-align:text-middle;font-size:14px;text-align:center;text-transform:uppercase;"><b>Dispense Work List </b></div>
+        <table class="table1" style="width:100%;">
+            <tr>
+                <td style="width:15%;"><b>Name</b></td>
+                <td>:</td>
+                <td style="width:20%;">{{data.PatientDispense.Patient.Title.Description}} {{data.PatientDispense.Patient.FirstName}} {{data.PatientDispense.Patient.MiddleName}}
+                    {{data.PatientDispense.Patient.LastName}}</td>
+                <td style="width:10%;"><b>UHID</b></td>
+                <td>:</td>
+                <td style="width:20%;">{{data.PatientDispense.Patient.MRN}}</td>
+                <td style="width:15%;"><b>OP/IP/ER NO</b></td>
+                <td>:</td>
+                <td style="width:20%;">{{data.PatientDispense.Encounter.VisitIdentifier}}</td>
+
+            </tr>
+
+            <tr>
+                <td><b>Age / Sex</b></td>
+                <td>:</td>
+                <td>{{data.PatientDispense.Patient.Age}} / {{data.PatientDispense.Patient.Gender.Description}}</td>
+                <td><b>Request No</b></td>
+                <td>:</td>
+                <td>{{data.PatientDispense.PatientRequestNumber}}</td>
+                <td><b></b></td>
+                <td></td>
+                <td></td>
+            </tr>
+
+            <tr>
+                <td><b>Dispense NO</b></td>
+                <td>:</td>
+                <td><b>{{data.PatientDispense.DispenseNumber}}</b></td>
+                <td><b>Dispense Date </b></td>
+                <td>:</td>
+               <td>{{datetimeformat data.PatientDispense.DispenseDateTime}}</td>
+                <td><b>Insurance Name</b></td>
+                <td>:</td>
+                <td>{{data.PatientDispense.Encounter.Guarantor.GuarantorName}}</td>
+            </tr>
+            <tr>
+                <td><b>Indent By</b></td>
+                <td>:</td>
+                <td>{{data.PatientDispense.PatientStockRequest.RequestedUser.Title.Description}} {{data.PatientDispense.PatientStockRequest.RequestedUser.FirstName}} {{data.PatientDispense.PatientStockRequest.RequestedUser.MiddleName}}
+                    {{data.PatientDispense.PatientStockRequest.RequestedUser.LastName}}</b></td>
+                <td><b>Ward Deatils</td>
+                <td>:</td>
+               <td>{{data.PatientDispense.WardMaster.WardName}}&nbsp;/&nbsp;{{data.PatientDispense.WardRoomMaster.RoomNo}}
+                &nbsp;/&nbsp;{{data.PatientDispense.WardRoomBedMaster.BedNo}}
+               </td>
+                <td><b></b></td>
+                <td></td>
+                <td><b></b></td>
+            </tr>
+            
+        </table>
+
+        <table border class="size" style="width:100%;">
+            <tr>
+                <th style="width:5%" align="center">S.No</th>
+                <th style="width:17%" align="center">Description</th>
+                <!-- <th style="width:6%" align="left"></th> -->
+                <th style="width:11%" align="center">Batch </th>
+                <th style="width:8%" align="center">Exp</th>
+                <th style="width:10%" align="center">MRP</th>
+                <th style="width:6%" align="center">Requested Qty</th>
+                <th style="width:6%" align="center">Dispensed Qty</th>
+                <th style="width:8%" align="center">Value</th>
+                <th colspan="2" style="width:12%" align="center">CGST</th>
+                <th colspan="2" style="width:12%" align="center">SGST</th>
+                <th style="width:10%" align="center">Amount</th>
+
+            </tr>
+            <tr>
+                <th colspan="8" style="width:71%" align="left"></th>
+                <th style="width:5%" align="center">Rate%</th>
+                <th style="width:7%" align="center">Amt</th>
+                <th style="width:5%" align="center">Rate%</th>
+                <th style="width:7%" align="center">Amt</th>
+                <th style="width:5%" align="center"></th>
+            </tr>
+        </table>
+
+        <table class="size" style="width:100%">
+            {{#each data.PatientDispenseDetails}}
+            <tr>
+                <td style="width:5%" align="left">{{inc @index}}</td>
+                <td style="width:17%" align="left">{{ItemName}}</td>
+                <!-- <td style="width:6%"></td> -->
+                <td style="width:11%" align="left">{{BatchId}} </td>
+                <td style="width:8%" align="left"><span style="margin-left:-30px">{{dateformat ExpiryDate}}</span></td>
+                <td style="width:10%" align="center"><span style="margin-left:-30px">{{currencyformat Mrp}}</span></td>
+                <td style="width:6%" align="left"><span style="margin-left:-10px">{{RequestedQuantity}}</span></td>
+                <td style="width:6%" align="left">{{DispensedQuantity}}</td>
+                <td style="width:8%" align="left">{{currencyformat Amt}}</td>
+                <td style="width:5%" align="left">{{CGstPercentage}}</td>
+                <td style="width:7%" align="left">{{currencyformat CGstAmount}}</td>
+                <td style="width:5%" align="left">{{SGstPercentage}}</td>
+                <td style="width:7%" align="left">{{currencyformat SGstAmount}}</td>
+                <td style="width:5%" align="left"><span style="margin-left:-10px">{{currencyformat Amount}}</span></td>
+            </tr>
+            {{/each}}
+        </table>
+        <table class="table5" style="width:100%">
+            <tr>
+               <td style="width:5%"></td>
+               <td style="width:17%"></td>
+               <td style="width:6%"></td>
+               <td style="width:5%"></td>
+               <td style="width:13%"></td>
+               <td style="width:5%"></td>
+               <td style="width:6%"></td>
+               <td style="width:6%"></td>
+               <td style="width:8%"><b>{{currencyformat data.WithoutTax}}</b></td>
+               <td style="width:5%"></td>
+               <td style="width:7%"><b>{{currencyformat data.PatientDispense.TotalCGstAmount}}<b></td>
+               <td style="width:5%"></td>
+               <td style="width:7%"><b>{{currencyformat data.PatientDispense.TotalSGstAmount}}<b></td>
+               <td style="width:5%"></td>
+            </tr>
+           </table>
+        <table class="table2" style="width:100%">
+
+            <tr>
+                <td style="width:40%;"></td>
+                <td style="width:50%;text-align:right">Net Amount</td>
+                <td>:</td>
+                <td style="width:10%;">{{currencyformat data.PatientDispense.DispensedValue}}</td>
+            </tr>
+            <tr>
+                <td style="width:40%;"></td>
+                <td style="width:50%;text-align:right">{{#if data.PatientDispenseDetails.RefundedAmount}} Refunded {{/if}}</td>
+                <td>{{#if data.PatientReturns.RefundedAmount}}: {{/if}}</td>
+                <td>{{#if data.PatientReturns.RefundedAmount}} {{currencyformat data.PatientReturns.RefundedAmount}} {{/if}}</td>
+            </tr>
+            <tr>
+                <td colspan="2"style="width:90%;text-align:right">{{#if data.PatientReturns.ToBeRefundAmount}}To Be Refunded{{/if}}</td>
+                <td>{{#if data.PatientReturns.ToBeRefundAmount}}:{{/if}}</td>
+                <td>{{#if data.PatientReturns.ToBeRefundAmount}} {{currencyformat data.PatientReturns.ToBeRefundAmount}} {{/if}}</td>
+            </tr>
+
+        </table>
+        <table class="table4" style="width:100%;">
+            <tr>
+                <td><b>Amount in words</b></td>
+                <td>:</td>
+                <td><b>Rupees {{decimalnrInWords data.PatientDispense.DispensedValue}} only</b></td>
+            </tr>
+        </table>
+        <table class="table3" style="width:100%;">
+            <tr>
+                <td style="width:80%;">
+                    <u></u>
+                </td>
+                <td  colspan="4" style="width:20%;">{{data.PatientDispense.CreatedUser.Title.Description}} {{data.PatientDispense.CreatedUser.FirstName}} {{data.PatientDispense.CreatedUser.LastName}}</td>
+            </tr>
+            <tr>
+                <td >Q.P Sigature</td>
+                <!-- <td style="width:60%;">
+                    <u><b></b></u>
+                </td> -->
+                <td colspan="3" style="width:20%;">User Signature</td>
+            </tr>
+        </table>
+        <div style="width:100%; font-size:8px;">Printed On: {{now}}</div>
+    </body>
+
+    </html>

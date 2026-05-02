@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<style>
+    .filter-area {
+                    box-shadow: 1px 4px 18px -10px rgba(0, 0, 0, .75);
+                    padding-bottom: 4px;
+                }
+
+                .typeahead-demo>input {
+                    background: url(app/img/patterns-bg/search.png) 102.2% center no-repeat #fff;
+                    background-size: 10.7% !important;
+                }
+
+                .form-group {
+                    margin-bottom: 5px !important;
+                }
+
+                .well.custom_padtop {
+                    padding: 0px !important;
+                }
+
+                fieldset.fsStyle {
+                    padding: 0px 4px !important;
+                    border: 1px solid #c79508;
+                }
+
+                .print_dropdown {
+                    top: initial;
+                    bottom: 100%;
+                    margin-bottom: 5px;
+                    background: #1e7d9a !important;
+                }
+
+                .print_dropdown span {
+                    color: #fff;
+                }
+
+                .print_dropdown li :hover {
+                    background: #ad1414 !important;
+                    color: #000000 !important;
+                }
+
+                ul#print {
+                    margin-right: 3px;
+                }
+
+                .panel-body.form-panel.bg-pattern {
+                    overflow: scroll;
+                    height: 505px;
+                    overflow-x: hidden;
+                }
+
+                .filter-area.row {
+                    clear: both;
+                }
+
+                textarea.form-control.notes-textarea.ng-pristine.ng-valid.ng-empty.ng-touched {
+                    border: 1px solid gray;
+                }
+
+                @media (device-width:100vw) and (device-height:100vh) {
+                    .panel-body.form-panel.bg-pattern {
+                        height: 590px;
+                    }
+                    .inner_content {
+                        height: 636px !important;
+                        overflow-x: hidden;
+                        min-height: 636px;
+                    }
+                }
+
+                .table>thead>tr>th {
+                    padding: 8px;
+                }
+
+                fieldset {
+                    padding-bottom: 0px;
+                    border-bottom: 1px dashed #eee;
+                    margin-bottom: 0px;
+                }
+
+                #cashcounter thead {
+                    background: #0287a5b8;
+                    color: #fff;
+                    font-weight: 600;
+                    font-size: 14px;
+                    letter-spacing: 1px;
+                }
+
+                .table>thead>tr>th {
+                    color: #fff;
+                }
+
+                span.btn.btn-default.form-control.ui-select-toggle,
+                .form-horizontal input,
+                input[type=text] {
+                    height: 23px;
+                }
+
+                span.btn.btn-default.form-control.ui-select-toggle {
+                    padding-top: 0px;
+                }
+
+                .inner_content {
+                    height: 508px;
+                    overflow-x: hidden;
+                }
+
+                #cashcounter .table-bordered>tbody>tr>td,
+                .table>thead>tr>th {
+                    border: 1px solid #bbaeae;
+                }
+
+                #cashcounter .table>tbody>tr>td,
+                .table>thead>tr>th {
+                    padding: 1px;
+                    text-align: center;
+                    font-weight: 700;
+                    color: #000;
+                }
+
+                #cashcounter.panel {
+                    margin-bottom: 0px;
+                }
+
+                #cashcounter.table {
+                    margin-bottom: 1px;
+                }
+
+                #cashcounter .panel.panel-default {
+                    border-top-width: 0px;
+                    margin-bottom: 8px;
+                }
+
+                @media (min-width: 576px) {
+                    #cash_counter {
+                        height: 557px;
+                        overflow: scroll;
+                    }
+                }
+
+                @media (min-width:768px) {
+                    #cash_counter {
+                        height: 556px;
+                        overflow: scroll;
+                        overflow-x: hidden;
+                    }
+                }
+
+                @media (min-width:1200px) {
+                    #cash_counter {
+                        height: 530px;
+                        overflow: scroll;
+                        overflow-x: hidden;
+                    }
+                }
+
+                @media (min-width:1360px) {
+                    #cash_counter {
+                        height: 556px;
+                        overflow: scroll;
+                        overflow-x: hidden;
+                    }
+                }
+
+                .details {
+                    color: #bf219d !important;
+                }
+            </style>
+
+
+<div class="row page-header mt1">
+    <h4 class="col-sm-12 mt0" translate="billing.bankstatementlist.pagetitle.lbl"></h4>
+</div>
+<div class="container-fluid">
+    <!-----form------>
+    <form id="item_form" name="item_form" class="form-horizontal" role="form">
+        <div class="filter-area row">
+            <div class="col-sm-12 clearfix sale_coll">
+                <div class="col-sm-3">
+                    <label class="col-sm-5 control-label filter-lbl" translate="billing.bankstatementlist.fromdate.lbl"></label>
+                    <div class="col-sm-7 claim_sub">
+                        <input type="text" class="form-control" name="FromBillDate" ng-date-object datetime-picker="{{datePickerOptions.dateTimeFormat}}"
+                            datepicker-append-to-body="true" placeholder="{{datePickerOptions.placeholder}}" ng-click="FromBillDatePopup = { opened: true }"
+                            is-open="FromBillDatePopup.opened" ng-model="currentfilter.FromBillDate">
+                    </div>
+                </div>
+                <div class="col-sm-3">
+                    <label class="col-sm-5 control-label filter-lbl" translate="billing.bankstatementlist.todate.lbl"></label>
+                    <div class="col-sm-7 claim_sub">
+                        <input type="text" class="form-control" name="ToBillDate" ng-date-object datetime-picker="{{datePickerOptions.dateTimeFormat}}"
+                            datepicker-append-to-body="true" placeholder="{{datePickerOptions.placeholder}}" ng-click="ToBillDatePopup = { opened: true }"
+                            is-open="ToBillDatePopup.opened" ng-model="currentfilter.ToBillDate">
+                    </div>
+                </div>
+                <div class="col-sm-1">
+                    <button id="btnCancelForm" type="button" class="btn btn-success btn-sm ng-scope" ng-click="getList()"
+                        translate="common.applyaction.lbl">
+                    </button>
+                </div>
+            </div>
+        </div>
+    </form>
+    <!--form-ends-->
+
+    <div style="overflow-y: scroll;min-height: 100px;height: 461px;" class="col-sm-12">
+        <div class="col-sm-12">
+            <div class="col-sm-7 pdr0">
+                <fieldset class="fsStyle  col6control" style="height: auto;" id="textboxctrlmaster">
+                    <legend class="legendStyle">
+                        <span translate="billing.bankstatementlist.statements.lbl"></span>
+                    </legend>
+                    <table border='1' style="width:100%;">
+                        <thead class="tablesub">
+                            <tr>
+                                <th class="col-sm-4">
+                                    <span translate="billing.bankstatementlist.users.lbl"></span>
+                                </th>
+                                <th>
+                                    <span translate="billing.bankstatementlist.cash.lbl"></span>
+                                </th>
+                                <th>
+                                    <span translate="billing.bankstatementlist.card.lbl"></span>
+                                </th>
+                                <th>
+                                    <span translate="billing.bankstatementlist.others.lbl"></span>
+                                </th>
+                                <th>
+                                    <span translate="billing.bankstatementlist.lhrc.lbl"></span>
+                                </th>
+                                <th>
+                                    <span translate="billing.bankstatementlist.voucher.lbl"></span>
+                                </th>
+                                <th>
+                                    <span translate="billing.bankstatementlist.netcash.lbl"></span>
+                                </th>
+                                <th>
+                                    <span translate="billing.bankstatementlist.excessshort.lbl"></span>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody class="tablecontent">
+                            <tr ng-repeat="stmt in StatementData">
+                                <td> {{ stmt.users }}</td>
+                                <td> {{ stmt.cash }} </td>
+                                <td> {{ stmt.card }} </td>
+                                <td> {{ stmt.others }} </td>
+                                <td> {{ stmt.lhrc }} </td>
+                                <td> {{ stmt.voucher }} </td>
+                                <td> {{ stmt.netcash }} </td>
+                                <td> {{ stmt.excessshort }} </td>
+                            </tr>
+                            <tr>
+                                <td> <span translate="billing.bankstatementlist.total.lbl"></span> </td>
+                                <td> </td>
+                                <td> </td>
+                                <td> </td>
+                                <td> </td>
+                                <td> </td>
+                                <td> {{NetCashAmt}} </td>
+                                <td> </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </fieldset>
+            </div>
+            <div class="col-sm-5 pdr0">
+                <fieldset class="fsStyle  col6control" style="height: auto;" id="textboxctrlmaster">
+                    <legend class="legendStyle">
+                        <span translate="billing.bankstatementlist.denominations.lbl"></span>
+                    </legend>
+                    <table border='1' style="width:100%;">
+                        <thead class="tablesub">
+                            <tr>
+                                <th colspan="3">
+                                    <span translate="billing.bankstatementlist.denomination.lbl"></span>
+                                </th>
+                                <th>
+                                    <span translate="billing.bankstatementlist.number.lbl"></span>
+                                </th>
+                                <th>
+                                    <span translate="billing.bankstatementlist.amount.lbl"></span>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody class="amount_value">
+                            <tr ng-repeat="denomination in DefinedDenominations">
+                                <td colspan="3">{{ denomination.DenominationName }}</td>
+                                <td colspan="1">
+                                    <input type="text" min="0" ng-keypress="numberonly($event)" ng-pattern="/^\d+$/"
+                                        class="form-control" ng-model="denomination.DenominationCount" placeholder=""
+                                        ng-change="CalculateTotal(denomination)" ng-disabled="item.SubmittedStatus">
+                                </td>
+                                <td colspan="1">
+                                    <input type="text" min="0" class="form-control" ng-model="denomination.DenominationTotal"
+                                        placeholder="0.00" ng-disabled="true">
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colspan="3" translate="billing.billingcounter.amount.lbl" class="cash_amount"></td>
+                                <td colspan="1">
+                                    <input type="text" min="0" class="form-control" ng-model="item.DenominationsNetCount"
+                                        placeholder="0.00" ng-disabled="true">
+                                </td>
+                                <td colspan="1">
+                                    <input type="text" min="0" class="form-control" ng-model="item.DenominationsNetTotal"
+                                        placeholder="0.00" ng-disabled="true">
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </fieldset>
+            </div>
+        </div>
+
+        <div style="color:black;font-weight:bold;" class="row">
+            <div class="col-sm-6">
+                <div class="form-group paddingtop">
+                    <div class="col-sm-12">
+                        <label class="col-sm-4 control-label" translate="billing.bankstatementlist.totalcashinhand.lbl"></label>
+                        <div class="col-sm-8">
+                            <input type="text" class="form-control" ng-model="TotalCashInHand" ng-disabled="true"
+                                ng-keypress="numberonly($event)" ng-pattern="/^\d+$/" ng-keyup="DrShareValidation()"
+                                placeholder="">
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group paddingtop">
+                    <div class="col-sm-12">
+                        <label class="col-sm-4 control-label" translate="billing.bankstatementlist.totalcashamt.lbl"></label>
+                        <div class="col-sm-8">
+                            <input type="text" class="form-control" ng-model="TotalCashAmount" ng-disabled="true"
+                                ng-keypress="numberonly($event)" ng-pattern="/^\d+$/" ng-keyup="DrShareValidation()"
+                                placeholder="">
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group paddingtop">
+                    <div class="col-sm-12">
+                        <label class="col-sm-4 control-label" translate="billing.bankstatementlist.totalcardamt.lbl"></label>
+                        <div class="col-sm-8">
+                            <input type="text" class="form-control" ng-model="TotalCardAmount" ng-disabled="true"
+                                ng-keypress="numberonly($event)" ng-pattern="/^\d+$/" ng-keyup="DrShareValidation()"
+                                placeholder="">
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <div class="col-sm-6">
+                <label class="col-sm-4 control-label" translate="billing.bankstatementlist.totalamountdiff.lbl"></label>
+                <div class="col-sm-8">
+                    <input type="text" class="form-control" ng-model="TotalAmountDiff" ng-disabled="true" ng-keypress="numberonly($event)"
+                        ng-pattern="/^\d+$/" ng-keyup="DrShareValidation()" placeholder="">
+                </div>
+            </div>
+
+
+        </div>
+    </div>
+
+
+</div>
+</body>
+
+<div class="site-footer panel-footer">
+    <div class="footer-right">
+        <button id="btnCancelForm" type="button" class="btn btn-danger btn-sm ng-scope" ng-click="saveItem()" translate="common.saveaction.lbl">
+        </button>
+        <button id="btnCancelForm" type="button" class="btn btn-danger btn-sm ng-scope" ng-click="backToList()"
+            translate="common.cancelaction.lbl">
+        </button>
+    </div>
+</div>
+
+</html>

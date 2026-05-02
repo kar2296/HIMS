@@ -1,0 +1,288 @@
+<html>
+
+<head>
+  <style>
+    .table1 {
+      border: 1px solid black;
+      border-bottom: 0px solid black;
+    }
+
+    .table2 {
+      border: 1px solid black;
+      border-bottom: 0px solid black;
+      border-top: 0px solid black;
+      text-align: left;
+      border-collapse: collapse;
+    }
+
+    .table3 {
+      border: 1px solid black;
+      border-bottom: 1px solid black;
+    }
+
+    .border {
+      border-collapse: collapse;
+      border-left: 1px solid black;
+    }
+
+    .table4 {
+      border: 1px solid black;
+      border-bottom: 0px solid black;
+      border-top: 0px solid black;
+      text-align: left;
+    }
+
+    .table5 {
+      border: 1px solid black;
+      border-bottom: 0px solid black;
+    }
+
+    .table6 {
+      border: 0px solid;
+      border-bottom: 0px solid;
+      text-align: left;
+    }
+
+    .table2 tr th,
+    .table2 tr td {
+      border: 1px solid black;
+    }
+
+    .table2 {
+      border: 1px solid black;
+    }
+
+    .amt {
+      border-bottom: 0px solid;
+      border-left: 0px solid;
+      border-right: 0px solid;
+    }
+
+    td {
+      padding: 2px !important;
+      font-family: sans-serif;
+      vertical-align: top;
+
+    }
+
+    th {
+      padding: 3px;
+      font-family: sans-serif;
+      vertical-align: top;
+    }
+
+    .table2 td {
+      padding: 3px !important;
+    }
+
+    table {
+      border: 0px !important;
+    }
+
+    .table2 {
+      border: 1px !important;
+    }
+
+    .table5 {
+      border-top: 1px solid !important;
+      border-bottom: 1px solid !important;
+    }
+    hr {
+      border: unset !important;
+      border-bottom: 1px solid black !important;
+    }
+
+    {{ include '/Templates/SDH/assets/css/core.css'}}
+
+  </style>
+</head>
+
+
+
+<body>
+  <div id="pageHeader">
+    {{{include '/Templates/SDH/common/pharmacyheader1.tpl.html' 'tpl'}}}
+  </div>
+  <div class="content">
+    <div class="border-top"></div>
+    <table style="width:100%;">
+      <tr>
+      <tr>
+        <td style="text-align:center;"><b style="font-size: 20px;">Dispense Return</b></td>
+      </tr>
+      </tr>
+    </table>
+    <div class="border-top"></div>
+    <br>
+    <table class="table6" style="width:100%;">
+        <tr>
+            <td style="width:12%;"><b>Name</b></td>
+            <td>:</td>
+            <td style="width:20%;"><b>{{data.PatientDispenseReturn.Patient.Title.Description}}
+                    {{data.PatientDispenseReturn.Patient.FirstName}} {{data.PatientDispenseReturn.Patient.MiddleName}}
+                    {{data.PatientDispenseReturn.Patient.LastName}}</b></td>
+            <td style="width:13%;"><b>MR NO</b></td>
+            <td>:</td>
+            <td style="width:20%;"><b>{{data.PatientDispenseReturn.Patient.MRN}}</b></td>
+            <td style="width:15%;"><b>OP/IP/ER NO</b></td>
+            <td>:</td>
+            <td style="width:20%;"><b>{{data.Encounter.VisitIdentifier}}</b></td>
+
+        </tr>
+        <tr>
+            <td><b>Age / Sex</b></td>
+            <td>:</td>
+            <td>{{ageonlyyear data.PatientDispenseReturn.Patient.DOB}} /
+                {{data.PatientDispenseReturn.Patient.Gender.Description}}</td>
+            <td><b>Return No</b></td>
+            <td>:</td>
+            <td>{{data.PatientDispenseReturn.DispenseReturnNumber}}</td>
+            <td><b>License No</b></td>
+            <td>:</td>
+            <td>{{data.PatientDispenseReturn.StoreMaster.LicenseNo}}</td>
+        </tr>
+
+        <tr>
+            <td><b>Return No</b></td>
+            <td>:</td>
+            <td><b>{{data.PatientDispenseReturn.PatientReturnNumber}}</b></td>
+            <td><b>Return Date</b></td>
+            <td>:</td>
+            <td>{{datetimeformat data.PatientDispenseReturn.DispenseReturnDateTime}}</td>
+            <td><b>GST No</b></td>
+            <td>:</td>
+            <td><b>{{data.PatientDispenseReturn.Facility.GstNumber}}</b></td>
+        </tr>
+    </table>
+
+    <table class="table2" style="width:100%;">
+      <tr>
+        <th style="width:5%" align="center">S.No</th>
+        <th style="width:25%" align="left">Description</th>
+        <!-- <th style="width:6%" align="left">HSN</th> -->
+        <!-- <th style="width:5%" align="left">Sch.</th> -->
+        <th style="width:10%" align="center">Batch</th>
+        <th style="width:10%" align="center">Exp</th>
+        <th style="width:10%" align="right">MRP</th>
+        <th style="width:10%" align="center">Billed Qty</th>
+        <th style="width:10%" align="center">Return Qty</th>
+        <th style="width:10%" align="right">Value</th>
+      </tr>
+
+      {{#each data.PatientDispenseReturnDetail}}
+      <tr>
+          <td align="center">{{inc @index}}</td>
+          <td align="left">{{ItemName}}</td>
+          <!-- <td>{{ItemMaster.ProductRegNo}}</td> -->
+          <!-- <td>{{ScheduleType.Description}}</td> -->
+          <td align="center">{{BatchId}}</td>
+          <td align="center">{{dateformat ExpiryDate}}</td>
+          <td align="right">{{currencyformat Mrp}}</td>
+          <td align="center">{{ReturnedQuantity}}</td>
+          <td align="center">{{AcceptedQuantity}}</td>
+          <!-- <td>{{currencyformat GrossAmount}}</td> -->
+          <!-- <td>{{CGstPercentage}}</td>
+          <td>{{currencyformat CGstAmount}}</td>
+          <td>{{SGstPercentage}}</td>
+          <td>{{currencyformat SGstAmount}}</td> -->
+          <td align="right">{{currencyformat Amount}}</td>
+      </tr>
+      {{/each}}
+      <!-- {{#each data.GstgrpInfo}}
+      <tr>
+        <td colspan="7" style="border-top:1px solid black;font-size: 10px;">Item with {{gstRate}}% GST: {{currencyformat gstAmt}} Item
+          with {{cgstRate}}% CGST: {{currencyformat cgstAmt}} Item with {{sgstRate}}% SGST: {{currencyformat sgstAmt}}</td>
+
+
+      </tr> {{/each}} -->
+    </table>
+
+    <!-- <table class="table5" style="width:100%">
+        <tr>
+            <td style="width:5%"></td>
+            <td style="width:17%"></td>
+            <td style="width:6%"></td>
+            <td style="width:5%"></td>
+            <td style="width:13%"></td>
+            <td style="width:5%"></td>
+            <td style="width:6%"></td>
+            <td style="width:6%"></td>
+            <td style="width:8%"><b>{{currencyformat data.PatientDispenseReturn.TotalNetAmountBeforeGst}}</b></td>
+            <td style="width:5%"></td>
+            <td style="width:7%"><b>{{currencyformat data.PatientDispenseReturn.TotalCGstAmount}}<b></td>
+            <td style="width:5%"></td>
+            <td style="width:7%"><b>{{currencyformat data.PatientDispenseReturn.TotalSGstAmount}}<b></td>
+            <td style="width:5%"></td>
+        </tr>
+    </table> -->
+<br>
+    <table class="amt" style="width:100%;border-top:unset !important;">
+      <tr>
+        <td style="width: 60%;">
+            <b>Amount in words</b><span>:</span> <span>Rupees <span style="text-transform: capitalize">
+                {{decimalnrInWords data.PatientDispenseReturn.TotalNetAmount}}</span> only</span>
+        </td>
+        <td>
+          <table style="width:100%;">            
+            <tr>
+              <td style="width:16%" align="right"><b>Net Amount</b></td>
+              <td style="width:1%">:</td>
+              <td style="width:10%" align="right">{{currencyformat data.PatientDispenseReturn.TotalNetAmount}}</td>
+            </tr>
+            {{#if data.PatientDispenseReturn.RefundedAmount}}
+            <tr>
+              <td style="width:16%" align="right"><b>Refunded</b></td>
+              <td style="width:1%">:</td>
+              <td style="width:10%" align="right"><b>{{currencyformat data.PatientDispenseReturn.RefundedAmount}}</b></td>
+            </tr>
+            {{/if}}
+            {{#if data.PatientDispenseReturn.ToBeRefundAmount}}
+            <tr>
+              <td style="width:16%" align="right"><b>To Be Refunded </b></td>
+              <td style="width:1%">:</td>
+              <td style="width:10%" align="right">{{currencyformat data.PatientDispenseReturn.ToBeRefundAmount}}</td>
+            </tr> 
+            {{/if}}
+          </table>
+        </td>
+      </tr>
+    </table>
+    <br>
+    <table class="table3" style="width:100%;">
+
+      <tr>
+        <td align="left">
+        </td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td align="right"><span> Regd. Pharmacist Sign</span></td>
+      </tr>
+    </table>
+    <table class="table3" style="width:100%;">
+      <tr style="border:1px solid;">
+        <td>
+          Whether Tax Payable Under RCM: No
+        </td>
+      </tr>
+      <tr>
+        <td style="list-style-position: inside">
+          Bill Generated By : <b>{{data.PatientDispenseReturn.CreatedUser.Title.Description}}
+            {{data.PatientDispenseReturn.CreatedUser.FirstName}} {{data.PatientDispenseReturn.CreatedUser.LastName}}</b> on <b>{{now}}</b>
+        </td>
+      </tr>
+      <tr>
+        <td style="list-style-position: inside">
+          DL NO: KABNG/III/20&21/1928.|KABNG/III/21F-42
+        </td>
+
+      </tr>
+    </table>
+  </div>
+</body>
+
+</html>

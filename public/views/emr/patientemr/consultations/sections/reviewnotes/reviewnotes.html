@@ -1,0 +1,1219 @@
+<style>
+    .billing-update {
+        color: #f44336;
+    }
+
+    .draftbutton {
+        margin: 2px;
+    }
+
+    p table {
+        width: 100%;
+    }
+
+    p table td {
+        width: 15%;
+        color: black;
+    }
+
+    p table td:nth-child(2) {
+        color: black;
+        width: 10%;
+        text-align: center;
+    }
+
+    p table td:nth-child(3) {
+        color: black;
+        width: 10%;
+        text-align: center;
+    }
+
+    span.genclass {
+        margin-left: 50px;
+    }
+
+    .d-flex-left * {
+        margin-right: 6px !important;
+    }
+
+    .d-flex-left {
+        display: flex;
+    }
+</style>
+<div class="modal-header custom-modal-header" ng-if="currentcontext.ismodal">
+    <div class="col-sm-10">
+        <h4 class="modal-title custom-modal-title" translate="Summary"></h4>
+    </div>
+    <div class="col-sm-2">
+        <div class="filters">
+            <img src="../../../../../assets/svg/close.svg" ng-click="cancelCallback()">
+        </div>
+    </div>
+</div>
+<div class="row" ng-if="currentcontext.ismodal">
+    <patientbanner patientid="currentcontext.pid"></patientbanner>
+</div>
+<div id="summarynotes">
+    <div class="row">
+        <!-- <div class="col-sm-12">Createdby : <span class="billing-update">{{item.Encounter.DoctorName}}</span></div> -->
+        <div class="col-sm-12">
+            <div class="col-sm-6">Createdby : <span class="billing-update">{{item.CreatedUser.Title.Description}}
+                    {{item.CreatedUser.FirstName}}</span></div>
+            <div class="col-sm-6">Created Date : <span class="billing-update">
+                    <displaydate datetime-val="item.CreatedAt"></displaydate>
+                </span></div>
+        </div>
+        <div class="col-sm-12">
+            <div class="col-sm-6">Type : <span class="billing-update">{{item.VisitType.Description}}</span></div>
+            <div class="col-sm-6">Doctor Name : <span class="billing-update">{{item.Doc.Title.Description}}
+                    {{item.Doc.FirstName}}</span></div>
+        </div>
+        <div ng-include="item.tmpl" ng-repeat="item in currentcontext.sections"></div>
+    </div>
+
+    <script type="text/ng-template" id="cn-allergy-section.html">
+        <div ng-if="sectionData.allergy[0].AllergyName" class="row">
+            <div class="col-sm-12">
+                <div class="form-group">
+                    <div class="col-sm-12 form-group mb0">
+                        <span class="d-flex-left">
+                            <input type="checkbox" tabindex="-1" ng-model="item.IsAllOrderSelected"
+                        ng-click="IsAllOrderSelectedChange(item.title, item.sectionid)">
+                        <h4 class="control-label fontgreen mar_z" translate="patientemr.reviewnotes.allergy.lbl"></h4>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div ng-if="sectionData.allergy[0].AllergyName" class="row" ng-repeat="item in sectionData.allergy">
+            <span class="col-sm-3 lefcol1">{{item.AllergyType.Description}}</span>
+            <span class="col-sm-3 lefcol2">{{item.AllergyName}}</span>
+            <div class="col-sm-3 lefcol3">
+                <ngformatdate date-val='item.StartDate'></ngformatdate>
+            </div>
+        </div>
+    </script>
+    <script type="text/ng-template" id="cn-chiefcomplaint-section.html">
+
+        <div ng-if="sectionData.ChiefComplaints.length > 0" class="row">
+            <div class="col-sm-12" style="margin-top:0px;">
+                <div class="form-group">
+                    <div class="col-sm-12 form-group mb0">
+                        <span class="d-flex-left">
+                            <input type="checkbox" tabindex="-1" ng-model="item.IsAllOrderSelected"
+                        ng-click="IsAllOrderSelectedChange(item, item.sectionid)">
+                        <h4 class="control-label fontgreen mar_z" translate="patientemr.reviewnotes.chiefcomplaints.lbl"></h4>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div ng-if="sectionData.ChiefComplaints.length > 0" class="row innerdata" ng-repeat="item in sectionData.ChiefComplaints">
+            <div class="col-sm-3 fontpink">
+                <ngformatdate date-val='item.StartDate'></ngformatdate>
+            </div>
+            <span class="col-sm-9 fontgreen">{{item.ChiefComplaint}}</span>
+        </div>
+    </script>
+
+
+    <script type="text/ng-template" id="cn-condition-section.html">
+
+        <div ng-if="sectionData.conditions[0].DiagnosisName" class="row">
+            <div class="col-sm-12">
+                <div class="form-group">
+                    <div class="col-sm-12 form-group">
+                        <span class="d-flex-left">
+                            <input type="checkbox" tabindex="-1" ng-model="item.IsAllOrderSelected"
+                        ng-click="IsAllOrderSelectedChange(item, item.sectionid)">
+                        <h4 class="control-label mar_z" translate="patientemr.reviewnotes.condition.lbl"></h4>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div ng-if="sectionData.conditions[0].DiagnosisName" class="row innerdata" ng-repeat="item in sectionData.conditions">
+            <!-- <div class="col-sm-3">
+            <ngformatdate date-val='item.ConditionDate'></ngformatdate>
+        </div> -->
+            <div class="col-sm-3 lefcol1 innerdata 4x no-pad">{{item.ConditionType.Description}}</div>
+            <div style="" class="col-sm-9">{{item.DiagnosisName}}<span style="color:;">({{item.Code}})</span></div>
+        </div>
+    </script>
+
+    <script type="text/ng-template" id="cn-vital-section.html">
+
+        <div ng-if="sectionData.vitals[0].Vitalinfo" class="row">
+
+            <div class="col-sm-12 form-group mb0">
+                <span class="d-flex-left">
+                    <input type="checkbox" tabindex="-1" ng-model="item.IsAllOrderSelected"
+                        ng-click="IsAllOrderSelectedChange(item, item.sectionid)">
+                        <h4 class="control-label fontgreen mar_z normal_cnotes" translate="patientemr.reviewnotes.vital.lbl"></h4>
+                </span>
+            </div>
+        </div>
+        <div ng-if="sectionData.vitals[0].Vitalinfo" class="row innerdata" ng-repeat="item in sectionData.vitals">
+            <!-- <div class="col-sm-3 fontpink">
+            <ngformatdate date-val='item.PerformedDate'></ngformatdate>
+        </div> -->
+            <span class="col-sm-9 lefcol2 innerdata">
+            <p data-ng-bind-html="item.Vitalinfo"></p>
+            </span>
+        </div>
+    </script>
+    <script type="text/ng-template" id="cn-procedure-section.html">
+
+        <div ng-if="sectionData.procedures[0].Procedure.ProcedureName" class="row">
+            <div class="col-sm-12 summarynotes">
+                <span class="d-flex-left">
+                    <input type="checkbox" tabindex="-1" ng-model="item.IsAllOrderSelected"
+                        ng-click="IsAllOrderSelectedChange(item, item.sectionid)">
+                        <h4 class="control-label fontgreen mar_z normal_cnotes" translate="patientemr.reviewnotes.procedure.lbl"></h4>
+                </span>
+            </div>
+        </div>
+        <div ng-if="sectionData.procedures[0].Procedure.ProcedureName" class="row innerdata" ng-repeat="item in sectionData.procedures">
+            <!-- <div class="col-sm-3">
+            <ngformatdate class="fontpink" date-val='item.PerformedDate'></ngformatdate>
+        </div> -->
+            <span style="color:" class="col-sm-3 lefcol1 innerdata">{{item.ProcedureType.Description}}</span>
+            <span class="col-sm-8 lefcol2 innerdata">{{item.Procedure.ProcedureName}}({{item.Code}})</span>
+        </div>
+    </script>
+
+
+    <script type="text/ng-template" id="cn-documents-section.html">
+
+        <div ng-if="sectionData.documents[0].Name" class="row">
+            <div class="col-sm-12">
+                <div class="form-group">
+                    <div class="col-sm-12 form-group">
+                        <span class="d-flex-left">
+                            <input type="checkbox" tabindex="-1" ng-model="item.IsAllOrderSelected"
+                        ng-click="IsAllOrderSelectedChange(item, item.sectionid)">
+                        <h4 class="control-label fontgreen mar_z normal_cnotes" translate="patientemr.reviewnotes.documents.lbl"></h4>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div ng-if="sectionData.documents[0].Name" class="row innerdata" ng-repeat="item in sectionData.documents">
+            <div class="col-sm-3 lefcol3 innerdata">
+                <ngformatdate date-val='item.CreatedDate'></ngformatdate>
+            </div>
+            <span class="col-sm-3 lefcol2 innerdata">{{item.Name}}</span>
+        </div>
+    </script>
+
+    <script type="text/ng-template" id="cn-familycondition-section.html">
+
+        <div ng-if="sectionData.familyconditions[0].DiagnosisName" class="row">
+            <div class="col-sm-12 clearfix" style="background: #add8e6;">
+                <div class="form-group">
+                    <div class="col-sm-4 form-group mb0">
+                        <span class="d-flex-left">
+                            <input type="checkbox" tabindex="-1" ng-model="item.IsAllOrderSelected"
+                        ng-click="IsAllOrderSelectedChange(item, item.sectionid)">
+                        <h4 class="control-label fontgreen mar_z normal_cnotes" translate="patientemr.reviewnotes.familycondition.lbl"></h4>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div ng-if="sectionData.familyconditions[0].DiagnosisName" class="row innerdata" ng-repeat="item in sectionData.familyconditions">
+            <div class="col-sm-3 lefcol3 innerdata">
+                <ngformatdate date-val='item.ConditionDate'></ngformatdate>
+            </div>
+            <span class="col-sm-3 lefcol2 innerdata" style="text-transform:uppercase;">{{item.DiagnosisName}}</span>
+            <span class="col-sm-3 lefcol2 innerdata" style="text-transform:uppercase;">{{item.ConditionType.Description}}</span>
+            <span class="col-sm-3 lefcol1 innerdata">{{item.Relationship.Description}}</span>
+        </div>
+    </script>
+
+    <script type="text/ng-template" id="cn-socialhistory-section.html">
+
+        <div ng-if="sectionData.socialHistory[0].SocialType.Description" class="row">
+            <div class="col-sm-12" style="background: #add8e6;">
+                <div class="form-group">
+                    <div class="">
+                        <span class="d-flex-left">
+                            <input type="checkbox" tabindex="-1" ng-model="item.IsAllOrderSelected"
+                        ng-click="IsAllOrderSelectedChange(item, item.sectionid)">
+                        <h4 class="control-label fontgreen mar_z normal_cnotes" translate="patientemr.reviewnotes.socialhistory.lbl" style="margin-left:2%;"></h4>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div ng-if="sectionData.socialHistory[0].SocialType.Description" class="row innerdata" ng-repeat="item in sectionData.socialHistory">
+            <div class="lefcol3 col-sm-3 innerdata">
+                <ngformatdate date-val='item.ReviewDate'></ngformatdate>
+            </div>
+            <span class="lefcol2 col-sm-3 innerdata">{{item.SocialType.Description}}</span>
+            <span class="lefcol2 col-sm-3 innerdata">{{item.SocialFrequency.Description}}</span>
+        </div>
+    </script>
+
+    <script type="text/ng-template" id="cn-familysocialhistory-section.html">
+
+        <div ng-if="sectionData.FamilySocHistory[0].SocialType.Description" class="row">
+            <div class="col-sm-12" style="background: #add8e6;">
+                <div class="form-group">
+                    <div class="col-sm-4 form-group mb0">
+                        <span class="d-flex-left">
+                            <input type="checkbox" tabindex="-1" ng-model="item.IsAllOrderSelected"
+                            ng-click="IsAllOrderSelectedChange(item, item.sectionid)">
+                            <h4 class="control-label fontgreen mar_z normal_cnotes" translate="patientemr.reviewnotes.familysocialhistory.lbl"></h4>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div ng-if="sectionData.FamilySocHistory[0].SocialType.Description" class="row innerdata" ng-repeat="item in sectionData.FamilySocHistory">
+            <div class="lefcol3 col-sm-3 innerdata">
+                <ngformatdate date-val='item.ReviewDate'></ngformatdate>
+            </div>
+            <span class="lefcol2 col-sm-3 innerdata">{{item.SocialType.Description}}</span>
+            <span class="lefcol3 col-sm-3 innerdata">{{item.Relationship.Description}}</span>
+        </div>
+    </script>
+
+    <script type="text/ng-template" id="cn-immunization-section.html">
+
+        <div ng-if="sectionData.Immunizations[0].ImmunizationName" class="row">
+            <div class="col-sm-12">
+                <div class="form-group">
+                    <div class="col-sm-4 form-group mb0">
+                        <span class="d-flex-left">
+                            <input type="checkbox" tabindex="-1" ng-model="item.IsAllOrderSelected"
+                        ng-click="IsAllOrderSelectedChange(item, item.sectionid)">
+                        <h4 class="control-label fontgreen mar_z normal_cnotes" translate="patientemr.reviewnotes.immunization.lbl"></h4>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div ng-if="sectionData.Immunizations[0].ImmunizationName" class="row innerdata" ng-repeat="item in sectionData.Immunizations">
+            <div class="col-sm-3 lefcol3 innerdata">
+                <ngformatdate date-val='item.PerformedDate'></ngformatdate>
+            </div>
+            <span class="col-sm-3 lefcol2 innerdata">{{item.ImmunizationName}}</span>
+            <span class="col-sm-3 lefcol1 innerdata">{{item.SiteOrRoute}}</span>
+        </div>
+    </script>
+
+    <script type="text/ng-template" id="cn-prescription-section.html">
+
+        <div ng-if="sectionData.prescriptions[0].PrescriptionDetails[0].DrugName" class="row">
+            <div class="col-sm-12 summarynotes" style="margin-top:0px;">
+                <span class="d-flex-left">
+                    <input type="checkbox" tabindex="-1" ng-model="item.IsAllOrderSelected"
+                        ng-click="IsAllOrderSelectedChange(item, item.sectionid)">
+                        <h4 class="control-label fontgreen mar_z normal_cnotes">Prescription
+                        </h4>
+                </span>
+            </div>
+        </div>
+        <div ng-if="sectionData.prescriptions.length > 0" ng-repeat="item in sectionData.prescriptions">
+            <div class="row innerdata" style="margin-left: 0px">
+                <!-- <div class="col-sm-3 fontpink">
+                <ngformatdate date-val='item.PrescriptionDate'></ngformatdate>
+            </div> -->
+                <table class="table table-responsive table-bordered innerdata" id="prescriptiontable">
+                    <thead>
+                        <tr>
+                            <th class="col-sm-4 lefcol8">Drugs</th>
+                            <th class="col-sm-1 lefcol8">Dosage</th>
+                            <th class="col-sm-2 lefcol8">Route</th>
+                            <th class="col-sm-2 lefcol8">Frequency</th>
+                            <th class="col-sm-2 lefcol8">Duration</th>
+                            <th class="col-sm-2 lefcol8">Drug Instruction</th>
+                            <th class="col-sm-2 lefcol8">Stat</th>
+                            <th class="col-sm-2 lefcol8">Notes</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="detail in item.PrescriptionDetails">
+                            <td class="col-sm-4"><span class="lefcol12"><b>{{detail.DrugName}}({{detail.DrugCode}})</b></span></br>
+                                <span class="genclass">{{detail.GenericMaster.GenericName}}</span></td>
+                            <td class="col-sm-1"><span class="lefcol2">{{detail.Dosage}}</span></td>
+                            <td class="col-sm-1"><span class="lefcol2">{{detail.DrugRoute.Description}}</span></td>
+                            <td class="col-sm-2">
+                                <span class="lefcol2" ng-hide="detail.DrugFrequencyId>0">
+                                {{detail.Morning}}&nbsp;-&nbsp;{{detail.Noon}}&nbsp;-&nbsp;{{detail.Night}}&nbsp;</span>
+                                <span ng-if="detail.DrugFrequencyId>0">{{detail.DrugFrequency.Name}}</span>
+                            </td>
+                            <td class="col-sm-2"><span class="lefcol2">{{detail.Duration}} {{detail.DurationPeriod.Description}}</span></td>
+                            <td class="col-sm-2"><span class="lefcol2">{{detail.DrugInstruction.Description}}</span></td>
+                            <td class="col-sm-2"><span class="lefcol2" ng-if="detail.STAT">Yes</span>
+                                <span class="lefcol2" ng-if="!detail.STAT">No</span></td>
+                            <td class="col-sm-2"><span class="lefcol2">{{detail.Notes}}</span></td>
+                        </tr>
+                        <tr ng-show="item.AdviceInstructions">
+                            <td>
+                                <div style="width:100%">
+                                    <div style="white-space:nowrap;text-align:left;margin-bottom: 5px;">
+                                        <span style="text-decoration: underline;">Advice:</span>
+                                    </div>
+                                    <div style="white-space:nowrap;text-align:left;margin-bottom: 5px;">
+                                        <b> {{item.AdviceInstructions}}
+                                  </b>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="col-sm-12" ng-if="sectionData.prescriptions[0].Diagnosis">
+                    <div class="col-sm-3 lefcol1 innerdata 4x no-pad">Diagnosis</span>
+                        <div style="" class="col-sm-9">{{item.Diagnosis}}</div>
+                    </div>
+                    <div class="col-sm-12" ng-if="sectionData.prescriptions[0].Comments">
+                        <div class="col-sm-3 lefcol1 innerdata 4x no-pad">Advice/Instrunction</div>
+                        <div style="" class="col-sm-9">{{item.Comments}}</div>
+                    </div>
+                    <div class="col-sm-12" ng-if="sectionData.prescriptions[0].ReviewDate">
+                        <div class="col-sm-3 lefcol1 innerdata 4x no-pad">Review Date</div>
+                        <div style="" class="col-sm-9">
+                            <ngformatdate date-val='item.ReviewDate'></ngformatdate>
+                        </div>
+                    </div>
+                    <div class="col-sm-12" ng-if="sectionData.prescriptions[0].Physiotheraphy">
+                        <div class="col-sm-3 lefcol1 innerdata 4x no-pad">Physiotheraphy</div>
+                        <div style="" class="col-sm-9">{{item.Physiotheraphy}}</div>
+                    </div>
+                </div>
+            </div>
+    </script>
+
+    <script type="text/ng-template" id="cn-order-section.html">
+
+        <div ng-if="sectionData.orders.length > 0" class="row">
+            <div class="col-sm-12" style="margin-top:0px;padding-left:0px;">
+                <div class="form-group">
+                    <div class="col-sm-4 form-group mb0">
+                        <span class="d-flex-left">
+                            <input type="checkbox" tabindex="-1" ng-model="item.IsAllOrderSelected"
+                        ng-click="IsAllOrderSelectedChange(item, item.sectionid)">
+                        <h4 class="control-label fontgreen mar_z" translate="Investigations"></h4>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- <table class="table table-responsive" ng-if="sectionData.orders.length > 0" ng-repeat="item in sectionData.orders">
+        <thead>
+            <tr>
+                <th>{{item.TESTMASTERTYP.Description}}</th>
+            </tr>
+
+        </thead>
+        <tbody>
+            <tr>
+                <tr ng-repeat="detail in item.PatientOrderDetails">{{detail.TestName}}({{detail.TestCode}})</tr>
+                <td>{{detail.Side.Description}}</td>
+            </tr>
+        </tbody>
+    </table> -->
+        <div ng-if="sectionData.orders.length > 0" ng-repeat="item in sectionData.orders">
+
+            <div class="row innerdata" style="margin-left:0px">
+                <!-- <div class="col-sm-3">
+                    <span class="lefcol12 innerdata">{{item.TESTMASTERTYP.Description}}</span>
+
+                </div> -->
+                <div class="col-sm-9 lefcol2 innerdata">
+                    <!-- <span class="labtests" ng-repeat="detail in item.PatientOrderDetails" class="lefcol2 innerdata">
+                        {{detail.TestName}}({{detail.TestCode}})
+
+                <span class="lefcol1 innerdata">{{detail.Side.Description}}
+                </span>
+                    </span> -->
+                    <table class="table table-responsive table-bordered innerdata" id="prescriptiontable">
+                        <thead>
+                            <tr>
+                                <th class="col-sm-4 lefcol8">Test Name</th>
+                                <th class="col-sm-1 lefcol8">Type</th>
+                                <th class="col-sm-2 lefcol8">Quantity</th>
+                                <th class="col-sm-2 lefcol8">Instruction</th>
+                                <th class="col-sm-2 lefcol8">Clinical Data</th>
+                                <th class="col-sm-2 lefcol8">Test Taken On</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="detail in item.PatientOrderDetails">
+                                <td class="col-sm-4"><span class="lefcol12">{{detail.TestName}}({{detail.TestCode}})</span></td>
+                                <td class="col-sm-1"><span class="lefcol2">{{detail.TESTMASTERTYP.Description}}</span></td>
+                                <td class="col-sm-2"><span class="lefcol2">{{detail.Quantity}}&nbsp;</span></td>
+                                <td class="col-sm-2"><span class="lefcol2">{{detail.TestInstruction}}</span></td>
+                                <td class="col-sm-2"><span class="lefcol2">{{detail.ClinicalData}}</span></td>
+                                <td class="col-sm-2"><span class="lefcol2">{{detail.Duration}} {{detail.DurationPeriod.Description}}</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </script>
+
+    <script type="text/ng-template" id="cn-question-section.html">
+
+        <div ng-if="sectionData[item.sectionid].cat.length>0" class="row" class="rev_items">
+            <div class="col-sm-12 summarynotes">
+                <span class="d-flex-left">
+                    <input type="checkbox" tabindex="-1" ng-model="item.IsAllOrderSelected"
+                        ng-click="IsAllOrderSelectedChange(item, item.sectionid)">
+                        <h4 class="control-label fontgreen mar_z normal_cnotes" style="text-transform:uppercase;">{{sectionData[item.sectionid].sectionName}}</h4>
+                </span>
+            </div>
+            <div ng-repeat="category in  sectionData[item.sectionid].cat" style="height:100%">
+                <div class="row innerdata">
+                    <div class="col-sm-12">
+                        <h4 class="align-left control-label mar_z category-lable mg0" style="">{{category.CategoryName}}</h4>
+                    </div>
+                </div>
+                <div class="row innerdata" ng-repeat="concept in category.concepts">
+
+                    <div class="concept-lable" ng-if="concept.ValueTypeId !=3 && concept.ValueTypeId !=12 && concept.ValueTypeId != 8" ng-show="concept.Result">
+                        <div class="col-sm-12">
+                            <div class="col-sm-3 lefcol1 innerdata 4x">{{concept.ConceptName}}</div>
+                            <div class="col-sm-9 lefcol2 innerdata" style="word-wrap: break-word;"><span class="btnspan2">{{concept.Result}}</span></div>
+                        </div>
+                    </div>
+                    <div class="concept-lable" ng-if="concept.ValueTypeId == 12 || concept.ValueTypeId == 8" ng-show="concept.Result">
+                        <div class="col-sm-12">
+                            <div class="col-sm-3 lefcol1 innerdata 4x">{{concept.ConceptName}}</div>
+                            <div class="col-sm-9 lefcol2 innerdata" style="word-wrap: break-word;" ng-bind-html="concept.Result"></div>
+                        </div>
+                    </div>
+                    <div class="concept-lable" ng-if="concept.ValueTypeId ==3 && concept.IsMultiple == false" ng-show="concept.Result">
+                        <div class="col-sm-12">
+                            <div class="col-sm-3 lefcol1  innerdata 5x">{{concept.ConceptName}}</div>
+                            <div class="col-sm-6 lefcol2 innerdata"><span class="btnspan1">{{concept.Result}}</span><span class="btnspan" ng-if="concept.Comments"> - {{concept.Comments}}</span></div>
+                        </div>
+                    </div>
+                    <div class="concept-lable" ng-if="concept.ValueTypeId ==3 && concept.IsMultiple == true" ng-show="concept.Terms && concept.Terms.length > 0">
+                        <div class="col-sm-9 lefcol2 innerdata">{{concept.Result}}<span ng-if="concept.Comments"> - {{concept.Comments}}</span></div>
+                        <div class="col-sm-12 symptoms">
+                            <div class="col-sm-3 lefcol1 innerdata 6x">{{concept.ConceptName}}</div>
+                            <div class="col-sm-6 lefcol2 innerdata">
+                                <span class="btnspan3" ng-repeat="term in concept.Terms">
+                            {{term.TermName}}
+                            <span class="btnspan4" ng-if="term.Comments"> - {{term.Comments}}</span>
+                                <span class="btnspan5" ng-if="$index != concept.Terms.length-1">,</span>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </script>
+    <script type="text/ng-template" id="cn-followup-section.html">
+
+        <div ng-if="sectionData.followup.length > 0" class="row">
+            <div class="col-sm-12">
+                <div class="form-group">
+                    <div class="col-sm-12 form-group mb0">
+                        <span class="d-flex-left">
+                            <input type="checkbox" tabindex="-1" ng-model="currentcontext.selectall"
+                                ng-click="isAllOrderSelectedChange(sectionData[item.sectionid], item.sectionid)">
+                                <h4 class="control-label mar_z" translate="FollowUp/Referral"></h4>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div ng-if="sectionData.followup.length > 0" class="row innerdata" ng-repeat="item in sectionData.followup">
+            <!-- <div class="col-sm-12" ng-hide="item.TrackerStatusId==3">
+                <div class="col-sm-3 lefcol1 innerdata 4x no-pad">Refer To</div>
+                <div style="" class="col-sm-9">{{item.AttendUser.Title.Description}} {{item.AttendUser.FirstName}} {{item.AttendUserLastName}}</div>
+            </div> -->
+
+            <div class="col-sm-12 innerdata">
+                <div class="col-sm-3 lefcol1 innerdata 4x no-pad">Clinical Status</div>
+                <div style="" class="col-sm-9">{{item.ReferrerClinicalStatus.Description}}</div>
+            </div>
+            <div class="col-sm-12 innerdata">
+                <div class="col-sm-3 lefcol1 innerdata 4x no-pad">Notes</div>
+                <div style="" class="col-sm-9">{{item.TrackerNotes}}</div>
+            </div>
+            <div class="col-sm-12 innerdata">
+                <div class="col-sm-3 lefcol1 innerdata 4x no-pad">Followup On</div>
+                <div style="margin-left: -6px;font-size: 14px;font-weight: 500" class="col-sm-9">
+                    <ngformatdate date-val='item.FollowupAppointmentOn'></ngformatdate>
+                </div>
+            </div>
+            <div class="col-sm-12 innerdata">
+                <div class="col-sm-3 lefcol1 innerdata 4x no-pad">Comments</div>
+                <div style="margin-left: -6px;font-size: 14px;font-weight: 500" class="col-sm-9">{{item.TrackerComments}}</div>
+            </div>
+        </div>
+    </script>
+    <script type="text/ng-template" id="cn-labresult-section.html">
+
+        <div ng-repeat="order in sectionData.labresult" ng-if="order.PatientWorkorders.length > 0" class="row">
+            <div class="col-sm-12">
+                <div class="form-group">
+                    <div class="col-sm-12 form-group">
+                        <span class="d-flex-left">
+                            <input type="checkbox" tabindex="-1" ng-model="currentcontext.selectall"
+                                ng-click="isAllOrderSelectedChange(sectionData[item.sectionid], item.sectionid)">
+                                <h4 class="control-label mar_z" ng-if="order.PatientWorkorders.length > 0" translate="Lab Result"></h4>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div ng-if="sectionData.labresult.length > 0" class="row innerdata">
+            <div ng-repeat="order in sectionData.labresult">
+                <div id='workorder' ng-repeat="wo in order.PatientWorkorders">
+                    <table class="table table-hover table-responsive table-bordered">
+                        <tbody ng-repeat="test in wo.woDetails">
+                            <tr ng-if="test.RootProfileName">
+                                <td colspan="9">
+                                    <span class="lbl-profile">{{test.RootProfileName}}</span>
+                                </td>
+                            </tr>
+                            <tr ng-if="test.ProfileName">
+                                <td colspan="9">
+                                    <span class="lbl-profile">{{test.ProfileName}}</span>
+                                </td>
+                            </tr>
+                            <tr ng-hide="test.details.length == 1 && test.Testname.toLowerCase() == test.details[0].Analytename.toLowerCase()">
+                                <td colspan="9"><span class=" btn btn-primary btn-xs"> {{test.Testname}}</span>
+                                </td>
+                            </tr>
+                            <tr ng-repeat="item in test.details | filter:{Status:1}">
+                                <td class="col-sm-3">
+                                    <span style="margin-left:24px;  vertical-align: super; color: #0dbef1; font-weight: 700; white-space: nowrap; text-overflow: ellipsis; overflow: auto;">{{item.Analytename}}</span>
+                                </td>
+                                <td class="col-sm-3" colspan="{{item.TestValueType == 3 ? '3' : '1'}}">
+                                    <span> {{item.Resultvalue}} </span>
+                                </td>
+                                <td class="col-sm-3" ng-if="item.TestValueType != 3">
+                                    <span ng-model="item.AnalyteUOM">{{item.AnalyteUOM}}</span>
+                                </td>
+                                <td class="col-sm-3" ng-if="item.TestValueType != 3">
+                                    <span class="pull-left">{{item.Analyterange}}</span>
+                                    <span class="pull-right" style="color: #ff902b; font-weight: 700;">{{item.Qualifier}}</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </script>
+    <script type="text/ng-template" id="cn-radiologyresult-section.html">
+
+        <div ng-if="sectionData.radiologyresult.length > 0" class="row">
+            <div class="col-sm-12">
+                <div class="form-group">
+                    <div class="col-sm-12 form-group">
+                        <span class="d-flex-left">
+                            <input type="checkbox" tabindex="-1" ng-model="currentcontext.selectall"
+                                ng-click="isAllOrderSelectedChange(sectionData[item.sectionid], item.sectionid)">
+                                <h4 class="control-label mar_z" ng-if="sectionData.radiologyresult.length > 0" translate="Radiology Result"></h4>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div ng-if="sectionData.radiologyresult.length > 0" class="row innerdata">
+            <div ng-repeat="order in sectionData.radiologyresult">
+                <div id='workorder' ng-repeat="wo in order.PatientWorkorders">
+                    <table class="table table-hover table-responsive table-bordered">
+                        <tbody ng-repeat="test in wo.woDetails">
+                            <tr ng-if="test.ProfileName">
+                                <td colspan="9">
+                                    <span class="lbl-profile">{{test.ProfileName}}</span>
+                                </td>
+                            </tr>
+                            <tr ng-hide="test.details.length == 1 && test.Testname.toLowerCase() == test.details[0].Analytename.toLowerCase()">
+                                <td colspan="9"><span class=" btn btn-primary btn-xs"> {{test.Testname}}</span>
+                                </td>
+                            </tr>
+                            <tr ng-repeat="item in test.details | filter:{Status:1}">
+                                <td class="col-sm-3">
+                                    <span style="margin-left:24px;  vertical-align: super; color: #0dbef1; font-weight: 700; white-space: nowrap; text-overflow: ellipsis; overflow: auto;">{{item.Analytename}}</span>
+                                </td>
+                                <td class="col-sm-9">
+                                    <span ng-bind-html="item.Resultvalue"> </span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </script>
+    <script type="text/ng-template" id="cn-diagnosis-section.html">
+
+        <div ng-if="sectionData.diagnosis[0].DiagnosisName" class="row">
+            <div class="summarynotes">
+                <span class="d-flex-left">
+                    <input type="checkbox" tabindex="-1" ng-model="currentcontext.selectall"
+                        ng-click="isAllOrderSelectedChange(sectionData[item.sectionid], item.sectionid)">
+                        <h4 class="control-label fontgreen mar_z normal_cnotes" translate="Diagnosis"></h4>
+                </span>
+            </div>
+        </div>
+        <div ng-if="sectionData.diagnosis[0].DiagnosisName" class="row innerdata" ng-repeat="item in sectionData.diagnosis">
+            <div class="col-sm-3 lefcol1 innerdata 4x no-pad">{{item.ConditionType.Description}}</div>
+            <div style="" class="col-sm-9 lefcol2">{{item.DiagnosisName}}
+                <span>({{item.Code}})</span><span>&nbsp;&nbsp;</span>
+                <span style="font-weight: 700;">{{item.DiagnosisDetails}}</span>
+            </div>
+        </div>
+    </script>
+    <script type="text/ng-template" id="cn-mlc-section.html">
+
+        <div ng-if="sectionData.admissionmlc[0].BriefOfAccident" class="row">
+            <div class="col-sm-12">
+                <div class="form-group">
+                    <div class="col-sm-12 form-group">
+                        <span class="d-flex-left">
+                            <input type="checkbox" tabindex="-1" ng-model="currentcontext.selectall"
+                                ng-click="isAllOrderSelectedChange(sectionData[item.sectionid], item.sectionid)">
+                                <h4 class="control-label mar_z" translate="Admission MLC"></h4>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div ng-if="sectionData.admissionmlc[0].BriefOfAccident" class="row innerdata" ng-repeat="item in sectionData.admissionmlc">
+            <div class="col-sm-12">
+                <div class="col-sm-3 lefcol1 innerdata 4x no-pad">MLC No : </div>
+                <div style="" class="col-sm-9">{{item.MLCNo}}</div>
+            </div>
+            <div class="col-sm-12">
+                <div class="col-sm-3 lefcol1 innerdata 4x no-pad">Accident Type : </div>
+                <div style="" class="col-sm-9">{{item.AccidentType.Description}}</div>
+            </div>
+            <div class="col-sm-12">
+                <div class="col-sm-3 lefcol1 innerdata 4x no-pad">Escort Type : </div>
+                <div style="" class="col-sm-9">{{item.EscortType.Description}}</div>
+            </div>
+            <div class="col-sm-12">
+                <div class="col-sm-3 lefcol1 innerdata 4x no-pad">Accident in Brief : </div>
+                <div style="" class="col-sm-9">{{item.BriefOfAccident}}</div>
+            </div>
+        </div>
+    </script>
+    <script type="text/ng-template" id="cn-lensprescribe-section.html">
+
+        <div ng-if="sectionData.lensprescribe[0].LensIdentifier" class="row">
+            <div class="col-sm-12">
+                <div class="form-group">
+                    <div class="col-sm-12 form-group">
+                        <span class="d-flex-left">
+                            <input type="checkbox" tabindex="-1" ng-model="currentcontext.selectall"
+                                ng-click="isAllOrderSelectedChange(sectionData[item.sectionid], item.sectionid)">
+                                <h4 class="control-label mar_z" translate="Opthalmology Prescription"></h4>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div ng-if="sectionData.lensprescribe[0].LensIdentifier" class="row innerdata" ng-repeat="item in sectionData.lensprescribe">
+            <table class="table table-responsive table-bordered">
+                <tbody>
+                    <tr class="tbl_head">
+                        <td rowspan="5" class="indication">R</td>
+                        <td>Sph.</td>
+                        <td>Cyl.</td>
+                        <td>Axis</td>
+                        <td>Prism</td>
+                        <td>Base</td>
+                        <td colspan="4"></td>
+                        <td>Sph.</td>
+                        <td>Cyl.</td>
+                        <td>Axis</td>
+                        <td>Prism</td>
+                        <td>Base</td>
+                        <td rowspan="5" class="indication">L</td>
+                    </tr>
+                    <tr ng-repeat="item in sectionData.lensprescribe">
+                        <td>
+                            <span class="value">{{item.RightDistanceSph}}</span>
+                        </td>
+                        <td>
+                            <span class="value">{{item.RightDistanceCyl}}</span>
+                        </td>
+                        <td>
+                            <span class="value">{{item.RightDistanceAxis}}</span>
+                        </td>
+                        <td>
+                            <span class="value">{{item.RightDistancePrism}}</span>
+                        </td>
+                        <td>
+                            <span class="value">{{item.RightDistanceBase}}</span>
+                        </td>
+                        <td colspan="4" class="reading">DISTANCE</td>
+                        <td>
+                            <span class="value">{{item.LeftDistanceSph}}</span>
+                        </td>
+                        <td>
+                            <span class="value">{{item.LeftDistanceCyl}}</span>
+                        </td>
+                        <td>
+                            <span class="value">{{item.LeftDistanceAxis}}</span>
+                        </td>
+                        <td>
+                            <span class="value">{{item.LeftDistancePrism}}</span>
+                        </td>
+                        <td>
+                            <span class="value">{{item.LeftDistanceBase}}</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <span class="value">{{item.RightReadingSph}}</span>
+                        </td>
+                        <td>
+                            <span class="value">{{item.RightReadingCyl}}</span>
+                        </td>
+                        <td>
+                            <span class="value">{{item.RightReadingAxis}}</span>
+                        </td>
+                        <td>
+                            <span class="value">{{item.RightReadingPrism}}</span>
+                        </td>
+                        <td>
+                            <span class="value">{{item.RightReadingBase}}</span>
+                        </td>
+                        <td colspan="4" class="reading">READING</td>
+                        <td>
+                            <span class="value">{{item.LeftReadingSph}}</span>
+                        </td>
+                        <td>
+                            <span class="value">{{item.LeftReadingCyl}}</span>
+                        </td>
+                        <td>
+                            <span class="value">{{item.LeftReadingAxis}}</span>
+                        </td>
+                        <td>
+                            <span class="value">{{item.LeftReadingPrism}}</span>
+                        </td>
+                        <td>
+                            <span class="value">{{item.LeftReadingBase}}</span>
+                        </td>
+
+                    </tr>
+                    <tr>
+                        <td colspan="7">
+                            <span class="label">ADD:</span>
+                            <span class="value">{{item.RightAdd}}</span>
+                        </td>
+                        <td colspan="7">
+                            <span class="label">ADD:</span>
+                            <span class="value">{{item.LeftAdd}}</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="7">
+                            <span class="label">DEC:</span>
+                            <span class="value">{{item.RightDec}}</span>
+                        </td>
+                        <td colspan="7">
+                            <span class="label">DEC:</span>
+                            <span class="value">{{item.LeftDec}}</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="8">
+                            <span class="label">FORM:</span>
+                            <span class="value">{{item.LensForm}}</span>
+                        </td>
+                        <td colspan="8">
+                            <span class="label">TINT:</span>
+                            <span class="value">{{item.LensTint}}</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="16">
+                            <span class="label">TYPE OF LENS:</span>
+                            <span class="value">{{item.LensType.Description}}</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="16">
+                            <span class="label">Lens Specification:</span>
+                            <span class="value">{{item.LensSpecification.Description}}</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="16">
+                            <span class="label">Contact Lens Type:</span>
+                            <span class="value">{{item.ContactLensType.Description}}</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="16">
+                            <span class="label">Frames:</span>
+                            <span class="value">{{item.YesNo.Description}} </span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="4">
+                            <span class="label">Lens Size:</span>
+                            <span class="value">{{item.LensSize}}</span>
+                        </td>
+                        <td colspan="4">
+                            <span class="label">Lens Shape:</span>
+                            <span class="value">{{item.LensShape}}</span>
+                        </td>
+                        <td colspan="4">
+                            <span class="label">Distance Centres:</span>
+                            <span class="value">{{item.DistanceCentres}}</span>
+                        </td>
+                        <td colspan="4">
+                            <span class="label">Near Centres:</span>
+                            <span class="value">{{item.NearCentres}}</span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+    </script>
+    <script type="text/ng-template" id="cn-complaints-section.html">
+
+        <div ng-if="sectionData.Complaints.length> 0" class="row">
+            <div class="col-sm-12" style="margin-top:0px;">
+                <div class="form-group">
+                    <div class="col-sm-12 form-group mb0">
+                        <span class="d-flex-left">
+                            <input type="checkbox" tabindex="-1" ng-model="currentcontext.selectall"
+                                ng-click="isAllOrderSelectedChange(sectionData[item.sectionid], item.sectionid)">
+                                <h4 class="control-label fontgreen mar_z" translate="patientemr.reviewnotes.chiefcomplaints.lbl"></h4>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div ng-if="sectionData.Complaints.length > 0" class="row innerdata" ng-repeat="item in sectionData.Complaints">
+            <span class="col-sm-2 fontpink">{{item.ChiefComplaint}}</span>
+            <span>&nbsp;-&nbsp;</span>
+            <span class="label">{{item.Duration}} {{item.DurationPeriod.Description}}</span>&nbsp;&nbsp;
+            <span class="value">{{item.UnitofDuration}}</span>
+        </div>
+    </script>
+    <script type="text/ng-template" id="cn-clinicalnotes-section.html">
+
+        <div ng-if="sectionData.ClinicalNote[0].ChiefComplaints" class="row">
+            <div class="col-sm-12">
+                <div class="form-group">
+                    <div class="col-sm-12 form-group">
+                        <span class="d-flex-left">
+                            <input type="checkbox" tabindex="-1" ng-model="currentcontext.selectall"
+                                ng-click="isAllOrderSelectedChange(sectionData[item.sectionid], item.sectionid)">
+                                <h4 class="control-label mar_z" translate="Clinical Notes"></h4>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div ng-if="sectionData.ClinicalNote[0].ChiefComplaints" class="row innerdata" ng-repeat="item in sectionData.ClinicalNote">
+            <div class="col-sm-12 innerdata">
+                <div class="col-sm-3 lefcol1 innerdata 4x no-pad" ng-if="item.IllnessTypeId">Illness Type : </div>
+                <div style="" class="col-sm-9" ng-if="item.IllnessTypeId">{{item.IllnessType.Description}}</div>
+            </div>
+            <div class="col-sm-12 innerdata">
+                <div class="col-sm-3 lefcol1 innerdata 4x no-pad" ng-if="item.ChiefComplaints">Chief Complaints : </div>
+                <div style="" class="col-sm-9" ng-if="item.ChiefComplaints">{{item.ChiefComplaints}}</div>
+            </div>
+            <div class="col-sm-12 innerdata">
+                <div class="col-sm-3 lefcol1 innerdata 4x no-pad" ng-if="item.Examinations">Examination : </div>
+                <div style="" class="col-sm-9" ng-if="item.Examinations">{{item.Examinations}}</div>
+            </div>
+            <div class="col-sm-12 innerdata">
+                <div class="col-sm-3 lefcol1 innerdata 4x no-pad" ng-if="item.TreatmentComments">Comments : </div>
+                <div style="" class="col-sm-9" ng-if="item.TreatmentComments">{{item.TreatmentComments}}</div>
+            </div>
+            <div ng-if="item.Location||item.Quality||item.Severity||item.Duration||item.Timing||item.Context||item.ModifyingFactors">
+                <label class="history" translate="patientemr.clinicalnotes.historyofillness.lbl"></label>
+            </div>
+            <div class="col-sm-12 innerdata">
+                <div class="col-sm-3 lefcol1 innerdata 4x no-pad" ng-if="item.Location">Location : </div>
+                <div style="" class="col-sm-9" ng-if="item.Location">{{item.Location}}</div>
+            </div>
+            <div class="col-sm-12 innerdata">
+                <div class="col-sm-3 lefcol1 innerdata 4x no-pad" ng-if="item.Quality">Quality : </div>
+                <div style="" class="col-sm-9" ng-if="item.Quality">{{item.Quality}}</div>
+            </div>
+            <div class="col-sm-12 innerdata">
+                <div class="col-sm-3 lefcol1 innerdata 4x no-pad" ng-if="item.Severity">Severity : </div>
+                <div style="" class="col-sm-9" ng-if="item.Severity">{{item.Severity}}</div>
+            </div>
+            <div class="col-sm-12 innerdata">
+                <div class="col-sm-3 lefcol1 innerdata 4x no-pad" ng-if="item.DurationCount">Duration : </div>
+                <div style="" class="col-sm-9" ng-if="item.DurationCount">{{item.DurationCount}} &nbsp; {{item.IllnessDurationType.Description}}</div>
+            </div>
+            <div class="col-sm-12 innerdata">
+                <div class="col-sm-3 lefcol1 innerdata 4x no-pad" ng-if="item.Timing">Timing : </div>
+                <div style="" class="col-sm-9" ng-if="item.Timing">{{item.Timing}}</div>
+            </div>
+            <div class="col-sm-12 innerdata">
+                <div class="col-sm-3 lefcol1 innerdata 4x no-pad" ng-if="item.Context">Context : </div>
+                <div style="" class="col-sm-9" ng-if="item.Context">{{item.Context}}</div>
+            </div>
+            <div class="col-sm-12 innerdata">
+                <div class="col-sm-3 lefcol1 innerdata 4x no-pad" ng-if="item.ModifyingFactors">ModifyingFactors : </div>
+                <div style="" class="col-sm-9" ng-if="item.ModifyingFactors">{{item.ModifyingFactors}}</div>
+            </div>
+        </div>
+    </script>
+    <script type="text/ng-template" id="cn-followupclinicalnotes-section.html">
+
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="form-group">
+                    <div class="col-sm-12 form-group">
+                        <span class="d-flex-left">
+                            <input type="checkbox" tabindex="-1" ng-model="currentcontext.selectall"
+                                ng-click="isAllOrderSelectedChange(sectionData[item.sectionid], item.sectionid)">
+                                <h4 class="control-label mar_z" translate="Followup Clinical Notes"></h4>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row innerdata" ng-repeat="item in sectionData.FollowupClinicalNote">
+            <div class="col-sm-12">
+                <div class="col-sm-3 lefcol1 innerdata 4x no-pad" ng-if="item.OtherComplaints">Other Complaints : </div>
+                <div style="" class="col-sm-9" ng-if="item.OtherComplaints">{{item.OtherComplaints}}</div>
+            </div>
+            <div class="col-sm-12">
+                <div class="col-sm-3 lefcol1 innerdata 4x no-pad" ng-if="item.AdditionalNotes">Additional Notes : </div>
+                <div style="" class="col-sm-9" ng-if="item.AdditionalNotes">{{item.AdditionalNotes}}</div>
+            </div>
+        </div>
+    </script>
+    <script type="text/ng-template" id="cn-treatmentplan-section.html">
+
+        <div ng-if="sectionData.TreatmentPlan.length> 0" class="row">
+            <span class="d-flex-left">
+                <input type="checkbox" tabindex="-1" ng-model="currentcontext.selectall"
+                    ng-click="isAllOrderSelectedChange(sectionData[item.sectionid], item.sectionid)">
+                    <h4 class="control-label fontgreen mar_z " translate="Treatment Plan"></h4>
+            </span>
+        </div>
+        <div class="row innerdata" ng-if="sectionData.TreatmentPlan.length> 0">
+            <table class="table table-responsive table-bordered innerdata" id="prescriptiontable">
+                <thead>
+                    <tr>
+                        <th class="col-sm-4 lefcol8">Treatment Name</th>
+                        <th class="col-sm-1 lefcol8">No.Of Days</th>
+                        <th class="col-sm-2 lefcol8">Comments</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="item in sectionData.TreatmentPlan">
+                        <td class="col-sm-4"><span class="lefcol12">{{item.TreatmentName}}</span></td>
+                        <td class="col-sm-1"><span class="lefcol2">{{item.NoOfDays}}</span></td>
+                        <td class="col-sm-2"><span class="lefcol2">{{item.Comments}}&nbsp;</span></td>
+                    </tr>
+                </tbody>
+            </table>
+            <!-- <div class="col-sm-12">
+                <div class="col-sm-3 lefcol1 innerdata 4x no-pad">Request Date : </div>
+                <div style="" class="col-sm-9">
+                    <ngformatdate datetime-val='item.PlanRequestDate'></ngformatdate>
+                </div>
+            </div>
+            <div class="col-sm-12">
+                <div class="col-sm-3 lefcol1 innerdata 4x no-pad">Treatment Name : </div>
+                <div style="" class="col-sm-9">{{item.TreatmentName}}</div>
+            </div>
+            <div class="col-sm-12">
+                <div class="col-sm-3 lefcol1 innerdata 4x no-pad">Scheduled From : </div>
+                <div style="" class="col-sm-9">
+                    <ngformatdate date-val='item.PlanScheduledFrom'></ngformatdate>
+                </div>
+            </div>
+            <div class="col-sm-12">
+                <div class="col-sm-3 lefcol1 innerdata 4x no-pad">Scheduled To : </div>
+                <div style="" class="col-sm-9">
+                    <ngformatdate date-val='item.PlanScheduledTo'></ngformatdate>
+                </div>
+            </div>
+            <div class="col-sm-12">
+                <div class="col-sm-3 lefcol1 innerdata 4x no-pad">No Of Days : </div>
+                <div style="" class="col-sm-9">
+                    {{item.NoOfDays}}
+                </div>
+            </div> -->
+        </div>
+    </script>
+    <script type="text/ng-template" id="cn-executableprocedures-section.html">
+
+        <div ng-if="sectionData.ExecutableProcedure.length> 0" class="row">
+            <div class="col-sm-12" style="margin-top:0px;">
+                <div class="form-group">
+                    <div class="col-sm-12 form-group mb0">
+                        <span class="d-flex-left">
+                            <input type="checkbox" tabindex="-1" ng-model="currentcontext.selectall"
+                                ng-click="isAllOrderSelectedChange(sectionData[item.sectionid], item.sectionid)">
+                                <h4 class="control-label fontgreen mar_z" ng-if="sectionData.ExecutableProcedure.length> 0" translate="patientemr.executableprocedure.pagetitle.lbl"></h4>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div ng-if="sectionData.ExecutableProcedure.length > 0" class="row" ng-repeat="item in sectionData.ExecutableProcedure">
+            <div class="row innerdata">
+                <div class="col-sm-12">
+                    <div class="col-sm-3 lefcol1 innerdata 4x no-pad">Procedure: </div>
+                    <div style="" class="col-sm-9">{{item.ServiceName}}</div>
+                </div>
+                <div class="col-sm-12">
+                    <div class="col-sm-3 lefcol1 innerdata 4x no-pad" ng-if="item.Comments">Remarks: </div>
+                    <div style="" class="col-sm-9" ng-if="item.Comments">{{item.Comments}}</div>
+                </div>
+
+            </div>
+        </div>
+    </script>
+    <script type="text/ng-template" id="cn-executableprocedures-section.html">
+
+        <div ng-if="sectionData.ProcedureOrders.length > 0" class="row">
+            <div class="col-sm-12" style="margin-top:0px;">
+                <div class="form-group">
+                    <div class="col-sm-4 form-group mb0">
+                        <span class="d-flex-left">
+                            <input type="checkbox" tabindex="-1" ng-model="currentcontext.selectall"
+                                ng-click="isAllOrderSelectedChange(sectionData[item.sectionid], item.sectionid)">
+                                <h4 class="control-label fontgreen mar_z" translate="patientemr.reviewnotes.procedureorders.lbl"></h4>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div ng-if="sectionData.ProcedureOrders.length > 0" ng-repeat="item in sectionData.ProcedureOrders">
+            <div class="row innerdata" style=" margin-left: 79px !important;">
+
+                <div class="col-sm-9">
+                    <span ng-repeat="detail in item.ProcedureOrderDetails" class="lefcol12" ">{{detail.ProcedureName}}({{detail.ProcedureCode}})
+
+                <span class="lefcol2 " style="margin-left: 36px; ">{{detail.ServiceCategoryName}}
+                </span>
+            </span>
+            </div>
+        </div>
+    </div>
+</script>
+
+    <script type="text/ng-template " id="cn-advicemedications-section.html ">
+
+    <div ng-if="sectionData.Advicemedications[0].DrugName " class="row ">
+    <div class="col-sm-12 " style="margin-top:0px; ">
+        <div class="form-group ">
+            <div class="col-sm-4 form-group mb0 " style="padding:0; ">
+                <span class="d-flex-left">
+                    <input type="checkbox" tabindex="-1" ng-model="currentcontext.selectall"
+                        ng-click="isAllOrderSelectedChange(sectionData[item.sectionid], item.sectionid)">
+                        <h4 class="control-label fontgreen mar_z "   style="padding:0; "translate="Advice Medications "></h4>
+                </span>
+            </div>
+        </div>
+    </div>
+</div>
+<div ng-if="sectionData.Advicemedications.length> 0">
+                    <div class="row" style="padding:19px 30px">
+                        <!-- <div class="col-sm-3 fontpink">
+                <ngformatdate date-val='item.PrescriptionDate'></ngformatdate>
+            </div> -->
+                        <table class="table table-responsive table-bordered">
+                            <thead>
+                                <tr>
+                                    <th class="col-sm-2 lefcol8">Drugs</th>
+                                    <th class="col-sm-2 lefcol8">Dosage</th>
+                                    <th class="col-sm-2 lefcol8">Frequency</th>
+                                    <th class="col-sm-2 lefcol8">Duration</th>
+                                    <th class="col-sm-2 lefcol8">Drug Instruction</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-repeat="item in sectionData.Advicemedications">
+                                    <td class="col-sm-2">
+                                        <span class="lefcol1">{{item.DrugName}}</span>
+                                    </td>
+                                    <td class="col-sm-2">
+                                        <span class="lefcol2">{{item.Dosage}}</span>
+                                    </td>
+                                    <td class="col-sm-2">
+                                        <span class="lefcol3">
+                            <span ng-if="item.MorningFrequency==true">1</span>
+                                        <span ng-if="item.MorningFrequency==false">0</span>&nbsp;-&nbsp;
+                                        <span ng-if="item.AfterNoonFrequency==true">1</span>
+                                        <span ng-if="item.AfterNoonFrequency==false">0</span>&nbsp;-&nbsp;
+                                        <span ng-if="item.EveningFrequency==true">1</span>
+                                        <span ng-if="item.EveningFrequency==false">0</span>&nbsp;-&nbsp;
+                                        <span ng-if="item.NightFrequency==true">1</span>
+                                        <span ng-if="item.NightFrequency==false">0</span>
+                                        </span>
+                                    </td>
+                                    <td class="col-sm-2">
+                                        <span class="lefcol5">{{item.Duration}} {{item.DurationPeriod.Description}}</span>
+                                    </td>
+                                    <td class="col-sm-2">
+                                        <span class="lefcol5">{{item.DrugInstruction.Description}}</span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div>
+                            Diet Advice:&nbsp; {{sectionData.Advicemedications[0].DietAdvice}}
+                        </div>
+                    </div>
+                </div>
+    </script>
+    <div class="fooder-bgs">
+        <div class="row">
+            <div class="pull-left">
+                <ul class="nav navbar-nav pull-left">
+                    <li uib-dropdown="" class="dropdown dropdown-list custom-li">
+                        <button uib-dropdown-toggle="" class="draftbutton" ng-disabled="">
+                            <span translate="Previous Notes"></span>&nbsp;&nbsp;
+                        </button>
+                        <ul class="dropdown-menu top" role="menu" aria-labelledby="dLabel">
+                            <li ng-repeat="item in sectionData.consultlist| limitTo: 5" style="border: 1px solid;">
+                                <a class="" ng-click="viewConsultation(item)">
+                                    <span>
+                                        <i class="fa fa-clock-o" aria-hidden="true"></i>
+                                    </span>&nbsp;&nbsp;
+                                    <!-- <span class="dr_name0">{{item.Encounter.DoctorName}} - </span> -->
+                                    <span class="dr_name0">{{item.Doc.Title.Description}}. {{item.Doc.FirstName}} -
+                                    </span>
+                                    <displaydate class="disp_date0" datetime-val="item.CreatedAt"></displaydate>
+                                    <span class="dr_profile0"> - {{item.ProfileMaster.Name}}</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="pull-right">
+                <button type="button" class="draftbutton"
+                    ng-hide="item.ProgressNoteStatusId==2||item.ProgressNoteStatusId==3"
+                    ng-click="approveConsultation()">
+                    <span translate="patientemr.reviewnotes.approve.lbl"></span>
+                </button>&nbsp;&nbsp;
+                <button ng-click="printConsultation()" class="draftbutton pull-right" hotkey="{'alt+p': print}">
+                    <span translate="With Header"></span>&nbsp;
+                    <span>
+                        <i class="fa fa-print" aria-hidden="true"></i>
+                    </span>
+                </button>&nbsp;&nbsp;
+                <button ng-click="printConsultation2()" class="draftbutton pull-right" hotkey="{'alt+p': print}">
+                    <span translate="Without Header"></span>&nbsp;
+                    <span>
+                        <i class="fa fa-print" aria-hidden="true"></i>
+                    </span>
+                </button>&nbsp;&nbsp;
+            </div>
+        </div>
+    </div>
+</div>

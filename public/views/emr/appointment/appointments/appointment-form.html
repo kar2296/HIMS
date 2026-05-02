@@ -1,0 +1,786 @@
+<style>
+    .modal-lg {
+        width: 89%;
+    }
+
+    .toprighttext1 .dropdown-menu {
+        top: -116px !important;
+        left: 15px !important;
+    }
+
+    .toprighttext2 .dropdown-menu {
+        top: -109px !important;
+        left: 15px !important;
+        height: 110px;
+    }
+
+    .appointmentdetails-div {
+        padding-top: 5px;
+    }
+
+    .toprighttextremark .dropdown-menu {
+        top: -129px !important;
+        left: 15px !important;
+        height: 130px;
+    }
+
+
+    table>tbody>tr>td {
+        vertical-align: initial !important;
+    }
+
+    .custom-popup-wrapper>.table>thead>tr>td:nth-child(3) {
+        width: 32% !important;
+    }
+
+
+
+    .custom-popup-wrapper>table>tbody>tr:nth-child(even) {
+        background-color: #fff;
+    }
+
+    .table-condensed>thead>tr>td {
+        padding: 1px 10px;
+        white-space: nowrap;
+    }
+
+
+    .modal-content .fooder-bg {
+        position: inherit !important;
+        bottom: 0;
+        right: 1px;
+        min-width: 100% !important;
+        left: -3px !important;
+        margin-top: -2px;
+        margin-left: 1px;
+    }
+
+    .nav>li.disabled>a:hover,
+    .nav>li.disabled>a:focus {
+        color: #000000 !important;
+        text-decoration: none;
+        background-color: #3c5a76;
+        cursor: not-allowed;
+    }
+
+    .nav-tabs>li.active>a,
+    .nav-tabs>li.active>a:hover {
+        color: #000000 !important;
+        border-bottom-color: #fff;
+        background-color: #3c5a76 !important;
+    }
+
+    .nav-tabs>li>a {
+        padding: 4px 15px;
+    }
+
+    ul.nav.nav-tabs {
+        background: #ccc;
+        border: 1px solid #ccc;
+    }
+
+    .nav-tabs>li.active>a,
+    .nav-tabs>li.active>a:hover {
+        border: 1px solid #ccc;
+    }
+
+    fieldset.fsStyle {
+        margin: 0px;
+    }
+
+    .referrallist table {
+        left: -330px;
+        min-height: 128px;
+        height: 22vh;
+        min-width: 42vw;
+    }
+
+    .custom-modal-header {
+        margin-bottom: 0px !important;
+    }
+
+    /* .typeahead-demo .custom-popup-wrapper>.dropdown-menu thead tr td {
+        background: linear-gradient(to bottom, rgba(30, 87, 153, 1) 0, rgba(41, 137, 216, 1) 44%, rgba(32, 124, 202, 1) 46%, rgba(125, 185, 232, 1) 100%) !important;
+        border-radius: unset;
+    } */
+
+    /* .typeahead-demo .custom-popup-wrapper>.dropdown-menu tbody tr td {
+        border-radius: unset;
+    } */
+
+    .modal-dialog.modal-lg .fooder-bg.col-sm-12 {
+        position: inherit !important;
+    }
+
+    .modal-dialog.modal-full .table-uigrid.ui-grid .ui-grid-viewport {
+        height: 108px !important;
+    }
+</style>
+<div id="Appointmentctrls">
+    <div class="appt-root-div">
+        <div class="col-sm-12 custom-modal-header">
+            <div class="col-sm-4">
+                <div class="form-group">
+                    <label class="sr-only col-sm-5 col-md-4 control-label filter-lbl"
+                        translate="appointment.appointment-form.patientnamesearch.lbl"></label>
+                    <div class="col-sm-7 col-md-8">
+                        <patientsearch patientid="item.PatientId" patientinfo="selectedPatient"
+                            filterconfig="patientfilterconfig" tabindex="-1" patientchange="patientChange()"
+                            candisable="canDisablePatientSearch()"></patientsearch>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-3">
+                <div class="form-group">
+                    <label class="col-sm-3 control-label appt-top-label" for="appointmenttype"
+                        translate="appointment.appointment-form.appointmenttype.lbl"></label>
+                    <div class="col-sm-9">
+                        <ui-select ng-model="item.AppointmentTypeId" name="appointmenttype" tabindex="-1"
+                            ng-change="getResourceDeptList()" ng-disabled="canDisableAppointmentType()">
+                            <ui-select-match>
+                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                <span ng-if="$select.selected.Text.length>20">...</span>
+                            </ui-select-match>
+                            <ui-select-choices
+                                repeat="lookupitem.Id as lookupitem in lookup.AppointmentType | filter: { Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-3">
+                <div class="form-group">
+                    <label class="col-sm-3 control-label appt-top-label" for="appointmentstatus"
+                        translate="appointment.appointment-form.appointmentstatus.lbl"></label>
+                    <div class="col-sm-9">
+                        <ui-select ng-model="item.AppointmentStatusId" name="appointmentstatus" tabindex="-1"
+                            ng-change="appointmentStatusChanged()">
+                            <ui-select-match>
+                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                <span ng-if="$select.selected.Text.length>20">...</span>
+                            </ui-select-match>
+                            <ui-select-choices
+                                repeat="lookupitem.Id as lookupitem in lookup.AppointmentStatus | filter: { Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-2">
+                <input type="text" class="form-control" name="appointmentdate" ng-date-object required
+                    uib-datepicker-popup="{{datePickerOptions.dateFormat}}" ng-change="getList()"
+                    placeholder="{{datePickerOptions.placeholder}}" tabindex="-1"
+                    ng-click="appointmentdatePopup = { opened: true }" is-open="appointmentdatePopup.opened"
+                    ng-model="item.AppointmentDate" ng-disabled="canDisableAppointmentDate()">
+            </div>
+        </div>
+
+        <div class="">
+            <patientbanner patientid="item.PatientId"></patientbanner>
+            <br>
+            <div class="col-sm-12 bg-pattern">
+                <div class="col-sm-8">
+                    <div class="row">
+                        <uib-tabset active="active">
+                            <uib-tab index="$index" ng-repeat="tab in tabs" heading="{{tab.title}}"
+                                ng-click="switchTab(tab)" disable="tab.canDisable">
+                            </uib-tab>
+                        </uib-tabset>
+                    </div>
+                    <div class="row">
+                        <div class=" appt-form-div">
+                            <form id="item_form" name="item_form" class="form-horizontal" role="form">
+                                <div class=" formRoot" style="height:428px !important">
+                                    <!-- Patient info -->
+                                    <fieldset class="fsStyle well" ng-disabled="canDisablePatientDiv()">
+                                        <legend class="legendStyle">
+                                            <span translate="appointment.appointment-form.pnlpatientinfo.lbl"></span>
+                                        </legend>
+                                        <div class="col-sm-12">
+                                            <!-- leftpanel -->
+                                            <div class="col-sm-6">
+                                                <div class="form-group">
+                                                    <label class="col-sm-4 control-label" for="category"
+                                                        translate="appointment.appointment-form.category.lbl"></label>
+                                                    <div class="col-sm-8">
+                                                        <ui-select ng-model="item.AppointmentCategoryId" name="category"
+                                                            required
+                                                            ng-change="appointmentCategoryChanged($select.selected)"
+                                                            ng-disabled="canDisableCategory()" tabindex="1">
+                                                            <ui-select-match>
+                                                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                                                <span ng-if="$select.selected.Text.length>20">...</span>
+                                                            </ui-select-match>
+                                                            <ui-select-choices
+                                                                repeat="lookupitem.Id as lookupitem in lookup.AppointmentCategory | filter: { Text: $select.search }">
+                                                                <div
+                                                                    ng-bind-html="lookupitem.Text | highlight: $select.search">
+                                                                </div>
+                                                            </ui-select-choices>
+                                                        </ui-select>
+                                                    </div>
+                                                </div>
+
+                                                <div class="form-group">
+                                                    <label class="col-sm-4 control-label" for="mrn"
+                                                        translate="appointment.appointment-form.mrn.lbl"></label>
+                                                    <div class="col-sm-8">
+                                                        <input type="text" class="form-control" name="mrn"
+                                                            ng-model="selectedPatient.MRN" placeholder="" disabled>
+                                                    </div>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label class="col-sm-4 control-label" for="patientguarantor"
+                                                        translate="appointment.appointment-form.gurantor.lbl"></label>
+                                                    <div class="col-sm-6">
+                                                        <ui-select ng-model="item.PatientGuarantorId"
+                                                            name="patientguarantor"
+                                                            ng-disabled="canDisableGurarantor()">
+                                                            <ui-select-match>
+                                                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                                                <span ng-if="$select.selected.Text.length>20">...</span>
+                                                            </ui-select-match>
+                                                            <ui-select-choices
+                                                                repeat="lookupitem.Id as lookupitem in lookup.PatientGuarantor | filter: { Text: $select.search }">
+                                                                <div
+                                                                    ng-bind-html="lookupitem.Text | highlight: $select.search">
+                                                                </div>
+                                                            </ui-select-choices>
+                                                        </ui-select>
+                                                    </div>
+                                                    <div class="col-sm-2">
+                                                        <button type="button" class="btn btn-success btn-xs"
+                                                            ng-click="addGuarantor()" uib-tooltip="More"
+                                                            tooltip-placement="top">
+                                                            <i class="fa fa-plus" aria-hidden="true"></i></button>
+                                                    </div>
+                                                </div>
+
+
+                                                <div class="form-group" ng-show="canShowResearchProject()">
+                                                    <label class="col-sm-4 control-label" for="researchproject"
+                                                        translate="appointment.appointment-form.researchprojectname.lbl"></label>
+                                                    <div class="col-sm-8">
+                                                        <ui-select ng-model="item.ResearchProjectId"
+                                                            name="researchproject" ng-disabled="canDisableProject()">
+                                                            <ui-select-match>
+                                                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                                                <span ng-if="$select.selected.Text.length>20">...</span>
+                                                            </ui-select-match>
+                                                            <ui-select-choices
+                                                                repeat="lookupitem.Id as lookupitem in lookup.ResearchProject | filter: { Text: $select.search }">
+                                                                <div
+                                                                    ng-bind-html="lookupitem.Text | highlight: $select.search">
+                                                                </div>
+                                                            </ui-select-choices>
+                                                        </ui-select>
+                                                    </div>
+                                                </div>
+
+                                                <div class="form-group">
+                                                    <label class="col-sm-4 control-label"
+                                                        translate="appointment.appointment-form.patientmobileno.lbl"></label>
+                                                    <div class="col-sm-8">
+                                                        <input type="text" class="form-control" name="patientmobileno"
+                                                            ng-model="selectedPatient.Mobile" placeholder="" disabled
+                                                            ng-show="!currentcontext.isnewpatient">
+                                                        <input type="text" class="form-control" name="patientmobileno"
+                                                            ng-model="newPatient.Mobile"
+                                                            ng-show="currentcontext.isnewpatient" MINLENGTH="10"
+                                                            MAXLENGTH="10" size="10" value="" name="mobile"
+                                                            onChange="numberonly($event)" onKeyUp="numberonly($event)"
+                                                            ng-keypress="numberonly($event)"
+                                                            ng-required="currentcontext.isnewpatient" tabindex="6">
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <!-- rightpanel -->
+                                            <div class="col-sm-6">
+                                                <div class="form-group">
+                                                    <label class="col-sm-4 control-label" for="patienttitle"
+                                                        translate="appointment.appointment-form.patienttitle.lbl"></label>
+                                                    <div class="col-sm-8">
+                                                        <input type="text" class="form-control" name="name"
+                                                            ng-model="selectedPatient.Title.Description" placeholder=""
+                                                            disabled ng-show="!currentcontext.isnewpatient">
+                                                        <ui-select ng-model="newPatient.TitleId" name="patienttitle"
+                                                            ng-change="fillGenderInfo()"
+                                                            ng-show="currentcontext.isnewpatient" tabindex="2">
+                                                            <ui-select-match>
+                                                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                                                <span ng-if="$select.selected.Text.length>20">...</span>
+                                                            </ui-select-match>
+                                                            <ui-select-choices
+                                                                repeat="lookupitem.Id as lookupitem in lookup.Title | filter: { Text: $select.search }">
+                                                                <div
+                                                                    ng-bind-html="lookupitem.Text | highlight: $select.search">
+                                                                </div>
+                                                            </ui-select-choices>
+                                                        </ui-select>
+                                                    </div>
+                                                </div>
+
+                                                <div class="form-group">
+                                                    <label class="col-sm-4 control-label" for="patientname"
+                                                        translate="appointment.appointment-form.patientname.lbl"></label>
+                                                    <div class="col-sm-8">
+                                                        <input type="text" class="form-control" name="patientname"
+                                                            ng-model="selectedPatient.FirstName" placeholder="" disabled
+                                                            ng-show="!currentcontext.isnewpatient" uppercase>
+                                                        <input type="text" class="form-control" name="patientname"
+                                                            ng-model="newPatient.FirstName"
+                                                            ng-show="currentcontext.isnewpatient" uppercase
+                                                            ng-required="currentcontext.isnewpatient" tabindex="3">
+                                                    </div>
+                                                </div>
+
+                                                <div class="form-group">
+                                                    <label class="col-sm-4 control-label"
+                                                        translate="appointment.appointment-form.patientgender.lbl"></label>
+                                                    <div class="col-sm-8">
+                                                        <input type="text" class="form-control" name="name"
+                                                            ng-model="selectedPatient.Gender.Description" placeholder=""
+                                                            disabled ng-show="!currentcontext.isnewpatient">
+                                                        <ui-select ng-model="newPatient.GenderId" name="patientgender"
+                                                            ng-show="currentcontext.isnewpatient" tabindex="4">
+                                                            <ui-select-match>
+                                                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                                                <span ng-if="$select.selected.Text.length>20">...</span>
+                                                            </ui-select-match>
+                                                            <ui-select-choices
+                                                                repeat="lookupitem.Id as lookupitem in lookup.Gender | filter: { Text: $select.search }">
+                                                                <div
+                                                                    ng-bind-html="lookupitem.Text | highlight: $select.search">
+                                                                </div>
+                                                            </ui-select-choices>
+                                                        </ui-select>
+                                                    </div>
+                                                </div>
+
+                                                <div class="form-group" ng-if="canShowApproxAge()">
+                                                    <label class="col-sm-4 control-label"
+                                                        translate="registration.fullregistration.approxage.lbl"></label>
+                                                    <div class="col-sm-8 approxagediv">
+                                                        <div class="col-sm-4">
+                                                            <input type="text" class="form-control"
+                                                                ng-model="newPatient.ApproxAgeDays" placeholder="Days"
+                                                                ng-change="calculateDOB(newPatient.ApproxAgeDays, 'days')">
+                                                        </div>
+                                                        <div class="col-sm-4">
+                                                            <input type="text" class="form-control"
+                                                                ng-model="newPatient.ApproxAgeMonths"
+                                                                placeholder="Months"
+                                                                ng-change="calculateDOB(newPatient.ApproxAgeMonths, 'months')">
+                                                        </div>
+                                                        <div class="col-sm-4">
+                                                            <input type="text" class="form-control"
+                                                                ng-model="newPatient.Age" placeholder="Years"
+                                                                tabindex="-1"
+                                                                ng-change="calculateDOB(newPatient.Age, 'years')">
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="form-group">
+                                                    <!-- dob -->
+                                                    <label class="col-sm-4 control-label"
+                                                        translate="appointment.appointment-form.patientdob.lbl"></label>
+                                                    <div class="col-sm-4">
+                                                        <input type="text" class="form-control" name="patientdob"
+                                                            ng-date-object
+                                                            uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                                                            placeholder="{{datePickerOptions.placeholder}}"
+                                                            ng-click="patientdobPopup = { opened: true }"
+                                                            is-open="patientdobPopup.opened"
+                                                            ng-model="selectedPatient.DOB" disabled
+                                                            ng-show="!currentcontext.isnewpatient">
+
+                                                        <input type="text" class="form-control" name="newpatientdob"
+                                                            ng-date-object
+                                                            uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                                                            placeholder="{{datePickerOptions.placeholder}}"
+                                                            ng-click="newpatientdobPopup = { opened: true }"
+                                                            is-open="newpatientdobPopup.opened"
+                                                            ng-model="newPatient.DOB"
+                                                            ng-show="currentcontext.isnewpatient"
+                                                            ng-change="calculateAge()">
+                                                    </div>
+
+                                                    <!-- Age -->
+                                                    <label class="col-sm-2 control-label" for="patientage"
+                                                        translate="appointment.appointment-form.patientage.lbl"></label>
+                                                    <div class="col-sm-2">
+                                                        <input type="text" class="form-control"
+                                                            ng-model="selectedPatient.Age" placeholder="" disabled
+                                                            ng-show="!currentcontext.isnewpatient">
+                                                        <input type="text" class="form-control" name="patientage"
+                                                            ng-model="newPatient.Age"
+                                                            ng-show="currentcontext.isnewpatient"
+                                                            ng-change="calculateDOB(newPatient.Age, 'years')"
+                                                            tabindex="5">
+                                                    </div>
+
+                                                </div>
+
+
+                                            </div>
+                                    </fieldset>
+
+                                    <!-- Appointment info -->
+                                    <fieldset class="fsStyle well" ng-disabled="canDisableAppointmentDiv()">
+                                        <legend class="legendStyle">
+                                            <span
+                                                translate="appointment.appointment-form.pnlappointmentinfo.lbl"></span>
+                                        </legend>
+                                        <div class="col-sm-12">
+
+                                            <!-- leftpanel -->
+                                            <div class="col-sm-6">
+                                                <div class="form-group">
+                                                    <label class="col-sm-4 col-md-4 control-label" for="facility"
+                                                        translate="appointment.appointment-form.facility.lbl"></label>
+                                                    <div class="col-sm-6 col-md-8">
+                                                        <ui-select ng-model="item.FacilityId" name="facility" required
+                                                            ng-disabled="canDisableFacility()" tabindex="7">
+                                                            <ui-select-match>
+                                                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                                                <span ng-if="$select.selected.Text.length>20">...</span>
+                                                            </ui-select-match>
+                                                            <ui-select-choices
+                                                                repeat="lookupitem.Id as lookupitem in lookup.Facility | filter: { Text: $select.search }">
+                                                                <div
+                                                                    ng-bind-html="lookupitem.Text | highlight: $select.search">
+                                                                </div>
+                                                            </ui-select-choices>
+                                                        </ui-select>
+                                                    </div>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label class="col-sm-4 control-label" for="department"
+                                                        translate="appointment.appointment-form.department.lbl"></label>
+                                                    <div class="col-sm-6 col-md-8 toprighttext">
+                                                        <ui-select ng-model="item.DepartmentId" name="department"
+                                                            required ng-change="departmentChange()" tabindex="8"
+                                                            ng-disabled="canDisableDepartment()">
+                                                            <ui-select-match>
+                                                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                                                <span ng-if="$select.selected.Text.length>20">...</span>
+                                                            </ui-select-match>
+                                                            <ui-select-choices
+                                                                repeat="lookupitem.Id as lookupitem in currentcontext.selecteddept | filter: { Text: $select.search }">
+                                                                <div
+                                                                    ng-bind-html="lookupitem.Text | highlight: $select.search">
+                                                                </div>
+                                                            </ui-select-choices>
+                                                        </ui-select>
+                                                    </div>
+                                                </div>
+                                                <div class="form-group" ng-show="canShowPhysicianArea()">
+                                                    <label class="col-sm-4 control-label" for="consultant"
+                                                        translate="appointment.appointment-form.consultant.lbl"></label>
+                                                    <div class="col-sm-8 toprighttext2">
+                                                        <autosearch itemid="item.DoctorId"
+                                                            iteminfo="vm.doctorcontrolconfig.iteminfo" rowdata=""
+                                                            config="vm.doctorcontrolconfig"
+                                                            itemchange="onDoctorSelected($select.selected)"
+                                                            tabindex="-1"></autosearch>
+                                                    </div>
+                                                </div>
+                                                <div class="form-group" ng-show="canShowResourceArea()">
+                                                    <label class="col-sm-4 control-label" for="resource"
+                                                        translate="appointment.appointment-form.resource.lbl"></label>
+                                                    <div class="col-sm-6">
+                                                        <ui-select ng-model="item.ResourceId" name="resource"
+                                                            ng-change="resourceChange()"
+                                                            ng-disabled="canDisableResource()">
+                                                            <ui-select-match>
+                                                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                                                <span ng-if="$select.selected.Text.length>20">...</span>
+                                                            </ui-select-match>
+                                                            <ui-select-choices
+                                                                repeat="lookupitem.Id as lookupitem in lookup.Resource | filter: { Text: $select.search }">
+                                                                <div
+                                                                    ng-bind-html="lookupitem.Text | highlight: $select.search">
+                                                                </div>
+                                                            </ui-select-choices>
+                                                        </ui-select>
+                                                    </div>
+                                                    <div class="col-sm-2">
+                                                        <button type="button" ng-disabled="true"
+                                                            class="btn btn-success btn-xs" ng-click=""
+                                                            uib-tooltip="More" tooltip-placement="top">
+                                                            <i class="fa fa-plus" aria-hidden="true"></i>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label class="col-sm-4 control-label" for="forcebooking"
+                                                        translate="appointment.appointment-form.forcebooking.lbl"></label>
+                                                    <div class="col-sm-8">
+                                                        <input type="checkbox" name="forcebooking"
+                                                            class="custom-checkbox" ng-model="item.IsForceBooking">
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <!-- rightpanel -->
+                                            <div class="col-sm-6">
+                                                <div class="form-group">
+                                                    <label class="col-sm-8 col-md-4 control-label" for="starttime"
+                                                        translate="appointment.appointment-form.starttime.lbl"></label>
+                                                    <div class="col-sm-12 col-md-8">
+                                                        <uib-timepicker name="starttime" ng-model="item.StartTime"
+                                                            ng-time-object required ng-disabled="true"></uib-timepicker>
+                                                    </div>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label class="col-sm-8 col-md-4 control-label" for="endtime"
+                                                        translate="appointment.appointment-form.endtime.lbl"></label>
+                                                    <div class="col-sm-12 col-md-8">
+                                                        <uib-timepicker name="endtime" ng-model="item.EndTime"
+                                                            ng-time-object required ng-disabled="true"></uib-timepicker>
+                                                    </div>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label class="col-sm-4 control-label" for="referral"
+                                                        translate="appointment.appointment-form.referral.lbl"></label>
+                                                    <div class="col-sm-6 referrallist">
+                                                        <autosearch itemid="item.ReferralId"
+                                                            ng-change="referralChange($select.selected)"
+                                                            ng-disabled="canDisableAppointmentDiv()" iteminfo=""
+                                                            rowdata="" config="vm.referralcontrolconfig"
+                                                            itemchange="getReferral($select.selected)"></autosearch>
+                                                        <!-- <ui-select ng-model="item.ReferralId" name="referral" ng-change="referralChange($select.selected)" ng-disabled="canDisableAppointmentDiv()">
+                                                            <ui-select-match>
+                                                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                                                <span ng-if="$select.selected.Text.length>20">...</span>
+                                                            </ui-select-match>
+                                                            <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.Referral | filter: { Text: $select.search }">
+                                                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                                            </ui-select-choices>
+                                                        </ui-select> -->
+                                                    </div>
+                                                    <div class="col-sm-2">
+                                                        <button type="button" class="btn btn-success btn-xs"
+                                                            ng-click="addReferral()" uib-tooltip="More"
+                                                            tooltip-placement="top">
+                                                            <i class="fa fa-plus" aria-hidden="true"></i>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label class="col-sm-4 control-label" for="priority"
+                                                        translate="appointment.appointment-form.priority.lbl"></label>
+                                                    <div class="col-sm-8 toprighttext1">
+                                                        <ui-select ng-model="item.PriorityId" name="priority" required
+                                                            ng-disabled="canDisableAppointmentDiv()" tabindex="9">
+                                                            <ui-select-match>
+                                                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                                                <span ng-if="$select.selected.Text.length>20">...</span>
+                                                            </ui-select-match>
+                                                            <ui-select-choices
+                                                                repeat="lookupitem.Id as lookupitem in lookup.Priority | filter: { Text: $select.search }">
+                                                                <div
+                                                                    ng-bind-html="lookupitem.Text | highlight: $select.search">
+                                                                </div>
+                                                            </ui-select-choices>
+                                                        </ui-select>
+                                                    </div>
+                                                </div>
+                                                <div class="form-group" ng-show="canShowVisitType()">
+                                                    <label class="col-sm-4 control-label" for="visittype"
+                                                        translate="appointment.appointment-form.visittype.lbl"
+                                                        mandatory></label>
+                                                    <div class="col-sm-8">
+                                                        <ui-select ng-model="item.VisitTypeId" name="visittype"
+                                                            ng-disabled="canDisableAppointmentDiv()">
+                                                            <ui-select-match>
+                                                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                                                <span ng-if="$select.selected.Text.length>20">...</span>
+                                                            </ui-select-match>
+                                                            <ui-select-choices
+                                                                repeat="lookupitem.Id as lookupitem in lookup.VisitType | filter: { Text: $select.search }">
+                                                                <div
+                                                                    ng-bind-html="lookupitem.Text | highlight: $select.search">
+                                                                </div>
+                                                            </ui-select-choices>
+                                                        </ui-select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </fieldset>
+
+                                    <!-- Div visible in checked in status -->
+                                    <fieldset class="fsStyle well" ng-show="canShowAssignPanel()">
+                                        <legend class="legendStyle">
+                                            <span translate="appointment.appointment-form.pnlassignto.lbl"></span>
+                                        </legend>
+                                        <div class="col-sm-12">
+                                            <div class="form-group col-sm-3">
+                                                <label class="control-label col-sm-8"
+                                                    translate="appointment.appointment-form.assigntouser.lbl"></label>
+                                                <div class="col-sm-4">
+                                                    <input type="checkbox" name="IsAssignedToUser"
+                                                        class="custom-checkbox chk-assignto"
+                                                        ng-model="item.IsAssignedToUser"
+                                                        ng-change="assignedToUserChange()">
+                                                </div>
+                                            </div>
+                                            <div class="form-group col-sm-3">
+                                                <label class="control-label col-sm-8"
+                                                    translate="appointment.appointment-form.assigntogroup.lbl"></label>
+                                                <div class="col-sm-4">
+                                                    <input type="checkbox" name="IsAssignedToGroup"
+                                                        class="custom-checkbox chk-assignto"
+                                                        ng-model="item.IsAssignedToGroup"
+                                                        ng-change="assignedToGroupChange()">
+                                                </div>
+                                            </div>
+                                            <div class="form-group col-sm-3">
+                                                <label class="control-label col-sm-9"
+                                                    translate="appointment.appointment-form.mrdfile.lbl"></label>
+                                                <div class="col-sm-3">
+                                                    <input type="checkbox" name="IsMRDFile"
+                                                        class="custom-checkbox chk-assignto" ng-model="item.IsMRDFile">
+                                                </div>
+                                            </div>
+                                            <div class="form-group col-sm-4" ng-show="item.IsAssignedToUser">
+                                                <label class="col-sm-4 control-label"
+                                                    translate="appointment.appointment-form.user.lbl"></label>
+                                                <div class="col-sm-8">
+                                                    <ui-select ng-model="item.AssignedUserId" name="AssignedUserId"
+                                                        ng-change="assignedUserChange($select.selected)">
+                                                        <ui-select-match>
+                                                            {{$select.selected.Text | limitTo : 20 : 0}}
+                                                            <span ng-if="$select.selected.Text.length>20">...</span>
+                                                        </ui-select-match>
+                                                        <ui-select-choices
+                                                            repeat="lookupitem.Id as lookupitem in lookup.Doctor | filter: { Text: $select.search }">
+                                                            <span
+                                                                ng-bind-html="lookupitem.Title.Description | highlight: $select.search"></span>
+                                                            <span
+                                                                ng-bind-html="lookupitem.Text | highlight: $select.search"></span>
+                                                        </ui-select-choices>
+                                                    </ui-select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-12">
+                                            <div class="form-group " ng-show="item.IsAssignedToGroup">
+                                                <label class="col-sm-2 control-label"
+                                                    translate="appointment.appointment-form.group.lbl"></label>
+                                                <div class="col-sm-9">
+                                                    <ui-select ng-model="item.AssignedGroupId" name="AssignedGroupId">
+                                                        <ui-select-match>
+                                                            {{$select.selected.Text | limitTo : 20 : 0}}
+                                                            <span ng-if="$select.selected.Text.length>20">...</span>
+                                                        </ui-select-match>
+                                                        <ui-select-choices
+                                                            repeat="lookupitem.Id as lookupitem in lookup.Group | filter: { Text: $select.search }">
+                                                            <div
+                                                                ng-bind-html="lookupitem.Text | highlight: $select.search">
+                                                            </div>
+                                                        </ui-select-choices>
+                                                    </ui-select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </fieldset>
+
+                                    <fieldset class="fsStyle well" ng-disabled="canDisableRemarksDiv()">
+                                        <div class="col-sm-12 appointmentdetails-div">
+                                            <div class="col-sm-6">
+                                                <div class="form-group">
+                                                    <label class="col-sm-4 control-label" for="remarks"
+                                                        translate="appointment.appointment-form.remarks.lbl"></label>
+                                                    <div class="col-sm-8 toprighttextremark">
+                                                        <ui-select ng-model="item.RemarkId" name="remarks"
+                                                            ng-change="remarkChange($select.selected)"
+                                                            ng-disabled="canDisableRemarksDiv()">
+                                                            <ui-select-match>
+                                                                {{$select.selected.Text | limitTo : 15 : 0}}
+                                                                <span ng-if="$select.selected.Text.length>15">...</span>
+                                                            </ui-select-match>
+                                                            <ui-select-choices
+                                                                repeat="lookupitem.Id as lookupitem in lookup.Remark | filter: { Text: $select.search }">
+                                                                <div
+                                                                    ng-bind-html="lookupitem.Text | highlight: $select.search">
+                                                                </div>
+                                                            </ui-select-choices>
+                                                        </ui-select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <div class="form-group">
+                                                    <label class="col-sm-4 control-label" for="comments"
+                                                        translate="appointment.appointment-form.comments.lbl"></label>
+                                                    <div class="col-sm-8">
+                                                        <input type="text" class="form-control" name="comments"
+                                                            ng-model="item.Comments" placeholder="" tabindex="-1">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </fieldset>
+
+                                    <div class="col-sm-12 well" ng-show="item.AppointmentStatusId==5">
+                                        <div class="form-group">
+                                            <label class="col-sm-3 control-label" for="cancelled-remarks"
+                                                translate="appointment.appointment-form.cancelled-remarks.lbl"></label>
+                                            <div class="col-sm-9">
+                                                <input type="text" class="form-control" name="cancelled-remarks"
+                                                    ng-model="item.CancelledRemarks" placeholder="" tabindex="-1">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-sm-4">
+                    <div class=" calendar-parent">
+                        <jqx-scheduler jqx-settings="settings" id="scheduler" tabindex="10"></jqx-scheduler>
+                    </div>
+                </div>
+            </div>
+            <div class="fooder-bg col-sm-12">
+                <div class="row ">
+                    <div class="col-sm-12">
+                        <div class="col-sm-4 col-md-4">
+                            <div class="pull-left">
+                                <button type="button" tabindex="-1" class="btn pyr-color10 btn-sm"
+                                    uib-tooltip="Previous Appointment" tooltip-placement="top"
+                                    ng-click="previousappointment()"><i class="fa fa-book fa-xs"
+                                        aria-hidden="true"></i></button>
+                                <button type="button" tabindex="-1" class="draftbutton"
+                                    uib-tooltip="Attachments" ng-click="openattachments()" tooltip-placement="top"><i
+                                        class="fa fa-paperclip fa-xs"
+                                        aria-hidden="true">&nbsp;&nbsp;({{currentcontext.attachmentcount}})</i></button>
+                                <button type="button" tabindex="-1" class="btn btn-info texthover btn-sm ng-scope"
+                                    uib-tooltip="History" tooltip-placement="top" ng-click="history()"><i
+                                        class="fa fa-history fa-xs" aria-hidden="true"></i></button>
+                            </div>
+                        </div>
+                        <div class="col-sm-8 col-md-8">
+                            <div class="pull-right">
+                                <button type="button" class="btn btn-inverse btn-sm ng-scope" ng-click="print()"
+                                    translate="common.printaction.lbl"> </button>
+                                <button type="button" ng-click="saveItem()" class="draftbutton"
+                                    ng-show="!isCancelled()" translate="common.saveaction.lbl"></button>
+                                <button id="btnCancelForm" type="button" class="draftbutton"
+                                    ng-click="cancelCallback()" translate="common.cancelaction.lbl"></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

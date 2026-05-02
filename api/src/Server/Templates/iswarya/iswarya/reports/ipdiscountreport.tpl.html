@@ -1,0 +1,96 @@
+<html>
+
+<head>
+  <style>
+    .table1 {
+      border: 1px solid black;
+      font-size: 11px;
+    }
+    
+    .table2 {
+      border: 1px solid black;
+      border-top: 0px solid black;
+      font-size: 11px;
+    } 
+    
+    {{include '/Templates/assets/css/core.css'}}
+  </style>
+</head>
+
+<body>
+  <div id="pageHeader">
+    {{{include '/Templates/iswarya/common/header.tpl.html' 'tpl'}}}
+  </div>
+    <div style="text-align:center;font-size: 12px;"><b>IP Discount Report</b></div>
+    <table class="table1" style="width:100%;"> 
+      <tr style='vertical-align: top'>
+        <td style="width:5%;font-size: 11px;"><b>From Date</b></td>
+        <td>:</td>
+        <td style="width:15%;font-size: 11px;"><b>{{data.FromDate}}</b></td>
+        <td style="width:5%;font-size: 11px;"><b>To Date</b></td>
+        <td>:</td>
+        <td style="width:15%;font-size: 11px;"><b>{{data.ToDate}}</b></td>
+        <td style="width:5%;font-size: 11px;"><b>DiscountApprover</b></td>
+        <td>:</td>
+        <td style="width:25%;font-size: 11px;"><b>{{data.DiscountApprover}}</b></td>
+        <td style="width:5%;"><b> </b></td>
+        <td></td>
+        <td style="width:25%;"><b></b></td>
+      </tr> 
+    </table> 
+  </br>
+    <table class="table1" style="width:100%;">
+      <tr>
+        <td style="width:5%;font-size: 11px;"><b>S.No</b></td>
+        <td style="width:10%;font-size: 11px;"><b>Bill Date</b></td>
+        <td style="width:8%;font-size: 11px;"><b>Bill Number</b></td>
+        <td style="width:15%;font-size: 11px;"><b>Patient Name</b></td>
+        <!-- <td style="width:8%;font-size: 11px;"><b>Referral Doctor</b></td> -->
+        <!-- <td style="width:8%;font-size: 11px;"><b>B2B Referral Doctor</b></td> -->
+        <td style="width:8%;font-size: 11px;"><b>Bill Amount</b></td>
+        <td style="width:8%;font-size: 11px;"><b>Bill Discount</b></td>
+        <td style="width:8%;font-size: 11px;"><b>Net Amount</b></td>
+        <td style="width:10%;font-size: 11px;"><b>Doctor Name</b></td>
+        <td style="width:10%;font-size: 11px;"><b>Discount Approval</b></td>
+        <td style="width:8%;font-size: 11px;"><b>Remarks</b></td>
+        <td style="width:10%;font-size: 11px;"><b>Billed By</b></td>
+      </tr>
+    </table>
+    <table class="table2" style="width:100%;">
+      {{#each data.PatientBills}}
+      <tr>
+        <td style="width:5%;">{{inc @index}}</td>
+        <td style="width:10%">{{datetimeformat BillDateTime}}</td>
+        <td style="width:8%">{{BillNumber}}</td>
+        <td style="width:15%">{{Patient.Title.Description}} {{Patient.FirstName}} {{Patient.LastName}}</td>
+        <!-- <td style="width:8%">{{ReferralName}}</td> -->
+        <!-- <td style="width:8%">{{B2BCustomerMaster.B2BCustomerName}}</td> -->
+        <td style="width:8%">{{currencyformat BillAmount}}</td>
+        <td style="width:8%;">{{currencyformat BillDiscount}}</td>
+        <td style="width:8%">{{currencyformat NetAmount}}</td>
+        <td style="width:10%">{{User.Title.Description}} {{User.FirstName}} {{User.LastName}}</td>
+        <td style="width:10%">{{DiscountApprovedUser.Title.Description}} {{DiscountApprovedUser.FirstName}} {{DiscountApprovedUser.LastName}}</td>
+        <td style="width:8%">{{Comments}}</td>
+        <td style="width:10%">{{Updateduser.Title.Description}} {{Updateduser.FirstName}} {{Updateduser.LastName}}</td>
+      </tr>{{/each}}
+    </table>
+    <table class="table2" style="width:100%;"> 
+      <tr>
+        <td style="width:5%;"></td>
+        <td style="width:10%"></td>
+        <td style="width:8%"></td>
+        <td style="width:15%"></td>
+        <td style="width:8%"></td>
+        <td style="width:8%;">{{currencyformat data.TotalDisAmount}}</td>
+        <td style="width:8%"></td>
+        <td style="width:10%"></td>
+        <td style="width:10%"></td>
+        <td style="width:8%"></td>
+        <td style="width:10%"></td>
+      </tr> 
+    </table>
+
+  </body>
+  <div style="width:100%; font-size:11px;">Printed On: {{now}}</div>
+
+</html>

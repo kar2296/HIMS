@@ -1,0 +1,96 @@
+<html>
+
+<head>
+  <style>
+    .table1 {
+      border: 1px solid black;
+      font-size: 13px;
+    }
+
+    .table2 {
+      border: 1px solid black;
+      border-top: 0px solid black;
+      font-size: 13px;
+    } 
+    {{include '/Templates/champion/assets/css/core.css'}}
+
+  </style>
+</head>
+
+<body>
+  <div id="pageHeader">
+    {{{include '/Templates/champion/common/pharmacyheader1.tpl.html' 'tpl'}}}
+  </div> 
+    <div style="text-align:center;"><b style="font-size: 16px;">Stock Adjustment Report</b></div>
+    <table class="table1" style="width:100%; font-size:12px;"> 
+        <tr style='vertical-align: top'>
+          <td style="width:5%;"><b>FromDate</b></td>
+          <td>:</td>
+          <td style="width:15%;"><b>{{data.FromDate}}</b></td>
+          <td style="width:5%;"><b>ToDate</b></td>
+          <td>:</td>
+          <td style="width:15%;"><b>{{data.ToDate}}</b></td>
+          <td style="width:15%;"><b>Store Name</b></td>
+          <td>:</td>
+          <td style="width:35%;"><b>{{data.StoreName}}</b></td>
+          
+        </tr>  
+      </table> 
+    </br>
+    <table class="table1" style="width:100%; font-size:10px;">
+      <tr>
+        <td style="width:5%;"><b>S.No</b></td>
+        <td style="width:10%"><b>Adjustment Number</b></td> 
+        <td style="width:10%"><b>Adjustment Date</b></td>  
+        <td style="width:10%"><b>Store Name</b></td>
+        <td style="width:10%"><b>Item Name</b></td> 
+        <td style="width:5%"><b>Adjustment Type</b></td>
+        <td style="width:5%"><b>Batch</b></td>
+        <td style="width:10%"><b>Exp Date</b></td>
+        <td style="width:5%"><b>Adjust Qty</b></td>
+        <td style="width:5%"><b>Mrp</b></td>
+        <td style="width:10%"><b>Net Amount</b></td>
+        <td style="width:10%"><b>Adjust By</b></td>
+        <td style="width:5%"><b>Comments</b></td> 
+      </tr>
+    </table>
+    <table class="table2" style="width:100%;">
+      {{#each data.StockAdjustmentDetail}}
+      <tr>
+        <td style="width:5%;">{{inc @index}}</td>
+        <td style="width:10%;">{{StockAdjustment.StockAdjustmentNumber}}</td>
+        <td style="width:10%;">{{datetimeformat StockAdjustment.AdjustedDate}}</td>
+        <td style="width:10%;">{{StoreMaster.StoreName}}</td>
+        <td style="width:10%;">{{ItemName}}</td>
+        <td style="width:5%;">{{AdjustmentType.Description}}</td>
+        <td style="width:5%;">{{BatchId}}</td>
+        <td style="width:10%;">{{dateformat ExpiryDate}}</td>
+        <td style="width:5%;">{{QtyAdjusted}}</td>
+        <td style="width:5%;">{{currencyformat MrPrice}}</td> 
+        <td style="width:10%;">{{currencyformat NetAmount}}</td> 
+        <td style="width:10%;">{{StockAdjustment.AdjustedUser.Title.Description}} {{StockAdjustment.AdjustedUser.FirstName}} {{StockAdjustment.AdjustedUser.LastName}}</td>
+        <td style="width:5%;">{{Comments}}</td>  
+      </tr>{{/each}}
+    </table>
+    <table class="table2" style="width:100%;"> 
+      <tr>
+        <td style="width:5%;"></td>
+        <td style="width:10%;"></td>
+        <td style="width:10%;"></td>
+        <td style="width:10%;"></td>
+        <td style="width:10%;"></td>
+        <td style="width:5%;"></td>
+        <td style="width:5%;"></td>
+        <td style="width:10%;"></td>
+        <td style="width:5%;"></td>
+        <td style="width:5%;"></td> 
+        <td style="width:10%;">{{currencyformat data.TotalNetAmount}}</td> 
+        <td style="width:10%;"></td>
+        <td style="width:5%;"></td>  
+      </tr> 
+    </table>
+
+  </body>
+  <div style="width:100%; font-size:8px;">Printed On: {{now}}</div>
+
+</html>

@@ -1,0 +1,384 @@
+<style>
+    table {
+        width: 100%;
+    }
+
+    .card-box {
+        padding: 8px;
+        -webkit-transition: .3s ease;
+        transition: .5s;
+        height: 40vh;
+        overflow: auto;
+        border: 1px solid #f2f2f2;
+        display: inline-block;
+        position: relative;
+        width: 100%;
+        border-radius: 4px;
+        color: rgba(0, 0, 0, .87);
+        background: #fff;
+        box-shadow: 0 2px 2px 0 rgb(0 0 0 / 14%), 0 3px 1px -2px rgb(0 0 0 / 20%), 0 1px 5px 0 rgb(0 0 0 / 12%);
+    }
+
+    table#bannerdetail th {
+        padding: 6px !important;
+        font-size: 13px;
+        font-weight: 700;
+        color: #01145f;
+        white-space: nowrap;
+        text-transform: capitalize;
+        font-family: nunito, sans-serif;
+        background: #0074d930;
+        height: 40px;
+    }
+
+    td.item-name {
+        color: #f44336;
+        font-weight: 500;
+    }
+
+    td,
+    th {
+        border: 0 !important;
+        font-size: 12px !important;
+    }
+
+    table#bannerdetail tr:nth-child(even) {
+        background: #e8eaed5e;
+    }
+</style>
+<div class="page-header">
+    <div class="col-sm-12">
+        <div class="col-sm-8">
+            <h4 translate="appointment.doctordashboard.pagetitle7.lbl"></h4>
+        </div>
+        <div class="col-sm-4">
+            <label class="col-sm-4" for="fromstore" translate="inventory.purchaseorder.store.lbl"></label>
+            <div class="col-sm-8">
+                <ui-select ng-model="item.StoreMasterId" ng-change="loadInfo()" name="fromstore">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 20 : 0}}
+                        <span ng-if="$select.selected.Text.length>20">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.UserStores | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+    </div>
+
+</div>
+<div class="col-sm-12">
+    <div class="card-flex-box-appointment">
+        <div class="card-box-item box-bg-color1" ng-if="HasAccess('StoreDashboard', 'PurchaseOrders')" ng-click="po()">
+            <div class="card-box-header">
+                <i class="fa fa-registered" aria-hidden="true"></i>
+                <div translate="appointment.doctordashboard.popending.lbl"></div>
+            </div>
+            <div>{{Items.checkedincount}}</div>
+        </div>
+        <div class="card-box-item box-bg-color2" ng-if="HasAccess('StoreDashboard', 'InvoiceEntry')" ng-click="inventry()">
+            <div class="card-box-header">
+                <div>
+                    <i class="fa fa-user" aria-hidden="true"></i>
+                </div>
+                <div translate="appointment.doctordashboard.inventry.lbl"></div>
+            </div>
+            <div>0</div>
+        </div>
+        <div class="card-box-item box-bg-color3" ng-if="HasAccess('StoreDashboard', 'Purchase_Order_Pending_Approvals')" ng-click="popending()">
+            <div class="card-box-header">
+                <div>
+                    <i class="fa fa-file-text-o" aria-hidden="true"></i>
+                </div>
+                <div translate="appointment.doctordashboard.popending.lbl"></div>
+            </div>
+            <div>{{Items.checkedincount}}</div>
+        </div>
+        <div class="card-box-item box-bg-color4" ng-if="HasAccess('StoreDashboard', 'Invoice_Returns')" ng-click="invreturn()">
+            <div class="card-box-header">
+                <div>
+                    <i class="fa fa-usd" aria-hidden="true"></i>
+                </div>
+                <div translate="appointment.doctordashboard.invreturn.lbl"></div>
+            </div>
+            <div>{{Items.checkedincount}}</div>
+        </div>
+        <div class="card-box-item box-bg-color5" ng-if="HasAccess('StoreDashboard', 'Stock_Indents')" ng-click="stockindent()">
+            <div class="card-box-header">
+                <div>
+                    <i class="fa fa-list" aria-hidden="true"></i>
+                </div>
+                <div translate="appointment.doctordashboard.stockindent.lbl"></div>
+            </div>
+            <div>0</div>
+        </div>
+        <div class="card-box-item box-bg-color6" ng-if="HasAccess('StoreDashboard', 'Indent_Work_Lists')" ng-click="indentwork()">
+            <div class="card-box-header">
+                <div>
+                    <i class="fa fa-inr" aria-hidden="true"></i>
+                </div>
+                <div translate="appointment.doctordashboard.indentwork.lbl"></div>
+            </div>
+            <div>{{Items.checkedincount}}</div>
+        </div>
+        <div class="card-box-item box-bg-color7" ng-if="HasAccess('StoreDashboard', 'Stock_Status')" ng-click="stockstatus()">
+            <div class="card-box-header">
+                <div>
+                    <i class="fa fa-percent" aria-hidden="true"></i>
+                </div>
+                <div translate="appointment.doctordashboard.stockstatus.lbl"></div>
+            </div>
+            <div>{{Items.checkedincount}}</div>
+        </div>
+        <div class="card-box-item box-bg-color8" ng-if="HasAccess('StoreDashboard', 'Stock_Movement')" ng-click="stockmovement()">
+            <div class="card-box-header">
+                <div>
+                    <i class="fa fa-briefcase" aria-hidden="true"></i>
+                </div>
+                <div translate="appointment.doctordashboard.stockmovement.lbl"></div>
+            </div>
+            <div>{{Items.checkedincount}}</div>
+        </div>
+        <div class="card-box-item box-bg-color9" ng-if="HasAccess('StoreDashboard', 'Stock_Receives')" ng-click="stockrereceives()">
+            <div class="card-box-header">
+                <div>
+                    <i class="fa fa-file-text-o" aria-hidden="true"></i>
+                </div>
+                <div translate="appointment.doctordashboard.stockrereceives.lbl"></div>
+            </div>
+            <div>{{Items.checkedincount}}</div>
+        </div>
+        <div class="card-box-item box-bg-color3" ng-if="HasAccess('StoreDashboard', 'Customer_Sales')" ng-click="customersales()">
+            <div class="card-box-header">
+                <div>
+                    <i class="fa fa-file-text-o" aria-hidden="true"></i>
+                </div>
+                <div translate="appointment.doctordashboard.customersales.lbl"></div>
+            </div>
+            <div>{{Items.checkedincount}}</div>
+        </div>
+        <div class="card-box-item box-bg-color4" ng-if="HasAccess('StoreDashboard', 'Customer_Returns')" ng-click="customerreturns()">
+            <div class="card-box-header">
+                <div>
+                    <i class="fa fa-usd" aria-hidden="true"></i>
+                </div>
+                <div translate="appointment.doctordashboard.customerreturns.lbl"></div>
+            </div>
+            <div>{{Items.checkedincount}}</div>
+        </div>
+        <div class="card-box-item box-bg-color5" ng-if="HasAccess('StoreDashboard', 'StoreReports')" ng-click="report()">
+            <div class="card-box-header">
+                <div>
+                    <i class="fa fa-list" aria-hidden="true"></i>
+                </div>
+                <div translate="appointment.doctordashboard.reports.lbl"></div>
+            </div>
+            <div>{{Items.checkedincount}}</div>
+        </div>
+        <div class="card-box-item box-bg-color2" ng-if="HasAccess('StoreDashboard', 'VendorPayment')" ng-click="vendorpayment()">
+            <div class="card-box-header">
+                <div>
+                    <i class="fa fa-user" aria-hidden="true"></i>
+                </div>
+                <div translate="appointment.doctordashboard.vendorpayment.lbl"></div>
+            </div>
+            <div>{{Items.checkedincount}}</div>
+        </div>
+    </div>
+</div>
+<div class="col-sm-12" style="margin-top: 20px;">
+    <div class="col-sm-6">
+        <div class="card-box section-item">
+            <table id="bannerdetail">
+                <tr>
+                    <th translate="appointment.doctordashboard.nearexpiry.lbl">
+                        </label>
+                    </th>
+                </tr>
+            </table>
+            <table id="bannerdetail">
+                <tr ng-repeat="item in NearExpiryData">
+                    <td>{{item.StoreMaster.StoreName}}:</td>
+                    <td class="item-name">{{item.ItemName}}</td>
+                    <td>{{item.ItemCode}}</td>
+                    <td>{{item.BatchId}}</td>
+                    <td class="item-name">{{item.Quantity}}</td>
+                    <td>
+                        <displaydate date-val="item.ExpiryDate"></displaydate>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+    <div class="col-sm-6">
+        <div class="card-box section-item">
+            <table id="bannerdetail">
+                <tr>
+                    <th translate="appointment.doctordashboard.expiry.lbl"></th>
+                </tr>
+            </table>
+            <table id="bannerdetail">
+                <tr ng-repeat="item in ExpiredData">
+                    <td>{{item.StoreMaster.StoreName}}:</td>
+                    <td class="item-name">{{item.ItemName}}</td>
+                    <td>{{item.ItemCode}}</td>
+                    <td>{{item.BatchId}}</td>
+                    <td class="item-name">{{item.Quantity}}</td>
+                    <td>
+                        <displaydate date-val="item.ExpiryDate"></displaydate>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</div>
+<div class="col-sm-12" style="margin-top: 20px;">
+    <div class="col-sm-6">
+        <div class="card-box section-item">
+            <table id="bannerdetail">
+                <tr>
+                    <th translate="Pending Indent">
+                        </label>
+                    </th>
+                </tr>
+            </table>
+            <table id="bannerdetail">
+                <tr ng-repeat="item in PendingIndents">
+                    <td>
+                        <displaydate date-val="item.RequestedDate"></displaydate>
+                    </td>
+                    <td>{{item.FromStore.StoreName}}:</td>
+                    <td class="item-name">{{item.RequestedUser.Title.Description}}&nbsp;{{item.RequestedUser.FirstName}}&nbsp;{{item.RequestedUser.FirstName}}</td>
+                    <td class="item-name">{{item.RequestStatus.Description}}</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+    <div class="col-sm-6">
+        <div class="card-box section-item">
+            <table id="bannerdetail">
+                <tr>
+                    <th translate="Pending Receive"></th>
+                </tr>
+            </table>
+            <table id="bannerdetail">
+                <tr ng-repeat="item in PendingReceive">
+                    <td>
+                        <displaydate date-val="item.RequestedDate"></displaydate>
+                    </td>
+                    <td>{{item.FromStore.StoreName}}</td>
+                    <td class="item-name">{{item.RequestedUser.Title.Description}}&nbsp;{{item.RequestedUser.FirstName}}&nbsp;{{item.RequestedUser.FirstName}}</td>
+                    <td class="item-name">{{item.AcceptanceStatus.Description}}</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+    <div class="col-sm-6">
+        <div class="card-box section-item">
+            <table id="bannerdetail">
+                <tr>
+                    <th translate="Purchase Indent Approval">
+                        </label>
+                    </th>
+                </tr>
+            </table>
+            <table id="bannerdetail">
+                <tr ng-repeat="item in PurchaseIndentApproval">
+                    <td>
+                        <displaydate date-val="item.RequestedDate"></displaydate>
+                    </td>
+                    <td>{{item.FromStore.StoreName}}:</td>
+                    <td>{{item.VendorMaster.VendorName}}:</td>
+                    <td>{{item.TotalNetAmount| displaycurrency}}:</td>
+                    <td class="item-name">{{item.RequestedUser.Title.Description}}&nbsp;{{item.RequestedUser.FirstName}}&nbsp;{{item.RequestedUser.FirstName}}</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+    <div class="col-sm-6">
+        <div class="card-box section-item">
+            <table id="bannerdetail">
+                <tr>
+                    <th translate="Purchase Order Approval"></th>
+                </tr>
+            </table>
+            <table id="bannerdetail">
+                <tr ng-repeat="item in Purchaseorderapproval">
+                    <td>
+                        <displaydate date-val="item.RequestedDate"></displaydate>
+                    </td>
+                    <td>{{item.FromStore.StoreName}}:</td>
+                    <td>{{item.VendorName}}:</td>
+                    <td>{{item.TotalNetAmount| displaycurrency}}:</td>
+                    <td class="item-name">{{item.RequestedUser.Title.Description}}&nbsp;{{item.RequestedUser.FirstName}}&nbsp;{{item.RequestedUser.FirstName}}</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+    <div class="col-sm-6">
+        <div class="card-box section-item">
+            <table id="bannerdetail">
+                <tr>
+                    <th translate="NonMovement"></th>
+                </tr>
+            </table>
+            <table id="bannerdetail">
+                <tr ng-repeat="item in NonMovement">
+                    <td>{{item.StoreMaster.StoreName}}:</td>
+                    <td class="item-name">{{item.ItemMaster.ItemCode}}</td>
+                    <td>{{item.ItemMaster.ItemName}}</td>
+                    <td>{{item.BatchId}}</td>
+                    <td class="item-name">{{item.Quantity}}</td>
+                    <td>
+                        <displaydate date-val="item.ExpiryDate"></displaydate>
+                    </td> 
+                    <td class="item-name">{{item.Ucp}}</td>
+    
+                </tr>
+            </table>
+        </div>
+    </div>
+    <div class="col-sm-6">
+        <div class="card-box section-item">
+            <table id="bannerdetail">
+                <tr>
+                    <th translate="High Price List"></th>
+                </tr>
+            </table>
+            <table id="bannerdetail">
+                <tr ng-repeat="item in HighPrice">
+                    <td class="item-name">{{item.ItemCode}}</td>
+                    <td>{{item.ItemName}}</td> 
+                    <td class="item-name">{{item.MrPrice}}</td>
+                  
+                </tr>
+            </table>
+        </div>
+    </div>
+    <div class="col-sm-6">
+        <div class="card-box section-item">
+            <table id="bannerdetail">
+                <tr>
+                    <th translate="Stock Transist"></th>
+                </tr>
+            </table>
+            <table id="bannerdetail">
+                <tr ng-repeat="item in StockTransist">
+                    <td>{{item.StockTransfer.TransferNumber}}</td>
+                    <td>{{item.ItemCode}}</td>
+                    <td>{{item.ItemName}}</td>
+                    <td style="width: 40%;word-break: break-word;" class="item-name">{{item.ItemName}}</td>
+                    <td>{{item.TransitQuantity}}</td>
+                    <td>{{item.StockTransfer.ToStoreName}}</td>
+                    <td class="item-name">{{item.NetAmount}}</td>
+
+                </tr>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="fooder-bgs">
+</div>

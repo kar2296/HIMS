@@ -1,0 +1,136 @@
+<style>
+    #dietplan .well {
+        min-height: 350px;
+    }
+
+    #dietplan .panel-body {
+        height: 440px;
+    }
+
+    .formRoot {
+        overflow: inherit;
+    }
+
+    .modal-content .panel-body {
+        overflow: inherit;
+    }
+</style>
+<div class="row page-header mt0" ng-if="currentcontext.ismodal">
+    <div class="col-sm-12">
+        <div class="col-sm-6">
+            <h4 class="mt0" translate="patientemr.patientdietplan-list.pagetitle.lbl"></h4>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-sm-12">
+        <form id="item_form" name="item_form" class="form-horizontal" role="form">
+            <div class="">
+                <div class="panel panel-default" id="dietplan">
+                    <div class="panel-body form-panel bg-pattern">
+                        <!--<button class="btn bt-color3 btn-xs pull-right btn-filter" ng-click="dietplanHistory()" uib-tooltip="{{ 'patientemr.patientdietplan-list.dietplanhistory.lbl' | translate }}"
+            tooltip-placement="bottom"><span translate="patientemr.patientdietplan-list.dietplanhistory.lbl"></span>
+        </button>-->
+                        <div class="col-sm-12">
+                            <!-- leftpanel -->
+                            <div class="col-sm-6">
+                                <fieldset class="fsStyle well">
+                                    <div class="form-group">
+                                        <label class="col-sm-4 control-label" for="Diettype" translate="patientemr.patientdietplan-list.diettype.lbl"></label>
+                                        <div class="col-sm-8">
+                                            <ui-select multiple ng-model="item.DietTypes" name="Diettype" class="ui-select-multiple" ng-multi-tag required>
+                                                <ui-select-match>{{$item.Text }}</ui-select-match>
+                                                <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.DietType | filter: { Text: $select.search }">
+                                                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                                </ui-select-choices>
+                                            </ui-select>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-sm-4 control-label" for="DietPreference" translate="patientemr.patientdietplan-list.dietpreference.lbl"></label>
+                                        <div class="col-sm-8">
+                                            <ui-select ng-model="item.DietPreferrenceId" name="DietPreference" required>
+                                                <ui-select-match>
+                                                    {{$select.selected.Text | limitTo : 20 : 0}}
+                                                    <span ng-if="$select.selected.Text.length>20">...</span>
+                                                </ui-select-match>
+                                                <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.DietPreferrence | filter: { Text: $select.search }">
+                                                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                                </ui-select-choices>
+                                            </ui-select>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-sm-4 control-label" for="remarks" translate="patientemr.patientdietplan-list.remarks.lbl"></label>
+                                        <div class="col-sm-8">
+                                            <commentscontrol comments="item.Comments"></commentscontrol>
+                                        </div>
+                                    </div>
+                                </fieldset>
+                            </div>
+                            <!-- rightpanel -->
+                            <div class="col-sm-6">
+                                <fieldset class="fsStyle well">
+                                    <div class="form-group">
+                                        <label class="col-sm-4 control-label" for="" translate="patientemr.patientdietplan-list.foodpreference.lbl"></label>
+                                        <div class="col-sm-8">
+                                            <ui-select multiple ng-model="item.FoodPreferrence" name="FoodPreference" class="ui-select-multiple" ng-multi-tag>
+                                                <ui-select-match>{{$item.Text }}</ui-select-match>
+                                                <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.FoodPreference | filter: { Text: $select.search }">
+                                                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                                </ui-select-choices>
+                                            </ui-select>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-sm-4 control-label" for="TherapeuticDiet" translate="patientemr.patientdietplan-list.therapeuticdiet.lbl"></label>
+                                        <div class="col-sm-8">
+                                            <ui-select ng-model="item.TherapeuticDietId" name="TherapeuticDiet">
+                                                <ui-select-match>
+                                                    {{$select.selected.Text | limitTo : 20 : 0}}
+                                                    <span ng-if="$select.selected.Text.length>20">...</span>
+                                                </ui-select-match>
+                                                <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.TherapeuticDiet | filter: { Text: $select.search }">
+                                                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                                </ui-select-choices>
+                                            </ui-select>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-sm-4 control-label" translate="patientemr.patientdietplan-list.updatedby.lbl"></label>
+                                        <div class="col-sm-8">
+                                            <ui-select ng-model="item.CreatedBy" ng-disabled="true">
+                                                <ui-select-match>
+                                                    {{$select.selected.Text | limitTo : 20 : 0}}
+                                                    <span ng-if="$select.selected.Text.length>20">...</span>
+                                                </ui-select-match>
+                                                <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.User | filter: { Text: $select.search }">
+                                                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                                </ui-select-choices>
+                                            </ui-select>
+                                        </div>
+                                    </div>
+                                </fieldset>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="fooder-bgs">
+                <div class="row col-sm-12">
+                    <div class="col-sm-2">
+                        <button type="button" class="btn pyr-color10 btn-sm" tabindex="-1" ng-click="backToConsultList()">
+                            <i class="fa fa-angle-left" aria-hidden="true"></i>&nbsp;&nbsp;
+                            <i class="btn-fontsize" translate="common.backaction.lbl"></i>
+                        </button>
+                    </div>
+                    <div class="col-sm-10 pull-right">
+                        <button type="submit" class="draftbutton" ng-click="save()" translate="common.saveaction.lbl"></button>
+                        <button id="btnClearForm" type="button" class="btn btn-warning btn-sm" ng-click="clear()" translate="common.clearaction.lbl"></button>
+                        <button id="btnCancelForm" type="button" class="draftbutton" ng-click="backToList()" translate="common.cancelaction.lbl"></button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

@@ -1,0 +1,209 @@
+<link rel="stylesheet" href="app/css/drhms.css">
+<style>
+    .drhms-receipt span {
+        font-size: 12px;
+    }
+    autosearch .custom-popup-wrapper {
+        margin-left: -200px;
+    }
+</style>
+<div class="row">
+    <div class="drhms-filters">
+        <div class="col-sm-10">
+            <h4 translate="doctorinvoice-form.pagetitle.lbl"></h4>
+        </div>
+        <div class="col-sm-4">
+            <!-- controlid="'DoctorId'" -->
+            <autosearch  itemid="item.DoctorId" tabindex="tabindexmap.patienttabindex" iteminfo=""
+                rowdata="" name="'doctor'" config="vm.doctorcontrolconfig" itemchange="loadBills()"
+                candisable="SaveCompleted" isrequired="true" placeholder="'Doctor'"></autosearch>
+        </div>
+        <div class="col-sm-1">
+            <button type="button" class="drhms-billing-btn drhms-add-btn" ng-click="addNew()"
+                uib-tooltip="{{ 'doctorinvoice-list.pagetitle.lbl' | translate}}" tooltip-placement="bottom">
+                <i class="fa fa-plus"></i>
+            </button>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <form id="item_form" name="item_form" class="form-horizontal" role="form">
+        <div class="drhms-table-top-header">
+            <div class="drhms-table-head-border">
+                <div class="col-sm-12">
+                    <label class="col-sm-4" translate="doctorinvoice-form.filter_fromdate.lbl"></label>
+                    <div class="col-sm-8">
+                        <input type="text" class="form-control" name="invoicedate"
+                            datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}"
+                            uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                            placeholder="{{datePickerOptions.placeholder}}"
+                            ng-click="invoicefromdatePopup = { opened: true }" is-open="invoicefromdatePopup.opened"
+                            ng-change="loadBills()" ng-model="currentfilter.billingfromdate">
+                    </div>
+                </div>
+                <div class="col-sm-12">
+                    <label class="col-sm-4" for="doctor" translate="doctorinvoice-list.filter_doctorname.lbl"></label>
+                    <div class="col-sm-8">:
+                        {{item.DoctorName}}
+                    </div>
+                </div>
+            </div>
+            <div class="drhms-table-head-border">
+                <div class="col-sm-12">
+                    <label class="col-sm-4" translate="doctorinvoice-form.filter_todate.lbl"></label>
+                    <div class="col-sm-8">
+                        <input type="text" class="form-control" name="invoicetodate"
+                            datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}"
+                            uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                            placeholder="{{datePickerOptions.placeholder}}"
+                            ng-click="invoicetodatePopup = { opened: true }" is-open="invoicetodatePopup.opened"
+                            ng-change="loadBills()" ng-model="currentfilter.billingtodate">
+                    </div>
+                </div>
+                <div class="col-sm-12">
+                    <label class="col-sm-4" for="billno" translate="doctorinvoice-form.invoicenumber.lbl"></label>
+                    <div class="col-sm-8">
+                        {{item.DoctorInvoiceIdentifier}}
+                    </div>
+                </div>
+            </div>
+            <div class="drhms-table-head-border">
+                <div class="col-sm-12">
+                    <label class="col-sm-4" for="" translate="doctorinvoice-form.filter_visittype.lbl"></label>
+                    <div class="col-sm-8">
+                        <ui-select ng-model="item.VisitTypeId" ng-change="loadBills()" name="" class="filter-combo">
+                            <ui-select-match>
+                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                <span ng-if="$select.selected.Text.length>20">...</span>
+                            </ui-select-match>
+                            <ui-select-choices
+                                repeat="lookupitem.Id as lookupitem in lookup.EncounterType | filter: { Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                </div>
+                <div class="col-sm-12">
+                    <label class="col-sm-4" translate="doctorinvoice-form.filter_invoicedate.lbl"></label>
+                    <div class="col-sm-8">
+                        <displaydate datetime-val="item.InvoiceDateTime"></displaydate>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+<div class="col-sm-12">
+    <form id="item_form" name="item_form" class="form-horizontal" role="form">
+        <div class="drhms-table-control">
+            <div class="drhms-bg-pattern">
+                <div class="drhms-table-height" ng-show="DrInvDetails.length>0">
+                    <table class="drhms-responsive-table">
+                        <thead class="bg-subhead">
+                            <tr>
+                                <th>
+                                    <span>
+                                        <input type="checkbox" ng-model="currentcontext.selectall"
+                                            ng-click="selectAllItems()">
+                                        <!-- ng-disabled="(item.SampleStatusId==3 || item.SampleStatusId==5)"> -->
+                                    </span>
+                                </th>
+                                <th translate="doctorinvoice-form.billdate.lbl"></th>
+                                <th translate="doctorinvoice-form.billno.lbl"></th>
+                                <th translate="doctorinvoice-form.patientname.lbl"></th>
+                                <th translate="doctorinvoice-form.doctorname.lbl"></th>
+                                <th translate="doctorinvoice-form.servicename.lbl"></th>
+                                <th translate="doctorinvoice-form.serviceamount.lbl"></th>
+                                <th translate="doctorinvoice-form.doctorshare.lbl"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="item in DrInvDetails">
+                                <td>
+                                    <center>
+                                        <span>
+                                            <input type="checkbox" class="case" ng-disabled="item.IsAllReadOnly"
+                                                ng-model="item.IsAllSelected"
+                                                ng-click="drInvSelectionChange(DrInvDetails, item)" />
+                                        </span>
+                                        <!-- <span ng-if="item.SampleTypeIndex > 0"
+                                            style="white-space: normal;">&nbsp;</span> -->
+                                    </center>
+                                </td>
+                                <td>
+                                    <displaydate datetime-val="item.BillDateTime"></displaydate>
+                                </td>
+                                <td>{{item.BillNumber}}</td>
+                                <td>{{item.Patient.Title.Description}}&nbsp;{{item.Patient.FirstName}}&nbsp;{{item.Patient.LastName}}
+                                </td>
+                                <td>{{item.Doctor.Title.Description}}&nbsp;{{item.Doctor.FirstName}}&nbsp;{{item.Doctor.LastName}}
+                                </td>
+                                <td>{{item.ServiceName}}</td>
+                                <td class="currency-align">{{item.ServiceAmount | displaycurrency}}</td>
+                                <td class="currency-align">{{item.DoctorShare | displaycurrency}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="drhms-table-height" ng-show="docInvDetails.length>0">
+                    <table class="drhms-responsive-table">
+                        <thead class="bg-subhead">
+                            <tr>
+                                <th translate="doctorinvoice-form.billdate.lbl"></th>
+                                <th translate="doctorinvoice-form.billno.lbl"></th>
+                                <th translate="doctorinvoice-form.patientname.lbl"></th>
+                                <th translate="doctorinvoice-form.doctorname.lbl"></th>
+                                <th translate="doctorinvoice-form.servicename.lbl"></th>
+                                <th translate="doctorinvoice-form.serviceamount.lbl"></th>
+                                <th translate="doctorinvoice-form.doctorshare.lbl"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="item in docInvDetails">
+                                <td>
+                                    <displaydate datetime-val="item.BillDateTime"></displaydate>
+                                </td>
+                                <td>{{item.BillNumber}}</td>
+                                <td>{{item.Patient.Title.Description}}&nbsp;{{item.Patient.FirstName}}&nbsp;{{item.Patient.LastName}}
+                                </td>
+                                <td>{{item.Doctor}}</td>
+                                <td>{{item.ServiceName}}</td>
+                                <td class="currency-align">{{item.ServiceAmount | displaycurrency}}</td>
+                                <td class="currency-align">{{item.DoctorShare | displaycurrency}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+<div class="cols-sm-12 pending-order">
+    <div class="col-sm-4"></div>
+    <div class="col-sm-4"></div>
+    <div class="col-sm-4">
+        <div class="drhms-due-amount">Total :{{TotalNetamount || 0 | displaycurrency}}
+        </div>
+    </div>
+</div>
+<div class="fooder-bgs">
+    <div class="row">
+        <div class="pull-left">
+            <button type="button" class="btn pyr-color10 btn-sm" ng-click="backToList()" ss>
+                <i class="fa fa-angle-left" aria-hidden="true"></i>
+                <span class="btn-fontsize"> &nbsp; Back</span>
+            </button>
+        </div>
+        <div class="pull-right">
+            <button type="button" class="draftbutton"
+                ng-show="item.DoctorInvoiceStatusId == 2 || item.DoctorInvoiceStatusId == 3"
+                translate="common.printaction.lbl" ng-click="print()"></button>
+            <button type="button" class="draftbutton"
+                ng-hide="item.DoctorInvoiceStatusId == 2||item.DoctorInvoiceStatusId == 3||item.DoctorInvoiceStatusId == 4"
+                translate="doctorinvoice-form.geninvoice.lbl" ng-click="saveAndApprove()"></button>
+            <button type="button" class="draftbutton" ng-show="item.DoctorInvoiceStatusId == 2"
+                translate="doctorinvoice-form.payment.lbl" ng-click="payment()"></button>
+        </div>
+    </div>
+</div>

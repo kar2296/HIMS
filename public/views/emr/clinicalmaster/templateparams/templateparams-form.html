@@ -1,0 +1,334 @@
+<link rel="stylesheet" href="app/css/drhms.css">
+<style>
+    .d-flex {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .div-concept-search-list {
+        box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 1px 3px 1px;
+        border-radius: 10px;
+        /* height: 58vh; */
+    }
+
+    .div-concept-form {
+        box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 1px 3px 1px;
+        border-radius: 10px;
+        /* height: 58vh; */
+    }
+
+    .concept-root-div.cat_con_content>div {
+        margin: 2px;
+    }
+
+    .concept-root-div.cat_con_content {
+        display: flex;
+        justify-content: space-between;
+    }
+
+    h5 {
+        font-size: 14px !important;
+        color: #00125a;
+        font-weight: 600 !important;
+    }
+
+    .div-concept-search-list {
+        width: 20%;
+    }
+
+    .div-concept-form {
+        width: 35%;
+    }
+
+    .form-horizontal .form-group {
+        height: 42px;
+    }
+
+    button.btn-danger {
+        border: 0;
+        border-radius: 14px;
+        padding: 3px 8px;
+    }
+
+    ul,
+    li {
+        list-style-type: none;
+        padding: 0;
+        cursor: pointer;
+    }
+
+    .item-list .lst {
+        overflow: auto;
+        /* max-height: 46vh; */
+        padding-top: 15px;
+    }
+
+    .termItems.typesDemo {
+        overflow: auto;
+        /* max-height: 40vh; */
+        padding-top: 10px;
+    }
+
+    ::-webkit-scrollbar {
+        width: 3px;
+    }
+
+    .lst li {
+        background: #F5F5F5;
+        padding: 0px 5px;
+        margin-bottom: 4px;
+        border-right: 4px solid #00125a;
+        border-left: 4px solid #00125a;
+        border-radius: 5px;
+        line-height: 2;
+    }
+
+    .lst li:hover {
+        background-color: #dce512;
+        color: #fff;
+    }
+</style>
+<div class="row page-header">
+    <h4 class="col-sm-5 mt0" translate="clinicalmaster.categorytype-list.pagetitle2.lbl"></h4>
+    <div class="col-sm-7">
+        <div class="filters">
+            <button type="button" tabindex="-1" class="btn-add" ng-click="addNew()"
+                uib-tooltip="{{ 'clinicalmaster.categories.manage_categories.lbl' | translate }}"
+                tooltip-placement="bottom">
+                <i class="fa fa-plus" aria-hidden="true"></i>
+            </button>
+        </div>
+    </div>
+</div>
+<div class="">
+    <form id="item_form" name="item_form" class="form-horizontal" role="form">
+        <div class="drhms-table-top-header">
+            <div class="drhms-table-head-border">
+                <div class="col-sm-12">
+                    <label class="col-sm-4" translate="Parameter Name"></label>
+                    <div class="col-sm-8">
+                        <input type="text" class="form-control" name="categoryname"
+                            ng-model="currentcontext.category.CategoryName" placeholder="">
+                    </div>
+                </div>
+            </div>
+            <div class="drhms-table-head-border">
+                <div class="col-sm-12">
+                    <label class="col-sm-4" translate="Type"></label>
+                    <div class="col-sm-8">
+                        <ui-select ng-model="currentcontext.category.CategoryTypeId"
+                            ng-change="categoryTypeChange($select.selected)" name="categorytype">
+                            <ui-select-match>
+                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                <span ng-if="$select.selected.Text.length>20">...</span>
+                            </ui-select-match>
+                            <ui-select-choices
+                                repeat="lookupitem.Id as lookupitem in lookup.CategoryType | filter: { Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search">
+                                </div>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                </div>
+            </div>
+            <div class="drhms-table-head-border">
+                <div class="col-sm-12">
+                    <label class="col-sm-4" translate="Is Active"></label>
+                    <div class="col-sm-6">
+                        <input type="checkbox" name="isactive" class="custom-checkbox"
+                            ng-model="currentcontext.category.IsActive">
+                    </div>
+                    <label class="col-sm-4" translate="Is Print"></label>
+                    <div class="col-sm-6">
+                        <input type="checkbox" name="isprint" class="custom-checkbox"
+                            ng-model="currentcontext.category.IsPrint">
+                    </div>
+                    <div class="col-sm-6">
+                        <button tabindex="-1" class="drhms-edit-button" ng-disabled="!currentcontext.selectedcatid"
+                            ng-click="deleteCategory()">
+                            <img src="assets/svg/delete.svg" alt="">
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+<div class="col-sm-12 concept-root-div cat_con_content">
+    <div class="div-concept-search-list">
+        <div class="row">
+            <div class="d-flex">
+                <h5>Parameter List</h5>
+                <button ng-click="addNewConcept()" class="btn-add"
+                    uib-tooltip="{{ 'clinicalmaster.categorytype-list.add_list.lbl' | translate }}"
+                    tooltip-placement="bottom">
+                    <i class="fa fa-plus" aria-hidden="true"></i>
+                </button>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-12 item-list">
+                <!-- set-form-height reduce-height="200" -->
+                <div class="lst">
+                    <ul dnd-list="currentcontext.category.Concepts">
+                        <li ng-repeat="concept in currentcontext.category.Concepts | filter:{Status:1}"
+                            dnd-draggable="concept" dnd-moved="currentcontext.category.Concepts.splice($index, 1)"
+                            dnd-effect-allowed="move" dnd-selected="conceptClick(concept)"
+                            ng-class="{'selected': currentcontext.concept.Id === concept.Id}">
+                            {{concept.ConceptName}}
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="div-concept-form">
+        <form id="item_form" name="item_form" class="form-horizontal" role="form">
+            <div class="row">
+                <div class="d-flex">
+                    <h5>Create Field</h5>
+                </div>
+            </div>
+            <div class="">
+                <div class="col-sm-12 form-group">
+                    <label class="col-sm-3" for="conceptname" translate="clinicalmaster.category.fieldname.lbl"></label>
+                    <div class="col-sm-8">
+                        <input type="text" class="form-control" name="conceptname"
+                            ng-model="currentcontext.concept.ConceptName" placeholder="" required>
+                    </div>
+                </div>
+                <div class="col-sm-12 form-group">
+                    <label class="col-sm-3" for="conceptdesc"
+                        translate="clinicalmaster.category.conceptdesc.lbl"></label>
+                    <div class="col-sm-8">
+                        <input type="text" class="form-control" name="conceptdesc"
+                            ng-model="currentcontext.concept.Description" placeholder="" required>
+                    </div>
+                </div>
+                <div class="col-sm-12 form-group">
+                    <label class="col-sm-3" for="conceptvaluetype"
+                        translate="clinicalmaster.category.inputtype.lbl"></label>
+                    <div class="col-sm-8">
+                        <ui-select ng-model="currentcontext.concept.ValueTypeId" name="conceptvaluetype" required>
+                            <ui-select-match>
+                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                <span ng-if="$select.selected.Text.length>20">...</span>
+                            </ui-select-match>
+                            <ui-select-choices
+                                repeat="lookupitem.Id as lookupitem in lookup.ValueType | filter: { Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search">
+                                </div>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                </div>
+                <div class="col-sm-12 form-group">
+                    <label class="col-sm-4" for="ismuliple" translate="clinicalmaster.category.ismuliple.lbl"></label>
+                    <div class="col-sm-8">
+                        <input type="checkbox" name="ismuliple" class="custom-checkbox concept-chk"
+                            ng-model="currentcontext.concept.IsMultiple">
+                    </div>
+                </div>
+                <div class="col-sm-12 form-group text-align-right">
+                    <button class="btn-danger" tabindex="-1" ng-disabled="!currentcontext.selectedconceptid"
+                        translate="Delete" ng-click="deleteConcept()">
+                    </button>
+                </div>
+
+            </div>
+        </form>
+    </div>
+    <div class="div-concept-form">
+        <div class="row" ng-if="currentcontext.concept.ValueTypeId == 3 || currentcontext.concept.ValueTypeId == 13">
+            <div class="row">
+                <div class="d-flex">
+                    <h5>Create Values</h5>
+                    <button ng-click="addNewTerm()" class="btn-add" uib-tooltip="{{ 'Create Values' | translate }}"
+                        tooltip-placement="bottom">
+                        <i class="fa fa-plus" aria-hidden="true"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="">
+                <table class="cust_tbl table table-hover table-responsive  table-bordered">
+                    <thead class="bg-subhead">
+                        <tr>
+                            <th class="col-sm-4"><span translate="clinicalmaster.category.termname.lbl"></span>
+                            </th>
+                            <!-- <th class="col-sm-5"><span translate="clinicalmaster.category.termcode.lbl"></span></th>
+                        <th class="col-sm-1"><span translate="clinicalmaster.category.isdefault.lbl"></span></th> -->
+                            <th class="col-sm-2"><span translate="common.actions_col.lbl"></span></th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+            <div class="">
+                <div class="termItems typesDemo">
+                    <ul dnd-list="currentcontext.concept.Terms">
+                        <li ng-repeat="term in currentcontext.concept.Terms | filter:{Status:1}" dnd-draggable="term"
+                            dnd-moved="currentcontext.concept.Terms.splice($index, 1)" dnd-effect-allowed="move"
+                            ng-class="{'selected': currentcontext.Selectedterm === term}">
+                            <dnd-nodrag>
+                                <div class="row">
+                                    <div dnd-handle class="handle col-sm-1">:::</div>
+                                    <div class="name col-sm-7">
+                                        <input type="text" class="form-control" ng-model="term.TermName"
+                                            placeholder="" />
+                                    </div>
+                                    <div class="col-sm-4">
+                                        <button tabindex="-1" class="drhms-edit-button"
+                                            ng-click="deleteTerm($index,term)">
+                                            <img src="assets/svg/delete.svg" alt="">
+                                        </button>
+                                    </div>
+                                </div>
+                            </dnd-nodrag>
+                        </li>
+                    </ul>
+                </div>
+                <!-- </div> -->
+            </div>
+        </div>
+        <!-- Rating value type -->
+        <div class="row rating-sec" ng-if="currentcontext.concept.ValueTypeId == 11">
+            <div class="col-sm-4 form-group">
+                <label class="col-sm-4 control-label" for="min" translate="clinicalmaster.category.attrmin.lbl"></label>
+                <div class="col-sm-8">
+                    <input type="text" class="form-control" name="min" ng-model="currentcontext.concept.AttrMin"
+                        placeholder="">
+                </div>
+            </div>
+            <div class="col-sm-4 form-group">
+                <label class="col-sm-4 control-label" for="max" translate="clinicalmaster.category.attrmax.lbl"></label>
+                <div class="col-sm-8">
+                    <input type="text" class="form-control" name="max" ng-model="currentcontext.concept.AttrMax"
+                        placeholder="">
+                </div>
+            </div>
+            <div class="col-sm-4 form-group">
+                <label class="col-sm-4 control-label" for="step"
+                    translate="clinicalmaster.category.attrstep.lbl"></label>
+                <div class="col-sm-8">
+                    <input type="text" class="form-control" name="step" ng-model="currentcontext.concept.AttrStep"
+                        placeholder="">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="fooder-bgs">
+    <div class="row">
+        <div class="pull-left">
+            <button class="btn pyr-color10 btn-sm" tabindex="-1" ng-click="backToList()"
+                ng-if="!currentcontext.ismodal"><i class="fa fa-angle-left" aria-hidden="true"></i>&nbsp;&nbsp;<span
+                    translate="common.backaction.lbl">Back</span></span>
+            </button>
+            <!-- <button type="button" class="btn pyr-color10 btn-sm" ng-click="backToList()"><i class="fa fa-angle-left" aria-hidden="true" ></i>&nbsp;&nbsp;<span class="btn-fontsize"  translate="common.backaction.lbl"></span></button> -->
+        </div>
+        <div class="pull-right">
+            <button type="button" class="draftbutton" ng-click="saveCategory()"
+                translate="common.saveaction.lbl"></button>
+        </div>
+    </div>
+</div>

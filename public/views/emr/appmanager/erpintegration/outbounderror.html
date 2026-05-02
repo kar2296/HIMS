@@ -1,0 +1,144 @@
+<style>
+    .pager-div {
+        float: right;
+        right: 0;
+        box-sizing: border-box;
+        position: fixed;
+        box-sizing: border-box;
+    }
+    .grid1501897196437 .ui-grid-render-container-body .ui-grid-viewport {
+    /* width: 566px; */
+    height: 388px;
+}
+</style>
+<!--<link href="app/css/billing-pharmacy-customs.css" rel="stylesheet">-->
+<div class="row filter-area">
+    <div class="col-sm-12 ">
+        <div class="col-sm-4">
+            <label class="col-sm-4 control-label filter-lbl" translate="appmanager.erptab.facility.lbl"></label>
+            <div class="col-sm-8">
+                <ui-select ng-model="item.FacilityId" name="facility" ng-disabled="item.isDisabled" required>
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 20 : 0}}
+                        <span ng-if="$select.selected.Text.length>20">...</span>
+                    </ui-select-match>
+                    <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.Facility | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <div class="form-group">
+                <label class=" sr-only col-sm-5 col-md-4 control-label" translate="appmanager.erptab.fromdate.lbl"></label>
+                <div class="input-group col-sm-7 col-md-8">
+
+                    <input type="text" class="form-control" name="requesteddate" ng-change="getList()" datepicker-options="datePickerOptions"
+                        show-button-bar="{{datePickerOptions.showButtonBar}}" uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                        placeholder="{{datePickerOptions.placeholder}}" ng-click="fromdatedatePopup = { opened: true }" is-open="fromdatedatePopup.opened"
+                        ng-model="item.FromDate">
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-4">
+            <div class="form-group">
+                <label class=" sr-only col-sm-5 col-md-4 control-label" for="requesteddate" translate="appmanager.erptab.todate.lbl"></label>
+                <div class="input-group col-sm-7 col-md-8">
+                    <input type="text" class="form-control" name="requesteddate" ng-change="getList()" datepicker-options="datePickerOptions"
+                        show-button-bar="{{datePickerOptions.showButtonBar}}" uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                        placeholder="{{datePickerOptions.placeholder}}" ng-click="todatePopup = { opened: true }" is-open="todatePopup.opened"
+                        ng-model="item.ToDate">
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-12">
+        <div class="col-sm-8">
+            <div class="form-group">
+                <label class="col-sm-4 control-label filter-lbl" translate="appmanager.erptab.inventory.lbl"></label>
+                <div class="col-sm-8">
+                    <radiogroupcontrol itemid="item.AccountId" items="lookup.Inventory"></radiogroupcontrol>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-4">
+            <div class="form-group">
+                <label class="col-sm-4 control-label filter-lbl" translate="appmanager.erptab.accountpayable.lbl"></label>
+                <div class="col-sm-8">
+                    <radiogroupcontrol itemid="item.inventoryId" items="lookup.AccountPayable"></radiogroupcontrol>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="col-sm-12">
+        <div class="col-sm-8">
+            <div class="form-group">
+                <label class="col-sm-4 control-label filter-lbl" translate="appmanager.erptab.collections.lbl"></label>
+                <div class="col-sm-8">
+                    <radiogroupcontrol itemid="item.ARCollectionId" items="lookup.ARCollection"></radiogroupcontrol>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="col-sm-4">
+            <div class="form-group">
+                <label class="col-sm-4 control-label filter-lbl" translate="appmanager.erptab.revenue.lbl"></label>
+                <div class="col-sm-8">
+                    <radiogroupcontrol itemid="item.ReleaseToPatientId" items="lookup.Revenue"></radiogroupcontrol>
+                </div>
+            </div> 
+        </div>
+ 
+    </div>
+
+    <div class="col-sm-12">
+        <div class="col-sm-8">
+            <div class="form-group">
+                <label class="col-sm-4 control-label filter-lbl" translate="appmanager.erptab.masters.lbl"></label>
+                <div class="col-sm-8">
+                    <radiogroupcontrol itemid="item.MasterId" items="lookup.ERPMasters"></radiogroupcontrol>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-4 pull-right">
+            <button type="button" class="draftbutton" translate="Load" ng-click="saveAndLoad()"></button>
+        </div> 
+    </div>
+
+</div>
+
+
+<div class="container-fluid">
+    <div ui-grid="vm.gridConfig" class="table-uigrid" set-tab-grid-height></div>
+
+</div>
+
+<div class="col-sm-12 fullreg-profiles ">
+
+<div class="col-sm-4 pull-right">
+<span for="total" translate="inventory.purchaserequest.totalamount.lbl"></span> : <span class="countbg">{{TotalAmount}}</span>
+</div>
+
+
+
+</div>
+
+
+        <div class="site-footer panel-footer">
+            <button type="button" class="btn btn-sm pyr-color10" ng-click="backToForm()"><i class="fa fa-angle-left"></i>&nbsp;&nbsp;<span translate="common.backaction.lbl"></span></button>
+
+            <div class="footer-right">
+
+                <button type="button" id="btnsubmit" class="draftbutton" translate="Validate" ng-click="save()"></button>
+
+                <button type="button" class="btn dem-color4 text-white btn-sm" translate="Export XML" ng-click="exportxml()"></button>
+                <button id="btnClearForm" type="button" class="btn btn-warning btn-sm" ng-click="senderp()" translate="Send ERP"></button>
+                <button id="btnCancelForm" type="button" class="draftbutton" ng-click="backToList()" translate="common.cancelaction.lbl"></button>
+
+            </div>
+        </div>

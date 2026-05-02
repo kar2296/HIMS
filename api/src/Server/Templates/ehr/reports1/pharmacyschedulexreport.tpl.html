@@ -1,0 +1,75 @@
+<html>
+
+<head>
+  <style>
+    .table1 {
+      border: 1px solid black;
+      font-size: 11px;
+    }
+    
+    .table2 {
+      border: 1px solid black;
+      border-top: 0px solid black;
+      font-size: 11px;
+    } 
+    {{include '/Templates/assets/css/core.css'}}
+  </style>
+</head>
+
+<body>
+  <div id="pageHeader" style="margin-left: 350px;">
+    {{{include '/Templates/ehr/common/pharheader1.tpl.html' 'tpl'}}}
+  </div> 
+    <div style="text-align:center;font-size: 13px;"><b>Pharmacy Schedule X Report</b></div>
+    <table class="table1" style="width:100%;"> 
+      <tr style='vertical-align: top'>
+        <td style="width:5%;"><b>From Date</b></td>
+        <td>:</td>
+        <td style="width:15%;"><b>{{data.FromDate}}</b></td>
+        <td style="width:5%;"><b>To Date</b></td>
+        <td>:</td>
+        <td style="width:15%;"><b>{{data.ToDate}}</b></td>
+        <td style="width:5%;"><b>Clinics</b></td>
+        <td>:</td>
+        <td style="width:25%;"><b>{{data.FacilityName}}</b></td>
+        <td style="width:5%;"><b>Store Name</b></td>
+        <td>:</td>
+        <td style="width:25%;"><b>{{data.StoreName}}</b></td>
+      </tr>  
+    </table> 
+  </br>
+    <table class="table1" style="width:100%;">
+      <tr>
+        <td style="width:3%;"><b>S.No</b></td>
+        <td style="width:6%"><b>Bill Date</b></td>
+        <td style="width:6%"><b>Bill Number</b></td>
+        <td style="width:15%"><b>Patient Name</b></td> 
+        <td style="width:10%"><b>Doctor</b></td>
+        <td style="width:10%"><b>Item Name</b></td>
+        <td style="width:10%"><b>Manufacture</b></td>
+        <td style="width:10%"><b>Batch</b></td> 
+        <td style="width:10%"><b>Expiry</b></td> 
+        <td style="width:10%"><b>Qty</b></td> 
+        <td style="width:10%"><b>Schedule Type</b></td>
+      </tr>
+    </table>
+    <table class="table2" style="width:100%;">
+      {{#each data.PharmacyScheduleReport}}
+      <tr>
+        <td style="width:3%;">{{inc @index}}</td>
+        <td style="width:6%">{{datetimeformat BillDateTime}}</td>
+        <td style="width:6%">{{PatientBill.BillNumber}}</td>
+        <td style="width:15%">{{PatientInfo}}</td> 
+        <td style="width:10%">{{User.Title.Description}} {{User.FirstName}} {{User.LastName}}</td>
+        <td style="width:10%;">{{ItemName}}</td> 
+        <td style="width:10%">{{ManufacturerName}}</td>
+        <td style="width:10%">{{BatchId}}</td> 
+        <td style="width:10%">{{datetimeformat ExpiryDate}}</td>
+        <td style="width:10%">{{Quantity}}</td> 
+        <td style="width:10%">{{ScheduleTypeDescription}}</td>
+      </tr>{{/each}}
+    </table>  
+  </body>
+  <div style="width:100%; font-size:8px;">Printed On: {{now}}</div>
+
+</html>

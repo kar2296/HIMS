@@ -1,0 +1,116 @@
+<style>
+    .form-horizontal .form-group {
+    height: 70px;
+}
+</style>
+<div class="row">
+    <div class="col-sm-10">
+        <h4 class="mt0" translate="ordermanagement.samplereview.sample_review.lbl"></h4>
+    </div>
+    <div class="col-sm-2">
+        <div class="filters">
+            <!-- <button class="custom_dbutton btn-xs pull-right text-white btn prv-color12 btn-sm " ng-click="dashboard()">
+                <i class="fa fa-tachometer"></i>&nbsp;&nbsp; Dashboard
+            </button> -->
+            <!-- <button type="button" class="drhms-billing-btn drhms-previousbill-btn" ng-click="openAdvancedFilter()"
+                uib-tooltip="{{'clinicalmaster.serviceitem-list.filter-tooltip.lbl' | translate }}"
+                tooltip-placement="bottom">
+                <i class="fa fa-search-plus" aria-hidden="true"></i>
+            </button> -->
+        </div>
+    </div>
+</div>
+<div class="row">
+    <form id="item_form" name="item_form" class="form-horizontal" role="form">
+        <div class="col-sm-3 form-group">
+            <label class="col-sm-12 control-label" translate="ordermanagement.samplecollection.ordernr.lbl"></label>
+            <div class="col-sm-12">
+                <input type="text" class="form-control" on-enter="getList()" ng-model="currentfilter.ordernrbillnr" translate translate-attr-placeholder="ordermanagement.samplecollection.ordernr.lbl">
+            </div>
+        </div>
+        <div class="col-sm-3 form-group">
+            <label class="col-sm-12 control-label" translate="ordermanagement.samplecollection.patienttype.lbl"></label>
+            <div class="col-sm-12">
+                <ui-select ng-model="currentfilter.patienttypeid" ng-change="getList()">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 25 : 0}}
+                        <span ng-if="$select.selected.Text.length>25">...</span>
+                    </ui-select-match>
+                    <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.EncounterType | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+        <div class="col-sm-3 form-group">
+            <label class="col-sm-12 control-label" translate="ordermanagement.samplecollection.patient.lbl"></label>
+            <div class="col-sm-12">
+                <input type="text" class="form-control" on-enter="getList()" ng-model="currentfilter.namemrn" translate translate-attr-placeholder="ordermanagement.samplecollection.mrn.lbl">
+            </div>
+        </div>
+        <div class="col-sm-3 form-group">
+            <label class="col-sm-12 control-label" translate="appmanager.user.subdepartment.lbl"></label>
+            <div class="col-sm-12">
+                <ui-select ng-model="currentfilter.SubDepartmentId" ng-change="getList()" class="filter-combo" ng-disabled="SubdeptDisable">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 25 : 0}}
+                        <span ng-if="$select.selected.Text.length>25">...</span>
+                    </ui-select-match>
+                    <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.SubDepartment | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+        <div class="col-sm-3 form-group">
+            <label class="col-sm-12 control-label" translate="ordermanagement.samplecollection.samplestatuse.lbl"></label>
+            <div class="col-sm-12">
+                <ui-select ng-model="currentfilter.samplestatusid" ng-change="getList()">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 25 : 0}}
+                        <span ng-if="$select.selected.Text.length>25">...</span>
+                    </ui-select-match>
+                    <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.SampleStatus | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+        <div class="col-sm-3 form-group">
+            <label class="col-sm-12 control-label" translate="ordermanagement.samplecollection.reqdate.lbl"></label>
+            <div class="col-sm-12">
+                <input type="text" class="form-control" name="OrderReqDate" ng-date-object uib-datepicker-popup="{{datePickerOptions.dateFormat}}" placeholder="{{datePickerOptions.placeholder}}" ng-click="activefromPopup = { opened: true }" is-open="activefromPopup.opened"
+                    ng-model="currentfilter.OrderRequestDate" ng-change="getList()">
+            </div>
+        </div>
+        <div class="col-sm-3 form-group">
+            <label class="col-sm-12 control-label" translate="ordermanagement.samplecollection.orderstatuse.lbl"></label>
+            <div class="col-sm-12">
+                <ui-select ng-model="currentfilter.orderstatusid" ng-change="getList()">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 25 : 0}}
+                        <span ng-if="$select.selected.Text.length>25">...</span>
+                    </ui-select-match>
+                    <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.OrderStatus | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+        <div class="col-sm-3 form-group">
+            <label class="col-sm-12 control-label" translate="OP/IP Number"></label>
+            <div class="col-sm-12">
+                <input type="text" class="form-control" name="order" on-enter="getList()" ng-model="currentfilter.VisitIdentifier" placeholder="OP/IP No">
+            </div>
+        </div>
+    </form>
+</div>
+
+<div class="row">
+    <custom-table config="vm.gridConfig"></custom-table>
+</div>
+<div class="fooder-bgs">
+    <div class="row">
+        <ul uib-pagination total-items="vm.gridConfig.pagerObj.totalItems" items-per-page="vm.gridConfig.pagerObj.pageSize" start-index="vm.gridConfig.pagerObj.startIndex" ng-model="vm.gridConfig.pagerObj.currentPage" ng-change="getList()"></ul>
+    </div>
+</div>

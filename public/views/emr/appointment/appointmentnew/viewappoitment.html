@@ -1,0 +1,354 @@
+<link href="app/css/regbilling.css" rel="stylesheet">
+<style>
+    .search-box .items-search {
+        border: 0;
+        box-shadow: unset;
+        background: #eee;
+        border-radius: 10px;
+        margin-right: 10px;
+    }
+
+    .search-box {
+        position: relative;
+    }
+
+    .search-box i {
+        position: absolute;
+        right: 18px;
+        margin-top: 14px;
+        color: #aaa;
+    }
+
+
+
+    input.items-search {
+        width: 220px !important;
+    }
+
+
+    p.title {
+        font-size: 18px;
+        font-weight: 600;
+        color: #00125a;
+    }
+
+    .add-btn {
+        background-color: #dce512;
+        color: #fff;
+        position: relative;
+        padding: 5px 9px;
+        border-radius: 0px;
+        border: 0;
+        float: right;
+    }
+
+    i.fas.fa-calendar {
+        padding-top: 0 !important;
+    }
+
+    .addbtn-plus {
+        background-color: #dce512 !important;
+        padding: 6px !important;
+        color: #fff;
+        float: right;
+        border: 0px;
+        border-radius: 50%;
+        height: 30px;
+        width: 30px;
+    }
+
+
+    input[type=password],
+    input[type=text] {
+        background-color: #f8f8f8 !important;
+        border-radius: 10px;
+    }
+
+    input[type=search],
+    input[type=text]:focus {
+        border: 2px solid #d4d4d4 !important;
+    }
+
+    /* .list-filter {
+        margin-top: 20px;
+    } */
+
+    .list-filter label {
+        margin: 6px 0px;
+        color: #00125a;
+        font-weight: 400;
+    }
+
+    #tblData th {
+        background: #0598f6 !important;
+        padding: 5px;
+        border: 1px solid #00125a !important;
+        color: white !important;
+        font-weight: 500 !important;
+    }
+
+    i.fas.fa-edit {
+        color: #fff;
+        background: #3ecc01;
+        padding: 4px;
+        border-radius: 4px;
+    }
+
+    i.fas.fa-clock {
+        color: #fff;
+        background: #00abff;
+        padding: 4px;
+        border-radius: 4px;
+    }
+
+    i.fas.fa-calendar-check {
+        color: #fff;
+        background: #0598f6;
+        padding: 4px;
+        border-radius: 4px;
+    }
+
+    .pager-div li.ng-scope.active>a {
+        background: #0598f6 !important;
+        color: #fafbfc !important;
+    }
+
+    li.pagination-page.active a {
+        background: #0598f6 !important;
+
+    }
+
+    ul.pagination.pagination-sm a {
+        color: #2c3149 !important;
+    }
+
+    li.col-sm-4.pagination-last a {
+        color: #2c3149 !important;
+        font-size: 12px !important;
+        font-weight: 400;
+    }
+
+    .table-striped>tbody>tr {
+        background-color: #f8f8f8;
+    }
+
+    i.fas.fa-calendar {
+        padding-top: 6px;
+    }
+
+    .jqx-scheduler-toolbar-details {
+        margin-left: 30px !important;
+    }
+
+    .filters {
+        align-items: center;
+    }
+
+    button.dropdown-toggle.ng-binding.btn.btn-default {
+        height: 32px;
+        width: 100%;
+        background-color: #f8f8f8 !important;
+        border-radius: 10px;
+    }
+
+    i.fa.fa-pencil-square-o {
+        color: #fff;
+        background: #3ecc01;
+        padding: 4px;
+        border-radius: 4px;
+    }
+
+    li.pagination-page {
+        background: #0598f6;
+    }
+
+    i.fas.fa-history {
+        color: #666464;
+        /* background: #00abff; */
+        padding: 5px;
+        border-radius: 4px;
+    }
+
+    .aside-collapsed .wrapper>section div#scheduler {
+        margin-bottom: 100px;
+    }
+
+    th.Patient.Name.align {
+        width: 24%;
+        white-space: normal;
+    }
+    
+    patientsearch.logo .custom-popup-wrapper {
+        margin-left: -200px;
+    }
+</style>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        $("#calenderid").click(function () {
+            $("i", this).toggleClass("fa fa-calendar fa fa-list");
+        });
+    });
+</script>
+<div class="row">
+    <div class="col-sm-8"></div>
+    <div class="col-sm-3">
+        <div class="search-box">
+            <patientsearch patientid="currentfilter.PatientId" class="logo" name="txtpatientsearch" patientinfo="selectedPatient" patientchange="getList()"
+                aria-placeholder="Patient Search" issearch="nopatinetsearch">
+            </patientsearch>
+            <i class="fas fa-search" aria-hidden="true"></i>
+        </div>
+    </div>
+    <div class="col-sm-1">
+        <button class="add-btn" ng-click="toggleView()">
+            <i class="fas fa-calendar" aria-hidden="true"></i>
+        </button>
+    </div>
+</div>
+<div class="row">
+    <div class="list-filter" ng-show="!vm.appointment.ShowCalendar">
+        <div class="col-sm-2">
+            <label class="col-sm-12" translate="From Date"></label>
+            <div class="col-sm-12">
+                <input type="text" class="form-control" name="fromdate" ng-change="getList()" datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}"
+                    uib-datepicker-popup="{{datePickerOptions.dateFormat}}" placeholder="{{datePickerOptions.placeholder}}" ng-click="fromdatePopup = { opened: true }"
+                    is-open="fromdatePopup.opened" ng-model="currentfilter.fromdate">
+            </div>
+        </div>
+        <div class="col-sm-2">
+            <label class="col-sm-12" translate="To Date"></label>
+            <div class="col-sm-12">
+                <input type="text" class="form-control" name="todate" ng-change="getList()" datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}"
+                    uib-datepicker-popup="{{datePickerOptions.dateFormat}}" placeholder="{{datePickerOptions.placeholder}}" ng-click="todatePopup = { opened: true }"
+                    is-open="todatePopup.opened" ng-model="currentfilter.todate">
+            </div>
+        </div>
+        <div class="col-sm-2">
+            <label class="col-sm-12" translate="appointment.appointment-list.filter_type.lbl"></label>
+            <div class="col-sm-12">
+                <ui-select ng-model="currentfilter.AppointmentTypeId" ng-change="appointmenttypechange()" class="filter-combo" ng-disabled="currentcontext.candisableappttype">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 20 : 0}}
+                        <span ng-if="$select.selected.Text.length>20">...</span>
+                    </ui-select-match>
+                    <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.AppointmentType | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+        <div class="col-sm-2">
+            <label class="col-sm-12" translate="appointment.appointment-list.filter_doctor.lbl"></label>
+            <div class="col-sm-12">
+                <multiselectchk list="lookup.Doctor" selected="currentfilter.DoctorId" change="doctorFilterChange()">
+                </multiselectchk>
+            </div>
+        </div>
+        <div class="col-sm-2">
+            <label class="col-sm-12" translate="appointment.appointment-list.filter_appointmentstatus.lbl"></label>
+            <div class="col-sm-12">
+                <ui-select ng-model="currentfilter.AppointmentStatusId" ng-change="getList()" class="filter-combo">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 20 : 0}}
+                        <span ng-if="$select.selected.Text.length>20">...</span>
+                    </ui-select-match>
+                    <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.AppointmentStatus | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="myModal" class="modal">
+    <div class="modal-content" style="width:100%;margin:0 auto; left:6%;">
+        <div class="modal-body">
+            <span ng-click="hideprocessflow()" class="close link_close">&times;</span>
+            <img src="mock/usermanual/appointments/Appointments.jpg" class="imag-responsive"></img>
+        </div>
+    </div>
+</div>
+<div class="row" ng-show="!vm.appointment.ShowCalendar">
+    <custom-table config="vm.gridConfig"></custom-table>
+</div>
+<div class="fooder-bgs" ng-show="!vm.appointment.ShowCalendar">
+    <!-- <custom-table config="vm.gridConfig"></custom-table> -->
+    <ul uib-pagination total-items="vm.gridConfig.pagerObj.totalItems" items-per-page="vm.gridConfig.pagerObj.pageSize" start-index="vm.gridConfig.pagerObj.startIndex"
+        ng-model="vm.gridConfig.pagerObj.currentPage" ng-change="getList()"></ul>
+
+    <!-- <div class="fooder-bgs" style="margin-top: 22px;margin-bottom: 34px;">
+        <div class="row">
+            <ul uib-pagination total-items="vm.gridConfig.pagerObj.totalItems"
+                items-per-page="vm.gridConfig.pagerObj.pageSize" start-index="vm.gridConfig.pagerObj.startIndex"
+                ng-model="vm.gridConfig.pagerObj.currentPage" ng-change="getList()"></ul>
+        </div>
+    </div> -->
+</div>
+<div class="row">
+    <jqx-scheduler jqx-settings="settings" id="scheduler" ng-show="vm.appointment.ShowCalendar"></jqx-scheduler>
+</div>
+<style>
+    .jqx-scheduler-not-work-time-cell {
+        background: #fff;
+    }
+
+    .jqx-grid-cell-alt {
+        background-color: #dce512 !important;
+        color: #000000 !important;
+    }
+
+    .jqx-scheduler-cell-selected {
+        border-color: #9a8be7 !important;
+        background: #9a8be7 !important;
+    }
+
+    .jqx-scheduler-cell-focus {
+        border-style: dotted;
+        border-color: #38f94794 !important;
+        background: #38f94794 !important;
+    }
+
+    .jqx-scheduler-month-weekend-cell {
+        background: #fff;
+    }
+
+    .jqx-scheduler-month-cell {
+        background: #fff !important;
+    }
+
+    .jqx-widget .jqx-grid-cell,
+    .jqx-widget .jqx-grid-column-header,
+    .jqx-widget .jqx-grid-group-cell {
+        border-color: #fff;
+    }
+
+    .jqx-widget-header {
+        background: #fff;
+    }
+
+    .jqx-menu-vertical {
+        background-color: #FF9800;
+        border: 1px solid #FF9800;
+    }
+
+    .jqx-fill-state-normal {
+        border-color: #0033ff;
+        color: #0033ff;
+    }
+
+    .jqx-scheduler-appointment.jqx-rc-all {
+        background: #2196f3 !important;
+        border: 1px solid #2196f3 !important;
+    }
+
+    .jqx-scheduler-selected-appointment {
+        background: #2196f3 !important;
+        border: 1px solid #2196f3 !important;
+    }
+
+    .jqx-scheduler-appointment.jqx-rc-all {
+        background-color: #FF5722 !important;
+        border: 1px solid #FF5722 !important;
+    }
+</style>

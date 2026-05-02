@@ -1,0 +1,224 @@
+<link rel="stylesheet" href="app/css/drhms.css">
+<div class="row">
+    <h4 translate="inventory.autoreorder.pagetitle.lbl"></h4>
+</div>
+<div class="row">
+    <form id="item_form" name="item_form" class="form-horizontal" role="form">
+        <div class="drhms-table-top-header">
+            <div class="drhms-table-head-border">
+                <div class="col-sm-12">
+                    <label class="col-sm-4" translate="inventory.autoreorder.mystore.lbl"></label>
+                    <div class="col-sm-8">
+                        <ui-select ng-model="currentfilter.StoreMasterId" ng-change="MyStoreChange($select.selected)"
+                            class="filter-combo">
+                            <ui-select-match>
+                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                <span ng-if="$select.selected.Text.length>20">...</span>
+                            </ui-select-match>
+                            <ui-select-choices
+                                repeat="lookupitem.Id as lookupitem in lookup.UserStores | filter: { Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                </div>
+                <div class="col-sm-12">
+                    <label class="col-sm-4" translate="inventory.autoreorder.tostore.lbl"></label>
+                    <div class="col-sm-8">
+                        <ui-select ng-model="currentfilter.DeliveryStoreMasterId"
+                            ng-change="DeliveryStoreChange($select.selected)" class="filter-combo">
+                            <ui-select-match>
+                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                <span ng-if="$select.selected.Text.length>20">...</span>
+                            </ui-select-match>
+                            <ui-select-choices
+                                repeat="lookupitem.Id as lookupitem in lookup.ToStore | filter: { Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                </div>
+                <div class="col-sm-12">
+                    <label class="col-sm-4" translate="inventory.autoreorder.storetype.lbl"></label>
+                    <div class="col-sm-8">
+                        <ui-select ng-model="currentfilter.StoreTypeId" ng-disabled="true" class="filter-combo">
+                            <ui-select-match>
+                                {{$select.selected.Text | limitTo : 8 : 0}}
+                                <span ng-if="$select.selected.Text.length>8">...</span>
+                            </ui-select-match>
+                            <ui-select-choices
+                                repeat="lookupitem.Id as lookupitem in lookup.StoreType | filter: { Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                </div>
+            </div>
+            <div class="drhms-table-head-border">
+                <div class="col-sm-12">
+                    <label class="col-sm-4" translate="inventory.autoreorder.producttype.lbl"></label>
+                    <div class="col-sm-8">
+                        <ui-select ng-model="currentfilter.ProductTypeId" class="filter-combo" name="producttypeid"
+                            ng-change="getProductSubType()">
+                            <ui-select-match>
+                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                <span ng-if="$select.selected.Text.length>20">...</span>
+                            </ui-select-match>
+                            <ui-select-choices
+                                repeat="lookupitem.Id as lookupitem in lookup.ProductType | filter: { Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                </div>
+               
+                <div class="col-sm-12">
+                    <label class="col-sm-4" for="itemname" translate="inventory.autoreorder.itemname.lbl"></label>
+                    <div class="col-sm-8">
+                        <autosearch itemid="currentfilter.ItemMasterId" iteminfo="" rowdata=""
+                            config="vm.itemcontrolconfig" itemchange=""></autosearch>
+                    </div>
+                </div>
+                <div class="col-sm-12">
+                    <label class="col-sm-4" for="vendorname" translate="inventory.autoreorder.vendorname.lbl"></label>
+                    <div class="col-sm-8">
+                        <autosearch itemid="currentfilter.VendorFacilityMapId" iteminfo="" rowdata=""
+                            config="vm.vendorcontrolconfig" itemchange=""></autosearch>
+                    </div>
+                </div>
+            </div>
+            <div class="drhms-table-head-border">
+                <div class="col-sm-12">
+                    <label class="col-sm-4" translate="inventory.autoreorder.subproducttype.lbl"></label>
+                    <div class="col-sm-8">
+                        <ui-select ng-model="currentfilter.SubProductTypeId" class="filter-combo"
+                            name="subproducttypeid">
+                            <ui-select-match>
+                                {{$select.selected.SubProductTypeName | limitTo : 20 : 0}}
+                                <span ng-if="$select.selected.SubProductTypeName.length>20">...</span>
+                            </ui-select-match>
+                            <ui-select-choices
+                                repeat="lookupitem.Id as lookupitem in lookup.ProductSubType | filter: { SubProductTypeName: $select.search }">
+                                <div ng-bind-html="lookupitem.SubProductTypeName | highlight: $select.search"></div>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                </div>
+                <div class="col-sm-12">
+                    <button class="draftbutton" ng-click="getStoredProcedureList()" uib-tooltip="Load"
+                        tooltip-placement="bottom">&nbsp;&nbsp;
+                        <span translate="Fetch"></span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+<div class="row">
+    <div class="drhms-table-control">
+        <div class="drhms-bg-pattern">
+            <div class="drhms-table-responsive-height">
+                <table class="drhms-responsive-table">
+                    <thead class="bg-subhead">
+                        <tr>
+                            <th>
+                                <span translate="">
+                                    <input type="checkbox" class="custom-checkbox"
+                                        ng-model="currentcontext.selectallchk"
+                                        ng-click="SelectAll(currentcontext.selectallchk)" />
+                                </span>
+                            </th>
+                            <th>
+                                <span translate="inventory.autoreorder.itemname.lbl"></span>
+                            </th>
+                            <th>
+                                <span translate="inventory.autoreorder.producttype.lbl"></span>
+                            </th>
+                            <th>
+                                <span translate="inventory.autoreorder.stockinhand.lbl"></span>
+                            </th>
+                            <th>
+                                <span translate="inventory.autoreorder.ontheway.lbl"></span>
+                            </th>
+                            <th>
+                                <span translate="inventory.autoreorder.minqty.lbl"></span>
+                            </th>
+                            <th>
+                                <span translate="inventory.autoreorder.maxqty.lbl"></span>
+                            </th>
+                            <th>
+                                <span translate="inventory.autoreorder.reorderqty.lbl"></span>
+                            </th>
+                            <th>
+                                <span translate="inventory.autoreorder.indentqty.lbl"></span>
+                            </th>
+                            <th ng-if="!currentfilter.OpenAutoReOrder">
+                                <span translate="inventory.autoreorder.vendorname.lbl"></span>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="reorderitem in ItemReOrderDetails | filter:{Status:1}">
+                            <td>
+                                <input type="checkbox" class="custom-checkbox" ng-model="reorderitem.select"
+                                    ng-click="selectionChangedCal()" />
+                            </td>
+                            <td>
+                                <span> {{ reorderitem.ItemName }} </span>
+                            </td>
+                            <td>
+                                <span> {{ reorderitem.ProductTypeName }} </span>
+                            </td>
+                            <td>
+                                <span> {{ reorderitem.StockInHand }} </span>
+                            </td>
+                            <td>
+                                <span> {{ reorderitem.OnTheWay }} </span>
+                            </td>
+                            <td>
+                                <span> {{ reorderitem.MinQty }} </span>
+                            </td>
+                            <td>
+                                <span> {{ reorderitem.MaxQty }} </span>
+                            </td>
+                            <td>
+                                <span> {{ reorderitem.ROLQty }} </span>
+                            </td>
+                            <td>
+                                <input type="text" min="0" ng-keypress="numberonly($event)" ng-pattern="/^\d+$/"
+                                    class="form-control" ng-model="reorderitem.IndentQty"
+                                    ng-change="ChangeReOrderQty(reorderitem)" placeholder="">
+                            </td>
+                            <td class="fs-12" ng-if="!currentfilter.OpenAutoReOrder">
+                                <ui-select ng-model="reorderitem.ItemVendorMapId"
+                                    on-select="onVendorSelected(reorderitem, $select.selected, $index)" name="screen"
+                                    class="ui-select-grid" ng-disabled="">
+                                    <ui-select-match>
+                                        {{$select.selected.VendorName | limitTo : 20 : 0}}
+                                        <span ng-if="$select.selected.VendorName.length>20">...</span>
+                                    </ui-select-match>
+                                    <ui-select-choices
+                                        repeat="lookupitem.Id as lookupitem in reorderitem.ItemVendorMaps | filter: { VendorName: $select.search }">
+                                        <div ng-bind-html="lookupitem.VendorName | highlight: $select.search"></div>
+                                    </ui-select-choices>
+                                </ui-select>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="fooder-bgs">
+    <div class="row">
+        <div class="pull-right">
+            <button type="button" id="prbtnsubmit" class="draftbutton" translate="Purchase Indent"
+                ng-click="GeneratePR()"></button>
+            <button type="button" class="draftbutton" translate="inventory.autoreorder.purchaseorder.lbl"
+                ng-click="GeneratePO()"></button>
+                <button type="button" class="drhms-common-btn" ng-click="excelDownloadCallbackExcel()" uib-tooltip="Excel" tooltip-placement="bottom">Excel <i style="color: #fff;" class="icofont-file-excel"></i></button>
+
+        </div>
+    </div>
+</div>

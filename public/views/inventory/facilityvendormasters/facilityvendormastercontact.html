@@ -1,0 +1,113 @@
+<style>
+     .panel-body{
+        overflow:visible !important;
+      
+    }
+.panel-footer {
+    padding: 4px 15px;
+    background-color: #ccecf5;
+    border-top: 1px solid #eeeeee;
+    border-bottom-right-radius: 3px;
+    border-bottom-left-radius: 3px;
+    margin:0px -5px;
+}
+</style>
+
+<div class="modal-header custom-modal-header">
+        <div class="col-sm-6">
+                <h4 class="mt0 col-sm-12" translate="inventory.facilityvendormastercontact.pagetitle.lbl"></h4>
+                    </div>
+                <div class="col-sm-6">
+                        <button type="button" class="btn btn-danger btn-sm pull-right" translate="x"
+                        ng-click="backToList()"></button>
+                        </div>
+            </div></div>
+<div class="row">
+    <div class="col-sm-12">
+        <form id="item_form" name="item_form" class="form-horizontal" role="form">	
+            <div class="">
+                <div class="panel panel-default">
+                    <!--<div class="panel-heading"><h3 class="panel-title" translate="inventory.facilityitemmastervendormapping.pagetitle.lbl"></h3></div>!-->
+                    <div class="panel-body form-panel">	
+                        <div class="col-sm-12">		
+                                <div class="form-group col-sm-6">
+                                    <label class="col-sm-12 control-label" translate="inventory.facilityvendormastercontact.contacttype.lbl"></label>
+                                    <div class="col-sm-12">
+                                        <ui-select ng-model="item.ContactTypeId" theme="bootstrap" ng-disabled="item.isDisabled">
+                                            <ui-select-match>
+                                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                                <span ng-if="$select.selected.Text.length>20">...</span>
+                                            </ui-select-match>
+                                            <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.ContactType | filter: { Text: $select.search }">
+                                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                            </ui-select-choices>
+                                        </ui-select>
+                                    </div>
+                                </div>
+                                <div class="form-group col-sm-6">
+                                    <label class="col-sm-12 control-label" translate="inventory.facilityvendormastercontact.contactperson.lbl"></label>
+                                    <div class="col-sm-12">
+                                        <input type="text" class="form-control" name="ContactPerson" ng-disabled="item.isDisabled" ng-model="item.ContactPerson" uppercase placeholder="">
+                                    </div>
+                                </div>
+                                <div class="form-group col-sm-6">
+                                    <label class="col-sm-12 control-label" translate="inventory.facilityvendormastercontact.mobileno.lbl"></label>
+                                    <div class="col-sm-12">
+                                        <input type="text" class="form-control" name="MobileNo" ng-disabled="item.isDisabled" ng-model="item.MobileNo" ng-minlength="10" ng-pattern="/^\d+$/" placeholder="">
+                                    </div>
+                                </div>
+                                <div class="form-group col-sm-6">
+                                    <label class="col-sm-12 control-label" for="phoneno" translate="inventory.facilityvendormastercontact.phoneno.lbl"></label>
+                                    <div class="col-sm-12">
+                                        <input type="text" class="form-control" name="phoneno" ng-disabled="item.isDisabled" ng-model="item.PhoneNo" ng-minlength="10" ng-pattern="/^\d+$/" placeholder=""required>
+                                    </div>
+                                </div>
+                                <div class="form-group col-sm-6">
+                                    <label class="col-sm-12 control-label" translate="inventory.facilityvendormastercontact.email.lbl"></label>
+                                    <div class="col-sm-12">
+                                       <input type="email" class="form-control" name="email" ng-disabled="item.isDisabled" ng-model="item.EMail" placeholder="" ng-required="false">
+                                    </div>
+                                </div>   
+                                <div class="form-group col-sm-6">
+                                    <label class="col-sm-12 control-label" translate="inventory.facilityvendormastercontact.isprimary.lbl"></label>
+                                    <div class="col-sm-12">
+                                        <input type="checkbox" class="custom-checkbox" ng-disabled="item.isDisabled"  ng-model="item.IsPrimary" ng-checked="item.IsPrimary == 1">
+                                    </div>
+                                </div>     
+                                <div class="form-group col-sm-12">                                    
+                                <address addressline1="item.AddressLine1" addressline2="item.AddressLine2" pincodeid="item.PinCodeId" pincode="item.Pincode"
+                                        area="item.Area" city="item.City" cityid="item.CityId" state="item.State" stateid="item.StateId" ng-disabled="item.isDisabled"
+                                        country="item.Country" countryid="item.CountryId"></address>
+                                </div>
+								<!--
+                                <div class="form-group col-sm-6">
+                                    <label class="col-sm-12 control-label" for="district" translate="inventory.facilityvendormastercontact.district.lbl"></label>
+                                    <div class="col-sm-12">
+                                        <ui-select ng-model="item.DistrictId" name="district">
+                                            <ui-select-match>
+                                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                                <span ng-if="$select.selected.Text.length>20">...</span>
+                                            </ui-select-match>
+                                            <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.District | filter: { Text: $select.search }">
+                                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                            </ui-select-choices>
+                                        </ui-select>
+                                    </div>
+                                </div>
+								-->
+                            </div>
+                        </div>
+                        <div class="fooder-bgs" style="margin-bottom: 45px;">
+                                <div class="pull-right">
+                                    <button type="button"   class="draftbutton" translate="common.saveaction.lbl" ng-click="saveItem()"></button>
+                                    <!--<button type="button" class="btn dem-color4 text-white btn-sm" translate="common.saveapprove-action.lbl" ng-click="saveAndApprove()"></button>-->
+                                    <button id="btnClearForm" type="button" class="btn btn-warning btn-sm" ng-click="clear()" translate="common.clearaction.lbl"></button>
+                                    <!-- <button id="btnCancelForm" type="button" class="draftbutton" ng-click="backToList()" translate="common.cancelaction.lbl"></button>						 -->
+                                </div>
+                            </div>
+                </div>
+            </div>
+           
+        </form>		
+    </div>
+</div>

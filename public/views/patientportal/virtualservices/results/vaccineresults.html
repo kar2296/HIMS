@@ -1,0 +1,636 @@
+<link rel="stylesheet" href="app/css/patientportal.css" data-ng-if="!app.layout.isRTL">
+<link rel="stylesheet" href="app/css/covidtestksa.css">
+<style>
+    .jumbotron {
+        background: #1977cc;
+    }
+    
+    .dec i {
+        position: relative;
+        top: 11px;
+        background: white;
+        border: 1px solid;
+        padding: 4px 5px;
+        border-radius: 23px;
+        font-size: 11px;
+    }
+    
+    .col-sm-2.col-xs-2.cost.ng-binding {
+        background: #1977cc;
+        color: white;
+        width: 13%;
+        padding: 10px;
+        border-radius: 22px;
+        font-weight: bold;
+    }
+    
+    .title {
+        height: 51px;
+        padding: 8px 30px;
+        color: #5E6977;
+        font-size: 18px;
+        margin-bottom: 10px;
+        font-weight: 400;
+    }
+    
+    .item.col-sm-12.col-xs-12 {
+        padding: 0;
+        height: 107px;
+        box-shadow: 0px 1px 0px 0px rgba(0, 0, 0, 0.10);
+        margin-bottom: 13px;
+        border-radius: 11px;
+        border: 1px solid #efefef;
+        background: #2196f321;
+    }
+    
+    .description span {
+        display: block;
+        font-size: 11px;
+        color: #43484D;
+        font-weight: 600;
+        word-break: break-all;
+    }
+    
+    .description i {
+        margin: 0px 5px;
+    }
+    
+    span.test {
+        font-weight: 500;
+        color: #1977cc;
+    }
+    
+    .description span {
+        margin-bottom: 10px;
+        margin-top: 12px;
+    }
+    
+    button.viewbtn {
+        background: #1977cc;
+        color: white;
+        padding: 6px 12px;
+        margin-top: 25px;
+        border-radius: 3px;
+        border: 1px;
+    }
+    
+    .total-price .description div {
+        margin: 0px 2px;
+    }
+    
+    span.blue {
+        color: #17ab17;
+    }
+    
+    .total-price .description div span {
+        color: #f5415f !important;
+    }
+    
+    .description b {
+        margin: 0px 6px;
+    }
+    
+    section.ng-scope {
+        padding: 0;
+        margin: 0;
+    }
+    
+    .content-wrapper.ng-scope.ng-fadeInUp {
+        margin-left: 0px;
+    }
+    
+    .wrapper.ng-scope {
+        margin: 0 !important;
+    }
+    
+    button.viewbtn {
+        background: #1977cc;
+        color: white;
+        padding: 6px 12px;
+        margin-top: 16px;
+        border-radius: 3px;
+        border: 1px;
+        width: 70px;
+    }
+    
+    .content-wrapper.ng-scope.ng-fadeInUp {
+        height: 81vh;
+    }
+    
+    span.CREATED {
+        color: #12b912;
+    }
+    
+    span.ACCEPTED {
+        color: blue;
+    }
+    
+    span.date {
+        padding: 0px 6px;
+    }
+    
+    .col-sm-12.col-xs-12.mobileview {
+        display: none;
+    }
+    
+    @media (max-width: 767px) {
+        .shopping-cart {
+            padding: 0px;
+        }
+        .shopping-cart {
+            border: 1px solid gainsboro;
+            padding: 19px 23px;
+            width: 100%;
+            border-radius: 9px;
+            position: relative;
+            left: 13px;
+            overflow-x: scroll;
+            background: white;
+        }
+        button.viewbtn {
+            background: #1977cc;
+            color: white;
+            padding: 6px 12px;
+            margin-top: 3px !important;
+            border-radius: 3px;
+            border: 1px;
+            width: 70px;
+        }
+        .item.col-sm-12.col-xs-12 {
+            padding: 0;
+            height: 146px;
+        }
+        .col-sm-12.col-xs-12.description {
+            padding: 0;
+        }
+        .col-sm-12.col-xs-12.total-price {
+            padding: 0;
+        }
+        .col-sm-12.col-xs-12.description {
+            margin-bottom: -14px;
+        }
+        .view span.date {
+            margin-bottom: 24px !important;
+            white-space: nowrap;
+        }
+        .col-sm-12.col-xs-12.mobileview {
+            display: block !important;
+        }
+        .col-sm-8.date-filter {
+            width: 100% !important;
+        }
+        .col-sm-8.col-xs-8.title.ng-scope {
+            padding: 0;
+        }
+        .col-xs-12 {
+            width: 100%;
+        }
+        .results {
+            height: 100px;
+            font-size: 17px !important;
+            padding-top: 0px;
+        }
+        .title.ng-scope {
+            padding: 0;
+        }
+    }
+    
+    span.COMPLETED {
+        color: #F44336;
+    }
+    
+    body {
+        font-size: 12px;
+    }
+    
+    span.date span.ng-isolate-scope span.ng-binding.ng-scope:before {
+        content: "Apt.Date: ";
+    }
+    span.vccdate>span>span:before {
+        content: "Vacc.Date: ";
+    }
+    span.time:before {
+        content: "Apt.Time: ";
+    }
+    
+    .content-wrapper.ng-scope.ng-fadeInUp {
+        margin-top: 50px !important;
+    }
+    
+    input[type=search],
+    input[type=text] {
+        height: 40px !important;
+        margin-bottom: 13px !important;
+    }
+    
+    .datepicker input[type="text"] {
+        padding-left: 37px;
+        background: antiquewhite;
+        border: 1px solid gainsboro;
+    }
+    
+    .col-sm-2.col-xs-4 {
+        padding: 0;
+    }
+    
+    button.viewbtn.res {
+        background: #ff9800;
+    }
+    
+    .date-filter {
+        display: flex;
+        background: white;
+        box-shadow: 0px 0px 20px 4px gainsboro;
+        border-radius: 4px;
+    }
+    
+    input {
+        outline: unset !IMPORTANT;
+        border: unset !important;
+    }
+    
+    .datepicker input[type="text"] {
+        padding-left: 37px;
+        background: white;
+        border: 1px solid gainsboro;
+        height: 48px !important;
+        margin-bottom: 0 !important;
+    }
+    
+    .datepicker {
+        border-right: 1px solid gainsboro;
+    }
+    
+    .datepicker i.fa.fa-calendar {
+        position: absolute;
+        left: 6px;
+        top: 24px;
+        padding: 9px 7px;
+        color: #aaa;
+        transition: 0.3s;
+    }
+    
+    .col-sm-8.date-filter {
+        width: 35%;
+    }
+    
+    .content-wrapper.ng-scope.ng-fadeInUp {
+        background: #f0f0f0;
+    }
+    
+    .shopping-cart {
+        border: 1px solid gainsboro;
+        padding: 19px 23px;
+        width: 79%;
+        border-radius: 9px;
+        position: relative;
+        left: 143px;
+        background: white;
+    }
+    
+    .datepicker.no-bot {
+        border: unset;
+    }
+    
+    .col-sm-6 {
+        width: 55%;
+    }
+    
+    .results i {
+        color: #2c488d !important;
+        margin: 0px;
+        padding: 0px 8px;
+        font-size: 18px !important;
+    }
+    
+    .results {
+        height: 100px;
+        font-size: 17px !important;
+        padding-top: 42px;
+    }
+    
+    i.far.fa-times-circle {
+        color: red !important;
+    }
+    
+    .viewbuttom.red {
+        background: red;
+    }
+    
+    td.ng-binding {
+        border: 1px solid gainsboro !important;
+    }
+    
+    .layout-fixed .wrapper>section {
+        margin-top: 28px;
+    }
+    
+    span.date {
+        padding: 0px 6px;
+        color: red;
+        font-size: 12px;
+    }
+</style>
+<div class="col-sm-12" style="margin-top: 9px;">
+    <div class="col-sm-6 col-xs-12">
+        <div class="col-sm-8 col-xs-5 title" translate="Vaccines"></div>
+        <div class="col-sm-4 col-xs-7">
+            <button class="draftbutton" ng-click="vaccinesummary()">Summary Report</button>
+        </div>
+    </div>
+    <!-- <div class="col-sm-2 datepicker">
+    <input type="text" class="form-control" tabindex="-1" name="fromdate" ng-date-object uib-datepicker-popup="{{datePickerOptions.dateFormat}}" placeholder="{{datePickerOptions.placeholder}}" ng-click="fromdatePopup = { opened: true }" is-open="fromdatePopup.opened"
+        ng-model="currentfilter.FromDate" ng-change="getDetails()" id="disabledInput">
+    <i class="fa fa-calendar" aria-hidden="true" style="padding: 4px 0px;"></i>
+</div>
+<div class="col-sm-2 datepicker">
+    <input type="text" class="form-control" tabindex="-1" name="ToDate" ng-date-object uib-datepicker-popup="{{datePickerOptions.dateFormat}}" placeholder="{{datePickerOptions.placeholder}}" ng-click="ToDatePopup = { opened: true }" is-open="ToDatePopup.opened"
+        ng-model="currentfilter.ToDate" ng-change="getDetails()" id="disabledInput">
+    <i class="fa fa-calendar" aria-hidden="true" style="padding: 4px 0px;"></i>
+</div> -->
+    <div class="col-sm-8 col-xs-12 date-filter">
+        <div class="datepicker">
+            <input type="text" class="form-control" tabindex="-1" name="fromdate" ng-date-object uib-datepicker-popup="{{datePickerOptions.dateFormat}}" placeholder="{{datePickerOptions.placeholder}}" ng-click="fromdatePopup = { opened: true }" is-open="fromdatePopup.opened"
+                ng-model="currentfilter.FromDate" ng-change="getDetails()" id="disabledInput">
+            <i class="fa fa-calendar" aria-hidden="true" style="padding: 4px 12px;"></i>
+        </div>
+        <div class="datepicker no-bot">
+            <input type="text" class="form-control" tabindex="-1" name="ToDate" ng-date-object uib-datepicker-popup="{{datePickerOptions.dateFormat}}" placeholder="{{datePickerOptions.placeholder}}" ng-click="ToDatePopup = { opened: true }" is-open="ToDatePopup.opened"
+                ng-model="currentfilter.ToDate" ng-change="getDetails()" id="disabledInput">
+            <i class="fa fa-calendar" aria-hidden="true" style="padding: 4px 12px;"></i>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="outer-layer">
+        <div class="col-sm-12 col-xs-12 shopping-cart">
+            <div class="">
+                <div class="item col-sm-12 col-xs-12" ng-repeat="item in items">
+                    <div class=" col-sm-5 col-xs-12 description ">
+                        <span>
+                            <b class="ptname ">
+                                <i class="fa fa-user"></i>{{item.Title}} &nbsp;{{item.FirstName}}&nbsp;{{item.LastName}}</b> &nbsp;&nbsp;
+                            <i class="lni lni-ticket-alt "></i>{{item.OrderNumber}} </span>
+                        <span>
+                            <i aria-hidden="true " class="fa fa-hospital-o "></i>{{item.FacilityName}}
+                        </span>
+                        <div>
+                            <div class=" " style="padding: 0; ">
+                                <span class="test ">
+                                    <!-- <i aria-hidden="true " class="fa fa-flask "></i>{{item.ServiceName}}</span> -->
+                            </div>
+                            <span class="date">{{item.SubCategory}}</span>
+                            <span class="blue">
+                        </div>
+                    </div>
+                    <div class="col-sm-5 col-xs-8 total-price ">
+                        <div class="description ">
+                            <span>
+                                <span class="time">
+                                    <i aria-hidden="true " class="fa fa-clock-o "></i>{{item.StartTime}}&nbsp;{{item.EndTime}}
+                                </span>
+                            <!-- {{item.OrderRequestDate}} -->
+                            <span class="date">
+                                    <displaydate date-val="item.OrderScheduleDate ">
+                                    </displaydate>
+                                </span>
+                                <span class="vccdate" ng-show="!item.OrderScheduleDate">
+                                    <displaydate date-val="item.OrderRequestDate "></displaydate>
+                                   </span>
+                            </span>
+                            <div class=" ">
+                                <div class=" ">
+                                    <span class="type ">{{item.ResultValue}}</span>
+                                </div>
+                            </div>
+                            <span class="{{item.OrderStatus}}">
+                                <i aria-hidden="true " class="fa fa-clock-o "></i>
+                                {{item.OrderStatus}}</span>
+                            </span>
+                            <span>
+                                {{item.SubDepartment}}
+                            </span>
+                            <span style="color: red;">
+                                {{item.CancelReason}}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="col-sm-2 col-xs-4">
+                        <div class="results">
+                            <div class="viewbuttom" ng-show="item.OrderStatusId==17 " ng-click="resultinfo(item) ">
+                                <a>Result</a>
+                            </div>
+                            <div class="viewbuttom" ng-show="item.SubCategoryId==22 " ng-click="Editvaccinecard(item) ">
+                                <a>View</a>
+                            </div>
+                            <div class="viewbuttom red" ng-show="item.OrderStatusId==1 " ng-click="cancelreason(item)">
+                                <a>Cancel</a>
+                            </div>
+                        </div>
+                        <!-- <div class="view ">
+                        <div class=" " align="center">
+                            <button ng-show="item.OrderStatusId==11 &&item.ResultFormatTypeId==1" ng-click="downloadFile(item) " class="viewbtn ">View</button>
+                            <button  ng-click="resultinfo(item) " class="viewbtn ">Result</button>
+                        </div>
+                        <div class=" " align="center">
+                            <button ng-click="OrderInfo(item)" class="viewbtn">Info</button>
+                            <button ng-show="item.OrderStatusId==1 " style="background: red !important " ng-click="CancelOrder(item)" class="viewbtn ">Cancel</button>
+                        </div>
+                    </div> -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-12 col-xs-12 mobileview">
+        <div class="item col-sm-12 col-xs-12" ng-repeat="item in items">
+            <div class="col-xs-8 col-sm-8">
+                <div class=" col-sm-12 col-xs-12 description ">
+                    <span>
+                        <b class="ptname ">
+                            <i class="fa fa-user"></i>{{item.PatientName}}</b>
+
+                        <span>
+                            <i aria-hidden="true " class="fa fa-hospital-o "></i>{{item.FacilityName}}
+                        </span>
+                    <div>
+                        <div class=" " style="padding: 0; ">
+                            <span class="test ">
+                                    <i aria-hidden="true " class="fa fa-flask "></i>{{item.ServiceName}}</span>
+                        </div>
+                        <span class="date">{{item.SubCategory}}</span>
+                        <span class="blue ">
+                        </div>
+                </div>
+                <div class="col-sm-12 col-xs-12 total-price ">
+                    <div class="description ">
+                        <span class="time">
+                            <i aria-hidden="true " class="fa fa-clock-o "></i>{{item.StartTime}}&nbsp;{{item.EndTime}}
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-4 col-sm-4 view" style="padding: 0;">
+                <div class=" col-sm-12 col-xs-12 description " style="padding: 0;">
+                    <span>
+                        <i class="lni lni-ticket-alt "></i>{{item.OrderNumber}}</span>
+                    </span>
+                    <span class="date" ng-show="item.OrderScheduleDate">
+                        <displaydate date-val="item.OrderScheduleDate "></displaydate>
+                    </span>
+                    <span class="" ng-show="!item.OrderScheduleDate">
+                     Vacc.Date  <displaydate date-val="item.OrderRequestDate "></displaydate>
+                    </span>
+                </div>
+                <div class="total-price">
+                    <div class="description">
+                        <div class=" ">
+                            <span class="type ">{{item.ResultValue}}</span>
+                        </div>
+                        <span class="{{item.OrderStatus}}">
+                            <i aria-hidden="true " class="fa fa-clock-o "></i>
+                            {{item.OrderStatus}}</span>
+                        </span>
+                        <span>
+                            {{item.PaymentMode}}</span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-12">
+                <div class="col-xs-5">
+                    <button ng-click="Editvaccinecard(item)" ng-show="item.SubCategoryId==22" class="viewbtn ">View</button>
+                </div>
+                <div class="col-xs-7">
+                    <div class="pull-right">
+                        <div class="results">
+                            <i class="fas fa-notes-medical" ng-show="item.OrderStatusId==17" ng-click="resultinfo(item) "></i>
+                            <i class="far fa-times-circle" ng-show="item.OrderStatusId==1" ng-click="cancelreason(item)"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(function() {
+        $(".fold-table tr.view ").on("click ", function() {
+            $(this).toggleClass("open ").next(".fold ").toggleClass("open ");
+        });
+    });
+</script>
+<style>
+    table th,
+    table td {
+        padding: 7px;
+        font-size: 13px;
+    }
+    
+    td {
+        border: 1px solid gainsboro;
+    }
+    
+    table th {
+        text-align: left;
+        border-bottom: 1px solid #ccc;
+    }
+    
+    th {
+        background: #ffffff;
+        color: white;
+    }
+    
+    @import url("https://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css ");
+    .pcs:after {
+        content: " pcs ";
+    }
+    
+    i.fa.fa-eye {
+        height: 25px;
+        background: #ffffff;
+        width: 23px;
+        padding: 5px 5px 4px 3px;
+        border-radius: 5px;
+        color: #2c4964 !important;
+    }
+    
+    * {
+        box-sizing: border-box;
+    }
+    
+    table {
+        width: 100%;
+    }
+    
+    table th {
+        text-align: left;
+        border-bottom: 1px solid #ccc;
+    }
+    
+    table th,
+    table td {
+        padding: .4em;
+    }
+    
+    table.fold-table>tbody>tr.view td,
+    table.fold-table>tbody>tr.view th {
+        cursor: pointer;
+    }
+    
+    table.fold-table>tbody>tr.view td:first-child,
+    table.fold-table>tbody>tr.view th:first-child {
+        position: relative;
+        padding-left: 20px;
+    }
+    
+    table th,
+    table td {
+        padding: 8px;
+    }
+    
+    table.fold-table>tbody>tr.view:nth-child(4n-1) {
+        background: #eee;
+    }
+    
+    table.fold-table>tbody>tr.view:hover {
+        background: #fff;
+    }
+    
+    table.fold-table>tbody>tr.view.open {
+        background: tomato;
+        color: white;
+    }
+    
+    table.fold-table>tbody>tr.view.open td:first-child:before,
+    table.fold-table>tbody>tr.view.open th:first-child:before {
+        transform: rotate(-180deg);
+        color: #333;
+    }
+    
+    table.fold-table>tbody>tr.fold {
+        display: none;
+    }
+    
+    table.fold-table>tbody>tr.fold.open {
+        display: table-row;
+    }
+    
+    .fold-content {
+        padding: .5em;
+    }
+    
+    .fold-content h3 {
+        margin-top: 0;
+    }
+    
+    .fold-content>table {
+        border: 2px solid #ccc;
+    }
+    
+    .fold-content>table>tbody tr:nth-child(even) {
+        background: #eee;
+    }
+</style>

@@ -1,0 +1,213 @@
+<style>
+    .form-group {
+        height: 70px;
+    }
+</style>
+<div class="row">
+    <div class="col-sm-12">
+        <form id="item_form" name="item_form" class="form-horizontal" role="form">
+            <div class="panel panel-default bg-pattern">
+                <!--<div class="panel-heading"><h3 class="active" translate="lis.testmaster.pnltestmaster.lbl"></h3></div>!-->
+                <div class="panel-body form-panel">
+                        <div class="col-sm-12">
+                            <div class="form-group col-sm-4">
+                                <label class="col-sm-12 control-label0" for="testtype"
+                                    translate="lis.externalprovidermaster.testtype.lbl"></label>
+                                <div class="col-sm-12">
+                                    <ui-select ng-model="item.TESTMASTERTYPId" name="testtype" autofocus required>
+                                        <ui-select-match>
+                                            {{$select.selected.Text | limitTo : 20 : 0}}
+                                            <span ng-if="$select.selected.Text.length>20">...</span>
+                                        </ui-select-match>
+                                        <ui-select-choices
+                                            repeat="lookupitem.Id as lookupitem in lookup.TESTMASTERTYP  | filter: { Text: $select.search }">
+                                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                        </ui-select-choices>
+                                    </ui-select>
+                                </div>
+                            </div>
+
+                            <div class="form-group col-sm-4">
+                                <label class="col-sm-12 control-label0" for="code"
+                                    translate="lis.externalprovidermaster.code.lbl"></label>
+                                <div class="col-sm-12">
+                                    <input type="text" class="form-control" on-enter="getList()" ng-model="item.Code"
+                                        name="code" placeholder="" requireds>
+                                </div>
+                            </div>
+
+
+                            <div class="form-group col-sm-4">
+                                <label class="col-sm-12 control-label0" for="name"
+                                    translate="lis.externalprovidermaster.b2bcustomername.lbl"></label>
+                                <div class="col-sm-12">
+                                    <input type="text" class="form-control" name="name" ng-model="item.B2BCustomerName"
+                                        placeholder="" required>
+                                </div>
+                            </div>
+                            <div class="form-group col-sm-4">
+                                <label class="col-sm-12 control-label0" for="contactperson"
+                                    translate="lis.externalprovidermaster.contactperson.lbl"></label>
+                                <div class="col-sm-12">
+                                    <input type="text" class="form-control" on-enter="getList()"
+                                        ng-model="item.ContactPerson" placeholder="">
+                                </div>
+                            </div>
+                            <div class="form-group col-sm-4">
+                                <label class="col-sm-12 control-label0" for="mobile"
+                                    translate="lis.externalprovidermaster.mobilenumber.lbl"></label>
+                                <div class="col-sm-12">
+                                    <input type="text" class="form-control" ng-model="item.MobileNumber" placeholder=""
+                                        ng-minlength="10" ng-pattern="/^\d+$/" ng-required="false">
+                                </div>
+                            </div>
+                            <div class="form-group col-sm-4">
+                                <label class="col-sm-12 control-label0" for="email"
+                                    translate="lis.externalprovidermaster.email.lbl"></label>
+                                <div class="col-sm-12">
+                                    <input type="email" class="form-control" name="ucp" ng-model="item.EmailAddress"
+                                        placeholder="" ng-required="false">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-12">
+                            <div class="form-group col-sm-4">
+                                <label class="col-sm-12 control-label0" for="serviceratecategory"
+                                    translate="lis.externalprovidermaster.serviceratecategory.lbl"></label>
+                                <div class="col-sm-12">
+                                    <ui-select ng-model="item.ServiceRateCategoryId" name="serviceratecategory"
+                                        autofocus required>
+                                        <ui-select-match>
+                                            {{$select.selected.Text | limitTo : 20 : 0}}
+                                            <span ng-if="$select.selected.Text.length>20">...</span>
+                                        </ui-select-match>
+                                        <ui-select-choices
+                                            repeat="lookupitem.Id as lookupitem in lookup.ServiceRateCategory  | filter: { Text: $select.search }">
+                                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                        </ui-select-choices>
+                                    </ui-select>
+                                </div>
+                            </div>
+                            <div class="form-group col-sm-4">
+                                <label class="col-sm-12 control-label0" for="address"
+                                    translate="appmanager.org.address1.lbl"></label>
+                                <div class="col-sm-12">
+                                    <input type="text" id="Manualadd" class="form-control" name="address"
+                                        ng-model="item.AddressLine1" ng-disabled="item.candisable"
+                                        placeholder="Address">
+                                </div>
+                            </div>
+
+                            <div class="form-group col-sm-4">
+                                <label class="col-sm-12 control-label0" for="address"
+                                    translate="appmanager.org.address2.lbl"></label>
+                                <div class="col-sm-12">
+                                    <input type="text" id="Manualadd" class="form-control" name="address"
+                                        ng-model="item.AddressLine2" ng-disabled="item.candisable"
+                                        placeholder="Address">
+                                </div>
+                            </div>
+                            <div class="form-group col-sm-4">
+                                <label class="col-sm-12 control-label0" for="area"
+                                    translate="appmanager.org.area.lbl"></label>
+                                <div class="col-sm-12">
+                                    <input type="text" id="Manualadd" class="form-control" name="area" ng-model=""
+                                        ng-disabled="item.candisable" placeholder="">
+                                </div>
+                            </div>
+                            <div class="form-group col-sm-4 ">
+                                <label class="col-sm-12 control-label0" for="city"
+                                    translate="appmanager.org.city.lbl"></label>
+                                <div class="col-sm-12">
+                                    <ui-select ng-model="vm.item.CityId">
+                                        <ui-select-match>
+                                            {{$select.selected.Text | limitTo : 20 : 0}}
+                                            <span ng-if="$select.selected.Text.length>20">...</span>
+                                        </ui-select-match>
+                                        <ui-select-choices
+                                            repeat="lookupitem.Id as lookupitem in lookup.Nationality | filter: { Text: $select.search }">
+                                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                        </ui-select-choices>
+                                    </ui-select>
+                                </div>
+                            </div>
+                            <div class="form-group col-sm-4">
+                                <label class="col-sm-12 control-label0" for="state"
+                                    translate="appmanager.org.state.lbl"></label>
+                                <div class="col-sm-12">
+                                    <ui-select ng-model="item.StateId" name="type">
+                                        <ui-select-match>
+                                            {{$select.selected.Text | limitTo : 20 : 0}}
+                                            <span ng-if="$select.selected.Text.length>20">...</span>
+                                        </ui-select-match>
+                                        <ui-select-choices
+                                            repeat="lookupitem.Id as lookupitem in lookup.State | filter: { Text: $select.search }">
+                                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                        </ui-select-choices>
+                                    </ui-select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-12">
+                            <div class="form-group col-sm-4">
+                                <label class="col-sm-12 control-label0" for="country"
+                                    translate="appmanager.org.country.lbl"></label>
+                                <div class="col-sm-12">
+                                    <ui-select ng-model="item.CountryId" name="type">
+                                        <ui-select-match>
+                                            {{$select.selected.Text | limitTo : 20 : 0}}
+                                            <span ng-if="$select.selected.Text.length>20">...</span>
+                                        </ui-select-match>
+                                        <ui-select-choices
+                                            repeat="lookupitem.Id as lookupitem in lookup.State | filter: { Text: $select.search }">
+                                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                        </ui-select-choices>
+                                    </ui-select>
+                                </div>
+                            </div>
+                            <div class="form-group col-sm-4">
+                                <label class="col-sm-12 control-label0" for="postcode"
+                                    translate="appmanager.org.postcode.lbl"></label>
+                                <div class="col-sm-12">
+                                    <input type="text" id="vm.item.Pincode" class="form-control" name="address"
+                                        ng-model="vm.item.PinCodeId" ng-disabled="item.candisable" placeholder="">
+                                </div>
+                            </div>
+                            <div class="form-group col-sm-4">
+                                <label class="col-sm-12 control-label0"
+                                    translate="lis.externalprovidermaster.isactive.lbl"></label>
+                                <div class="col-sm-12">
+                                    <input type="checkbox" name="isactive" class="custom-checkbox"
+                                        ng-model="item.IsActive">
+                                </div>
+                            </div>
+                        </div>
+                </div>
+                <div class="fooder-bgs">
+                    <div class="row ">
+                        <div class="col-sm-12">
+                            <div class="pull-left">
+                                <button class="btn pyr-color10 btn-sm" type="button" ng-click="backToList()">
+                                    <i class="fa fa-angle-left" aria-hidden="true"></i>&nbsp;&nbsp;
+                                    <span class="btn-fontsize" translate="common.backaction.lbl"></span>
+                                </button>
+
+                            </div>
+                            <div class="pull-right">
+                                <button type="button"   class="draftbutton"
+                                    translate="common.saveaction.lbl" ng-click="save()"></button>
+                                <button id="btnSaveApprove" type="button" class="draftbutton text-white btn-sm"
+                                    translate="common.saveapprove-action.lbl" ng-click="saveAndApprove()"></button>
+                                <button id="btnClearForm" type="button" class="draftbutton"
+                                    ng-click="clear()" translate="common.clearaction.lbl"></button>
+                                <button id="btnCancelForm" type="button" class="draftbutton"
+                                    ng-click="backToList()" translate="common.cancelaction.lbl"></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </form>
+    </div>
+</div>

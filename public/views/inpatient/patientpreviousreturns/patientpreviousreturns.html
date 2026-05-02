@@ -1,0 +1,157 @@
+<!-- <style>
+    .page-header {
+        margin: 0px 0px 2px 0px !important;
+        padding-bottom: 6px !important;
+    }
+
+    #dropdownctrl>a>.label {
+        left: 15px !important;
+    }
+
+    .fooder-bg.bottom_align.ng-scope {
+        bottom: -5px;
+    }
+
+    .prev_footer {
+        position: sticky !important;
+    }
+    .fooder-bgs {
+    margin-bottom: 5px !important;
+    height: 1% !important;
+    margin-top: 2px;
+}
+div#patientlabresult {
+    padding: 14px;
+}
+.row.filter-area {
+    border: unset;
+    box-shadow: unset;
+}
+.fooder-bgs {
+    margin-bottom: 5px !important;
+    height: 1% !important;
+    margin-top: -25px;
+}
+#mainresponsivetablecontrol .table>tbody>tr>td, #mainresponsivetablecontrol .table>thead:first-child>tr:first-child>td {
+    border-top: 0;
+    padding: 1px;
+    white-space: nowrap;
+    font-weight: 500;
+    color: #000;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+</style> -->
+<div class="modal-header custom-modal-header">
+    <div class="col-sm-10">
+        <h4 class="modal-title custom-modal-title" translate="Previous Orders"></h4>
+    </div>
+    <div class="col-sm-2">
+        <div class="filters">
+            <img src="../../../../../assets/svg/close.svg" ng-click="cancelCallback()">
+        </div>
+    </div>
+</div>
+
+<div class="row" ng-if="currentcontext.isModal">
+    <patientbanner patientid="currentcontext.pid" delegatefn="setBannerDelegate(cmp)"></patientbanner>
+</div>
+
+<div class="row">
+    <div class="col-sm-6">
+        <label class="col-sm-3 control-label" translate="previousorders.fromdate.lbl"></label>
+        <div class="col-sm-6">
+            <input type="text" class="form-control" name="from" ng-change="getList()" ng-date-object
+                uib-datepicker-popup="{{datePickerOptions.dateFormat}}" placeholder="{{datePickerOptions.placeholder}}"
+                ng-click="fromPopup = { opened: true }" is-open="fromPopup.opened" ng-model="currentfilter.fromdate">
+        </div>
+    </div>
+    <div class="col-sm-6">
+        <label class="col-sm-3 control-label" translate="previousorders.todate.lbl"></label>
+        <div class="col-sm-6">
+            <input type="text" class="form-control" name="to" ng-change="getList()" ng-date-object
+                uib-datepicker-popup="{{datePickerOptions.dateFormat}}" placeholder="{{datePickerOptions.placeholder}}"
+                ng-click="toPopup = { opened: true }" is-open="toPopup.opened" ng-model="currentfilter.todate">
+        </div>
+    </div>
+</div>
+<div class="row">
+    <table class="table table-hover table-responsive table-bordered">
+        <thead class="bg-subhead">
+            <tr>
+                <th class="">
+                    <span translate="previousorders.requestno.lbl"></span>
+                </th>
+                <th class="">
+                    <span translate="previousorders.requesteddate.lbl"></span>
+                </th>
+                <th class="">
+                    <span translate="Requested by"></span>
+                </th>
+                <th class="">
+                    <span translate="previousorders.itemname.lbl"></span>
+                </th>
+                <th class="">
+                    <span translate="previousorders.qty.lbl"></span>
+                </th>
+                <!-- <th class="">
+                    <span translate="previousorders.doctor.lbl"></span>
+                </th> -->
+                <th class="">
+                    <span translate="Dispense status"></span>
+                </th>
+                <th class="">
+                    <span translate="Dispensed by"></span>
+                </th>
+
+            </tr>
+        </thead>
+        <tbody>
+            <tr ng-repeat="item in previousordersDetails"
+                ng-hide="item.OrderStatus=='CANCELLED'||item.PatientBillStatusId==2">
+
+                <td>
+                    <span>{{item.PatientReturnNumber}}</span>
+                </td>
+                <td>
+                    <span>{{item.PatientReturnDateTime | date: 'dd-MM-yyyy'}}</span>
+                </td>
+                <td>
+                    <span>{{item.CreatedUser.Title.Description}} {{item.CreatedUser.FirstName}} {{item.CreatedUser.LastName}}</span>
+                </td>
+                <td>
+                    <span>{{item.PatientStockReturnDetails[0].ItemName}}
+                    </span>
+                </td>
+                <td>
+                    <span>{{item.PatientStockReturnDetails[0].ReturnQuantity}}</span>
+                </td>
+                <!-- <td>
+                    <span>{{item.DoctorName}}</span>
+                </td> -->
+                <td>
+                    <span>{{item.PatientReturnStatus.Description}}</span>
+                </td>
+
+
+
+                <td>
+                    <span>{{item.CreatedUser.Title.Description}} {{item.CreatedUser.FirstName}}
+                        {{item.CreatedUser.LastName}}</span>
+                </td>
+
+
+            </tr>
+
+        </tbody>
+    </table>
+</div>
+<div class="">
+    <div class="row">
+        <div class="pull-right">
+            <!-- <button type="button" class="draftbutton" ng-click="print()"
+                translate="common.printaction.lbl"></button> -->
+            <!--<button id="btnCancelForm" type="button" class="draftbutton" ng-click="cancelCallback()" translate="common.cancelaction.lbl"></button>-->
+        </div>
+    </div>
+</div>

@@ -1,0 +1,86 @@
+<style>
+    .table-uigrid.ui-grid .ui-grid-row.ui-grid-row-selected>[ui-grid-row]>.ui-grid-cell {
+        background-color: lightgreen;
+        border-bottom: 1px solid #efe6e6;
+    }
+    
+    .autosearch-div .custom-popup-wrapper {
+        position: absolute;
+        width: 483%!important;
+    }
+</style>
+<div class="row page-header">
+    <h4 class="mt0 col-sm-6" translate="cssd.cssdpreparation.pagetitle.lbl"></h4>
+</div>
+<div class="row filter-area">
+    <div class="col-sm-12">
+        <div class="col-sm-3">
+            <label class="col-sm-5 control-label filter-lbl" translate="inventory.stockstatus.itemname.lbl"></label>
+            <div class="col-sm-7">
+                <autosearch itemid="currentfilter.ItemMasterId" iteminfo="" rowdata="" config="vm.stockitemcontrolconfig" itemchange="getList()"></autosearch>
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <label class="col-sm-4 control-label filter-lbl" translate="inventory.stockstatus.facility.lbl"></label>
+            <div class="col-sm-8">
+                <ui-select ng-model="currentfilter.FacilityId" ng-change="getList()" class="filter-combo">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 20 : 0}}
+                        <span ng-if="$select.selected.Text.length>20">...</span>
+                    </ui-select-match>
+                    <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.Facility | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+        <div class="col-sm-2">
+            <label class="col-sm-4 control-label filter-lbl" translate="inventory.stockstatus.store.lbl"></label>
+            <div class="col-sm-8">
+                <ui-select ng-model="currentfilter.StoreMasterId" ng-change="getList()" class="filter-combo">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 20 : 0}}
+                        <span ng-if="$select.selected.Text.length>20">...</span>
+                    </ui-select-match>
+                    <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.UserStores | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+
+        <div class="col-sm-2">
+            <label class="col-sm-5 control-label filter-lbl" translate="inventory.stockstatus.itemcategory.lbl"></label>
+            <div class="col-sm-7">
+                <ui-select ng-model="currentfilter.CategoryId" class="filter-combo">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 20 : 0}}
+                        <span ng-if="$select.selected.Text.length>20">...</span>
+                    </ui-select-match>
+                    <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.ItemCategory | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="container-fluid onerow-filter">
+    <div ui-grid="vm.gridConfig" class="table-uigrid" ui-grid-selection></div>
+    <div class="fooder-bgs">
+        <div class="row">
+            <ul class="col-sm-6" uib-pagination total-items="vm.gridConfig.pagerObj.totalItems" items-per-page="vm.gridConfig.pagerObj.pageSize"
+                start-index="vm.gridConfig.pagerObj.startIndex" ng-model="vm.gridConfig.pagerObj.currentPage"></ul>
+                <div class="col-sm-6"><span class="pull-right">
+           <button type="button" class="btn dem-color4 text-white btn-sm" translate="cssd.cssdpreparation.receive.lbl"  ng-click="completed()"></button>
+          <button type="button" class="draftbutton" translate="cssd.cssdpreparation.washing.lbl" ng-click="washing()"></button>
+ <button id="btnCancelForm" type="button" class="btn btn-info texthover btn-sm ng-scope" ng-click="cleaning()"
+                                            translate="cssd.cssdpreparation.cleaning.lbl"></button>              
+       <button type="button" class="btn deceased-color btn-sm" translate="cssd.cssdpreparation.packing.lbl" ng-click="packing()"></button>
+                <button type="button" class="draftbutton" translate="cssd.cssdpreparation.sterile.lbl" ng-click="sterile()"></button>
+                <button id="btnCancelForm" type="button" class="btn btn-sm bt-color2" ng-click="movetostore()" translate="cssd.cssdpreparation.movetostore.lbl"></button>
+           </span>
+                </div>
+        </div>
+    </div>
+</div>

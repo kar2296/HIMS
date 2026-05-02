@@ -1,0 +1,187 @@
+<style>
+    table#bannerdetails .autosearch-div table.table.table-bordered.table-condensed.dropdown-menu {
+        position: absolute;
+        left: -98px;
+    }
+</style>
+
+
+<div class="row page-header">
+    <div class="col-sm-6">
+        <h4 class="mt0" translate="reports.pharmsummary.lbl"></h4>
+    </div>
+    <div class="col-sm-6">
+        <div class="filters">
+            <i class="icofont-filter" uib-tooltip="Filter" tooltip-placement="bottom" ng-click="openFilterTab()"></i>
+            <!-- <i class="icofont-file-excel" uib-tooltip="Excel" tooltip-placement="bottom"
+                onclick="exportTableToExcel('tblData', 'members-data')"></i> -->
+            <i class="icofont-print" uib-tooltip="Print" tooltip-placement="bottom" ng-click="print()"></i>
+            <i class="icofont-home" ng-click="backtoReport()" tabindex="-1" uib-tooltip="Report"
+                tooltip-placement="bottom"></i>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <table id="bannerdetails">
+        <tr>
+            <td translate="reports.fromdate.lbl"></td>
+            <td>
+                <div class="datepicker" id="datepicker">
+                    <input type="text" class="form-control" name="fromdate" ng-date-object
+                        datetime-picker="{{dateTimePickerOptions.dateTimeFormat}}"
+                        placeholder="{{datePickerOptions.placeholder}}" ng-click="fromdatePopup = { opened: true }"
+                        is-open="fromdatePopup.opened" ng-model="currentfilter.FromBillDate">
+                    <i class="fa fa-calendar"></i>
+                </div>
+            </td>
+            <td translate="reports.todate.lbl"></td>
+            <td>
+                <div class="datepicker" id="datepicker">
+                    <input type="text" class="form-control" name="todate" ng-date-object
+                        datetime-picker="{{dateTimePickerOptions.dateTimeFormat}}"
+                        placeholder="{{datePickerOptions.placeholder}}" ng-click="todatePopup = { opened: true }"
+                        is-open="todatePopup.opened" ng-model="currentfilter.ToBillDate">
+                    <i class="fa fa-calendar"></i>
+                </div>
+            </td>
+            <td translate="reports.user.lbl"></td>
+            <td>
+                <autosearch itemid="currentfilter.UserId" itemchange="getList()" onenter="onenter()"
+                    iteminfo="item.SelectedItem" rowdata="item" config="vm.usercontrolconfig" class="inputsearchlogo"
+                    isrequired="true">
+                </autosearch>
+            </td>
+            <td translate="inventory.purchaseorders.store.lbl"></td>
+            <td>
+                <ui-select ng-model="currentfilter.StoreMasterId" name="fromstore" required>
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 20 : 0}}
+                        <span ng-if="$select.selected.Text.length>20">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.UserStores | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </td>
+            <td style="text-align: center;">
+                <button class="loadbtn" ng-click="getList()">
+                    <i class="fas fa-sync loading-icon" aria-hidden="true" uib-tooltip="Search"
+                        tooltip-placement="bottom"></i> <span>Load</span>
+                </button>
+            </td>
+        </tr>
+    </table>
+</div>
+
+<div class="row">
+    <table id="tblData">
+        <tr>
+            <td translate="billing.pharmacycollections.totalcash.lbl"></td>
+            <td class="currency-align">{{TotCash |displaycurrency}}</td>
+            <td translate="billing.pharmacycollections.totalcard.lbl"></td>
+            <td class="currency-align">{{TotCard | displaycurrency}}</td>
+            <td translate="Total Others"></td>
+            <td class="currency-align">{{TotChequeOthers | displaycurrency}}</td>
+            <td translate="Total UPI"></td>
+            <td class="currency-align">{{TotUPI | displaycurrency}}</td>
+        </tr>
+        <tr>
+            <td translate="Advance Cash"></td>
+            <td class="currency-align">{{TotCashAdvance | displaycurrency}}</td>
+            <td translate="Advance Card"></td>
+            <td class="currency-align">{{TotCardAdvance | displaycurrency}}</td>
+            <td translate="Advance Others"></td>
+            <td class="currency-align">{{TotChequeOthersAdvance | displaycurrency}}</td>
+            <td translate="Advance UPI"></td>
+            <td class="currency-align">{{TotUPIAdvance | displaycurrency}}</td>
+        </tr>
+        <tr>
+            <td translate="billing.pharmacycollections.duecash.lbl"></td>
+            <td class="currency-align">{{TotCashDue | displaycurrency}}</td>
+            <td translate="billing.pharmacycollections.duecard.lbl"></td>
+            <td class="currency-align">{{TotCardDue | displaycurrency}}</td>
+            <td translate="Due Others"></td>
+            <td class="currency-align">{{TotChequeOthersDue | displaycurrency}}</td>
+            <td translate="Due UPI"></td>
+            <td class="currency-align">{{TotUPIDue | displaycurrency}}</td>
+
+        </tr>
+        <tr>
+            <td translate="billing.pharmacycollections.cashrefund.lbl"></td>
+            <td class="currency-align"> {{TotCashReturn | displaycurrency}}</td>
+            <td translate="billing.pharmacycollections.cardrefund.lbl"></td>
+            <td class="currency-align">{{TotCardReturn | displaycurrency}}</td>
+            <td translate="Return Others"></td>
+            <td class="currency-align">{{TotChequeOthersReturn | displaycurrency}}</td>
+            <td translate="Return UPI"></td>
+            <td class="currency-align">{{TotUPIReturn | displaycurrency}}</td>
+
+        </tr>
+        <tr>
+            <td translate="billing.pharmacycollections.netcash.lbl"></td>
+            <td class="currency-align" style="border: 1px solid #38386b !important;"> <span> {{NetCash |
+                    displaycurrency}} </span></td>
+            <td translate="billing.pharmacycollections.netcard.lbl"></td>
+            <td class="currency-align" style="border: 1px solid #38386b !important;"><span> {{NetCard |
+                    displaycurrency}}</span></td>
+            <td translate="Net Others"></td>
+            <td class="currency-align" style="border: 1px solid #38386b !important;"> <span> {{NetCheque |
+                    displaycurrency }} </span></td>
+            <td translate="Net UPI"></td>
+            <td class="currency-align" style="border: 1px solid #38386b !important;"> <span> {{NetUPI | displaycurrency
+                    }} </span></td>
+
+
+        </tr>
+    </table>
+</div>
+<div class="row">
+    <table style="float: right;" id="tbldata">
+        <tr>
+            <td translate="billing.pharmacycollections.balance.lbl" style="width: 182px;"></td>
+            <td class="currency-align" style="width: 182px; height: 32px;"><span> {{TotSales + TotAdvances + TotDues -
+                    TotReturn | displaycurrency }} </span>
+            </td>
+        </tr>
+    </table>
+</div>
+<div class="fooder-bgs">
+    <div class="row">
+        <ul uib-pagination total-items="vm.gridConfig.pagerObj.totalItems"
+            items-per-page="vm.gridConfig.pagerObj.pageSize" start-index="vm.gridConfig.pagerObj.startIndex"
+            ng-model="vm.gridConfig.pagerObj.currentPage" ng-change="getList()"></ul>
+    </div>
+</div>
+<script>
+    function exportTableToExcel(tableID, filename = '') {
+        var downloadLink;
+        var dataType = 'application/vnd.ms-excel';
+        var tableSelect = document.getElementById(tableID);
+        var tableHTML = tableSelect.outerHTML.replace(/ /g, '%20');
+
+        // Specify file name
+        filename = filename ? filename + '.xls' : 'excel_data.xls';
+
+        // Create download link element
+        downloadLink = document.createElement("a");
+
+        document.body.appendChild(downloadLink);
+
+        if (navigator.msSaveOrOpenBlob) {
+            var blob = new Blob(['\ufeff', tableHTML], {
+                type: dataType
+            });
+            navigator.msSaveOrOpenBlob(blob, filename);
+        } else {
+            // Create a link to the file
+            downloadLink.href = 'data:' + dataType + ', ' + tableHTML;
+
+            // Setting the file name
+            downloadLink.download = filename;
+
+            //triggering the function
+            downloadLink.click();
+        }
+    }
+</script>

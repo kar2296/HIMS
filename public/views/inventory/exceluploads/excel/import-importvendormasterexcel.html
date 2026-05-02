@@ -1,0 +1,147 @@
+<style>
+    .signdiv {
+        padding: 10px 10px 40px 10px;
+        margin: 0 auto 0 auto;
+    }
+
+    .signdiv .signature {
+        margin: 0 auto;
+        cursor: pointer;
+    }
+
+    .signdiv .signature canvas {
+        border: 1px solid #999;
+        margin: 0 auto;
+        cursor: pointer;
+    }
+
+    .modal-height {
+        height: 320px !important;
+    }
+
+    input.upload-btn {
+        margin-top: 6px;
+        background: #0c71ab;
+        border: 0;
+        color: white;
+        border-radius: 4px;
+    }
+
+    .loader {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+    }
+
+    .spinner {
+        border: 4px solid rgba(255, 255, 255, 0.3);
+        border-top: 4px solid #fff;
+        border-radius: 50%;
+        width: 50px;
+        height: 50px;
+        animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+        0% {
+            transform: rotate(0deg);
+        }
+
+        100% {
+            transform: rotate(360deg);
+        }
+    }
+
+    .modal-content {
+        width: 50%;
+        justify-self: center;
+        height: 500px;
+    }
+
+    .upload-ui i {
+        font-size: 28px;
+    }
+
+    .upload-ui {
+        height: 100px;
+        border: 2px dashed #006c9a;
+        width: 35%;
+        border-radius: 10px;
+        color: #006c9a;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    input.form-control {
+        position: absolute;
+        z-index: 9999;
+        height: 100px;
+        top: 32px;
+        width: 34%;
+        opacity: 0;
+    }
+</style>
+<div class="modal-header custom-modal-header">
+    <h4 class="col-sm-11" translate="Test Master Bulk Upload">
+    </h4>
+    <div class="col-sm-1">
+        <button id="btnCancelForm" type="button" class="btn btn-danger btn-sm" ng-click="backToList()"
+            translate="X"></button>
+        <!-- <button type="button" id="closebtn" class="btn-sm pull-right" ng-click="backToList()">
+            <img id="close" src="/app/img/svg/close.svg" alt="">
+        </button> -->
+    </div>
+</div>
+<div ng-show="loading" class="loader">
+    <!-- You can use a spinner or any other loader style -->
+    <div class="spinner"></div>
+    <p>Loading...</p>
+</div>
+
+<div class="row modal-height">
+    <div class="">
+        <form id="item_form" name="item_form" class="form-horizontal" role="form">
+            <div class="">
+                <div class="col-sm-12 ">
+                    <div class="form-group col-sm-12">
+                        <p>Please select the Excel file you wish to import</p>
+                        <p id="upload-ui">
+                        <div class="upload-ui"><i class="fa-solid fa-file-arrow-up"></i></div>
+                        <input type="file" name="file" class="form-control" id="fileInput"
+                            onchange="angular.element(this).scope().loadFile(this.files)" />
+                        <p id="fileName">No file chosen</p>
+                        <input type="button" value="Upload" class="upload-btn" ng-click="handleFile()" /></p>
+                        <p>Instructions</p>
+                        <p>1. You need to create a xlsx file with imported data.</p>
+                        <p>2. Your xlsx file should be formatted as a table and must include a header at first line,
+                            that defines the fields in your table.</p>
+                        <!-- <p>3. Biometric ID must avail and also Employee ID should map with Biometric ID.</p> -->
+                        <p>3. Download our <a ng-click="download()">sample csv file</a></p>
+                        <p>4. Upload your XLSX file</p>
+
+                    </div>
+                    <!--<div class="fooder-bgs">
+                    <div class="pull-right">
+                         <button id="btnCancelForm" type="button" class="btn btn-danger btn-sm" ng-click="backToList()" translate="common.cancelaction.lbl"></button>
+                        <button type="button" id="" translate="common.saveaction.lbl" class="savebtn"
+                            ng-disabled="currentcontext.isViewMode" ng-click="saveItem()"></button>-->
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+<script type="text/javascript" src="https://unpkg.com/xlsx@0.15.1/dist/xlsx.full.min.js"></script>
+<script>
+    document.getElementById('fileInput').addEventListener('change', function (event) {
+        let file = event.target.files[0];
+        document.getElementById('fileName').textContent = file ? file.name : "No file chosen";
+    });
+</script>

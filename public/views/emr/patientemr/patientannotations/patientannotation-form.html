@@ -1,0 +1,149 @@
+<style>
+    input[type="file"] {
+        display: block;
+        width: 100%;
+    }
+
+    .box1 .inputfile {
+        width: 0.1px;
+        height: 0.1px;
+        opacity: 0;
+        overflow: hidden;
+        position: absolute;
+        z-index: -1;
+    }
+
+    .inputfile-1+label {
+        color: #f1e5e6;
+        width: 75%;
+        border-radius: 3px;
+        margin: 1px 9px;
+        cursor: pointer;
+        background-color: #d3394c;
+    }
+
+    .inputfile+label i {
+        margin: 4px 7px;
+    }
+
+    .btn:focus {
+        border: 2px solid black;
+    }
+
+    .modal-content .panel-body {
+        overflow: inherit;
+    }
+
+    .formRoot {
+        overflow: inherit;
+    }
+</style>
+<ul class="breadcrumb" ng-if="!currentcontext.ismodal">
+    <li><a ng-click="backToList()" translate="patientemr.patientannotation-form.parentpagetitle.lbl"></a></li>
+    <li class="active" translate="patientemr.patientannotation-form.pagetitle.lbl"></li>
+</ul>
+<div class="modal-header custom-modal-header" ng-if="currentcontext.ismodal">
+    <h4 class="modal-title custom-modal-title" translate="patientemr.patientannotation-form.pagetitle.lbl"></h4>
+</div>
+
+<div class="row">
+    <div class="col-sm-12">
+        <form id="item_form" name="item_form" class="form-horizontal" role="form">
+            <div class="formRoot">
+                <div class="panel-body form-panel">
+                    <patientbanner patientid="item.PatientId"></patientbanner><br>
+                    <div class="col-sm-12">
+                        <div class="col-sm-6">
+                            <label class="col-sm-4 control-label" translate="patientemr.patientannotation-form.type.lbl"></label>
+                            <div class="col-sm-8">
+                                <ui-select ng-model="item.AnnotationTypeId" name="type">
+                                    <ui-select-match>
+                                        {{$select.selected.Text | limitTo : 20 : 0}}
+                                        <span ng-if="$select.selected.Text.length>20">...</span>
+                                    </ui-select-match>
+                                    <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.AnnotationType | filter: { Text: $select.search }">
+                                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                    </ui-select-choices>
+                                </ui-select>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <label class="col-sm-4 control-label" translate="patientemr.patientannotation-form.performedby.lbl"></label>
+                            <div class="col-sm-8">
+                                <ui-select ng-model="item.PerformedBy" name="performedby">
+                                    <ui-select-match>
+                                        {{$select.selected.Text | limitTo : 20 : 0}}
+                                        <span ng-if="$select.selected.Text.length>20">...</span>
+                                    </ui-select-match>
+                                    <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.User | filter: { Text: $select.search }">
+                                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                    </ui-select-choices>
+                                </ui-select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div ng-show="!item.iswebcamphoto" id="annroot">
+                                <img annotorious-annotate class="patient-img img-responsive image-height-control img-thumbnail  center-block" tabindex="-1" ng-show="!!currentcontext.file"
+                                    ngf-thumbnail="currentcontext.file" />
+                                <img annotorious-annotate ng-show="!currentcontext.file && item.FilePath" data-ng-src="data:image/png;base64,{{currentcontext.Photo}}" tabindex="-1"
+                                    class="patient-img img-responsive image-height-control img-thumbnail center-block"
+                                    data-original="ann-img1" />
+                                <img ng-show="!currentcontext.file && !item.FilePath" src="app/img/main/no-img-icon.png" tabindex="-1" class="img-responsive image-height-control img-thumbnail center-block ">
+                            </div>
+                            <div ng-show="item.iswebcamphoto">
+                                <img annotorious-annotate data-ng-src="data:image/png;base64,{{item.webcamphoto}}" tabindex="-1" class="patient-img img-responsive image-height-control img-thumbnail center-block"
+                                />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="col-sm-5"></div>
+                            <div class="col-sm-1">
+                                <div class="box1">
+                                    <input type="file" ngf-select ng-model="currentcontext.file" tabindex="-1" name="file" id="file-1" class="inputfile inputfile-1"
+                                        ngf-max-size="200MB" ngf-change="photoFileChanged()" />
+                                    <label for="file-1" uib-tooltip="Upload" tooltip-placement="bottom"><i class="fa fa-upload" aria-hidden="true"></i> </label>
+                                </div>
+                            </div>
+                            <div class="col-sm-1">
+                                <button type="button" class="btn btn-warning btn-xs" tabindex="-1" ng-click="openWebCam()" uib-tooltip="webcam" tooltip-placement="bottom"><i class="fa fa-camera" aria-hidden="true"></i></button>
+                            </div>
+                            <div class="col-sm-5"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="panel-body form-panel">
+                    <div id="imagesection">
+                        <div class="col-sm-12">
+                            <label class="col-sm-2 control-label" for="comments" translate="patientemr.patientannotation-form.comments.lbl"></label>
+                            <div class="col-sm-8">
+                                <commentscontrol comments="item.Comments"></commentscontrol>
+                            </div>
+                            <div class="col-sm-2">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="panel-footer formactionbar">
+                <div class="pull-left">
+                    <button type="button" class="draftbutton" ng-click="review()" translate="patientemr.patientannotation-form.review.lbl"
+                        ng-show="canShowReviewBtn"></button>
+                    <button type="button" class="draftbutton" ng-click="exportImage()">Print</button>
+                </div>
+                <div class="pull-right">
+                    <button type="submit" class="draftbutton" ng-if="canUpdatePatientEMR()" ng-click="saveDraft()" translate="common.saveaction.lbl" ng-show="canShowSaveBtn"></button>
+                    <!--<button type="submit" class="btn btn-primary btn-sm " ng-click="save()" translate="common.saveapprove-action.lbl"></button>-->
+                    <button type="button" class="btn btn-warning btn-sm " ng-click="clear()" translate="common.clearaction.lbl" ng-show="canShowClearBtn"></button>
+                    <button id="btnCancelForm" type="button" class="draftbutton" ng-click="backToList()" translate="common.cancelaction.lbl"
+                        ng-show="canShowCancelBtn"></button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

@@ -1,0 +1,257 @@
+<style>
+    .primary {
+        color: white;
+        background: #23B7E5;
+        border-radius: 3px
+    }
+
+    .patientprofile-img {
+        width: 70px !important;
+        height: 70px !important;
+    }
+
+    .panel-body .well {
+        height: 586px;
+        width: 869px;
+    }
+
+    /* .col-sm-6 {
+        width: 30%;
+    } */
+
+    .fullreg-profiles2 {
+        min-height: 22px;
+        color: #fff;
+        background: -moz-linear-gradient(top, #fff 0, #f3f3f3 50%, #ededed 100%, #fff 100%);
+        -moz-box-shadow: 7px 5px 15px -9px rgba(0, 0, 0, .75);
+        box-shadow: 7px 5px 15px -9px rgba(0, 0, 0, .75);
+        background: url(app/img/header-bg.jpg) repeat-x left top;
+    }
+
+    /* .cus-col {
+        width: 120px !important;
+        padding-left: 3px !important;
+    } */
+    .popup_content .col-sm-12 {
+        padding: 6px;
+    }
+
+    .panel.panel-default {
+        width: 114%;
+        margin-left: 1% !important;
+    }
+
+    .outer_border {
+        border: 1px solid;
+        box-shadow: 2px 11px 19px #888888;
+    }
+
+    /* .col-sm-4{border-right:1px solid;} */
+    .outer_border .col-sm-12 {
+        border-bottom: 1px solid lightgray;
+    }
+</style>
+
+<div class="modal-header custom-modal-header">
+    <h4 class="modal-title custom-modal-title col-sm-10">Order Confirmation</h4>
+    <div class="col-sm-2">
+        <button id="btnCancelForm" style="float: right;" type="button" class="draftbutton"
+            ng-click="backToList()" translate="X"></button>
+    </div>
+</div>
+
+
+<table id="bannerdetails">
+    <tr>
+        <td translate="Category"></td>
+        <td> {{item.VirtualCategory.CategoryName}}</td>
+        <td translate="Sub Category"></td>
+        <td>{{item.VirtualSubCategory.SubCategoryName}}</td>
+    </tr>
+    <tr>
+        <td ng-hide="item.CategoryTypeId==1" translate="ServiceName"></td>
+        <td ng-hide="item.CategoryTypeId==1"><div class="col-sm-12" ng-repeat="detail in item.VirtualOrderDetails">
+                            {{detail.ServiceName}}</div></td>
+        <td translate="ServiceName"></td>
+        <td><div class="col-sm-12" ng-repeat="detail in item.VirtualOrderDetails">
+            {{detail.ServiceName}}</div></td>
+    </tr>
+    <tr>
+        <td translate="Doctor Name"></td>
+        <td>{{item.DoctorName}}</td>
+        <td translate="Department"></td>
+        <td>{{item.Department.DepartmentName}}</td>
+    </tr>
+    <tr>
+        <td translate="Address"></td>
+        <td> <span ng-if="item.Patient.AddressLine1"> {{item.Patient.AddressLine1}}</span>&nbsp;
+                            <span ng-if="item.Patient.Area">,</span>&nbsp;
+                            <span ng-if="item.Patient.Area">{{item.Patient.Area}}</span>&nbsp;
+                            <span ng-if="item.Patient.City">,</span>&nbsp;
+                            <span ng-if="item.Patient.City">{{item.Patient.City}}</span>&nbsp;
+                            <span ng-if="item.Patient.State">,</span>&nbsp;
+                            <span ng-if="item.Patient.State">{{item.Patient.State}}</span>&nbsp;
+                            <span ng-if="item.Patient.Country">,</span>&nbsp;
+                            <span ng-if="item.Patient.Country">{{item.Patient.Country}}</span>&nbsp;
+</td>
+        <td translate="Payment Mode"></td>
+        <td>{{item.PaymentMode.Description}}</td>
+    </tr>
+    <tr>
+        <td translate="Consultation Type"></td>
+        <td>
+                            <span ng-if="item.OrderConsultTypeId==1">Call</span>
+                            <span ng-if="item.OrderConsultTypeId==2">Video</span></td>
+        <td translate="Ref.No." ng-show="item.CategoryTypeId==1"></td>
+        <td ng-show="item.CategoryTypeId==1">{{item.OrderNumber}}</td>
+    </tr>
+    <tr>
+        <td translate="Schedule Date"></td>
+        <td> <displaydate date-val="item.OrderScheduleDate"></displaydate></td>
+        <td translate="Scheduled Time"></td>
+        <td>{{item.StartTime}}&nbsp;to&nbsp;{{item.EndTime}}</td>
+    </tr>
+    <tr>
+        <td translate="Order Mode"></td>
+        <td>{{item.OrderMode.Description}}</td>
+        <td translate="Amount"></td>
+        <td class="fontbolder">{{item.TotalNetAmount | displaycurrency}}</td>
+    </tr>
+    <tr>
+        <td translate="Discount Amount"></td>
+        <td>{{item.DiscountAmount | displaycurrency}}</td>
+        <td translate="Created Info"></td>
+        <td> {{item.CreatedUser.Title.Description}}&nbsp;{{item.CreatedUser.FirstName}}&nbsp;{{item.CreatedUser.LastName}}
+                            &nbsp;/
+                            <displaydate datetime-val="item.CreatedAt"></displaydate></td>
+    </tr>
+    <tr>
+        <td translate="Symptoms"></td>
+        <td>{{item.Symptoms}}</td>
+        <td translate="Order Remarks"></td>
+        <td>{{item.OrderRemarks}}</td>
+    </tr>
+    <tr>
+        <td translate="Status"></td>
+        <td>{{item.VirtualOrderStatus.Description}}</div></td>
+       
+    </tr>
+</table>
+
+<div class="row">
+    <div class="col-sm-12">
+        <form id="item_form" name="item_form" class="form-horizontal" role="form">
+            <div class="">
+                <div class="col-sm-12 popup_content">
+                    <div class="col-sm-12" style="border-bottom: 1px solid gainsboro;">
+                        <div class="col-sm-6">
+                            <b> <span translate="Category"></span></b>:</div>
+                        <div class="col-sm-6 testname">{{item.VirtualCategory.CategoryName}}</div>
+                    </div>
+                    <div class="col-sm-12" style="border-bottom: 1px solid gainsboro;">
+                        <div class="col-sm-6"><b><span translate="Sub Category"></span></b>:</div>
+                        <div class="col-sm-6 testname">{{item.VirtualSubCategory.SubCategoryName}}</div>
+                    </div>
+                    <div class="col-sm-12" style="border-bottom: 1px solid gainsboro;" ng-hide="item.CategoryTypeId==1">
+                        <div class="col-sm-6"><b><span translate="ServiceName"></span></b>:</div>
+                        <div class="col-sm-6 testname" ng-repeat="detail in item.VirtualOrderDetails">
+                            {{detail.ServiceName}}</div>
+                    </div>
+                    <div class="col-sm-12" style="border-bottom: 1px solid gainsboro;">
+                        <div class="col-sm-6"><b><span translate="Doctor Name"></span></b>:</div>
+                        <div class="col-sm-6 testname">{{item.DoctorName}}</div>
+                    </div>
+                    <div class="col-sm-12" style="border-bottom: 1px solid gainsboro;">
+                        <div class="col-sm-6"><b><span translate="Department"></span></b>:</div>
+                        <div class="col-sm-6 testname">{{item.Department.DepartmentName}}</div>
+                    </div>
+                    <div class="col-sm-12" style="border-bottom: 1px solid gainsboro;">
+                        <div class="col-sm-6"><b><span translate="Address"></span></b>:</div>
+                        <div class="col-sm-6 testname">
+                            <span ng-if="item.Patient.AddressLine1"> {{item.Patient.AddressLine1}}</span>&nbsp;
+                            <span ng-if="item.Patient.Area">,</span>&nbsp;
+                            <span ng-if="item.Patient.Area">{{item.Patient.Area}}</span>&nbsp;
+                            <span ng-if="item.Patient.City">,</span>&nbsp;
+                            <span ng-if="item.Patient.City">{{item.Patient.City}}</span>&nbsp;
+                            <span ng-if="item.Patient.State">,</span>&nbsp;
+                            <span ng-if="item.Patient.State">{{item.Patient.State}}</span>&nbsp;
+                            <span ng-if="item.Patient.Country">,</span>&nbsp;
+                            <span ng-if="item.Patient.Country">{{item.Patient.Country}}</span>&nbsp;
+                        </div>
+                    </div>
+                    <div class="col-sm-12" style="border-bottom: 1px solid gainsboro;">
+                        <div class="col-sm-6"><b><span translate="Payment Mode"></span></b>:</div>
+                        <div class="col-sm-6 testname">{{item.PaymentMode.Description}}</div>
+                    </div>
+                    <div class="col-sm-12" style="border-bottom: 1px solid gainsboro;">
+                        <div class="col-sm-6"><b><span translate="Consultation Type"></span></b>:</div>
+                        <div class="col-sm-6 testname">
+                            <span ng-if="item.OrderConsultTypeId==1">Call</span>
+                            <span ng-if="item.OrderConsultTypeId==2">Video</span>
+                        </div>
+                    </div>
+                    <div class="col-sm-12" style="border-bottom: 1px solid gainsboro;">
+                        <div class="col-sm-6"><b><span translate="Ref.No."></span></b>:</div>
+                        <div class="col-sm-6 testname">{{item.OrderNumber}}</div>
+                    </div>
+                    <div class="col-sm-12" style="border-bottom: 1px solid gainsboro;">
+                        <div class="col-sm-6"><b><span translate="Schedule Date"></span></b>:</div>
+                        <div class="col-sm-6 testname">
+                            <displaydate date-val="item.OrderScheduleDate"></displaydate>
+                        </div>
+                    </div>
+                    <div class="col-sm-12" style="border-bottom: 1px solid gainsboro;" ng-show="item.CategoryTypeId==1">
+                        <div class="col-sm-6"><b><span translate="Scheduled Time"></span></b>:</div>
+                        <div class="col-sm-6 testname">
+                            {{item.StartTime}}&nbsp;to&nbsp;{{item.EndTime}}
+                        </div>
+                    </div>
+                    <div class="col-sm-12" style="border-bottom: 1px solid gainsboro;">
+                        <div class="col-sm-6"><b><span translate="Order Mode"></span></b>:</div>
+                        <div class="col-sm-6 testname">{{item.OrderMode.Description}}</div>
+                    </div>
+                    <div class="col-sm-12" style="border-bottom: 1px solid gainsboro;">
+                        <div class="col-sm-6"><b><span translate="Amount"></span></b>:</div>
+                        <div class="col-sm-6 testname">{{item.TotalNetAmount | displaycurrency}}</div>
+                    </div>
+                    <div class="col-sm-12" style="border-bottom: 1px solid gainsboro;">
+                        <div class="col-sm-6"><b><span translate="Discount Amount"></span></b>:</div>
+                        <div class="col-sm-6 testname">
+                            {{item.DiscountAmount | displaycurrency}}</div>
+                    </div>
+                    <div class="col-sm-12" style="border-bottom: 1px solid gainsboro;">
+                        <div class="col-sm-6"><b><span translate="Created Info"></span></b>:</div>
+                        <div class="col-sm-6 testname">
+                            {{item.CreatedUser.Title.Description}}&nbsp;{{item.CreatedUser.FirstName}}&nbsp;{{item.CreatedUser.LastName}}
+                            &nbsp;/
+                            <displaydate datetime-val="item.CreatedAt"></displaydate>
+                        </div>
+                    </div>
+                    <div class="col-sm-12" style="border-bottom: 1px solid gainsboro;">
+                        <div class="col-sm-6"><b><span translate="Symptoms"></span></b>:</div>
+                        <div class="col-sm-6 testname">{{item.Symptoms}}</div>
+                    </div>
+                    <div class="col-sm-12" style="border-bottom: 1px solid gainsboro;">
+                        <div class="col-sm-6"><b><span translate="Order Remarks"></span></b>:</div>
+                        <div class="col-sm-6 testname">{{item.OrderRemarks}}</div>
+                    </div>
+                    <div class="col-sm-12" style="border-bottom: 1px solid gainsboro;">
+                        <div class="col-sm-6"><b><span translate="Status"></span></b>:</div>
+                        <div class="col-sm-6 testname">{{item.VirtualOrderStatus.Description}}</div>
+                    </div>
+                </div>
+            </div>
+        </form>
+        <div class="fooder-bgs" style="margin-bottom: 31px;">
+            <div class="pull-right">
+                <button id="btnCancelForm" type="button" class="draftbutton" ng-click="cancelorder()"
+                    translate="ordermanagement.orderacknowledgement-form.ordercancel.lbl"></button>
+            </div>
+            <!-- <div class="pull-right">
+                <button class="draftbutton" style="margin-top: 8px;" type="button" ng-click="confirmorder()">
+                    <strong class="btn-fontsize" translate="Confrim"></strong>
+                </button>
+            </div> -->
+        </div>
+    </div>
+</div>

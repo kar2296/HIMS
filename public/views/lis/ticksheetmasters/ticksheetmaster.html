@@ -1,0 +1,135 @@
+<ul class="breadcrumb">
+    <li><a ng-click="backToList()" translate="lis.ticksheetmaster.parentpagetitle.lbl"></a></li>
+    <li class="active" translate="lis.ticksheetmaster.pagetitle.lbl"></li>
+</ul>	 
+<div class="row">
+    <div class="col-sm-12">
+        <form id="item_form" name="item_form" class="form-horizontal" role="form">	
+            <div class="formRoot">
+                <div class="panel panel-default">
+                    <div class="panel-heading"><h3 class="panel-title" translate="lis.ticksheetmaster.pnlticksheetmaster.lbl"></h3></div>
+                    <div class="panel-body form-panel">	
+                        <div class="col-sm-12">			
+                            
+                            <!-- leftpanel -->
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label" translate="lis.ticksheetmaster.ticksheetname.lbl"></label>
+                                    <div class="col-sm-8">
+                                        <input type="text" class="form-control" name="ticksheetname" ng-model="item.Ticksheetname" placeholder="">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label" translate="lis.ticksheetmaster.displayorder.lbl"></label>
+                                    <div class="col-sm-8">
+                                        <input type="text" class="form-control" name="displayorder" ng-model="item.Displayorder" placeholder="">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label" translate="lis.ticksheetmaster.ticksheettypeid.lbl"></label>
+                                    <div class="col-sm-8">
+                                        <ui-select ng-model="item.TicksheetTypeId">
+                                            <ui-select-match>
+                                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                                <span ng-if="$select.selected.Text.length>20">...</span>
+                                            </ui-select-match>
+                                            <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.TicksheetType | filter: { Text: $select.search }">
+                                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                            </ui-select-choices>
+                                        </ui-select>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label" translate="lis.ticksheetmaster.departmentid.lbl"></label>
+                                    <div class="col-sm-8">
+                                        <ui-select ng-model="item.DepartmentId">
+                                            <ui-select-match>
+                                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                                <span ng-if="$select.selected.Text.length>20">...</span>
+                                            </ui-select-match>
+                                            <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.Department | filter: { Text: $select.search }">
+                                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                            </ui-select-choices>
+                                        </ui-select>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label" translate="lis.ticksheetmaster.subdepartmentid.lbl"></label>
+                                    <div class="col-sm-8">
+                                        <ui-select ng-model="item.SubDepartmentId">
+                                            <ui-select-match>
+                                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                                <span ng-if="$select.selected.Text.length>20">...</span>
+                                            </ui-select-match>
+                                            <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.SubDepartment | filter: { Text: $select.search }">
+                                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                            </ui-select-choices>
+                                        </ui-select>
+                                    </div>
+                                </div>
+
+                                
+                            </div>
+                            
+                            <!-- rightpanel -->
+                            <div class="col-sm-6">                                
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label" translate="lis.ticksheetmaster.testnameid.lbl"></label>
+                                    <div class="col-sm-8">
+                                        <ui-select ng-model="item.TestmasterId" on-select="onTestSelected($select.selected)">
+                                            <ui-select-match>
+                                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                                <span ng-if="$select.selected.Text.length>20">...</span>
+                                            </ui-select-match>
+                                            <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.TestMaster | filter: { Text: $select.search }">
+                                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                            </ui-select-choices>
+                                        </ui-select>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label" translate="lis.ticksheetmaster.activefrom.lbl"></label>
+                                    <div class="col-sm-8">
+                                        <input type="text" class="form-control" name="activefrom" ng-date-object 
+                                                uib-datepicker-popup="{{datePickerOptions.dateFormat}}" 
+                                                placeholder="{{datePickerOptions.placeholder}}" 
+                                                ng-click="activefromPopup = { opened: true }" 
+                                                is-open="activefromPopup.opened" ng-model="item.Activefrom" >
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label" translate="lis.ticksheetmaster.activeto.lbl"></label>
+                                    <div class="col-sm-8">
+                                        <input type="text" class="form-control" name="activeto" ng-date-object 
+                                                uib-datepicker-popup="{{datePickerOptions.dateFormat}}" 
+                                                placeholder="{{datePickerOptions.placeholder}}" 
+                                                ng-click="activetoPopup = { opened: true }" 
+                                                is-open="activetoPopup.opened" ng-model="item.Activeto" >
+                                    </div>
+                                </div>
+
+                                 <div class="form-group">
+                                    <label class="col-sm-4 control-label" for="isactive" translate="clinicalmaster.allergy-form.isactive.lbl"></label>
+                                    <div class="col-sm-8">
+                                        <input type="checkbox" name="isactive" class="custom-checkbox"
+                                            ng-model="item.IsActive">
+                                    </div>
+                                </div>
+
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="panel-footer formactionbar">
+                <div class="pull-right">
+                    <button type="button"   class="btn btn-primary btn-sm" translate="common.saveaction.lbl" ng-click="save()"></button>
+                    <button type="button" class="btn btn-primary btn-sm" translate="common.saveapprove-action.lbl" ng-click="saveAndApprove()"></button>
+                    <button id="btnClearForm" type="button" class="draftbutton" ng-click="clear()" translate="common.clearaction.lbl"></button>
+                    <button id="btnCancelForm" type="button" class="draftbutton" ng-click="backToList()" translate="common.cancelaction.lbl"></button>						
+                </div>
+            </div>
+        </form>		
+    </div>
+</div>

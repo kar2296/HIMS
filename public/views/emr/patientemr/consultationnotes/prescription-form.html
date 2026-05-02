@@ -1,0 +1,371 @@
+<style>
+    .durationtxt {
+        width: 50px !important;
+        float: left;
+        margin-right: 5px;
+    }
+
+    .ui-select-grid {
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+
+    .header-panel {
+        margin-bottom: 5px !important;
+    }
+
+    .header-second-row {
+        margin-bottom: -7px !important;
+    }
+
+    /* ra css start */
+
+
+    .content-wrapper {
+        border-top: none;
+    }
+
+    .header-panel-body {
+        padding: 3px !important;
+        background-color: #e3ecef;
+    }
+
+    .content-wrapper {
+        margin-top: 0px;
+    }
+
+    .pres-header {
+        padding-left: -15px !important;
+    }
+
+    .pres-pag-header {
+        padding-top: 5px !important;
+    }
+
+    #prescriptionpagecontrol .ui-select-period {
+        width: inherit !important;
+    }
+
+    .header-panel-body {
+        padding: 0px !important;
+        padding-top: 6px !important;
+    }
+
+    #mainresponsivetablecontrol {
+        height: 370px;
+        overflow: auto;
+    }
+
+    .fooder-bg {
+        z-index: 9999;
+    }
+</style>
+
+<div id="prescriptionpagecontrol" class="tabsizetopcontroller">
+    <!--<div class="row page-header">
+    <div class="col-sm-12">
+        <div class="col-sm-5 col-md-4 col-lg-6">
+          <h4 class="page-header mt0" translate="patientemr.prescription-form.pagetitle.lbl"></h4>
+        </div>
+        <div class="col-sm-7 col-md-8 col-lg-6">
+            <div class="pull-right">
+        <button type="button"  class="btn btn-success btn-xs hidden-sm" ng-click="" translate="patientemr.patientprescription-list.active_medication.lbl"></button>
+        <button type="button"  class="text-white btn adm-color7  btn-xs hidden-sm" ng-click="previousmedication()" translate="patientemr.patientprescription-list.previous_prescriptions.lbl"></button>
+        <button type="button"  class=" text-white btn dem-color4  btn-xs " ng-click="patientallergy()" translate="patientemr.patientprescription-list.allergies.lbl"></button>
+        <button type="button"  class=" text-white btn prv-color12 btn-xs" ng-click="vital()" translate="patientemr.patientprescription-list.vitals.lbl"></button>
+   
+<button class="btn bt-color2 btn-xs "  uib-tooltip="Add New" tooltip-placement="bottom" ng-click="add_new()">
+        <i class="fa fa-plus" aria-hidden="true"></i><strong class="btn-fontsize"  translate="common.addaction.lbl"></strong>
+</button>     
+           
+            </div>
+        </div>
+    </div>
+</div>-->
+
+    <div class="row">
+        <div class="col-sm-12">
+            <form id="item_form" name="item_form" class="form-horizontal" role="form">
+                <div>
+                    <label class="btn btn-secondary top-option" ng-repeat="option in options"
+                        ng-model="currentcontext.option" uib-btn-radio="option.key">{{option.name}}</label>
+                </div>
+
+                <div ng-show="canShowPrescriptionArea()">
+                    <div class="panel panel-default header-panel">
+                        <div class="panel-body form-panel header-panel-body">
+                            <div class="col-sm-12">
+                                <!-- first row -->
+                                <div class="col-sm-4">
+                                    <div class="form-group">
+                                        <label class="col-sm-4 control-label" for="physician"
+                                            translate="patientemr.prescription-form.physician.lbl"></label>
+                                        <div class="col-sm-8">
+                                            <ui-select ng-model="item.DoctorId" name="physician"
+                                                ng-change="doctorChange()" required>
+                                                <ui-select-match>
+                                                    {{$select.selected.Text | limitTo : 20 : 0}}
+                                                    <span ng-if="$select.selected.Text.length>20">...</span>
+                                                </ui-select-match>
+                                                <ui-select-choices
+                                                    repeat="lookupitem.Id as lookupitem in lookup.Doctor | filter: { Text: $select.search }">
+                                                    <div ng-bind-html="lookupitem.Text | highlight: $select.search">
+                                                    </div>
+                                                </ui-select-choices>
+                                            </ui-select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-4">
+                                    <div class="form-group">
+                                        <label class="col-sm-4 control-label" for="prescriptiondate"
+                                            translate="patientemr.prescription-form.date.lbl"></label>
+                                        <div class="col-sm-8">
+                                            <input type="text" class="form-control" name="prescriptiondate"
+                                                ng-date-object required
+                                                datetime-picker="{{datePickerOptions.dateTimeFormat}}"
+                                                placeholder="{{datePickerOptions.placeholder}}"
+                                                ng-click="prescriptiondatePopup = { opened: true }"
+                                                is-open="prescriptiondatePopup.opened" ng-model="item.PrescriptionDate">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-4">
+                                    <div class="form-group">
+                                        <label class="col-sm-4 control-label" for="department"
+                                            translate="patientemr.prescription-form.department.lbl"></label>
+                                        <div class="col-sm-8">
+                                            <ui-select ng-model="item.DepartmentId" name="department" required>
+                                                <ui-select-match>
+                                                    {{$select.selected.Text | limitTo : 20 : 0}}
+                                                    <span ng-if="$select.selected.Text.length>20">...</span>
+                                                </ui-select-match>
+                                                <ui-select-choices
+                                                    repeat="lookupitem.Id as lookupitem in lookup.Department | filter: { Text: $select.search }">
+                                                    <div ng-bind-html="lookupitem.Text | highlight: $select.search">
+                                                    </div>
+                                                </ui-select-choices>
+                                            </ui-select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-12">
+                                <div class="col-sm-4">
+                                    <div class="form-group">
+                                        <label class="col-sm-4 control-label" for="priority"
+                                            translate="patientemr.prescription-form.priority.lbl"></label>
+                                        <div class="col-sm-8">
+                                            <ui-select ng-model="item.PrescriptionPriorityId" name="priority" required>
+                                                <ui-select-match>
+                                                    {{$select.selected.Text | limitTo : 20 : 0}}
+                                                    <span ng-if="$select.selected.Text.length>20">...</span>
+                                                </ui-select-match>
+                                                <ui-select-choices
+                                                    repeat="lookupitem.Id as lookupitem in lookup.PrescriptionPriority | filter: { Text: $select.search }">
+                                                    <div ng-bind-html="lookupitem.Text | highlight: $select.search">
+                                                    </div>
+                                                </ui-select-choices>
+                                            </ui-select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-4">
+                                    <div class="form-group">
+                                        <label class="col-sm-4 control-label" for="pharmacy"
+                                            translate="patientemr.prescription-form.pharmacy.lbl"></label>
+                                        <div class="col-sm-8">
+                                            <ui-select ng-model="item.PharmacyId" name="pharmacy">
+                                                <ui-select-match>
+                                                    {{$select.selected.Text | limitTo : 20 : 0}}
+                                                    <span ng-if="$select.selected.Text.length>20">...</span>
+                                                </ui-select-match>
+                                                <ui-select-choices
+                                                    repeat="lookupitem.Id as lookupitem in lookup.Pharmacy | filter: { Text: $select.search }">
+                                                    <div ng-bind-html="lookupitem.Text | highlight: $select.search">
+                                                    </div>
+                                                </ui-select-choices>
+                                            </ui-select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- grid area starts -->
+                    <div id="mainresponsivetablecontrol">
+                        <table class="table table-hover table-responsive table-bordered">
+                            <thead class="bg-subhead">
+                                <tr>
+                                    <th class="fs-12 col-sm-2"><span
+                                            translate="patientemr.prescription-form.rxname.lbl"></span><span
+                                            class="mandatory-asterix">*</span></th>
+                                    <th class="fs-12 col-sm-1 cell-align-center"><span
+                                            translate="patientemr.prescription-form.generic.lbl"></span></th>
+                                    <th class="fs-12 col-sm-1"><span
+                                            translate="patientemr.prescription-form.dosage.lbl"></span><span
+                                            class="mandatory-asterix">*</span></th>
+                                    <th class="fs-12 col-sm-1"><span
+                                            translate="patientemr.prescription-form.route.lbl"></span><span
+                                            class="mandatory-asterix">*</span></th>
+                                    <th class="fs-12 col-sm-2"><span
+                                            translate="patientemr.prescription-form.frequency.lbl"></span><span
+                                            class="mandatory-asterix">*</span></th>
+                                    <th class="fs-12 col-sm-2"><span
+                                            translate="patientemr.prescription-form.duration.lbl"></span><span
+                                            class="mandatory-asterix">*</span></th>
+                                    <th class="fs-12 col-sm-1 cell-align-center"><span
+                                            translate="patientemr.prescription-form.qty.lbl"></span><span
+                                            class="mandatory-asterix">*</span></th>
+                                    <th class="fs-12 col-sm-1 cell-align-center"><span
+                                            translate="patientemr.prescription-form.availqty.lbl"></span></th>
+                                    <th class="fs-12 col-sm-1"><span
+                                            translate="patientemr.prescription-form.action.lbl"></span></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-repeat="item in prescriptionDetails | filter:{Status:1}">
+                                    <td class="fs-12">
+                                        <drugcontrol drugid="item.DrugId" drugrouteid="item.DrugRouteId"
+                                            rxname="item.RxName" drugfrequencyid="item.DrugFrequencyId"
+                                            changeev="drugChanged($index)" ng-show="!item.IsGeneric"></drugcontrol>
+                                        <genericcontrol genericid="item.GenericId" changeev="drugChanged($index)"
+                                            rxname="item.RxName" ng-show="item.IsGeneric"></genericcontrol>
+                                    </td>
+                                    <td class="fs-12 " align="center">
+                                        <input type="checkbox" class="custom-checkbox" ng-model="item.IsGeneric">
+                                    </td>
+                                    <td class="fs-12">
+                                        <input type="text" class="form-control" ng-model="item.Dosage" placeholder="">
+                                    </td>
+                                    <td class="fs-12">
+                                        <ui-select ng-model="item.DrugRouteId" name="screen" class="ui-select-grid">
+                                            <ui-select-match>
+                                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                                <span ng-if="$select.selected.Text.length>20">...</span>
+                                            </ui-select-match>
+                                            <ui-select-choices
+                                                repeat="lookupitem.Id as lookupitem in lookup.DrugRoute | filter: { Text: $select.search }">
+                                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                            </ui-select-choices>
+                                        </ui-select>
+                                    </td>
+                                    <td class="fs-12">
+                                        <ui-select ng-model="item.DrugFrequencyId" class="ui-select-grid"
+                                            ng-change="computeQuantity(item)">
+                                            <ui-select-match>
+                                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                                <span ng-if="$select.selected.Text.length>20">...</span>
+                                            </ui-select-match>
+                                            <ui-select-choices
+                                                repeat="lookupitem.Id as lookupitem in lookup.DrugFrequency | filter: { Text: $select.search }">
+                                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                            </ui-select-choices>
+                                        </ui-select>
+                                    </td>
+                                    <td class="fs-12">
+                                        <input type="text" class="form-control durationtxt" ng-model="item.Duration"
+                                            placeholder="" ng-change="computeQuantity(item)">
+                                        <ui-select ng-model="item.DurationPeriodId" class="ui-select-period"
+                                            ng-change="computeQuantity(item)">
+                                            <ui-select-match>
+                                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                                <span ng-if="$select.selected.Text.length>20">...</span>
+                                            </ui-select-match>
+                                            <ui-select-choices
+                                                repeat="lookupitem.Id as lookupitem in lookup.DurationPeriod | filter: { Text: $select.search }">
+                                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                            </ui-select-choices>
+                                        </ui-select>
+                                    </td>
+                                    <td class="fs-12 cell-align-center">
+                                        <span>{{item.Quantity}}</span>
+                                    </td>
+                                    <td class="fs-12 cell-align-center">
+                                        <!-- <span>{{item.AvailQuantity}}</span> -->220
+                                    </td>
+                                    <td>
+                                        <button class="drhms-edit-button" ng-click="editPrescriptionDetail(item)">
+                                            <img  src="assets/svg/edit.svg" alt="">
+                                            <!-- <i class="fa fa-pencil" aria-hidden="true"></i> -->
+                                        </button>
+                                        <button class="drhms-edit-button"
+                                            ng-click="deletePrescriptionDetail($index,item)">
+                                            <img src="assets/svg/delete.svg" alt="">
+                                            <!-- <i class="fa fa-trash" aria-hidden="true"></i> -->
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <!-- grid area ends -->
+                    <div class="fooder-bgs">
+                        <div class="row ">
+                            <div class="col-sm-12">
+                                <div class="col-sm-4 col-md-4">
+                                    <div class="pull-left">
+                                        <button type="button" class="btn pyr-color10 btn-sm" ng-click="backToList()"><i
+                                                class="fa fa-angle-left" aria-hidden="true"></i>&nbsp;&nbsp;<span
+                                                class="btn-fontsize" translate="common.backaction.lbl"></span></button>
+                                        <button type="button" class="btn btn-warning btn-sm" ng-click="saveasRxPanel()"
+                                            translate="patientemr.prescription-form.saveasrxpanel.lbl"></button>
+                                        <button type="button" class="draftbutton"
+                                            uib-tooltip="Attachments" ng-click="openattachments()"
+                                            tooltip-placement="top"><i class="fa fa-paperclip fa-xs"
+                                                aria-hidden="true">&nbsp;&nbsp;({{currentcontext.attachmentcount}})</i></button>
+                                        <button type="button" class="btn btn-info texthover btn-sm ng-scope"
+                                            uib-tooltip="History" tooltip-placement="top" ng-click="historypage()"><i
+                                                class="fa fa-history fa-xs" aria-hidden="true"></i></button>
+                                        <button id="btnCancelForm" type="button" ng-show="canShowCancelBtn"
+                                            class="btn btn-danger btn-sm ng-scope" ng-click="saveCancelled()"
+                                            translate="common.cancelaction.lbl"></button>
+                                    </div>
+                                </div>
+                                <div class="col-sm-3 col-md-3">
+                                    <div class="form-group">
+                                        <label class="col-sm-7 control-label ng-scope" for="orderinstructions"
+                                            translate="patientemr.patientorder-form.orderinstructions.lbl"><span
+                                                class="ng-scope">Order Instructions</span></label>
+                                        <div class="col-sm-5">
+                                            <input type="text"
+                                                class="form-control ng-pristine ng-valid ng-empty ng-touched"
+                                                name="orderinstructions" ng-model="item.OrderComments">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-5 col-md-5">
+                                    <div class="pull-right">
+                                        <button type="button"  class="draftbutton" ng-click="print()"
+                                            translate="common.printaction.lbl"></button>
+                                        <button type="button" id="btnsubmit" class="draftbutton"
+                                            ng-show="canShowSaveBtn" translate="common.saveaction.lbl"
+                                            ng-click="saveDraft()"></button>
+                                        <button type="button" class="btn btn-info btn-sm" ng-show="canShowPrescribeBtn"
+                                            ng-click="prescribe()"
+                                            translate="patientemr.prescription-form.prescribe-action.lbl"></button>
+                                        <button type="button" class="btn btn-info btn-sm"
+                                            ng-show="canShowPrescribeOrderBtn" ng-click="prescribeAndOrder()"
+                                            translate="patientemr.prescription-form.prescribeorder-action.lbl"></button>
+                                        <button type="button" class="btn btn-warning btn-sm" ng-show="canShowClearBtn"
+                                            ng-click="clear()" translate="common.clearaction.lbl"></button>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div ng-show="canShowTickSheetArea()">
+                    <ticksheetcontrol config="ticksheetconfig" addclick="addTickSheet()" saveclick="saveTickSheets()">
+                    </ticksheetcontrol>
+                </div>
+                <div ng-show="canShowPanelsArea()">
+                    <panelcontrol config="panelconfig" saveclick="savePanels()"></panelcontrol>
+                </div>
+
+            </form>
+        </div>
+    </div>
+</div>

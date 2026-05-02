@@ -1,0 +1,96 @@
+<!-- <style>
+    .modal-dialog {
+        width: 600px;
+        margin: 30px auto;
+    }
+</style> -->
+<div class="modal-header custom-modal-header">
+    <div class="col-sm-10">
+        <h4 class="modal-title custom-modal-title" translate="Staff Creation"></h4>
+    </div>
+    <div class="col-sm-2">
+        <div class="filters">
+            <img src="../../../../../assets/svg/close.svg" ng-click="cancelCallback()">
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <form id="item_form" name="item_form" class="form-horizontal" role="form">
+        <div class="form-group col-sm-4">
+            <label class="col-sm-12 control-label" for="title" translate="registration.newpatreg.title.lbl"></label>
+            <div class="col-sm-12">
+                <ui-select id="title" tabindex="1" ng-model="item.TitleId" name="title" ng-change="fillGenderInfo()"
+                    required>
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 20 : 0}}
+                        <span ng-if="$select.selected.Text.length>20">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.Title | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search">
+                        </div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+        <div class="form-group col-sm-4">
+            <label class="col-sm-12 control-label" for="patname" translate="registration.newpatreg.patname.lbl"></label>
+            <div class="col-sm-12">
+                <input type="text" class="form-control" name="patname" ng-model="item.FirstName"
+                    tabindex="tabindexmap.patienttabindex" placeholder="" required uppercase>
+            </div>
+        </div>
+        <div class="form-group col-sm-4">
+            <label class="col-sm-12 control-label" translate="registration.newpatreg.lastname.lbl"></label>
+            <div class="col-sm-12">
+                <input type="text" class="form-control" ng-model="item.LastName" tabindex="tabindexmap.patienttabindex"
+                    placeholder="" uppercase>
+            </div>
+        </div>
+        <div class="form-group col-sm-4">
+            <label class="col-sm-12 control-label" for="age" translate="registration.newpatreg.age.lbl"></label>
+            <div class="col-sm-12">
+                <input type="text" class="form-control" name="age" ng-model="item.Age" placeholder=""
+                    ng-change="calculateDOB(item.Age, 'years')" required>
+            </div>
+        </div>
+        <div class="form-group col-sm-4">
+            <label class="col-sm-12 control-label" for="sex" translate="registration.newpatreg.sex.lbl"></label>
+            <div class="col-sm-12">
+                <ui-select ng-model="item.GenderId" name="sex" tabindex="tabindexmap.patienttabindex" required>
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 20 : 0}}
+                        <span ng-if="$select.selected.Text.length>20">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.Gender | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search">
+                        </div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+        <div class="form-group col-sm-4">
+            <label class="col-sm-12 control-label" for="mobile" translate="registration.newpatreg.mobile.lbl"></label>
+            <div class="col-sm-12">
+                <input type="text" class="form-control" MINLENGTH="10" MAXLENGTH="10" size="10" name="mobile"
+                    onChange="numberonly($event)" onKeyUp="numberonly($event)" ng-keypress="numberonly($event)"
+                    ng-model="item.Mobile" required>
+            </div>
+        </div>
+        <div class="form-group col-sm-4">
+            <label class="col-sm-12 control-label" for="address" translate="registration.newpatreg.address.lbl"></label>
+            <div class="col-sm-12">
+                <input type="text" id="Manualadd" class="form-control" name="address" ng-model="item.AddressLine1"
+                    placeholder="">
+            </div>
+        </div>
+    </form>
+</div>
+<div class="row">
+    <div class="pull-right">
+        <button id="btnSaveApprove" type="button" class="draftbutton"
+            translate="registration.fullregistration.update.lbl" ng-click="saveAndApprove()"></button>
+    </div>
+</div>

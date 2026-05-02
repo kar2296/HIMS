@@ -1,0 +1,195 @@
+<style>
+    .custom-popup-wrapper {
+        margin-left: -200px;
+    }
+
+    .form-horizontal .form-group {
+        height: 72px;
+    }
+</style>
+<div class="row">
+    <div class="drhms-filters">
+        <div class="col-sm-8">
+            <h4 translate="Manage Document"></h4>
+        </div>
+        <div class="col-sm-3">
+            <div class="search">
+                <patientsearch patientid="item.PatientId" ng-disabled="RdoPatientId" id="pid" class="logo"
+                    name="txtpatientsearch" patientinfo="selectedPatient" patientchange="patientChange()"
+                    ng-disabled="item.isCompleted" name="" ng-model="">
+                </patientsearch>
+                <i class="fas fa-search"></i>
+            </div>
+        </div>
+        <div class="col-sm-1">
+            <button class="btn-add" ng-click="addNew()" uib-tooltip="Add Document" tooltip-placement="bottom">
+                <i class="fa fa-plus" aria-hidden="true"></i>
+            </button>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <form id="item_form" name="item_form" class="form-horizontal" role="form">
+        <div class="form-group col-sm-3">
+            <label class="col-sm-12 control-label" for="documenttype" translate="Document Type"></label>
+            <div class="col-sm-12">
+                <ui-select class="text-box" required ng-model="item.DocumentTypeId" name="documenttype">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 30 : 0}}
+                        <span ng-if="$select.selected.Text.length>30">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.DocumentAttachmentType | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search">
+                        </div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+        <div class="form-group col-sm-3 searchleft">
+            <label class="col-sm-12 control-label" for="documentname" translate="Document Name"></label>
+            <div class="col-sm-12">
+                <input type="text" class="text-box form-control" name="documentname" ng-disabled="isViewMode=='true'"
+                    ng-model="item.DocumentName" placeholder="" tabindex="tabindexmap.employeetabindex" uppercase
+                    required>
+            </div>
+        </div>
+        <!-- <div class="col-sm-4 form-group">
+                    <label class="col-sm-12 control-label"
+                        translate="employees.hrpolicydocument.hrpolicydocumentTitle.lbl"
+                        for="HRPolicyDocumentTitle"></label>
+                    <div class="col-sm-12">
+                        <input type="text" class="text-box form-control" name="HRPolicyDocumentTitle"
+                            ng-disabled="isViewMode=='true'" ng-model="item.HRPolicyDocumentTitle" placeholder=""
+                            tabindex="tabindexmap.employeetabindex" uppercase required>
+                    </div>
+                </div> -->
+        <div class="col-sm-3 form-group">
+            <label class="col-sm-12 control-label" for="DocumentDate" translate="Document Date"></label>
+            <div class="col-sm-12 pdr0">
+                <input type="text" class="text-box form-control" name="DocumentDate" ng-date-object
+                    datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}"
+                    uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                    placeholder="{{datePickerOptions.placeholder}}"
+                    ng-click="HRPolicyDocumentDatePopup = { opened: true }" is-open="HRPolicyDocumentDatePopup.opened"
+                    ng-disabled="isViewMode=='true'" ng-model="item.DocumentDate" tabindex="tabindexmap.patienttabindex"
+                    required>
+            </div>
+        </div>
+        <div class="col-sm-3 form-group">
+            <label class="col-sm-12 control-label" for="ExpiryDate" translate="Expiry Date"></label>
+            <div class="col-sm-12 pdr0">
+                <input type="text" class="text-box form-control" name="ExpiryDate" ng-date-object
+                    datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}"
+                    uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                    placeholder="{{datePickerOptions.placeholder}}"
+                    ng-click="HRPolicyExpiryDatePopup = { opened: true }" is-open="HRPolicyExpiryDatePopup.opened"
+                    ng-disabled="isViewMode=='true'" ng-model="item.ExpiryDate" tabindex="tabindexmap.patienttabindex"
+                    required>
+            </div>
+        </div>
+        <!-- <div class="col-sm-4 form-group">
+                    <label class="col-sm-12 control-label" for="HRPolicyDocumentDate"
+                        translate="employees.hrpolicydocument.hrpolicydocumentDate.lbl"></label>
+                    <div class="col-sm-12 pdr0">
+                        <input type="text"  class="text-box form-control" name="HRPolicyDocumentDate"
+                            ng-date-object datepicker-options="datePickerOptions"
+                            show-button-bar="{{datePickerOptions.showButtonBar}}"
+                            uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                            placeholder="{{datePickerOptions.placeholder}}"
+                            ng-click="HRPolicyDocumentDatePopup = { opened: true }"
+                            is-open="HRPolicyDocumentDatePopup.opened" ng-disabled="isViewMode=='true'"
+                            ng-model="item.HRPolicyDocumentDate" tabindex="tabindexmap.patienttabindex" required>
+                    </div>
+                </div> -->
+
+        <!-- <div class="form-group col-sm-3">
+                    <label class="col-sm-12 control-label" for="HRPolicyDocumentPriority"
+                        translate="employees.hrpolicydocument.hrpolicydocumentPriority.lbl"></label>
+                    <div class="col-sm-12">
+                        <ui-select class="text-box" ng-disabled="isViewMode=='true'"
+                            ng-model="item.HRPolicyDocumentPriorityId" name="HRPolicyDocumentPriority">
+                            <ui-select-match>
+                                {{$select.selected.Text | limitTo : 30 : 0}}
+                                <span ng-if="$select.selected.Text.length>30">...</span>
+                            </ui-select-match>
+                            <ui-select-choices
+                                repeat="lookupitem.Id as lookupitem in lookup.HRPolicyDocumentPriority | filter: { Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search">
+                                </div>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                </div> -->
+
+        <div class="col-sm-3 form-group">
+            <label class="col-sm-12 control-label" for="itinerary" translate="Documents"></label>
+            <div class="col-sm-12 form-group">
+                <div class="col-sm-12" ng-hide="CanShowDownload">
+                    <input type="file" ngf-select ng-model="currentcontext.file" name="file" ngf-max-size="200MB"
+                        ngf-change="fileSelected()" />
+                    <!-- {{item.DocumentPath}} -->
+                </div>
+                <!-- <div class="col-sm-1">
+                            <i class="fa fa-download" ng-click="downloadFile(item)" ng-show="CanShowDownload" aria-hidden="true"></i>
+                        </div> -->
+            </div>
+        </div>
+        <div class="col-sm-9 form-group">
+            <label class="col-sm-12 control-label" translate="Description" for="Comments"></label>
+            <div class="col-sm-12">
+                <textarea id="w3mission" rows="3" required ng-disabled="isViewMode=='true'" ng-model="item.Comments"
+                    name="Comments">
+                            </textarea>
+            </div>
+        </div>
+    </form>
+</div>
+
+
+<div class="row">
+    <h4 class="col-sm-12" translate="History">
+    </h4>
+    <div class="col-sm-12">
+        <div class="col-sm-3 form-group">
+            <label id="labelcolor" for="State" translate="Created By"></label>
+            <div class="read-only">
+                {{item.CreatedUser.Title.Description}}&nbsp;{{item.CreatedUser.FirstName}}&nbsp;{{item.CreatedUser.LastName}}
+            </div>
+        </div>
+        <div class="col-sm-3 form-group">
+            <label id="labelcolor" for="State" translate="Created On"></label>
+            <div class="read-only">
+                {{item.CreatedAt | date : 'dd-MMM-yyyy'}}&nbsp;{{item.CreatedAt | date : 'HH:mm' }}
+            </div>
+        </div>
+        <div class="col-sm-3 form-group">
+            <label id="labelcolor" for="State" translate="Cancelled By"></label>
+            <div class="read-only">
+                {{item.CancelledUser.Title.Description}}&nbsp;{{item.CancelledUser.FirstName}}&nbsp;{{item.CancelledUser.LastName}}
+            </div>
+        </div>
+        <div class="col-sm-3 form-group" ng-if="item.CancelledAt">
+            <label id="labelcolor" for="State" translate="Cancelled On"></label>
+            <div class="read-only">
+                {{item.CancelledAt | date : 'dd-MMM-yyyy'}}&nbsp;{{item.CancelledAt | date : 'HH:mm' }}
+            </div>
+        </div>
+    </div>
+</div>
+<div class="fooder-bgs">
+    <div class="row">
+        <div class="pull-left">
+            <button type="button" class="btn pyr-color10 btn-sm" ng-click="backToList()"><i class="fa fa-angle-left"
+                    aria-hidden="true"></i>&nbsp;&nbsp;<span class="btn-fontsize"
+                    translate="common.backaction.lbl"></span></button>
+        </div>
+        <div class="pull-right">
+            <button type="button" class="draftbutton" ng-disabled="isViewMode=='true'" type="button"
+                translate="common.cancelaction.lbl" ng-click="saveItem('cancel')"></button>
+            <button type="button" class="draftbutton" ng-disabled="isViewMode=='true'" type="button"
+                translate="common.saveaction.lbl" ng-click="saveItem('save')"></button>
+        </div>
+    </div>
+</div>

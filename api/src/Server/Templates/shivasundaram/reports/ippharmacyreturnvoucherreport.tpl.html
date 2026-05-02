@@ -1,0 +1,88 @@
+<html>
+
+<head>
+  <style>
+    .table1 {
+      border: 1px solid black;
+      font-size: 11px;
+    }
+    
+    .table2 {
+      border: 1px solid black;
+      border-top: 0px solid black;
+      font-size: 11px;
+    } 
+    {{include '/Templates/assets/css/core.css'}}
+  </style>
+</head>
+
+<body>
+  <div id="pageHeader" style="margin-left: 350px;">
+    {{{include '/Templates/shivasundaram/common/header1.tpl.html' 'tpl'}}}
+  </div> 
+    <div style="text-align:center;font-size: 13px;"><b>IP Pharmacy Return</b></div>
+    <table class="table1" style="width:100%;"> 
+      <tr style='vertical-align: top'>
+        <td style="width:5%;"><b>From Date</b></td>
+        <td>:</td>
+        <td style="width:15%;"><b>{{data.FromDate}}</b></td>
+        <td style="width:5%;"><b>To Date</b></td>
+        <td>:</td>
+        <td style="width:15%;"><b>{{data.ToDate}}</b></td>
+        <td style="width:5%;"><b>Ward</b></td>
+        <td>:</td>
+        <td style="width:25%;"><b>{{data.WardName}}</b></td>
+        <td style="width:5%;"><b>StoreName</b></td>
+        <td></td>
+        <td style="width:25%;"><b>{{data.StoreName}}</b></td>
+      </tr>  
+    </table> 
+  </br>
+    <table class="table1" style="width:100%;">
+      <tr>
+        <td style="width:10%;"><b>S.No</b></td>
+        <td style="width:10%"><b>Return Date</b></td>
+        <td style="width:10%"><b>Return Number</b></td>
+        <td style="width:10%"><b>Patient Name</b></td>
+        <td style="width:10%"><b>UHID</b></td> 
+        <td style="width:10%"><b>Visit Number</b></td>
+        <td style="width:10%"><b>Doctor Name</b></td>
+        <td style="width:10%"><b>Room Details</b></td>
+        <td style="width:10%"><b>Return Amount</b></td>
+        <td style="width:10%"><b>Issued By</b></td> 
+      </tr>
+    </table>
+    <table class="table2" style="width:100%;">
+      {{#each data.PatientReturns}}
+      <tr>
+        <td style="width:10%;">{{inc @index}}</td>
+        <td style="width:10%">{{datetimeformat ReturnDateTime}}</td>
+        <td style="width:10%">{{ReturnNumber}}</td>
+        <td style="width:10%">{{Patient.Title.Description}} {{Patient.FirstName}} {{Patient.LastName}}</td>
+        <td style="width:10%">{{Patient.MRN}}</td>
+        <td style="width:10%">{{Encounter.VisitIdentifier}}</td>
+        <td style="width:10%;">{{User.Title.Description}} {{User.FirstName}} {{User.LastName}}</td>
+        <td style="width:10%">{{Encounter.WardMaster.WardName}}/{{Encounter.WardRoomMaster.RoomNo}}/{{Encounter.WardRoomBedMaster.BedNo}}</td>
+        <td style="width:10%">{{currencyformat ReturnAmount}}</td> 
+        <td style="width:10%">{{CreatedUser.Title.Description}} {{CreatedUser.FirstName}} {{CreatedUser.LastName}}</td>
+      </tr>{{/each}}
+    </table> 
+    <table class="table2" style="width:100%">
+      <tr>
+        <td style="width:10%;"></td>
+        <td style="width:10%"></td>
+        <td style="width:10%"></td>
+        <td style="width:10%"></td>
+        <td style="width:10%"></td>  
+        <td style="width:10%"></td>
+        <td style="width:10%;"></td> 
+        <td style="width:10%"></td> 
+        <td style="width:10%">{{currencyformat data.TotalRetAmount}}</td>
+        <td style="width:10%"></td> 
+      </tr>
+      </table> 
+
+  </body>
+  <div style="width:100%; font-size:8px;">Printed On: {{now}}</div>
+
+</html>

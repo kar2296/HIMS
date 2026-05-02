@@ -1,0 +1,81 @@
+<div class="row page-header">
+    <div class="col-sm-12">
+        <div class="col-sm-6 col-md-7 col-lg-8">
+            <h4 class=" mt0" translate="accidentemergency.pagetitle.lbl"></h4>
+        </div>
+        <div class="col-sm-6 col-md-5 col-lg-4">
+            <button class="btn bt-color3 btn-xs pull-right" uib-tooltip="{{ 'clinicalmaster.serviceitem-list.filter-tooltip.lbl' | translate }}"
+                tooltip-placement="bottom" ng-click=""> <i class="fa fa-search fa-xs " aria-hidden="true"></i>&nbsp;&nbsp;<span translate="clinicalmaster.serviceitem-list.filter.lbl"></span>
+     </button>
+            <!--<button class="btn-add" ng-click="">
+        <i class="fa fa-plus" aria-hidden="true"></i><strong class="btn-fontsize" translate="registration.fullregistration.buttonfullreg.lbl"></strong>
+      </button>-->
+            <button class="btn bt-color1 btn-xs pull-right" ng-click="addNewQuick()">
+        <i class="fa fa-tablet" aria-hidden="true"></i>&nbsp;&nbsp;<strong class="btn-fontsize"  translate="registration.quickregistration.buttonquickreg.lbl"></strong>
+     </button>
+    <button class="btn bt-color2 btn-xs pull-right back_but" style="margin-right:10px">
+        <a href="/www/index.html#/app/dietdashboard/"><i class="fa fa-arrow-left"></i>&nbsp;&nbsp;<span class="ng-scope">Back</span></a>
+      </button>
+        </div>
+    </div>
+</div>
+<div class="row filter-area">
+    <div class="col-sm-12">
+        <div class="col-sm-3">
+            <div class="form-group">
+                <label class="sr-only col-sm-5 col-md-4 control-label filter-lbl" translate="accidentemergency.filter_patient.lbl"></label>
+                <div class="input-group col-sm-7 col-md-8">
+                    <div class="input-group-addon"><i class="fas fa-search" aria-hidden="true"></i></div>
+                    <input type="text" class="form-control" on-enter="getList()" ng-model="currentfilter.Patient" placeholder=" MRN/NRIC">
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-3">
+            <div class="form-group">
+                <label class="sr-only col-sm-5 col-md-4 control-label filter-lbl" translate="accidentemergency.ertype.lbl"></label>
+                <div class="input-group col-sm-7 col-md-8">
+                    <ui-select ng-model="currentfilter.ERTypeId" ng-change="getList()">
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 20 : 0}}
+                            <span ng-if="$select.selected.Text.length>20">...</span>
+                        </ui-select-match>
+                        <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.ERType | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-3">
+            <label class="col-sm-5 col-md-4 control-label filter-lbl" translate="accidentemergency.erdate.lbl"></label>
+            <div class="col-sm-7 col-md-8">
+                <input type="text" class="form-control" name="erdate" ng-change="getList()" datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}"
+                    uib-datepicker-popup="{{datePickerOptions.dateFormat}}" placeholder="{{datePickerOptions.placeholder}}" ng-click="erdatePopup = { opened: true }"
+                    is-open="erdatePopup.opened" ng-model="currentfilter.ERDate">
+            </div>
+        </div>
+        <div class="col-sm-3">
+            <label class="col-sm-5 col-md-4 control-label filter-lbl" translate="accidentemergency.filter_status.lbl"></label>
+            <div class="col-sm-7 col-md-8">
+                <ui-select ng-model="currentfilter.Status" ng-change="getList()" class="filter-combo">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 8 : 0}}
+                        <span ng-if="$select.selected.Text.length>8">...</span>
+                    </ui-select-match>
+                    <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.AdmissionStatus | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="container-fluid" id="patientsearchheight">
+    <div ui-grid="vm.gridConfig" class="table-uigrid height-control"></div>
+    <div class="fooder-bgs">
+        <div class="row">
+            <ul uib-pagination total-items="vm.gridConfig.pagerObj.totalItems" items-per-page="vm.gridConfig.pagerObj.pageSize" start-index="vm.gridConfig.pagerObj.startIndex"
+                ng-model="vm.gridConfig.pagerObj.currentPage" ng-change="getList()"></ul>
+        </div>
+    </div>
+</div>

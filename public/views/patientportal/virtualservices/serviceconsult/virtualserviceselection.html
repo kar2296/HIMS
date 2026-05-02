@@ -1,0 +1,841 @@
+<style>
+  h3.col-xs-12.col-sm-6.title2.ng-scope {
+    margin: 0;
+  }
+
+  .page-header input[type=text] {
+    width: 100%;
+    height: 25px;
+    border: 1px solid gainsboro !important;
+  }
+
+  .search i {
+    position: absolute;
+    left: 0;
+    top: 8px;
+    padding: 12px 26px;
+    color: #aaa;
+    transition: 0.3s;
+  }
+
+  .page-header input[type=text] {
+    background: white;
+    border-radius: 0px;
+  }
+
+  label.btn.btn-sm.width {
+    border: unset !IMPORTANT;
+    background: white;
+    color: black !important;
+  }
+
+  label.btn.btn-sm.width {
+    border: unset !IMPORTANT;
+    background: white;
+    color: #939393 !important;
+    width: 135px !important;
+  }
+
+  label.btn.btn-sm.width.active {
+    border-bottom: 2px solid #0b38a6 !important;
+    border-radius: 0 !important;
+    box-shadow: unset;
+  }
+
+  .btn-default:hover {
+    color: #333333;
+    background-color: #f5f5f5;
+    border-color: #d6d6d6;
+  }
+
+  .btn:active,
+  .btn.active {
+    outline: 0;
+    background-image: none;
+    -webkit-box-shadow: inset 0 3px 5px rgb(0 0 0 / 13%);
+    box-shadow: unset;
+  }
+
+  .page-header h3 span,
+  .row.page-header h4 {
+    position: relative;
+    top: 12px;
+  }
+
+  i.fas.fa-cart-plus {
+    color: #042e71;
+    position: fixed;
+    bottom: 66px;
+    z-index: 999999999999999 !important;
+    overflow: visible;
+    padding: 12px;
+    right: 18px;
+    border-radius: 61px;
+    font-size: 21px;
+    background: #4ab6ea;
+    animation: pulse 0.7s cubic-bezier(0.77, -0.1, 0, 1.54) infinite;
+  }
+
+  i.fas.fa-cart-plus:after {
+    content: "*";
+    position: absolute;
+    color: red;
+    bottom: 23px;
+    right: 41px;
+  }
+
+  .layout-fixed .wrapper>section {
+    margin-top: 60px;
+  }
+  @media only screen and (min-width: 768px) {
+.wrapper>section, .wrapper>footer {
+    margin-left: 0;
+}
+}
+  @media (max-width:767px) {
+    .layout-fixed .wrapper>section {
+      margin-top: 0px !important;
+    }
+
+    .input#quantity-count {
+      border: 1px solid gainsboro !important;
+    }
+  }
+</style>
+<div class="main-chart">
+  <div class="col-sm-12 col-xs-12 no-pad">
+    <div class="addcart col-sm-8 col-xs-12">
+      <div class="page-header">
+        <h3 class="col-xs-12 col-sm-6 title2" itemprop="headline" translate="Choose Your Services">
+        </h3>
+        <div class="col-xs-12 col-sm-6 search">
+          <input type="text" class="searchtype" on-enter="getvirtualsubcategoryservices()" ng-model="currentfilter.name"
+            placeholder="Search Your Services....">
+          <i class="fas fa-search" aria-hidden="true"></i>
+        </div>
+      </div>
+      <!-- <div ng-show="currentcontext.islab">
+        <radiogroupcontrol itemid="item.ServiceTypeId" items="vm.ServiceTypeOptions">
+        </radiogroupcontrol>
+      </div> -->
+      <div class="col-sm-12 col-xs-12 items" ng-repeat="item in VirtualSubCategoryServices | filter:{Status:1}">
+        <div ng-click="selectorderInfo(item)">
+          <div class="col-sm-2 col-xs-2" align="center"> <i class="fas fa-notes-medical"></i>
+          </div>
+          <div class="col-sm-7 col-xs-8">
+            <div class="service">{{item.Name}}({{item.ItemCode}})</div>
+            <!-- <div class="subservice">{{item.ServiceDetails}}</div> -->
+          </div>
+          <div class="col-sm-2 col-xs-10">
+            <span class="strike"><del>{{item.GrossAmount}}</del></span>
+            <span class="currency">{{item.ServiceAmount}}</span>
+            <span class="save">You save {{item.DiscountAmount}}</span>
+
+          </div>
+          <div class="col-sm-1 col-xs-2">
+            <i class="fa fa-plus" aria-hidden="true" ng-click="addOrder(item)"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="cochart col-sm-4 col-xs-12 webview" ng-show="item.TotalItem>0">
+      <div class="search">
+        <div class="col-sm-6 col-xs-6">
+          <h3 class="title2" itemprop="headline">
+            <span translate="Your Cart"></span>
+            <small class="post-rate yellow-bg brd-rd2 float-right">{{item.TotalItem}}&nbsp;<span
+                translate="Items"></span></small>
+          </h3>
+        </div>
+      </div>
+      <div class="cart-items">
+        <div class="col-sm-12 col-xs-12" id="cochart-items" ng-repeat="item in details | filter:{Status:1}">
+          <div class="col-sm-5 col-xs-12">
+            <div class="service">{{item.ServiceName}}</div>
+          </div>
+          <div class="col-sm-3 col-xs-6">
+            <div class="add-qty ">
+              <div class="d-flex align-items-center justify-content-between b"
+                style="width: 80px;height: 30px;border: unset;">
+                <!-- <span class="count-minus text-center pointer text-success" style=" flex: 1;"
+                  onclick="decrement(this)">-</span> -->
+                <span class="quantity-count bl br d-flex align-items-center justify-content-center h-100 m-0 pointer"
+                  style=" flex: 1;">
+                  <input type="text" id="quantity-count" class="qty" ng-change="computeNetAmount(item)"
+                    ng-model="item.Quantity" ng-disabled="true" tabindex="-1">
+                </span>
+                <!-- <span class="count-plus text-center pointer text-success" onclick="increment(this)"
+                  style=" flex: 1;">+</span> -->
+              </div>
+            </div>
+          </div>
+          <div class="col-sm-3 col-xs-3">
+            <div class="priceamt" data-initamt="{{item.UnitPrice}}">
+              {{item.UnitPrice}}
+            </div>
+          </div>
+          <div class="col-sm-1 col-xs-3">
+            <i class="icofont-ui-delete" ng-click="deleteorderdetails($index,item)" ng-hide="IsDisabled"
+              aria-hidden="true"></i>
+          </div>
+        </div>
+      </div>
+      <div class="col-sm-12 cart">
+        <div class="col-sm-6 col-xs-6" align="end">
+          <span class="strike"><del>{{item.GrossAmount}}</del></span>
+          <span class="save"><span translate="You Save"></span> {{item.DiscountAmount}}</span>
+          <div class="sub-text">
+            <h4><span translate="Total"></span>: &nbsp;&nbsp;&nbsp; {{item.OrderTotal}}</h4>
+          </div>
+        </div>
+        <div class="col-md-6 col-xs-6 px-1 text-right fontbold  " id="finalamt">
+          <button class="checkout" ng-click="next()" translate="Next"> </button>
+        </div>
+      </div>
+    </div>
+    
+    <div class="over-lay" ng-if="currentfilter.showFilterTab"></div>
+    <div class="mobileview" ng-show="item.TotalItem>0">
+      <i class="fas fa-cart-plus" ng-click="openFilterTab()"></i>
+      <div class="col-sm-12" ng-if="currentfilter.showFilterTab">
+        <div class="poups">
+          <div class="poup">
+            <div class="pull-left">
+              <h3 class="title2" itemprop="headline">
+                <span translate="Your Cart"></span>
+                <small class="post-rate yellow-bg brd-rd2 float-right">{{item.TotalItem}}&nbsp; <span
+                    translate="Items"></span></small>
+              </h3>
+            </div>
+            <div class="pull-right">
+              <img src="app/img/svg/close-btn.svg" ng-click="openFilterTab()">
+            </div>
+            <div class="po-ups">
+              <div class="cart-card col-xs-12" ng-repeat="item in details | filter:{Status:1}">
+                <div class="carts">
+                  <div class="col-xs-12">
+                    <div class="col-xs-10">
+                      <div class="col-xs-12">
+                        <span
+                          style="vertical-align: super;color: #0dbef1;font-weight: 600;white-space: normal;text-overflow: ellipsis;overflow: auto;font-size: 15px;">{{item.ServiceName}}</span>
+                      </div>
+                      <div>
+                        <div class="col-xs-6">
+                          <span
+                            class="quantity-count bl br d-flex align-items-center justify-content-center h-100 m-0 pointer"
+                            style=" flex: 1;"> <span translate="Qty"></span> :
+                            <input type="text" id="quantity-count" class="qty" ng-change="computeNetAmount(item)"
+                              ng-model="item.Quantity" ng-disabled="IsDisabled" tabindex="-1">
+                          </span>
+                        </div>
+                        <div class="col-xs-6 pull-right">
+                          <div class="priceamt" data-initamt="{{item.UnitPrice}}">
+                            <span translate="Amt"></span>: {{item.UnitPrice}}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-xs-2"> <i class="icofont-ui-delete" ng-click="deleteorderdetails($index,item)"
+                        ng-hide="IsDisabled" aria-hidden="true"></i></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-sm-12 cart">
+              <div class="col-sm-6 col-xs-6" align="left">
+                <span class="strike"><del>{{item.GrossAmount}}</del></span>
+                <span class="save" translate="You Save">{{item.DiscountAmount}}</span>
+                <div class="sub-text">
+                  <h4><span translate="Total"></span>: &nbsp;&nbsp;&nbsp; {{item.OrderTotal}}</h4>
+                </div>
+              </div>
+              <div class="col-md-6 col-xs-6 px-1 text-right fontbold  " id="finalamt">
+                <button class="checkout" ng-click="next()" translate="Checkout"></button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- <div class="search">
+        <div class="col-sm-6 col-xs-6">
+          <h3 class="title2" itemprop="headline">
+            <span>Your Cart</span>
+            <small class="post-rate yellow-bg brd-rd2 float-right">{{item.TotalItem}}&nbsp;Items</small>
+          </h3>
+        </div>
+      </div> -->
+      <!-- <div class="cart-items">
+        <div class="col-sm-12 col-xs-12" id="cochart-items" ng-repeat="item in details | filter:{Status:1}">
+          <div class="col-sm-5 col-xs-12">
+            <div class="service">{{item.ServiceName}}</div>
+          </div>
+          <div class="col-sm-3 col-xs-6">
+            <div class="add-qty ">
+              <div class="d-flex align-items-center justify-content-between b"
+                style="width: 80px;height: 30px;border: unset;">
+               </div>
+            </div>
+          </div>
+          <div class="col-sm-3 col-xs-3">
+            <div class="priceamt" data-initamt="{{item.UnitPrice}}">
+              {{item.UnitPrice}}
+            </div>
+          </div>
+          <div class="col-sm-1 col-xs-3">
+            <i class="icofont-ui-delete" ng-click="deleteorderdetails($index,item)" ng-hide="IsDisabled"
+              aria-hidden="true"></i>
+          </div>
+        </div>
+      </div> -->
+      <!-- <div class="col-sm-12 cart">
+        <div class="col-sm-12 col-xs-12" align="end">
+          <span class="strike"><del>{{item.GrossAmount}}</del></span>
+          <span class="strike">You save {{item.DiscountAmount}}</span>
+          <div class="sub-text">
+            <h4>Total: &nbsp;&nbsp;&nbsp; {{item.OrderTotal}}</h4>
+          </div>
+        </div>
+        <div class="col-md-12 col-xs-12 px-1 text-right fontbold  " id="finalamt">
+          <button class="checkout" ng-click="next()"> Next</button>
+        </div>
+      </div> -->
+    </div>
+  </div>
+</div>
+<div class="fooders-bgs"></div>
+<style>
+  button.checkout {
+    border: 1px;
+    background: #2196f3 !important;
+    width: 71%;
+    padding: 6px;
+    border-radius: 4px;
+    margin-bottom: 7px;
+    color: white;
+    height: 35px;
+    border-radius: 21px;
+    top: 10px;
+    position: relative;
+    right: 10px;
+  }
+
+  button.checkout:after {
+    content: "\f178 ";
+    font-family: 'FontAwesome';
+    position: relative;
+    left: 11px;
+    font-size: 13px;
+  }
+
+  .search i {
+    position: absolute;
+    left: 0;
+    top: 8px;
+    padding: 11px 17px;
+    color: #aaa;
+    transition: 0.3s;
+  }
+
+  .search input {
+    padding-left: 37px;
+    border: 1px solid gainsboro !important;
+  }
+
+  .main-chart.ng-scope {
+    height: 88%;
+    width: 100%;
+    position: absolute;
+    overflow: auto;
+    margin-top: 2%;
+  }
+
+  .addcart {
+    height: 100%;
+    border: 1px solid gainsboro;
+    margin-top: 5px;
+    border-radius: 0px;
+    background: white;
+    padding-left: 63px;
+    padding-bottom: 18px;
+    padding-right: 63px;
+  }
+
+  .col-sm-12.cart {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    padding: 0;
+  }
+
+  .items {
+    margin: 18px 0px 0px 0px;
+    border: 1px solid gainsboro;
+    height: 71px;
+    padding: 15px 0px 0px 0px;
+    border-radius: 14px;
+    font-size: 14px;
+  }
+
+  .content-wrapper.ng-scope.ng-fadeInUp {
+    background: #f0faff;
+    height: -webkit-fill-available;
+    position: absolute;
+    border: unset;
+    overflow: -moz-scrollbars-none;
+    overflow: unset !important;
+    overflow-x: hidden;
+  }
+
+  .cochart {
+    height: 70vh;
+    border: 1px solid gainsboro;
+    margin-top: 5px !important;
+    border-radius: 0px;
+    background: white;
+    margin: 3px 8px;
+    width: 32%;
+  }
+
+  .search {
+    margin-top: 12px;
+    margin-bottom: 26px !important;
+    height: 43px;
+  }
+
+  div#cochart-items {
+    padding: 0;
+    border-bottom: 1px solid gainsboro;
+    margin-bottom: 12px;
+  }
+
+  .col-sm-5.col-xs-5,
+  .col-sm-3.col-xs-3,
+  .col-sm-2.col-xs-2,
+  .col-sm-2.col-xs-2 {
+    padding: 0;
+  }
+
+  h3,
+  .h3 {
+    font-size: 20px;
+    color: #756c6c;
+    padding: 9px 0px 0px 0px;
+  }
+
+  input#quantity-count {
+    width: 27px;
+    border: 1px;
+    height: 30px !IMPORTANT;
+    margin-top: -3px;
+    box-shadow: unset;
+    text-align: center;
+    width: 46%;
+  }
+
+  .add-qty {
+    border: 1px solid gainsboro;
+    padding: 2px 4px 0px 6px;
+    font-size: 18px;
+    position: relative;
+    border-radius: 4px;
+    bottom: 5px;
+  }
+
+  .add-qty span {
+    margin: 0px 0.6px 0px 0px;
+    border: unset;
+    cursor: pointer;
+  }
+
+  .priceamt {
+    text-align: center;
+  }
+
+  i.fa.fa-plus {
+    color: #24b145;
+    border: 1px solid;
+    padding: 7px 8px;
+    border-radius: 24px;
+    position: relative;
+    bottom: 5px;
+    height: 29px;
+    margin-top: 8px;
+  }
+
+  span.service {
+    color: #00689f;
+    font-size: 14px;
+  }
+
+  .service {
+    color: #00689f;
+    font-size: 14px;
+    color: #00689f;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: pre-wrap;
+  }
+
+  .addcart i.fas.fa-notes-medical {
+    font-size: 20px;
+    color: #e42c1e;
+    position: relative;
+    text-align: center !important;
+  }
+
+  @media (max-width: 760px) {
+    .cochart {
+      height: 70vh;
+      border: 1px solid gainsboro;
+      margin-top: 5px !important;
+      border-radius: 0px;
+      background: white;
+      margin: 3px 8px;
+      width: 100%;
+    }
+
+    .add-qty {
+      border: 1px solid gainsboro;
+      padding: 2px 4px 0px 6px;
+      font-size: 18px;
+      position: relative;
+      border-radius: 4px;
+      bottom: 17px;
+      display: flex;
+    }
+
+    .service.ng-binding {
+      margin-bottom: 14px;
+    }
+
+    .items {
+      margin: 10px 0px 0px 0px;
+      border: 1px solid gainsboro;
+      height: auto;
+      padding: 13px 2px 7px 11px;
+      border-radius: 14px;
+      font-size: 14px;
+    }
+
+    .addcart {
+      height: 100%;
+      border: 1px solid gainsboro;
+      margin-top: 5px;
+      border-radius: 0px;
+      background: white;
+      padding-left: 15px;
+      padding-right: 10px;
+      padding-bottom: 29px;
+    }
+
+    .col-sm-12.col-xs-12.items div {
+      padding: 0;
+    }
+
+    .addcart .service {
+      white-space: unset !IMPORTANT;
+      overflow: unset;
+      word-break: break-all;
+      font-size: 14px;
+    }
+
+    .cochart {
+      border: 1px solid gainsboro;
+      margin-top: 5px !important;
+      border-radius: 0px;
+      background: white;
+      margin: 3px 8px;
+      width: 100%;
+    }
+
+    .col-sm-6.col-xs-6 {
+      padding: 0;
+    }
+
+    .float-right {
+      float: unset;
+    }
+
+    .cochart.col-sm-4.col-xs-12 {
+      margin-left: 1%;
+    }
+
+    .main-chart.ng-scope {
+      height: 85%;
+      width: 100%;
+      position: absolute;
+      overflow: auto;
+      margin-top: 20%;
+    }
+
+    h3.col-xs-12.col-sm-6.title2.ng-scope {
+      padding: 0;
+      margin: 0;
+      margin-bottom: 16px;
+    }
+
+    label.btn.btn-sm.width {
+      border: unset !IMPORTANT;
+      background: white;
+      color: #042e71 !important;
+      width: 32% !important;
+      font-weight: 600;
+    }
+
+    .btn-group.col-sm-12 {
+      width: 100%;
+      padding: 0;
+    }
+  }
+
+  .col-sm-2.col-xs-10 {
+    font-size: 12px;
+  }
+
+  .page-header {
+    background-color: #ffff !important;
+  }
+
+  .btn-success {
+    border-radius: 7px !important;
+    width: 99%;
+    height: 31px;
+    margin-bottom: 9px;
+  }
+
+  .ngdialog-content button.btn.btn-success {
+    width: 22%;
+    margin-top: 2%;
+  }
+
+
+  .col-sm-1.col-xs-3 {
+    padding: 0;
+  }
+
+  .page-header input[type=text] {
+    background: white !IMPORTANT;
+    border-radius: 0px;
+  }
+
+  .search i {
+    position: absolute;
+    left: 0;
+    top: 8px;
+    padding: 11px 27px;
+    color: #aaa;
+    transition: 0.3s;
+  }
+
+  .poup h3,
+  .h3 {
+    font-size: 20px;
+    color: #756c6c;
+    padding: 0px 0px 0px 0px;
+    line-height: 1px;
+    margin: 0;
+    color: green;
+  }
+
+  .poup small.post-rate.yellow-bg.brd-rd2.float-right.ng-binding {
+    color: #05288a;
+    font-weight: bold;
+    font-size: 12px;
+    position: relative;
+    bottom: 3px;
+    left: 13px;
+  }
+
+  .po-ups {
+    overflow: auto;
+    height: 308px;
+    margin-top: 22px;
+    width: 100%;
+    position: relative;
+    top: 15px;
+    margin-bottom: 75px;
+  }
+
+  .poup {
+    padding: 14px;
+    background: white;
+    box-shadow: 0px 0px 20px 0px grey;
+    border-radius: 5px;
+    height: auto !important;
+    position: fixed;
+    z-index: 99999999;
+    left: 3%;
+    width: 95%;
+    top: 100px;
+  }
+
+  .poup>.pull-right {
+    position: relative;
+    bottom: 12px;
+  }
+
+  .po-ups {
+    overflow: auto;
+    height: 379px;
+    margin-top: 20px;
+  }
+
+  .col-sm-12.col-xs-12.mobileview .poup {
+    padding: 21px;
+    background: white;
+    box-shadow: 0px 0px 20px 0px grey;
+    border-radius: 5px;
+    bottom: 103px;
+    height: 432px;
+    position: fixed;
+    width: 100%;
+    z-index: 999999;
+    left: 1px;
+  }
+
+  .po-ups {
+    overflow: auto;
+    height: 300px;
+    margin-top: 22px;
+    width: 100%;
+    position: relative;
+    top: 15px;
+    margin-bottom: 83px;
+  }
+
+  section.ng-scope div {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+  }
+
+  .cart-card,
+  .cart-card div {
+    padding: 0;
+  }
+
+  .cart-card {
+    background: #efefef;
+    padding: 12px 6px;
+    border-radius: 0px;
+    margin-bottom: 10px;
+  }
+
+  i.icofont-ui-delete {
+    color: red;
+    font-size: 18px;
+    position: relative;
+    bottom: 0px;
+    top: 9px;
+    left: 13px;
+  }
+
+  @media only screen and (min-width: 768px) {
+
+    .aside-collapsed .wrapper>section,
+    .aside-collapsed .wrapper>footer {
+      margin-left: 0px !important;
+    }
+  }
+
+  .layout-fixed .wrapper>.aside {
+    display: none;
+  }
+  .over-lay.ng-scope {
+    background: #0000008c;
+    width: 100%;
+    position: fixed;
+    height: 100%;
+}
+  @media screen and (min-width: 360px) and (max-width: 380px) {
+    .po-ups {
+      overflow: auto;
+      height: 260px !important;
+      margin-top: 22px;
+      width: 100%;
+      position: relative;
+      top: 15px;
+      margin-bottom: 76px;
+    }
+
+    button.checkout {
+      width: 100% !important;
+    }
+
+    .poup {
+      z-index: 9999999999999999 !important;
+    }
+  }
+</style>
+<script>
+  function increment(cl) {
+    var sum = 0;
+    var elem1 = cl;
+    // var tot = document.getElementById("quantity-count").value;
+    var totelm = elem1.closest(".b");
+    var tot = totelm.querySelector(".quantity-count .qty").value;
+    if (tot < 0) {
+      var set = 0;
+    } else {
+      var set = tot;
+    }
+    var a = parseInt(set);
+    var b = 1;
+    var total = a + b;
+    totelm.querySelector(".quantity-count .qty").value = total;
+
+    var elem2 = elem1.closest(".parent");
+    var price = elem2.querySelector(".priceamt").dataset.initamt;
+    var aftermultiple = price * total;
+    elem2.querySelector(".priceamt").innerText = aftermultiple;
+
+    //  document.querySelector('.listitems .parent .priceamt').innerText;
+    var elements = document.getElementsByClassName('listitems');
+    for (var i = 0; i < elements.length; i++) {
+      var eachitem = elements[i].querySelector(".parent .priceamt").innerText;
+
+      sum += parseInt(eachitem);
+    }
+    document.getElementById('finalamt').innerText = sum;
+  }
+
+  function decrement(cl) {
+    var sum = 0;
+    var elem1 = cl;
+
+    var totelm = elem1.closest(".b");
+    var tot = totelm.querySelector(".quantity-count .qty").value;
+    if (tot <= 0) {
+      var set = 1;
+      totelm.querySelector(".quantity-count .qty").value = set;
+    } else {
+      var set = tot;
+      var a = parseInt(set);
+      var b = 1;
+      var total = a - b;
+      totelm.querySelector(".quantity-count .qty").value = total;
+      var elem1 = cl;
+      var elem2 = elem1.closest(".parent");
+      var price = elem2.querySelector(".priceamt").dataset.initamt;
+      var reduceprice = elem2.querySelector(".priceamt").innerText;
+      var aftermultiple = reduceprice - price;
+      if (aftermultiple <= 0) {
+        afterpriceadd = 0;
+        elem2.querySelector(".priceamt").innerText = afterpriceadd;
+
+      } else {
+        elem2.querySelector(".priceamt").innerText = aftermultiple;
+
+
+      }
+
+    }
+    var elements = document.getElementsByClassName('listitems');
+    for (var i = 0; i < elements.length; i++) {
+      var eachitem = elements[i].querySelector(".parent .priceamt").innerText;
+
+      sum += parseInt(eachitem);
+    }
+    document.getElementById('finalamt').innerText = sum;
+  }
+</script>

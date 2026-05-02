@@ -1,0 +1,226 @@
+<style>
+    .item-logo-img {
+        margin-top: 10px;
+    }
+</style>
+
+<div class="row page-header">
+    <div class="col-sm-6">
+        <h3 class="panel-title" translate="appmanager.dept.pagetitle.lbl"></h3>
+    </div>
+    <div class="col-sm-6">
+        <button class="btn-add" ng-click="addNew()" uib-tooltip="{{ 'appmanager.depts.addnew-tooltip.lbl' | translate
+    }}" tooltip-placement="bottom">
+            <i class="fa fa-plus" aria-hidden="true"></i>
+            <!-- <span translate="clinicalmaster.serviceitem-list.addnew.lbl"></span> -->
+        </button>
+    </div>
+</div>
+<div class="row">
+    <form id="item_form" name="item_form" class="form-horizontal" role="form">
+        <div class="form-group col-sm-3">
+            <label class="col-sm-12 control-label" for="code" translate="appmanager.dept.code.lbl"></label>
+            <div class="col-sm-12">
+                <input type="text" class="form-control" name="code" ng-model="item.DepartmentCode" placeholder=""
+                    required>
+            </div>
+        </div>
+        <div class="form-group col-sm-3">
+            <label class="col-sm-12 control-label" for="departmentname"
+                translate="appmanager.dept.departmentname.lbl"></label>
+            <div class="col-sm-12">
+                <input type="text" class="form-control" name="departmentname" ng-model="item.DepartmentName"
+                    placeholder="" required>
+            </div>
+        </div>
+        <div class="form-group col-sm-3">
+            <label class="col-sm-12 control-label" for="description"
+                translate="appmanager.dept.description.lbl"></label>
+            <div class="col-sm-12">
+                <input type="text" class="form-control" name="description" ng-model="item.Description" placeholder=""
+                    required>
+            </div>
+        </div>
+        <div class="form-group col-sm-3">
+            <label class="col-sm-12 control-label" for="type" translate="appmanager.dept.type.lbl"></label>
+            <div class="col-sm-12">
+                <ui-select ng-model="item.DepartmentTypeId" name="type" required>
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 20 : 0}}
+                        <span ng-if="$select.selected.Text.length>20">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.DepartmentType | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+        <div class="col-sm-12"></div>
+        <!-- <div class="form-group col-sm-4">
+                                            <label class="col-sm-12 control-label" translate="appmanager.dept.nightstarttime.lbl"></label>
+                                            <div class="col-sm-12">
+                                                <uib-timepicker ng-model="item.NightStartTime" ng-time-object></uib-timepicker>
+                                            </div>
+                                        </div>
+                                        <div class="form-group col-sm-3">
+                                            <label class="col-sm-12 control-label" translate="appmanager.dept.nightendtime.lbl"></label>
+                                            <div class="col-sm-12">
+                                                <uib-timepicker ng-model="item.NightEndTime" ng-time-object></uib-timepicker>
+                                            </div>
+                                        </div>
+                                        <div class="form-group col-sm-3">
+                                            <label class="col-sm-12 control-label" translate="appmanager.dept.activefrom.lbl"></label>
+                                            <div class="col-sm-12">
+                                                <input type="text" class="form-control" name="activefrom" ng-date-object datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}"
+                                                    uib-datepicker-popup="{{datePickerOptions.dateFormat}}" placeholder="{{datePickerOptions.placeholder}}"
+                                                    ng-click="activefromPopup = { opened: true }" is-open="activefromPopup.opened"
+                                                    ng-model="item.ActiveFrom">
+                                            </div>
+                                        </div>
+                                        <div class="form-group col-sm-3">
+                                            <label class="col-sm-12 control-label" translate="appmanager.dept.activeto.lbl"></label>
+                                            <div class="col-sm-12 topright">
+                                                <input type="text" class="form-control" name="activeto" ng-date-object datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}"
+                                                    uib-datepicker-popup="{{datePickerOptions.dateFormat}}" placeholder="{{datePickerOptions.placeholder}}"
+                                                    ng-click="activetoPopup = { opened: true }" is-open="activetoPopup.opened" ng-model="item.ActiveTo">
+                                            </div>
+                                        </div>
+                                        <div class="form-group col-sm-3">
+                                            <label class="col-sm-12 control-label" for="deptseqname" translate="appmanager.dept.deptseqname.lbl"></label>
+                                            <div class="col-sm-12">
+                                                <input type="text" class="form-control" name="deptseqname" ng-model="item.DeptSeqName" placeholder="" >
+                                            </div>
+                                        </div> -->
+        <div class="form-group col-sm-3">
+            <label class="col-sm-12 control-label" translate="appmanager.dept.parentdepartment.lbl"></label>
+            <div class="col-sm-12">
+                <ui-select ng-model="item.ParentDepartmentId">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 35 : 0}}
+                        <span ng-if="$select.selected.Text.length>35">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.Department | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+        <div class="form-group col-sm-3">
+            <label class="col-sm-12 control-label" translate="Display Order"></label>
+            <div class="col-sm-12">
+                <input type="text" name="displayorder"  class="custom-checkbox" ng-model="item.DisplayOrder">
+            </div>
+        </div>
+        <!-- <div class="form-group col-sm-4">
+                                                <label class="col-sm-12 control-label"  translate="appmanager.dept.isemergency.lbl"></label>
+                                                <div class="col-sm-1 col-md-1">
+                                                    <input type="checkbox" name="isemergency"  class="custom-checkbox" ng-model="item.IsEmergency" ng-checked="item.IsEmergency == 1">
+                                                </div>
+                                            </div>
+                                            <div class="form-group col-sm-3">
+                                                <label class="col-sm-12 control-label" translate="appmanager.dept.includemrdreq.lbl"></label>
+                                                <div class="col-sm-1">
+                                                    <input type="checkbox" name="includemrdreq" class="custom-checkbox" ng-model="item.IncludeMRDRequired" ng-checked="item.IncludeMRDRequired == 1">
+                                                </div>
+                                            </div>
+                                            <div class="form-group col-sm-3">
+                                                <label class="col-sm-12 control-label" for="isdental" translate="IsDental"></label>
+                                                <div class="col-sm-1">
+                                                    <input type="checkbox" name="isdental" class="custom-checkbox" ng-model="item.IsDentalDept">
+                                                </div>
+                                            </div>
+
+                                            <div class="form-group col-sm-3">
+                                                <label class="col-sm-12 control-label" translate="appmanager.dept.isprocessingcenter.lbl"></label>
+                                                <div class="col-sm-12">
+                                                    <input type="checkbox" name="isprocessingcenter" class="custom-checkbox" ng-model="item.IsProcessingCenter" ng-checked="item.IsProcessingCenter == 1">
+                                                </div>
+                                            </div> -->
+        <div class="form-group col-sm-3">
+            <label class="col-sm-12 control-label" translate="appmanager.dept.isactive.lbl"></label>
+            <div class="col-sm-12">
+                <input type="checkbox" name="isactive" class="custom-checkbox" ng-model="item.IsActive">
+            </div>
+        </div>
+        <div class="form-group col-sm-3">
+            <label class="col-sm-12 control-label" translate="Is Parent Department"></label>
+            <div class="col-sm-12">
+                <input type="checkbox" name="isprocessingcenter" class="custom-checkbox"
+                    ng-model="item.IsParentDepartment" ng-checked="item.IsParentDepartment == 1">
+            </div>
+        </div>
+        <div class="col-sm-12"></div>
+        <div class="form-group col-sm-3">
+            <label class="col-sm-12 control-label" translate="Is Virtual"></label>
+            <div class="col-sm-12">
+                <input type="checkbox" name="isvirtual" class="custom-checkbox" ng-model="item.IsVirtual">
+            </div>
+        </div>
+        <div class="form-group col-sm-3">
+            <label class="col-sm-12 control-label" translate="appmanager.dept.isemergency.lbl"></label>
+            <div class="col-sm-1 col-md-1">
+                <input type="checkbox" name="isemergency" class="custom-checkbox" ng-model="item.IsEmergency"
+                    ng-checked="item.IsEmergency == 1">
+            </div>
+        </div>
+        <div class="form-group col-sm-3">
+            <label class="col-sm-12 control-label" translate="Is Diet"></label>
+            <div class="col-sm-1 col-md-1">
+                <input type="checkbox" name="isdiet" class="custom-checkbox" ng-model="item.IsDiet"
+                    ng-checked="item.IsDiet == 1">
+            </div>
+        </div>
+        <div class="form-group col-sm-3">
+            <label class="col-sm-12 control-label" translate="Is AllFacility"></label>
+            <div class="col-sm-1 col-md-1">
+                <input type="checkbox" name="AllFacility" class="custom-checkbox" ng-model="item.IsAllFacility"
+                    ng-checked="item.IsDiet == 1">
+            </div>
+        </div>
+        <div class="form-group col-sm-3">
+            <label class="col-sm-12 control-label" translate="Is IP Clearence"></label>
+            <div class="col-sm-1 col-md-1">
+                <input type="checkbox" name="AllFacility" class="custom-checkbox" ng-model="item.IsIPClearence">
+            </div>
+        </div>
+        <div class="form-group col-sm-3">
+            <div class="form-group col-sm-12">
+                <label class="col-sm-12 control-label" translate="appmanager.dept.logo.lbl"></label>
+                <div class="col-sm-12">
+                    <input style="border: 0;background: 0;border-radius: 0;" type="file" ngf-select
+                        ng-model="currentcontext.file" name="file" ngf-max-size="200MB" />
+                </div>
+
+            </div>
+            <div class="form-group col-sm-12">
+                <img class="item-logo-img" ng-show="!!currentcontext.file" ngf-thumbnail="currentcontext.file" />
+                <img class="item-logo-img" ng-show="!currentcontext.file && item.LogoPath"
+                    data-ng-src="data:image/png;base64,{{currentcontext.Logo}}" />
+
+            </div>
+        </div>
+    </form>
+</div>
+<div class="fooder-bgs">
+    <div class="row">
+        <div class="pull-left">
+            <button type="button" class="btn pyr-color10 btn-sm" ng-click="backToList()">
+                <i class="fa fa-angle-left" aria-hidden="true"></i>&nbsp;&nbsp;
+                <span class="btn-fontsize" translate="common.backaction.lbl"></span>
+            </button>
+
+        </div>
+        <div class="pull-right">
+            <button id="btnSave" type="button" class="draftbutton" translate="common.saveaction.lbl"
+                ng-click="save()"></button>
+            <button id="btnSaveApprove" type="button" class="draftbutton"
+                translate="common.saveapprove-action.lbl" ng-click="saveAndApprove()"></button>
+            <!-- <button id="btnClearForm" type="button" class="btn btn-warning btn-sm"
+                                        ng-click="clear()" translate="common.clearaction.lbl"></button> -->
+            <!-- <button id="btnCancelForm" type="button" class="cancelbutton"
+                                        ng-click="backToList()" translate="common.cancelaction.lbl"></button> -->
+        </div>
+    </div>
+</div>

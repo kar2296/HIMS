@@ -1,0 +1,278 @@
+<!--<ul class="breadcrumb">
+    <li><a ng-click="backToList()" translate="clinicalmaster.diagnosis-form.parentpagetitle.lbl"></a></li>
+    <li class="active" translate="clinicalmaster.diagnosis-form.pagetitle.lbl"></li>
+</ul>-->
+<div class="modal-header custom-modal-header" ng-if="currentcontext.ismodal">
+    <div class="col-sm-10">
+        <h4 class="modal-title custom-modal-title" translate="clinicalmaster.diagnosis-form.pnldiagnosis.lbl"></h4>
+    </div>
+    <div class="col-sm-2">
+        <div class="filters">
+            <img src="../../../../../assets/svg/close.svg" ng-hide="currentcontext.ismodal" ng-click="cancelCallback()">
+        </div>
+    </div>
+</div>
+<div class="row page-header">
+    <div class="col-sm-5">
+        <h3 class="panel-title" translate="clinicalmaster.diagnosis-form.pnldiagnosis.lbl"></h3>
+    </div>
+    <div class="col-sm-7">
+        <button class="btn-add" ng-hide="currentcontext.ismodal" ng-click="addNew()"
+            uib-tooltip="{{ 'clinicalmaster.diagnosis-list.addnew-tooltip.lbl' | translate}}"
+            tooltip-placement="bottom">
+            <i class="fa fa-plus" aria-hidden="true"></i>
+            <!-- <span translate="clinicalmaster.serviceitem-list.addnew.lbl"></span> -->
+        </button>
+    </div>
+</div>
+<div class="row">
+    <form id="item_form" name="item_form" class="form-horizontal" role="form">
+        <div class="form-group col-sm-6">
+            <label class="col-sm-12 control-label" for="codescheme"
+                translate="clinicalmaster.diagnosis-list.filter_codescheme.lbl"></label>
+            <div class="col-sm-12">
+                <ui-select ng-model="item.DiagnosisCodeSchemeId" name="codescheme">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 20 : 0}}
+                        <span ng-if="$select.selected.Text.length>20">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.DiagnosisCodeScheme | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+        <div class="form-group col-sm-6">
+            <label class="col-sm-12 control-label" for="code"
+                translate="clinicalmaster.diagnosis-form.code.lbl"></label>
+            <div class="col-sm-12">
+                <input type="text" class="form-control" name="code" ng-model="item.Code" placeholder="" required>
+            </div>
+        </div>
+        <div class="form-group col-sm-6">
+            <label class="col-sm-12 control-label" for="name"
+                translate="clinicalmaster.diagnosis-form.name.lbl"></label>
+            <div class="col-sm-12">
+                <input type="text" class="form-control" name="name" ng-model="item.DiagnosisName" placeholder=""
+                    required>
+            </div>
+        </div>
+        <div class="form-group col-sm-6">
+            <label class="col-sm-12 control-label" for="description"
+                translate="clinicalmaster.diagnosis-form.description.lbl"></label>
+            <div class="col-sm-12">
+                <input type="text" class="form-control" name="description" ng-model="item.Description" placeholder="">
+            </div>
+        </div>
+        <!-- <div class="form-group col-sm-6">
+                            <label class="col-sm-12 control-label" for="version" translate="clinicalmaster.diagnosis-form.version.lbl"></label>
+                            <div class="col-sm-12">
+                                <ui-select ng-model="item.DiagnosisVersionId" name="version">
+                                    <ui-select-match>
+                                        {{$select.selected.Text | limitTo : 20 : 0}}
+                                        <span ng-if="$select.selected.Text.length>20">...</span>
+                                    </ui-select-match>
+                                    <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.DiagnosisVersion | filter: { Text: $select.search }">
+                                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                    </ui-select-choices>
+                                </ui-select>
+                            </div>
+                        </div> -->
+        <!-- <div class="form-group col-sm-6">
+                        <label class="col-sm-12 control-label" for="category" translate="clinicalmaster.diagnosis-form.category.lbl"></label>
+                        <div class="col-sm-12">
+                            <ui-select ng-model="item.CategoryId" name="category">
+                                <ui-select-match>
+                                    {{$select.selected.Text | limitTo : 20 : 0}}
+                                    <span ng-if="$select.selected.Text.length>20">...</span>
+                                </ui-select-match>
+                                <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.DiagnosisCategory | filter: { Text: $select.search }">
+                                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                </ui-select-choices>
+                            </ui-select>
+                        </div>
+                    </div>
+                    <div class="form-group col-sm-6">
+                        <label class="col-sm-12 control-label" for="type" translate="clinicalmaster.diagnosis-form.type.lbl"></label>
+                        <div class="col-sm-12">
+                            <ui-select ng-model="item.TypeId" name="type">
+                                <ui-select-match>
+                                    {{$select.selected.Text | limitTo : 20 : 0}}
+                                    <span ng-if="$select.selected.Text.length>20">...</span>
+                                </ui-select-match>
+                                <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.DiagnosisType | filter: { Text: $select.search }">
+                                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                </ui-select-choices>
+                            </ui-select>
+                        </div>
+                    </div> -->
+        <div class="form-group col-sm-6">
+            <label class="col-sm-12 control-label" for="canbeyondleavebalance"
+                translate="lis.testmaster.side.lbl"></label>
+            <div class="col-sm-12">
+                <radiogroupcontrol itemid="item.SideId" items="lookup.Side"></radiogroupcontrol>
+            </div>
+        </div>
+        <!-- <div class="form-group col-sm-6">
+                        <label class="col-sm-12 control-label" for="grade" translate="clinicalmaster.diagnosis-form.grade.lbl"></label>
+                        <div class="col-sm-12">
+                            <ui-select ng-model="item.GradeId" name="grade">
+                                <ui-select-match>
+                                    {{$select.selected.Text | limitTo : 20 : 0}}
+                                    <span ng-if="$select.selected.Text.length>20">...</span>
+                                </ui-select-match>
+                                <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.Grade | filter: { Text: $select.search }">
+                                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                </ui-select-choices>
+                            </ui-select>
+                        </div>
+                    </div> -->
+        <!-- <div class="form-group col-sm-6">
+                        <label class="col-sm-12 control-label" for="canbeyondleavebalance" translate="lis.testmaster.position.lbl"></label>
+                        <div class="col-sm-12">
+                            <radiogroupcontrol itemid="item.TestMasterPositionId" items="lookup.TestMasterPosition"></radiogroupcontrol>
+                        </div>
+                    </div> -->
+        <!-- <div class="form-group col-sm-6">
+                        <label class="col-sm-12 control-label" for="deptid" translate="clinicalmaster.diagnosis-form.department.lbl"></label>
+                        <div class="col-sm-12">
+                            <ui-select ng-model="item.DepartmentId" name="deptid">
+                                <ui-select-match>
+                                    {{$select.selected.Text | limitTo : 20 : 0}}
+                                    <span ng-if="$select.selected.Text.length>20">...</span>
+                                </ui-select-match>
+                                <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.Department | filter: { Text: $select.search }">
+                                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                </ui-select-choices>
+                            </ui-select>
+                        </div>
+                    </div>
+                    <div class="form-group col-sm-6">
+                        <label class="col-sm-12 control-label" for="speciality" translate="clinicalmaster.diagnosis-form.speciality.lbl"></label>
+                        <div class="col-sm-12">
+                            <ui-select multiple ng-model="item.Speciality" name="speciality" class="ui-select-multiple"
+                                ng-multi-tag>
+                                <ui-select-match>{{$item.Text }}</ui-select-match>
+                                <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.Speciality | filter: { Text: $select.search }">
+                                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                </ui-select-choices>
+                            </ui-select>
+                        </div>
+                    </div> -->
+        <div class="form-group col-sm-6">
+            <label class="col-sm-12 control-label" for="synonym" translate="Alias Name"></label>
+            <div class="col-sm-12">
+                <input type="text" class="form-control" name="synonym" ng-model="item.Synonym" placeholder="">
+            </div>
+        </div>
+        <!-- <div class="form-group col-sm-6">
+                        <label class="col-sm-12 control-label" for="referrencelink" translate="clinicalmaster.diagnosis-form.referrencelink.lbl"></label>
+                        <div class="col-sm-6">
+                            <input type="text" class="form-control" name="referrencelink" ng-model="item.ReferrenceLink"
+                                translate translate-attr-placeholder="common.reflink-placeholder.lbl">
+                        </div>
+                        <div class="col-sm-2 linkchecker-div">
+                            <linkchecker url="item.ReferrenceLink"></linkchecker>
+                        </div>
+                    </div> -->
+        <div class="form-group col-sm-6">
+            <label class="col-sm-12 control-label" for="lengthofstay"
+                translate="clinicalmaster.diagnosis-form.lengthofstay.lbl"></label>
+            <div class="col-sm-12">
+                <input type="text" class="form-control" name="lengthofstay" ng-model="item.LengthOfStay" placeholder="">
+            </div>
+        </div>
+        <!-- <div class="form-group col-sm-6">
+                        <label class="col-sm-12 control-label" for="coderegion" translate="clinicalmaster.diagnosis-form.coderegion.lbl"></label>
+                        <div class="col-sm-12">
+                            <ui-select ng-model="item.CodeRegionId" name="coderegion">
+                                <ui-select-match>
+                                    {{$select.selected.Text | limitTo : 20 : 0}}
+                                    <span ng-if="$select.selected.Text.length>20">...</span>
+                                </ui-select-match>
+                                <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.CodeRegion | filter: { Text: $select.search }">
+                                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                </ui-select-choices>
+                            </ui-select>
+                        </div>
+                    </div>
+                    <div class="form-group col-sm-6">
+                        <label class="col-sm-12 control-label" for="bodysite" translate="clinicalmaster.diagnosis-form.bodysite.lbl"></label>
+                        <div class="col-sm-12">
+                            <ui-select multiple ng-model="item.BodySite" name="bodysite" class="ui-select-multiple"
+                                ng-multi-tag>
+                                <ui-select-match>{{$item.Text }}</ui-select-match>
+                                <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.BodySite | filter: { Text: $select.search }">
+                                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                </ui-select-choices>
+                            </ui-select>
+                        </div>
+                    </div> -->
+
+        <!-- <div class="col-sm-5">
+                            <label class="col-sm-10 control-label" for="isnotifibale" translate="clinicalmaster.diagnosis-form.isnotifiable.lbl"></label>
+                            <div class="col-sm-2">
+                                <input type="checkbox" name="isnotifibale" class="custom-checkbox"
+                                    ng-model="item.IsNotifibale">
+                            </div>
+                        </div>
+                        <div class="col-sm-2">
+                        </div>
+                    </div>
+                    <div class="form-group col-sm-6">
+
+                        <div class="col-sm-5">
+                            <label class="col-sm-10 control-label" for="issensitive" translate="clinicalmaster.diagnosis-form.issensitive.lbl"></label>
+                            <div class="col-sm-2">
+                                <input type="checkbox" name="issensitive" class="custom-checkbox"
+                                    ng-model="item.IsSensitive">
+                            </div>
+                        </div>
+                        <div class="col-sm-5">
+                            <label class="col-sm-10 control-label" for="isbillable" translate="clinicalmaster.diagnosis-form.isbillable.lbl"></label>
+                            <div class="col-sm-2">
+                                <input type="checkbox" name="isbillable" class="custom-checkbox"
+                                    ng-model="item.IsBillable">
+                            </div>
+                        </div>
+                    </div> -->
+        <div class="form-group col-sm-6">
+            <label class="col-sm-12 control-label" translate="clinicalmaster.diagnosis-form.comments.lbl"></label>
+            <div class="col-sm-12">
+                <textarea rows="3" name="comments" ng-model="item.Comments" maxlength="4000" style="width:100%;"
+                    class="notes-textarea"></textarea>
+            </div>
+        </div>
+        <div class="form-group col-sm-6">
+            <div class="col-sm-5">
+                <label class="col-sm-12 control-label" for="isactive"
+                    translate="clinicalmaster.diagnosis-form.isactive.lbl"></label>
+                <div class="col-sm-12">
+                    <input type="checkbox" name="isactive" class="custom-checkbox" ng-model="item.IsActive">
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<div class="fooder-bgs">
+    <div class="row">
+        <div class="pull-left">
+            <button type="button" ng-hide="currentcontext.ismodal" class="btn btn-sm pyr-color10"
+                ng-click="backToList()">
+                <i class="fa fa-angle-left"></i>&nbsp;&nbsp;
+                <span translate="common.backaction.lbl"></span>
+            </button>
+        </div>
+        <div class="pull-right">
+            <button type="button" class="draftbutton" ng-hide="item.ActiveStatusId>=2" ng-click="save()"
+                translate="common.saveaction.lbl"></button>
+            <button type="button" class="draftbutton" translate="common.saveapprove-action.lbl"
+                ng-click="saveAndApprove()"></button>
+            <!-- <button id="btnClearForm" type="button" class="btn btn-warning btn-sm" ng-click="clear()" translate="common.clearaction.lbl"></button>
+                <button id="btnCancelForm" type="button" class="draftbutton" ng-click="backToList()"
+                    translate="common.cancelaction.lbl"></button> -->
+        </div>
+    </div>
+</div>

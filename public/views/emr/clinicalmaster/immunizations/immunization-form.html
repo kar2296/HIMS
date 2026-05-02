@@ -1,0 +1,214 @@
+<style>
+    .modal-lg {
+        width: 800px;
+    }
+
+    .panel-body {
+        padding: 15px;
+        margin-left: 0px;
+        margin-top: 40px;
+        margin-right: 0px;
+        margin-bottom: 0px;
+        background-image: url(app/img/bg-body.jpg);
+        background-repeat: repeat;
+        overflow: auto;
+    }
+
+    .modal-content .panel-body {
+        overflow: inherit;
+    }
+
+    .well {
+        min-height: 20px;
+        padding: 19px;
+        margin-bottom: 0px;
+        border: 1px solid #ededed;
+        border-radius: 4px;
+        background: rgb(233, 246, 253);
+        /* Old browsers */
+        background: -moz-linear-gradient(top, rgba(233, 246, 253, 1) 0%, rgba(211, 238, 251, 1) 100%);
+        /* FF3.6-15 */
+        background: -webkit-linear-gradient(top, rgba(233, 246, 253, 1) 0%, rgba(211, 238, 251, 1) 100%);
+        /* Chrome10-25,Safari5.1-6 */
+        background: linear-gradient(to bottom, rgb(250, 250, 250) 0%, rgb(247, 252, 253) 100%);
+        /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+        filter: progid: DXImageTransform.Microsoft.gradient( startColorstr='#e9f6fd', endColorstr='#d3eefb', GradientType=0);
+        /* IE6-9 */
+        box-shadow: 4px 2px 13px -7px rgba(0, 0, 0, 0.75);
+    }
+
+    .formactionbar {
+        padding: 5px 15px;
+        height: 40px;
+        background-color: #ccecf5;
+    }
+
+    .custom-modal-header {
+        margin-bottom: 10px;
+        background-color: #597a9a;
+        color: #fff;
+    }
+
+    .modal-content {
+        -webkit-box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+        box-shadow: -1px 3px 20px 7px rgba(249, 244, 244, 0.5);
+    }
+
+    .modal-header {
+        padding: 4px 10px;
+        border-bottom: 1px solid #e5e5e5;
+    }
+    .manage_popup{
+        text-align: center;
+        margin: 0 auto;
+        float:none;
+    }
+</style>
+<div class="modal-header custom-modal-header">
+    <div class="col-sm-12 ">
+           <div class="col-sm-6">
+                <h3 class="panel-title" translate="clinicalmaster.immunization-form.pagetitle.lbl"></h3>
+         </div>
+            <div class="col-sm-6">
+                <button type="button" class="btn btn-danger btn-sm pull-right" translate="x"
+                    ng-click="cancelCallback()"></button>
+            </div>
+    </div>
+</div>
+</div>
+<div class="row">
+    <div class="col-sm-12 ">
+        <form id="item_form" name="item_form" class="form-horizontal" role="form">
+            <div>
+                <div class="">
+                    <div class="panel-body form-panel">
+                        <div class="col-sm-12">
+                                <div class="form-group col-sm-6">
+                                    <label class="col-sm-12" for="immunizationname" translate="clinicalmaster.immunization-form.immunizationname.lbl"></label>
+                                    <div class="col-sm-12">
+                                        <input type="text" class="form-control" name="immunizationname" ng-model="item.ImmunizationName" placeholder="" required>
+                                    </div>
+                                </div>
+                                <!-- <div class="form-group col-sm-6">
+                                    <label class="col-sm-12" for="description" translate="clinicalmaster.immunization-form.description.lbl"></label>
+                                    <div class="col-sm-12">
+                                        <input type="text" class="form-control" name="description" ng-model="item.Description" placeholder="" required>
+                                    </div>
+                                </div> -->
+                                <div class="form-group col-sm-6">
+                                    <label class="col-sm-12" for="frequency" translate="clinicalmaster.immunization-form.frequency.lbl"></label>
+                                    <div class="col-sm-12">
+                                        <ui-select ng-model="item.FrequencyId" name="frequency">
+                                            <ui-select-match>
+                                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                                <span ng-if="$select.selected.Text.length>20">...</span>
+                                            </ui-select-match>
+                                            <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.Frequency | filter: { Text: $select.search }">
+                                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                            </ui-select-choices>
+                                        </ui-select>
+                                    </div>
+                                </div>
+                        </div>  
+                                <div class="col-sm-12">
+                                <div class="form-group col-sm-6">
+                                    <label class="col-sm-12" for="duration" translate="clinicalmaster.immunization-form.duration.lbl"></label>
+                                    <div class="col-sm-12">
+                                        <div class="col-sm-5 div-duration">
+                                            <input type="text" class="form-control" name="duration" ng-model="item.Duration" placeholder="">
+                                        </div>
+                                        <div class="col-sm-5 div-period">
+                                            <ui-select ng-model="item.PeriodId" name="period">
+                                                <ui-select-match>
+                                                    {{$select.selected.Text | limitTo : 20 : 0}}
+                                                    <span ng-if="$select.selected.Text.length>20">...</span>
+                                                </ui-select-match>
+                                                <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.Period | filter: { Text: $select.search }">
+                                                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                                </ui-select-choices>
+                                            </ui-select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group col-sm-6">
+                                    <label class="col-sm-12" for="route" translate="clinicalmaster.immunization-form.route.lbl"></label>
+                                    <div class="col-sm-12">
+                                        <ui-select ng-model="item.RouteId" name="route">
+                                            <ui-select-match>
+                                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                                <span ng-if="$select.selected.Text.length>20">...</span>
+                                            </ui-select-match>
+                                            <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.Route | filter: { Text: $select.search }">
+                                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                            </ui-select-choices>
+                                        </ui-select>
+                                    </div>
+                                </div>
+                                </div>
+                                <div class="col-sm-12">
+                                <div class="form-group col-sm-6">
+                                    <label class="col-sm-12" for="scheduleflag" translate="clinicalmaster.immunization-form.scheduleflag.lbl"></label>
+                                    <div class="col-sm-12">
+                                        <ui-select ng-model="item.ScheduleFlagId" name="scheduleflag">
+                                            <ui-select-match>
+                                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                                <span ng-if="$select.selected.Text.length>20">...</span>
+                                            </ui-select-match>
+                                            <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.ScheduleFlag | filter: { Text: $select.search }">
+                                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                            </ui-select-choices>
+                                        </ui-select>
+                                    </div>
+                                </div>
+                                <!-- <div class="form-group col-sm-6">
+                                    <label class="col-sm-12" for="condition" translate="clinicalmaster.immunization-form.condition.lbl"></label>
+                                    <div class="col-sm-12">
+                                            <autosearch itemid="item.ConditionId" iteminfo="item.selectedItem" rowdata="item" config="vm.diagnosiscontrolconfig" itemchange="getDiagnosis()"></autosearch> -->
+                                        <!-- <ui-select ng-model="item.ConditionId" name="condition">
+                                            <ui-select-match>
+                                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                                <span ng-if="$select.selected.Text.length>20">...</span>
+                                            </ui-select-match>
+                                            <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.Condition | filter: { Text: $select.search }">
+                                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                            </ui-select-choices>
+                                        </ui-select> -->
+                                    <!-- </div>
+                                </div> -->
+                                <!-- <div class="form-group col-sm-6">
+                                    <label class="col-sm-12" for="instructions" translate="clinicalmaster.immunization-form.instructions.lbl"></label>
+                                    <div class="col-sm-12">
+                                        <textarea rows="3" name="instructions" ng-model="item.Instruction" maxlength="4000" style="width:100%;" class="notes-textarea"></textarea>
+                                    </div>
+                                </div>
+                                <div class="form-group col-sm-6">
+                                    <label class="col-sm-12" for="referrencelink" translate="clinicalmaster.immunization-form.referrencelink.lbl"></label>
+                                    <div class="col-sm-4 col-md-4">
+                                        <input type="text" class="form-control" name="referrencelink" ng-model="item.ReferrenceLink" translate translate-attr-placeholder="common.reflink-placeholder.lbl" disabled>
+                                    </div>
+                                    <div class="col-sm-3 linkchecker-div">
+                                       <linkchecker ng-click="checkLink()" url="item.ReferrenceLink"></linkchecker>
+                                    </div>
+                                </div> -->
+                                <div class="form-group col-sm-6">
+                                    <label class="col-sm-12" for="isactive" translate="clinicalmaster.immunization-form.isactive.lbl"></label>
+                                    <div class="col-sm-12">
+                                        <input type="checkbox" name="isactive" class="custom-checkbox" ng-model="item.IsActive">
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                </div>
+            </div>
+            <div class="fooder-bgs" style="margin-bottom: 3px;">
+                <div class="pull-right">
+                    <!-- <button type="button" id="btnsubmit" class="draftbutton" translate="common.saveaction.lbl" ng-click="save()"></button> -->
+                    <button type="button" class="draftbutton" translate="common.saveapprove-action.lbl" ng-click="saveAndApprove()"></button>
+                    <button id="btnClearForm" type="button" class="btn btn-warning btn-sm" ng-click="clear()" translate="common.clearaction.lbl"></button>
+                    <!-- <button id="btnCancelForm" type="button" class="draftbutton" ng-click="backToList()" translate="common.cancelaction.lbl"></button> -->
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

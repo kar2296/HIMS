@@ -1,0 +1,89 @@
+<link href="app/css/emr.css" rel="stylesheet">
+<style>
+   .list-items-d-flex {
+      display: flex;
+      width: 100%;
+      color: #fff;
+      justify-content: space-between;
+       background: #46761b;
+      padding: 6px 3px;
+   }
+
+   .list-items-d-flex a {
+      color: #fff;
+   }
+</style>
+<div class="modal-header custom-modal-header">
+   <div class="col-sm-10">
+      <h4 class="modal-title custom-modal-title" translate="Past Prescriptions"></h4>
+   </div>
+   <div class="col-sm-2">
+      <div class="filters">
+         <img src="../../../../../assets/svg/close.svg" ng-click="cancelCallback()">
+      </div>
+   </div>
+</div>
+
+<div class="row">
+   <div aria-multiselectable="true">
+      <div style="margin-bottom: 10px;" ng-repeat="item in Prescriptions">
+         <div class="list-items-d-flex">
+            <div>
+               <input type="checkbox" class="custom-checkbox" ng-model="item.Select" ng-disabled="item.cnDisabled" />
+            </div>
+            <div>
+               <displaydate datetime-val="item.PrescriptionDate">
+               </displaydate>
+            </div>
+            <div>{{item.Identifier}}</div>
+            <div class="hidencontent">{{item.Doctor.Title.Description}}&nbsp; {{item.Doctor.FirstName}}&nbsp;
+               {{item.Doctor.LastName}}</div>
+            <div class="hidencontent">{{item.Department.DepartmentName}}</div>
+            <div>{{item.PrecriptionStatus.Description}}</div>
+            <div> <button type="button" class="btn btn-default btn-xs" ng-click="toggleCanShowDetails(item)">
+                  <i class="fa fa-angle-down" aria-hidden="true" ng-show="!item.CanShowDetails"></i>
+                  <i class="fa fa-angle-up" aria-hidden="true" ng-show="item.CanShowDetails"></i>
+               </button></div>
+         </div>
+         <div class="table-content" ng-show="item.CanShowDetails">
+            <table>
+               <tr ng-repeat="detail in item.PrescriptionDetails">
+                  <td class="col-sm-4">
+                     <span class="drugname"> {{detail.DrugName}}({{detail.DrugCode}})</span>
+                  </td>
+                  <td class="col-sm-4">
+                     <span class="duration">
+                        {{detail.Duration}}&nbsp;{{detail.DurationPeriod.Description}}&nbsp;/&nbsp;
+                        {{detail.Morning}}&nbsp;- {{detail.Noon}}&nbsp; {{detail.Night}}&nbsp;
+                     </span>
+                  </td>
+                  <td class="col-sm-4">
+                     <span class="description">{{detail.DrugInstruction.Description}}</span>
+                  </td>
+               </tr>
+            </table>
+         </div>
+      </div>
+   </div>
+</div>
+
+<!-- <div class="modal-header custom-modal-header">
+   <div class="col-sm-12">
+      <div class="col-sm-6">
+         <h3 class="panel-title" translate="Past Prescriptions"></h3>
+      </div>
+      <div class="col-sm-6">
+         <button type="button" class="btn btn-danger btn-sm pull-right" translate="x"
+            ng-click="cancelCallback()"></button>
+      </div>
+   </div>
+</div> -->
+
+<div class="">
+   <div class="row">
+      <div class="pull-right">
+         <button id="btnCancelForm" type="button" class="draftbutton" ng-click="saveToNotes()"
+            translate="common.saveaction.lbl"></button>
+      </div>
+   </div>
+</div>

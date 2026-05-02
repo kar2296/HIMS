@@ -1,0 +1,116 @@
+<style>
+    .modal-lg {
+        width: 65%;
+    }
+    /**@media screen and (min-width:1360px){.fooder-bg.ipbill_footer{position: absolute;
+    top: 141px;left: -5px !important;
+    width: 100% !important;}}**/
+</style>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        $("#itembtn").click(function () {
+            $(".items").toggle();
+        });
+    });
+    $(document).ready(function () {
+        $("#categorybtn").click(function () {
+            $(".catogories").toggle();
+        });
+    });
+
+</script>
+<div class="modal-header custom-modal-header">
+    <h4 class="modal-title custom-modal-title">{{ServiceCategoryName}}</h4>
+</div>
+<div class="bg-pattern">
+    <patientbanner patientid="PatientId"></patientbanner>
+
+    <div class=" table-control">
+        <div class="table-height" id="mainresponsivetablecontrol">
+            <table class="table table-hover table-responsive table-bordered">
+                <thead class="bg-subhead">
+                    <tr>
+                        <th><span translate="billing.supplementary-details.serviceitem.lbl"></span> </th>
+                        <th><span translate="billing.supplementary-details.date.lbl"></span> </th>
+                        <th><span translate="billing.supplementary-details.qty.lbl"></span> </th>
+                        <th><span translate="billing.supplementary-details.rate.lbl"></span> </th>
+                        <th><span translate="billing.supplementary-details.doctor.lbl"></span> </th>
+                        <th><span translate="billing.supplementary-details.discount.lbl"></span> </th>
+                        <th><span translate="billing.supplementary-details.net.lbl"></span> </th>
+                        <th class="col-sm-1">
+                            <span translate="billing.supplementary-details.action.lbl"></span>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="bill in PatientBillDetails" ng-if="bill.Status == 1">
+                        <td>
+                            <label>{{bill.ServiceName}}</label>
+                        </td>
+                        <td>
+                            <input type="text" class="form-control" name="billdatetime" ng-date-object datetime-picker="{{datePickerOptions.dateTimeFormat}}"
+                                placeholder="{{datePickerOptions.placeholder}}" ng-click="modifiedbilldatetimePopup = { opened: true }"
+                                is-open="modifiedbilldatetimePopup.opened" ng-model="bill.BillDateTime">
+                        </td>
+                        <td>
+                            <input type="text" min="0" ng-keypress="numberonly($event)" ng-pattern="/^\d+$/" class="form-control"
+                                ng-model="bill.Quantity" placeholder="" ng-change="computeAmount($index, bill)">
+                        </td>
+                        <td>
+                            <input type="text" min="0" ng-keypress="numberonly($event)" ng-pattern="/^\d+$/" class="form-control"
+                                ng-model="bill.Rate" placeholder="" ng-change="computeAmount($index, bill)">
+                        </td>
+                        <td>
+                            <label>{{bill.User.FirstName}}&nbsp;{{bill.User.LastName}}</label>
+                        </td>
+                        <td>
+                            <input type="text" min="0" ng-keypress="numberonly($event)" ng-pattern="/^\d+$/" class="form-control"
+                                ng-model="bill.DiscountAmount" placeholder="" ng-change="computeAmount($index, bill)">
+                        </td>
+                        <td class="currency-align">
+                            <label>{{bill.NetAmount | displaycurrency}}</label>
+                        </td>
+                        <td class="text-center">
+                            <button type="button" class="drhms-edit-button" ng-click="deleteBill($index, bill)">
+                                <img src="assets/svg/delete.svg" alt="">
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <table class="table table-hover table-responsive table-bordered">
+                <thead class="bg-subhead">
+                    <tr>
+                        <th><span translate="Total Received Amount"></span> </th>
+                        <th><span translate=":"></span> </th>
+                        <th> <label>{{ReceiveAMT}}</label> </th>
+                        <th><span translate="Net Amount"></span> </th>
+                        <th><span translate=":"></span> </th>
+                        <th> <label>{{AfterReducedTotalAmt}}</label> </th>
+                    </tr>
+                    <tr>
+                            <th><span translate="Previous Amount"></span> </th>
+                            <th><span translate=":"></span> </th>
+                            <th> <label>{{CategoryTotalAmt}}</label> </th>
+                            <th><span translate="Reduced Net Amount"></span> </th>
+                            <th><span translate=":"></span> </th>
+                            <th> <label>{{ReducedTotalAmt}}</label> </th>
+                    </tr>
+                </thead>
+            </table>
+        </div>
+    </div>
+
+</div>
+<div class="fooder-bg ipbill_footer ">
+    <div class="pull-right">
+        <div class="col-sm-12">
+            <button type="button" id="btnsubmit" class="draftbutton"
+            ng-click="update()"> Update </button>
+            <button id="btnCancelForm" type="button" class="draftbutton"
+             ng-click="cancelCallback()"
+                translate="common.cancelaction.lbl"></button>
+        </div>
+    </div>
+</div>

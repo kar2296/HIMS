@@ -1,0 +1,131 @@
+
+<style>
+.modal-content .panel-body {
+    overflow: inherit;
+}
+.formRoot {
+    overflow: inherit;
+}
+.modal-dialog.modal-lg {
+    width: 50%;
+}
+.autosearch-div>input {
+    background-size: 10.7% !important;
+}
+.formactionbar {
+    margin: 0px;
+}
+.autosearch-div .custom-popup-wrapper>.dropdown-menu {
+    width: 34% !important;
+    overflow-x: hidden !important;
+}
+table.table.table-bordered.table-condensed.dropdown-menu thead tr td {
+    background: linear-gradient(to bottom, rgba(30, 87, 153, 1) 0, rgba(41, 137, 216, 1) 44%, rgba(32, 124, 202, 1) 46%, rgba(125, 185, 232, 1) 100%);
+    border-radius: unset;
+}
+table.table.table-bordered.table-condensed.dropdown-menu tbody tr td {
+    border-radius: unset;
+}
+</style>
+<ul class="breadcrumb" ng-if="!currentcontext.ismodal">
+    <li><a ng-click="backToList()" translate="patientemr.patientdiagnosis-form.parentpagetitle.lbl"></a></li>
+    <li class="active" translate="patientemr.patientdiagnosis-form.pagetitle.lbl"></li>
+</ul>
+<div class="modal-header custom-modal-header" ng-if="currentcontext.ismodal">
+    <h4 class="modal-title custom-modal-title" translate="patientemr.patientdiagnosis-form.pagetitle.lbl"></h4>
+</div>
+
+<div class="row">
+    <div class="col-sm-12">
+        <form id="item_form0" name="item_form" class="form-horizontal" role="form" ng-submit="saveItem()">
+            <div class="formRoot">
+                    <div class="panel-body form-panel">
+                        <div class="col-sm-12">
+
+                            <!-- leftpanel -->
+                            <div class="">
+                                <div class="well">
+                                <div class="form-group">
+                                    <label class="col-sm-3 control-label" for="conditiontype" translate="patientemr.patientcondition-form.conditiontype.lbl"></label>
+                                    <div class="col-sm-8">
+                                        <ui-select id="conditiontype" ng-model="item.ConditionTypeId" name="conditiontype" required>
+                                            <ui-select-match>
+                                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                                <span ng-if="$select.selected.Text.length>20">...</span>
+                                            </ui-select-match>
+                                            <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.ConditionType | filter: { Text: $select.search }">
+                                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                            </ui-select-choices>
+                                        </ui-select>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-3 control-label" for="condition" translate="patientemr.patientcondition-form.condition.lbl"></label>
+                                    <div class="col-sm-8">
+                                        <autosearch itemid="item.DiagnosisId" iteminfo="item.selectedItem" rowdata="item" config="vm.diagnosiscontrolconfig" itemchange="getDiagnosis()"></autosearch>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-3 control-label" for="code" translate="patientemr.patientcondition-form.code.lbl"></label>
+                                    <div class="col-sm-8">
+                                        <input type="text" class="form-control" name="code" ng-model="item.Code" placeholder="" >
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-3 control-label" for="description" translate="patientemr.patientcondition-form.description.lbl"></label>
+                                    <div class="col-sm-8">
+                                        <input type="text" class="form-control" name="description" ng-model="item.Description" placeholder="" >
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-3 control-label" for="conditiondate" translate="patientemr.patientcondition-form.conditiondate.lbl"></label>
+                                    <div class="col-sm-8">
+                                        <input type="text" class="form-control" name="conditiondate" ng-date-object
+                                                uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                                                placeholder="{{datePickerOptions.placeholder}}"
+                                                ng-click="conditiondatePopup = { opened: true }"
+                                                is-open="conditiondatePopup.opened" ng-model="item.ConditionDate" required>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-3 control-label" for="conditionstatus" translate="patientemr.patientcondition-form.conditionstatus.lbl"></label>
+                                    <div class="col-sm-8">
+                                        <ui-select ng-model="item.ConditionStatusId" name="conditionstatus">
+                                            <ui-select-match>
+                                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                                <span ng-if="$select.selected.Text.length>20">...</span>
+                                            </ui-select-match>
+                                            <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.ConditionStatus | filter: { Text: $select.search }">
+                                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                            </ui-select-choices>
+                                        </ui-select>
+                                    </div>
+                                </div>
+
+                                 <div class="form-group">
+                                        <label class="col-sm-3 control-label" for="sameaddress" translate="patientemr.patientcondition-form.chronic.lbl"></label>
+                                        <div class="col-sm-8">
+                                            <input type="checkbox" name="" class="custom-checkbox" >
+                                        </div>
+                                    </div>
+
+                                <div class="form-group">
+                                    <label class="col-sm-3 control-label" for="comments" translate="patientemr.patientcondition-form.comments.lbl"></label>
+                                    <div class="col-sm-8">
+                                       <commentscontrol comments="item.Comments"></commentscontrol>
+                                    </div>
+                                </div>
+                            </div>
+                            </div>
+                        </div>
+                    </div>
+            </div>
+            <div class="panel-footer formactionbar">
+                <div class="pull-right">
+                    <button type="submit" class="draftbutton" translate="common.saveaction.lbl"></button>
+                    <button id="btnCancelForm" type="button" class="draftbutton" ng-click="backToList()" translate="common.cancelaction.lbl"></button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

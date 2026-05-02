@@ -1,0 +1,114 @@
+<style>
+    table {
+        width: 100%;
+    }
+
+    .card-box {
+        padding: 8px;
+        -webkit-transition: .3s ease;
+        transition: .5s;
+        height: 60vh;
+        overflow: auto;
+        border: 1px solid #f2f2f2;
+        display: inline-block;
+        position: relative;
+        width: 100%;
+        box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+        border-radius: 4px;
+        color: rgba(0, 0, 0, .87);
+        background: #fff;
+        margin-top: 20px;
+    }
+
+    table#bannerdetail th {
+        padding: 6px !important;
+        font-size: 13px;
+        font-weight: 700;
+        color: #01145f;
+        white-space: nowrap;
+        text-transform: capitalize;
+        font-family: nunito, sans-serif;
+        background: #0074d930;
+        height: 40px;
+    }
+
+    td.item-name {
+        color: #f44336;
+        font-weight: 500;
+    }
+
+    td,
+    th {
+        border: 0 !important;
+        font-size: 12px !important;
+    }
+
+    table#bannerdetail tr:nth-child(even) {
+        background: #e8eaed5e;
+    }
+</style>
+<div class="page-header">
+    <div class="col-sm-9">
+        <h4 translate="Facility Store Dashboard"></h4>
+    </div>
+    <div class="col-md-3">
+        <ui-select ng-model="currentcontext.FacilityId" class="filer-combo" ng-change="LoadDashboard()">
+            <ui-select-match>
+                {{$select.selected.Text | limitTo: 25 : 0}}
+                <span ng-if="$select.selected.Text.length>25">...</span>
+            </ui-select-match>
+            <ui-select-choices
+                repeat="lookupitem.Id as lookupitem in lookup.Facility | filter: {Text: $select.search }">
+                <div ng-bind-html="lookupitem.Text | highlight: $select.search">
+            </ui-select-choices>
+        </ui-select>
+    </div>
+</div>
+
+<div class="row" style="margin-top: 20px;">
+    <div class="col-sm-6">
+        <div class="card-box section-item">
+            <table id="bannerdetail">
+                <tr>
+                    <th translate="appointment.doctordashboard.nearexpiry.lbl"></label>
+                    </th>
+                </tr>
+            </table>
+            <table id="bannerdetail">
+                <tr ng-repeat="item in NearExpiryData">
+                    <td>{{item.StoreMaster.StoreName}}:</td>
+                    <td class="item-name">{{item.ItemName}}</td>
+                    <td>{{item.ItemCode}}</td>
+                    <td>{{item.BatchId}}</td>
+                    <td class="item-name">{{item.Quantity}}</td>
+                    <td>
+                        <displaydate date-val="item.ExpiryDate"></displaydate>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+    <div class="col-sm-6">
+        <div class="card-box section-item">
+            <table id="bannerdetail">
+                <tr>
+                    <th translate="appointment.doctordashboard.expiry.lbl"></th>
+                </tr>
+            </table>
+            <table id="bannerdetail">
+                <tr ng-repeat="item in ExpiredData">
+                    <td>{{item.StoreMaster.StoreName}}:</td>
+                    <td class="item-name">{{item.ItemName}}</td>
+                    <td>{{item.ItemCode}}</td>
+                    <td>{{item.BatchId}}</td>
+                    <td class="item-name">{{item.Quantity}}</td>
+                    <td>
+                        <displaydate date-val="item.ExpiryDate"></displaydate>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</div>
+<div class="fooder-bgs">
+</div>

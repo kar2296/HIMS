@@ -1,0 +1,46 @@
+<style>
+    .nav-tabs>li.active>a,
+    .nav-tabs>li.active>a:hover {
+        margin-bottom: 11px;
+    }
+
+    .ui-select-multiple.ui-select-bootstrap input.ui-select-search {
+        border: none !important;
+    }
+</style>
+<div class="row">
+    <div class="col-sm-12">
+        <div class="col-sm-4">
+            <label class="col-sm-4 control-label filter-lbl"
+                translate="appmanager.roleprivilege-list.filter_objecttypecode.lbl"></label>
+            <div class="col-sm-8">
+                <ui-select ng-model="currentfilter.PrivilegeObjectTypeId" ng-change="getList()" class="filter-combo">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 8 : 0}}
+                        <span ng-if="$select.selected.Text.length>8">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.PrivilegeObjectType | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+
+
+        <button class="btn-add" ng-click="addNew()" uib-tooltip="{{ 'appmanager.roles.addnew-tooltip.lbl' | translate
+                }}" tooltip-placement="bottom">
+            <i class="fa fa-plus" aria-hidden="true"></i>
+            <!-- <span
+                    translate="clinicalmaster.serviceitem-list.addnew.lbl"></span> -->
+        </button>
+    </div>
+</div>
+<div class="fooder-bgs">
+    <div class="row">
+        <custom-table config="vm.gridConfig"></custom-table>
+        <ul uib-pagination total-items="vm.gridConfig.pagerObj.totalItems"
+            items-per-page="vm.gridConfig.pagerObj.pageSize" start-index="vm.gridConfig.pagerObj.startIndex"
+            ng-model="vm.gridConfig.pagerObj.currentPage" ng-change="getList()"></ul>
+    </div>
+</div>

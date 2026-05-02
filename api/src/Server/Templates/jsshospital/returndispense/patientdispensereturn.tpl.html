@@ -1,0 +1,234 @@
+<html>
+
+<head>
+    <style>
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        td {
+            padding: 3px;
+            vertical-align: top;
+        }
+
+        * {
+            font-family: sans-serif;
+        }
+
+        th {
+            white-space: break-spaces;
+            border: 1px !important;
+            border-top: 1px solid black !important;
+            border-bottom: 1px solid black !important;
+            font-size: 10px;
+            padding-left: 4px;
+            padding-top: 6px;
+            padding-bottom: 6px;
+        }
+
+        td {
+            border: 1px !important;
+            font-size: 10px;
+        }
+
+        p {
+            font-size: 10px;
+        }
+
+        .size td,
+        .size th {
+            border: 1px solid black !important;
+        }
+
+        .table2 tr th,
+        .table2 tr td {
+            border: 1px solid black !important;
+        }
+
+        .secondary-tab {
+            position: absolute;
+            width: 97.5%;
+            margin-left: 0px;
+        }
+
+        .table2 .secondary-tab table tr td,
+        .table2 .secondary-tab table tr th {
+            border: 0px solid black !important;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            word-break: break-all;
+        }
+
+        .table2 .secondary-tab table {
+            border: unset !important;
+            border-collapse: collapse;
+            width: 94%;
+        }
+
+        .secondary-tab td div {
+            word-break: break-all;
+        }
+
+        .content * {
+            font-size: 12px !important;
+        }
+
+        .bg-color {
+            background: #c5c5c5;
+        }
+
+        table.calc {
+            border: 1px solid;
+            border-top: 0;
+        }
+
+        .sub-total {
+            border: 0px !important;
+            border-top: 0px solid black !important;
+            border-bottom: 0px solid black !important;
+            width: 100%;
+        }
+
+        .table2 .sub-total td {
+            border-color: white !important;
+        }
+        .td-head {
+            background-color: #c5c5c5;
+        }
+        .td-head b {
+            font-size: 22px !important;
+        }
+        .bg-color th {
+            background-color: #c5c5c5;
+        }
+
+       {{include '/Templates/assets/css/core.css'}}
+    </style>
+</head>
+<body style="padding-left:20px;padding-right:10px;">
+    <div id="pageHeader">
+      {{{include '/Templates/jsshospital/common/pharmacyheader1.tpl.html' 'tpl'}}}
+    </div>
+    <div class="content">
+ 
+        <table style="width:100%;">
+            <tr>
+                <td style="text-align:center;" class="td-head" style="width:100%"><b>IP Dispense Return</b>
+                </td>
+            </tr>
+        </table>
+<br>
+        <table class="" style="width:100%;">
+            <tr>
+                <td style="width:12%;"><b>Name</b></td>
+                <td>:</td>
+                <td style="width:23%;"><b>{{data.PatientDispenseReturn.Patient.Title.Description}}
+                        {{data.PatientDispenseReturn.Patient.FirstName}} {{data.PatientDispenseReturn.Patient.MiddleName}}
+                        {{data.PatientDispenseReturn.Patient.LastName}}</b></td>
+                <td style="width:12%;"><b>UHID</b></td>
+                <td>:</td>
+                <td style="width:20%;"><b>{{data.PatientDispenseReturn.Patient.MRN}}</b></td>
+                <td style="width:13%;"><b>OP/IP/ER NO</b></td>
+                <td>:</td>
+                <td style="width:20%;"><b>{{data.Encounter.VisitIdentifier}}</b></td>
+    
+            </tr>
+            <tr>
+                <td><b>Age / Sex</b></td>
+                <td>:</td>
+                <td>{{ageonlyyear data.PatientDispenseReturn.Patient.DOB}} /
+                    {{data.PatientDispenseReturn.Patient.Gender.Description}}</td>
+                <td><b>Return No</b></td>
+                <td>:</td>
+                <td>{{data.PatientDispenseReturn.DispenseReturnNumber}}</td>
+                <td><b>Return Date</b></td>
+                <td>:</td>
+                <td>{{datetimeformat data.PatientDispenseReturn.DispenseReturnDateTime}}</td>
+            </tr>
+    
+            <tr>
+                <td><b>Return No</b></td>
+                <td>:</td>
+                <td><b>{{data.PatientDispenseReturn.PatientReturnNumber}}</b></td>
+            </tr>
+        </table>
+<br>
+        <div border>
+            <table class="table2" style="width:100%;">
+                <tr class="bg-color">
+                    <th style="width:5%" align="left">S.No</th>
+                    <th style="width:17%" align="left">Description</th>
+                    <th style="width:5%" align="left">Sch.</th>
+                    <th style="width:13%" align="left">Batch /Exp</th>
+                    <th style="width:5%" align="left">MRP</th>
+                    <th style="width:6%" align="left">Billed Qty</th>
+                    <th style="width:6%" align="left">Return Qty</th>
+                    <th style="width:8%" align="left">Value</th>
+                </tr>
+                                {{#each data.PatientDispenseReturnDetail}}
+                                <tr>
+                                    <td  style="width:5%">{{inc @index}}</td>
+                                    <td  style="width:17%">{{ItemName}}</td>
+                                    <td  style="width:5%">{{ScheduleType.Description}}</td>
+                                    <td  style="width:13%">{{BatchId}} / {{dateformat ExpiryDate}}</td>
+                                    <td  style="width:5%">{{currencyformatwosymbol Mrp}}</td>
+                                    <td  style="width:6%">{{ReturnedQuantity}}</td>
+                                    <td  style="width:6%">{{AcceptedQuantity}}</td>
+                                    <td  style="width:8%">&nbsp&nbsp{{currencyformatwosymbol Amount}}</td>
+                                </tr>
+                                {{/each}}
+            </table>
+<br>
+            <table style="width:100%;" class="no-pad">
+                <tr>
+                    <td style="width:80%;" align="right"><b>Net Amount</b></td>
+                    <td style="width:1%;">:</td>
+                    <td style="width:19%;" align="right">{{currencyformatwosymbol data.PatientDispenseReturn.TotalNetAmount}}
+                    </td>
+                </tr>
+                {{#if data.PatientDispenseReturn.RefundedAmount}}
+                <tr>
+                    <td align="right"><b>Refunded</b></td>
+                    <td>:</td>
+                    <td align="right"> {{currencyformatwosymbol data.PatientDispenseReturn.RefundedAmount}}</td>
+                </tr>
+                {{/if}}
+                {{#if data.PatientDispenseReturn.ToBeRefundAmount}}
+                <tr>
+                    <td align="right"><b>To Be Refunded</b></td>
+                    <td> : </td>
+                    <td align="right"> {{currencyformatwosymbol data.PatientDispenseReturn.ToBeRefundAmount}} </td>
+                </tr>
+                {{/if}}
+            </table>
+<br>
+            <table class="table4" style="width:100%;">
+                <tr>
+                    <td><b>Amount in words</b><span>:</span> <span>Rupees <span style="text-transform: capitalize">
+                                {{decimalnrInWords data.PatientDispenseReturn.TotalNetAmount}}</span> only</span></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+            </table>
+<br>
+            <table class="table3" style="width:100%;">
+                <tr>
+                    <td style="width:80%;">
+                        <u></u>
+                    </td>
+                    <td colspan="4" style="width:20%;">{{data.PatientDispenseReturn.CreatedUser.Title.Description}}
+                        {{data.PatientDispenseReturn.CreatedUser.FirstName}}
+                        {{data.PatientDispenseReturn.CreatedUser.LastName}}
+                    </td>
+                </tr>
+                <tr>
+                    <td style="width:80%;">
+                        Bill Generated By: on <b>{{now}}</b>
+                    </td>
+                    <td colspan="4" style="width:20%;">Regd. Pharmacist Sign</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+    <!-- <div style="width:100%; font-size:10px;">Printed On: {{now}}</div> -->

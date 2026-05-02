@@ -1,0 +1,425 @@
+<link rel="stylesheet" href="app/css/drhms.css">
+<style>
+    table.drhms-responsive-table thead th {
+        padding: 5px 20px;
+        white-space: nowrap;
+    }
+
+    input#desc0 {
+        width: 260px
+    }
+
+    autosearch.inputsearchlogo table.table.table-bordered.table-condensed.dropdown-menu.align {
+        margin-left: -200px;
+    }
+</style>
+<div class="row">
+    <div class="drhms-filters">
+        <div class="col-sm-10">
+            <h4 translate="inventory.openingstockentry.pagetitle.lbl"></h4>
+        </div>
+        <div class="col-sm-4">
+            <span class="forpadd">
+                <span translate="inventory.purchaseorders.status.lbl"></span>:
+                <span>{{item.DisplayStockEntryStatus}}</span>
+            </span>
+        </div>
+        <div class="col-sm-2">
+            <button type="button" tabindex="-1" class="drhms-billing-btn drhms-add-btn" ng-click="addNew()"
+                uib-tooltip="{{ 'inventory.openingstockentrys.addnew-tooltip.lbl' | translate }}"
+                tooltip-placement="bottom">
+                <i class="fa fa-plus" aria-hidden="true"></i>
+            </button>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <form id="item_form" name="item_form" class="form-horizontal" role="form">
+        <div class="drhms-table-top-header">
+            <div class="drhms-table-head-border">
+                <div class="col-sm-12">
+                    <label class="col-sm-4" for="fromstore" translate="inventory.openingstockentry.store.lbl"></label>
+                    <div class="col-sm-8">
+                        <ui-select ng-model="item.StoreMasterId" tabindex="-1"
+                            on-select="SelectedFromStore($select.selected)" name="fromstore"
+                            ng-disabled="item.isDisabled" required>
+                            <ui-select-match>
+                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                <span ng-if="$select.selected.Text.length>20">...</span>
+                            </ui-select-match>
+                            <ui-select-choices
+                                repeat="lookupitem.Id as lookupitem in lookup.UserStores | filter: { Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                </div>
+                <div class="col-sm-12">
+                    <label class="col-sm-4" translate="inventory.openingstockentry.createdby.lbl"></label>
+                    <div class="col-sm-8">:
+                        {{item.CreatedUser.Title.Description}}&nbsp;{{item.CreatedUser.FirstName}}&nbsp;{{item.CreatedUser.LastName}}
+                    </div>
+                </div>
+            </div>
+            <div class="drhms-table-head-border">
+                <div class="col-sm-12">
+                    <label class="col-sm-4" translate="inventory.openingstockentry.adjustment#.lbl"></label>
+                    <div class="col-sm-8">
+                        {{item.StockEntryNumber}}
+                    </div>
+                </div>
+                <div class="col-sm-12">
+                    <label class="col-sm-4" for="stockentrytype"
+                        translate="inventory.openingstockentry.type.lbl"></label>
+                    <div class="col-sm-8">
+                        <ui-select ng-model="item.StockEntryTypeId" name="stockentrytype" ng-disabled="item.isDisabled"
+                            required>
+                            <ui-select-match>
+                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                <span ng-if="$select.selected.Text.length>20">...</span>
+                            </ui-select-match>
+                            <ui-select-choices
+                                repeat="lookupitem.Id as lookupitem in lookup.StockEntryType | filter: { Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                </div>
+            </div>
+            <div class="drhms-table-head-border">
+                <div class="col-sm-12">
+                    <label class="col-sm-4" translate="inventory.openingstockentry.approvedby.lbl"></label>
+                    <div class="col-sm-8">
+                        {{item.ApprovedUser.Title.Description}}&nbsp;{{item.ApprovedUser.FirstName}}&nbsp;{{item.ApprovedUser.LastName}}
+                    </div>
+                </div>
+                <div class="col-sm-12">
+                    <label class="col-sm-4" translate="inventory.openingstockentry.date.lbl"></label>
+                    <div class="col-sm-8">:
+                        <displaydate date-val="item.StockEntryDate"></displaydate>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+<div class="row">
+    <form id="item_form" name="item_form" class="form-horizontal" role="form">
+        <div class="drhms-table-control">
+            <div class="drhms-bg-pattern">
+                <div class="drhms-table-responsive-height">
+                    <table class="drhms-responsive-table">
+                        <thead class="bg-subhead">
+                            <tr>
+                                <th>
+                                    <span translate="inventory.purchaseorder.sno.lbl"></span>
+                                </th>
+                                <th>
+                                    <span translate="inventory.openingstockentry.itemname.lbl"></span>
+                                </th>
+                                <th>
+                                    <span translate="inventory.openingstockentry.uom.lbl"></span>
+                                </th>
+                                <!-- <th style="padding: 14px 4px;">
+                                    <span translate="inventory.openingstockentry.availableqty.lbl"></span>
+                                </th>
+                                <th>
+                                    <span translate="inventory.openingstockentry.qty.lbl"></span>
+                                </th> -->
+                                <!-- <th>
+                                    <span translate="inventory.openingstockentry.availableqty.lbl"></span>
+                                </th> -->
+                                <th>
+                                    <span translate="inventory.openingstockentry.qty.lbl"></span>
+                                </th>
+                                <th>
+                                    <span translate="inventory.openingstockentry.conqty.lbl"></span>
+                                </th>
+                                <th>
+                                    <span translate="inventory.openingstockentry.totconqty.lbl"></span>
+                                </th>
+                                <th>
+                                    <span translate="inventory.openingstockentry.batchno.lbl"></span>
+                                </th>
+                                <th>
+                                    <span translate="inventory.openingstockentry.expdate.lbl"></span>
+                                </th>
+                                <th>
+                                    <span translate="inventory.openingstockentry.rate.lbl"></span>
+                                </th>
+                                <th ng-show="ShowMrp">
+                                    <span translate="MRP"></span>
+                                </th>
+                                <th>
+                                    <span translate="inventory.openingstockentry.salesrate.lbl"></span>
+                                </th>
+                                <th>
+                                    <span translate="inventory.openingstockentry.gst.lbl"></span>
+                                </th>
+                                <!-- <th>
+                                    <span translate="inventory.openingstockentry.cgst.lbl"></span>
+                                </th>
+                                <th>
+                                    <span translate="inventory.openingstockentry.sgst.lbl"></span>
+                                </th> -->
+                                <th>
+                                    <span translate="inventory.openingstockentry.amount.lbl"></span>
+                                </th>
+                                <th>
+                                    <span translate="inventory.openingstockentry.action.lbl"></span>
+                                </th>
+
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="stockentry in stockentryDetails | filter:{Status:1}">
+                                <td class="text-right">
+                                    <span> {{ stockentry.SNo }}</span>
+                                </td>
+                                <td class=" col-sm-2">
+                                    <autosearch itemid="stockentry.ItemMasterId" controlid="stockentry.itemidxdesc"
+                                        ng-keyup="moveFocus('qty','desc','desc','desc',$index,$event,stockentry)"
+                                        iteminfo="stockentry.SelectedItem" rowdata="stockentry"
+                                        config="vm.initialstockitemcontrolconfig"
+                                        itemchange="onItemSelected($index, stockentry)"
+                                        candisable="stockentry.RdoItemMasterId"></autosearch>
+                                </td>
+                                <td>
+                                    <span> {{ stockentry.BaseUom.UomCode }}</span>
+                                </td>
+                                <!-- <td>
+                                    <span> {{ stockentry.BaseUom.QtyBeforeEntry }}</span>
+                                </td>
+                                <td>
+                                    <input type="text" ng-keypress="numberonly($event)" ng-pattern="/^\d+$/"
+                                        id="qty{{$index}}"
+                                        ng-keyup="moveFocus('batchid','desc','qty','qty',$index,$event,stockentry)"
+                                        minlength=1 class="form-control" ng-model="stockentry.EntryQuantity"
+                                        placeholder="Qty" ng-disabled="item.isDisabled"
+                                        ng-change="computeAmount(stockentry)" required />
+                                </td> -->
+                                <!-- <td class="text-center">
+                                    <span> {{ stockentry.BaseUom.QtyBeforeEntry }}</span>
+                                </td> -->
+                                <td class="text-center">
+                                    <input type="text" ng-keypress="numberonly($event)" ng-pattern="/^\d+$/"
+                                        id="qty{{$index}}"
+                                        ng-keyup="moveFocus('batchid','desc','qty','qty',$index,$event,stockentry)"
+                                        minlength=1 class="form-control" ng-model="stockentry.EntryQuantity"
+                                        placeholder="Qty" ng-disabled="item.isDisabled"
+                                        ng-change="computeAmount(stockentry)" required />
+                                </td>
+                                <td class="text-center">
+                                    <span> {{ stockentry.ConversionQuantity }}</span>
+                                </td>
+                                <td class="text-center">
+                                    <input type="text" ng-keypress="numberonly($event)" ng-pattern="/^\d+$/"
+                                        id="qty{{$index}}"
+                                        ng-keyup="moveFocus('batchid','desc','qty','qty',$index,$event,stockentry)"
+                                        minlength=1 class="form-control" ng-change="computeConversionAmount(stockentry)"
+                                        ng-model="stockentry.TotalConversionQuantity" placeholder="Qty" disabled />
+                                </td>
+                                <!-- <td class="text-center">
+                                    <span> {{ stockentry.TotalConversionQuantity }}</span>
+                                </td> -->
+                                <td style="padding: 0px 4px !important;">
+                                    <input type="text" id="batchid{{$index}}"
+                                        ng-keyup="moveFocus('dispExpiryDate','qty','batchid','batchid',$index,$event,stockentry)"
+                                        class="form-control" ng-model="stockentry.BatchId" placeholder="Batch Id"
+                                        ng-disabled="item.isDisabled" ng-required="stockentry.IsBatchRequired" />
+                                </td>
+                                <td>
+                                    <input type="text" ng-hide="true" class="form-control" name="expirydate"
+                                        ng-date-object uib-datepicker-popup="{{datePickerOptions.expirydateformat}}"
+                                        placeholder="{{datePickerOptions.expiryplaceholder}}"
+                                        ng-model="stockentry.ExpiryDate" ng-change="CheckExpiryDate(stockentry)"
+                                        ng-disabled="item.isDisabled" />
+
+                                    <input type="text" id="dispExpiryDate{{$index}}"
+                                        ng-keyup="moveFocus('purprice','batchid','dispExpiryDate','dispExpiryDate',$index,$event,stockentry)"
+                                        name="expirydate" ng-model="stockentry.dispExpiryDate"
+                                        ng-keypress="numberonly($event)" placeholder="MM/YY" data-ui-mask="99/99"
+                                        ng-required="stockentry.IsExpiryRequired" model-view-value="true"
+                                        ng-blur="CheckExpiryDate(stockentry, $index)" ng-disabled="item.isDisabled" />
+                                </td>
+                                <td>
+                                    <input type="text" id="purprice{{$index}}" ng-keypress="numberwithdecimal($event)"
+                                        ng-keyup="moveFocus('mrp','dispExpiryDate','purprice','purprice',$index,$event,stockentry)"
+                                        min="0" class="form-control" ng-model="stockentry.PurchasePrice"
+                                        placeholder="Price" ng-disabled="item.isDisabled"
+                                        ng-change="computeforgivenPrice(stockentry)" />
+                                </td>
+                                <td ng-show="ShowMrp">
+                                    <input type="text" id="uomprice{{$index}}"
+                                        ng-keyup="moveFocus('uommrp','dispExpiryDate','uomprice','uomprice',$index,$event, stockentry)"
+                                        ng-keypress="numberwithdecimal($event)" min="0" class="form-control"
+                                        ng-model="stockentry.Mrp" placeholder="" ng-disabled="item.isDisabled">
+                                </td>
+                                <td>
+                                    <span ng-show="ShowMrp">{{stockentry.MrPrice}}</span>
+                                    <span ng-show="!ShowMrp">
+                                        <input type="text" id="mrp{{$index}}" ng-keypress="numberwithdecimal($event)"
+                                            ng-keyup="moveFocus('gst','purprice','mrp','mrp',$index,$event,stockentry)"
+                                            min="0" class="form-control" ng-model="stockentry.MrPrice"
+                                            ng-change="computeAmount(stockentry)" placeholder="Sales Price"
+                                            ng-disabled="item.isDisabled" /></span>
+                                </td>
+                                <td>
+                                    <ui-select ng-model="stockentry.GstId" class="filter-combo"
+                                        on-select="OnSelectGst(stockentry,$select.selected,$index)"
+                                        ng-disabled="item.isDisabled">
+                                        <ui-select-match>
+                                            {{$select.selected.Text | limitTo : 8 : 0}}
+                                            <span ng-if="$select.selected.Text.length > 8">...</span>
+                                        </ui-select-match>
+                                        <ui-select-choices
+                                            repeat="lookupitem.Id as lookupitem in lookup.GstMaster | filter: { Text: $select.search }">
+                                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                        </ui-select-choices>
+                                    </ui-select>
+                                </td>
+                                <!-- <td>
+                                    <input type="text" id="gst{{$index}}" ng-keypress="numberwithdecimal($event)" ng-keyup="moveFocus('ingst','mrp','gst','gst',$index,$event,stockentry)" min="0" class="form-control" tabindex="-1" ng-model="stockentry.GstPercentage" ng-change="computeAmount(stockentry)"
+                                        placeholder="" ng-disabled="item.isDisabled" />
+                                </td> -->
+                                <!-- <td>
+                                    <input type="text" id="ingst{{$index}}" ng-keypress="numberwithdecimal($event)" ng-keyup="moveFocus('cgst','gst','ingst','ingst',$index,$event,stockentry)"
+                                        min="0" class="form-control" tabindex="-1" ng-model="stockentry.InGstPercentage" placeholder=""
+                                        ng-disabled="item.isDisabled" />
+                                </td> -->
+                                <!-- <td>
+                                    <input type="text" id="cgst{{$index}}" ng-keypress="numberwithdecimal($event)" ng-keyup="moveFocus('sgst','ingst','cgst','cgst',$index,$event,stockentry)"
+                                        min="0" class="form-control" tabindex="-1" ng-model="stockentry.CGstPercentage" placeholder=""
+                                        ng-disabled="item.isDisabled" />
+                                </td>
+                                <td>
+                                    <input type="text" id="sgst{{$index}}" ng-keypress="numberwithdecimal($event)" ng-keyup="moveFocus('desc','cgst','sgst','sgst',$index,$event,stockentry)"
+                                        min="0" class="form-control" tabindex="-1" ng-model="stockentry.SGstPercentage" placeholder=""
+                                        ng-disabled="item.isDisabled" />
+                                </td> -->
+                                <!-- <td>
+                                    <span> {{ stockentry.UnitCostPrice | displaycurrency }}</span>
+                                </td> -->
+                                <td class="currency-align">
+                                    <span> {{ stockentry.NetAmount | displaycurrency }}</span>
+                                </td>
+                                <td>
+                                    <!-- <button type="button" class="btn btn-info texthover btn-xs ng-scope" tabindex="-1" uib-tooltip="History" tooltip-placement="top"
+                                        ng-click="History($index, stockentry)">
+                                        <i class="fa fa-history fa-xs" aria-hidden="true"></i>
+                                    </button> -->
+                                    <!-- <button type="button" class="text-white btn dem-color4 btn-xs " tabindex="-1" uib-tooltip="Stock" tooltip-placement="top"
+                                        ng-click="Stock($index, stockentry)">
+                                        <i class="fa fa-database fa-xs" aria-hidden="true"></i>
+                                    </button> -->
+                                    <button type="button" class="drhms-edit-button" tabindex="-1"
+                                        ng-click="deleteOpeningStockEntryDetail($index,stockentry)">
+                                        <img src="assets/svg/delete.svg" alt="">
+                                    </button>
+                                    <button type="button" class="btn btn-info texthover btn-sm ng-scope"
+                                        uib-tooltip="Generate Barcode" tooltip-placement="top "
+                                        ng-click="barcodemanual($index,stockentry)">
+                                        <i class="fa fa-plus " aria-hidden="true "></i>
+                                    </button>
+                                    <button type="button" class="drhms-edit-button" ng-show="stockentry.Id>0"
+                                        uib-tooltip="Barcode" tooltip-placement="top" tabindex="-1"
+                                        ng-click="generatebarCode($index,stockentry)">
+                                        <i class="fa fa-barcode" aria-hidden="true"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label" for="comments"
+                            translate="inventory.grn.comments.lbl"></label>
+                        <div class="col-sm-8">
+                            <input type="text" tabindex="-1" class="form-control field-height inputheightctrl"
+                                name="comments" ng-model="item.Comments" ng-disabled="item.isDisabled"
+                                placeholder="Comments">
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="billingbanner">
+                        <table id="bannerdetails" class="foot">
+                            <tr>
+                                <td translate="inventory.openingstockentry.grosstotal.lbl"></td>
+                                <td class="currency-align">
+                                    {{(item.TotalGrossAmount | displaycurrency)}}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="drhms-special-count" translate="Netamount"></td>
+                                <td class="drhms-special-count">
+                                    {{(item.TotalNetAmount | displaycurrency)}}
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-12">
+                <div class="print-header">
+                    <div class="checkbox-print">
+                        <span><input type="checkbox" id="withheader" class="custom-checkbox" ng-model="item.WithHeader"
+                                ng-change="checkHeader(1)"> </span><span>With Header</span>
+                    </div>
+                    <div class="checkbox-print">
+                        <span> <input type="checkbox" id="withoutheader" class="custom-checkbox"
+                                ng-model="item.WithoutHeader" ng-change="checkHeader(2)"></span>
+                        <span>WithOut Header</span>
+                    </div>
+                </div>
+            </div>
+            <div class="fooder-bgs">
+                <div class="col-sm-6">
+                    <div class="pull-left">
+                        <button type="button" class="btn pyr-color10 btn-sm" tabindex="-1" ng-click="backToList()">
+                            <i class="fa fa-angle-left" aria-hidden="true"></i>
+                            <span class="btn-fontsize"> &nbsp; Back</span>
+                        </button>
+                        <button type="button" class="draftbutton " tabindex="-1" ng-click="printbarcode() ">
+                            <i class="fa fa-barcode " aria-hidden="true "></i>
+                            <strong class="btn-fontsize "> &nbsp; Print Barcode</strong>
+                        </button>
+                        <!-- <button type="button" class="draftbutton" tabindex="-1" uib-tooltip="Attachments" ng-if="('OpeningStockEntry', 'Attachment')"
+                            tooltip-placement="top" ng-click="openAttachments()">
+                            <i class="fa fa-paperclip fa-xs" aria-hidden="true">&nbsp;&nbsp;(0)</i>
+                        </button>
+                        <button type="button" class="btn btn-info texthover btn-sm ng-scope" ng-show="canShowHistoryBtn" tabindex="-1" ng-if="('OpeningStockEntry','History')"
+                            uib-tooltip="History" tooltip-placement="top" ng-click="history()">
+                            <i class="fa fa-history fa-xs" aria-hidden="true"></i>
+                        </button> -->
+                        <!--<button type="button" class="draftbutton" ng-show="canShowCancelentityBtn" ng-click="Cancel()" translate="inventory.openingstockentry.cancel.lbl"></button>-->
+                        <!--<button type="button" class="text-white btn adm-color7  btn-sm" ng-show="canShowDeleteBtn" ng-click="draftDelete()" translate="inventory.openingstockentry.delete.lbl"></button>-->
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="pull-right">
+                        <button type="button" id="btnPrint" tabindex="-1" class="draftbutton" ng-show="canShowPrintBtn"
+                            translate="common.printaction.lbl" ng-click="Print()"></button>
+                        <button type="button" id="btnSaveandDraft" class="draftbutton" ng-show="canShowSaveBtn"
+                            translate="common.saveaction.lbl" ng-click="SaveandDraft()"></button>
+                        <button type="button" id="approvebtnsubmit" ng-keyup="moveHeaderFocus('approvebtnsubmit')"
+                            class="draftbutton" translate="common.saveapprove-action.lbl"
+                            hotkey="{'alt+a': SaveandApprove}" ng-show="canShowSaveandApproveBtn"
+                            ng-click="SaveandApprove()"></button>
+                        <!-- <button type="button" id="btnSaveandApprove" class="draftbutton" ng-if="('OpeningStockEntry', 'Approve')"
+                            ng-show="canShowSaveandApproveBtn" translate="common.saveapprove-action.lbl" ng-click="SaveandApprove()"></button> -->
+                        <button type="button" id="btnSaveandAuthorize" class="draftbutton" ng-show="canShowAuthorizeBtn"
+                            translate="common.authorize.lbl" ng-click="SaveandAuthorize() "></button>
+                        <!-- <button type="button" id="btnClearForm" class="btn btn-warning btn-sm" ng-show="canShowClearBtn"
+                            translate="common.clearaction.lbl" ng-click="Clear()"></button> -->
+                        <!-- <button type="button" id="btnCancelForm" class="draftbutton" ng-show="canShowCancelBtn" translate="common.cancelaction.lbl"
+                            ng-click="backToList()"></button> -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>

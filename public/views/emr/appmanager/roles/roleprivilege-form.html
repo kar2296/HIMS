@@ -1,0 +1,150 @@
+<style>
+    table#values {
+        width: 100%;
+    }
+
+    .section_exchange {
+        font-size: 53px !important;
+        position: relative;
+        top: 0;
+        color: #dc143c;
+        right: 0;
+        border-radius: 61px;
+        width: 100%;
+    }
+
+    .selectors {
+        height: 260px;
+        overflow: auto;
+    }
+
+    .selectors p {
+        margin: 0;
+        font-size: 13px;
+        background: #cdecf9;
+        margin-bottom: 6px;
+        padding-left: 4px;
+        border-radius: 3px;
+    }
+
+    .form-horizontal .filters {
+        height: 310px;
+    }
+</style>
+<div class="modal-header custom-modal-header" ng-if="currentcontext.ismodal">
+    <h4 class="col-sm-6 modal-title custom-modal-title" translate="appmanager.roleprivilege-form.pagetitle.lbl"></h4>
+    <div class="col-sm-6">
+        <div class="filters">
+            <img src="../../../../../assets/svg/close.svg"  ng-click="cancelCallback()">
+        </div>
+    </div>
+</div>
+<div class="row">
+    <form id="item_form" name="item_form" class="form-horizontal" role="form" ng-submit="saveItem()">
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label" for="objecttype"
+                        translate="appmanager.roleprivilege-form.objecttypecode.lbl"></label>
+                    <div class="col-sm-8">
+                        <ui-select ng-disabled="currentcontext.isEdit" ng-model="item.AccessObjectTypeId"
+                            name="objecttype" on-select="onObjectTypeSelected($select.selected)" required>
+                            <ui-select-match>
+                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                <span ng-if="$select.selected.Text.length>20">...</span>
+                            </ui-select-match>
+                            <ui-select-choices
+                                repeat="lookupitem.Id as lookupitem in lookup.AccessObjectType | filter: { Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-4">
+                <table class="drhms-table">
+                    <thead>
+                        <tr>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <div class="selectors" dnd-list="currentcontext.MasterList">
+                                    <p ng-repeat="action in currentcontext.MasterList" dnd-draggable="action"
+                                        dnd-moved="currentcontext.MasterList.splice($index, 1)"
+                                        dnd-effect-allowed="move" dnd-selected="currentcontext.Selected = action"
+                                        ng-class="{'selected': currentcontext.Selected === action}">
+                                        {{action.Text}}
+                                    </p>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class=" col-sm-1">
+                <div class="filters">
+                    <img src="../../../../../assets/svg/transfer.svg" style="width: 30px;">
+                </div>
+            </div>
+            <div class="col-sm-3">
+                <table class="drhms-table">
+                    <thead>
+                        <tr>
+                            <th>Allow</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <div class="selectors" dnd-list="currentcontext.AllowList">
+                                    <p ng-repeat="action in currentcontext.AllowList" dnd-draggable="action"
+                                        dnd-moved="currentcontext.AllowList.splice($index, 1)" dnd-effect-allowed="move"
+                                        dnd-selected="currentcontext.Selected = action"
+                                        ng-class="{'selected': currentcontext.Selected === action}">
+                                        {{action.Text}}
+                                    </p>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class=" col-sm-1">
+                <div class="filters">
+                    <img src="../../../../../assets/svg/transfer.svg" style="width: 30px;">
+                </div>
+            </div>
+            <div class="col-sm-3">
+                <table class="drhms-table">
+                    <thead>
+                        <tr>
+                            <th>Deny</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <div class="selectors" dnd-list="currentcontext.DenyList">
+                                    <p ng-repeat="action in currentcontext.DenyList" dnd-draggable="action"
+                                        dnd-moved="currentcontext.DenyList.splice($index, 1)" dnd-effect-allowed="move"
+                                        dnd-selected="currentcontext.Selected = action"
+                                        ng-class="{'selected': currentcontext.Selected === action}">
+                                        {{action.Text}}
+                                    </p>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="pull-right" style="margin-top: 10px;">
+            <button type="submit" class="draftbutton" translate="common.saveaction.lbl"></button>
+        </div>
+    </form>
+</div>

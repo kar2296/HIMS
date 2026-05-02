@@ -1,0 +1,170 @@
+<!-- <style>
+    .filter-area {
+        padding-top: 0px!important;
+    }
+
+    #mainresponsivetablecontrol .height-controler {
+        height: 250px;
+    }
+    div#mainresponsivetablecontrol{
+        background: #fff;
+    }
+    .row.container-fluid {
+    padding-left: 20px;
+    padding-right: 21px;
+}
+.height-controler {
+    height: auto;
+    overflow: auto;
+}
+.form-control {
+    height: 25px;
+    padding: 2px 16px;
+    border: unset;
+}
+table#bannerdetails {
+    margin-left: 5px;
+}
+.btn-success {
+    width: 100px !important;
+}
+</style> -->
+<div class="modal-header custom-modal-header">
+    <div class="col-sm-6">
+        <h4 class="modal-title custom-modal-title" translate="billing.pharmacy.batchdetails.lbl"></h4>
+    </div>
+    <div class="col-sm-4"> <span>of {{item.ItemDescription}}</span></div>
+    <div class="col-sm-2">
+        <div class="filters">
+            <img src="../../../../../assets/svg/close.svg" ng-click="cancelCallback()">
+        </div>
+    </div>
+</div>
+
+<!-- <div class="modal-header custom-modal-header">
+    <div class="col-sm-8">
+    <strong>
+        <span class="modal-title custom-modal-title" translate="billing.pharmacy.batchdetails.lbl"></span>
+    </strong>
+    <span>of {{item.ItemDescription}}</span>
+    </div>
+    <div class="col-sm-4">
+    <div class="pull-right">      
+            <button id="btnCancelForm" type="button" class="draftbutton" ng-click="cancelCallback()" translate="X"></button>
+        </div>
+    </div>
+</div> -->
+<div>
+    <table id="bannerdetails">
+        <tr>
+            <td translate="billing.pharmacy.rack.lbl"></td>
+            <td> <strong>A1</strong></td>
+            <td translate="billing.pharmacy.minqty.lbl"></td>
+            <td> <strong>{{item.MinQty}}</strong></td>
+            <td translate="billing.pharmacy.availableqty.lbl"></td>
+            <td> <strong style="color: red;">{{item.TotalQuantity}}</strong></td>
+            <td translate="billing.pharmacy.maxqty.lbl"></td>
+            <td> <strong>{{item.MaxQty}}</strong></td>
+        </tr>
+    </table>
+    <!-- </div>
+<div class="bg-pattern  padding-top5"> -->
+    <div class="row">
+        <div class="height-controler">
+            <table class="table table-hover table-responsive table-bordered">
+                <thead class="bg-subhead">
+                    <tr>
+                        <th class="col-sm-1">
+                            <span translate="billing.pharmacy.batchno.lbl"></span>
+                        </th>
+                        <th class="col-sm-1">
+                            <span translate="billing.pharmacy.expirydates.lbl"></span>
+                        </th>
+                        <th class="col-sm-1">
+                            <span translate="billing.pharmacy.batchmrp.lbl"></span>
+                        </th>
+                        <th class="col-sm-1">
+                            <span translate="billing.pharmacy.availableqty.lbl"></span>
+                        </th>
+                        <th class="col-sm-1">
+                            <span translate="billing.pharmacy.blockedqty.lbl"></span>
+                        </th>
+                        <th class="col-sm-1">
+                            <span translate="billing.pharmacy.transitqty.lbl"></span>
+                        </th>
+                        <th class="col-sm-1">
+                            <span translate="billing.pharmacy.issueqty.lbl"></span>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="batch in ItemBatchDetails | filter:{Status:1}">
+                        <td>
+                            <span class="form-control input-sm pull-left">{{ batch.BatchId }} </span>
+                        </td>
+                        <td>
+                            <span ng-if="batch.ExpiryStop" class="btn btn-danger btn-sm col-sm-12 text-white">{{
+                                batch.ExpiryDate &nbsp;|&nbsp; date : 'dd-MMM-yyyy' }}</span>
+                            <span ng-if="batch.ExpiryAlert" class="btn btn-warning btn-sm col-sm-12 text-white">{{
+                                batch.ExpiryDate &nbsp;|&nbsp; date : 'dd-MMM-yyyy' }}</span>
+                            <span ng-if="batch.ExpiryProceed" class="btn btn-success btn-sm col-sm-12 text-white">{{
+                                batch.ExpiryDate &nbsp;|&nbsp; date : 'dd-MMM-yyyy' }}</span>
+                        </td>
+                        <td>
+                            <span class="form-control input-sm pull-right">{{ batch.Mrp | displaycurrency }} </span>
+                        </td>
+                        <td>
+                            <span class="form-control input-sm pull-right">{{ batch.Quantity }} </span>
+                        </td>
+                        <td>
+                            <span class="form-control input-sm pull-right">0 </span>
+                        </td>
+                        <td>
+                            <span class="form-control input-sm pull-right">0 </span>
+                        </td>
+                        <td>
+                            <input type="text" min="0" ng-keypress="numberonly($event)" ng-pattern="/^\d+$/"
+                                class="form-control input-sm" ng-model="batch.IssueQty"
+                                ng-change="ValidateIssueQty(batch)" placeholder="0">
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="col-sm-8"></div>
+                <div class="col-sm-4">
+                    <table id="bannerdetails">
+                        <tr>
+                            <td> Total </td>
+                            <td>{{ TotalIssueQty }}</td>
+                        </tr>
+                    </table>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+<div class="">
+    <!-- <div class="pull-left">
+            <div class="col-sm-12">
+                <button class="btn btn-success btn-xs" ng-click="save()">
+                    <i class="fa fa-floppy-o" aria-hidden="true"></i>&nbsp;&nbsp;
+                    <strong class="btn-fontsize ng-scope" translate="common.saveaction.lbl"></strong>
+                </button>
+                <button type="button"   class="btn btn-warning btn-xs" translate="common.cancelaction.lbl" ng-click="save()"></button>
+            </div>
+        </div> -->
+    <div class="row">
+        <div class="pull-right">
+            <!-- <div class="col-sm-12"> -->
+            <button id="btnUpdateForm" type="button" class="draftbutton" ng-click="updateItemBatches()"
+                translate="common.updateaction.lbl"></button>
+            <!-- </div> -->
+        </div>
+    </div>
+</div>
+</div>
+<!-- </div> -->

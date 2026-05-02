@@ -1,0 +1,153 @@
+<style>
+    .pager-div {
+        float: right;
+        right: 0;
+        box-sizing: border-box;
+        position: fixed;
+        box-sizing: border-box;
+    }
+
+    .form-group {
+        margin-bottom: 7px !important;
+    }
+</style>
+<div class="row page-header">
+
+    <div class="col-sm-12">
+        <div class="col-sm-5">
+            <h4 class="col-sm-6 mt0" translate="lis.containertypes.pagetitle.lbl"></h4>
+        </div>
+        <div class="col-sm-7">
+            <div class="filters">
+                <div class="search">
+                    <input type="text" id="pid" class="form-control" on-enter="getList()"
+                        ng-model="currentfilter.codemnemonicsnamedesc" translate
+                        translate-attr-placeholder="lis.testmasters.codename.lbl">
+                        <i class="fas fa-search" aria-hidden="true"></i>
+                </div>
+                <button type="button" tabindex="-1" class="btn-add"
+                    ng-click="addNew()" uib-tooltip="{{ 'lis.containertypes.pagetitle.lbl' | translate}}"
+                    tooltip-placement="bottom">
+                    <i class="fa fa-plus" aria-hidden="true"></i>
+                    <!-- <span translate="clinicalmaster.serviceitem-list.addnew.lbl " class="text-white"></span> -->
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<table id="bannerdetails">
+        <tr>
+            <td translate="lis.containertypes.color.lbl"></td>
+            <td> <ui-select ng-model="currentfilter.COLORId" ng-change="getList()" class="filter-combo">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 8 : 0}}
+                        <span ng-if="$select.selected.Text.length>8">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.COLOR | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select></td>
+            <td translate="lis.containertypes.type.lbl"></td>
+            <td>  <ui-select ng-model="currentfilter.CONTAINTYPId" ng-change="getList()" class="filter-combo">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 8 : 0}}
+                        <span ng-if="$select.selected.Text.length>8">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.CONTAINTYP | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select></td>
+            <td translate="lis.containertypes.status.lbl"></td>
+            <td> <ui-select ng-model="currentfilter.ActiveStatusId" ng-change="getList()" class="filter-combo">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 8 : 0}}
+                        <span ng-if="$select.selected.Text.length>8">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.ActiveStatus | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select></td>
+        </tr>
+    </table>
+<!-- <div class="row filter-area">
+    <div class="col-sm-12">
+        <div class="col-sm-4">
+            <div class="form-group">
+                <label class="col-sm-6 col-md-4 col-lg-4 control-label text-right filter-lbl"
+                    translate="lis.containertypes.color.lbl"></label>
+                <div class="input-group col-sm-7 col-md-9 col-lg-6">
+                    <ui-select ng-model="currentfilter.COLORId" ng-change="getList()" class="filter-combo">
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 8 : 0}}
+                            <span ng-if="$select.selected.Text.length>8">...</span>
+                        </ui-select-match>
+                        <ui-select-choices
+                            repeat="lookupitem.Id as lookupitem in lookup.COLOR | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+        </div> -->
+        <!-- <div class="row col-sm-4">
+            <div class="form-group">
+                <label class="col-sm-6 col-md-4 col-lg-4 control-label text-right filter-lbl"
+                    translate="lis.containertypes.type.lbl"></label>
+                <div class="input-group col-sm-9 col-md-9 col-lg-6">
+                    <ui-select ng-model="currentfilter.CONTAINTYPId" ng-change="getList()" class="filter-combo">
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 8 : 0}}
+                            <span ng-if="$select.selected.Text.length>8">...</span>
+                        </ui-select-match>
+                        <ui-select-choices
+                            repeat="lookupitem.Id as lookupitem in lookup.CONTAINTYP | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+        </div> -->
+        <!-- <div class="row col-sm-4 col-md-3">
+                       <div class="form-group">
+                        <label class="col-sm-7 col-md-4 col-lg-6 control-label text-right filter-lbl" translate=""></label>
+                        <div class="col-sm-6">
+                            <input type="text" class="form-control" autofocus on-enter="getList()" ng-model="currentfilter.codemnemonicsnamedesc" translate translate-attr-placeholder="lis.containertypes.searchtitle.lbl">
+                        </div>
+                   </div>
+                    </div>   -->
+        <!-- <div class="row col-sm-4">
+            <div class="form-group">
+                <label class="col-sm-7 col-md-4 col-lg-4 control-label text-right filter-lbl"
+                    translate="lis.containertypes.status.lbl"></label>
+                <div class="col-sm-9 col-md-9 col-lg-6">
+                    <ui-select ng-model="currentfilter.ActiveStatusId" ng-change="getList()" class="filter-combo">
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 8 : 0}}
+                            <span ng-if="$select.selected.Text.length>8">...</span>
+                        </ui-select-match>
+                        <ui-select-choices
+                            repeat="lookupitem.Id as lookupitem in lookup.ActiveStatus | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+        </div>
+    </div> -->
+
+
+</div>
+
+
+<custom-table config="vm.gridConfig"></custom-table>
+<div class="container-fluid single-filter">
+    <div class="fooder-bgs">
+        <ul uib-pagination total-items="vm.gridConfig.pagerObj.totalItems"
+            items-per-page="vm.gridConfig.pagerObj.pageSize" start-index="vm.gridConfig.pagerObj.startIndex"
+            ng-model="vm.gridConfig.pagerObj.currentPage" ng-change="getList()"></ul>
+    </div>
+</div>

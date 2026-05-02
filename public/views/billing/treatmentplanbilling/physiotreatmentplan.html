@@ -1,0 +1,210 @@
+<link rel="stylesheet" href="app/css/drhms.css">
+<style>
+    button.draftbutton {
+        margin-top: 27px;
+    }
+    
+    div#mainresponsivetablecontrol {
+        overflow: auto !important;
+    }
+</style>
+<div class="row">
+    <div class="drhms-filters">
+        <div class="col-sm-12">
+            <h4 translate="Treatment Plan Execution"></h4>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <form id="item_form" name="item_form" class="form-horizontal" role="form">
+        <div class="form-group col-sm-3">
+            <label class="col-sm-12" translate="billing.pharmacy-billdetails.fromdate.lbl"></label>
+            <div class="col-sm-12">
+                <input type="text" class="form-control" name="FromBillDate" ng-date-object datetime-picker="{{datePickerOptions.dateTimeFormat}}" datepicker-append-to-body="true" placeholder="{{datePickerOptions.placeholder}}" ng-click="FromBillDatePopup = { opened: true }"
+                    is-open="FromBillDatePopup.opened" ng-model="currentfilter.FromBillDate">
+            </div>
+        </div>
+        <div class="form-group col-sm-3">
+            <label class="col-sm-12" translate="billing.pharmacy-billdetails.todate.lbl"></label>
+            <div class="col-sm-12">
+                <input type="text" class="form-control" name="ToBillDate" ng-date-object datetime-picker="{{datePickerOptions.dateTimeFormat}}" datepicker-append-to-body="true" placeholder="{{datePickerOptions.placeholder}}" ng-click="ToBillDatePopup = { opened: true }"
+                    is-open="ToBillDatePopup.opened" ng-model="currentfilter.ToBillDate">
+            </div>
+        </div>
+        <div class="form-group col-sm-3">
+            <label class="col-sm-12" translate="billing.opbilling-list.patientsearch.lbl"></label>
+            <div class="col-sm-12">
+                <patientsearch controlid="'pid'" patientid="currentfilter.PatientId" name="txtpatientsearch" patientinfo="selectedPatient" isdisabled="" filterconfig="patientfilterconfig"></patientsearch>
+            </div>
+        </div>
+        <div class="form-group col-sm-3">
+            <label class="col-sm-12" translate="Status"></label>
+            <div class="col-sm-12">
+                <ui-select ng-model="currentfilter.PlanStatusId">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 20 : 0}}
+                        <span ng-if="$select.selected.Text.length>20">...</span>
+                    </ui-select-match>
+                    <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.PlanStatus | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+        <div class="form-group col-sm-3">
+            <button class="draftbutton" ng-click="getList()">
+                <span translate="Fetch"></span>
+            </button>
+        </div>
+    </form>
+</div>
+<div class="row">
+    <form id="item_form" name="item_form" class="form-horizontal" role="form">
+        <div class="table-control">
+            <div class="bg-pattern">
+                <div class="formRoot pharmacycollections" id="mainresponsivetablecontrol">
+                    <table class="table table-hover table-responsive table-bordered">
+                        <thead class="bg-subhead" ng-if="TreatmentPlan">
+                            <tr>
+                                <th>
+                                    <span translate="Treatment Name"></span>
+                                </th>
+                                <th>
+                                    <span translate="Plan No"></span>
+                                </th>
+                                <th>
+                                    <span translate="From Date"></span>
+                                </th>
+                                <th>
+                                    <span translate="To Date"></span>
+                                </th>
+                                <th>
+                                    <span translate="Doctor Name"></span>
+                                </th>
+                                <th>
+                                    <span translate="No Of Days"></span>
+                                </th>
+                                <th>
+                                    <span translate="Net Amount"></span>
+                                </th>
+                                <th>
+                                    <span translate="Status"></span>
+                                </th>
+                                <th>
+                                    <span translate="Action"></span>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="plan in TreatmentPlan">
+                                <td class="text-left">
+                                    <span>
+                                        {{plan.TreatmentName}}
+                                    </span>
+                                </td>
+                                <td class="text-left">
+                                    <span> {{plan.PlanNumber }}</span>
+                                </td>
+                                <td class="text-left">
+                                    <span> {{plan.PlanScheduledFrom | date : 'dd/MMM/yyyy' }}</span>
+                                </td>
+                                <td class="text-left">
+                                    <span> {{plan.PlanScheduledTo | date : 'dd/MMM/yyyy' }}</span>
+                                </td>
+                                <td class="text-left">
+                                    <span> {{plan.Doctor.Title.Description}} &nbsp;{{plan.Doctor.FirstName}}
+                                        &nbsp;{{plan.Doctor.LastName}}
+                                    </span>
+                                </td>
+                                <td class="text-right">
+                                    <span>{{ plan.NoOfDays}}</span>
+                                </td>
+                                <td class="text-right">
+                                    <span>{{ plan.TotalAmount | displaycurrency }}</span>
+                                </td>
+                                <td class="text-right">
+                                    <span>{{ plan.PlanStatus.Description}}</span>
+                                </td>
+                                <td>
+                                    <span ng-click="viewDetails(plan)"><img class="drhms-edit-button"
+                                            src="assets/svg/edit.svg" alt=""></span>
+                                </td>
+                            </tr>
+                        </tbody>
+
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="table-control">
+            <div class="bg-pattern">
+                <div class="formRoot pharmacycollections" id="mainresponsivetablecontrol">
+                    <table class="table table-hover table-responsive table-bordered">
+                        <thead class="bg-subhead" ng-if="TreatmentPlanDetails">
+                            <tr>
+                                <th>
+                                    <span translate="Date"></span>
+                                </th>
+                                <th>
+                                    <span translate="Treatment Name"></span>
+                                </th>
+                                <th>
+                                    <span translate="Start Time"></span>
+                                </th>
+                                <th>
+                                    <span translate="End Time"></span>
+                                </th>
+                                <th>
+                                    <span translate="Payment Status"></span>
+                                </th>
+                                <th>
+                                    <span translate="Amount"></span>
+                                </th>
+                                <th>
+                                    <span translate="Status"></span>
+                                </th>
+                                <th>
+                                    <span translate="Action"></span>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="plandtl in TreatmentPlanDetails">
+                                <td class="text-left">
+                                    <span>
+                                        <span> {{plandtl.PlanScheduleDate | date : 'dd/MMM/yyyy' }}</span>
+                                    </span>
+                                </td>
+                                <td class="text-left">
+                                    <span> {{plandtl.ServiceName }}</span>
+                                </td>
+                                <td class="text-left">
+                                    <span> {{plandtl.PlanStartTime | date : 'dd/MMM/yyyy' }}</span>
+                                </td>
+                                <td class="text-left">
+                                    <span> {{plandtl.PlanEndTime | date : 'dd/MMM/yyyy' }}</span>
+                                </td>
+                                <td class="text-right">
+                                    <span ng-if="!plandtl.IsPaid">Pending</span>
+                                    <span ng-if="plandtl.IsPaid">Completed</span>
+                                </td>
+                                <td class="text-right">
+                                    <span>{{ plandtl.ServicePrice}}</span>
+                                </td>
+                                <td class="text-right">
+                                    <span>{{ plandtl.PlanStatus.Description}}</span>
+                                </td>
+                                <td>
+                                    <span ng-click="executeplan(plandtl)"><img class="drhms-edit-button" src="assets/svg/edit.svg"
+                                            alt=""></span>
+                                </td>
+                            </tr>
+                        </tbody>
+
+                    </table>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>

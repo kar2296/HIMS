@@ -1,0 +1,267 @@
+<link rel="stylesheet" href="app/css/drhms.css">
+<style>
+    .drhms-receipt span {
+        font-size: 12px;
+    }
+
+    .drhms-receipt {
+        margin-top: 20px;
+    }
+
+    patientsearch.logo .custom-popup-wrapper {
+        margin-left: -200px;
+    }
+
+    span.expirystop.ng-binding.ng-scope {
+        background-color: red;
+        color: white;
+    }
+
+    .generic {
+        display: flex;
+        justify-content: center;
+        padding: 10px;
+    }
+
+    .generic-search .custom-popup-wrapper {
+        max-width: 870px;
+    }
+
+    .fooder-bgs {
+        clear: both !important;
+        position: relative;
+        top: 10px;
+    }
+</style>
+<div class="row">
+    <div class="drhms-filters">
+        <div class="col-sm-10">
+            <h4 translate="billing.customersale.pagetitle.lbl"></h4>
+        </div>
+        <div class="col-sm-6">
+            <label class="col-sm-4" translate="billing.opbilling-list.store.lbl"></label>
+            <div class="col-sm-8">
+                <ui-select ng-model="item.StoreMasterId" tabindex="-1" ng-disabled="item.RdoStoreMasterId"
+                    ng-change="StoreChange($select.selected)" name="StoreMaster">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 20 : 0}}
+                        <span ng-if="$select.selected.Text.length>20">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.UserStores | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+        <div class="col-sm-6">
+            <autosearch controlid="'customerid'" tabindex="1" ng-keyup="moveHeaderFocus('customerid')"
+                itemid="item.CustomerMasterId" iteminfo="" rowdata="" config="vm.customercontrolconfig"
+                itemchange="getList()" candisable="item.isDisabled"></autosearch>
+        </div>
+        <div class="col-sm-4">
+            <button type="button" class="btn-add" uib-tooltip="Add New (F7)" tooltip-placement="bottom"
+                ng-click="clear()">
+                <i class="fa fa-plus"></i>
+            </button>
+            <button type="button" class="drhms-billing-btn drhms-previousbill-btn" uib-tooltip="Find Bills (F8)"
+                tooltip-placement="bottom" ng-click="findBill()">
+                <i class="fa fa-search-plus" aria-hidden="true"></i>
+            </button>
+        </div>
+    </div>
+</div>
+<div class="col-sm-12" ng-if="item.BillNumber">
+    <div class="drhms-refund-table">
+        <table>
+            <tr>
+                <td ng-if="item.BillNumber">
+                    <span translate="billing.opbilling-list.billnumber.lbl"></span> :
+                </td>
+                <td ng-if="item.BillNumber">{{item.BillNumber}}</td>
+                <td ng-if="item.BillDateTime">Date</td>
+                <td ng-if="item.BillDateTime">
+                    <span>{{item.BillDateTime | date : 'dd-MMM-yyyy'}}&nbsp;{{item.BillDateTime | date : 'HH:mm' }}
+                    </span>
+                </td>
+                <td>Bill Status</td>
+                <td style="color: #f44336 !important;">{{item.CustomerBillStatus}}</td>
+            </tr>
+        </table>
+    </div>
+</div>
+<div class="col-sm-12">
+    <form id="item_form" name="item_form" class="form-horizontal" role="form">
+        <div class="drhms-table-control">
+            <div class="drhms-bg-pattern">
+                <div class="drhms-table-responsive-height">
+                    <table class="drhms-responsive-table">
+                        <thead class="bg-subhead">
+                            <tr>
+                                <th>
+                                    <span translate="billing.pharmacy.sno.lbl"></span>
+                                </th>
+                                <th>
+                                    <span translate="billing.pharmacy.codename.lbl"></span>
+                                </th>
+                                <!--<th>
+                                        <span translate="billing.pharmacy.genericname.lbl"></span>
+                                    </th>-->
+                                <th class="col-sm-1">
+                                    <span translate="billing.pharmacy.totalqty.lbl"></span>
+                                </th>
+                                <th class="col-sm-1">
+                                    <span translate="billing.pharmacy.batchqty.lbl"></span>
+                                </th>
+                                <th class="col-sm-1">
+                                    <span translate="billing.pharmacy.qty.lbl"></span>
+                                </th>
+                                <th class="col-sm-1">
+                                    <span translate="billing.pharmacy.freeqty.lbl"></span>
+                                </th>
+                                <th class="col-sm-1">
+                                    <span translate="billing.pharmacy.batch.lbl"></span>
+                                </th>
+                                <th class="col-sm-1">
+                                    <span translate="billing.pharmacy.expirydate.lbl"></span>
+                                </th>
+                                <th class="col-sm-1">
+                                    <span translate="billing.pharmacy.rate.lbl"></span>
+                                </th>
+                                <th>
+                                    <span translate="billing.customersale.mode.lbl"></span>
+                                </th>
+                                <th class="col-sm-1">
+                                    <span translate="billing.pharmacy.discount.lbl"></span>
+                                </th>
+                                <th class="col-sm-1">
+                                    <span translate="billing.pharmacy.gst.lbl"></span>
+                                </th>
+                                <th class="col-sm-1">
+                                    <span translate="billing.pharmacy.costprice.lbl"></span>
+                                </th>
+                                <th class="col-sm-1">
+                                    <span translate="billing.pharmacy.amount.lbl"></span>
+                                </th>
+                                <th class="col-sm-1">
+                                    <span translate="billing.pharmacy.action.lbl"></span>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="customeritem in CustomerBillDetails | filter:{Status:1}">
+                                <td class="text-right">
+                                    <span> {{ customeritem.SNo }}</span>
+                                </td>
+                                <td class="col-sm-3 cust_look_up">
+                                    <autosearch itemid="customeritem.ItemCustomerMapId"
+                                        iteminfo="customeritem.SelectedItem" rowdata="customeritem"
+                                        config="vm.customeritemcontrolconfig"
+                                        itemchange="ServiceItemChanged($index, customeritem)" class="inputsearchlogo"
+                                        candisable="customeritem.RdoItemMasterId" controlid="customeritem.itemidxdesc"
+                                        ng-show="item.CustomerMasterId > 0"
+                                        ng-keyup="moveFocus('qty','desc','desc','desc',$index,$event,customeritem)"
+                                        tabindex="customeritem.tabindex"></autosearch>
+                                </td>
+                                <!--<td class="col-sm-2">
+                                            <span ng-if="customeritem.IsPrescribed" ng-style="{'color':'orange'}"
+                                                uib-tooltip="{{ customeritem.GenericName }}" tooltip-placement="bottom">{{
+                                                customeritem.GenericName | limitTo : 18 : 0}}
+                                                <span ng-if="customeritem.GenericName.length>20">...</span>
+                                            </span>
+                                            <span ng-if="!customeritem.IsPrescribed" uib-tooltip="{{ customeritem.GenericName }}"
+                                                tooltip-placement="bottom">{{ customeritem.GenericName | limitTo : 18 :
+                                                0}}
+                                                <span ng-if="customeritem.GenericName.length>20">...</span>
+                                            </span>
+                                        </td>-->
+                                <td class="col-sm-1">
+                                    <span> {{ customeritem.TotalQuantity }}</span>
+                                </td>
+                                <td class="col-sm-1">
+                                    <span> {{ customeritem.BatchQuantity }}</span>
+                                </td>
+                                <td class="col-sm-1">
+                                    <input type="text" min="0" class="form-control" id="{{customeritem.itemidxqty}}"
+                                        ng-keyup="moveFocus('desc','desc','qty','qty',$index,$event, customeritem)"
+                                        ng-disabled="customeritem.RdoItemMasterId" ng-model="customeritem.Quantity"
+                                        tabindex="customeritem.tabindex" placeholder="" ng-pattern="/^\d+$/"
+                                        ng-change="CheckBatchQty(customeritem)" ng-keypress="numberonly($event)">
+                                </td>
+                                <td class="col-sm-1">
+                                    <input type="text" min="0" class="form-control" id="{{customeritem.itemidxfreeqty}}"
+                                        ng-keyup="moveFocus('desc','desc','qty','qty',$index,$event, customeritem)"
+                                        ng-disabled="customeritem.RdoItemMasterId" ng-model="customeritem.FreeQty"
+                                        tabindex="customeritem.tabindex" placeholder="" ng-pattern="/^\d+$/"
+                                        ng-change="CheckFreeQty(customeritem)" ng-keypress="numberonly($event)">
+                                </td>
+                                <td class="col-sm-1">
+                                    <span ng-if="customeritem.FreeQtyAlert" ng-style="{'color':'red'}">
+                                        {{customeritem.BatchId}} </span>
+                                    <span ng-if="!customeritem.FreeQtyAlert"> {{customeritem.BatchId}} </span>
+                                </td>
+                                <td class="col-sm-1">
+                                    <span ng-if="customeritem.ExpiryStop" ng-style="{'color':'red'}">
+                                        {{customeritem.ExpiryDate &nbsp;|&nbsp; date : 'dd-MMM-yyyy'}} </span>
+                                    <span ng-if="customeritem.ExpiryAlert" ng-style="{'color':'orange'}">
+                                        {{customeritem.ExpiryDate &nbsp;|&nbsp; date : 'dd-MMM-yyyy'}} </span>
+                                    <span ng-if="customeritem.ExpiryProceed"> {{customeritem.ExpiryDate
+                                        &nbsp;|&nbsp; date : 'dd-MMM-yyyy'}} </span>
+                                </td>
+                                <td class="col-sm-1">
+                                    <span> {{ customeritem.Rate | displaycurrency }}</span>
+                                </td>
+                                <td>
+                                    <span> {{ customeritem.DiscountModeCode }}</span>
+                                </td>
+                                <td class="col-sm-1">
+                                    <input type="text" min="0" class="form-control" id="{{customeritem.itemidxdisc}}"
+                                        ng-keyup="moveFocus('desc','desc','qty','qty',$index,$event, customeritem)"
+                                        ng-disabled="customeritem.RdoItemMasterId" ng-model="customeritem.Discount"
+                                        tabindex="customeritem.tabindex" ng-change="CalcualteAmt(customeritem)"
+                                        placeholder="" ng-keypress="numberwithdecimal($event)">
+                                </td>
+                                <td class="col-sm-1">
+                                    <span> {{ customeritem.GstPercentage }}</span>
+                                </td>
+                                <td class="col-sm-1 currency-align">
+                                    <span> {{ customeritem.RateAfterGst | displaycurrency }}</span>
+                                </td>
+                                <td class="col-sm-1 currency-align">
+                                    <span> {{ customeritem.NetAmount | displaycurrency }}</span>
+                                </td>
+                                <td class="col-sm-2">
+                                    <button type="button" class="drhms-edit-button" tabindex="-1"
+                                        ng-click="alternateDetails($index,customeritem)"
+                                        ng-disabled="customeritem.RdoItemMasterId">
+                                        <i class="fa fa-calendar-check-o" aria-hidden="true"></i>
+                                    </button>
+                                    <button type="button" class="drhms-edit-button" tabindex="-1"
+                                        ng-click="deleteCustomerBillDetails($index,customeritem)"
+                                        ng-disabled="customeritem.RdoItemMasterId">
+                                        <img src="assets/svg/delete.svg" alt="">
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+<div class="fooder-bgs">
+    <div class="pull-right d-flex-buttons">
+        <button type="button" ng-show="!HidePrintBtn" ng-click="print()" class="draftbutton" tabindex="-1"
+            translate="common.printaction.lbl"></button>
+        <!-- <button type="button" ng-show="!HidePrintBtn" id="btndmprint" class="draftbutton"
+                ng-click="dmPrint()">DM Print(Alt+P)</button> -->
+        <button type="button" ng-keyup="FooterFocus('btnsubmit')" class="draftbutton" ng-show="canShowSaveBtn"
+            translate="common.saveaction.lbl" ng-click="saveDraft()"></button>
+        <button type="button" ng-keyup="FooterFocus('saveAndApproveid')" class="draftbutton"
+            translate="billing.opbilling-list.saveandapprove.lbl" ng-show="canShowSaveapproveBtn"
+            ng-click="saveAndApprove()"></button>
+        <!-- <button type="button" class="draftbutton" ng-show="canShowClearBtn" ng-click="clear()"
+            translate="common.clearaction.lbl"></button> -->
+    </div>
+</div>

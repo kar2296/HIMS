@@ -1,0 +1,421 @@
+<!-- <link href="app/css/regbilling.css" rel="stylesheet"> -->
+<style>
+    .form-horizontal .form-group {
+        height: 62px;
+    }
+
+    .drhms-profile-upload-btn {
+        margin-left: 68px;
+    }
+</style>
+<div class="row">
+    <form id="item_form" name="item_form" class="form-horizontal" role="form">
+        <div class="row">
+            <div class="form-group col-sm-3">
+                <label class="col-sm-12 control-label" for="code" translate="appmanager.facility.code.lbl"></label>
+                <div class="col-sm-12">
+                    <input type="text" class="form-control" name="code" ng-model="item.FacilityCode" placeholder=""
+                        required>
+                </div>
+            </div>
+            <div class="form-group col-sm-3">
+                <label class="col-sm-12 control-label" for="facilityname"
+                    translate="appmanager.facility.facilityname.lbl"></label>
+                <div class="col-sm-12">
+                    <input type="text" class="form-control" name="facilityname" ng-model="item.FacilityName"
+                        placeholder="" required>
+                </div>
+            </div>
+            <div class="form-group col-sm-3">
+                <label class="col-sm-12 control-label" for="orgname"
+                    translate="appmanager.facility.orgname.lbl"></label>
+                <div class="col-sm-12">
+                    <ui-select ng-model="item.OrganizationId" name="orgname" required>
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 20 : 0}}
+                            <span ng-if="$select.selected.Text.length>20">...</span>
+                        </ui-select-match>
+                        <ui-select-choices
+                            repeat="lookupitem.Id as lookupitem in lookup.Organization | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+            <div class="form-group col-sm-3">
+                <label class="col-sm-12 control-label" for="facilitytype"
+                    translate="appmanager.facility.type.lbl"></label>
+                <div class="col-sm-12">
+                    <ui-select ng-model="item.FacilityTypeId" name="facilitytype" required>
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 20 : 0}}
+                            <span ng-if="$select.selected.Text.length>20">...</span>
+                        </ui-select-match>
+                        <ui-select-choices
+                            repeat="lookupitem.Id as lookupitem in lookup.FacilityType | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+            <!-- <div class="form-group col-sm-3">
+                <label class="col-sm-12 control-label0" for="address" translate="appmanager.org.address1.lbl"></label>
+                <div class="col-sm-12">
+                    <input type="text" id="Manualadd" class="form-control" name="address" ng-model="item.AddressLine1"
+                        ng-disabled="item.candisable" placeholder="Address">
+                </div>
+            </div>
+
+            <div class="form-group col-sm-3">
+                <label class="col-sm-12 control-label0" for="address" translate="appmanager.org.address2.lbl"></label>
+                <div class="col-sm-12">
+                    <input type="text" id="Manualadd" class="form-control" name="address" ng-model="item.AddressLine2"
+                        ng-disabled="item.candisable" placeholder="Address">
+                </div>
+            </div> -->
+            <!-- <div class="form-group col-sm-3">
+                <label class="col-sm-12 control-label0" for="area" translate="appmanager.org.area.lbl"></label>
+                <div class="col-sm-12">
+                    <input type="text" id="Manualadd" class="form-control" name="area" ng-model="item.Area"
+                        ng-disabled="item.candisable" placeholder="">
+                </div>
+            </div> -->
+
+            <!-- <address candisable="SaveCompleted" addressline1="item.AddressLine1" tabindex="tabindexmap.patienttabindex"
+                addressline2="item.AddressLine2" pincodeid="item.PinCodeId" pincode="item.PinCode" area="item.Ward"
+                areaid="item.WardId" city="item.City" district="item.District" districtid="item.DistrictId"
+                cityid="item.CityId" state="item.State" stateid="item.StateId" country="item.Country"
+                countryid="item.CountryId" class="upercase"></address> -->
+
+            <address addressline1="item.AddressLine1" tabindex="tabindexmap.patienttabindex"
+                addressline2="item.AddressLine2" area="item.Area" areaid="item.WardId" city="item.City"
+                district="item.District" pincodeid="item.PinCodeId" pincode="'freetext'" pintext="item.Pincode"
+                districtid="item.DistrictId" cityid="item.CityId" state="item.State" stateid="item.StateId"
+                country="item.Country" countryid="item.CountryId" class="upercase">
+            </address>
+            <div class="form-group col-sm-3">
+                <label class="col-sm-12 control-label" for="mobile"
+                    translate="appmanager.facility.landline.lbl"></label>
+                <div class="col-sm-12">
+                    <input type="text" class="form-control" name="mobile" ng-model="item.LandLine" placeholder=""
+                        value="" name="mobile" onChange="numberonly($event)" onKeyUp="numberonly($event)"
+                        ng-keypress="numberonly($event)" required>
+                </div>
+            </div>
+            <div class="form-group col-sm-3">
+                <label class="col-sm-12 control-label" for="mobile"
+                    translate="registration.fullregistration.mobile.lbl"></label>
+                <div class="col-sm-12">
+                    <input type="text" class="form-control" ng-model="item.Mobile" placeholder="" placeholder=""
+                        MINLENGTH="10" MAXLENGTH="10" size="10" value="" name="mobile" onChange="numberonly($event)"
+                        onKeyUp="numberonly($event)">
+                </div>
+            </div>
+        </div>
+        <div class="form-group col-sm-3">
+            <label class="col-sm-12 control-label" translate="appmanager.facility.faxno.lbl"></label>
+            <div class="col-sm-12">
+                <input type="text" class="form-control" name="faxno" ng-model="item.FaxNo" placeholder="">
+            </div>
+        </div>
+        <div class="form-group col-sm-3">
+            <label class="col-sm-12 control-label" translate="appmanager.facility.email.lbl"></label>
+            <div class="col-sm-12">
+                <input type="email" class="form-control" name="email" ng-model="item.Email" placeholder=""
+                    ng-required="false">
+            </div>
+        </div>
+        <div class="form-group col-sm-3">
+            <label class="col-sm-12 control-label" translate="appmanager.facility.license.lbl"></label>
+            <div class="col-lg-12">
+                <div class="datepicker">
+                    <input type="text" class="form-control" name="dob" ng-date-object
+                        uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                        placeholder="{{datePickerOptions.placeholder}}" ng-click="dobPopup = { opened: true }"
+                        is-open="dobPopup.opened" ng-model="item.LicenseExpiryDate" required>
+                    <i class="fa fa-calendar" aria-hidden="true"></i>
+                </div>
+            </div>
+        </div>
+        <!-- <div class="form-group col-sm-3">
+                <label class="col-sm-12 control-label" translate="appmanager.facility.language.lbl"></label>
+                <div class="col-sm-12">
+                    <ui-select ng-model="item.LanguageId">
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 20 : 0}}
+                            <span ng-if="$select.selected.Text.length>20">...</span>
+                        </ui-select-match>
+                        <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.Language | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div> -->
+        <div class="form-group col-sm-3">
+            <label class="col-sm-12 control-label" translate="Senior Citizen Discount"></label>
+            <div class="col-sm-12">
+                <input type="text" class="form-control" name="SeniorCitizenDiscount" MAXLENGTH="2" size="2" value=""
+                    name="" onChange="numberonly($event)" onKeyUp="numberonly($event)"
+                    ng-model="item.SeniorCitizenDiscount" placeholder="">
+            </div>
+        </div>
+        <div class="form-group col-sm-3">
+            <label class="col-sm-12 control-label" translate="PAN"></label>
+            <div class="col-sm-12">
+                <input type="text" class="form-control" ng-model="item.PAN" placeholder="" ng-required="false">
+            </div>
+        </div>
+        <div class="form-group col-sm-3">
+            <label class="col-sm-12 control-label" translate="TAXPlayer User Name"></label>
+            <div class="col-sm-12">
+                <input type="text" class="form-control" ng-model="item.TAXPlayerUserName" placeholder=""
+                    ng-required="false">
+            </div>
+        </div>
+        <div class="form-group col-sm-3">
+            <label class="col-sm-12 control-label" translate="TAXPlayer Password"></label>
+            <div class="col-sm-12">
+                <input type="password" class="form-control" ng-model="item.TAXPlayerPassword" placeholder=""
+                    ng-required="false">
+            </div>
+        </div>
+        <div class="form-group col-sm-3">
+            <label class="col-sm-12 control-label" translate="appmanager.facility.isactive.lbl"></label>
+            <div class="col-sm-12">
+                <input type="checkbox" name="isactive" class="custom-checkbox" ng-model="item.IsActive">
+            </div>
+        </div>
+        <div class="form-group col-sm-3">
+            <label class="col-sm-12 control-label" translate="IsConvertion Qty Edit"></label>
+            <div class="col-sm-12">
+                <input type="checkbox" name="IsConvertionQtyEdit" class="custom-checkbox"
+                    ng-model="item.IsConvertionQtyEdit">
+            </div>
+        </div>
+        <div class="form-group col-sm-3">
+            <label class="col-sm-12 control-label" translate="IsPurchaseReturn Edit"></label>
+            <div class="col-sm-12">
+                <input type="checkbox" name="IsPurchaseReturnEditable" class="custom-checkbox"
+                    ng-model="item.IsPurchaseReturnEditable">
+            </div>
+        </div>
+        <div class="form-group col-sm-3">
+            <label class="col-sm-12 control-label" translate="Is LabCenter"></label>
+            <div class="col-sm-12">
+                <input type="checkbox" name="islab" class="custom-checkbox" ng-model="item.IsLabCentre">
+            </div>
+        </div>
+        <div class="form-group col-sm-3">
+            <label class="col-sm-12 control-label" translate="Is ItemCodeEdit"></label>
+            <div class="col-sm-12">
+                <input type="checkbox" name="IsItemCodeEdit" class="custom-checkbox" ng-model="item.IsItemCodeEdit">
+            </div>
+        </div>
+        <div class="form-group col-sm-3">
+            <label class="col-sm-12 control-label" translate="Is MedicineCenter"></label>
+            <div class="col-sm-12">
+                <input type="checkbox" name="ismedicine" class="custom-checkbox" ng-model="item.IsMedicineCentre">
+            </div>
+        </div>
+        <div class="form-group col-sm-3">
+            <label class="col-sm-12 control-label" translate="Is Multiple Discount"></label>
+            <div class="col-sm-12">
+                <input type="checkbox" name="IsMultipleDiscount" class="custom-checkbox"
+                    ng-model="item.IsMultipleDiscount">
+            </div>
+        </div>
+        <div class="form-group col-sm-3">
+            <label class="col-sm-12 control-label" translate="Is Itemmaster Drug show"></label>
+            <div class="col-sm-12">
+                <input type="checkbox" name="IsItemmasterDrugshow" class="custom-checkbox"
+                    ng-model="item.IsItemmasterDrugshow">
+            </div>
+        </div>
+        <div class="form-group col-sm-3">
+            <label class="col-sm-12 control-label" translate="Is VAT Applicable"></label>
+            <div class="col-sm-12">
+                <input type="checkbox" name="isvat" class="custom-checkbox" ng-model="item.IsVAT">
+            </div>
+        </div>
+        <div class="form-group col-sm-3">
+            <label class="col-sm-12 control-label" translate="Is Show ItemType"></label>
+            <div class="col-sm-12">
+                <input type="checkbox" class="custom-checkbox" ng-model="item.IsShowItemType">
+            </div>
+        </div>
+        <div class="form-group col-sm-3">
+            <label class="col-sm-12 control-label" translate="Is Doctor Share"></label>
+            <div class="col-sm-12">
+                <input type="checkbox" name="Isdoctorshare" class="custom-checkbox" ng-model="item.IsDoctorShare">
+            </div>
+        </div>
+        <div class="form-group col-sm-3">
+            <label class="col-sm-12 control-label" translate="Is AdmissionDate"></label>
+            <div class="col-sm-12">
+                <input type="checkbox" name="IsAdmissionDate" class="custom-checkbox" ng-model="item.IsAdmissionDate">
+            </div>
+        </div>
+        <div class="form-group col-sm-3">
+            <label class="col-sm-12 control-label" translate="Is Swostha Integration"></label>
+            <div class="col-sm-12">
+                <input type="checkbox" name="IsSwostha" class="custom-checkbox" ng-model="item.IsSwosthaIntegration">
+            </div>
+        </div>
+        <div class="form-group col-sm-3" ng-show="item.IsSwosthaIntegration">
+            <label class="col-sm-12 control-label" translate="Swostha URI"></label>
+            <div class="col-sm-12">
+                <input type="text" name="swosthauri" class="form-control" ng-model="item.SwosthaURI">
+            </div>
+        </div>
+        <div class="form-group col-sm-3" ng-show="item.IsSwosthaIntegration">
+            <label class="col-sm-12 control-label" translate="Swostha SecretKey"></label>
+            <div class="col-sm-12">
+                <input type="text" name="swosthakey" class="form-control" ng-model="item.SwosthaKey">
+            </div>
+        </div>
+        <div class="form-group col-sm-3">
+            <label class="col-sm-12 control-label" translate="Is Address Search"></label>
+            <div class="col-sm-12">
+                <input type="checkbox" name="isAddressSearch" class="custom-checkbox" ng-model="item.IsAddressSearch">
+            </div>
+        </div>
+        <div class="form-group col-sm-3">
+            <label class="col-sm-12 control-label" translate="Is Alternate Mobile"></label>
+            <div class="col-sm-12">
+                <input type="checkbox" name="IsAlternateMobileMandatory" class="custom-checkbox"
+                    ng-model="item.IsAlternateMobileMandatory">
+            </div>
+        </div>
+        <div class="form-group col-sm-3">
+            <label class="col-sm-12 control-label" translate="Is Email"></label>
+            <div class="col-sm-12">
+                <input type="checkbox" name="IsAlternateEmailMandatory" class="custom-checkbox"
+                    ng-model="item.IsAlternateEmailMandatory">
+            </div>
+        </div>
+        <div class="form-group col-sm-3">
+            <label class="col-sm-12 control-label" translate="Is Due Bill"></label>
+            <div class="col-sm-12">
+                <input type="checkbox" name="IsDueBill" class="custom-checkbox" ng-model="item.IsDueBill">
+            </div>
+        </div>
+        <div class="form-group col-sm-3">
+            <label class="col-sm-12 control-label" translate="Is Free Text(Pincode)"></label>
+            <div class="col-sm-12">
+                <input type="checkbox" name="IsFreeText" class="custom-checkbox" ng-model="item.IsPincodeFreeText">
+            </div>
+        </div>
+        <div class="form-group col-sm-3">
+            <label class="col-sm-12 control-label" translate="Is WardRoom NotEditable"></label>
+            <div class="col-sm-12">
+                <input type="checkbox" name="IsWardRoomEditable" class="custom-checkbox"
+                    ng-model="item.IsWardRoomEditable">
+            </div>
+        </div>
+        <div class="form-group col-sm-3">
+            <label class="col-sm-12 control-label" translate="Is DepartmentWise(LabResult)"></label>
+            <div class="col-sm-12">
+                <input type="checkbox" name="IsDeptWise" class="custom-checkbox" ng-model="item.IsDeptWiseLabPrint">
+            </div>
+        </div>
+        <div class="form-group col-sm-3">
+            <label class="col-sm-12 control-label" translate="Show Alias Code"></label>
+            <div class="col-sm-12">
+                <input type="checkbox" name="IsDeptWise" class="custom-checkbox" ng-model="item.ShowAliasInfo">
+            </div>
+        </div>
+        <div class="form-group col-sm-3">
+            <label class="col-sm-12 control-label" translate="Show MRP"></label>
+            <div class="col-sm-12">
+                <input type="checkbox" name="showmrp" class="custom-checkbox" ng-model="item.ShowMrp">
+            </div>
+        </div>
+        <div class="form-group col-sm-3">
+            <label class="col-sm-12 control-label" translate="Show With Header Print"></label>
+            <div class="col-sm-12">
+                <input type="checkbox" name="showmrp" class="custom-checkbox" ng-model="item.Showwithheadeprint">
+            </div>
+        </div>
+        <div class="form-group col-sm-3">
+            <label class="col-sm-12 control-label" translate="Show Without Header Print"></label>
+            <div class="col-sm-12">
+                <input type="checkbox" name="showmrp" class="custom-checkbox" ng-model="item.Showwithoutheadeprint">
+            </div>
+        </div>
+        <div class="form-group col-sm-3">
+            <label class="col-sm-12 control-label" for="ispatientemrindent"
+                translate="Is Cash Patient Emr Indent"></label>
+            <div class="col-sm-12">
+                <input type="checkbox" name="ispatientemrindent" class="custom-checkbox"
+                    ng-model="item.IsCashPatientEmrIndent">
+            </div>
+        </div>
+        <div class="form-group col-sm-3">
+            <label class="col-sm-12 control-label" translate="Direct Lab Sync"></label>
+            <div class="col-sm-12">
+                <input type="checkbox" name="showmrp" class="custom-checkbox" ng-model="item.IsDirectLabSync">
+            </div>
+        </div>
+        <div class="form-group col-sm-3">
+            <label class="col-sm-12 control-label" translate="Pharmacy Sequence Based on Store"></label>
+            <div class="col-sm-12">
+                <input type="checkbox" name="showmrp" class="custom-checkbox" ng-model="item.IsPharmacybasedonStore">
+            </div>
+        </div>
+        <div class="form-group col-sm-3">
+            <label class="col-sm-12 control-label" translate="Exact Search by Item Name"></label>
+            <div class="col-sm-12">
+                <input type="checkbox" name="itemsearch" class="custom-checkbox" ng-model="item.IsItemExactSearch">
+            </div>
+        </div>
+</div>
+<!-- <div class="form-group col-sm-3">
+                <label class="col-sm-12 control-label" translate="Default MRP Percentage"></label>
+                <div class="col-sm-12">
+                    <input type="text" name="mrppercent" class="form-control" ng-model="item.MrpPercent">
+                </div>
+            </div> -->
+</div>
+<div class="row">
+    <div class="drhms-sub-header-border" translate="Upload logo">
+    </div>
+    <div class="col-sm-6">
+        <div class="drhms-user_image">
+            <img class="patient-img drhms-img-thumbnail" ng-show="!!currentcontext.file"
+                ngf-thumbnail="currentcontext.file" />
+            <img ng-show="!currentcontext.file && item.LogoPath"
+                data-ng-src="data:image/png;base64,{{currentcontext.Logo}}" class="patient-img drhms-img-thumbnail" />
+            <img ng-show="!currentcontext.file && !item.LogoPath" src="app/img/main/img.jpg" tabindex="-1"
+                class="drhms-img-thumbnail ">
+        </div>
+        <div class="drhms-outer_ilayer">
+            <div class="drhms-profile-upload-btn">
+                <input type="file" ng-disabled="SaveCompleted" ngf-select ng-model="currentcontext.file" tabindex="-1"
+                    name="file" id="drhms-input-file" class="inputfile" ngf-max-size="200MB" />
+                <label for="file-1" class="drhms-upload-btn" ng-disabled="SaveCompleted" uib-tooltip="Upload"
+                    tooltip-placement="bottom">
+                    <span class="drhms-registration-btn">Upload</span>
+                </label>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="fooder-bgs">
+    <div class="pull-left">
+        <button type="button" class="btn pyr-color10 btn-sm" ng-click="backToList()">
+            <i class="fa fa-angle-left" aria-hidden="true"></i>&nbsp;&nbsp;
+            <span class="btn-fontsize" translate="common.backaction.lbl"></span>
+        </button>
+
+    </div>
+    <div class="pull-right">
+        <button id="btnSave" type="button" class="draftbutton" translate="common.saveaction.lbl"
+            ng-click="save()"></button>
+        <button id="btnSaveApprove" type="button" class="draftbutton" translate="common.saveapprove-action.lbl"
+            ng-click="saveAndApprove()"></button>
+        <!-- <button id="btnClearForm" type="button" class="btn btn-warning btn-sm" ng-click="clear()" translate="common.clearaction.lbl"></button> -->
+        <!-- <button id="btnCancelForm" type="button" class="cancelbutton" ng-click="backToList()" translate="common.cancelaction.lbl"></button> -->
+    </div>
+</div>
+</form>
+</div>

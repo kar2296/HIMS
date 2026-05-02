@@ -1,0 +1,200 @@
+<div class="row">
+    <div class="col-sm-6">
+        <h4 class="page-header mt0" translate="ordermanagement.correlation.pagetitle.lbl"></h4>
+    </div>
+    <div class="col-sm-6">
+        <span>
+            <button class="btn bt-color3 btn-xs pull-right btn-filter" ng-click="openAdvancedFilter()"
+                uib-tooltip="{{ 'clinicalmaster.serviceitem-list.filter-tooltip.lbl' | translate }}"
+                tooltip-placement="bottom">
+                <i class="fas fa-search" aria-hidden="true"></i>&nbsp;&nbsp;
+                <span translate="clinicalmaster.serviceitem-list.filter.lbl"></span>
+            </button>
+        </span>
+    </div>
+</div>
+<div class="row">
+    <div class="col-sm-3">
+        <label class="col-sm-5 control-label filter-lbl" translate="admissionrequests.filter_name_mrn.lbl"></label>
+        <div class="col-sm-7">
+            <input type="text" id="patientname" class="form-control" name="filter_patient" on-enter="getList()"
+                ng-model="currentfilter.PatientMRN" translate
+                translate-attr-placeholder="ordermanagement.ordertat-list.filter_patient.lbl">
+        </div>
+    </div>
+    <div class="col-sm-3">
+        <label class="col-sm-6 control-label filter-lbl" translate="ordermanagement.ordertat-list.From.lbl"></label>
+        <div class="col-sm-6">
+            <input type="text" class="form-control" name="registereddate" ng-change="getList()"
+                datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}"
+                uib-datepicker-popup="{{datePickerOptions.dateFormat}}" placeholder="{{datePickerOptions.placeholder}}"
+                ng-click="FromPopup = { opened: true }" is-open="FromPopup.opened" ng-model="currentfilter.From">
+        </div>
+    </div>
+    <div class="col-sm-3">
+        <label class="col-sm-6 control-label filter-lbl" translate="ordermanagement.correlation.to.lbl"></label>
+        <div class="col-sm-6">
+            <input type="text" class="form-control" name="registereddate" ng-change="getList()"
+                datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}"
+                uib-datepicker-popup="{{datePickerOptions.dateFormat}}" placeholder="{{datePickerOptions.placeholder}}"
+                ng-click="ToPopup = { opened: true }" is-open="ToPopup.opened" ng-model="currentfilter.To">
+        </div>
+    </div>
+    <div class="col-sm-3">
+        <label class="col-sm-6 control-label filter-lbl pdl0" translate="appmanager.user.subdepartment.lbl"></label>
+        <div class="col-sm-6">
+            <ui-select ng-model="currentfilter.SubDepartmentId" ng-change="getList()" class="filter-combo"
+                ng-disabled="SubdeptDisable">
+                <ui-select-match>
+                    {{$select.selected.Text | limitTo : 20 : 0}}
+                    <span ng-if="$select.selected.Text.length>20">...</span>
+                </ui-select-match>
+                <ui-select-choices
+                    repeat="lookupitem.Id as lookupitem in lookup.SubDepartment | filter: { Text: $select.search }">
+                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                </ui-select-choices>
+            </ui-select>
+        </div>
+    </div>
+</div>
+<div class="col-sm-12">
+    <div class="col-sm-3">
+        <label class="col-sm-5 control-label filter-lbl"
+            translate="ordermanagement.ordertat-list.filter_testname.lbl"></label>
+        <div class="col-sm-7">
+            <autosearch itemid="currentfilter.Testid" iteminfo="" rowdata="" name="'testid'"
+                config="vm.testcontrolconfig" itemchange="getList()" onenter="getList()"></autosearch>
+        </div>
+    </div>
+    <div class="col-sm-3" ng-if="currentfilter.TestTypeId==1">
+        <label class="col-sm-6 control-label">
+            <span translate="ordermanagement.correlation.approvedby.lbl"></span>
+        </label>
+        <div class="col-sm-6">
+            <ui-select ng-model="currentfilter.MedValidationById" ng-change="getList()">
+                <ui-select-match>
+                    <span ng-if="$select.selected.Id==-1">{{$select.selected.Text | limitTo : 20 : 0}}</span>
+                    <span
+                        ng-if="$select.selected.Id!=-1">{{$select.selected.Title.Description}}&nbsp;{{$select.selected.FirstName}}&nbsp;{{$select.selected.LastName
+                        | limitTo : 20: 0}}</span>
+                    <span ng-if="$select.selected.Text.length>20">...</span>
+                </ui-select-match>
+                <ui-select-choices
+                    repeat="lookupitem.Id as lookupitem in lookup.LabIncharge | filter: { Text: $select.search }">
+                    <div ng-if="lookupitem.Id==-1">
+                        <span ng-bind-html="lookupitem.Text | highlight: $select.search"></span>
+                    </div>
+                    <div ng-if="lookupitem.Id!=-1">
+                        <span>{{lookupitem.Title.Description}}</span>
+                        <span ng-bind-html="lookupitem.FirstName | highlight: $select.search"></span>
+                        <span>{{lookupitem.LastName}}</span>
+                    </div>
+                </ui-select-choices>
+            </ui-select>
+        </div>
+    </div>
+    <div class="col-sm-3" ng-if="currentfilter.TestTypeId==2">
+        <label class="col-sm-5 control-label pdl0">
+            <span translate="ordermanagement.correlation.approvedby.lbl"></span>
+        </label>
+        <div class="col-sm-7">
+            <ui-select ng-model="currentfilter.MedValidationById" ng-change="getList()">
+                <ui-select-match>
+                    <span ng-if="$select.selected.Id==-1">{{$select.selected.Text | limitTo : 20 : 0}}</span>
+                    <span
+                        ng-if="$select.selected.Id!=-1">{{$select.selected.Title.Description}}&nbsp;{{$select.selected.FirstName}}&nbsp;{{$select.selected.LastName
+                        | limitTo : 20: 0}}</span>
+                    <span ng-if="$select.selected.Text.length>20">...</span>
+                </ui-select-match>
+                <ui-select-choices
+                    repeat="lookupitem.Id as lookupitem in lookup.RadiologyIncharge | filter: { Text: $select.search }">
+                    <div ng-if="lookupitem.Id==-1">
+                        <span ng-bind-html="lookupitem.Text | highlight: $select.search"></span>
+                    </div>
+                    <div ng-if="lookupitem.Id!=-1">
+                        <span>{{lookupitem.Title.Description}}</span>
+                        <span ng-bind-html="lookupitem.FirstName | highlight: $select.search"></span>
+                        <span>{{lookupitem.LastName}}</span>
+                    </div>
+                </ui-select-choices>
+            </ui-select>
+        </div>
+    </div>
+    <div class="col-sm-3" ng-if="currentfilter.TestTypeId==4">
+        <label class="col-sm-5 control-label">
+            <span translate="ordermanagement.correlation.approvedby.lbl"></span>
+        </label>
+        <div class="col-sm-7">
+            <ui-select ng-model="currentfilter.MedValidationById" ng-change="getList()">
+                <ui-select-match>
+                    <span ng-if="$select.selected.Id==-1">{{$select.selected.Text | limitTo : 20 : 0}}</span>
+                    <span
+                        ng-if="$select.selected.Id!=-1">{{$select.selected.Title.Description}}&nbsp;{{$select.selected.FirstName}}&nbsp;{{$select.selected.LastName
+                        | limitTo : 20: 0}}</span>
+                    <span ng-if="$select.selected.Text.length>20">...</span>
+                </ui-select-match>
+                <ui-select-choices
+                    repeat="lookupitem.Id as lookupitem in lookup.EndoscopyIncharge | filter: { Text: $select.search }">
+                    <div ng-if="lookupitem.Id==-1">
+                        <span ng-bind-html="lookupitem.Text | highlight: $select.search"></span>
+                    </div>
+                    <div ng-if="lookupitem.Id!=-1">
+                        <span>{{lookupitem.Title.Description}}</span>
+                        <span ng-bind-html="lookupitem.FirstName | highlight: $select.search"></span>
+                        <span>{{lookupitem.LastName}}</span>
+                    </div>
+                </ui-select-choices>
+            </ui-select>
+        </div>
+    </div>
+    <div class="col-sm-3 report_imprsn">
+        <label class="col-sm-6 control-label" for="impressions"
+            translate="clinicalmaster.impressionmaster.impressions.lbl"></label>
+        <div class="col-sm-6">
+            <ui-select ng-model="currentfilter.ImpressionId" name="impressions" ng-change="getList()">
+                <ui-select-match>
+                    {{$select.selected.Text | limitTo : 20 : 0}}
+                    <span ng-if="$select.selected.Text.length>20">...</span>
+                </ui-select-match>
+                <ui-select-choices
+                    repeat="lookupitem.Id as lookupitem in lookup.Impression | filter: { Text: $select.search }">
+                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                </ui-select-choices>
+            </ui-select>
+        </div>
+    </div>
+    <div class="col-sm-3 pdl0 report_clifind">
+        <label class="col-sm-6 control-label pdr0" for="clinicalfindings"
+            translate="clinicalmaster.clinicalfindings.pagetitle.lbl"></label>
+        <div class="col-sm-6">
+            <ui-select ng-model="currentfilter.ClinicalFindingsId" name="clinicalfindings" ng-change="getList()">
+                <ui-select-match>
+                    {{$select.selected.Text | limitTo : 20 : 0}}
+                    <span ng-if="$select.selected.Text.length>20">...</span>
+                </ui-select-match>
+                <ui-select-choices
+                    repeat="lookupitem.Id as lookupitem in lookup.ClinicalFindings | filter: { Text: $select.search }">
+                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                </ui-select-choices>
+            </ui-select>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <custom-table config="vm.gridConfig"></custom-table>
+</div>
+<div class="fooder-bgs">
+    <div class="row">
+        <ul uib-pagination total-items="vm.gridConfig.pagerObj.totalItems"
+            items-per-page="vm.gridConfig.pagerObj.pageSize" start-index="vm.gridConfig.pagerObj.startIndex"
+            ng-model="vm.gridConfig.pagerObj.currentPage" ng-change="getList()"></ul>
+    </div>
+</div>
+<!-- <div class="fooder-bg custom_stock_footer">
+    <div class=" col-sm-12">
+        <div class=" col-sm-11">
+            <ul uib-pagination total-items="vm.gridConfig.pagerObj.totalItems" items-per-page="vm.gridConfig.pagerObj.pageSize" start-index="vm.gridConfig.pagerObj.startIndex"
+                ng-model="vm.gridConfig.pagerObj.currentPage" ng-change="getList()"></ul>
+        </div>
+    </div>
+</div> -->

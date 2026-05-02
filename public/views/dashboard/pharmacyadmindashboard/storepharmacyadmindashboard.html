@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link href="app/css/dashboard1.css" rel="stylesheet">
+
+	<!-- <link href="api/node_modules/morrisjs/morris.css" rel="stylesheet">
+	<link href="app/css/dashboard1.css" rel="stylesheet">
+	<script src="app/js/waves.js"></script> -->
+	<style>
+		.totalamount td {
+			padding: 10px 0px 0px 0px;
+			color: #ff7f57;
+			/* background: #fff0eb; */
+			margin: 0;
+			height: 45px;
+			/* position: sticky;
+			bottom: 0; */
+		}
+
+		.content-wrapper.ng-scope.ng-fadeInUp {
+
+			height: calc(100vh - 100px);
+		}
+
+		.page-titles {
+			margin: 0px;
+		}
+
+
+		.table>thead>tr>th {
+			font-size: 13px;
+			font-weight: 600;
+			border: 0 !important;
+		}
+
+		table tr th {
+			padding: 6px !important;
+			font-size: 13px;
+			font-weight: 700;
+			color: #01145f !important;
+			white-space: nowrap;
+			text-transform: capitalize;
+			font-family: nunito, sans-serif;
+			background: #0074d930 !important;
+			height: 40px;
+		}
+
+		.table-responsive {
+			overflow: auto;
+			height: 250px;
+			overflow-x: hidden;
+		}
+
+		/* .table-responsive thead th,
+		.table-responsive-category thead th {
+			position: sticky;
+			top: 0;
+			z-index: 1;
+		}
+
+		thead {
+			position: sticky;
+			top: 0px;
+		} */
+
+		.table-responsive-category {
+			overflow: auto;
+			height: 240px;
+			overflow-x: hidden;
+			font-size: 12px;
+		}
+
+		/* .category1 {
+			height: 189px;
+		}
+
+		.category2 {
+			height: 225px;
+		}
+
+		.category3 {
+			height: 230px;
+		} */
+
+		.card.section-item {
+			height: 38vh;
+			overflow: auto;
+		}
+
+		.table>tbody>tr>td {
+			border: 0 !important;
+			font-size: 12px;
+		}
+
+		::-webkit-scrollbar {
+			width: 3px;
+		}
+
+		li#lidatepicker span {
+			font-size: 13px;
+		}
+
+		.currencyAlign {
+			text-align: right !important;
+		}
+	</style>
+</head>
+
+<body>
+	<div class="page-wrapper">
+		<div class="container-fluid">
+			<div class="row page-titles">
+				<div class="col-md-5 align-self-center">
+					<h4 class="text-themecolor">Store Pharmacy Admin Dashboard</h4>
+				</div>
+				<div class="col-sm-5 d-flex justify-content-end">
+					<div class="col-sm-4" style="margin-right: auto;">
+						<label class="col-sm-1 control-label" style="margin-top:10px" for="admissiondate"
+							translate="Date"></label>
+						<div class="col-sm-9">
+							<div class="datepicker">
+								<input type="text" class="form-control" name="from"
+									datepicker-options="datePickerOptions"
+									show-button-bar="{{datePickerOptions.showButtonBar}}"
+									uib-datepicker-popup="{{datePickerOptions.dateFormat}}" ng-change="loadData()"
+									placeholder="{{datePickerOptions.placeholder}}"
+									ng-click="fromdatePopup = { opened: true }" is-open="fromdatePopup.opened"
+									ng-model="currentcontext.CurrentDate">
+								<i class="fa fa-calendar" aria-hidden="true"></i>
+							</div>
+						</div>
+					</div>
+					<div class="col-sm-4" style="margin-right: auto;">
+						<label class="col-sm-2 control-label" style="margin-right: 18px;" for="admissiondate"
+							translate="Store"></label>
+						<div class="col-md-8">
+							<ui-select ng-model="currentcontext.StoreMasterId" class="filer-combo"
+								ng-change="loadData()">
+								<ui-select-match>
+									{{$select.selected.Text | limitTo : 20 : 0}}
+									<span ng-if="$select.selected.Text.length>20">...</span>
+								</ui-select-match>
+								<ui-select-choices
+									repeat="lookupitem.Id as lookupitem in lookup.UserStores | filter: { Text: $select.search }">
+									<div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+								</ui-select-choices>
+							</ui-select>
+						</div>
+					</div>
+				</div>
+				<div class="col-md-2 align-self-center text-right">
+					<div class="d-flex justify-content-end">
+						<ol class="breadcrumb">
+							<li class="breadcrumb-item"><a href="javascript:void(0)">Home</a></li>
+							<li class="breadcrumb-item active">Dashboard</li>
+						</ol>
+					</div>
+				</div>
+			</div>
+
+			<!-- <div class="row page-titles">
+				<div class="col-md-5 align-self-center">
+					<h4 class="text-themecolor">Pharmacy Dashboard</h4>
+				</div>
+				<div class="col-md-7 align-self-center text-right">
+					<div class="col-sm-9">
+						<label class="col-sm-6 control-label" style="margin-top:10px" for="admissiondate"
+							translate="Date"></label>
+						<div class="col-sm-6">
+							<div class="datepicker">
+								<input type="text" class="form-control" name="from"
+									datepicker-options="datePickerOptions"
+									show-button-bar="{{datePickerOptions.showButtonBar}}"
+									uib-datepicker-popup="{{datePickerOptions.dateFormat}}" ng-change="loadData()"
+									placeholder="{{datePickerOptions.placeholder}}"
+									ng-click="fromdatePopup = { opened: true }" is-open="fromdatePopup.opened"
+									ng-model="currentcontext.CurrentDate">
+								<i class="fa fa-calendar" aria-hidden="true"></i>
+							</div>
+						</div>
+					</div>
+					<div class="col-sm-3">
+						<ol class="breadcrumb">
+							<li class="breadcrumb-item"><a href="javascript:void(0)">Home</a></li>
+							<li class="breadcrumb-item active">Dashboard</li>
+						</ol>
+					</div>
+				</div>
+			</div> -->
+
+			<div class="row">
+				<!-- <div class="table-data col-sm-12 col-md-6 col-lg-6">
+					<div class="table-responsive">
+						<table class="table">
+							<thead>
+								<tr>
+									<th>Collection</th>
+									<th>Cash</th>
+									<th>Card</th>
+									<th>UPI</th>
+									<th>Total</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr ng-repeat="item in PharmacyCollectionDetails">
+									<td>{{item.Key}}</td>
+									<td>{{ item.Value.CashAmount | displaycurrency }}</td>
+									<td>{{ item.Value.CardAmount | displaycurrency }}</td>
+									<td>{{ item.Value.OtherAmount | displaycurrency }}</td>
+									<td>{{ item.Value.BillAmount | displaycurrency }}</td>
+
+								</tr>
+
+								<tr class="totalamount">
+									<td>Total</td>
+									<td>{{TotCash | displaycurrency}}</td>
+									<td>{{TotCard | displaycurrency}}</td>
+									<td>{{TotUPI | displaycurrency}}</td>
+									<td>{{AllTotal | displaycurrency}}</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div> -->
+				<div class="table-data col-sm-12 col-md-6 col-lg-6">
+					<div class="card section-item">
+						<div class="table-responsive category1">
+							<table class="table">
+								<thead>
+									<tr>
+										<th>Collection</th>
+										<th class="currencyAlign">Cash</th>
+										<th class="currencyAlign">Card</th>
+										<th class="currencyAlign">Others</th>
+										<th class="currencyAlign">UPI</th>
+										<th class="currencyAlign">Total</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr ng-repeat="item in SalesCollection">
+										<td>{{item.Key}}</td>
+										<td class="currencyAlign">{{ item.Value.CashAmount | displaycurrency }}</td>
+										<td class="currencyAlign">{{ item.Value.CardAmount | displaycurrency }}</td>
+										<td class="currencyAlign">{{ item.Value.OtherAmount | displaycurrency }}</td>
+										<td class="currencyAlign">{{ item.Value.UPIAmount | displaycurrency }}</td>
+										<td class="currencyAlign">{{ item.Value.BillAmount | displaycurrency }}</td>
+									</tr>
+									<tr class="totalamount">
+										<td>Total</td>
+										<td class="currencyAlign">{{TotSalesCash | displaycurrency}}</td>
+										<td class="currencyAlign">{{TotSalesCard | displaycurrency}}</td>
+										<td class="currencyAlign">{{TotSalesOther | displaycurrency}}</td>
+										<td class="currencyAlign">{{TotSalesUPI | displaycurrency}}</td>
+										<td class="currencyAlign">{{AllSalesTotal | displaycurrency}}</td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+					</div>
+				</div>
+				<div class="table-data col-sm-12 col-md-6 col-lg-6">
+					<div class="card section-item">
+						<div class="table-responsive">
+							<table class="table">
+								<thead>
+									<tr>
+										<th>Return</th>
+										<th class="currencyAlign">Cash</th>
+										<th class="currencyAlign">Card</th>
+										<th class="currencyAlign">Others</th>
+										<th class="currencyAlign">UPI</th>
+										<th class="currencyAlign">Total</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr ng-repeat="item in ReturnCollection">
+										<td>{{item.Key}}</td>
+										<td class="currencyAlign">{{ item.Value.CashAmount | displaycurrency }}</td>
+										<td class="currencyAlign">{{ item.Value.CardAmount | displaycurrency }}</td>
+										<td class="currencyAlign">{{ item.Value.OtherAmount | displaycurrency }}</td>
+										<td class="currencyAlign">{{ item.Value.UPIAmount | displaycurrency }}</td>
+										<td class="currencyAlign">{{ item.Value.BillAmount | displaycurrency }}</td>
+									</tr>
+									<tr class="totalamount">
+										<td>Total</td>
+										<td class="currencyAlign">{{TotReturnCash | displaycurrency}}</td>
+										<td class="currencyAlign">{{TotReturnCard | displaycurrency}}</td>
+										<td class="currencyAlign">{{TotReturnOther | displaycurrency}}</td>
+										<td class="currencyAlign">{{TotReturnUPI | displaycurrency}}</td>
+										<td class="currencyAlign">{{AllReturnTotal | displaycurrency}}</td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+					</div>
+				</div>
+				<div class="table-data col-sm-12 col-md-6 col-lg-6">
+					<div class="card section-item">
+						<div class="table-responsive category2">
+							<table class="table">
+								<thead>
+									<tr>
+										<th>Sales & Return</th>
+										<th class="currencyAlign">Sales</th>
+										<th class="currencyAlign">Return</th>
+										<th class="currencyAlign">Netamount</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr ng-repeat="item in AllPharmaDetails">
+										<td>{{item.Key}}</td>
+										<td class="currencyAlign">{{item.BillAmt | displaycurrency}}</td>
+										<td class="currencyAlign">{{item.RetAmt | displaycurrency}}</td>
+										<td class="currencyAlign">{{item.NetAmt | displaycurrency}}</td>
+									</tr>
+									<tr class="totalamount">
+										<td>Total</td>
+										<td class="currencyAlign">{{TotBillAmt | displaycurrency}}</td>
+										<td class="currencyAlign">{{TotReturnAmt | displaycurrency}}</td>
+										<td class="currencyAlign">{{NetTotAmt | displaycurrency}}</td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+					</div>
+				</div>
+				<div class="table-data col-sm-6 col-md-6 col-lg-6">
+					<div class="card section-item">
+						<div class="table-responsive-category">
+							<table class="table">
+								<thead>
+									<tr>
+										<th>Outstanding / Dues</th>
+										<th class="currencyAlign">Amount</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr ng-repeat="item in PharmacyDueDetails">
+										<td>{{item.Key}}</td>
+										<td class="currencyAlign">{{item.Value.OutStandingAmount | displaycurrency}}
+										</td>
+									</tr>
+									<tr class="totalamount">
+										<td>Total</td>
+										<td class="currencyAlign">{{TotDueAmount|displaycurrency}}</td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="table-data col-sm-6 col-md-3 col-lg-3">
+					<div class="card section-item">
+						<div class="table-responsive-category category3">
+							<table class="table">
+								<thead>
+									<tr>
+										<th>Main Stock values</th>
+										<th class="currencyAlign">Amount</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr ng-repeat="item in Stockvalue">
+										<td>{{item.ProductTypeName}}</td>
+										<td class="currencyAlign">{{item.TotalUcp | displaycurrency}}</td>
+									</tr>
+									<tr class="totalamount">
+										<td>Total</td>
+										<td class="currencyAlign">{{TotalFooterUcp | displaycurrency}}</td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+					</div>
+				</div>
+				<!-- <div class="table-data col-sm-6 col-md-3 col-lg-3">
+					<div class="card section-item">
+						<div class="table-responsive-category category3">
+							<table class="table">
+								<thead>
+									<tr>
+										<th>Second Stock values</th>
+										<th class="currencyAlign">Amount</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr ng-repeat="item in SecStockvalue">
+										<td>{{item.ProductTypeName}}</td>
+										<td class="currencyAlign">{{item.TotalUcp | displaycurrency}}</td>
+									</tr>
+									<tr class="totalamount">
+										<td>Total</td>
+										<td class="currencyAlign">{{SecTotalFooterUcp | displaycurrency}}</td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+					</div>
+				</div> -->
+				<div class="table-data col-sm-6 col-md-3 col-lg-3">
+					<div class="card section-item">
+						<div class="table-responsive-category category3">
+							<table class="table">
+								<thead>
+									<tr>
+										<th>Total Purchase</th>
+										<th class="currencyAlign">Amount</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr ng-repeat="item in NetSupplierCollection | limitTo: 10">
+										<td>{{item.Key}}</td>
+										<td class="currencyAlign">{{ item.NetAmt | displaycurrency }}</td>
+									</tr>
+									<tr class="totalamount">
+										<td>Total</td>
+										<td class="currencyAlign">{{TotNetAmount | displaycurrency}}</td>
+									</tr>
+								</tbody>
+							</table>
+
+						</div>
+					</div>
+				</div>
+				<div class="table-data col-sm-6 col-md-3 col-lg-3">
+					<div class="card section-item">
+						<div class="table-responsive-category category3">
+							<table class="table">
+								<thead>
+									<tr>
+										<th>Total Returns</th>
+										<th class="currencyAlign">Amount</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr ng-repeat="item in NetSupplierReturn | limitTo: 10">
+										<td>{{item.Key}}</td>
+										<td class="currencyAlign">{{ item.ReturnAmt | displaycurrency }}</td>
+									</tr>
+									<tr class="totalamount">
+										<td>Total</td>
+										<td class="currencyAlign">{{TotPurReturnAmt | displaycurrency}}</td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</body>
+
+</html>

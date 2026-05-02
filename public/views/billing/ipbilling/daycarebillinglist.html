@@ -1,0 +1,122 @@
+<link rel="stylesheet" href="app/css/drhms.css">
+<style>
+    .grid {
+        width: 500px;
+        height: 200px;
+    }
+    
+    .green {
+        background-color: #2dff07;
+        color: #006400;
+    }
+    
+    .ui-grid-cell-contents.billing-list-icon.ng-scope {
+        display: flex;
+    }
+    
+    .blue {
+        background-color: #1fe0f0;
+        color: #153ff0;
+    }
+</style>
+<div class="row">
+    <div class="drhms-header">
+        <div class="drhms-header-name" translate="A&E Patient Billing">
+        </div>
+        <div>
+            <input type="text" id="drhms-search-box" class="form-control" on-enter="getList()" ng-model="currentfilter.PatientMRN" placeholder="NAME/MRN">
+            <input type="text" id="drhms-search-box" class="form-control" on-enter="getList()" ng-model="currentfilter.VisitIdentifier" placeholder="IP No">
+            <i ng-if=" Context =='frontoffice'|| Context =='billing'" class="fa fa-home" align="right" ng-click="backtoList()" uib-tooltip="Dashboard" tooltip-placement="bottom"></i>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="drhms-common-header">
+        <div class="drhms-header-table">
+            <div class="col-sm-12">
+                <label class="col-md-4 control-label" translate="bedmanagement-grid.filter_doa.lbl"></label>
+                <div class="col-sm-8">
+                    <div class="datepicker">
+                        <input type="text" class="form-control" name="registereddate" ng-change="getList()" datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}" uib-datepicker-popup="{{datePickerOptions.dateFormat}}" placeholder="{{datePickerOptions.placeholder}}"
+                            ng-click="registereddatePopup = { opened: true }" is-open="registereddatePopup.opened" ng-model="currentfilter.admissiondate">
+                        <i class="fa fa-calendar" aria-hidden="true"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-12">
+                <label class="col-sm-4 control-label filter-lbl" translate="admissions.filter_ward.lbl"></label>
+                <div class="col-sm-8">
+                    <ui-select ng-model="currentfilter.WardId" ng-change="getList()" class="filter-combo">
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 20 : 0}}
+                            <span ng-if="$select.selected.Text.length>20">...</span>
+                        </ui-select-match>
+                        <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.Ward | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+        </div>
+        <div class="drhms-header-table">
+            <div class="col-sm-12">
+                <label class="col-sm-4 control-label filter-lbl" translate="Payer"></label>
+                <div class="col-sm-8">
+                    <ui-select id='GuarantorId' ng-change="getList()" ng-model="currentfilter.GuarantorId">
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 20 : 0}}
+                            <span ng-if="$select.selected.Text.length>20">...</span>
+                        </ui-select-match>
+                        <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.Guarantor | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search">
+                            </div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+            <div class="col-sm-12">
+                <label class="col-sm-4 control-label filter-lbl" translate="billing.ipbillingtab.status.lbl"></label>
+                <div class="col-sm-8">
+                    <ui-select ng-model="currentfilter.AdmissionStatusId" ng-change="getList()" class="filter-combo">
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 20 : 0}}
+                            <span ng-if="$select.selected.Text.length > 20">...</span>
+                        </ui-select-match>
+                        <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.AdmissionStatus | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+        </div>
+        <div class="drhms-header-table">
+            <div class="col-sm-12">
+                <label class="col-sm-4 control-label filter-lbl" translate="TPA"></label>
+                <div class="col-sm-8">
+                    <ui-select ng-model="currentfilter.TPAId" ng-change="getList()" class="filter-combo">
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 20 : 0}}
+                            <span ng-if="$select.selected.Text.length > 20">...</span>
+                        </ui-select-match>
+                        <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.TPA | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+            <div class="col-sm-12">
+                <label class="col-sm-4 control-label filter-lbl" translate="Is Locked / Is Packaged"></label>
+                <div class="col-sm-8">
+                    <input type="checkbox" class="custom-checkbox" name="findlockedbills" ng-model="currentfilter.FindLockedBills" ng-checked="currentfilter.FindLockedBills == 1" ng-click="getLockedPatients(currentfilter)">
+                    <input type="checkbox" class="custom-checkbox" name="IsPackageAssigned" ng-model="currentfilter.FindPackageAssigned" ng-checked="currentfilter.FindPackageAssigned == 1" ng-click="getPackageassigned(currentfilter)">
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="fooder-bgs">
+        <custom-table config="vm.gridConfig"></custom-table>
+        <ul uib-pagination total-items="vm.gridConfig.pagerObj.totalItems" items-per-page="vm.gridConfig.pagerObj.pageSize" start-index="vm.gridConfig.pagerObj.startIndex" ng-model="vm.gridConfig.pagerObj.currentPage" ng-change="getList()">
+        </ul>
+    </div>
+</div>

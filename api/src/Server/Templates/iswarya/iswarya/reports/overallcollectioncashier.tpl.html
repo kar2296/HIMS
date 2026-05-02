@@ -1,0 +1,83 @@
+<html>
+
+<head>
+  <style>
+    .table1 {
+      border: 1px solid black;
+      font-size: 8px;
+    }
+
+    .table2 {
+      border: 1px solid black;
+      border-top: 0px solid black;
+      font-size: 8px;
+    }
+    td.minusamt {
+      color: red;
+    }
+
+    {{include '/Templates/assets/css/core.css'}}
+
+  </style>
+</head>
+
+<body>
+  <div id="pageHeader">
+    {{{include '/Templates/iswarya/common/header.tpl.html' 'tpl'}}}
+  </div>
+  <div style="text-align:center;font-size: 16px;"><b>Overall Collection Summary By Cashier(OP/IP/Pharmacy)</b></div>
+  <table class="table1" style="width:100%;">
+    <tr>
+      <td style="width:10%;"><b>S.No</b></td>
+      <td style="width:10%"><b>User Name</b></td> 
+      <td style="width:10%"><b>Net Cash(Rec-Ref)</b></td> 
+      <td style="width:10%"><b>Net Card(Rec-Ref)</b></td> 
+      <td style="width:10%"><b>Net Other(Rec-Ref)</b></td> 
+      <td style="width:10%"><b>Net Collection((NCash+NCard+NOther))</b></td>
+      <td style="width:10%"><b>Doc Cash</b></td>
+      <td style="width:10%"><b>Doc Others</b></td>
+      <td style="width:10%"><b>Doctor Share</b></td>
+      <td style="width:10%"><b>Overall Collection</b></td>
+
+    </tr>
+  </table>
+  <table class="table2" style="width:100%;">
+    {{#each data.NetUserCollection}}
+    <tr>
+      <td style="width:10%;">{{inc @index}}</td>
+      <td style="width:10%;">{{Key}}</td> 
+      <td style="width:10%">{{currencyformat NetCash}}</td> 
+      <td style="width:10%">{{currencyformat NetCard}}</td> 
+      <td style="width:10%">{{currencyformat NetOther}}</td> 
+      <td style="width:10%">{{currencyformat NetCollection}} </td>
+      <td class="minusamt"style="width:10%"><span>-</span>{{currencyformat DocCashAmt}} </td>
+      <td class="minusamt"style="width:10%"><span>-</span>{{currencyformat DocOtherAmt}} </td>
+      <td class="minusamt"style="width:10%"><span>-</span>{{currencyformat DocAmt}} </td>
+      <td style="width:10%">{{currencyformat OverallCollection}} </td>
+    </tr>{{/each}}
+  </table> 
+  <table class="table2" style="width:100%;"> 
+    <tr>
+      <td style="width:10%;"></td>
+      <td style="width:10%">Total</td> 
+      <td style="width:10%">{{currencyformat data.TotCashAmt}}</td> 
+      <td style="width:10%">{{currencyformat data.TotCardAmt}}</td> 
+      <td style="width:10%">{{currencyformat data.TotOtherAmt}}</td> 
+      <td style="width:10%">{{currencyformat data.TotCollectionAmt}} </td>
+      <td class="minusamt"style="width:10%"><span>-</span>{{currencyformat data.TotalDocCashAmt}} </td>
+      <td class="minusamt"style="width:10%"><span>-</span>{{currencyformat data.TotalDocOtherAmt}} </td>
+      <td class="minusamt"style="width:10%"><span>-</span>{{currencyformat data.TotalDocAmt}} </td>
+      <td style="width:10%">{{currencyformat data.TotalNetCollection}} </td>
+    </tr> 
+  </table> 
+  <!-- <table class="table2" style="width:100%;">
+    <tr>
+      <td style="width:50%;"></td>
+      <td style="width:30%"><b>OverallCollection(Collection - DocShare)</b></td>
+      <td style="width:20%">{{currencyformat data.OverallCollection}} </td>
+    </tr>
+  </table> -->
+</body>
+<div style="width:100%; font-size:8px;">Printed On: {{now}}</div>
+
+</html>

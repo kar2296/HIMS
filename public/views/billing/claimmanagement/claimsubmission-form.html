@@ -1,0 +1,298 @@
+<link rel="stylesheet" href="app/css/drhms.css">
+<style>
+    patientsearch#drhms-patinet-search-box .custom-popup-wrapper {
+        margin-left: -400px;
+    }
+
+    .custom-popup-wrapper {
+        margin-left: -200px;
+    }
+
+    .fa-regular,
+    .fa-solid {
+        font-family: 'FontAwesome';
+    }
+</style>
+<div class="row">
+    <div class="drhms-filters">
+        <div class="col-sm-10">
+            <h4 translate="billing.claimsubmission-form.pagetitle.lbl"></h4>
+        </div>
+        <div class="col-sm-4">
+            <div ng-if="currentcontext.id>0">
+                <span>Batch No.: {{item.ClaimNumber}}</span>
+            </div>
+        </div>
+        <div class="col-sm-3">
+            <div ng-if="currentcontext.id>0">
+                <span>{{item.CreatedAt | date : 'dd-MMM-yyyy'}}&nbsp;{{item.CreatedAt | date : 'HH:mm' }}</span>
+            </div>
+        </div>
+        <div class="col-sm-3" ng-if="currentcontext.id==0">
+            <input type="text" class="form-control" name="invoicedate" datepicker-options="datePickerOptions"
+                show-button-bar="{{datePickerOptions.showButtonBar}}"
+                uib-datepicker-popup="{{datePickerOptions.dateFormat}}" placeholder="{{datePickerOptions.placeholder}}"
+                ng-click="invoicefromdatePopup = { opened: true }" is-open="invoicefromdatePopup.opened"
+                ng-model="item.FromBillDate">
+        </div>
+        <div class="col-sm-3" ng-if="currentcontext.id==0">
+            <input type="text" class="form-control" name="invoicedate" datepicker-options="datePickerOptions"
+                show-button-bar="{{datePickerOptions.showButtonBar}}"
+                uib-datepicker-popup="{{datePickerOptions.dateFormat}}" placeholder="{{datePickerOptions.placeholder}}"
+                ng-click="invoicetodatePopup = { opened: true }" is-open="invoicetodatePopup.opened"
+                ng-model="item.ToBillDate">
+        </div>
+        <div class="col-sm-6" ng-if="currentcontext.id==0">
+            <patientsearch id="drhms-patinet-search-box" ng-keyup="moveHeaderFocus('pid')" patientid="item.PatientId"
+                class="col-sm-8 logo" name="txtpatientsearch" patientinfo="selectedPatient"
+                tabindex="tabindexmap.patienttabindex" filterconfig="patientfilterconfig">
+            </patientsearch>
+            <!-- <span class="drhms-search-icon"><i class="fas fa-search" aria-hidden="true"></i></span> -->
+        </div>
+    </div>
+</div>
+<div class="col-sm-12">
+    <form id="item_form" name="item_form" class="form-horizontal" role="form">
+        <div class="drhms-table-top-header">
+            <div class="drhms-table-head-border">
+                <div class="col-sm-12">
+                    <label class="col-sm-4" for="name/mrn" translate="Batch #"></label>
+                    <div class="col-sm-8">:
+                        <span class="head-title">{{item.ClaimNumber}}</span>
+                    </div>
+                </div>
+                <div class="col-sm-12">
+                    <label class="col-sm-4" for="billno" translate="Submited Date"></label>
+                    <div class="col-sm-8">:
+                        <displaydate datetime-val="item.SubmittedOn"></displaydate>
+                    </div>
+                </div>
+                <div class="col-sm-12">
+                    <label class="col-sm-4" for="doctor" translate="Payer"></label>
+                    <div class="col-sm-8">
+                        <!-- <ui-select ng-model="item.GuarantorId" name="" ng-disabled="IsDisabled" class="filter-combo"
+                            required>
+                            <ui-select-match>
+                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                <span ng-if="$select.selected.Text.length>20">...</span>
+                            </ui-select-match>
+                            <ui-select-choices
+                                repeat="lookupitem.Id as lookupitem in lookup.Guarantor | filter: { Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                            </ui-select-choices>
+                        </ui-select> -->
+                        <autosearch itemid="item.GuarantorId" ttabindex="tabindexmap.patienttabindex" iteminfo=""
+                            name="'referredby'" rowdata="" config="vm.guarantorcontrolconfig" candisable="IsDisabled"
+                            itemchange="" isrequired="true">
+                        </autosearch>
+                    </div>
+                </div>
+
+            </div>
+            <div class="drhms-table-head-border">
+                <div class="col-sm-12">
+                    <label class="col-sm-4" translate="Submitted By"></label>
+                    <div class="col-sm-8">:
+                        <span
+                            class="head-title">{{item.SubmittedUser.Title.Description}}&nbsp;{{item.SubmittedUser.FirstName}}&nbsp;{{item.SubmittedUser.LastName}}</span>
+                    </div>
+                </div>
+                <div class="col-sm-12">
+                    <label class="col-sm-4" translate="Dispatched Date"></label>
+                    <div class="col-sm-8">:
+                        <displaydate datetime-val="item.DispatchedOn"></displaydate>
+                    </div>
+                </div>
+                <div class="col-sm-12">
+                    <label class="col-sm-4" translate="Status"></label>
+                    <div class="col-sm-8">:
+                        {{item.ClaimSubmissionStatus.Description}}
+                    </div>
+                </div>
+            </div>
+            <div class="drhms-table-head-border">
+                <div class="col-sm-12">
+                    <label class="col-sm-4" translate="Track #"></label>
+                    <div class="col-sm-8">:
+                        {{item.TrackingNumber}}
+                    </div>
+                </div>
+                <div class="col-sm-12">
+                    <label class="col-sm-4" translate="Track Comments"></label>
+                    <div class="col-sm-8">:
+                        {{item.Comments}}
+                    </div>
+                </div>
+                <div class="col-sm-12">
+                    <label class="col-sm-4" translate="Track Dispatched By"></label>
+                    <div class="col-sm-8">:
+                        {{item.DispatchedUser.Title.Description}}&nbsp;{{item.DispatchedUser.FirstName}}&nbsp;{{item.DispatchedUser.LastName}}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+<div class="row">
+    <div class="pull-right">
+        <button type="button" ng-hide="currentcontext.id > 0" class="draftbutton"
+            translate="billing.claimsubmission-form.loadbills.lbl" ng-click="selectGridList()"></button>
+    </div>
+</div>
+<div class="col-sm-12">
+    <table class="col-sm-12 table-bordered table">
+        <thead style="background-color:#ccc;">
+            <tr>
+                <th>
+                    <span>
+                        <input type="checkbox" ng-model="currentcontext.selectall" ng-click="selectAllItems()">
+                    </span>
+                </th>
+                <th>
+                    <span translate="billing.claimsubmission-form.billdate.lbl"></span>
+                </th>
+                <th>
+                    <span translate="billing.claimsubmission-form.patient.lbl"></span>
+                </th>
+                <th>
+                    <span translate="billing.claimsubmission-form.billno.lbl"></span>
+                </th>
+                <th>
+                    <span translate="billing.claimsubmission-form.billamt.lbl"></span>
+                </th>
+                <th>
+                    <span translate="billing.claimsubmission-form.discount.lbl"></span>
+                </th>
+                <th>
+                    <span translate="billing.claimsubmission-form.outstanding.lbl"></span>
+                </th>
+                <th>
+                    <span translate="billing.claimsubmission-form.doctorname.lbl"></span>
+                </th>
+                <th class=" col-sm-1 cell-align-center">
+                    <span translate="inventory.purchaseorder.action.lbl"></span>
+                </th>
+            </tr>
+        </thead>
+        <tbody style="color: #000000" ng-show="currentcontext.id==0">
+            <tr ng-repeat="items in GuarantorBills | filter:{Status:1}">
+                <td>
+                    <center>
+                        <span>
+                            <input type="checkbox" class="case" ng-model="items.IsAllOrderSelected"
+                                ng-click="IsAllOrderSelectedChange(GuarantorBills, items)" />
+                        </span>
+                    </center>
+                </td>
+                <td>
+                    <span>
+                        <displaydate datetime-val="items.BillDateTime"></displaydate>
+                    </span>
+                </td>
+                <td>
+                    <span> {{ items.Patient.FirstName }}</span>
+                </td>
+                <td>
+                    <span> {{ items.BillNumber }}</span>
+                </td>
+                <td>
+                    <span> {{ items.BillAmount }}</span>
+                </td>
+                <td>
+                    <span> {{ items.BillDiscount }}</span>
+                </td>
+                <td>
+                    <span> {{ items.OutStandingAmount }}</span>
+                </td>
+                <td>
+                    <span> {{ items.User.FirstName }}</span>
+                </td>
+                <td></td>
+            </tr>
+
+        </tbody>
+
+        <tbody style="color: #000000" ng-show="currentcontext.id>0">
+            <tr ng-repeat="items in GuarantorBills | filter:{Status:1}">
+                <td>
+                    <center>
+                        <span>
+                            <input type="checkbox" class="case" ng-model="items.IsAllOrderSelected"
+                                ng-click="IsAllOrderSelectedChange(GuarantorBills, items)" />
+                        </span>
+                    </center>
+                </td>
+                <td>
+                    <span>
+                        <displaydate datetime-val="items.PatientBill.BillDateTime"></displaydate>
+                    </span>
+                </td>
+                <td>
+                    <span> {{ items.Patient.FirstName }}</span>
+                </td>
+                <td>
+                    <span> {{ items.PatientBill.BillNumber }}</span>
+                </td>
+                <td>
+                    <span> {{ items.PatientBill.BillAmount }}</span>
+                </td>
+                <td>
+                    <span> {{ items.PatientBill.BillDiscount }}</span>
+                </td>
+                <td>
+                    <span> {{ items.PatientBill.OutStandingAmount }}</span>
+                </td>
+                <td>
+                    <span> {{ items.PatientBill.User.FirstName }}</span>
+                </td>
+                <td>
+                    <!-- <button type="button" ng-if="CanshowViewbtn" class="text-white btn dem-color4 btn-xs"
+                        uib-tooltip="View" tabindex="-1" tooltip-placement="top"
+                        ng-click="coveringletter(GuarantorBills, items)">Covering Letter
+                    </button> -->
+                    <button class="drhms-icon" uib-tooltip="View" tabindex="-1" tooltip-placement="top"
+                        ng-if="CanshowViewbtn">
+                        <i class="fa-regular fa-newspaper" ng-click="coveringletter(GuarantorBills, items)"></i>
+                    </button>
+                    <button class="drhms-icon" data-toggle="tooltip" title="Corporate Cover Letter"
+                        ng-if="CanshowViewbtn">
+                        <i class="fa-solid fa-print" ng-click="corporatecoverprint(items.Id)"></i>
+                    </button>
+                    <button class="drhms-icon" tabindex="-1" tooltip-placement="top" data-toggle="tooltip"
+                        ng-if="CanshowViewbtn" title="OP Cover Letter">
+                        <i class="fa-solid fa-print" ng-click="opcoverprint(items.Id)"></i>
+                    </button>
+                    <button class="drhms-icon" tabindex="-1" tooltip-placement="top" data-toggle="tooltip"
+                        ng-if="CanshowViewbtn" title="TPA Cover Letter">
+                        <i class="fa-solid fa-print" ng-click="tpacoverprint(items.Id)"></i>
+                    </button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+<div class="fooder-bgs">
+    <div class="row">
+        <div class="pull-left">
+            <button type="button" class="btn pyr-color10 btn-sm" ng-click="backToList()" ss>
+                <i class="fa fa-angle-left" aria-hidden="true"></i>
+                <span class="btn-fontsize"> &nbsp; Back</span>
+            </button>
+            <button class="draftbutton" tabindex="-1" type="button" uib-tooltip="History" tooltip-placement="top"
+                ng-click="historyLink()" ng-if="currentcontext.id > 0">
+                <i class="fa fa-history fa-xs" aria-hidden="true"></i>
+            </button>
+        </div>
+        <div class="pull-right">
+            <button type="button" class="draftbutton" ng-if="currentcontext.id > 0" tabindex="-1" hotkey="{'alt+p' : print}" ng-click="printclaim()">
+                <i class="fa fa-print"></i> Preview Print</button>
+            <button type="button" ng-if="ShowCreate" class="draftbutton"
+                translate="billing.claimsubmission-form.createbatch.lbl" ng-click="saveAlert(2)"></button>
+            <button type="button" ng-if="ShowSubmission" class="draftbutton"
+                translate="billing.claimsubmission-form.submission.lbl" ng-click="saveAlert(3)"></button>
+            <!-- <button class="btn btn-info texthover btn-sm ng-scope" uib-tooltip="" tooltip-placement="top" ng-click="" translate="billing.claimsubmission-form.coverletter.lbl"></button> -->
+            <button type="button" ng-if="ShowDispatch" class="draftbutton" ng-click="dispatch()"
+                translate="billing.claimsubmission-form.dispatch.lbl"></button>
+        </div>
+    </div>
+</div>

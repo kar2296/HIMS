@@ -1,0 +1,167 @@
+<style>
+    .form-horizontal .form-group {
+    height: 80px;
+}
+</style>
+<div class="modal-header custom-modal-header">
+    <h4 class="col-sm-11 mt0" translate="billing.drpaymentmodifyform.pagetitle.lbl"></h4>
+    <button id="btnCancelForm" style="width: 33px;" type="button" class="col-sm-1 btn btn-danger btn-sm" ng-click="cancelCallback()"
+    translate="X"></button>
+
+</div>
+
+<form id="item_form" name="item_form" class="form-horizontal" role="form">
+
+    <!-- <div class="bg-pattern">
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="col-sm-4 form-group paddingtop">
+                    <div class="col-sm-12">
+                        <label class="col-sm-12 control-label" translate="billing.drpaymentmodifyform.drname.lbl"></label>
+                        <div class="col-sm-12">
+                            <input type="text" class="form-control" disabled="true" ng-model="item.oldDrName"
+                                placeholder="">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-sm-4 form-group">
+                    <div class="col-sm-12">
+                        <label class="col-sm-12 control-label" translate="billing.drpaymentmodifyform.changedrname.lbl"></label>
+                        <div class="col-sm-12">
+                            <autosearch controlid="'DoctorId'" itemid="item.DoctorId" iteminfo="" rowdata="" name="'doctor'"
+                                config="vm.doctorcontrolconfig" candisable="SaveCompleted" isrequired="false"></autosearch>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-sm-4 form-group paddingtop">
+                    <div class="col-sm-12">
+                        <label class="col-sm-12 control-label" translate="billing.drpaymentmodifyform.amount.lbl"></label>
+                        <div class="col-sm-12">
+                            <input type="text" class="form-control" disabled="true" ng-model="item.NetAmount"
+                                placeholder="">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-sm-4 form-group paddingtop">
+                    <div class="col-sm-12">
+                        <label class="col-sm-12 control-label" translate="billing.drpaymentmodifyform.drshare.lbl"></label>
+                        <div class="col-sm-12">
+                            <input type="text" class="form-control" ng-model="item.DoctorShare"
+                            ng-keypress="numberonly($event)"
+                            ng-keyup="DrShareValidation()"
+                            placeholder="">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-sm-4 form-group paddingtop">
+                    <div class="col-sm-12">
+                        <label class="col-sm-12 control-label" translate="billing.drpaymentmodifyform.remarks.lbl"></label>
+                        <div class="col-sm-12">
+                            <input type="text" class="form-control" ng-model="item.Remarks" placeholder="">
+                        </div>
+                    </div>
+                </div>
+
+
+            </div>
+
+
+        </div>
+
+
+         <div class="fooder-bgs">
+            <div class="pull-right">
+                <div class="col-sm-12">
+                    <button id="btnCancelForm" type="button" class="draftbutton" ng-click="saveitem()"
+                        translate="common.saveapprove-action.lbl"></button>
+                   </div>
+            </div>
+        </div> 
+    </div> -->
+    <div class="">
+        <div class="" id="">
+            <table class="table table-hover table-responsive table-bordered">
+                <thead class="bg-subhead">
+                    <tr>
+                        <th class="col-sm-4">
+                            <span translate="Bill Number"></span>
+                        </th>
+                        <th class="col-sm-2">
+                            <span translate="Service Name"></span>
+                        </th>
+                        <!-- <th class="col-sm-2">
+                            <span translate="Order"></span>
+                        </th> -->
+                        <th class="col-sm-2">
+                            <span translate="Amt"></span>
+                        </th>
+                        <th class="col-sm-2">
+                            <span translate="Doctor"></span>
+                        </th>
+                        <th class="col-sm-2">
+                            <span translate="Share Amount"></span>
+                        </th>
+                        <!-- <th class="col-sm-2">
+                            <span translate="common.isReqAllFacility.lbl"></span>
+                        </th> -->
+                        <th class="col-sm-1">
+                            <span translate="common.actions_col.lbl"></span>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="item in PatientDoctorShareDetails | filter:{Status:1}">
+                        <td align="center">
+                            {{item.PatientBill.BillNumber}}
+                            <!-- <input type="text" class="form-control" ng-model="item.PatientBill.BillNumber"> -->
+                        </td>
+                        <td align="center">
+                            {{item.ServiceName}}
+                            <!-- <input type="text" class="form-control" ng-model="item.ServiceName"> -->
+                        </td>
+                       
+                        <td align="center">
+                            {{item.ServiceAmount}}
+                        </td>
+                        <td align="center">
+                            <ui-select id='doctorid' ng-keyup="moveHeaderFocus('doctorid')" ng-model="item.DoctorId" tabindex="-1"
+                            ng-change="onDoctorSelected($index,item)" name="doctorid" ng-disabled="RdoDoctorId" required>
+                            <ui-select-match>
+                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                <span ng-if="$select.selected.Text.length>20">...</span>
+                            </ui-select-match>
+                            <ui-select-choices
+                                repeat="lookupitem.Id as lookupitem in lookup.Doctor | filter: { Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                            </ui-select-choices>
+                        </ui-select>
+                        </td>
+                        <td align="center">
+                            <input type="text" class="form-control" ng-model="item.DoctorShareAmount"
+                            ng-keyup="DrShareValidation()">
+                        </td>
+    
+                        <td>
+                            <!-- <button class="btn btn-danger btn-xs" ng-click="deleteItem($index,item)"> -->
+                            <img src="/app/img/svg/noun_Delete.svg" ng-click="deleteItem($index,item)" />
+                            <!-- </button> -->
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="fooder-bgs">
+                <div class="pull-right">
+                    <div class="col-sm-12">
+                        <button id="btnCancelForm" type="button" class="draftbutton" ng-click="saveitem()"
+                            translate="common.saveapprove-action.lbl"></button>
+                       </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</form>

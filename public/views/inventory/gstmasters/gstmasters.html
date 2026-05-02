@@ -1,0 +1,57 @@
+<link rel="stylesheet" href="app/css/drhms.css">
+<div class="row">
+    <div class="drhms-filters">
+        <div class="col-sm-5">
+            <h4 translate="inventory.gstmaster.pnlgstmaster.lbl"></h4>
+        </div>
+        <div class="col-sm-3">
+            <ui-select ng-model="currentfilter.FacilityId" ng-change="getList()" class="filter-combo">
+                <ui-select-match>
+                    {{$select.selected.Text | limitTo : 25 : 0}}
+                    <span ng-if="$select.selected.Text.length>25">...</span>
+                </ui-select-match>
+                <ui-select-choices
+                    repeat="lookupitem.Id as lookupitem in lookup.Facility | filter: { Text: $select.search }">
+                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                </ui-select-choices>
+            </ui-select>
+        </div>
+        <div class="col-sm-3">
+            <ui-select ng-model="currentfilter.ActiveStatusId" ng-change="getList()" class="filter-combo">
+                <ui-select-match>
+                    {{$select.selected.Text | limitTo : 25 : 0}}
+                    <span ng-if="$select.selected.Text.length>25">...</span>
+                </ui-select-match>
+                <ui-select-choices
+                    repeat="lookupitem.Id as lookupitem in lookup.ActiveStatus | filter: { Text: $select.search }">
+                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                </ui-select-choices>
+            </ui-select>
+        </div>
+        <div class="col-sm-3">
+            <div class="search">
+                <input type="text" id="pid" class="form-control" on-enter="getList()" ng-model="currentfilter.gstname"
+                    translate translate-attr-placeholder="inventory.gstmasters.filter_gstname.lbl"> <i
+                    class="fas fa-search" aria-hidden="true"></i>
+            </div>
+        </div>
+        <div class="col-sm-1">
+            <button type="button" class="drhms-billing-btn drhms-add-btn" uib-tooltip="GST" tooltip-placement="bottom"
+                ng-click="addNew()">
+                <i class="fa fa-plus"></i>
+            </button>
+            <span class="drhms-billing-btn drhms-home-btn" ng-if="Context =='inventory'" ng-click="backtoList()"
+                uib-tooltip="Dashboard" tooltip-placement="bottom"><i class="fas fa-home"></i></span>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <custom-table config="vm.gridConfig"></custom-table>
+</div>
+<div class="fooder-bgs">
+    <div class="row">
+        <ul uib-pagination total-items="vm.gridConfig.pagerObj.totalItems"
+            items-per-page="vm.gridConfig.pagerObj.pageSize" start-index="vm.gridConfig.pagerObj.startIndex"
+            ng-model="vm.gridConfig.pagerObj.currentPage" ng-change="getList()"></ul>
+    </div>
+</div

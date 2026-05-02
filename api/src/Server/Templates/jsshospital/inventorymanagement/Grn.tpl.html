@@ -1,0 +1,333 @@
+<html>
+
+<head>
+    <style>
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        td {
+            padding: 3px;
+            vertical-align: top;
+        }
+
+        * {
+            font-family: sans-serif;
+        }
+
+        th {
+            white-space: break-spaces;
+            border: 1px !important;
+            border-top: 1px solid black !important;
+            border-bottom: 1px solid black !important;
+            font-size: 10px;
+            padding-left: 4px;
+            padding-top: 6px;
+            padding-bottom: 6px;
+        }
+
+        td {
+            border: 1px !important;
+            font-size: 10px;
+        }
+
+        p {
+            font-size: 10px;
+        }
+
+        .size td,
+        .size th {
+            border: 1px solid black !important;
+        }
+
+        .table2 tr th,
+        .table2 tr td {
+            border: 1px solid black !important;
+        }
+
+        .secondary-tab {
+            position: absolute;
+            width: 97.5%;
+            margin-left: 0px;
+        }
+
+        .table2 .secondary-tab table tr td,
+        .table2 .secondary-tab table tr th {
+            border: 0px solid black !important;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            word-break: break-all;
+        }
+
+        .table2 .secondary-tab table {
+            border: unset !important;
+            border-collapse: collapse;
+            width: 94.5%;
+        }
+
+        .secondary-tab td div {
+            word-break: break-all;
+        }
+
+        .content * {
+            font-size: 12px !important;
+        }
+
+        .bg-color {
+            background: #c5c5c5;
+        }
+
+        table.calc {
+            border: 1px solid;
+            border-top: 0;
+        }
+
+        .sub-total {
+            border: 0px !important;
+            border-top: 0px solid black !important;
+            border-bottom: 0px solid black !important;
+            width: 100%;
+        }
+
+        .table2 .sub-total td {
+            border-color: white !important;
+        }
+        {{include '/Templates/assets/css/core.css'}}
+    </style>
+</head>
+
+<body style="padding-left: 50px;">
+
+  {{#if data.generalPo}}
+    <div id="pageHeader">
+        {{#if data.Flags.header}}
+        {{{include '/Templates/jsshospital/common/header.tpl.html' 'tpl'}}}
+        {{/if}}
+    </div>
+    {{else}}
+    <div id="pageHeader">
+        {{#if data.Flags.header}}
+        {{{include '/Templates/jsshospital/common/pharmacyheader1.tpl.html' 'tpl'}}}
+        {{/if}}
+    </div>
+    {{/if}}
+    <table style="width:100%;">
+        <tr>
+            <td style="text-align: center;font-size: 15px;" class="bg-color"><b>GOODS RECEIPT NOTE</b></td>
+        </tr>
+    </table>
+    <br>
+    <div class="content">
+        <table>
+            <tr>
+                <td style="width: 60%;">
+                    <div>
+                        <b>{{data.Vendor.VendorName}}</b>
+                    </div>
+                    <div>
+                        <b>{{data.Grn.VendorMaster.AddressLine1}}</b>
+                    </div>
+                    <div>
+                        <b>
+                            Ph No - {{data.Grn.VendorMaster.MobileNumber}}
+                        </b>
+                    </div>
+                </td>
+                <td style="width: 40%;">
+                    <table>
+                        <tr>
+                            <td><b>GRN No</b></td>
+                            <td><b>: {{data.Grn.GrnNumber}}</b></td>
+                        </tr>
+                        <tr>
+                            <td><b>GRN Date</b></td>
+                            <td><b>: {{datetimeformat data.Grn.GrnDate}}</b></td>
+                        </tr>
+                        <!--<tr>
+                            <td><b>Request Store Name</b></td>
+                            <td><b>: {{data.Grn.DeliveryStoreName}}</b></td>
+                        </tr>-->
+                    </table>
+                </td>
+            </tr>
+        </table>
+        <p>Dear Sir,</p>
+        <p>With reference to your Quotation & subsequent discussion we had with you, we are pleased to place our
+            purchase
+            order for the supply of following item/s as per
+            description, quantity, and rates mentioned here under.</p>
+
+        <div border>
+            <table class="table2" style="width:100%;">
+                <tr>
+                    <th style="width: 7%;" align="center">No</th>
+                    <th style="width: 7%;" align="center">HSN</th>
+                    <th style="width: 21%;" align="left">PARTICULARS</th>
+                    <th style="width: 7%;" align="left">PO.Q</th>
+                    <th style="width: 7%;" align="left">Batch</th>
+                    <th style="width: 7%;" align="left">Exp</th>
+                    <th style="width: 7%;" align="left">Qty</th>
+                    <th style="width: 7%;" align="left">Free Qty</th>
+                    <th style="width: 7%;" align="center">PRICE</th>
+                    <th style="width: 7%;" align="center">Dis%</th>
+                    <th style="width: 7%;" align="center">GST %</th>
+                    <th style="width: 7%;" align="center">MRP</th>
+                    <th style="width: 7%;" align="center">Amount</th>
+                </tr>
+                <tr>
+                    <td style="height: 300px;padding:0 !important">
+                        <div class="secondary-tab">
+                            <table>
+                                <tr>
+                                    <th style="width: 6%;" align="center"></th>
+                                    <th style="width: 7%;" align="center"></th>
+                                    <th style="width: 18%;" align="left"></th>
+                                    <th style="width: 7%;" align="center"></th>
+                                    <th style="width: 7%;" align="center"></th>
+                                    <th style="width: 7%;" align="center"></th>
+                                    <th style="width: 7%;" align="center"></th>
+                                    <th style="width: 5%;" align="left"></th>
+                                    <th style="width: 7%;" align="center"></th>
+                                    <th style="width: 7%;" align="center"></th>
+                                    <th style="width: 7%;" align="center"></th>
+                                    <th style="width: 6%;" align="center"></th>
+                                    <th style="width: 7%;" align="center"></th>
+                                </tr>
+                                {{#each data.GrnDetailDetail}}
+                                <tr>
+                                    <td align="center">{{inc @index}}</td>
+                                    <td align="left">{{ItemMaster.ProductRegNo}}</td>
+                                    <td align="left">{{ItemName}}({{ItemCode}})</td>
+                                    <td align="center">{{PoQuantity}}</td>
+                                    <td align="center">{{BatchId}}</td>
+                                    <td align="center">{{expyearformat ExpiryDate}}</td>
+                                    <td align="center">{{GrnQuantity}}</td>
+                                    <td align="center">{{FreeQty}}</td>
+                                    <td align="right">{{currencyformatwosymbol UomPrice}}</td>
+                                    <td align="center">{{Discount}}</td>
+                                    <td align="center">{{GstPercentage}}</td>
+                                    <td align="right">{{currencyformatwosymbol UomMrPrice}}</td>
+                                    <td align="right">{{currencyformatwosymbol NetAmount}}</td>
+                                </tr> {{/each}}
+                            </table>
+                        </div>
+                    </td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td colspan="9">
+                        Payment Terms: Cash / Credit <br>
+                        Delivery: At the billing site <br>
+                        Warranty: As per the agreed terms <br>
+                        <br><br><br><br>
+                        <b>Amount in Words: {{decimalnrInWords data.Grn.TotalNetAmount}} Rupees Only</b>
+                    </td>
+                    <td colspan="4">
+                        <table class="sub-total">
+                            <tr>
+                                <td style="width:80%;" align="right"><b>Gross Amount</b></td>
+                                <td>:</td>
+                                <td style="width:20%;" align="right">{{currencyformatwosymbol data.Grn.TotalGrossAmount}}</td>
+                            </tr>
+                            {{#if data.Grn.TotalDiscountAmount}}
+                            <tr>
+                                <td style="width:50%;" align="right"><b>Discount</b></td>
+                                <td>:</td>
+                                <td style="width:10%;" align="right">
+                                    {{currencyformatwosymbol data.Grn.TotalDiscountAmount}}</td>
+                            </tr>
+                            {{/if}}
+                            <tr>
+                                <td style="width:90%;" align="right"><b>GST Amount</b></td>
+                                <td>:</td>
+                                <td style="width:10%;" align="right">{{currencyformatwosymbol data.Grn.TotalGstAmount}}</td>
+                            </tr>
+                            {{#if data.Grn.OtherCharges}}
+                            <tr>
+                                <td style="width:90%;" align="right"><b>Other
+                                        Cost</b></td>
+                                <td>:</td>
+                                <td style="width:10%;" align="right">{{currencyformatwosymbol data.Grn.OtherCharges}}</td>
+                            </tr>
+                            {{/if}}
+                            {{#if data.Grn.RoundOff}}
+                            <tr>
+                                <td style="width:90%;" align="right"><b>Round
+                                        Off</b></td>
+                                <td>:</td>
+                                <td style="width:10%;" align="right"> {{currencyformatwosymbol data.Grn.RoundOff}}</td>
+                            </tr>
+                            {{/if}}
+                            {{#if data.Grn.GrnDiscount}}
+                            <tr>
+                                <td style="width:50%;" align="right"><b>GRN
+                                        Discount</b></td>
+                                <td>:</td>
+                                <td style="width:10%;" align="right"> {{currencyformatwosymbol data.Grn.GrnDiscount}}</td>
+                            </tr>
+                            {{/if}}
+                            <tr>
+                                <td style="width:90%;" align="right"><b>Net Amount</b></td>
+                                <td>:</td>
+                                <td style="width:10%;" align="right">{{currencyformatwosymbol data.Grn.TotalNetAmount}}</td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <table style="width:100%;">
+            <tr>
+                <td style="width: 5%;"></td>
+                <td style="width: 30%;" align="center"><b>PREPARED BY</b>: :
+                    {{data.Grn.CreatedUser.Title.Description}}
+                    {{data.Grn.CreatedUser.FirstName}} {{data.Grn.CreatedUser.LastName}}</td>
+                <td style="width: 30%;" align="center"><b></b></td>
+                <td style="width: 30%;" align="center">
+                    <!-- <b>APPROVED BY </b> :
+                    {{data.Grn.ApprovedUser.Title.Description}}
+                    {{data.Grn.ApprovedUser.FirstName}} {{data.Grn.ApprovedUser.LastName}} -->
+                </td>
+                <td style="width: 5%;"></td>
+            </tr>
+            <!-- <tr>
+                <td style="width:35%;"><b>{{data.Grn.ApprovedUser.Title.Description}}
+                        {{data.Grn.ApprovedUser.FirstName}} {{data.Grn.ApprovedUser.LastName}}</b></td>
+                <td style="width:30%;"></td>
+                <td style="width:35%;text-align:right;"><b>{{data.Grn.AuthorizedUser.Title.Description}}
+                        {{data.Grn.AuthorizedUser.FirstName}} {{data.Grn.AuthorizedUser.LastName}}</b>
+                </td>
+            </tr>
+            <tr>
+                <td style="width:35%;"><b>Approved By</b></td>
+                <td style="width:30%;"></td>
+                <td style="width:35%;text-align:right;"><b>Authorized By</b></td>
+            </tr> -->
+        </table>
+        <br>
+        <br>
+        <br>
+        <br>
+        <table>
+            <tr>
+                <td style="width: 80%;"></td>
+                <td align="center">
+                    <div>Akshata B</div>
+                    <div>Purchase Dept</div>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <!-- <div style="width:100%; font-size:10px;">Printed On: {{now}}</div> -->

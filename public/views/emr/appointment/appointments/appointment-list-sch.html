@@ -1,0 +1,352 @@
+<style>
+    .table-uigrid.ui-grid .ui-grid-cell.ui-grid-row-header-cell {
+        background: #23b7e5;
+    }
+
+    .table-uigrid.ui-grid .ui-grid-row.ui-grid-row-selected>[ui-grid-row]>.ui-grid-cell {
+        background-color: lightgreen;
+    }
+
+    .ui-grid-cell.ui-grid-disable-selection.ui-grid-row-header-cell {
+        pointer-events: all;
+    }
+
+    .ui-grid-render-container-left .ui-grid-viewport {
+        width: 30px;
+        height: 402px !important;
+    }
+
+    .ui-select-multiple.ui-select-bootstrap {
+        height: auto;
+        padding: 3px 3px 0 3px;
+        max-height: 30px;
+        overflow: visible;
+    }
+
+    .bottomlefttext .dropdown-menu {
+        top: 26px !important;
+        left: -93px !important;
+    }
+
+    .drop_width multiselectchk button {
+        width: 100%;
+    }
+
+    .grid-action-icon {
+        margin-left: 1px;
+    }
+
+    div#scheduler {
+        height: 443px !important;
+    }
+
+    .custom_align {
+        padding-right: 11px;
+        padding-left: 10px;
+    }
+
+    .col-sm-10.col-md-10.col-lg-10.drop_width {
+        padding-left: 57px;
+    }
+
+    .col-sm-8.col-md-8.col-lg-8.input-group {
+        padding-left: 9px;
+        padding-right: 7px;
+    }
+
+    .link_close {
+        margin-top: 0px;
+        z-index: 999;
+        position: relative;
+        top: 26px;
+        right: 62px;
+        font-size: 51px;
+        opacity: 1;
+    }
+
+    .app_dept {
+        padding-left: 10px;
+        padding-right: 12px;
+    }
+
+    button.dropdown-toggle.ng-binding.btn.btn-default {
+        padding-right: 26px;
+        padding-top: 3px;
+        padding-bottom: 3px;
+    }
+
+    /* .icon_home {
+        width: 5%;
+        float: right;
+    } */
+
+    .app_ckout span {
+        color: #000000 !important;
+    }
+
+    .table-uigrid.ui-grid .ui-grid-viewport {
+        height: 402px !important;
+    }
+
+    @media only screen and (max-width:1024px) {
+        div#contentscheduler {
+            height: 100%;
+        }
+        .fooder-bg {
+            left: 18%;
+        }
+        .ui-grid-viewport.ng-isolate-scope {
+            height: 800px !important;
+            min-height: 800px !important;
+        }
+    }
+
+    @media only screen and (max-width:768px) {
+        div#contentscheduler {
+            height: 100%;
+            min-height: 100%;
+        }
+        .smdnone {
+            display: none;
+        }
+        #appoinmentsheight #scheduler {
+            height: 810px !important;
+        }
+    }
+</style>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        $("#calenderid").click(function () {
+            $("i", this).toggleClass("fa fa-calendar fa fa-list");
+        });
+    });
+</script>
+<div class="row page-header">
+    <div class="col-sm-12">
+        <div class="col-sm-5 col-md-7">
+            <h4 class="page-header mt0" translate="appointment.appointment-list.pagetitle.lbl"></h4>
+        </div>
+        <div class="col-sm-7 col-md-5">
+            <span ng-click="opd_dashboard()">
+                <img src="app/img/main/download.png" class="img-responsive icon_home" alt="home" uib-tooltip=" OPD Dashboard " tooltip-placement="bottom">
+            </span>
+            <button class="btn-xs pull-right" style="background:#fff;border:1px solid green;" uib-tooltip="{{ 'clinicalmaster.serviceitem-list.USERMANUAL.lbl' | translate }}"
+                 tooltip-placement="bottom">
+                <a href="mock/usermanual/appointments/Appointments.pdf" id="btnShow" target="_blank">
+                    <img src="app/img/main/documents/7-128.png" style="width:25px;height:auto;">
+                </a>
+            </button>
+            <button class="btn-xs pull-right" id="myBtn" style="padding:0px;margin:0px;-webkit-transform: rotate(270deg);border:1px solid crimson"
+                uib-tooltip="{{ 'clinicalmaster.serviceitem-list.PROCESSFLOW.lbl' | translate }}"
+                tooltip-placement="bottom" ng-click="showprocessflow()">
+                <img src="app/img/main/documents/2.png" ng-click="showprocessflow()" style="width:26px;height:auto;">
+            </button>
+            <button class="btn bt-color3 btn-xs pull-right" id="btnadvanced" uib-tooltip="{{ 'clinicalmaster.serviceitem-list.filter-tooltip.lbl' | translate }}"
+                ng-click="openAdvancedFilter()" tooltip-placement="bottom">
+                <i class="fa fa-search fa-xs " aria-hidden="true"></i>&nbsp;&nbsp;
+                <span translate="clinicalmaster.serviceitem-list.filter.lbl"></span>
+            </button>
+
+            <button class="btn-add" ng-click="addNew()" uib-tooltip="{{ 'appointment.appointment-list.pagetitle.lbl' | translate }}"
+                tooltip-placement="bottom">
+                <i class="fa fa-plus" aria-hidden="true"></i>
+            </button>
+        </div>
+    </div>
+</div>
+
+<div class="row filter-area">
+    <div class="col-sm-12">
+        <!--  <div class="col-sm-4">
+            <label class="col-sm-4 control-label filter-lbl" translate="appointment.appointment-list.filter_facility.lbl"></label>
+            <div class="col-sm-8">
+                <ui-select ng-model="currentfilter.FacilityId" ng-change="getList()" class="filter-combo">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 8 : 0}}
+                        <span ng-if="$select.selected.Text.length>8">...</span>
+                    </ui-select-match>
+                    <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.Facility | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <label class="col-sm-4 control-label filter-lbl" translate="appointment.appointment-list.filter_department.lbl"></label>
+            <div class="col-sm-8">
+                <ui-select ng-model="currentfilter.DepartmentId" ng-change="getList()" class="filter-combo">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 8 : 0}}
+                        <span ng-if="$select.selected.Text.length>8">...</span>
+                    </ui-select-match>
+                    <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.Department | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>-->
+        <div class="col-sm-11 col-md-3 col-lg-3">
+            <label class="col-sm-4 control-label filter-lbl" translate="appointment.appointment-list.filter_mrn.lbl"></label>
+            <div class="col-sm-8 custom_align">
+                <input type="text" class="form-control" on-enter="getList()" ng-model="currentfilter.MRN" placeholder="MRN / Name">
+            </div>
+        </div>
+        <div class="col-sm-3 smdnone">
+            <div class="form-group">
+                <label class="sr-only col-sm-5 col-md-4 control-label filter-lbl" translate="appointment.appointment-list.filter_phone.lbl"></label>
+                <div class="col-sm-7 col-md-8">
+                    <!--<patientsearch patientid="currentfilter.PatientId" patientinfo="selectedPatient" patientchange="getList()" candisable="canDisablePatientSearch()"></patientsearch>-->
+                    <input type="text" class="form-control" on-enter="getList()" ng-model="currentfilter.Mobile" placeholder="Phone No.">
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-3 smdnone">
+            <label class="col-sm-4 control-label filter-lbl" translate="appointment.appointment-list.filter_type.lbl"></label>
+            <div class="col-sm-8">
+                <ui-select ng-model="currentfilter.AppointmentTypeId" ng-change="appointmenttypechange()" class="filter-combo" ng-disabled="currentcontext.candisableappttype">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 10 : 0}}
+                        <span ng-if="$select.selected.Text.length>8">...</span>
+                    </ui-select-match>
+                    <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.AppointmentType | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+        <div class="col-sm-3 smdnone">
+            <label class="col-sm-4 control-label filter-lbl" translate="appointment.appointment-form.appointmentdate.lbl"></label>
+            <div class="col-sm-8 bottomlefttext">
+                <input type="text" class="form-control" name="appointmentdate" ng-change="getList()" datepicker-options="datePickerOptions"
+                    show-button-bar="{{datePickerOptions.showButtonBar}}" uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                    placeholder="{{datePickerOptions.placeholder}}" ng-click="appointmentdatePopup = { opened: true }" is-open="appointmentdatePopup.opened"
+                    ng-model="currentfilter.appointmentdate">
+            </div>
+        </div>
+    </div>
+
+    <div class="col-sm-12 ">
+        <div class="col-sm-3 smdnone">
+            <label class="col-sm-4 control-label filter-lbl" translate="appointment.appointment-list.filter_department.lbl"></label>
+            <div class="col-sm-8 app_dept">
+                <ui-select ng-model="currentfilter.DepartmentId" ng-change="deptChange()" class="filter-combo">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 15 : 0}}
+                        <span ng-if="$select.selected.Text.length>8">...</span>
+                    </ui-select-match>
+                    <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.Department | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+        <div class="col-sm-4 col-md-3 col-lg-3 clearfix " ng-show="canShowPhysicianArea()">
+            <label class="col-sm-4  col-lg-4 control-label filter-lbl" translate="appointment.appointment-list.filter_doctor.lbl"></label>
+            <div class="col-sm-8 col-md-8 col-lg-8 drop_width">
+                <multiselectchk list="lookup.Doctor" selected="currentfilter.DoctorId" change="doctorFilterChange()"></multiselectchk>
+            </div>
+        </div>
+        <div class="col-sm-3 col-lg-3 " ng-show="canShowResourceArea()">
+            <label class="col-sm-4  col-lg-4 control-label filter-lbl" translate="appointment.appointment-list.filter_resource.lbl"></label>
+            <div class="col-sm-8 col-md-8 col-lg-8">
+                <ui-select multiple ng-model="currentfilter.ResourceId" ng-change="getList()" class="ui-select-multiple-filter" ng-multi-tag
+                    style="margin-left:-5px">
+                    <ui-select-match>{{$item.Text }}</ui-select-match>
+                    <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.Resource | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+        <div class="col-sm-4 col-md-3 col-lg-3">
+            <label class="col-sm-6 col-md-4 col-lg-4 control-label filter-lbl" translate="appointment.appointment-list.filter_appointmentstatus.lbl"></label>
+            <div class="col-sm-6 col-md-7 col-lg-8 drop_width">
+                <multiselectchk list="lookup.AppointmentStatus" selected="currentfilter.AppointmentStatusId" change="getList()"></multiselectchk>
+            </div>
+        </div>
+        <div class="col-sm-4 col-md-3 col-lg-3">
+            <div class="pull-right ">
+                <button type="button" class="btn btn-success btn-xs app_ckout" ng-click="batchCheckout()">
+                    <i class="fa fa-check-square-o" aria-hidden="true"></i>&nbsp;&nbsp;
+                    <span translate="appointment.appointment-list.bulkcheckout-action.lbl"></span>
+                </button>
+                <label class="btn bt-color1 btn-xs " id="calenderid" ng-click="toggleView()">
+                    <i class="fa fa-calendar" aria-hidden="true"></i>
+                </label>
+                <!-- <label class="btn text-white app-color6  btn-xs pull-right " ng-click="toggleView()" uib-tooltip=" Appointment List" tooltip-placement="left" > <i class="fa fa-book fa-sm"></i> </label>-->
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-12 smdnone" ng-if="currentfilter.AppointmentTypeId == 1">
+        <div class="col-sm-12">
+            <label class="col-sm-2  col-md-2 col-lg-2 control-label filter-lbl" translate="appointment.appointment-list.selecteddoctor.lbl"></label>
+            <div class="col-sm-10 col-md-10 col-lg-10">
+                <span>{{currentcontext.selectedDoctor}}</span>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="myModal" class="modal">
+
+    <!-- Modal content -->
+    <div class="modal-content" style="width:88%;margin:0 auto; left:6%;">
+
+        <div class="modal-body">
+            <span ng-click="hideprocessflow()" class="close link_close">&times;</span>
+            <img src="mock/usermanual/appointments/Appointments.jpg" class="imag-responsive"></img>
+
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- <script>
+        // Get the modal
+        var modal = document.getElementById('myModal');
+
+        // Get the button that opens the modal
+        var btn = document.getElementById("myBtn");
+
+        // Get the <span> element that closes the modal
+        var span = document.getElementsByClassName("close")[0];
+
+        // When the user clicks the button, open the modal
+        btn.onclick = function() {
+            modal.style.display = "block";
+        }
+
+        // When the user clicks on <span> (x), close the modal
+        span.onclick = function() {
+            modal.style.display = "none";
+        }
+
+        // When the user clicks anywhere outside of the modal, close it
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
+</script> -->
+<div class="container-fluid filter" id="appoinmentsheight">
+    <div ui-grid="vm.gridConfig" class="table-uigrid" ui-grid-selection ng-show="!vm.appointment.ShowCalendar"></div>
+    <jqx-scheduler jqx-settings="settings" id="scheduler" ng-show="vm.appointment.ShowCalendar"></jqx-scheduler>
+
+    <div class="fooder-bgs">
+        <div class="row">
+            <ul uib-pagination total-items="vm.gridConfig.pagerObj.totalItems" items-per-page="vm.gridConfig.pagerObj.pageSize" start-index="vm.gridConfig.pagerObj.startIndex"
+                ng-model="vm.gridConfig.pagerObj.currentPage" ng-change="getList()"></ul>
+        </div>
+    </div>
+</div>
+
+
+
+<!-- <div>
+    <div class="col-sm-3 apptcategory-div" ng-repeat="item in appointmentCategories">
+        <div style='height:20px;width:20px;background:{{item.Color}}' class='col-sm-2'></div>
+        <div class='col-sm-10'>{{item.Name}}</div>
+    </div>
+</div> -->

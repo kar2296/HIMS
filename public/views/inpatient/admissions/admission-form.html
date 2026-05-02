@@ -1,0 +1,898 @@
+<link href="app/css/regbilling.css" rel="stylesheet">
+<style>
+    .form-horizontal .form-group {
+        height: 72px;
+    }
+
+    a.bed-link {
+        background-color: #dce512;
+        padding: 6px;
+        border-radius: 20px;
+        color: #fff;
+    }
+
+    .search-left .custom-popup-wrapper {
+        margin-left: -240px;
+    }
+</style>
+<!--
+<style>
+    label>span {
+        vertical-align: baseline;
+        color: #494949;
+        margin-top: 1px;
+        font-size: 13px;
+    }
+
+    .patient-banner-table-section span.btn.btn-default.form-control.ui-select-toggle,
+    .patient-banner-table-section input.form-control {
+        border-radius: unset !important;
+        border-color: gainsboro;
+        background: white !important;
+        width: 85% !important;
+        border-right: 1px solid gainsboro !important;
+    }
+
+
+    .patient-banner-table.lis .patient-banner-table-section>div {
+        background: none;
+        padding: 0;
+        height: 30px;
+    }
+
+    .patient-banner-table-section {
+        border: 1.5px solid #dadada;
+        width: 100%;
+        margin-right: 8px;
+        padding: 9px 0px 3px 9px;
+        margin-bottom: 10px;
+    }
+
+    span.head-title {
+        font-size: 12px;
+        color: #494949 !important;
+        font-size: 13px;
+    }
+
+    a {
+        font-weight: 400;
+        color: #494949;
+        font-size: 13px;
+    }
+    .form-horizontal .form-group {
+    height: 62px;
+}
+</style> -->
+<style>
+    ippatientsearch.logo.inputsearchlogo .custom-popup-wrapper {
+        margin-left: -395px !important;
+    }
+</style>
+<div class="row">
+    <div class="col-sm-9">
+        <h4 translate="admissions.pagetitle.lbl"></h4>
+    </div>
+    <div class="col-sm-3">
+        <div class="filters">
+            <div class="search">
+                <ippatientsearch controlid="'pidreg'" eventinfo="$event" class="logo inputsearchlogo"
+                    ng-keyup="moveHeaderFocus('pid')" patientid="item.PatientId" name="txtpatientsearch"
+                    patientinfo="selectedPatient" patientchange="patientChange()" aria-placeholder="Patient Search"
+                    tabindex="tabindexmap.patienttabindex" isdisabled="{{SaveCompleted}}"
+                    filterconfig="patientfilterconfig"></ippatientsearch>
+                <div class="drhms-search-icon">
+                    <i class="fas fa-search" aria-hidden="true"></i>
+                </div>
+            </div>
+
+            <button class="alertbtn btn btn-xs pull-right" ng-click="clinicalalertview()" ng-if="item.ReferredNewVisit"
+                uib-tooltip="{{'common.clinicalalert.lbl' | translate }}" tooltip-placement="bottom"
+                ng-hide="item.PatientStatusId==3">
+                <span>
+                    <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
+                </span>
+            </button>
+            <button type="button" class="draftbutton" ng-show="BillCompleted" ng-click="consultationcharges()"
+                ng-disabled="isPatientDeactivated" tabindex="-1" uib-tooltip="consultationcharges"
+                tooltip-placement="bottom">
+                <span>
+                    <i class="fa fa-hospital-o fa-lg" aria-hidden="true"></i>
+                </span>
+
+            </button>
+            <button type="button" class="btn bttn_red btn-sm" ng-if="SaveCompleted" ng-click="OPDBill()" tabindex="-1"
+                uib-tooltip="Billing" tooltip-placement="bottom" ng-hide="item.PatientStatusId==3">
+                <span>
+                    <i class="fa fa-calculator fa-lg" aria-hidden="true"></i>
+                </span>
+            </button>
+            <button type="button" class="draftbutton" tabindex="-1" uib-tooltip="Checkout" ng-click="checkout()"
+                ng-hide="item.PatientStatusId==3" ng-if="SaveCompleted" uib-tooltip="Checkout"
+                tooltip-placement="bottom">
+                <span>
+                    <i class="fa fa-sign-out" aria-hidden="true"></i>
+                </span>
+            </button>
+            <button id="btnSaveInactive" type="button" class="btn btn-primary btn-sm" tabindex="-1"
+                ng-click="saveAndInactive(item)" ng-hide="currentcontext.isTempPatient"
+                ng-disabled="isPatientDeactivated" ng-if="SaveCompleted" uib-tooltip="Deactivate"
+                tooltip-placement="bottom">
+                <span>
+                    <i class="fa fa-close" aria-hidden="true"></i>
+                </span>
+
+            </button>
+            <button type="button" class="draftbutton" tabindex="-1" uib-tooltip="Attachments"
+                ng-click="openattachments()" ng-if="SaveCompleted " tooltip-placement="bottom">&nbsp;&nbsp;
+                <i class="fa fa-paperclip fa-xs" tabindex="-1"
+                    aria-hidden="true">({{currentcontext.attachmentcount}})</i>
+            </button>
+            <button type="button" class="text-white btn prv-color12 btn-sm" ng-show="true" ng-if="SaveCompleted"
+                uib-tooltip="{{'Barcode'}}" tooltip-placement="bottom" ng-click="printRegistrationIdlabel()">
+                <i class="fa fa-barcode" aria-hidden="true"></i>
+            </button>
+
+            <button type="button" tabindex="-1" class="btn-add" ng-click="addNew()"
+                uib-tooltip="{{ 'admissions.addnew-tooltip.lbl' | translate}}" tooltip-placement="bottom">
+                <i class="fa fa-plus" aria-hidden="true"></i>
+                <!-- <span translate="clinicalmaster.serviceitem-list.addnew.lbl " class="text-white"></span> -->
+            </button>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="patient-banner-table lis">
+        <div class="patient-banner-table-section">
+            <div class="col-sm-12">
+                <label class="col-sm-4" translate="Patient Name"></label>
+                <div class="col-sm-8 item-center">
+                    <span class="head-title">: &nbsp;
+                        <strong>{{selectedPatient.Title.Description}} {{selectedPatient.FirstName}}
+                        </strong>
+                    </span>&nbsp;&nbsp;&nbsp;&nbsp;
+                    <span class="comments pull-right" type="button" ng-click="patcmnts()" title="Comments">
+                        <i class="fas fa-comments"></i>
+                    </span>
+                </div>
+            </div>
+            <div class="col-sm-12">
+                <label class="col-sm-4" translate="Patient ID "></label>
+                <div class="col-sm-8 item-center">
+                    <span class="head-title">: &nbsp;{{selectedPatient.MRN}}/{{selectedPatient.VisitIdentifier}}
+                    </span>
+                </div>
+            </div>
+            <div class="col-sm-12">
+                <label class="col-sm-4" translate="Age/Gender"></label>
+                <div class="col-sm-8 item-center">
+                    <span class="head-title">
+                        <a>: &nbsp;{{selectedPatient.Age}} / {{selectedPatient.Gender.Description}}
+                        </a>
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div class="patient-banner-table-section">
+            <div class="col-sm-12">
+                <label class="col-sm-4" translate="Date Of Admission"></label>
+                <div class="col-sm-8 item-center">
+                    : &nbsp; {{Data.AdmissionDate|date:'dd-MMM-yyyy'}}&nbsp;{{Data.AdmissionDate|date:'HH:mm'}}
+                </div>
+            </div>
+            <div class="col-sm-12">
+                <label class="col-sm-4" translate="Doctor Name" for="doctor"></label>
+                <div class="col-sm-8 item-center">
+                    : &nbsp;
+                    <span style="width: 90%;">
+                        <!-- <ui-select ng-model="item.DoctorId" name="approvedby"
+                            ng-change="onDoctorSelected($select.selected)">
+                            <ui-select-match>
+                                <span ng-if="$select.selected.Id==-1">{{$select.selected.Text | limitTo : 8 : 0}}</span>
+                    <span ng-if="$select.selected.Id!=-1">{{$select.selected.Title.Description}}&nbsp;{{$select.selected.FirstName}}&nbsp;{{$select.selected.LastName
+                                    | limitTo : 10: 0}}</span>
+                    <span ng-if="$select.selected.Text.length>20">...</span>
+                    </ui-select-match>
+                    <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.Doctor | filter: { Text: $select.search }">
+                        <div ng-if="lookupitem.Id==-1">
+                            <span ng-bind-html="lookupitem.Text | highlight: $select.search"></span>
+                        </div>
+                        <div ng-if="lookupitem.Id!=-1">
+                            <span>{{lookupitem.Title.Description}}</span>
+                            <span ng-bind-html="lookupitem.FirstName | highlight: $select.search"></span>
+                            <span>{{lookupitem.LastName}}</span>
+                        </div>
+                    </ui-select-choices>
+                    </ui-select> -->
+                        <autosearch class="auto-search" controlid="'DoctorId'" itemid="item.DoctorId"
+                            tabindex="tabindexmap.patienttabindex" iteminfo=""
+                            itemchange="onDoctorSelected($select.selected)" rowdata="" name="'doctor'" isrequired="true"
+                            config="vm.doctorcontrolconfig" candisable="SaveCompleted" isrequired="true"
+                            placeholder="'Doctor'">
+                        </autosearch>
+                    </span>
+                </div>
+            </div>
+            <div class="col-sm-12">
+                <label class="col-sm-4" translate="Date Of Discharge"></label>
+                <div class="col-sm-8 item-center">
+                    <span class="head-title">
+                        <a>: &nbsp;
+                        </a>
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div class="patient-banner-table-section">
+            <div class="col-sm-12">
+                <label class="col-sm-4" translate="Payer Name"></label>
+                <div class="col-sm-8 item-center">
+                    <span class="head-title">
+                        : &nbsp;{{item.Guarantor.GuarantorName}}
+                    </span>
+                </div>
+            </div>
+            <div class="col-sm-12">
+                <label class="col-sm-4" translate="Referral"></label>
+                <div class="col-sm-8 item-center">
+                    <span class="head-title">
+                        <a>: &nbsp;{{item.ReferralName}}
+                        </a>
+                    </span>
+                </div>
+            </div>
+            <div class="col-sm-12">
+                <label class="col-sm-4" translate="Patient Location"></label>
+                <div class="col-sm-8 item-center">
+                    <span class="head-title">
+                        : &nbsp; {{item.WardMaster.WardName}} / {{item.WardRoomMaster.RoomNo}} /
+                        {{item.WardRoomBedMaster.BedNo}}
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <form id="item_form" name="item_form" class="form-horizontal" role="form">
+        <div class="row">
+            <div class="drhms-sub-header-border" translate="registration.registrationcumvisit.patientinfo.lbl">
+            </div>
+            <div class="form-group col-sm-3">
+                <label class="col-sm-12 control-label" for="selectdoctor"
+                    translate="admissionrequests.doctor.lbl"></label>
+                <div class="col-sm-12">
+                    <!-- <ui-select ng-model="item.DoctorId" name="approvedby" ng-change="onDoctorSelected($select.selected)" required>
+                        <ui-select-match>
+                            <span ng-if="$select.selected.Id==-1">{{$select.selected.Text | limitTo : 8 : 0}}
+                            </span>
+                            <span ng-if="$select.selected.Id!=-1">{{$select.selected.Title.Description}}&nbsp;{{$select.selected.FirstName}}&nbsp;{{$select.selected.LastName
+                                | limitTo : 10: 0}}</span>
+                            <span ng-if="$select.selected.Text.length>20">...</span>
+                        </ui-select-match>
+                        <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.Doctor | filter: { Text: $select.search }">
+                            <div ng-if="lookupitem.Id==-1">
+                                <span ng-bind-html="lookupitem.Text | highlight: $select.search"></span>
+                            </div>
+                            <div ng-if="lookupitem.Id!=-1">
+                                <span>{{lookupitem.Title.Description}}</span>
+                                <span ng-bind-html="lookupitem.FirstName | highlight: $select.search"></span>
+                                <span>{{lookupitem.LastName}}</span>
+                            </div>
+                        </ui-select-choices>
+                    </ui-select> -->
+                    <autosearch class="auto-search" controlid="'DoctorId'" itemid="item.DoctorId"
+                        tabindex="tabindexmap.patienttabindex" iteminfo="" name="'selectdoctor'"
+                        itemchange="onDoctorSelected($select.selected)" rowdata="" name="'doctor'"
+                        config="vm.doctorcontrolconfig" candisable="SaveCompleted" isrequired="true"
+                        placeholder="'Doctor'">
+                    </autosearch>
+                    <!-- <ui-select id='doctorid' ng-keyup="moveHeaderFocus('doctorid')" ng-model="item.DoctorId" tabindex="-1" ng-change="onDoctorSelected($select.selected)"
+                                name="doctorid" ng-disabled="RdoDoctorId" required>
+                                <ui-select-match>
+                                    {{$select.selected.Text | limitTo : 20 : 0}}
+                                    <span ng-if="$select.selected.Text.length>20">...</span>
+                                </ui-select-match>
+                                <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.Doctor | filter: { Text: $select.search }">
+                                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                </ui-select-choices>
+                            </ui-select> -->
+                </div>
+            </div>
+            <div class="form-group col-sm-3">
+                <label class="col-sm-12 control-label" translate="Secondary Doctor"></label>
+                <div class="col-sm-12">
+                    <!-- <ui-select ng-model="item.SecondaryDoctorId" name="approvedby" ng-change="onSecondaryDoctorSelected($select.selected)">
+                        <ui-select-match>
+                            <span ng-if="$select.selected.Id==-1">{{$select.selected.Text | limitTo : 8 : 0}}
+                            </span>
+                            <span ng-if="$select.selected.Id!=-1">{{$select.selected.Title.Description}}&nbsp;{{$select.selected.FirstName}}&nbsp;{{$select.selected.LastName
+                                | limitTo : 10: 0}}</span>
+                            <span ng-if="$select.selected.Text.length>20">...</span>
+                        </ui-select-match>
+                        <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.Doctor | filter: { Text: $select.search }">
+                            <div ng-if="lookupitem.Id==-1">
+                                <span ng-bind-html="lookupitem.Text | highlight: $select.search"></span>
+                            </div>
+                            <div ng-if="lookupitem.Id!=-1">
+                                <span>{{lookupitem.Title.Description}}</span>
+                                <span ng-bind-html="lookupitem.FirstName | highlight: $select.search"></span>
+                                <span>{{lookupitem.LastName}}</span>
+                            </div>
+                        </ui-select-choices>
+                    </ui-select> -->
+                    <autosearch class="auto-search" controlid="'DoctorId'" itemid="item.SecondaryDoctorId"
+                        tabindex="tabindexmap.patienttabindex" iteminfo=""
+                        itemchange="onSecondaryDoctorSelected($select.selected)" rowdata=""
+                        config="vm.doctorcontrolconfig" candisable="SaveCompleted" placeholder="'Doctor'">
+                    </autosearch>
+                </div>
+            </div>
+            <div class="form-group col-sm-3">
+                <label class="col-sm-12 control-label" for="department"
+                    translate="appmanager.user.department.lbl"></label>
+                <div class="col-sm-12">
+                    <ui-select ng-model="item.DepartmentId" name="department" required ng-change="getDeptLookUp()"
+                        tabindex="8" ng-disabled="canDisableDepartment()">
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 20 : 0}}
+                            <span ng-if="$select.selected.Text.length>20">...</span>
+                        </ui-select-match>
+                        <ui-select-choices
+                            repeat="lookupitem.Id as lookupitem in lookup.Department | filter: { Text: $select.search }">
+                            <!-- repeat="lookupitem.Id as lookupitem in currentcontext.selecteddept  | filter: { Text: $select.search }"> -->
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+            <div class="form-group col-sm-3">
+                <label class="col-sm-12 control-label" for="admissiontype"
+                    translate="admissions.filter_type.lbl"></label>
+                <div class="col-sm-12">
+                    <ui-select ng-model="item.AdmissionRequestTypeId" name="admissiontype" required>
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 20 : 0}}
+                            <span ng-if="$select.selected.Text.length>20">...</span>
+                        </ui-select-match>
+                        <ui-select-choices
+                            repeat="lookupitem.Id as lookupitem in lookup.AdmissionRequestType | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+            <!-- </div> -->
+            <!-- <div class="col-sm-12" > -->
+
+            <div class="form-group col-sm-3">
+                <label class="col-sm-12 control-label" for="admittingreason"
+                    translate="admission.admittingreason.lbl"></label>
+                <div class="col-sm-12">
+                    <ui-select ng-model="item.AdmittingReasonId" name="admittingreason" ng-disabled="item.isl">
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 20 : 0}}
+                            <span ng-if="$select.selected.Text.length>20">...</span>
+                        </ui-select-match>
+                        <ui-select-choices
+                            repeat="lookupitem.Id as lookupitem in lookup.AdmittingReason | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+            <div class="form-group col-sm-3">
+                <label class="col-sm-12 control-label" for="referraltype"
+                    translate="admission.referraltype.lbl"></label>
+                <div class="col-sm-12">
+                    <ui-select ng-model="item.ReferralTypeId" ng-change="getReferralLookUp()" name="referraltype">
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 20 : 0}}
+                            <span ng-if="$select.selected.Text.length>20">...</span>
+                        </ui-select-match>
+                        <ui-select-choices
+                            repeat="lookupitem.Id as lookupitem in lookup.ReferralType | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+            <div class="form-group col-sm-3">
+                <label class="col-sm-12 control-label" for="referredby" translate="admission.referral.lbl"></label>
+                <div class="col-sm-10 minifisearch" id="referralname">
+                    <autosearch itemid="item.ReferralId" iteminfo="" rowdata="" name="'referredby'"
+                        config="vm.referralcontrolconfig" itemchange="getReferral($select.selected)" isrequired="true">
+                    </autosearch>
+                </div>
+                <div class="col-sm-2 pull-right">
+                    <button class="btn-add" type="button" ng-show="item.PatientId > 0" ng-click="addReferral()"
+                        uib-tooltip="{{'admissions.addreferred-tooltip.lbl' | translate }}" tooltip-placement="top">
+                        <i class="fa fa-plus" aria-hidden="true"></i>
+                    </button>
+                </div>
+            </div>
+            <!-- </div> -->
+            <!-- <div class="col-sm-12" > -->
+
+            <div class="form-group col-sm-3">
+                <label class="col-sm-12 control-label" for="guarantor" translate="admission.guarantorname.lbl"></label>
+                <div class="col-sm-12">
+                    <div class="col-sm-10 no-pad search-left">
+                        <!-- <ui-select ng-model="item.GuarantorId" name="guarantor" tabindex="tabindexmap.patienttabindex" ng-change="guarantorType($select.selected.Id)" required>
+                            <ui-select-match>
+                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                <span ng-if="$select.selected.Text.length>20">...</span>
+                            </ui-select-match>
+                            <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.Guarantor | filter: { Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search">
+                                </div>
+                            </ui-select-choices>
+                        </ui-select> -->
+                        <autosearch itemid="item.GuarantorId" ttabindex="tabindexmap.patienttabindex" iteminfo=""
+                            name="'guarantor'" rowdata="" config="vm.guarantorcontrolconfig" candisable=""
+                            itemchange="getBedInfo()" isrequired="true">
+                        </autosearch>
+                    </div>
+                    <div class="col-sm-2">
+                        <button class="infosummary" ng-if="item.PatientId>0" ng-click="addGuarantor()">
+                            <i class="fas fa-info-circle"></i>
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+            <div class="form-group col-lg-3">
+                <label class="col-lg-12 control-label" translate="Insurance/Claim No"></label>
+                <div class="col-lg-12">
+                    <input type="text" id="InsuranceNumber" class="form-control" name="InsuranceNumber"
+                        tabindex="tabindexmap.patienttabindex" ng-model="item.InsuranceNumber"
+                        ng-disabled="item.candisable" placeholder="">
+                </div>
+            </div>
+            <div class="form-group col-sm-3">
+                <label class="col-sm-12 control-label" for="guarantortype"
+                    translate="registration.registrationcumvisit.guarantortype.lbl"></label>
+                <div class="col-sm-12">
+                    <ui-select ng-model="item.GuarantorTypeId" tabindex="tabindexmap.patienttabindex"
+                        name="guarantortype" ng-change="GetGuarantor()" required>
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 20 : 0}}
+                            <span ng-if="$select.selected.Text.length>20">...</span>
+                        </ui-select-match>
+                        <ui-select-choices
+                            repeat="lookupitem.Id as lookupitem in lookup.GuarantorType | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search">
+                            </div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+            <div class="form-group col-sm-3">
+                <label class="col-sm-12 control-label" for="admissiondate"
+                    translate="admission.admissiondate.lbl"></label>
+                <div class="col-sm-12">
+                    <input type="text" ng-blur="populateEstimateDisDate()" class="form-control" name="admissiondate"
+                        ng-disabled="ShowAdmissionDate" ng-change="populateEstimateDisDate()" ng-date-object
+                        datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}"
+                        uib-datepicker-popup="{{datePickerOptions.dateTimeFormat}}"
+                        placeholder="{{datePickerOptions.placeholder}}" ng-click="DOADatePopup = { opened: true }"
+                        is-open="DOADatePopup.opened" ng-model="item.AdmissionDate" tabindex="-1" required>
+                </div>
+            </div>
+            <!-- </div> -->
+            <!-- <div class="col-sm-12 " > -->
+            <div class="form-group col-sm-3">
+                <label class="col-sm-12 control-label" for="location" translate="admission.location.lbl"></label>
+                <div class="col-sm-10">
+                    <!-- <ui-select ng-model="item.LocationId" name="location" ng-disabled="item.isAdmitted" on-select="wardLookUp($select.selected)" ng-change="wardLookUp($select.selected)" required> -->
+                    <ui-select ng-model="item.LocationId" name="location" ng-disabled="item.isAdmitted"
+                        ng-change="wardLookUp($select.selected)" required>
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 20 : 0}}
+                            <span ng-if="$select.selected.Text.length>20">...</span>
+                        </ui-select-match>
+                        <ui-select-choices
+                            repeat="lookupitem.Id as lookupitem in lookup.Location | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+                <div class="col-sm-2">
+                    <a class="bed-link" ng-click="openWardBed()" ng-show="item.PatientId>0 ">
+                        <i class="fas fa-procedures"></i>
+                    </a>
+                </div>
+
+            </div>
+            <div class="form-group col-sm-3">
+                <label class="col-sm-12 control-label" for="ward" translate="admission.ward.lbl"></label>
+                <div class="col-sm-12">
+                    <ui-select ng-model="item.WardId" name="ward" ng-disabled="item.isAdmitted"
+                        ng-change="getRoomLookUp()" required>
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 20 : 0}}
+                            <span ng-if="$select.selected.Text.length>20">...</span>
+                        </ui-select-match>
+                        <ui-select-choices
+                            repeat="lookupitem.Id as lookupitem in lookup.Ward | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+            <div class="form-group col-sm-3">
+                <label class="col-sm-12 control-label" for="room" translate="admission.room.lbl"></label>
+                <div class="col-sm-12">
+                    <ui-select ng-model="item.RoomId" name="room" ng-disabled="item.isAdmitted"
+                        ng-change="getBedLookUp()" required>
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 20 : 0}}
+                            <span ng-if="$select.selected.Text.length>20">...</span>
+                        </ui-select-match>
+                        <ui-select-choices
+                            repeat="lookupitem.Id as lookupitem in lookup.Room | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+            <!-- </div> -->
+            <!-- <div class="col-sm-12 " > -->
+            <div class="form-group col-sm-3">
+                <label class="col-sm-12 control-label" for="bed" translate="admission.bed.lbl"></label>
+                <div class="col-sm-12">
+                    <ui-select ng-model="item.BedId" name="bed" ng-disabled="item.isAdmitted" ng-change="tariffChange()"
+                        required>
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 20 : 0}}
+                            <span ng-if="$select.selected.Text.length>20">...</span>
+                        </ui-select-match>
+                        <ui-select-choices
+                            repeat="lookupitem.Id as lookupitem in lookup.Bed | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+
+
+            <div class="form-group col-sm-3">
+                <label class="col-sm-12 control-label" translate="admission.serviceratecatgory.lbl"></label>
+                <div class="col-sm-12">
+                    <ui-select ng-model="item.ServiceRateCategoryId" tabindex="-1" ng-disabled="DisRateType"
+                        on-select="SelectedServiceRate($select.selected)" required>
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 20 : 0}}
+                            <span ng-if="$select.selected.Text.length>20">...</span>
+                        </ui-select-match>
+                        <ui-select-choices
+                            repeat="lookupitem.Id as lookupitem in lookup.ServiceRateCategory | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+            <div class="form-group col-sm-3">
+                <label class="col-sm-12 control-label" translate="admission.provisonaldiagnosis.lbl"></label>
+                <div class="col-sm-10" id="minfi-left">
+                    <autosearch itemid="item.DiagnosisId" iteminfo="" rowdata="" config="vm.diagnosiscontrolconfig"
+                        itemchange="getDiagnosis()" tabindex="-1">
+                    </autosearch>
+                </div>
+                <div class="col-sm-2 pull-right">
+                    <button class="btn-add" type="button" ng-disabled="item.isAdmitted" ng-show="item.PatientId > 0"
+                        ng-click="Diagnosis()" uib-tooltip="{{'admissions.adddiagnosis-tooltip.lbl' | translate }}"
+                        tooltip-placement="top">
+                        <i class="fa fa-plus" aria-hidden="true"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="form-group col-sm-3">
+                <label class="col-sm-12 control-label" translate="admission.otherdiagnosis.lbl"></label>
+                <div class="col-sm-12 filter-lbl">
+                    <input type="text" class="form-control" name="otherdiagnosis" ng-model="item.OtherDiagnosis"
+                        ng-disabled="item.isl" placeholder="" tabindex="-1">
+                </div>
+            </div>
+            <div class="form-group col-sm-3">
+                <label class="col-sm-12 control-label" translate="admission.admissionremarks.lbl"></label>
+                <div class="col-sm-10 " id="reason">
+                    <autosearch itemid="item.RemarkId" iteminfo="" rowdata="" config="vm.remarkcontrolconfig">
+                    </autosearch>
+                </div>
+                <div class="col-sm-2">
+                    <button type="button" class="btn-add" tabindex="25" ng-click="addRemark()"
+                        uib-tooltip="{{ 'Add New Reason'}}" tooltip-placement="top">
+                        <i class="fa fa-plus" aria-hidden="true"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="form-group col-sm-3">
+                <label class="col-sm-12 control-label" translate="Scheme"></label>
+                <div class="col-sm-12" id="reason">
+                    <ui-select ng-model="item.PromotionalSchemeId">
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 20 : 0}}
+                            <span ng-if="$select.selected.Text.length>20">...</span>
+                        </ui-select-match>
+                        <ui-select-choices
+                            repeat="lookupitem.Id as lookupitem in lookup.PromotionalScheme | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search">
+                            </div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+            <div class="form-group col-sm-3">
+                <label class="col-sm-12 control-label" translate="PAN#"></label>
+                <div class="col-sm-12" id="reason">
+                    <input type="text" class="form-control" name="otherdiagnosis" ng-model="item.PANNo" placeholder="">
+                </div>
+            </div>
+            <div class="form-group col-sm-3">
+                <label class="col-sm-12 control-label" translate="Estimation Cost"></label>
+                <div class="col-sm-12">
+                    <input type="text" class="form-control" name="estcost" ng-model="item.EstimationCost"
+                        placeholder="">
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="accordion">
+                <div class="item">
+                    <div class="drhms-sub-header text" translate="admissions.info2.lbl">
+                    </div>
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                        stroke="currentColor" class="icon">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                    </svg>
+                    <div class="hidden-box">
+                        <div class="form-group col-sm-3">
+                            <label class="col-sm-12 control-label" translate="admission.attendername.lbl"></label>
+                            <div class="col-sm-12 filter-lbl">
+                                <input type="text" class="form-control" name="attendername" ng-model="item.AttenderName"
+                                    ng-disabled="item.isl" placeholder="" tabindex="-1">
+                            </div>
+                        </div>
+                        <div class="form-group col-sm-3">
+                            <label class="col-sm-12 control-label" translate="admission.relationship.lbl"></label>
+                            <div class="col-sm-12">
+                                <ui-select ng-model="item.GuardianTypeId" ng-disabled="item.isl" tabindex="-1">
+                                    <ui-select-match>
+                                        {{$select.selected.Text | limitTo : 20 : 0}}
+                                        <span ng-if="$select.selected.Text.length>20">...</span>
+                                    </ui-select-match>
+                                    <ui-select-choices
+                                        repeat="lookupitem.Id as lookupitem in lookup.GuardianType | filter: { Text: $select.search }">
+                                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                    </ui-select-choices>
+                                </ui-select>
+                            </div>
+                        </div>
+                        <div class="form-group col-sm-3">
+                            <label class="col-sm-12 control-label" for="mobile"
+                                translate="admission.phoneno.lbl"></label>
+                            <div class="col-sm-12">
+                                <input type="text" class="form-control" name="mobile" ng-model="item.AttenderPhone"
+                                    placeholder="" ng-disabled="item.isl" MINLENGTH="10" MAXLENGTH="10" size="10"
+                                    value="" name="mobile" onChange="numberonly($event)" onKeyUp="numberonly($event)"
+                                    ng-keypress="numberonly($event)" ng-pattern="/^\d+$/">
+                            </div>
+                        </div>
+                        <div class="form-group col-sm-3">
+                            <label class="col-sm-12 control-label" translate="admission.attendername1.lbl"></label>
+                            <div class="col-sm-12 filter-lbl">
+                                <input type="text" class="form-control" name="attendername1"
+                                    ng-model="item.AttenderName1" ng-disabled="item.isl" placeholder="" tabindex="-1">
+                            </div>
+                        </div>
+                        <div class="form-group col-sm-3">
+                            <label class="col-sm-12 control-label" translate="admission.relationship1.lbl"></label>
+                            <div class="col-sm-12">
+                                <ui-select ng-model="item.GuardianTypeId1" ng-disabled="item.isl" tabindex="-1">
+                                    <ui-select-match>
+                                        {{$select.selected.Text | limitTo : 20 : 0}}
+                                        <span ng-if="$select.selected.Text.length>20">...</span>
+                                    </ui-select-match>
+                                    <ui-select-choices
+                                        repeat="lookupitem.Id as lookupitem in lookup.GuardianType | filter: { Text: $select.search }">
+                                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                    </ui-select-choices>
+                                </ui-select>
+                            </div>
+                        </div>
+                        <div class="form-group col-sm-3">
+                            <label class="col-sm-12 control-label" for="mobile1"
+                                translate="admission.phoneno1.lbl"></label>
+                            <div class="col-sm-12">
+                                <input type="text" class="form-control" name="mobile1" ng-model="item.AttenderPhone1"
+                                    placeholder="" ng-disabled="item.isl" MINLENGTH="10" MAXLENGTH="10" size="10"
+                                    value="" name="mobile" onChange="numberonly($event)" onKeyUp="numberonly($event)"
+                                    ng-keypress="numberonly($event)" ng-pattern="/^\d+$/">
+                            </div>
+                        </div>
+                        <div class="form-group col-sm-3">
+                            <label class="col-sm-12 control-label" translate="admission.estdischargeday.lbl"></label>
+                            <div class="col-sm-12 filter-lbl  topright">
+                                <input type="text" class="form-control" name="estdischargeday" ng-date-object
+                                    uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                                    placeholder="{{datePickerOptions.placeholder}}"
+                                    ng-click="estdischargedayPopup = { opened: true }"
+                                    is-open="estdischargedayPopup.opened" ng-model="item.ExpectedDischargeDate"
+                                    tabindex="-1">
+                            </div>
+                        </div>
+                        <div class="form-group col-sm-3">
+                            <div class="col-sm-2">
+                                <label class="col-sm-12 control-label"
+                                    translate="registration.quickregistration.mrd.lbl"></label>
+                                <div class="col-sm-12">
+                                    <input ng-disabled="SaveCompleted" type="checkbox" name="comnmrd"
+                                        class="custom-checkbox" tabindex="tabindexmap.patienttabindex"
+                                        ng-model="item.IsMRDFileCreation">
+                                </div>
+                            </div>
+                            <div class="col-sm-10">
+                                <label class="col-sm-12 control-label" translate="admission.location.lbl"></label>
+                                <div class="col-sm-12">
+                                    <input type="text" class="form-control" name="mlcinformation" placeholder=""
+                                        ng-click="" is-open="" ng-model="" tabindex="-1">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group col-sm-3">
+                            <div class="col-sm-2">
+                                <label class="col-sm-12 control-label" translate="MLC"></label>
+                                <div class="col-sm-12">
+                                    <input type="checkbox" name="comnmrd" class="custom-checkbox"
+                                        tabindex="tabindexmap.patienttabindex" ng-model="item.IsMLC">
+                                </div>
+                            </div>
+                            <div class="col-sm-10">
+                                <label class="col-sm-12 control-label" translate="MLC Information"></label>
+                                <div class="col-sm-12">
+                                    <input type="text" class="form-control" name="mlcinformation"
+                                        ng-model="item.MLCInfo" placeholder="">
+                                </div>
+                            </div>
+
+                        </div>
+                        <div class="form-group col-sm-3">
+                            <label class="col-sm-12 control-label" translate="Admitted By"></label>
+                            <div class="col-sm-12">
+                                {{item.Created.FirstName}}&nbsp;{{item.Created.LastName}}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="fooder-bgs">
+            <div class="">
+                <div class="col-sm-12">
+                    <div class="col-sm-6">
+                        <div class="pull-left">
+                            <button type="button" class="btn pyr-color10 btn-sm" tabindex="-1" ng-click="backToList()">
+                                <i class="fa fa-angle-left" aria-hidden="true"></i>
+                                <span class="btn-fontsize"> &nbsp; Back</span>
+                            </button>
+                            <!-- <button type="button" class="draftbutton" tabindex="-1" ng-click="concentform()">
+                                <span class="btn-fontsize"> &nbsp; Online Consent</span>
+                            </button> -->
+                            <button id="btnCancelForm" type="button" class="draftbutton"
+                                ng-if="HasAccess('IPAdmissionButton','AdmCancel')" ng-show="canShowCancelledBtn"
+                                ng-click="admsnCancel()">
+                                <span class="btn-fontsize"> &nbsp; Cancel
+                                </span>
+                            </button>
+                            <button type="button" class="draftbutton" tabindex="-1" ng-show="canbedoccupancyBtn" ng-click="openattachments()">
+                                <i class="fa-solid fa-paperclip" aria-hidden="true"></i>
+                                <span class="btn-fontsize"> &nbsp; Attachment</span>
+                            </button>
+                            <!-- <button class="draftbutton" tabindex="-1" type="button" ng-show="canhistoryBtn"
+                                uib-tooltip="History" tooltip-placement="top" ng-click="admissionhistory()">
+                                <span class="ng-scope">History</span>
+                            </button> -->
+                            <button class="draftbutton"  ng-if="HasAccess('IPAdmissionButton','AdmBedHistory')"  tabindex="-1" uib-tooltip="Bed Occupancy" type="button"
+                                tooltip-placement="top" ng-click="Bedoccupancy()" ng-show="canbedoccupancyBtn">
+                                <span class="ng-scope">Bed History</span>
+                                <!-- <img class="imgsrc" src="app/img/main/hospital-bed.png"> -->
+                            </button>
+                            <button type="button" class="draftbutton" ng-click="mlcForm()" tabindex="-1"
+                                ng-show="item.IsMLC==true" translate="">
+                                <span class="ng-scope">Medico Legal</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="pull-right">
+                            <ul class="nav navbar-nav" id="print" ng-show="item.AdmissionStatusId>=2">
+                                <li uib-dropdown="" class="dropdown dropdown-list custom-li">
+                                    <button uib-dropdown-toggle="" ng-show="item.EncounterTypeId>=2" class="draftbutton" ng-disabled=""
+                                        hotkey="{'alt+p': print}">
+                                        <span translate="common.printaction.lbl"></span>
+                                    </button>
+                                    <ul class="dropdown-menu top" role="menu" aria-labelledby="dLabel">
+                                        <li>
+                                            <a class="" ng-click="admissionlablescript()">
+                                                <span>
+                                                    <i class="fa fa-angle-right" aria-hidden="true"></i>
+                                                </span>&nbsp;&nbsp;&nbsp;
+                                                <span translate="Barcode"></span>
+                                            </a>
+                                        </li>
+                                        <!-- <li tabindex="-1">
+                                            <a ng-click="print2()">
+                                                <span>
+                                                    <i class="fa fa-angle-right" aria-hidden="true"></i>
+                                                </span>&nbsp;&nbsp;&nbsp;
+                                                <span translate="Admission Label"></span>
+                                            </a>
+                                        </li> -->
+                                        <li tabindex="-1">
+                                            <a ng-click="print5()">
+                                                <span>
+                                                    <i class="fa fa-angle-right" aria-hidden="true"></i>
+                                                </span>&nbsp;&nbsp;&nbsp;
+                                                <span translate="Admission Label(A5)"></span>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a ng-click="openPatientConsentPrint()">
+                                                <span>
+                                                    <i class="fa fa-angle-right" aria-hidden="true"></i>
+                                                </span>&nbsp;&nbsp;&nbsp;
+                                                <span translate="Consent Form"></span>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a ng-click="print()">
+                                                <span>
+                                                    <i class="fa fa-angle-right" aria-hidden="true"></i>
+                                                </span>&nbsp;&nbsp;&nbsp;
+                                                <span translate="Admin Form"></span>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a ng-click="wristbandprint()">
+                                                <span>
+                                                    <i class="fa fa-angle-right" aria-hidden="true"></i>
+                                                </span>&nbsp;&nbsp;&nbsp;
+                                                <span translate="Wrist Band"></span>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </li>
+                            </ul>
+                            <button id="btnSave" style="margin-left: 7px;" type="button" class="draftbutton"
+                                ng-show="canShowSaveBtn" translate="common.saveaction.lbl" ng-click="save()"></button>
+                            <button id="btnSaveApprove" tabindex="tabindexmap.patienttabindex" type="button"
+                                ng-show="canShowSaveandApproveBtn && !currentcontext.isemergency && !currentcontext.isdaycare"
+                                class="draftbutton   focusbtns" translate="common.saveapprove-action.lbl"
+                                ng-click="saveAndApprove()"></button>
+                            <button id="btnSaveApprove" type="button"
+                                ng-show="canShowSaveandApproveBtn && currentcontext.isemergency" class="draftbutton"
+                                translate="common.saveapprove-action.lbl" ng-click="saveEmergency()"></button>
+                            <button id="btnSaveApprove" type="button"
+                                ng-show="canShowSaveandApproveBtn && !currentcontext.isemergency && currentcontext.isdaycare"
+                                class="draftbutton" translate="common.saveapprove-action.lbl"
+                                ng-click="savedaycare()"></button>
+                            <button id="btndischarge" type="button" ng-show="canphysicaldischargeBtn"
+                                class="draftbutton" ng-click="patientDischarge()"
+                                translate="admission.discharge-action.lbl"></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+<script>
+    const iconUpDown = document.querySelectorAll(".icon");
+    iconUpDown.forEach((icon) => {
+        icon.addEventListener("click", (e) => {
+            icon.classList.toggle("icon-rotate");
+            icon.parentElement.classList.toggle("open");
+        });
+    });
+</script>

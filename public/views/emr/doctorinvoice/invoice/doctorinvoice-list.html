@@ -1,0 +1,100 @@
+<link rel="stylesheet" href="app/css/drhms.css">
+<style>
+    /* table.table.table-bordered.table-condensed.dropdown-menu.align {
+        margin-left: -288px;
+    } */
+    autosearch .custom-popup-wrapper {
+        margin-left: -200px;
+    }
+</style>
+<div class="row">
+    <div class="drhms-filters">
+        <div class="col-sm-10">
+            <h4 translate="doctorinvoice-list.pagetitle.lbl"></h4>
+        </div>
+        <div class="col-sm-4">
+            <!-- controlid="'DoctorId'" -->
+            <autosearch itemid="item.DoctorId" tabindex="tabindexmap.patienttabindex" iteminfo="" rowdata=""
+                name="'doctor'" config="vm.doctorcontrolconfig" candisable="SaveCompleted" isrequired="true"
+                placeholder="'Doctor'"></autosearch>
+        </div>
+        <div class="col-sm-1">
+            <button type="button" class="drhms-billing-btn drhms-add-btn" ng-click="addNew()"
+                uib-tooltip="{{ 'doctorinvoice-list.pagetitle.lbl' | translate}}" tooltip-placement="bottom">
+                <i class="fa fa-plus"></i>
+            </button>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <form id="item_form" name="item_form" class="form-horizontal" role="form">
+        <div class="drhms-table-top-header">
+            <div class="drhms-table-head-border">
+                <div class="col-sm-12">
+                    <label class="col-sm-4" translate="doctorinvoice-list.filter_fromdate.lbl"></label>
+                    <div class="col-sm-8">
+                        <input type="text" class="form-control" name="fromdate" ng-change="getList()"
+                            datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}"
+                            uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                            placeholder="{{datePickerOptions.placeholder}}"
+                            ng-click="FrmDateToDatedatePopup = { opened: true }" is-open="FrmDateToDatedatePopup.opened"
+                            ng-model="currentfilter.FrmDate">
+                    </div>
+                </div>
+                <div class="col-sm-12">
+                    <label class="col-sm-4" translate="patientrequests.status.lbl"></label>
+                    <div class="col-sm-8">
+                        <ui-select ng-model="currentfilter.InvoiceStatusId" ng-change="getList()" class="filter-combo">
+                            <ui-select-match>
+                                {{$select.selected.Text | limitTo : 25 : 0}}
+                                <span ng-if="$select.selected.Text.length>25">...</span>
+                            </ui-select-match>
+                            <ui-select-choices
+                                repeat="lookupitem.Id as lookupitem in lookup.DoctorInvoiceStatus | filter: { Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                </div>
+            </div>
+            <div class="drhms-table-head-border">
+                <div class="col-sm-12">
+                    <label class="col-sm-4" translate="doctorinvoice-list.filter_todate.lbl"></label>
+                    <div class="col-sm-8">
+                        <input type="text" class="form-control" name="invoicedate" ng-change="getList()"
+                            datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}"
+                            uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                            placeholder="{{datePickerOptions.placeholder}}"
+                            ng-click="ToDatedatePopup = { opened: true }" is-open="ToDatedatePopup.opened"
+                            ng-model="currentfilter.ToDate">
+                    </div>
+                </div>
+                <div class="col-sm-12">
+                    <label class="col-sm-4" translate="doctorinvoice-list.filter_invoiceno.lbl"></label>
+                    <div class="col-sm-8">
+                        <input type="text" class="form-control" on-enter="getList()"
+                            ng-model="currentfilter.DoctorInvoiceNo" translate
+                            translate-attr-placeholder="doctorinvoice-list.filter_invoiceno.lbl">
+                    </div>
+                </div>
+            </div>
+            <div class="drhms-table-head-border">
+                <div class="col-sm-12">
+                    <label class="col-sm-5" translate="doctorinvoice-list.totalinvamount.lbl"></label>
+                    <div class="col-sm-7">:
+                        {{TotalNetamount|displaycurrency}}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+<div class="fooder-bgs">
+    <div class="row">
+        <custom-table config="vm.gridConfig"></custom-table>
+        <ul uib-pagination total-items="vm.gridConfig.pagerObj.totalItems"
+            items-per-page="vm.gridConfig.pagerObj.pageSize" start-index="vm.gridConfig.pagerObj.startIndex"
+            ng-model="vm.gridConfig.pagerObj.currentPage" ng-change="getList()"></ul>
+    </div>
+</div>

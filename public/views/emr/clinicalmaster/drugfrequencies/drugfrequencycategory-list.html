@@ -1,0 +1,116 @@
+   <div class="row filter-area">
+        <div class="col-sm-12">
+            <div class="col-sm-9"></div>
+                    <!--<div class="col-sm-3 col-md-3">
+            <label class="col-sm-6 col-md-4 col-lg-4 control-label filter-lbl" translate="clinicalmaster.drugfrequency-list.filter_facility.lbl"></label>
+            <div class="input-group col-sm-7 col-md-9 col-lg-6">
+                <ui-select ng-model="currentfilter.FacilityId" ng-change="getList()" class="filter-combo">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 8 : 0}}
+                        <span ng-if="$select.selected.Text.length>8">...</span>
+                    </ui-select-match>
+                    <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.Facility | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+        <div class="col-sm-3 col-md-3">
+            <label class="col-sm-6 col-md-7 col-lg-5 control-label filter-lbl"  translate="clinicalmaster.drugfrequency-list.filter_namecode.lbl"></label>
+            <div class="input-group col-sm-9 col-md-9 col-lg-6"><div class="input-group-addon"><i class="fas fa-search" aria-hidden="true"></i></div>
+                <input type="text" class="form-control" name="filter_namecode" on-enter="getList()" ng-model="currentfilter.Name" 
+                            translate translate-attr-placeholder="clinicalmaster.drugfrequency-list.filter_namecode.lbl">
+            </div>
+             </div>
+        <div class="col-sm-3 col-md-3">
+            <label class="col-sm-6 col-md-4 col-lg-5 control-label filter-lbl" translate="clinicalmaster.drugfrequency-list.filter_drugfrequencytype.lbl"></label>
+            <div class="input-group col-sm-7 col-md-9 col-lg-6">
+                <ui-select ng-model="currentfilter.DrugFrequencyTypeId" ng-change="getList()" class="filter-combo">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 8 : 0}}
+                        <span ng-if="$select.selected.Text.length>8">...</span>
+                    </ui-select-match>
+                    <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.DrugFrequencyType | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>!-->
+ <div class="col-sm-3 col-md-3">
+ <button class="btn bt-color3 btn-xs pull-right btn-filter" ng-click="" uib-tooltip="{{ 'appmanager.users.advancefilter-tooltip.lbl' | translate  }}"
+                    tooltip-placement="bottom"><i class="fa fa-filter" aria-hidden="true"></i>&nbsp;&nbsp;<span translate="clinicalmaster.serviceitem-list.filter.lbl"></span></button>
+                <button class="btn bt-color2 btn-xs pull-right btn-filter" ng-click="addNew()" uib-tooltip="Frequency Category"
+                    tooltip-placement="bottom">
+                <i class="fa fa-plus" aria-hidden="true"></i><span translate="clinicalmaster.serviceitem-list.addnew.lbl"></span></button>
+
+
+            </div>
+
+        </div>
+    </div>
+
+    
+            <div id="page-editor">    
+                <table class="table table-hover table-responsive table-bordered">
+                    <thead class="bg-subhead">
+                        <tr>
+                            <th class="col-sm-4"><span translate="clinicalmaster.drugfrequencycategory-list.category.lbl"></span><span class="mandatory-asterix">*</span></th>
+
+                            <th class="col-sm-2"><span translate="clinicalmaster.drugfrequencycategory-list.activefrom.lbl"></span><span class="mandatory-asterix">*</span></th>
+                            <th class="col-sm-4"><span translate="clinicalmaster.drugfrequencycategory-list.activeto.lbl"></span></th>
+                            <th class="col-sm-1"><span translate="registration.patientidentity-list.status.lbl"></span></th>
+                            <th class="col-sm-1"><span translate="common.actions_col.lbl"></span></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="item in vm.items | filter:{Status:1}">
+                            <td>
+                                <ui-select ng-model="item.DrugFrequencyTypeId" name="type">
+                                    <ui-select-match>
+                                        {{$select.selected.Text | limitTo : 20 : 0}}
+                                        <span ng-if="$select.selected.Text.length>20">...</span>
+                                    </ui-select-match>
+                                    <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.DrugFrequencyType | filter: { Text: $select.search }">
+                                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                    </ui-select-choices>
+                                </ui-select>
+                            </td>
+                            <td>
+
+
+
+                                <input type="text" class="form-control" name="activefrom" ng-date-object uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                                    placeholder="{{datePickerOptions.placeholder}}" ng-click="activefromPopup = { opened: true }"
+                                    is-open="activefromPopup.opened" ng-model="currentfilter.ActiveFrom">
+
+
+
+
+                            </td>
+
+                            <td>
+                                <input type="text" class="form-control" name="activeto" ng-date-object datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}"
+                                    uib-datepicker-popup="{{datePickerOptions.dateFormat}}" placeholder="{{datePickerOptions.placeholder}}"
+                                    ng-click="activetoPopup = { opened: true }" is-open="activetoPopup.opened" ng-model="item.ActiveTo">
+                            </td>
+                            <td align="center">
+                                <input type="checkbox" class="custom-checkbox" ng-model="item.StatusId">
+                            </td>
+                            <td>
+                                <button class="btn btn-danger btn-xs" ng-click="deleteItem($index,item)">
+                        <img class="drhms-edit-button" src="assets/svg/delete.svg" alt="">
+                    </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="container-fluid">
+                    <div class="site-footer panel-footer">
+                        <button type="button" class="btn pyr-color10 btn-sm" ng-click="backToList()"><i class="fa fa-angle-left" aria-hidden="true" ></i>&nbsp;&nbsp;<span class="btn-fontsize"  translate="common.backaction.lbl"></span></button>
+                      <div class="footer-right">
+                        <button type="button" class="draftbutton" translate="common.saveaction.lbl" ng-click="saveItem()"></button>
+                        <button type="button" class="draftbutton" ng-click="clear()" translate="common.clearaction.lbl"></button>
+                    </div>
+                </div>
+            </div>

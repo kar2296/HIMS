@@ -1,0 +1,276 @@
+<style>
+    .modal-lg {
+        width: 1000px;
+    }
+
+    .panel-body {
+        padding: 15px;
+        margin-left: 0px;
+        margin-top: -53px;
+        margin-right: 0px;
+        margin-bottom: 0px;
+        background-image: url(app/img/bg-body.jpg);
+        background-repeat: repeat;
+        overflow: auto;
+    }
+
+    .modal-content .panel-body {
+        overflow: inherit;
+    }
+
+    .col-sm-2 {
+        width: 25.666667%;
+    }
+
+    .well {
+        min-height: 20px;
+        padding: 19px;
+        margin-bottom: 0px;
+        border: 1px solid #ededed;
+        border-radius: 4px;
+        background: rgb(233, 246, 253);
+        /* Old browsers */
+        background: -moz-linear-gradient(top, rgba(233, 246, 253, 1) 0%, rgba(211, 238, 251, 1) 100%);
+        /* FF3.6-15 */
+        background: -webkit-linear-gradient(top, rgba(233, 246, 253, 1) 0%, rgba(211, 238, 251, 1) 100%);
+        /* Chrome10-25,Safari5.1-6 */
+        background: linear-gradient(to bottom, rgb(250, 250, 250) 0%, rgb(247, 252, 253) 100%);
+        /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+        filter: progid: DXImageTransform.Microsoft.gradient(startColorstr='#e9f6fd', endColorstr='#d3eefb', GradientType=0);
+        /* IE6-9 */
+        box-shadow: 4px 2px 13px -7px rgba(0, 0, 0, 0.75);
+    }
+
+    /* .formactionbar {
+        padding: 5px 15px;
+        height: 40px;
+        background-color: #ccecf5;
+    } */
+
+    .custom-modal-header {
+        margin-bottom: 10px;
+        background-color: #597a9a;
+        color: #fff;
+    }
+
+    .modal-content {
+        -webkit-box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+        box-shadow: -1px 3px 20px 7px rgba(249, 244, 244, 0.5);
+    }
+
+    .modal-header {
+        padding: 4px 10px;
+        border-bottom: 1px solid #e5e5e5;
+    }
+
+    .params {
+        text-align: center;
+        width: 100px;
+        color: teal;
+        font-size: 15px;
+    }
+
+    .arms {
+        text-align: center;
+        color: tomato !important;
+        font-weight: 700;
+        font-style: italic;
+        font-size: 16px;
+    }
+
+    .tabhead {
+        text-align: center;
+        color: blueviolet !important;
+        font-size: 14px;
+        font-weight: 700;
+    }
+
+    td.form-group.uib-time.minutes {
+        border: unset !important;
+    }
+
+    td.uib-separator {
+        border: unset !important;
+    }
+
+    td.form-group.uib-time.hours {
+        border: unset !important;
+    }
+
+    td.form-group.uib-time.hours>input {
+        width: 53px;
+        border: 0.9px dashed !important;
+    }
+
+    td.form-group.uib-time.minutes>input {
+        width: 58px;
+        border: 0.9px dashed;
+    }
+
+    td>span {
+        display: flex;
+    }
+
+    /* input.form-control {
+        width: 43%;
+    } */
+    .custom-popup-wrapper {
+        position: absolute;
+        right: 0;
+    }
+
+    ul.uib-datepicker-popup.dropdown-menu.ng-scope {
+        left: 0px !important;
+    }
+
+
+    @media screen and (min-width: 1024px) {
+
+        ul.uib-datepicker-popup.dropdown-menu.ng-scope {
+            top: 0px !important;
+            left: 0px !important;
+        }
+
+    }
+
+    .form-horizontal .control-label {
+        padding-top: 12px !important;
+    }
+
+    table.uib-timepicker {
+        margin-top: -12px;
+    }
+</style>
+<div class="modal-header custom-modal-header">
+    <div class="col-sm-12 ">
+        <div class="col-sm-6">
+            <h4 class="modal-title custom-modal-title" translate="Manage CD4 & CD8 Chart"></h4>
+        </div>
+        <div class="col-sm-6">
+            <button type="button" class="btn btn-danger btn-sm pull-right" translate="x"
+                ng-click="cancelCallback()"></button>
+        </div>
+    </div>
+
+</div>
+
+<div class="row">
+    <div class="col-sm-12">
+        <form id="item_form" name="item_form" class="form-horizontal" role="form" ng-submit="saveItem()">
+            <div>
+                <div class="">
+                    <div class="panel-body form-panel">
+                        <div class="col-sm-12 ">
+                            <div class="col-sm-4 form-group">
+                                <label class="col-sm-4 control-label"
+                                    translate="patientemr.criticalcharts.date.lbl"></label>
+                                <div class="col-sm-7">
+                                    <input type="text" class="form-control" name="fromdate" ng-date-object
+                                        uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                                        placeholder="{{datePickerOptions.placeholder}}"
+                                        ng-click="fromdatePopup = { opened: true }" is-open="fromdatePopup.opened"
+                                        ng-model="item.CdChartDate" required>
+                                </div>
+                            </div>
+                            <div class="col-sm-4 form-group">
+                                <label class="col-sm-4 control-label"
+                                    translate="patientemr.criticalcharts.time.lbl"></label>
+                                <div class="col-sm-7">
+                                    <uib-timepicker name="gracetime" ng-model="item.CdChartTime" ng-time-object>
+                                    </uib-timepicker>
+                                </div>
+                            </div>
+                            <div class="col-sm-4 form-group">
+                                <label class="col-sm-4 control-label" for="signature" translate="User"></label>
+                                <div class="col-sm-7">
+                                    <autosearch itemid="item.CreatedById" iteminfo="" candisable="isDisabled" rowdata=""
+                                        config="vm.usercontrolconfig">
+                                    </autosearch>
+                                </div>
+                            </div>
+                            <!-- <table class="table table-hover table-responsive table-bordered">
+                                    <thead class="bg-subhead">
+                                        <tr>
+                                            <th rowspan="3" colspan="2" style="text-align: center;">
+                                                <span translate="CD4"></span>
+                                            </th>
+                                            <th colspan="3"  style="text-align: center;">
+                                                <span translate="CD8"></span>
+                                            </th>
+                                            <th colspan="3"  style="text-align: center;">
+                                                <span translate="Viral Load"></span>
+                                           </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="ng-scope">
+                                                <tr align="center">
+                                                    <td class="lefcol2" colspan="2">
+                                                            <span translate="patientemr.criticalcharts.chartbp.lbl"></span>
+                                                    </td>
+                                                    <td>
+                                                        <input type="text" class="form-control" ng-model="item.RightSittingSys" placeholder="" required>
+                                                    </td>
+                                                    <td>
+                                                        <input type="text" class="form-control" ng-model="item.RightSittingDia" placeholder="" required>
+                                                    </td>
+                                                    <td colspan="1">
+                                                       <input type="text" class="form-control" ng-model="item.LeftLyingSys" placeholder="" required>
+                                                    </td>
+                                                    <td>
+                                                       <input type="text" class="form-control" ng-model="item.LeftLyingSys" placeholder="" required>
+                                                    </td>   
+                                                </tr>                                          
+                                            
+                                            
+                                        </tbody>
+                                   </table> -->
+                            <table class="table table-hover table-responsive table-bordered">
+                                <tr>
+                                    <th colspan="2">CD4</th>
+                                    <th colspan="2">CD8</th>
+                                    <th colspan="2">Viral Load</th>
+                                </tr>
+                                <tr>
+                                    <td class="lefcol2">
+                                        <input type="text" class="form-control" ng-model="item.Cd4" placeholder=""
+                                            required>
+                                    </td>
+                                    <td class="lefcol2">
+                                        <span>Cells/Cu.mm</span>
+                                        <!-- <span translate="patientemr.criticalcharts.chartbp.lbl">Cells/Cu.mm</span> -->
+                                    </td>
+                                    <td>
+                                        <!-- <span>a</span> -->
+                                        <input type="text" class="form-control" ng-model="item.Cd8" placeholder=""
+                                            required>
+                                    </td>
+                                    <td>
+                                        <span>Cells/Cu.mm</span>
+                                        <!-- <input type="text" class="form-control" ng-model="item.RightSittingDia" placeholder="" required> -->
+                                    </td>
+                                    <td colspan="1">
+                                        <!-- <span>a</span> -->
+                                        <input type="text" class="form-control" ng-model="item.ViralLoad" placeholder=""
+                                            required>
+                                    </td>
+                                    <td>
+                                        <span>Cells/Cu.mm</span>
+
+                                        <!-- <input type="text" class="form-control" ng-model="item.LeftLyingSys" placeholder="" required> -->
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+    </div>
+</div>
+<div class="fooder-bgs" style="margin-right: 28px;">
+    <div class="pull-right">
+        <button type="button" id="btncolor" class="draftbutton" translate="common.saveaction.lbl"
+            ng-click="save()"></button>
+        <!-- <button id="btnCancelForm" type="button" class="draftbutton" ng-click="backToList()" translate="common.cancelaction.lbl"></button> -->
+    </div>
+</div>
+</form>

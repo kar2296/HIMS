@@ -1,0 +1,94 @@
+<!-- <style>
+    .page-header {
+        margin: 0px 0px 2px 0px !important;
+        padding-bottom: 11px !important;
+    }
+
+    .fontctrl {
+        color: #ffffff;
+        text-shadow: 0 1px 1px #194B7E;
+    }
+
+    .wobanner {
+        background-color: #597A9A
+    }
+    p {
+    margin: 0 0 1.5px;
+}
+#workorder .table>tbody>tr>td {
+    vertical-align: middle;
+    border: 1px solid gainsboro !important;
+}
+</style> -->
+<div class="row">
+    <h3 class="col-sm-12 mt0" translate="ordermanagement.radiologyresult-list.pagetitle.lbl"></h3>
+    <!-- <div class="col-sm-3">
+        <span class="drhms-billing-btn drhms-outstandingbill-btn" ng-click="doctor_dashboard()"
+            uib-tooltip="{{'patientemr.mock.emrdashboard.lbl' | translate}}" tooltip-placement="bottom">
+            <i class="fas fa-th-large" aria-hidden="true"></i>
+        </span>
+    </div> -->
+</div>
+<emrpatientbanner ng-if="Context=='emr'||Context=='aeemr'||Context=='vorders'" patientid="currentcontext.pid"
+    encounterid="currentcontext.eid"></emrpatientbanner>
+<ippatientbanner ng-if="Context=='ipemr' || Context=='aeemr'" patientid="currentcontext.pid"
+    encounterid="currentcontext.eid">
+</ippatientbanner>
+
+<div class="row">
+    <div class="drhms-table-height">
+        <table class="table table-hover table-responsive table-bordered">
+            <thead class="bg-subhead">
+                <tr>
+                    <th class="col-sm-2"><span translate="ordermanagement.labresult-list.date.lbl"></span></th>
+                    <th class="col-sm-2"><span translate="ordermanagement.labresult-list.test.lbl"></span></th>
+                    <th class="col-sm-2"><span translate="ordermanagement.labresult-list.parameters.lbl"></span>
+                    </th>
+                    <th class="col-sm-5"><span translate="ordermanagement.labresult-list.result.lbl"></span>
+                    </th>
+                    <th class="col-sm-1"><span translate="ordermanagement.labresult-list.includecasesheet.lbl"></span>
+                    </th>
+                </tr>
+            </thead>
+            <tbody ng-repeat="test in currentcontext.woDetails">
+                <tr ng-repeat="item in test.details | filter:{Status:1}">
+                    <td>
+                        <span ng-if="item.ApprovalSubmisdate">
+                            <displaydate datetime-val='item.ApprovalSubmisdate'></displaydate>
+                        </span>
+                    </td>
+                    <td>
+                        <span ng-if="item.heading" class="btn btn-primary btn-xs">{{item.heading}}</span>
+                    </td>
+                    <td>
+                        <span style="margin-left:24px;  vertical-align: super;
+                                color: #0dbef1; font-weight: 700; white-space: nowrap;
+                                text-overflow: ellipsis; overflow: auto;">{{item.Analytename}}</span>
+                    </td>
+                    <td>
+                        <span ng-bind-html="item.Resultvalue"></span>
+                    </td>
+                    <td>
+                        <input type="checkbox" class="custom-checkbox" ng-model="item.IsIncludeDischargeSheet">
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+
+<div class="fooder-bgs">
+    <div class="row">
+        <div class="pull-left">
+            <button type="button" class="btn pyr-color10 btn-sm" ng-click="backToList()">
+                <i class="fa fa-angle-left" aria-hidden="true"></i>
+                <span class="btn-fontsize"> &nbsp; Back</span>
+            </button>
+        </div>
+        <div class="pull-right">
+            <button id="btnSave" type="button" class="draftbutton" translate="common.saveaction.lbl"
+                ng-click="saveItem()"></button>
+        </div>
+    </div>
+</div>

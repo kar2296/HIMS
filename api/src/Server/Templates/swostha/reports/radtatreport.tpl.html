@@ -1,0 +1,79 @@
+<html>
+
+<head>
+  <style>
+    .table1 {
+      border: 1px solid black;
+      font-size: 8px;
+    }
+    
+    .table2 {
+      border: 1px solid black;
+      border-top: 0px solid black;
+      font-size: 8px;
+    } 
+    
+    {{include '/Templates/assets/css/core.css'}}
+  </style>
+</head>
+
+<body>
+  <div id="pageHeader">
+    {{{include '/Templates/swostha/common/header.tpl.html' 'tpl'}}}
+  </div> 
+    <div style="text-align:center;font-size: 8px;"><b>Radiology TAT Report</b></div>
+    <table class="table1" style="width:100%;"> 
+      <tr style='vertical-align: top'>
+        <td style="width:5%;"><b>FromDate</b></td>
+        <td>:</td>
+        <td style="width:15%;"><b>{{data.FromDate}}</b></td>
+        <td style="width:5%;"><b>ToDate</b></td>
+        <td>:</td>
+        <td style="width:15%;"><b>{{data.ToDate}}</b></td>
+        <td style="width:5%;"><b>Clinics</b></td>
+        <td>:</td>
+        <td style="width:25%;"><b>{{data.FacilityName}}</b></td>
+        <td style="width:5%;"><b>Test Name</b></td>
+        <td>:</td>
+        <td style="width:25%;"><b>{{data.TestName}}</b></td> 
+      </tr> 
+    </table> 
+  </br>
+    <table class="table1" style="width:100%;">
+      <tr>
+        <td style="width:5%;"><b>S.No</b></td>
+        <td style="width:5%"><b>MRN</b></td>
+        <td style="width:10%"><b>Patient Name</b></td>
+        <td style="width:5%"><b>Order No</b></td>
+        <td style="width:15%"><b>Test Name</b></td>
+        <td style="width:5%"><b>Order Status</b></td>
+        <td style="width:10%"><b>Order Date and Time</b></td>
+        <td style="width:10%"><b>Sample Collected Time</b></td>
+        <td style="width:10%"><b>Result Entered Time</b></td>
+        <td style="width:10%"><b>Result Approval Time</b></td>
+        <td style="width:10%"><b>Result Dispatch Time</b></td>
+        <td style="width:5%"><b>Total TAT</b></td>
+      </tr>
+    </table>
+    <table class="table2" style="width:100%;">
+      {{#each data.OrderTatDetails}}
+      <tr>
+        <td style="width:5%;">{{inc @index}}</td>
+        <td style="width:5%">{{Patient.MRN}}</td>
+        <td style="width:10%">{{Patient.Title.Description}} {{Patient.FirstName}} {{Patient.LastName}}</td>
+        <td style="width:5%">{{PatientOrder.OrderNumber}}</td>
+        <td style="width:15%">{{TestName}}</td>
+        <td style="width:5%">{{PatientOrder.OrderStatus.DisplayName}}</td>
+        <td style="width:10%">{{datetimeformat OrderedOn}}</td>
+        <td style="width:10%">{{datetimeformat SampleCollectedOn}}</td>
+        <td style="width:10%">{{datetimeformat TechValidationOn}}</td>
+        <td style="width:10%">{{datetimeformat MedValidationOn}}</td>
+        <td style="width:10%">{{datetimeformat ReleasedOn}}</td>
+        <td style="width:5%">{{TAT}}</td>
+       </tr>{{/each}}
+    </table>
+
+  </body>
+  <div style="width:100%; font-size:8px;">Printed On: {{now}}</div>
+
+</html>

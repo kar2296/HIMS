@@ -1,0 +1,153 @@
+<style>
+    span.vip.ng-scope {
+        color: red;
+    }
+</style>
+<link rel="stylesheet" href="app/css/drhms.css">
+<div class="row">
+    <div class="drhms-filters">
+        <div class="col-sm-4">
+            <h4 translate="billing.ipbillingtab.pagetitle.lbl" ng-if="Data.EncounterTypeId==2 && !currentcontext.isdaycare"></h4>
+            <h4 translate="DayCare Billing" ng-if="Data.EncounterTypeId==2 && currentcontext.isdaycare"></h4>
+        </div>
+        <div class="col-sm-4" ng-if="Islocked == true">
+            <span class="billing-update">Billing is Locked</span>
+        </div>
+        <div class="col-sm-4">
+            <!-- <span class="billing-status">Bill Status: {{FinalBillInfo.PatientBillStatus.Description}}</span> -->
+        </div>
+        <div class="col-sm-4" ng-if="Data.IsPharmacyClearance == false">
+            <!-- <span class="billing-status">Pharmacy Bill Clearance: Pending
+            </span> -->
+        </div>
+        <div class="col-sm-4" ng-if="Data.IsPharmacyClearance == true">
+            <span class="billing-status">Pharmacy Bill Clearance: Cleared</span>
+        </div>
+        <div class="col-sm-2">
+            <button type="button" class="pull-right clearence-btn" ng-click="getIPClearence()" title="IP Clearence">
+                <i class="fas fa-lightbulb"></i>
+            </button> &nbsp;&nbsp;
+            <button type="button" class="pull-right clearence-btn" ng-click="patientDischarge()" title="Discharge History">
+                <i class="fa-solid fa-house-medical-circle-exclamation"></i>
+            </button> &nbsp;&nbsp;
+            <button type="button" class="pull-right attachment" ng-click="addAttachment()" title="Add Attachment">
+                <i class="fas fa-paperclip fa-xs"></i>
+            </button>
+        </div>
+
+    </div>
+</div>
+<!-- <div class="page-header-list">
+    <div class="header-name-litle" translate="billing.ipbillingtab.pagetitle.lbl" ng-if="Data.EncounterTypeId==2"></div>
+    <div class="search-list-right">
+        <div class="billing-status"><span class="billing-update" ng-if="Islocked == true">Billing is Lcoked</span>
+        </div>
+        <div class="billing-status">Bill Status: <span class="billing-update">
+                {{FinalBillInfo.PatientBillStatus.Description}}</span></div>
+        <div class="billing-status">Pharmacy Bill Clearance: <span class="billing-update"
+                ng-if="Data.IsPharmacyClearance == false">Pending</span>
+            <span class="cleared-update" ng-if="Data.IsPharmacyClearance == true">Cleared</span>
+        </div>
+        <button type="button" class="pull-right attachment" ng-click="addAttachment()" title="Add Attachment">
+            <i class="fas fa-paperclip fa-xs"></i>
+        </button>
+    </div>
+</div> -->
+<form id="item_form" name="item_form" class="form-horizontal" role="form">
+    <div class="drhms-table-top-header">
+        <div class="drhms-table-head-border">
+            <div class="col-sm-12">
+                <label class="col-sm-4" translate="Patient Name"></label>
+                <div class="col-sm-8">:
+                    <span class="head-title">
+                        <a ng-click="patientprofiledetails(selectedPatient)">
+                            <strong>{{selectedPatient.Title.Description}} {{selectedPatient.FirstName}}
+                            </strong><span class="vip" ng-if="selectedPatient.IsVip">(VIP)</span>
+                    </a>
+                    </span>
+                    <span class="comments pull-right" type="button" ng-click="patcmnts()" title="Comments">
+                        <i class="fas fa-comments"></i>
+                    </span>
+                </div>
+            </div>
+            <div class="col-sm-12">
+                <label class="col-sm-4" translate="Age / Sex"></label>
+                <div class="col-sm-8">:
+                    <span class="head-title">{{selectedPatient.Age}} / {{selectedPatient.Gender.Description}}</span>
+                </div>
+            </div>
+            <div class="col-sm-12">
+                <label class="col-sm-4" translate="UHID"></label>
+                <div class="col-sm-8">:
+                    <span class="head-title">{{selectedPatient.MRN}}/{{EncounterDetails.VisitIdentifier}}</span>
+                </div>
+            </div>
+
+        </div>
+        <div class="drhms-table-head-border">
+            <div class="col-sm-12">
+                <label class="col-sm-4" translate="Ward / Room"></label>
+                <div class="col-sm-8">:
+                    <span class="head-title">{{item.WardDetails}}</span>
+                    <span class="comments pull-right" type="button" ng-click="Bedoccupancy()" title="Bed History">
+                        <i class="fas fa-plus-circle"></i>
+                    </span>
+                </div>
+            </div>
+            <div class="col-sm-12">
+                <label class="col-sm-4" translate="Doc / Ref.Name"></label>
+                <div class="col-sm-8">:
+                    <span class="head-title">{{item.DoctorName}}/{{item.ReferralName}}</span>
+                    <span class="comments pull-right" type="button" ng-click="addDoctor()" title="Doctor Transfer">
+                        <i class="fas fa-plus-circle"></i>
+                    </span>
+                </div>
+            </div>
+            <div class="col-sm-12">
+                <label class="col-sm-4" translate="Payer / TPA"></label>
+                <div class="col-sm-8">
+                    <span class="head-title">{{Data.Guarantor.GuarantorName}}/{{Data.TPA.Description}}</span>
+                    <span class="comments pull-right" type="button" ng-click="addGuarantor()" title="Payer Type">
+                        <i class="fas fa-plus-circle"></i>
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div class="drhms-table-head-border">
+            <div class="col-sm-12">
+                <label class="col-sm-4" translate="DOA"></label>
+                <div class="col-sm-8">:
+                    <displaydate datetime-val="Data.AdmissionDate"></displaydate>
+                </div>
+            </div>
+            <div class="col-sm-12">
+                <label class="col-sm-4" translate="DOD"></label>
+                <div class="col-sm-8">:
+                    <displaydate datetime-val="Data.DischargeDate"></displaydate>
+                    <span type="button" ng-click="editdischarge()" title="Edit DischargeDate">
+                        <i class="fas fa-plus-circle"></i>
+                    </span>
+                </div>
+            </div>
+            <div class="col-sm-12">
+                <label class="col-sm-4" translate="Bill # / Bill Date"></label>
+                <div class="col-sm-8">
+                    <span class="head-title">{{FinalBillInfo.BillNumber}} / {{FinalBillInfo.BillDateTime | date : 'dd-MMM-yyyy'}}&nbsp;{{FinalBillInfo.BillDateTime
+                        | date : 'HH:mm' }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+<div id="receipt_tab">
+    <div class="row">
+        <div class="col-sm-12">
+            <uib-tabset active="active">
+                <uib-tab index="$index" ng-repeat="tab in tabs" heading="{{tab.title}}" ng-click="switchTab(tab)" disable="tab.canDisable">
+                </uib-tab>
+            </uib-tabset>
+            <div ui-view></div>
+        </div>
+    </div>
+</div>

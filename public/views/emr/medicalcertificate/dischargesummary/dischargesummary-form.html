@@ -1,0 +1,198 @@
+<link rel="stylesheet" href="app/css/drhms.css">
+<style>
+    .cke_contents.cke_reset {
+        height: 400px !important;
+    }
+
+    button.drhms-edit-button {
+        color: #F44336;
+    }
+
+    /* table.table.table-bordered.table-condensed.dropdown-menu.align {
+        margin-left: -311px;
+    } */
+</style>
+<div class="row">
+    <div class="drhms-filters">
+        <div class="col-sm-9">
+            <h4 translate="medicalcertificate.dischargesummary-list.pagetitle.lbl"></h4>
+        </div>
+        <div class="col-sm-3">
+            <autosearch class="patient-right-box-search" itemid="item.EncounterId" iteminfo="item.SelectedItem" rowdata="item"
+                config="vm.patientcontrolconfig" itemchange="patientChanged()" name="patientname" isrequired="true">
+            </autosearch>
+            <span class="drhms-search-icon"><i class="fas fa-search" aria-hidden="true"></i></span>
+        </div>
+        <!-- <div class="col-sm-1">
+            <div class="filters">
+                <button class="drhms-edit-button" ng-click="cancelCallback()">X</button>
+                <img src="../../../../../assets/svg/close.svg" >
+            </div>
+        </div> -->
+    </div>
+</div>
+<div class="row">
+    <form id="item_form" name="item_form" class="form-horizontal" role="form">
+        <div class="drhms-table-top-header">
+            <div class="drhms-table-head-border">
+                <div class="col-sm-12">
+                    <label class="col-sm-4" translate="Patient Name"></label>
+                    <div class="col-sm-8">:
+                        <span class="head-title"><strong>{{item.PatientName}}</strong></span>
+                        <!-- <span class="comments pull-right" type="button"
+                        ng-show="currentfilter.PatientId>0" ng-click="patcmnts()" title="Comments"><i
+                            class="fas fa-comments"></i></span> -->
+                    </div>
+                </div>
+                <div class="col-sm-12">
+                    <label class="col-sm-4" translate="Ward / Rooms Detail"></label>
+                    <div class="col-sm-8">
+                        {{item.WardDetail}}
+                    </div>
+                </div>
+                <div class="col-sm-12">
+                    <label class="col-sm-4" translate="Date Of Admission"></label>
+                    <div class="col-sm-8">:
+                        <span class="head-title">
+                            <displaydate datetime-val="item.AdmissionDate"></displaydate>
+                        </span>
+                    </div>
+                </div>
+                <div class="col-sm-12">
+                    <label class="col-sm-4" translate="Age / Sex"></label>
+                    <div class="col-sm-8">:
+                        <span class="head-title">{{item.Age}} / {{item.Gender}}</span>
+                    </div>
+                </div>
+            </div>
+            <div class="drhms-table-head-border">
+                <div class="col-sm-12">
+                    <label class="col-sm-4" translate="Doctor Name"></label>
+                    <div class="col-sm-8">
+                        {{item.DoctorName}}&nbsp;({{item.DepartmentName}})
+                    </div>
+                </div>
+                <div class="col-sm-12">
+                    <label class="col-sm-4" for="dischargedate" translate="Date Of Discharge"></label>
+                    <div class="col-sm-8">
+                        <div class="datepicker">
+                            <input type="text" class="form-control" name="dischargedate" ng-date-object
+                                datetime-picker="{{datePickerOptions.datetimeFormat}}"
+                                placeholder="{{datePickerOptions.placeholder}}"
+                                ng-click="dischargedatePopup = { opened: true }" is-open="dischargedatePopup.opened"
+                                ng-model="item.DischargeDate" required>
+                            <i class="fa fa-calendar" aria-hidden="true"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-12">
+                    <label class="col-sm-4" translate="UHID/ Vist#"></label>
+                    <div class="col-sm-8">
+                        {{item.PatientMrn}}/{{item.VisitIdentifier}}
+                    </div>
+                </div>
+                <div class="col-sm-12">
+                    <label class="col-sm-4" translate="Payer Name"></label>
+                    <div class="col-sm-8">
+                        {{item.GuarantorName}}
+                    </div>
+                </div>
+            </div>
+            <div class="drhms-table-head-border">
+                <div class="col-sm-12">
+                    <label class="col-sm-4" translate="Created Date / Approved Date"></label>
+                    <div class="col-sm-8">
+                        <displaydate datetime-val="item.CreatedAt"></displaydate> &nbsp;/&nbsp;
+                        <displaydate datetime-val="item.ApprovedOn"></displaydate>
+                    </div>
+                </div>
+                <div class="col-sm-12">
+                    <label class="col-sm-4" translate="Discharge Type"></label>
+                    <div class="col-sm-8">
+                        <ui-select ng-model="item.DischargeTypeId" name="notetype">
+                            <ui-select-match>
+                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                <span ng-if="$select.selected.Text.length>20">...</span>
+                            </ui-select-match>
+                            <ui-select-choices
+                                repeat="lookupitem.Id as lookupitem in lookup.DischargeType | filter: { Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                </div>
+                <div class="col-sm-12">
+                    <label class="col-sm-4" for="templatename" translate="Select Template"></label>
+                    <div class="col-sm-8">
+                        <ui-select ng-model="item.NoteTemplateId" name="templatename" ng-disabled="item.isCompleted"
+                            ng-change="onNoteTemplateChange()" required>
+                            <ui-select-match>
+                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                <span ng-if="$select.selected.Text.length>20">...</span>
+                            </ui-select-match>
+                            <ui-select-choices
+                                repeat="lookupitem.Id as lookupitem in lookup.NoteTemplate | filter: { Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                </div>
+                <div class="col-sm-12">
+                    <label class="col-sm-4" translate="Created By / Approved By"></label>
+                    <div class="col-sm-8">
+                        {{CreatedBy}} / {{AprovedBy}}
+                    </div>
+                </div>
+                <div class="col-sm-12" ng-if="item.DischargeTypeId==2">
+                    <label class="col-sm-4" translate="Death Date"></label>
+                    <div class="col-sm-8">
+                        <displaydate date-val="item.DeathDate"></displaydate>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+<div class="row">
+    <div class="col-sm-12 template">
+        <richtexteditor inserthtml="addondata" richtext="item.DataTemplate" ng-disabled="item.isCompleted">
+        </richtexteditor>
+    </div>
+</div>
+<div class="fooder-bgs">
+    <div class="row">
+        <div class="pull-left">
+            <button type="button" class="btn pyr-color10 btn-sm" ng-click="backToList()">
+                <i class="fa fa-angle-left" aria-hidden="true"></i>&nbsp;&nbsp;
+                <span class="btn-fontsize" translate="common.backaction.lbl"></span>
+            </button>
+            <button uib-dropdown-toggle="" class="draftbutton" ng-show="canprintBtn" ng-click="print()" ng-disabled=""
+                hotkey="{'alt+p': print}">
+                <span translate="With Header"></span>&nbsp;&nbsp;&nbsp;
+            </button>
+            <button uib-dropdown-toggle="" class="draftbutton" ng-show="canprintBtn" ng-click="print2()" ng-disabled=""
+                hotkey="{'alt+p': print}">
+                <span translate="Without Header"></span>&nbsp;&nbsp;&nbsp;
+            </button>
+
+            <button id="btn" type="button" class="draftbutton" ng-click="labresult()" ng-show="canprintBtn"
+                translate="medicalcertificate.dischargesummary-form.labresult.lbl"></button>
+            <button type="button" class="draftbutton" ng-show="canShowreverseBtn"
+                ng-if="('DischargeSummary', 'Reverse')" ng-click="reverse()"
+                translate="medicalcertificate.dischargesummary-form.reverse.lbl"></button>
+            <button type="button" class="draftbutton" ng-show="canShowrelesedBtn" ng-click="releasedtopatient()"
+                translate="medicalcertificate.dischargesummary-form.releasedtopatient.lbl"></button>
+        </div>
+        <div class="pull-right">
+            <button type="button" class="draftbutton" translate="common.saveaction.lbl" ng-show="canShowSaveBtn"
+                ng-click="save()"></button>
+            <button type="button" class="draftbutton" ng-show="canShowSaveactiveBtn"
+                translate="medicalcertificate.dischargesummary-form.saveandactive.lbl"
+                ng-click="saveandActive()"></button>
+            <button type="button" class="draftbutton" ng-show="canShowSaveandApproveBtn" ng-click="approve()"
+                translate="medicalcertificate.dischargesummary-form.Approve.lbl"></button>
+            <!-- <button type="button" class="draftbutton" ng-show="canShowclearBtn" ng-click="clear()"
+                translate="common.clearaction.lbl"></button> -->
+        </div>
+    </div>
+</div>

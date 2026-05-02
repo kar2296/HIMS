@@ -1,0 +1,159 @@
+<!-- <style>
+    .nameinfo {
+        font-size: 13px;
+        font-weight: 700;
+        color: #337ab7;
+    }
+
+    .nameinfo.mrninfo {
+        color: black
+    }
+
+    .contactinfo {
+        font-size: 10px;
+        color: #808080
+    }
+
+    .block {
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        overflow: hidden;
+    }
+
+    #facilitysheight .ui-grid-viewport {
+        width: 100%;
+        /* height: 460px!important; */
+        height: 72vh;
+        min-height: 70vh;
+    }
+
+    @media (device-width:100vw) and (device-height:100vh) {
+        #facilitysheight .ui-grid-viewport {
+            height: 76vh;
+            min-height: 74vh;
+        }
+    }
+
+    .table-uigrid {
+        margin-left: 10px;
+        margin-right: 10px;
+        height: 488px !important;
+    }
+
+    .linkstyle {
+        font-weight: 700;
+        text-align: right;
+    }
+
+    .statusinfo {
+        font-size: 13px;
+    }
+
+    .form-group {
+        margin-bottom: 7px !important;
+    }
+
+    .sr-only {
+        height: 22px !important;
+    }
+</style> -->
+
+<div class="row page-header">
+    <div class="col-sm-6">
+        <h4 class="mt0" translate="reports.purchasedetailsitem.lbl"></h4>
+    </div>
+    <div class="col-sm-6">
+        <!-- <div class="filters" style="margin-left: 100%;">
+                                <button type="button"   class="printbutton"
+                                translate="common.printaction.lbl" ng-click="print()"ng-show="CanShowPrint"></button>
+                       <button type="button" tabindex="-1" class=""style="border: 1px;background: white;"
+                       ng-click="backtoReport()" uib-tooltip="{{ 'Report'}}"
+                        tooltip-placement="bottom">
+                        <i class="fa fa-home" aria-hidden="true"></i>&nbsp;&nbsp; 
+                    </button>
+                </div> -->
+        <div class="filters">
+            <i class="icofont-filter" uib-tooltip="Filter" tooltip-placement="bottom" ng-click="openFilterTab()"></i>
+            <i class="icofont-file-excel" uib-tooltip="Excel" tooltip-placement="bottom" ng-click="excelDownload()"></i>
+            <!-- <i class="icofont-file-excel"  uib-tooltip="Excel" tooltip-placement="bottom" onclick="exportTableToExcel('tblData', 'members-data')"></i> -->
+            <i class="icofont-print" ng-click="print()"></i>
+            <i class="icofont-home" ng-click="backtoReport()" uib-tooltip="Report" tooltip-placement="bottom"></i>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <table id="bannerdetails">
+        <tr>
+            <td translate="reports.fromdate.lbl"></td>
+            <td>
+                <div class="datepicker">
+                    <input type="text" class="form-control" name="from" datepicker-options="datePickerOptions"
+                        show-button-bar="{{datePickerOptions.showButtonBar}}"
+                        uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                        placeholder="{{datePickerOptions.placeholder}}" ng-click="fromdatePopup = { opened: true }"
+                        is-open="fromdatePopup.opened" ng-model="currentfilter.FromDate">
+                    <i class="fa fa-calendar" aria-hidden="true"></i>
+                </div>
+            </td>
+            <td translate="reports.todate.lbl"></td>
+            <td>
+                <div class="datepicker"> <input type="text" class="form-control" name="from"
+                        datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}"
+                        uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                        placeholder="{{datePickerOptions.placeholder}}" ng-click="todatePopup = { opened: true }"
+                        is-open="todatePopup.opened" ng-model="currentfilter.ToDate">
+                    <i class="fa fa-calendar" aria-hidden="true"></i>
+                </div>
+            </td>
+            <td translate="inventory.purchaseorders.vendor.lbl"></td>
+            <td id="vendorsearch">
+                <autosearch itemid="currentfilter.VendorMasterId" placeholder="'Supplier'" iteminfo="" rowdata=""
+                    config="vm.vendorcontrolconfig" onenter="onenter()"></autosearch>
+            </td>
+            <td translate="inventory.purchaseorders.store.lbl"></td>
+            <td>
+                <ui-select ng-model="currentfilter.StoreMasterId" name="fromstore" required>
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 20 : 0}}
+                        <span ng-if="$select.selected.Text.length>20">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.UserStores | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </td>
+            <td translate="reports.itemname.lbl"></td>
+            <td>
+                <autosearch itemid="currentfilter.ItemMasterId" iteminfo="" rowdata="" config="vm.itemcontrolconfig"
+                    placeholder="'Item Code/Name'" onenter="onenter()"></autosearch>
+            </td>
+            <td style="text-align: center;">
+                <button class="loadbtn" ng-click="getList()">
+                    <i class="fas fa-sync loading-icon" aria-hidden="true" uib-tooltip="Search"
+                        tooltip-placement="bottom"></i> <span>Load</span>
+                </button>
+            </td>
+        </tr>
+    </table>
+</div>
+
+<div class="row">
+    <custom-table config="vm.gridConfig"></custom-table>
+</div>
+<div class="col-sm-5" style="float: right;">
+    <table id="bannerdetails">
+        <tr>
+            <td><label class="control-label text-white" for="totalquantity">TotalNetAmt:</label></td>
+            <td class="currency-align"><span class="countbg text-white">{{(TotalNetAmt|displaycurrency)}}</span></td>
+        </tr>
+    </table>
+</div>
+
+<div class="fooder-bgs">
+    <div class="row">
+        <ul uib-pagination total-items="vm.gridConfig.pagerObj.totalItems"
+            items-per-page="vm.gridConfig.pagerObj.pageSize" start-index="vm.gridConfig.pagerObj.startIndex"
+            ng-model="vm.gridConfig.pagerObj.currentPage" ng-change="getList()"></ul>
+    </div>
+</div>

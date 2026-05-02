@@ -1,0 +1,98 @@
+<link rel="stylesheet" href="app/css/drhms.css">
+<div class="row">
+    <div class="drhms-filters">
+        <div class="col-sm-12">
+            <h4 translate="inventory.stocktransfers.pagetitle.lbl"></h4>
+        </div>
+        <div class="col-sm-3">
+            <input type="text" class="form-control textbox-search" on-enter="getList()"
+                ng-model="currentfilter.RequestNumber" translate translate-attr-placeholder="Search Issue Voucher #">
+        </div>
+        <div class="col-sm-1">
+            <button class="btn-add" ng-click="addNew()"
+                uib-tooltip="{{ 'inventory.stocktransfers.addnew-tooltip.lbl' | translate }}"
+                tooltip-placement="bottom">
+                <i class="fas fa-plus" aria-hidden="true"></i>
+            </button>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="form-group col-sm-2">
+        <label class="col-sm-12" for="fromdate" translate="From Date"></label>
+        <div class="col-sm-12">
+            <input type="text" class="form-control" name="fromdate" ng-change="getList()" ng-date-object uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                placeholder="{{datePickerOptions.placeholder}}" ng-click="fromdatePopup = { opened: true }" is-open="fromdatePopup.opened"
+                ng-model="advancedfilter.From">
+        </div>
+    </div>
+    <div class="form-group col-sm-2">
+        <label class="col-sm-12" for="todate" translate="To Date"></label>
+        <div class="col-sm-12">
+            <input type="text" class="form-control" name="todate" ng-change="getList()" ng-date-object uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                placeholder="{{datePickerOptions.placeholder}}" ng-click="todatePopup = { opened: true }" is-open="todatePopup.opened"
+                ng-model="advancedfilter.To">
+        </div>
+    </div>
+    <!-- <div class="form-group col-sm-2">
+        <label class="col-sm-12" for="transferdate" translate="inventory.stocktransfers.transferdate.lbl"></label>
+        <div class="col-sm-12">
+            <div class="datepicker">
+                <input type="text" class="form-control" tabindex="-1" name="deliverydate" ng-disabled="item.isDisabled"
+                    ng-date-object uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                    placeholder="{{datePickerOptions.placeholder}}" ng-click="deliverydatePopup = { opened: true }"
+                    placeholder="{{datePickerOptions.placeholder}}" ng-click="deliverydatePopup = { opened: true }"
+                    is-open="deliverydatePopup.opened" ng-model="currentfilter.TransferDate" ng-change="getList()"
+                    id="disabledInput" disabled>
+                <i class="fa fa-calendar" aria-hidden="true"></i>
+            </div>
+        </div>
+    </div> -->
+    <div class="form-group col-sm-2">
+        <label class="col-sm-12" for="fromstore" translate="inventory.stocktransfers.fromstore.lbl"></label>
+        <div class="col-sm-12">
+            <ui-select ng-model="currentfilter.StoreMasterId" ng-change="getList()" name="fromstore" required>
+                <ui-select-match>
+                    {{$select.selected.Text | limitTo : 20 : 0}}
+                    <span ng-if="$select.selected.Text.length>20">...</span>
+                </ui-select-match>
+                <ui-select-choices
+                    repeat="lookupitem.Id as lookupitem in lookup.UserStores | filter: { Text: $select.search }">
+                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                </ui-select-choices>
+            </ui-select>
+        </div>
+    </div>
+    <div class="form-group col-sm-2">
+        <label class="col-sm-12" for="tostore" translate="inventory.stocktransfers.tostore.lbl"></label>
+        <div class="col-sm-12">
+            <ui-select ng-model="currentfilter.ToStoreMasterId" ng-change="getList()" name="tostore" required>
+                <ui-select-match>
+                    {{$select.selected.Text | limitTo : 20 : 0}}
+                    <span ng-if="$select.selected.Text.length>20">...</span>
+                </ui-select-match>
+                <ui-select-choices
+                    repeat="lookupitem.Id as lookupitem in lookup.ToStore | filter: { Text: $select.search }">
+                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                </ui-select-choices>
+            </ui-select>
+        </div>
+    </div>
+    <div class="form-group col-sm-2">
+        <label class="col-sm-12" for="transferstatus" translate="inventory.stocktransfers.transferstatus.lbl"></label>
+        <div class="col-sm-12">
+            <multiselectchk list="lookup.TransferStatus" selected="currentfilter.TransferStatusId" change="getList()">
+            </multiselectchk>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <custom-table config="vm.gridConfig"></custom-table>
+</div>
+<div class="fooder-bgs">
+    <div class="row">
+        <ul uib-pagination total-items="vm.gridConfig.pagerObj.totalItems"
+            items-per-page="vm.gridConfig.pagerObj.pageSize" start-index="vm.gridConfig.pagerObj.startIndex"
+            ng-model="vm.gridConfig.pagerObj.currentPage" ng-change="getList()"></ul>
+    </div>
+</div>

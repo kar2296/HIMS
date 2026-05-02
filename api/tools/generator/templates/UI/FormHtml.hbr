@@ -1,0 +1,143 @@
+<ul class="breadcrumb">
+    <li><a ng-click="backToList()" translate="{{data.Localization.localizationmodule}}.{{data.Localization.screenkey}}.parentpagetitle.lbl"></a></li>
+    <li class="active" translate="{{data.Localization.localizationmodule}}.{{data.Localization.screenkey}}.pagetitle.lbl"></li>
+</ul>	
+
+<div class="row">
+    <div class="col-sm-12">
+        <form id="item_form" name="item_form" class="form-horizontal" role="form" ng-submit="saveItem()">	
+            <div class="formRoot" set-form-height>
+                {{#each data.Panels}}
+                <div class="panel panel-default">
+                    <div class="panel-heading"><h3 class="panel-title" translate="{{localizationpath}}.pnl{{name}}.lbl"></h3></div>
+                    <div class="panel-body form-panel">	
+                        <div class="col-sm-12">			
+                            {{#each layouts}}
+                            
+                            <!-- {{name}} -->
+                            <div class="col-sm-6">
+                                {{#each controls}}
+                                {{#if text}}
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label" for="{{name}}" translate="{{../../localizationpath}}.{{name}}.lbl"></label>
+                                    <div class="col-sm-8">
+                                        <input type="text" class="form-control" name="{{name}}" ng-model="{{model}}" placeholder="" {{#if validations.required}}required{{/if}}>
+                                    </div>
+                                </div>
+                                {{/if}}
+                                {{#if date}}
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label" for="{{name}}" translate="{{../../localizationpath}}.{{name}}.lbl"></label>
+                                    <div class="col-sm-8">
+                                        <input type="text" class="form-control" name="{{name}}" ng-date-object 
+                                                uib-datepicker-popup="\{{datePickerOptions.dateFormat}}" 
+                                                placeholder="\{{datePickerOptions.placeholder}}" 
+                                                ng-click="{{name}}Popup = { opened: true }" 
+                                                is-open="{{name}}Popup.opened" ng-model="{{model}}" {{#if validations.required}}required{{/if}}>
+                                    </div>
+                                </div>
+                                {{/if}}
+                                {{#if time}}
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label" for="{{name}}" translate="{{../../localizationpath}}.{{name}}.lbl"></label>
+                                    <div class="col-sm-8">
+                                        <uib-timepicker name="{{name}}" ng-model="{{model}}" ng-time-object></uib-timepicker>
+                                    </div>
+                                </div>
+                                {{/if}}
+                                {{#if checkbox}}
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label" for="{{name}}" translate="{{../../localizationpath}}.{{name}}.lbl"></label>
+                                    <div class="col-sm-8">
+                                        <input type="checkbox" name="{{name}}" class="custom-checkbox"
+                                            ng-model="{{model}}">
+                                    </div>
+                                </div>
+                                {{/if}}
+                                {{#if combo}}
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label" for="{{name}}" translate="{{../../localizationpath}}.{{name}}.lbl"></label>
+                                    <div class="col-sm-8">
+                                        <ui-select ng-model="{{model}}" name="{{name}}">
+                                            <ui-select-match>
+                                                \{{$select.selected.{{displayfield}} | limitTo : 20 : 0}}
+                                                <span ng-if="$select.selected.{{displayfield}}.length>20">...</span>
+                                            </ui-select-match>
+                                            <ui-select-choices repeat="lookupitem.{{valuefield}} as lookupitem in {{collection}} | filter: { {{displayfield}}: $select.search }">
+                                                <div ng-bind-html="lookupitem.{{displayfield}} | highlight: $select.search"></div>
+                                            </ui-select-choices>
+                                        </ui-select>
+                                    </div>
+                                </div>
+                                {{/if}}
+                                {{#if multitag}}
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label" for="{{name}}" translate="{{../../localizationpath}}.{{name}}.lbl"></label>
+                                    <div class="col-sm-8">
+                                        <ui-select multiple ng-model="{{model}}" name="{{name}}" class="ui-select-multiple" ng-multi-tag>
+                                            <ui-select-match>\{{$item.{{displayfield}} }}</ui-select-match>
+                                            <ui-select-choices repeat="lookupitem.{{valuefield}} as lookupitem in {{collection}} | filter: { {{displayfield}}: $select.search }">
+                                                <div ng-bind-html="lookupitem.{{displayfield}} | highlight: $select.search"></div>
+                                            </ui-select-choices>
+                                        </ui-select>
+                                    </div>
+                                </div>
+                                {{/if}}
+                                {{#if numeric}}
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label" for="{{name}}" translate="{{../../localizationpath}}.{{name}}.lbl"></label>
+                                    <div class="col-sm-8">
+                                        <input type="number" class="form-control" name="{{name}}" ng-model="{{model}}" {{#if validations.required}}required{{/if}}>
+                                    </div>
+                                </div>
+                                {{/if}}
+                                {{#if alphanumeric}}
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label" for="{{name}}" translate="{{../../localizationpath}}.{{name}}.lbl"></label>
+                                    <div class="col-sm-8">
+                                        <input type="text" alpha-numeric class="form-control" name="{{name}}" ng-model="{{model}}" {{#if validations.required}}required{{/if}}>
+                                    </div>
+                                </div>
+                                {{/if}}
+                                {{#if alpha}}
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label" for="{{name}}" translate="{{../../localizationpath}}.{{name}}.lbl"></label>
+                                    <div class="col-sm-8">
+                                        <input type="text" alpha class="form-control" name="{{name}}" ng-model="{{model}}" {{#if validations.required}}required{{/if}}>
+                                    </div>
+                                </div>
+                                {{/if}}
+                                {{#if colorpicker}}
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label" for="{{name}}" translate="{{../../localizationpath}}.{{name}}.lbl"></label>
+                                    <div class="col-sm-8">
+                                        <input type="text" colorpicker class="form-control" name="{{name}}" ng-model="{{model}}" {{#if validations.required}}required{{/if}}>
+                                    </div>
+                                </div>
+                                {{/if}}
+                                {{#if maskedinput}}
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label" for="{{name}}" translate="{{../../localizationpath}}.{{name}}.lbl"></label>
+                                    <div class="col-sm-8">
+                                        <input type="text" class="form-control" name="{{name}}" ng-model="{{model}}" 
+                                            ui-mask="{{mask}}" placeholder="{{mask}}" ui-mask-placeholder {{#if validations.required}}required{{/if}}>
+                                    </div>
+                                </div>
+                                {{/if}}
+                                {{/each}}
+                            </div>
+                            {{/each}}
+                        </div>
+                    </div>
+                </div>
+                {{/each}}
+            </div>
+            <div class="panel-footer formactionbar">
+                <div class="pull-right">
+                    <button type="submit" class="btn btn-primary btn-sm" translate="common.saveaction.lbl"></button>
+                    <button id="btnCancelForm" type="button" class="btn btn-danger btn-sm" ng-click="backToList()" translate="common.cancelaction.lbl"></button>						
+                </div>
+            </div>
+        </form>		
+    </div>
+</div>

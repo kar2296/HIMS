@@ -1,0 +1,151 @@
+<div class="modal-header custom-modal-header">
+    <div class="col-sm-10">
+        <h4 class="modal-title custom-modal-title" translate="patientemr.dischargecasesheetform.pagetitle.lbl"></h4>
+    </div>
+    <div class="col-sm-2">
+        <div class="filters">
+            <img src="../../../../../assets/svg/close.svg" ng-click="cancelCallback()">
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <form id="item_form" name="item_form" class="form-horizontal" role="form">
+        <!-- <div class="form-group col-sm-6">
+                            <label class="col-sm-12 control-label" for="consultationdate" translate="patientemr.dischargecasesheetform.consultationdate.lbl"></label>
+                            <div class="col-sm-12">
+                                <input type="text" class="form-control" name="consultationdate" ng-disabled="IsDisabled" ng-date-object datetime-picker="{{datePickerOptions.dateTimeFormat}}"
+                                    placeholder="{{datePickerOptions.placeholder}}" ng-click="consultationdatePopup = { opened: true }"
+                                    is-open="consultationdatePopup.opened" ng-model="item.ConsultationDate" tabindex="-1" disabled>
+                            </div>
+                        </div> -->
+        <div class="form-group col-sm-6">
+            <label class="col-sm-12 control-label" for="template"
+                translate="patientemr.dischargecasesheetform.template.lbl"></label>
+            <div class="col-sm-12">
+                <ui-select ng-model="item.ProfileId" name="template" ng-change="profileChanged()" required>
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 20 : 0}}
+                        <span ng-if="$select.selected.Text.length>20">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.Profile | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+        <div class="form-group col-sm-6">
+            <label class="col-sm-12 control-label" for="consultant"
+                translate="patientemr.dischargecasesheetform.doctor.lbl"></label>
+            <div class="col-sm-12 toprighttext2">
+                <autosearch itemid="currentcontext.DoctorId" iteminfo="vm.doctorcontrolconfig.iteminfo" rowdata=""
+                    config="vm.doctorcontrolconfig" itemchange="onDoctorSelected($select.selected)" tabindex="-1">
+                </autosearch>
+            </div>
+        </div>
+        <!-- <div class="form-group col-sm-6">
+                            <label class="col-sm-12 control-label" for="department" translate="patientemr.dischargecasesheetform.department.lbl"></label>
+                            <div class="col-sm-6 col-md-8 toprighttext">
+                                <ui-select ng-model="currentcontext.DepartmentId" name="department" required tabindex="8">
+                                    <ui-select-match>
+                                        {{$select.selected.Text | limitTo : 20 : 0}}
+                                        <span ng-if="$select.selected.Text.length>20">...</span>
+                                    </ui-select-match>
+                                    <ui-select-choices repeat="lookupitem.Id as lookupitem in currentcontext.selecteddept | filter: { Text: $select.search }">
+                                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                    </ui-select-choices>
+                                </ui-select>
+                            </div>
+                        </div> -->
+        <div class="form-group col-sm-6">
+            <label class="col-sm-12 control-label" for="note"
+                translate="patientemr.dischargecasesheetform.dischargetype.lbl"></label>
+            <div class="col-sm-12">
+                <ui-select ng-model="currentcontext.DischargeTypeId" name="note" required>
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 20 : 0}}
+                        <span ng-if="$select.selected.Text.length>20">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.DischargeType | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+        <div class="form-group col-sm-6">
+            <label class="col-sm-12 control-label" for="admissiondate"
+                translate="patientemr.dischargecasesheetform.admissiondate.lbl"></label>
+            <div class="col-sm-12">
+                <input type="text" class="form-control" name="admissiondate" ng-disabled="IsDisabled" ng-date-object
+                    datetime-picker="{{datePickerOptions.dateTimeFormat}}"
+                    placeholder="{{datePickerOptions.placeholder}}" ng-click="admissiondatePopup = { opened: true }"
+                    is-open="admissiondatePopup.opened" ng-model="currentcontext.AdmissionDate" tabindex="-1" disabled>
+            </div>
+        </div>
+        <div class="form-group col-sm-6">
+            <label class="col-sm-12 control-label" for="dischargedate"
+                translate="patientemr.dischargecasesheetform.dischargedate.lbl"></label>
+            <div class="col-sm-12">
+                <div class="datepicker" id="datepicker">
+                    <input type="text" class="form-control" name="dischargedate" ng-disabled="IsDisabled" ng-date-object
+                        datetime-picker="{{datePickerOptions.dateTimeFormat}}"
+                        placeholder="{{datePickerOptions.placeholder}}" ng-click="dischargedatePopup = { opened: true }"
+                        is-open="dischargedatePopup.opened" ng-model="currentcontext.DischargeDate" tabindex="-1"
+                        disabled>
+                </div>
+            </div>
+        </div>
+        <div class="form-group col-sm-6">
+            <label class="col-sm-12 control-label" for="surgerydate"
+                translate="patientemr.dischargecasesheetform.surgerydate.lbl"></label>
+            <div class="col-sm-12">
+                <div class="datepicker" id="datepicker">
+                    <input type="text" class="form-control" name="surgerydate" ng-disabled="IsDisabled" ng-date-object
+                        datetime-picker="{{datePickerOptions.dateTimeFormat}}"
+                        placeholder="{{datePickerOptions.placeholder}}" ng-click="surgerydatePopup = { opened: true }"
+                        is-open="surgerydatePopup.opened" ng-model="currentcontext.SurgeryDate" tabindex="-1"
+                        disabled>
+                </div>
+            </div>
+        </div>
+        <!-- <div class="form-group col-sm-6">
+                            <label class="col-sm-12 control-label" for="surgerydate" translate="patientemr.dischargecasesheetform.surgerydate.lbl"></label>
+                            <div class="col-sm-12">
+                                <input type="text" class="form-control" name="surgerydate" ng-disabled="IsDisabled" ng-date-object
+                                    datetime-picker="{{datePickerOptions.dateTimeFormat}}"
+                                    placeholder="{{datePickerOptions.placeholder}}" ng-click="surgerydatePopup = { opened: true }"
+                                    is-open="surgerydatePopup.opened" ng-model="currentcontext.SurgeryDate" tabindex="-1" disabled>
+                            </div>
+                        </div>
+
+
+
+                        <div class="form-group col-sm-6">
+                            <label class="col-sm-12 control-label" for="createdby" translate="patientemr.dischargecasesheetform.createdby.lbl"></label>
+                            <div class="col-sm-12">
+                                <input type="text" class="form-control" name="createdby" ng-model="currentcontext.CreatedBy" placeholder="" disabled>
+                            </div>
+                        </div>
+
+                        <div class="form-group col-sm-6">
+                            <label class="col-sm-12 control-label" for="approvedby" translate="patientemr.dischargecasesheetform.approvedby.lbl"></label>
+                            <div class="col-sm-12">
+                                <input type="text" class="form-control" name="approvedby" ng-model="currentcontext.ApprovedBy" placeholder="" disabled>
+                            </div>
+                        </div> -->
+    </form>
+</div>
+<div class="fooder-bgs">
+    <div class="row">
+        <div class="pull-right">
+            <button type="button" ng-if="canUpdatePatientEMR()" class="draftbutton" translate="common.saveaction.lbl"
+                ng-click="saveItem()" ng-hide="$scope.currentcontext.id > 0"></button>
+                <button type="button" ng-if="canUpdatePatientEMR()" class="draftbutton" translate="common.saveaction.lbl"
+                ng-click="saveItem()" ng-show="$scope.currentcontext.id > 0"></button>
+
+            <!-- <button id="btnCancelForm" type="button" class="draftbutton" ng-click="backToList()" translate="common.cancelaction.lbl"></button> -->
+        </div>
+    </div>
+</div>

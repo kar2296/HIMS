@@ -1,0 +1,213 @@
+<style>
+    .page-header {
+        margin: 0px 0px 2px 0px !important;
+    }
+
+    .fontctrl {
+        color: #ffffff;
+        text-shadow: 0 1px 1px #194B7E;
+    }
+
+    .wobanner {
+        background-color: #597A9A
+    }
+
+    .calender_align ul {
+        left: -6px !important;
+    }
+
+    #patientlabresult {
+        overflow-x: hidden;
+    }
+
+    @media only screen and (max-width:414px) {
+        .profile-header .col-sm-1 {
+            display: none;
+        }
+        .profile-header .col-sm-6 {
+            padding: 0px;
+        }
+        #mainresponsivetablecontrol .bg-subhead {
+            font-size: 12px;
+        }
+        i.btn-warning {
+            height: 18px !important;
+        }
+    }
+
+    i.btn-warning {
+        width: 6%;
+        height: 23px;
+        margin-top: 4px;
+    }
+
+    @media (min-width:1200px) {
+        #patientlabresult {
+            overflow-x: hidden;
+            height: 520px;
+        }
+    }
+
+    @media (min-width:1360px) {
+        #patientlabresult {
+            overflow-x: hidden;
+            height: 551px;
+        }
+
+    }
+
+    @media (device-width:100vw) and (device-height:100vh) {
+        #patientlabresult {
+            overflow-x: hidden;
+            height: 640px;
+            min-height: 640px;
+        }
+    }
+
+    .table {
+        width: 99%;
+        margin-left: 6px;
+    }
+
+    #patientlabresult {
+        padding: 0px 10px;
+    }
+</style>
+<div class="row page-header">
+    <div class="col-sm-12">
+        <div class="col-sm-6">
+            <h4 class="page-header mt0" translate="Endoscopy Result Reviews"></h4>
+        </div>
+        <div class="col-sm-6 ">
+            <span ng-click="doctor_dashboard()">
+                <img src="app/img/main/download.png" class="img-responsive icon_home"  alt="home"
+                    uib-tooltip=" Doctor Dashboard " tooltip-placement="bottom">
+            </span>
+            <span ng-click="patient_dashboard()">
+                <img src="app/img/main/patdash.png" class="img-responsive icon_emrboard"  alt="home"
+                    uib-tooltip="Patient Dashboard" tooltip-placement="bottom">
+            </span>
+            <i class="fa fa-line-chart btn btn-warning btn-rounded pull-right" aria-hidden="true" ng-click="resultview()"></i>
+        </div>
+    </div>
+</div>
+<div id="patientlabresult">
+    <div class="col-sm-12 lresult_view">
+        <lispatientbanner patientid="currentcontext.pid"></lispatientbanner>
+    </div>
+    <div id="mainresponsivetablecontrol" class="lisdrpctrl">
+        <div ng-repeat="order in vm.orders">
+            <div id='workorder' ng-repeat="wo in order.PatientWorkorders">
+                <div>
+                    <div class="col-sm-12 fontctrl wobanner">
+                        <span ng-if="wo.Orderedby.FirstName">
+                            <strong>{{ wo.Orderedby.Title.Description }} {{ wo.Orderedby.FirstName }}</strong> |</span>
+
+                        <span ng-if="wo.Department.DepartmentName">
+                            <strong class="mrn-highlight">{{wo.Department.DepartmentName}}</strong> |</span>
+
+                        <span ng-if="wo.ApprovalSubmisdate">
+                            <displaydate datetime-val='wo.ApprovalSubmisdate'></displaydate> |</span>
+
+                        <span ng-if="wo.ApprovedUser.FirstName">
+                            <strong>{{ wo.ApprovedUser.Title.Description }} {{ wo.ApprovedUser.FirstName }}</strong> |</span>
+
+                        <span ng-if="wo.WorkOrderdid"> {{wo.WorkOrderdid}} </span>
+
+                        <div class="pull-right">
+                            <button class="btn btn-primary btn-xs" tabindex="-1" style="vertical-align: super;" ng-click="openWOAttachments(wo)">
+                                <i class="fa fa-file-text-o" aria-hidden="true"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <table class="table table-hover table-responsive table-bordered">
+                    <thead class="bg-subhead">
+                        <tr>
+                            <th class="col-sm-2">
+                                <span translate="ordermanagement.labresult-list.observation.lbl"></span>
+                            </th>
+                            <th class="col-sm-2">
+                                <span translate="ordermanagement.labresult-list.result.lbl"></span>
+                                <span class="mandatory-asterix">*</span>
+                            </th>
+                            <th class="col-sm-2">
+                                <span translate="ordermanagement.labresult-list.uom.lbl"></span>
+                            </th>
+                            <th class="col-sm-3">
+                                <span translate="ordermanagement.labresult-list.referrence.lbl"></span>
+                            </th>
+                            <th>
+                                <span translate="ordermanagement.labresult-list.phr.lbl"></span>
+                            </th>
+                            <th>
+                                <span translate="common.actions_col.lbl"></span>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody ng-repeat="test in wo.woDetails">
+                        <tr ng-if="test.RootProfileName" ng-hide="test.details.length==0">
+                            <td colspan="9">
+                                <span class="lbl-profile">{{test.RootProfileName}}</span>
+                            </td>
+                        </tr>
+                        <tr ng-if="test.ProfileName" ng-hide="test.details.length==0">
+                            <td colspan="9">
+                                <span class="lbl-profile">{{test.ProfileName}}</span>
+                            </td>
+                        </tr>
+                        <tr ng-hide="test.details.length == 1 && test.Testname.toLowerCase() == test.details[0].Analytename.toLowerCase()">
+                            <td colspan="9">
+                                <span class=" btn btn-primary btn-xs"> {{test.Testname}}</span>
+                            </td>
+                        </tr>
+                        <tr ng-repeat="item in test.details | filter:{Status:1}">
+                            <td>
+                                <span style="margin-left:0px;  vertical-align: super; color: #0dbef1; font-weight: 700; white-space: nowrap; text-overflow: ellipsis; overflow: auto;">{{item.Analytename}}</span>
+                            </td>
+                            <td colspan="{{item.TestValueType == 3 ? '3' : '1'}}">
+                                <span ng-if="item.QualifierId==1"> {{item.Resultvalue}} </span>
+                                <span ng-if="item.QualifierId!=1" style="color:red;"> {{item.Resultvalue}} </span>
+                            </td>
+                            <td ng-if="item.TestValueType != 3">
+                                <span ng-model="item.AnalyteUOM">{{item.AnalyteUOM}}</span>
+                            </td>
+                            <td ng-if="item.TestValueType != 3">
+                                <span class="pull-left">{{item.Analyterange}}</span>
+                                <span class="pull-right" style="color: #ff902b; font-weight: 700;">{{item.Qualifier}}</span>
+                            </td>
+                            <td>
+                                <displayyesno input-val='item.IsReleasedToPatient'></displayyesno>
+                            </td>
+                            <td>
+                                <button class="btn btn-primary btn-xs" tabindex="-1" style="vertical-align: super;" ng-click="openAttachments(item)">
+                                    <i class="fa fa-file-text-o" aria-hidden="true"></i>
+                                </button>
+                                <button class="btn btn-danger btn-xs" tabindex="-1" style="vertical-align: super;" ng-click="openObservations(item)">
+                                    <i class="fa fa-comment" aria-hidden="true"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="fooder-bgs">
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="col-sm-2" style="margin-left: -45px;">
+                <button type="button" class="btn pyr-color10 btn-sm" ng-click="backToList()">
+                    <i class="fa fa-angle-left" aria-hidden="true"></i>&nbsp;&nbsp;
+                    <span class="btn-fontsize" translate="common.backaction.lbl"></span>
+                </button>
+            </div>
+            <div class="col-sm-10 pull-right" style="margin-right: -390px;">
+                <button type="button" class="text-white btn btn-success btn-sm" ng-click="reviewlist()" translate="Review"></button>
+                <button type="button"  class="draftbutton" ng-click="print()" translate="common.printaction.lbl"></button>
+                <!-- <button style="margin-right:40px" id="btnCancelForm" type="button" class="draftbutton" ng-click="cancelCallback()" translate="common.cancelaction.lbl"></button> -->
+            </div>
+        </div>
+    </div>
+</div>

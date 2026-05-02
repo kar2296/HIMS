@@ -1,0 +1,149 @@
+<!-- <style>
+    .pl-3 {
+        padding-left: 2%;
+    }
+
+    button.dropdown-toggle.ng-binding.btn.btn-default {
+        text-align: left;
+        width: 100%;
+
+    }
+
+    .multiselect-parent.btn-group.dropdown-multiselect {
+        width: 100%;
+    }
+
+    .claim_sub {
+        padding-right: 0px;
+        padding-left: 0px;
+    }
+
+    ul.dropdown-menu.dropdown-menu-form.ng-scope {
+        height: auto !important;
+    }
+
+    .fooder-bgs {
+        margin-top: 16px !important;
+    }
+
+    .search input[type="text"] {
+        padding-left: 4px;
+        width: 200px !important;
+    }
+
+    .custom-popup-wrapper {
+        margin-left: -252px;
+    }
+
+    .autosearch-div .custom-popup-wrapper {
+        position: absolute;
+        width: 600px;
+        margin-left: -416px;
+    }
+
+    table.table.table-bordered.table-condensed.dropdown-menu {
+        width: 100% !important;
+        overflow: auto;
+        height: 243px !IMPORTANT;
+    }
+
+    table#bannerdetails .autosearch-div table.table.table-bordered.table-condensed.dropdown-menu td:nth-child(odd) {
+        width: 100% !important;
+    }
+
+    td.service .autosearch-div .custom-popup-wrapper {
+        position: absolute;
+        width: 600px;
+        margin-left: 1px;
+    }
+</style> -->
+
+<div class="row page-header">
+    <h4 class="col-sm-6 mt0" translate="billing.drpaymentmodify.pagetitle.lbl"></h4>
+    <div class="col-sm-6">
+        <div class="filters">
+            <div class="search">
+                <autosearch controlid="'DoctorId'" itemid="item.DoctorId" iteminfo="" rowdata="" name="'doctor'"
+                    config="vm.doctorcontrolconfig" placeholder="'Doctor'" candisable="SaveCompleted"
+                    isrequired="false"></autosearch>
+            </div>
+            <!-- <div class="search">
+                <patientsearch id="pid" patientid="currentfilter.PatientId" patientinfo="selectedPatient"
+                    filterconfig="patientfilterconfig" tabindex="-1" patientchange="patientChange()"
+                    candisable="canDisablePatientSearch()"></patientsearch>
+            </div> -->
+
+        </div>
+    </div>
+</div>
+<div class="row">
+    <table id="bannerdetails">
+        <tr>
+            <td translate="billing.drpaymentmodify.patientsearch.lbl"></td>
+            <td class="service">
+                <!-- <autosearch controlid="'ServiceId'" itemid="item.ServiceId" iteminfo="" rowdata="" name="'doctor'"
+                        config="vm.servicecontrolconfig" placeholder="'Service'" candisable="SaveCompleted"
+                        isrequired="false"></autosearch> -->
+                <patientsearch id="pid" patientid="currentfilter.PatientId" patientinfo="selectedPatient"
+                    filterconfig="patientfilterconfig" tabindex="-1" patientchange="patientChange()"
+                    candisable="canDisablePatientSearch()"></patientsearch>
+            </td>
+            <td translate="billing.claimsubmission-list.fromdate.lbl"></td>
+            <td>
+                <input type="text" class="form-control" name="FromBillDate" ng-date-object
+                    datetime-picker="{{datePickerOptions.dateTimeFormat}}" datepicker-append-to-body="true"
+                    placeholder="{{datePickerOptions.placeholder}}" ng-click="FromBillDatePopup = { opened: true }"
+                    is-open="FromBillDatePopup.opened" ng-model="currentfilter.FromBillDate">
+            </td>
+            <td translate="billing.claimsubmission-list.todate.lbl"></td>
+            <td>
+                <input type="text" class="form-control" name="ToBillDate" ng-date-object
+                    datetime-picker="{{datePickerOptions.dateTimeFormat}}" datepicker-append-to-body="true"
+                    placeholder="{{datePickerOptions.placeholder}}" ng-click="ToBillDatePopup = { opened: true }"
+                    is-open="ToBillDatePopup.opened" ng-model="currentfilter.ToBillDate">
+            </td>
+        </tr>
+        <tr>
+            <td translate="billing.drpaymentmodify.mrnno.lbl"></td>
+            <td>
+                <input type="text" class="form-control" name="filter_code" on-enter="getList()"
+                    ng-model="currentfilter.PatientMrn" translate
+                    translate-attr-placeholder="billing.drpaymentmodify.mrnno.lbl">
+            </td>
+            <td translate="billing.drpaymentmodify.encountertype.lbl"></td>
+            <td>
+                <ui-select ng-model="currentfilter.EncounterTypeId" name="EncounterTypeId">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 20 : 0}}
+                        <span ng-if="$select.selected.Text.length>20">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.EncounterType | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </td>
+            <td align="center">
+                <a ng-click="clearfilter()">
+                    <i class="fa fa-refresh" style="font-size:25px;color:#0066ff;"
+                        uib-tooltip="{{ 'common.resetaction.lbl' | translate}}" tooltip-placement="bottom"></i>
+                </a>
+            </td>
+            <td>
+                <button id="btnCancelForm" type="button" class="draftbutton" ng-click="getList()"
+                    translate="common.applyaction.lbl">
+                </button>
+            </td>
+        </tr>
+    </table>
+</div>
+<div class="row">
+    <custom-table config="vm.gridConfig"></custom-table>
+</div>
+<div class="fooder-bgs">
+    <div class="row">
+        <ul uib-pagination total-items="vm.gridConfig.pagerObj.totalItems"
+            items-per-page="vm.gridConfig.pagerObj.pageSize" start-index="vm.gridConfig.pagerObj.startIndex"
+            ng-model="vm.gridConfig.pagerObj.currentPage" ng-change="getList()"></ul>
+    </div>
+</div>

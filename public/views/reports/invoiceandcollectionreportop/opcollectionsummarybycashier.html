@@ -1,0 +1,148 @@
+<style>
+    /* table#tblData {
+    width: 98%;
+    margin-left: 10px;
+}
+#tblData th {
+    background: #0073bc !important;
+    padding: 5px;
+    border: 1px solid black !important;
+    text-align: center;
+} */
+    .autosearch-div .custom-popup-wrapper {
+        position: absolute;
+        width: 600px;
+        right: 203px;
+    }
+</style>
+<div class="row page-header">
+    <div class="col-sm-10">
+        <h4 class="mt0" translate="reports.opcollectioncashier.lbl"></h4>
+    </div>
+    <div class="col-sm-2">
+        <div class="filters">
+            <i class="icofont-filter" uib-tooltip="Filter" tooltip-placement="bottom" ng-click="openFilterTab()"></i>
+            <i class="icofont-file-excel" uib-tooltip="Excel" tooltip-placement="bottom"
+                onclick="exportTableToExcel('tblData', 'members-data')"></i>
+            <i class="icofont-print" uib-tooltip="Print" tooltip-placement="bottom" ng-click="print()"></i>
+            <i class="icofont-home" ng-click="backtoReport()" tabindex="-1" uib-tooltip="Report"
+                tooltip-placement="bottom"></i>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <table id="bannerdetails">
+        <tr>
+            <td translate="reports.fromdate.lbl"></td>
+            <td>
+                <div class="datepicker" id="datepicker">
+                    <input type="text" class="form-control" name="fromdate" ng-date-object
+                        datetime-picker="{{dateTimePickerOptions.dateTimeFormat}}"
+                        placeholder="{{datePickerOptions.placeholder}}" ng-click="fromdatePopup = { opened: true }"
+                        is-open="fromdatePopup.opened" ng-model="currentfilter.From">
+                    <i class="fa fa-calendar"></i>
+                </div>
+            </td>
+            <td translate="reports.todate.lbl"></td>
+            <td>
+                <div class="datepicker" id="datepicker">
+                    <input type="text" class="form-control" name="todate" ng-date-object
+                        datetime-picker="{{dateTimePickerOptions.dateTimeFormat}}"
+                        placeholder="{{datePickerOptions.placeholder}}" ng-click="todatePopup = { opened: true }"
+                        is-open="todatePopup.opened" ng-model="currentfilter.To">
+                    <i class="fa fa-calendar"></i>
+                </div>
+            </td>
+            <td translate="reports.user.lbl"></td>
+            <td>
+                <div class="filters">
+                    <autosearch itemid="currentfilter.UserId" itemchange="GetPharmacyOptions()" onenter="onenter()"
+                        iteminfo="item.SelectedItem" rowdata="item" config="vm.usercontrolconfig"
+                        class="inputsearchlogo" isrequired="true">
+                    </autosearch>
+                </div>
+            </td>
+            <td style="text-align: center;">
+                <button class="loadbtn" ng-click="GetPharmacyOptions()">
+                    <i class="fas fa-sync loading-icon" aria-hidden="true" uib-tooltip="Search"
+                        tooltip-placement="bottom"></i> <span>Load</span>
+                </button>
+            </td>
+        </tr>
+    </table>
+</div>
+<!-- <div>
+    <i class="icofont-filter" uib-tooltip="Search" tooltip-placement="bottom" ng-click="GetPharmacyOptions()"></i>
+</div> -->
+<div class="row">
+    <div id="reportsdetail">
+        <table id="tblData">
+            <thead>
+                <tr>
+                    <th class="cus-col tbl-header cust_Particulars" style="font-weight: 700;">
+                        <span translate="User Name"></span>
+                    </th>
+                    <th class="cus-col tbl-header" style="font-weight: 700;">
+                        <span translate="Net Cash(Rec-Ref)"></span>
+                    </th>
+                    <th class="cus-col tbl-header" style="font-weight: 700;">
+                        <span translate="Net Card(Rec-Ref)"></span>
+                    </th>
+                    <th class="cus-col tbl-header" style="font-weight: 700;">
+                        <span translate="Net Other(Rec-Ref)"></span>
+                    </th>
+                    <th class="cus-col tbl-header" style="font-weight: 700;">
+                        <span translate="Net Collection((NCash+NCard+NOther)"></span>
+                    </th>
+                </tr>
+            </thead>
+            <tr ng-repeat="item in NetUserCollection">
+                <td class=""><span class="">{{item.Key}}</span></td>
+                <td class="currency-align">{{ item.NetCash }}</td>
+                <td class="currency-align">{{ item.NetCard }}</td>
+                <td class="currency-align">{{ item.NetOther }}</td>
+                <td class="currency-align">{{ item.NetCollection }}</td>
+            </tr>
+            <tr class="highlite">
+                <td class=""><span class="">Total</span></td>
+                <td class="currency-align">{{ TotCash }}</td>
+                <td class="currency-align">{{TotCard }}</td>
+                <td class="currency-align">{{ TotOther }}</td>
+                <td class="currency-align">{{ TotalCollection }}</td>
+            </tr>
+        </table>
+    </div>
+</div>
+<div class="fooder-bgs"></div>
+<script>
+    function exportTableToExcel(tableID, filename = '') {
+        var downloadLink;
+        var dataType = 'application/vnd.ms-excel';
+        var tableSelect = document.getElementById(tableID);
+        var tableHTML = tableSelect.outerHTML.replace(/ /g, '%20');
+
+        // Specify file name
+        filename = filename ? filename + '.xls' : 'excel_data.xls';
+
+        // Create download link element
+        downloadLink = document.createElement("a");
+
+        document.body.appendChild(downloadLink);
+
+        if (navigator.msSaveOrOpenBlob) {
+            var blob = new Blob(['\ufeff', tableHTML], {
+                type: dataType
+            });
+            navigator.msSaveOrOpenBlob(blob, filename);
+        } else {
+            // Create a link to the file
+            downloadLink.href = 'data:' + dataType + ', ' + tableHTML;
+
+            // Setting the file name
+            downloadLink.download = filename;
+
+            //triggering the function
+            downloadLink.click();
+        }
+    }
+</script>

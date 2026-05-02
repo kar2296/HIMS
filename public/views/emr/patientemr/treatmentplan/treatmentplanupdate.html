@@ -1,0 +1,149 @@
+<style>
+    #item_form .col-sm-8 {
+        padding-right: 2px;
+        padding-top: 5px;
+        /* float: right; */
+    }
+</style>
+<div class="page-header-list">
+    <div class="col-lg-12">
+        <h4 translate="Treatment Plan Execution"></h4>
+    </div>
+</div>
+
+<div class="row">
+    <emrpatientbanner patientid="currentcontext.pid" encounterid="currentcontext.eid">
+    </emrpatientbanner>
+</div>
+<div class="row">
+    <form id="item_form" name="item_form" class="form-horizontal" role="form">
+        <div class="form-group col-sm-4">
+            <label class="col-sm-4" for="notetype" translate="Plan No">
+            </label>
+            <div class="col-sm-8">
+                : {{item.PlanNumber}}
+            </div>
+        </div>
+        <!-- <div class="form-group col-sm-4">
+            <label class="col-sm-4" for="notetype" translate="Treatment Name">
+            </label>
+            <div class="col-sm-8">
+                : {{item.ServiceName}}
+            </div>
+        </div> -->
+        <div class="form-group col-sm-4">
+            <label class="col-sm-4" for="daystotal" translate="Total Days">
+            </label>
+            <div class="col-sm-8">
+                : {{item.NoOfDays}}
+            </div>
+        </div>
+        <div class="form-group col-sm-4">
+            <label class="col-sm-4" for="fromdate" translate="From Date">
+            </label>
+            <div class="col-sm-8">
+                <span>: {{item.PlanScheduledFrom | date : 'dd/MMM/yyyy' }}</span>
+            </div>
+        </div>
+        <div class="form-group col-sm-4">
+            <label class="col-sm-4" for="todate" translate="To Date">
+            </label>
+            <div class="col-sm-8">
+                <span>: {{item.PlanScheduledTo | date : 'dd/MMM/yyyy' }}</span>
+            </div>
+        </div>
+        <div class="form-group col-sm-4">
+            <label class="col-sm-4" for="cost" translate="Cost">
+            </label>
+            <div class="col-sm-8">
+                : {{item.TotalAmount}}
+            </div>
+        </div>
+        <div class="form-group col-sm-4">
+            <label class="col-sm-4" for="comments" translate="Comments">
+            </label>
+            <div class="col-sm-8">
+                : {{item.Comments}}
+            </div>
+        </div>
+
+    </form>
+</div>
+<div class="row">
+    <div class="formRoot pharmacycollections" id="mainresponsivetablecontrol">
+        <table class="table table-hover table-responsive table-bordered">
+            <thead class="bg-subhead" ng-if="TreatmentPlanDetails">
+                <tr>
+                    <th>
+                        <span translate="Date"></span>
+                    </th>
+                    <th>
+                        <span translate="Treatment Name"></span>
+                    </th>
+                    <th>
+                        <span translate="Start Time"></span>
+                    </th>
+                    <th>
+                        <span translate="End Time"></span>
+                    </th>
+                    <th>
+                        <span translate="Cost"></span>
+                    </th>
+                    <th>
+                        <span translate="Payment Status"></span>
+                    </th>
+                    <th>
+                        <span translate="Status"></span>
+                    </th>
+                    <th>
+                        <span translate="Action"></span>
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="plan in TreatmentPlanDetails">
+                    <td class="text-left">
+                        <span>
+                            <span> {{plan.PlanScheduleDate | date : 'dd/MMM/yyyy' }}</span>
+                        </span>
+                    </td>
+                    <td class="text-left">
+                        <span> {{plan.ServiceName }}</span>
+                    </td>
+                    <td class="text-left">
+                        <span> {{plan.PlanStartTime | date : 'dd/MMM/yyyy' }}</span>
+                    </td>
+                    <td class="text-left">
+                        <span> {{plan.PlanEndTime | date : 'dd/MMM/yyyy' }}</span>
+                    </td>
+                    <td class="text-left">
+                        <span> {{plan.ServicePrice }}</span>
+                    </td>
+                    <td class="text-right">
+                        <span ng-if="!plan.IsPaid">Pending</span>
+                        <span ng-if="plan.IsPaid">Completed</span>
+                    </td>
+                    <td class="text-right">
+                        <span>{{ plan.PlanStatus.Description}}</span>
+                    </td>
+                    <td>
+                        <span ng-click="updateplan(plan)" ng-show="plan.IsPaid"><img class="drhms-edit-button"
+                                src="assets/svg/edit.svg" alt=""></span>
+                    </td>
+                </tr>
+            </tbody>
+
+        </table>
+    </div>
+</div>
+
+<div class="fooder-bgs">
+    <div class="pull-left">
+        <button type="button" class="btn pyr-color10 btn-sm" tabindex="-1" ng-click="backToList()">
+            <i class="fa fa-angle-left" aria-hidden="true"></i>&nbsp;&nbsp;
+            <i class="btn-fontsize ng-scope" translate="common.backaction.lbl">
+                <span class="ng-scope">Back</span>
+            </i>
+        </button>
+    </div>
+</div>

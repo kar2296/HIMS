@@ -1,0 +1,432 @@
+<link rel="stylesheet" href="app/css/drhms.css">
+<div class="row">
+    <div class="page-header">
+        <div class="col-sm-8">
+            <h4 class="page-header mt0" translate="Medicine Receive"></h4>
+        </div>
+        <div class="col-sm-4">
+            <div class="pull-right">
+                <span class="drhms-billing-btn drhms-generic-btn" ng-click="stockstatus()"
+                    uib-tooltip="Generic Stock Status" tooltip-placement="bottom">
+                    <i class="fas solid fa-dna"></i>
+                </span>
+                <span class="drhms-billing-btn drhms-outstandingbill-btn" ng-click="doctor_dashboard()" alt="home"
+                    uib-tooltip="{{'patientemr.mock.emrdashboard.lbl' | translate}}" tooltip-placement="bottom">
+                    <i class="fas fa-th-large" aria-hidden="true"></i>
+                </span>
+                <button class="btn-add" ng-click="addNew()"
+                    uib-tooltip="{{ 'patientrequests.addnew-tooltip.lbl' | translate }}" tooltip-placement="bottom">
+                    <i class="fa fa-plus" aria-hidden="true"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <ippatientbanner patientid="currentcontext.pid" encounterid="currentcontext.eid"></ippatientbanner>
+</div>
+<div class="col-sm-12" ng-show="canShowDetailsArea()">
+    <form id="item_form" name="item_form" class="form-horizontal" role="form">
+        <div class="drhms-table-top-header">
+            <div class="drhms-table-head-border">
+                <div class="col-sm-12">
+                    <label class="col-sm-4" for="type" translate="Date"></label>
+                    <div class="col-sm-8">:
+                        <span class="head-title">{{item.PatientRequestDateTime | date : 'dd-MMM-yyyy'}}&nbsp;
+                            {{item.PatientRequestDateTime | date
+                            : 'HH:mm'}}</span>
+                    </div>
+                </div>
+                <div class="col-sm-12">
+                    <label class="col-sm-4" for="type" translate="Indent #"></label>
+                    <div class="col-sm-8">
+                        {{item.PatientRequestNumber}}
+                    </div>
+                </div>
+                <div class="col-sm-12">
+                    <label class="col-sm-4" for="type" translate="Indent By"></label>
+                    <div class="col-sm-8">:
+                        <span class="head-title">{{item.PatientRequestDateTime | date : 'dd-MMM-yyyy'}}&nbsp;
+                            {{item.PatientRequestDateTime | date
+                            : 'HH:mm'}}</span>
+                    </div>
+                </div>
+            </div>
+            <div class="drhms-table-head-border">
+                <div class="col-sm-12">
+                    <label class="col-sm-4" for="type" translate="Cancelled By"></label>
+                    <div class="col-sm-8">:
+                        <span class="head-title">{{item.CancelledDate | date : 'dd-MMM-yyyy'}}&nbsp;
+                            {{item.CancelledDate |
+                            date : 'HH:mm'}}</span>
+                    </div>
+                </div>
+                <div class="col-sm-12">
+                    <label class="col-sm-4" for="tostore" translate="patientrequest.tostore.lbl"></label>
+                    <div class="col-sm-8">
+                        <ui-select ng-model="item.ToStoreId" name="tostore" ng-disabled="true" required>
+                            <ui-select-match>
+                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                <span ng-if="$select.selected.Text.length>20">...</span>
+                            </ui-select-match>
+                            <ui-select-choices
+                                repeat="lookupitem.Id as lookupitem in lookup.ToStore | filter: { Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                </div>
+                <div class="col-sm-12">
+                    <label class="col-sm-4" for="ward" translate="patientrequest.ward.lbl"></label>
+                    <div class="col-sm-8">
+                        <ui-select ng-model="item.WardId" name="ward" ng-disabled="true" required>
+                            <ui-select-match>
+                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                <span ng-if="$select.selected.Text.length>20">...</span>
+                            </ui-select-match>
+                            <ui-select-choices
+                                repeat="lookupitem.Id as lookupitem in lookup.Ward | filter: { Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                </div>
+            </div>
+            <div class="drhms-table-head-border">
+                <div class="col-sm-12">
+                    <label class="col-sm-4" for="room" translate="patientrequest.room.lbl"></label>
+                    <div class="col-sm-8">
+                        <ui-select ng-model="item.RoomId" name="room" ng-disabled="true" required>
+                            <ui-select-match>
+                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                <span ng-if="$select.selected.Text.length>20">...</span>
+                            </ui-select-match>
+                            <ui-select-choices
+                                repeat="lookupitem.Id as lookupitem in lookup.Room | filter: { Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                </div>
+                <div class="col-sm-12">
+                    <label class="col-sm-4" for="priority" translate="patientrequest.priority.lbl"></label>
+                    <div class="col-sm-8">
+                        <ui-select ng-model="item.PatientRequestPriorityId" name="priority" ng-disabled="true">
+                            <ui-select-match>
+                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                <span ng-if="$select.selected.Text.length>20">...</span>
+                            </ui-select-match>
+                            <ui-select-choices
+                                repeat="lookupitem.Id as lookupitem in lookup.PatientRequestPriority | filter: { Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                </div>
+                <div class="col-sm-12">
+                    <label class="col-sm-4" for="room" translate="Status"></label>
+                    <div class="col-sm-8">: <span class="head-title">{{item.DisplayRequestStatus}}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+<div class="row" ng-hide="context=='emr'">
+    <!-- grid area starts -->
+    <table class="editable-table table-striped table-bordered">
+        <thead class="bg-subhead">
+            <tr>
+                <th>
+                    <span translate="inventory.purchaserequest.sno.lbl"></span>
+                </th>
+                <th>
+                    <span translate="patientrequest.itemname.lbl"></span>&nbsp;*
+                </th>
+                <th>
+                    <span translate="patientrequest.genericname.lbl"></span>
+                </th>
+                <th>
+                    <span translate="Requested Qty"></span>&nbsp;*
+                </th>
+                <th>
+                    <span translate="Dispensed Qty"></span>
+                </th>
+                <th>
+                    <span translate="Pending Qty"></span>
+                </th>
+                <!-- <th>
+                    <span translate="patientrequest.price.lbl"></span>
+                </th>
+                <th>
+                    <span translate="patientrequest.amount.lbl"></span>
+                </th> -->
+                <!-- <th>
+                    <span translate="patientrequest.action.lbl"></span>
+                </th> -->
+            </tr>
+        </thead>
+        <tbody ng-show="item.EncounterId > 0">
+            <tr ng-repeat="patientstockrequest in PatientStockRequestDetails | filter:{Status:1}">
+                <td class="fs-12">
+                    <span>{{ patientstockrequest.SNo }}</span>
+                </td>
+                <td class="fs-12">
+                    <autosearch itemid="patientstockrequest.ItemStoreMapId" iteminfo="patientstockrequest.SelectedItem"
+                        rowdata="patientstockrequest" config="vm.pharmacyitemcontrolconfig"
+                        itemchange="onItemSelected($index, patientstockrequest)" class="inputsearchlogo"
+                        candisable="true" isrequired="true" tabindex="patientstockrequest.tabindex">
+                    </autosearch>
+                </td>
+                <td class=" fs-12 ">
+                    <span class="medreq_gnric" ng-disabled="true" uib-tooltip="{{patientstockrequest.GenericName}}"
+                        tooltip-placement="bottom">
+                        {{patientstockrequest.GenericName}}</span>
+                    <!-- <i ng-if="patientstockrequest.GenericId" uib-tooltip="Alter Batch" tooltip-placement="top" class="fas fa-layer-group" tabindex="-1"
+                        ng-click="alternateDetails($index, patientstockrequest)"></i> -->
+
+                    <!-- <button ng-if="patientstockrequest.GenericId" type="button" class="btn btn-info btn-xs pull-right" tabindex="-1" ng-click="alternateDetails($index, patientstockrequest)"
+                        ng-disabled="patientstockrequest.CanDisableDetails">
+                        <i class="fa fa-calendar-check-o" aria-hidden="true"></i>
+                    </button> -->
+                </td>
+                <td class="fs-12">
+                    {{patientstockrequest.RequestedQuantity}}
+                    <!-- <input type="number" min="0" class="form-control" ng-model="patientstockrequest.RequestedQuantity" name="requestedquantity" ng-disabled="true" ng-change="computeAmount(patientstockrequest)" tabindex="patientstockrequest.tabindex" placeholder="" ng-pattern="/^\d+$/"
+                        ng-keypress="numberonly($event)"> -->
+                </td>
+                <td>
+                    {{patientstockrequest.DispensedQuantity}}
+                </td>
+                <td>
+                    {{patientstockrequest.PendingQuantity}}
+                </td>
+                <!-- <td class=" fs-12">
+                    <span> {{patientstockrequest.SaleUomCode}}</span>
+                </td>
+                <td class="fs-12 text-center">
+                    <span>{{patientstockrequest.QuantityOnHand}}</span>
+                </td> -->
+                <!-- <td class="fs-12 text-center">
+                    <span>{{(patientstockrequest.Mrp | displaycurrency)}}</span>
+                </td>
+                <td class="fs-12 text-center">
+                    <span>{{patientstockrequest.NetAmount | displaycurrency}}</span>
+                </td> -->
+                <!-- <td class="text-center">
+                    <i class="fa fa-history fa-xs" aria-hidden="true" tabindex="-1" uib-tooltip="History" tooltip-placement="top" ng-click="History(patientstockrequest, $index)"></i>
+                    <i class="fa fa-database fa-xs" aria-hidden="true" tabindex="-1" uib-tooltip="Stock" tooltip-placement="top" ng-click="Stock(patientstockrequest, $index)"></i>
+                    <i class="fa fa-trash" aria-hidden="true" tabindex="-1" uib-tooltip="Delete" tooltip-placement="top" ng-click="deletePatientRequestDetail(patientstockrequest,$index)"></i>
+
+
+                    <!-- <button type="button" class="btn btn-info texthover btn-xs ng-scope" uib-tooltip="History" tooltip-placement="top" ng-click="History(patientstockrequest, $index)">
+                        <img class="imgsrc" src="app/img/main/history.png" style="margin-top: 1px; width:26px;">
+                    </button>
+                    <button type="button" class="text-white btn dem-color4 btn-xs " uib-tooltip="Stock" tooltip-placement="top" ng-click="Stock(patientstockrequest, $index)">
+                        <i class="fa fa-database fa-xs" aria-hidden="true"></i>
+                    </button>
+                    <button type="button" class="btn btn-danger btn-xs" uib-tooltip="Delete" tooltip-placement="top" ng-click="deletePatientRequestDetail(patientstockrequest,$index)"
+                        ng-disabled="patientstockrequest.CanDisableDetails">
+                        <img class="drhms-edit-button" src="assets/svg/delete.svg" alt="">
+                    </button> --
+                </td> -->
+            </tr>
+        </tbody>
+    </table>
+    <!-- grid area ends -->
+</div>
+<div class="row" ng-show="context=='emr'">
+    <!-- grid area starts -->
+    <table class="editable-table table-striped table-bordered">
+        <thead class="bg-subhead">
+            <tr>
+
+                <th>
+                    <span translate="inventory.purchaserequest.sno.lbl"></span>
+                </th>
+                <th>
+                    <span translate="patientrequest.itemname.lbl"></span>&nbsp;*
+                </th>
+                <th>
+                    <span translate="patientrequest.genericname.lbl"></span>
+                </th>
+                <th>
+                    <span translate="patientrequest.qty.lbl"></span>&nbsp;*
+                </th>
+                <!-- <th>
+                    <span translate="patientrequest.uom.lbl"></span>
+                </th>
+                <th>
+                    <span translate="patientrequest.availableqty.lbl"></span>
+                </th> -->
+                <!-- <th>
+                    <span translate="patientrequest.price.lbl"></span>
+                </th>
+                <th>
+                    <span translate="patientrequest.amount.lbl"></span>
+                </th> -->
+                <!-- <th>
+                    <span translate="patientrequest.action.lbl"></span>
+                </th> -->
+            </tr>
+        </thead>
+        <tbody ng-show="item.EncounterId > 0">
+            <tr ng-repeat="patientstockrequest in PatientStockRequestDetails | filter:{Status:1} ">
+                <td class="fs-12">
+                    <span>{{ patientstockrequest.SNo }}</span>
+                </td>
+                <td class="fs-12">
+                    <autosearch itemid="patientstockrequest.ItemStoreMapId" iteminfo="patientstockrequest.SelectedItem"
+                        rowdata="patientstockrequest" config="vm.pharmacyitemcontrolconfig"
+                        itemchange="onItemSelected($index, patientstockrequest)" class="inputsearchlogo"
+                        candisable="patientstockrequest.CanDisableDetails" isrequired="true"
+                        tabindex="patientstockrequest.tabindex"></autosearch>
+                </td>
+                <td class=" fs-12 ">
+                    <span> {{patientstockrequest.GenericName}}</span>
+                    <!-- <button ng-if="patientstockrequest.GenericId" type="button" class="btn btn-info btn-xs pull-right" tabindex="-1" ng-click="alternateDetails($index, patientstockrequest)"
+                        ng-disabled="patientstockrequest.CanDisableDetails">
+                        <i class="fa fa-calendar-check-o" aria-hidden="true"></i>
+                    </button> -->
+                </td>
+                <td class="fs-12">
+                    {{patientstockrequest.RequestedQuantity}}
+                    <!-- <input type="number" min="0" class="form-control" ng-model="patientstockrequest.RequestedQuantity" name="requestedquantity" ng-disabled="true" ng-change="computeAmount(patientstockrequest)" tabindex="patientstockrequest.tabindex" placeholder="" ng-pattern="/^\d+$/"
+                        ng-keypress="numberonly($event)"> -->
+                </td>
+                <td>
+                    {{patientstockrequest.DispensedQuantity}}
+                </td>
+                <td>
+                    {{patientstockrequest.PendingQuantity}}
+                </td>
+                <!-- <td class="fs-12">
+                    <input type="number" min="0" class="form-control" ng-model="patientstockrequest.RequestedQuantity" name="requestedquantity"
+                        ng-disabled="patientstockrequest.CanDisableDetails" ng-change="computeAmount(patientstockrequest)"
+                        tabindex="patientstockrequest.tabindex" placeholder="" ng-pattern="/^\d+$/" ng-keypress="numberonly($event)">
+                </td> -->
+                <!-- <td class=" fs-12 ">
+                    <span> {{patientstockrequest.SaleUomCode}}</span>
+                </td>
+                <td class="fs-12 ">
+                    <span>{{patientstockrequest.QuantityOnHand}}</span>
+                </td> -->
+                <!-- <td class="fs-12 ">
+                    <span>{{(patientstockrequest.Mrp | displaycurrency)}}</span>
+                </td>
+                <td class="fs-12 ">
+                    <span>{{patientstockrequest.NetAmount | displaycurrency}}</span>
+                </td> -->
+                <!-- <td class="text-center">
+                    <!-- <button type="button" class="btn btn-success btn-xs" tabindex="-1" ng-click="editPrescriptionDetail(patientstockrequest)">
+                        <i class="fa fa-pencil" aria-hidden="true"></i>
+                    </button> -->
+                <!-- <button type="button" class="btn btn-info texthover btn-xs ng-scope" uib-tooltip="History" tooltip-placement="top" ng-click="History(patientstockrequest, $index)">
+                        <img class="imgsrc" src="app/img/main/history.png" style="margin-top: 1px; width:26px;">
+                    </button>
+                    <button type="button" class="text-white btn dem-color4 btn-xs " uib-tooltip="Stock" tooltip-placement="top" ng-click="Stock(patientstockrequest, $index)">
+                        <i class="fa fa-database fa-xs" aria-hidden="true"></i>
+                    </button>
+                    <button type="button" class="btn btn-danger btn-xs" uib-tooltip="Delete" tooltip-placement="top" ng-click="deletePatientRequestDetail(patientstockrequest,$index)"
+                        ng-disabled="patientstockrequest.CanDisableDetails">
+                        <img class="drhms-edit-button" src="assets/svg/delete.svg" alt="">
+                    </button> --
+                    <i class="fa fa-history fa-xs" aria-hidden="true" tabindex="-1" uib-tooltip="History" tooltip-placement="top" ng-click="History(patientstockrequest, $index)"></i>
+                    <i class="fa fa-database fa-xs" aria-hidden="true" tabindex="-1" uib-tooltip="Stock" tooltip-placement="top" ng-click="Stock(patientstockrequest, $index)"></i>
+                    <i class="fa fa-trash" aria-hidden="true" tabindex="-1" uib-tooltip="Delete" tooltip-placement="top" ng-click="deletePatientRequestDetail(patientstockrequest,$index)"></i>
+                </td> -->
+            </tr>
+        </tbody>
+    </table>
+    <!-- grid area ends -->
+</div>
+<div class="footerbar">
+    <div class="col-sm-12">
+        <div class="col-sm-4 pull-left footer">
+            <span class="col-sm-4 control-label" for="comments"
+                translate="inventory.stockadjustments.comments.lbl"></span>
+            <div class="col-sm-8">
+                <input type="text" class="form-control field-height inputheightctrl" ng-disabled="commentsDisabled"
+                    name="comments" ng-model="item.RequesterComments" placeholder="">
+            </div>
+        </div>
+        <!-- <div class="col-sm-4 pull-left" ng-show="canShowApprovedComments">
+                            <span class="col-sm-4 control-label" for="comments" translate="inventory.stockadjustments.comments.lbl"></span>
+                            <div class="col-sm-8">
+                                <input type="text" class="form-control field-height inputheightctrl" ng-disabled="commentsDisabled" name="comments" ng-model="item.ApproverComments"
+                                    placeholder="">
+                            </div>
+                        </div>
+                        <div class="col-sm-4 pull-left" ng-show="canShowAuthorizedComments">
+                            <span class="col-sm-4 control-label" for="comments" translate="inventory.stockadjustments.comments.lbl"></span>
+                            <div class="col-sm-8">
+                                <input type="text" class="form-control field-height inputheightctrl" ng-disabled="commentsDisabled" name="comments" ng-model="item.AuthorizerComments"
+                                    placeholder="">
+                            </div>
+                        </div>
+                        <div class="col-sm-4 pull-left" ng-show="canShowCancelledComments">
+                            <span class="col-sm-4 control-label" for="comments" translate="inventory.stockadjustments.comments.lbl"></span>
+                            <div class="col-sm-8">
+                                <input type="text" class="form-control field-height inputheightctrl" ng-disabled="commentsDisabled" name="comments" ng-model="item.CancelledComments"
+                                    placeholder="">
+                            </div>
+                        </div> -->
+        <!-- <div class="col-sm-4">
+                            <label class="col-sm-4 control-label" for="remarks" translate="appointment.appointment-form.remarks.lbl"></label>
+                            <div class="col-sm-8">
+                                <ui-select ng-model="item.RemarkId" name="remarks" ng-change="remarkChange($select.selected)" ng-disabled="canDisableRemarksDiv()">
+                                    <ui-select-match>
+                                        {{$select.selected.Text | limitTo : 15 : 0}}
+                                        <span ng-if="$select.selected.Text.length>15">...</span>
+                                    </ui-select-match>
+                                    <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.Remark | filter: { Text: $select.search }">
+                                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                    </ui-select-choices>
+                                </ui-select>
+                            </div>
+                        </div> -->
+
+        <!-- <div class="col-sm-4 pull-right">
+                            <span class="col-sm-4 control-label" for="comments" translate="inventory.purchaserequest.totalamount.lbl"></span>
+                            <div class="col-sm-8">
+                                <input type="text" value="{{(item.TotalNetAmount | displaycurrency)}}" class="inputbox form-control" disabled>
+                            </div>
+                        </div> -->
+    </div>
+</div>
+<div class="fooder-bgs">
+    <div class="row">
+        <div class="pull-left">
+            <button type="button" class="btn pyr-color10 btn-sm" ng-click="backToList()">
+                <i class="fa fa-angle-left" aria-hidden="true"></i>
+                <span class="btn-fontsize"> &nbsp; Back</span>
+            </button>
+            <!-- <button type="button" class="draftbutton" uib-tooltip="Attachments" tooltip-placement="top"
+                ng-click="openAttachments()">
+                <i class="fa fa-paperclip fa-xs" aria-hidden="true">&nbsp;&nbsp;(0)</i>
+            </button> -->
+            <!-- <button type="button" class="btn btn-info texthover btn-sm ng-scope" uib-tooltip="History" tooltip-placement="top" ng-show="canShowHistoryBtn"
+                ng-click="history()">
+                <img class="imgsrc" src="app/img/main/history.png" style="margin-top: 1px; width:26px;">
+            </button> -->
+            <button type="button" class="draftbutton" ng-show="canShowCancelBtn" ng-click="CancelRequest()"
+                translate="patientrequest.cancelrequest.lbl"></button>
+        </div>
+        <div class="pull-right">
+            <button type="button" class="draftbutton" ng-show="canShowPrintBtn" ng-click="print()">
+                <i class="fa fa-print"></i> Preview Print</button>
+            <button type="button" ng-hide="item.PatientRequestStatusId==7 || item.PatientRequestStatusId==2" class="draftbutton" translate="Receive"
+                ng-click="SaveandApprove()"></button>
+            <!-- <button type="button" id="approvebtnsubmit" class="draftbutton" translate="common.saveapprove-action.lbl"
+                ng-show="canShowSaveandApproveBtn" ng-click="SaveandApprove()"></button> -->
+            <button type="button" class="draftbutton" translate="common.authorize.lbl" ng-show="canShowAuthorizeBtn"
+                ng-click="SaveandAuthorize() "></button>
+            <!-- <button type="button" id="clearbtnsubmit" class="btn btn-warning btn-sm" translate="common.clearaction.lbl" ng-show="canShowClearBtn"
+                ng-click="Clear()"></button> -->
+        </div>
+    </div>
+</div>
+<div ng-show="canShowTickSheetArea()">
+    <ticksheetcontrol config="ticksheetconfig" storeid="item.PharmacyId" addclick="addTickSheet()"
+        saveclick="saveTickSheets()"></ticksheetcontrol>
+</div>

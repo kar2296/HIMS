@@ -1,0 +1,96 @@
+<style>
+    .pl-3 {
+        padding-left: 3%;
+    } 
+    .modal-dialog.modal-lg #patientsearchheight .ui-grid-viewport{
+        min-height: 388px;
+        height: 382px !important;
+    }
+</style>
+<div class="row page-header">
+    <h4 class="col-sm-6 mt0" translate="otrequest-list.pagetitle.lbl"></h4>
+    <div class="col-sm-6">
+
+    </div>
+</div>
+<div class="bg-pattern">
+    <div class="row filter-area">
+        <div class="col-sm-12">
+            <div class="col-sm-3">
+                <label class="col-sm-4 control-label" for="SurgeryName" translate="otrequest-form.name.lbl"></label>
+                <div class="col-sm-8">
+                    <ui-select ng-model="currentfilter.ProcedureId" ng-disabled="" name="surgerycategory">
+                        <ui-select-match>
+                            {{$select.selected.ProcedureName | limitTo : 20 : 0}}
+                            <span ng-if="$select.selected.ProcedureName.length>20">...</span>
+                        </ui-select-match>
+                        <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.Procedure | filter: { ProcedureName: $select.search }">
+                            <div ng-bind-html="lookupitem.ProcedureName | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+                <!--<div class="col-sm-2 pull-right">
+                                                    <button type="button" class="btn btn-success btn-xs" uib-tooltip=""><i class="fa fa-plus" aria-hidden="true"></i></button>
+                                                </div>-->
+            </div>
+            <!--<div class="col-sm-3">
+            <div class="form-group">
+                <label class="sr-only col-sm-5 col-md-5 control-label filter-lbl" translate="admissionrequests.filter_name_mrn.lbl"></label>
+                <div class="input-group col-sm-7 col-md-7">
+                    <div class="input-group-addon"><i class="fas fa-search" aria-hidden="true"></i></div>
+                    <input type="text" class="form-control" on-enter="getList()" ng-model="currentfilter.namemrn" placeholder=" NAME/MRN">
+                </div>
+            </div>
+        </div>-->
+            <div class="col-sm-3">
+                <div class="form-group">
+                    <label class="sr-only col-sm-5 control-label filter-lbl" translate="Name/MRN"></label>
+                    <div class="input-group col-sm-7">
+                        <div class="input-group-addon"><i class="fas fa-search" aria-hidden="true"></i></div>
+                        <input type="text" class="form-control" on-enter="getList()" ng-model="currentfilter.PatientNameMRN" placeholder="Name/MRN">
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-3">
+                <label class="col-sm-4 control-label" translate="otrequest-form.type.lbl" for="SurgeryType"></label>
+                <div class="col-sm-8">
+                    <ui-select ng-model="currentfilter.SurgeryTypeId" name="SurgeryType" required>
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 20 : 0}}
+                            <span ng-if="$select.selected.Text.length>20">...</span>
+                        </ui-select-match>
+                        <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.SurgeryType | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+            <div class="col-sm-3">
+                <label class="col-sm-4 control-label filter-lbl" translate="otrequest-list.filter_status.lbl"></label>
+                <div class="col-sm-8">
+                    <ui-select ng-model="currentfilter.OTRequestStatusId" ng-change="getList()" class="filter-combo">
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 8 : 0}}
+                            <span ng-if="$select.selected.Text.length>8">...</span>
+                        </ui-select-match>
+                        <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.OTRequestStatus | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="container-fluid onerow-filter" id="patientsearchheight">
+        <div ui-grid="vm.gridConfig" class="table-uigrid"  ui-grid-selection></div>
+        <div class="fooder-bgs">
+        <div class="col-sm-11">
+            <ul uib-pagination total-items="vm.gridConfig.pagerObj.totalItems" items-per-page="vm.gridConfig.pagerObj.pageSize" start-index="vm.gridConfig.pagerObj.startIndex"
+                ng-model="vm.gridConfig.pagerObj.currentPage" ng-change="getList()"></ul>
+        </div>
+        <div class=" col-sm-1">
+            <button type="button" class="btn btn-danger btn-sm pull-right" ng-click="cancelCallback()" translate="common.cancelaction.lbl"></button>
+        </div>
+    </div>
+    </div>
+</div>

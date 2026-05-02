@@ -1,0 +1,75 @@
+<div class="row">
+    <div class="pull-right">
+        <button class="btn-add" ng-click="saveItem()"
+            uib-tooltip="{{ 'lis.testmasters.addnew-tooltip.lbl' | translate }}" tooltip-placement="bottom">
+            <i class="fa fa-plus" aria-hidden="true"></i></button>
+    </div>
+</div>
+<div class="row">
+    <form id="item_form" name="item_form" class="form-horizontal" role="form">
+        <div class="col-sm-3">
+            <label class="col-sm-4" for="testanalyte"
+                translate="costmanagement.consumables-list.inventoryitems.lbl"></label>
+            <div class="col-sm-8">
+                <autosearch itemid="item.ItemId" iteminfo="item.SelectedItem" rowdata=""
+                    config="vm.purchaseitemcontrolconfig" itemchange="ItemMasterChanged(item.SelectedItem)">
+                </autosearch>
+            </div>
+        </div>
+        <div class="col-sm-3">
+            <label class="col-sm-4" for="qty"
+                translate="costmanagement.consumables-list.quantity.lbl"></label>
+            <div class="col-sm-8">
+                <input type="text" class="form-control" name="qty" ng-model="item.Quantity" placeholder="">
+            </div>
+        </div>
+        <div class="col-sm-3">
+            <label class="col-sm-4" translate="costmanagement.consumables-list.type.lbl"></label>
+            <div class="col-sm-8">
+                <ui-select ng-model="item.CostTypeId" class="filter-combo">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 8 : 0}}
+                        <span ng-if="$select.selected.Text.length>8">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.CostType | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+            </div>
+        </div>
+        <div class="col-sm-3">
+            <label class="col-sm-4" translate="costmanagement.consumables-list.ucp.lbl"></label>
+            <div class="col-sm-8">
+                <input type="text" class="form-control" name="ucp" ng-model="item.UCP" ng-change="computeAmount(item)"
+                    placeholder="">
+            </div>
+        </div>
+    </form>
+</div>
+<div class="row">
+    <custom-table config="vm.gridConfig"></custom-table>
+</div>
+<div class="row">
+    <div class="col-sm-7">
+    </div>
+    <div class="col-sm-5">
+        <div class="col-sm-6 text-right">
+            <label class="control-label" for="totalamount">Total :</label>
+        </div>
+        <div class="col-sm-6">
+            <input type="text" class="form-control" value="{{TotalAmount | displaycurrency}}" disabled>
+        </div>
+    </div>
+</div>
+<div class="fooder-bgs">
+    <div class="row">
+        <div class="footer-left">
+            <button type="button" class="btn btn-sm pyr-color10" ng-click="backToForm()"><i
+                    class="fa fa-angle-left"></i>&nbsp;&nbsp;<span translate="common.backaction.lbl"></span></button>
+            <!--<button type="button" class="draftbutton" ng-click="saveAndApprove()"" translate="common.saveaction.lbl"></button>
+                    <button type="button" class="btn dem-color4 text-white btn-sm" translate="common.saveapprove-action.lbl" ng-click="saveAndApprove()"></button>
+                    <button id="btnClearForm" type="button" class="btn btn-warning btn-sm" ng-click="clear()" translate="common.clearaction.lbl"></button>!-->
+            <!--<button id="btnCancelForm" type="button" class="draftbutton" ng-click="backToList()" translate="common.cancelaction.lbl"></button>						-->
+        </div>
+    </div>
+</div>

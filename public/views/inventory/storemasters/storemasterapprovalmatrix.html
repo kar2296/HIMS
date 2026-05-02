@@ -1,0 +1,170 @@
+<style>
+    .panel-footer {
+        padding: 4px 15px;
+        background-color: #ccecf5;
+        border-top: 1px solid #eeeeee;
+        border-bottom-right-radius: 3px;
+        border-bottom-left-radius: 3px;
+        margin: 0px -5px;
+    }
+   /* .panel-body .well {
+    min-height: 250px;} */
+    .formRoot { overflow: inherit;}
+    .modal-content .panel-body {
+    overflow: inherit;}
+</style>
+<div class="modal-header custom-modal-header">
+
+     <div class="col-sm-6">
+            <h4 class="mt0 col-sm-5" translate="inventory.storeapprovalmatrix.pagetitle.lbl"></h4>
+            <label class="col-sm-7 mt0 active" translate=" {{$state.params.StoreName}}"></label>
+             </div>
+            <div class="col-sm-6">
+                    <button type="button" class="btn btn-danger btn-sm pull-right" translate="x"
+                    ng-click="cancelCallback()"></button>
+                    </div>
+        </div>
+</div>
+<div class="row">
+    <div class="col-sm-12">
+        <form id="item_form" name="item_form" class="form-horizontal" role="form">
+            <div class="formRoot">
+                <div class=" panel-default">
+                    <!--<div class="panel-heading"><h3 class="panel-title" translate="inventory.storeapprovalmatrix.pagetitle.lbl"></h3></div>!-->
+                    <div class="panel-body form-panel">
+                        <div class="col-sm-12">
+                                <div class="form-group col-sm-4">
+                                    <label class="col-sm-12 control-label" for="facility" translate="inventory.storeapprovalmatrix.filter_facility.lbl"></label>
+                                    <div class="col-sm-12">
+                                        <ui-select ng-model="item.FacilityId" ng-change="getFacilityUsers()" name="facility" required ng-disabled="true" class="filter-combo" required>
+                                            <ui-select-match>
+                                                {{$select.selected.Text | limitTo : 8 : 0}}
+                                                <span ng-if="$select.selected.Text.length>8">...</span>
+                                            </ui-select-match>
+                                            <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.Facility | filter: { Text: $select.search }">
+                                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                            </ui-select-choices>
+                                        </ui-select>
+                                    </div>
+                                </div>
+                                <div class="form-group col-sm-4">
+                                    <label class="col-sm-12 control-label" for="usertype" translate="inventory.storeapprovalmatrix.filter_usertype.lbl"></label>
+                                    <div class="col-sm-12">
+                                        <ui-select ng-model="item.UserTypeId" ng-change="getFacilityUsers()" name="usertype" class="filter-combo" required>
+                                            <ui-select-match>
+                                                {{$select.selected.Text | limitTo : 8 : 0}}
+                                                <span ng-if="$select.selected.Text.length>8">...</span>
+                                            </ui-select-match>
+                                            <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.UserType | filter: { Text: $select.search }">
+                                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                            </ui-select-choices>
+                                        </ui-select>
+                                    </div>
+                                </div>
+                                <div class="form-group col-sm-4">
+                                    <label class="col-sm-12 control-label" for="username" translate="inventory.storeapprovalmatrix.filter_username.lbl"></label>
+                                    <div class="col-sm-12">
+                                        <ui-select ng-model="item.UserId" class="filter-combo" name="username" required>
+                                            <ui-select-match>
+                                                {{$select.selected.Text | limitTo : 8 : 0}}
+                                                <span ng-if="$select.selected.Text.length>8">...</span>
+                                            </ui-select-match>
+                                            <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.User | filter: { Text: $select.search }">
+                                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                            </ui-select-choices>
+                                        </ui-select>
+                                    </div>
+                                </div>
+                                <div class="form-group col-sm-4">
+                                    <label class="col-sm-12 control-label" for="status" translate="inventory.storeapprovalmatrix.status.lbl"></label>
+                                    <div class="col-sm-12">
+                                        <ui-select ng-model="item.PoStatusId" name="status" autofocus required>
+                                            <ui-select-match>
+                                                {{$select.selected.Text | limitTo : 8 : 0}}
+                                                <span ng-if="$select.selected.Text.length>8">...</span>
+                                            </ui-select-match>
+                                            <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.PoStatus | filter: { Text: $select.search }">
+                                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                            </ui-select-choices>
+                                        </ui-select>
+                                    </div>
+                                </div>
+                                <div class="form-group col-sm-4">
+                                    <label class="col-sm-12 control-label" for="potype" translate="inventory.storeapprovalmatrix.potype.lbl"></label>
+                                    <div class="col-sm-12">
+                                        <ui-select ng-model="item.PoTypeId" name="potype" autofocus required>
+                                            <ui-select-match>
+                                                {{$select.selected.Text | limitTo : 8 : 0}}
+                                                <span ng-if="$select.selected.Text.length>8">...</span>
+                                            </ui-select-match>
+                                            <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.PoType | filter: { Text: $select.search }">
+                                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                            </ui-select-choices>
+                                        </ui-select>
+                                    </div>
+                                </div>
+                                 <div class="form-group col-sm-4">
+                                    <label class="col-sm-12 control-label" for="storename" translate="inventory.storeapprovalmatrix.storename.lbl"></label>
+                                    <div class="col-sm-12">
+                                        <ui-select ng-model="item.StoreMasterId" name="storename" autofocus required>
+                                            <ui-select-match>
+                                                {{$select.selected.Text | limitTo : 8 : 0}}
+                                                <span ng-if="$select.selected.Text.length>8">...</span>
+                                            </ui-select-match>
+                                            <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.StoreMaster | filter: { Text: $select.search }">
+                                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                            </ui-select-choices>
+                                        </ui-select>
+                                    </div>
+                                </div>
+                                <div class="form-group col-sm-4">
+                                    <label class="col-sm-12 control-label" for="minpovalue" translate="inventory.storeapprovalmatrix.minpovalue.lbl"></label>
+                                    <div class="col-sm-12">
+                                        <input type="text" class="form-control" name="minpovalue" ng-model="item.MinPoValue" placeholder="" autofocus required>
+                                    </div>
+                                </div>
+                                <div class="form-group col-sm-4">
+                                    <label class="col-sm-12 control-label" for="maxpovalue" translate="inventory.storeapprovalmatrix.maxpovalue.lbl"></label>
+                                    <div class="col-sm-12">
+                                        <input type="text" class="form-control" name="maxpovalue" ng-model="item.MaxPoValue" placeholder="" autofocus required>
+                                    </div>
+                                </div>
+                                <div class="form-group col-sm-4">
+                                    <label class="col-sm-12 control-label" translate="inventory.storeapprovalmatrix.activefrom.lbl"></label>
+                                    <div class="col-sm-12">
+                                        <input type="text" class="form-control" name="activefrom" ng-date-object uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                                            placeholder="{{datePickerOptions.placeholder}}" ng-click="activefromPopup = { opened: true }"
+                                            is-open="activefromPopup.opened" ng-model="item.ActiveFrom">
+                                    </div>
+                                </div>
+                        </div>
+                                <div class="col-sm-12">
+                                <div class="form-group col-sm-4">
+                                    <label class="col-sm-12 control-label" translate="inventory.storeapprovalmatrix.activeto.lbl"></label>
+                                    <div class="col-sm-12">
+                                        <input type="text" class="form-control" name="activeto" ng-date-object uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                                            placeholder="{{datePickerOptions.placeholder}}" ng-click="activetoPopup = { opened: true }"
+                                            is-open="activetoPopup.opened" ng-model="item.ActiveTo">
+                                    </div>
+                                </div>
+                                <div class="form-group col-sm-4">
+                                    <label class="col-sm-12 control-label" for="isfinalapprover" translate="inventory.storeapprovalmatrix.isfinalapprover.lbl"></label>
+                                    <div class="col-sm-12">
+                                        <input type="checkbox" class="custom-checkbox" name="isfinalapprover" ng-model="item.IsFinalApprover" ng-checked="item.IsFinalApprover == 1">
+                                    </div>
+                                </div>
+                            </div>
+                </div>
+            </div>
+           </div>
+            <div class="fooder-bgs" style=" margin-bottom: 45px;">
+              <div class="col-sm-12">  
+                <div class="pull-right">
+                    <button type="submit" class="draftbutton" ng-click="addUsers()" translate="common.saveaction.lbl"></button>
+                    <!-- <button id="btnCancelForm" type="button" class="draftbutton" ng-click="backToList()" translate="common.cancelaction.lbl"></button> -->
+                </div>
+              </div>
+            </div>
+        </form>
+    </div>
+</div>

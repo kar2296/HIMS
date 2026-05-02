@@ -1,0 +1,150 @@
+<style>
+    .modal-lg {
+        width: 500px;
+    }
+    
+    .formRoot {
+        overflow: inherit;
+    }
+    
+    .modal-content .panel-body {
+        overflow: inherit;
+    }
+    
+    .fullreg-profiles {
+        min-height: 21px;
+        background: #49c7ff;
+        padding: 1px;
+    }
+</style>
+
+<div class="modal-header custom-modal-header" ng-if="currentcontext.ismodal">
+    <h4 class="modal-title custom-modal-title" translate="patientemr.patientintakeoutput-form.pnlpatientintakeoutput.lbl"></h4>
+</div>
+<div class="col-sm-12 fullreg-profiles">
+    <div>
+        <div class="col-sm-6"  ng-show="canShowValueBtn">
+            <span> <em class="text-primary"><span translate="patientemr.patientintakeoutput-form.capturedby.lbl"></span></em>
+            <strong>&nbsp; : {{CreatedUser.CapturedById.Title.Description}} &nbsp; {{CreatedUser.CapturedById.FirstName}} &nbsp;{{CreatedUser.CapturedById.LastName}}</strong>
+            </span>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-sm-12">
+        <form id="item_form" name="item_form" class="form-horizontal" role="form" ng-submit="saveItem()">	
+            <div class="formRoot">
+                      <div class="panel-body form-panel">	
+                        <div class="col-sm-12 well">			
+                            
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label" for="intakeoutputdate" translate="patientemr.patientintakeoutput-form.intakeoutputdate.lbl"></label>
+                            <div class="col-sm-7">
+                                <input type="text" class="form-control" name="intakeoutputdate" ng-date-object datetime-picker="{{datePickerOptions.dateTimeFormat}}"
+                                    placeholder="{{datePickerOptions.placeholder}}" ng-click="intakeoutputdatePopup = 
+                                    {opened: true}" is-open="intakeoutputdatePopup.opened" ng-model="item.IntakeOutputTime">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label" for="type" translate="patientemr.patientintakeoutput-form.type.lbl"></label>
+                            <div class="col-sm-7">
+                                <ui-select id="type"ng-model="item.IntakeOutputTypeId" name="type" required>
+                                    <ui-select-match>
+                                        {{$select.selected.Text | limitTo : 20 : 0}}
+                                        <span ng-if="$select.selected.Text.length>20">...</span>
+                                    </ui-select-match>
+                                    <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.IntakeOutputType | filter: { Text: $select.search }">
+                                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                    </ui-select-choices>
+                                </ui-select>
+                            </div>
+                        </div>
+                        <div class="form-group" ng-if="item.IntakeOutputTypeId == 1">
+                            <label class="col-sm-4 control-label" for="intaketype" translate="patientemr.patientintakeoutput-form.intaketype.lbl"></label>
+                            <div class="col-sm-7">
+                                <ui-select ng-model="item.IntakeTypeId" name="intaketype" required>
+                                    <ui-select-match>
+                                        {{$select.selected.Text | limitTo : 20 : 0}}
+                                        <span ng-if="$select.selected.Text.length>20">...</span>
+                                    </ui-select-match>
+                                    <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.IntakeType | filter: { Text: $select.search }">
+                                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                    </ui-select-choices>
+                                </ui-select>
+                            </div>
+                        </div>
+                        <div class="form-group" ng-if="item.IntakeOutputTypeId == 1">
+                            <label class="col-sm-4 control-label" for="intakevolume" translate="patientemr.patientintakeoutput-form.intakevolume.lbl"></label>
+                            <div class="col-sm-7">
+                                <input type="text" class="form-control" name="intakevolume" ng-model="item.IntakeVolume" placeholder="" required>
+                            </div>
+                        </div>
+                        <div class="form-group" ng-if="item.IntakeOutputTypeId == 2">
+                            <label class="col-sm-4 control-label" for="outputtype" translate="patientemr.patientintakeoutput-form.outputtype.lbl"></label>
+                            <div class="col-sm-7">
+                                <ui-select ng-model="item.OutputTypeId" name="outputtype" required>
+                                    <ui-select-match>
+                                        {{$select.selected.Text | limitTo : 20 : 0}}
+                                        <span ng-if="$select.selected.Text.length>20">...</span>
+                                    </ui-select-match>
+                                    <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.OutputType | filter: { Text: $select.search }">
+                                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                    </ui-select-choices>
+                                </ui-select>
+                            </div>
+                        </div>
+                        <div class="form-group" ng-if="item.IntakeOutputTypeId == 2">
+                            <label class="col-sm-4 control-label" for="outputvolume" translate="patientemr.patientintakeoutput-form.outputvolume.lbl"></label>
+                            <div class="col-sm-7">
+                                <input type="text" class="form-control" name="outputvolume" ng-model="item.OutputVolume" placeholder="" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label" for="signatory" translate="patientemr.patientintakeoutput-form.signatory.lbl"></label>
+                            <div class="col-sm-7">
+                                <input type="text" class="form-control" name="signatory" ng-model="item.Signatory" placeholder="">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label" for="capturedby" translate="patientemr.patientintakeoutput-form.capturedby.lbl"></label>
+                            <div class="col-sm-7">
+                                <ui-select ng-model="item.CapturedBy" ng-disabled name="capturedby">
+                                    <ui-select-match>
+                                        {{$select.selected.Text | limitTo : 20 : 0}}
+                                        <span ng-if="$select.selected.Text.length>20">...</span>
+                                    </ui-select-match>
+                                    <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.User | filter: { Text: $select.search }">
+                                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                    </ui-select-choices>
+                                </ui-select>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label" for="comments" translate="patientemr.patientintakeoutput-form.comments.lbl"></label>
+                            <div class="col-sm-7">
+                                <commentscontrol comments="item.Comments"></commentscontrol>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+                <div class="panel-footer formactionbar">
+                    <div class="col-sm-12">
+                        <div class="col-sm-4">
+                            <div class="pull-left">
+                                <button class="btn btn-success  btn-xs pull-right" ng-click="review()" ng-show="canShowReviewBtn">
+                            <i class="fa fa-check" aria-hidden="true"></i>&nbsp;&nbsp;<strong class="btn-fontsize" translate="patientemr.patientintakeoutput-list.review.lbl"></strong></button>
+                            </div>
+                        </div>
+                        <div class="pull-right">
+                            <button type="submit" class="draftbutton" ng-click="save()" ng-show="canShowSaveBtn"
+                                translate="common.saveaction.lbl"></button>
+                                <button id="btnCancelForm" type="button" class="draftbutton" ng-click="backToList()" translate="common.cancelaction.lbl"></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

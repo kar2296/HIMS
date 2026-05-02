@@ -1,0 +1,489 @@
+<style>
+    .content-wrapper.ng-scope.ng-fadeInUp {
+        margin-bottom: 100px !important;
+    }
+
+    ul.dropdown-menu.dropdown-menu-left.datetime-picker-dropdown {
+        top: -100px;
+    }
+
+    .formRoot {
+        overflow-y: auto !important;
+    }
+
+    .table>thead>tr>th {
+        white-space: normal;
+    }
+
+    autosearch#search-box .custom-popup-wrapper {
+        margin-left: -100px;
+    }
+
+    table.table.table-bordered.bordered {
+        width: 133% !important;
+        max-width: 133% !important;
+    }
+
+    .table-height.bill_billmodification.ng-scope {
+        overflow-x: scroll;
+    }
+
+    button.drhms-discount-icon img {
+        width: 30px;
+    }
+
+    .algin-center {
+        justify-content: center;
+    }
+
+    button.drhms-discount-icon {
+        padding: 6px;
+        border: 1px;
+        border-radius: 0px;
+        background: #4CAF50;
+        color: white;
+    }
+
+    .align-item {
+        justify-content: center;
+    }
+
+    table.table.table-bordered.bordered.table-striped.table-condensed.datatable.ng-isolate-scope.rz-table th,
+    table.table.table-bordered.bordered td * {
+        font-size: 13px !important;
+    }
+
+    table.table.table-bordered.bordered td i.fa-regular {
+        font-family: 'FontAwesome';
+        font-size: 23px !important;
+        color: red;
+    }
+
+    .table-height.bill_billmodification.ng-scope {
+        overflow-x: auto;
+        height: 500px;
+    }
+
+    .d-flex {
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .status-1 {
+        background: #d6c9ef;
+    }
+
+    .status-2 {
+        background: #ffad94;
+    }
+
+    .billstatus-2 td {
+        background-color: #F44336;
+        color: white;
+    }
+
+    .billstatus-2 td * {
+        font-weight: 500 !important;
+    }
+</style>
+<form id="item_form" name="item_form" class="form-horizontal" role="form">
+    <div class="drhms-table-top-header">
+        <div class="drhms-table-head-border">
+            <div class="col-sm-12 pd0">
+                <label class="col-sm-4" translate="billing.ip-insurancebill.fromdate.lbl"></label>
+                <div class="col-sm-8"><input type="text" class="form-control" name="dddate" ng-date-object
+                        datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}"
+                        uib-datepicker-popup="{{datePickerOptions.dateTimeFormat}}" ng-change="getDetails()"
+                        placeholder="{{datePickerOptions.placeholder}}" ng-click="activetoPopup = { opened: true }"
+                        is-open="activetoPopup.opened" ng-model="currentfilter.FromDate">
+                </div>
+            </div>
+            <div class="col-sm-12 pd0">
+                <label class="col-sm-4" translate="billing.ip-insurancebill.todate.lbl"></label>
+                <div class="col-sm-8"><input type="text" class="form-control" name="dddate" ng-date-object
+                        datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}"
+                        uib-datepicker-popup="{{datePickerOptions.dateTimeFormat}}" ng-change="getDetails()"
+                        placeholder="{{datePickerOptions.placeholder}}" ng-click="billdatePopup = { opened: true }"
+                        is-open="billdatePopup.opened" ng-model="currentfilter.ToDate" class="col-sm-11">
+                </div>
+            </div>
+            <div class="col-sm-12 pd0">
+                <label class="col-sm-4" translate="billing.summary.billinggroup.lbl"></label>
+                <div class="col-sm-8">
+                    <ui-select ng-model="currentfilter.ServiceCategoryId"
+                        ng-change="ServiceCategoryChange($select.selected)">
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 20 : 0}}
+                            <span ng-if="$select.selected.Text.length>20">...</span>
+                        </ui-select-match>
+                        <ui-select-choices
+                            repeat="lookupitem.Id as lookupitem in lookup.ServiceCategory | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+        </div>
+        <div class="drhms-table-head-border">
+            <div class="col-sm-12 pd0">
+                <label class="col-sm-4" translate="Item Search"></label>
+                <div class="col-sm-8">
+                    <autosearch itemid="currentfilter.ServiceId" id="search-box" onenter="onenter()" iteminfo=""
+                        rowdata="" config="vm.serviceitemcontrolconfig" itemchange="getDetails()"
+                        class="inputsearchlogo">
+                    </autosearch>
+                </div>
+            </div>
+            <div class="col-sm-12 pd0">
+                <label class="col-sm-4" translate="Zero Bill"></label>
+                <div class="col-sm-8"> <input type="checkbox" class="custom-checkbox" ng-model="item.IsZeroBill"
+                        ng-change="ZeroBill()" ng-disabled="IsDisabled">
+                </div>
+            </div>
+            <div class="col-sm-12 pd0 align-item">
+                <button type="button" tabindex="-1" class="drhms-discount-icon" ng-click="enableDiscount()"
+                    ng-disabled="IsDisabled">
+                    <img src="app/img/svg/badge.svg" alt=""> Apply Discount
+                </button>
+            </div>
+        </div>
+    </div>
+</form>
+<div class="table-height bill_billmodification">
+    <table class="table table-bordered bordered table-striped table-condensed datatable ng-isolate-scope rz-table">
+        <thead class="bg-subhead">
+            <tr>
+                <th style="width: 3.5%;"></th>
+                <th style="width: 2%;">
+                    <input type="checkbox" class="custom-checkbox" ng-model="item.isEditable"
+                        ng-change="canEditable('header')" ng-disabled="IsDisabled">
+                </th>
+                <th style="width:8%;">
+                    <span translate="billing.ip-insurancebill.billdate.lbl"></span>
+                </th>
+                <th style="width: 5%;">
+                    <span translate="billing.ip-insurancebill.code.lbl"></span>
+                </th>
+                <th style="width: 10%;">
+                    <span translate="billing.ip-insurancebill.servicename.lbl"></span>
+                </th>
+                <th style="width: 4%;">
+                    <span translate="billing.ip-insurancebill.qty.lbl"></span>
+                </th>
+                <th style="width: 7%;">
+                    <span translate="billing.ip-insurancebill.baserate.lbl"></span>
+                </th>
+                <th style="width: 5%;">
+                    <span translate="Adj. Rate"></span>
+                </th>
+                <th style="width: 5%;">
+                    <span translate="billing.ip-insurancebill.rate.lbl"></span>
+                </th>
+                <th style="width: 12%;">
+                    <span translate="billing.ip-insurancebill.doctorname.lbl"></span>
+                </th>
+                <th style="width: 7%;">
+                    <span translate="Gross Amount"></span>
+                </th>
+                <th ng-show="CanShowInsAmt" style="width: 5%;">
+                    <span translate="billing.ip-insurancebill.issupplementary.lbl"></span>
+                </th>
+                <th ng-show="CanShowPackData" style="width: 5%;">
+                    <span translate="Is Inclusion"></span>
+                    <span>
+                        <input type="checkbox" ng-model="currentcontext.selectallinc" ng-click="selectAllIncItems()">
+                    </span>
+                </th>
+                <th ng-show="CanShowPackData" style="width: 5%;">
+                    <span translate="Is Exclusion"></span>
+                    <span>
+                        <input type="checkbox" ng-model="currentcontext.selectallexc" ng-click="selectAllExcItems()">
+                    </span>
+                </th>
+                <th ng-show="CanShowInsAmt" style="width: 4%;">
+                    <span translate="MOU Discount"></span>
+                </th>
+                <th style="width: 6%;">
+                    <span translate="billing.ip-insurancebill.discount.lbl"></span>
+                    <input type="checkbox" class="custom-checkbox" ng-model="item.IsDiscountApplied"
+                        ng-change="canapplyDiscount('header')" ng-disabled="IsDisabled">
+                </th>
+                <th ng-show="ShowVAT" style="width: 5%;">
+                    <span translate="Tax Amount"></span>
+                </th>
+                <th style="width: 8%;">
+                    <span translate="Remarks"></span>
+                </th>
+                <th ng-show="CanShowNetAmt" style="width: 6%;text-align: right;">
+                    <span translate="billing.ip-insurancebill.amount.lbl"></span>
+                </th>
+                <th ng-show="CanShowInsAmt" style="width: 6%;">
+                    <span translate="billing.ip-insurancebill.insamt.lbl"></span>
+                </th>
+                <th ng-show="CanShowInsAmt" style="width: 6%;">
+                    <span translate="billing.ip-insurancebill.patamt.lbl"></span>
+                </th>
+                <th ng-show="ShowDoctorShare" style="width: 6%;">
+                    <span translate="billing.ip-insurancebill.doctorshare.lbl"></span>
+                </th>
+                <th style="width: 4%;"><span translate="Actions"></span></th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr ng-repeat="bill in PatientBillDetails | filter:{Status:1}" ng-show="bill.CategoryShow"
+                ng-class="{ipbilltoopbill: bill.isCompleted}"
+                ng-style="bill.PatientBillStatusId == 2?{'background-color':'pink'}:{}"
+                class="billstatus-{{bill.PatientBillStatusId}}">
+                <td class="status-{{bill.DetCancelReqRaisedStatusId}}">
+                    <div class="d-flex">
+                        <i class="fa-regular fa-circle-xmark" ng-click="applyCancel($index, bill)"
+                            uib-tooltip="Cancel Bill" tooltip-placement="top"
+                            ng-disabled="!bill.isEditable||IsDisabled"></i>
+                        <input type="checkbox" class="custom-checkbox" ng-model="bill.isadjustRate"
+                            ng-change="canAdjust('line',bill,1)" ng-disabled="bill.isCompleted  || IsDisabled"
+                            style="width:16px !important;" uib-tooltip="Adjust Rate" tooltip-placement="bottom">
+                    </div>
+                </td>
+                <td class="status-{{bill.DetCancelReqRaisedStatusId}}">
+                    <input type="checkbox" class="custom-checkbox" ng-model="bill.isEditable"
+                        ng-change="canEditable('line',bill,1)" ng-disabled="bill.isCompleted ||IsDisabled"
+                        style="width:16px !important;">
+                </td>
+                <td class="status-{{bill.DetCancelReqRaisedStatusId}}"
+                    ng-if="bill.IsPharmacySale || bill.IsPharmacyReturn">
+                    <input type="text" class="form-control" name="Collected On" ng-date-object
+                        datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}"
+                        datetime-picker="{{datePickerOptions.dateTimeFormat}}" ng-change="isdateChanged($index,bill,1)"
+                        placeholder="{{datePickerOptions.placeholder}}" ng-click="BillDatePopup = { opened: true }"
+                        is-open="BillDatePopup.opened" ng-model="bill.BillDateTime" ng-disabled="true">
+                </td>
+                <td class="status-{{bill.DetCancelReqRaisedStatusId}}"
+                    ng-if="!bill.IsPharmacySale && !bill.IsPharmacyReturn">
+                    <input type="text" class="form-control" name="Collected On" ng-date-object
+                        datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}"
+                        datetime-picker="{{datePickerOptions.dateTimeFormat}}" ng-change="isdateChanged($index,bill,1)"
+                        placeholder="{{datePickerOptions.placeholder}}" ng-click="BillDatePopup = { opened: true }"
+                        is-open="BillDatePopup.opened" ng-model="bill.BillDateTime"
+                        ng-disabled="!bill.isEditable || IsDisabled">
+                </td>
+                <td class="status-{{bill.DetCancelReqRaisedStatusId}}">
+                    <input type="text" class="form-control" ng-model="bill.ServiceItem.ItemCode"
+                        ng-disabled="!bill.isEditable||IsDisabled">
+                </td>
+                <td class="status-{{bill.DetCancelReqRaisedStatusId}}">
+                    <input type="text" class="form-control" ng-model="bill.ServiceName" disabled
+                        uib-tooltip="{{bill.ServiceName}}" tooltip-placement="right">
+                    <!-- ng-disabled="!bill.isEditable||IsDisabled"> -->
+                </td>
+                <!--<td class="status-{{bill.DetCancelReqRaisedStatusId}}">
+                    <input type="text" class="form-control" ng-model="bill.Quantity"
+                    ng-disabled="!bill.isEditable||IsDisabled" ng-change="calcItem($index,bill, 0, 1)">
+                </td>-->
+                <td class="status-{{bill.DetCancelReqRaisedStatusId}}">
+                    <!-- Editable input for users with access -->
+                    <input type="text" class="form-control" ng-model="bill.Quantity"
+                        ng-if="HasAccess('IPBILLING_BILLCORRECTION','BillCorrectionQTY')"
+                        ng-disabled="!bill.isEditable || IsDisabled" ng-change="calcItem($index,bill, 0, 1)">
+
+                    <!-- Read-only view for users without access -->
+                    <span class="form-control"
+                        style="border: none; background: transparent; cursor: not-allowed; color: #000;"
+                        ng-if="!HasAccess('IPBILLING_BILLCORRECTION','BillCorrectionQTY')">
+                        {{ bill.Quantity }}
+                    </span>
+                </td>
+                <td class="status-{{bill.DetCancelReqRaisedStatusId}}" align="center">
+                    <input type="text" class="form-control" ng-model="bill.UnitPrice" ng-disabled="true">
+                </td>
+                <td class="status-{{bill.DetCancelReqRaisedStatusId}}" align="center">
+                    <input type="text" class="form-control" ng-model="bill.AdjustRate"
+                        ng-change="calcItem($index,bill, 0, 1, 1)"
+                        ng-disabled="!bill.isEditable||IsDisabled || bill.isadjustRate == false || !bill.isadjustRate">
+                </td>
+                <td class="status-{{bill.DetCancelReqRaisedStatusId}}" align="center">
+                    <input type="text" class="form-control" ng-model="bill.Rate" ng-change="calcItem($index,bill, 0, 1)"
+                        ng-disabled="!bill.isEditable||IsDisabled || !bill.IsRateEditable">
+                </td>
+                <td class="status-{{bill.DetCancelReqRaisedStatusId}}">
+                    <ui-select ng-model="bill.DoctorId" name="" ng-change="isDoctorChanged(bill,1)"
+                        ng-disabled="!bill.isEditable||IsDisabled">
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 20 : 0}}
+                            <span ng-if="$select.selected.Text.length>20">...</span>
+                        </ui-select-match>
+                        <ui-select-choices
+                            repeat="lookupitem.Id as lookupitem in lookup.Doctor | filter: { Text: $select.search }">
+                            <span ng-bind-html="lookupitem.Title.Description | highlight: $select.search"></span>
+                            <span ng-bind-html="lookupitem.Text | highlight: $select.search"></span>
+                        </ui-select-choices>
+                    </ui-select>
+                </td>
+                <td class="status-{{bill.DetCancelReqRaisedStatusId}} drhms-currency-align">
+                    <span disabled>{{bill.GrossAmount | displaycurrency}}</span>
+                </td>
+                <td class="status-{{bill.DetCancelReqRaisedStatusId}}" align="center" ng-show="CanShowInsAmt">
+                    <input type="checkbox" class="custom-checkbox" ng-model="bill.IsSupplementary"
+                        ng-change="isnonmedical($index,bill,1)"
+                        ng-disabled="!bill.isEditable||IsDisabled||Encounter.GuarantorTypeId==1">
+                </td>
+                <td class="status-{{bill.DetCancelReqRaisedStatusId}}" align="center" ng-show="CanShowPackData">
+                    <input type="checkbox" class="custom-checkbox" ng-model="bill.IsInclusionItem"
+                        ng-change="disableExclusion($index,bill)"
+                        ng-disabled="!bill.isEditable||IsDisabled||bill.IsSupplementary">
+                </td>
+                <td class="status-{{bill.DetCancelReqRaisedStatusId}}" align="center" ng-show="CanShowPackData">
+                    <input type="checkbox" class="custom-checkbox" ng-model="bill.IsExclusionItem"
+                        ng-change="disableInclusion($index,bill)"
+                        ng-disabled="!bill.isEditable||IsDisabled||bill.IsSupplementary">
+                </td>
+                <td class="status-{{bill.DetCancelReqRaisedStatusId}}" ng-show="CanShowInsAmt">
+                    <input type="text" class="form-control" ng-model="bill.AgreementDiscountAmt"
+                        ng-change="calcItem($index,bill, 0, 1)" ng-pattern="/^\d+(\.\d{1,2})?/" ng-disabled="true">
+                </td>
+                <td class="status-{{bill.DetCancelReqRaisedStatusId}}" style="display: flex;align-items: center;">
+                    <input type="text" class="form-control" ng-model="bill.DiscountAmount"
+                        ng-change="calcItem($index,bill, 0, 1)" ng-pattern="/^\d+(\.\d{1,2})?/"
+                        ng-disabled="!bill.isEditable||IsDisabled">
+                    <input type="checkbox" style="margin-left: 10px;" class="custom-checkbox"
+                        ng-model="bill.IsDiscountApplied" ng-change="canapplyDiscount('line')" ng-disabled="IsDisabled">
+                </td>
+
+                <td class="status-{{bill.DetCancelReqRaisedStatusId}}" ng-show="ShowVAT">
+                    <span>{{bill.GSTAmount| displaycurrency}}</span>
+                </td>
+                <td class="status-{{bill.DetCancelReqRaisedStatusId}}">
+                    <input type="text" class="form-control" ng-model="bill.Remarks" ng-change=""
+                        ng-disabled="!bill.isEditable||IsDisabled">
+                </td>
+                <td class="status-{{bill.DetCancelReqRaisedStatusId}} drhms-currency-align" ng-show="CanShowNetAmt">
+                    <span disabled>{{bill.NetAmount | displaycurrency}}</span>
+                </td>
+                <td class="status-{{bill.DetCancelReqRaisedStatusId}} drhms-currency-align" ng-show="CanShowInsAmt">
+                    <input type="text" class="form-control" ng-model="bill.InsNetAmount"
+                        ng-change="CalNamt($index,bill, 0, 0)" ng-disabled="true">
+                    <!-- <span disabled>{{bill.InsNetAmount | displaycurrency}}</span> -->
+                </td>
+                <td class="status-{{bill.DetCancelReqRaisedStatusId}} drhms-currency-align" ng-show="CanShowInsAmt">
+                    <span disabled>{{bill.PatNetAmount | displaycurrency}}</span>
+                </td>
+                <td class="status-{{bill.DetCancelReqRaisedStatusId}}" ng-show="ShowDoctorShare" align="center">
+                    <input type="text" class="form-control" ng-model="bill.DoctorShare"
+                        ng-change="calcItem($index,bill , 1, 0)" ng-disabled="!bill.isEditable||IsDisabled">
+                </td>
+                <td class="status-{{bill.DetCancelReqRaisedStatusId}}">
+                    <button type="button" tabindex="-1" class="drhms-edit-icon" ng-click="editDocShareInfo($index,bill)"
+                        ng-disabled="bill.Shareapproved == 1 || bill.PatientBillStatusId == 2">
+                        <img class="drhms-edit-button" src="assets/svg/edit.svg" alt="">
+                        <!-- <i class="fas fa-pencil-alt doctshare" aria-hidden="true"></i> -->
+                    </button>
+                    <!-- <button type="button" tabindex="-2" class="drhms-edit-icon" ng-click="applyCancel($index, bill)">
+                        <i class="fa fa-window-close" aria-hidden="true"></i>
+                    </button> -->
+                    <button type="button" tabindex="-3" class="drhms-edit-icon" ng-click="showHistory(bill)"
+                        ng-disabled="">
+                        <!-- <img class="drhms-edit-button" src="assets/svg/close.svg" alt=""/> -->
+                        <i class="fa fa-history" aria-hidden="true"></i>
+                    </button>
+                    <!-- <button type="button" tabindex="-1" class="drhms-edit-icon" ng-click="editDocShareInfo($index,bill)"
+                        ng-disabled="bill.Shareapproved == 1 || bill.PatientBillStatusId == 2">
+                        <img class="drhms-edit-button" src="assets/svg/edit.svg" alt="">
+
+                    </button> -->
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+<div class="footerbar bill_billmodfooter">
+    <div class="sub-footer">
+        <div class="">
+            <div class="col-sm-6">
+            </div>
+            <div class="col-sm-6" style="padding: 0;">
+                <table id="bannerdetails">
+                    <tr>
+                        <td>Gross Amount</td>
+                        <td class="drhms-currency-align"> {{item.BillAmount | displaycurrency}} </td>
+                        <td>Tax Amount</td>
+                        <td class="drhms-currency-align"> {{item.GSTAmount | displaycurrency}}</td>
+                    </tr>
+                    <tr ng-show="CanShowInsAmt">
+                        <td>Insurance Amount</td>
+                        <td class="drhms-currency-align"> {{item.NetInsuranceAmount | displaycurrency}} </td>
+                        <td>From Patient Amount</td>
+                        <td class="drhms-currency-align"> {{item.NetPatientAmount | displaycurrency}}</td>
+                    </tr>
+                    <tr ng-show="CanShowInsAmt">
+                        <td></td>
+                        <td></td>
+                        <td>MOU Discount Amount</td>
+                        <td class="drhms-currency-align"> {{item.AgreementDiscountAmt | displaycurrency}}</td>
+                    </tr>
+                    <tr>
+                        <td>Discount</td>
+                        <td class="drhms-currency-align">{{item.BillDiscount | displaycurrency}}</td>
+                        <td style=" color:#f05050 !important">Net Amount</td>
+                        <td class="drhms-currency-align" style=" color:#f05050 !important"> {{TotalNet |
+                            displaycurrency}}
+                        </td>
+                    </tr>
+
+                    <!-- <tr>
+                        <td colspan="2"></td>
+                        <td>Received</td>
+                        <td class="drhms-currency-align">
+                            {{ReceivedAmt | displaycurrency}}
+                        </td>
+
+                    </tr> -->
+                    <!-- <tr>
+                        <td colspan="2"></td>
+                        <td class="drhms-special-count">Balance</td>
+                        <td class="drhms-currency-align drhms-special-count">
+                            {{ (item.BillAmount - (item.BillDiscount + (ReceivedAmt || 0))) | displaycurrency}}
+                        </td>
+                        <td>Refunded Amount</td>
+                        <td class="drhms-currency-align">
+                            {{item.TotalRefundAmount | displaycurrency}}
+                        </td>
+                    </tr> -->
+                    <!-- <tr ng-show="CanShowInsAmt">
+                        <td colspan="2"></td>
+                        <td>Credit Note</td>
+                        <td class="drhms-currency-align">
+                            {{item.CreditNote|displaycurrency}}
+                        </td>
+                        <td class="drhms-special-count">Final Due</td>
+                        <td class="drhms-currency-align drhms-special-count">
+                            {{currentcontext.FinalDue | displaycurrency}}
+                        </td>
+                    </tr> -->
+                </table>
+            </div>
+
+        </div>
+    </div>
+</div>
+<div class="fooder-bgs" style="margin-top: 10px;">
+    <div class="row">
+        <div class="pull-left">
+            <button type="button" class="drhms-common-back-btn" ng-click="backToList()">
+                <i class="fa fa-angle-left" aria-hidden="true"></i> Back
+            </button>
+            <button type="button" class="drhms-common-btn" ng-click="excelDownload()" uib-tooltip="Excel"
+                tooltip-placement="bottom">Excel <i class="icofont-file-excel" ng-click="excelDownload()"></i></button>
+            <!-- <button type="button" class="drhms-common-btn" ng-if="HasAccess('IPBILLING_MODIFICATION','DoctorShare')"
+            ng-click="editDocShareInfo()">
+            <i class="fa fa-angle-left" aria-hidden="true"></i>&nbsp;&nbsp;
+            <strong class="btn-fontsize" translate="Dr.Share"></strong>
+        </button> -->
+        </div>
+        <div class="pull-right">
+            <button id="btnSaveApprove" type="button" class="drhms-common-btn" translate="DoctorShare Update"
+                ng-click="updateDoctorshare()" ng-show="IsDisabled"></button>
+            <button id="btnSaveApprove" type="button" class="drhms-common-btn" ng-hide="IsDisabled"
+                translate="common.update-action.lbl" ng-click="completeBill()" ng-hide="IsDisabled"
+                ng-if="HasAccess('IPBillcorrection','Billcorrection_Update')"></button>
+        </div>
+    </div>
+</div>

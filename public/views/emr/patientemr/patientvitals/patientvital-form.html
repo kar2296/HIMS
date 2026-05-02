@@ -1,0 +1,113 @@
+<!-- <link href="app/css/patientvital-form.css" rel="stylesheet"> -->
+<div class="row page-header" ng-if="!currentcontext.ismodal">
+    <h4 class="active mt0 col-sm-6" translate="Vital Chart"></h4>
+</div>
+<div class="modal-header custom-modal-header" ng-if="currentcontext.ismodal">
+    <div class="col-sm-6">
+        <h4 class="modal-title custom-modal-title" translate="Vital Chart"></h4>
+    </div>
+    <div class="col-sm-6">
+        <div class="filters">
+            <img src="../../../../../assets/svg/close.svg" ng-click="cancelCallback()">
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="form-group col-sm-6">
+        <label class="col-sm-4" for="fromdate" translate="Date & Time"></label>
+        <div class="col-sm-8">
+            <div class="datepicker">
+                <input type="text" class="form-control" name="fromdate" ng-date-object datetime-picker="{{dateTimePickerOptions.dateTimeFormat}}"
+                    placeholder="{{datePickerOptions.placeholder}}" ng-click="fromdatePopup = { opened: true }" ng-change="changeperformeddate(item)"
+                    is-open="fromdatePopup.opened" ng-model="item.PerformedDate">
+                <i class="fa fa-calendar"></i>
+            </div>
+        </div>
+    </div>
+    <button class="btn-add" ng-click="addNew()">
+        <i class="fa fa-plus" aria-hidden="true"></i>
+    </button>
+</div>
+<div class="row">
+    <form id="item_form" name="item_form" class="form-horizontal" role="form">
+        <table class="table table-hover table-responsive table-bordered">
+            <thead class="bg-subhead">
+                <tr>
+                    <th class="cell-align-center" style="width: 20px !important;">
+                        <span translate="inventory.grn.sno.lbl"></span>
+                    </th>
+                    <th class="fs-12 col-sm-3">
+                        <span translate="patientemr.patientvital-form.vitalparameter.lbl"></span>
+                    </th>
+                    <th class="fs-12 col-sm-4">
+                        <span translate="patientemr.patientvital-form.vitalvalue.lbl"></span>
+                    </th>
+                    <th class="fs-12 col-sm-3">
+                        <span translate="patientemr.patientvital-list.range.lbl"></span>
+                    </th>
+                    <th class="fs-12 col-sm-3">
+                        <span translate="patientemr.patientvital-form.remarks.lbl"></span>
+                    </th>
+                    <th class="fs-12 col-sm-1">
+                        <span translate="patientemr.patientvital-form.actions.lbl"></span>
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="item in vitals">
+                    <td class="text-center">
+                        <span>{{ item.SNo }}</span>
+                    </td>
+                    <td class="fs-12 mvital_popup">
+                        {{item.VitalName}}
+                    </td>
+                    <td class="fs-12 mvital_popup" class="row">
+                        <div class="col-sm-12" ng-show="!(IsHeight(item) || IsBP(item))">
+                            <input type="text" class="form-control" ng-model="item.VitalValue" ng-disabled="IsBMI(item)" ng-change="CalculateBMI()" placeholder="">
+                        </div>
+                        <div ng-show="IsHeight(item)">
+                            <div class="col-sm-12">
+                                <input type="text" class="form-control" ng-model="item.VitalValue" ng-change="CalculateBMI()" placeholder="">
+                            </div>
+                        </div>
+                        <div ng-show="IsBP(item)">
+                            <div class="col-sm-5">
+                                <input type="text" class="form-control" ng-model="item.VitalValue1" placeholder="">
+                            </div>
+                            <div class="col-sm-2">
+                                <label class="col-sm-2 control-label">/</label>
+                            </div>
+                            <div class="col-sm-5">
+                                <input type="text" class="form-control" ng-model="item.VitalValue2" placeholder="">
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        {{item.ReferenceRangeFrom}}&nbsp;/&nbsp;{{item.ReferenceRangeTo}}&nbsp;
+                        <span style="color: green">{{item.VitalQualifierNormal}}</span>
+                        &nbsp;
+                        <span style="color: red">{{item.VitalQualifierbelownormal}}</span>
+                        &nbsp;
+                        <span style="color: orangered">{{item.VitalQualifierhighnormal}}</span>
+                    </td>
+                    <td class="fs-12 mvital_popup">
+                        <div class="col-sm-12">
+                            <input type="text" class="form-control remarks" placeholder="Remarks">
+                        </div>
+                    </td>
+                    <td class="fs-12 mvital_popup action">
+                        <img class="drhms-edit-button" ng-click="deleteVital($index)" src="assets/svg/delete.svg" alt="">
+                        <!-- <i class="fa fa-times" ng-click="deleteVital($index)" aria-hidden="true" style="background: red;color: white;height: 24px;width: 24px; padding: 3px 5px;
+                            border-radius: 14px;"></i> -->
+                    </td>
+            </tbody>
+        </table>
+    </form>
+</div>
+<div class="fooder-bgs">
+    <div class="row">
+        <div class="pull-right">
+            <button type="button" class="draftbutton" ng-if="canUpdatePatientEMR()" ng-click="saveVitals()" translate="Approve"></button>
+        </div>
+    </div>
+</div>

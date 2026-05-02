@@ -1,0 +1,197 @@
+<link rel="stylesheet" href="app/css/drhms.css">
+<style>
+    .modal-dialog {
+        width: 600px;
+        margin: 30px auto;
+    }
+    label.btn.btn-sm.width.btn-custom-radio.btn-feedback-notselected {
+     background: #46761b;
+    color: #fafafa;
+    border-radius: 3;
+    margin-right: 4px;
+    }
+    label.btn.btn-sm.width.btn-custom-radio.btn-feedback-selected {
+    color: #006c9a !important;
+    background: #fff !important;
+    border: 1px solid #006c9a;
+    box-shadow: rgb(50 50 93 / 25%) 0px 2px 5px -1px, rgb(0 0 0 / 30%) 0px 1px 3px -1px;
+    margin-right: 4px;
+    }
+</style>
+<div class="modal-header custom-modal-header">
+    <div class="col-sm-10">
+        <h4 class="modal-title custom-modal-title" translate="registration.patienttracker.pagetitle.lbl"
+            ng-show="from == 0"></h4>
+        <h4 class="modal-title custom-modal-title" translate="FollowUp Tracker" ng-show="from == 1"></h4>
+    </div>
+    <div class="col-sm-2">
+        <div class="filters">
+            <img src="../../../../../assets/svg/close.svg" ng-click="cancelCallback()">
+        </div>
+    </div>
+</div>
+<!-- <patientbanner patientid="currentcontext.pid"></patientbanner> -->
+<div class="row">
+    <!-- <div class="col-sm-12"> -->
+    <form id="item_form" name="item_form" class="form-horizontal" role="form">
+        <!-- <div class="">
+            <div class="panel-body form-panel popup_tracker_scroll">
+                <div class="col-sm-12"> -->
+        <!-- <div class="form-group col-sm-12">
+                                    <label class="col-sm-12 control-label" for="assignto" translate="Present User"></label>
+                                    <div class="doct col-sm-12">
+                                        {{currentcontext.DoctorName}}
+                                    </div>
+                                </div> -->
+        <div class="form-group col-sm-12" ng-show="from == 0">
+            <label class="col-sm-12 control-label" for="assignto"
+                translate="registration.patienttracker.assignto.lbl"></label>
+            <div class="col-sm-12">
+                <radiogroupcontrol itemid="item.AssignTo" items="vm.AssignToOptions">
+                </radiogroupcontrol>
+            </div>
+        </div>
+
+        <!-- <div class="form-group col-sm-12" ng-show="canShowFacility()">
+                            <label class="col-sm-12 control-label" for="facility"
+                                translate="registration.patienttracker.facility.lbl"></label>
+                            <div class="col-sm-12">
+                                <ui-select ng-model="item.FacilityId" name="facility">
+                                    <ui-select-match>
+                                        {{$select.selected.Text | limitTo : 20 : 0}}
+                                        <span ng-if="$select.selected.Text.length>20">...</span>
+                                    </ui-select-match>
+                                    <ui-select-choices
+                                        repeat="lookupitem.Id as lookupitem in lookup.Facility | filter: { Text: $select.search }">
+                                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                    </ui-select-choices>
+                                </ui-select>
+                            </div>
+                        </div> -->
+        <div class="form-group col-sm-12" ng-show="canShowGroup()">
+            <label class="col-sm-12 control-label" for="group"
+                translate="registration.patienttracker.group.lbl"></label>
+            <div class="col-sm-12">
+                <ui-select ng-model="item.AssignedGroupId" name="group" ng-change="onGroupChange($select.selected)">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 20 : 0}}
+                        <span ng-if="$select.selected.Text.length>20">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.Group | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+
+
+        <div class="form-group col-sm-12" ng-show="canShowUser()">
+            <label class="col-sm-12 control-label" for="user" translate="registration.patienttracker.user.lbl"></label>
+            <div class="col-sm-12">
+                <autosearch class="auto-search" controlid="'DoctorId'" itemid="item.AssignedUserId"
+                    tabindex="tabindexmap.patienttabindex" iteminfo="" itemchange="onUserChange($select.selected)"
+                    rowdata="" name="'doctor'" isrequired="true" config="vm.doctorcontrolconfig"
+                    candisable="SaveCompleted" isrequired="true" placeholder="'Doctor'">
+                </autosearch>
+                <!-- <ui-select ng-model="item.AssignedUserId" name="user" ng-change="onUserChange($select.selected)">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 20 : 0}}
+                        <span ng-if="$select.selected.Text.length>20">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.Doctor | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select> -->
+            </div>
+        </div>
+        <!-- <div class="form-group col-sm-12" ng-show="canShowRoom()">
+                            <label class="col-sm-12 control-label" for="room"
+                                translate="registration.patienttracker.room.lbl"></label>
+                            <div class="col-sm-12">
+                                <ui-select ng-model="item.AssignedRoomId" name="room"
+                                    ng-change="onRoomChange($select.selected)">
+                                    <ui-select-match>
+                                        {{$select.selected.Text | limitTo : 20 : 0}}
+                                        <span ng-if="$select.selected.Text.length>20">...</span>
+                                    </ui-select-match>
+                                    <ui-select-choices
+                                        repeat="lookupitem.Id as lookupitem in lookup.Room | filter: { Text: $select.search }">
+                                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                    </ui-select-choices>
+                                </ui-select>
+                            </div>
+                        </div> -->
+        <div class="form-group col-sm-12">
+            <label class="col-sm-12 control-label" translate="registration.patienttracker.notes.lbl"></label>
+            <div class="col-sm-12">
+                <textarea class="form-control" ng-model="item.TrackerNotes"></textarea>
+            </div>
+        </div>
+        <div class="form-group col-sm-12" ng-if="item.AssignTo==3">
+            <label class="col-sm-12 control-label"
+                translate="registration.patienttracker.followupappointments.lbl"></label>
+            <div class="col-sm-12" style="width: 100%;">
+                <div class="datepicker" id="datepicker">
+                    <input type="text" class="form-control" ng-date-object
+                        uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                        placeholder="{{datePickerOptions.placeholder}}" ng-click="datePopup = { opened: true }"
+                        is-open="datePopup.opened" ng-model="item.FollowupAppointmentOn">
+                    <i class="fa fa-calendar" aria-hidden="true"></i>
+                </div>
+            </div>
+        </div>
+        <div class="form-group col-sm-12" ng-hide="item.AssignTo==3">
+            <label class="col-sm-12 control-label"
+                translate="registration.patienttracker.followupappointments.lbl"></label>
+            <div class="">
+                <div class="col-sm-12" style="margin-bottom: 20px;">
+                    <input type="text" style="width: 100% !important" class="form-control durationtxt"
+                        ng-model="item.Duration" placeholder="">
+                </div>
+                <div classs="col-sm-8 pattrac12er" style="width: 98%;">
+                    <ui-select ng-model="item.DurationPeriodId" class="ui-select-period col-sm-8 12d0"
+                        ng-change="onDurationPeriodChange($select.selected)">
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 20 : 0}}
+                            <span ng-if="$select.selected.Text.length>20">...</span>
+                        </ui-select-match>
+                        <ui-select-choices
+                            repeat="lookupitem.Id as lookupitem in lookup.DurationPeriod | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+        </div>
+        <!-- <div class="form-group col-sm-12">
+                                    <label class="col-sm-12 control-label" for="comments" translate="registration.patienttracker.comments.lbl"></label>
+                                    <div class="col-sm-12">
+                                         <commentscontrol comments="item.TrackerComments"></commentscontrol>
+                                    </div>
+                                </div> -->
+        <!-- <div class="form-group col-sm-12" ng-show="canShowReviewNotes()">
+                            <label class="col-sm-12 control-label" for="includereviewnotes"
+                                translate="registration.patienttracker.includereviewnotes.lbl"></label>
+                            <div class="col-sm-12">
+                                <input type="checkbox" name="includereviewnotes" class="custom-checkbox"
+                                    ng-model="item.IncludeReviewNotes">
+                            </div>
+                        </div> -->
+        <!-- </div>
+            </div> -->
+
+        <!-- rightpanel -->
+        <!--<div class="col-sm-3">
+                            </div>-->
+        <!-- </div> -->
+    </form>
+</div>
+<div class="fooder-bgs" style="margin-top: 73px !important;">
+    <div class="pull-right">
+        <button type="button" ng-click="saveItem()" class="draftbutton" style="margin-right: 7px !important;"
+            translate="common.saveapprove-action.lbl"></button>
+        <!-- <button id="btnCancelForm" type="button" class="draftbutton" ng-click="backToList()" translate="common.cancelaction.lbl"></button> -->
+    </div>
+</div>

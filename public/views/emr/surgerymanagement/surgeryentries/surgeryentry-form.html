@@ -1,0 +1,512 @@
+<style>
+    /* Style the tab */
+
+    .tab {
+        overflow: hidden;
+        border: 1px solid #ccc;
+        margin-top: 10px;
+        /* background-color: #00125a !important; */
+    }
+
+    /* Style the buttons inside the tab */
+
+    .tab button {
+        background-color: inherit;
+        float: left;
+        border: none;
+        outline: none;
+        cursor: pointer;
+        padding: 7px 16px;
+        transition: 0.3s;
+        font-size: 17px;
+        background: transparent;
+        /* color: #000000 !important; */
+        width: 100%;
+        text-align: left;
+    }
+
+    /* Create an active/current tablink class */
+
+    .tab button.active {
+        background-color: transparent;
+    }
+
+    /* Style the tab content */
+
+    .tabcontent {
+        display: none;
+        padding: 6px 12px;
+        border: 1px solid #ccc;
+        border-top: none;
+        margin-bottom: 20px;
+    }
+
+    /* Style the close button */
+
+    .topright {
+        float: right;
+        cursor: pointer;
+        font-size: 28px;
+    }
+
+    .tablinks:after {
+        content: "\f077";
+        float: right;
+        font-family: 'Font Awesome 5 Free';
+    }
+
+    .tablinks.active:after {
+        transform: rotate(180deg);
+    }
+
+    .topright {
+        height: 17px;
+        width: 15px;
+        position: relative;
+        bottom: 39px;
+        right: 20px;
+        font-size: 1px;
+    }
+
+    .form-horizontal .form-group {
+        height: 62px;
+    }
+
+    div#srugery,
+    div#procedure1 {
+        display: block !important;
+    }
+
+    .form-group.cmt {
+        height: 100px;
+    }
+
+    .tab {
+        overflow: hidden;
+        border: 1px solid #ccc;
+        margin-top: 10px;
+        color: #00125a;
+        font-weight: 600;
+    }
+
+
+    autosearch.logo .custom-popup-wrapper {
+        margin-left: -250px;
+    }
+
+    autosearch .custom-popup-wrapper {
+        margin-left: 0;
+    }
+
+    /* .topright:hover {color: red;} */
+</style>
+<div class="row page-header">
+    <h4 class="col-sm-8 mt0" translate="otregister-list.pagetitle.lbl"></h4>
+    <div class="col-sm-3">
+        <div class="search" id="search">
+            <autosearch class="logo" itemid="item.EncounterId" iteminfo="item.SelectedItem" rowdata="item"
+                config="vm.patientcontrolconfig" itemchange="patientChanged()" name="'patient'" isrequired="true"
+                candisable="item.SurgeryEntryStatusId==3" placeholder="'Patient'" focus-if>
+            </autosearch>
+            <i class="fas fa-search" aria-hidden="true"></i>
+        </div>
+    </div>
+    <div class="col-sm-1">
+        <button class="btn-add" ng-hide="context=='emr'||currentcontext.ismodal" ng-click="addNew()"
+            uib-tooltip="{{ 'Surgery Entry' | translate }}" tooltip-placement="bottom">
+            <i class="fa fa-plus" aria-hidden="true"></i>
+        </button>
+    </div>
+</div>
+<div ng-if="item.PatientId>0">
+    <ippatientbanner patientid="item.PatientId" encounterid="item.EncounterId"></ippatientbanner>
+</div>
+<div class="row">
+    <form id="item_form" name="item_form" class="form-horizontal" role="form">
+        <div class="tab">
+            <button class="tablinks">Surgery Details</button>
+        </div>
+        <div id="srugery" class="col-sm-12 tabcontent">
+            <div onclick="this.parentElement.style.display='none'" class="topright">.</div>
+            <div class="col-sm-12">
+                <div class="form-group col-sm-3">
+                    <label class="col-sm-12 control-label" for="startdate"
+                        translate="otregister-form.otstarttime.lbl"></label>
+                    <div class="col-sm-12 ">
+                        <div class="datepicker" id="datepicker">
+                            <input type="text" class="form-control" name="startdate" ng-date-object
+                                datetime-picker="{{dateTimePickerOptions.dateTimeFormat}}"
+                                placeholder="{{datePickerOptions.placeholder}}" required
+                                ng-click="startdatePopup = { opened: true }" is-open="startdatePopup.opened"
+                                ng-model="item.SurgeryStartedate"
+                                ng-disabled="item.SurgeryEntryStatusId==3||!item.PatientId">
+                            <i class="fa fa-calendar"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group col-sm-3">
+                    <label class="col-sm-12 control-label" for="SurgeryEndDateDate"
+                        translate="otregister-form.otendtime.lbl"></label>
+                    <div class="col-sm-12">
+                        <div class="datepicker" id="datepicker">
+                            <input type="text" class="form-control" name="SurgeryEndDateDate" required ng-date-object
+                                datetime-picker="{{dateTimePickerOptions.dateTimeFormat}}"
+                                placeholder="{{datePickerOptions.placeholder}}"
+                                ng-click="SurgeryEndDatePopup = { opened: true }" ng-change="CheckendDate(item)"
+                                is-open="SurgeryEndDatePopup.opened" ng-model="item.SurgeryEndDate"
+                                ng-disabled="item.SurgeryEntryStatusId==3||!item.PatientId">
+                            <i class="fa fa-calendar"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group col-sm-3">
+                    <label class="col-sm-12 control-label" for="totalhours" translate="Total Hours"></label>
+                    <div class="col-sm-12">
+
+                        <span>{{TotalHours}}</span>
+
+                    </div>
+                </div>
+                <div class="form-group col-sm-3">
+                    <label class="col-sm-12 control-label" for="otroom" translate="otregister-form.otroom.lbl"></label>
+                    <div class="col-sm-12">
+                        <ui-select ng-model="item.SurgeryRoomId" name="otroom"
+                            ng-disabled="item.SurgeryEntryStatusId==3||!item.PatientId" required>
+                            <ui-select-match>
+                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                <span ng-if="$select.selected.Text.length>20">...</span>
+                            </ui-select-match>
+                            <ui-select-choices
+                                repeat="lookupitem.Id as lookupitem in lookup.SurgeryRoom | filter: { Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search">
+
+                                </div>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                </div>
+
+                <div class="form-group col-sm-4">
+                    <label class="col-sm-12 control-label" translate="otregister-form.surgerytype.lbl"
+                        for="SurgeryType"></label>
+                    <div class="col-sm-12">
+                        <ui-select ng-model="item.SurgeryTypeId" ng-change="" name="SurgeryType"
+                            ng-disabled="item.SurgeryEntryStatusId==3||!item.PatientId" required>
+                            <ui-select-match>
+                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                <span ng-if="$select.selected.Text.length>20">...</span>
+                            </ui-select-match>
+                            <ui-select-choices
+                                repeat="lookupitem.Id as lookupitem in lookup.SurgeryType | filter: { Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search">
+                                </div>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                </div>
+
+
+                <div class="form-group col-sm-4">
+                    <label class="col-sm-12 control-label" for="Diagnosis"
+                        translate="otregister-form.preoperativediagnosis.lbl"></label>
+                    <div class="col-sm-10">
+                        <autosearch itemid="item.DiagnosisId" iteminfo="" rowdata=""
+                            config="vm.diagnosiscontrolconfig" tabindex="-1"
+                            candisable="item.SurgeryEntryStatusId==3||!item.PatientId" placeholder="'Diagnosis'">
+                        </autosearch>
+                    </div>
+                    <div class="col-sm-2 pull-right">
+                        <button class="btn-add" type="button" ng-click="Diagnosis()"
+                            uib-tooltip="{{'admissions.adddiagnosis-tooltip.lbl' | translate }}"
+                            tooltip-placement="top">
+                            <i class="fa fa-plus" aria-hidden="true"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="form-group col-sm-4">
+                    <label class="col-sm-12 control-label" translate="otregister-form.otherdiagnosis.lbl"></label>
+                    <div class="col-sm-12">
+                        <input type="text" class="form-control" ng-model="item.OtherDiagnosisName" translate
+                            translate-attr-placeholder="otregister-form.otherdiagnosis.lbl" placeholder=""
+                            ng-disabled="item.SurgeryEntryStatusId==3||!item.PatientId">
+                    </div>
+                </div>
+
+                <div class="form-group col-sm-4">
+                    <label class="col-sm-12 control-label" for="anesthesiatype"
+                        translate="otregister-form.anesthesiatype.lbl"></label>
+                    <div class="col-sm-12">
+                        <ui-select ng-model="item.AnaesthesiaTypeId" name="anesthesiatype"
+                            ng-disabled="item.SurgeryEntryStatusId==3||!item.PatientId" ng-disabled="item.isRequested"
+                            required>
+                            <ui-select-match>
+                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                <span ng-if="$select.selected.Text.length>20">...</span>
+                            </ui-select-match>
+                            <ui-select-choices
+                                repeat="lookupitem.Id as lookupitem in lookup.AnaesthesiaType | filter: { Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search">
+                                </div>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                </div>
+
+                <div class="form-group col-sm-4">
+                    <label class="col-sm-12 control-label" for="anesthesianame"
+                        translate="otschedule-form.anaesthiesistname.lbl"></label>
+                    <div class="col-sm-12">
+                        <!-- <ui-select ng-model="item.AnaesthesistId" name="anesthesianame" ng-disabled="item.SurgeryEntryStatusId==3||!item.PatientId"
+                            ng-disabled="item.isRequested" required>
+                            <ui-select-match>
+                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                <span ng-if="$select.selected.Text.length>20">...</span>
+                            </ui-select-match>
+                            <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.AnaesthesiaType | filter: { Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search">
+                                </div>
+                            </ui-select-choices>
+                        </ui-select> -->
+                        <autosearch itemid="item.AnaesthesistId" class="seach-logo" iteminfo="" rowdata=""
+                            name="'anesthesianame'" config="vm.usercontrolconfig" isrequired="true">
+                        </autosearch>
+                    </div>
+                </div>
+
+                <div class="form-group col-sm-4">
+                    <label class="col-sm-12 control-label" translate="Remarks"></label>
+                    <div class="col-sm-12">
+                        <!-- <ui-select ng-model="item.AnaesthesistId" name="anesthesianame" ng-disabled="item.SurgeryEntryStatusId==3||!item.PatientId"
+                            ng-disabled="item.isRequested" required>
+                            <ui-select-match>
+                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                <span ng-if="$select.selected.Text.length>20">...</span>
+                            </ui-select-match>
+                            <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.AnaesthesiaType | filter: { Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search">
+                                </div>
+                            </ui-select-choices>
+                        </ui-select> -->
+                        <input type="text" class="form-control" ng-model="item.Comments" placeholder=""
+                            ng-disabled="item.SurgeryEntryStatusId==3||!item.PatientId">
+                    </div>
+                </div>
+            </div>
+            <!-- <div class="col-sm-2">
+                <button class="btn-add" type="button" ng-click="Procedure()"
+                    uib-tooltip="{{'admissions.addprocedure-tooltip.lbl' | translate }}" tooltip-placement="top">
+                    <i class="fa fa-plus" aria-hidden="true"></i>
+                </button>
+            </div> -->
+        </div>
+
+        <div id="procedure1" class="col-sm-12 tabcontent">
+            <label class="col-sm-10 control-label">Procedure Details</label>
+            
+            <!-- <div onclick="this.parentElement.style.display='none'" class="topright">.</div> -->
+            <div class="col-sm-12">
+                <div class="form-group col-sm-3 otprocedure_name">
+                    <label class="col-sm-12 control-label" 
+                        translate="otregister-form.procedure1.lbl"></label>
+                    <div class="col-sm-10 procedure">
+                        <autosearch class="procedure-name-search" itemid="item.ProcedureId" iteminfo="" rowdata=""
+                            controlid="'procedureid'"  config="vm.procedurecontrolconfig"
+                            itemchange="" candisable="item.SurgeryEntryStatusId==3||!item.PatientId" 
+                            placeholder="'Procedure'">
+                        </autosearch>
+                    </div>
+                    <div class="col-sm-2">
+                        <button class="btn-add" type="button" ng-click="Procedure()"
+                            uib-tooltip="{{'admissions.addprocedure-tooltip.lbl' | translate }}"
+                            tooltip-placement="top">
+                            <i class="fa fa-plus" aria-hidden="true"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="form-group col-sm-3">
+                    <label class="col-sm-12 control-label" translate="otregister-form.chiefsurgeon.lbl"></label>
+                    <div class="col-sm-12">
+                        <autosearch itemid="item.ChiefSurgeonId" iteminfo=""  rowdata=""
+                            controlid="'surgeon1id'" fieldname="'chiefsurgeon'" config="vm.doctorcontrolconfig"
+                            itemchange="surgeonChange('Chief')"
+                            candisable="item.SurgeryEntryStatusId==3||!item.PatientId" placeholder="'Chief Surgeon'">
+                        </autosearch>
+                    </div>
+                </div>
+                <div class="form-group col-sm-3">
+                    <label class="col-sm-12 control-label" translate="Second Surgeon"></label>
+                    <div class="col-sm-12">
+                        <autosearch itemid="item.SecondSurgeonId" iteminfo="" rowdata="" fieldname="'secondsurgeon'"
+                            config="vm.doctorcontrolconfig" itemchange="surgeonChange('SecondSurgeon')"
+                            controlid="'surgeon2id'" candisable="item.SurgeryEntryStatusId==3||!item.PatientId"
+                            placeholder="'Second Surgeon'">
+                        </autosearch>
+                    </div>
+                </div>
+
+                <div class="form-group col-sm-3 otassistant_surgeon">
+                    <label class="col-sm-12 control-label" translate="otregister-form.assistantsurgeon.lbl"></label>
+                    <div class="col-sm-12">
+                        <autosearch itemid="item.AssistantSurgeonId" class="seach-logo" iteminfo="" rowdata="" name="''"
+                            controlid="'assitant1id'" config="vm.doctorcontrolconfig"
+                            itemchange="surgeonChange('Assistant')"
+                            candisable="item.SurgeryEntryStatusId==3||!item.PatientId" placeholder="'Asst. Surgeon'">
+                        </autosearch>
+                    </div>
+                </div>
+
+                <!-- <div class="form-group col-sm-4">
+                    <label class="col-sm-12 control-label" for="anesthetist"
+                        translate="otregister-form.anaesthetist.lbl"></label>
+                    <div class="col-sm-12">
+                        <autosearch itemid="item.AnaesthesistId" iteminfo="" rowdata="" name="'anesthecian'"
+                            config="vm.usercontrolconfig" isrequired="false">
+                        </autosearch>
+                    </div>
+                </div> -->
+
+                <!-- <div class="form-group col-sm-3 cmt">
+                    <label class="col-sm-12 control-label" for="comments"
+                        translate="otregister-form.comments.lbl"></label>
+                    <div class="col-sm-12">
+                        <textarea rows="3" name="comments" ng-model="item.Comments" maxlength="4000" style="width:100%;"
+                            class="notes-textarea"
+                            ng-disabled="item.SurgeryEntryStatusId==3||!item.PatientId"></textarea>
+                    </div>
+                </div> -->
+
+                <div class="form-group col-sm-4" ng-if="item.IsOtherProcedures==true">
+                    <label class="col-sm-12 control-label" translate="otregister-form.otherprocedure.lbl"></label>
+                    <div class="col-sm-5">
+                        <input type="text" class="form-control" ng-model="item.ProcedureName" placeholder="">
+                    </div>
+                    <div class="col-sm-3">
+                        <ui-select ng-model="item.ProcedureSideId" name="order">
+                            <ui-select-match>
+                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                <span ng-if="$select.selected.Text.length>20">...</span>
+                            </ui-select-match>
+                            <ui-select-choices
+                                repeat="lookupitem.Id as lookupitem in lookup.ProcedureSide | filter: { Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search">
+                                </div>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-12" style="margin-top: 10px;">
+                    <button class="draftbutton pull-right" ng-click="addProcedure()"
+                        uib-tooltip="{{'Add Procedure' | translate }}" tooltip-placement="bottom"
+                        ng-if="updateFlag == 0">
+                        Add</i>
+                    </button>
+                    <button class="draftbutton pull-right" ng-click="updateProcedure(updateIndex)"
+                        uib-tooltip="{{'Add Procedure' | translate }}" tooltip-placement="bottom"
+                        ng-if="updateFlag == 1">
+                        Update</i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <table class="table table-hover table-responsive table-bordered">
+                <thead class="bg-subhead">
+                    <tr>
+                        <th class="col-sm-2">
+                            <span translate="Procedure Name"></span>
+                            <!-- <span class="mandatory-asterix">*</span> -->
+                        </th>
+                        <th class="col-sm-1">
+                            <span translate="Cheif Surgeon"></span>
+                        </th>
+                        <th class="col-sm-1">
+                            <span translate="Second Surgeon"></span>
+                        </th>
+                        <th class="col-sm-1">
+                            <span translate="Assistant Surgeon"></span>
+                        </th>
+                        <!-- <th class="col-sm-1">
+                        <span translate="clinicalmaster.serviceitemtariffdetail-list.active.lbl"></span>
+                    </th> -->
+                        <th class="col-sm-1">
+                            <span translate="common.actions_col.lbl"></span>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="item1 in Procedures | filter:{Status:1}">
+                        <td>
+                            <input type="text" class="form-control" name="procname" ng-model="item1.ProcedureName"
+                                placeholder="" disabled>
+                        </td>
+                        <td align="center">
+                            <input type="text" class="form-control" name="surg1" ng-model="item1.ChiefSurgeonName"
+                                placeholder="">
+                        </td>
+                        <td align="center">
+                            <input type="text" class="form-control" name="surg1" ng-model="item1.SecondSurgeonName"
+                                placeholder="">
+                        </td>
+                        <td align="center">
+                            <input type="text" class="form-control" name="surg1" ng-model="item1.AssistantSurgeonName"
+                                placeholder="">
+                        </td>
+    
+                        <td align="center">
+                            <button type="button" class="btn btn-primary btn-xs" tabindex="-1"
+                                ng-click="editItem($index, item1)">
+                                <i class="fa fa-edit" aria-hidden="true"></i>
+                            </button>
+                            <img src="assets/svg/delete.svg" ng-click="deleteItem($index,item1)">
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </form>
+</div>
+<div class="fooder-bgs">
+    <div class="row">
+        <div class="pull-left">
+            <button type="button" class="btn pyr-color10 btn-sm pull-left" ng-click="backToList()">
+                <i class="fa fa-angle-left" aria-hidden="true"></i>&nbsp;&nbsp;
+                <span class="btn-fontsize" translate="common.backaction.lbl"></span>
+            </button>
+        </div>
+        <div class="pull-right">
+            <button type="button" class="draftbutton" ng-click="print()" ng-show="CanShowPrint">
+                <span>
+                    <i class="fa fa-print" aria-hidden="true"></i>
+                </span>
+                <span translate="Print"></span>
+            </button>
+            <button id="btnSave" type="button" class="draftbutton" translate="common.saveaction.lbl" ng-click="save()"
+                ng-show="CanShowSave"></button>
+            <button type="button" class="draftbutton" translate="common.saveapprove-action.lbl"
+                ng-click="saveAndApprove()" ng-show="CanShowApprove"></button>
+            <button type="button" class="draftbutton" ng-show="CanShowAuthorize" translate="Authorize"
+                ng-click="Completed()"></button>
+            <button id="btnCancelForm" type="button" class="draftbutton" ng-disabled="item.SurgeryEntryStatusId == 3"
+                ng-click="OTCancel()" ng-show="CanShowCancel" translate="common.cancelaction.lbl"></button>
+        </div>
+    </div>
+</div>
+<script>
+    function openprocedure(evt, surgerytab) {
+        var i, tabcontent, tablinks;
+        tabcontent = document.getElementsByClassName("tabcontent");
+        for (i = 0; i < tabcontent.length; i++) {
+            tabcontent[i].style.display = "none";
+        }
+        tablinks = document.getElementsByClassName("tablinks");
+        for (i = 0; i < tablinks.length; i++) {
+            tablinks[i].className = tablinks[i].className.replace(" active", "");
+        }
+        document.getElementById(surgerytab).style.display = "block";
+        evt.currentTarget.className += " active";
+    }
+</script>

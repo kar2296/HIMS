@@ -1,0 +1,441 @@
+<style ng-if="context==main">
+    #fullregistrationheight2 .formRoot {
+        height: 485px;
+        overflow: auto;
+    }
+
+    #fullregistrationheight2 .well {
+        min-height: 480px;
+    }
+
+    legend a {
+        color: inherit;
+    }
+
+    legend.legendStyle {
+        padding-left: 5px;
+        padding-right: 5px;
+    }
+
+    legend.legendStyle {
+        font-size: 90%;
+        color: #fff;
+        background-color: #1ea9d0;
+        font-weight: 700;
+        box-shadow: 1px 3px 5px -1px #756f6f;
+        border-radius: 2px;
+    }
+
+    legend {
+        width: auto;
+        border-bottom: 0px !important;
+        margin-bottom: 0px !important;
+    }
+
+    .profile-header {
+        height: 29px;
+    }
+
+    .mt0 {
+        font-size: 15px;
+        margin-top: 5px !important;
+    }
+
+    fieldset .form-group {
+        margin-bottom: 4px;
+    }
+
+    fieldset.fsStyle {
+        border: 1px solid lightgray !important;
+        padding: 4px;
+        margin: 3px;
+    }
+
+    .autosearch-div .custom-popup-wrapper {
+        position: absolute;
+        width: 284%!important;
+    }
+
+    .autosearch-div .custom-popup-wrapper>.dropdown-menu {
+        width: 50% !important;
+    }
+
+    /*element.style {
+        opacity: 1;
+        position: absolute;
+        top: 21px;
+    }*/
+
+    .table-uigrid {
+        height: 160px !important;
+    }
+
+    .wrapper {
+        overflow-y: scroll;
+    }
+</style>
+
+<div class="row page-header">
+    <div class="col-sm-12">
+        <div class="col-sm-6 col-md-10">
+            <h4 class=" mt0 " translate="assetmanagement.serviceexecution.managepagetitle.lbl"></h4>
+        </div>
+        <div class="col-sm-6 col-md-2">
+        </div>
+    </div>
+</div>
+<div class="col-sm-12 fullreg-profiles">
+    <div>
+        <div class="col-sm-4">
+            <span>
+                <em class="text-primary">
+                    <span translate="assetmanagement.servicerequest.requestedon.lbl"></span>
+                </em>
+                <strong>&nbsp; {{item.CreatedAt | date : 'dd-MMM-yyyy'}} &nbsp; {{item.CreatedAt | date : 'HH:mm'}}</strong>
+            </span>
+        </div>
+        <div class="col-sm-4 border-left-profile">
+            <span>
+                <em class="text-primary">
+                    <span translate="assetmanagement.servicerequest.requestedby.lbl"></span>
+                </em>
+                <strong>&nbsp; {{CreatedUser.CreatedById.Title.Description}} &nbsp; {{CreatedUser.CreatedById.FirstName}} &nbsp;{{CreatedUser.CreatedById.LastName}}</strong>
+            </span>
+        </div>
+        <div class="col-sm-4">
+            <span>
+                <em class="text-primary">
+                    <span translate="assetmanagement.assignment-list.ticket.lbl"></span>
+                </em>
+                <strong>&nbsp; {{item.TicketNumberIdentifier}}</strong>
+            </span>
+        </div>
+        <div class="col-sm-4 border-left-profile">
+            <span>
+                <em class="text-primary">
+                    <span translate="assetmanagement.servicerequest.status.lbl"></span>
+                </em>
+                <strong>&nbsp; {{item.AssetTicketStatus}}</strong>
+            </span>
+        </div>
+
+    </div>
+</div>
+
+
+<div id="fullregistrationheight2">
+
+    <div class="row" id="fullregistrationheight">
+        <div class="col-sm-12">
+            <form id="item_form" name="item_form" class="form-horizontal" role="form">
+                <div class="formRoot">
+                    <div class="panel panel-default" id="housekeeping-height">
+
+                        <div class="panel-body form-panel">
+                            <div class="col-sm-12">
+
+                                <!-- leftpanel -->
+                                <div class="col-sm-6">
+                                    <div class="col-sm-12">
+                                        <fieldset class="fsStyle well">
+                                            <legend class="legendStyle">
+                                                <span translate="assetmanagement.serviceexecution.pagetitle1.lbl"></span>
+                                            </legend>
+
+                                            <div class="form-group">
+                                                <label class="col-sm-4 control-label" translate="assetmanagement.servicerequest.assetname.lbl" for="AssetName"></label>
+                                                <div class="col-sm-8">
+                                                    <input type="text" class="form-control" name="name" ng-model="item.AssetName" ng-disabled="true">
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="col-sm-4 control-label" translate="assetmanagement.servicerequest.servicetype.lbl"></label>
+                                                <div class="col-sm-8">
+                                                    <ui-select ng-model="item.ServiceTypeId" name="servicetype">
+                                                        <ui-select-match>
+                                                            {{$select.selected.Text | limitTo : 20 : 0}}
+                                                            <span ng-if="$select.selected.Text.length>20">...</span>
+                                                        </ui-select-match>
+                                                        <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.ServiceType | filter: { Text: $select.search }">
+                                                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                                        </ui-select-choices>
+                                                    </ui-select>
+                                                </div>
+                                            </div>
+
+                                            <div class="form-group">
+                                                <label class="col-sm-4 control-label" for="assettype" translate="assetmanagement.servicerequest.assettype.lbl"></label>
+                                                <div class="col-sm-8">
+                                                    <input type="text" class="form-control" name="name" ng-model="item.AssetTypeId" placeholder="" disabled>
+                                                </div>
+                                            </div>
+                                            <!--<div class="form-group">
+                                            <label class="col-sm-4 control-label" translate="assetmanagement.servicerequest.assetname.lbl" for="AssetName"></label>
+                                            <div class="col-sm-8">
+                                                <autosearch itemid="item.AssetId" iteminfo="item.selecteditem" rowdata="item" config="vm.servicerequestcontrolconfig" itemchange="getList()"></autosearch>
+                                            </div>
+                                        </div>-->
+                                            <div class="form-group">
+                                                <label class="col-sm-4 control-label" translate="assetmanagement.servicerequest.servicedescription.lbl" for="servicedescription"></label>
+                                                <div class="col-sm-8">
+                                                    <input type="text" class="form-control" name="servicedescription" ng-model="item.ServiceDescription" placeholder="" disabled>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="col-sm-4 control-label" translate="assetmanagement.servicerequest.priority.lbl" for="priority"></label>
+                                                <div class="col-sm-8">
+                                                    <ui-select ng-model="item.PriorityId" name="priority" ng-disabled="true">
+                                                        <ui-select-match>
+                                                            {{$select.selected.Text | limitTo : 20 : 0}}
+                                                            <span ng-if="$select.selected.Text.length>20">...</span>
+                                                        </ui-select-match>
+                                                        <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.PRIORITY | filter: { Text: $select.search }">
+                                                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                                        </ui-select-choices>
+                                                    </ui-select>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="col-sm-4 control-label" translate="assetmanagement.servicerequest.seviority.lbl" for="room"></label>
+                                                <div class="col-sm-8">
+                                                    <ui-select ng-model="item.SeviorityId" name="seviority" ng-disabled="true">
+                                                        <ui-select-match>
+                                                            {{$select.selected.Text | limitTo : 20 : 0}}
+                                                            <span ng-if="$select.selected.Text.length>20">...</span>
+                                                        </ui-select-match>
+                                                        <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.Severity| filter: { Text: $select.search }">
+                                                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                                        </ui-select-choices>
+                                                    </ui-select>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="col-sm-4 control-label" translate="assetmanagement.servicerequest.expecteddate.lbl" for="date"></label>
+                                                <div class="col-sm-8">
+                                                    <input type="text" class="form-control" name="dddate" ng-date-object datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}"
+                                                        uib-datepicker-popup="{{datePickerOptions.dateFormat}}" placeholder="{{datePickerOptions.placeholder}}"
+                                                        ng-click="activetoPopup = { opened: true }" is-open="activetoPopup.opened"
+                                                        ng-model="item.ExpectedDate" placeholder="" disabled>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="col-sm-4 control-label" translate="assetmanagement.servicerequest.fromdepartment.lbl"></label>
+                                                <div class="col-sm-8">
+                                                    <ui-select ng-model="item.FromDepartmentId" ng-disabled="true">
+                                                        <ui-select-match>
+                                                            {{$select.selected.Text | limitTo : 20 : 0}}
+                                                            <span ng-if="$select.selected.Text.length>20">...</span>
+                                                        </ui-select-match>
+                                                        <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.Department | filter: { Text: $select.search }">
+                                                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                                        </ui-select-choices>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="col-sm-4 control-label" translate="assetmanagement.servicerequest.otherinformation.lbl"></label>
+                                                <div class="col-sm-8">
+                                                    <input type="text" class="form-control" name="otherinformation" ng-model="item.OtherInformation" placeholder="" disabled>
+                                                </div>
+                                            </div>
+
+                                        </fieldset>
+                                    </div>
+                                </div>
+
+
+
+
+                                <!-- rightpanel -->
+
+                                <div class="col-sm-6">
+                                    <div class="col-sm-12">
+                                        <fieldset class="fsStyle well">
+                                            <legend class="legendStyle">
+                                                <span translate="assetmanagement.serviceexecution.pagetitle2.lbl"></span>
+                                            </legend>
+
+                                            <div class="form-group">
+                                                <label class="col-sm-4 control-label" for="requesttype" translate="assetmanagement.servicerequest.assigntype.lbl"></label>
+                                                <div class="col-sm-8">
+                                                    <ui-select ng-model="item.AssignTypeId" name="assigntype" ng-disabled="true">
+                                                        <ui-select-match>
+                                                            {{$select.selected.Text | limitTo : 20 : 0}}
+                                                            <span ng-if="$select.selected.Text.length>20">...</span>
+                                                        </ui-select-match>
+                                                        <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.AssetAssignType | filter: { Text: $select.search }">
+                                                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                                        </ui-select-choices>
+                                                    </ui-select>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="col-sm-4 control-label" for="activity" translate="assetmanagement.servicerequest.assignto.lbl"></label>
+                                                <div class="col-sm-8">
+                                                    <ui-select ng-model="item.AssignedId" ng-disabled="true">
+                                                        <ui-select-match>
+                                                            {{$select.selected.Text | limitTo : 20 : 0}}
+                                                            <span ng-if="$select.selected.Text.length>20">...</span>
+                                                        </ui-select-match>
+                                                        <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.User | filter: { Text: $select.search }">
+                                                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                                        </ui-select-choices>
+                                                    </ui-select>
+                                                </div>
+                                            </div>
+                                            <div class="form-group padding">
+                                            </div>
+                                        </fieldset>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-sm-6 ">
+                                <div class="col-sm-12 ">
+                                    <fieldset class="fsStyle well">
+                                        <legend class="legendStyle">
+                                            <span translate="assetmanagement.serviceexecution.pagetitle3.lbl"></span>
+                                        </legend>
+                                        <div class="form-group">
+                                            <label class="col-sm-4 control-label" for="workimpact" translate="assetmanagement.serviceexecution.workimpact.lbl"></label>
+                                            <div class="col-sm-8">
+                                                <input type="text" class="form-control" name="workimpact" ng-model="item.WorkImpact" ng-disabled="item.isCompleted" placeholder=""
+                                                    required>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="col-sm-4 control-label" for="workcomments" translate="assetmanagement.servicerequest.comments.lbl"></label>
+                                            <div class="col-sm-8">
+                                                <input type="text" class="form-control" name="workcomments" ng-model="item.WorkComments" ng-disabled="item.isCompleted">
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="col-sm-4 control-label" for="parts" translate="assetmanagement.serviceexecution.parts.lbl"></label>
+                                            <div class="col-sm-8">
+                                                <input type="text" class="form-control" name="parts" ng-model="item.Parts" ng-disabled="item.isCompleted">
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="col-sm-4 control-label" for="technicaldescription" translate="assetmanagement.serviceexecution.technicaldescription.lbl"></label>
+                                            <div class="col-sm-8">
+                                                <input type="text" class="form-control" name="parts" ng-model="item.TechnicalDescription" ng-disabled="item.isCompleted">
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="col-sm-4 control-label" translate="assetmanagement.serviceexecution.servicecharge.lbl"></label>
+                                            <div class="col-sm-8">
+                                                <input type="text" class="form-control" name="servicecharge" ng-model="item.ServiceCharge" ng-disabled="item.isCompleted">
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="col-sm-4 control-label" translate="assetmanagement.serviceexecution.additionalcost.lbl"></label>
+                                            <div class="col-sm-8">
+                                                <input type="text" class="form-control" name="cost" ng-model="item.AdditionalCost" ng-disabled="item.isCompleted">
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="col-sm-4 control-label" for="completedby" translate="assetmanagement.serviceexecution.completedby.lbl"></label>
+                                            <div class="col-sm-8">
+                                                <ui-select ng-model="item.CompletedById" name="completedby" ng-disabled="item.isCompleted" placeholder="" required>
+                                                    <ui-select-match>
+                                                        {{$select.selected.Text | limitTo : 20 : 0}}
+                                                        <span ng-if="$select.selected.Text.length>20">...</span>
+                                                    </ui-select-match>
+                                                    <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.User | filter: { Text: $select.search }">
+                                                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                                    </ui-select-choices>
+                                                </ui-select>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="col-sm-4 control-label" for="workcompletedon" translate="assetmanagement.serviceexecution.workcompletedon.lbl"></label>
+                                            <div class="col-sm-8">
+                                                <input type="text" class="form-control" name="workcompleteddateandtime" ng-date-object datetime-picker="{{datePickerOptions.dateTimeFormat}}"
+                                                    placeholder="{{datePickerOptions.placeholder}}" ng-click="workcompletedondateandtimePopup = { opened: true }"
+                                                    is-open="workcompletedondateandtimePopup.opened" ng-model="item.WorkCompletedOn"
+                                                    ng-disabled="item.isCompleted">
+                                            </div>
+                                        </div>
+
+
+                                        <div class="form-group padding">
+                                        </div>
+                                    </fieldset>
+                                </div>
+                            </div>
+                            <!--leftpanel -->
+
+                            <div class="col-sm-6">
+                                <!--<div class="col-sm-12">-->
+                                <fieldset class="fsStyle well">
+                                    <legend class="legendStyle">
+                                        <span translate="assetmanagement.serviceexecution.pagetitle5.lbl"></span>
+                                    </legend>
+                                    <div class="form-group">
+                                        <label class="col-sm-4 control-label" translate="assetmanagement.serviceexecution.closedon.lbl"></label>
+                                        <div class="col-sm-8">
+                                            <input type="text" class="form-control" ng-date-object datetime-picker="{{datePickerOptions.dateTimeFormat}}" placeholder="{{datePickerOptions.placeholder}}"
+                                                ng-click="transferdateandtimePopup = { opened: true }" is-open="transferdateandtimePopup.opened"
+                                                ng-model="item.ClosedOn" ng-disabled="item.isClosed" placeholder="">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-sm-4 control-label" for="comments" translate="assetmanagement.warranty-list.comments.lbl"></label>
+                                        <div class="col-sm-8">
+                                            <input type="text" class="form-control" name="comments" ng-model="item.WorkClosureComments" ng-disabled="item.isClosed" placeholder="">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-sm-4 control-label" for="closedby" translate="assetmanagement.servicerequest.closedby.lbl"></label>
+                                        <div class="col-sm-8">
+                                            <ui-select ng-model="item.UpdatedBy" name="closedby" ng-disabled="true" placeholder="">
+                                                <ui-select-match>
+                                                    {{$select.selected.Text | limitTo : 20 : 0}}
+                                                    <span ng-if="$select.selected.Text.length>20">...</span>
+                                                </ui-select-match>
+                                                <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.User | filter: { Text: $select.search }">
+                                                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                                </ui-select-choices>
+                                            </ui-select>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-4"></div>
+                                    <div class="col-sm-8">
+                                        <img ng-if="item.signimagedata" height="100" width="250" ng-src="{{item.signimagedata}}">
+                                        <img height="100" width="250" ng-if="!item.signimagedata && item.SignPath" data-ng-src="data:image/png;base64,{{currentcontext.SignPhoto}}"
+                                        />
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label class="col-sm-4 control-label" translate="appmanager.user.signature.lbl"></label>
+                                        <div class="col-sm-8">
+                                            <button type="button" class="btn btn-info btn-xs" translate="appmanager.user.signaction.lbl" ng-click="openSignModal()"></button>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group padding">
+                                    </div>
+                                </fieldset>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+        </div>
+    </div>
+</div>
+<div class="fooder-bgs">
+
+
+    <div class="pull-right">
+        <button type="button" class="draftbutton" translate="assetmanagement.serviceexecution.onhold.lbl" ng-show="canShowHoldBtn"
+            ng-click="saveAndHold()"></button>
+        <button type="button" class="btn dem-color4 text-white btn-sm" translate="Completed" ng-show="canShowCompleteBtn" ng-click="saveAndComplete()"></button>
+        <button type="button" class="btn btn-warning btn-sm" translate="assetmanagement.serviceexecution.close.lbl" ng-show="canShowCloseBtn"
+            ng-click="saveAndClose()"></button>
+        <button id="btnCancelForm" type="button" class="draftbutton" ng-click="backToList()" ng-show="canShowBackBtn" translate="common.cancelaction.lbl"></button>
+
+    </div>
+</div>
+</div>
+</form>
+</div>
+</div>

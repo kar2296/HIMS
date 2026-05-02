@@ -1,0 +1,415 @@
+<style>
+    .modal-content .panel-body {
+        overflow: auto;
+    }
+
+    /**
+    * The dnd-list should always have a min-height,
+    * otherwise you can't drop to it once it's empty
+    */
+
+    .lst ul[dnd-list] {
+        height: 305px;
+        padding-left: 10px;
+        padding-right: 10px;
+        overflow: auto;
+        overflow-x: hidden;
+    }
+
+    /**
+    * The dndDraggingSource class will be applied to
+    * the source element of a drag operation. It makes
+    * sense to hide it to give the user the feeling
+    * that he's actually moving it.
+    */
+
+    .lst ul[dnd-list] .dndDraggingSource {
+        display: none;
+    }
+
+    /**
+    * An element with .dndPlaceholder class will be
+    * added to the dnd-list while the user is dragging
+    * over it.
+    */
+
+    .lst ul[dnd-list] .dndPlaceholder {
+        background-color: #ddd;
+        display: block;
+        min-height: 42px;
+    }
+
+    .lst ul[dnd-list] li {
+        background-color: #fff;
+        border: 1px solid #ddd;
+        border-top-right-radius: 4px;
+        border-top-left-radius: 4px;
+        display: block;
+        padding: 3px 15px;
+        margin-bottom: -1px;
+        margin-top: 5px;
+    }
+
+    /**
+    * Show selected elements in green
+    */
+
+    .lst ul[dnd-list] li.selected {
+        background-color: #dff0d8;
+        color: #3c763d;
+    }
+
+    .lst ul[dnd-list] li {
+        /* padding: 3px 15px;
+        margin-bottom: 6px;
+        border: 1px solid #666; */
+        /* box-shadow: -9px 4px cadetblue; */
+        text-overflow: ellipsis;
+        overflow: hidden;
+        white-space: nowrap;
+        color: #000;
+        /* text-align: center;  */
+        font-size: 15px;
+        font-style: oblique;
+        font-weight: 500;
+        background: #d6d3d3;
+        width: 108%;
+        margin-left: -11px;
+    }
+
+    .body_head {
+        margin-top: 6px !important;
+    }
+
+    .panel-heading h4 {
+        color: #fff;
+    }
+
+    .panel.panel-info.col-sm-4.lst {
+        /* box-shadow: -6px 6px darkgrey; */
+        /* border: 2px solid #3c547f; */
+    }
+
+    .panel-heading {
+        background-color: #3c547f !important;
+        /* text-align: center; */
+        margin-top: 6px;
+    }
+
+    /* .panel-heading {
+        background-color: cornflowerblue !important;
+        text-align: center;
+        margin-top: 6px;
+    } */
+
+    li.ng-binding.ng-scope {}
+
+    .cust_head {
+        margin-bottom: 1px;
+    }
+
+    /* .selected_side.lst ul[dnd-list] li {
+
+        background-color: mediumslateblue !important;
+        box-shadow: -9px 4px darkgrey;
+        color: #fff;
+    } */
+
+    .section_popup {
+        /* height:316px !important; */
+        height: 524px !important;
+    }
+
+    /* ul.ui-select-choices.ui-select-choices-content.ui-select-dropdown.dropdown-menu.ng-scope{
+    height:95px;
+}
+ .modal-dialog.modal-lg{
+    width:78%;
+}
+.section_exchange{
+    right:-13px;
+}
+.sec_body{
+    margin-top:15px;
+} */
+
+    .section_exchange {
+        left: 33%;
+        border-radius: 0px !important;
+    }
+
+    .filter-area {
+        margin: 0px !important;
+    }
+
+    .col-sm-12.sec_body {
+        margin-top: 1%;
+    }
+
+    table#values tr {
+        border: 4px solid #3c547f !important;
+    }
+
+    .form-group {
+        height: 42px;
+    }
+</style>
+<div class="row page-header">
+    <h3 class="panel-title" translate="clinicalmaster.clinicalmasters.template.lbl"></h3>
+</div>
+<div class="row">
+    <form id="item_form" name="item_form" class="form-horizontal" role="form"></form>
+    <div class="col-sm-4 form-group">
+        <label class="col-sm-4" translate="clinicalmaster.section-form.name.lbl"></label>
+        <div class="col-sm-8">
+            <input type="text" class="form-control" name="name" ng-model="item.Name" placeholder="" required>
+        </div>
+    </div>
+    <div class="col-sm-4 form-group">
+        <label class="col-sm-4" translate="clinicalmaster.section-form.sectionnotetype.lbl"></label>
+        <div class="col-sm-8">
+            <multiselectchk list="lookup.SectionNoteType" selected="currentcontext.SectionNoteTypeId"
+                change="changeSectionNoteTypeId()">
+                <b>{{currentcontext.SectionNoteType}}</b>
+            </multiselectchk>
+        </div>
+    </div>
+    <div class="col-sm-4 form-group">
+        <label class="col-sm-4" translate="clinicalmaster.section-form.sref.lbl"></label>
+        <div class="col-sm-8">
+            <input type="text" ng-disabled="currentcontext.id > 0" class="form-control" name="sref" ng-model="item.SRef"
+                placeholder="">
+        </div>
+    </div>
+    <div class="col-sm-4 form-group">
+        <label class="col-sm-4" translate="clinicalmaster.section-form.description.lbl"></label>
+        <div class="col-sm-8">
+            <input type="text" class="form-control" name="description" ng-model="item.Description" placeholder="">
+        </div>
+    </div>
+    <div class="col-sm-4 form-group">
+        <label class="col-sm-4" translate="clinicalmaster.section-form.type.lbl"></label>
+        <div class="col-sm-8">
+            <ui-select ng-model="item.SectionTypeId" name="type" required>
+                <ui-select-match>
+                    {{$select.selected.Text | limitTo : 20 : 0}}
+                    <span ng-if="$select.selected.Text.length>20">...</span>
+                </ui-select-match>
+                <ui-select-choices
+                    repeat="lookupitem.Id as lookupitem in lookup.SectionType | filter: { Text: $select.search }">
+                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                </ui-select-choices>
+            </ui-select>
+        </div>
+    </div>
+    <div class="col-sm-4 form-group">
+        <label class="col-sm-4" translate="clinicalmaster.diagnosis-form.isactive.lbl"></label>
+        <div class="col-sm-8">
+            <input type="checkbox" name="isactive" class="custom-checkbox" ng-model="item.IsActive">
+        </div>
+    </div>
+</div>
+</div>
+<div class="row">
+    <div class="col-sm-12">
+        <form id="item_form" name="item_form" class="form-horizontal" role="form">
+            <div class="formRoot section_popup cmaster_sections" set-form-height>
+                <!-- <div class="panel panel-default cust_head"> -->
+                <!-- <div class="filter-area row">
+                        <div class="col-sm-12 clearfix">
+
+                            <!-- leftpanel --
+                            <div class="col-sm-12 clearfix">
+                                <div class="col-sm-4 form-group">
+                                    <label class="col-sm-5 control-label" for="name" translate="clinicalmaster.section-form.name.lbl"></label>
+                                    <div class="col-sm-7">
+                                        <input type="text" class="form-control" name="name" ng-model="item.Name" placeholder="" required>
+                                    </div>
+                                </div> -->
+                <!-- <div class="col-sm-4  form-group">
+                                    <label class="col-sm-6 control-label" for="parentsection" translate="clinicalmaster.section-form.parentsection.lbl"></label>
+                                    <div class="col-sm-6">
+                                        <ui-select ng-model="item.ParentSectionId" name="parentsection">
+                                            <ui-select-match>
+                                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                                <span ng-if="$select.selected.Text.length>20">...</span>
+                                            </ui-select-match>
+                                            <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.SectionMaster | filter: { Text: $select.search }">
+                                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                            </ui-select-choices>
+                                        </ui-select>
+                                    </div>
+                                </div>
+                                <div class="col-sm-4  form-group">
+                                    <label class="col-sm-6 control-label" for="dockposition" translate="clinicalmaster.section-form.dockposition.lbl"></label>
+                                    <div class="col-sm-6">
+                                        <ui-select ng-model="item.DockPositionId" name="dockposition">
+                                            <ui-select-match>
+                                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                                <span ng-if="$select.selected.Text.length>20">...</span>
+                                            </ui-select-match>
+                                            <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.DockPosition | filter: { Text: $select.search }">
+                                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                            </ui-select-choices>
+                                        </ui-select>
+                                    </div>
+                                </div> -->
+                <!-- </div> -->
+                <!-- <div class="col-sm-12"> -->
+                <!-- <div class="col-sm-4  form-group">
+                                    <label class="col-sm-5 control-label" for="type" translate="clinicalmaster.section-form.type.lbl"></label>
+                                    <div class="col-sm-7">
+                                        <ui-select ng-model="item.SectionTypeId" name="type" required>
+                                            <ui-select-match>
+                                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                                <span ng-if="$select.selected.Text.length>20">...</span>
+                                            </ui-select-match>
+                                            <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.SectionType | filter: { Text: $select.search }">
+                                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                            </ui-select-choices>
+                                        </ui-select>
+                                    </div>
+                                </div> -->
+
+                <!-- <div class="col-sm-4  form-group cstm_clear">
+                                    <label class="col-sm-5 control-label" for="description" translate="clinicalmaster.section-form.description.lbl"></label>
+                                    <div class="col-sm-7">
+                                        <input type="text" class="form-control" name="description" ng-model="item.Description" placeholder="">
+                                    </div>
+                                </div> -->
+                <!-- <div class="col-sm-4  form-group">
+                                    <label class="col-sm-6 control-label" for="sref" translate="clinicalmaster.section-form.sref.lbl"></label>
+                                    <div class="col-sm-6">
+                                        <input type="text" ng-disabled="currentcontext.id > 0" class="form-control" name="sref" ng-model="item.SRef" placeholder="">
+                                    </div>
+                                </div> -->
+                <!-- </div > -->
+                <!-- <div class="col-sm-12"> -->
+                <!-- <div class="col-sm-4  form-group">
+                                    <label class="col-sm-6 control-label" translate="clinicalmaster.section-form.sectionnotetype.lbl"></label>
+                                    <div class="col-sm-6">
+                                        <multiselectchk list="lookup.SectionNoteType" selected="currentcontext.SectionNoteTypeId" change="changeSectionNoteTypeId()">
+                                            <b>{{currentcontext.SectionNoteType}}</b>
+                                        </multiselectchk>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div> -->
+
+                <!-- Section Category Map-->
+                <div>
+                    <div class="">
+                        <div class="col-sm-3 form-group">
+                            <input type="text" id="pid" class="form-control" ng-model="currentcontext.searchtext"
+                                ng-keyup="getCategoryList()" placeholder="Search Parameters">
+                        </div>
+                    </div>
+                    <div class="panel panel-default cust_head">
+                        <div class="panel-body form-panel">
+                            <div class="col-sm-12 sec_body">
+                                <!-- <div class="col-sm-1"></div> -->
+                                <div class="panel panel-info col-sm-4 lst">
+                                    <!-- <div class="panel-heading" style="width: 110%; margin-left: -18px;margin-top: 0px;">
+                                        <h4 class="panel-title ng-binding">Available Categories</h4>
+                                    </div>
+                                    <div class="">
+                                        <ul dnd-list="currentcontext.MasterList">
+                                            <li ng-repeat="cat in currentcontext.MasterList| filter : currentcontext.searchtext|orderBy:'Id':true" dnd-draggable="cat"
+                                                dnd-moved="currentcontext.MasterList.splice($index, 1)" dnd-effect-allowed="move"
+                                                dnd-selected="currentcontext.Selected = cat" ng-class="{'selected': currentcontext.Selected === cat}">
+                                                {{cat.Text}}
+                                            </li>
+                                        </ul>
+                                    </div> -->
+                                    <table id="values" style="width: 120%;">
+                                        <tr>
+                                            <th style="height: 38px; background: #3c547f;color: white;">Available
+                                                Parameters</th>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <ul dnd-list="currentcontext.MasterList">
+                                                    <li ng-repeat="cat in currentcontext.MasterList| filter : currentcontext.searchtext|orderBy:'Id':true"
+                                                        dnd-draggable="cat"
+                                                        dnd-moved="currentcontext.MasterList.splice($index, 1)"
+                                                        dnd-effect-allowed="move"
+                                                        dnd-selected="currentcontext.Selected = cat"
+                                                        ng-class="{'selected': currentcontext.Selected === cat}">
+                                                        {{cat.Text}}
+                                                    </li>
+                                                </ul>
+                                            </td>
+                                        </tr>
+
+                                    </table>
+
+                                </div>
+                                <div class="col-sm-2">
+
+                                    <!-- <i class="fa fa-exchange section_exchange"></i> -->
+                                    <img class="section_exchange" src="app/img/main/exchange.png"
+                                        style="margin-top:1px; width:72px;    margin: 0px 19px;">
+
+                                </div>
+                                <div class="panel panel-info col-sm-4 lst selected_side">
+                                    <!-- <div class="panel-heading " style="width: 110%; margin-left: -18px;margin-top: 0px;">
+                                        <h4 class="panel-title ng-binding">Selected Parameters</h4>
+                                    </div>
+                                    <div class="panel-body ng-scope body_head">
+                                        <ul dnd-list="currentcontext.SelectedList">
+                                            <li ng-repeat="cat in currentcontext.SelectedList" dnd-draggable="cat" dnd-moved="currentcontext.SelectedList.splice($index, 1)"
+                                                dnd-effect-allowed="move" dnd-selected="currentcontext.Selected = cat" ng-class="{'selected': currentcontext.Selected === cat}">
+                                                {{cat.Text}}
+                                            </li>
+                                        </ul>
+                                    </div> -->
+
+                                    <table id="values" style="width: 120%;">
+                                        <tr>
+                                            <th style="height: 38px; background: #3c547f;color: white;">Selected
+                                                Parameters</th>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <ul dnd-list="currentcontext.SelectedList">
+                                                    <li ng-repeat="cat in currentcontext.SelectedList"
+                                                        dnd-draggable="cat"
+                                                        dnd-moved="currentcontext.SelectedList.splice($index, 1)"
+                                                        dnd-effect-allowed="move"
+                                                        dnd-selected="currentcontext.Selected = cat"
+                                                        ng-class="{'selected': currentcontext.Selected === cat}">
+                                                        {{cat.Text}}
+                                                    </li>
+                                                </ul>
+                                            </td>
+                                        </tr>
+
+                                    </table>
+                                </div>
+                                <div class="col-sm-1"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+<div class="fooder-bgs">
+    <!-- <button type="button" class="btn pyr-color10 btn-sm" ng-click="backToList1()"> test </button> -->
+    <div class="row">
+        <div class="pull-left">
+            <button type="button" class="btn pyr-color10 btn-sm" ng-click="backToList()">
+                <i class="fa fa-angle-left" aria-hidden="true"></i>&nbsp;&nbsp;
+                <span class="btn-fontsize" translate="common.backaction.lbl"></span>
+            </button>
+        </div>
+        <div class="pull-right">
+            <button type="button" class="draftbutton" ng-click="saveItem()" translate="common.saveaction.lbl"></button>
+            <!-- <button id="btnCancelForm" type="button" class="draftbutton" ng-click="backToList()" translate="common.cancelaction.lbl"></button> -->
+        </div>
+    </div>
+</div>

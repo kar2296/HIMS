@@ -1,0 +1,101 @@
+<div class="row page-header">
+    <div class="col-sm-5">
+        <h4 class="mt0" translate="Inventory Items"></h4>
+    </div>
+    <div class="col-sm-7">
+        <div class="filters">
+            <div class="search">
+                <input type="text" id="pid" class="form-control" on-enter="getList()" ng-model="currentfilter.ItemCode" translate placeholder="Item Code">
+                <div class="drhms-search-icon">
+                    <i class="fas fa-search" aria-hidden="true"></i>
+                </div>
+            </div>
+            <button type="button" tabindex="-1" class="btn-add" ng-click="addNew()" uib-tooltip="{{ 'Inventory Items' | translate }}"
+                tooltip-placement="bottom">
+                <i class="fa fa-plus" aria-hidden="true"></i>
+                <!-- <span translate="clinicalmaster.serviceitem-list.addnew.lbl " class="text-white"></span> -->
+            </button>
+            <button type="button" tabindex="-1" class="btn-add" ng-if="Context =='inventory'" ng-click="backtoList()" uib-tooltip="{{ 'Dashboard' | translate }}"
+                tooltip-placement="bottom">
+                <i class="fa fa-home" aria-hidden="true"></i>
+            </button>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="drhms-list-filters">
+        <div class="col-sm-3">
+            <label class="col-sm-3" translate="Hospital"></label>
+            <div class="col-sm-9">
+                <ui-select ng-model="currentfilter.FacilityId" ng-change="getList()" class="filter-combo">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 20 : 0}}
+                        <span ng-if="$select.selected.Text.length > 20">...</span>
+                    </ui-select-match>
+                    <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.Facility | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+        <div class="col-sm-3">
+                <label class="col-sm-3" for="_categoryId" translate="inventory.itemmaster.categoryId.lbl"></label>
+                <div class="col-sm-9">
+                    <ui-select id="categoryid" ng-keyup="moveHeaderFocus('categoryid')" ng-model="currentfilter.CategoryId" ng-change="getSubCategory()"
+                        theme="bootstrap" name="_categoryId">
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 20 : 0}}
+                            <span ng-if="$select.selected.Text.length > 20">...</span>
+                        </ui-select-match>
+                        <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.ItemCategory | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+        <div class="col-sm-3">
+            <label class="col-sm-3" translate="inventory.itemmasters.type.lbl"></label>
+            <div class="col-sm-9">
+                <ui-select ng-model="currentfilter.ProductTypeId" ng-change="getList()" class="filter-combo">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 20 : 0}}
+                        <span ng-if="$select.selected.Text.length > 20">...</span>
+                    </ui-select-match>
+                    <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.ProductType | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+        <div class="col-sm-3">
+            <label class="col-sm-3" translate="inventory.itemmaster.genericId.lbl"></label>
+            <div class="col-sm-9">
+                <autosearch itemid="currentfilter.GenericId" iteminfo="item.SelectedItem" rowdata="" config="vm.Genericitemcontrolconfig"
+                    itemchange="getList()" onenter="getList()"></autosearch>
+            </div>
+        </div>
+        <div class="col-sm-3">
+            <label class="col-sm-3" translate="inventory.itemmasters.filter_status.lbl"></label>
+            <div class="col-sm-9">
+                <ui-select ng-model="currentfilter.ActiveStatusId" ng-change="getList()" class="filter-combo">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 20 : 0}}
+                        <span ng-if="$select.selected.Text.length > 20">...</span>
+                    </ui-select-match>
+                    <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.ActiveStatus | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <custom-table config="vm.gridConfig"></custom-table>
+</div>
+<div class="fooder-bgs">
+    <div class="row">
+        <ul uib-pagination total-items="vm.gridConfig.pagerObj.totalItems" items-per-page="vm.gridConfig.pagerObj.pageSize" start-index="vm.gridConfig.pagerObj.startIndex"
+            ng-model="vm.gridConfig.pagerObj.currentPage" ng-change="getList()"></ul>
+    </div>
+</div>

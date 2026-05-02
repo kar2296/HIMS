@@ -1,0 +1,528 @@
+<style>
+    .form-group {
+        height: 62px;
+    }
+</style>
+<div class="">
+    <form id="item_form" name="item_form" class="form-horizontal" role="form">
+        <div class="row">
+            <h5 class="sub-header" translate="Manage Multi Facility User">
+            </h5>
+            <div class="form-group col-lg-3">
+                <label class="col-lg-12 control-label" for="title" translate="appmanager.user.title.lbl"></label>
+                <div class="col-lg-12">
+                    <ui-select ng-model="item.TitleId" name="title" ng-change="fillGenderInfo()" required>
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 25 : 0}}
+                            <span ng-if="$select.selected.Text.length>25">...</span>
+                        </ui-select-match>
+                        <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.Title | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search">
+                            </div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+            <div class="form-group col-lg-3">
+                <label class="col-lg-12 control-label" for="firstname" translate="appmanager.user.firstname.lbl"></label>
+                <div class="col-lg-12">
+                    <input type="text" class="form-control" name="firstname" ng-model="item.FirstName" placeholder="" uppercase required>
+                </div>
+            </div>
+            <div class="form-group col-lg-3">
+                <label class="col-lg-12 control-label" translate="appmanager.user.middlename.lbl"></label>
+                <div class="col-lg-12">
+                    <input type="text" class="form-control" name="middlename" uppercase ng-model="item.MiddleName" placeholder="">
+                </div>
+            </div>
+            <div class="form-group col-lg-3">
+                <label class="col-lg-12 control-label" translate="appmanager.user.lastname.lbl"></label>
+                <div class="col-lg-12">
+                    <input type="text" class="form-control" uppercase name="lastname" ng-model="item.LastName" placeholder="">
+                </div>
+            </div>
+            <div class="form-group col-lg-3">
+                <label class="col-lg-12 control-label" for="age" translate="appmanager.user.age.lbl"></label>
+                <div class="col-lg-12">
+                    <input type="text" class="form-control" name="age" ng-model="item.Age" placeholder="" ng-change="calculateDOB()" required>
+                </div>
+            </div>
+            <div class="form-group col-lg-3">
+                <label class="col-lg-12 control-label" for="dob" translate="appmanager.user.dob.lbl"></label>
+                <div class="col-lg-12">
+                    <div class="datepicker">
+                        <input type="text" class="form-control" name="dob" ng-date-object uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                            placeholder="{{datePickerOptions.placeholder}}" ng-click="dobPopup = { opened: true }" is-open="dobPopup.opened"
+                            ng-model="item.DOB" ng-change="calculateAge()" required>
+                        <i class="fa fa-calendar" aria-hidden="true"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group col-lg-3">
+                <label class="col-lg-12 control-label" translate="appmanager.user.gender.lbl"></label>
+                <div class="col-lg-12">
+                    <ui-select ng-model="item.GenderId">
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 25 : 0}}
+                            <span ng-if="$select.selected.Text.length>25">...</span>
+                        </ui-select-match>
+                        <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.Gender | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search">
+                            </div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+            <div class="form-group col-lg-3">
+                <label class="col-lg-12 control-label" translate="appmanager.user.qualification.lbl"></label>
+                <div class="col-lg-12">
+                    <input type="text" class="form-control" name="qualification" ng-model="item.Qualification" placeholder="">
+                </div>
+            </div>
+            <div class="form-group col-lg-3">
+                <label class="col-lg-12 control-label" for="designation" translate="appmanager.user.designation.lbl"></label>
+                <div class="col-lg-12">
+                    <input type="text" class="form-control" name="designation" ng-model="item.Designation" placeholder="">
+                </div>
+            </div>
+            <div class="form-group col-lg-3">
+                <label class="col-lg-12 control-label" for="address" translate="appmanager.org.address1.lbl"></label>
+                <div class="col-lg-12">
+                    <input type="text" id="Manualadd" class="form-control" name="address" ng-model="item.AddressLine1" ng-disabled="item.candisable"
+                        placeholder="Address">
+                </div>
+            </div>
+
+            <div class="form-group col-lg-3">
+                <label class="col-lg-12 control-label" for="address" translate="appmanager.org.address2.lbl"></label>
+                <div class="col-lg-12">
+                    <input type="text" id="Manualadd" class="form-control" name="address" ng-model="item.AddressLine2" ng-disabled="item.candisable"
+                        placeholder="Address">
+                </div>
+            </div>
+            <!-- <address addressline1="item.AddressLine1" addressline2="item.AddressLine2" pincodeid="item.PinCodeId"
+                pincode="item.Pincode" area="item.Area" city="item.City" cityid="item.CityId" state="item.State"
+                stateid="item.StateId" country="item.Country" countryid="item.CountryId">
+            </address> -->
+            <address addressline1="item.AddressLine1" addressline2="item.AddressLine2" pincodeid="item.PinCodeId" pincode="item.Pincode"
+                area="item.Area" city="item.City" cityid="item.CityId" state="item.State" stateid="item.StateId" country="item.Country"
+                countryid="item.CountryId">
+            </address>
+            <div class="form-group col-lg-3">
+                <label class="col-lg-12 control-label" for="mobile" translate="appmanager.user.mobile.lbl"></label>
+                <div class="col-lg-12">
+                    <input type="text" class="form-control" name="mobile" ng-model="item.Mobile" placeholder="" MINLENGTH="10" MAXLENGTH="10"
+                        size="10" value="" name="mobile" onChange="numberonly($event)" onKeyUp="numberonly($event)" ng-keypress="numberonly($event)"
+                        required>
+                </div>
+            </div>
+            <div class="form-group col-lg-3">
+                <label class="col-lg-12 control-label" translate="appmanager.user.email.lbl"></label>
+                <div class="col-lg-12">
+                    <input type="email" class="form-control" name="email" ng-model="item.Email" placeholder="" ng-required="false">
+                </div>
+            </div>
+            <div class="form-group col-lg-3 ">
+                <label class="col-lg-12 control-label" for="Roomnum" translate="Room#"></label>
+                <div class="col-lg-12">
+                    <ui-select ng-model="item.OPDRoomId">
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 50 : 0}}
+                            <span ng-if="$select.selected.Text.length>25">...</span>
+                        </ui-select-match>
+                        <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.OPDRoom | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+            <div class="form-group col-lg-3">
+                <label class="col-lg-12 control-label" translate="appmanager.user.panno.lbl"></label>
+                <div class="col-lg-12">
+                    <input type="text" class="form-control" name="panno" ng-model="item.PANNo" placeholder="" ng-required="false">
+                </div>
+            </div>
+            <div class="form-group col-lg-3">
+                <label class="col-lg-12 control-label" translate="appmanager.user.accountno.lbl"></label>
+                <div class="col-lg-12">
+                    <input type="text" class="form-control" name="accountno" ng-model="item.AccountNo" placeholder="" ng-required="false">
+                </div>
+            </div>
+            <div class="form-group col-lg-3">
+                <label class="col-lg-12 control-label" translate="appmanager.user.ifsccode.lbl"></label>
+                <div class="col-lg-12">
+                    <input type="text" class="form-control" name="ifsccode" ng-model="item.IFSCCode" placeholder="" ng-required="false">
+                </div>
+            </div>
+            <div class="form-group col-lg-3">
+                <label class="col-lg-12 control-label" translate="appmanager.user.bankname.lbl"></label>
+                <div class="col-lg-12">
+                    <input type="text" class="form-control" name="bankname" ng-model="item.BankName" placeholder="" ng-required="false">
+                </div>
+            </div>
+            <div class="form-group col-lg-3">
+                <label class="col-lg-12 control-label" translate="appmanager.user.licenseno.lbl"></label>
+                <div class="col-lg-12">
+                    <input type="text" class="form-control" name="licenseno" ng-model="item.LicenseNo" placeholder="" ng-required="false">
+                </div>
+            </div>
+            <div class="form-group col-lg-3">
+                <label class="col-lg-12 control-label" translate="appmanager.user.additionalphoneno.lbl"></label>
+                <div class="col-lg-12">
+                    <input type="text" class="form-control" name="additionalphoneno" ng-model="item.AdditionalPhoneNo" placeholder="" MINLENGTH="10"
+                        MAXLENGTH="10" size="10" value="" name="mobile" onChange="numberonly($event)" onKeyUp="numberonly($event)"
+                        ng-keypress="numberonly($event)">
+                </div>
+            </div>
+            <div class="form-group col-lg-3">
+                <label class="col-lg-12 control-label" translate="Doctor Team"></label>
+                <div class="col-lg-12">
+                    <ui-select ng-model="item.TeamId">
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 50 : 0}}
+                            <span ng-if="$select.selected.Text.length>25">...</span>
+                        </ui-select-match>
+                        <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.Team | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+            <div class="form-group col-lg-3">
+                <label class="col-lg-12 control-label" translate="appmanager.user.isactive.lbl"></label>
+                <div class="col-lg-2">
+                    <input type="checkbox" name="isactive" class="custom-checkbox" ng-model="item.IsActive">
+                </div>
+            </div>
+            <div class="form-group col-lg-3">
+                <label class="col-lg-12 control-label" translate="appmanager.user.issurgeon.lbl"></label>
+                <div class="col-lg-2">
+                    <input type="checkbox" name="issurgeon" class="custom-checkbox" ng-model="item.IsSurgeon">
+                </div>
+            </div>
+            <div class="form-group col-lg-3">
+                <label class="col-lg-12 control-label" translate="appmanager.user.isanaesthisist.lbl"></label>
+                <div class="col-lg-2">
+                    <input type="checkbox" name="isanaesthisist" class="custom-checkbox" ng-model="item.IsAnaesthisist">
+                </div>
+            </div>
+            <div class="form-group col-lg-3">
+                <label class="col-lg-12 control-label" translate="appmanager.user.isdueapprover.lbl"></label>
+                <div class="col-lg-2">
+                    <input type="checkbox" name="isdueapprover" class="custom-checkbox" ng-model="item.IsPrivate">
+                </div>
+            </div>
+            <div class="form-group col-lg-3" ng-if="item.IsPrivate">
+                <label class="col-lg-12 control-label" translate="appmanager.user.duelimit.lbl"></label>
+                <div class="col-lg-12">
+                    <input type="text" class="form-control" ng-model="item.PrivateDueLimit" ng-change="amount()" placeholder="">
+                </div>
+            </div>
+            <div class="form-group col-lg-3">
+                <label class="col-lg-12 control-label" translate="appmanager.user.isdiscount.lbl"></label>
+                <div class="col-lg-2">
+                    <input type="checkbox" name="isdiscount" class="custom-checkbox" ng-model="item.IsDiscount">
+                </div>
+            </div>
+            <div class="form-group col-lg-3" ng-if="item.IsDiscount">
+                <label class="col-lg-12 control-label" translate="appmanager.user.discountlimit.lbl"></label>
+                <div class="col-lg-8">
+                    <ui-select ng-model="item.DiscountModeId" ng-change="item.DiscountLimit=null">
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 25 : 0}}
+                            <span ng-if="$select.selected.Text.length>25">...</span>
+                        </ui-select-match>
+                        <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.DiscountMode | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+                <div class="col-lg-4">
+                    <input type="text" class="form-control" ng-if="item.DiscountModeId>0" ng-model="item.DiscountLimit" placeholder="">
+                </div>
+            </div>
+            <div class="form-group col-lg-3">
+                <label class="col-lg-12 control-label" for="duecheck" translate="appmanager.user.duecheck.lbl"></label>
+                <div class="col-lg-2">
+                    <input type="checkbox" name="duecheck" class="custom-checkbox" ng-model="item.IsDueCheck">
+                </div>
+            </div>
+            <div class="form-group col-lg-3">
+                <label class="col-lg-12 control-label" for="istds" translate="appmanager.user.istds.lbl"></label>
+                <div class="col-lg-2">
+                    <input type="checkbox" name="istds" class="custom-checkbox" ng-model="item.IsTDS">
+                </div>
+            </div>
+            <div class="form-group col-lg-3" ng-if="item.IsTDS">
+                <label class="col-lg-12 control-label" translate="appmanager.user.tds%.lbl"></label>
+                <div class="col-lg-8">
+                    <ui-select ng-model="item.TDSId">
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 25 : 0}}
+                            <span ng-if="$select.selected.Text.length>25">...</span>
+                        </ui-select-match>
+                        <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.GstMaster | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+                <div class="col-lg-4">
+                    <input type="text" class="form-control" ng-if="item.DiscountModeId>0" ng-model="item.DiscountLimit" placeholder="">
+                </div>
+            </div>
+            <div class="form-group col-lg-3">
+                <label class="col-lg-12 control-label" for="staff" translate="appmanager.user.staff.lbl"></label>
+                <div class="col-lg-2">
+                    <input type="checkbox" name="staff" class="custom-checkbox" ng-model="item.Staff">
+                </div>
+            </div>
+            <div class="form-group col-lg-3">
+                <label class="col-lg-12 control-label" for="virtualuser" translate="Is Virtual User"></label>
+                <div class="col-lg-2">
+                    <input type="checkbox" name="virtualuser" class="custom-checkbox" ng-model="item.IsVirtualUsers">
+                </div>
+            </div>
+            <div class="form-group col-lg-3" ng-show="item.IsVirtualUsers==true">
+                <label class="col-lg-12 control-label" for="virtualuser" translate="Online Speciality"></label>
+                <div class="col-lg-12">
+                    <ui-select ng-model="item.VirtualSubCategoryId" ng-change="getVirtualsubcategory()">
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 50 : 0}}
+                            <span ng-if="$select.selected.Text.length>25">...</span>
+                        </ui-select-match>
+                        <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.VirtualSubCategory | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <h5 class="sub-header" translate="appmanager.user.pnlorganizationsecurity.lbl">
+            </h5>
+            <div class="form-group col-lg-3">
+                <label class="col-lg-12 control-label" for="organisationname" translate="appmanager.user.organizationname.lbl"></label>
+                <div class="col-lg-12">
+                    <ui-select ng-model="item.OrgId" name="organisationname" required>
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 25 : 0}}
+                            <span ng-if="$select.selected.Text.length>25">...</span>
+                        </ui-select-match>
+                        <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.Organization | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search">
+                            </div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+            <div class="form-group col-lg-3">
+                <label class="col-lg-12 control-label" for="facilityname" translate="Hospital&Clinical Name"></label>
+                <div class="col-lg-12">
+                    <ui-select ng-model="item.FacilityId" ng-change="getfacdept()" name="facilityname" required>
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 25 : 0}}
+                            <span ng-if="$select.selected.Text.length>25">...</span>
+                        </ui-select-match>
+                        <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.Facility | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search">
+                            </div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+            <div class="form-group col-lg-3">
+                <label class="col-lg-12 control-label" for="department" translate="appmanager.user.department.lbl"></label>
+                <div class="col-lg-12">
+                    <ui-select ng-model="item.DepartmentId" name="department" ng-change="getsubdeptUsers()" required>
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 25 : 0}}
+                            <span ng-if="$select.selected.Text.length>25">...</span>
+                        </ui-select-match>
+                        <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.Department | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search">
+                            </div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+            <div class="form-group col-lg-3">
+                <label class="col-lg-12 control-label" translate="appmanager.user.subdepartment.lbl"></label>
+                <div class="col-lg-12">
+                    <ui-select ng-model="item.SubDepartmentId" on-select="onDeptSelected($select.selected)">
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 25 : 0}}
+                            <span ng-if="$select.selected.Text.length>25">...</span>
+                        </ui-select-match>
+                        <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.SubDepartment | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search">
+                            </div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+            <div class="form-group col-lg-3">
+                <label class="col-lg-12 control-label" for="usergroup" translate="appmanager.user.usergroup.lbl"></label>
+                <div class="col-lg-12">
+                    <ui-select ng-model="item.UserGroupId" name="usergroup" required>
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 25 : 0}}
+                            <span ng-if="$select.selected.Text.length>25">...</span>
+                        </ui-select-match>
+                        <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.Group | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search">
+                            </div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+            <div class="form-group col-lg-3">
+                <label class="col-lg-12 control-label" for="billingcounter" translate="appmanager.user.billingcounter.lbl"></label>
+                <div class="col-lg-12">
+                    <ui-select ng-model="item.BillingCounterId" name="billing">
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 25 : 0}}
+                            <span ng-if="$select.selected.Text.length>25">...</span>
+                        </ui-select-match>
+                        <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.BillingCounter | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search">
+                            </div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+            <div class="form-group col-lg-3">
+                <label class="col-lg-12 control-label" for="usertype" translate="appmanager.user.usertype.lbl"></label>
+                <div class="col-lg-12">
+                    <ui-select ng-model="item.UserTypeId" name="usertype" required>
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 25 : 0}}
+                            <span ng-if="$select.selected.Text.length>25">...</span>
+                        </ui-select-match>
+                        <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.UserType | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search">
+                            </div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+            <div class="form-group col-lg-3">
+                <label class="col-lg-12 control-label" for="loginname" translate="appmanager.user.loginname.lbl"></label>
+                <div class="col-lg-12">
+                    <input type="text" class="form-control" name="loginname" ng-model="item.UserName" placeholder="" required>
+                </div>
+                <div class="col-lg-12">
+                    <a title="{{currentcontext.usernamecriteriamsg}}" ng-show="currentcontext.loginsetting">
+                        <i class="icon-info-sign btn-circle" aria-hidden="true"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="form-group col-lg-3">
+                <label class="col-lg-12 control-label" for="password" translate="appmanager.user.password.lbl"></label>
+                <div class="col-lg-12">
+                    <input type="password" class="form-control" name="password" ng-model="item.Password" placeholder="" required>
+                </div>
+                <div class="col-lg-12">
+                    <a title="{{currentcontext.pwdcriteriamsg}}" ng-show="currentcontext.loginsetting">
+                        <i class="icon-info-sign btn-circle" aria-hidden="true"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="form-group col-lg-3">
+                <label class="col-lg-12 control-label" for="usertype" translate="appmanager.user.confirmpassword.lbl"></label>
+                <div class="col-lg-12">
+                    <input type="password" class="form-control" name="confirmpassword" ng-model="item.ConfirmPassword" ng-fab-match="item.Password"
+                        placeholder="" required>
+                </div>
+            </div>
+            <div class="form-group col-lg-3">
+                <label class="col-lg-12 control-label" translate="appmanager.user.applicationlognpermission.lbl"></label>
+                <div class="col-lg-12">
+                    <input type="checkbox" name="applicationlognpermission" class="custom-checkbox" ng-model="item.LoginPermission" ng-checked="item.LoginPermission == 1">
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <h5 class="sub-header" translate="Upload Files & Image Preview">
+            </h5>
+            <div class="col-sm-3">
+                <div class="drhms-user_image" ng-show="!item.iswebcamphoto">
+                    <img class="patient-img drhms-img-thumbnail" tabindex="tabindexmap.patienttabindex" ng-show="!!currentcontext.file" ngf-thumbnail="currentcontext.file"
+                    />
+                    <img ng-show="!currentcontext.file && item.PhotoPath" data-ng-src="data:image/png;base64,{{currentcontext.Photo}}" tabindex="tabindexmap.patienttabindex"
+                        class="patient-img drhms-img-thumbnail" />
+                    <img ng-show="!currentcontext.file && !item.PhotoPath" src="app/img/main/img.jpg" tabindex="-1" class="drhms-img-thumbnail ">
+                </div>
+                <div class="drhms-webcam-pic" ng-show="item.iswebcamphoto">
+                    <img data-ng-src="data:image/png;base64,{{item.webcamphoto}}" tabindex="-1" class="patient-img drhms-img-thumbnail" />
+                </div>
+                <div class="drhms-outer_ilayer">
+                    <div class="drhms-profile-upload-btn">
+                        <input type="file" ng-disabled="SaveCompleted" ngf-select ng-model="currentcontext.file" tabindex="-1" name="file" id="drhms-input-file"
+                            class="inputfile" ngf-max-size="200MB" ng-change="photoFileChanged()" />
+                        <label for="file-1" class="drhms-upload-btn" ng-disabled="SaveCompleted" uib-tooltip="Upload" tooltip-placement="bottom">
+                            <span class="drhms-registration-btn">Upload</span>
+                        </label>
+                        <button type="button" class="drhms-webcam-btn" tabindex="-1" ng-click="openWebCam()" uib-tooltip="webcam" tooltip-placement="bottom">
+                            <span class="drhms-registration-btn">Web Camera</span>
+                        </button>
+                        <button type="button" class="drhms-clear-btn" tabindex="-1" ng-click="clearimage()" uib-tooltip="Clear" tooltip-placement="bottom">
+                            <span class="drhms-registration-btn">Remove</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-3">
+                <div class="form-group img" id="drhms-fileuploader">
+                    <div ng-show="!currentcontext.SignatureFile && !item.SignPath">
+                        <input type="hidden" name="drhms-fileuploader-list-files">
+                        <input type="file" multiple="multiple" style="position: absolute; z-index: -9999; height: 0px; width: 0px; padding: 0px; margin: 0px; line-height: 0; outline: 0px; border: 0px; opacity: 0;">
+                        <div class="drhms-fileuploader-input1">
+                            <div class="drhms-fileuploader-input-inner">
+                                <img src="app/img/signature.jpg">
+                                <!-- <div class="drhms-fileuploader-input-caption">
+                                    Upload your Signature
+                                </div> -->
+                                <p></p>
+                                <div class="drhms-signature-upload-btn" ngf-select ng-model="currentcontext.SignatureFile" tabindex="-1" name="file" id="drhms-signature-input"
+                                    class="drhms-signature" ngf-max-size="200MB" ng-change="signFileChanged()">
+                                    <span>Browse Files
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="drhms-signature-thumb">
+                        <div class="img-fit">
+                            <button type="button" class="drhms-signature-btn-clear" tabindex="-1" ng-click="clearsignfile()" uib-tooltip="Clear" ng-show="!!currentcontext.SignatureFile"
+                                tooltip-placement="bottom">
+                                X
+                            </button>
+                            <img class="drhms-signature-responsive-img" tabindex="tabindexmap.patienttabindex" ng-show="!!currentcontext.SignatureFile"
+                                ngf-thumbnail="currentcontext.SignatureFile" />
+                            <img ng-show="!currentcontext.SignatureFile && item.SignPath" data-ng-src="data:image/png;base64,{{currentcontext.SignPhoto}}"
+                                tabindex="tabindexmap.patienttabindex" class="drhms-signature-responsive-img" />
+                            <div class="text-center">{{item.SignatureName}}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="fooder-bgs">
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="pull-left">
+                        <button class="btn pyr-color10 btn-sm" type="button" ng-click="backToList()">
+                            <i class="fa fa-angle-left" aria-hidden="true"></i>&nbsp;&nbsp;
+                            <span class="btn-fontsize" translate="common.backaction.lbl"></span>
+                        </button>
+                    </div>
+                    <div class="pull-right">
+                        <button type="button" id="btnsubmit" class="draftbutton" translate="common.saveaction.lbl" ng-click="save()"></button>
+                        <button id="btnSaveApprove" type="button" class="draftbutton     text-white btn-sm" translate="common.saveapprove-action.lbl"
+                            ng-click="saveAndApprove()"></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>

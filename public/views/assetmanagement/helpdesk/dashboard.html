@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+     <link rel="stylesheet" type="text/css" href="app/css/helpdesk.css">
+</head>
+<style>
+    h3, .h3 {
+    font-size: 20px;
+    color: #151414;
+}
+</style>
+<header class="clearfix mgt2 hlphdr" ng-click="">
+    <div class="col-sm-12 clearfix">
+<div class="col-xs-4 col-sm-4 col-md-3 col-lg-5">
+            <h3 class="mg2 font_initial hlphead">Ticket Management</h3>
+        </div>
+        <div class="col-xs-8 col-sm-8 col-md-9 col-lg-7 pdl0">
+
+            <div class="col-xs-3 col-sm-2 col-md-3 col-lg-3 text-center pd0 mg0 topicon " ng-click="addnewticket()" style="
+            float: right; ">
+                <button class="btn bt-color2 btn-xs pull-right btn-filter" 
+                tooltip-placement="bottom" >
+                 
+                <i class="fa fa-user-plus fa-2x" style="coloR:white;"  translate="New Ticket"></i>
+                <span class="badge badge-notify hlp_badge"></span>
+            </button>
+
+            </div>
+        </div>
+    </div>
+</header>
+<body id="helpdesk">
+    <div class="tablebox ng-scope " >
+    <uib-tabset active="active" id="assettabs">
+
+        <uib-tab index="$index" heading="Open" ng-click="getList(1)"  disable="tab.canDisable">
+        </uib-tab>
+        <uib-tab index="$index" heading="In Progress" ng-click="getAssigned(1)"  disable="tab.canDisable">
+        </uib-tab>
+        <uib-tab index="$index" heading="Resolved"  ng-click="getResolved(1)"  disable="tab.canDisable">
+        </uib-tab>
+        <uib-tab index="$index" heading="Closed" ng-click="getClosed(1)"  disable="tab.canDisable">
+        </uib-tab>
+        <uib-tab index="$index" heading="Deferred" ng-click="getDeferred(1) "  disable="tab.canDisable">
+        </uib-tab>
+        <uib-tab index="$index" heading="My Tickets" ng-click="getMyticket(1) "  disable="tab.canDisable">
+        </uib-tab>
+
+    </uib-tabset>
+   </div>
+    <div class="tablebox ng-scope">
+            <div class="row filter-area">
+    <div class="tblhdr " ng-show="currentcontext.CanShowCreate==true">
+        <div class="col-sm-4 " ng-hide="currentcontext.CanShowMyTickets==true">
+            <label class="col-sm-6 control-label " for="facility "
+                translate="assetmanagement.assettransfer.frominstitutename.lbl "></label>
+            <div class="col-sm-6">
+                <ui-select ng-model="currentfilter.FacilityId " ng-change="getList()" ng-disabled="true">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 25 : 0}}
+                        <span ng-if="$select.selected.Text.length>20">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.Company | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+        <div class="col-sm-4" ng-hide="currentcontext.CanShowMyTickets==true">
+            <label class="col-sm-6 control-label filter-lbl font-weight-bold"
+                translate="assetmanagement.servicerequest.fromdepartment.lbl"></label>
+            <div class="col-sm-6">
+                <ui-select ng-model="currentfilter.FromDepartmentId" ng-change="getList()" class="filter-combo">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 25 : 0}}
+                        <span ng-if="$select.selected.Text.length>8">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.Department | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <div class="form-group">
+                <label class=" sr-only col-sm-5 col-md-4 control-label filter-lbl"
+                    translate="assetmanagement.servicerequest.request#.lbl"></label>
+                <div class="input-group col-sm-7 col-md-8">
+                    <input type="text" class="form-control" on-enter="getList()"
+                        ng-model="currentfilter.TicketNumberIdentifier" placeholder="">
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <label class="col-sm-6 control-label" translate="assetmanagement.assets.filter_assetcetegory.lbl"></label>
+            <div class="col-sm-6">
+                <ui-select ng-model="currentfilter.CategoryId" ng-change="getList()">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 20 : 0}}
+                        <span ng-if="$select.selected.Text.length>20">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.TicketCategory | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <div class="form-group">
+                <label class=" col-sm-6 control-label filter-lbl"
+                    translate="assetmanagement.helpdesk.phoneno.lbl"></label>
+                <div class="col-sm-6">
+                    <input type="text" class="form-control" on-enter="getList()" ng-model="currentfilter.PhoneNo"
+                        placeholder="" MINLENGTH="1" MAXLENGTH="10" size="10" onChange="numberonly($event)"
+                        onKeyUp="numberonly($event)" ng-keypress="numberonly($event)">
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="tblhdr " ng-show="currentcontext.CanShowAssigned==true">
+        <div class="col-sm-4 ">
+            <label class="col-sm-6 control-label " for="facility "
+                translate="assetmanagement.assettransfer.frominstitutename.lbl "></label>
+            <div class="col-sm-6">
+                <ui-select ng-model="currentfilter.FacilityId " ng-change="getAssigned()" ng-disabled="true">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 20 : 0}}
+                        <span ng-if="$select.selected.Text.length>20">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.Company | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <label class="col-sm-6 control-label filter-lbl font-weight-bold"
+                translate="assetmanagement.servicerequest.fromdepartment.lbl"></label>
+            <div class="col-sm-6">
+                <ui-select ng-model="currentfilter.FromDepartmentId" ng-change="getAssigned()" class="filter-combo">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 25 : 0}}
+                        <span ng-if="$select.selected.Text.length>8">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.Department | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <div class="form-group">
+                <label class=" sr-only col-sm-5 col-md-4 control-label filter-lbl"
+                    translate="assetmanagement.servicerequest.request#.lbl"></label>
+                <div class="input-group col-sm-7 col-md-8">
+                    <input type="text" class="form-control" on-enter="getAssigned()"
+                        ng-model="currentfilter.TicketNumberIdentifier" placeholder="">
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <label class="col-sm-6 control-label " translate="assetmanagement.assets.filter_assetcetegory.lbl"></label>
+            <div class="col-sm-6">
+                <ui-select ng-model="currentfilter.CategoryId" ng-change="getAssigned()">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 20 : 0}}
+                        <span ng-if="$select.selected.Text.length>20">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.TicketCategory | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <div class="form-group">
+                <label class=" col-sm-6 control-label filter-lbl "
+                    translate="assetmanagement.helpdesk.phoneno.lbl"></label>
+                <div class="col-sm-6">
+
+                    <input type="text" class="form-control" on-enter="getAssigned()" ng-model="currentfilter.PhoneNo"
+                        placeholder="" MINLENGTH="1" MAXLENGTH="10" size="10" onChange="numberonly($event)"
+                        onKeyUp="numberonly($event)" ng-keypress="numberonly($event)">
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="tblhdr " ng-show="currentcontext.CanShowResolved==true">
+        <div class="col-sm-4 ">
+            <label class="col-sm-6 control-label " for="facility "
+                translate="assetmanagement.assettransfer.frominstitutename.lbl "></label>
+            <div class="col-sm-6">
+                <ui-select ng-model="currentfilter.FacilityId " ng-change="getResolved()" ng-disabled="true">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 20 : 0}}
+                        <span ng-if="$select.selected.Text.length>20">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.Company | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <label class="col-sm-6 control-label filter-lbl font-weight-bold"
+                translate="assetmanagement.servicerequest.fromdepartment.lbl"></label>
+            <div class="col-sm-6">
+                <ui-select ng-model="currentfilter.FromDepartmentId" ng-change="getResolved()" class="filter-combo">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 25 : 0}}
+                        <span ng-if="$select.selected.Text.length>8">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.Department | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <div class="form-group">
+                <label class=" sr-only col-sm-5 col-md-4 control-label filter-lbl"
+                    translate="assetmanagement.servicerequest.request#.lbl"></label>
+                <div class="input-group col-sm-7 col-md-8">
+
+                    <input type="text" class="form-control" on-enter="getResolved()"
+                        ng-model="currentfilter.TicketNumberIdentifier" placeholder="">
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <label class="col-sm-6 control-label" translate="assetmanagement.assets.filter_assetcetegory.lbl"></label>
+            <div class="col-sm-6">
+                <ui-select ng-model="currentfilter.CategoryId" ng-change="getResolved()">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 20 : 0}}
+                        <span ng-if="$select.selected.Text.length>20">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.TicketCategory | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <div class="form-group">
+                <label class=" col-sm-6 control-label filter-lbl"
+                    translate="assetmanagement.helpdesk.phoneno.lbl"></label>
+                <div class="col-sm-6">
+
+                    <input type="text" class="form-control" on-enter="getResolved()" ng-model="currentfilter.PhoneNo"
+                        placeholder="" MINLENGTH="1" MAXLENGTH="10" size="10" onChange="numberonly($event)"
+                        onKeyUp="numberonly($event)" ng-keypress="numberonly($event)">
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="tblhdr " ng-show="currentcontext.CanShowClosed==true">
+        <div class="col-sm-4 ">
+            <label class="col-sm-6 control-label " for="facility "
+                translate="assetmanagement.assettransfer.frominstitutename.lbl "></label>
+            <div class="col-sm-6">
+                <ui-select ng-model="currentfilter.FacilityId " ng-change="getClosed()" ng-disabled="true">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 20 : 0}}
+                        <span ng-if="$select.selected.Text.length>20">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.Company | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <label class="col-sm-6 control-label filter-lbl font-weight-bold"
+                translate="assetmanagement.servicerequest.fromdepartment.lbl"></label>
+            <div class="col-sm-6">
+                <ui-select ng-model="currentfilter.FromDepartmentId" ng-change="getClosed()" class="filter-combo">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 25 : 0}}
+                        <span ng-if="$select.selected.Text.length>8">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.Department | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <div class="form-group">
+                <label class=" sr-only col-sm-5 col-md-4 control-label filter-lbl"
+                    translate="assetmanagement.servicerequest.request#.lbl"></label>
+                <div class="input-group col-sm-7 col-md-8">
+
+                    <input type="text" class="form-control" on-enter="getClosed()"
+                        ng-model="currentfilter.TicketNumberIdentifier" placeholder="">
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <label class="col-sm-6 control-label" translate="assetmanagement.assets.filter_assetcetegory.lbl"></label>
+            <div class="col-sm-6">
+                <ui-select ng-model="currentfilter.CategoryId" ng-change="getClosed()">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 20 : 0}}
+                        <span ng-if="$select.selected.Text.length>20">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.TicketCategory | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <div class="form-group">
+                <label class=" col-sm-6 control-label filter-lbl"
+                    translate="assetmanagement.helpdesk.phoneno.lbl"></label>
+                <div class="col-sm-6">
+
+                    <input type="text" class="form-control" on-enter="getClosed()" ng-model="currentfilter.PhoneNo"
+                        placeholder="" MINLENGTH="1" MAXLENGTH="10" size="10" onChange="numberonly($event)"
+                        onKeyUp="numberonly($event)" ng-keypress="numberonly($event)">
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="tblhdr " ng-show="currentcontext.CanShowDeferred==true">
+        <div class="col-sm-4 ">
+            <label class="col-sm-6 control-label " for="facility "
+                translate="assetmanagement.assettransfer.frominstitutename.lbl "></label>
+            <div class="col-sm-6">
+                <ui-select ng-model="currentfilter.FacilityId " ng-change="getDeferred()" ng-disabled="true">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 20 : 0}}
+                        <span ng-if="$select.selected.Text.length>20">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.Company | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <label class="col-sm-6 control-label filter-lbl font-weight-bold"
+                translate="assetmanagement.servicerequest.fromdepartment.lbl"></label>
+            <div class="col-sm-6">
+                <ui-select ng-model="currentfilter.FromDepartmentId" ng-change="getDeferred()" class="filter-combo">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 25 : 0}}
+                        <span ng-if="$select.selected.Text.length>8">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.Department | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <div class="form-group">
+                <label class=" sr-only col-sm-5 col-md-4 control-label filter-lbl"
+                    translate="assetmanagement.servicerequest.request#.lbl"></label>
+                <div class="input-group col-sm-7 col-md-8">
+
+                    <input type="text" class="form-control" on-enter="getDeferred()"
+                        ng-model="currentfilter.TicketNumberIdentifier" placeholder="">
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <label class="col-sm-6 control-label" translate="assetmanagement.assets.filter_assetcetegory.lbl"></label>
+            <div class="col-sm-6">
+                <ui-select ng-model="currentfilter.CategoryId" ng-change="getDeferred()">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 20 : 0}}
+                        <span ng-if="$select.selected.Text.length>20">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.TicketCategory | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <div class="form-group">
+                <label class=" col-sm-6 control-label filter-lbl"
+                    translate="assetmanagement.helpdesk.phoneno.lbl"></label>
+                <div class="col-sm-6">
+
+                    <input type="text" class="form-control" on-enter="getDeferred()" ng-model="currentfilter.PhoneNo"
+                        placeholder="" MINLENGTH="1" MAXLENGTH="10" size="10" onChange="numberonly($event)"
+                        onKeyUp="numberonly($event)" ng-keypress="numberonly($event)">
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="tblhdr " ng-show="currentcontext.CanShowMyTickets==true">
+        <div class="col-sm-4">
+            <div class="form-group">
+                <label class=" sr-only col-sm-5 col-md-4 control-label filter-lbl"
+                    translate="assetmanagement.servicerequest.request#.lbl"></label>
+                <div class="input-group col-sm-7 col-md-8">
+
+                    <input type="text" class="form-control" on-enter="getMyticket()"
+                        ng-model="currentfilter.TicketNumberIdentifier" placeholder="">
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <label class="col-sm-6 col-md-6 control-label filter-lbl"
+                translate="assetmanagement.servicerequest.fromdate.lbl"></label>
+            <div class="col-sm-6 col-md-6">
+                <input type="text" class="form-control" name="dateofbirth" ng-change="getMyticket()"
+                    datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}"
+                    uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                    placeholder="{{datePickerOptions.placeholder}}" ng-click="dateofbirthPopup = { opened: true }"
+                    is-open="dateofbirthPopup.opened" ng-model="currentfilter.CreatedAt">
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <label class="col-sm-6 control-label" translate="assetmanagement.assets.filter_assetcetegory.lbl"></label>
+            <div class="col-sm-6">
+                <ui-select ng-model="currentfilter.CategoryId" ng-change="getMyticket()">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 20 : 0}}
+                        <span ng-if="$select.selected.Text.length>20">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.TicketCategory | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+        <div class="col-sm-4 cbth">
+            <div class="form-group">
+                <label class=" sr-only col-sm-5 col-md-4 control-label filter-lbl"
+                    translate="assetmanagement.helpdesk.phoneno.lbl"></label>
+                <div class="input-group col-sm-7 col-md-8">
+                    <input type="text" class="form-control" on-enter="getMyticket()" ng-model="currentfilter.PhoneNo"
+                        placeholder="" MINLENGTH="1" MAXLENGTH="10" size="10" onChange="numberonly($event)"
+                        onKeyUp="numberonly($event)" ng-keypress="numberonly($event)">
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-4 ">
+            <label class="col-sm-6 control-label filter-lbl" translate="Status"></label>
+            <div class="col-sm-6">
+                <multiselectchk list="lookup.AssetTicketStatus" selected="currentfilter.AssetTicketStatusId"
+                    change="getMyticket()"></multiselectchk>
+            </div>
+        </div>
+
+    </div>
+    </div>
+    <table class="table table-bordered hlptbl">
+        <thead>
+            <tr>
+                <th scope="col">
+                    <span translate="assetmanagement.helpdesk.slno.lbl"></span>
+                </th>
+                <th scope="col">
+                    <span translate="assetmanagement.helpdesk.createddate.lbl"></span>
+                </th>
+                <th scope="col">
+                    <span translate="assetmanagement.helpdesk.ticketid.lbl"></span>
+                </th>
+                <th scope="col">
+                    <span translate="assetmanagement.helpdesk.subject.lbl"></span>
+                </th>
+                <th scope="col">
+                    <span translate="assetmanagement.helpdesk.category.lbl"></span>
+                </th>
+                <th scope="col">
+                    <span translate="assetmanagement.helpdesk.frminstutn.lbl"></span>
+                </th>
+                <th scope="col">
+                    <span translate="assetmanagement.helpdesk.fromdept.lbl"></span>
+                </th>
+                <th scope="col">
+                    <span translate="assetmanagement.helpdesk.priority.lbl"></span>
+                </th>
+                <th scope="col">
+                    <span translate="assetmanagement.helpdesk.attachment.lbl"></span>
+                </th>
+                <th scope="col">
+                    <span translate="assetmanagement.helpdesk.status.lbl"></span>
+                </th>
+                <th scope="col" ng-hide="currentcontext.IsShowTab==false">Assigned To</th>
+                <th class="col-sm-1" scope="col">Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr ng-repeat="item in servicerequest| filter:{Status:1}"
+                ng-hide="item.AssetTicketStatusId==9||item.AssetTicketStatusId==10">
+                <td scope="row">{{$index+1}}</td>
+                <td>
+                    <displaydate datetime-val="item.CreatedAt"></displaydate>
+                </td>
+                <td>{{item.TicketNumberIdentifier}}</td>
+                <td>{{item.Subject}}</td>
+                <td>{{item.TicketCategory.Description}}</td>
+                <td>{{item.Facility.FacilityName}}</td>
+                <td>{{item.FromDepartment.DepartmentName}}</td>
+                <td>
+                    <span ng-show="item.PriorityId==1"
+                        style="color:#ff0000;text-decoration: underline;">{{item.Priority.Description}}</span>
+                    <span ng-if="item.PriorityId==2||item.PriorityId==3">{{item.Priority.Description}}</span>
+                </td>
+                <td>
+                    <button type="button" class="btn btn-primary btn-xs" tabindex="-1"
+                        uib-tooltip="{{'common.viewaction.lbl' | translate }}" tooltip-placement="bottom"
+                        ng-hide="item.FilePath==null" ng-click="download($index,item)">
+                        <img class="drhms-edit-button" src="assets/svg/edit.svg" alt="">
+                    </button>
+                    <span ng-Show="item.FilePath==null">No File Attached</span>
+                </td>
+                <td>{{item.AssetTicketStatus.Description}}</td>
+                <td ng-hide="currentcontext.IsShowTab==false">
+                    <span ng-if="item.AssetTicketStatusId==3">{{item.Assigned.Title.Description}}
+                        {{item.Assigned.FirstName}} {{item.Assigned.LastName}}</span>
+                    <span ng-if="item.AssetTicketStatusId==4">{{item.AssignedVendor.VendorName}}</span>
+                    <span ng-if="item.AssetTicketStatusId==5">{{item.AssignedFacility.FacilityName}}</span>
+                </td>
+                <td>
+                    <button type="button" class="btn btn-default btn-xs"
+                        uib-tooltip="{{'common.viewaction.lbl' | translate }}" tooltip-placement="bottom" tabindex="-1"
+                        ng-click="view($index,item)" ng-if="HasPrivilege('HelpDesk', 'ViewTicket')">
+                        <i class="fa fa-eye fa-2x" aria-hidden="true"></i>
+                    </button>
+                    <button type="button" class="btn btn-danger btn-xs" tabindex="-1"
+                        uib-tooltip="{{'assetmanagement.helpdesk.close.lbl' | translate }}" tooltip-placement="bottom"
+                        ng-show="item.AssetTicketStatusId==2||item.AssetTicketStatusId==7||currentcontext.CanShowMyTickets==true"
+                        ng-click="closed($index,item)" ng-if="HasPrivilege('HelpDesk', 'CloseTicket')">
+                        <i class="fa fa-remove" aria-hidden="true"></i>
+                    </button>
+                    <button type="button" class="btn btn-default btn-xs"
+                        uib-tooltip="{{'common.resolve.lbl' | translate }}" tooltip-placement="bottom" tabindex="-1"
+                        ng-click="resolve($index,item)" ng-if="HasPrivilege('HelpDesk', 'ResolveTicket')" ng-hide="item.AssetTicketStatusId==1||item.AssetTicketStatusId==2||item.AssetTicketStatusId==7||item.AssetTicketStatusId==8
+                        ||item.AssetTicketStatusId==9||currentcontext.CanShowMyTickets==true">
+                        <i class="fa fa-check-square fa-2x" aria-hidden="true"></i>
+                    </button>
+                    <button type="button" class="btn btn-default btn-xs" tabindex="-1"
+                        ng-if="item.AssetTicketStatusId<=7&&HasPrivilege('HelpDesk', 'AssignTicket')"
+                        uib-tooltip="{{'assetmanagement.helpdesk.assign.lbl' | translate }}" tooltip-placement="bottom"
+                        ng-click="assign($index,item)" ng-hide="currentcontext.CanShowMyTickets==true">
+                        <i class="fa fa-user fa-2x" aria-hidden="true"></i>
+                    </button>
+                </td>
+            </tr>
+            <tr ng-repeat="item in servicerequest| filter:{Status:1}" style="background-color:#fd7057"
+                ng-show="item.AssetTicketStatusId==9">
+                <td scope="row">{{$index+1}}</td>
+                <td>
+                    <displaydate datetime-val="item.CreatedAt"></displaydate>
+                </td>
+                <td>{{item.TicketNumberIdentifier}}</td>
+                <td>{{item.Subject}}</td>
+                <td>{{item.TicketCategory.Description}}</td>
+                <td>{{item.Facility.FacilityName}}</td>
+                <td>{{item.FromDepartment.DepartmentName}}</td>
+                <td>
+                    <span ng-show="item.PriorityId==1"
+                        style="color:#ff0000;text-decoration: underline;">{{item.Priority.Description}}</span>
+                    <span ng-if="item.PriorityId==2||item.PriorityId==3">{{item.Priority.Description}}</span>
+                </td>
+                <td>
+                    <button type="button" class="btn btn-primary btn-xs" tabindex="-1"
+                        uib-tooltip="{{'common.viewaction.lbl' | translate }}" tooltip-placement="bottom"
+                        ng-hide="item.FilePath==null" ng-click="download($index,item)">
+                        <img class="drhms-edit-button" src="assets/svg/edit.svg" alt="">
+                    </button>
+                    <span ng-Show="item.FilePath==null">No File Attached</span>
+                </td>
+                <td>{{item.AssetTicketStatus.Description}}</td>
+                <td ng-hide="currentcontext.IsShowTab==false">
+                    <span ng-if="item.AssetTicketStatusId==3">{{item.Assigned.Title.Description}}
+                        {{item.Assigned.FirstName}} {{item.Assigned.LastName}}</span>
+                    <span ng-if="item.AssetTicketStatusId==4">{{item.AssignedVendor.VendorName}}</span>
+                    <span ng-if="item.AssetTicketStatusId==5">{{item.AssignedFacility.FacilityName}}</span>
+                </td>
+                <td>
+                    <button type="button" class="btn btn-default btn-xs"
+                        uib-tooltip="{{'common.viewaction.lbl' | translate }}" tooltip-placement="bottom" tabindex="-1"
+                        ng-click="view($index,item)" ng-if="HasPrivilege('HelpDesk', 'ViewTicket')">
+                        <i class="fa fa-eye fa-2x" aria-hidden="true"></i>
+                    </button>
+                    <button type="button" class="btn btn-danger btn-xs" tabindex="-1"
+                        uib-tooltip="{{'assetmanagement.helpdesk.close.lbl' | translate }}" tooltip-placement="bottom"
+                        ng-show="item.AssetTicketStatusId==7||currentcontext.CanShowMyTickets==true"
+                        ng-click="closed($index,item)" ng-if="HasPrivilege('HelpDesk', 'CloseTicket')">
+                        <i class="fa fa-remove" aria-hidden="true"></i>
+                    </button>
+                    <button type="button" class="btn btn-default btn-xs"
+                        uib-tooltip="{{'common.resolve.lbl' | translate }}" tooltip-placement="bottom" tabindex="-1"
+                        ng-click="resolve($index,item)" ng-if="HasPrivilege('HelpDesk', 'ResolveTicket')" ng-hide="item.AssetTicketStatusId==1||item.AssetTicketStatusId==2||item.AssetTicketStatusId==7||item.AssetTicketStatusId==8
+                        ||item.AssetTicketStatusId==9||currentcontext.CanShowMyTickets==true">
+                        <i class="fa fa-check-square fa-2x" aria-hidden="true"></i>
+                    </button>
+                    <button type="button" class="btn btn-default btn-xs" tabindex="-1"
+                        ng-if="item.AssetTicketStatusId<=7&&HasPrivilege('HelpDesk', 'AssignTicket')"
+                        uib-tooltip="{{'assetmanagement.helpdesk.assign.lbl' | translate }}" tooltip-placement="bottom"
+                        ng-click="assign($index,item)" ng-hide="currentcontext.CanShowMyTickets==true">
+                        <i class="fa fa-user fa-2x" aria-hidden="true"></i>
+                    </button>
+                </td>
+            </tr>
+            <tr ng-repeat="item in servicerequest| filter:{Status:1}" style="background-color:#fde457"
+                ng-show="item.AssetTicketStatusId==10">
+                <td scope="row">{{$index+1}}</td>
+                <td>
+                    <displaydate datetime-val="item.CreatedAt"></displaydate>
+                </td>
+                <td>{{item.TicketNumberIdentifier}}</td>
+                <td>{{item.Subject}}</td>
+                <td>{{item.TicketCategory.Description}}</td>
+                <td>{{item.Facility.FacilityName}}</td>
+                <td>{{item.FromDepartment.DepartmentName}}</td>
+                <td>
+                    <span ng-show="item.PriorityId==1"
+                        style="color:#ff0000;text-decoration: underline;">{{item.Priority.Description}}</span>
+                    <span ng-if="item.PriorityId==2||item.PriorityId==3">{{item.Priority.Description}}</span>
+                </td>
+                <td>
+                    <button type="button" class="btn btn-primary btn-xs" tabindex="-1"
+                        uib-tooltip="{{'common.viewaction.lbl' | translate }}" tooltip-placement="bottom"
+                        ng-hide="item.FilePath==null" ng-click="download($index,item)">
+                        <img class="drhms-edit-button" src="assets/svg/edit.svg" alt="">
+                    </button>
+                    <span ng-Show="item.FilePath==null">No File Attached</span>
+                </td>
+                <td>{{item.AssetTicketStatus.Description}}</td>
+                <td ng-hide="currentcontext.IsShowTab==false">
+                    <span ng-if="item.AssetTicketStatusId==3">{{item.Assigned.Title.Description}}
+                        {{item.Assigned.FirstName}} {{item.Assigned.LastName}}</span>
+                    <span ng-if="item.AssetTicketStatusId==4">{{item.AssignedVendor.VendorName}}</span>
+                    <span ng-if="item.AssetTicketStatusId==5">{{item.AssignedFacility.FacilityName}}</span>
+                </td>
+                <td>
+                    <button type="button" class="btn btn-default btn-xs"
+                        uib-tooltip="{{'common.viewaction.lbl' | translate }}" tooltip-placement="bottom" tabindex="-1"
+                        ng-click="view($index,item)" ng-if="HasPrivilege('HelpDesk', 'ViewTicket')">
+                        <i class="fa fa-eye fa-2x" aria-hidden="true"></i>
+                    </button>
+                    <button type="button" class="btn btn-danger btn-xs" tabindex="-1"
+                        uib-tooltip="{{'assetmanagement.helpdesk.close.lbl' | translate }}" tooltip-placement="bottom"
+                        ng-show="item.AssetTicketStatusId==7||currentcontext.CanShowMyTickets==true"
+                        ng-click="closed($index,item)" ng-if="HasPrivilege('HelpDesk', 'CloseTicket')">
+                        <i class="fa fa-remove" aria-hidden="true"></i>
+                    </button>
+                    <button type="button" class="btn btn-default btn-xs"
+                        uib-tooltip="{{'common.resolve.lbl' | translate }}" tooltip-placement="bottom" tabindex="-1"
+                        ng-click="resolve($index,item)" ng-if="HasPrivilege('HelpDesk', 'ResolveTicket')" ng-hide="item.AssetTicketStatusId==1||item.AssetTicketStatusId==2||item.AssetTicketStatusId==7||item.AssetTicketStatusId==8
+                        ||item.AssetTicketStatusId==9||currentcontext.CanShowMyTickets==true">
+                        <i class="fa fa-check-square fa-2x" aria-hidden="true"></i>
+                    </button>
+                    <button type="button" class="btn btn-default btn-xs" tabindex="-1"
+                        ng-if="item.AssetTicketStatusId<=7&&HasPrivilege('HelpDesk', 'AssignTicket')"
+                        uib-tooltip="{{'assetmanagement.helpdesk.assign.lbl' | translate }}" tooltip-placement="bottom"
+                        ng-click="assign($index,item)" ng-hide="currentcontext.CanShowMyTickets==true">
+                        <i class="fa fa-user fa-2x" aria-hidden="true"></i>
+                    </button>
+                    <button type="button" class="btn btn-default btn-xs" tabindex="-1"
+                        ng-if="item.AssetTicketStatusId==10" uib-tooltip="{{item.ReopenComments }}"
+                        tooltip-placement="left">
+                        <i class="fa fa-info-circle fa-2x" aria-hidden="true"></i>
+                    </button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <custom-table config="vm.gridConfig"></custom-table>
+    </div>
+
+    <div class="container-fluid" id="usersheight">
+    <div class="fooder-bgs">
+        <div class="row">
+            <!-- <p class="summary_footer">&copy; 2018
+                <a href="http://www.gloomsofttechnologies.com/">gloomsoft Technologies India Private Ltd</a>
+            </p> -->
+        </div>
+    </div>
+</div>
+</body>
+
+</html>

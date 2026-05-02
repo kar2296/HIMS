@@ -1,0 +1,60 @@
+<div class="row">
+    <div class="col-sm-5">
+        <label class="col-sm-5  control-label text-right filter-lbl" translate="inventory.itemmastercustomermappings.customer.lbl"></label>
+        <div class="col-sm-7">
+            <autosearch itemid="currentfilter.CustomerMasterId" iteminfo="" rowdata="" config="vm.customercontrolconfig" itemchange="getList()"></autosearch>
+        </div>
+    </div>
+    <div class="col-sm-5">
+        <div class="col-sm-5">
+            <label class="col-sm-5 control-label filter-lbl" for="status" translate="inventory.itemmastercustomermappings.status.lbl"></label>
+        </div>
+        <div class="col-sm-7">
+            <ui-select ng-model="currentfilter.ActiveStatusId" ng-change="getList()" class="filter-combo">
+                <ui-select-match>
+                    {{$select.selected.Text | limitTo : 8 : 0}}
+                    <span ng-if="$select.selected.Text.length>8">...</span>
+                </ui-select-match>
+                <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.ActiveStatus | filter: { Text: $select.search }">
+                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                </ui-select-choices>
+            </ui-select>
+        </div>
+    </div>
+    <div class="col-sm-2">
+        <button class="btn-add" ng-click="addNew()"
+         uib-tooltip="{{ 'inventory.itemmastercustomermappings.addnew-tooltip.lbl' | translate }}" 
+         tooltip-placement="bottom"><i class="fa fa-plus" aria-hidden="true"></i></button>
+    </div>
+</div>
+<custom-table config="vm.gridConfig"></custom-table>	 
+<div class="container-fluid" id="patientsearchheight xcx">
+    <!-- <div ui-grid="vm.gridConfig" class="table-uigrid height-control"></div> -->
+    <div class="fooder-bgs">
+        <div class="col-md-12 padding-top5">
+            <div class="col-sm-9 ng-isolate-scope ng-not-empty ng-valid" uib-pagination="" total-items="vm.gridConfig.pagerObj.totalItems" items-per-page="vm.gridConfig.pagerObj.pageSize" start-index="vm.gridConfig.pagerObj.startIndex" ng-model="vm.gridConfig.pagerObj.currentPage"
+                ng-change="getList()">
+                <div class="col-sm-2 pager-msg ng-binding">Showing 1-8 of 8 items</div>
+                <div class="col-sm-5 pager-div">
+                    <ul class="pagination pagination-sm">
+                        <!-- ngIf: ::boundaryLinks -->
+                        <li ng-if="::boundaryLinks" ng-class="{disabled: noPrevious()||ngDisabled}" class="pagination-first ng-scope disabled"><a href="" ng-click="selectPage(1, $event)" class="ng-binding">First</a></li>
+                        <!-- end ngIf: ::boundaryLinks -->
+                        <!-- ngIf: ::directionLinks -->
+                        <li ng-if="::directionLinks" ng-class="{disabled: noPrevious()||ngDisabled}" class="pagination-prev ng-scope disabled"><a href="" ng-click="selectPage(page - 1, $event)" class="ng-binding">Previous</a></li>
+                        <!-- end ngIf: ::directionLinks -->
+                        <!-- ngRepeat: page in pages track by $index -->
+                        <li ng-repeat="page in pages track by $index" ng-class="{active: page.active,disabled: ngDisabled&amp;&amp;!page.active}" class="pagination-page ng-scope active"><a href="" ng-click="selectPage(page.number, $event)" class="ng-binding">1</a></li>
+                        <!-- end ngRepeat: page in pages track by $index -->
+                        <!-- ngIf: ::directionLinks -->
+                        <li ng-if="::directionLinks" ng-class="{disabled: noNext()||ngDisabled}" class="pagination-next ng-scope disabled"><a href="" ng-click="selectPage(page + 1, $event)" class="ng-binding">Next</a></li>
+                        <!-- end ngIf: ::directionLinks -->
+                        <!-- ngIf: ::boundaryLinks -->
+                        <li ng-if="::boundaryLinks" ng-class="{disabled: noNext()||ngDisabled}" class="pagination-last ng-scope disabled"><a href="" ng-click="selectPage(totalPages, $event)" class="ng-binding">Last</a></li>
+                        <!-- end ngIf: ::boundaryLinks -->
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

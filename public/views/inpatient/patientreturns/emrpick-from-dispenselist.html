@@ -1,0 +1,98 @@
+<div class="modal-header custom-modal-header">
+    <div class="col-sm-4">
+        <h4 class="modal-title custom-modal-title" translate="pickdispenselist.pagetitle.lbl"></h4>
+    </div>
+    <div class="col-sm-7">
+        <span ng-module="currentcontext.patinfo" ng-if="selectedPatient.MRN.length > 0">
+            <span tooltip-placement="bottom"
+                uib-tooltip="{{ selectedPatient.Title.Description }} {{selectedPatient.FirstName}} | {{selectedPatient.MRN}} | {{selectedPatient.Gender.Description}} | {{selectedPatient.Age}} Years | {{selectedPatient.DOB | date : 'dd/MMM/yyyy' }}">
+                {{selectedPatient.Title.Description}} {{selectedPatient.FirstName}}
+                <span>
+                    <span ng-click="patientprofiledetails()">
+                    </span> | {{selectedPatient.MRN}} | {{selectedPatient.Gender.Description}} | {{selectedPatient.Age}}
+                    Years
+                </span>
+            </span>
+        </span>
+    </div>
+    <div class="col-sm-1">
+        <div class="filters">
+            <img src="../../../../../assets/svg/close.svg" ng-click="cancelCallback()">
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <table class="table table-hover table-responsive table-bordered">
+        <thead class="bg-subhead">
+            <tr>
+                <th>
+                    <span translate="">
+                        <input type="checkbox" class="custom-checkbox" ng-model="currentcontext.selectallchk"
+                            ng-click="SelectAll(currentcontext.selectallchk)" />
+                    </span>
+                </th>
+                <th>
+                    <span translate="pickdispenselist.itemname.lbl"></span>
+                </th>
+                <th>
+                    <span translate="pickdispenselist.billedquantity.lbl"></span>
+                </th>
+                <th>
+                    <span translate="pickdispenselist.returnedquantity.lbl"></span>
+                </th>
+                <th>
+                    <span translate="pickdispenselist.returntransitquantity.lbl"></span>
+                </th>
+                <th>
+                    <span translate="pickdispenselist.returnquantity.lbl"></span>
+                </th>
+                <th>
+                    <span translate="pickdispenselist.batchid.lbl"></span>
+                </th>
+                <th>
+                    <span translate="pickdispenselist.expirydate.lbl"></span>
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr ng-repeat="billitem in PatientBillDetails | filter:{Status:1}">
+                <td>
+                    <input type="checkbox" class="custom-checkbox" ng-model="billitem.select"
+                        ng-click="selectionChangedCal()" />
+                </td>
+                <td>
+                    <span> {{ billitem.ItemName }} </span>
+                </td>
+                <td>
+                    <span> {{ billitem.Quantity }} </span>
+                </td>
+                <td>
+                    <span> {{ billitem.ReturnedQuantity }} </span>
+                </td>
+                <td>
+                    <span> {{ billitem.ReturnTransitQuantity }} </span>
+                </td>
+                <td>
+                    <input type="text" min="0" ng-keypress="numberonly($event)" ng-pattern="/^\d+$/"
+                        class="form-control" ng-model="billitem.ReturnQuantity" ng-change="ChangeReturnQty(billitem)"
+                        placeholder="">
+                </td>
+                <td>
+                    <span> {{ billitem.BatchId }} </span>
+                </td>
+                <td>
+                    <span> {{billitem.ExpiryDate &nbsp;|&nbsp; date : 'dd-MMM-yyyy'}} </span>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+<div class="fooder-bgs">
+    <div class="row">
+        <div class="pull-right">
+            <button type="button" id="loadbtnsubmit" class="draftbutton" translate="pickdispenselist.load.lbl"
+                ng-click="Load()"></button>
+        </div>
+    </div>
+</div>

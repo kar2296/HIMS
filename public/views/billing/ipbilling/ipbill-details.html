@@ -1,0 +1,137 @@
+<link rel="stylesheet" href="app/css/drhms.css">
+<div class="summary-bill-lock">
+    <button type="button" class="drhms-common-btn" ng-click="previousOrders()"
+        ng-if="HasAccess('IPBILLING_DETAILS','IPDEL_PREVIOUS_ORDER')">Previous Orders</button>
+    <button type="button" class="drhms-common-btn" ng-click="ipbillingprofiles()"
+        ng-if="HasAccess('IPBILLING_DETAILS','IPDEL_ADDNEW')">Add New</button>
+    <button type="button" class="drhms-common-btn" ng-click="ipbillingorders()">
+        Add Investigations
+    </button>
+</div>
+<div class="custom-table">
+    <custom-table config="vm.gridConfig"></custom-table>
+    <div style="margin-top: 20px;">
+        <ul uib-pagination total-items="vm.gridConfig.pagerObj.totalItems"
+            items-per-page="vm.gridConfig.pagerObj.pageSize" start-index="vm.gridConfig.pagerObj.startIndex"
+            ng-model="vm.gridConfig.pagerObj.currentPage" ng-change="getList()"></ul>
+    </div>
+</div>
+<div class="table-count">
+    <table id="bannerdetails">
+        <tr>
+            <td>
+                <span class="drhms-special-count" translate="billing.ip-insurancebill.total.lbl"></span>
+            </td>
+            <td class="drhms-drhms-currency-align">
+                <span class="drhms-currency-align drhms-special-count" class="fontbold">{{BillsGross || 0|
+                    displaycurrency}}</span>
+            </td>
+            <td>
+                <span translate="billing.ip-insurancebill.discount.lbl"></span>
+            </td>
+            <td class="drhms-drhms-currency-align">
+                <span class="total-count">{{BillsDiscount || 0| displaycurrency}}</span>
+            </td>
+            <td>
+                <span class="drhms-special-count" translate="billing.ip-insurancebill.netamount.lbl"></span>
+            </td>
+            <td class="drhms-drhms-currency-align">
+                <span class="drhms-currency-align drhms-special-count">{{BillsNetAmount || 0| displaycurrency}}</span>
+            </td>
+        </tr>
+    </table>
+</div>
+<div class="table-count">
+    <p>Bill Details</p>
+    <table class="table table-bordered bordered table-striped table-condensed datatable ng-isolate-scope rz-table">
+        <thead class="bg-subhead">
+            <tr>
+                <th class="col-sm-4">
+                    <span translate="billing.billing-details.itemname.lbl"></span>
+                </th>
+                <th>
+                    <span translate="billing.billing-details.qty.lbl"></span>
+                </th>
+                <th>
+                    <span translate="billing.billing-details.rate.lbl"></span>
+                </th>
+                <th class="col-sm-2">
+                    <span translate="billing.billing-details.doctor.lbl"></span>
+                </th>
+                <th ng-show="ShowDoctorShare">
+                    <span translate="billing.billing-details.doctorshare.lbl"></span>
+                </th>
+                <th>
+                    <span translate="billing.billing-details.discount.lbl"></span>
+                </th>
+                <th ng-show="CanShowIns">
+                    <span translate="Insurance Amount"></span>
+                </th>
+                <th ng-show="CanShowIns">
+                    <span translate="Patient Amount"></span>
+                </th>
+                <th class="col-sm-1">
+                    <span translate="billing.billing-details.netamount.lbl"></span>
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr ng-repeat="item in PatientBillDetails | filter: billingFilter">
+                <td>
+                    {{item.ServiceName}}
+                </td>
+                <td>
+                    {{item.Quantity}}
+                </td>
+                <td class="drhms-currency-align">
+                    <span disabled>{{item.Rate||0 | displaycurrency}}</span>
+                </td>
+                <td>
+                    {{item.DocName}}
+                    <!-- <ui-select ng-model="item.DoctorId" ng-change="" name="" ng-disabled="true">
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 20 : 0}}
+                            <span ng-if="$select.selected.Text.length>20">...</span>
+                        </ui-select-match>
+                        <ui-select-choices
+                            repeat="lookupitem.Id as lookupitem in lookup.Doctor | filter: { Text: $select.search }">
+                            <span ng-bind-html="lookupitem.Title.Description | highlight: $select.search"></span>
+                            <span ng-bind-html="lookupitem.Text | highlight: $select.search"></span>
+                        </ui-select-choices>
+                    </ui-select> -->
+                </td>
+                <td ng-show="ShowDoctorShare" class="drhms-currency-align">
+                    <span disabled>{{item.DoctorShare || 0 | displaycurrency}}</span>
+                </td>
+                <td class="drhms-currency-align">
+                    <span disabled>{{item.DiscountAmount || 0 | displaycurrency}}</span>
+                </td>               
+                <td ng-show="CanShowIns">
+                    <span disabled>{{item.InsNetAmount || 0 | displaycurrency}}</span>
+                </td>
+                <td ng-show="CanShowIns">
+                    <span disabled>{{item.PatNetAmount || 0 | displaycurrency}}</span>
+                </td>
+                <td class="drhms-currency-align">
+                    <span disabled>{{item.NetAmount || 0 | displaycurrency}}</span>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+<div class="">
+    <div class="drhms-currency-align">
+        <span class="drhms-due-amount" translate="billing.ip-insurancebill.total.lbl">
+        </span>
+        <span class="drhms-due-amount">&nbsp;:&nbsp;{{BillAmount || 0 | displaycurrency}}
+        </span>
+    </div>
+
+    <!-- <table id="bannerdetails">
+        <tr>
+            <td class="drhms-special-count" translate="billing.ip-insurancebill.total.lbl"></td>
+            <td class="drhms-currency-align drhms-special-count"> {{BillAmount || 0 | displaycurrency}}</td>
+        </tr>
+    </table> -->
+</div>
+<div class="fooder-bgs"></div>

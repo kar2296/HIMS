@@ -1,0 +1,555 @@
+<html>
+
+<head>
+    <style>
+        .border-bottom {
+            border-bottom: 0px solid black;
+            font-size: 10px;
+        }
+
+        .center {
+            text-align: center;
+            font-size: 10px;
+        }
+
+        .header4 {
+            font-size: 10px;
+        }
+
+        .border {
+            border: 1px solid black;
+            border-bottom: 0px solid black;
+            border-top: 0px solid black;
+            font-size: 10px;
+            border-collapse: collapse;
+        }
+
+        .border-top {
+            border: 1px solid black;
+            border-top: 1px solid black;
+            font-size: 10px;
+        }
+
+        .left {
+            text-align: left;
+            font-size: 10px;
+        }
+
+        .right {
+            text-align: right;
+            font-size: 10px;
+        }
+
+        .noborder {
+            border: 1px solid black;
+            border-top: 0px solid black;
+            border-bottom: 0px solid black;
+            font-size: 10px;
+        }
+
+        .displaynone {
+            display: none;
+        }
+
+        .size {
+            font-size: 10px;
+        }
+
+        .analyteCls {
+            padding-left: 30px;
+            font-weight: 600;
+        }
+
+        .textAlign {
+            text-align: center;
+            vertical-align: top;
+        }
+
+        .textAlign1 {
+            text-align: center;
+            vertical-align: top;
+        }
+
+        .testCls {
+            font-weight: 600;
+            font-style: italic;
+            font-size: 12px;
+            text-decoration: underline;
+        }
+
+        .remarkCls {
+            font-weight: 600;
+            font-size: 10px;
+            text-decoration: underline;
+        }
+
+        .remarkCommentsCls {
+            font-weight: normal;
+            font-style: normal;
+            font-size: 10px;
+            text-decoration: none;
+        }
+
+        .methodologyCls {
+            font-weight: normal;
+            font-style: normal;
+            font-size: 11px;
+            text-decoration: none;
+        }
+
+        .no-underline {
+            text-decoration: none;
+        }
+
+        /* Create four equal columns that floats next to each other */
+        .column {
+            float: left;
+            width: 25%;
+            padding: 25px;
+            height: 200px;
+            box-sizing: border-box;
+        }
+
+        /* Clear floats after the columns */
+        .row:after {
+            border-style: solid;
+            width: 95%;
+            display: table;
+            clear: both;
+        }
+
+        .pageheader {
+            position: relative;
+            top: 40px;
+        }
+
+        .pat-info {
+            border-top: 1px solid;
+            border-bottom: 1px solid;
+        }
+
+        table.header4.lab-data {
+            border: 1px solid gray;
+            border-top-right-radius: 31px;
+            border-top-left-radius: 31px;
+        }
+
+        table.header4.lab-data th {
+            border-bottom: 1px solid gray;
+        }
+
+        .qr-code div {
+            font-size: 10px;
+        }
+
+        .pat-info td {
+            white-space: normal;
+        }
+
+        table.header4.lab-data.no-bot {
+            border-bottom: unset !important
+        }
+
+        td {
+            font-weight: 500 !important;
+            font-family: sans-serif;
+            font-size: 11px !important;
+        }
+
+        .size td {
+            padding: 2px !important;
+            padding-left: 10px !important;
+        }
+
+        .lab-data th {
+            padding: 8px !important;
+        }
+        .pat-info {
+            margin-left: 45px !important;
+        }
+
+         {{include '/Templates/assets/css/core.css'}}
+    </style>
+</head>
+
+<body style="padding:10px; padding-left:45px;">
+    <div id="pageHeader" class="pageheader"> {{{include '/Templates/equitas/common/header.tpl.html' 'tpl'}}} 
+        <table style="width:100%;font-size:10px;text-align:center;margin-top: 10px;">
+            <tr>
+                <td style="width:10%"></td>
+                <td style="width:80%;"> <b> <u style="font-size: 15px;">LABORATORY TEST REPORT</u> </b> </td>
+                <td style="width:10%"></td>
+            </tr>
+        </table>
+        <div class="pat-info" style="position:relative;top:10px;">
+            <table class="size inf" style="width:100%;">
+                <tr>
+                    <td style="width:13%">Patient Name</td>
+                    <td style="width:45%">: <b>{{data.Patient.Title.Description}} {{data.Patient.FirstName}} {{data.Patient.LastName}}</b>
+                    </td>
+                    <td style="width:17%">Ordered On</td>
+                    <td style="width:25%">:{{#if data.PatientWorkorder.Ordereddate}} {{datetimeformat data.PatientWorkorder.Ordereddate}}
+                        {{/if}} </td>
+                </tr>
+                <tr>
+                    <td>Age / Gender</td>
+                    <td>: {{age data.Patient.DOB}} / {{data.Patient.Gender.Description}}</td>
+                    <td>Sample Collected On</td>
+                    <td>:{{#if data.PatientWorkorder.PatientOrder.OrderRequestDate}} {{datetimeformat
+                        data.PatientWorkorder.PatientOrder.OrderRequestDate}}{{/if}} </td>
+                </tr>
+                <tr>
+                    <td>UHID</td>
+                    <td>: <b>{{data.Patient.MRN}}</b> </td>
+                    <!-- <td style="width:20%;">Priority</td> <td>:</td> <td>{{data.PatientWorkorder.OrderPriority.Description}}</td> -->
+                    <!-- <td colspan="2"> <img style="height: 15px; width: 110px;" src="{{barcode data.Patient.MRN}}" /> -->
+                    </td>
+                    <td>Reported On</td>
+                    <td>: {{#if data.PatientWorkorder.TechValidationdate}} {{datetimeformat
+                        data.PatientWorkorder.TechValidationdate}}{{/if}} </td>
+                </tr>
+                <tr>
+                    <td><label>Refferred by.</label></td>
+                    <td>: {{data.PatientWorkorder.Encounter.DoctorName}}</td>
+                    <td>Ref. No</td>
+                    <td>: {{data.PatientWorkorder.WorkOrderdid}} </td>
+                </tr>
+                <tr>
+                    <td><label>OP / IP No</label></td>
+                    <td>: {{data.PatientWorkorder.Encounter.VisitIdentifier}}</td>
+                    <td>Ward Info</td>
+                    <td>: {{data.PatientWorkorder.Encounter.WardMaster.WardName}} /
+                        {{data.PatientWorkorder.Encounter.WardRoomMaster.RoomNo}} /
+                        {{data.PatientWorkorder.Encounter.WardRoomBedMaster.BedNo}} </td>
+                </tr>
+            </table>
+        </div>
+
+    </div>
+    <div id="pageHeader-2" style="font-size:11px; width:100%;">
+        {{{include '/Templates/equitas/common/header.tpl.html' 'tpl'}}} 
+        <div class="pat-info" style="position:relative;top:10px;">
+            <table class="size inf" style="width:100%;">
+                <tr>
+                    <td style="width:13%">Patient Name</td>
+                    <td style="width:45%">: <b>{{data.Patient.Title.Description}} {{data.Patient.FirstName}} {{data.Patient.LastName}}</b>
+                    </td>
+                    <td style="width:17%">Ordered On</td>
+                    <td style="width:25%">:{{#if data.PatientWorkorder.Ordereddate}} {{datetimeformat data.PatientWorkorder.Ordereddate}}
+                        {{/if}} </td>
+                </tr>
+                <tr>
+                    <td>Age / Gender</td>
+                    <td>: {{age data.Patient.DOB}} / {{data.Patient.Gender.Description}}</td>
+                    <td>Sample Collected On</td>
+                    <td>:{{#if data.PatientWorkorder.PatientOrder.OrderRequestDate}} {{datetimeformat
+                        data.PatientWorkorder.PatientOrder.OrderRequestDate}}{{/if}} </td>
+                </tr>
+                <tr>
+                    <td>UHID</td>
+                    <td>: <b>{{data.Patient.MRN}}</b> </td>
+                    <!-- <td style="width:20%;">Priority</td> <td>:</td> <td>{{data.PatientWorkorder.OrderPriority.Description}}</td> -->
+                    <!-- <td colspan="2"> <img style="height: 15px; width: 110px;" src="{{barcode data.Patient.MRN}}" /> -->
+                    </td>
+                    <td>Reported On</td>
+                    <td>: {{#if data.PatientWorkorder.TechValidationdate}} {{datetimeformat
+                        data.PatientWorkorder.TechValidationdate}}{{/if}} </td>
+                </tr>
+                <tr>
+                    <td><label>Refferred by.</label></td>
+                    <td>: {{data.PatientWorkorder.Encounter.DoctorName}}</td>
+                    <td>Ref. No</td>
+                    <td>: {{data.PatientWorkorder.WorkOrderdid}} </td>
+                </tr>
+                <tr>
+                    <td><label>OP / IP No</label></td>
+                    <td>: {{data.PatientWorkorder.Encounter.VisitIdentifier}}</td>
+                    <td>Ward Info</td>
+                    <td>: {{data.PatientWorkorder.Encounter.WardMaster.WardName}} /
+                        {{data.PatientWorkorder.Encounter.WardRoomMaster.RoomNo}} /
+                        {{data.PatientWorkorder.Encounter.WardRoomBedMaster.BedNo}} </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+    <div id="pageHeader-3" style="font-size:11px; width:100%;">
+        {{{include '/Templates/equitas/common/header.tpl.html' 'tpl'}}} 
+        <div class="pat-info" style="position:relative;top:10px;">
+            <table class="size inf" style="width:100%;">
+                <tr>
+                    <td style="width:13%">Patient Name</td>
+                    <td style="width:45%">: <b>{{data.Patient.Title.Description}} {{data.Patient.FirstName}} {{data.Patient.LastName}}</b>
+                    </td>
+                    <td style="width:17%">Ordered On</td>
+                    <td style="width:25%">:{{#if data.PatientWorkorder.Ordereddate}} {{datetimeformat data.PatientWorkorder.Ordereddate}}
+                        {{/if}} </td>
+                </tr>
+                <tr>
+                    <td>Age / Gender</td>
+                    <td>: {{age data.Patient.DOB}} / {{data.Patient.Gender.Description}}</td>
+                    <td>Sample Collected On</td>
+                    <td>:{{#if data.PatientWorkorder.PatientOrder.OrderRequestDate}} {{datetimeformat
+                        data.PatientWorkorder.PatientOrder.OrderRequestDate}}{{/if}} </td>
+                </tr>
+                <tr>
+                    <td>UHID</td>
+                    <td>: <b>{{data.Patient.MRN}}</b> </td>
+                    <!-- <td style="width:20%;">Priority</td> <td>:</td> <td>{{data.PatientWorkorder.OrderPriority.Description}}</td> -->
+                    <!-- <td colspan="2"> <img style="height: 15px; width: 110px;" src="{{barcode data.Patient.MRN}}" /> -->
+                    </td>
+                    <td>Reported On</td>
+                    <td>: {{#if data.PatientWorkorder.TechValidationdate}} {{datetimeformat
+                        data.PatientWorkorder.TechValidationdate}}{{/if}} </td>
+                </tr>
+                <tr>
+                    <td><label>Refferred by.</label></td>
+                    <td>: {{data.PatientWorkorder.Encounter.DoctorName}}</td>
+                    <td>Ref. No</td>
+                    <td>: {{data.PatientWorkorder.WorkOrderdid}} </td>
+                </tr>
+                <tr>
+                    <td><label>OP / IP No</label></td>
+                    <td>: {{data.PatientWorkorder.Encounter.VisitIdentifier}}</td>
+                    <td>Ward Info</td>
+                    <td>: {{data.PatientWorkorder.Encounter.WardMaster.WardName}} /
+                        {{data.PatientWorkorder.Encounter.WardRoomMaster.RoomNo}} /
+                        {{data.PatientWorkorder.Encounter.WardRoomBedMaster.BedNo}} </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+    <div id="pageHeader-4" style="font-size:11px; width:100%;">
+       {{{include '/Templates/equitas/common/header.tpl.html' 'tpl'}}} 
+        <div class="pat-info" style="position:relative;top:10px;">
+            <table class="size inf" style="width:100%;">
+                <tr>
+                    <td style="width:13%">Patient Name</td>
+                    <td style="width:45%">: <b>{{data.Patient.Title.Description}} {{data.Patient.FirstName}} {{data.Patient.LastName}}</b>
+                    </td>
+                    <td style="width:17%">Ordered On</td>
+                    <td style="width:25%">:{{#if data.PatientWorkorder.Ordereddate}} {{datetimeformat data.PatientWorkorder.Ordereddate}}
+                        {{/if}} </td>
+                </tr>
+                <tr>
+                    <td>Age / Gender</td>
+                    <td>: {{age data.Patient.DOB}} / {{data.Patient.Gender.Description}}</td>
+                    <td>Sample Collected On</td>
+                    <td>:{{#if data.PatientWorkorder.PatientOrder.OrderRequestDate}} {{datetimeformat
+                        data.PatientWorkorder.PatientOrder.OrderRequestDate}}{{/if}} </td>
+                </tr>
+                <tr>
+                    <td>UHID</td>
+                    <td>: <b>{{data.Patient.MRN}}</b> </td>
+                    <!-- <td style="width:20%;">Priority</td> <td>:</td> <td>{{data.PatientWorkorder.OrderPriority.Description}}</td> -->
+                    <!-- <td colspan="2"> <img style="height: 15px; width: 110px;" src="{{barcode data.Patient.MRN}}" /> -->
+                    </td>
+                    <td>Reported On</td>
+                    <td>: {{#if data.PatientWorkorder.TechValidationdate}} {{datetimeformat
+                        data.PatientWorkorder.TechValidationdate}}{{/if}} </td>
+                </tr>
+                <tr>
+                   <td><label>Refferred by.</label></td>
+                    <td>: {{data.PatientWorkorder.Encounter.DoctorName}}</td>
+                    <td>Ref. No</td>
+                    <td>: {{data.PatientWorkorder.WorkOrderdid}} </td>
+                </tr>
+                <tr>
+                    <td><label>OP / IP No</label></td>
+                    <td>: {{data.PatientWorkorder.Encounter.VisitIdentifier}}</td>
+                    <td>Ward Info</td>
+                    <td>: {{data.PatientWorkorder.Encounter.WardMaster.WardName}} /
+                        {{data.PatientWorkorder.Encounter.WardRoomMaster.RoomNo}} /
+                        {{data.PatientWorkorder.Encounter.WardRoomBedMaster.BedNo}} </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    <div id="pageHeader-5" style="font-size:11px; width:100%;">
+        <div> {{{include '/Templates/equitas/common/header1.tpl.html' 'tpl'}}}</div>
+        <div>
+            <div class="pat-info" style="position:relative;top:10px;">
+                <table class="size inf" style="width:100%;">
+                <tr>
+                    <td style="width:13%">Patient Name</td>
+                    <td style="width:45%">: <b>{{data.Patient.Title.Description}} {{data.Patient.FirstName}} {{data.Patient.LastName}}</b>
+                    </td>
+                    <td style="width:17%">Ordered On</td>
+                    <td style="width:25%">:{{#if data.PatientWorkorder.Ordereddate}} {{datetimeformat data.PatientWorkorder.Ordereddate}}
+                        {{/if}} </td>
+                </tr>
+                    <tr>
+                        <td>Age / Gender</td>
+                        <td>: {{age data.Patient.DOB}} / {{data.Patient.Gender.Description}}</td>
+                        <td>Sample Collected On</td>
+                        <td>:{{#if data.PatientWorkorder.PatientOrder.OrderRequestDate}} {{datetimeformat
+                            data.PatientWorkorder.PatientOrder.OrderRequestDate}}{{/if}} </td>
+                    </tr>
+                    <tr>
+                        <td>UHID</td>
+                        <td>: <b>{{data.Patient.MRN}}</b> </td>
+                        <!-- <td style="width:20%;">Priority</td> <td>:</td> <td>{{data.PatientWorkorder.OrderPriority.Description}}</td> -->
+                        <!-- <td colspan="2"> <img style="height: 15px; width: 110px;" src="{{barcode data.Patient.MRN}}" /> -->
+                        </td>
+                        <td>Reported On</td>
+                        <td>: {{#if data.PatientWorkorder.TechValidationdate}} {{datetimeformat
+                            data.PatientWorkorder.TechValidationdate}}{{/if}} </td>
+                    </tr>
+                    <tr>
+                       <td><label>Refferred by.</label></td>
+                    <td>: {{data.PatientWorkorder.Encounter.DoctorName}}</td>
+                        <td>Ref. No</td>
+                        <td>: {{data.PatientWorkorder.WorkOrderdid}} </td>
+                    </tr>
+                    <tr>
+                        <td><label>OP / IP No</label></td>
+                        <td>: {{data.PatientWorkorder.Encounter.VisitIdentifier}}</td>
+                        <td>Ward Info</td>
+                        <td>: {{data.PatientWorkorder.Encounter.WardMaster.WardName}} /
+                            {{data.PatientWorkorder.Encounter.WardRoomMaster.RoomNo}} /
+                            {{data.PatientWorkorder.Encounter.WardRoomBedMaster.BedNo}} </td>
+                    </tr>
+                </table>
+            </div>
+
+        </div>
+    </div>
+    <div id="pageFooter"> {{{include '/Templates/equitas/common/footer.tpl.html' 'tpl'}}} </div>
+    <div style="width:100%;">
+        <table class="header4 lab-data" style="width:100%;">
+            <thead>
+                <tr>
+                    <th width="35% !important" style="text-align: left;padding: 0 20px;">TEST NAME</th>
+                    <th width="20%" style="text-align: left;padding: 0 !important;">RESULT</th>
+                    <th width="10%" style="text-align: left;padding: 0 !important;;">UOM</th>
+                    <th width="35%" style="text-align: left;padding: 0 !important;;">Bio.Ref.Intervals</th>
+                </tr>
+            </thead>
+            </tr> {{#each data.PatientWorkorderDetails}} {{setVariable 'Thumbnail' Thumbnail}} {{setVariable
+            'TestValueType' TestValueType}} {{setVariable 'Norminaltxt' -1}} {{#ifCond 'g.TestValueType' '==' '1'}}
+            {{setVariable 'TestValueType' '3'}} {{setVariable 'Norminaltxt' '1'}} {{/ifCond}} {{setVariable 'CRPN'
+            RootProfileName}} {{#ifCond 'g.LRPN' '!=' 'g.CRPN'}} {{setVariable 'LRPN' 'g.CRPN'}} <tr>
+                <td>
+                    <div class="testCls" style="color:#0a3469;padding-left:10px;">{{getVariable 'g.CRPN'}}</div>
+                </td>
+            </tr> {{/ifCond}} {{setVariable 'CPN' ProfileName}} {{#ifCond 'g.LPN' '!=' 'g.CPN'}} {{setVariable 'LPN'
+            'g.CPN'}} <tr>
+                <td>
+                    <div class="testCls" style="color:#0a3469;padding-left:10px;">{{getVariable 'g.CPN'}}</div>
+                </td>
+            </tr> {{/ifCond}} {{setVariable 'analyteCls' 'analyteCls' }} {{setVariable 'testCls' 'testCls' }} {{#ifCond
+            Testname '==' Analytename}} {{setVariable 'analyteCls' 'testCls no-underline' }} {{setVariable 'testCls'
+            'displaynone' }} {{/ifCond}} {{setVariable 'CTN' Testname}} {{#ifCond 'g.LTN' '!=' 'g.CTN'}} {{setVariable
+            'LTN' 'g.CTN'}} <tr>
+                <td> <span class="mar5 {{getVariable 'g.testCls'}}"
+                        style="color:#0a3469;padding-left:10px;">{{getVariable 'g.CTN'}}</span> </td>
+            </tr> {{/ifCond}} {{setVariable 'Analytename' Analytename}} {{setVariable 'Resultvalue' Resultvalue}}
+            {{setVariable 'QualifierId' QualifierId}} {{setVariable 'AnalyteUOM' AnalyteUOM}} {{setVariable
+            'Analyterange' Analyterange}} {{setVariable 'methodologyCls' 'displaynone' }} {{#ifCond Methodology '!='
+            null}} {{setVariable 'methodologyCls' 'methodologyCls' }} {{/ifCond}} {{#ifCond SampleType '!=' null}}
+            {{setVariable 'methodologyCls' 'methodologyCls' }} {{/ifCond}} {{#ifCond 'g.TestValueType' '==' '3'}} <tr>
+                {{#ifCond 'g.Norminaltxt' '==' '1'}} <td
+                    style="width:25%;padding-bottom:05px !important;padding-left:10px !important;" class="">
+                    <div class="{{getVariable 'g.analyteCls'}}" style="text-align:left !important;"> {{getVariable
+                        'g.Analytename'}}</div>
+                </td>
+                <td colspan="2" style="width:25%;padding-bottom:05px !important;padding-left:10px !important;"
+                    >
+                    <div style="text-align:left !important;">{{{getVariable 'g.Resultvalue'}}}</div>
+                </td>
+                <td style="width:20%;text-align:left !important;" class="textAlign"> {{#ifCond 'g.Thumbnail' '!=' null}}
+                    <img width="180px" src="data:image/png;base64,{{getVariable 'g.Thumbnail'}}" /> {{/ifCond}} </td>
+                {{/ifCond}} {{#ifCond 'g.Norminaltxt' '!=' '1'}} <td
+                    style="width:35%;padding-bottom:05px !important;padding-left:10px !important;" class="textAlign">
+                    <div class="{{getVariable 'g.analyteCls'}}" style="text-align:left !important;">{{getVariable
+                        'g.Analytename'}} </div>
+                </td> {{/ifCond}}
+            </tr>
+            <tr> <!-- <td colspan="3" style="width:65%;" class="textAlign"> <div style="text-align:left !important;">13{{{getVariable 'g.Resultvalue'}}}</div> </td>-->
+                <td colspan="3" style="width:65%;padding-left:120px !important;" class="textAlign">
+                    <div style="display:inline-block;text-align: left !important;">{{{getVariable 'g.Resultvalue'}}}
+                    </div>
+                </td> {{/ifCond}}
+            </tr> {{#ifCond 'g.TestValueType' '!=' '3'}} <tr>
+                <td style="width:35%;padding-bottom:05px !important;padding-left:10px !important;" class="">
+                    <div>
+                        <div
+                            style="text-align:left !important;margin:0 !important;left:0 !important; right:0 !important;font-weight:bolder;">
+                            {{getVariable 'g.Analytename'}}</div>
+                        <div style="">({{../SampleType}} {{#ifCond ../Methodology '!=' null}} ,{{/ifCond}}
+                            {{../Methodology}})</div>
+                    </div>
+                </td> {{#ifCond 'g.QualifierId' '==' 2}} <td style="width:10%;" class="">
+                    <div style="display:inline-block;color:red;text-align: left !important;"> <b>{{{getVariable
+                            'g.Resultvalue'}}} ⇊</b> </div>
+                </td> {{/ifCond}} {{#ifCond 'g.QualifierId' '==' 3}} <td style="width:10%;" class="">
+                    <div style="display:inline-block;color:red;text-align: left !important;"> <b>{{{getVariable
+                            'g.Resultvalue'}}} ⇈</b> </div>
+                </td> {{/ifCond}} {{#ifCond 'g.QualifierId' '==' 1}} <td style="width:10%;" class="">
+                    <div style="display:inline-block;text-align: left !important;">{{{getVariable 'g.Resultvalue'}}}
+                    </div>
+                </td> {{/ifCond}} {{#ifCond 'g.QualifierId' '==' null}} <td style="width:10%;" class="">
+                    <div style="display:inline-block;text-align: left !important;">{{{getVariable 'g.Resultvalue'}}}
+                    </div>
+                </td> {{/ifCond}} </td>
+                <td style="width:10%;" class="" style="text-align: center !important;"> {{getVariable
+                    'g.AnalyteUOM'}}</td>
+                <td style="width:35%;" class="" style="text-align: left !important;"> {{{splitToLines
+                    ../Analyterange}}}</td>
+            </tr> {{/ifCond}} {{#each WorkOrderObservations}} {{#ifCond @index '==' 0}} <tr>
+                <td class="{{getVariable 'g.analyteCls'}} remarkCls">Remark:</td>
+            </tr> {{/ifCond}} <tr>
+                <td class="{{getVariable 'g.analyteCls'}} remarkCommentsCls">{{Comments}}</td>
+            </tr> {{/each}} {{/each}}
+        </table>
+    </div>
+    <table class="approve" style="width: 100%;">
+        <tr>
+            <td width="450">
+                <div style="width:100%">
+                    <div style="white-space:nowrap;text-align:left;margin-bottom: 5px;">
+                        <div class="img-sign"> {{#if data.PatientWorkorder.Techuser.SignPath}}<img style="height: 30px; width: 100px;" src="{{include @root.data.PatientWorkorder.Techuser.SignPath 'fullpath-img'}}" /></div> {{/if}}
+                        <div style="white-space:nowrap;text-align:left;margin-bottom: 5px;">
+                            <b style="font-size:10px;"> {{data.PatientWorkorder.Techuser.Title.Description}} {{data.PatientWorkorder.Techuser.FirstName}} {{data.PatientWorkorder.Techuser.LastName}} <span style="color:#000;">{{data.PatientWorkorder.Techuser.Qualification}}</br> {{data.PatientWorkorder.Techuser.Speciality.SpecialityName}}</span> </b>
+                            </div> <span
+                            style="text-decoration: underline;font-size:10px;">Verified By</span>
+                    </div>
+                </div>
+            </td>
+            <td>
+                <div style="width:100%">
+                    <div style="white-space:nowrap;text-align:right;margin-bottom: 5px;">
+                        <!--<div class="img-sign"> {{#if data.PatientWorkorder.MedUser.SignPath}}<img style="height: 30px; width: 100px;" 
+                            src="{{include @root.data.PatientWorkorder.MedUser.SignPath 'fullpath-img'}}" /></div> {{/if}}-->
+                        <div class="img-sign" style="position:relative;right:25px">
+                            {{#if data.PatientWorkorder.MedUser.SignPath}}<img style="height: 30px; width: 100px;" 
+                            src="{{include @root.data.PatientWorkorder.MedUser.SignPath 'fullpath-img'}}" /></div> {{/if}}
+                        <div style="white-space:nowrap;text-align:left;margin-bottom: 5px;">
+                            <div style="white-space:nowrap;text-align:right;margin-bottom: 5px;">
+                                <!--<b style="font-size:11px;"> {{data.PatientWorkorder.MedUser.Title.Description}} 
+                                    {{data.PatientWorkorder.MedUser.FirstName}} {{data.PatientWorkorder.MedUser.LastName}}
+                                     <span>{{data.PatientWorkorder.MedUser.Qualification}} 
+                                         {{data.PatientWorkorder.MedUser.Speciality.SpecialityName}}</span> </b>-->
+                                <b style="font-size:10px;">{{data.PatientWorkorder.MedUser.Title.Description}} 
+                                    {{data.PatientWorkorder.MedUser.FirstName}} {{data.PatientWorkorder.MedUser.LastName}}</b> <br> <b
+                                    style="font-size:10px;">{{data.PatientWorkorder.MedUser.Qualification}} 
+                                    {{data.PatientWorkorder.MedUser.Speciality.SpecialityName}}</b> <br> <span
+                                    style="text-decoration: underline;font-size:10px;">Approved By</span> <span
+                                    style="font-size:10px;text-decoration: underline;"></span> </div> <span
+                                style="text-decoration: underline;font-size:10px;"></span>
+                        </div>
+                    </div>
+            </td>
+        </tr>
+    </table>
+    <hr style="border-top:solid 1px;" />
+ <div class="row"> 
+    </div>
+    <div class="right">{{data.text}}</div>
+    <div class="center">------End of Lab Result------</div>
+  <!--<div class="right"><img style="width:15%" src="{{include '/Templates/equitas/assets/NABLLOGO.jpeg' 'img'}}" /></div>
+    <div style="width:100%; font-size:8px;text-align:right">'*' mentioned tests are the scope of <br>equitas Hospital-NABL accreditation</div>-->
+    <div style="width:100%; font-size:8px;text-align:left">Printed On: {{now}}</div>
+</body>
+
+</html>

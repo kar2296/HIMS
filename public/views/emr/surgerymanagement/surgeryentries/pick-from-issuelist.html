@@ -1,0 +1,129 @@
+<style>
+    .table>thead>tr>th {
+        padding: 5px 8px !important;
+        color: #000000 !important;
+    }
+
+    .table>tbody>tr>td {
+        border: 1px solid #ccc !important;
+        background: #fff !important;
+    }
+
+    .table>tbody {
+        box-shadow: 1px 1px 16px -3px rgba(0, 0, 0, 0.75);
+    }
+
+    .autosearch-div .custom-popup-wrapper {
+        width: 390% !important;
+    }
+</style>
+<div class="modal-header custom-modal-header">
+    <h4 class="col-sm-3" translate="pickdispenselist.pagetitle.lbl"></h4>
+    <div class="col-sm-8 page-calendar ">
+        <div class="" ng-module="currentcontext.patinfo" ng-if="selectedPatient.MRN.length > 0">
+            <strong tooltip-placement="bottom" style="font-size: 15px;color: #fff700;position: relative;top: 12px;right: 45px;" 
+            uib-tooltip="{{ selectedPatient.Title.Description }} {{selectedPatient.FirstName}} | {{selectedPatient.MRN}} | {{selectedPatient.Gender.Description}} | {{selectedPatient.Age}} Years | {{selectedPatient.DOB | date : 'dd/MMM/yyyy' }}">
+                {{selectedPatient.Title.Description}} {{selectedPatient.FirstName}}
+                <span>
+                    <span ng-click="patientprofiledetails()">
+                        <!-- <i class="icon-info-sign"></i> -->
+                    </span> | {{selectedPatient.MRN}} | {{selectedPatient.Gender.Description}} | {{selectedPatient.Age}} Years
+                </span>
+            </strong>
+        </div>
+    </div>
+    <div class="col-sm-1">
+        <button type="button" id="btnCancelForm" class="draftbutton" translate="X" ng-click="cancelCallback()"></button>
+    </div>
+</div>
+
+<!-- <div class="row page-header">
+    <h4 class="col-sm-3 page-header" translate="pickdispenselist.pagetitle.lbl"></h4>
+    <div class="col-sm-6 page-calendar ">
+        <div class="event-name b-greensea" ng-module="currentcontext.patinfo" ng-if="selectedPatient.MRN.length > 0">
+            <span class="forpadd" uib-tooltip="{{ selectedPatient.Title.Description }} {{selectedPatient.FirstName}} | {{selectedPatient.MRN}} | {{selectedPatient.Gender.Description}} | {{selectedPatient.Age}} Years | {{selectedPatient.DOB | date : 'dd/MMM/yyyy' }}"
+                tooltip-placement="bottom">
+                <span>{{selectedPatient.Title.Description}} {{selectedPatient.FirstName}}
+                    <span ng-click="patientprofiledetails()">
+                        <i class="icon-info-sign"></i>
+                    </span> | {{selectedPatient.MRN}} | {{selectedPatient.Gender.Description}} | {{selectedPatient.Age}} Years
+                </span>
+            </span>
+        </div>
+    </div>
+</div> -->
+
+<div id="doublepage-editor">
+    <table class="table table-hover table-responsive table-bordered">
+        <thead class="bg-subhead">
+            <tr>
+                <th class="col-sm-1">
+                    <span translate="">
+                        <input type="checkbox" class="custom-checkbox" ng-model="currentcontext.selectallchk" ng-click="SelectAll(currentcontext.selectallchk)"
+                        />
+                    </span>
+                </th>
+                <th class="col-sm-1">
+                    <span translate="pickdispenselist.itemname.lbl"></span>
+                </th>
+                <th class="col-sm-1">
+                    <span translate="pickdispenselist.billedquantity.lbl"></span>
+                </th>
+                <th class="col-sm-1">
+                    <span translate="pickdispenselist.returnedquantity.lbl"></span>
+                </th>
+                <th class="col-sm-1">
+                    <span translate="pickdispenselist.returnquantity.lbl"></span>
+                </th>
+                <th class="col-sm-1">
+                    <span translate="pickdispenselist.batchid.lbl"></span>
+                </th>
+                <th class="col-sm-1">
+                    <span translate="pickdispenselist.expirydate.lbl"></span>
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr ng-repeat="billitem in PatientBillDetails | filter:{Status:1}">
+                <td>
+                    <input type="checkbox" class="custom-checkbox" ng-model="billitem.select" ng-click="selectionChangedCal()" />
+                </td>
+                <td>
+                    <span> {{ billitem.ItemName }} </span>
+                </td>
+                <td>
+                    <span> {{ billitem.Quantity }} </span>
+                </td>
+                <td>
+                    <span> {{ billitem.ReturnedQuantity }} </span>
+                </td>
+                <td>
+                    <input type="text" min="0" ng-keypress="numberonly($event)" ng-pattern="/^\d+$/" class="form-control" ng-model="billitem.ReturnQuantity"
+                        ng-change="ChangeReturnQty(billitem)" placeholder="">
+                </td>
+                <td>
+                    <span> {{ billitem.BatchId }} </span>
+                </td>
+                <td>
+                    <span> {{billitem.ExpiryDate &nbsp;|&nbsp; date : 'dd-MMM-yyyy'}} </span>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<div class="fooder-bgs" style="margin-bottom: 44px !important;">
+    <div class="footer-right">
+        <button type="button" id="loadbtnsubmit" class="draftbutton" translate="pickdispenselist.load.lbl" ng-click="Load()"></button>
+    </div>
+</div>
+
+<!-- <div class="container-fluid">
+    <div class="site-footer panel-footer">
+        <div class="footer-right">
+            <button type="button" id="loadbtnsubmit" class="draftbutton" translate="pickdispenselist.load.lbl" ng-click="Load()"></button>
+            <button type="button" id="loadbtnsubmit" class="draftbutton" translate="pickdispenselist.load.lbl" ng-click="Load()"></button>
+            <button type="button" id="closebtnsubmit" class="btn btn-warning btn-sm" translate="pickdispenselist.close.lbl" ng-click="cancelCallback()"></button>
+        </div>
+    </div>
+</div> -->

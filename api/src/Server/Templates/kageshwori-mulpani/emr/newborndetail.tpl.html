@@ -1,0 +1,304 @@
+<html>
+
+<head>
+    <style>
+          .size {
+            font-size:8px;
+             border: 1px solid black;
+             border-bottom:0px solid black;
+        }
+        .table {
+            font-size:8px;
+            border: 1px solid black;
+            border-bottom:0px solid black;
+        }
+        .table2 {
+            font-size:8px;
+            border: 1px solid black;
+            border-top:0px solid black;
+        }
+       .size2 {
+            font-size:8px;
+            border: 1px solid black;
+            border-top:0px solid black;
+        }
+        .header3 {
+            font-size: 1.25em;
+        }
+
+        .center {
+            text-align: center;
+        }
+{{include '/Templates/assets/css/core.css'}}
+        </style>
+    </head>
+    <body>
+        <div id="pageHeader">
+        {{{include '/Templates/kageshwori-mulpani/common/header.tpl.html' 'tpl'}}}
+    </div>
+    <table style="width:100%;">
+        <tr>
+            <td height="20" style="vertical-align:text-middle;font-size:12px;" align="center"><b><u>{{data.Title}}</u></b></td>
+        </tr>
+    </table>
+    <table  class="size" style="width:100%;">
+        <tr>
+            <td style="width:35%;" colspan="3"><b>PATIENT INFORMATION</b></td>
+            <td style="width:25%;" colspan="3"><b>ADMISSION INFORMATION</b></td>
+            <td style="width:40%;" colspan="3"><b>DOCTOR INFORMATION</b></td>
+        </tr>
+        <tr>
+            <td colspan="3"><b>{{data.Patient.Title.Description}} {{data.Patient.FirstName}} {{data.Patient.MiddleName}} {{data.Patient.LastName}}</b></td>
+            <td style="width:15%;">Room/Bed No</td>
+            <td>:</td>
+            <td style="width:20%;">{{data.Encounter.WardMaster.WardName}}  {{#if data.Encounter.WardId}}/{{/if}} {{data.Encounter.WardRoomMaster.RoomNo}} {{#if data.Encounter.RoomId}}/{{/if}} {{data.Encounter.WardRoomBedMaster.Description}}</td>
+            <td style="width:10%;">Admt. Doctor</td>
+            <td>:</td>
+            <td>{{data.Encounter.Doctor.Title.Description}} {{data.Encounter.Doctor.FirstName}} {{data.Encounter.Doctor.LastName}} </td>
+        </tr>
+        <tr>
+            <td style="width:10%;">MRN</td>
+            <td>:</td>
+            <td><b>{{data.Patient.MRN}}</b></td>
+            <td >IP/ER No</td>
+            <td>:</td>
+            <td><b>{{data.Encounter.VisitIdentifier}}<b></td>
+            <td>Department</td>
+            <td>:</td>
+            <td>{{data.Encounter.Department.DepartmentName}}</td>
+        </tr>
+        <tr>
+            <td>DOB</td>
+            <td>:</td>
+            <td>{{dateformat data.Patient.DOB}}</td>
+            <td>{{#if data.Encounter.PatientGuarantor.GuarantorName}} Guarantor Name {{/if}}</td>
+            <td>{{#if data.Encounter.PatientGuarantor.GuarantorName}} : {{/if}}</td>
+            <td colspan="4">{{#if data.Encounter.PatientGuarantor.GuarantorName}} {{data.Encounter.PatientGuarantor.GuarantorName}} {{/if}}</td>
+        </tr>
+       <tr>
+           <td>Age/Gender</td>
+           <td>:</td>
+           <td>{{age data.Patient.DOB}}/{{data.Patient.Gender.Description}}</td>
+           <td>Admission Date</td>
+           <td>:</td>
+           <td>{{datetimeformat data.Encounter.AdmissionDate}}</td>
+           <td colspan="4"></td>
+       </tr>
+       <tr>
+           <td>Address</td>
+           <td>:</td>
+           <td>{{data.Patient.AddressLine1}} <br> {{data.Patient.Area}} {{data.Patient.City}}<br> {{data.Patient.State}} <br> {{data.Patient.Pincode}} {{data.Patient.Country}}</td>
+           <td>{{#if data.Encounter.DischargeDate}}Discharge Date{{/if}}</td>
+           <td>{{#if data.Encounter.DischargeDate}}:{{/if}}</td>
+           <td>{{#if data.Encounter.DischargeDate}}{{datetimeformat data.Encounter.DischargeDate}}{{/if}}<td>
+           <td colspan="4"><img style="height: 30px; width: 100px;"  src="{{barcode data.Patient.MRN}}"/></td>
+       </tr>
+       <tr>
+           <td>Contact No</td>
+           <td>:</td>
+           <td>{{data.Patient.Mobile}}</td>
+           <td></td>
+           <td></td>
+           <td><td>
+           <td colspan="4"></td>
+       </tr>
+       <!--<tr>
+           <td></td>
+           <td>:</td>
+           <td colspan="8"></td>-->
+           <!--<td>Status</td>
+           <td>:</td>
+           <td><b>{{data.PatientCertificate.CertificateStatus.Description}}</b><td>
+           <td colspan="4"></td>    -->
+       <!--</tr>-->
+    </table>
+      <table class='table'style="width:100%;">
+              <tr>
+                  <td style="width:25%;">Delivery Date</td>
+                  <td>:</td>
+                  <td style="width:25%;"><b>{{datetimeformat data.NewBornDetail.DeliveryDate}}</b></td>
+                  <td style="width:25%;">Congenital Anomalies</td>
+                  <td>:</td>
+                  <td style="width:25%;"> {{data.NewBornDetail.CongentialAnomalies.Description}} </td>
+             </tr>
+             <tr>
+                  <td style="width:25%;">Gender</td>
+                  <td>:</td>
+                  <td style="width:25%;"><b>{{data.NewBornDetail.Gender.Description}}</b></td>
+                  <td style="width:25%;"> Delivery Complications</td>
+                  <td>:</td>
+                  <td style="width:25%;">{{data.NewBornDetail.DeliveryComplications.Description}} </td>
+             </tr>
+              <tr>
+                  <td style="width:25%;">Weight</td>
+                  <td>:</td>
+                  <td style="width:25%;">{{data.NewBornDetail.Weight}} Grams</td>
+                  <td style="width:25%;">Resuscitation</td>
+                  <td>:</td>
+                  <td style="width:25%;"> {{data.NewBornDetail.Resuscitation}} </td>
+             </tr>
+              <tr>
+                  <td style="width:25%;">Length</td>
+                  <td>:</td>
+                  <td style="width:25%;">{{data.NewBornDetail.Length}} Cms</td>
+                  <td style="width:25%;"> Triband Number</td>
+                  <td>:</td>
+                  <td style="width:25%;">{{data.NewBornDetail.TribandNumber}} </td>
+             </tr>
+              <tr>
+                  <td style="width:25%;">BT LR</td>
+                  <td>:</td>
+                  <td style="width:25%;">{{data.NewBornDetail.BtLr}} C</td>
+                  <td style="width:25%;"> </td>
+                  <td></td>
+                  <td style="width:25%;"> </td>
+             </tr>
+              <tr>
+                  <td style="width:25%;">BT NSY</td>
+                  <td>:</td>
+                  <td style="width:25%;">{{data.NewBornDetail.BtNsy}} C</td>
+                  <td style="width:25%;"></td>
+                  <td></td>
+                  <td style="width:25%;"></td>
+             </tr>
+      </table>
+     <table  class='table2'style="width:100%;">
+             <tr>
+                  <td style="width:24%;">Cord Blood For</td>
+                  <td style="text-align:right">:</td>
+                  <td style="width:25%;">{{data.NewBornDetail.CordBloodFor.Description}}  {{data.NewBornDetail.CordBlood}}</td>
+                  <td style="width:13%;">Sign</td>
+                  <td style="width:13%;">Score @ 1min</td>
+                  <td style="width:12%;">Score @ 5min</td>
+                  <td style="width:12%;">Score @ 10min</td>
+             </tr>
+             <tr>
+                  <td style="width:24%;">Head Circumference</td>
+                  <td style="text-align:right">:</td>
+                  <td style="width:25%;">{{data.NewBornDetail.HeadCircumference}} Cms</td>
+                  <td style="width:13%;">Color</td>
+                  <td style="width:13%;">{{data.NewBornDetail.Colour.Description}}</td>
+                  <td style="width:12%;">{{data.NewBornDetail.Colour5min.Description}}</td>
+                  <td style="width:12%;">{{data.NewBornDetail.Colour10min.Description}}</td>
+             </tr>
+             <tr>
+                  <td style="width:24%;">Chest Circumference</td>
+                  <td style="text-align:right">:</td>
+                  <td style="width:25%;">{{data.NewBornDetail.ChestCircumference}} </td>
+                  <td style="width:13%;">HeartRate</td>
+                  <td style="width:13%;">{{data.NewBornDetail.HeartRate.Description}}</td>
+                  <td style="width:12%;"></td>
+                  <td style="width:12%;"></td>
+             </tr>
+             <tr>
+                  <td style="width:24%;">Comments</td>
+                  <td style="text-align:right">:</td>
+                  <td style="width:25%;">{{data.NewBornDetail.Comments}} </td>
+                  <td style="width:13%;">Reflexes</td>
+                  <td style="width:13%;">{{data.NewBornDetail.Reflexes.Description}}</td>
+                  <td style="width:12%;"></td>
+                  <td style="width:12%;"></td>
+             </tr>
+             <tr>
+                  <td style="width:24%;">Mode Of Delivery</td>
+                  <td style="text-align:right">:</td>
+                  <td style="width:25%;">{{data.NewBornDetail.ModeOfDelivery.Description}}</td>
+                  <td style="width:13%;">Muscle Tone</td>
+                  <td style="width:13%;">{{data.NewBornDetail.MuscleTone.Description}}</td>
+                  <td style="width:12%;"></td>
+                  <td style="width:12%;"></td>
+             </tr>
+             <tr>
+                  <td style="width:24%;">Birth Outcome</td>
+                  <td style="text-align:right">:</td>
+                  <td style="width:25%;">{{data.NewBornDetail.BirthOutCome.Description}} </td>
+                  <td style="width:13%;">Respiration</td>
+                  <td style="width:13%;">{{data.NewBornDetail.Respiration.Description}}</td>
+                  <td style="width:12%;"></td>
+                  <td style="width:12%;"></td>
+             </tr>
+             <tr>
+                  <td style="width:24%;">Urine</td>
+                  <td style="text-align:right">:</td>
+                  <td style="width:25%;">{{data.NewBornDetail.Urine.Description}} </td>
+                  <td style="width:13%;">APGARScore</td>
+                  <td style="width:13%;">{{data.NewBornDetail.APGARScore1min}} </td>
+                  <td style="width:12%;">{{data.NewBornDetail.APGARScore5min}} </td>
+                  <td style="width:12%;">{{data.NewBornDetail.APGARScore10min}} </td>
+             </tr>
+             <tr>
+                  <td style="width:24%;">Blood Group</td>
+                  <td style="text-align:right">:</td>
+                  <td style="width:25%;">{{data.NewBornDetail.BloodGroup.Description}} </td>
+                  <td style="width:13%;">Min</td>
+                  <td style="width:13%;">{{data.NewBornDetail.Min1min}} </td>
+                  <td style="width:12%;">{{data.NewBornDetail.Min5min}} </td>
+                  <td style="width:12%;">{{data.NewBornDetail.Min10min}} </td>
+             </tr>
+             <tr>
+                  <td style="width:24%;">Rh Factor</td>
+                  <td style="text-align:right">:</td>
+                  <td style="width:25%;">{{data.NewBornDetail.RhFactor.Description}} </td>
+                  <td style="width:13%;">Oxygen</td>
+                  <td style="width:13%;">{{data.NewBornDetail.Oxygen1min}} </td>
+                  <td style="width:12%;">{{data.NewBornDetail.Oxygen5min}} </td>
+                  <td style="width:12%;">{{data.NewBornDetail.Oxygen10min}} </td>
+             </tr>
+             <tr>
+                  <td style="width:24%;">Patency Of Anus</td>
+                  <td style="text-align:right">:</td>
+                  <td style="width:25%;">{{data.NewBornDetail.PatencyOfAnus.Description}} </td>
+                  <td style="width:13%;">PPV/NCPAP</td>
+                  <td style="width:13%;">{{data.NewBornDetail.PPV1min}} </td>
+                  <td style="width:12%;">{{data.NewBornDetail.PPV5min}} </td>
+                  <td style="width:12%;">{{data.NewBornDetail.PPV10min}} </td>
+             </tr>
+             <tr>
+                  <td style="width:24%;">Pediatrician</td>
+                  <td style="text-align:right">:</td>
+                  <td style="width:25%;"><b>{{data.NewBornDetail.Pediatrician.Title.Description}} {{data.NewBornDetail.Pediatrician.FirstName}} {{data.NewBornDetail.Pediatrician.LastName}}</b></td>
+                  <td style="width:13%;">ETT</td>
+                  <td style="width:13%;">{{data.NewBornDetail.ETT1min}} </td>
+                  <td style="width:12%;">{{data.NewBornDetail.ETT5min}} </td>
+                  <td style="width:12%;">{{data.NewBornDetail.ETT10min}} </td>
+             </tr>
+             <tr>
+                  <td style="width:24%;">Jelly Cord Type</td>
+                  <td style="text-align:right">:</td>
+                  <td style="width:25%;">{{data.NewBornDetail.JellyCordType.Description}} </td>
+                  <td style="width:13%;">Chest Compression</td>
+                  <td style="width:13%;">{{data.NewBornDetail.ChestCompression1min}} </td>
+                  <td style="width:12%;">{{data.NewBornDetail.ChestCompression5min}} </td>
+                  <td style="width:12%;">{{data.NewBornDetail.ChestCompression10min}} </td>
+             </tr>
+             <tr>
+                  <td style="width:24%;">Jelly Cord Cut By</td>
+                  <td style="text-align:right">:</td>
+                  <td style="width:25%;">{{data.NewBornDetail.JellyCordCutBy.Description}} </td>
+                  <td style="width:13%;">Epinephrine</td>
+                  <td style="width:13%;">{{data.NewBornDetail.Epinephrine1min}} </td>
+                  <td style="width:12%;">{{data.NewBornDetail.Epinephrine5min}} </td>
+                  <td style="width:12%;">{{data.NewBornDetail.Epinephrine10min}} </td>
+             </tr>
+      </table>
+      <table  class='table2'style="width:100%;">
+           <tr>
+                <td style="width:50%; text-align:left;"></td>
+                <td style="width:45%;Text-align:right;"><img style="height: 30px; width: 100px;" src="{{include data.NewBornDetail.Doctor.SignPath 'fullpath-img'}}" /></td>
+                <td style="width:5%;"></td>
+             </tr>
+             <tr>
+                <td style="width:50%; text-align:left;">{{data.NewBornDetail.Createdby.Title.Description}} {{data.NewBornDetail.Createdby.FirstName}} {{data.NewBornDetail.Createdby.LastName}}</td>
+                <td style="width:45%;Text-align:right;"><b>{{data.NewBornDetail.Doctor.Title.Description}} {{data.NewBornDetail.Doctor.FirstName}} {{data.NewBornDetail.Doctor.LastName}}</b></td>
+                <td style="width:5%;"></td>
+             </tr>
+            <tr>
+                <td style="width:50%; text-align:left;vertical-align:top">Result Entered By</td>
+                <td style="width:45%;Text-align:right;vertical-align:top">{{data.NewBornDetail.Doctor.Qualification}}  {{data.NewBornDetail.Doctor.Speciality.SpecialityName}}</td>
+                <td style="width:5%;"></td>
+            </tr>
+      </table>
+    </div>
+</body>
+<div style="width:100%; font-size:8px;text-align:left">Printed On: {{now}}</div>
+</html>

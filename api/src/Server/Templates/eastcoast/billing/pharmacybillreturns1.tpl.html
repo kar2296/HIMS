@@ -1,0 +1,372 @@
+<html>
+
+
+
+<head>
+
+    <style>
+        .table1 {
+
+            border: 1px solid black;
+
+            border-bottom: 0px solid black;
+
+            text-align: left;
+
+            font-size: 10px;
+
+        }
+
+
+
+        .table2 {
+
+            border: 1px solid black;
+
+            border-bottom: 0px solid black;
+
+            border-top: 1px solid black;
+
+            text-align: left;
+
+            font-size: 10px;
+
+        }
+
+
+
+        .table3 {
+
+            border: 1px solid black;
+
+            border-bottom: 1px solid black;
+
+            font-size: 10px;
+
+        }
+
+
+
+        .border {
+
+            border-collapse: collapse;
+
+            border-left: 1px solid black;
+
+            font-size: 10px;
+
+        }
+
+
+
+        .table4 {
+
+            border: 1px solid black;
+
+            border-bottom: 0px solid black;
+            border-top: 0px solid black;
+
+            text-align: left;
+
+            font-size: 11px;
+
+        }
+
+
+
+        .table5 {
+
+            border: 1px solid black;
+
+            border-bottom: 0px solid black;
+
+            text-align: center;
+
+            font-size: 11px;
+
+        }
+
+        .table6 {
+
+            border: 1px solid black;
+
+            border-bottom: 0px solid black;
+
+            border-top: 0px solid black;
+
+            text-align: center;
+
+            font-size: 11px;
+
+        }
+
+        table td {
+
+            font-size: 11px;
+
+        }
+
+
+
+
+
+        .size {
+
+            border: 1px solid black;
+
+            font-size: 10px;
+
+            border-collapse: collapse;
+
+            border-top: 0px solid black;
+
+            border-bottom: 1px solid black;
+
+        }
+    .size tr th{ 
+      border: 1px solid black; 
+      border-top: 0px solid black; 
+    }  
+    .size td { 
+      font-size: 10px; 
+    } 
+    .table1 td { 
+      font-size: 10px; 
+    } 
+
+
+
+           {{include '/Templates/assets/css/core.css'}}
+    </style>
+
+</head>
+
+
+
+<body style="padding: 10px;">
+
+    <div id="pageHeader">
+
+        {{{include '/Templates/bewell-hospital/common/pharmacyheaderwithqr.tpl.html' 'tpl'}}}
+
+    </div>
+
+    <table class="table5" style="width:100%;">
+
+        <tr>
+
+            <td style="vertical-align:text-middle;font-size: 12px;"><b>Pharmacy Return</b></td>
+
+        </tr>
+
+    </table>
+
+
+
+    <table class="table1" style="width:100%;">
+
+        <tr>
+
+            <td><b>Name</b></td>
+
+            <td>:</td>
+
+            <td><b>{{data.PatientBills.Patient.Title.Description}}
+                    {{data.PatientBills.Patient.FirstName}} {{data.PatientBills.Patient.MiddleName}}
+
+                    {{data.PatientBills.Patient.LastName}}</b></td>
+
+            <td><b>UHID NO</b></td>
+
+            <td>:</td>
+
+            <td><b>{{data.PatientBills.Patient.MRN}}</b></td>
+
+
+
+        </tr>
+
+        <tr>
+
+            <td><b>Visit NO</b></td>
+
+            <td>:</td>
+
+            <td><b>{{data.Encounter.VisitIdentifier}}</b></td>
+
+            <td><b>Age / Sex</b></td>
+
+            <td>:</td>
+
+            <td style="text-transform:uppercase;">{{ageonlyyear data.PatientBills.Patient.DOB}} / {{data.PatientBills.Patient.Gender.Description}}</td>
+
+        </tr>
+
+
+
+        <tr>
+
+            <td><b>Return No</b></td>
+
+            <td>:</td>
+
+            <td><b>{{data.PatientReturns.ReturnNumber}}</b></td>
+
+            <td><b>Return Date</b></td>
+
+            <td>:</td>
+
+            <td>{{datetimeformat data.PatientReturns.ReturnDateTime}}</td>
+
+        </tr>
+<tr>
+
+            <td><b>Bill NO</b></td>
+
+            <td>:</td>
+
+            <td><b>{{data.PatientBills.BillNumber}}</b></td>
+
+            <td><b>Bill Date</b></td>
+
+            <td>:</td>
+
+            <td>{{datetimeformat data.PatientBills.BillDateTime}}</td>
+</tr>
+
+    </table>
+
+
+
+    <table class="size" style="width:100%;">
+        <tr>
+            <th style="width:10%" align="center">S.No</th>
+            <th style="width:30%" align="left">Description</th>
+            <th style="width:10%" align="center">Batch.</th>
+            <th style="width:10%" align="center"> Exp</th>
+            <th style="width:10%" align="center">MRP</th>
+            <th style="width:10% !important" align="center">Billed Qty</th>
+            <th style="width:10%" align="center">Return Qty</th>
+            <th style="width:10%" align="center">Amount</th>
+        </tr>
+
+{{#each data.Patientreturndetails}}
+    <tr>
+            <td align="center">{{inc @index}}</td>
+            <td align="left">{{ServiceName}}</td>
+            <td align="center">{{BatchId}}</td>
+            <td align="center"> {{dateformat ExpiryDate}}</td>
+            <td align="center">{{currencyformat Rate}}</td>
+            <td align="center">{{SoldQuantity}}</td>
+            <td align="center">{{ReturnQuantity}}</td>
+            <td align="right">{{currencyformat Amount}}</td>
+
+        </tr>
+
+        {{/each}}
+
+        <tr>
+
+<tr style="border-top:1px solid black !important;">
+<td colspan=4></td>
+            <td colspan="2" ><b>Gross Amount</b></td>
+            <td>:</td>
+            <td  align="right"><b>₹{{data.PatientReturns.GrossAmount}}</b></td>
+        </tr>
+<tr>
+<td colspan=4></td>
+            <td colspan="2" ><b>Round Off</b></td>
+            <td>:</td>
+            <td  align="right"><b>₹{{data.PatientReturns.RoundOffValue}}</b></td>
+        </tr>
+    <tr >
+<td colspan=4></td>
+            <td colspan="2" align="left">Net Amount</td>
+            <td>:</td>
+            <td align="right">₹{{data.PatientReturns.ReturnAmount}}</td>
+        </tr>
+
+        <tr>
+    <tr>
+<td colspan=4></td>
+            <td colspan="2" ><b>Refunded</b></td>
+            <td>:</td>
+            <td  align="right"><b>₹{{data.PatientReturns.RefundedAmount}}</b></td>
+        </tr>
+
+
+        <tr>
+    <tr>
+<td colspan=5></td>
+            <td>{{#if data.PatientReturns.ToBeRefundAmount}}To Be
+                Refunded{{/if}}</td>
+            <td>{{#if data.PatientReturns.ToBeRefundAmount}}:{{/if}}</td>
+            <td>{{#if data.PatientReturns.ToBeRefundAmount}} {{currencyformat data.PatientReturns.ToBeRefundAmount}}
+                {{/if}}</td>
+        </tr>
+    </table>
+
+    <table class="table4" style="width:100%;border-top:unset !important">
+        
+        <tr style="border-top:unset !important">
+
+            <td><b>Amount in words</b> : <b>Rupees <span style="text-transform: capitalize">{{decimalnrInWords1 data.PatientReturns.ReturnAmount}}</span> only</b></td>
+
+            <td></td>
+
+            <td></td>
+
+        </tr>
+
+    </table>
+
+    <table class="table3" style="width:100%;">
+
+        <tr>
+
+            <td>
+
+                <u>Refund Details</u>
+
+            </td>
+
+            <td style="width:20%;" colspan="4"></td>
+
+        </tr>
+
+        <tr>{{#each data.PatientRefund}}
+
+            <!-- <td>Refund Approved Signature</td> -->
+
+            <td>
+
+                <u>{{#if RefundIdentifier}}<b>{{RefundIdentifier}}, {{datetimeformat RefundDateTime}},{{currencyformat
+                        RefundAmount}}</b>{{/if}}</u>
+
+            </td>{{/each}}
+
+
+
+        </tr>
+        <tr style="height:20px;">
+            <td></td>
+            <td style="width:20%;" colspan="4">
+                {{data.PatientBills.CreatedUser.FirstName}} {{data.PatientBills.CreatedUser.LastName}}</td>
+        </tr>
+
+        <tr>
+            <td>Patient Signature</td>
+
+            <td colspan="8">User Signature</td>
+
+        </tr>
+
+    </table>
+
+    <div style="width:100%; font-size:10px;">Printed On: {{now}}</div>
+
+</body>
+
+
+
+</html>

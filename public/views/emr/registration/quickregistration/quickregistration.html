@@ -1,0 +1,373 @@
+<link href="app/css/regbilling.css" rel="stylesheet">
+<style>
+    .form-horizontal .form-group {
+        height: 72px;
+    }
+
+    .token-num input {
+        border-radius: 103px;
+        width: 46px;
+        height: 46px !important;
+        text-align: center;
+        font-size: 13px;
+        color: #2196f3;
+    }
+
+    .filters button {
+        width: 40px;
+    }
+
+    patientsearch#drhms-patinet-search-box .custom-popup-wrapper {
+        margin-left: -200px;
+    }
+</style>
+<div class="row">
+    <div class="drhms-filters">
+        <div class="col-sm-8">
+            <h4 class="mt0" translate="registration.registrationcumvisit.registration2.lbl"></h4>
+        </div>
+        <div class="col-sm-4">
+            <div class="filters">
+                <div class="search">
+                    <patientsearch id="drhms-patinet-search-box" ng-keyup="moveHeaderFocus('pid')"
+                        patientid="item.PatientId" class="logo" name="txtpatientsearch" patientinfo="selectedPatient"
+                        patientchange="patientChange()" aria-placeholder="Patient Search"
+                        tabindex="tabindexmap.patienttabindex" isdisabled="{{SaveCompleted}}"
+                        filterconfig="patientfilterconfig"></patientsearch>
+                    <div class="drhms-search-icon">
+                        <i class="fas fa-search" aria-hidden="true"></i>
+                    </div>
+                </div>
+                <button type="button" tabindex="-1" class="drhms-billing-btn drhms-outstandingbill-btn"
+                    ng-click="admission()" uib-tooltip="{{ 'Admission' | translate}}" tooltip-placement="bottom">
+                    <i class="fas fa-bed" aria-hidden="true"></i>
+                </button>
+                <button type="button" tabindex="-1" class="drhms-billing-btn drhms-alert-btn"
+                    ng-click="clinicalalertview()" ng-if="item.ReferredNewVisit"
+                    uib-tooltip="{{'common.clinicalalert.lbl' | translate }}" tooltip-placement="bottom"
+                    ng-hide="item.PatientStatusId==3">
+                    <i class="fas fa-exclamation-triangle" aria-hidden="true"></i>
+                </button>
+                <button type="button" class="drhms-billing-btn drhms-previousbill-btn" ng-show="BillCompleted"
+                    ng-click="consultationcharges()" ng-disabled="isPatientDeactivated" tabindex="-1"
+                    uib-tooltip="consultationcharges" tooltip-placement="bottom">
+                    <span>
+                        <i class="fas fa-hospital-o fa-lg" aria-hidden="true"></i>
+                    </span>
+                </button>
+                <button type="button" tabindex="-1" class="drhms-billing-btn drhms-bill-btn" ng-if="SaveCompleted"
+                    ng-click="OPDBill()" tabindex="-1" uib-tooltip="Billing" tooltip-placement="bottom"
+                    ng-hide="item.PatientStatusId==3">
+                    <i class="fas fa-calculator fa-lg" aria-hidden="true"></i>
+                </button>
+                <button type="button" class="drhms-billing-btn drhms-checkout-btn" tabindex="-1" uib-tooltip="Checkout"
+                    ng-click="checkout()" ng-hide="item.PatientStatusId==3" ng-if="SaveCompleted" uib-tooltip="Checkout"
+                    tooltip-placement="bottom">
+                    <span>
+                        <i class="fas fa-sign-out-alt" aria-hidden="true"></i>
+                    </span>
+                </button>
+                <button id="btnSaveInactive" type="button" class="drhms-billing-btn drhms-complete-btn" tabindex="-1"
+                    ng-click="saveAndInactive(item)" ng-hide="currentcontext.isTempPatient"
+                    ng-disabled="isPatientDeactivated" ng-if="SaveCompleted" uib-tooltip="Deactivate"
+                    tooltip-placement="bottom">
+                    <span>
+                        <i class="fas fa-close" aria-hidden="true"></i>
+                    </span>
+
+                </button>
+                <button type="button" class="drhms-billing-btn drhms-attachment-btn" tabindex="-1"
+                    uib-tooltip="Attachments" ng-click="openattachments()" ng-if="SaveCompleted "
+                    tooltip-placement="bottom">
+                    <i class="fas fa-paperclip fa-xs" tabindex="-1"
+                        aria-hidden="true">({{currentcontext.attachmentcount}})</i>
+                </button>
+                <button type="button" class="drhms-billing-btn drhms-save-btn" ng-show="true" ng-if="SaveCompleted"
+                    uib-tooltip="{{'Barcode'}}" tooltip-placement="bottom" ng-click="printRegistrationIdlabel()">
+                    <i class="fas fa-barcode" aria-hidden="true"></i>
+                </button>
+                <button class="btn-add" ng-click="addNewQuick()">
+                    <i class="fas fa-plus" aria-hidden="true"></i>
+                </button>
+                <span class="drhms-billing-btn drhms-home-btn">
+                    <i class="fas fa-home" ng-click="backtoList()" uib-tooltip="Dashboard"
+                        tooltip-placement="bottom"></i>
+                </span>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="col-lg-12">
+    <patientbanner patientid="item.PatientId"></patientbanner>
+</div>
+
+<div class="row">
+    <form id="item_form" name="item_form" class="form-horizontal" role="form">
+        <div class="col-lg-12">
+            <div class="form-group col-lg-3">
+                <label class="col-lg-12 col-md-12 col-lg-12 control-label"
+                    translate="registration.quickregistration.mrntype.lbl"></label>
+                <div class="col-lg-12 col-md-12 col-lg-12">
+                    <ui-select ng-model="item.MRNTypeId" ng-disabled="item.IsMRNTypeDisable" tabindex="-1">
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 20 : 0}}
+                            <span ng-if="$select.selected.Text.length>20">...</span>
+                        </ui-select-match>
+                        <ui-select-choices
+                            repeat="lookupitem.Id as lookupitem in lookup.MRNType | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+            <div class="form-group col-lg-3">
+                <label class="col-lg-12 col-md-12 col-lg-12 control-label" for="tittle"
+                    translate="registration.quickregistration.tittle.lbl"></label>
+                <div class="col-lg-12 col-md-12 col-lg-12">
+                    <ui-select id="title" ng-model="item.TitleId" name="tittle" ng-change="fillGenderInfo()"
+                        tabindex="tabindexmap.patienttabindex" required>
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 20 : 0}}
+                            <span ng-if="$select.selected.Text.length>20">...</span>
+                        </ui-select-match>
+                        <ui-select-choices
+                            repeat="lookupitem.Id as lookupitem in lookup.Title | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+            <div class="form-group col-lg-3">
+                <label class="col-lg-12 col-md-12 col-lg-12 control-label" for="patientname"
+                    translate="registration.quickregistration.patientname.lbl"></label>
+                <div class="col-lg-12 col-md-12 col-lg-12">
+                    <input type="text" class="form-control" name="patientname" ng-model="item.FirstName" placeholder=""
+                        required uppercase>
+                </div>
+            </div>
+            <div class="form-group col-lg-3" ng-show="canShowApproxAge(item.TitleId)">
+                <label class="col-lg-12 col-md-12 col-lg-12 control-label"
+                    translate="registration.fullregistration.approxage.lbl"></label>
+                <div class="col-lg-12 col-md-12 col-lg-12 approxagediv">
+                    <div class="col-lg-4 col-md-4 col-lg-4">
+                        <input type="text" class="form-control" ng-model="item.ApproxAgeDays" placeholder="Days"
+                            ng-change="calculateDOB(item.ApproxAgeDays, 'days')">
+                    </div>
+                    <div class="col-lg-4 col-md-4 col-lg-4">
+                        <input type="text" class="form-control" ng-model="item.ApproxAgeMonths" placeholder="Months"
+                            ng-change="calculateDOB(item.ApproxAgeMonths, 'months')">
+                    </div>
+                    <div class="col-lg-4 col-md-4 col-lg-4">
+                        <input type="number" class="form-control" ng-model="item.Age" placeholder="Years"
+                            ng-change="calculateDOB(item.Age, 'years')">
+                    </div>
+                </div>
+            </div>
+            <div class="form-group col-lg-3" ng-show="canShowApproxAge(item.TitleId)">
+                <label class="col-lg-12 control-label" translate="Birth Time"></label>
+                <div class="col-lg-12 approxagediv">
+                    <uib-timepicker name="birthtime" ng-model="item.BabyBirthTime" ng-time-object>
+                    </uib-timepicker>
+                </div>
+            </div>
+            <div class="form-group col-lg-3 no-pad">                
+                <div class="col-lg-7" id="datepick">
+                    <label class="col-lg-2 control-label" for="dob"
+                        translate="registration.quickregistration.dob.lbl"></label>
+                    <div class="col-lg-12 col-md-12 col-lg-12">
+                        <input type="text" class="form-control" name="dob" ng-date-object
+                            datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}"
+                            uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                            placeholder="{{datePickerOptions.placeholder}}" ng-click="dobPopup = { opened: true }"
+                            is-open="dobPopup.opened" ng-model="item.DOB" ng-change="calculateAge()" required>
+                    </div>
+                </div>
+                <div class="col-lg-5">
+                    <label class="col-lg-12 col-md-12 col-lg-12 control-label"
+                        translate="registration.quickregistration.age.lbl"></label>
+                    <div class="col-lg-12">
+                        <input type="text" size="3" minlength="1" maxlength="3" class="form-control" name="age"
+                            ng-model="item.Age" placeholder="" ng-keypress="numberonly($event)"
+                            ng-change="calculateDOB(item.Age, 'years')">
+                    </div>
+                </div>
+            </div>
+            <div class="form-group col-lg-3">
+                <label class="col-lg-12 col-md-12 col-lg-12 control-label" for="gender"
+                    translate="registration.quickregistration.gender.lbl"></label>
+                <div class="col-lg-12 col-md-12 col-lg-12">
+                    <ui-select ng-model="item.GenderId" name="gender" required>
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 20 : 0}}
+                            <span ng-if="$select.selected.Text.length>20">...</span>
+                        </ui-select-match>
+                        <ui-select-choices
+                            repeat="lookupitem.Id as lookupitem in lookup.Gender | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+            <div class="form-group col-lg-3">
+                <label class="col-lg-12 control-label" for="mobile"
+                    translate="registration.registrationcumvisit.mobile.lbl"></label>
+                <div class="col-lg-12">
+                    <input type="text" tabindex="14" ng-keyup="keyPress($event, 0, 'contactnr', 'aadharnr')"
+                        class="form-control" id="contactnr" MINLENGTH="10" MAXLENGTH="10" size="10" value=""
+                        name="mobile" onChange="numberonly($event)" onKeyUp="numberonly($event)"
+                        ng-keypress="numberonly($event)" ng-model="item.Mobile" required>
+                </div>
+            </div>
+            <div class="form-group col-lg-3">
+                <label class="col-lg-12 col-md-12 col-lg-12 control-label"
+                    translate="registration.quickregistration.maritalstatus.lbl"></label>
+                <div class="col-lg-12 col-md-12 col-lg-12">
+                    <ui-select ng-model="item.MaritalStatusId" tabindex="-1">
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 20 : 0}}
+                            <span ng-if="$select.selected.Text.length>20">...</span>
+                        </ui-select-match>
+                        <ui-select-choices
+                            repeat="lookupitem.Id as lookupitem in lookup.MaritalStatus | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+            <div class="form-group col-lg-3">
+                <label class="col-lg-12 col-md-12 col-lg-12 control-label"
+                    translate="registration.quickregistration.nationalityid.lbl"></label>
+                <div class="col-lg-12 col-md-12 col-lg-12">
+                    <input type="text" class="form-control" name="nationalityid" tabindex="-1"
+                        ng-model="item.NationalityIdentifier" placeholder="">
+                </div>
+            </div>
+            <div class="form-group col-lg-3">
+                <label class="col-lg-12 control-label"
+                    translate="registration.fullregistration.googleaddress.lbl"></label>
+                <div class="col-lg-10">
+                    <input type="text" id="googleaddopt" ng-disabled="disablegoogleaddopt" class="form-control"
+                        gm-places-autocomplete="autocompleteOptions" ng-model="autocompleteModel" />
+                </div>
+                <div class="col-lg-1 col-md-1 col-lg-1">
+                    <input type="checkbox" name="googleaddressoption" class="custom-checkbox" tabindex="-1"
+                        ng-click="enablegoogleaddopt()" ng-model="chkgoogleaddopt">
+                </div>
+            </div>
+            <div class="form-group col-lg-3">
+                <label class="col-lg-12 control-label"
+                    translate="registration.registrationcumvisit.address.lbl"></label>
+                <div class="col-lg-12">
+                    <input type="text" id="Manualadd" class="form-control" name="addressline1" tabindex="19"
+                        ng-model="item.AddressLine1" ng-disabled="item.candisable" placeholder="">
+                </div>
+            </div>
+            <div class="form-group col-lg-3">
+                <label class="col-lg-12 control-label ng-scope " translate="MLC">
+                </label>
+                <div class="col-lg-12">
+                    <input ng-disabled="SaveCompleted" type="checkbox" name="comnmrd" class="custom-checkbox cstmckbx ng-pristine
+                      ng-untouched ng-valid ng-empty" tabindex="-1" ng-model="item.IsMLC">
+                </div>
+            </div>
+            <div class="form-group col-lg-3">
+                <label class="col-lg-12 control-label" translate="registration.fullregistration.isvip.lbl"></label>
+                <div class="col-lg-12">
+                    <input type="checkbox" name="isvip" tabindex="-1" class="custom-checkbox" ng-model="item.IsVip">
+                </div>
+
+            </div>
+            <div class="form-group col-lg-3">
+                <label class="col-lg-12 control-label" translate="registration.fullregistration.viptype.lbl"></label>
+                <div class="col-lg-12">
+                    <ui-select ng-model="item.VipTypeId" tabindex="-1" ng-disabled="!item.IsVip">
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 20 : 0}}
+                            <span ng-if="$select.selected.Text.length>20">...</span>
+                        </ui-select-match>
+                        <ui-select-choices
+                            repeat="lookupitem.Id as lookupitem in lookup.VipType | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search">
+                            </div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-12">
+            <div class="drhms-sub-header-border" translate="Upload & Image Preview">
+            </div>
+            <div class="col-sm-6">
+                <div class="drhms-user_image" ng-show="!item.iswebcamphoto">
+                    <img class="patient-img drhms-img-thumbnail" tabindex="tabindexmap.patienttabindex"
+                        ng-show="!!currentcontext.file" ngf-thumbnail="currentcontext.file" />
+                    <img ng-show="!currentcontext.file && item.PhotoPath"
+                        data-ng-src="data:image/png;base64,{{currentcontext.Photo}}"
+                        tabindex="tabindexmap.patienttabindex" class="patient-img drhms-img-thumbnail" />
+                    <img ng-show="!currentcontext.file && !item.PhotoPath" src="app/img/main/img.jpg" tabindex="-1"
+                        class="drhms-img-thumbnail ">
+                </div>
+                <div class="drhms-webcam-pic" ng-show="item.iswebcamphoto">
+                    <img data-ng-src="data:image/png;base64,{{item.webcamphoto}}" tabindex="-1"
+                        class="patient-img drhms-img-thumbnail" />
+                </div>
+                <div class="drhms-outer_ilayer">
+                    <div class="drhms-profile-upload-btn">
+                        <input type="file" ng-disabled="SaveCompleted" ngf-select ng-model="currentcontext.file"
+                            tabindex="-1" name="file" id="drhms-input-file" class="inputfile" ngf-max-size="200MB"
+                            ng-change="photoFileChanged()" />
+                        <label for="file-1" class="drhms-upload-btn" ng-disabled="SaveCompleted" uib-tooltip="Upload"
+                            tooltip-placement="bottom">
+                            <span class="drhms-registration-btn">Upload</span>
+                        </label>
+                        <button type="button" class="drhms-webcam-btn" tabindex="-1" ng-click="openWebCam()"
+                            uib-tooltip="webcam" tooltip-placement="bottom">
+                            <span class="drhms-registration-btn">Web Camera</span>
+                        </button>
+                        <button type="button" class="drhms-clear-btn" tabindex="-1" ng-click="clearimage()"
+                            uib-tooltip="Clear" tooltip-placement="bottom">
+                            <span class="drhms-registration-btn">Remove</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<div class="fooder-bgs">
+    <div class="row">
+        <div class="pull-left footer_reg_align">
+            <button type="button" class="btn deceased-color btn-sm" ng-click="deceased()" tabindex="-1"
+                ng-if="HasPrivilege('QuickRegistration', 'QR-Deceased')&&item.PatientStatusId==2"
+                translate="common.deseased-actions.lbl"></button>
+            <button type="button" class="draftbutton" tabindex="-1"
+                uib-tooltip="Attachments" ng-click="openattachments()"
+                ng-if="HasPrivilege('QuickRegistration', 'Attachment')" tooltip-placement="top">
+                <i class="fa fa-paperclip fa-xs" tabindex="-1"
+                    aria-hidden="true">({{currentcontext.attachmentcount}})</i>
+            </button>
+            <button type="button" class="btn btn-sm btn-warning" ng-click="newvisit()"
+                ng-if="HasPrivilege('QuickRegistration', 'QR-Newvisit')&&item.PatientStatusId==2"
+                ng-disabled="item.PatientStatusId==3" tabindex="-1"
+                translate="registration.quickregistration.newvisit-action.lbl"></button>
+            <button type="button" class="btn btn-sm bt-color2" ng-click="OPDBill()"
+                ng-disabled="item.PatientStatusId==3" tabindex="-1"
+                translate="registration.fullregistration.opdbill.lbl"
+                ng-if="HasPrivilege('QuickRegistration', 'QR-OPDBill')&&EnableOPD"></button>
+            <button type="button" class="text-white btn prv-color btn-sm" ng-click="vitals()"
+                ng-disabled="item.PatientStatusId==3" tabindex="-1" ng-hide="currentcontext.isTempPatient"
+                ng-if="Vitals" translate="patientemr.patientvital-list.pagetitle.lbl"></button>
+            <button type="button" class="text-white btn prvprint-color btn-sm" ng-click="visitprint()"
+                ng-if="Visitprint" ng-disabled="item.PatientStatusId==3" tabindex="-1"
+                ng-hide="currentcontext.isTempPatient"
+                translate="registration.fullregistration.visitprint.lbl"></button>
+
+        </div>
+        <div class="pull-right footer_reg_align">
+            <button id="btnSaveApprove" type="button" ng-disabled="currentcontext.canDisableApprove" class="draftbutton"
+                translate="common.saveactivate-action.lbl" hotkey="{'alt+s': saveAndApprove}"
+                ng-click="saveAndApprove()"></button>
+        </div>
+    </div>
+</div>

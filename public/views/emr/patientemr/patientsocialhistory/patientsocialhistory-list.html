@@ -1,0 +1,82 @@
+<div class="tabsizetopcontroller">
+    <div class="row page-header">
+        <div class="col-sm-12">
+            <div class="col-sm-6 col-md-9">
+                <h4 class="page-header mt0" translate="patientemr.patientsocialhistory-list.pagetitle.lbl"></h4>
+            </div>
+            <div class="col-sm-6 col-md-3">
+
+
+                <button class="btn bt-color3 btn-xs pull-right"
+                    uib-tooltip="{{ 'clinicalmaster.serviceitem-list.filter-tooltip.lbl' | translate }}"
+                    tooltip-placement="bottom"> <i class="fa fa-filter fa-xs " aria-hidden="true"></i>&nbsp;&nbsp;<span
+                        translate="clinicalmaster.serviceitem-list.filter.lbl"></span>
+                </button>
+
+                <button class="btn-add" ng-click="addNew()"
+                    uib-tooltip="{{ 'patientemr.patientsocialhistory-list.pagetitle.lbl' | translate }}"
+                    tooltip-placement="bottom">
+                    <i class="fa fa-plus" aria-hidden="true"></i>
+                </button>
+
+            </div>
+        </div>
+    </div>
+    <div class="row filter-area">
+        <div class="col-sm-12">
+            <div class="col-sm-4">
+                <label class="col-sm-4 control-label filter-lbl"
+                    translate="patientemr.patientsocialhistory-list.filter_socialtype.lbl"></label>
+                <div class="col-sm-8">
+                    <ui-select ng-model="currentfilter.SocialTypeId" ng-change="getList()" class="filter-combo">
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 8 : 0}}
+                            <span ng-if="$select.selected.Text.length>8">...</span>
+                        </ui-select-match>
+                        <ui-select-choices
+                            repeat="lookupitem.Id as lookupitem in lookup.SocialType | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+            <div class="col-sm-4">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label" for="status"
+                        translate="patientemr.patientsocialhistory-form.status.lbl"></label>
+                    <div class="col-sm-8">
+                        <ui-select ng-model="item.SocialHistoryStatusId" name="status">
+                            <ui-select-match>
+                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                <span ng-if="$select.selected.Text.length>20">...</span>
+                            </ui-select-match>
+                            <ui-select-choices
+                                repeat="lookupitem.Id as lookupitem in lookup.SocialHistoryStatus | filter: { Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                </div>
+
+            </div>
+            <div class="col-sm-4"></div>
+        </div>
+    </div>
+
+    <div class="row">
+        <favoritecontrol config="favconfig" addclick="addFavorite()" saveclick="saveFavorites()"></favoritecontrol>
+    </div>
+    <div class="row">
+        <custom-table config="vm.gridConfig"></custom-table>
+        <ul uib-pagination total-items="vm.gridConfig.pagerObj.totalItems"
+            items-per-page="vm.gridConfig.pagerObj.pageSize" start-index="vm.gridConfig.pagerObj.startIndex"
+            ng-model="vm.gridConfig.pagerObj.currentPage" ng-change="getList()"></ul>
+    </div>
+    <div class="fooder-bgs">
+        <div class="col-sm-2">
+            <button class="text-white btn prv-color12 btn-sm pull-left " ng-click="dashboard()"><i
+                    class="fa fa-tachometer" aria-hidden="true"></i>&nbsp;&nbsp;<strong class="btn-fontsize ng-scope"
+                    translate="patientemr.mock.emrdashboard.lbl"></strong></button>
+        </div>
+    </div>
+</div>

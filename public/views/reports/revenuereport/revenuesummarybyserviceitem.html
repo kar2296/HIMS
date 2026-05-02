@@ -1,0 +1,178 @@
+<!-- <style>
+    table.table.table-bordered.table-condensed.dropdown-menu {
+        /* height: auto !important; */
+        width: 13% !important;
+        overflow: scroll;
+    }
+</style> -->
+<div class="row page-header">
+    <div class="col-sm-6">
+        <h4 class="mt0" translate="reports.revenuesummarybyservice.lbl"></h4>
+    </div>
+    <div class="col-sm-6">
+        <div class="filters">
+            <i class="icofont-filter" uib-tooltip="Filter" tooltip-placement="bottom" ng-click="openFilterTab()"></i>
+            <i class="icofont-file-excel" uib-tooltip="Excel" tooltip-placement="bottom"
+                onclick="exportTableToExcel('tblData', 'members-data')"></i>
+            <i class="icofont-print" uib-tooltip="Print" tooltip-placement="bottom" ng-click="print()"></i>
+            <i class="icofont-home" ng-click="backtoReport()" tabindex="-1" uib-tooltip="Report"
+                tooltip-placement="bottom"></i>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <table id="bannerdetails">
+        <tr>
+            <td translate="reports.fromdate.lbl"></td>
+            <td>
+                <div class="datepicker" id="datepicker">
+                    <input type="text" class="form-control" name="fromdate" ng-date-object
+                        datetime-picker="{{dateTimePickerOptions.dateTimeFormat}}"
+                        placeholder="{{datePickerOptions.placeholder}}" ng-click="fromdatePopup = { opened: true }"
+                        is-open="fromdatePopup.opened" ng-model="currentfilter.From">
+                    <i class="fa fa-calendar"></i>
+                    <!-- <input type="text" class="form-control" name="from" datepicker-options="datePickerOptions"
+                    show-button-bar="{{datePickerOptions.showButtonBar}}"
+                    uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                    placeholder="{{datePickerOptions.placeholder}}" ng-click="fromdatePopup = { opened: true }"
+                    is-open="fromdatePopup.opened" ng-model="currentfilter.From"> -->
+                    <i class="fa fa-calendar" aria-hidden="true"></i>
+                </div>
+            </td>
+            <td translate="reports.todate.lbl"></td>
+            <td>
+                <div class="datepicker" id="datepicker">
+                    <input type="text" class="form-control" name="todate" ng-date-object
+                        datetime-picker="{{dateTimePickerOptions.dateTimeFormat}}"
+                        placeholder="{{datePickerOptions.placeholder}}" ng-click="todatePopup = { opened: true }"
+                        is-open="todatePopup.opened" ng-model="currentfilter.To">
+                    <!-- <input type="text" class="form-control" name="from" datepicker-options="datePickerOptions"
+                    show-button-bar="{{datePickerOptions.showButtonBar}}"
+                    uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                    placeholder="{{datePickerOptions.placeholder}}" ng-click="todatePopup = { opened: true }"
+                    is-open="todatePopup.opened" ng-model="currentfilter.To"> -->
+                    <i class="fa fa-calendar" aria-hidden="true"></i>
+            </td>
+            <td translate="Service Name"></td>
+            <td>
+                <autosearch itemid="currentfilter.ServiceId" iteminfo="" rowdata="" config="vm.serviceitemcontrolconfig"
+                    onenter="onenter()">
+                </autosearch>
+            </td>
+            <td translate="reports.bgrp.lbl"></td>
+            <td>
+                <ui-select ng-model="currentfilter.ServiceCategoryId" on-select="SelectedCategory($select.selected)"
+                    class="filter-combo">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 15 : 0}}
+                        <span ng-if="$select.selected.Text.length>15">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.ServiceCategory | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </td>
+            <td style="text-align: center;">
+                <button class="loadbtn" ng-click="GetList()">
+                    <i class="fas fa-sync loading-icon" aria-hidden="true" uib-tooltip="Search"
+                        tooltip-placement="bottom"></i> <span>Load</span>
+                </button>
+            </td>
+        </tr>
+    </table>
+</div>
+<!-- <div>
+    <i class="icofont-filter" uib-tooltip="Search" tooltip-placement="bottom" ng-click="getList()"></i>
+</div> -->
+<div class="row">
+    <div id="reportsdetail">
+        <table id="tblData">
+            <thead>
+                <th class="cus-col tbl-header cust_Particulars" style="font-weight: 700;">
+                    <span translate="Category Name"></span>
+                </th>
+                <th class="cus-col tbl-header" style="font-weight: 700;">
+                    <span translate="Service Name"></span>
+                </th>
+                <th class="cus-col tbl-header" style="font-weight: 700;">
+                    <span translate="OP Count "></span>
+                </th>
+                <th class="cus-col tbl-header" style="font-weight: 700;">
+                    <span translate="OP Rev"></span>
+                </th>
+                <th class="cus-col tbl-header" style="font-weight: 700;">
+                    <span translate="IP Count "></span>
+                </th>
+                <th class="cus-col tbl-header" style="font-weight: 700;">
+                    <span translate="IP Rev"></span>
+                </th>
+                <th class="cus-col tbl-header" style="font-weight: 700;">
+                    <span translate="Total Count "></span>
+                </th>
+                <th class="cus-col tbl-header" style="font-weight: 700;">
+                    <span translate="Total Rev"></span>
+                </th>
+            </thead>
+            <tr ng-repeat="item in NetServiceInfo">
+                <td class=""><span class="">{{item.ServiceCategoryName}}</span></td>
+                <td id="total_clr">{{ item.Key }}</td>
+                <td id="total_clr">{{ item.OPCount }}</td>
+                <td class="currency-align">{{ item.OPRevenue | displaycurrency }}</td>
+                <td id="total_clr">{{ item.IPCount }}</td>
+                <td class="currency-align">{{ item.IPRevenue | displaycurrency }}</td>
+                <td id="total_clr">{{ item.TotalCount }}</td>
+                <td class="currency-align">{{ item.TotalRevenue | displaycurrency }}</td>
+            </tr>
+            <tr class="highlite">
+                <td class=""><span class=""></span></td>
+                <td id="total_clr">Total</td>
+                <td id="total_clr">{{TotOPCount}}</td>
+                <td class="currency-align">{{TotOPRevenue | displaycurrency }}</td>
+                <td id="total_clr">{{TotIPCount}}</td>
+                <td class="currency-align">{{TotIPRevenue | displaycurrency }}</td>
+                <td id="total_clr">{{NetTotCount }}</td>
+                <td class="currency-align">{{NetTotalRevenue | displaycurrency }}</td>
+            </tr>
+        </table>
+    </div>
+</div>
+<div class="fooder-bgs">
+    <div class="row">
+        <ul uib-pagination total-items="vm.gridConfig.pagerObj.totalItems"
+            items-per-page="vm.gridConfig.pagerObj.pageSize" start-index="vm.gridConfig.pagerObj.startIndex"
+            ng-model="vm.gridConfig.pagerObj.currentPage" ng-change="getList()"></ul>
+    </div>
+</div>
+<script>
+    function exportTableToExcel(tableID, filename = '') {
+        var downloadLink;
+        var dataType = 'application/vnd.ms-excel';
+        var tableSelect = document.getElementById(tableID);
+        var tableHTML = tableSelect.outerHTML.replace(/ /g, '%20');
+
+        // Specify file name
+        filename = filename ? filename + '.xls' : 'excel_data.xls';
+
+        // Create download link element
+        downloadLink = document.createElement("a");
+
+        document.body.appendChild(downloadLink);
+
+        if (navigator.msSaveOrOpenBlob) {
+            var blob = new Blob(['\ufeff', tableHTML], {
+                type: dataType
+            });
+            navigator.msSaveOrOpenBlob(blob, filename);
+        } else {
+            // Create a link to the file
+            downloadLink.href = 'data:' + dataType + ', ' + tableHTML;
+
+            // Setting the file name
+            downloadLink.download = filename;
+
+            //triggering the function
+            downloadLink.click();
+        }
+    }
+</script>

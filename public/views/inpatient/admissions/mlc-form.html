@@ -1,0 +1,300 @@
+<style>
+    .custom-modal-header {
+        padding: 0px 11px;
+    }
+
+    .custom-modal-header h4 {
+        margin: 4px 0px;
+    }
+
+    .ui-grid-canvas,
+    .ui-grid-viewport {
+        width: 100% !important;
+    }
+
+    .modal-dialog.modal-full .table-uigrid.ui-grid {
+        height: 46vh !important;
+        min-height: 54vh;
+    }
+
+    .modal-dialog.modal-full .grid1527156670215 .ui-grid-render-container-body .ui-grid-viewport {
+        height: 50vh;
+    }
+
+    h4 {
+        padding-left: 17px;
+    }
+
+    .custom-modal-header {
+        padding: 0px !important;
+    }
+
+    button.btn.btn-danger.btn-sm.pull-right.ng-scope {
+        margin-top: 9px;
+    }
+
+    .form-group {
+        height: 72px;
+    }
+</style>
+<div class="modal-header custom-modal-header">
+    <div class="col-sm-12">
+        <div class="col-sm-6">
+            <h4 class="modal-title custom-modal-title" style="color: white;" translate="Manage Medico Legal"></h4>
+        </div>
+        <div class="col-sm-6">
+            <button type="button" class="btn btn-danger btn-sm pull-right ng-scope" translate="x"
+                ng-click="cancelCallback()"><span class="ng-scope">x</span></button>
+            <!-- <button type="button" class="btn btn-danger btn-sm pull-right" translate="x" ng-click="cancelCallback()"></button> -->
+            <!-- <button type="button" style="float: right;" class="closebutton" ng-click="confirmCallback()" translate="X"></button> -->
+        </div>
+    </div>
+</div>
+<div class="panel-body form-panel">
+    <div class="col-sm-12">
+        <div class="form-group col-sm-4">
+            <label class="col-sm-12 control-label" for="escorttype" translate="mlc-list.escorttype.lbl"></label>
+            <div class="col-sm-12">
+                <ui-select ng-model="item.EscortTypeId" name="escorttype" ng-disabled="!item.IsMLC">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 20 : 0}}
+                        <span ng-if="$select.selected.Text.length>20">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.EscortType | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+        <div class="form-group col-sm-4">
+            <label class="col-sm-12 control-label" translate="mlc-list.escortedby.lbl"></label>
+            <div class="col-sm-12">
+                <ui-select ng-model="item.EscortUserId" ng-disabled="!item.IsMLC">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 20 : 0}}
+                        <span ng-if="$select.selected.Text.length>20">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.EscortUser | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+        <div class="form-group col-sm-4">
+            <label class="col-sm-12 control-label" translate="mlc-list.vehicleref.no.lbl"></label>
+            <div class="col-sm-12">
+                <input type="text" class="form-control" ng-disabled="!item.IsMLC" ng-model="item.VeichleNo"
+                    placeholder="">
+            </div>
+        </div>
+        <div class="form-group col-sm-4">
+            <label class="col-sm-12 control-label" translate="mlc-list.mlcno.lbl"></label>
+            <div class="col-sm-12">
+                <input type="text" class="form-control" ng-model="item.MLCNo" ng-disabled="true" placeholder="">
+            </div>
+        </div>
+        <div class="form-group col-sm-4">
+            <label class="col-sm-12 control-label" for="mlc-listAccidentType"
+                translate="mlc-list.typeofaccident.lbl"></label>
+            <div class="col-sm-12">
+                <ui-select ng-model="item.AccidentTypeId" name="mlc-listAccidentType" ng-disabled="!item.IsMLC">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 20 : 0}}
+                        <span ng-if="$select.selected.Text.length>20">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.AccidentType | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+        <div class="form-group col-sm-4">
+            <label class="col-sm-12 control-label" translate="mlc-list.datetimeofincident.lbl"></label>
+            <div class="col-sm-12">
+                <div id="datepicker">
+                    <input type="text" class="form-control" name="admissiondate" name="admissiondate"
+                        ng-change="populateEstimateDisDate()" datepicker-options="datePickerOptions"
+                        show-button-bar="{{datePickerOptions.showButtonBar}}"
+                        datetime-picker="{{datePickerOptions.dateTimeFormat}}"
+                        placeholder="{{datePickerOptions.placeholder}}" ng-click="AdmissionDatePopup = { opened: true }"
+                        is-open="AdmissionDatePopup.opened" ng-model="item.IncidentDate" required>
+                </div>
+            </div>
+        </div>
+        <div class="form-group col-sm-4" style="margin-bottom: -11px !important;">
+            <label class="col-sm-12 control-label " for="mlc-listmlc-listidentificationmar"
+                translate="mlc-list.identificationmark.lbl "></label>
+            <div class="col-sm-12">
+                <input type="text" class="form-control" name="mlc-listmlc-listidentificationmark"
+                    ng-model="item.IdentificationMark " ng-disabled="!item.IsMLC" placeholder=" ">
+            </div>
+        </div>
+        <div class="form-group col-sm-4" style="margin-bottom: -11px !important;">
+            <label class="col-sm-12 control-label" for="doctorid" translate="billing.opbilling-list.doctor.lbl"></label>
+            <div class="col-sm-12">
+                <autosearch itemid="item.DoctorId" iteminfo="" rowdata="" name="'doctorid'"
+                    config="vm.doctorcontrolconfig" itemchange="doctorChange()" candisable="!item.IsMLC"
+                    isrequired="true"></autosearch>
+            </div>
+        </div>
+        <div class="form-group col-sm-4">
+            <label class="col-sm-12 control-label" for="mlc-listpatientstatus"
+                translate="mlc-list.patientstatus.lbl"></label>
+            <div class="col-sm-12">
+                <ui-select ng-model="item.MLCPatientStatus" name="mlc-listpatientstatus" ng-disabled="!item.IsMLC"
+                    required>
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 20 : 0}}
+                        <span ng-if="$select.selected.Text.length>20">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.PatientStatus | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+        <div class="form-group col-sm-4">
+            <label class="col-sm-12 control-label0" for="address" translate="appmanager.org.address1.lbl"></label>
+            <div class="col-sm-12">
+                <input type="text" id="Manualadd" class="form-control" name="address" ng-model="vm.item.AddressLine1"
+                    candisable="!item.IsMLC" placeholder="Address">
+            </div>
+        </div>
+        <div class="form-group col-sm-4">
+            <label class="col-sm-12 control-label0" for="address" translate="appmanager.org.address2.lbl"></label>
+            <div class="col-sm-12">
+                <input type="text" id="Manualadd" class="form-control" name="address" ng-model="vm.item.AddressLine2"
+                    candisable="!item.IsMLC" placeholder="Address">
+            </div>
+        </div>
+        <div class="form-group col-sm-4">
+            <label class="col-sm-12 control-label0" for="area" translate="Area"></label>
+            <div class="col-sm-12">
+                <input type="text" id="Manualadd" class="form-control" name="area" ng-model="vm.item.Area"
+                    candisable="!item.IsMLC" placeholder="">
+            </div>
+        </div>
+        <div class="form-group col-sm-4 ">
+            <label class="col-sm-12 control-label0" for="city" translate="appmanager.org.city.lbl"></label>
+            <div class="col-sm-12">
+                <citycontrol pincodeid="vm.item.PinCodeId" pincode="vm.item.PinCode" area="vm.item.Area"
+                    stateid="vm.item.StateId" city="vm.item.City" cityid="vm.item.CityId"></citycontrol>
+            </div>
+        </div>
+        <div class="form-group col-sm-4">
+            <label class="col-sm-12 control-label0" for="state" translate="appmanager.org.state.lbl"></label>
+            <div class="col-sm-12">
+                <statecontrol pincodeid="vm.item.PinCodeId" pincode="vm.item.PinCode" area="vm.item.Area"
+                    city="vm.item.City" cityid="vm.item.CityId" state="vm.item.State" stateid="vm.item.StateId"
+                    country="vm.item.Country" countryid="vm.item.CountryId">
+                </statecontrol>
+            </div>
+        </div>
+        <div class="form-group col-sm-4">
+            <label class="col-sm-12 control-label0" for="country" translate="appmanager.org.country.lbl"></label>
+            <div class="col-sm-12">
+                <countrycontrol country="vm.item.Country" countryid="vm.item.CountryId">
+                </countrycontrol>
+            </div>
+        </div>
+        <div class="form-group col-sm-4">
+            <label class="col-sm-12 control-label0" for="pincode" translate="appmanager.org.postcode.lbl"></label>
+            <div class="col-sm-12">
+                <pincodecontrol pincodeid="vm.item.PinCodeId" pincode="vm.item.PinCode" area="vm.item.Area"
+                    city="vm.item.City" cityid="vm.item.CityId" state="vm.item.State" stateid="vm.item.StateId"
+                    country="vm.item.Country" countryid="vm.item.CountryId" district="vm.item.District"
+                    districtid="vm.item.DistrictId"></pincodecontrol>
+            </div>
+        </div>
+        <div class="form-group col-sm-4">
+            <label class="col-sm-12 control-label" for="AccidentName"
+                translate="mlc-list.breifdetailofincident.lbl"></label>
+            <div class="col-sm-12">
+                <textarea rows="3" ng-model="item.BriefOfAccident" maxlength="4000" ng-disabled="!item.IsMLC"
+                    name="AccidentName" style="width:100%;" class="notes-textarea" style="height: 38px;margin-top: 1px;"
+                    required></textarea>
+            </div>
+        </div>
+        <div class="form-group col-sm-4">
+            <label class="col-sm-12 control-label" for="mlc-listfacility" translate="mlc-list.ismlc.lbl"></label>
+            <div class="col-sm-12">
+                <input type="checkbox" class="custom-checkbox" name="IsMLC" ng-model="item.IsMLC">
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-12 pad0" style="margin-top: -17px;width: 111%;">
+        <h4><span style="color: #0d6cb7;font-size: 20px;" translate="mlc-list.policedetails.lbl"></span>
+        </h4>
+    </div>
+    <div class="col-sm-12">
+        <div class="form-group col-sm-4">
+            <label class="col-sm-12 control-label" translate="mlc-list.policestation.lbl"></label>
+            <div class="col-sm-12">
+                <input type="text" class="form-control" name="policestation" ng-model="item.PoliceStation"
+                    ng-disabled="!item.IsMLC" placeholder="">
+            </div>
+        </div>
+        <div class="form-group col-sm-4">
+            <label class="col-sm-12 control-label" translate="mlc-list.datetime.lbl"></label>
+            <div class="col-sm-12">
+                <input type="text" class="form-control" name="admissiondate" name="admissiondate"
+                    ng-change="populateEstimateDisDate()" datepicker-options="datePickerOptions"
+                    show-button-bar="{{datePickerOptions.showButtonBar}}"
+                    datetime-picker="{{datePickerOptions.dateTimeFormat}}"
+                    placeholder="{{datePickerOptions.placeholder}}" ng-click="AdmissionPopup = { opened: true }"
+                    is-open="AdmissionPopup.opened" ng-model="item.PoliceCertificateDate" ng-disabled="!item.IsMLC"
+                    required>
+            </div>
+        </div>
+        <div class="form-group col-sm-4">
+            <label class="col-sm-12 control-label" translate="mlc-list.certificateno.lbl"></label>
+            <div class="col-sm-12">
+                <input type="text" class="form-control" name="policestation" ng-model="item.CertificateNo"
+                    ng-disabled="!item.IsMLC" placeholder="">
+            </div>
+        </div>
+
+        <div class="form-group col-sm-4">
+            <label class="col-sm-12 control-label" translate="mlc-list.buckleno.lbl"></label>
+            <div class="col-sm-12">
+                <input type="text" class="form-control" name="policestation" ng-model="item.BuckleNo"
+                    ng-disabled="!item.IsMLC" placeholder="">
+            </div>
+        </div>
+        <div class="form-group col-sm-4">
+            <label class="col-sm-12 control-label" for="mobile" translate="mlc-list.contactnumber.lbl"></label>
+            <div class="col-sm-12">
+                <input type="text" class="form-control" name="mobile" ng-model="item.ContactNo" placeholder=""
+                    ng-disabled="!item.IsMLC" ng-minlength="10" ng-pattern="/^\d+$/" required>
+            </div>
+
+            <div class="col-sm-1" ng-if="item.IsMLC">
+                <button class="btn btn-success btn-xs pull-right" type="button" ng-click="addNewMLCOfficer()"
+                    ng-disabled="!item.IsMLC" uib-tooltip="{{'mlc-list.addnew-tooltip3.lbl' | translate }}"
+                    tooltip-placement="top"><i class="fa fa-plus" aria-hidden="true"></i></button>
+
+            </div>
+
+        </div>
+    </div>
+    <div class="container-fluid">
+        <custom-table config="vm.gridConfig"></custom-table>
+    </div>
+    <div class="fooder-bgs" style="padding-bottom: 1px;margin-bottom: 1px !important;">
+        <div class="col-sm-12">
+            <div class="pull-left">
+            </div>
+            <div class="pull-right">
+                <button type="button"  class="draftbutton" ng-hide="item.MLCStatusId!=1" ng-click="print()"
+                    translate="common.printaction.lbl"></button>
+
+                <button id="btnSave" type="button" class="draftbutton" ng-hide="item.AdmissionStatusId==6"
+                    translate="common.saveaction.lbl" ng-click="save()"></button>
+            </div>
+        </div>
+    </div>
+</div>

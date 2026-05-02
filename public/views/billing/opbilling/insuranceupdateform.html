@@ -1,0 +1,102 @@
+<style>
+    .form-group .col-sm-12 {
+        margin-bottom: 10px;
+    }
+</style>
+<div class="modal-header custom-modal-header">
+    <div class="col-sm-10">
+        <h4 class="modal-title custom-modal-title" translate="Payer Update"></h4>
+    </div>
+    <div class="col-sm-2">
+        <div class="filters">
+            <img src="../../../../../assets/svg/close.svg" ng-click="cancelCallback()">
+        </div>
+    </div>
+</div>
+<div class="row">
+    <form id="item_form" name="item_form" class="form-horizontal" role="form">
+        <div class="table-control formRoot" id="mainresponsivetablecontrol">
+            <table class="table table-hover table-responsive table-bordered">
+                <thead class="bg-subhead" ng-if="items">
+                    <tr>
+                        <th>
+                            <span translate="billing.paymodechange.billdate.lbl"></span>
+                        </th>
+                        <th>
+                            <span translate="Bill #"></span>
+                        </th>
+                        <th>
+                            <span translate="billing.paymodechange.patientname.lbl"></span>
+                        </th>
+
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="text-left">
+                            <span>
+                                {{item.BillDateTime | date : 'dd/MMM/yyyy' }}&nbsp;
+                                {{item.BillDateTime | date:'HH:mm'}}
+                            </span>
+                        </td>
+                        <td class="text-left">
+                            <span> {{ item.BillNumber }}</span>
+                        </td>
+                        <td class="text-left">
+                            <span> {{ item.PatientMrn }} {{ item.PatientName }}</span>
+                        </td>
+
+                    </tr>
+                </tbody>
+
+            </table>
+        </div>
+    </form>
+</div>
+<div class="row">
+    <div class="col-sm-6">
+        <div class="form-group">
+            <label class="col-sm-12 control-label" for="payments" translate="Payer Type"></label>
+            <div class="col-sm-8">
+                <ui-select ng-model="item.GuarantorTypeId" tabindex="tabindexmap.patienttabindex"
+                    name="guarantortype" ng-change="" required>
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 20 : 0}}
+                        <span ng-if="$select.selected.Text.length>20">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.GuarantorType | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search">
+                        </div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6">
+        <div class="form-group">
+            <label class="col-sm-12 control-label" for="payments" translate="Payer Name"></label>
+            <div class="col-sm-8">
+                <ui-select ng-model="item.GuarantorId" tabindex="tabindexmap.patienttabindex" name="guarantor" required>
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 20 : 0}}
+                        <span ng-if="$select.selected.Text.length>20">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.Guarantor | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search">
+                        </div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="">
+    <div class="row">
+        <div class="pull-right">
+            <button id="" type="button" class="draftbutton" ng-click="saveItem()"
+                translate="common.saveapprove-action.lbl"></button>
+        </div>
+    </div>
+</div>

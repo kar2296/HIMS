@@ -1,0 +1,217 @@
+<style>
+    #opbillingcontrol .formRoot {
+        min-height: 385px !important;
+    }
+
+    .filter-area {
+        margin-top: 5px;
+    }
+
+    .mt0 {
+        margin-top: 0px !important;
+        font-size: initial !important;
+    }
+
+    .table>tbody>tr>td {
+        vertical-align: middle !important;
+    }
+
+    td.col-sm-2.ng-scope{
+        color: #000;
+    }
+
+    .ui-select-bootstrap .ui-select-match-text span {
+        width: 100% !important;
+        overflow: hidden !important;
+    }
+    .splitdate input{width:45%;float: left;}
+    .mgl5{margin-left: 5px;}
+</style>
+<link href="app/css/billing-pharmacy-customs.css" rel="stylesheet">
+<div id="opbillingcontrol">
+    <div class="row filter-area">
+        <div class="col-sm-12">
+            <div class="col-sm-4">
+                <label class="col-sm-5 col-md-4 control-label filter-lbl" translate="dummyvisit.filter_facility.lbl"></label>
+                <div class="col-sm-7 col-md-8">
+                    <ui-select ng-model="currentcontext.FacilityId" class="filter-combo">
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 100 : 0}}
+                            <span ng-if="$select.selected.Text.length > 100"></span>
+                        </ui-select-match>
+                        <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.Facility | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+            <div class="col-sm-4 splitdate">
+                <label class="col-sm-5 col-md-4 control-label filter-lbl" translate="dummyvisit.filter_date.lbl"></label>
+                <div class="col-sm-7 col-md-8">
+                    <input type="text" class="form-control col-sm-6" name="datetime" datepicker-options="datePickerOptions"
+                        show-button-bar="{{datePickerOptions.showButtonBar}}" uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                        placeholder="{{datePickerOptions.placeholder}}" ng-click="admsdatetimePopup = { opened: true }"
+                        is-open="admsdatetimePopup.opened" ng-change="FetchingChanged()" ng-model="currentcontext.AdmissionDate">
+                    <input type="text" class="form-control col-sm-6 mgl5" name="datetime" datepicker-options="datePickerOptions"
+                        show-button-bar="{{datePickerOptions.showButtonBar}}" uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                        placeholder="{{datePickerOptions.placeholder}}" ng-click="admstodatetimePopup = { opened: true }"
+                        is-open="admstodatetimePopup.opened" ng-change="FetchingChanged()" ng-model="currentcontext.AdmissionToDate">
+                </div>
+            </div>
+            <div class="col-sm-4">
+                <label class="col-sm-5 col-md-4 control-label filter-lbl" translate="dummyvisit.filter_department.lbl"></label>
+                <div class="col-sm-7 col-md-8">
+                    <ui-select ng-model="currentcontext.DepartmentId" class="filter-combo">
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 200 : 0}}
+                            <span ng-if="$select.selected.Text.length > 200"></span>
+                        </ui-select-match>
+                        <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.Department | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-12">
+            <div class="col-sm-4">
+                <label class="col-sm-5 col-md-4 control-label filter-lbl" translate="dummyvisit.filter_visittype.lbl"></label>
+                <div class="col-sm-7 col-md-8">
+                    <ui-select ng-model="currentcontext.VisitTypeId" ng-change="FetchingChanged()" class="filter-combo">
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 15 : 0}}
+                            <span ng-if="$select.selected.Text.length > 15">...</span>
+                        </ui-select-match>
+                        <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.VisitType | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+            <div class="col-sm-4">
+                <label class="col-sm-5 col-md-4 control-label filter-lbl" translate="dummyvisit.filter_transdate.lbl"></label>
+                <div class="col-sm-7 col-md-8">
+                    <input type="text" class="form-control" name="collectedDate" ng-date-object datetime-picker="{{datePickerOptions.dateTimeFormat}}"
+                        datepicker-append-to-body="true" placeholder="{{datePickerOptions.placeholder}}" ng-click="transdatetimePopup = { opened: true }"
+                        is-open="transdatetimePopup.opened" ng-model="currentcontext.TransactionDate">
+                </div>
+            </div>
+            <div class="col-sm-4">
+                <div class="col-sm-5 col-md-4 control-label filter-lbl" translate=""> 
+                      <input type="checkbox"  class="custom-checkbox" ng-model="currentcontext.IsAdditionalVisitOnly">
+                </div>
+                <div class="col-sm-7 col-md-8">
+                    <span ng-if="!LoadOldInfo"> OP List </span>
+                    <button type="button" class="draftbutton" style="margin-right:3px;" ng-click="getList()"
+                        translate="dietmultipleorders.load_filter.lbl"></button>
+                    <span ng-if="LoadOldInfo"> Fetch </span>                    
+                    <button type="button" class="draftbutton" style="margin-right:3px;" ng-click="getOldPatientList()"
+                        translate="Fetch"></button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="bg-pattern">
+        <div class="table-height formRoot" id="mainresponsivetablecontrol" style="margin-left:10px;">
+            <table class="table table-responsive table-bordered table-hover">
+                <thead class="bg-subhead">
+                    <tr>
+                        <th class="col-sm-3"><span translate="dummyvisit.departments.lbl"></span></th>
+                        <th class="col-sm-1"><span translate="dummyvisit.actualvisits.lbl"></span></th>
+                        <th class="col-sm-1"><span translate="dummyvisit.actualmalevisits.lbl"></span></th>
+                        <th class="col-sm-1"><span translate="dummyvisit.actualfemalevisits.lbl"></span></th>
+                        <th class="col-sm-1"><span translate="dummyvisit.male.lbl"></span></th>
+                        <th class="col-sm-1"><span translate="dummyvisit.female.lbl"></span></th>
+                        <th class="col-sm-1"><span translate="dummyvisit.dummyvisits.lbl"></span></th>
+                        <th class="col-sm-1"><span translate="dummyvisit.finalvisits.lbl"></span></th>
+                        <th class="col-sm-2"><span translate="dummyvisit.remarks.lbl"></span></th>
+                        <th class="col-sm-1"><span translate="common.actions_col.lbl"></span></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="enc in Encounter | filter: {Status : 1} ">
+                        <td class="col-sm-3">
+                            <div class="col-sm-12">
+                                <ui-select ng-disabled="true" ng-model="enc.DepartmentId" name="deptid">
+                                    <ui-select-match>
+                                        {{$select.selected.Text | limitTo : 200 : 0}}
+                                        <span ng-if="$select.selected.Text.length > 200"></span>
+                                    </ui-select-match>
+                                    <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.Department | filter: { Text: $select.search }">
+                                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                    </ui-select-choices>
+                                </ui-select>
+                            </div>
+                        </td>
+                        <td><label class="text-warning">{{ enc.DepartmentCount }}</label></td>
+                        <td><label class="text-warning">{{ enc.DepartmentMaleCount }}</label></td>
+                        <td><label class="text-warning">{{ enc.DepartmentFeMaleCount }}</label></td>
+                        <td><input type="number" ng-disabled="enc.disabledmale" ng-keyup="CalTotalCount(enc)" ng-model="enc.MaleVisitCount"
+                                class="form-control"></td>
+                        <td><input type="number" ng-disabled="enc.disabledfemale" ng-keyup="CalTotalCount(enc)"
+                                ng-model="enc.FemaleVisitCount" class="form-control"></td>
+                        <td><label class="text-warning"> {{enc.DummyVisitCount}}</label></td>
+                        <td><label class="text-warning"> {{enc.TotalVisitCount}}</label></td>
+                        <td>
+                            <ui-select ng-model="enc.RemarkId" name="remarks">
+                                <ui-select-match>
+                                    {{$select.selected.Text | limitTo : 15 : 0}}
+                                    <span ng-if="$select.selected.Text.length>15">...</span>
+                                </ui-select-match>
+                                <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.Remark | filter: { Text: $select.search }">
+                                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                </ui-select-choices>
+                            </ui-select>
+                        </td>
+                        <td class="text-center">
+                            <button type="button" class="btn btn-danger btn-xs" ng-click="deleterow($index, enc)">
+                                <i class="fa fa-trash" aria-hidden="true"></i>
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<div class="container-fluid">
+    <div class="footerbar">
+        <div class="sub-footer">
+            <div class="col-sm-12 fullreg-profiles ">
+                <table class="table table-responsive table-bordered">
+                    <tbody class="text-white">
+                        <td class="col-sm-3"><span class="text-white" translate="dummyvisit.total.lbl"></span></td>
+                        <td class="col-sm-1">{{TotActVisitCount}}</td>
+                        <td class="col-sm-1"></td>
+                        <td class="col-sm-1"></td>
+                        <td class="col-sm-1">{{TotMaleVisitCount}}</td>
+                        <td class="col-sm-1">{{TotFemaleVisitCount}}</td>
+                        <td class="col-sm-1">{{TotDmyVisitCount}}</td>
+                        <td class="col-sm-1"></td>
+                        <td class="col-sm-2"></td>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="container-fluid onerow-filter">
+    <div class="filter fooder-bg">
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="pull-left">
+                    <button type="button" class="btn pyr-color10 btn-sm" ng-click="backToList()"> <i class="fa fa-angle-left"
+                            aria-hidden="true"></i><span class="btn-fontsize"> &nbsp; Back</span></button>
+                </div>
+                <div class="pull-right">
+                    <button id="btnSaveApprove" type="button" class="btn dem-color4 text-white btn-sm" translate="common.saveapprove-action.lbl"
+                        ng-if="LoadOldInfo > 0" ng-click="saveAndApprove()"></button>
+                    <button id="btnClearForm" type="button" class="btn btn-warning btn-sm" ng-click="clearItem()"
+                        translate="common.clearaction.lbl"></button>
+                    <button id="btnCancelForm" type="button" class="draftbutton" ng-click="backToList()"
+                        translate="common.cancelaction.lbl"></button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

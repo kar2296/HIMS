@@ -1,0 +1,168 @@
+<link rel="stylesheet" href="app/css/drhms.css">
+<div class="row">
+    <h4 translate="Daily Collection"></h4>
+</div>
+
+<div class="row">
+    <form id="item_form" name="item_form" class="form-horizontal" role="form">
+        <div class="col-sm-3">
+            <label class="col-sm-12" for="facility" translate="doctorpayment-list.filter_facility.lbl"></label>
+            <div class="col-sm-12">
+                <ui-select ng-model="currentfilter.FacilityId" ng-change="getList()" name="facility"
+                    ng-disabled="item.isDisabled" required>
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 30 : 0}}
+                        <span ng-if="$select.selected.Text.length>30">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.Facility | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+        <div class="col-sm-3">
+            <label class="col-sm-12" translate="From Date"></label>
+            <div class="col-sm-12">
+                <input type="text" class="form-control" name="fromdate" ng-change="getList()"
+                    datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}"
+                    uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                    placeholder="{{datePickerOptions.placeholder}}" ng-click="fromdatePopup = { opened: true }"
+                    is-open="fromdatePopup.opened" ng-model="currentfilter.FromDate">
+            </div>
+        </div>
+        <div class="col-sm-3">
+            <label class="col-sm-12" translate="To Date"></label>
+            <div class="col-sm-12">
+                <input type="text" class="form-control" name="todate" ng-change="getList()"
+                    datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}"
+                    uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                    placeholder="{{datePickerOptions.placeholder}}" ng-click="todatePopup = { opened: true }"
+                    is-open="todatePopup.opened" ng-model="currentfilter.ToDate">
+            </div>
+        </div>
+        <div class="col-sm-3">
+            <label class="col-sm-12" for="collection" translate="Collection Status"></label>
+            <div class="col-sm-12">
+                <ui-select ng-model="currentfilter.CollectionStatusId" ng-change="getList()" name="collection"
+                    ng-disabled="item.isDisabled" required>
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 30 : 0}}
+                        <span ng-if="$select.selected.Text.length>30">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.CollectionStatus | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+    </form>
+</div>
+<div class="row">
+    <div class="drhms-table-control">
+        <div class="drhms-bg-pattern">
+            <div class="drhms-table-height">
+                <table class="drhms-responsive-table" ng-show="CollectionDetails.length > 0">
+                    <thead class="bg-subhead">
+                        <tr>
+                            <th><span>
+                                    <input type="checkbox" ng-model="currentcontext.selectall"
+                                        ng-click="selectAllItems()">
+                                </span></th>
+                            <th translate="Date"></th>
+                            <th translate="Opening Balance"></th>
+                            <th translate="Collection Cash"></th>
+                            <th translate="PettyCash Exp."></th>
+                            <th translate="Deposit"></th>
+                            <th translate="Balance"></th>
+                            <th translate="Card Collection"></th>
+                            <th translate="EOD"></th>
+                            <th translate="Variance"></th>
+                            <th translate="UPI Collection"></th>
+                            <th translate="Bank Credit"></th>
+                            <th translate="Variance"></th>
+                            <th translate="Chq. Collection"></th>
+                            <th translate="Chq. Deposit"></th>
+                            <th translate="Difference"></th>
+                            <th translate="Status"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="item in CollectionDetails">
+                            <td>
+                                <center>
+                                    <span>
+                                        <input type="checkbox" class="case" ng-model="item.IsSelected"
+                                            ng-click="ShaSelectionChange(item)" ng-disabled="item.IsUpdated">
+                                    </span>
+
+                                </center>
+                            </td>
+
+                            <td>
+                                <displaydate datetime-val="item.CollectionDate"></displaydate>
+                            </td>
+                            <td>{{item.OpeningBalance}}</td>
+                            <td>{{item.Cash}}
+                            </td>
+                            <td>{{item.PettyCash}}
+                            </td>
+                            <td><input type="text" ng-model="item.Deposit" ng-change="calc_bal(item)"
+                                    ng-disabled="item.IsUpdated"></td>
+                            <td><input type="text" ng-model="item.BalanceCash" ng-disabled="true"></td>
+                            <td>{{item.Card}}</td>
+                            <td><input type="text" ng-model="item.EOD" ng-disabled="item.IsUpdated"
+                                    ng-change="calc_bal(item)"></td>
+                            <td><input type="text" ng-model="item.VarianceCard" ng-disabled="true"></td>
+                            <td>{{item.UPI}}
+                            </td>
+                            <td><input type="text" ng-model="item.BankCredit" ng-disabled="item.IsUpdated"
+                                    ng-change="calc_bal(item)"></td>
+                            <td><input type="text" ng-model="item.VarianceUPI" ng-disabled="true"></td>
+                            <td>{{item.Chequeddwire}}
+                            </td>
+                            <td><input type="text" ng-model="item.ChequeDeposit" ng-disabled="item.IsUpdated"
+                                    ng-change="calc_bal(item)"></td>
+                            <td><input type="text" ng-model="item.VarianceCheque" ng-disabled="true"></td>
+                            <td>{{item.CollectionStatus.Description}}</td>
+                            <!-- <td>
+                            <ui-select ng-model="item.DoctorShareStatusIPId" class="filter-combo">
+                                <ui-select-match>
+                                    {{$select.selected.Text | limitTo : 15 : 0}}
+                                    <span ng-if="$select.selected.Text.length>15">...</span>
+                                </ui-select-match>
+                                <ui-select-choices
+                                    repeat="lookupitem.Id as lookupitem in lookup.DoctorShareStatusIP | filter: { Text: $select.search }">
+                                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                </ui-select-choices>
+                            </ui-select>
+                        </td> -->
+                            <!-- <td><a class="fas regular" ng-click="openattachments(item)" aria-hidden="true">View</a></td>
+                        <td><a class="fas regular" ng-click="" aria-hidden="true">View</a></td> -->
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="fooder-bgs">
+    <div class="row">
+        <div class="pull-right">
+            <button type="button" class="draftbutton" ng-show="item.DoctorInvoiceStatusId == 3"
+                translate="common.printaction.lbl" ng-click="print()"></button>
+            <button type="button" class="draftbutton" ng-show="CollectionDetails.length > 0" translate="Save"
+                ng-click="saveDraft()"></button>
+            <button type="button" class="draftbutton" ng-show="CollectionDetails.length > 0" translate="Approve"
+                ng-click="saveAndApprove()"></button>
+        </div>
+    </div>
+</div>
+<!-- <div class="fooder-bgs">
+    <div class="row">
+        <button type="button" class="draftbutton"
+            ng-show="item.DoctorInvoiceStatusId == 2 || item.DoctorInvoiceStatusId == 3"
+            translate="common.printaction.lbl" ng-click="print()"></button>
+    </div>
+</div> -->

@@ -1,0 +1,314 @@
+<style>
+    .page-header {
+        margin: 0px 0px 2px 0px !important;
+        padding-bottom: 6px !important;
+    }
+
+    #dropdownctrl>a>.label {
+        left: 15px !important;
+    }
+
+    .fooder-bg.bottom_align.ng-scope {
+        bottom: -5px;
+    }
+
+    .prev_footer {
+        position: sticky !important;
+    }
+
+    /* .modal-content {
+        width: 108%;
+    } */
+</style>
+<div class="modal-header custom-modal-header">
+    <div class="row">
+        <div class="col-sm-6">
+    <h4>Detail Summary</h4>
+    </div>
+    <div class="col-sm-6">
+    <button type="button" class="btn btn-danger btn-sm pull-right" translate="x"
+        ng-click="cancelCallback()"></button>
+        </div>
+        </div>
+</div>
+<div class="row" style="width: 99%;">
+        <patientbanner patientid="currentcontext.pid" delegatefn="setBannerDelegate(cmp)"></patientbanner>
+</div>
+<div id="patientlabresult" class="emr_prevoiusorders">
+    <div id="mainresponsivetablecontrol" class="lisdrpctrl">
+        <span> <b>Pharmacy Sales</b> </span>
+        <table class="table table-hover table-responsive table-bordered custom-table">
+            <thead class="bg-subhead">
+                <tr>
+                    <th>
+                        <span>Date</span>
+                    </th>
+                    <th>
+                        <span>Bill No.</span>
+                    </th>
+                    <th ng-if="currentcontext.summaryview == 0" class="col-sm-3">
+                        <span>Item Name</span>
+                    </th>
+                    <th ng-if="currentcontext.summaryview == 0" class="">
+                        <span>Batch</span>
+                    </th>
+                    <th ng-if="currentcontext.summaryview == 0" class="col-sm-2">
+                        <span>Expiry</span>
+                    </th>
+                    <th ng-if="currentcontext.summaryview == 0" class="">
+                        <span>Qty</span>
+                    </th>
+                    <th ng-if="currentcontext.summaryview == 0" class="">
+                        <span>Sales Price</span>
+                    </th>
+                    <th ng-if="currentcontext.summaryview == 0" class="">
+                        <span>Discount</span>
+                    </th>
+                    <th ng-if="currentcontext.summaryview == 0" class="col-sm-2">
+                        <span>Amount</span>
+                    </th>
+                    <th  class="col-sm-1">
+                        <span>Store Name</span>
+                    </th>
+                    <th class="col-sm-1">
+                        <span>Total Amount</span>
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="item in PharmacyBillDetails">
+                    <td>
+                        <span>
+                            <displaydate datetime-val="item.BillDateTime"></displaydate>
+                        </span>
+                    </td>
+                    <td>
+                        <span>{{item.BillNumber}}</span>
+                    </td>
+                    <td ng-if="currentcontext.summaryview == 0">
+                        <table class="table table-hover table-responsive table-bordered custom-table">
+                            <tr ng-repeat="item in item.PatientBillDetails">
+                                <td>
+                                    <span>{{item.ServiceName}}</span>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                    <td ng-if="currentcontext.summaryview == 0">
+                        <table class="table table-hover table-responsive table-bordered custom-table">
+                            <tr ng-repeat="item in item.PatientBillDetails">
+                                <td>
+                                    <span>{{item.BatchId}}</span>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                    <td ng-if="currentcontext.summaryview == 0">
+                        <table class="table table-hover table-responsive table-bordered custom-table">
+                            <tr ng-repeat="item in item.PatientBillDetails">
+                                <td>
+                                    <displaydate date-val="item.ExpiryDate"></displaydate>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                    <td ng-if="currentcontext.summaryview == 0">
+                        <table class="table table-hover table-responsive table-bordered custom-table">
+                            <tr ng-repeat="item in item.PatientBillDetails">
+
+                                <td>
+                                    <span>{{item.Quantity}}</span>
+                                </td>
+
+                            </tr>
+                        </table>
+                    </td>
+                    <td ng-if="currentcontext.summaryview == 0">
+                        <table class="table table-hover table-responsive table-bordered custom-table">
+                            <tr ng-repeat="item in item.PatientBillDetails">
+                                <td>
+                                    <span>{{item.Rate|displaycurrency}}</span>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                    <td ng-if="currentcontext.summaryview == 0">
+                        <table class="table table-hover table-responsive table-bordered custom-table">
+                            <tr ng-repeat="item in item.PatientBillDetails">
+
+                                <td>
+                                    <span>{{item.DiscountAmount|displaycurrency}}</span>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                    <td ng-if="currentcontext.summaryview == 0">
+                        <table class="table table-hover table-responsive table-bordered custom-table">
+                            <tr ng-repeat="item in item.PatientBillDetails">
+
+                                <td>
+                                    <span>{{item.Amount|displaycurrency}}</span>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                    <td>
+                        <span>{{item.StoreMaster.StoreName}}</span>
+                    </td>
+                    <td style="text-align:center;">
+                        <span style="font-weight: 500color: orangered;">{{item.BillAmount}}</span>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <span> <b>Pharmacy Return</b> </span>
+        <table class="table table-hover table-responsive table-bordered custom-table">
+            <thead class="bg-subhead">
+                <tr>
+                    <th>
+                        <span>Date</span>
+                    </th>
+                    <th>
+                        <span>Return No.</span>
+                    </th>
+                    <th>
+                        <span>Bill No.</span>
+                    </th>
+                    <th ng-if="currentcontext.summaryview == 0" class="col-sm-3">
+                        <span>Item Name</span>
+                    </th>
+                    <th ng-if="currentcontext.summaryview == 0" class="">
+                        <span>Batch</span>
+                    </th>
+                    <th ng-if="currentcontext.summaryview == 0" class="col-sm-2">
+                        <span>Expiry</span>
+                    </th>
+                    <th ng-if="currentcontext.summaryview == 0" class="">
+                        <span>Qty</span>
+                    </th>
+                    <th ng-if="currentcontext.summaryview == 0" class="">
+                        <span>Sales Price</span>
+                    </th>
+                    <th ng-if="currentcontext.summaryview == 0" class="">
+                        <span>Discount</span>
+                    </th>
+                    <th ng-if="currentcontext.summaryview == 0" class="col-sm-2">
+                        <span>Amount</span>
+                    </th>
+                    <th class="col-sm-1">
+                        <span>Store Name</span>
+                    </th>
+                    <th class="col-sm-1">
+                        <span>Total Amount</span>
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="item in PharmacyRetBillDetails">
+                    <td>
+                        <span>
+                            <displaydate datetime-val="item.ReturnDateTime"></displaydate>
+                        </span>
+                    </td>
+                    <td>
+                        <span>{{item.ReturnNumber}}</span>
+                    </td>
+                    <td>
+                        <span>{{item.BillNumber}}</span>
+                    </td>
+                    <td ng-if="currentcontext.summaryview == 0">
+                        <table class="table table-hover table-responsive table-bordered custom-table">
+                            <tr ng-repeat="item in item.PatientReturnDetails">
+                                <td>
+                                    <span>{{item.ItemName}}</span>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                    <td ng-if="currentcontext.summaryview == 0">
+                        <table class="table table-hover table-responsive table-bordered custom-table">
+                            <tr ng-repeat="item in item.PatientReturnDetails">
+                                <td>
+                                    <span>{{item.BatchId}}</span>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                    <td ng-if="currentcontext.summaryview == 0">
+                        <table class="table table-hover table-responsive table-bordered custom-table">
+                            <tr ng-repeat="item in item.PatientReturnDetails">
+                                <td>
+                                    <displaydate date-val="item.ExpiryDate"></displaydate>
+                                </td>
+
+                            </tr>
+                        </table>
+                    </td>
+                    <td ng-if="currentcontext.summaryview == 0">
+                        <table class="table table-hover table-responsive table-bordered custom-table">
+                            <tr ng-repeat="item in item.PatientReturnDetails">
+
+                                <td>
+                                    <span>{{item.ReturnQuantity}}</span>
+                                </td>
+
+                            </tr>
+                        </table>
+                    </td>
+                    <td ng-if="currentcontext.summaryview == 0">
+                        <table class="table table-hover table-responsive table-bordered custom-table">
+                            <tr ng-repeat="item in item.PatientReturnDetails">
+                                <td>
+                                    <span>{{item.Rate | displaycurrency}}</span>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                    <td ng-if="currentcontext.summaryview == 0">
+                        <table class="table table-hover table-responsive table-bordered custom-table">
+                            <tr ng-repeat="item in item.PatientReturnDetails">
+
+                                <td>
+                                    <span>{{item.DiscountAmount|displaycurrency}}</span>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                    <td ng-if="currentcontext.summaryview == 0">
+                        <table class="table table-hover table-responsive table-bordered custom-table">
+                            <tr ng-repeat="item in item.PatientReturnDetails">
+
+                                <td>
+                                    <span>{{item.Amount|displaycurrency}}</span>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                    <td>
+                        <span>{{item.StoreMaster.StoreName}}</span>
+                    </td>
+                    <td style="text-align:center;">
+                        <span style="font-weight: 500color: orangered;">{{item.ReturnAmount}}</span>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+<!-- <div class="fooder-bg prev_footer"> -->
+<div class="fooder-bgs">
+    <div class="row">
+        <div class="pull-right">
+            <div class="col-sm-12">
+                <button type="button"  class="draftbutton" ng-click="oppharmacyprint()" translate="common.printaction.lbl"></button>
+                <!--<button id="btnCancelForm" type="button" class="draftbutton" ng-click="cancelCallback()" translate="common.cancelaction.lbl"></button>-->
+            </div>
+        </div>
+        <div class="pull-right">
+            <div class="col-sm-12">
+                <!--<span translate="billing.intermediatebill-details.total.lbl"></span> :-->
+                <span class="countbg">{{TotalAmount | displaycurrency}}</span>
+            </div>
+        </div>
+    </div>
+</div>

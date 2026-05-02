@@ -1,0 +1,133 @@
+<style>
+   .nameinfo {
+        font-size: 13px;
+        font-weight: 700;
+        color: #337ab7;
+    }
+    
+    .nameinfo.mrninfo {
+        color: black
+    }
+    
+    .contactinfo {
+        font-size: 10px;
+        color: #808080
+    }
+    .block {
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+#specialitysheight .ui-grid-viewport {
+    width: 100%;
+    /* height: 460px!important; */
+}
+.table-uigrid {
+    margin-left: 10px;
+    margin-right: 10px;
+    /* height: 488px!important; */
+}
+    
+    .linkstyle {
+        font-weight: 700;
+        text-align: right;
+    }
+    
+    .statusinfo {
+        font-size: 13px;
+    }
+    
+    
+    
+    .form-group {
+        margin-bottom: 7px !important;
+    }
+    
+    .sr-only {
+    height: 22px !important;
+}
+@media(min-width:1360px) and (min-height:675px){#specialitysheight .ui-grid-viewport{min-height: 478px; height:475px;}}
+@media (min-width:1200px) and (min-height:637px){#specialitysheight .ui-grid-viewport{height:443px;}}
+</style>
+
+
+
+<div class="row page-header">
+    <h4 class="col-sm-6 mt0" translate="appmanager.specialitys.pagetitle.lbl"></h4>
+
+
+    <div class="col-sm-6">
+        <button class="btn bt-color3 btn-xs pull-right btn-filter" ng-click="" uib-tooltip="{{ ' appmanager.specialitys.advancefilter-tooltip.lbl' | translate
+ }}" tooltip-placement="bottom"><i class="fa fa-filter" aria-hidden="true"></i>&nbsp;&nbsp;<span translate="clinicalmaster.serviceitem-list.filter.lbl"></span></button>
+        <button class="btn bt-color2 btn-xs pull-right btn-filter" ng-click="addNew()" uib-tooltip="{{ 'appmanager.specialitys.addnew-tooltip.lbl' | translate
+}}" tooltip-placement="bottom">
+                <i class="fa fa-plus" aria-hidden="true"></i><span translate="clinicalmaster.serviceitem-list.addnew.lbl"></span></button>
+    </div>
+</div>
+<div class="row filter-area">
+        <div class="col-sm-12">
+                <div class="col-sm-3">
+                    <label class="col-sm-4 control-label filter-lbl" translate="appmanager.specialitys.filter_facility.lbl"></label>
+                    <div class="col-sm-8">
+                        <ui-select ng-model="currentfilter.facilityid" ng-change="getList()" class="filter-combo">
+                            <ui-select-match>
+                                {{$select.selected.Text | limitTo : 8 : 0}}
+                                <span ng-if="$select.selected.Text.length>8">...</span>
+                            </ui-select-match>
+                            <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.Facility | filter: { Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>                    
+                </div>                
+            
+                 <div class="col-sm-3">
+            
+                <label class="col-sm-5 control-label filter-lbl" translate="appmanager.specialitys.filter_specialityname.lbl"></label>
+                <div class="input-group col-sm-7">
+                    <div class="input-group-addon"><i class="fas fa-search" aria-hidden="true"></i></div>
+                    <input type="text" class="form-control" on-enter="getList()" ng-model="currentfilter.specialityname" translate translate-attr-placeholder="appmanager.specialitys.filter_specialityname.lbl">
+                </div>
+            
+        </div>                   
+                <div class="col-sm-3">
+                    <label class="col-sm-4 control-label filter-lbl" translate="appmanager.specialitys.filter_type.lbl"></label>
+                    <div class="col-sm-8">
+                        <ui-select ng-model="currentfilter.specialitytypeid" ng-change="getList()" class="filter-combo">
+                            <ui-select-match>
+                                {{$select.selected.Text | limitTo : 8 : 0}}
+                                <span ng-if="$select.selected.Text.length>8">...</span>
+                            </ui-select-match>
+                            <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.SpecialityType | filter: { Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>                    
+                </div>  
+                <div class="col-sm-3">
+                    <label class="col-sm-4 control-label filter-lbl" translate="appmanager.specialitys.filter_status.lbl"></label>
+                    <div class="col-sm-8">
+                        <ui-select ng-model="currentfilter.ActiveStatusId" ng-change="getList()" class="filter-combo">
+                            <ui-select-match>
+                                {{$select.selected.Text | limitTo : 8 : 0}}
+                                <span ng-if="$select.selected.Text.length>8">...</span>
+                            </ui-select-match>
+                            <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.ActiveStatus | filter: { Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>                    
+                </div>
+        </div>
+</div>
+
+<div class="container-fluid" id="specialitysheight">
+    <div ui-grid="vm.gridConfig" class="table-uigrid table-uigrid-tab "></div>
+
+   <div class="fooder-bgs">
+        <div class="row">
+            <ul uib-pagination total-items="vm.gridConfig.pagerObj.totalItems" items-per-page="vm.gridConfig.pagerObj.pageSize" start-index="vm.gridConfig.pagerObj.startIndex"
+                ng-model="vm.gridConfig.pagerObj.currentPage" ng-change="getList()"></ul>
+        </div>
+    </div>
+</div>

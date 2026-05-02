@@ -1,0 +1,244 @@
+<!-- <style>
+    td.minusamt currency-align {
+        color: red;
+    }
+
+    .autosearch-div .custom-popup-wrapper {
+        position: absolute;
+        width: 600px;
+        right: 203px;
+    }
+</style> -->
+<div class="row page-header">
+    <div class="col-sm-9">
+        <h4 class="mt0" translate="User Wise Collection Summary By Cashier"></h4>
+    </div>
+    <div class="col-sm-3">
+        <div class="filters">
+            <i class="icofont-filter" uib-tooltip="Filter" tooltip-placement="bottom" ng-click="openFilterTab()"></i>
+            <!-- <i class="icofont-file-excel" uib-tooltip="Excel" tooltip-placement="bottom"
+                onclick="exportTableToExcel('tblData', 'members-data')"></i> -->
+            <i class="icofont-print" uib-tooltip="Print" tooltip-placement="bottom" ng-click="print()"></i>
+            <i class="icofont-home" ng-click="backtoReport()" tabindex="-1" uib-tooltip="Report"
+                tooltip-placement="bottom"></i>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <table id="bannerdetails">
+        <tr>
+
+            <td translate="reports.fromdate.lbl"></td>
+            <td>
+                <div class="datepicker" id="datepicker">
+                    <input type="text" class="form-control" name="fromdate" ng-date-object
+                        datetime-picker="{{dateTimePickerOptions.dateTimeFormat}}"
+                        placeholder="{{datePickerOptions.placeholder}}" ng-click="fromdatePopup = { opened: true }"
+                        is-open="fromdatePopup.opened" ng-model="currentfilter.From">
+                    <i class="fa fa-calendar"></i>
+                </div>
+            </td>
+            <td translate="reports.todate.lbl"></td>
+            <td>
+                <div class="datepicker" id="datepicker">
+                    <input type="text" class="form-control" name="todate" ng-date-object
+                        datetime-picker="{{dateTimePickerOptions.dateTimeFormat}}"
+                        placeholder="{{datePickerOptions.placeholder}}" ng-click="todatePopup = { opened: true }"
+                        is-open="todatePopup.opened" ng-model="currentfilter.To">
+                    <i class="fa fa-calendar"></i>
+                </div>
+            </td>
+            <td translate="reports.user.lbl"></td>
+            <td>
+                <div class="filters">
+                    <autosearch itemid="currentfilter.UserId" onenter="onenter()" iteminfo="item.SelectedItem"
+                        rowdata="item" config="vm.usercontrolconfig" class="inputsearchlogo" isrequired="true">
+                    </autosearch>
+                </div>
+            </td>
+            <td style="text-align: center;">
+                <button class="loadbtn" ng-click="getList()">
+                    <i class="fas fa-sync loading-icon" aria-hidden="true" uib-tooltip="Search"
+                        tooltip-placement="bottom"></i> <span>Load</span>
+                </button>
+            </td>
+        </tr>
+    </table>
+</div>
+<!-- <div>
+    <i class="icofont-filter" uib-tooltip="Search" tooltip-placement="bottom" ng-click="GetPharmacyOptions()"></i>
+</div> -->
+<div class="row">
+    <div id="reportsdetail">
+        <table id="tblData">
+            <thead>
+                <th class="cus-col tbl-header cust_Particulars">
+                    <span translate="User Name"></span>
+                </th>
+                <th colspan="7" class="cus-col tbl-header">
+                    <span translate="OP Collecction"></span>
+                </th>
+                <th colspan="7" class="cus-col tbl-header">
+                    <span translate="IP Collecction"></span>
+                </th>
+                <th class="cus-col tbl-header">
+                    <span translate="Net Collection"></span>
+                </th>
+            </thead>
+            <thead>
+                <th class="cus-col tbl-header cust_Particulars">
+                </th>
+                <th class="cus-col tbl-header">
+                    <span translate="Cash Bill(+)"></span>
+                </th>
+                <th class="cus-col tbl-header">
+                    <span translate="Card Bill(+)"></span>
+                </th>
+                <th class="cus-col tbl-header">
+                    <span translate="Other Bill(+)"></span>
+                </th>
+                <th class="cus-col tbl-header">
+                    <span translate="UPI Bill(+)"></span>
+                </th>
+                <!-- <th class="cus-col tbl-header">
+                    <span translate="OP Due Bill(+)"></span>
+                </th> -->
+
+                <th class="cus-col tbl-header">
+                    <span translate="Cash Ref(-)"></span>
+                </th>
+                <th class="cus-col tbl-header">
+                    <span translate="Others Ref(-)"></span>
+                </th>
+                <th class="cus-col tbl-header">
+                    <span translate="Net OP"></span>
+                </th>
+                <th class="cus-col tbl-header">
+                    <span translate="Cash Bill(+)"></span>
+                </th>
+                <th class="cus-col tbl-header">
+                    <span translate="Card Bill(+)"></span>
+                </th>
+                <th class="cus-col tbl-header">
+                    <span translate="Other Bill(+)"></span>
+                </th>
+                <th class="cus-col tbl-header">
+                    <span translate="UPI Bill(+)"></span>
+                </th>
+                <!-- <th class="cus-col tbl-header">
+                    <span translate="IP Due Bill(+)"></span>
+                </th> -->
+
+                <th class="cus-col tbl-header">
+                    <span translate="Cash Ref(-)"></span>
+                </th>
+                <th class="cus-col tbl-header">
+                    <span translate="Others Ref(-)"></span>
+                </th>
+                <th class="cus-col tbl-header">
+                    <span translate="Net IP"></span>
+                </th>
+                <th class="cus-col tbl-header cust_Particulars">
+                </th>
+            </thead>
+            <tr ng-repeat="item in NetUserCollection">
+                <td class=""><span class="">{{item.Key}}</span></td>
+                <td class="currency-align">{{ item.OPCashAmt | displaycurrency }}</td>
+                <td class="currency-align">{{ item.OPCardAmt | displaycurrency }}</td>
+                <td class="currency-align">{{ item.OPOtherAmt | displaycurrency }}</td>
+                <td class="currency-align">{{ item.OPUpiAmt | displaycurrency }}</td>
+                <!-- <td class="currency-align">{{ item.OPDueAmt | displaycurrency }}</td> -->
+
+                <td class="minusamt currency-align"><span>-</span><span>{{ item.OPCashRefundAmt |
+                        displaycurrency }}</span>
+                </td>
+                <td class="minusamt currency-align"><span>-</span><span>{{ item.OPOtherRefundAmt |
+                        displaycurrency }}</span>
+                </td>
+                <td class="currency-align">{{ item.NetOPCollection | displaycurrency }}</td>
+                <td class="currency-align">{{ item.IPCashAmt | displaycurrency }}</td>
+                <td class="currency-align">{{ item.IPCardAmt | displaycurrency }}</td>
+                <td class="currency-align">{{ item.IPOtherAmt | displaycurrency }}</td>
+                <td class="currency-align">{{ item.IPUpiAmt | displaycurrency }}</td>
+                <!-- <td class="currency-align">{{ item.IPDueAmt | displaycurrency }}</td>-->
+
+                <td class="minusamt currency-align"><span>-</span><span>{{ item.IPCashRefundAmt |
+                        displaycurrency }}</span>
+                </td>
+                <td class="minusamt currency-align"><span>-</span><span>{{ item.IPOtherRefundAmt |
+                        displaycurrency }}</span>
+                </td>
+                <td class="currency-align">{{ item.NetIPCollection | displaycurrency }}</td>
+                <td class="currency-align">{{ item.OverallCollection | displaycurrency }}</td>
+            </tr>
+            <tr class="highlite">
+                <td class=""><span class="">Total</span></td>
+                <td class="currency-align">{{ TotOPCashAmt | displaycurrency }}</td>
+                <td class="currency-align">{{ TotOPCardAmt | displaycurrency }}</td>
+                <td class="currency-align">{{ TotOPOtherAmt | displaycurrency }}</td>
+                <td class="currency-align">{{ TotOPUpiAmt | displaycurrency }}</td>
+                <!-- <td class="currency-align">{{ TotOPDueAmt | displaycurrency }}</td> -->
+
+                <td class="minusamt currency-align"><span>-</span><span>{{ TotOPCashRefundAmt | displaycurrency
+                        }}</span></td>
+                <td class="minusamt currency-align"><span>-</span><span>{{ TotOPOtherRefundAmt | displaycurrency
+                        }}</span></td>
+                <td class="currency-align">{{ TotNetOPCollection | displaycurrency }}</td>
+                <td class="currency-align">{{ TotIPCashAmt | displaycurrency }}</td>
+                <td class="currency-align">{{ TotIPCardAmt | displaycurrency }}</td>
+                <td class="currency-align">{{ TotIPOtherAmt | displaycurrency }}</td>
+                <td class="currency-align">{{ TotIPUpiAmt | displaycurrency }}</td>
+                <!-- <td class="currency-align">{{ TotIPDueAmt | displaycurrency }}</td> -->
+
+                <td class="minusamt currency-align"><span>-</span><span>{{ TotIPCashRefundAmt | displaycurrency
+                        }}</span></td>
+                <td class="minusamt currency-align"><span>-</span><span>{{ TotIPOtherRefundAmt | displaycurrency
+                        }}</span></td>
+                <td class="currency-align">{{ TotNetIPCollection | displaycurrency }}</td>
+                <td class="currency-align">{{ TotalNetCollection | displaycurrency }}</td>
+            </tr>
+        </table>
+    </div>
+</div>
+<!-- <div class="col-sm-5    " style="float: right;    margin-bottom: 12px;">
+    <table id="bannerdetails">
+        <tr>
+            <td><label class="control-label text-white" for="totalquantity">Overall
+                    Collection(NetCollection-DocShare):</label></td>
+            <td><span class="countbg text-white">{{(OverallCollection|displaycurrency)}}</span></td>
+        </tr>
+    </table>
+</div> -->
+<div class="fooder-bgs"></div>
+<script>
+    function exportTableToExcel(tableID, filename = '') {
+        var downloadLink;
+        var dataType = 'application/vnd.ms-excel';
+        var tableSelect = document.getElementById(tableID);
+        var tableHTML = tableSelect.outerHTML.replace(/ /g, '%20');
+
+        // Specify file name
+        filename = filename ? filename + '.xls' : 'excel_data.xls';
+
+        // Create download link element
+        downloadLink = document.createElement("a");
+
+        document.body.appendChild(downloadLink);
+
+        if (navigator.msSaveOrOpenBlob) {
+            var blob = new Blob(['\ufeff', tableHTML], {
+                type: dataType
+            });
+            navigator.msSaveOrOpenBlob(blob, filename);
+        } else {
+            // Create a link to the file
+            downloadLink.href = 'data:' + dataType + ', ' + tableHTML;
+
+            // Setting the file name
+            downloadLink.download = filename;
+
+            //triggering the function
+            downloadLink.click();
+        }
+    }
+</script>

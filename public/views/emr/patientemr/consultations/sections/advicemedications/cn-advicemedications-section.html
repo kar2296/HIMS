@@ -1,0 +1,271 @@
+<!-- <style>
+    .primary {
+        color: white;
+        background: #23B7E5;
+        border-radius: 3px
+    }
+
+    .patientprofile-img {
+        width: 70px !important;
+        height: 70px !important;
+    }
+
+    .panel-body .well {
+        height: 586px;
+        width: 869px;
+    }
+
+    /* .col-sm-6 {
+        width: 30%;
+    } */
+
+    .fullreg-profiles2 {
+        min-height: 22px;
+        color: #fff;
+        background: -moz-linear-gradient(top, #fff 0, #f3f3f3 50%, #ededed 100%, #fff 100%);
+        -moz-box-shadow: 7px 5px 15px -9px rgba(0, 0, 0, .75);
+        box-shadow: 7px 5px 15px -9px rgba(0, 0, 0, .75);
+        background: url(app/img/header-bg.jpg) repeat-x left top;
+    }
+
+    /* .cus-col {
+        width: 120px !important;
+        padding-left: 3px !important;
+    } */
+
+    .popup_content .col-sm-12 {
+        padding: 6px;
+
+
+    }
+
+    .outer_border {
+        border: 1px solid;
+        box-shadow: 2px 11px 19px #888888;
+    }
+
+    /* .col-sm-4{border-right:1px solid;} */
+
+    .outer_border .col-sm-12 {
+        border-bottom: 1px solid lightgray;
+    }
+
+    .refresh {
+        background-color: rgba(115, 153, 216, 0.77);
+        border-color: #e6a151;
+        color: #fff;
+    }
+
+    .btn-success {
+        border-radius: 7px !important;
+        width: 34px;
+        height: 31px;
+        text-align: center;
+        padding: 0;
+        background: #1b4bb0;
+    }
+
+    button.btn.btn-default {
+        padding: 3px 7px;
+    }
+
+    button.btn.btn-success {
+        width: 25px !important;
+        padding: 0;
+    }
+
+    .ngdialog-content button.btn.btn-success {
+        width: 82px !important;
+    }
+
+    .page-header .btn-fontsize {
+        font-size: 13px;
+        color: #252323;
+    }
+
+    /* .newspan input {
+        width: 30px;
+    } */
+</style> -->
+<style>
+    button.btn-default-select.ng-pristine.ng-valid {
+        background: #F44336;
+        border: 0;
+        color: #fff;
+        border-radius: 4px;
+    }
+
+    button.btn-success-select.ng-pristine.ng-valid {
+        background: #4CAF50;
+        border: 0;
+        color: #fff;
+        border-radius: 4px;
+    }
+</style>
+<div class="row">
+    <form id="item_form" name="item_form" class="form-horizontal" role="form">
+        <div id="" class="emr_manageprescription">
+            <table class="table table-hover table-responsive table-bordered">
+                <thead class="bg-subhead">
+                    <tr>
+                        <th class="fs-12 col-sm-3">
+                            <span translate="patientemr.dischargesections.drugname.lbl"></span>
+                        </th>
+                        <th class="fs-12 col-sm-1 cell-align-center">
+                            <span translate="patientemr.dischargesections.isfreetext.lbl"></span>
+                        </th>
+                        <th class="fs-12 col-sm-1">
+                            <span translate="patientemr.prescription-form.dosage.lbl"></span>
+                            <span class="mandatory-asterix">*</span>
+                        </th>
+                        <th class="fs-12 ">
+                            <span translate="patientemr.prescription-form.frequency.lbl"></span>
+                            <span class="mandatory-asterix">*</span>
+                        </th>
+                        <th class="fs-12 col-md-4 col-lg-2">
+                            <span translate="patientemr.prescription-form.duration.lbl"></span>
+                            <span class="mandatory-asterix">*</span>
+                        </th>
+                        <th class="fs-12">
+                            <span translate="patientemr.prescription-form.duration.lbl"></span>
+                            <span class="mandatory-asterix">*</span>
+                        </th>
+                        <th class="fs-12 col-sm-1 cell-align-center">
+                            <span translate="patientemr.prescription-form.druginstruct.lbl"></span>
+                        </th>
+                        <th class="fs-12 col-sm-1">
+                            <span translate="patientemr.prescription-form.action.lbl"></span>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="item in AdviceMedications | filter:{Status:1}">
+                        <td class="fs-12 iconsize">
+                            <autosearch controlid="'dgname'" itemid="item.DrugId" iteminfo="item.SelectedItem"
+                                name="'drug'" rowdata="item" config="vm.drugcontrolconfig" ng-if="!item.IsFreeText"
+                                itemchange="drugChanged($index,item)" class="inputsearchlogo" candisable="IsDisabled"
+                                isrequired="true" focus-if>
+                            </autosearch>
+                            <input type="text" class="form-control" on-enter="addNewLineItem()" ng-if="item.IsFreeText"
+                                ng-disabled="IsDisabled" ng-model="item.DrugName" placeholder="">
+                        </td>
+                        <td class="fs-12">
+                            <input type="checkbox" class="custom-checkbox" ng-model="item.IsFreeText"
+                                ng-disabled="IsDisabled">
+                        </td>
+                        <td class="fs-12">
+                            <input type="text" class="form-control" ng-disabled="IsDisabled" ng-model="item.Dosage"
+                                placeholder="">
+                        </td>
+                        <td class="fs-12 ">
+                            <button class="btn-default-select" ng-if="item.MorningFrequency==false"
+                                ng-model="item.MorningFrequency" ng-click="mornfreq(item)">
+                                <strong>M</strong>
+                            </button>
+                            <button class="btn-success-select" ng-if="item.MorningFrequency==true"
+                                ng-model="item.MorningFrequency" ng-click="mornfreq(item)">
+                                <strong>M</strong>
+                            </button>
+                            <button class="btn-default-select" ng-if="item.AfterNoonFrequency==false"
+                                ng-model="item.AfterNoonFrequency" ng-click="aftfreq(item)">
+                                <strong>A</strong>
+                            </button>
+                            <button class="btn-success-select" ng-if="item.AfterNoonFrequency==true"
+                                ng-model="item.AfterNoonFrequency" ng-click="aftfreq(item)">
+                                <strong>A</strong>
+                            </button>
+                            <button class="btn-default-select" ng-if="item.EveningFrequency==false"
+                                ng-model="item.EveningFrequency" ng-click="evefreq(item)">
+                                <strong>E</strong>
+                            </button>
+                            <button class="btn-success-select" ng-if="item.EveningFrequency==true"
+                                ng-model="item.EveningFrequency" ng-click="evefreq(item)">
+                                <strong>E</strong>
+                            </button>
+                            <button class="btn-default-select" ng-if="item.NightFrequency==false"
+                                ng-model="item.NightFrequency" ng-click="nightfreq(item)">
+                                <strong>N</strong>
+                            </button>
+                            <button class="btn-success-select" ng-if="item.NightFrequency==true"
+                                ng-model="item.NightFrequency" ng-click="nightfreq(item)">
+                                <strong>N</strong>
+                            </button>
+                        </td>
+                        <td class="fs-12 input_width1">
+                            <input type="text" class="form-control" ng-model="item.Duration" placeholder=""
+                                ng-disabled="IsDisabled">
+                        </td>
+                        <td class="fs-12 input_width1">
+                            <ui-select ng-model="item.DurationPeriodId" class="ui-select-period"
+                                ng-disabled="IsDisabled">
+                                <ui-select-match>
+                                    {{$select.selected.Text | limitTo : 20 : 0}}
+                                    <span ng-if="$select.selected.Text.length>20">...</span>
+                                </ui-select-match>
+                                <ui-select-choices
+                                    repeat="lookupitem.Id as lookupitem in lookup.DurationPeriod | filter: { Text: $select.search }">
+                                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                </ui-select-choices>
+                            </ui-select>
+                        </td>
+                        <td class="fs-12">
+                            <ui-select ng-model="item.DrugInstructionId" ng-disabled="IsDisabled"
+                                class="ui-select-grid">
+                                <ui-select-match>
+                                    {{$select.selected.Text | limitTo : 20 : 0}}
+                                    <span ng-if="$select.selected.Text.length>20">...</span>
+                                </ui-select-match>
+                                <ui-select-choices
+                                    repeat="lookupitem.Id as lookupitem in lookup.DrugInstruction | filter: { Text: $select.search }">
+                                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                </ui-select-choices>
+                            </ui-select>
+                        </td>
+                        <td>
+                            <!--<button class="btn-success btn-xs" tabindex="-1" ng-click="editPrescriptionDetail(item)">
+                                <i class="fa fa-pencil" aria-hidden="true"></i>
+                            </button>-->
+                            <button class="drhms-edit-button" tabindex="-1"
+                                ng-click="deletePrescriptionDetail($index,item)" ng-disabled="IsDisabled">
+                                <img src="assets/svg/delete.svg" alt="">
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="">
+            <div class="col-sm-6 form-group">
+                <label class="col-sm-12 control-label ng-scope active_instruction h4" for="advice"
+                    translate="patientemr.dischargesections.advice.lbl">
+                </label>
+                <div class="col-sm-8">
+                    <textarea rows="3" name="details" ng-model="item.DietAdvice" maxlength="4000"
+                        class="notes-textarea"></textarea>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+<div class="fooder-bgs">
+    <div class="row">
+        <div class="pull-left">
+            <button type="button" class="btn pyr-color10 btn-sm" tabindex="-1" ng-click="backToList()">
+                <i class="fa fa-angle-left" aria-hidden="true"></i>&nbsp;&nbsp;
+                <span class="btn-fontsize" translate="common.backaction.lbl"></span>
+            </button>
+            <!-- <button id="btn" type="button" class="btn bt-color3 btn-sm" ng-click="labresult()" uib-tooltip="{{ 'medicalcertificate.dischargesummary-form.labresult.lbl' | translate }}"
+            tooltip-placement="top">
+            <i class="fa fa-flask"></i>
+        </button>
+        <button id="btn" type="button" class="btn bt-color1 btn-sm" ng-click="radiologyresult()" uib-tooltip="{{ 'medicalcertificate.dischargesummary-form.radiology.lbl' | translate }}"
+            tooltip-placement="top">
+            <i class="fa fa-file-image-o"></i>
+        </button> -->
+        </div>
+        <div class="pull-right">
+            <button id="btnSave" type="button" class="draftbutton" translate="common.saveaction.lbl"
+                ng-click="saveItem()"></button>
+        </div>
+    </div>
+</div>

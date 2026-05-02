@@ -1,0 +1,104 @@
+<style>
+    .pl-3 {
+        padding-left: 3%;
+    }
+
+    .priority {
+        background-color: rgba(241, 208, 63, 0.34);
+    }
+
+    .icon_emrboard {
+        width: 5%;
+        float: right;
+        margin-right: 1%;
+    }
+
+    .icon_home {
+        width: 5%;
+        float: right;
+    }
+
+    .m_bottom {
+        margin-bottom: 7px;
+    }
+    @media (min-height: 675px) and (min-width: 1360px){
+        #patientidentitiesheight .ui-grid-viewport{
+            height: 425px !important;
+    min-height: 428px !important;
+    
+}}
+@media (min-height: 637px) and (min-width: 1200px){
+    #patientidentitiesheight .ui-grid-viewport {
+    height:387px !important;
+    min-height: 387px;
+}}
+@media (device-width:100vw) and (device-height:100vh){
+    #patientidentitiesheight .ui-grid-viewport{
+        height: 520px !important;
+        min-height:520px;
+    }
+}
+</style>
+<div class="row filter-area" ng-hide="context=='emr'">
+    <div class="col-sm-12 m_bottom">
+		<div class="col-sm-3">
+            <label class="col-sm-4 control-label" for="tostore" translate="patientrequests.tostore.lbl"></label>
+            <div class="col-sm-8">
+                <ui-select ng-model="currentfilter.ToStoreId" ng-change="getList()" name="tostore" ng-disabled="item.isDisabled" required>
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 20 : 0}}
+                        <span ng-if="$select.selected.Text.length>20">...</span>
+                    </ui-select-match>
+                    <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.ToStore | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+        <div class="col-sm-3">
+            <label class="col-sm-4 control-label" translate="patientrequests.request.lbl"></label>
+            <div class="input-group col-sm-8">
+                <div class="input-group-addon">
+                    <i class="fas fa-search" aria-hidden="true"></i>
+                </div>
+                <input type="text" class="form-control" on-enter="getList()" ng-model="currentfilter.PatientRequestNumber" translate translate-attr-placeholder="patientrequests.number.lbl">
+            </div>
+        </div>
+		<div class="col-sm-3">
+            <label class="col-sm-4 control-label" for="patientrequeststatus" translate="patientrequests.status.lbl"></label>
+            <div class="col-sm-8">
+                <multiselectchk list="lookup.PatientRequestStatus" selected="currentfilter.PatientRequestStatusId" change="getList()"></multiselectchk>
+            </div>
+        </div>
+        <div class="col-sm-3">
+            <label class="col-sm-3 control-label" for="priority" translate="patientrequests.priority.lbl"></label>
+            <div class="col-sm-7">
+                <ui-select ng-model="currentfilter.PatientRequestPriorityId" ng-change="getList()" name="fromstore" ng-disabled="item.isDisabled"
+                    required>
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 20 : 0}}
+                        <span ng-if="$select.selected.Text.length>20">...</span>
+                    </ui-select-match>
+                    <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.PatientRequestPriority | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+			<div class="col-sm-2">
+				<button class="btn bt-color2 btn-xs pull-right btn-filter" ng-click="addNew()" uib-tooltip="{{ 'patientrequests.addnew-tooltip.lbl' | translate }}"
+				tooltip-placement="bottom">
+				<i class="fa fa-plus" aria-hidden="true"></i>
+			</button>
+		</div>
+        </div>
+    </div>
+</div>
+<div class="container-fluid" id="patientidentitiesheight">
+    <div ui-grid="vm.gridConfig" class="table-uigrid table-uigrid-tab "></div>
+    <div class="fooder-bgs">
+        <div class="row">
+            <ul uib-pagination total-items="vm.gridConfig.pagerObj.totalItems" items-per-page="vm.gridConfig.pagerObj.pageSize" start-index="vm.gridConfig.pagerObj.startIndex"
+                ng-model="vm.gridConfig.pagerObj.currentPage" ng-change="getList()"></ul>
+        </div>
+    </div>
+</div>

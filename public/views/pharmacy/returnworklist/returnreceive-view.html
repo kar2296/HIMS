@@ -1,0 +1,237 @@
+<link rel="stylesheet" href="app/css/drhms.css">
+<style>
+    .form-horizontal .form-group {
+        height: 42px;
+    }
+</style>
+<div class="row">
+    <div class="drhms-filters">
+        <div class="col-sm-10">
+            <h4 translate="billing.returnreceive-form.pagetitle.lbl"></h4>
+        </div>
+        <div class="col-sm-2">
+            <button type="button" class="drhms-billing-btn drhms-previousbill-btn"
+                uib-tooltip="{{ 'billing.patientdispense-form.previousorders-tooltip.lbl' | translate }}"
+                tooltip-placement="bottom" ng-click="previousReturns()">
+                <i class="fa fa-search-plus" aria-hidden="true"></i>
+            </button>
+        </div>
+    </div>
+</div>
+<patientbanner patientid="item.PatientId" delegatefn="setBannerDelegate(cmp)"></patientbanner>
+<div class="row">
+    <form id="item_form" name="item_form" class="form-horizontal" role="form">
+        <div class="form-group col-sm-4">
+            <label class="col-sm-4" for="mystore" translate="billing.returnreceive-form.mystore.lbl"></label>
+            <div class="col-sm-8">
+                <ui-select ng-model="item.StoreMasterId" ng-change="getStoreItems()" name="mystore" class="filter-combo"
+                    ng-disabled="item.ReadOnly" required>
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 20 : 0}}
+                        <span ng-if="$select.selected.Text.length>20">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.UserStores | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+        <div class="form-group col-sm-4">
+            <label class="col-sm-4" for="wardroom" translate="billing.returnreceive-form.wardroom.lbl"></label>
+            <div class="col-sm-8">
+                <input type="text" class="form-control" name="wardroom" ng-model="item.WardRoom"
+                    placeholder="Ward / Room" id="disabledInput" disabled>
+            </div>
+        </div>
+        <div class="form-group col-sm-4">
+            <label class="col-sm-4" for="returnno" translate="billing.returnreceive-form.returnno.lbl"></label>
+            <div class="col-sm-8">
+                <input type="text" class="form-control" name="returnno" ng-model="item.PatientReturnNumber"
+                    placeholder="Patient Return Number" id="disabledInput" disabled>
+            </div>
+        </div>
+        <div class="form-group col-sm-4">
+            <label class="col-sm-4" for="dispensereturndatetime"
+                translate="billing.returnreceive-form.returnreceiveddatetime.lbl"></label>
+            <div class="col-sm-8">
+                <input type="text" class="form-control" name="dispensereturndatetime" ng-date-object
+                    uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                    placeholder="{{datePickerOptions.placeholder}}"
+                    ng-click="dispensereturndatetimePopup = { opened: true }"
+                    is-open="dispensereturndatetimePopup.opened" ng-model="item.DispenseReturnDateTime"
+                    id="disabledInput" disabled>
+            </div>
+        </div>
+        <div class="form-group col-sm-4">
+            <label class="col-sm-4" for="dispensereturnnumber"
+                translate="billing.returnreceive-form.dispensereturnnumber.lbl"></label>
+            <div class="col-sm-8">
+                <input type="text" class="form-control" name="dispensereturnnumber" ng-model="item.DispenseReturnNumber"
+                    placeholder="Dispense Number" id="disabledInput" disabled>
+            </div>
+        </div>
+        <div class="form-group col-sm-4">
+            <label class="col-sm-4" for="dispensereturnstatus"
+                translate="billing.returnreceive-form.dispensereturnstatus.lbl"></label>
+            <div class="col-sm-8">
+                <input type="text" class="form-control" name="dispensereturnstatus"
+                    ng-model="item.DisplayDispenseReturnStatus" placeholder="Dispense Return Status" id="disabledInput"
+                    disabled>
+            </div>
+        </div>
+    </form>
+</div>
+<div class="row">
+    <div class="drhms-table-control">
+        <div class="drhms-bg-pattern">
+            <div class="drhms-table-height">
+                <table class="drhms-responsive-table">
+                    <thead class="bg-subhead">
+                        <tr>
+                            <th>
+                                <span translate="billing.returnreceive-form.itemname.lbl"></span>
+                            </th>
+                            <th>
+                                <span translate="billing.returnreceive-form.totalqty.lbl"></span>
+                            </th>
+                            <th>
+                                <span translate="billing.returnreceive-form.batchqty.lbl"></span>
+                            </th>
+                            <th>
+                                <span translate="billing.returnreceive-form.retqty.lbl"></span>
+                            </th>
+                            <th>
+                                <span translate="billing.returnreceive-form.recqty.lbl"></span>
+                            </th>
+                            <th>
+                                <span translate="billing.returnreceive-form.qty.lbl"></span>
+                            </th>
+                            <th>
+                                <span translate="billing.returnreceive-form.batch.lbl"></span>
+                            </th>
+                            <th>
+                                <span translate="billing.returnreceive-form.expirydate.lbl"></span>
+                            </th>
+                            <th>
+                                <span translate="billing.returnreceive-form.mrp.lbl"></span>
+                            </th>
+                            <th>
+                                <span translate="billing.returnreceive-form.amount.lbl"></span>
+                            </th>
+                            <th>
+                                <span translate="billing.returnreceive-form.action.lbl"></span>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="stockdispensereturn in patientdispensereturnDetails | filter:{Status:1}">
+                            <td>
+                                <span> {{stockdispensereturn.ItemName }}</span>
+                            </td>
+                            <td>
+                                <span> {{stockdispensereturn.TotalAvailableQuantity }}</span>
+                            </td>
+                            <td>
+                                <span> {{stockdispensereturn.QuantityBeforeReceive }}</span>
+                            </td>
+                            <td>
+                                <span> {{stockdispensereturn.ReturnedQuantity }}</span>
+                            </td>
+                            <td>
+                                <span> {{stockdispensereturn.ReceivedQuantity }}</span>
+                            </td>
+                            <td>
+                                <input type="number" min="0" class="form-control"
+                                    ng-model="stockdispensereturn.AcceptedQuantity" placeholder=""
+                                    ng-disabled="stockdispensereturn.IsFullyReceived"
+                                    ng-change="computeAmount(stockdispensereturn)">
+                            </td>
+                            <td class="batch_drop">
+                                <span> {{stockdispensereturn.BatchId }}</span>
+                            </td>
+                            <td>
+                                {{stockdispensereturn.ExpiryDate &nbsp;|&nbsp; date : 'dd-MMM-yyyy'}}
+                            </td>
+                            <td class="currency-align">
+                                <span>{{(stockdispensereturn.MrPrice | displaycurrency)}}</span>
+                            </td>
+                            <td class="currency-align">
+                                <span>{{(stockdispensereturn.NetAmount | displaycurrency)}}</span>
+                            </td>
+                            <td class="text-center">
+                                <button type="button" class="bed-history" uib-tooltip="Alternates"
+                                    tooltip-placement="top" ng-click="History(stockdispensereturn,$index)">
+                                    <i class="fa fa-history fa-xs" aria-hidden="true"></i>
+                                    <!-- <img class="imgsrc" src="app/img/main/history.png"> -->
+                                </button>
+
+                                <i class="fas fa-layer-group" uib-tooltip="Stock" tooltip-placement="top"
+                                    ng-click="Stock($index,stockdispensereturn)"></i>
+
+
+                                <!-- <button type="button" class="text-white btn dem-color4 btn-xs " tabindex="-1"
+                                    uib-tooltip="Stock" tooltip-placement="top"
+                                    ng-click="Stock($index,stockdispensereturn)">
+                                    <i class="fa fa-database fa-xs" aria-hidden="true"></i>
+                                </button> -->
+                                <button type="button" class="drhms-edit-button" tabindex="-1" uib-tooltip="Delete"
+                                    tooltip-placement="top" ng-click="deletePRDetail($index,purchaserequest)"
+                                    ng-disabled="item.isDisabled">
+                                    <img class="drhms-edit-button" src="assets/svg/delete.svg" alt="">
+                                </button>
+
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="cols-sm-12 pending-order">
+    <div class="col-sm-4">
+        <label class="col-sm-4 control-label" for="comments"
+            translate="billing.returnreceive-form.comments.lbl"></label>
+        <div class="col-sm-8">
+            <input type="text" class="form-control field-height" name="comments" ng-model="item.ReturnerComments"
+                ng-disabled="item.isDisabled" placeholder="Comments">
+        </div>
+    </div>
+    <div class="col-sm-4"></div>
+    <div class="col-sm-4">
+        <div class="drhms-due-amount" for="total" translate="billing.returnreceive-form.total.lbl"> <input type="text"
+                value="{{(TotalNetAmount | displaycurrency)}}" class="inputbox form-control" disabled>
+        </div>
+    </div>
+</div>
+<div class="col-sm-12 fooder-bgs">
+    <div class="pull-left">
+        <button type="button" class="btn pyr-color10 btn-sm" tabindex="-1" ng-click="backToList()">
+            <i class="fa fa-angle-left" aria-hidden="true"></i>
+            <span class="btn-fontsize"> &nbsp; Back</span>
+        </button>
+        <!-- <button class="draftbutton" tabindex="-1" uib-tooltip="Attachments"
+            tooltip-placement="top" ng-click="openAttachments()">
+            <i class="fa fa-paperclip fa-xs" aria-hidden="true">&nbsp;&nbsp;(0)</i>
+        </button> -->
+        <button class="draftbutton" tabindex="-1" uib-tooltip="History" tooltip-placement="top" ng-click="history()"
+            translate="History">
+            <!-- <img class="imgsrc" src="app/img/main/history.png" style="margin-top: 1px; width:26px;"> -->
+        </button>
+    </div>
+    <div class="pull-right">
+        <button type="button" tabindex="-1" class="draftbutton" translate="common.printaction.lbl"
+            ng-click="print()"></button>
+        <!-- <button type="button" tabindex="-1" id="btndmprint" class="draftbutton" ng-click="dmPrint()">DM Print</button> -->
+        <!--<button type="button"   class="draftbutton" ng-show="canShowSaveBtn" translate="common.saveaction.lbl" ng-click="SaveandDraft()"></button>-->
+        <button type="submit" class="draftbutton" ng-show="canShowReceiveBtn" translate="common.receive-action.lbl"
+            ng-click="Receive()"></button>
+        <!--<button type="submit" class="draftbutton" ng-show="canShowSaveandApproveBtn" translate="common.saveapprove-action.lbl" ng-click="SaveandApprove()"></button>-->
+        <!--<button type="button"   class="btn btn-info btn-sm" ng-show="canShowAuthorizeBtn" translate="common.authorize.lbl" ng-click="SaveandAuthorize() "></button>-->
+        <button type="button" class="draftbutton" ng-show="canShowClearBtn" translate="common.clearaction.lbl"
+            ng-click="Clear()"></button>
+        <!--<button type="button" id="btnCancelForm" class="draftbutton" ng-show="canShowCancelBtn" translate="common.cancelaction.lbl" ng-click="Cancel()"></button>-->
+    </div>
+</div>

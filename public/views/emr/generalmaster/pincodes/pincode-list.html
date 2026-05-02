@@ -1,0 +1,232 @@
+<style>
+    .nameinfo {
+        font-size: 13px;
+        font-weight: 700;
+        color: #337ab7;
+    }
+
+    .nameinfo.mrninfo {
+        color: black
+    }
+
+    .contactinfo {
+        font-size: 10px;
+        color: #808080
+    }
+
+    .block {
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        overflow: hidden;
+    }
+
+    .linkstyle {
+        font-weight: 700;
+        text-align: right;
+    }
+
+    .statusinfo {
+        font-size: 13px;
+    }
+
+    .sr-only {
+        height: 22px !important;
+    }
+
+    .filter-area {
+        padding-top: 0px !important;
+    }
+
+    .search i {
+        top: 5px;
+    }
+
+    table#bannerdetails {
+        WIDTH: 98%;
+        margin-left: 10px;
+    }
+</style>
+<!-- <div class="row page-header ">
+ 
+    <div class="col-sm-6"> -->
+<!-- <button class="btn bt-color3 btn-xs pull-right btn-filter" ng-click="" uib-tooltip="Advance Filter" tooltip-placement="bottom"><i class="fa fa-filter" aria-hidden="true"></i>&nbsp;&nbsp;<span translate="clinicalmaster.serviceitem-list.filter.lbl"></span></button> -->
+<!-- <button class="btn-add" ng-click="addNew()" uib-tooltip="{{ 'generalmaster.pincode-list.pagetitle.lbl' | translate }}"
+            tooltip-placement="bottom">
+                <i class="fa fa-plus" aria-hidden="true"></i> -->
+<!-- <span translate="generalmaster.patientalert-list.addnew.lbl"></span> -->
+<!-- </button>
+    </div>
+</div> -->
+<div class="row page-header">
+    <div class="col-sm-12">
+        <div class="col-sm-5">
+            <h4 class="col-sm-6 mt0 " translate="generalmaster.pincode-list.pagetitle.lbl"></h4>
+        </div>
+        <div class="col-sm-7">
+            <div class="filters">
+                <div class="search" style="width: 81%;">
+                    <input type="text" id="pid" class="form-control filter-combo" name="filter_pincode"
+                        on-enter="getList()" ng-model="currentfilter.Pincode"
+                        placeholder="{{'generalmaster.pincode-list.filter_pincode.lbl' | translate}}"> <i
+                        class="fas fa-search" aria-hidden="true"></i>
+
+                </div>
+                <button class="btn-add" ng-click="addNew()"
+                    uib-tooltip="{{ 'generalmaster.pincode-list.pagetitle.lbl' | translate }}"
+                    tooltip-placement="bottom">
+                    <i class="fa fa-plus" aria-hidden="true"></i>
+                    <!-- <span translate="generalmaster.patientalert-list.addnew.lbl"></span> -->
+                </button>
+                <button type="button" tabindex="-1" class="btn-add" ng-click="backtoList()" uib-tooltip="Dashboard" tooltip-placement="bottom">
+                    <i class="fa fa-home" aria-hidden="true"> </i>
+                </button>
+
+                <!-- <i class="fa fa-home" align="right" ng-click="backtoList()" uib-tooltip="Dashboard"
+                    tooltip-placement="bottom"></i> -->
+            </div>
+        </div>
+    </div>
+</div>
+<table id="bannerdetails">
+    <tr>
+        <td translate="generalmaster.pincode-list.filter_country.lbl"></td>
+        <td>
+            <ui-select ng-model="currentfilter.CountryId" ng-change="getList()" class="filter-combo">
+                <ui-select-match>
+                    {{$select.selected.Text | limitTo : 8 : 0}}
+                    <span ng-if="$select.selected.Text.length>8">...</span>
+                </ui-select-match>
+                <ui-select-choices
+                    repeat="lookupitem.Id as lookupitem in lookup.Country | filter: { Text: $select.search }">
+                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                </ui-select-choices>
+            </ui-select>
+        </td>
+        <td translate="generalmaster.pincode-list.filter_state.lbl"></td>
+        <td>
+            <ui-select ng-model="currentfilter.StateId" ng-change="getList()" class="filter-combo">
+                <ui-select-match>
+                    {{$select.selected.Text | limitTo : 8 : 0}}
+                    <span ng-if="$select.selected.Text.length>8">...</span>
+                </ui-select-match>
+                <ui-select-choices
+                    repeat="lookupitem.Id as lookupitem in lookup.State | filter: { Text: $select.search }">
+                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                </ui-select-choices>
+            </ui-select>
+        </td>
+        <td translate="generalmaster.pincode-list.filter_city.lbl"></td>
+        <td>
+            <ui-select ng-model="currentfilter.CityId" ng-change="getList()" class="filter-combo">
+                <ui-select-match>
+                    {{$select.selected.Text | limitTo : 8 : 0}}
+                    <span ng-if="$select.selected.Text.length>8">...</span>
+                </ui-select-match>
+                <ui-select-choices
+                    repeat="lookupitem.Id as lookupitem in lookup.City | filter: { Text: $select.search }">
+                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                </ui-select-choices>
+            </ui-select>
+        </td>
+        <td translate="generalmaster.pincode-list.filter_status.lbl"></td>
+        <td>
+            <ui-select ng-model="currentfilter.ActiveStatusId" ng-change="getList()" class="filter-combo">
+                <ui-select-match>
+                    {{$select.selected.Text | limitTo : 8 : 0}}
+                    <span ng-if="$select.selected.Text.length>8">...</span>
+                </ui-select-match>
+                <ui-select-choices
+                    repeat="lookupitem.Id as lookupitem in lookup.ActiveStatus | filter: { Text: $select.search }">
+                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                </ui-select-choices>
+            </ui-select>
+        </td>
+    </tr>
+</table>
+<!-- <div class="row filter-area">
+    <div class="col-sm-12">
+        <div class="col-sm-3 filter-lbl">
+            <label class="col-sm-5 control-label filter-lbl"
+                translate="generalmaster.pincode-list.filter_country.lbl"></label>
+            <div class="col-sm-7">
+                <ui-select ng-model="currentfilter.CountryId" ng-change="getList()" class="filter-combo">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 8 : 0}}
+                        <span ng-if="$select.selected.Text.length>8">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.Country | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div> -->
+<!-- <div class="col-sm-3  filter-lbl">
+            <label class="col-sm-5 control-label filter-lbl"
+                translate="generalmaster.pincode-list.filter_state.lbl"></label>
+            <div class="col-sm-7">
+                <ui-select ng-model="currentfilter.StateId" ng-change="getList()" class="filter-combo">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 8 : 0}}
+                        <span ng-if="$select.selected.Text.length>8">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.State | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div> -->
+<!-- <div class="col-sm-3 filter-lbl">
+            <label class="col-sm-5 control-label filter-lbl text-center"
+                translate="generalmaster.pincode-list.filter_city.lbl"></label>
+            <div class="col-sm-7">
+                <ui-select ng-model="currentfilter.CityId" ng-change="getList()" class="filter-combo">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 8 : 0}}
+                        <span ng-if="$select.selected.Text.length>8">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.City | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div> -->
+<!-- <div class="col-sm-2 filter-lbl">
+            <label class="col-sm-5 control-label filter-lbl text-center" translate="generalmaster.pincode-list.filter_pincode.lbl"></label>
+            <div class="input-group col-sm-7">
+                                    <div class="input-group-addon"><i class="fas fa-search" aria-hidden="true"></i></div>
+                <input type="text" class="form-control filter-combo" name="filter_pincode" on-enter="getList()" ng-model="currentfilter.Pincode" placeholder="{{'generalmaster.pincode-list.filter_pincode.lbl' | translate}}">
+            </div>
+        </div> -->
+<!-- <div class="col-sm-3 filter-lbl">
+            <label class="col-sm-5 control-label filter-lbl"
+                translate="generalmaster.pincode-list.filter_status.lbl"></label>
+            <div class="col-sm-7">
+                    translate="generalmaster.pincode-list.filter_status.lbl"
+                <ui-select ng-model="currentfilter.ActiveStatusId" ng-change="getList()" class="filter-combo">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 8 : 0}}
+                        <span ng-if="$select.selected.Text.length>8">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.ActiveStatus | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+    </div>
+</div> -->
+<custom-table config="vm.gridConfig"></custom-table>
+<div class="container-fluid onerow-filter">
+    <!-- <div ui-grid="vm.gridConfig" class="table-uigrid"></div> -->
+    <div class="fooder-bgs">
+        <div class="row">
+            <ul uib-pagination total-items="vm.gridConfig.pagerObj.totalItems"
+                items-per-page="vm.gridConfig.pagerObj.pageSize" start-index="vm.gridConfig.pagerObj.startIndex"
+                ng-model="vm.gridConfig.pagerObj.currentPage" ng-change="getList()"></ul>
+        </div>
+    </div>
+</div>

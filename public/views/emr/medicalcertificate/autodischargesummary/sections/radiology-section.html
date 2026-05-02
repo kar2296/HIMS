@@ -1,0 +1,124 @@
+<style>
+    .number {
+        color: #c709fd;
+    }
+
+    .order {
+        color: #671205;
+    }
+
+    .details {
+        color: #bf3330;
+    }
+
+    .text {
+        color: #2719b9;
+    }
+
+    .status {
+        color: #067707;
+    }
+
+    .section {
+        color: #EE7723;
+    }
+    div#radiology_toogle {
+    /* background: #f5300e; */
+}
+</style>
+<div class="panel {{currentcontext.paneltype}} portlet-panel" ng-controller="disradiologySectionController as vm">
+    <div class="panel-heading portlet-panel-heading" id="radiology_toogle" ng-click="">
+        <strong translate="{{panelheading}}"></strong>
+         <i class="fa fa-angle-down cust_downarrow radcommon_arrow"></i>
+        <i class="fa fa-angle-right cust_rightarrow rad2common_arrow"></i>
+        <a ng-click="handleEvents('list')" class="pull-right lnk-portlet-header-action " uib-tooltip="{{ 'common.moredetailsaction.lbl' | translate }}"
+            tooltip-placement="bottom">
+            <i class="fa fa-info btn-circle" aria-hidden="true"></i>
+        </a>
+        <!-- <a ng-click="handleEvents('add')" class="pull-right lnk-portlet-header-action" uib-tooltip="{{ 'common.addnewaction.lbl' | translate }}"
+            tooltip-placement="bottom">
+            <i class="fa fa-plus btn-circle" aria-hidden="true"></i>
+        </a> -->
+    </div>
+     <div class="panel-wrapper">
+        <div class="panel-body portlet-panel-body radiology_toggle">
+            <div class="table-responsive">
+                <table class="table table-hover table-responsive table-bordered custom-table">
+                    <tbody>
+                        <tr ng-repeat="item in items| limitTo: currentcontext.recordcount">
+                            <td colspan="9" ng-show="item.TestTypeId==2">
+                                <table class="table table-hover table-responsive table-bordered custom-table">
+                                    <thead>
+                                        <tr>
+                                            <td >
+                                                 <span>
+                                                            <b class="text-highlight13 plain-text">{{item.TESTMASTERTYP.Description}}</b>&nbsp;&nbsp;&nbsp;
+                                                        </span>
+                                                 <span class="number">{{item.OrderNumber}}</span>;&nbsp;
+                                                <span class="text">{{item.OrderRequestDate|date:'dd:MM:yyyy'}} {{item.OrderRequestDate|date:'HH:mm'}}</span>;
+                                                <span class="details">{{item.User.Title.Description}} {{item.User.FirstName}} {{item.User.LastName}}</span>;
+                                                <span class="section">{{item.OrderPriority.Description}}</span>;
+                                                <span class="status">{{item.OrderStatus.DisplayName}}</span>;
+
+                                                <tr ng-repeat="item in item.PatientOrderDetails | limitTo: currentcontext.recordcount">
+                                                    <td>
+                                                        <span class="order"> {{item.TestName}} </span>
+
+                                                    </td>
+                                                </tr>
+                                            </td>
+                                        </tr>
+                                    </thead>
+                                </table>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <!-- <table class="table table-striped table-condensed">
+                    <tbody>
+                        <tr class="portlet-tr" ng-repeat="item in items | limitTo: currentcontext.recordcount">
+                            <td ng-show="item.TestTypeId==2">
+                                <span>
+                                    <b class="text-highlight13 plain-text">{{item.TESTMASTERTYP.Description}}</b>&nbsp;&nbsp;&nbsp;
+                                    <div>
+                                        <span class="number">{{item.OrderNumber}}</span>;&nbsp;
+                                       <span class="text">{{item.OrderRequestDate|date:'dd:MM:yyyy'}}{{item.OrderRequestDate|date:'HH:mm'}}</span>;
+                                      <span class="details">{{item.User.Title.Description}} {{item.User.FirstName}}{{item.User.LastName}}</span>;
+                                      <span class="section">{{item.OrderPriority.Description}}</span>; <span class="status">{{item.OrderStatus.DisplayName}}</span>;
+                                      <span class="order">{{item.PatientOrderDetails[0].TestName}}</span>
+                                  </div>
+                                </span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table> -->
+             </div>
+             <button type="button" class="btn btn-danger" style="position:relative;top:25px;padding:0px;float:right;">View more > ></button>
+         </div>
+    </div>
+</div>
+<script>
+        $(document).ready(function(){
+         $(".radcommon_arrow").click(function(){
+
+                $(".radiology_toggle").toggle("slow");
+
+               });
+           });
+
+        </script>
+        <style>
+        .radiology_toggle{
+            height:150px;
+
+            width:100%;
+        }
+
+        .radcommon_arrow{
+            float: right;
+            padding-left: 47px;
+            font-size:24px;
+
+        }
+      .rad2common_arrow{display: none;}
+        </style>

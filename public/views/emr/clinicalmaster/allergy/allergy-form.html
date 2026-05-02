@@ -1,0 +1,123 @@
+<style>
+    .modal-content {
+        width: 50%;
+        margin: 30px auto;
+    }
+</style>
+<div class="modal-header custom-modal-header">
+    <div class="col-sm-10">
+        <h4 class="modal-title custom-modal-title" translate="clinicalmaster.allergy-form.pagetitle.lbl"></h4>
+    </div>
+    <div class="col-sm-2">
+        <div class="filters">
+            <img src="../../../../../assets/svg/close.svg" ng-click="cancelCallback()">
+        </div>
+    </div>
+</div>
+<div class="row">
+    <form id="item_form" name="item_form" class="form-horizontal" role="form">
+        <!-- <div class="form-group col-sm-6">
+                                    <label class="col-sm-12 control-label" for="displayid" translate="clinicalmaster.allergy-form.displayid.lbl"></label>
+                                    <div class="col-sm-12">
+                                        <input type="text" class="form-control" name="displayid" ng-model="item.DisplayId" placeholder="" required>
+                                    </div>
+                                </div> -->
+        <div class="form-group col-sm-6">
+            <label class="col-sm-12 control-label" for="allergyname"
+                translate="clinicalmaster.allergy-form.allergyname.lbl"></label>
+            <div class="col-sm-12">
+                <input type="text" class="form-control" name="allergyname" ng-model="item.AllergyName" placeholder=""
+                    required>
+            </div>
+        </div>
+        <div class="form-group col-sm-6">
+            <label class="col-sm-12 control-label" for="type" translate="clinicalmaster.allergy-form.type.lbl"></label>
+            <div class="col-sm-12">
+                <ui-select ng-model="item.AllergyTypeId" name="type" required>
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 20 : 0}}
+                        <span ng-if="$select.selected.Text.length>20">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.AllergyType | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+        <!-- <div class="form-group col-sm-6">
+                                    <label class="col-sm-12 control-label" for="eventtype" translate="clinicalmaster.allergy-form.eventtype.lbl"></label>
+                                    <div class="col-sm-12">
+                                        <ui-select ng-model="item.AllergyEventTypeId" name="eventtype" required>
+                                            <ui-select-match>
+                                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                                <span ng-if="$select.selected.Text.length>20">...</span>
+                                            </ui-select-match>
+                                            <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.AllergyEventType | filter: { Text: $select.search }">
+                                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                            </ui-select-choices>
+                                        </ui-select>
+                                    </div>
+                                </div>
+                                <div class="form-group col-sm-6" ng-show="item.AllergyTypeId==3">
+                                    <label class="col-sm-12 control-label" translate="clinicalmaster.allergy-form.itemname.lbl"></label>
+                                    <div class="col-sm-12">
+                                        <autosearch itemid="item.GenericId" iteminfo="item.SelectedItem" rowdata="item" config="vm.genericcontrolconfig" itemchange=""
+                                            class="inputsearchlogo" candisable="IsDisabled"></autosearch>
+                                    </div>
+                                </div>
+                                <div class="form-group col-sm-6"ng-show="item.AllergyTypeId==2">
+                                    <label class="col-sm-12 control-label" translate="clinicalmaster.allergy-form.itemname.lbl"></label>
+                                    <div class="col-sm-12">
+                                        <autosearch itemid="item.DietItemId" name="'diet'" iteminfo="item.SelectedItem" rowdata="item" config="vm.dietcontrolconfig"
+                                            itemchange="dietChanged($index,item)" class="inputsearchlogo" candisable="IsDisabled"
+                                            isrequired="true"></autosearch>
+                                    </div>
+                                </div>
+                                <div class="form-group col-sm-6">
+                                    <label class="col-sm-12 control-label" for="referrencelink" translate="clinicalmaster.allergy-form.referrencelink.lbl"></label>
+                                    <div class="col-sm-5">
+                                        <input type="text" class="form-control" name="referrencelink" ng-model="item.ReferrenceLink" 
+                                        translate translate-attr-placeholder="common.reflink-placeholder.lbl" >
+                                    </div>
+                                    <div class="col-sm-3 linkchecker-div">
+                                        <linkchecker url="item.ReferrenceLink"></linkchecker>
+                                    </div>
+                                </div>
+                                <div class="form-group col-sm-6">
+                                    <label class="col-sm-12 control-label" for="description" translate="clinicalmaster.allergy-form.description.lbl"></label>
+                                    <div class="col-sm-12">
+                                        <input type="text" class="form-control" name="description" ng-model="item.Description" placeholder="" >
+                                    </div>
+                                </div>
+                                <div class="form-group col-sm-6">
+                                    <label class="col-sm-12 control-label" for="isactive" translate="clinicalmaster.allergy-form.isactive.lbl"></label>
+                                    <div class="col-sm-12">
+                                        <input type="checkbox" name="isactive" class="custom-checkbox"
+                                            ng-model="item.IsActive">
+                                    </div>
+                                </div>
+                                    <div class="form-group col-sm-6">
+                                            <label class="col-sm-12 control-label ng-scope"><span class="ng-scope">Comments</span></label>
+                                            <div class="col-sm-12">
+                                                <textarea name="comments" ng-model="item.SpecialInstruction" maxlength="4000" style="width: 100%; margin-top: 10px; margin-bottom: 0px; height: 71px;" class="notes-textarea ng-pristine ng-valid ng-empty ng-valid-maxlength ng-touched" ng-disabled="item.isl" tabindex="-1"></textarea><div class="validation ng-scope ng-hide" ng-show="attrs.required==''|| attrs.required"><ul class="list-unstyled validation-errors ng-inactive ng-hide" ng-messages="field.$error" ng-show="field.$invalid &amp;&amp; (field.$touched || field.$dirty || form.$triedSubmit)">
+                                                    </ul><div class="validation-success" ng-show="field.$valid &amp;&amp; !field.$invalid">
+                                                        </div></div>
+                                            </div>
+                                        </div> -->
+
+    </form>
+</div>
+
+<div class="">
+    <div class="row">
+        <div class="pull-right">
+            <!-- <button type="button" id="btnsubmit" class="draftbutton" translate="common.saveaction.lbl" ng-click="save()"></button> -->
+
+            <button type="button" class="draftbutton" translate="common.saveapprove-action.lbl"
+                ng-click="saveAndApprove()"></button>
+            <!-- <button id="btnClearForm" type="button" class="btn btn-warning btn-sm" ng-click="clear()" translate="common.clearaction.lbl"></button> -->
+            <!-- <button id="btnCancelForm" type="button" class="draftbutton" ng-click="backToList()" translate="common.cancelaction.lbl"></button>						 -->
+        </div>
+    </div>
+</div>

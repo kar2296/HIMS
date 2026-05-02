@@ -1,0 +1,188 @@
+<style>
+    .panel-body .well {margin-top: 3px;}
+    .modal-full {width: 91%!important;}
+	.tabsizetopcontroller {
+    width: 97% !important;
+}
+</style>
+<!--<ul class="breadcrumb" ng-if="!currentcontext.ismodal">
+    <li><a ng-click="backToList()" translate="patientemr.patientvital-form.parentpagetitle.lbl"></a></li>
+    <li class="active" translate="patientemr.patientvital-form.pagetitle.lbl"></li>
+</ul>	-->
+<div class="modal-header custom-modal-header" ng-if="currentcontext.ismodal">
+    <h4 class="modal-title custom-modal-title" translate="patientemr.patientvital-form.pagetitle.lbl"></h4>
+</div>
+
+<div class="row">
+    <div class="col-sm-12">
+        <label class="btn btn-secondary top-option" ng-repeat="topmenu in topmenus" ng-model="currentcontext.selectedMenu" 
+                    uib-btn-radio="topmenu.key">{{topmenu.name}}</label>
+    </div>
+
+    <div class="col-sm-12" ng-show="canShowChartArea()" class="formRoot" style="height:413px;">
+        <vitalchart patientid="item.PatientId"></vitalchart>
+    </div>
+    <div class="col-sm-12" ng-show="canShowFormArea()">
+        <form id="item_form0" name="item_form" class="form-horizontal" role="form">	
+            <div class="bg-pattern" style="height:432px;">
+               <div class="panel-body form-panel">	
+                        <div class="col-sm-12">			                            
+                            <div class="col-sm-6">
+                                 <div class="well">
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label" for="performeddate" translate="patientemr.patientvital-form.capturedate.lbl"></label>
+                                    <div class="col-sm-8">
+                                        <input type="text" class="form-control" name="performeddate" ng-date-object 
+                                                uib-datepicker-popup="{{datePickerOptions.dateFormat}}" 
+                                                placeholder="{{datePickerOptions.placeholder}}" 
+                                                ng-click="performeddatePopup = { opened: true }" 
+                                                is-open="performeddatePopup.opened" ng-model="item.PerformedDate" ng-change="changeperformeddate()">
+                                    </div>
+                                  
+                                </div>
+
+                                   <div class="form-group">
+                                    <label class="col-sm-4 control-label" for="vitalname" translate="patientemr.patientvital-form.vitalname.lbl"></label>
+                                    <div class="col-sm-6">
+                                        <ui-select ng-model="currentcontext.vitalid" name="vitalname" ng-change="vitalChange($select.selected)">
+                                            <ui-select-match>
+                                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                                <span ng-if="$select.selected.Text.length>20">...</span>
+                                            </ui-select-match>
+                                            <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.Vital | filter: { Text: $select.search }">
+                                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                            </ui-select-choices>
+                                        </ui-select>
+                                    </div>
+                                    <div class="col-sm-1">
+                                        <button class="btn btn-default btn-sm" ng-click="addvitalClick()">
+                                            <i class="fa fa-plus" aria-hidden="true"></i>
+                                        </button>
+                                    </div>
+                                     <div class="col-sm-1"></div>
+                                </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                 <div class="well">
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label" for="performedby" translate="patientemr.patientvital-form.capturedby.lbl"></label>
+                                    <div class="col-sm-8">
+                                        <ui-select ng-model="item.PerformedBy" name="performedby" ng-change="changeperformedby()">
+                                            <ui-select-match>
+                                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                                <span ng-if="$select.selected.Text.length>20">...</span>
+                                            </ui-select-match>
+                                            <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.User | filter: { Text: $select.search }">
+                                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                            </ui-select-choices>
+                                        </ui-select>
+                                    </div>
+                                  
+                                </div>
+                                 <div class="form-group">
+                                    <label class="col-sm-4 control-label" for="panel" translate="patientemr.patientvital-form.panel.lbl"></label>
+                                    <div class="col-sm-6">
+                                        <ui-select ng-model="currentcontext.panelmasterid" name="panel" ng-change="panelChange($select.selected)">
+                                            <ui-select-match>
+                                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                                <span ng-if="$select.selected.Text.length>20">...</span>
+                                            </ui-select-match>
+                                            <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.PanelMaster | filter: { Text: $select.search }">
+                                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                            </ui-select-choices>
+                                        </ui-select>
+                                    </div>
+                                    <div class="col-sm-1">
+                                        <button class="btn btn-default btn-sm" ng-click="addpanelClick()">
+                                            <i class="fa fa-plus" aria-hidden="true"></i>
+                                        </button>
+                                    </div>
+                                    <div class="col-sm-1"></div>
+                                </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- grid area starts -->
+                        <div class="tableheight"  id="mainresponsivetablecontrol">
+                            <table class="table table-hover table-responsive table-bordered">
+                                <thead class="bg-subhead">
+                                    <tr>
+                                        <th class="fs-12 col-sm-3"><span translate="patientemr.patientvital-form.description.lbl"></span></th>
+                                        <th class="fs-12 col-sm-4"><span translate="patientemr.patientvital-form.vitalvalue.lbl"></span></th>
+                                        <th class="fs-12 col-sm-1"><span translate="patientemr.patientvital-form.uom.lbl"></span></th>
+                                        <th class="fs-12 col-sm-1"><span translate="patientemr.patientvital-form.range.lbl"></span></th>
+                                        <th class="fs-12 col-sm-1"><span translate="patientemr.patientvital-form.alerts.lbl"></span></th>
+                                        <th class="fs-12 col-sm-2"><span translate="patientemr.patientvital-form.actions.lbl"></span></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr ng-repeat="item in vitals">
+                                        <td class="fs-12">
+                                            {{item.Description}}
+                                        </td>
+                                        <td class="fs-12" class="row">
+                                            <div class="col-sm-12" ng-show="!(IsHeight(item) || IsBP(item))">
+                                                <input type="text" class="form-control" ng-model="item.VitalValue" ng-disabled="IsBMI(item)" ng-change="CalculateBMI()" placeholder="">
+                                            </div>
+                                            <div ng-show="IsHeight(item)">
+                                                <div class="col-sm-5">
+                                                    <input type="text" class="form-control" ng-model="item.VitalValue1" ng-change="CalculateBMI()" placeholder="">
+                                                </div>
+                                                <div class="col-sm-2">
+                                                    <label class="col-sm-2 control-label" translate="patientemr.patientvital-form.feet.lbl"></label>
+                                                </div>
+                                                <div class="col-sm-5">
+                                                    <input type="text" class="form-control" ng-model="item.VitalValue2" ng-change="CalculateBMI()" placeholder="">
+                                                </div>
+                                            </div>
+                                            <div ng-show="IsBP(item)">
+                                                <div class="col-sm-5">
+                                                    <input type="text" class="form-control" ng-model="item.VitalValue1" placeholder="">
+                                                </div>
+                                                <div class="col-sm-2">
+                                                    <label class="col-sm-2 control-label">/</label>
+                                                </div>
+                                                <div class="col-sm-5">
+                                                    <input type="text" class="form-control" ng-model="item.VitalValue2" placeholder="">
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="fs-12">
+                                            {{item.UOM}}
+                                        </td>
+                                        <td class="fs-12">
+                                            <div ng-show="!item.ReferenceRangeTo">
+                                                {{item.ReferenceRangeFrom}}
+                                            </div>
+                                            <div ng-show="item.ReferenceRangeTo">
+                                                {{item.ReferenceRangeFrom}} - {{item.ReferenceRangeTo}}
+                                            </div>
+                                        </td>
+                                        <td class="fs-12">
+                                        </td>
+                                        <td class="fs-12">
+                                            <button class="btn btn-danger btn-xs" ng-click="deleteVital($index)">
+                                            <img class="drhms-edit-button" src="assets/svg/delete.svg" alt="">
+                                        </button> 
+                                        </td>
+                                </tbody>
+                            </table>   
+                            
+                       <p>&nbsp;</p>
+                       
+                       <p>&nbsp;</p>
+                       
+                       <p>&nbsp;</p>  
+                        </div>
+                    </div>
+            </div>
+            <div class="panel-footer formactionbar">
+                <div class="pull-right">
+                    <button type="button" class="draftbutton" ng-click="saveVitals()" translate="common.saveaction.lbl"></button>
+                    <button id="btnCancelForm" type="button" class="draftbutton" ng-click="backToList()" translate="common.cancelaction.lbl"></button>						
+                </div>
+            </div>
+        </form>		
+    </div>
+</div>

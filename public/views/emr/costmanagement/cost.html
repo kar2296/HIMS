@@ -1,0 +1,352 @@
+<style>
+    h4.header {
+    border-bottom: 1px solid #00125a;
+    padding-bottom: 4px;
+}
+</style>
+<div class="row">
+    <form id="item_form" name="item_form" class="form-horizontal" role="form">
+        <h4 class="header" translate="costmanagement.cost-form.pnlproceduredetails.lbl">
+        </h4>
+        <div class="row">
+            <div class="col-sm-4 form-group">
+                <label class="col-sm-12 control-label" for="department"
+                    translate="costmanagement.cost-form.department.lbl"></label>
+                <div class="col-sm-12">
+                    <ui-select ng-model="item.DepartmentId" name="department" required>
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 20 : 0}}
+                            <span ng-if="$select.selected.Text.length>20">...</span>
+                        </ui-select-match>
+                        <ui-select-choices
+                            repeat="lookupitem.Id as lookupitem in lookup.Department | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+            <div class="col-sm-4 form-group">
+                <label class="col-sm-12 control-label" translate="costmanagement.cost-form.servicename.lbl"></label>
+                <div class="col-sm-12">
+                    <autosearch itemid="item.ServiceId" iteminfo="item.SelectedItem" rowdata="item"
+                        config="vm.serviceitemconfig" itemchange="ServiceItemChanged($index,item)">
+                </div>
+            </div>
+            <div class="col-sm-4 form-group">
+                <label class="col-sm-12 control-label" translate="costmanagement.cost-form.description.lbl"></label>
+                <div class="col-sm-12">
+                    <input type="text" class="form-control" ng-model="item.Description" placeholder="">
+                </div>
+            </div>
+            <div class="col-sm-4 form-group clearboth">
+                <label class="col-sm-12 control-label" for="type"
+                    translate="costmanagement.consumables-list.type.lbl"></label>
+                <div class="col-sm-12">
+                    <ui-select ng-model="item.TypeId" name=class="filter-combo">
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 15 : 0}}
+                            <span ng-if="$select.selected.Text.length>15">...</span>
+                        </ui-select-match>
+                        <ui-select-choices
+                            repeat="lookupitem.Id as lookupitem in lookup.CostType | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                        </ui-select-choices>
+                </div>
+            </div>
+            <div class="col-sm-4 form-group">
+                <label class="col-sm-12 control-label" translate="costmanagement.cost-form.filmsize.lbl"></label>
+                <div class="col-sm-12">
+                    <input type="text" class="form-control" ng-model="item.FilmSize" placeholder="" uppercase>
+                </div>
+            </div>
+            <div class="col-sm-4 form-group">
+                <label class="col-sm-12 control-label"
+                    translate="costmanagement.cost-form.standardtariffop.lbl"></label>
+                <div class="col-sm-12">
+                    <input type="text" class="form-control" ng-model="item.OpTariff" placeholder="" disabled>
+                </div>
+            </div>
+            <div class="col-sm-4 form-group clearboth">
+                <label class="col-sm-12 control-label"
+                    translate="costmanagement.cost-form.standardtariffip.lbl"></label>
+                <div class="col-sm-12">
+                    <input type="text" class="form-control" ng-model="item.IpTariff" placeholder="" disabled>
+                </div>
+            </div>
+            <div class="col-sm-4 form-group">
+                <label class="col-sm-12 control-label" translate="costmanagement.cost-form.insurancetariff.lbl"></label>
+                <div class="col-sm-12">
+                    <input type="text" class="form-control" ng-model="item.InsuranceTariff" placeholder="" disabled>
+                </div>
+            </div>
+        </div>
+        <h4 class="header" translate="costmanagement.cost-form.pnlconsumablecharges.lbl">
+        </h4>
+        <div class="row">
+            <div class="col-sm-4 form-group">
+                <label class="col-sm-12 control-label" translate="costmanagement.cost-form.filmcost.lbl"></label>
+                <div class="col-sm-12">
+                    <input type="number" class="form-control" ng-model="item.FilmCost" placeholder=""
+                        ng-required="false">
+                </div>
+            </div>
+            <div class="col-sm-4 form-group">
+                <label class="col-sm-12 control-label" translate="costmanagement.cost-form.stationarycost.lbl"></label>
+                <div class="col-sm-12">
+                    <input type="number" class="form-control" ng-model="item.StationaryCost" placeholder=""
+                        ng-pattern="/^\d+$/" ng-required="false">
+                </div>
+            </div>
+
+            <div class="col-sm-4 form-group">
+                <label class="col-sm-12 control-label" translate="costmanagement.cost-form.consumablecost.lbl"></label>
+                <div class="col-sm-12">
+                    <input type="number" class="form-control" ng-model="item.ConsumablesCost" placeholder=""
+                        ng-pattern="/^\d+$/" ng-required="false">
+                </div>
+            </div>
+
+            <div class="col-sm-4 form-group">
+                <label class="col-sm-12 control-label" translate="costmanagement.cost-form.othercost.lbl"></label>
+                <div class="col-sm-12">
+                    <input type="number" class="form-control" ng-model="item.OtherCost" placeholder=""
+                        ng-required="false">
+                </div>
+            </div>
+            <div class="col-sm-4 form-group">
+                <label class="col-sm-12 control-label" translate="costmanagement.cost-form.medicinecost.lbl"></label>
+                <div class="col-sm-12">
+                    <input type="number" class="form-control" ng-model="item.MedicineCost"
+                        ng-change="computetotalAmount(item)" placeholder="" ng-pattern="/^\d+$/" ng-required="false">
+                </div>
+            </div>
+
+            <div class="col-sm-4 form-group">
+                <label class="col-sm-12 control-label" translate="costmanagement.cost-form.totalcost.lbl"></label>
+                <div class="col-sm-12">
+                    <input type="number" class="form-control" ng-model="item.TotalCost" placeholder="" disabled>
+                </div>
+            </div>
+        </div>
+        <h4 class="header" translate="costmanagement.cost-form.pnlfixedandequipmentcost.lbl">
+        </h4>
+        <div class="row">
+            <div class="col-sm-4 form-group" ng-show="item.TypeId==1">
+                <label class="col-sm-12 control-label"
+                    translate="costmanagement.cost-form.fixedcoststationedeqp.lbl"></label>
+                <div class="col-sm-12">
+                    <input type="number" class="form-control" ng-model="item.StationedFixedCost" placeholder=""
+                        ng-pattern="/^\d+$/" ng-required="false">
+                </div>
+            </div>
+            <div class="col-sm-4 form-group" ng-show="item.TypeId==1">
+                <label class="col-sm-12 control-label"
+                    translate="costmanagement.cost-form.amccoststationedeqp.lbl"></label>
+                <div class="col-sm-12">
+                    <input type="number" class="form-control" ng-model="item.StationedAMCCost" placeholder=""
+                        ng-pattern="/^\d+$/" ng-required="false">
+                </div>
+            </div>
+            <div class="col-sm-4 form-group" ng-show="item.TypeId==2">
+                <label class="col-sm-12 control-label"
+                    translate="costmanagement.cost-form.fixedcostmobileeqp.lbl"></label>
+                <div class="col-sm-12">
+                    <input type="number" class="form-control" ng-model="item.MobileFixedCost" placeholder=""
+                        ng-pattern="/^\d+$/" ng-required="false">
+                </div>
+            </div>
+            <div class="col-sm-4 form-group" ng-show="item.TypeId==2">
+                <label class="col-sm-12 control-label"
+                    translate="costmanagement.cost-form.amccostmobileeqp.lbl"></label>
+                <div class="col-sm-12">
+                    <input type="number" class="form-control" ng-model="item.MobileAMCCost" placeholder=""
+                        ng-pattern="/^\d+$/" ng-required="false">
+                </div>
+            </div>
+
+            <div class="col-sm-4 form-group">
+                <label class="col-sm-12 control-label" translate="costmanagement.cost-form.nationalrent.lbl"></label>
+                <div class="col-sm-12">
+                    <input type="number" class="form-control" ng-model="item.NotionalRent"
+                        ng-change="computemobileAmount(item)" placeholder="" ng-pattern="/^\d+$/" ng-required="false">
+                </div>
+            </div>
+            <div class="col-sm-4 form-group">
+                <label class="col-sm-12 control-label"
+                    translate="costmanagement.cost-form.radiationbatches.lbl"></label>
+                <div class="col-sm-12">
+                    <input type="number" class="form-control" ng-model="item.RadiationCost" placeholder=""
+                        ng-pattern="/^\d+$/" ng-required="false">
+                </div>
+            </div>
+            <div class="col-sm-4 form-group">
+                <label class="col-sm-12 control-label"
+                    translate="costmanagement.cost-form.onetimeregistration.lbl"></label>
+                <div class="col-sm-12">
+                    <input type="number" class="form-control" ng-model="item.RegistrationCost" placeholder=""
+                        ng-pattern="/^\d+$/" ng-required="false">
+                </div>
+            </div>
+            <div class="col-sm-4 form-group">
+                <label class="col-sm-12 control-label" translate="costmanagement.cost-form.othercost.lbl"></label>
+                <div class="col-sm-12">
+                    <input type="number" class="form-control" ng-model="item.EquipmentOtherCost" placeholder=""
+                        ng-pattern="/^\d+$/" ng-required="false">
+                </div>
+            </div>
+            <div class="col-sm-4 form-group">
+                <label class="col-sm-12 control-label" translate="costmanagement.cost-form.cassette.lbl"></label>
+                <div class="col-sm-12">
+                    <input type="number" class="form-control" ng-model="item.Casette" ng-change="computeAmount(item)"
+                        placeholder="" ng-pattern="/^\d+$/" ng-required="false">
+                </div>
+            </div>
+            <div class="col-sm-4 form-group" ng-show="item.TypeId==1">
+                <label class="col-sm-12 control-label"
+                    translate="costmanagement.cost-form.totalfixedcostforstationed.lbl"></label>
+                <div class="col-sm-12">
+                    <input type="number" class="form-control" ng-model="item.TotalStationedFixedCost" placeholder=""
+                        disabled>
+                </div>
+            </div>
+            <div class="col-sm-4 form-group" ng-show="item.TypeId==2">
+                <label class="col-sm-12 control-label"
+                    translate="costmanagement.cost-form.totalfixedcostformobile.lbl"></label>
+                <div class="col-sm-12">
+                    <input type="number" class="form-control" ng-model="item.TotalMobileFixedCost" placeholder=""
+                        disabled>
+                </div>
+            </div>
+            <div class="col-sm-4 form-group">
+                <label class="col-sm-12 control-label" translate="costmanagement.cost-form.comments.lbl"></label>
+                <div class="col-sm-12">
+                    <textarea rows="3" name="reason" ng-model="item.Comments" ng-disabled="IsDisabled" maxlength="4000"
+                        style="width: 115%;"
+                        class="notes-textarea ng-pristine ng-valid ng-empty ng-valid-maxlength ng-touched"></textarea>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-12">
+            <h4 class="header" translate="costmanagement.cost-form.pnllabourcost.lbl">
+            </h4>
+            <div class="row">
+                <div class="col-sm-4 form-group">
+                    <label class="col-sm-12 control-label"
+                        translate="costmanagement.cost-form.techniciancost.lbl"></label>
+                    <div class="col-sm-12">
+                        <input type="number" class="form-control" ng-model="item.TechnicianCost" placeholder=""
+                            ng-pattern="/^\d+$/" ng-required="false">
+                    </div>
+                </div>
+                <div class="col-sm-4 form-group">
+                    <label class="col-sm-12 control-label" translate="costmanagement.cost-form.nursecost.lbl"></label>
+                    <div class="col-sm-12">
+                        <input type="number" class="form-control" ng-model="item.NurseCost" placeholder=""
+                            ng-pattern="/^\d+$/" ng-required="false">
+                    </div>
+                </div>
+                <div class="col-sm-4 form-group">
+                    <label class="col-sm-12 control-label" translate="costmanagement.cost-form.doctorcost.lbl"></label>
+                    <div class="col-sm-12">
+                        <input type="number" class="form-control" ng-model="item.DoctorCost" placeholder=""
+                            ng-pattern="/^\d+$/" ng-required="false">
+                    </div>
+                </div>
+                <div class="col-sm-4 form-group">
+                    <label class="col-sm-12 control-label"
+                        translate="costmanagement.cost-form.externaldoctorcost.lbl"></label>
+                    <div class="col-sm-12">
+                        <input type="number" class="form-control" ng-model="item.ExternalDoctorCost"
+                            ng-change="computelabourAmount(item)" placeholder="" ng-pattern="/^\d+$/"
+                            ng-required="false">
+                    </div>
+                </div>
+                <div class="col-sm-4 form-group">
+                    <label class="col-sm-12 control-label"
+                        translate="costmanagement.cost-form.totallabourcost.lbl"></label>
+                    <div class="col-sm-12">
+                        <input type="number" class="form-control" ng-model="item.TotalLabourCost" placeholder=""
+                            ng-pattern="/^\d+$/" ng-required="false" disabled>
+                    </div>
+                </div>
+            </div>
+            <h4 class="header" translate="costmanagement.cost-form.pnlpowercost.lbl">
+            </h4>
+            <div class="row">
+                <div class="col-sm-4 form-group" ng-show="item.TypeId==2">
+                    <label class="col-sm-12 control-label"
+                        translate="costmanagement.cost-form.powercostmobileeqp.lbl"></label>
+                    <div class="col-sm-12">
+                        <input type="number" class="form-control" ng-model="item.MobilePowerCost"
+                            ng-change="computetotalmobileAmount(item)">
+                    </div>
+                </div>
+                <div class="col-sm-4 form-group" ng-show="item.TypeId==1">
+                    <label class="col-sm-12 control-label"
+                        translate="costmanagement.cost-form.powercoststationedeqp.lbl"></label>
+                    <div class="col-sm-12">
+                        <input type="number" class="form-control" ng-model="item.StationedPowerCost"
+                            ng-change="computetotalstationedAmount(item)">
+                    </div>
+                </div>
+            </div>
+            <h4 class="header" translate="costmanagement.cost-form.pnlfinalcost.lbl">
+            </h4>
+            <div class="row">
+                <div class="col-sm-4 form-group" ng-hide="item.TypeId==1">
+                    <label class="col-sm-12 control-label"
+                        translate="costmanagement.cost-form.totalvariablecostmobile.lbl"></label>
+                    <div class="col-sm-12">
+                        <input type="number" class="form-control" ng-model="item.MobileVariableCost"
+                            ng-pattern="/^\d+$/" ng-required="false">
+                    </div>
+                </div>
+                <div class="col-sm-4 form-group" ng-hide="item.TypeId==2">
+                    <label class="col-sm-12 control-label"
+                        translate="costmanagement.cost-form.totalvariablecoststationed.lbl"></label>
+                    <div class="col-sm-12">
+                        <input type="number" class="form-control" ng-model="item.StationedVariableCost"
+                            ng-pattern="/^\d+$/" ng-required="false" disable>
+                    </div>
+                </div>
+                <div class="col-sm-4 form-group" ng-hide="item.TypeId==2">
+                    <label class="col-sm-12 control-label"
+                        translate="costmanagement.cost-form.totalcoststationed.lbl"></label>
+                    <div class="col-sm-12">
+                        <input type="number" class="form-control" ng-model="item.TotalStationedCost"
+                            ng-change="computetotalstationedAmount(item)" ng-pattern="/^\d+$/" ng-required="false"
+                            disabled>
+                    </div>
+                </div>
+                <div class="col-sm-4 form-group" ng-hide="item.TypeId==1">
+                    <label class="col-sm-12 control-label"
+                        translate="costmanagement.cost-form.totalcostmobile.lbl"></label>
+                    <div class="col-sm-12">
+                        <input type="number" class="form-control" ng-model="item.TotalMobileCost"
+                            ng-change="computetotalmobileAmount(item)" placeholder="" ng-pattern="/^\d+$/"
+                            ng-required="false" disabled>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="fooder-bgs">
+            <div class="row">
+                <div class="pull-left">
+                    <button type="button" class="btn pyr-color10 btn-sm" ng-click="backToList()"><i
+                            class="fa fa-angle-left" aria-hidden="true"></i>&nbsp;&nbsp;<span class="btn-fontsize"
+                            translate="common.backaction.lbl"></span></button>
+                </div>
+                <div class="pull-right">
+                    <button type="button" class="draftbutton" translate="common.saveaction.lbl"
+                        ng-click="save()"></button>
+                    <button type="button" class="draftbutton" translate="common.saveapprove-action.lbl"
+                        ng-click="saveAndApprove()"></button>
+                    <button id="btnClearForm" type="button" class="draftbutton" ng-click="clear()"
+                        translate="common.clearaction.lbl"></button>
+                    <button id="btnCancelForm" type="button" class="draftbutton" ng-click="backToList()"
+                        translate="common.cancelaction.lbl"></button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>

@@ -1,0 +1,58 @@
+<div class="row">
+    <h4 class="col-sm-6" translate="Analyzer Test Mapping"></h4>
+    <div class="col-sm-6">
+        <button class="btn-add" tabindex="-1" ng-click="addNew()"
+            uib-tooltip="{{ 'lis.analyzer.pagetitle.lbl' | translate }}" tooltip-placement="bottom">
+            <i class="fa fa-plus" aria-hidden="true"></i>
+        </button>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-sm-3 form-group">
+        <label class="col-sm-12 control-label" translate="lis.analyzer.equipmentname.lbl"></label>
+        <div class="col-sm-12">
+            <input type="text" class="form-control" on-enter="getList()" ng-model="currentfilter.AssetName"
+                placeholder="">
+
+        </div>
+    </div>
+    <div class="col-sm-3 form-group">
+        <label class="col-sm-12 control-label" translate="lis.analyzer.analytename.lbl"></label>
+        <div class="col-sm-12">
+            <input type="text" class="form-control" on-enter="getList()" ng-model="currentfilter.AnalyteName"
+                placeholder="">
+        </div>
+    </div>
+    <div class="col-sm-3 form-group">
+        <label class="col-sm-12 control-label" translate="lis.analyzer.analysertestname.lbl"></label>
+        <div class="col-sm-12">
+            <input type="text" class="form-control" on-enter="getList()" ng-model="currentfilter.Name" placeholder="">
+        </div>
+    </div>
+    <div class="col-sm-3 form-group">
+        <label class="col-sm-12 control-label" translate="lis.analyzer.status.lbl"></label>
+        <div class="col-sm-12">
+            <ui-select ng-model="currentfilter.ActiveStatusId" ng-change="getList()" class="filter-combo">
+                <ui-select-match>
+                    {{$select.selected.Text | limitTo : 20 : 0}}
+                    <span ng-if="$select.selected.Text.length>20">...</span>
+                </ui-select-match>
+                <ui-select-choices
+                    repeat="lookupitem.Id as lookupitem in lookup.ActiveStatus | filter: { Text: $select.search }">
+                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                </ui-select-choices>
+            </ui-select>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <custom-table config="vm.gridConfig"></custom-table>
+</div>
+<div class="fooder-bgs">
+    <div class="row">
+        <ul uib-pagination total-items="vm.gridConfig.pagerObj.totalItems"
+            items-per-page="vm.gridConfig.pagerObj.pageSize" start-index="vm.gridConfig.pagerObj.startIndex"
+            ng-model="vm.gridConfig.pagerObj.currentPage" ng-change="getList()"></ul>
+    </div>
+</div>

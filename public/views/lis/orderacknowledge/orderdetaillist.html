@@ -1,0 +1,180 @@
+
+<div ng-switch="$stateParams.orddeptid">
+  <div ng-switch-when="1">
+    <h4 class="page-header mt0" translate="lis.orderacknowledges.labpagetitle.lbl"></h4>
+  </div>
+  <div ng-switch-when="2">
+    <h4 class="page-header mt0" translate="lis.orderacknowledges.radiopagetitle.lbl"></h4>
+  </div> 
+  <div ng-switch-default>
+     <h4 class="page-header mt0" translate="lis.orderacknowledges.otherpagetitle.lbl"></h4>
+  </div>
+</div> 
+
+
+<div class="row filter-area">
+  <div class="col-sm-12">
+        <div class="col-sm-3">  
+            <label class="col-sm-2 control-label filter-lbl" translate="lis.orderdetaillist.filterorderstatus.lbl"></label>            
+            <div class="col-sm-4">
+                <ui-select ng-model="currentfilter.OrderstatusId" ng-change="getList()">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 8 : 0}}
+                        <span ng-if="$select.selected.Text.length>8">...</span>
+                    </ui-select-match>
+                    <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.OrderStatus | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div> 
+        </div>
+
+         <div class="col-sm-3">
+            <label class="col-sm-4 control-label filter-lbl" translate="lis.orderacknowledges.parentdeptid.lbl"></label>
+            <div class="col-sm-8">
+                <ui-select ng-model="currentfilter.parentdeptid" ng-change="getList()">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 8 : 0}}
+                        <span ng-if="$select.selected.Text.length>8">...</span>
+                    </ui-select-match>
+                    <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.Department | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div> 
+        <div class="col-sm-3">
+            <label class="col-sm-4 control-label filter-lbl" translate="lis.orderacknowledges.subdeptid.lbl"></label>
+            <div class="col-sm-8">
+                <ui-select ng-model="currentfilter.subdeptid" ng-change="getList()">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 8 : 0}}
+                        <span ng-if="$select.selected.Text.length>8">...</span>
+                    </ui-select-match>
+                    <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.SubDepartment | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div> 
+        <div class="col-sm-3">
+            <div class="pull-right">
+                <button id="btnCancelForm" type="button" class="btn btn-danger btn-sm pull-rig" ng-click="backToList()" translate="common.cancelaction.lbl"></button>
+            </div>
+        </div> 
+   </div>
+   <div class="col-sm-12">
+        <div class="col-sm-6" style="color:#000000; background-color:#e8cfc5" >
+            <label class="col-sm-4 hdtxtalgin">MRN </label>  
+            <label class="col-sm-3 hdtxtalgin">{{currentfilter.patmrn}}</label>  
+        </div> 
+        <div class="col-sm-6" style="color:#000000; background-color:#e8cfc5" >
+            <label class="col-sm-4 hdtxtalgin">Order #</label>  
+            <label class="col-sm-3 hdtxtalgin">{{currentfilter.ordnr}}</label>  
+        </div>
+   </div>
+   <div class="col-sm-12">
+       <div class="col-sm-6" style="color:#000000; background-color:#e8cfc5" >
+            <label class="col-sm-4 hdtxtalgin">Patient Name</label> 
+            <label class="col-sm-4 hdtxtalgin">{{currentfilter.patname}}</label>  
+        </div>
+        <div class="col-sm-6" style="color:#000000; background-color:#e8cfc5" >
+            <label class="col-sm-4 hdtxtalgin">Order Date</label>  
+            <label class="col-sm-6 hdtxtalgin"> {{currentfilter.orddt | date : 'dd/MM/yyyy HH:mm:ss' }} </label>  
+        </div>
+   </div>  
+</div>
+ 
+<div class="row filter-area"> 
+    <div class="col-sm-12">
+        <div class="col-sm-3"> 
+            <label class="col-sm-4 control-label"   translate="lis.orderacknowledges.selectall.lbl"></label>
+            <div class="col-sm-8">
+            <input type="checkbox" name="selectall" class="custom-checkbox"
+                    ng-model="currentfilter.selectall" ng-click="onSelectAll()" >
+            </div> 
+        </div>
+        <div class="col-sm-3">               
+            <label class="col-sm-4 control-label"   translate="lis.orderacknowledges.deselectall.lbl"></label>
+            <div class="col-sm-8">
+            <input type="checkbox" name="deselectall" class="custom-checkbox"
+                    ng-model="currentfilter.deselectall"  ng-click="onDeselectAll()"  >
+            </div>
+        </div>
+        <div class="col-sm-6">  </div>
+    </div>
+</div>
+
+<div class="container-fluid">    
+    <div ui-grid="vm.gridConfig" class="table-uigrid" set-grid-height></div>
+</div> 
+
+<div class="panel-footer formactionbar">
+    <div class="pull-right">
+        <button type="submit" class="btn btn-primary btn-sm" ng-click="onApproveConfirmed()" translate="lis.orderdetaillist.approveditem.lbl"></button>        
+        <button id="btnCancelForm" type="button" class="btn btn-danger btn-sm pull-rig" ng-click="cancelCallback()" translate="common.cancelaction.lbl"></button>
+    </div>
+</div>
+
+<!-- 
+<style type="text/css">
+.hdtxtalgin{
+        font-weight: 700; 
+} 
+</style>
+
+custom templates  
+ 
+<style type="text/css">
+ 
+    .image-height {
+        width : 80px;
+        height : 80px;
+    }
+    .table-uigrid.ui-grid .ui-grid-cell, .table-uigrid.ui-grid .ui-grid-row{
+        min-height : 40px;
+    }
+    .nameinfo{
+        font-size : 15px;
+        font-weight : bold;
+        color : #337ab7;
+    }
+    .nameinfo.mrninfo{
+        color: black
+    }
+    .contactinfo{
+        font-size : 12px;
+        color: #808080
+    }
+    .linkstyle{
+        font-weight: 700;
+        text-align: right;
+    }        
+</style> 
+  
+
+<script type = "text/ng-template" id = "patientListTemplate.html">
+    <div class="ui-grid-cell-contents"> 
+			<div class="col-sm-1">
+				<div class="nameinfo">{{row.entity.Testname}} </div> 
+			</div>
+            <div class="col-sm-1">
+				<div class="nameinfo">{{row.entity.PriorityStatus.DisplayName}}</div> 
+			</div>
+            <div class="col-sm-1">
+				<div class="nameinfo">{{row.entity.CreatedBy}} </div> 
+			</div>
+            <div class="col-sm-1">
+				<div class="nameinfo">{{row.entity.OrderStatus.DisplayName}}</div> 
+			</div>
+            <div class="col-sm-1">
+				<div class="nameinfo">{{row.entity.Ordertolocation}} </div> 
+			</div>
+            <div class="col-sm-4 linkstyle">
+                <a class="grid-action" ng-click="grid.appScope.handleEvents('approved',row)">Approved</a> &nbsp; | &nbsp;
+                <a class="grid-action" ng-click="grid.appScope.handleEvents('history',row)">History</a> &nbsp; | &nbsp;
+                <a class="grid-action" ng-click="grid.appScope.handleEvents('cancel',row)">Cancel</a> &nbsp; | &nbsp;
+            </div>
+    </div>  
+</script>
+-->

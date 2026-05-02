@@ -1,0 +1,183 @@
+<link href="app/css/emr.css" rel="stylesheet">
+<style>
+    .nav-pills>li.active>a,
+    .nav-pills>li.active>a:focus,
+    .nav-pills>li.active>a:hover {
+        color: #fff;
+        background-color: #b4d7e8;
+    }
+
+    /* table.table.table-bordered.table-condensed.dropdown-menu {
+        width: 44% !important;
+        overflow: scroll;
+    } */
+
+    .nav-pills>li+li {
+        margin-left: 0px;
+    }
+
+    .accordion_icon {
+        float: right;
+    }
+
+    .panel-default>.panel-heading {
+        background-color: #d9edf7;
+    }
+
+    table td {
+        white-space: normal !important;
+    }
+
+    li.col-md-6.active {
+        width: 18%;
+        margin-right: 26px;
+    }
+
+    li.col-md-6 {
+        width: 18%;
+        margin-right: 19px;
+    }
+
+    .nav-pills>li+li {
+        margin-left: -20px;
+    }
+
+    @media screen and (max-width:768px) and (orientation:portrait) {
+        li.col-md-6.active {
+            width: 33%;
+            margin-right: 26px;
+        }
+
+        li.col-md-6 {
+            width: 24%;
+        }
+
+        textarea {
+            margin-left: 6px !important;
+            height: 53px !important;
+        }
+
+        .row {
+            margin-left: -12px;
+            margin-right: -54px;
+            margin-top: 5px;
+        }
+
+        .draftbutton {
+            margin-left: -79px;
+        }
+    }
+
+    @media screen and (max-width:768px) and (orientation:landscape) {
+        li.col-md-6.active {
+            width: 30%;
+            margin-right: 26px;
+        }
+
+        li.col-md-6.active {
+            width: 24%;
+            margin-right: 26px;
+        }
+
+        li.col-md-6 {
+            width: 24%;
+        }
+
+        .form-horizontal .control-label {
+            padding-top: 1px !important;
+            white-space: nowrap;
+        }
+
+        label.col-sm-12.control-label.ng-scope {
+            margin-top: 1px;
+        }
+    }
+
+    table#table1.table>tbody>tr>td {
+        text-align: center !important;
+        padding: 0px !important;
+        border: 1px solid #bbb8b8 !important;
+    }
+</style>
+
+
+
+
+<div class="row page-header" id="assets">
+    <h4 class="col-sm-12 mt0 active" translate="IVF Treatment Plan"></h4>
+    <!-- <div class="col-sm-3">
+        <div class="pull-right">
+            <span class="drhms-billing-btn drhms-outstandingbill-btn" ng-click="doctor_dashboard()"
+                uib-tooltip="{{'patientemr.mock.emrdashboard.lbl' | translate}}" tooltip-placement="bottom">
+                <i class="fas fa-th-large" aria-hidden="true"></i>
+            </span>
+            <img class="imgsrc" src="app/img/main/check-in.png" ng-click="checkedinpatients()" ng-if="Context=='emr'"
+                uib-tooltip="{{'patientemr.pmhxdashboard.oplist.lbl' | translate}}" tooltip-placement="bottom"
+                style="margin-top: -3px;width: 35px;">
+        </div>
+    </div> -->
+</div>
+    <emrpatientbanner patientid="currentcontext.pid" encounterid="currentcontext.eid"></emrpatientbanner>
+
+<!-- <ippatientbanner ng-if="Context=='ipemr'|| Context=='surgery'" patientid="currentcontext.pid" encounterid="currentcontext.eid">
+</ippatientbanner> -->
+<h4 class="col-sm-9 mt0 active" translate="Allocate New Treatment Plan"></h4>
+<form id="item_form" name="item_form" class="form-horizontal" role="form"></form>
+<div class="row">
+    <div class="panel-body form-panel pd5">
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="form-group col-sm-4">
+                    <label class="col-sm-12 control-label" for="otherdiagnosis" translate="Name"></label>
+                    <div class="col-sm-12">
+                        <textarea rows="3" name="otherdiagnosis" ng-model="item.OtherDiagnosis" maxlength="1000"
+                            style="width: 100%;margin-top: 0px;height: 75px;"></textarea>
+                    </div>
+                </div>
+                <div class="form-group col-sm-4">
+                    <label class="col-sm-12 control-label filter-lbl"
+                        translate="patientemr.patientdiagnosis-list.icd.lbl"></label>
+                    <div class="col-sm-12">
+                        <autosearch controlid="'DoctorId'" itemid="item.DoctorId" iteminfo="" rowdata="" name="'doctor'"
+                            config="vm.doctorcontrolconfig" placeholder="'Doctor'" candisable="SaveCompleted"
+                            isrequired="false"></autosearch>
+                    </div>
+                </div>
+
+                <div class="form-group col-sm-4">
+                    <label class="col-sm-12 control-label" for="conditiontype"
+                        translate="patientemr.patientcondition-form.conditiontype.lbl"></label>
+                    <div class="col-sm-12">
+                        <ui-select id="conditiontype" ng-model="item.ConditionTypeId" name="conditiontype">
+                            <ui-select-match>
+                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                <span ng-if="$select.selected.Text.length>20">...</span>
+                            </ui-select-match>
+                            <ui-select-choices
+                                repeat="lookupitem.Id as lookupitem in lookup.ConditionType | filter: { Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-12">
+                <div class="pull-right">
+                    <button type="submit" class="draftbutton" ng-click="AddPatientCondition()"
+                        translate="common.saveaction.lbl"></button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</form>
+<custom-table config="vm.gridConfig"></custom-table>
+<div class="container-fluid">
+    <div class="fooder-bgs">
+        <div class="row">
+            <ul uib-pagination total-items="vm.gridConfig.pagerObj.totalItems"
+                items-per-page="vm.gridConfig.pagerObj.pageSize" start-index="vm.gridConfig.pagerObj.startIndex"
+                ng-model="vm.gridConfig.pagerObj.currentPage" ng-change="getList()"></ul>
+        </div>
+    </div>
+</div>

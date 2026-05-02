@@ -1,0 +1,146 @@
+<style>
+    label>span {
+        vertical-align: baseline;
+        color: #494949;
+        margin-top: 1px;
+        font-size: 13px;
+    }
+
+    .patient-banner-table-section span.btn.btn-default.form-control.ui-select-toggle,
+    .patient-banner-table-section input.form-control {
+        border-radius: unset !important;
+        border-color: gainsboro;
+        background: white !important;
+        width: 85% !important;
+        border-right: 1px solid gainsboro !important;
+    }
+
+    .patient-banner-table.lis .patient-banner-table-section>div {
+        background: none;
+        padding: 0;
+        height: 30px;
+    }
+
+    .patient-banner-table-section {
+        border: 1.5px solid #dadada;
+        width: 100%;
+        margin-right: 8px;
+        padding: 9px 0px 3px 9px;
+        margin-bottom: 10px;
+    }
+
+    span.head-title {
+        font-size: 12px;
+        color: #494949 !important;
+        font-size: 13px;
+    }
+
+    a {
+        font-weight: 400;
+        color: #494949;
+        font-size: 13px;
+    }
+
+    button#btnSaveForm {
+        border-radius: 20px;
+    }
+</style>
+<div class="row page-header">
+    <div class="col-sm-12">
+        <div class="col-sm-6">
+            <h4 class="page-header mt0" translate="lis.lisinterface.pagetitle.lbl"></h4>
+        </div>
+    </div>
+</div>
+<lispatientbanner patientid="item.PatientId"></lispatientbanner>
+<div class="row">
+    <div class="col-sm-12">
+        <form id="item_form" name="item_form" class="form-horizontal " role="form">
+            <div class="formRoot lis_samplecollection" set-form-height style="background-color: #fff; ">
+                <div id="" class="lisdrpctrl">
+                    <table width="100%" style="max-height: 50px"
+                        class="table table-hover table-responsive table-bordered">
+                        <thead class="bg-subhead">
+                            <tr>
+                                <th style="text-align:center;" width="8%">
+                                    Accept All
+                                    <input type="checkbox" ng-model="currentcontext.AcceptedAll"
+                                        ng-click="AcceptAllItems()" ng-disabled="currentcontext.IsSaved" />
+                                </th>
+                                <th style="text-align:center;" width="8%">
+                                    Reject All
+                                    <input type="checkbox" ng-model="currentcontext.RejectedAll"
+                                        ng-click="RejectAllItems()" ng-disabled="currentcontext.IsSaved" />
+                                </th>
+                                <th style="text-align:center;" width="8%">
+                                    Sample ID : {{currentcontext.Sampleid}}
+                                </th>
+                                <th colspan="5"></th>
+                            </tr>
+                            <tr>
+                                <th style="text-align:center;" width="10%">
+                                    Accept
+                                </th>
+                                <th style="text-align:center;" width="10%">
+                                    Reject
+                                </th>
+                                <th style="text-align:center;" width="10%%">slno</th>
+                                <th style="text-align:center;" width="20%">HISName</th>
+                                <th style="text-align:center;" width="10%">LISName</th>
+                                <th style="text-align:center;" width="10%">LISResult</th>
+                                <th style="text-align:center;" width="10%">Units</th>
+                                <th style="text-align:center;" width="10%">HISRef</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="result in ResultInfo | orderBy : 'DisplayNo' ">
+                                <td>
+                                    <input type="checkbox" ng-model="result.Approved" ng-click="Acceptitem(result)"
+                                        ng-disabled="result.IsSaved" />
+                                </td>
+                                <td>
+                                    <input type="checkbox" ng-model="result.Rejected" ng-click="Rejectitem(result)"
+                                        ng-disabled="result.IsSaved" />
+                                </td>
+                                <td style="text-align:center;" width="5%%">{{result.DisplayNo}}</td>
+                                <td>
+                                    <span>
+                                        {{result.AnalyteName}}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span>
+                                        {{result.LISDescription}}
+                                    </span>
+                                </td>
+                                <td>
+                                    <input type="text" id="{{result.controlid}}" style="font-size: large"
+                                        class="form-control" ng-disabled="result.IsSaved"
+                                        ng-model="result.FullResultValue" ng-keyup="keyPress($event,result.tabindex)"
+                                        tabindex="{{result.tabindex}}" placeholder="">
+                                </td>
+                                <td>
+                                    <span>
+                                        {{result.PatientWorkorderdetail.AnalyteUOM}}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span>
+                                        {{item.Analyterange}}
+                                    </span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="fooder-bgs" style="margin-bottom: 50px !important;">
+                <div class="footer-right">
+                    <button type="button" tabindex="1000" class="draftbutton" ng-show="!currentcontext.IsSaved"
+                        ng-click="save()" translate="common.saveaction.lbl"></button>
+                    <!-- <button type="button" tabindex="1001" class="draftbutton" translate="common.cancelaction.lbl" ng-click="backToList()"></button> -->
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

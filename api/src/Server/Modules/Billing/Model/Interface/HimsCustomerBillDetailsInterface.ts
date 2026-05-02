@@ -1,0 +1,87 @@
+import { IAttributes } from '../../../Base/Index';
+import { Instance } from '../../../../Core/Index';
+
+export interface CustomerBillDetailsAttributes extends IAttributes {
+    Id: number;
+    CustomerBillId: number;
+    BillDateTime: Date;
+    CustomerBillStatusId: number;
+    ItemMasterId: number;
+    ItemCode: string;
+    ItemName: string;
+    DrugId: number;
+    DrugCode: string;
+    DrugName: string;
+    CategoryId: number;
+    SubCategoryId: number;
+    ProductTypeId: number;
+    SubProductTypeId: number;
+    BaseUomId: number;
+    PurchaseUomId: number;
+    ConversionQuantity: number;
+    SaleUomId: number;
+    ConversionQty: number;
+    GenericId: number;
+    GenericName: string;
+    ManufacturerId: number;
+    ManufacturerName: string;
+    ScheduleTypeId: number;
+    ScheduleTypeDescription: string;
+    OrganizationId: number;
+    FacilityId: number;
+    DepartmentId: number;
+    StoreMasterId: number;
+    StockItemId: number;
+    StockSerialItemId: number;
+    Quantity: number;
+    QuantityAfterConversion: number;
+    FreeQty: number;
+    FreeQtyAfterConversion: number;
+    ReturnedQuantity: number;
+    BatchId: string;
+    ExpiryDate: Date;
+    Rate: number;
+    UnitRate: number;
+    Amount: number;
+    UnitAmount: number;
+    GrossAmount: number;
+    DiscountModeId: number;
+    DiscountValue: number;
+    DiscountAmount: number;
+    UnitDiscountAmount: number;
+    RateAfterDiscount: number;
+    UnitRateAfterDiscount: number;
+    AmountAfterDiscount: number;
+    UnitAmountAfterDiscount: number;
+    NetAmountBeforeGst: number;
+    GstId: number;
+    GstPercentage: number;
+    GstAmount: number;
+    UnitGstAmount: number;
+    CGstId: number;
+    CGstPercentage: number;
+    CGstAmount: number;
+    UnitCGstAmount: number;
+    SGstId: number;
+    SGstPercentage: number;
+    SGstAmount: number;
+    UnitSGstAmount: number;
+    RateAfterGst: number;
+    UnitRateAfterGst: number;
+    NetAmount: number;
+    ProfitAmount: number;
+    Comments: string;
+    Status: number;
+    Rev: number;
+    CreatedBy: number;
+    CreatedAt: Date;
+    UpdatedBy: number;
+    UpdatedAt: Date;
+}
+
+export interface CustomerBillDetailsInstance extends Instance<CustomerBillDetailsAttributes> {
+    // I'm exposing every DB column as an instance field to so that tsc won't complain.
+    // CreatedAt: Date;
+    // UpdatedAt: Date;
+    dataValues: CustomerBillDetailsAttributes;
+}

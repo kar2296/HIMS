@@ -1,0 +1,69 @@
+<style>
+    .pl-3 {
+        padding-left: 2%;
+    }
+</style>
+
+<div class="row">
+    <div class="drhms-list-filters">
+        <div class="col-sm-3">
+            <label class="col-sm-3" translate="Name"></label>
+            <div class="col-sm-9">
+                <div class="search">
+                    <input type="text" id="pid" class="form-control" on-enter="getList()"
+                        ng-model="currentfilter.patientnamemrn" placeholder="NAME/MRN">
+                        <div class="drhms-search-icon"><i class="fas fa-search" aria-hidden="true"></i></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-3">
+            <label class="col-sm-3" translate="bedmanagement-grid.filter_status.lbl"></label>
+            <div class="col-sm-9">
+                <multiselectchk list="lookup.AdmissionStatus" selected="currentfilter.admissionstatusid"
+                    change="getList()">
+                </multiselectchk>
+            </div>
+        </div>
+        <div class="col-sm-3">
+            <label class="col-sm-3" translate="Dept"></label>
+            <div class="col-sm-9">
+                <ui-select ng-model="currentfilter.DepartmentId" ng-change="getList()" class="filter-combo">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 25 : 0}}
+                        <span ng-if="$select.selected.Text.length>25">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.Department | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+        <div class="col-sm-3">
+            <label class="col-sm-3" translate="Ward"></label>
+            <div class="col-sm-9">
+                <ui-select ng-model="currentfilter.WardId" ng-change="getList()" class="filter-combo">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 25 : 0}}
+                        <span ng-if="$select.selected.Text.length>25">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.UserWard | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+     
+    </div>
+</div>
+<custom-table config="vm.gridConfig"></custom-table>
+<div class="container-fluid" id="patientidentitiesheight">
+    <div class="fooder-bgs" style="margin-bottom: 32px;">
+        <div class="row">
+            <ul uib-pagination total-items="vm.gridConfig.pagerObj.totalItems"
+                items-per-page="vm.gridConfig.pagerObj.pageSize" start-index="vm.gridConfig.pagerObj.startIndex"
+                ng-model="vm.gridConfig.pagerObj.currentPage" ng-change="getList()"></ul>
+        </div>
+    </div>
+</div>

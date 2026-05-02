@@ -1,0 +1,237 @@
+<style>
+    .row {
+        flex-wrap: wrap;
+        display: flex;
+    }
+
+    .form-group {
+        margin-bottom: 10px;
+    }
+
+    label.btn.btn-sm.width.btn-custom-radio:before {
+        content: ".";
+        position: absolute;
+        left: -8px;
+        height: 14px;
+        width: 14px;
+        border: 1px solid black;
+        color: transparent;
+        top: 9px;
+    }
+
+    label.btn.btn-sm.width.btn-custom-radio.active {
+        background: none;
+        border: none;
+        color: black;
+    }
+
+    .admission-form .btn-feedback-selected:hover {
+        color: #000000 !important;
+        background-color: transparent !important;
+    }
+
+    label.btn.btn-sm.width.btn-custom-radio.active:after {
+        left: -4px;
+        top: 10px;
+        width: 6px;
+        height: 10px;
+        border: solid #302d2d;
+        border-width: 0 3px 3px 0;
+        -webkit-transform: rotate(45deg);
+        -ms-transform: rotate(45deg);
+        transform: rotate(45deg);
+        content: ".";
+        position: absolute;
+        color: transparent;
+    }
+
+    label.btn.btn-sm.width.btn-custom-radio {
+        margin-right: 30px;
+    }
+
+    label.btn.btn-sm.width.btn-custom-radio span {
+        position: relative;
+        margin-left: 9px;
+        top: 1px;
+    }
+
+    .admission-form .btn:focus {
+        border: unset !important;
+    }
+
+    textarea {
+        padding: 5px;
+    }
+
+    .fooder-bgs {
+        margin-bottom: 150px !important;
+        min-height: 15%;
+    }
+</style>
+<div class="modal-header custom-modal-header">
+    <div class="col-sm-10">
+        <h4 class="modal-title custom-modal-title" translate="Admission Request Slip"></h4>
+    </div>
+    <div class="col-sm-2">
+        <div class="filters">
+            <img src="../../../../../assets/svg/close.svg" ng-click="cancelCallback()">
+        </div>
+    </div>
+</div>
+<!-- <emrpatientbanner patientid="item.PatientId" encounterid="item.PatientId">
+</emrpatientbanner> -->
+<br>
+<div class="admission-form">
+    <form id="item_form" name="item_form" class="form-horizontal" role="form">
+        <div class="row">
+            <div class="form-group col-sm-3">
+                <label for="advdocId" translate="Admitting Doctor"></label>
+            </div>
+            <div class="form-group col-sm-3">
+                <autosearch class="auto-search" controlid="'advDoctorId'" itemid="item.AdvisedDoctorId" iteminfo=""
+                    rowdata="" name="'doctor'" config="vm.doctorcontrolconfig" isrequired="true" placeholder="'Doctor'">
+                </autosearch>
+            </div>
+            <div class="form-group col-sm-3">
+                <label for="department" translate="Speciality"></label>
+            </div>
+            <div class="form-group col-sm-3">
+                <ui-select ng-model="item.AdvisedDepartmentId" name="department">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 20 : 0}}
+                        <span ng-if="$select.selected.Text.length>20">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.Department | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search">
+                        </div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+            <div class="form-group col-sm-12"></div>
+            <div class="form-group col-sm-3">
+                <label for="date" translate="Advised Date"></label>
+            </div>
+            <div class="form-group col-sm-9">
+                <input type="text" class="form-control" name="advdate" ng-date-object
+                    datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}"
+                    uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                    placeholder="{{datePickerOptions.placeholder}}" ng-click="advdatePopup = { opened: true }"
+                    is-open="advdatePopup.opened" ng-model="item.AdvisedDateTime">
+            </div>
+            <div class="form-group col-sm-3">
+                <label for="diagnosis" translate="Provisional Diagnosis"></label>
+            </div>
+            <div class="form-group col-sm-9">
+                <autosearch itemid="item.DiagnosisId" iteminfo="" rowdata="" config="vm.diagnosiscontrolconfig"
+                    itemchange="getDiagnosis()" candisable="item.isRequested"></autosearch>
+            </div>
+            <div class="form-group col-sm-3">
+                <label for="reason" translate="Reason for Admission"></label>
+            </div>
+            <div class="form-group col-sm-9">
+                <div class="form-group col-sm-12">
+                    <radiogroupcontrol itemid="item.AdmissionReasonId" items="lookup.AdmittingRequestReason">
+                    </radiogroupcontrol>
+                </div>
+                <div class="form-group col-sm-12" ng-show="item.AdmissionReasonId==3">
+                    <input type="text" class="form-control" name="oreason" ng-model="item.OtherReasons" placeholder="">
+                </div>
+            </div>
+            <div class="form-group col-sm-3">
+                <label for="type" translate="Admission Type"></label>
+            </div>
+            <div class="form-group col-sm-9">
+                <div class="form-group">
+                    <radiogroupcontrol itemid="item.AdmissionRequestTypeId" items="lookup.AdmissionRequestType">
+                    </radiogroupcontrol>
+                </div>
+                <div class="form-group col-sm-12" ng-show="item.AdmissionRequestTypeId==7">
+                    <input type="text" class="form-control" name="othtype" ng-model="item.OtherType" placeholder="">
+                </div>
+            </div>
+            <div class="form-group col-sm-12">
+                <label class="col-sm-3 control-label" for="surgprocedure" translate="Surgery and Procedures"></label>
+                <div class="col-sm-9">
+                    <textarea rows="3" name="surgprocedure" ng-model="item.SurgProceduresNotes" maxlength="4000"
+                        style="width:100%;" class="notes-textarea"></textarea>
+                </div>
+            </div>
+            <div class="form-group col-sm-12">
+                <label class="col-sm-3 control-label" for="bloodrequire" translate="Blood Product Requirements"></label>
+                <div class="col-sm-9">
+                    <radiogroupcontrol itemid="item.BloodReqId" items="lookup.YesNo">
+                    </radiogroupcontrol>
+                </div>
+            </div>
+            <div class="form-group col-sm-12">
+                <label class="col-sm-3 control-label" for="bloodrequirenotes" translate="Notes"></label>
+                <div class="col-sm-9">
+                    <textarea rows="3" name="bloodrequirenotes" ng-model="item.BloodReqNotes" maxlength="4000"
+                        style="width:100%;" class="notes-textarea"></textarea>
+                </div>
+            </div>
+            <div class="form-group col-sm-12">
+                <label class="col-sm-3 control-label" for="staydtn" translate="Expected Duration of Stay"></label>
+                <div class="col-sm-9">
+                    <input type="text" class="form-control" name="staydtn" ng-model="item.ExpectedStayDuration"
+                        placeholder="">
+                </div>
+            </div>
+            <div class="form-group col-sm-12">
+                <label class="col-sm-3 control-label" for="expctdcost" translate="Expected Cost"></label>
+                <div class="col-sm-9">
+                    <input type="text" class="form-control" name="expctdcost" ng-model="item.ExpectedCost"
+                        placeholder="">
+                </div>
+            </div>
+            <div class="form-group col-sm-12">
+                <label class="col-sm-3 control-label" for="payer" translate="Payer"></label>
+                <div class="col-sm-9">
+                    <radiogroupcontrol itemid="item.PayerId" items="lookup.Payer">
+                    </radiogroupcontrol>
+                </div>
+            </div>
+            <div class="form-group col-sm-12" ng-show="item.PayerId==3">
+                <label class="col-sm-3 control-label" for="opayer" translate="Others"></label>
+                <div class="col-sm-9">
+                    <input type="text" class="form-control" name="opayer" ng-model="item.OtherPayers" placeholder="">
+                </div>
+            </div>
+            <div class="form-group col-sm-12">
+                <label class="col-sm-3 control-label" for="nurseinstrctn" translate="Instructions to Nurse"></label>
+                <div class="col-sm-9">
+                    <textarea rows="3" name="nurseinstrctn" ng-model="item.NurseInstruction" maxlength="4000"
+                        style="width:100%;" class="notes-textarea"></textarea>
+                </div>
+            </div>
+            <div class="form-group col-sm-12">
+                <label class="col-sm-3 control-label" for="otherinstn" translate="Any Other Instruction"></label>
+                <div class="col-sm-9">
+                    <textarea rows="3" name="otherinstn" ng-model="item.OtherInstruction" maxlength="4000"
+                        style="width:100%;" class="notes-textarea"></textarea>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+<div class="fooder-bgs">
+    <div class="form-group col-sm-12">
+        <!-- <div class="pull-left">
+            <button type="button" class="btn pyr-color10 btn-sm" ng-click="backToList()">
+                <i class="fa fa-angle-left" aria-hidden="true"></i>&nbsp;&nbsp;
+                <span class="btn-fontsize" translate="common.backaction.lbl"></span>
+            </button>
+
+        </div> -->
+        <div class="pull-right">
+            <button type="button" class="drhms-common-btn" ng-click="print()" id="visibility"><i
+                    class="fa fa-print"></i> Preview
+                Print</button>
+            <!-- <button id="btnSave" style="margin-left: 7px;" type="button" class="draftbutton" translate="common.saveaction.lbl" ng-click="save()"></button> -->
+            <button id="btnSaveApprove" tabindex="tabindexmap.patienttabindex" type="button"
+                class="draftbutton   focusbtns" translate="common.saveapprove-action.lbl"
+                ng-click="saveAndApprove()"></button>
+        </div>
+    </div>
+</div>

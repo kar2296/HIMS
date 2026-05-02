@@ -1,0 +1,152 @@
+<html>
+
+<head>
+    <style>
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        td,
+        th {
+            padding: 3px;
+            vertical-align: top;
+        }
+
+        * {
+            font-family: sans-serif;
+        }
+
+        th {
+            white-space: break-spaces;
+            border: 1px !important;
+            border-top: 1px solid black !important;
+            border-bottom: 1px solid black !important;
+        }
+
+        td {
+            border: 1px !important;
+        }
+
+        .size td,
+        .size th {
+            border: 1px solid black !important;
+        }
+
+        .sub-total {
+            border: 0px !important;
+            border-top: 0px solid black !important;
+            border-bottom: 0px solid black !important;
+            width: 100%;
+        }
+        {{include '/Templates/cavery/assets/css/core.css'}}
+    </style>
+</head>
+
+<body>
+    <div id="pageHeader">
+        {{#if data.Flags.header}}
+        {{{include '/Templates/cavery/common/header.tpl.html' 'tpl'}}}
+        {{/if}}
+    </div>
+    <div class="content">
+        <table style="width:100%;">
+            <tr>
+                <td height="20" style="vertical-align:text-middle; text-align: center;font-size: 22px;"><b
+                        style="font-size: 22px;">Initial Stock Entry</b></td>
+            </tr>
+        </table>
+        <br>
+        <br>
+        <table style="width:100%;">
+            <tr>
+                <td style="width:15%;">Adjust. No</td>
+                <td style="width:35%;"><b>: {{data.StockEntry.StockEntryNumber}}</b></td>
+                <td style="width:15%;">Adjust Date</td>
+                <td style="width:35%;">: {{datetimeformat data.StockEntry.StockEntryDate}}</td>
+            </tr>
+            <tr>
+                <td>Facility</td>
+                <td><b>: {{data.StockEntry.Facility.FacilityName}}</b></td>
+                <td>Store Type</td>
+                <td>: Medical</td>
+            </tr>
+            <tr>
+                <td><b>Store</b></td>
+                <td>: {{data.StockEntry.StoreMaster.StoreName}}</td>
+                <td><b>Status</b></td>
+                <td><b>: {{data.StockEntry.StockEntryStatus.Description}}</b></td>
+            </tr>
+        </table>
+        <table border class="size" style="width:100%;">
+            <tr>
+                <th style="width:4%;" align="left">S.No</th>
+                <th style="width:10%;" align="left">Material Name</th>
+                <th style="width:8%;" align="left">HSN</th>
+                <th style="width:10%;" align="left">Batch / Exp</th>
+                <th style="width:8%;" align="left">Opening Qty</th>
+                <th style="width:5%;" align="left">UCP</th>
+                <th style="width:8%;" align="left">MRP</th>
+                <th style="width: 11%;" align="center">Tax Amount</th>
+                <th style="width: 10%;" align="center">Amount</th>
+            </tr>
+            {{#each data.StockEntryDetail}}
+            <tr>
+                <td style="width:4%;" align="left">{{inc @index}}</td>
+                <td style="width:10%;" align="left">{{ItemName}}({{ItemCode}})</td>
+                <td style="width:8%;" align="left">{{ItemMaster.ProductRegNo}}</td>
+                <td style="width:10%;" align="left">{{BatchId}} / {{dateformat ExpiryDate}}</td>
+                <td style="width:8%;" align="left">{{EntryQuantity}}</td>
+                <td style="width:5%;" align="left">{{currencyformat UnitCostPrice}}</td>
+                <td style="width:8%;" align="left">{{currencyformat MrPrice}}</td>
+                <td align="right">{{currencyformat GstAmount}}</td>
+                <td align="right">{{currencyformat NetAmount}}</td>
+            </tr> {{/each}}
+        </table>
+        <br>
+        <table style="width:100%">
+            <tr>
+                <td style="width:20%;"><b>Amount In Words</b></td>
+                <td>:</td>
+                <td style="width:40%;">Rupees {{numberInWords data.StockEntry.TotalNetAmount}} Only</td>
+                <td style="width:40%;">
+                    <table class="sub-total">
+
+                        <tr>
+                            <td style="width:40%;"></td>
+                            <td style="width:50%;" align="right"><b>Gross Amount</b></td>
+                            <td>:</td>
+                            <td style="width:10%;" align="right">{{currencyformat data.StockEntry.TotalGrossAmount}}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="width:40%;"></td>
+                            <td style="width:50%;" align="right"><b>GST Amount</b></td>
+                            <td>:</td>
+                            <td style="width:10%;" align="right">{{currencyformat data.StockEntry.TotalGstAmount}}</td>
+                        </tr>
+                        <tr>
+                            <td colspan="2" style="width:90%;" align="right"><b>Total</b></td>
+                            <td>:</td>
+                            <td style="width:10%;" align="right">{{currencyformat data.StockEntry.TotalNetAmount}}</td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
+        <br>
+        <br>
+        <br>
+        <table style="width:100%;">
+            <tr>
+                <td style="width: 5%;"></td>
+                <td style="width: 30%;" align="center"><b>RECEIVED BY</b></td>
+                <td style="width: 30%;" align="center"><b>INSPECTED BY</b></td>
+                <td style="width: 30%;" align="center"><b>PREPARED BY </b> :{{data.StockEntry.ApprovedUser.Title.Description}}
+                    {{data.StockEntry.ApprovedUser.FirstName}} {{data.StockEntry.ApprovedUser.LastName}}</td>
+                <td style="width: 5%;"></td>
+            </tr>
+        </table>
+        <br>
+    </div>
+</body>

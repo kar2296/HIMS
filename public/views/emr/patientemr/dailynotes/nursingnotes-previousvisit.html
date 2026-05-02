@@ -1,0 +1,48 @@
+<div class="row tablebox" id="tablebox">
+    <div class="col-sm-12">
+        <label class="btn btn-secondary top-option " ng-repeat="option in options" ng-click="getList()"
+            ng-model="currentcontext.option" uib-btn-radio="option.key">{{option.name}}</label>
+        <!-- <uib-tabset active="active" id="assettabs">
+            <uib-tab index="$index" ng-repeat="tab in tabs" heading="{{tab.title}}" ng-model="currentcontext.tab"
+                ng-click="getList(tab)" disable="tab.canDisable">
+            </uib-tab>
+        </uib-tabset> -->
+        <div ui-view></div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-sm-3" ng-hide="currentcontext.option=='currentvisits'">
+        <label class="col-sm-12 control-label" translate="patientemr.patientvital-list.filter_from.lbl"></label>
+        <div class="col-sm-12">
+            <input type="text" class="form-control" name="from" ng-change="getList(tab)" ng-date-object
+                uib-datepicker-popup="{{datePickerOptions.dateFormat}}" placeholder="{{datePickerOptions.placeholder}}"
+                ng-click="fromPopup = { opened: true }" is-open="fromPopup.opened" ng-model="currentfilter.From">
+        </div>
+    </div>
+    <div class="col-sm-3" ng-hide="currentcontext.option=='currentvisits'">
+        <label class="col-sm-12 control-label" translate="patientemr.patientvital-list.filter_to.lbl"></label>
+        <div class="col-sm-12">
+            <input type="text" class="form-control" name="to" ng-change="getList()" ng-date-object
+                uib-datepicker-popup="{{datePickerOptions.dateFormat}}" placeholder="{{datePickerOptions.placeholder}}"
+                ng-click="toPopup = { opened: true }" is-open="toPopup.opened" ng-model="currentfilter.To">
+        </div>
+    </div>
+    <div class="col-sm-6">
+        <button class="emr-btn-add" ng-click="addNew()" uib-tooltip="Add Notes" tooltip-placement="bottom">
+            <i class="fa fa-plus" aria-hidden="true"></i>
+        </button>
+    </div>
+</div>
+<div class="row">
+    <custom-table config="vm.gridConfig"></custom-table>
+</div>
+<div class="fooder-bgs">
+    <div class="row">
+        <ul uib-pagination total-items="vm.gridConfig.pagerObj.totalItems"
+            items-per-page="vm.gridConfig.pagerObj.pageSize" start-index="vm.gridConfig.pagerObj.startIndex"
+            ng-model="vm.gridConfig.pagerObj.currentPage" ng-change="getList()"></ul>
+    </div>
+    <div class="pull-right">
+            <button class="" ng-click="print()">Print</button>
+    </div>
+</div>

@@ -1,0 +1,174 @@
+<div class="row">
+    <div class="col-sm-8">
+        <h4 class="page-header mt0" translate="Medicine Receives"></h4>
+    </div>
+    <div class="col-sm-4">
+        <div class="pull-right">
+            <span class="drhms-billing-btn drhms-outstandingbill-btn" ng-click="doctor_dashboard()"
+                uib-tooltip="Doctor Dashboard" tooltip-placement="bottom">
+                <i class="fas fa-th-large" aria-hidden="true"></i>
+            </span>
+            <span class="drhms-billing-btn drhms-outstandingbill-btn" ng-hide="context=='emr'"
+                ng-click="openAdvancedFilter()"
+                uib-tooltip="{{ 'clinicalmaster.serviceitem-list.filter-tooltip.lbl' | translate }}"
+                tooltip-placement="bottom">
+                <i class="fas fa-search" aria-hidden="true"></i>
+            </span>
+            <!-- <button class="btn-add" ng-click="addNew()"
+                uib-tooltip="{{ 'patientrequests.addnew-tooltip.lbl' | translate }}" tooltip-placement="bottom">
+                <i class="fa fa-plus" aria-hidden="true"></i>
+            </button> -->
+        </div>
+    </div>
+</div>
+<div class="row">
+    <ippatientbanner patientid="currentcontext.pid" encounterid="currentcontext.eid"></ippatientbanner>
+</div>
+<div class="row" ng-hide="context=='emr'">
+    <div class="col-sm-4">
+        <label class="col-sm-3" for="facility" translate="patientrequests.facility.lbl"></label>
+        <div class="col-sm-9">
+            <ui-select ng-model="currentfilter.FacilityId" ng-change="getList()" name="facility"
+                ng-disabled="item.isDisabled" required>
+                <ui-select-match>
+                    {{$select.selected.Text | limitTo : 20 : 0}}
+                    <span ng-if="$select.selected.Text.length>20">...</span>
+                </ui-select-match>
+                <ui-select-choices
+                    repeat="lookupitem.Id as lookupitem in lookup.Facility | filter: { Text: $select.search }">
+                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                </ui-select-choices>
+            </ui-select>
+        </div>
+    </div>
+    <div class="col-sm-4">
+        <label class="col-sm-3" translate="patientrequests.request.lbl"></label>
+        <div class="col-sm-9">
+            <input type="text" class="form-control" on-enter="getList()" ng-model="currentfilter.PatientRequestNumber"
+                translate translate-attr-placeholder="patientrequests.number.lbl">
+        </div>
+    </div>
+    <div class="col-sm-4">
+        <label class="col-sm-3" for="patient" translate="patientrequests.patient.lbl"></label>
+        <div class="col-sm-9">
+            <input type="text" class="form-control" on-enter="getList()" ng-model="currentfilter.Patientname"
+                placeholder="NAME/MRN">
+        </div>
+    </div>
+    <div class="col-sm-4">
+        <label class="col-sm-3" for="priority" translate="patientrequests.priority.lbl"></label>
+        <div class="col-sm-9">
+            <ui-select ng-model="currentfilter.PatientRequestPriorityId" ng-change="getList()" name="fromstore"
+                ng-disabled="item.isDisabled" required>
+                <ui-select-match>
+                    {{$select.selected.Text | limitTo : 20 : 0}}
+                    <span ng-if="$select.selected.Text.length>20">...</span>
+                </ui-select-match>
+                <ui-select-choices
+                    repeat="lookupitem.Id as lookupitem in lookup.PatientRequestPriority | filter: { Text: $select.search }">
+                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                </ui-select-choices>
+            </ui-select>
+        </div>
+    </div>
+    <div class="col-sm-4">
+        <label class="col-sm-3" for="tostore" translate="patientrequests.tostore.lbl"></label>
+        <div class="col-sm-9">
+            <ui-select ng-model="currentfilter.ToStoreId" ng-change="getList()" name="tostore"
+                ng-disabled="item.isDisabled" required>
+                <ui-select-match>
+                    {{$select.selected.Text | limitTo : 20 : 0}}
+                    <span ng-if="$select.selected.Text.length>20">...</span>
+                </ui-select-match>
+                <ui-select-choices
+                    repeat="lookupitem.Id as lookupitem in lookup.ToStore | filter: { Text: $select.search }">
+                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                </ui-select-choices>
+            </ui-select>
+        </div>
+    </div>
+    <div class="col-sm-4">
+        <label class="col-sm-3" for="ward" translate="patientrequest.ward.lbl"></label>
+        <div class="col-sm-9">
+            <ui-select ng-model="currentfilter.WardId" ng-change="getList()" ng-disabled="item.isRequested"
+                ng-change="getRoomLookUp()">
+                <ui-select-match>
+                    {{$select.selected.Text | limitTo : 20 : 0}}
+                    <span ng-if="$select.selected.Text.length>20">...</span>
+                </ui-select-match>
+                <ui-select-choices
+                    repeat="lookupitem.Id as lookupitem in lookup.Ward | filter: { Text: $select.search }">
+                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                </ui-select-choices>
+            </ui-select>
+        </div>
+    </div>
+    <div class="col-sm-4">
+        <label class="col-sm-3" for="room" translate="patientrequest.room.lbl"></label>
+        <div class="col-sm-9">
+            <ui-select ng-model="currentfilter.RoomId" ng-change="getList()" name="facility"
+                ng-disabled="item.isDisabled" required>
+                <ui-select-match>
+                    {{$select.selected.Text | limitTo : 20 : 0}}
+                    <span ng-if="$select.selected.Text.length>20">...</span>
+                </ui-select-match>
+                <ui-select-choices
+                    repeat="lookupitem.Id as lookupitem in lookup.Room | filter: { Text: $select.search }">
+                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                </ui-select-choices>
+            </ui-select>
+        </div>
+    </div>
+    <div class="col-sm-4">
+        <label class="col-sm-3" for="patientrequeststatus" translate="patientrequests.status.lbl"></label>
+        <div class="col-sm-9">
+            <ui-select ng-model="currentfilter.PatientRequestStatusId" ng-change="getList()">
+                <ui-select-match>
+                    {{$select.selected.Text | limitTo : 20 : 0}}
+                    <span ng-if="$select.selected.Text.length>20">...</span>
+                </ui-select-match>
+                <ui-select-choices
+                    repeat="lookupitem.Id as lookupitem in lookup.PatientRequestStatus | filter: { Text: $select.search }">
+                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                </ui-select-choices>
+            </ui-select>
+        </div>
+    </div>
+</div>
+<div class="row" ng-hide="context=='main'">
+    <div class="col-sm-4">
+        <label class="col-sm-3" for="fromdate" translate="patientrequests.fromdate.lbl"></label>
+        <div class="col-sm-9">
+            <input type="text" class="form-control" name="date" ng-change="getList()"
+                datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}"
+                uib-datepicker-popup="{{datePickerOptions.dateFormat}}" placeholder="{{datePickerOptions.placeholder}}"
+                ng-click="FromPopup = { opened: true }" is-open="FromPopup.opened" ng-model="currentfilter.From">
+        </div>
+    </div>
+    <div class="col-sm-4">
+        <label class="col-sm-3" translate="patientrequests.todate.lbl"></label>
+        <div class="col-sm-9">
+            <input type="text" class="form-control" name="date" ng-change="getList()"
+                datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}"
+                uib-datepicker-popup="{{datePickerOptions.dateFormat}}" placeholder="{{datePickerOptions.placeholder}}"
+                ng-click="ToPopup = { opened: true }" is-open="ToPopup.opened" ng-model="currentfilter.To">
+        </div>
+    </div>
+    <div class="col-sm-4">
+        <label class="col-sm-3" for="status" translate="patientrequests.status.lbl"></label>
+        <div class="col-sm-9">
+            <multiselectchk list="lookup.PatientRequestStatus" selected="currentfilter.PatientRequestStatusId"
+                change="getList()"></multiselectchk>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <custom-table config="vm.gridConfig"></custom-table>
+</div>
+<div class="fooder-bgs">
+    <div class="row">
+        <ul uib-pagination total-items="vm.gridConfig.pagerObj.totalItems"
+            items-per-page="vm.gridConfig.pagerObj.pageSize" start-index="vm.gridConfig.pagerObj.startIndex"
+            ng-model="vm.gridConfig.pagerObj.currentPage" ng-change="getList()"></ul>
+    </div>
+</div>

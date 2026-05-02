@@ -1,0 +1,277 @@
+<style>
+    .panel-footer {
+        padding: 4px 15px;
+        background-color: #ccecf5;
+        border-top: 1px solid #eeeeee;
+        border-bottom-right-radius: 3px;
+        border-bottom-left-radius: 3px;
+        margin: 0px -5px;
+    }
+
+    .panel-body .well {
+        min-height: 425px;
+    }
+
+    .formRoot {
+        overflow: inherit;
+    }
+
+    .modal-content .panel-body {
+        overflow: inherit;
+    }
+
+    .uib-datepicker-popup.dropdown-menu {
+        top: -251px !important;
+    }
+</style>
+<div class="modal-header custom-modal-header">
+    <h4 class="modal-title custom-modal-title" translate="inventory.itemmastercustomermapping.pagetitle.lbl"></h4>
+</div>
+<div class="row">
+    <div class="col-sm-12">
+        <form id="item_form" name="item_form" class="form-horizontal" role="form">
+            <div class="formRoot">
+                <div class=" panel-default">
+                    <!--<div class="panel-heading"><h3 class="panel-title" translate="inventory.itemmastercustomermapping.pagetitle.lbl"></h3></div>!-->
+                    <div class="panel-body form-panel">
+                        <div class="col-sm-12">
+
+                            <!-- leftpanel -->
+                            <div class="col-sm-6">
+                                <div class="">
+                                    <div class="form-group">
+                                        <label class="col-sm-7 col-md-5 control-label" for="CustomerCode" translate="inventory.itemmastercustomermapping.customercode.lbl"></label>
+                                        <div class="col-sm-5 col-md-7">
+                                            <input type="text" class="form-control" name="CustomerCode" ng-model="item.CustomerCode"
+                                                placeholder="Customer Code" disabled>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-sm-7 col-md-5 control-label" translate="inventory.itemmastercustomermapping.customerId.lbl"
+                                            for="customermasterId"></label>
+                                        <div class="col-sm-5 col-md-7">
+                                            <autosearch itemid="item.CustomerMasterId" iteminfo="" rowdata="" config="vm.customercontrolconfig"
+                                                itemchange="getList()" candisable="item.isDisabled"></autosearch>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-sm-7 col-md-5 control-label" translate="inventory.itemmastercustomermapping.itemcode.lbl"></label>
+                                        <div class="col-sm-5 col-md-7">
+                                            <input type="text" class="form-control" name="ItemCode" ng-model="item.ItemCode"
+                                                placeholder="" disabled>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-sm-7 col-md-5 control-label" translate="inventory.itemmastercustomermapping.itemId.lbl"></label>
+                                        <div class="col-sm-5 col-md-7">
+                                            <input type="text" class="form-control" name="ItemName" ng-model="item.ItemName"
+                                                placeholder="" disabled>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-sm-7 col-md-5 control-label" for="purchaseuom" translate="inventory.itemmastercustomermapping.purchaseuom.lbl"></label>
+                                        <div class="col-sm-5 col-md-7">
+                                            <ui-select ng-model="item.PurchaseUomId" on-select="OnSelectPurchaseUOM($select.selected)"
+                                                name="purchaseuom" autofocus required>
+                                                <ui-select-match>
+                                                    {{$select.selected.Text | limitTo : 20 : 0}}
+                                                    <span ng-if="$select.selected.Text.length>20">...</span>
+                                                </ui-select-match>
+                                                <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.UomMaster | filter: { Text: $select.search }">
+                                                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                                </ui-select-choices>
+                                            </ui-select>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-sm-7 col-md-5 control-label" for="saleuom" translate="inventory.itemmastercustomermapping.saleuom.lbl"></label>
+                                        <div class="col-sm-5 col-md-7">
+                                            <ui-select ng-model="item.SaleUomId" on-select="OnSelectSaleUOM($select.selected)"
+                                                name="saleuom" autofocus required>
+                                                <ui-select-match>
+                                                    {{$select.selected.Text | limitTo : 20 : 0}}
+                                                    <span ng-if="$select.selected.Text.length>20">...</span>
+                                                </ui-select-match>
+                                                <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.UomMaster | filter: { Text: $select.search }">
+                                                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                                </ui-select-choices>
+                                            </ui-select>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-sm-7 col-md-5 control-label" translate="inventory.itemmastercustomermapping.conversionqty.lbl"></label>
+                                        <div class="col-sm-5 col-md-7">
+                                            <input type="text" class="form-control" name="ConversionQuantity" ng-model="item.ConversionQuantity"
+                                                placeholder="Conversion Qty" disabled>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-sm-7 col-md-5 control-label" for="gst" translate="inventory.itemmastercustomermapping.gst.lbl"></label>
+                                        <div class="col-sm-5 col-md-7">
+                                            <ui-select ng-model="item.GstId" on-select="OnSelectGst($select.selected)"
+                                                name="gst" ng-disabled="item.GstDisable">
+                                                <ui-select-match>
+                                                    {{$select.selected.Text | limitTo : 20 : 0}}
+                                                    <span ng-if="$select.selected.Text.length>20">...</span>
+                                                </ui-select-match>
+                                                <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.GstMaster | filter: { Text: $select.search }">
+                                                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                                </ui-select-choices>
+                                            </ui-select>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-sm-7 col-md-5 control-label" translate="inventory.itemmastercustomermapping.cgst.lbl"></label>
+                                        <div class="col-sm-5 col-md-7">
+                                            <ui-select ng-model="item.CGstId" ng-disabled="item.GstDisable">
+                                                <ui-select-match>
+                                                    {{$select.selected.GstCode | limitTo : 20 : 0}}
+                                                    <span ng-if="$select.selected.GstCode.length>20">...</span>
+                                                </ui-select-match>
+                                                <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.GstMaster | filter: { GstCode: $select.search }">
+                                                    <div ng-bind-html="lookupitem.GstCode | highlight: $select.search"></div>
+                                                </ui-select-choices>
+                                            </ui-select>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-sm-7 col-md-5 control-label" translate="inventory.itemmastercustomermapping.sgst.lbl"></label>
+                                        <div class="col-sm-5 col-md-7">
+                                            <ui-select ng-model="item.SGstId" ng-disabled="item.GstDisable">
+                                                <ui-select-match>
+                                                    {{$select.selected.GstCode | limitTo : 20 : 0}}
+                                                    <span ng-if="$select.selected.GstCode.length>20">...</span>
+                                                </ui-select-match>
+                                                <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.GstMaster | filter: { GstCode: $select.search }">
+                                                    <div ng-bind-html="lookupitem.GstCode | highlight: $select.search"></div>
+                                                </ui-select-choices>
+                                            </ui-select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- rightpanel -->
+                            <div class="col-sm-6">
+                                <div class="">
+                                    <div class="form-group">
+                                        <label class="col-sm-5 col-md-7 control-label" for="MinQty" translate="inventory.itemmastercustomermapping.minqty.lbl"></label>
+                                        <div class="col-sm-7 col-md-5">
+                                            <input type="text" class="form-control" name="MinQty" ng-model="item.MinQty"
+                                                placeholder="" autofocus required>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-sm-5 col-md-7 control-label" for="MaxQty" translate="inventory.itemmastercustomermapping.maxqty.lbl"></label>
+                                        <div class="col-sm-7 col-md-5">
+                                            <input type="text" class="form-control" name="MaxQty" ng-model="item.MaxQty"
+                                                placeholder="" autofocus required>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-sm-5 col-md-7 control-label" translate="inventory.itemmastercustomermapping.freeqty.lbl"></label>
+                                        <div class="col-sm-7 col-md-5">
+                                            <input type="text" class="form-control" name="FreeQty" ng-model="item.FreeQty"
+                                                placeholder="">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-sm-5 col-md-7 control-label" for="UomPrice" translate="inventory.itemmastercustomermapping.pponuom.lbl"></label>
+                                        <div class="col-sm-7 col-md-5">
+                                            <input type="text" class="form-control" name="UomPrice" ng-model="item.UomPrice"
+                                                ng-change="CalcualteUnitPrice(item)" placeholder="" autofocus required>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-sm-5 col-md-7 control-label" for="UomMrPrice" translate="inventory.itemmastercustomermapping.sales.lbl"></label>
+                                        <div class="col-sm-7 col-md-5">
+                                            <input type="text" class="form-control" name="UomMrPrice" ng-model="item.UomMrPrice"
+                                                ng-change="CalcualteUnitMrPrice(item)" placeholder="" autofocus
+                                                required>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-sm-5 col-md-7 control-label" for="Price" translate="inventory.itemmastercustomermapping.cponunit.lbl"></label>
+                                        <div class="col-sm-7 col-md-5">
+                                            <input type="text" class="form-control" name="Price" ng-model="item.Price"
+                                                placeholder="" autofocus disabled>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-sm-5 col-md-7 control-label" for="MrPrice" translate="inventory.itemmastercustomermapping.sales.lbl"></label>
+                                        <div class="col-sm-7 col-md-5">
+                                            <input type="text" class="form-control" name="MrPrice" ng-model="item.MrPrice"
+                                                placeholder="" autofocus disabled>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-sm-5 col-md-7 control-label" translate="inventory.itemmastercustomermapping.discountmode.lbl"></label>
+                                        <div class="col-sm-7 col-md-5">
+                                            <ui-select ng-model="item.DiscountModeId" ng-disabled="item.RDODiscountMode"
+                                                on-select="OnSelectDiscountMode($select.selected)" name="discountmode">
+                                                <ui-select-match>
+                                                    {{$select.selected.Text | limitTo : 20 : 0}}
+                                                    <span ng-if="$select.selected.Text.length>20">...</span>
+                                                </ui-select-match>
+                                                <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.DiscountMode | filter: { Text: $select.search }">
+                                                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                                </ui-select-choices>
+                                            </ui-select>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-sm-5 col-md-7 control-label" translate="inventory.itemmastercustomermapping.discount.lbl"></label>
+                                        <div class="col-sm-7 col-md-5">
+                                            <input type="text" class="form-control" ng-disabled="item.RDODiscount"
+                                                ng-model="item.Discount" placeholder="">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-sm-5 col-md-7 control-label" for="isactive" translate="inventory.itemmastercustomermapping.isactive.lbl"></label>
+                                        <div class="col-sm-7 col-md-5">
+                                            <input type="checkbox" class="custom-checkbox" name="isactive" ng-model="item.IsActive"
+                                                autofocus>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-sm-5 col-md-7 control-label" for="activefrom" translate="inventory.itemmastercustomermapping.activefrom.lbl"></label>
+                                        <div class="col-sm-7 col-md-5">
+                                            <input type="text" class="form-control" name="activefrom" ng-date-object
+                                                uib-datepicker-popup="{{datePickerOptions.dateFormat}}" placeholder="{{datePickerOptions.placeholder}}"
+                                                ng-click="activefromPopup = { opened: true }" is-open="activefromPopup.opened"
+                                                ng-model="item.ActiveFrom">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-sm-5 col-md-7 control-label" translate="inventory.itemmastercustomermapping.activeto.lbl"></label>
+                                        <div class="col-sm-7 col-md-5">
+                                            <input type="text" class="form-control" name="activeto" ng-date-object
+                                                uib-datepicker-popup="{{datePickerOptions.dateFormat}}" placeholder="{{datePickerOptions.placeholder}}"
+                                                ng-click="activetoPopup = { opened: true }" is-open="activetoPopup.opened"
+                                                ng-model="item.ActiveTo">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="panel-footer formactionbar">
+                <div class="col-sm-12">
+                    <div class="pull-right">
+                        <button type="button"   class="draftbutton" translate="common.saveaction.lbl"
+                            ng-click="save()"></button>
+                        <button type="button" class="btn dem-color4 text-white btn-sm" translate="common.saveapprove-action.lbl"
+                            ng-click="saveandApprove()"></button>
+                        <button id="btnClearForm" type="reset" class="btn btn-warning btn-sm" ng-click="clear()"
+                            translate="common.clearaction.lbl"></button>
+                        <!-- <button id="btnCancelForm" type="button" class="draftbutton" ng-click="backToList()" translate="common.cancelaction.lbl"></button> -->
+                        <button id="btnCancelForm" type="button" class="btn btn-danger btn-sm ng-scope" ng-click="cancelCallback()"
+                            translate="common.cancelaction.lbl"><span class="ng-scope">Cancel</span></button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

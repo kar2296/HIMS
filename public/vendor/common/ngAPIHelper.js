@@ -23,7 +23,7 @@
                                     $("#divgifLoading").hide();
                                     console.log('post api - error');
                                     console.log(data);
-                                    if (data.Error && data.Error.Code) {
+                                    if (data && data.Error && data.Error.Code) {
                                         if(options['onError']) {
                                             options['onError'](data, options);
                                         } else {
@@ -31,7 +31,7 @@
                                             ngAlertHelper.showErrorMsg($translate.instant(translateKey));
                                         }
                                     }
-                                    else if (data.Error && data.Error.Message) {
+                                    else if (data && data.Error && data.Error.Message) {
 
                                         ngAlertHelper.showErrorMsg(data.Error.Message);
                                         if(options['onError']) {
@@ -56,7 +56,7 @@
                                 .error(function (data) {
                                     console.log('get api - error');
                                     console.log(data);
-                                    if (data.Error && data.Error.Message) {
+                                    if (data && data.Error && data.Error.Message) {
                                         ngAlertHelper.showErrorMsg(data.Error.Message);
                                     }
                                 });

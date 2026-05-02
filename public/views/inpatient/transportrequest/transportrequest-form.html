@@ -1,0 +1,321 @@
+<link rel="stylesheet" href="app/css/drhms.css">
+<div class="modal-header custom-modal-header">
+    <div class="col-sm-10">
+        <h4 class="modal-title custom-modal-title" translate="transportrequest.pagetitle.lbl"></h4>
+    </div>
+    <div class="col-sm-2">
+        <div class="filters">
+            <img src="../../../../../assets/svg/close.svg" ng-click="cancelCallback()">
+        </div>
+    </div>
+</div>
+<div class="col-sm-12">
+    <h4 translate="housekeeprequest.beddetails.lbl"></h4>
+</div>
+<div class="col-sm-12">
+    <form id="item_form" name="item_form" class="form-horizontal" role="form">
+        <div class="drhms-table-top-header">
+            <div class="drhms-table-head-border">
+                <div class="col-sm-12">
+                    <label class="col-sm-4" for="patient" translate="patientrequest.patient.lbl"></label>
+                    <div class="col-sm-8">
+                        <autosearch itemid="item.EncounterId" iteminfo="item.SelectedItem" rowdata="item"
+                            config="vm.patientcontrolconfig" itemchange="getEncounterInfo()" name="patientname"
+                            candisable="isDisabled||IsBedScreen" isrequired="true"></autosearch>
+                    </div>
+                </div>
+                <div class="col-sm-12">
+                    <label class="col-sm-4" translate="transportrequest.fromlocation.lbl"></label>
+                    <div class="col-sm-8">
+                        <ui-select ng-model="item.FromLocationId" ng-change="wardLookUp()"
+                            ng-disabled="item.TransportStatusId==4||item.TransportStatusId==5||IsBedScreen">
+                            <ui-select-match>
+                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                <span ng-if="$select.selected.Text.length>20">...</span>
+                            </ui-select-match>
+                            <ui-select-choices
+                                repeat="lookupitem.Id as lookupitem in lookup.Location | filter: { Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search">
+                                </div>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                </div>
+                <div class="col-sm-12">
+                    <label class="col-sm-4" translate="transportrequest.fromward.lbl"></label>
+                    <div class="col-sm-8">
+                        <ui-select ng-model="item.FromWardId" name="" ng-change="getRoomLookUp()"
+                            ng-disabled="item.TransportStatusId==4||item.TransportStatusId==5||IsBedScreen"
+                            ng-change="getRoomLookUp()" required>
+                            <ui-select-match>
+                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                <span ng-if="$select.selected.Text.length>20">...</span>
+                            </ui-select-match>
+                            <ui-select-choices
+                                repeat="lookupitem.Id as lookupitem in lookup.Ward | filter: { Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search">
+                                </div>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                </div>
+                <div class="col-sm-12">
+                    <label class="col-sm-4" translate="transportrequest.fromroom.lbl"></label>
+                    <div class="col-sm-8">
+                        <ui-select ng-model="item.FromRoomId" ng-change="getBedLookUp()"
+                            ng-disabled="item.TransportStatusId==4||item.TransportStatusId==5||IsBedScreen" name="">
+                            <ui-select-match>
+                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                <span ng-if="$select.selected.Text.length>20">...</span>
+                            </ui-select-match>
+                            <ui-select-choices
+                                repeat="lookupitem.Id as lookupitem in lookup.Room | filter: { Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search">
+                                </div>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                </div>
+            </div>
+            <div class="drhms-table-head-border">
+                <div class="col-sm-12">
+                    <label class="col-sm-4" translate="transportrequest.frombed.lbl"></label>
+                    <div class="col-sm-8">
+                        <ui-select ng-model="item.FromBedId" name="bednumber"
+                            ng-disabled="item.TransportStatusId==4||item.TransportStatusId==5||IsBedScreen">
+                            <ui-select-match>
+                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                <span ng-if="$select.selected.Text.length>20">...</span>
+                            </ui-select-match>
+                            <ui-select-choices
+                                repeat="lookupitem.Id as lookupitem in lookup.Bed | filter: { Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search">
+                                </div>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                </div>
+                <div class="col-sm-12">
+                    <label class="col-sm-4" translate="transportrequest.status.lbl"></label>
+                    <div class="col-sm-8">
+                        <ui-select ng-model="item.TransportStatusId" name="status" ng-disabled="true">
+                            <ui-select-match>
+                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                <span ng-if="$select.selected.Text.length>20">...</span>
+                            </ui-select-match>
+                            <ui-select-choices
+                                repeat="lookupitem.Id as lookupitem in lookup.TransportStatus | filter: { Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search">
+                                </div>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                </div>
+                <div class="col-sm-12">
+                    <label class="col-sm-4" for="comments" translate="transportrequest.comments.lbl"></label>
+                    <div class="col-sm-8">
+                        <input type="text" class="form-control" name="comments" ng-model="item.Comments"
+                            placeholder="" />
+                    </div>
+                </div>
+            </div>
+            <div class="drhms-table-head-border">
+                <div class="col-sm-12">
+                    <label class="col-sm-4" translate="transportrequest.requestedon.lbl"></label>
+                    <div class="col-sm-8">:
+                        {{ item.CreatedAt | date : 'dd-MMM-yyyy' }} &nbsp;
+                        {{item.CreatedAt | date : 'HH:mm'}}
+                    </div>
+                </div>
+                <div class="col-sm-12">
+                    <label class="col-sm-4" translate="transportrequest.requestedno.lbl"></label>
+                    <div class="col-sm-8">:{{item.TransportIdentifier}}
+                    </div>
+                </div>
+                <div class="col-sm-12">
+                    <label class="col-sm-4" translate="transportrequest.createdby.lbl"></label>
+                    <div class="col-sm-8">:
+                        {{CreatedUser.CreatedById.Title.Description}} &nbsp;
+                        {{CreatedUser.CreatedById.FirstName}}
+                        &nbsp;{{CreatedUser.CreatedById.LastName}}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+<div class="row">
+    <form id="item_form" name="item_form" class="form-horizontal" role="form">
+        <div class="form-group col-sm-4">
+            <label class="col-sm-12 control-label pdl0" for="requesttype"
+                translate="transportrequest.requesttype.lbl"></label>
+            <div class="col-sm-12">
+                <ui-select ng-model="item.RequestTypeId"
+                    ng-disabled="item.TransportStatusId==4||item.TransportStatusId==5" name="requesttype" required>
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 20 : 0}}
+                        <span ng-if="$select.selected.Text.length>20">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.RequestType | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search">
+                        </div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+        <div class="form-group col-sm-4">
+            <label class="col-sm-12 control-label" for="activitytype"
+                translate="transportrequest.activitytype.lbl"></label>
+            <div class="col-sm-12">
+                <ui-select ng-model="item.TransportActivityId"
+                    ng-disabled="item.TransportStatusId==4||item.TransportStatusId==5" name="activitytype" required>
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 20 : 0}}
+                        <span ng-if="$select.selected.Text.length>20">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.TransportActivity | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search">
+                        </div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+        <div class="form-group"
+            ng-if="item.TransportStatusId==2 || item.TransportStatusId==3||item.TransportStatusId==4">
+            <label class="col-sm-12 control-label" for="assignedto" translate="transportrequest.assignedto.lbl"></label>
+            <div class="col-sm-12">
+                <ui-select ng-model="item.AssignedId" ng-disabled="item.TransportStatusId==4||item.TransportStatusId==5"
+                    name="assignedto" required>
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 20 : 0}}
+                        <span ng-if="$select.selected.Text.length>20">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.User | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search">
+                        </div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+        <!--<div class="form-group col-sm-4">
+            <label class="col-sm-12 control-label" translate="transportrequest.block.lbl"></label>
+            <div class="col-sm-12">
+                <input type="text" class="form-control" name="block" ng-model="item.BlockId" placeholder="BLOCK-1" disabled>
+                <ui-select ng-model="item.ToBlockId" ng-disabled="item.TransportStatusId==4||item.TransportStatusId==5" class="filter-combo"
+                    required>
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 8 : 0}}
+                        <span ng-if="$select.selected.Text.length>8">...</span>
+                    </ui-select-match>
+                    <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.Block | filter: {Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                    </ui-select>
+            </div>
+        </div> -->
+        <!--<div class="form-group col-sm-4">
+            <label class="col-sm-12 control-label" translate="transportrequest.floor.lbl"></label>
+            <div class="col-sm-12">
+                <input type="text" class="form-control" name="floor" ng-model="item.FloorId" placeholder="" disabled>
+            </div>
+        </div>-->
+        <div class="form-group col-sm-4">
+            <label class="col-sm-12 control-label" translate="transportrequest.tolocation.lbl"></label>
+            <div class="col-sm-12">
+                <ui-select ng-model="item.ToLocationId" ng-change="wardLookUp()"
+                    ng-disabled="item.TransportStatusId==4||item.TransportStatusId==5">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 20 : 0}}
+                        <span ng-if="$select.selected.Text.length>20">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.Location | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search">
+                        </div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+        <div class="form-group col-sm-4">
+            <label class="col-sm-12 control-label" translate="transportrequest.toward.lbl"></label>
+            <div class="col-sm-12">
+                <ui-select ng-model="item.ToWardId" ng-disabled="item.TransportStatusId==4||item.TransportStatusId==5"
+                    name="">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 20 : 0}}
+                        <span ng-if="$select.selected.Text.length>20">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.Ward | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search">
+                        </div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+        <div class="form-group col-sm-4">
+            <label class="col-sm-12 control-label" translate="transportrequest.toroom.lbl"></label>
+            <div class="col-sm-12">
+                <ui-select ng-model="item.ToRoomId" ng-disabled="item.TransportStatusId==4||item.TransportStatusId==5"
+                    name="">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 20 : 0}}
+                        <span ng-if="$select.selected.Text.length>20">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.Room | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search">
+                        </div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+        <div class="form-group col-sm-4">
+            <label class="col-sm-12 control-label" translate="transportrequest.tobed.lbl"></label>
+            <div class="col-sm-12">
+                <ui-select ng-model="item.ToBedId" ng-disabled="item.TransportStatusId==4||item.TransportStatusId==5"
+                    name="">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 20 : 0}}
+                        <span ng-if="$select.selected.Text.length>20">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.Bed | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search">
+                        </div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+    </form>
+</div>
+<div class="">
+    <div class="row">
+        <div class="pull-left">
+            <button type="button" class="btn pyr-color10 btn-sm" ng-click="backToList()" ng-if="backBtn">
+                <i class="fa fa-angle-left" aria-hidden="true"></i><span class="btn-fontsize"> &nbsp;
+                    Back</span>
+            </button>
+            <button type="button" class="draftbutton" translate="Cancel Request" ng-if="cancelBtn"
+                ng-click="CancelRequest()"></button>
+        </div>
+        <div class="pull-right">
+            <button type="button" class="draftbutton" ng-click="print()" translate="common.printaction.lbl"
+                ng-if="printBtn"></button>
+            <button id="btnSave" type="button" class="draftbutton" translate="common.saveaction.lbl"
+                ng-click="save()"></button>
+            <button id="btnSaveApprove" type="button" class="draftbutton"
+                translate="housekeeprequest.saveapprove-action.lbl" ng-click="saveAndApprove()"
+                ng-if="approveBtn"></button>
+            <button type="button" class="draftbutton" translate="Assign" ng-click="saveAndAssign()"
+                ng-if="assignBtn"></button>
+            <button type="button" class="draftbutton" translate="Completed" ng-click="confirmation()"
+                ng-if="completedBtn"></button>
+            <!-- <button id="btnClearForm" type="button" class="draftbutton" ng-click="clearItem()"
+                translate="common.clearaction.lbl" ng-if="clearBtn"></button> -->
+        </div>
+    </div>
+</div>

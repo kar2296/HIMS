@@ -1,0 +1,83 @@
+<link rel="stylesheet" href="app/css/drhms.css">
+<div class="row page-header">
+    <div class="col-sm-4">
+        <h4 class="mt0" translate="Optical invoice entry(GRN)"></h4>
+    </div>
+    <div class="col-sm-8">
+        <div class="filters">
+            <div class="search">
+                <input type="text" class="form-control textbox-search" on-enter="getList()" name="ponumber"
+                    ng-model="currentfilter.GrnNumber" translate
+                    translate-attr-placeholder="Search PO # / Invoice / GRN #"> <i class="fas fa-search"
+                    aria-hidden="true"></i>
+            </div>
+            <button class="btn-add" ng-click="addNew()" uib-tooltip="{{ 'inventory.grns.pagetitle.lbl' | translate }}"
+                tooltip-placement="bottom">
+                <i class="fa fa-plus" aria-hidden="true"></i>
+            </button>
+            <span class="drhms-billing-btn drhms-home-btn" ng-if="Context =='store'"><i class="fas fa-home"
+                    ng-click="backtoList()" uib-tooltip="Dashboard" tooltip-placement="bottom"></i></span>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <form id="item_form" name="item_form" class="form-horizontal" role="form">
+        <div class="form-group col-sm-3">
+            <label class="col-sm-4" for="date" translate="inventory.grns.date.lbl"></label>
+            <div class="col-sm-8">
+                <div class="datepicker">
+                    <input type="text" class="form-control" name="grndate" ng-change="getList()"
+                        datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}"
+                        uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                        placeholder="{{datePickerOptions.placeholder}}" ng-click="grndatePopup = { opened: true }"
+                        is-open="grndatePopup.opened" ng-model="currentfilter.OpticalGrnDate">
+                    <i class="fa fa-calendar" aria-hidden="true"></i>
+                </div>
+            </div>
+        </div>
+        <div class="form-group col-sm-3">
+            <label class="col-sm-4" for="vendor" translate="inventory.grns.vendorname1.lbl"></label>
+            <div class="col-sm-8">
+                <autosearch itemid="currentfilter.VendorMasterId" iteminfo="" rowdata="" config="vm.vendorcontrolconfig"
+                    itemchange="getList()" onenter="getList()"></autosearch>
+            </div>
+        </div>
+        <div class="form-group col-sm-3">
+            <label class="col-sm-4" for="fstore" translate="inventory.grns.store.lbl"></label>
+            <div class="col-sm-8">
+                <ui-select ng-model="currentfilter.StoreMasterId" name="fstore" ng-change="getList()" required>
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 20 : 0}}
+                        <span ng-if="$select.selected.Text.length>20">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.StoreMaster | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+        <div class="form-group col-sm-3">
+            <label class="col-sm-4" for="status" translate="inventory.grns.status1.lbl"></label>
+            <div class="col-sm-8">
+                <multiselectchk list="lookup.GrnStatus" selected="currentfilter.OpticalGrnStatusId" change="getList()">
+                </multiselectchk>
+            </div>
+        </div>
+    </form>
+</div>
+<div class="row">
+    <custom-table config="vm.gridConfig"></custom-table>
+</div>
+<div class="row">
+    <div class="pull-right">
+        <span class="drhms-due-amount">Total Net Amount: {{(TotalNetamount|displaycurrency)}}</span>
+    </div>
+</div>
+<div class="fooder-bgs">
+    <div class="row">
+        <ul uib-pagination total-items="vm.gridConfig.pagerObj.totalItems"
+            items-per-page="vm.gridConfig.pagerObj.pageSize" start-index="vm.gridConfig.pagerObj.startIndex"
+            ng-model="vm.gridConfig.pagerObj.currentPage" ng-change="getList()"></ul>
+    </div>
+</div>

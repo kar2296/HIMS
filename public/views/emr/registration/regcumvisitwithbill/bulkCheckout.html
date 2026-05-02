@@ -1,0 +1,147 @@
+<script type="text/javascript">
+    $(document).ready(function () {
+        $("#calenderid").click(function () {
+            $("i", this).toggleClass("fa fa-calendar fa fa-list");
+        });
+    });
+</script>
+<div class="row">
+    <div class="drhms-list-filter-head">
+        <div class="col-sm-9">
+            <h4 class="mt0" translate="appointment.appointment-list.pagetitle2.lbl"></h4>
+        </div>
+        <div class="col-sm-3">
+            <input type="text" id="drhms-patinet-search-box" class="form-control" on-enter="getList()"
+                ng-model="currentfilter.patientnamemrn" placeholder="Search Patient/UHID"> <span
+                class="drhms-search-list-icon"><i class="fas fa-search" aria-hidden="true"></i></span>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="drhms-list-filters">
+        <div class="col-sm-4">
+            <label class="col-sm-3" translate="inventory.openingstockentrys.date.lbl"></label>
+            <div class="col-sm-9">
+                <div class="datepicker">
+                    <input type="text" class="form-control" name="podate" ng-change="getList()"
+                        datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}"
+                        uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                        placeholder="{{datePickerOptions.placeholder}}" ng-click="fromdatedatePopup = { opened: true }"
+                        is-open="fromdatedatePopup.opened" ng-model="currentfilter.From">
+                    <i class="fa fa-calendar" aria-hidden="true"></i>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <label class="col-sm-3" translate="inventory.openingstockentrys.todate.lbl"></label>
+            <div class="col-sm-9">
+                <div class="datepicker">
+                    <input type="text" class="form-control" name="podate" ng-change="getList()"
+                        datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}"
+                        uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                        placeholder="{{datePickerOptions.placeholder}}" ng-click="todatePopup = { opened: true }"
+                        is-open="todatePopup.opened" ng-model="currentfilter.To">
+                    <i class="fa fa-calendar" aria-hidden="true"></i>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <label class="col-sm-3" translate="appointment.appointment-list.filter_appointmentstatus.lbl"></label>
+            <div class="col-sm-9">
+                <ui-select ng-model="currentfilter.AppointmentStatusId" ng-change="getList()" class="filter-combo">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 25 : 0}}
+                        <span ng-if="$select.selected.Text.length>25">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.AppointmentStatus | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div id="mainresponsivetablecontrolappnmnt">
+        <table class="table table-responsive table-bordered">
+            <thead class="bg-subhead">
+                <tr>
+                    <th class="col-sm-1">
+                        <span>
+                            <input type="checkbox" ng-model="currentcontext.selectall" ng-disabled="IsCheckedOut"
+                                ng-click="selectAllItems()">
+                        </span>
+                    </th>
+                    <th class="col-sm-1">
+                        <span translate="appointment.appointment-list.visitdate.lbl"></span>
+                    </th>
+                    <th class="col-sm-3">
+                        <span translate="appointment.appointment-list.patientname.lbl"></span>
+                    </th>
+                    <th class="col-sm-1">
+                        <span translate="appointment.appointment-list.checkoutdate.lbl"></span>
+                    </th>
+                    <th class="col-sm-2">
+                        <span translate="appointment.appointment-list.doctor.lbl"></span>
+                    </th>
+                    <th class="col-sm-2">
+                        <span translate="appointment.appointment-list.dept.lbl"></span>
+                    </th>
+                    <th class="col-sm-1">
+                        <span translate="appointment.appointment-list.status.lbl"></span>
+                    </th>
+                    <th class="col-sm-1">
+                        <span translate="appointment.appointment-list.visitid.lbl"></span>
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="item in ApnmntData">
+                    <td class="col-sm-1">
+                        <center>
+                            <span>
+                                <input type="checkbox" class="case" ng-disabled="item.AppointmentStatusId==11"
+                                    ng-model="item.IsAllApnmntSelected"
+                                    ng-click="IsAllApnmntSelectedChange(ApnmntData, item)" />
+                            </span>
+                        </center>
+                    </td>
+                    <td class="col-sm-1">
+                        {{item.AppointmentDate | date : 'dd-MM-yyyy'}} &nbsp;{{item.StartTime | date : 'HH:MM'}}
+                    </td>
+                    <td class="col-sm-3">
+                        <a ng-click="">
+                            {{item.Patient.Title.Description}}&nbsp;{{item.Patient.FirstName}}&nbsp;{{item.Patient.LastName}}&nbsp;/&nbsp;{{item.Patient.MRN}}&nbsp;/&nbsp;{{item.Patient.Age}}
+                            &nbsp;/&nbsp;{{item.Patient.Gender.Description}}
+                    </td>
+                    <td class="col-sm-1">
+                        <displaydate datetime-val="item.Encounter.DischargeDate"></displaydate>
+                    </td>
+                    <td class="col-sm-1">
+                        <span ng-if="item.User">{{item.User.Title.Description}}&nbsp;</span>
+                        <span>{{item.User.FirstName}}</span>&nbsp;
+                        <span>{{item.User.LastName}}</span>
+                    </td>
+                    <td class="col-sm-1">
+                        <span>{{item.Department.DepartmentName}}</span>
+                    </td>
+                    <td class="col-sm-1">
+                        <span>{{item.AppointmentStatus.Description}}</span>
+                    </td>
+                    <td class="col-sm-1">
+                        {{item.Encounter.VisitIdentifier}}
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+<div class="fooder-bgs">
+    <div class="text-right">
+        <button type="button" class="draftbutton" ng-click="batchCheckout()">
+            <i class="fa fa-check-square-o" aria-hidden="true"></i>&nbsp;&nbsp;
+            <span translate="appointment.appointment-list.bulkcheckout-action.lbl"></span>
+        </button>
+    </div>
+</div>

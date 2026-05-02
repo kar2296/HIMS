@@ -1,0 +1,114 @@
+<style>
+    .table-uigrid.ui-grid .ui-grid-cell.ui-grid-row-header-cell {
+        background: #f0f0ee;
+    }
+
+    .table-uigrid.ui-grid .ui-grid-row.ui-grid-row-selected>[ui-grid-row]>.ui-grid-cell {
+        background-color: lightgreen;
+    }
+
+    .ui-grid-cell.ui-grid-disable-selection.ui-grid-row-header-cell {
+        pointer-events: all;
+    }
+
+    .grid1514919961432 .ui-grid-render-container-body .ui-grid-viewport {
+        width: 1164px;
+        height: 455px;
+    }
+
+    .release-disabled {
+        cursor: default;
+        color: gray;
+        pointer-events: none;
+    }
+
+    .released {
+        background-color: pink;
+    }
+
+    @media (min-height: 637px) and (min-width: 1200px) {
+        .ui-grid-viewport {
+
+            min-height: 447px;
+        }
+    }
+
+    @media (min-height: 675px) and (min-width: 1360px) {
+        .ui-grid-viewport {
+
+            min-height: 484px;
+        }
+    }
+
+    @media (device-height:100vh) and (device-width:100vw) {
+        .ui-grid-viewport {
+            min-height: 580px;
+        }
+    }
+</style>
+
+<div class="row page-header">
+    <div class="col-sm-12">
+        <div class="col-sm-6 col-md-6 col-lg-6">
+            <h4 class="page-header mt0" translate="otschedule-list.pagetitle.lbl"></h4>
+        </div>
+        <div class="col-sm-6 col-md-6 col-lg-6">
+            <button class="btn bt-color3 btn-xs pull-right" uib-tooltip="{{ 'clinicalmaster.serviceitem-list.filter-tooltip.lbl' | translate }}"
+                ng-click="openAdvancedFilter()" tooltip-placement="bottom">
+                <i class="fa fa-filter fa-xs " aria-hidden="true"></i>&nbsp;&nbsp;
+                <span translate="clinicalmaster.serviceitem-list.filter.lbl"></span>
+            </button>
+
+        </div>
+    </div>
+</div>
+
+<div class="row filter-area">
+    <div class="col-sm-12">
+        <div class="col-sm-3">
+            <div class="form-group">
+                <label class="sr-only col-sm-5 control-label filter-lbl" translate="otworklist.patient.lbl"></label>
+                <div class="input-group col-sm-7">
+                    <div class="input-group-addon">
+                        <i class="fas fa-search" aria-hidden="true"></i>
+                    </div>
+                    <input type="text" class="form-control" on-enter="getList()" ng-model="currentfilter.patientnamemrn" placeholder="NAME/MRN">
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-3">
+            <label class="col-sm-4 control-label filter-lbl" translate="otschedule-list.dignosis.lbl"></label>
+            <div class="col-sm-8">
+                <autosearch itemid="currentfilter.DiagnosisId" iteminfo="" rowdata="" config="vm.diagnosiscontrolconfig" itemchange="getList()"
+                    onenter="getList()" tabindex="-1"></autosearch>
+            </div>
+        </div>
+
+
+        <div class="col-sm-3">
+            <label class="col-sm-4 control-label filter-lbl" translate="otregister-list.date.lbl"></label>
+            <div class="col-sm-8 claim_sub">
+                <input type="text" class="form-control" name="registereddate" ng-change="getList()" datepicker-options="datePickerOptions"
+                    show-button-bar="{{datePickerOptions.showButtonBar}}" uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                    placeholder="{{datePickerOptions.placeholder}}" ng-click="registereddatePopup = { opened: true }" is-open="registereddatePopup.opened"
+                    ng-model="currentfilter.OTScheduledOn">
+            </div>
+        </div>
+
+    </div>
+
+
+</div>
+
+<div class="container-fluid" id="appoinmentsheight">
+    <div ui-grid="vm.gridConfig" class="table-uigrid" ng-show="!vm.appointment.ShowCalendar"></div>
+    <jqx-scheduler jqx-settings="settings" id="scheduler" ng-show="vm.appointment.ShowCalendar"></jqx-scheduler>
+
+    <div class="fooder-bgs">
+        <div class="row">
+            <ul uib-pagination total-items="vm.gridConfig.pagerObj.totalItems" items-per-page="vm.gridConfig.pagerObj.pageSize" start-index="vm.gridConfig.pagerObj.startIndex"
+                ng-model="vm.gridConfig.pagerObj.currentPage" ng-change="getList()"></ul>
+        </div>
+    </div>
+</div>

@@ -823,7 +823,7 @@ var colors = {
     "lightseagreen": [32, 178, 170],
     "lightskyblue": [135, 206, 250],
     "lightslategray": [119, 136, 153],
-    "#ffffff00": [119, 136, 153],
+    "lightslategrey": [119, 136, 153],
     "lightsteelblue": [176, 196, 222],
     "lightyellow": [255, 255, 224],
     "lime": [0, 255, 0],

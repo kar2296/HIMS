@@ -1,0 +1,196 @@
+<style>
+    .page-header h4 {
+        height: 14px;
+    }
+
+    .pager-div {
+        float: right;
+    }
+
+    .ui-select-bootstrap .ui-select-toggle {
+        position: absolute;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        overflow: hidden;
+    }
+
+    .pagination {
+        margin: 14px 20px 0 !important;
+    }
+
+    .ui-select-bootstrap>.ui-select-choices {
+        width: initial;
+    }
+
+    .well {
+        min-height: 10px;
+        margin-bottom: 2px !important;
+        padding: 5px;
+    }
+
+    .autosearch-div .custom-popup-wrapper {
+        width: 300% !important;
+    }
+
+    /*.autosearch-div>input {
+        background-size: 24.7%!important;
+    }*/
+
+    /***/
+
+    .ui-select-bootstrap .ui-select-match-text span {
+        display: inline-block !important;
+    }
+
+    .custom_grid {
+        height: 435px !important;
+
+    }
+
+    .grid1505807204102 .ui-grid-render-container-body .ui-grid-viewport {
+        height: 385px !important;
+    }
+
+    /* @media (device-width:100vw) and (device-height:100vh){
+    .aside-collapsed .fooder-bg
+    {
+        width:100% !important;
+    }
+   }
+   .fooder-bg{
+       width:100%;
+   } */
+
+    .aside-collapsed .fooder-bg {
+        width: 100% !important;
+    }
+
+    .fooder-bg {
+        width: 87% !important;
+    }
+
+    #linenstockstatus .table-uigrid {
+        height: 433px !important;
+    }
+
+    .grid1515665054949 .ui-grid-render-container-body .ui-grid-viewport {
+        height: 400px;
+    }
+
+    @media (device-width:100vw) and (device-height:100vh) {
+        #linenstockstatus .table-uigrid {
+            height: 565px !important;
+        }
+        .grid1515665054949 .ui-grid-render-container-body .ui-grid-viewport {
+            height: 520px;
+        }
+    }
+
+    /* @media (min-width:760px) {
+        .ui-grid-viewport.ng-isolate-scope {
+            height: 446px;
+            min-height: 446px;
+        }
+    }
+
+    @media (min-width:1200px) {
+        .ui-grid-viewport.ng-isolate-scope {
+            height: 446px;
+            min-height: 436px;
+        }
+    }
+
+    @media (min-width:1360px) {
+        .ui-grid-viewport.ng-isolate-scope {
+            height: 446px;
+            min-height: 444px;
+        }
+    } */
+
+    .well.total_footer {
+        background: #b7a448c2 !important;
+        background-image: none;
+        color: #000;
+    }
+
+    .table-uigrid.ui-grid .ui-grid-viewport {
+        height: 66vh !important;
+        min-height: 66vh;
+
+    }
+
+    @media (device-width:100vw) and (device-height:100vh) {
+        .table-uigrid.ui-grid .ui-grid-viewport {
+            height: 72vh !important;
+            min-height: 72vh;
+        }
+    }
+</style>
+<div class="row page-header">
+    <h4 class="mt0 col-sm-6" translate="linenandlaundry.linenstockstatus.pagetitle.lbl"></h4>
+    <div class="col-sm-6 text-right">
+        <span>
+            <span ng-click="linendashboard()" ng-hide="context == 'emr'">
+                <img src="app/img/icons/laundry.png" class="img-responsive emr-drdashicon" alt="home" uib-tooltip="{{'Linen Dashboard'| translate}} "
+                    tooltip-placement="bottom">
+            </span>
+        </span>
+    </div>
+</div>
+<div class="row filter-area">
+    <div class="col-sm-12">
+        <div class="col-sm-3">
+            <label class="col-sm-4 control-label filter-lbl" translate="linenandlaundry.linenstockstatus.department.lbl"></label>
+            <div class="col-sm-8">
+                <ui-select ng-model="currentfilter.DepartmentId" ng-change="getList()" class="filter-combo">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 20 : 0}}
+                        <span ng-if="$select.selected.Text.length>20">...</span>
+                    </ui-select-match>
+                    <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.Department | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+        <div class="col-sm-3">
+            <label class="col-sm-5 control-label filter-lbl" translate="linenandlaundry.linenstockstatus.itemname.lbl"></label>
+            <div class="col-sm-7">
+                <autosearch itemid="currentfilter.LinenItemMasterId" iteminfo="" rowdata="" config="vm.linenitemmastercontrolconfig" itemchange="getList()"
+                    on-enter="getList()"></autosearch>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="im_stkstshg">
+    <div class="container-fluid im_linenstockstatus" id="linenstockstatus">
+        <div ui-grid="vm.gridConfig" class="table-uigrid custom_grid "></div>
+        <div class=" col-sm-12 footerbar pd0">
+            <div class="col-sm-12 well total_footer">
+
+                <div class="col-sm-9 ">
+                </div>
+                <div class="col-sm-3 ">
+                    <div class="col-sm-6 text-right">
+                        <label class="control-label" for="totalquantity">Total Quantity</label>
+                    </div>
+                    <div class="col-sm-6">
+                        <input type="text" class="form-control" name="totalquantity" ng-model="TotalQuantity" placeholder="0.00" id="disabledInput"
+                            disabled>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="fooder-bg custom_stock_footer">
+    <div class=" col-sm-12">
+        <div class=" col-sm-11">
+            <ul uib-pagination total-items="vm.gridConfig.pagerObj.totalItems" items-per-page="vm.gridConfig.pagerObj.pageSize" start-index="vm.gridConfig.pagerObj.startIndex"
+                ng-model="vm.gridConfig.pagerObj.currentPage" ng-change="getList()"></ul>
+        </div>
+        <!-- <div class=" col-sm-1">
+            <button type="button"   class="pull-right btn btn-inverse btn-sm" translate="common.printaction.lbl" ng-click="print()"></button>
+        </div> -->
+    </div>
+</div>

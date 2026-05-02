@@ -1,0 +1,101 @@
+<style>
+    /* .modal-dialog {
+        width: 900px;
+        margin: 30px auto;
+    } */
+
+    .form-horizontal .form-group {
+        height: 62px;
+    }
+
+    .table-bordered>thead>tr>th,
+    .table-bordered>thead>tr>td {
+        border-bottom-width: 1px;
+        background: #EFEFEF !important;
+        border: 1px solid #D9D9D9 !important;
+        color: #373737 !important;
+        font-size: 13px;
+        font-weight: 400;
+        padding: 6px;
+    }
+</style>
+<div class="modal-header custom-modal-header">
+    <div class="col-sm-10">
+        <h4 class="modal-title custom-modal-title" translate="generalmaster.wardmastertab.pnlservicetitle.lbl"></h4>
+    </div>
+    <div class="col-sm-2">
+        <div class="filters">
+            <img src="../../../../../assets/svg/close.svg" ng-click="cancelCallback()">
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="pull-right" style="margin-bottom: 10px;">
+        <button class="btn-add" ng-click="addNew()"
+            uib-tooltip="{{ 'generalmaster.wardmastertab.pnlservicetitle.lbl' | translate }}"
+            tooltip-placement="bottom">
+            <i class="fa fa-plus" aria-hidden="true"></i></button>
+    </div>
+
+    <div class="">
+        <form id="item_form" name="item_form" class="form-horizontal" role="form">
+            <table class="application-table table-striped table-bordered">
+                <thead class="bg-subhead">
+                    <tr>
+                        <th class="fs-12 col-sm-4"><span translate="generalmaster.wardmastertab.servicecode.lbl"></span>
+                        </th>
+                        <th class="fs-12 "><span translate="generalmaster.wardmastertab.qty.lbl"></span></th>
+                        <th class="fs-12"><span translate="generalmaster.wardmastertab.mainoc.lbl"></span></th>
+                        <th class="fs-12"><span translate="generalmaster.wardmastertab.doubleoc.lbl"></span></th>
+                        <th class="fs-12"><span translate="generalmaster.wardmastertab.ishour.lbl"></span></th>
+                        <th class="fs-12"><span translate="generalmaster.wardmastertab.action.lbl"></span></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="item in serviceDetails | filter:{Status:1}">
+                        <td class="fs-12 ">
+                            <autosearch itemid="item.ServiceItemId" iteminfo="item.SelectedItem" rowdata="item"
+                                config="vm.serviceitemcontrolconfig" itemchange="" class="inputsearchlogo"
+                                candisable=""></autosearch>
+                            <!--<ui-select ng-model="item.ServiceItemId" class="ui-select-grid" required>
+                                                    <ui-select-match>
+                                                        {{$select.selected.Text | limitTo : 20 : 0}}
+                                                        <span ng-if="$select.selected.Text.length>20">...</span>
+                                                    </ui-select-match>
+                                                    <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.ServiceItem | filter: { Text: $select.search }">
+                                                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                                    </ui-select-choices>
+                                                </ui-select>-->
+                        </td>
+                        <td class="fs-12 cell-align-center">
+                            <input type="text" class="form-control" ng-model="item.Quantity" placeholder="">
+                        </td>
+                        <td class="fs-12">
+                            <input type="checkbox" class="custom-checkbox" ng-model="item.ApplyMainOccupancy">
+                        </td>
+                        <td class="fs-12 " align="center">
+                            <input type="checkbox" class="custom-checkbox" ng-model="item.ApplyDoubleOccupancy">
+                        </td>
+                        <td class="fs-12 " align="center">
+                            <input type="checkbox" class="custom-checkbox" ng-model="item.IsHourApply">
+                        </td>
+                        <td>
+                            <button class="drhms-edit-button" ng-click="deleteServiceDetail($index,item)">
+                                <img src="assets/svg/delete.svg" alt="">
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </form>
+    </div>
+    <div class="">
+        <ul uib-pagination total-items="vm.gridConfig.pagerObj.totalItems"
+            items-per-page="vm.gridConfig.pagerObj.pageSize" start-index="vm.gridConfig.pagerObj.startIndex"
+            ng-model="vm.gridConfig.pagerObj.currentPage" ng-change="getList()"></ul>
+        <div class="pull-right">
+            <button type="button" id="btnsubmit" class="draftbutton" translate="common.saveaction.lbl"
+                ng-click="saveItem()"></button>
+        </div>
+    </div>
+</div>

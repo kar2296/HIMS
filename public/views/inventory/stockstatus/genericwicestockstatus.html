@@ -1,0 +1,54 @@
+<div class="modal-header custom-modal-header">
+    <div class="col-sm-4">
+        <h4 class="modal-title custom-modal-title" translate="Generic Wise Stock Status"></h4>
+    </div>
+    <div class="col-sm-8">
+        <span>Generic Name:&nbsp;</span>&nbsp;<span>{{currentfilter.GenericName}}</span>
+    </div>
+    <!-- <div class="col-sm-2">
+        <div class="filters">
+            <img src="../../../../../assets/svg/close.svg" ng-click="cancelCallback()">
+        </div>
+    </div> -->
+</div>
+
+<div class="row">
+    <div class="form-group col-sm-4">
+        <label class="col-sm-4" translate="inventory.stockstatus.producttype.lbl"></label>
+        <div class="col-sm-8">
+            <ui-select ng-model="currentfilter.ProductTypeId" ng-change="getList()" class="filter-combo">
+                <ui-select-match>
+                    {{$select.selected.Text | limitTo : 20 : 0}}
+                    <span ng-if="$select.selected.Text.length>20">...</span>
+                </ui-select-match>
+                <ui-select-choices
+                    repeat="lookupitem.Id as lookupitem in lookup.ProductType | filter: { Text: $select.search }">
+                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                </ui-select-choices>
+            </ui-select>
+        </div>
+    </div>
+    <div class="form-group col-sm-4">
+        <label class="col-sm-4" translate="inventory.stockstatus.genericname.lbl"></label>
+        <div class="col-sm-8">
+            <autosearch itemid="currentfilter.GenericId" iteminfo="" placeholder="'Generic Name'" rowdata=""
+                config="vm.stockgenericcontrolconfig" itemchange="getList()" onenter="getList()"></autosearch>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <custom-table config="vm.gridConfig"></custom-table>
+</div>
+<div class="row">
+    <div class="col-sm-10"></div>
+    <div class="col-sm-2">
+        <span class="drhms-special-count" style="font-weight: 600;">Total Quantity: {{(TotalQuantity)}}</span>
+    </div>
+</div>
+<div class="fooder-bgs">
+    <div class="row">
+        <ul uib-pagination total-items="vm.gridConfig.pagerObj.totalItems"
+            items-per-page="vm.gridConfig.pagerObj.pageSize" start-index="vm.gridConfig.pagerObj.startIndex"
+            ng-model="vm.gridConfig.pagerObj.currentPage" ng-change="getList()"></ul>
+    </div>
+</div>

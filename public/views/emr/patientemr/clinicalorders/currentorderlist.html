@@ -1,0 +1,82 @@
+<link href="app/css/emr.css" rel="stylesheet">
+<style>
+      .list-items-d-flex {
+            display: flex;
+            width: 100%;
+            color: #fff;
+            justify-content: space-between;
+             background: #46761b;
+            padding: 6px 3px;
+      }
+
+      .list-items-d-flex a {
+            color: #fff;
+      }
+
+      table {
+            width: 100%;
+      }
+</style>
+<div class="row">
+      <div aria-multiselectable="true">
+            <div style="margin-bottom: 10px;" ng-repeat="item in items" ng-repeat="detail in item.PatientOrderDetails">
+                  <div class="list-items-d-flex">
+                        <div>
+                              <ngformatdate datetime-val='item.OrderRequestDate'></ngformatdate>
+                        </div>
+                        <div>{{item.OrderNumber}}</div>
+                        <div class="hidencontent">
+                              <displayuserlbl user="item.User"></displayuserlbl>
+                        </div>
+                        <div class="hidencontent"> {{item.OrderFrom.DepartmentName}}</div>
+                        <div>{{item.OrderStatus.DisplayName}}</div>
+                        <div>
+                              <span>
+                                    <a ng-click="handleEvents('repeat',item)" class="editbtn" uib-tooltip="{{ 'Repeat' }}" tooltip-placement="bottom"
+                                          ng-hide="item.OrderStatusId==2">
+                                          <i class="fa fa-edit" aria-hidden="true"></i>
+                                    </a>
+                              </span>
+                              <span>
+                                    <a ng-click="handleEvents('print',item)" uib-tooltip="{{ 'Print' }}" tooltip-placement="bottom">
+                                          <i class="fa fa-print" style="font-size: 17px;" aria-hidden="true"></i>
+                                    </a>
+                              </span>
+                              <!-- <span ng-hide="item.OrderStatusId==2 || item.OrderStatusId==10"> -->
+                              <span ng-show="item.OrderStatusId==1">
+                                    <a ng-click="handleEvents('cancel',item)" uib-tooltip="{{ 'Cancel Order' }}" tooltip-placement="bottom">
+                                          <i class="fas fa-trash" style="font-size: 17px;" aria-hidden="true"></i>
+                                    </a>
+                              </span>
+                        </div>
+                        <div>
+                              <button type="button" class="btn btn-default btn-xs" ng-click="toggleCanShowDetails(item)">
+                                    <i class="fa fa-angle-down" aria-hidden="true" ng-show="!item.CanShowDetails"></i>
+                                    <i class="fa fa-angle-up" aria-hidden="true" ng-show="item.CanShowDetails"></i>
+                              </button>
+                        </div>
+                  </div>
+                  <div class="table-content" ng-show="item.CanShowDetails">
+                        <table>
+                              <tr ng-repeat="detail in item.PatientOrderDetails">
+                                    <td class="col-sm-2">
+                                          <span class="drugname">{{detail.TestCode}}</span>
+                                    </td>
+                                    <td class="col-sm-4">
+                                          <span class="duration">
+                                                {{detail.TestName}}
+                                          </span>
+                                    </td>
+                                    <td class="col-sm-1">
+                                          <span class="description">{{detail.Quantity}}</span>
+                                    </td>
+                                    <td class="col-sm-5">
+                                          <span class="description">{{detail.OrderComments}}</span>
+                                    </td>
+                              </tr>
+                        </table>
+                  </div>
+            </div>
+      </div>
+</div>
+<div class="fooder-bgs"></div>

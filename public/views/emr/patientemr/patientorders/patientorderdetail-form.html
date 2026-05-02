@@ -1,0 +1,227 @@
+<div class="modal-header custom-modal-header">
+    <div class="col-sm-10">
+        <h4 class="modal-title custom-modal-title" translate="patientemr.patientorderdetail-form.pagetitle.lbl"></h4>
+    </div>
+    <div class="col-sm-2">
+        <div class="filters">
+            <img src="../../../../../assets/svg/close.svg" ng-click="cancelCallback()">
+        </div>
+    </div>
+</div>
+
+<!-- <div class="modal-header custom-modal-header">
+    <h4 class="modal-title custom-modal-title" translate="patientemr.patientorderdetail-form.pagetitle.lbl"></h4>
+</div> -->
+
+<div class="row">
+    <form id="item_form" name="item_form" class="form-horizontal" role="form">
+        <div class="col-sm-6">
+            <div class="form-group col-sm-12">
+                <label class="col-sm-12 control-label" for="testname"
+                    translate="patientemr.patientorderdetail-form.testname.lbl"></label>
+                <div class="col-sm-12">
+                    <!--<testcontrol testid="item.TestId" testcode="item.TestCode" testname="item.TestName"
+                            testdescription="item.TestDescription" changeev="computeNetAmount(item)"></testcontrol>-->
+                    <input type="text" class="form-control" name="testname" ng-model="item.TestName" placeholder=""
+                        ng-disabled="item.IsDisabled">
+                </div>
+            </div>
+            <div class="form-group col-sm-12">
+                <label class="col-sm-12 control-label" for="requestdate"
+                    translate="patientemr.patientorderdetail-form.requestdate.lbl"></label>
+                <div class="col-sm-12">
+                    <input type="text" class="form-control" name="requestdate" ng-date-object
+                        uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                        placeholder="{{datePickerOptions.placeholder}}" ng-click="requestdatePopup = { opened: true }"
+                        is-open="requestdatePopup.opened" ng-model="item.RequestDate" ng-disabled="item.IsDisabled">
+                </div>
+            </div>
+            <div class="form-group col-sm-12">
+                <label class="col-sm-12 control-label" for="priority"
+                    translate="patientemr.patientorderdetail-form.priority.lbl"></label>
+                <div class="col-sm-12">
+                    <ui-select ng-model="item.OrderPriorityId" name="priority" ng-disabled="item.IsDisabled">
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 20 : 0}}
+                            <span ng-if="$select.selected.Text.length>20">...</span>
+                        </ui-select-match>
+                        <ui-select-choices
+                            repeat="lookupitem.Id as lookupitem in lookup.OrderPriority | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+            <div class="form-group col-sm-12">
+                <label class="col-sm-12 control-label" for="speciman"
+                    translate="patientemr.patientorderdetail-form.speciman.lbl"></label>
+                <div class="col-sm-12">
+                    <ui-select ng-model="item.SpecimanId" name="speciman" ng-disabled="item.IsDisabled">
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 20 : 0}}
+                            <span ng-if="$select.selected.Text.length>20">...</span>
+                        </ui-select-match>
+                        <ui-select-choices
+                            repeat="lookupitem.Id as lookupitem in lookup.SampleMaster | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+            <div class="form-group col-sm-12">
+                <label class="col-sm-12 control-label" for="bodysite"
+                    translate="patientemr.patientorderdetail-form.bodysite.lbl"></label>
+                <div class="col-sm-12">
+                    <ui-select ng-model="item.BodySiteId" name="bodysite" ng-disabled="item.IsDisabled">
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 20 : 0}}
+                            <span ng-if="$select.selected.Text.length>20">...</span>
+                        </ui-select-match>
+                        <ui-select-choices
+                            repeat="lookupitem.Id as lookupitem in lookup.BodySite | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+            <div class="form-group col-sm-12">
+                <label class="col-sm-12 control-label" for="guarantor"
+                    translate="patientemr.patientorderdetail-form.guarantor.lbl"></label>
+                <div class="col-sm-12">
+                    <ui-select ng-model="item.GuarantorId" name="guarantor" ng-disabled="item.IsDisabled">
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 20 : 0}}
+                            <span ng-if="$select.selected.Text.length>20">...</span>
+                        </ui-select-match>
+                        <ui-select-choices
+                            repeat="lookupitem.Id as lookupitem in lookup.PatientGuarantor | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+            <div class="form-group col-sm-12">
+                <label class="col-sm-12 control-label" for="unitprice"
+                    translate="patientemr.patientorderdetail-form.unitprice.lbl"></label>
+                <div class="col-sm-12">
+                    <input type="text" class="form-control" name="unitprice" ng-model="item.TestPrice" placeholder=""
+                        ng-change="computeNetAmount(item)" ng-disabled="item.IsDisabled">
+                </div>
+            </div>
+            <div class="form-group col-sm-12">
+                <label class="col-sm-12 control-label" for="comments"
+                    translate="patientemr.patientorderdetail-form.comments.lbl" ng-disabled="item.IsDisabled"></label>
+                <div class="col-sm-12">
+                    <commentscontrol comments="item.TestInstruction"></commentscontrol>
+                </div>
+            </div>
+        </div>
+
+        <!-- rightpanel -->
+        <div class="col-sm-6">
+            <div class="form-group col-sm-12">
+                <label class="col-sm-12 control-label" for="resultestimateddate"
+                    translate="patientemr.patientorderdetail-form.resultestimateddate.lbl"></label>
+                <div class="col-sm-12">
+                    <input type="text" class="form-control" name="resultestimateddate" ng-date-object
+                        uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                        placeholder="{{datePickerOptions.placeholder}}"
+                        ng-click="resultestimateddatePopup = { opened: true }" is-open="resultestimateddatePopup.opened"
+                        ng-model="item.ResultEstimatedDate" ng-disabled="item.IsDisabled">
+                </div>
+            </div>
+            <div class="form-group col-sm-12">
+                <label class="col-sm-12 control-label" for="scheduledate"
+                    translate="patientemr.patientorderdetail-form.scheduledate.lbl"></label>
+                <div class="col-sm-12">
+                    <input type="text" class="form-control" ng-disabled="IsDisabled" name="admissiondate" ng-date-object
+                        datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}"
+                        uib-datepicker-popup="{{datePickerOptions.dateTimeFormat}}"
+                        placeholder="{{datePickerOptions.placeholder}}" ng-click="OrderDateDatePopup = { opened: true }"
+                        is-open="OrderDateDatePopup.opened" ng-model="item.ScheduleDate" ng-disabled="item.IsDisabled">
+                </div>
+            </div>
+            <div class="form-group col-sm-12">
+                <label class="col-sm-12 control-label" for="useprevioussample"
+                    translate="patientemr.patientorderdetail-form.useprevioussample.lbl"></label>
+                <div class="col-sm-12">
+                    <input type="checkbox" name="useprevioussample" class="custom-checkbox"
+                        ng-model="item.IsUsePreviousSample" ng-disabled="item.IsDisabled">
+                </div>
+            </div>
+            <div class="form-group col-sm-12">
+                <label class="col-sm-12 control-label" for="diagnosis"
+                    translate="patientemr.patientorderdetail-form.diagnosis.lbl"></label>
+                <div class="col-sm-12">
+                    <autosearch itemid="item.DiagnosisId" iteminfo="" rowdata="" config="vm.diagnosiscontrolconfig"
+                        itemchange="getDiagnosis()"></autosearch>
+                    <!-- <ui-select ng-model="item.DiagnosisId" name="diagnosis" ng-disabled="item.IsDisabled">
+                            <ui-select-match>
+                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                <span ng-if="$select.selected.Text.length>20">...</span>
+                            </ui-select-match>
+                            <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.Diagnosis | filter: { Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                            </ui-select-choices>
+                        </ui-select> -->
+                </div>
+            </div>
+            <div class="form-group col-sm-12">
+                <label class="col-sm-12 control-label" for="quantity"
+                    translate="patientemr.patientorderdetail-form.quantity.lbl"></label>
+                <div class="col-sm-12">
+                    <input type="text" class="form-control" name="quantity" ng-model="item.Quantity" placeholder=""
+                        ng-change="computeNetAmount(item)" ng-disabled="item.IsDisabled">
+                </div>
+            </div>
+            <div class="form-group col-sm-12">
+                <label class="col-sm-12 control-label" for="status"
+                    translate="patientemr.patientorderdetail-form.status.lbl"></label>
+                <div class="col-sm-12">
+                    <ui-select ng-model="item.OrderStatusId" name="status" ng-disabled="item.IsDisabled">
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 20 : 0}}
+                            <span ng-if="$select.selected.Text.length>20">...</span>
+                        </ui-select-match>
+                        <ui-select-choices
+                            repeat="lookupitem.Id as lookupitem in lookup.OrderStatus | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+            <div class="form-group col-sm-12">
+                <label class="col-sm-12 control-label" for="netamount"
+                    translate="patientemr.patientorderdetail-form.netamount.lbl"></label>
+                <div class="col-sm-12">
+                    <input type="text" class="form-control" name="netamount" ng-model="item.NetAmount" placeholder=""
+                        disabled>
+                </div>
+            </div>
+            <div class="form-group col-sm-12">
+                <label class="col-sm-4  control-label" for="canbeyondleavebalance"
+                    translate="lis.testmaster.side.lbl"></label>
+                <div class="col-sm-12">
+                    <radiogroupcontrol itemid="item.SideId" items="lookup.Side"></radiogroupcontrol>
+                </div>
+            </div>
+            <div class="form-group col-sm-12">
+                <label class="col-sm-12 control-label" for="canbeyondleavebalance"
+                    translate="lis.testmaster.position.lbl"></label>
+                <div class="col-sm-12">
+                    <radiogroupcontrol itemid="item.TestMasterPositionId" items="lookup.TestMasterPosition">
+                    </radiogroupcontrol>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+<div class="">
+    <div class="row">
+        <div class="pull-right">
+            <button type="button" ng-if="canUpdatePatientEMR()" ng-click="saveItem()" class="draftbutton"
+                translate="common.doneaction.lbl"></button>
+            <!-- <button id="btnCancelForm" type="button" class="draftbutton" ng-click="cancelCallback()" translate="common.cancelaction.lbl"></button> -->
+        </div>
+    </div>
+</div>

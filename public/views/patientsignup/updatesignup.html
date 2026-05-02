@@ -1,0 +1,289 @@
+<style>
+    .layout-fixed .wrapper {
+        overflow-y: hidden;
+    }
+
+    .patient-upadte.ng-scope {
+        margin-top: 5%;
+    }
+
+    .approvebutton {
+        width: 14%;
+        background: #03a9f4;
+        border-radius: 33px;
+        height: 38px;
+        padding: 6px;
+        color: white;
+    }
+</style>
+<div class="patient-upadte">
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="col-sm-6">Patient Update Information</div>
+            <div class="col-sm-6">Patient ID : xxxx1232323 | M.abcd</div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="col-sm-4">
+                <div class="form-group col-sm-12">
+                    <label class="col-sm-12 control-label" for="tittle"
+                        translate="registration.registrationcumvisit.title.lbl"></label>
+                    <div class="col-sm-12 pdr0">
+                        <ui-select id="title" tabindex="1" ng-model="item.TitleId" aria-placeholder="Please Select"
+                            name="tittle" ng-change="fillGenderInfo()" tabindex="tabindexmap.patienttabindex"
+                            on-select="SelectedTitle($select.selected)" required>
+                            <ui-select-match>
+                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                <span ng-if="$select.selected.Text.length>20">...</span>
+                            </ui-select-match>
+                            <ui-select-choices
+                                repeat="lookupitem.Id as lookupitem in lookup.Title | filter: { Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search">
+                                </div>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                </div>
+                <div class="form-group col-sm-12">
+                    <label class="col-sm-12 control-label" for="firstname"
+                        translate="registration.fullregistration.firstname.lbl"></label>
+                    <div class="col-sm-12 pdr0">
+                        <input type="text" name="firstname" class="form-control" tabindex="2" ng-model="item.FirstName"
+                            placeholder="First Name" required uppercase>
+                    </div>
+                </div>
+                <div class="form-group col-sm-12">
+                    <label class="col-sm-12 control-label" for="lastname"
+                        translate="registration.fullregistration.lastname.lbl"></label>
+                    <div class="col-sm-12" style="width: 347px;">
+                        <input type="text" tabindex="3" class="form-control" name="lastname" ng-model="item.LastName"
+                            placeholder="Last Name" required uppercase>
+                    </div>
+                </div>
+                <div class="form-group col-sm-12" ng-show="canShowApproxAge(item.TitleId)">
+                    <label class="col-sm-12 control-label"
+                        translate="registration.fullregistration.approxage.lbl"></label>
+                    <div class="col-sm-12 approxagediv">
+                        <div class="col-sm-4">
+                            <input type="text" class="form-control" tabindex="5" ng-model="item.ApproxAgeDays"
+                                placeholder="Days" ng-change="calculateDOB(item.ApproxAgeDays, 'days')">
+                        </div>
+                        <div class="col-sm-4">
+                            <input type="text" class="form-control" tabindex="6" ng-model="item.ApproxAgeMonths"
+                                placeholder="Months" ng-change="calculateDOB(item.ApproxAgeMonths, 'months')">
+                        </div>
+                        <div class="col-sm-4">
+                            <input type="text" class="form-control" tabindex="7" ng-model="item.Age" placeholder="Years"
+                                ng-change="calculateDOB(item.Age, 'years')">
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group col-sm-12">
+                    <label class="col-sm-12 control-label" for="age"
+                        translate="registration.registrationcumvisit.age.lbl"></label>
+                    <div class="col-sm-12 pdr0">
+                        <input type="text" tabindex="8" class="form-control" name="age"
+                            tabindex="tabindexmap.patienttabindex" ng-model="item.Age" placeholder="Age" required
+                            uppercase ng-change="calculateDOB(item.Age, 'years')">
+                    </div>
+
+                </div>
+                <div class="form-group col-sm-12">
+                    <label class="col-sm-12 control-label" for="dob"
+                        translate="registration.registrationcumvisit.dob.lbl"></label>
+                    <div class="col-sm-12 pdr0">
+                        <div class="datepicker">
+                            <input type="text" class="form-control" name="dob" ng-date-object
+                                datepicker-options="datePickerOptions"
+                                show-button-bar="{{datePickerOptions.showButtonBar}}"
+                                uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                                placeholder="{{datePickerOptions.placeholder}}" ng-click="dobPopup = { opened: true }"
+                                is-open="dobPopup.opened" ng-model="item.DOB" ng-change="calculateAge()"
+                                tabindex="tabindexmap.patienttabindex">
+                            <i class="fa fa-calendar" aria-hidden="true"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group col-sm-12">
+                    <label class="col-sm-12 control-label" for="mobile"
+                        translate="registration.registrationcumvisit.mobile.lbl"></label>
+                    <div class="col-sm-12">
+                        <input type="text" tabindex="14" ng-keyup="keyPress($event, 0, 'contactnr', 'aadharnr')"
+                            class="form-control" id="contactnr" MINLENGTH="10" MAXLENGTH="10" size="10" value=""
+                            name="mobile" onChange="numberonly($event)" onKeyUp="numberonly($event)"
+                            ng-keypress="numberonly($event)" ng-model="item.Mobile" required>
+                    </div>
+                </div>
+                <div class="col-sm-12">
+
+                    <label class="col-sm-12" for="remarks" translate="Email Id"></label>
+                    <div class="col-sm-12">
+                        <input type="text" class="form-control" tabindex="-1" name="remarks"
+                            uib-tooltip="{{item.Comments}}" tooltip-placement="bottom" ng-disabled="IsDue"
+                            ng-model="item.Comments" placeholder="Remarks">
+                    </div>
+                </div>
+
+                <div class="form-group col-sm-12">
+                    <label class="col-sm-12 control-label" for="nationality"
+                        translate="registration.fullregistration.nationality.lbl"></label>
+                    <div class="col-sm-12">
+                        <ui-select tabindex="16" ng-model="item.NationalityId" name="nationality" required>
+                            <ui-select-match>
+                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                <span ng-if="$select.selected.Text.length>20">...</span>
+                            </ui-select-match>
+                            <ui-select-choices
+                                repeat="lookupitem.Id as lookupitem in lookup.Nationality | filter: { Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search">
+                                </div>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                </div>
+                <div class="form-group col-sm-12">
+                    <label class="col-sm-12 control-label0" for="password"
+                        translate="appmanager.user.password.lbl"></label>
+                    <div class="col-sm-12">
+                        <input type="password" class="form-control" name="password" ng-model="item.Password"
+                            placeholder="" required>
+                    </div>
+                    <div class="col-sm-12">
+                        <a title="{{currentcontext.pwdcriteriamsg}}" ng-show="currentcontext.loginsetting">
+                            <i class="icon-info-sign btn-circle" aria-hidden="true"></i>
+                        </a>
+                    </div>
+                </div>
+                <div class="form-group col-sm-12">
+                    <div class="col-sm-12 outer_ilayer">
+                        <div class="text-center0 pull-right0">
+                            <div class="box1 text-center col-sm-3">
+                                <input type="file" ng-disabled="SaveCompleted" ngf-select ng-model="currentcontext.file"
+                                    tabindex="-1" name="file" id="file-1" class="inputfile inputfile-1"
+                                    ngf-max-size="200MB" ng-change="photoFileChanged()" />
+                                <label for="file-1" ng-disabled="SaveCompleted" uib-tooltip="Upload"
+                                    tooltip-placement="bottom">
+                                    <i class="fa fa-upload" aria-hidden="true"></i>
+                                </label>
+                            </div>
+                            <button type="button" style="padding: 5px;" class="cnlbutton" tabindex="-1"
+                                ng-click="clearimage()" uib-tooltip="Clear" tooltip-placement="bottom">
+                                <img class="drhms-edit-button" src="assets/svg/delete.svg" alt="">
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-4">
+                <div class="form-group col-sm-12">
+                    <label class="col-sm-12 control-label" translate="Permanent Address"></label>
+                </div>
+                <div class="form-group col-sm-12">
+                    <label class="col-sm-12 control-label" translate="Provice"></label>
+                    <div class="col-sm-12">
+                        <statecontrol pincodeid="item.PinCodeId" pincode="item.PinCode" area="item.Area" tabindex="21"
+                            city="item.City" cityid="item.CityId" state="item.State" stateid="item.StateId"
+                            country="item.Country" countryid="item.CountryId">
+                        </statecontrol>
+
+                    </div>
+                </div>
+                <div class="form-group col-sm-12">
+                    <label class="col-sm-12 control-label" translate="District"></label>
+                    <div class="col-sm-12">
+                        <citycontrol pincodeid="item.PinCodeId" pincode="item.PinCode" area="item.Area" tabindex="20"
+                            stateid="item.StateId" city="item.City" cityid="item.CityId">
+                        </citycontrol>
+                    </div>
+                </div>
+
+                <div class="form-group col-sm-12">
+                    <label class="col-sm-12 control-label" translate="Local Unit"></label>
+                    <div class="col-sm-12">
+                        <citycontrol pincodeid="item.PinCodeId" pincode="item.PinCode" area="item.Area" tabindex="20"
+                            stateid="item.StateId" city="item.City" cityid="item.CityId">
+                        </citycontrol>
+                    </div>
+                </div>
+
+                <div class="form-group col-sm-12">
+                    <label class="col-sm-12 control-label" translate="Ward No"></label>
+                    <div class="col-sm-12">
+                        <citycontrol pincodeid="item.PinCodeId" pincode="item.PinCode" area="item.Area" tabindex="20"
+                            stateid="item.StateId" city="item.City" cityid="item.CityId">
+                        </citycontrol>
+                    </div>
+                </div>
+
+
+
+
+            </div>
+            <div class="col-sm-4">
+                <div class="form-group col-sm-12">
+                    <label class="col-sm-12 control-label" translate="Current Address"></label>
+                    <div class="col-sm-12">
+                        <input type="checkbox" /> Save as Permanent Address
+                    </div>
+                </div>
+
+                <div class="form-group col-sm-12">
+                    <label class="col-sm-12 control-label"
+                        translate="registration.fullregistration.googleaddress.lbl"></label>
+                    <div class="col-sm-10">
+                        <input type="text" id="googleaddopt" tabindex="17" ng-disabled="disablegoogleaddopt"
+                            class="form-control" gm-places-autocomplete="autocompleteOptions"
+                            ng-model="autocompleteModel" />
+                    </div>
+                    <div class="col-sm-1 col-md-1 col-lg-1">
+                        <input type="checkbox" name="googleaddressoption" class="custom-checkbox" tabindex="18"
+                            ng-click="enablegoogleaddopt()" ng-model="chkgoogleaddopt">
+                    </div>
+                </div>
+                <div class="form-group col-sm-12">
+                    <label class="col-sm-12 control-label" translate="Provice"></label>
+                    <div class="col-sm-12">
+                        <statecontrol pincodeid="item.PinCodeId" pincode="item.PinCode" area="item.Area" tabindex="21"
+                            city="item.City" cityid="item.CityId" state="item.State" stateid="item.StateId"
+                            country="item.Country" countryid="item.CountryId">
+                        </statecontrol>
+
+                    </div>
+                </div>
+                <div class="form-group col-sm-12">
+                    <label class="col-sm-12 control-label" translate="District"></label>
+                    <div class="col-sm-12">
+                        <citycontrol pincodeid="item.PinCodeId" pincode="item.PinCode" area="item.Area" tabindex="20"
+                            stateid="item.StateId" city="item.City" cityid="item.CityId">
+                        </citycontrol>
+                    </div>
+                </div>
+
+                <div class="form-group col-sm-12">
+                    <label class="col-sm-12 control-label" translate="Local Unit"></label>
+                    <div class="col-sm-12">
+                        <citycontrol pincodeid="item.PinCodeId" pincode="item.PinCode" area="item.Area" tabindex="20"
+                            stateid="item.StateId" city="item.City" cityid="item.CityId">
+                        </citycontrol>
+                    </div>
+                </div>
+
+                <div class="form-group col-sm-12">
+                    <label class="col-sm-12 control-label" translate="Ward No"></label>
+                    <div class="col-sm-12">
+                        <citycontrol pincodeid="item.PinCodeId" pincode="item.PinCode" area="item.Area" tabindex="20"
+                            stateid="item.StateId" city="item.City" cityid="item.CityId">
+                        </citycontrol>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+<div class="fooder-bgs">
+    <div class="col-sm-12" align="center">
+        <div class="approvebutton">Update</div>
+    </div>
+</div>

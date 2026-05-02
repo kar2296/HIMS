@@ -1,0 +1,118 @@
+<style>
+    .nameinfo {
+        font-size: 13px;
+        font-weight: 700;
+        color: #337ab7;
+    }
+    
+    .nameinfo.mrninfo {
+        color: black
+    }
+    
+    .contactinfo {
+        font-size: 10px;
+        color: #808080
+    }
+    
+    .block {
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        overflow: hidden;
+    }
+    
+    #usersheight .ui-grid-viewport {
+        width: 100%;
+        height: 460px!important;
+    }
+    
+    .table-uigrid {
+        margin-left: 10px;
+        margin-right: 10px;
+        height: 488px!important;
+    }
+    
+    .linkstyle {
+        font-weight: 700;
+        text-align: right;
+    }
+    
+    .statusinfo {
+        font-size: 13px;
+    }
+    
+    .form-group {
+        margin-bottom: 7px !important;
+    }
+    
+    .sr-only {
+        height: 22px !important;
+    }
+    
+    .col-sm-5 {
+        padding-left: 5px !important;
+    }
+</style>
+
+<div class="row page-header">
+    <h4 class="col-sm-6 mt0" translate="appmanager.print-list.pagetitle.lbl"></h4>
+    <div class="col-sm-6">
+        <!--<button class="btn bt-color3 btn-xs pull-right btn-filter" ng-click="" uib-tooltip="{{ '  clinicalmaster.serviceitem-list.filter-tooltip.lbl' | translate}}"
+         tooltip-placement="bottom"><i class="fa fa-filter" aria-hidden="true"></i>&nbsp;&nbsp;<span translate="clinicalmaster.serviceitem-list.filter.lbl"></span></button>-->
+        <!--<button class="btn bt-color2 btn-xs pull-right btn-filter" ng-click="addNew()" uib-tooltip="{{ 'appmanager.print-list.addnew-tooltip.lbl' | translate
+}}" tooltip-placement="bottom"><i class="fa fa-plus" aria-hidden="true"></i><span translate="clinicalmaster.serviceitem-list.addnew.lbl"></span></button>-->
+    </div>
+</div>
+  <div class="row filter-area">
+    <div class="col-sm-12">
+        <div class="col-sm-4">
+            <label class="col-sm-4 control-label filter-lbl" translate="appmanager.print-list.facility.lbl"></label>
+            <div class="col-sm-8">
+                <ui-select ng-model="currentfilter.FacilityId" ng-change="getList()" class="filter-combo">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 8 : 0}}
+                        <span ng-if="$select.selected.Text.length>8">...</span>
+                    </ui-select-match>
+                    <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.Facility | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <label class="col-sm-4 control-label filter-lbl" translate="appmanager.print-list.printon.lbl"></label>
+            <div class="col-sm-8">
+                    <input type="text" class="form-control" name="GRNdate" ng-date-object uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                    placeholder="{{datePickerOptions.placeholder}}" ng-click="grnPopup = { opened: true }" is-open="grnPopup.opened"
+                    ng-change="getList()" ng-model="currentfilter.PrintDate">
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <label class="col-sm-4 control-label filter-lbl" translate="appmanager.print-list.type.lbl"></label>
+            <div class="col-sm-8">
+                <ui-select ng-model="currentfilter.ObjectTypeId" ng-change="getList()" class="filter-combo">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 8 : 0}}
+                        <span ng-if="$select.selected.Text.length>8">...</span>
+                    </ui-select-match>
+                    <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.ObjectType | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+
+        
+
+    </div>
+</div>
+
+<div class="container-fluid" id="usersheight">
+    <div ui-grid="vm.gridConfig" class="table-uigrid table-uigrid-tab "></div>
+
+    <div class="fooder-bgs">
+        <div class="row">
+            <ul uib-pagination total-items="vm.gridConfig.pagerObj.totalItems" items-per-page="vm.gridConfig.pagerObj.pageSize" start-index="vm.gridConfig.pagerObj.startIndex"
+                ng-model="vm.gridConfig.pagerObj.currentPage" ng-change="getList()"></ul>
+        </div>
+    </div>
+</div>

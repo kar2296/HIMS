@@ -1,0 +1,162 @@
+<style>
+    .container-fluid {
+        margin-left: 0px;
+        margin-right: 0px;
+        margin-bottom: 0px;
+        background-image: url(app/img/bg-body.jpg);
+        background-repeat: repeat;
+    }
+
+    .modal-header {
+        padding: 9px 10px;
+        background-color: #597a9a;
+        color: #fff;
+    }
+
+    .custom-modal-header {
+        margin-bottom: 10px !important;
+    }
+
+    .panel-footer {
+        padding: 2px 15px !important;
+        ;
+    }
+
+    .modal-content {
+        height: 500px !important;
+    }
+
+    .modal-lg {
+        width: 1200px !important;
+    }
+
+    /*.rxname {
+    }
+    .doctor {
+
+    }
+    .tbl-header {
+
+    }*/
+    /*.cus-col {
+        width: 120px !important;
+        padding-left: 3px !important;
+    }*/
+
+    .modal-content #mainresponsivetablecontrol {
+        height: 404px !important;
+    }
+
+    .custom-table {
+        margin-bottom: 0px !important;
+    }
+
+    pre {
+        display: block;
+        padding: 2px;
+        margin: 0 0 10.5px;
+        font-size: 12px;
+        line-height: 1.52857143;
+        word-break: break-all;
+        word-wrap: break-word;
+        color: #a70808;
+        /* background-color: #7f6cb9; */
+        /* border: 1px solid #cccccc; */
+        /* border-radius: 4px; */
+    }
+
+    b,
+    strong {
+        font-weight: 700;
+        color: darkblue;
+    }
+</style>
+<div class="modal-header custom-modal-header">
+    <div class="col-sm-6">
+        <h4 class="modal-title custom-modal-title" translate="patientemr.patientorder-list.previousvitals.lbl"></h4>
+    </div>
+    <div class="col-sm-6">
+            <div class="filters">
+                <img src="../../../../../assets/svg/close.svg"  ng-click="cancelCallback()">
+            </div>
+        </div>
+</div>
+<div class="col-sm-12">
+    <div class="col-sm-9"></div>
+    <div class="col-sm-3">
+        <div class="col-sm-6">
+            <a class="previous" href="" ng-click="toggleView()">Chart</a></div>
+        <div class="col-sm-6">
+            <a class="previous" href="">Growth Chart</a></div>
+
+    </div>
+</div>
+<div class="col-sm-12 " ng-show="canShowChartArea()" set-grid-height reduce-height="50">
+    <vitalchart patientid="currentcontext.pid" vitalid="currentfilter.VitalId" from="currentfilter.From"
+        to="currentfilter.To"></vitalchart>
+</div>
+<div class="col-sm-12" ng-show="canShowGridArea()">
+    <div class="table-responsive" id="mainresponsivetablecontrolstock" style="height:400px;">
+        <table class="table table-hover table-responsive table-bordered custom-table">
+            <thead class="bg-subhead">
+                <tr>
+                    <th class="cell-align-center" style="width: 20px !important;">
+                        <span translate="inventory.grn.sno.lbl"></span>
+                    </th>
+                    <th class="fs-12 col-sm-3"><span translate="patientemr.patientvital-form.date.lbl"></span></th>
+                    <th class="fs-12 col-sm-3"><span translate="patientemr.patientvital-form.capturedby.lbl"></span>
+                    </th>
+                </tr>
+            </thead>
+            <thead>
+                <tr ng-repeat="item in FinalList">
+                    <td>
+                        <button type="button" style="float: right;" class="btn btn-default btn-xs" ng-click="toggleCanShowDetails(item)">
+                            <i class="fa fa-plus" aria-hidden="true" ng-show="!item.CanShowDetails"></i>
+                            <i class="fa fa-minus" aria-hidden="true" ng-show="item.CanShowDetails"></i>
+                        </button>
+                    </td>
+                    <td>
+                        <ngformatdate datetime-val='item.PerformedDate'></ngformatdate>
+                    </td>
+                    <td><b class="plain-text1">
+                            {{item.PerformedUser}}
+                    </td>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="item in FinalList">
+                    <table class="table table-hover table-responsive table-bordered custom-table details"
+                        style="width: 100%;">
+                        <thead class="bg-subhead" ng-show="item.CanShowDetails" style="display:block!important;">
+                            <tr style="height: 40px;">
+                                <th style="width: 176px !important ;"><span
+                                        translate="patientemr.patientvital-form.vitalparameter.lbl"></span>
+                                </th>
+                                <th style="width: 65px !important;"><span
+                                        translate="patientemr.patientvital-form.vitalvalue.lbl"></span>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody ng-show="item.CanShowDetails" style="display:block!important;">
+                            <tr ng-repeat="detail in VitalDatas">
+                                <td class="cus-col rxname">
+                                    <span><b class="plain-text">{{detail.Description}}</b></span>
+                                </td>
+                                <td class="cus-col rxname">
+                                    <span><b class="plain-text"
+                                            ng-if="detail.VitalValue">{{detail.VitalValue}}</b></span>
+                                    <span><b class="plain-text"
+                                            ng-if="detail.VitalValue1">{{detail.VitalValue1}}</b></span>
+                                    <span><b class="plain-text"
+                                            ng-if="detail.VitalValue2">{{detail.VitalValue2}}</b></span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </tr>
+            </tbody>
+
+        </table>
+    </div>
+</div>

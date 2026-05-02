@@ -1,0 +1,114 @@
+<style>
+    .panel-footer {
+        background-color: #ccecf5 !important;
+    }
+
+    .grid1485611170638 .ui-grid-coluiGrid-00AD {
+        min-width: 163px;
+        max-width: 163px;
+    }
+
+    .custom_marbot {
+        margin-bottom: 10px;
+    }
+
+    ul.uib-datepicker-popup.dropdown-menu.ng-scope {
+        left: -30px !important;
+    }
+
+    .pl-3 {
+        padding-left: 3%;
+    }
+
+    .status {
+        background-color: #f1d03f57;
+    }
+
+    .m_bottom {
+        margin-bottom: 7px;
+    }
+</style>
+<div class="row page-header">
+    <div class="col-sm-12">
+        <div class="col-sm-6">
+            <h4 class="page-header mt0" translate="linenandlaundry.linenstockentry.pagetitle.lbl"></h4>
+        </div>
+
+        <div class="col-sm-6 text-right">
+            <span>
+                <button class="btn-add" ng-click="addNew()" uib-tooltip="{{ 'linenandlaundry.linenstockentry.pagetitle.lbl' | translate }}"
+                    tooltip-placement="bottom">
+                    <i class="fa fa-plus" aria-hidden="true"></i>
+                </button>
+                <!-- <span ng-click="linendashboard()" ng-hide="context == 'emr'">
+                    <img src="app/img/icons/laundry.png" class="img-responsive emr-drdashicon" alt="home" uib-tooltip="{{'Linen Dashboard'| translate}} "
+                        tooltip-placement="bottom">
+                </span> -->
+            </span>
+        </div>
+    </div>
+</div>
+<div class="row filter-area">
+    <table id="bannerdetails">
+        <tbody >
+            <tr>
+                <td>
+                    <label class="control-label" for="transactionno" translate="linenandlaundry.linenstockentry.entryno.lbl"></label>
+                </td>
+                <td>
+                    <input type="text" class="form-control" on-enter="getList()" ng-model="currentfilter.LinenStockEntryNumber" translate translate-attr-placeholder="linenandlaundry.linenstockentry.entryno.lbl">
+                </td>
+                <td>
+                    <label class="control-label" for="stockingpoint" translate="linenandlaundry.linenstockentry.stockpoint.lbl"></label>
+                </td>
+                <td>
+                    <ui-select ng-model="currentfilter.DepartmentId" ng-change="getList()" name="stockingpoint">
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 20 : 0}}
+                            <span ng-if="$select.selected.Text.length>20">...</span>
+                        </ui-select-match>
+                        <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.Department | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </td>
+               
+            </tr>
+            <tr>
+                <td>  <label class="control-label" for="diposeddate" translate="linenandlaundry.linenstockentry.date.lbl"></label></td>
+           <td>
+            <input type="text" class="form-control" name="diposeddate" ng-date-object datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}"
+            uib-datepicker-popup="{{datePickerOptions.dateFormat}}" placeholder="{{datePickerOptions.placeholder}}"
+            ng-click="expirydatePopup = { opened: true }" is-open="expirydatePopup.opened" ng-model="currentfilter.EnteredDate"
+            ng-change="getList()">
+           </td>
+           <td>
+            <label class="control-label" for="status" translate="linenandlaundry.linenstockentry.status.lbl"></label>
+           </td>
+           <td>
+            <ui-select ng-model="currentfilter.LinenStockEntryStatusId" ng-change="getList()" name="status">
+                <ui-select-match>
+                    {{$select.selected.Text | limitTo : 20 : 0}}
+                    <span ng-if="$select.selected.Text.length>20">...</span>
+                </ui-select-match>
+                <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.StockEntryStatus | filter: { Text: $select.search }">
+                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                </ui-select-choices>
+            </ui-select>
+           </td>
+            </tr>
+        </tbody>
+    </table>
+  
+</div>
+<!-- <div class="container-fluid" id="patientidentitiesheight">
+    <div ui-grid="vm.gridConfig" class="table-uigrid table-uigrid-tab "></div>
+  
+</div> -->
+<custom-table config="vm.gridConfig"></custom-table>         
+<div class="fooder-bgs">
+    <div class="row">
+        <ul uib-pagination total-items="vm.gridConfig.pagerObj.totalItems" items-per-page="vm.gridConfig.pagerObj.pageSize" start-index="vm.gridConfig.pagerObj.startIndex"
+            ng-model="vm.gridConfig.pagerObj.currentPage" ng-change="getList()"></ul>
+    </div>
+</div>

@@ -1,0 +1,48 @@
+{
+    "Title" : "Patient Orders",
+    "ControllerName" : "patientOrderList",
+    "InitAction" : {
+        "url" : "General/Options/getoptions",
+        "behaviour" : "default",
+        "optionkeys" : [ {"name" : "OrderPriority"}, {"name" : "OrderStatus"} ]
+    },
+    "FilterConfig" :[ {
+        "localizationpath" : "patientemr.patientorder-list",
+        "controls" :[
+               { "combo" : true, "label" : "Priority", "name" : "filter_priority", "model" : "currentfilter.priority", "placeholder" : "", "collection" : "lookup.Priority", "valuefield" : "Id", "displayfield" : "Text" },
+               { "combo" : true, "label" : "Status", "name" : "filter_status", "model" : "currentfilter.status", "placeholder" : "", "collection" : "lookup.Status", "valuefield" : "Id", "displayfield" : "Text" }
+            ]
+        }
+    ],
+    "FetchAction" : {
+        "url" : "patientemr/patientorders/GetPatientOrders",
+        "behaviour" : "default"
+    },
+    "EditAction" : {
+                "url": "",
+                "state": "patientemr.patientorders",
+                "params": ["id:row.entity.Id", "pid: $scope.currentcontext.pid"]
+                },
+    "AddAction" : {
+        "url": "",
+        "state": "patientemr.patientorders",
+        "params": ["id:0", "pid: $scope.currentcontext.pid"]
+        },
+    "DeleteAction" : {
+        "url": "patientemr/patientorders/DeletePatientOrders",
+        "behaviour" : "default"
+    },
+    "Localization" : { "localizationmodule" : "patientemr", "screenkey" : "patientorder-list" },
+    "GridConfig" :[ {
+        "localizationpath" : "patientemr.patientorder-list",
+        "columnDefs": [ { "field": "OrderedBy", "displayName": "Ordered By", "name" : "orderedby" } ,
+                        { "field": "Priority", "displayName": "Priority", "name" : "priority" } , 
+                        { "field": "OrderRequestDate", "displayName": "Order Date & Time", "name" : "ordereddateandtime" },
+                        { "field": "OrderScheduleDate", "displayName": "Schedule Date & Time", "name" : "scheduledateandtime" },
+                        { "field": "OrderFrom", "displayName": "Order From", "name" : "orderfrom" },
+                        { "field": "OrderTo", "displayName": "Order To", "name" : "orderto" },
+                        { "field": "Status", "displayName": "Order Status", "name" : "status" }
+                    ]
+        }
+    ]
+}

@@ -1,0 +1,88 @@
+<style>
+    .formRoot {overflow: inherit;}
+    .modal-content .panel-body {overflow: inherit;}
+    .form-group.col-sm-6 {
+    margin-bottom: 15px;
+}
+span.btn.btn-default.form-control.ui-select-toggle {
+    width: 232px;
+}
+input {
+    width: 100%;
+}
+</style>
+
+<div class="modal-header custom-modal-header" >
+    <h4 class=" col-sm-10 modal-title custom-modal-title" translate="patientemr.patientdocument-form.pagetitle.lbl"></h4>
+    <div class="col-sm-2">
+        <button type="button" class="btn btn-danger btn-sm pull-right" translate="x"
+            ng-click="cancelCallback()"></button>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-sm-12">
+        <form id="item_form" name="item_form" class="form-horizontal" role="form" ng-submit="saveItem()">
+            <div class="">
+                <div class="">
+                  <div class="">
+                        <div class="col-sm-12 " style="padding-top: 2px">
+                            <!-- leftpanel -->
+                            <!-- <div class="col-sm-12 well"> -->
+                                <div class="form-group col-sm-6" style="margin-bottom: -11px;">
+                                    <label class="col-sm-5 control-label" for="documentdate" translate="assetmanagement.assetdocument-form.date.lbl"></label>
+                                    <div class="col-sm-7">
+                                        <input type="text" class="form-control" name="documentdate" ng-date-object uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                                            placeholder="{{datePickerOptions.placeholder}}" ng-click="documentdatePopup = { opened: true }"
+                                            is-open="documentdatePopup.opened" ng-model="item.DocumentDate">
+                                    </div>
+                                </div>
+                                <div class="form-group col-sm-6">
+                                    <label class="col-sm-5 control-label" for="documenttype" translate="assetmanagement.assetdocument-form.type.lbl"></label>
+                                    <div class="col-sm-7">
+                                        <ui-select ng-model="item.DocumentTypeId" name="documenttype">
+                                            <ui-select-match>
+                                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                                <span ng-if="$select.selected.Text.length>20">...</span>
+                                            </ui-select-match>
+                                            <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.DocumentType | filter: { Text: $select.search }">
+                                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                            </ui-select-choices>
+                                        </ui-select>
+                                    </div>
+                                </div>
+                                <div class="form-group col-sm-6">
+                                    <label class="col-sm-5 control-label" for="file" translate="assetmanagement.assetdocument-form.Attachments.lbl"></label>
+                                    <div class="col-sm-7">
+                                        <input type="file" ngf-select ng-model="currentcontext.file" name="file" ngf-max-size="200MB" ngf-change="fileSelected()"
+                                        />
+                                    </div>
+                                </div>
+                                <!-- <div class="form-group col-sm-6">
+                                    <label class="col-sm-5 control-label" for="releasetopatient" translate="assetmanagement.assetdocument-form.releasetopatient.lbl"></label>
+                                    <div class="col-sm-7">
+                                        <radiogroupcontrol itemid="item.ReleaseToPatientId" items="lookup.YesNo"></radiogroupcontrol>
+                                    </div>
+                                </div> -->
+                                <div class="form-group col-sm-6">
+                                    <label class="col-sm-5 control-label" for="comments" translate="assetmanagement.assetdocument-form.comments.lbl"></label>
+                                    <div class="col-sm-7">
+                                        <commentscontrol comments="item.Comments"></commentscontrol>
+                                    </div>
+                                </div>
+                            <!-- </div> -->
+
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="fooder-bgs" style="margin-bottom: 5px !important;">
+                <div class="pull-right">
+                    <button type="submit" class="draftbutton" translate="common.saveaction.lbl"></button>
+                    <!-- <button id="btnCancelForm" type="button" class="draftbutton" ng-click="backToList()" translate="common.cancelaction.lbl"></button> -->
+                </div>
+            </div>
+        </form>
+    </div>
+</div>         

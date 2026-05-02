@@ -1,0 +1,245 @@
+<html>
+
+<head>
+    <style>
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        td {
+            padding: 3px;
+            vertical-align: top;
+        }
+
+        * {
+            font-family: sans-serif;
+        }
+
+        th {
+            white-space: break-spaces;
+            border: 1px !important;
+            border-top: 1px solid black !important;
+            border-bottom: 1px solid black !important;
+            font-size: 10px;
+            padding-left: 4px;
+            padding-top: 6px;
+            padding-bottom: 6px;
+        }
+
+        td {
+            border: 1px !important;
+            font-size: 10px;
+        }
+
+        p {
+            font-size: 10px;
+        }
+
+        .size td,
+        .size th {
+            border: 1px solid black !important;
+        }
+
+        .table2 tr th,
+        .table2 tr td {
+            border: 1px solid black !important;
+        }
+
+        .secondary-tab {
+            position: absolute;
+            width: 97.5%;
+            margin-left: 0px;
+        }
+
+        .table2 .secondary-tab table tr td,
+        .table2 .secondary-tab table tr th {
+            border: 0px solid black !important;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            word-break: break-all;
+        }
+
+        .table2 .secondary-tab table {
+            border: unset !important;
+            border-collapse: collapse;
+            width: 94%;
+        }
+
+        .secondary-tab td div {
+            word-break: break-all;
+        }
+
+        .content * {
+            font-size: 13px !important;
+        }
+
+        .bg-color {
+            background: #c5c5c5;
+        }
+
+        table.calc {
+            border: 1px solid;
+            border-top: 0;
+        }
+
+        .sub-total {
+            border: 0px !important;
+            border-top: 0px solid black !important;
+            border-bottom: 0px solid black !important;
+            width: 100%;
+        }
+
+        .table2 .sub-total td {
+            border-color: white !important;
+        }
+        .td-head {
+            background-color: #c5c5c5;
+        }
+        .td-head b {
+            font-size: 22px !important;
+        }
+        .bg-color th {
+            background-color: #c5c5c5;
+        }
+
+       {{include '/Templates/assets/css/core.css'}}
+    </style>
+</head>
+
+<body style="padding-left: 30px;padding-right: 20px;">
+    <div id="pageHeader">
+       {{{include '/Templates/jsshospital/common/header.tpl.html' 'tpl'}}}
+    </div>
+    <div class="content">
+        <table style="width:100%;">
+            <tr>
+                <td style="text-align:center;" class="td-head" style="width:100%"><b>Work Order</b>
+                </td>
+            </tr>
+        </table>
+        <table class="" style="width:100%;">
+            <tr>
+                <td style="width:12%;"><b>Supplier Name</b></td>
+                <td>:</td>
+                <td style="width:23%;"><b>{{data.Invworkorder.VendorMaster.VendorName}}</b></td>
+                <td style="width:12%;"><b>Work Order No</b></td>
+                <td>:</td>
+                <td style="width:20%;"><b>{{data.Invworkorder.InvWorkorderNo}}</b></td>
+    
+            </tr>
+            <tr>
+                <td><b>Address</b></td>
+                <td>:</td>
+                <td>{{data.Invworkorder.VendorMaster.VendorContact.AddressLine1}},
+                                    {{data.Invworkorder.VendorMaster.VendorContact.AddressLine2}},
+                                    {{data.Invworkorder.VendorMaster.VendorContact.PincodeMaster.Pincode}}
+                                    {{data.Invworkorder.VendorMaster.VendorContact.StateMaster.StateName}}
+                                    {{data.Invworkorder.VendorMaster.VendorContact.CountryMaster.CountryName}}</td>
+                <td><b>Order Date</b></td>
+                <td>:</td>
+                <td>{{dateformat data.Invworkorder.InvWorkorderDate}}</td>
+            </tr>
+    
+            <tr>
+                <td><b>Mob No</b></td>
+                <td>:</td>
+                <td><b>{{data.Invworkorder.VendorMaster.MobileNumber}}</b></td>
+                <td><b>Invoice No & Date</b></td>
+                <td>:</td>
+                <td><b>{{dateformat data.Invworkorder.InvWorkorderDate}}</b></td>
+            </tr>
+    
+            <tr>
+                <td><b></b></td>
+                <td></td>
+                <td></td>
+                <td><b>Department / Store</b></td>
+                <td>:</td>
+                <td><b>{{dateformat data.Invworkorder.StoreMaster.StoreName}}</b></td>
+            </tr>
+        </table>
+
+        <div border>
+            <table class="table2" style="width:100%;">
+                <tr class="bg-color">
+                                <th style="width:10%">S.No</th>
+                                <th style="width:30%">Particulars</th>
+                                <th style="width:10%">Qty</th>
+                                <th style="width:10%">Amount</th>
+                                <th style="width:10%">Discount</th>
+                                <th style="width:10%">Net Amount</th>
+                                <th style="width:10%">Remarks</th>
+                </tr>
+                <tr>
+                    <td style="height: 300px;padding:0 !important">
+                        <div class="secondary-tab">
+                            <table>
+                                <tr>
+                                <th style="width:10%">S.No</th>
+                                <th style="width:30%">Particulars</th>
+                                <th style="width:10%">Qty</th>
+                                <th style="width:10%">Amount</th>
+                                <th style="width:10%">Discount</th>
+                                <th style="width:10%">Net Amount</th>
+                                <th style="width:10%">Remarks</th>
+                                </tr>
+                            {{#each data.InvworkorderDetails}}
+                            <tr>
+                                <td style="width:10%" align="left">{{inc @index}}</td>
+                                <td style="width:30%" align="left">{{Particulars}}</td>
+                                <td style="width:10%" align="center">{{Quantity}}</td>
+                                <td style="width:10%" align="right">{{Amount}}</td>
+                                <td style="width:10%" align="right">{{Discount}}</td>
+                                <td style="width:10%" align="right">{{NetAmount}}</td>
+                                <td style="width:10%" align="center">{{Remarks}}</td>
+                            </tr>
+                            {{/each}}
+                            </table>
+                        </div>
+                    </td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+            </table>
+        <br>
+        <table class="rate">
+            <tr>
+                <td style="width:60%;">Net Amount <span>: ₹</span></td>
+                <td style="width:40%;"><b>{{data.Invworkorder.TotalNetAmount}}</b></td>
+            </tr>
+            <tr>
+                <td style="width:60%;">Total Discount <span>: ₹</span></td>
+                <td style="width:40%;"><b>{{#if data.Invworkorder.TotalDiscountAmount}}
+                        {{data.Invworkorder.TotalDiscountAmount}}
+                        {{/if}}</b></td>
+            </tr>
+            <tr>
+                <td style="width:60%;">Total SGST<span>: ₹</span></td>
+                <td style="width:40%;"><b>{{data.Invworkorder.TotalSGstAmount}}</b></td>
+            </tr>
+            <tr>
+                <td style="width:60%;">Total CGST <span>: ₹</span></td>
+                <td style="width:40%;"><b>{{data.Invworkorder.TotalCGstAmount}}</b></td>
+            </tr>
+            <tr>
+                <td style="width:60%;">Total Other Charges <span>: ₹</span></td>
+                <td style="width:40%;"><b>{{data.Invworkorder.OtherCharges}}</b></td>
+            </tr>
+        </table>
+            <table class="table4" style="width:100%;">
+                <tr>
+                    <td><b>Amount in words</b><span>:</span> <span>Rupees <span style="text-transform: capitalize">
+                                {{decimalnrInWords data.Invworkorder.TotalNetAmount}}</span> only</span></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+            </table>
+        </div>
+    </div>
+    <!-- <div style="width:100%; font-size:10px;">Printed On: {{now}}</div> -->

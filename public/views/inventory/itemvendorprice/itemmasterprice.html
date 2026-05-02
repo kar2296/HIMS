@@ -1,0 +1,42 @@
+<style>
+    table.table.table-bordered.table-condensed.dropdown-menu.align {
+        margin-left: -396px;
+    }
+</style>
+<div class="row">
+    <div class="col-sm-3">
+        <h4 translate="inventory.itemrackmapping.pagetitle1.lbl" style="margin: 0;"></h4>
+    </div>
+    <div class="col-sm-9">
+        <div class="col-sm-6">
+            <label class="col-sm-6 control-label filter-lbl"
+                translate="inventory.itemrackmapping.producttype.lbl"></label>
+            <div class="col-sm-6">
+                <ui-select ng-model="currentfilter.ProductTypeId" ng-change="getList()" class="filter-combo">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 25 : 0}}
+                        <span ng-if="$select.selected.Text.length>25">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.ProductType | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+        <div class="filters col-sm-4">
+            <autosearch itemid="currentfilter.ItemMasterId" iteminfo="" rowdata="" config="vm.itemcontrolconfig"
+                itemchange="getList()"></autosearch>&nbsp;
+            <span class="drhms-billing-btn drhms-home-btn"><i class="fas fa-home" ng-click="backtoList()"
+                    uib-tooltip="Dashboard" tooltip-placement="bottom"></i></span>
+        </div>
+    </div>
+</div>
+<div class="fooder-bgs">
+    <div class="row">
+        <custom-table config="vm.gridConfig"></custom-table>
+        <ul uib-pagination total-items="vm.gridConfig.pagerObj.totalItems"
+            items-per-page="vm.gridConfig.pagerObj.pageSize" start-index="vm.gridConfig.pagerObj.startIndex"
+            ng-model="vm.gridConfig.pagerObj.currentPage" ng-change="getList()"></ul>
+    </div>
+</div>

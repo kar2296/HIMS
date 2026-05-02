@@ -1,0 +1,297 @@
+<link rel="stylesheet" href="app/css/drhms.css">
+<style>
+    .form-horizontal .form-group {
+        height: 40px;
+    }
+
+    autosearch.inputsearchlogo table.table.table-bordered.table-condensed.dropdown-menu.align {
+        margin-left: -200px;
+    }
+</style>
+<div class="row">
+    <div class="drhms-filters">
+        <div class="col-sm-10">
+            <h4 translate="inventory.purchaserequest.pagetitle2.lbl"></h4>
+        </div>
+        <div class="col-sm-4">
+            <span class="forpadd" uib-tooltip="{{item.DisplayPoStatus}} " tooltip-placement="bottom">
+                <span translate="inventory.purchaserequests.filter_status.lbl"></span>:
+                <span>{{item.DisplayPrStatus}}</span>
+            </span>
+        </div>
+        <div class="col-sm-5">
+            <button type="button" tabindex="-1" class="drhms-billing-btn drhms-add-btn" ng-click="addNew()"
+                uib-tooltip="{{ 'inventory.purchaserequest.addnew-tooltip.lbl' | translate }}"
+                tooltip-placement="bottom">
+                <i class="fa fa-plus" aria-hidden="true"></i>
+            </button>
+            <button type="button" class="drhms-billing-btn drhms-previousbill-btn" ng-show="canShowCancelPrBtn"
+                ng-click="CancelPR()">
+                <img class="drhms-edit-button" src="assets/svg/delete.svg" alt="">
+            </button>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <form id="item_form" name="item_form" class="form-horizontal" role="form">
+        <div class="drhms-table-top-header">
+            <div class="drhms-table-head-border">
+                <div class="col-sm-12">
+                    <label class="col-sm-4" for="userstores" translate="inventory.stocktransfer.store.lbl"></label>
+                    <div class="col-sm-8">
+                        <ui-select ng-model="item.StoreMasterId" ng-change="getStoreItems()" name="userstores"
+                            class="filter-combo" tabindex="-1" ng-disabled="item.isDisabled" required>
+                            <ui-select-match>
+                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                <span ng-if="$select.selected.Text.length>20">...</span>
+                            </ui-select-match>
+                            <ui-select-choices
+                                repeat="lookupitem.Id as lookupitem in lookup.UserStores | filter: { Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                </div>
+                <div class="col-sm-12">
+                    <label class="col-sm-4" for="prtype" translate="inventory.purchaserequest.prtype.lbl"></label>
+                    <div class="col-sm-8">
+                        <ui-select ng-model="item.PrTypeId" name="prtype" ng-disabled="item.isDisabled" tabindex="-1"
+                            required>
+                            <ui-select-match>
+                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                <span ng-if="$select.selected.Text.length>20">...</span>
+                            </ui-select-match>
+                            <ui-select-choices
+                                repeat="lookupitem.Id as lookupitem in lookup.PrType | filter: { Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                </div>
+            </div>
+            <div class="drhms-table-head-border">
+                <div class="col-sm-12">
+                    <label class="col-sm-4" translate="inventory.purchaserequest.vendor.lbl"></label>
+                    <div class="col-sm-8">
+                        <autosearch itemid="item.VendorFacilityMapId" class="inputsearchlogo" iteminfo="" rowdata=""
+                            config="vm.vendorcontrolconfig" candisable=""></autosearch>
+                    </div>
+                </div>
+                <div class="col-sm-12">
+                    <label class="col-sm-4" translate="inventory.purchaseorder.expecteddeliveydate.lbl"></label>
+                    <div class="col-sm-8">
+                        <input type="text" class="form-control" name="expecteddeliveydate" tabindex="-1" ng-date-object
+                            uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                            placeholder="{{datePickerOptions.placeholder}}"
+                            ng-click="expecteddeliveydatePopup = { opened: true }"
+                            is-open="expecteddeliveydatePopup.opened" ng-model="item.ExpectedDeliveryDate"
+                            ng-disabled="item.isDisabled">
+                    </div>
+                </div>
+            </div>
+            <div class="drhms-table-head-border">
+                <div class="col-sm-12">
+                    <label class="col-sm-4"  tabindex="-1"
+                        translate="inventory.purchaserequest.tostore.lbl"></label>
+                    <div class="col-sm-8">
+                        <ui-select ng-model="item.ToStoreMasterId"  ng-disabled="item.isDisabled"
+                            required>
+                            <ui-select-match>
+                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                <span ng-if="$select.selected.Text.length>20">...</span>
+                            </ui-select-match>
+                            <ui-select-choices
+                                repeat="lookupitem.Id as lookupitem in lookup.ToStore | filter: { Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                </div>
+                <div class="col-sm-12">
+                    <label class="col-sm-4"  tabindex="-1"
+                        translate="inventory.purchaserequest.department.lbl"></label>
+                    <div class="col-sm-8">
+                        <ui-select ng-model="item.DepartmentId"  ng-disabled="item.isDisabled"
+                            required>
+                            <ui-select-match>
+                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                <span ng-if="$select.selected.Text.length>20">...</span>
+                            </ui-select-match>
+                            <ui-select-choices
+                                repeat="lookupitem.Id as lookupitem in lookup.Department | filter: { Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                </div>
+            </div>
+    </form>
+</div>
+
+<div class="row">
+    <form id="item_form" name="item_form" class="form-horizontal" role="form">
+        <div class="drhms-table-control">
+            <div class="drhms-bg-pattern">
+                <div class="drhms-table-responsive-height">
+                    <table class="drhms-responsive-table">
+                        <thead class="bg-subhead">
+                            <tr>
+                                <th>
+                                    <span translate="inventory.purchaserequest.sno.lbl"></span>
+                                </th>
+                                <th class="col-sm-3">
+                                    <span translate="inventory.purchaserequest.itemname.lbl"></span>
+                                </th>
+                                <th>
+                                    <span translate="inventory.purchaserequest.uom.lbl"></span>
+                                </th>
+                                <th>
+                                    <span translate="inventory.purchaserequest.stockinhand.lbl"></span>
+                                </th>
+                                <th>
+                                    <span translate="inventory.purchaserequest.qty.lbl"></span>
+                                </th>
+                                <!-- <th>
+                                    <span translate="inventory.purchaserequest.purchaseprice.lbl"></span>
+                                </th>
+                                <th>
+                                    <span translate="inventory.purchaserequest.gstcode.lbl"></span>
+                                </th>
+                                <th>
+                                    <span translate="VAT/GST(%)"></span>
+                                </th>
+                                <th>
+                                    <span translate="VAT/GST(Amt)"></span>
+                                </th>
+                                <th>
+                                    <span translate="inventory.purchaserequest.ucp.lbl"></span>
+                                </th>
+                                <th>
+                                    <span translate="inventory.purchaserequest.amount.lbl"></span>
+                                </th> -->
+                                <th class="col-sm-1">
+                                    <span translate="inventory.purchaserequest.action.lbl"></span>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="purchaserequest in purchaserequestDetails | filter:{Status:1}">
+                                <td class="fs-12">
+                                    <span>{{ purchaserequest.SNo }}</span>
+                                </td>
+                                <td class="fs-12">
+                                    <autosearch itemid="purchaserequest.ItemMasterId"
+                                        iteminfo="purchaserequest.SelectedItem" rowdata="purchaserequest"
+                                        config="vm.purchaserequestcontrolconfig"
+                                        itemchange="onItemSelected($index, purchaserequest)" class="inputsearchlogo"
+                                        candisable="purchaserequest.RdoItemSearch"></autosearch>
+                                    <!-- <autosearch itemid="purchaserequest.ItemMasterId"
+                                        iteminfo="purchaserequest.SelectedItem" rowdata="purchaserequest"
+                                        config="vm.purchaseitemcontrolconfig"
+                                        itemchange="onItemSelected($index, purchaserequest)"
+                                        candisable="purchaserequest.RdoItemMasterId"></autosearch> -->
+                                    <!-- ng-show="item.VendorMasterId > 0" -->
+                                </td>
+                                <td class="fs-12">
+                                    <span> {{ purchaserequest.BaseUom.UomCode }}</span>
+                                </td>
+                                <td class="fs-12">
+                                    <span> {{ purchaserequest.QuantityOnHand }}</span>
+                                </td>
+                                <td class="fs-12">
+                                    <input type="number" min="0" class="form-control"
+                                        ng-show="purchaserequest.ItemMasterId > 0"
+                                        ng-model="purchaserequest.RequestedQuantity" placeholder=""
+                                        ng-disabled="item.isDisabled" ng-change="computeAmount(purchaserequest)">
+                                </td>
+                                <!-- <td class="fs-12 currency-align">
+                                    <span>{{ (purchaserequest.PurchasePrice | displaycurrency) }}</span>
+                                </td> -->
+                                <!-- <td class="fs-12">
+                                    <span>{{ purchaserequest.GstCode }}</span>
+                                </td>
+                                <td class="fs-12">
+                                    <span>{{ purchaserequest.GstPercentage }}</span>
+                                </td>
+                                <td class="fs-12 currency-align">
+                                    <span>{{ (purchaserequest.GstAmount | displaycurrency) }}</span>
+                                </td>
+                                <td class="fs-12 currency-align">
+                                    <span>{{ (purchaserequest.UnitCostPrice | displaycurrency) }}</span>
+                                </td>
+                                <td class="fs-12">
+                                    <input type="text" value="{{(purchaserequest.NetAmount | displaycurrency)}}"
+                                        class="inputbox form-control" disabled>
+                                </td> -->
+                                <td class="text-center">
+                                    <button type="button" class="bed-history" uib-tooltip="History" tabindex="-1"
+                                        tooltip-placement="top" ng-click="History($index,purchaserequest)">
+                                        <i class="fa fa-history fa-xs" aria-hidden="true"></i>
+                                        <!-- <img class="imgsrc" src="app/img/main/history.png"> -->
+                                    </button>
+                                    <!-- <button type="button" class="text-white btn dem-color4 btn-xs " tabindex="-1" uib-tooltip="Stock" tooltip-placement="top"
+                                        ng-click="Stock($index,purchaserequest)">
+                                        <i class="fa fa-database fa-xs" aria-hidden="true"></i>
+                                    </button> -->
+                                    <i class="fas fa-layer-group" uib-tooltip="Stock" tooltip-placement="top"
+                                        ng-click="Stock($index,purchaserequest)"></i>
+
+                                    <!-- <img class="imgsrc" src="app/img/main/warehouse.png" tabindex="-1"
+                                        uib-tooltip="Stock" tooltip-placement="top"
+                                        ng-click="Stock($index,purchaserequest)"> -->
+                                    <button type="button" class="drhms-edit-button" tabindex="-1" uib-tooltip="Delete"
+                                        tooltip-placement="top" ng-click="deletePRDetail($index,purchaserequest)"
+                                        ng-disabled="item.isDisabled">
+                                        <img src="assets/svg/delete.svg" alt="">
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="row">
+                <!-- <div class="pull-left"> -->
+                <div class="col-sm-6">
+                    <label class="col-sm-2 control-label" translate="inventory.stockadjustments.comments.lbl"></label>
+                    <div class="col-sm-8">
+                        <textarea class="text-comment" ng-model="item.Comments"></textarea>
+                        <!-- <input type="text" tabindex="-1" class="form-control field-height inputheightctrl"
+                                name="comments" ng-model="item.Comments" placeholder=""> -->
+                    </div>
+                </div>
+                <!-- <div class="col-sm-6">
+                        <label class="col-sm-4 control-label" tabindex="-1" for="comments"
+                            translate="inventory.purchaserequest.totalamount.lbl"></label>
+                        <div class="col-sm-8">
+                            <input type="text" value="{{(item.TotalNetAmount | displaycurrency)}}" tabindex="-1"
+                                class="inputbox form-control currency-align" disabled>
+                        </div>
+                    </div> -->
+                <!-- </div> -->
+            </div>
+        </div>
+    </form>
+</div>
+<div class="fooder-bgs">
+    <div class="pull-left">
+        <button type="button" class="btn pyr-color10 btn-sm" tabindex="-1" ng-click="backToList()">
+            <i class="fa fa-angle-left" aria-hidden="true"></i>
+            <span class="btn-fontsize"> &nbsp; Back</span>
+        </button>
+        <button type="button" class="draftbutton" ng-show="canShowDeleteBtn" ng-click="draftDelete()"
+            translate="inventory.purchaserequest.delete.lbl"></button>
+    </div>
+    <div class="pull-right">
+        <button type="button" class="draftbutton" ng-show="canShowPrintBtn" ng-click="print()"> <i
+                class="fa fa-print"></i> Preview Print</button>
+        <button type="button" class="draftbutton" translate="Draft" ng-show="canShowSaveBtn"
+            ng-click="SaveandDraft()"></button>
+        <button type="button" class="draftbutton" translate="Save" ng-show="canShowSaveandApproveBtn"
+            ng-click="SaveandApprove()"></button>
+        <button type="button" class="draftbutton" translate="Approve" ng-show="canShowAuthorizeBtn"
+            ng-click="SaveandAuthorize() "></button>
+        <button type="button" class="draftbutton" translate="common.cancelaction.lbl" ng-show="canShowCancelBtn"
+            ng-click="Cancel()"></button>
+    </div>
+</div>

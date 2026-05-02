@@ -1,0 +1,197 @@
+<style>
+    #mainresponsivetablecontrol {
+        height: 400px;
+        overflow: auto;
+    }
+
+    .formRoot {
+        min-height: 385px;
+    }
+
+    @media (device-width:100vw) and (device-height:100vh) {
+        #mainresponsivetablecontrol {
+            min-height: 556px;
+        }
+        .ot_reg_equipmentused {
+            min-height: 555px;
+        }
+    }
+
+    @media (min-height: 675px) and (min-width: 1360px) {
+        #mainresponsivetablecontrol {
+            height: 463px;
+            overflow: auto;
+        }
+        .formRoot {
+            min-height: 463px;
+        }
+    }
+
+    @media (min-height: 637px) and (min-width: 1200px) {
+        #mainresponsivetablecontrol {
+            height: 426px;
+            overflow: auto;
+        }
+        .formRoot {
+            min-height: 426px;
+        }
+    }
+</style>
+<div class="row filter-area">
+    <div class="col-sm-12">
+        <div class="col-sm-6">
+        </div>
+        <div class="col-sm-6">
+            <!--<button class="btn bt-color3 btn-xs pull-right btn-filter" ng-click="" uib-tooltip="{{ 'appmanager.users.advancefilter-tooltip.lbl' | translate  }}"
+                tooltip-placement="bottom"><i class="fa fa-filter" aria-hidden="true"></i>&nbsp;&nbsp;<span translate="clinicalmaster.serviceitem-list.filter.lbl"></span></button>-->
+            <button class="btn bt-color2 btn-xs pull-right btn-filter" ng-click="addNew()" uib-tooltip="{{ 'otregisterequipment-tab.equipment_tooltipp.lbl' | translate}}"
+                tooltip-placement="bottom">
+                <i class="fa fa-plus" aria-hidden="true"></i>
+                <span translate="clinicalmaster.serviceitem-list.addnew.lbl"></span>
+            </button>
+        </div>
+    </div>
+</div>
+<div id="mainresponsivetablecontrol">
+    <div class="formRoot bg-pattern ot_reg_equipmentused">
+        <div class="col-sm-12">
+            <table class="table table-hover table-responsive table-bordered">
+                <thead class="bg-subhead">
+                    <tr>
+                        <th class="col-sm-2">
+                            <span translate="otregisterequipment-tab.equipments.lbl" name="service"></span>
+                            <span class="mandatory-asterix">*</span>
+                        </th>
+                        <th class="col-sm-2">
+                            <span translate="otregisterequipment-tab.charge_type.lbl"></span>
+                            <span class="mandatory-asterix">*</span>
+                        </th>
+                        <th class="col-sm-2">
+                            <span translate="otregisterequipment-tab.startdate/time.lbl"></span>
+                            <span class="mandatory-asterix">*</span>
+                        </th>
+                        <th class="col-sm-2">
+                            <span translate="otregisterequipment-tab.enddate/time.lbl"></span>
+                            <span class="mandatory-asterix">*</span>
+                        </th>
+                        <th class="col-sm-1">
+                            <span translate="otregisterequipment-tab.totalhours.lbl"></span>
+                        </th>
+                        <th class="col-sm-2">
+                            <span translate="otregisterequipment-tab.comments.lbl"></span>
+                        </th>
+                        <th class="col-sm-1">
+                            <span translate="common.actions_col.lbl"></span>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="item in vm.items | filter:{Status:1}">
+                        <td>
+                            <autosearch itemid="item.EquipmentId" iteminfo="item.SelectedItem" name="'service'" rowdata="item" config="vm.serviceitemcontrolconfig"
+                                itemchange="equipmentChanged(item)" class="inputsearchlogo" candisable="item.Id>0||CanShowEquipment"
+                                isrequired="true"></autosearch>
+                        </td>
+                        <td>
+                            <ui-select ng-model="item.ChargeTypeId" name="chargetype" ng-change="getHours(item)" required ng-disabled="true">
+                                            <ui-select-match>
+                                                {{$select.selected.Name | limitTo : 20 : 0}}
+                                                <span ng-if="$select.selected.Name.length>20">...</span>
+                                            </ui-select-match>
+                                            <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.ServiceItem | filter: { Name: $select.search }">
+                                                <div ng-bind-html="lookupitem.Name | highlight: $select.search"></div>
+                                            </ui-select-choices>
+                            </ui-select>
+                        </td>
+                        <td>
+                            <div class="col-sm-8">
+                                <input type="text" class="form-control" name="admissiondate" ng-change="getHours(item)" datepicker-options="datePickerOptions"
+                                    show-button-bar="{{datePickerOptions.showButtonBar}}" datetime-picker="{{datePickerOptions.dateTimeFormat}}"
+                                    placeholder="{{datePickerOptions.placeholder}}" ng-click="AdmissionDatePopup = { opened: true }"
+                                    is-open="AdmissionDatePopup.opened" ng-model="item.StartTime" ng-disabled="item.EquipmentId==undefined||item.IsCompleted"
+                                    required>
+                            </div>
+                            <div class="col-sm-3">
+                                <button class="btn btn-success btn-xs" ng-click="start(item)" ng-disabled="item.EquipmentId==undefined||IsStarted||item.IsCompleted">Start</button>
+                            </div>
+                            <div class="col-sm-1"></div>
+                        </td>
+                        <td>
+                            <div class="col-sm-8">
+                                <input type="text" class="form-control" name="admissiondate" ng-change="getHours(item)" datepicker-options="datePickerOptions"
+                                    show-button-bar="{{datePickerOptions.showButtonBar}}" datetime-picker="{{datePickerOptions.dateTimeFormat}}"
+                                    placeholder="{{datePickerOptions.placeholder}}" ng-click="AdmissionPopup = { opened: true }"
+                                    is-open="AdmissionPopup.opened" ng-model="item.StopTime" ng-disabled="item.IsCompleted" required>
+                            </div>
+                            <div class="col-sm-3">
+                                <button class="btn btn-danger btn-xs" ng-click="stop(item)" ng-disabled="IsStopped||item.IsCompleted">Stop</button>
+                            </div>
+                            <div class="col-sm-1"></div>
+                        </td>
+                        <td align="center">
+                            {{ item.TotalHours ||0}}&nbsp;{{ item.ChargeType ||''}}
+                        </td>
+                        <td align="center">
+                            <input type="text" class="form-control" ng-model="item.Comments" ng-disabled="item.IsCompleted">
+                        </td>
+                        <td>
+                            <button class="btn btn-success btn-xs" ng-click="">
+                                <i class="fa fa-pencil" aria-hidden="true"></i>
+                                <!--<button class="btn btn-danger btn-xs" style="margin-left:3px;" ng-click="deleteItem($index,item)">
+                        <i class="fa fa-trash" aria-hidden="true"></i>
+                    </button>-->
+                                <button class="btn btn-danger btn-xs" ng-click="deleteItem($index,item)" ng-if="!item.IsCompleted">
+                                    <i class="fa fa-trash" aria-hidden="true"></i>
+                                </button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<div class="fooder-bgs">
+    <div class="row ">
+        <div class="col-sm-12">
+            <div class="col-sm-4 col-md-4">
+                <div class="pull-left">
+                    <button type="button" class="btn pyr-color10 btn-sm" ng-click="backToDetail()">
+                        <i class="fa fa-angle-left" aria-hidden="true"></i>&nbsp;&nbsp;
+                        <span class="btn-fontsize" translate="common.backaction.lbl"></span>
+                    </button>
+                    <!--<button type="button" class="btn prv-color12 btn-sm" ng-click="openPreviousAppointment()" translate="patientemr.patientdashboard.pastvisit.lbl"></button>
+                    <button type="button" class="draftbutton" ng-click="patientorders()" translate="patientemr.patientorder-list.clinicalorders.lbl"></button>-->
+                </div>
+            </div>
+            <div class="col-sm-8 col-md-8">
+                <div class="pull-right">
+                    <button type="button"  class="draftbutton" ng-click="print()" translate="common.printaction.lbl"></button>
+                    <button type="button" class="draftbutton" translate="common.saveaction.lbl" ng-click="saveItem()"></button>
+                    <!--<button id="btnSaveApprove" type="button" class="btn dem-color4 text-white btn-sm" translate="common.saveapprove-action.lbl"
+                        ng-if="!item.isRequested" ng-click="saveAndApprove()"></button>-->
+                    <button type="button" class="btn btn-warning btn-sm" ng-click="clear()" translate="common.clearaction.lbl"></button>
+                    <button id="btnCancelForm" type="button" class="draftbutton" ng-click="backToList()" translate="common.cancelaction.lbl"></button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--<div class="fooder-bgs">
+    <div class="row ">
+        <div class="col-sm-12">
+            <div class="pull-left">
+                <button class="btn pyr-color10 btn-sm" ng-click="backToList()"><i class="fa fa-angle-left" aria-hidden="true" ></i>&nbsp;&nbsp;<span class="btn-fontsize"  translate="common.backaction.lbl"></span></button>
+                <button type="button" class="btn prv-color12 btn-sm" ng-click="openPreviousAppointment()" translate="patientemr.patientdashboard.pastvisit.lbl"></button>
+                <button type="button" class="draftbutton" ng-click="patientorders()" translate="patientemr.patientorder-list.clinicalorders.lbl"></button>
+            </div>
+            <div class="pull-right">
+                <button type="button"  class="draftbutton" ng-click="print()" translate="common.printaction.lbl"></button>
+                <button id="btnSave" type="button" class="draftbutton" translate="common.saveaction.lbl" ng-click="save()"></button>
+                <button type="button" class="btn dem-color4 text-white btn-sm" translate="common.saveapprove-action.lbl" ng-click="saveAndApprove()"></button>
+                <button id="btnClearForm" type="button" class="btn btn-warning btn-sm" ng-click="clear()" translate="common.clearaction.lbl"></button>
+                <button id="btnCancelForm" type="button" class="draftbutton" ng-click="backToList()" translate="common.cancelaction.lbl"></button>
+            </div>
+        </div>
+    </div>
+</div>-->

@@ -1,0 +1,119 @@
+<style>
+    .panel-footer {
+        background-color: #ccecf5 !important;
+    }
+
+    .grid1485611170638 .ui-grid-coluiGrid-00AD {
+        min-width: 163px;
+        max-width: 163px;
+    }
+    .ui-select-match-text {  width: 108px;
+    white-space: inherit;
+    overflow: hidden;
+    text-overflow: ellipsis;}
+	/***/
+     .fooder-bg{
+        width:87% !important;
+    }
+</style>
+<div class="row page-header">
+    <div class="col-sm-6">
+        <h4 class="page-header mt0" translate="inventory.stockconsumption.pagetitle1.lbl"></h4>
+    </div>
+    <div class="col-sm-6">
+        <span>
+             <button class="btn bt-color3 btn-xs pull-right btn-filter" ng-click="openAdvancedFilter()" uib-tooltip="{{ '  clinicalmaster.serviceitem-list.filter-tooltip.lbl' | translate }}"
+                tooltip-placement="bottom"><i class="fas fa-search" aria-hidden="true"></i>&nbsp;&nbsp;
+            <span translate="clinicalmaster.serviceitem-list.filter.lbl"></span></button>
+            <!--<button class="btn bt-color3 btn-xs pull-right btn-filter" ng-click="openAdvancedFilter()" uib-tooltip="{{ 'inventory.stockconsumption.advancefilter-tooltip.lbl' | translate }}" tooltip-placement="bottom">
+                <i class="fa fa-filter" aria-hidden="true"></i>&nbsp;&nbsp;<span translate="inventory.stockconsumption.advancefilter.lbl"></span></button>-->
+        </span>
+        <span>
+            <button class="btn bt-color2 btn-xs pull-right btn-filter" ng-if="HasPrivilege('StockConsumption', 'AddNew')" ng-click="addNew()" uib-tooltip="{{ 'inventory.stockconsumption.addnew-tooltip.lbl' | translate }}" tooltip-placement="bottom">
+                <i class="fa fa-plus" aria-hidden="true"></i><span translate="inventory.stockconsumption.addnew.lbl"></span></button>
+        </span>
+    </div>
+</div>
+<div class="row filter-area">
+    <div class="col-sm-12">
+        <div class="row">
+            <div class="col-sm-4">
+                <label class="sr-only col-sm-5 control-label filter-lbl" translate="inventory.stockconsumption.patient.lbl"></label>
+                <div class="input-group col-sm-7">
+                    <div class="input-group-addon"><i class="fas fa-search" aria-hidden="true"></i></div>
+                    <input type="text" class="form-control" on-enter="getList()" ng-model="currentfilter.EncounterId" placeholder="Name/MRN">
+                </div>
+            </div>
+            <div class="col-sm-4">
+                <label class="col-sm-5 control-label" for="store" translate="inventory.stockconsumption.store.lbl"></label>
+                <div class="col-sm-7">
+                    <ui-select ng-model="currentfilter.StoreMasterId" name="store" ng-change="getList()" class="filter-combo" required>
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 20 : 0}}
+                            <span ng-if="$select.selected.Text.length>20">...</span>
+                        </ui-select-match>
+                        <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.UserStores | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+            <div class="col-sm-4">
+                <label class="col-sm-5 control-label" for="consumptiontype" translate="inventory.stockconsumption.consumptiontype.lbl"></label>
+                <div class="col-sm-7">
+                    <ui-select ng-model="currentfilter.ConsumptionTypeId" ng-change="getList()" name="consumptiontype" class="filter-combo" ng-disabled="true" required>
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 20 : 0}}
+                            <span ng-if="$select.selected.Text.length>20">...</span>
+                        </ui-select-match>
+                        <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.ConsumptionType | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-4">
+                <label class="col-sm-5 control-label" for="consumptionstatus" translate="inventory.stockconsumption.consumptionstatus.lbl"></label>
+                <div class="col-sm-7">
+                     <multiselectchk list="lookup.ConsumptionStatus" selected="currentfilter.ConsumptionStatusId" change="getList()"></multiselectchk>
+                    <!--<ui-select ng-model="currentfilter.ConsumptionStatusId" ng-change="getList()" name="consumptionstatus" class="filter-combo" required>
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 20 : 0}}
+                            <span ng-if="$select.selected.Text.length>20">...</span>
+                        </ui-select-match>
+                        <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.ConsumptionStatus | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>-->
+                </div>
+            </div>
+            <div class="col-sm-4">
+                <label class="col-sm-5 control-label" for="stockconsumptionnumber" translate="inventory.stockconsumption.consumptionnumber.lbl"></label>
+                <div class="col-sm-7">
+                    <input type="text" class="form-control" name="stockconsumptionnumber" on-enter="getList()" ng-model="currentfilter.StockConsumptionNumber" translate translate-attr-placeholder="inventory.stockconsumption.consumptionnumber.lbl">
+                </div>
+            </div>
+            <div class="col-sm-4">
+                <div class="form-group">
+                    <label class="col-sm-5 control-label" for="consumptiondate" translate="inventory.stockconsumption.consumptiondate.lbl"></label>
+                    <div class="col-sm-7">
+                        <input type="text" class="form-control" name="consumptiondate" ng-change="getList()" ng-date-object uib-datepicker-popup="{{datePickerOptions.dateFormat}}" placeholder="{{datePickerOptions.placeholder}}" ng-click="consumptiondatePopup = { opened: true }"
+                            is-open="consumptiondatePopup.opened" ng-model="currentfilter.ConsumptionDate">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="im_stckcons">
+<div class="container-fluid onerow-filter" id="patientsearchheight">
+    <div ui-grid="vm.gridConfig" class="table-uigrid height-control"></div>
+    <div class="fooder-bgs">
+        <div class="row">
+            <ul uib-pagination total-items="vm.gridConfig.pagerObj.totalItems" items-per-page="vm.gridConfig.pagerObj.pageSize" start-index="vm.gridConfig.pagerObj.startIndex" ng-model="vm.gridConfig.pagerObj.currentPage" ng-change="getList()"></ul>
+        </div>
+    </div>
+</div>
+</div>

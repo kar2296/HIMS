@@ -1,0 +1,124 @@
+(function() {
+    'use strict';
+
+    angular
+        .module('app.pages')
+        .controller('{{data.ControllerName}}Controller', {{data.ControllerName}}Controller);
+
+function {{data.ControllerName}}Controller($scope, $stateParams, $state, $translate, utl) {
+    var vm = this;
+    
+    $scope.Items = [];
+    $scope.currentfilter= {
+        name : ''
+    };
+
+    $scope.getListCallback = function (scope, res, options, hasError) {
+        vm.gridConfig.data = res.Data;
+        vm.gridConfig.pagerObj.totalItems = res.PageContext.TotalRecords;
+    };
+
+    $scope.getList = function () {
+
+        var inputData = { 
+            Params :[
+             /* { Key: 1, Value: $scope.currentfilter.name ? $scope.currentfilter.name : "" } */
+            ],
+            PageContext:{
+                PageSize: vm.gridConfig.pagerObj.pageSize,
+                PageNumber: vm.gridConfig.pagerObj.currentPage
+            }
+        };
+
+        var options = {
+            action: '{{data.FetchAction.url}}',
+            data: inputData,
+            type: 'post',
+            onComplete: $scope.getListCallback
+        };
+
+        utl.Http.doAction(options);
+    };
+
+    //Grid Actions
+    $scope.addNew = function() {
+        $state.go('{{data.AddAction.state}}', { {{data.AddAction.params}} });
+    }
+
+    $scope.deleteItemCallback = function (scope, data, options, hasError) {
+        utl.Alert.showSuccessMsg($translate.instant('common.delete_successmsg.lbl'));
+        $scope.getList();
+    };
+
+    $scope.onDeleteConfirmed = function(deleteId) {
+        var options = {
+                action: '{{data.DeleteAction.url}}',
+                data: { Id: deleteId },
+                type: 'post',
+                onComplete: $scope.deleteItemCallback
+            };
+        utl.Http.doAction(options);  
+    }
+
+     $scope.handleEvents = function(actionType, row) {
+        
+        if(actionType == 'edit') {
+            $state.go('{{data.EditAction.state}}', { {{data.EditAction.params}} });
+        }
+        else if(actionType == 'delete') {
+            utl.Dialog.confirmDelete($scope.onDeleteConfirmed, row.entity.Id);                   
+        }
+    }
+    
+    vm.gridConfig = {
+        columnDefs: [
+                {{#each data.GridConfig}}
+                    {{#each columnDefs}}
+                        { field: "{{field}}", displayName: $translate.instant('{{../localizationpath}}.{{name}}.lbl') },
+                    {{/each}}
+                {{/each}}
+                        { field : "Id", displayName : $translate.instant('common.actions_col.lbl'), 
+                                cellTemplate : 'actionTemplate.html',
+                                actions : [ 
+                                            {actiontype: 'edit', display : 'common.editaction.lbl'},
+                                            {actiontype: 'delete', display : 'common.deleteaction.lbl'} 
+                                         ]
+                        }
+                    ],
+        pagerObj: { totalItems: 0, currentPage: 1, startIndex: 0, pageSize: 25 }
+    };
+    
+    {{#if data.InitAction}}
+    $scope.lookupCallback = function (scope, data, options, hasError) {
+        $scope.lookup = hasError ? {} : data;
+        $scope.getList();
+    }
+    
+    $scope.initLookup = function () {
+        var inputData = [ 
+                        {{#each data.InitAction.optionkeys}}
+                            { "Key": "{{name}}" },
+                        {{/each}}
+                        ];
+
+        var options = {
+            action: '{{data.InitAction.url}}',
+            data: inputData,
+            type: 'post',
+            onComplete: $scope.lookupCallback
+        };
+        utl.Http.doAction(options);
+    }
+    {{else}}
+    $scope.initLookup = function () {
+        $scope.lookup = {};
+        $scope.getList();
+    }
+    {{/if}}
+    
+    $scope.initLookup();
+}
+
+{{data.ControllerName}}Controller.$inject = ['$scope', '$stateParams', '$state', '$translate', 'utl'];
+
+})();

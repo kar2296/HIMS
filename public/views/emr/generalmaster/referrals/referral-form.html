@@ -1,0 +1,223 @@
+<div class="modal-header custom-modal-header" ng-if="currentcontext.ismodal">
+    <div class="col-sm-6">
+        <h4 class="modal-title custom-modal-title" translate="generalmaster.referraltab.pagetitle.lbl"></h4>
+    </div>
+    <div class="col-sm-6">
+        <div class="filters">
+            <img src="../../../../../assets/svg/close.svg" ng-click="backToList()">
+        </div>
+        <!-- <button type="button" class="btn btn-danger btn-sm pull-right" translate="x" ng-click="backToList()"></button> -->
+    </div>
+</div>
+<div class="row">
+    <form id="item_form" name="item_form" class="form-horizontal" role="form">
+        <div class="">
+            <div class="col-sm-12">
+                <div class="form-group col-sm-3">
+                    <label class="col-sm-12 control-label" for="referraltype"
+                        translate="registration.registrationcumvisit.sourcetype.lbl"></label>
+                    <div class="col-sm-12">
+                        <ui-select ng-model="item.ReferralTypeId" name="referraltype" required>
+                            <ui-select-match>
+                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                <span ng-if="$select.selected.Text.length>20">...</span>
+                            </ui-select-match>
+                            <ui-select-choices
+                                repeat="lookupitem.Id as lookupitem in lookup.ReferralType | filter: { Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                </div>
+                <div class="form-group col-sm-3">
+                    <label class="col-sm-12 control-label" for="referralname"
+                        translate="generalmaster.referral-form.referralname.lbl"></label>
+                    <div class="col-sm-12">
+                        <input type="text" class="form-control" name="referralname" ng-model="item.ReferralName"
+                            placeholder="" required uppercase>
+                    </div>
+                </div>
+                <div class="form-group col-sm-3">
+                    <label class="col-sm-12 control-label" for="qualification"
+                        translate="generalmaster.referral-form.qualification.lbl"></label>
+                    <div class="col-sm-12">
+                        <input type="text" class="form-control" name="qualification" ng-model="item.Qualification"
+                            placeholder="">
+                    </div>
+                </div>
+                <div class="form-group col-sm-3">
+                    <label class="col-sm-12 control-label" for="phoneno"
+                        translate="generalmaster.referral-form.phoneno.lbl"></label>
+                    <div class="col-sm-12">
+                        <input type="text" class="form-control" name="phoneno" ng-model="item.PhoneNo" ng-minlength="10"
+                            required ng-pattern="/^\d+$/" MINLENGTH="10" MAXLENGTH="10" size="10" value="" name="mobile"
+                            onChange="numberonly($event)" onKeyUp="numberonly($event)" ng-keypress="numberonly($event)">
+                    </div>
+                </div>
+                <div class="form-group col-sm-3">
+                    <label class="col-sm-12 control-label" translate="generalmaster.referral-form.emailid.lbl"></label>
+                    <div class="col-sm-12">
+                        <input type="email" class="form-control" name="email" ng-model="item.Email" placeholder=""
+                            ng-required="false">
+                    </div>
+                </div>
+                <div class="form-group col-sm-3">
+                    <label class="col-sm-12 control-label" translate="generalmaster.referral-form.panno.lbl"></label>
+                    <div class="col-sm-12">
+                        <input type="text" class="form-control" name="panno" ng-model="item.PANNo" placeholder=""
+                            ng-required="false">
+                    </div>
+                </div>
+                <div class="form-group col-sm-3">
+                    <label class="col-sm-12 control-label" translate="Source"></label>
+                    <div class="col-sm-12">
+                        <input type="text" class="form-control" name="source" ng-model="item.Source" placeholder=""
+                            ng-required="false">
+                    </div>
+                </div>
+                <div class="form-group col-sm-3">
+                    <label class="col-sm-12 control-label" translate="Account #"></label>
+                    <div class="col-sm-12">
+                        <input type="text" class="form-control" ng-model="item.AccountNo" placeholder=""
+                            ng-required="false">
+                    </div>
+                </div>
+                <div class="form-group col-sm-3">
+                    <label class="col-sm-12 control-label" translate="Bank #"></label>
+                    <div class="col-sm-12">
+                        <input type="text" class="form-control" ng-model="item.BankNo" placeholder=""
+                            ng-required="false">
+                    </div>
+                </div>
+                <div class="form-group col-sm-3">
+                    <label class="col-sm-12 control-label" translate="IFSC Code"></label>
+                    <div class="col-sm-12">
+                        <input type="text" class="form-control" ng-model="item.IFSCCode" placeholder=""
+                            ng-required="false">
+                    </div>
+                </div>
+                <div class="form-group col-sm-3">
+                    <label class="col-sm-12 control-label"
+                        translate="registration.fullregistration.addressline1.lbl"></label>
+                    <div class="col-sm-12">
+                        <input type="text" id="Manualadd" class="form-control" name="addressline1"
+                            ng-model="cvm.addressline1" ng-disabled="cvm.candisable" placeholder="">
+                    </div>
+                </div>
+                <address tabindex="tabindexmap.patienttabindex" pincodeid="item.PinCodeId" pincode="item.Pincode" area="item.Ward"
+                    areaid="item.WardId" city="item.City" district="item.District" districtid="item.DistrictId"
+                    cityid="item.CityId" state="item.State" stateid="item.StateId" country="item.Country"
+                    countryid="item.CountryId" class="upercase" pintext="item.Pincode"></address>
+                <!-- <div class="form-group col-sm-3">
+                    <label class="col-sm-12 control-label"
+                        translate="registration.fullregistration.citytown.lbl"></label>
+                    <div class="col-sm-12">
+                        <countrycontrol pincodeid="cvm.pincodeid" pincode="cvm.pincode" area="cvm.area"
+                            stateid="cvm.stateid" country="cvm.country" countryid="cvm.countryid" candisable="cvm.candisable">
+                        </countrycontrol>
+                    </div>
+                </div>
+                <div class="form-group col-sm-3">
+                    <label class="col-sm-12 control-label" translate="registration.fullregistration.state.lbl"></label>
+                    <div class="col-sm-12">
+                        <statecontrol pincodeid="cvm.pincodeid" pincode="cvm.pincode" area="cvm.area" city="cvm.city"
+                            cityid="cvm.cityid" state="cvm.state" stateid="cvm.stateid" country="cvm.country"
+                            countryid="cvm.countryid" candisable="cvm.candisable">
+                        </statecontrol>
+                    </div>
+                </div> -->
+            <!-- </div>
+            <div class="col-sm-12">
+                <div class="form-group col-sm-3">
+                    <label class="col-sm-12 control-label"
+                        translate="registration.fullregistration.citytown.lbl"></label>
+                    <div class="col-sm-12">
+                        <citycontrol pincodeid="cvm.pincodeid" pincode="cvm.pincode" area="cvm.area"
+                            stateid="cvm.stateid" city="cvm.city" cityid="cvm.cityid" candisable="cvm.candisable">
+                        </citycontrol>
+                    </div>
+                </div> -->
+                <!-- <div class="form-group col-sm-3">
+                                                        <label class="col-sm-12 control-label" translate="registration.fullregistration.country.lbl"></label>
+                                                        <div class="col-sm-12">
+                                                            <countrycontrol country="cvm.country" countryid="cvm.countryid" candisable="cvm.candisable" candisable="cvm.candisable"></countrycontrol>
+                                                        </div>
+                                                    </div> -->
+                <!-- <div class="form-group col-sm-3">
+                                        <label class="col-sm-12 control-label" translate="registration.fullregistration.pincode.lbl"></label>
+                                        <div class="col-sm-12">
+                                            <pincodecontrol pincodeid="cvm.pincodeid" pincode="cvm.pincode" area="cvm.area" city="cvm.city" cityid="cvm.cityid" state="cvm.state"
+                                                candisable="cvm.candisable" stateid="cvm.stateid" country="cvm.country" countryid="cvm.countryid"></pincodecontrol>
+                                        </div>
+                                    </div> -->
+                <div class="form-group col-sm-3">
+                    <label class="col-sm-12 control-label"
+                        translate="generalmaster.referral-form.markettingperson.lbl"></label>
+                    <div class="col-sm-12">
+                        <ui-select ng-model="item.MarketingPersonId">
+                            <ui-select-match>
+                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                <span ng-if="$select.selected.Text.length>20">...</span>
+                            </ui-select-match>
+                            <ui-select-choices
+                                repeat="lookupitem.Id as lookupitem in lookup.MarketingPerson | filter: { Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                </div>
+                <div class="form-group col-sm-3">
+                    <label class="col-sm-12 control-label"
+                        translate="generalmaster.referral-form.contactperson.lbl"></label>
+                    <div class="col-sm-12">
+                        <input type="text" class="form-control" name="contactperson" ng-model="item.ContactPerson"
+                            placeholder="">
+                    </div>
+                </div>
+                <div class="form-group col-sm-3">
+                    <label class="col-sm-12 control-label"
+                        translate="generalmaster.referral-form.birthdate.lbl"></label>
+                    <div class="col-sm-12 topright">
+                        <input type="text" class="form-control" name="birthdate" ng-date-object
+                            uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                            placeholder="{{datePickerOptions.placeholder}}" ng-click="birthdatePopup = { opened: true }"
+                            is-open="birthdatePopup.opened" ng-model="item.BirthDate">
+                    </div>
+                </div>
+
+
+            </div>
+            <div class="col-sm-12">
+                <div class="form-group col-sm-3">
+                    <label class="col-sm-12 control-label" for="isactive"
+                        translate="clinicalmaster.allergy-form.isactive.lbl"></label>
+                    <div class="col-sm-12">
+                        <input type="checkbox" name="isactive" class="custom-checkbox" ng-model="item.IsActive">
+                    </div>
+                </div>
+                <div class="form-group col-sm-3">
+                    <label class="col-sm-12 control-label" for="isdefault"
+                        translate="generalmaster.referral-form.isdefault.lbl"></label>
+                    <div class="col-sm-12">
+                        <input type="checkbox" name="isdefault" class="custom-checkbox" ng-model="item.IsDefault">
+                    </div>
+                </div>
+                <p>&nbsp;</p>
+            </div>
+        </div>
+        <div class="">
+            <div class="pull-left">
+                <button type="button" class="btn pyr-color10 btn-sm" ng-click="backToList()">
+                    <i class="fa fa-angle-left" aria-hidden="true"></i>&nbsp;&nbsp;
+                    <span class="btn-fontsize" translate="common.backaction.lbl"></span>
+                </button>
+            </div>
+            <div class="pull-right">
+                <!-- <button type="button" id="btnsubmit" class="draftbutton" translate="common.saveaction.lbl" ng-click="save()"></button> -->
+                <button type="button" class="draftbutton" translate="common.saveapprove-action.lbl"
+                    ng-click="saveAndApprove()"></button>
+                <!-- <button id="btnCancelForm" type="button" class="cancelbutton" ng-click="backToList()" translate="common.cancelaction.lbl"></button> -->
+            </div>
+        </div>
+    </form>
+</div>

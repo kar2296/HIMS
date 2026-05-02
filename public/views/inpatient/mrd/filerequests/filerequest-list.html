@@ -1,0 +1,235 @@
+<style>
+    /*.pager-div {
+        float: right;
+        right: 0;
+        box-sizing: border-box;
+        position: fixed;
+        box-sizing: border-box;
+    }*/
+
+    .pl-3 {
+        padding-left: 2%;
+    }
+
+    .billlock {
+        background-color: rgba(255, 16, 0, 0.2);
+    }
+
+    label.col-sm-5.col-md-4.control-label.filter-lbl.ng-scope {
+        padding-left: 0px;
+    }
+
+    label.col-sm-5.col-md-4.control-label.ng-scope {
+        padding-left: 0px;
+    }
+
+    .visualize ul,
+    .visualize li {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        font-size: 1em;
+    }
+
+    .visualize ul.visualize-key li {
+        padding: 0;
+        margin: 0;
+        float: left;
+        margin-right: 8px;
+        padding-left: 10px;
+        position: relative;
+        left: 14px;
+        white-space: normal;
+        text-overflow: ellipsis;
+        padding-right: 7px;
+        color:#fff;
+    }
+
+    .visualize ul.visualize-key .visualize-key-color {
+        width: 10px;
+        height: 10px;
+        left: -4px;
+        position: absolute;
+        top: 50%;
+        margin-top: -4px;
+        border-radius: 6px;
+    }
+
+    .visualize ul.visualize-key .visualize-key-label {
+        /* color: #000; */
+        color:#fff;
+        font-size: 13px;
+    }
+
+    #depsheight>.table-uigrid,
+    .fullreg-profiles:before {
+        height: 517px !important;
+    }
+
+    @media screen and (max-width:1024px) {
+        .cust_status ul {
+            float: left !important;
+        }
+    }
+
+    .autosearch-div .custom-popup-wrapper>.dropdown-menu {
+        width: 71% !important;
+    }
+
+    #Diagnosis .autosearch-div .custom-popup-wrapper {
+        width: 250% !important;
+        margin-left: -191px;
+    }
+
+    .bg-pattern {
+        overflow: hidden;
+    }
+
+    .autosearch-div>input {
+        background-size: 10.7%!important;
+    }
+
+    .typeahead-demo>input {
+        background: url(app/img/patterns-bg/search.png) 102.2% center no-repeat #fff;
+        background-size: 10.7%!important;
+    }
+
+   
+</style>
+<div class="row page-header">
+    <div class="col-sm-12">
+        <div class="col-sm-6">
+            <h4 class="page-header mt0" translate="frequest.pagetitle.lbl"></h4>
+        </div>
+        <div class="col-sm-6">
+            <span ng-click="opd_dashboard()">
+                <img src="app/img/main/download.png" class="img-responsive icon_home" alt="home" uib-tooltip=" OPD Dashboard " tooltip-placement="bottom">
+            </span>
+            <span>
+                <button class="btn bt-color3 btn-xs pull-right btn-filter" ng-click="openAdvancedFilter()" uib-tooltip="{{ '  clinicalmaster.serviceitem-list.filter-tooltip.lbl' | translate }}"
+                    tooltip-placement="bottom">
+                    <i class="fas fa-search" aria-hidden="true"></i>&nbsp;&nbsp;
+                    <span translate="clinicalmaster.serviceitem-list.filter.lbl"></span>
+                </button>
+            </span>
+            <span>
+                <button class="btn bt-color2 btn-xs pull-right btn-filter" ng-click="addNew()" uib-tooltip="{{ 'frequest.pagetitle.lbl' | translate }}"
+                    tooltip-placement="bottom">
+                    <i class="fa fa-plus" aria-hidden="true"></i>
+                    <span translate="inventory.stockrequests.addnew.lbl"></span>
+                </button>
+            </span>
+            <span>
+                <button class="btn btn-info text-white btn-xs pull-right" ng-click="appointmentlist()" uib-tooltip="{{ 'frequest.appointmentlist.lbl' | translate }}"
+                    tooltip-placement="bottom">
+                    <i class="fa fa-plus" aria-hidden="true"></i>
+                    <span translate="frequest.appointmentlist.lbl"></span>
+                </button>
+            </span>
+        </div>
+    </div>
+</div>
+<div class="row filter-area">
+    <div class="col-sm-12">
+        <div class="row">
+            <div class="col-sm-3">
+                <label class="col-sm-6 control-label" for="fromdept" translate="frequest.location.lbl"></label>
+                <div class="col-sm-6">
+                    <ui-select ng-model="currentfilter.FromDepartmentId" name="fromdept" ng-change="getList()" class="filter-combo" required>
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 20 : 0}}
+                            <span ng-if="$select.selected.Text.length>20">...</span>
+                        </ui-select-match>
+                        <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.Department | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+            <div class="col-sm-3">
+                <label class="col-sm-6 control-label" for="patient" translate="frequest.mrn.lbl"></label>
+                <div class="col-sm-6">
+                    <div class="input-group">
+                        <div class="input-group-addon">
+                            <i class="fas fa-search" aria-hidden="true"></i>
+                        </div>
+                        <input type="text" class="form-control" on-enter="getList()" ng-model="currentfilter.PatientNameMRN" placeholder=" MRN/Name">
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-3">
+                <label class="col-sm-6 control-label" for="requesttedby" translate="frequest.doctorname.lbl"></label>
+                <div class="col-sm-6">
+                    <ui-select ng-model="currentfilter.DoctorId" name="requesttedby" ng-change="getList()" ng-disabled="item.isDisabled" required>
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 20 : 0}}
+                            <span ng-if="$select.selected.Text.length>20">...</span>
+                        </ui-select-match>
+                        <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.User | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+            <div class="col-sm-3 ">
+                <label class="col-sm-6 control-label" for="requestnumber" translate="inventory.stockrequests.requestnumber.lbl"></label>
+                <div class="col-sm-6 input-group">
+                    <div class="input-group-addon">
+                        <i class="fas fa-search" aria-hidden="true"></i>
+                    </div>
+                    <input type="text" class="form-control" on-enter="getList()" ng-model="currentfilter.RequestIdentifier" translate translate-attr-placeholder="inventory.stockrequests.requestnumber.lbl">
+                </div>
+            </div>
+        </div>
+        <!--Bootom Filter Area-->
+        <div class="row">
+            <div class="col-sm-3">
+                <label class="col-sm-6 control-label" for="todept" translate="frequest.mrdlocation.lbl"></label>
+                <div class="col-sm-6">
+                    <ui-select ng-model="currentfilter.ToDepartmentId" name="todept" ng-change="getList()" class="filter-combo">
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 20 : 0}}
+                            <span ng-if="$select.selected.Text.length>15">...</span>
+                        </ui-select-match>
+                        <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.Department | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+            <div class="col-sm-3 ">
+                <div class="form-group">
+                    <label class="col-sm-6 control-label" for="requestdate" translate="inventory.stockrequests.requestdate.lbl"></label>
+                    <div class="col-sm-6">
+                        <input type="text" class="form-control" name="requestdate" ng-change="getList()" ng-date-object uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                            placeholder="{{datePickerOptions.placeholder}}" ng-click="requestdatePopup = { opened: true }" is-open="requestdatePopup.opened"
+                            ng-model="currentfilter.RequestDate">
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-3">
+                <label class="col-sm-6 control-label" for="requestnumber" translate="frequest.status.lbl"></label>
+                <div class="col-sm-6">
+                    <ui-select ng-model="currentfilter.MRDMovementStatusId" ng-change="getList()" class="filter-combo">
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 15 : 0}}
+                            <!--<span ng-if="$select.selected.Text.length>8">...</span>-->
+                        </ui-select-match>
+                        <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.MRDMovementStatus | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="container-fluid onerow-filter" id="patientsearchheight">
+    <div ui-grid="vm.gridConfig" class="table-uigrid height-control"></div>
+    <div class="fooder-bgs">
+        <div class="row">
+            <ul uib-pagination total-items="vm.gridConfig.pagerObj.totalItems" items-per-page="vm.gridConfig.pagerObj.pageSize" start-index="vm.gridConfig.pagerObj.startIndex"
+                ng-model="vm.gridConfig.pagerObj.currentPage" ng-change="getList()"></ul>
+        </div>
+    </div>
+</div>

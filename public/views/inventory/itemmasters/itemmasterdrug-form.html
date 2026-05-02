@@ -1,0 +1,419 @@
+<div class="modal-header custom-modal-header">
+    <div class="col-sm-10">
+        <h4 class="modal-title custom-modal-title" translate="Manage Drug"></h4>
+    </div>
+    <div class="col-sm-2">
+        <div class="filters">
+            <img src="../../../../../assets/svg/close.svg" ng-click="cancelCallback()">
+        </div>
+    </div>
+</div>
+<div class="row" id="inventorytab">
+    <div class="col-sm-12">
+        <form id="item_form" name="item_form" class="form-horizontal" role="form">
+            <div class="">
+                <div class="panel panel-default bg-pattern">
+                    <!-- <h3 class="panel-title" translate="clinicalmaster.drug-form.pnldetails.lbl"></h3> -->
+                    <div class="panel-body form-panel">
+                        <div class="col-sm-12 ">
+                            <div class="form-group col-sm-3">
+                                <label class="col-sm-12 control-label" for="type"
+                                    translate="clinicalmaster.drug-form.type.lbl"></label>
+                                <div class="col-sm-12">
+                                    <ui-select ng-model="item.DrugTypeId" name="type">
+                                        <ui-select-match>
+                                            {{$select.selected.Text | limitTo : 20 : 0}}
+                                            <span ng-if="$select.selected.Text.length>20">...</span>
+                                        </ui-select-match>
+                                        <ui-select-choices
+                                            repeat="lookupitem.Id as lookupitem in lookup.DrugType | filter: { Text: $select.search }">
+                                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                        </ui-select-choices>
+                                    </ui-select>
+                                </div>
+                            </div>
+                            <div class="form-group col-sm-3">
+                                <label class="col-sm-12 control-label" for="code"
+                                    translate="clinicalmaster.drug-form.code.lbl"></label>
+                                <div class="col-sm-12">
+                                    <input type="text" class="form-control" name="code" ng-model="item.DrugCode"
+                                        placeholder="" required>
+                                </div>
+                            </div>
+                            <div class="form-group col-sm-3">
+                                <label class="col-sm-12 control-label" for="name"
+                                    translate="clinicalmaster.drug-form.name.lbl"></label>
+                                <div class="col-sm-12">
+                                    <input type="text" class="form-control" name="name" ng-model="item.DrugName"
+                                        placeholder="" required>
+                                </div>
+                            </div>
+                            <div class="form-group col-sm-3">
+                                <label class="col-sm-12 control-label" for="description"
+                                    translate="clinicalmaster.drug-form.description.lbl"></label>
+                                <div class="col-sm-12">
+                                    <input type="text" class="form-control" name="description"
+                                        ng-model="item.Description" placeholder="">
+                                </div>
+                            </div>
+                            <div class="form-group col-sm-3">
+                                <label class="col-sm-12 control-label" for="genericname"
+                                    translate="clinicalmaster.drug-form.genericname.lbl"></label>
+                                <div class="col-sm-12">
+                                    <autosearch itemid="item.GenericId" iteminfo="item.SelectedItem" rowdata="item"
+                                        config="vm.genericcontrolconfig" itemchange="" class="inputsearchlogo"
+                                        candisable="IsDisabled"></autosearch>
+                                    <!--<ui-select ng-model="item.GenericId" name="genericname">
+                                            <ui-select-match>
+                                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                                <span ng-if="$select.selected.Text.length>20">...</span>
+                                            </ui-select-match>
+                                            <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.Generic | filter: { Text: $select.search }">
+                                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                            </ui-select-choices>
+                                        </ui-select>-->
+                                </div>
+                            </div>
+                            <!-- <div class="form-group col-sm-3">
+                                <label class="col-sm-12 control-label" for="tradename"
+                                    translate="clinicalmaster.drug-form.tradename.lbl"></label>
+                                <div class="col-sm-12">
+                                    <ui-select ng-model="item.DrugTradeId" name="tradename">
+                                        <ui-select-match>
+                                            {{$select.selected.Text | limitTo : 20 : 0}}
+                                            <span ng-if="$select.selected.Text.length>20">...</span>
+                                        </ui-select-match>
+                                        <ui-select-choices
+                                            repeat="lookupitem.Id as lookupitem in lookup.DrugTrade | filter: { Text: $select.search }">
+                                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                        </ui-select-choices>
+                                    </ui-select>
+                                </div>
+                            </div> -->
+
+                            <!-- <div class="form-group col-sm-3">
+                                <label class="col-sm-12 control-label" for="forms"
+                                    translate="clinicalmaster.drug-form.forms.lbl"></label>
+                                <div class="col-sm-12">
+                                    <ui-select ng-model="item.DrugFormId" name="forms">
+                                        <ui-select-match>
+                                            {{$select.selected.Text | limitTo : 20 : 0}}
+                                            <span ng-if="$select.selected.Text.length>20">...</span>
+                                        </ui-select-match>
+                                        <ui-select-choices
+                                            repeat="lookupitem.Id as lookupitem in lookup.DrugForm | filter: { Text: $select.search }">
+                                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                        </ui-select-choices>
+                                    </ui-select>
+                                </div>
+                            </div> -->
+                            <div class="form-group col-sm-3">
+                                <label class="col-sm-12 control-label" for="frequency"
+                                    translate="clinicalmaster.drug-form.frequency.lbl"></label>
+                                <div class="col-sm-12 toprighttext">
+                                    <ui-select ng-model="item.DrugFrequencyId" name="frequency">
+                                        <ui-select-match>
+                                            {{$select.selected.Text | limitTo : 20 : 0}}
+                                            <span ng-if="$select.selected.Text.length>20">...</span>
+                                        </ui-select-match>
+                                        <ui-select-choices
+                                            repeat="lookupitem.Id as lookupitem in lookup.DrugFrequency | filter: { Text: $select.search }">
+                                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                        </ui-select-choices>
+                                    </ui-select>
+                                </div>
+                            </div>
+                            <div class="form-group col-sm-3">
+                                <label class="col-sm-12 control-label" for="drugroute"
+                                    translate="clinicalmaster.drug-form.drugroute.lbl"></label>
+                                <div class="col-sm-12">
+                                    <ui-select ng-model="item.DrugRouteId" name="drugroute">
+                                        <ui-select-match>
+                                            {{$select.selected.Text | limitTo : 20 : 0}}
+                                            <span ng-if="$select.selected.Text.length>20">...</span>
+                                        </ui-select-match>
+                                        <ui-select-choices
+                                            repeat="lookupitem.Id as lookupitem in lookup.DrugRoute | filter: { Text: $select.search }">
+                                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                        </ui-select-choices>
+                                    </ui-select>
+                                </div>
+                            </div>
+                            <div class="form-group col-sm-3">
+                                <label class="col-sm-12 control-label" for="maxdosageperday"
+                                    translate="clinicalmaster.drug-form.maxdosageperday.lbl"></label>
+                                <div class="col-sm-12">
+                                    <input type="text" class="form-control" name="maxdosageperday"
+                                        ng-model="item.MaxDosagePerDay" placeholder="">
+                                </div>
+                            </div>
+                            <div class="form-group col-sm-3">
+                                <label class="col-sm-12 control-label" for="durations"
+                                    translate="clinicalmaster.drug-form.durations.lbl"></label>
+                                <div class="col-sm-5">
+                                    <input id='dgduration{{$index}}' type="text" class="form-control"
+                                        ng-model="item.Duration" placeholder="">
+                                </div>
+                                <div class="col-sm-5">
+                                    <ui-select id='dgduraperiod{{$index}}' ng-model="item.DurationPeriodId"
+                                        class="ui-select-period" ng-disabled="IsDisabled"
+                                        ng-change="computeQuantity(item)">
+                                        <ui-select-match>
+                                            {{$select.selected.Text | limitTo : 20 : 0}}
+                                            <span ng-if="$select.selected.Text.length>20">...</span>
+                                        </ui-select-match>
+                                        <ui-select-choices
+                                            repeat="lookupitem.Id as lookupitem in lookup.DurationPeriod | filter: { Text: $select.search }">
+                                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                        </ui-select-choices>
+                                    </ui-select>
+                                </div>
+                            </div>
+                            <!-- <div class="form-group col-sm-3">
+                                <label class="col-sm-12 control-label" for="instructions"
+                                    translate="clinicalmaster.drug-form.instructions.lbl"></label>
+                                <div class="col-sm-12">
+                                    <ui-select ng-model="item.DrugInstructionId" name="instructions">
+                                        <ui-select-match>
+                                            {{$select.selected.Text | limitTo : 20 : 0}}
+                                            <span ng-if="$select.selected.Text.length>20">...</span>
+                                        </ui-select-match>
+                                        <ui-select-choices
+                                            repeat="lookupitem.Id as lookupitem in lookup.DrugInstruction | filter: { Text: $select.search }">
+                                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                        </ui-select-choices>
+                                    </ui-select>
+                                </div>
+                            </div> -->
+
+                            <!-- <div class="form-group col-sm-3">
+                                <label class="col-sm-12 control-label" for="instructions"
+                                    translate="clinicalmaster.drug-form.advice.lbl"></label>
+                                <div class="col-sm-12 pres_comment" style="margin-top: -9px;">
+                                    <textarea rows="1" name="details" ng-model="item.Advice" maxlength="4000" style=""
+                                        class="notes-textarea"></textarea>
+                                </div>
+                            </div> -->
+
+                            <!-- <div class="form-group col-sm-3">
+                                <label class="col-sm-12 control-label" for="essentialdrug"
+                                    translate="clinicalmaster.drug-form.essentialdrug.lbl"></label>
+                                <div class="col-sm-12">
+                                    <input type="checkbox" name="essentialdrug" class="custom-checkbox"
+                                        ng-model="item.IsEssentialDrug">
+                                </div>
+                            </div> -->
+                            <!-- <div class="form-group col-sm-3">
+                                <label class="col-sm-12 control-label" for="formulary"
+                                    translate="clinicalmaster.drug-form.formulary.lbl"></label>
+                                <div class="col-sm-12">
+                                    <input type="checkbox" name="formulary" class="custom-checkbox"
+                                        ng-model="item.IsFormulary">
+                                </div>
+                            </div> -->
+                            <!-- <label class="control-label" for="drugclassification" translate="clinicalmaster.drug-form.drugclassification.lbl"></label>
+                                    <div class="form-group col-sm-3">
+                                        <label class="col-sm-12 control-label" for="druggroup" translate="clinicalmaster.drug-form.druggroup.lbl"></label>
+                                        <div class="col-sm-12">
+                                            <ui-select ng-model="item.DrugGroupId" name="druggroup">
+                                                <ui-select-match>
+                                                    {{$select.selected.Text | limitTo : 20 : 0}}
+                                                    <span ng-if="$select.selected.Text.length>20">...</span>
+                                                </ui-select-match>
+                                                <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.DrugGroup | filter: { Text: $select.search }">
+                                                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                                </ui-select-choices>
+                                            </ui-select>
+                                        </div>
+                                    </div>
+                                    <div class="form-group col-sm-3">
+                                        <label class="col-sm-12 control-label" for="drugsubgroup" translate="clinicalmaster.drug-form.drugsubgroup.lbl"></label>
+                                        <div class="col-sm-12">
+                                            <ui-select ng-model="item.DrugSubGroupId" name="drugsubgroup">
+                                                <ui-select-match>
+                                                    {{$select.selected.Text | limitTo : 20 : 0}}
+                                                    <span ng-if="$select.selected.Text.length>20">...</span>
+                                                </ui-select-match>
+                                                <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.DrugSubGroup | filter: { Text: $select.search }">
+                                                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                                </ui-select-choices>
+                                            </ui-select>
+                                        </div>
+                                    </div> -->
+                            <!-- <label class="control-label" for="drugclassification" translate="clinicalmaster.drug-form.drugclassification.lbl"></label> -->
+                            <!-- <div class="form-group col-sm-3">
+                                <label class="col-sm-12 control-label" for="druggroup"
+                                    translate="clinicalmaster.drug-form.druggroup.lbl"></label>
+                                <div class="col-sm-12">
+                                    <ui-select ng-model="item.DrugGroupId" name="druggroup">
+                                        <ui-select-match>
+                                            {{$select.selected.Text | limitTo : 20 : 0}}
+                                            <span ng-if="$select.selected.Text.length>20">...</span>
+                                        </ui-select-match>
+                                        <ui-select-choices
+                                            repeat="lookupitem.Id as lookupitem in lookup.DrugGroup | filter: { Text: $select.search }">
+                                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                        </ui-select-choices>
+                                    </ui-select>
+                                </div>
+                            </div> -->
+                            <!-- <div class="form-group col-sm-3">
+                                <label class="col-sm-12 control-label" for="drugsubgroup"
+                                    translate="clinicalmaster.drug-form.drugsubgroup.lbl"></label>
+                                <div class="col-sm-12">
+                                    <ui-select ng-model="item.DrugSubGroupId" name="drugsubgroup">
+                                        <ui-select-match>
+                                            {{$select.selected.Text | limitTo : 20 : 0}}
+                                            <span ng-if="$select.selected.Text.length>20">...</span>
+                                        </ui-select-match>
+                                        <ui-select-choices
+                                            repeat="lookupitem.Id as lookupitem in lookup.DrugSubGroup | filter: { Text: $select.search }">
+                                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                        </ui-select-choices>
+                                    </ui-select>
+                                </div>
+                            </div> -->
+
+                            <!-- <label class="control-label" for="dispenserule" translate="clinicalmaster.drug-form.dispenserule.lbl"></label>                                       -->
+                            <!-- <div class="form-group col-sm-3">
+                                <label class="col-sm-12 control-label" for="dosagenotapplicable"
+                                    translate="clinicalmaster.drug-form.dosagenotapplicable.lbl"></label>
+                                <div class="col-sm-12">
+                                    <input type="checkbox" name="dosagenotapplicable" class="custom-checkbox"
+                                        ng-model="item.IsDosageNotApplicable">
+                                </div>
+                            </div> -->
+
+                            <!-- <div class="form-group col-sm-3">
+                                <label class="col-sm-12 control-label" for="iscrushable"
+                                    translate="clinicalmaster.drug-form.iscrushable.lbl"></label>
+                                <div class="col-sm-12">
+                                    <input type="checkbox" name="iscrushable" class="custom-checkbox"
+                                        ng-model="item.IsCrushable">
+                                </div>
+                            </div> -->
+
+                            <!-- <div class="form-group col-sm-3">
+                                <label class="col-sm-12 control-label" for="specialapprovalrequired"
+                                    translate="clinicalmaster.drug-form.specialapprovalrequired.lbl"></label>
+                                <div class="col-sm-12">
+                                    <input type="checkbox" name="specialapprovalrequired" class="custom-checkbox"
+                                        ng-model="item.IsSpecialApprovalRequired">
+                                </div>
+                            </div> -->
+
+                            <!-- <div class="form-group col-sm-3">
+                                <label class="col-sm-12 control-label" for="notuserforip"
+                                    translate="clinicalmaster.drug-form.notuserforip.lbl"></label>
+                                <div class="col-sm-12">
+                                    <input type="checkbox" name="notuserforip" class="custom-checkbox"
+                                        ng-model="item.IsNotUseForIP">
+                                </div>
+                            </div> -->
+
+                            <!-- <div class="form-group col-sm-3">
+                                <label class="col-sm-12 control-label" for="drugdatabasealert"
+                                    translate="clinicalmaster.drug-form.drugdatabasealert.lbl"></label>
+                                <div class="col-sm-12">
+                                    <input type="checkbox" name="drugdatabasealert" class="custom-checkbox"
+                                        ng-model="item.IsDrugDatabaseAlert">
+                                </div>
+                            </div> -->
+
+                            <!-- <div class="form-group col-sm-3">
+                                <label class="col-sm-12 control-label" for="allowtoorder"
+                                    translate="clinicalmaster.drug-form.allowtoorder.lbl"></label>
+                                <div class="col-sm-12">
+                                    <input type="checkbox" name="allowtoorder" class="custom-checkbox"
+                                        ng-model="item.IsAllowToOrder">
+                                </div>
+                            </div> -->
+
+                            <!-- <div class="form-group col-sm-3">
+                                <label class="col-sm-12 control-label" for="orderwithoutprescription"
+                                    translate="clinicalmaster.drug-form.orderwithoutprescription.lbl"></label>
+                                <div class="col-sm-12">
+                                    <input type="checkbox" name="orderwithoutprescription" class="custom-checkbox"
+                                        ng-model="item.IsOrderWithoutPrescription">
+                                </div>
+                            </div> -->
+
+                            <div class="form-group col-sm-3">
+                                <label class="col-sm-12 control-label" for="calcutefreq"
+                                    translate="clinicalmaster.drug-form.calcutefreq.lbl"></label>
+                                <div class="col-sm-12">
+                                    <input type="checkbox" name="calcutefreq" class="custom-checkbox"
+                                        ng-model="item.IsCalculateFrequencyQty">
+                                </div>
+                            </div>
+
+
+                            <!-- <div class="form-group col-sm-3">
+                                        <label class="col-sm-12 control-label" for="authenticationlevel" translate="clinicalmaster.drug-form.authenticationlevel.lbl"></label>
+                                        <div class="col-sm-12 toprighttext1">
+                                            <ui-select ng-model="item.AuthenticationLevelId" name="authenticationlevel">
+                                                <ui-select-match>
+                                                    {{$select.selected.Text | limitTo : 20 : 0}}
+                                                    <span ng-if="$select.selected.Text.length>20">...</span>
+                                                </ui-select-match>
+                                                <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.AuthenticationLevel | filter: { Text: $select.search }">
+                                                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                                </ui-select-choices>
+                                            </ui-select>
+                                        </div>
+                                    </div>
+                                    <div class="form-group col-sm-3">
+                                        <label class="col-sm-12 control-label" for="activefrom" translate="clinicalmaster.drug-form.activefrom.lbl"></label>
+                                        <div class="col-sm-12 topright">
+                                            <input type="text" class="form-control" name="activefrom" ng-date-object uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                                                placeholder="{{datePickerOptions.placeholder}}" ng-click="activefromPopup = { opened: true }"
+                                                is-open="activefromPopup.opened" ng-model="item.ActiveFrom">
+                                        </div>
+                                    </div>
+                                    <div class="form-group col-sm-3">
+                                        <label class="col-sm-12 control-label" for="activeto" translate="clinicalmaster.drug-form.activeto.lbl"></label>
+                                        <div class="col-sm-12 topright ">
+                                            <input type="text" class="form-control" name="activeto" ng-date-object uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                                                placeholder="{{datePickerOptions.placeholder}}" ng-click="activetoPopup = { opened: true }"
+                                                is-open="activetoPopup.opened" ng-model="item.ActiveTo">
+                                        </div>
+                                    </div> -->
+                            <div class="form-group col-sm-3">
+                                <label class="col-sm-12 control-label" for="isactive"
+                                    translate="clinicalmaster.chiefcomplaint-form.isactive.lbl"></label>
+                                <div class="col-sm-6">
+                                    <input type="checkbox" name="isactive" class="custom-checkbox"
+                                        ng-model="item.IsActive">
+                                </div>
+                            </div>
+                            <!-- <div class="col-sm-12">
+                                <div class="form-group col-sm-3">
+                                    <label class="col-sm-12 control-label"
+                                        translate="appmanager.dept.image.lbl"></label>
+                                    <div class="col-sm-12">
+                                        <input type="file" style="border: 0;background: 0;border-radius: 0;" ngf-select
+                                            ng-model="currentcontext.file" name="file" ngf-max-size="200MB" />
+                                    </div>
+                                </div>
+                                <div class="col-sm-12">
+                                    <img class="item-logo-img" ng-show="!!currentcontext.file"
+                                        ngf-thumbnail="currentcontext.file" />
+                                    <img class="item-logo-img" ng-show="!currentcontext.file && item.LogoPath"
+                                        data-ng-src="data:image/png;base64,{{currentcontext.Logo}}" />
+                                </div>
+                            </div> -->
+                        </div>
+
+                    </div>
+                </div>
+                <div class="">
+                    <div class="pull-right">
+                        <!-- <button type="button" class="draftbutton" ng-click="save()" translate="common.saveaction.lbl"></button> -->
+                        <button type="button" class="draftbutton" translate="common.saveapprove-action.lbl"
+                            ng-click="saveAndApprove()"></button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

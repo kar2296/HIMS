@@ -1,0 +1,194 @@
+<!-- <style>
+    .profileinput {
+        height: 19px !important;
+        padding-bottom: 1px !important;
+    }
+
+    .fullreg-profiles label {
+        margin-bottom: -2px;
+    }
+
+    .ui-grid-viewport {
+        height: 212px !important;
+    }
+
+    .table-uigrid {
+        height: 260px !important;
+    }
+
+    .custom-modal-header {
+        margin-bottom: -1px;
+    }
+
+    .panel-body {
+        overflow: visible !important
+    }
+
+    .autosearch-div .custom-popup-wrapper {
+        position: absolute;
+        width: 600px !important;
+    }
+
+    .fooder-bg {
+        position: sticky;
+    }
+
+    .modal-dialog.modal-md #footerpopup {
+        margin-bottom: 120px !important;
+    }
+
+    .modal-dialog.modal-md .form-horizontal .form-group {
+        margin-bottom: 9px !important;
+        margin-right: 10px;
+    }
+</style> -->
+<style>
+    .modal-title {
+        font-size: 13px !important;
+    }
+
+    .pull-right {
+        margin: 6px auto;
+    }
+
+    /* .modal-dialog {
+        width: 600px;
+        margin: 30px auto;
+    } */
+</style>
+<div class="modal-header custom-modal-header">
+    <div class="col-sm-10" ng-module="currentcontext.patinfo" ng-if="selectedPatient.MRN.length > 0">
+        <h4 class="modal-title custom-modal-title"><span class="forpadd"
+                uib-tooltip="{{ selectedPatient.Title.Description }} &nbsp; {{selectedPatient.FirstName}} &nbsp;|&nbsp; {{selectedPatient.MRN}} &nbsp;|&nbsp; {{selectedPatient.Gender.Description}} &nbsp;|&nbsp; {{selectedPatient.Age}} &nbsp; Years &nbsp;|&nbsp; {{selectedPatient.DOB | date : 'dd/MMM/yyyy' }}"
+                tooltip-placement="bottom">
+                <span>{{selectedPatient.Title.Description}} {{selectedPatient.FirstName}}</span>
+                <span ng-click="patientprofiledetails()">
+                    <!-- <i class="icon-info-sign"></i> -->
+                    <i class="fas fa-info-circle" aria-hidden="true"></i>
+                </span> |
+                <span>{{selectedPatient.MRN}} </span>|
+                <span> {{selectedPatient.Gender.Description}}</span> |
+                <span>
+                    {{selectedPatient.Age}} Years </span>|
+                <span>{{selectedPatient.DOB | date : 'dd/MMM/yyyy' }}</span>
+            </span></h4>
+    </div>
+    <div class="col-sm-2">
+        <div class="filters">
+            <img src="../../../../../assets/svg/close.svg" ng-click="cancelCallback()">
+        </div>
+    </div>
+</div>
+
+<!-- <div class="modal-header custom-modal-header">
+    <div class="col-sm-11">
+        <div class="event-name b-greensea" ng-module="currentcontext.patinfo" ng-if="selectedPatient.MRN.length > 0">
+            <span class="forpadd" uib-tooltip="{{ selectedPatient.Title.Description }} &nbsp; {{selectedPatient.FirstName}} &nbsp;|&nbsp; {{selectedPatient.MRN}} &nbsp;|&nbsp; {{selectedPatient.Gender.Description}} &nbsp;|&nbsp; {{selectedPatient.Age}} &nbsp; Years &nbsp;|&nbsp; {{selectedPatient.DOB | date : 'dd/MMM/yyyy' }}"
+                tooltip-placement="bottom">
+                <span>{{selectedPatient.Title.Description}} {{selectedPatient.FirstName}}</span>
+                <span ng-click="patientprofiledetails()">
+                    <i class="fas fa-info-circle" aria-hidden="true"></i>
+                </span> |
+                <span>{{selectedPatient.MRN}} </span>|
+                <span> {{selectedPatient.Gender.Description}}</span> |
+                <span>
+                    {{selectedPatient.Age}} Years </span>|
+                <span>{{selectedPatient.DOB | date : 'dd/MMM/yyyy' }}</span>
+            </span>
+        </div>
+    </div>
+    <div class="col-sm-1" style="float: right;">
+        <button id="btnCancelForm" type="button" class="draftbutton" ng-click="cancelCallback()" translate="X"></button>
+    </div>
+</div> -->
+
+<!-- <div class="modal-header custom-modal-header popup_em_up">
+    <div class="modal-title custom-modal-title">
+        <div class="event-name b-greensea" ng-module="currentcontext.patinfo" ng-if="selectedPatient.MRN.length > 0">
+            <span class="forpadd"
+                uib-tooltip="{{ selectedPatient.Title.Description }} &nbsp; {{selectedPatient.FirstName}} &nbsp;|&nbsp; {{selectedPatient.MRN}} &nbsp;|&nbsp; {{selectedPatient.Gender.Description}} &nbsp;|&nbsp; {{selectedPatient.Age}} &nbsp; Years &nbsp;|&nbsp; {{selectedPatient.DOB | date : 'dd/MMM/yyyy' }}"
+                tooltip-placement="bottom">
+                <span>{{selectedPatient.Title.Description}} {{selectedPatient.FirstName}}</span> <span
+                    ng-click="patientprofiledetails()"><i class="icon-info-sign"></i></span> |
+                <span>{{selectedPatient.MRN}} </span>|<span> {{selectedPatient.Gender.Description}}</span> |<span>
+                    {{selectedPatient.Age}} Years </span>|
+                <span>{{selectedPatient.DOB | date : 'dd/MMM/yyyy' }}</span>
+            </span>
+        </div>
+    </div>
+</div> -->
+<div class="row">
+    <form id="item_form" name="item_form" class="form-horizontal" role="form">
+        <div class="col-sm-12">
+            <div class="col-sm-3 form-group">
+                <label class="col-sm-12 control-label" translate="billing.opbilling-list.servicecode.lbl"></label>
+                <div class="col-sm-12">
+                    <autosearch itemid="item.ServiceId" iteminfo="item.SelectedItem" name="'service'" rowdata="item"
+                        config="vm.serviceitemcontrolconfig" itemchange="ServiceItemChanged($index, bi)"
+                        class="inputsearchlogo" candisable="!IsEditable" isrequired="true"></autosearch>
+                </div>
+            </div>
+            <div class="col-sm-3 form-group">
+                <label class="col-sm-12 control-label" translate="billing.opbilling-list.doctor.lbl"></label>
+                <div class="col-sm-12">
+                    <autosearch itemid="item.DoctorId" iteminfo="" rowdata="" name="'doctorid'"
+                        config="vm.doctorcontrolconfig" itemchange="doctorChange()" candisable="!IsEditable">
+                    </autosearch>
+                </div>
+            </div>
+            <div class="col-sm-3 form-group">
+                <label class="col-sm-12 control-label" translate="billing.opbilling-list.discounttype.lbl"></label>
+                <div class="col-sm-12">
+                    <ui-select ng-model="item.DiscountTypeId" ng-disabled="!IsEditable">
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 20 : 0}}
+                            <span ng-if="$select.selected.Text.length>20">...</span>
+                        </ui-select-match>
+                        <ui-select-choices
+                            repeat="lookupitem.Id as lookupitem in lookup.DiscountType | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+            <div class="col-sm-3 form-group">
+                <label class="col-sm-12 control-label" translate="billing.opbilling-list.isdoctordiscount.lbl"></label>
+                <div class="col-sm-12">
+                    <input ng-model="item.IsDoctorDiscount" type="checkbox"
+                        ng-disabled="item.DoctorShare==0||!IsEditable" class="custom-checkbox">
+                </div>
+            </div>
+            <div class="col-sm-12"></div>
+            <div class="col-sm-3 form-group">
+                <label class="col-sm-12 control-label" translate="Perform Doctor"></label>
+                <div class="col-sm-12">
+                    <ui-select ng-model="item.ServPerformDoctorId" on-select="SelectedDoctor($select.selected)"
+                        ng-disabled="!IsEditable">
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 20 : 0}}
+                            <span ng-if="$select.selected.Text.length>20">...</span>
+                        </ui-select-match>
+                        <ui-select-choices
+                            repeat="lookupitem.Id as lookupitem in lookup.PerformingDoctor | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+            <div class="col-sm-6 form-group">
+                <label class="col-sm-12 control-label" translate="billing.opbilling-list.comments.lbl"></label>
+                <div class="col-sm-12">
+                    <commentscontrol comments="item.Comments" ng-disabled="!IsEditable"></commentscontrol>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+<div class="">
+    <div class="row">
+        <div class="pull-right">
+            <button type="button" id="btnsubmit" class="draftbutton" translate="common.saveaction.lbl"
+                ng-click="Save()"></button>
+        </div>
+    </div>
+</div>

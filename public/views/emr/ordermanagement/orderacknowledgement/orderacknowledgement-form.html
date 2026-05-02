@@ -1,0 +1,114 @@
+<script type="text/ng-template" id="externalProviderTemplate.html">
+    <div class="ui-grid-cell-contents" style="overflow: visible" ng-if="row.entity.IsExternal">
+        <ui-select ng-model="row.entity.ExternalProviderId" ng-change="grid.appScope.externalProviderChanged(row.entity, $select.selected)">
+            <ui-select-match>
+                {{$select.selected.ProviderName | limitTo : 20 : 0}}
+                <span ng-if="$select.selected.ProviderName.length>20">...</span>
+            </ui-select-match>
+            <ui-select-choices repeat="lookupitem.ExternalProviderId as lookupitem in row.entity.ExternalProvider | filter: { ProviderName: $select.search }">
+                <div ng-bind-html="lookupitem.ProviderName | highlight: $select.search"></div>
+            </ui-select-choices>
+        </ui-select>
+    </div>
+    <div class="ui-grid-cell-contents" style="padding-left:10px;"></div>
+</script>
+
+<div class="row">
+    <h4 class=" col-sm-6 mt0" translate="ordermanagement.orderacknowledgement-form.pagetitle.lbl"></h4>
+</div>
+<div class="row">
+    <patientbanner patientid="currentcontext.pid"></patientbanner>
+</div>
+<div class="row">
+    <div class="lisdrpctrl">
+        <table class="table table-responsive table-bordered">
+            <thead class="bg-subhead">
+                <tr>
+                    <th class="col-sm-1">
+                        <span>
+                            <input type="checkbox" ng-model="currentcontext.selectall" ng-click="selectAllItems()">
+                        </span>
+                    </th>
+                    <th class="col-sm-4">
+                        <span translate="ordermanagement.orderacknowledgement-form.testname.lbl"></span>
+                    </th>
+                    <th class="col-sm-4">
+                        <span translate="Clinical Data"></span>
+                    </th>
+                    <th class="col-sm-4">
+                        <span translate="Quantity"></span>
+                    </th>
+                    <th class="col-sm-1">
+                        <span translate="ordermanagement.orderacknowledgement-form.isprofile.lbl"></span>
+                    </th>
+                    <th class="col-sm-2">
+                        <span translate="ordermanagement.orderacknowledgement-form.billstatus.lbl"></span>
+                    </th>
+                    <th class="col-sm-1">
+                        <span translate="ordermanagement.orderacknowledgement-form.status.lbl"></span>
+                    </th>
+                    <th class="col-sm-1">
+                        <span translate="ordermanagement.orderacknowledgement-form.workorder.lbl"></span>
+                    </th>
+                    <th class="col-sm-1">
+                        <span translate="ordermanagement.orderacknowledgement-form.acceptedon.lbl"></span>
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="item in OrderList  | filter:{Status:1}">
+                    <td class="col-sm-1">
+                        <span>
+                            <input type="checkbox" class="case" ng-disabled="item.IsAllOrderReadOnly"
+                                ng-model="item.IsAllOrderSelected"
+                                ng-click="IsAllOrderSelectedChange(OrderList, item)" />
+                        </span>
+                        <span ng-if="item.SampleTypeIndex > 0">&nbsp;</span>
+                    </td>
+                    <td class="col-sm-4">
+                        <a ng-click="testinfo()">
+                            <span> {{item.TestName }} </span>
+                            <span class='pl-1'>(</span>
+                            <span class='pl-1'>{{item.TestCode}}</span><span class='pl-1'>)</span>
+                    </td>
+                    <td class="col-sm-2">
+                        <span> {{item.ClinicalData}}</span>
+                    </td>
+                    <td class="col-sm-2">
+                        <span> {{item.Quantity}}</span>
+                    </td>
+                    <td class="col-sm-1">
+                        <span class='pl-1' ng-if="item.Testmaster.IsProfile==true">Yes</span>
+                        <span class='pl-1' ng-if="item.Testmaster.IsProfile==false">NO</span>
+                    </td>
+                    <td class="col-sm-2">
+                        <span> {{item.PatientBillStatus.Description}}</span>
+                    </td>
+                    <td class="col-sm-1">
+                        <span>{{item.OrderStatus.DisplayName}}</span>
+                    </td>
+                    <td class="col-sm-1">
+                        <span>{{item.WorkOrderDID}}</span>
+                    </td>
+                    <td class="col-sm-1">
+                        <displaydate datetime-val="item.AcceptedDate"></displaydate>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+<div class="fooder-bgs">
+    <div class="row">
+        <div class="pull-left">
+            <button type="button" class="btn pyr-color10 btn-sm" ng-click="backToList()">
+                <i class="fa fa-angle-left" aria-hidden="true"></i>&nbsp;&nbsp;
+                <span class="btn-fontsize ng-scope" translate="common.backaction.lbl"></span>
+            </button>
+            <button id="btnCancelForm" type="button" class="draftbutton" ng-show="CanShowCancel" ng-disabled="currentcontext.canDisableAcceptCancel" ng-click="cancel()" translate="ordermanagement.orderacknowledgement-form.ordercancel.lbl"></button>
+        </div>
+        <div class="pull-right">
+            <button id="acceptBtn" type="button" class="draftbutton" ng-disabled="currentcontext.canDisableAcceptCancel" ng-show="CanShowAccept" translate="ordermanagement.orderacknowledgement-form.acceptaction.lbl" ng-click="Accept()"></button>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,135 @@
+<div class="modal-header custom-modal-header">
+    <div class="col-sm-6">
+        <h4 class="modal-title custom-modal-title" translate="patientemr.patientmedication-list.pagetitle.lbl"></h4>
+    </div>
+    <div class="col-sm-6">
+        <div class="filters">
+        <img src="../../../../../assets/svg/close.svg" ng-click="cancelCallback()">
+        </div>
+    </div>
+</div>
+<div class="row">
+    <button class="btn-add" ng-click="addNew()"
+        uib-tooltip="{{ 'patientemr.patientmedication-list.pagetitle.lbl' | translate }}" tooltip-placement="bottom">
+        <i class="fa fa-plus" aria-hidden="true"></i>
+    </button>
+</div>
+<div class="row">
+    <div class="drhms-refund-table">
+        <table class="table table-hover table-responsive table-bordered" id="tablecontrols">
+            <thead class="bg-subhead">
+                <tr>
+                    <th class="col-sm-2"><span translate="patientemr.patientmedication-list.drugname.lbl"></span><span
+                            class="mandatory-asterix">*</span></th>
+                    <th class="col-sm-1"><span translate="patientemr.patientmedication-list.generic.lbl"></span>
+                    </th>
+                    <th class="col-sm-1"><span translate="patientemr.patientmedication-list.dosage.lbl"></span><span
+                            class="mandatory-asterix">*</span></th>
+                    <th class="col-sm-2"><span translate="patientemr.patientmedication-list.morning.lbl"></span>
+                    </th>
+                    <th class="col-sm-2"><span translate="patientemr.patientmedication-list.noon.lbl"></span>
+                    </th>
+                    <th class="col-sm-2"><span translate="patientemr.patientmedication-list.night.lbl"></span>
+                    </th>
+                    <th class="col-sm-2"><span translate="patientemr.patientmedication-list.startdate.lbl"></span><span
+                            class="mandatory-asterix">*</span></th>
+                    <th class="col-sm-2"><span translate="patientemr.patientmedication-list.status.lbl">
+                    </th>
+                    <th class="col-sm-2"><span translate="patientemr.patientmedication-list.actions.lbl"></span>
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="item in medicationDetails | filter:{Status:1}">
+                    <td>
+                        <div ng-show="!item.IsGeneric">
+                            <autosearch controlid="'dgname'" itemid="item.DrugId" iteminfo="item.SelectedItem"
+                                name="'drug'" rowdata="item" config="vm.drugcontrolconfig" ng-show="!item.IsGeneric"
+                                itemchange="drugChanged($index,item)" required class="inputsearchlogo"
+                                candisable="IsDisabled" isrequired="true"></autosearch>
+                        </div>
+                        <div ng-show="item.IsGeneric">
+                            <autosearch itemid="item.GenericId" iteminfo="item.SelectedItem" name="'generic'"
+                                rowdata="item" config="vm.genericcontrolconfig" ng-show="item.IsGeneric"
+                                itemchange="drugChanged($index,item)" class="inputsearchlogo" isrequired="true">
+                            </autosearch>
+                        </div>
+                        <genericcontrol genericid="item.GenericId" changeev="drugChanged($index)"
+                            ng-show="item.IsGeneric"></genericcontrol>
+                    </td>
+                    <td class="fs-12" align="center">
+                        <input type="checkbox" class="custom-checkbox" ng-model="item.IsGeneric">
+                    </td>
+                    <td class="fs-12">
+                        <input type="text" class="form-control" ng-model="item.Dosage" placeholder="">
+                    </td>
+                    <td class="fs-12">
+                        <input type="number" class="form-control" ng-model="item.Morning" placeholder="">
+                    </td>
+                    <td class="fs-12">
+                        <input type="number" class="form-control" ng-model="item.Noon" placeholder="">
+                    </td>
+                    <td class="fs-12">
+                        <input type="number" class="form-control" ng-model="item.Night" placeholder="">
+                    </td>
+                    <td class="fs-12">
+                        <div class="datepicker" id="datepicker">
+                            <input type="text" class="form-control" name="startdate" ng-date-object
+                                uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                                placeholder="{{datePickerOptions.placeholder}}"
+                                ng-click="startdatePopup = { opened: true }" is-open="startdatePopup.opened"
+                                ng-model="item.StartDate" required>
+                            <i class="fa fa-calendar" aria-hidden="true"></i>
+                        </div>
+                    </td>
+                    <td class="fs-12 col-sm-1">
+                        <ui-select ng-model="item.PatientMedicationStatusId" class="ui-select-grid">
+                            <ui-select-match>
+                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                <span ng-if="$select.selected.Text.length>20">...</span>
+                            </ui-select-match>
+                            <ui-select-choices
+                                repeat="lookupitem.Id as lookupitem in lookup.PatientMedicationStatus | filter: { Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                            </ui-select-choices>
+                        </ui-select>
+                    </td>
+                    <td>
+                        <button class="drhms-edit-button" ng-click="editMedicationDetail(item)">
+                            <img src="assets/svg/edit.svg" aria-hidden="true">
+                        </button>
+                        <button class="drhms-edit-button" ng-click="deleteMedicationDetail($index,item)">
+                            <img src="assets/svg/delete.svg" alt="">
+                        </button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+<div class="row">
+    <div class="form-group">
+        <label class="col-sm-6 control-label ng-scope" for="orderinstructions"
+            translate="patientemr.patientorder-form.orderinstructions.lbl"><span class="ng-scope">Order
+                Instructions</span></label>
+        <div class="col-sm-6">
+            <input type="text" class="form-control ng-pristine ng-valid ng-empty ng-touched" name="orderinstructions"
+                ng-model="item.OrderComments">
+        </div>
+    </div>
+</div>
+<!-- grid area ends -->
+<div class="row">
+    <div class="pull-left">
+        <!-- <button type="button" class="btn pyr-color10 btn-sm" ng-click="backToList()"><i class="fa fa-angle-left" aria-hidden="true" ></i>&nbsp;&nbsp;<span class="btn-fontsize"  translate="common.backaction.lbl"></span></button> -->
+        <!-- <button type="button" class="draftbutton" uib-tooltip="Attachments" ng-click="openattachments()" tooltip-placement="top">&nbsp;&nbsp;<i class="fa fa-paperclip fa-xs ng-binding" aria-hidden="true">()</i></button>	 -->
+        <button type="button" class="btn btn-info btn-sm" ng-show="canShowPrescribeBtn" ng-click="prescribe()"
+            translate="patientemr.prescription-form.prescribe-action.lbl"></button>
+    </div>
+    <div class="pull-right">
+        <!-- <button type="button" class="btn btn-inverse btn-sm ng-scope" ng-click="print()" translate="common.printaction.lbl"></button> -->
+        <button type="button" id="btnsubmit" class="draftbutton" translate="common.saveaction.lbl"
+            ng-click="saveItems()"></button>
+        <!-- <button id="btnCancelForm" type="button" class="draftbutton" ng-click="initLookup()" translate="common.cancelaction.lbl"></button> -->
+    </div>
+</div>

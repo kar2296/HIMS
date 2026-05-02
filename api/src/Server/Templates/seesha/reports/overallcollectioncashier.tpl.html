@@ -1,0 +1,90 @@
+<html>
+
+<head>
+  <style>
+    .table1 {
+      border: 1px solid black;
+      font-size:18px;
+    }
+     table{
+	font-size:18px !important;
+    }	
+
+    .table2 {
+      border: 1px solid black;
+      border-top: 0px solid black;
+      font-size:18px;
+    }
+    td.minusamt {
+      color: red;
+    }
+
+    {{include '/Templates/assets/css/core.css'}}
+
+  </style>
+</head>
+
+<body>
+  <div id="pageHeader">
+    {{{include '/Templates/gloomsoft/common/header.tpl.html' 'tpl'}}}
+  </div>
+  <div style="text-align:center;font-size:18px;"><b>OVERALL COLLECTION SUMMARY BY CASHIER (OP/IP/PHARMACY)</b></div>
+  <table class="table1" style="width:100%;"> 
+    <tr style='vertical-align: top'>
+      <td><b>From Date</b></td>
+      <td>:</td>
+      <td ><b>{{data.FromDate}}</b></td>
+      <td><b>To Date</b></td>
+      <td>:</td>
+      <td ><b>{{data.ToDate}}</b></td>
+    </tr>  
+  </table> 
+  <table class="table1" style="width:100%;">
+    <tr class="th-bot">
+      <td ><b>S.No</b></td>
+      <td><b>User Name</b></td> 
+      <td ><b>Net Cash(Rec-Ref)</b></td> 
+      <td ><b>Net Card(Rec-Ref)</b></td> 
+      <td ><b>Net Other(Rec-Ref)</b></td> 
+      <td ><b>Net Collection((NCash+NCard+NOther))</b></td>
+      <td ><b>Doc Cash</b></td>
+      <td ><b>Doc Others</b></td>
+      <td ><b>Doctor Share</b></td>
+
+    </tr>
+    {{#each data.NetUserCollection}}
+    <tr class="td-data">
+      <td >{{inc @index}}</td>
+      <td>{{Key}}</td> 
+      <td align="right">{{currencyformat NetCash}}</td> 
+      <td align="right">{{currencyformat NetCard}}</td> 
+      <td align="right">{{currencyformat NetOther}}</td> 
+      <td align="right">{{currencyformat NetCollection}} </td>
+      <td class="minusamt"align="right"><span>-</span>{{currencyformat DocCashAmt}} </td>
+      <td class="minusamt"align="right"><span>-</span>{{currencyformat DocOtherAmt}} </td>
+      <td class="minusamt"align="right"><span>-</span>{{currencyformat DocAmt}} </td>
+    </tr>{{/each}}
+    <tr class="total">
+      <td ></td>
+      <td>Total</td> 
+      <td align="right">{{currencyformat data.TotCashAmt}}</td> 
+      <td align="right">{{currencyformat data.TotCardAmt}}</td> 
+      <td align="right">{{currencyformat data.TotOtherAmt}}</td> 
+      <td align="right">{{currencyformat data.TotCollectionAmt}} </td>
+      <td class="minusamt"align="right"><span>-</span>{{currencyformat data.TotalDocCashAmt}} </td>
+      <td class="minusamt"align="right"><span>-</span>{{currencyformat data.TotalDocOtherAmt}} </td>
+      <td class="minusamt"align="right"><span>-</span>{{currencyformat data.TotalDocAmt}} </td>
+    </tr> 
+    <tr class="total">
+      <td ></td>
+      <td></td> 
+      <td ></td> 
+      <td ></td> 
+      <td colspan="3"><b>OverallCollection(Collection - DocShare)</b></td>
+      <td colspan="2" align="right">{{currencyformat data.OverallCollection}} </td>
+    </tr>
+  </table>
+</body>
+<div style="width:100%; font-size:14px;">Printed On: {{now}}</div>
+
+</html>

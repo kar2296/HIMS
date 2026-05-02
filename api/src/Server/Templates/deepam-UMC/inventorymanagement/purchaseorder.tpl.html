@@ -1,0 +1,221 @@
+<html>
+
+<head>
+    <style>
+        .table1 {
+            border: 1px solid black;
+            border-bottom: 1px solid black;
+            text-align: center;
+            font-size: 16px;
+        }
+
+        .table2 {
+            border: 1px solid black;
+            border-bottom: 0px solid black;
+            border-top: 0px solid black;
+            font-size: 13px;
+        }
+
+        .table4 {
+            border: 1px solid black;
+            border-bottom: 0px solid black;
+            font-size: 13px;
+        }
+
+        .size {
+            border: 1px solid black;
+            font-size: 13px;
+            border-collapse: collapse;
+            border-bottom: 1px solid black;
+            border-top: 0px solid black;
+        }
+
+        .table3 {
+            border: 1px solid black;
+            font-size: 13px;
+        }
+
+        .header1 {
+            font-size: 16px;
+            text-align: center;
+        }
+
+
+            {{include '/Templates/assets/css/core.css'}}
+    </style>
+</head>
+
+<body>
+    <div id="pageHeader">
+        {{{include '/Templates/deepam-UMC/common/header.tpl.html' 'tpl'}}}
+    </div>
+    <table class="table1" style="width:100%;">
+        <tr>
+            <td height="20" style="vertical-align:text-middle;"><b>Purchase Order</b></td>
+        </tr>
+    </table>
+    <table class="table2" style="width:100%;">
+        <tr>
+            <td style="width:20%;"><b>Vendor Name</b></td>
+            <td>:</td>
+            <td style="width:40%;"><b>{{data.Vendor.VendorName}}</b></td>
+            <td style="width:20%;"><b>PO Date</b></td>
+            <td>:</td>
+            <td style="width:20%;">{{datetimeformat data.PurchaseOrder.PoDate}}</td>
+        </tr>
+        <tr>
+            <td rowspan="2"><b>Address</b></td>
+            <td rowspan="2">:</td>
+            <td rowspan="2">{{data.PurchaseOrder.VendorMaster.VendorContact.AddressLine1}}, {{data.PurchaseOrder.VendorMaster.VendorContact.AddressLine2}}, {{data.PurchaseOrder.VendorMaster.VendorContact.PincodeMaster.Pincode}} {{data.PurchaseOrder.VendorMaster.VendorContact.StateMaster.StateName}}
+                {{data.PurchaseOrder.VendorMaster.VendorContact.CountryMaster.CountryName}}
+            </td>
+            <td><b>PO No</b></td>
+            <td>:</td>
+            <td><b>{{data.PurchaseOrder.PoNumber}}</b></td>
+        </tr>
+        <tr>
+            <td><b>PO Type</b></td>
+            <td>:</td>
+            <td>{{data.PurchaseOrder.PoType.Description}}</td>
+        </tr>
+        <tr>
+            <td><b>Contact Person</b></td>
+            <td>:</td>
+            <td>{{data.Vendor.ContactPerson}}</td>
+            <td><b>Exp.Del.Date</b></td>
+            <td>:</td>
+            <td>{{dateformat data.PurchaseOrder.DeliveryDate}}</td>
+        </tr>
+    </table>
+    <table class="table2" style="width:100%;">
+        <tr>
+            <td style="width:20%;"><b>Facility</b></td>
+            <td>:</td>
+            <td style="width:40%;">{{data.PurchaseOrder.Facility.FacilityName}}</td>
+            <td style="width:20%;"><b>Store</b></td>
+            <td>:</td>
+            <td style="width:20%;">{{data.PurchaseOrder.FromStore.StoreName}}</td>
+        </tr>
+        <tr>
+            <td><b>Status</b></td>
+            <td>:</td>
+            <td><b>{{data.PurchaseOrder.PoStatus.Description}}</b></td>
+            <td><b>Deliver Store</b></td>
+            <td>:</td>
+            <td>{{data.PurchaseOrder.DeliveryStoreName}}</td>
+        </tr>
+    </table>
+    <table border class="size" style="width:100%;">
+        <tr>
+            <th style="width:4%;" align="left">S.No</th>
+            <th style="width:10%;" align="left">Item Name</th>
+                <th style="width:4%;" align="left">UOM</th>
+                <th style="width:5%;" align="left">Stock Qty</th>
+                <th style="width:4%;" align="left">PO Qty</th>
+            <th style="width:5%;" align="left">Free Qty</th>
+            <th style="width:5%;" align="left">Purchase</th>
+                <th style="width:5%;" align="left">GST</th>
+                <th style="width:5%;" align="left">UCP</th>
+            <th style="width:5%;" align="left">Disc.</th>
+            <th colspan="2" style="width:12%" align="center">Total Value</th>
+            <th colspan="2" style="width:10%" align="center">CGST</th>
+            <th colspan="2" style="width:10%" align="center">SGST</th>
+            <th style="width:8%;" align="Center"></th>
+            <th style="width:8%;" align="Center"></th>
+        </tr>
+        <tr>
+                <th colspan="10" style="width:52%" align="left"></th>
+                <th style="width:5%" align="left">Value</th>
+                <th style="width:5%" align="left">IN-GST</th>
+            <th style="width:5%" align="left">Rate%</th>
+            <th style="width:5%" align="left">Amt</th>
+            <th style="width:5%" align="left">Rate%</th>
+            <th style="width:5%" align="left">Amt</th>
+            <th style="width:8%;" align="Center">Amount</th>
+            <th style="width:8%;" align="Center">Total MRP</th>
+        </tr>
+    </table>
+    <table class="size" style="width:100%;">{{#each data.PurchaseOrderDetail}}
+        <tr>
+            <td style="width:4%;" align="left">{{inc @index}}</td>
+            <td style="width:10%;" align="left">{{ItemName}}</td>
+            <td style="width:4%;" align="left">{{PurchaseUom.UomName}}</td>
+                <td style="width:5%;" align="left">{{AvailableQuantity}}</td>
+            <td style="width:4%;" align="left">{{PoQuantity}}</td>
+            <td style="width:5%;" align="left">{{FreeQty}}</td>
+            <td style="width:5%;" align="left">{{currencyformat UomPrice}}</td>
+                <td style="width:5%;" align="left">{{currencyformat GstAmount}}</td>
+                <td style="width:5%;" align="left">{{currencyformat UomCostPrice}}</td>
+            <td style="width:5%;" align="left">{{currencyformat UomDiscountAmount}}</td>
+            <td style="width:6%"align="left">{{currencyformat Amt}}</td>
+            <td style="width:6%"align="left">{{currencyformat NetAmount}}</td>
+            <td style="width:5%"align="left">{{CGstPercentage}}</td>
+            <td style="width:5%"align="left">{{currencyformat CGstAmount}}</td>
+            <td style="width:5%"align="left">{{SGstPercentage}}</td>
+            <td style="width:5%"align="left">{{currencyformat SGstAmount}}</td>
+            <td style="width:8%;" align="left">{{currencyformat NetAmount}}</td>
+            <td style="width:8%;" align="left">{{currencyformat TotalMRP}}</td>
+        </tr>{{/each}}
+    </table>
+    <table class="table2" style="width:100%">
+        <tr>
+                 <td style="width:40%;"></td>
+            <td style="width:50%;" align="right"><b>Gross Amount</b></td>
+            <td>:</td>
+            <td style="width:10%;" align="right">{{currencyformat data.PurchaseOrder.TotalGrossAmount}}</td>
+        </tr>
+        <tr>
+                <td style="width:40%;"></td>
+            <td style="width:50%;" align="right">{{#if data.PurchaseOrder.TotalDiscountAmount}}<b>Discount </b>{{/if}}</td>
+            <td>{{#if data.PurchaseOrder.TotalDiscountAmount}}:{{/if}}</td>
+            <td style="width:10%;" align="right">{{#if data.PurchaseOrder.TotalDiscountAmount}} {{currencyformat data.PurchaseOrder.TotalDiscountAmount}} {{/if}}</td>
+        </tr>
+        <tr>
+            <td colspan="2" style="width:90%;" align="right"><b>Tax</b></td>
+            <td>:</td>
+            <td style="width:10;" align="right">{{currencyformat data.PurchaseOrder.TotalGstAmount}}</td>
+        </tr>
+        <tr>
+            <td colspan="2" style="width:90%;" align="right">{{#if data.PurchaseOrder.OtherCharges}}<b>Other Cost</b>{{/if}}</td>
+            <td>{{#if data.PurchaseOrder.OtherCharges}}:{{/if}}</td>
+            <td style="width:10%;" align="right">{{#if data.PurchaseOrder.OtherCharges}} {{currencyformat data.PurchaseOrder.OtherCharges}} {{/if}}</td>
+        </tr>
+        <tr>
+            <td colspan="2" style="width:90%;" align="right"><b>Net Amount</b></td>
+            <td>:</td>
+            <td style="width:10%;" align="right">{{currencyformat data.PurchaseOrder.TotalNetAmount}}</td>
+        </tr>
+    </table>
+    <table class="table4" style="width:100%">
+        <tr>
+            <td style="width:20%;"><b>Amount In Words</b></td>
+            <td>:</td>
+            <td style="width:80%;" colspan="4">Rupees {{numberInWords data.PurchaseOrder.TotalNetAmount}} Only</td>
+        </tr>
+    </table>
+    <table class="table4" style="width:100%">
+        <tr>
+            <td style="width:20%;"><b>Terms & Conditions</b></td>
+            <td>:</td>
+            <td style="text-align:left;width:80%;"><b>{{data.PurchaseOrder.VendorMaster.PaymentTerms.Description}}</b></td>
+        </tr>
+        <tr>
+            <td style="width:20%;"><b>Comments</b></td>
+            <td>:</td>
+            <td style="text-align:left;width:80%;"><b>{{data.PurchaseOrder.Comments}}</b></td>
+        </tr>
+    </table>
+    <table class="table3" style="width:100%;">
+        <tr>
+            <td style="width:35%;"><b>{{data.PurchaseOrder.ApprovedUser.Title.Description}} {{data.PurchaseOrder.ApprovedUser.FirstName}} {{data.PurchaseOrder.ApprovedUser.LastName}}</b></td>
+            <td style="width:30%;"></td>
+            <td style="width:35%;text-align:right;"><b>{{data.PurchaseOrder.AuthorizedUser.Title.Description}} {{data.PurchaseOrder.AuthorizedUser.FirstName}} {{data.PurchaseOrder.AuthorizedUser.LastName}}</b></td>
+        </tr>
+        <tr>
+            <td style="width:35%;"><b>Approved By</b></td>
+            <td style="width:30%;"></td>
+            <td style="width:35%;text-align:right;"><b>Authorized By</b></td>
+        </tr>
+    </table>
+    <br>
+    <div style="width:100%; font-size:13px;">Printed On: {{now}}</div>

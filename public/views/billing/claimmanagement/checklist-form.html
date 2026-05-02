@@ -1,0 +1,129 @@
+<link rel="stylesheet" href="app/css/drhms.css">
+<style>
+    .checklist-banner .span {
+        color: #f05050;
+    }
+</style>
+<div class="row">
+    <div class="col-sm-10">
+        <h4 translate="billing.checklist-form.pagetitle.lbl"></h4>
+    </div>
+    <div class="col-sm-2">
+        <div class="drhms-billing-btn drhms-previousbill-btn" ng-click="patientalerts()"
+            uib-tooltip="{{'common.patientalert.lbl' | translate }}" tooltip-placement="bottom">
+            <span>
+                <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
+            </span>
+            <a>{{currentcontext.patientAlertsCount}}</a>
+        </div>
+    </div>
+</div>
+<div class="col-sm-12">
+    <div class="drhms-table-top-header">
+        <div class="drhms-table-head-border">
+            <div class="col-sm-12" ng-module="currentcontext.patinfo">
+                <label class="col-sm-4" translate="Patient Info"></label>
+                <div class="col-sm-8">:
+                    <span
+                        uib-tooltip="{{ selectedPatient.Title.Description }} &nbsp; {{selectedPatient.FirstName}} &nbsp;|&nbsp; {{selectedPatient.MRN}} &nbsp;|&nbsp; {{selectedPatient.Gender.Description}}"
+                        tooltip-placement="bottom">
+                        <span>{{selectedPatient.Title.Description}} {{selectedPatient.FirstName}}</span>
+                        <span ng-click="patientprofiledetails()">
+                            &nbsp;&nbsp;&nbsp;
+                            <i class="icon-info-sign"></i>
+                        </span> |
+                        <span>{{selectedPatient.MRN}} </span>|
+                        <span> {{selectedPatient.Gender.Description}}</span>
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div class="drhms-table-head-border">
+            <div class="col-sm-12">
+                <label class="col-sm-4" translate="Age"></label>
+                <div class="col-sm-8">:
+                    <span uib-tooltip=" {{selectedPatient.Age}} " tooltip-placement="bottom">
+                        <span>{{selectedPatient.Age}} Years </span>
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div class="drhms-table-head-border">
+            <div class="col-sm-12">
+                <label class="col-sm-4" translate="DOB"></label>
+                <div class="col-sm-8">:
+                    <span uib-tooltip="{{selectedPatient.DOB | date : 'dd/MMM/yyyy' }}" tooltip-placement="bottom">
+                        <span>{{selectedPatient.DOB | date : 'dd/MMM/yyyy' }}</span>
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="col-sm-12">
+    <div class="checklist-banner">
+        <div class="col-sm-3">
+            <span class="span" translate="billing.checklist-form.billdate.lbl"></span> :
+            <span>{{Data.AdmissionDate|date:'dd-MMM-yyyy'}}&nbsp;{{Data.AdmissionDate|date:'HH:mm'}}</span>
+        </div>
+        <div class="col-sm-3">
+            <span class="span" translate="billing.checklist-form.billno.lbl"></span> :
+            <span>{{Data.VisitIdentifier}}</span>
+        </div>
+        <div class="col-sm-3">
+            <span class="span" translate="billing.checklist-form.status.lbl"></span> :
+            <span>{{Data.AdmissionStatus}} </span>
+        </div>
+        <div class="col-sm-3">
+            <span class="span" translate="billing.checklist-form.checkedby.lbl"></span> :
+            <span>{{Data.Created.Title.Description}}&nbsp;{{Data.Created.FirstName}}&nbsp;{{Data.Created.LastName}}</span>
+        </div>
+    </div>
+    <form id="item_form" name="item_form" class="form-horizontal" role="form">
+        <table class="table table-responsive">
+            <thead>
+                <tr>
+                    <th>
+                        DOCUMENTS REQUIRED FOR CLAIMING HOSPITALIZATION EXPENSES
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="item in Details">
+                    <td class="col-sm-12 pd0">
+                        <div class="col-sm-9">
+                            <label class="h4">{{item.GuarantorChecklist.Title}}</label>
+                            <br>
+                            <span class="h5" ng-if="item.SubTitle">(
+                                {{item.GuarantorChecklist.SubTitle}} )</span>
+                        </div>
+                        <div class="col-sm-3 radio_control_btn">
+                            <radiogroupcontrol itemid="item.ChecklistStatusId" items="lookup.YesNo">
+                            </radiogroupcontrol>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </form>
+</div>
+<div class="fooder-bgs">
+    <div class="row">
+        <div class="pull-left">
+            <button type="button" class="btn pyr-color10 btn-sm" tabindex="-1" ng-click="backToList()">
+                <i class="fa fa-angle-left" aria-hidden="true"></i>
+                <span class="btn-fontsize"> &nbsp; Back</span>
+            </button>
+            <button type="button" class="draftbutton" uib-tooltip="Attachments" ng-click="openattachments()"
+                tooltip-placement="top">&nbsp;&nbsp;
+                <i class="fa fa-paperclip fa-xs" aria-hidden="true">({{currentcontext.attachmentcount}})</i>
+            </button>
+        </div>
+        <div class="pull-right">
+            <button type="button" class="draftbutton" ng-click="print3()" translate="common.printaction.lbl"></button>
+            <!-- <button id="btnSave" type="button" class="draftbutton" translate="common.saveaction.lbl" ng-click="saveItem()"></button> -->
+            <button type="button" class="draftbutton" translate="common.saveapprove-action.lbl"
+                ng-click="saveItem()"></button>
+        </div>
+    </div>
+</div>

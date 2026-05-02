@@ -1,0 +1,725 @@
+<link rel="stylesheet" href="app/css/drhms.css">
+<style>
+    /* table.drhms-responsive-table thead th {
+        padding: 5px 20px;
+        white-space: nowrap;
+    } */
+
+    /* input#desc0 {
+        width: 260px
+    } */
+
+    autosearch.inputsearchlogo table.table.table-bordered.table-condensed.dropdown-menu.align {
+        margin-left: -200px;
+    }
+
+    .drhms-table-responsive-height {
+        min-height: 300px;
+        overflow: unset !important;
+        overflow-x: scroll !important;
+    }
+
+    table.drhms-responsive-table thead th * {
+        white-space: break-spaces;
+    }
+
+    .drhms-table-head-border>div {
+        height: unset !important;
+    }
+
+    .form-horizontal .form-group {
+        line-height: 3;
+    }
+
+    table.foot td {
+        white-space: normal !important;
+    }
+
+    .d-flex-buttons1 {
+        display: flex;
+        justify-content: flex-end;
+    }
+</style>
+<div class="row">
+    <div class="drhms-filters">
+        <div class="col-sm-8">
+            <h4 translate="Consignment Purchase Order Amend"></h4>
+        </div>
+        <div class="col-sm-4">
+            <span translate="inventory.purchaseorders.status.lbl"></span>:
+            <span class="status">{{item.DisplayPoStatus}}</span>
+            <!-- <span class="update-status" translate="inventory.purchaseorders.status.lbl">: {{item.DisplayPoStatus}} -->
+            </span>
+        </div>
+        <div class="col-sm-4">
+            <autosearch controlid="'vendorid'" class="inputsearchlogo" tabindex="1" ng-keyup="moveHeaderFocus('vendorid')" itemid="item.VendorFacilityMapId"
+                iteminfo="" rowdata="" name="'vendorid'" config="vm.vendorcontrolconfig" itemchange="getList()" candisable="item.isDisabled"
+                isrequired="true" placeholder="'Supplier'"></autosearch>
+        </div>
+        <div class="col-sm-2">
+            <button type="button" tabindex="-1" class="drhms-billing-btn drhms-add-btn" ng-click="addNew()" uib-tooltip="{{ 'inventory.purchaseorders.addnew-tooltip.lbl' | translate }}"
+                tooltip-placement="bottom">
+                <i class="fa fa-plus" aria-hidden="true"></i>
+            </button>
+            <button type="button" class="drhms-billing-btn drhms-delete-btn" ng-show="canShowCancelpoBtn" ng-if="HasAccess('PurchaseOrder', 'Cancel')"
+                uib-tooltip="{{ 'inventory.purchaseorders.cancelpo.lbl' | translate }}" uib-tooltip="{{'Cancel'}}" tooltip-placement="bottom"
+                ng-click="CancelPO()">
+                <i class="fas fa-trash"></i>
+            </button>
+
+            <!-- <button type="button" class="drhms-billing-btn drhms-previousbill-btn" ng-show="canShowCancelpoBtn"
+                ng-if="HasAccess('PurchaseOrder', 'Cancel')"
+                uib-tooltip="{{ 'inventory.purchaseorders.cancelpo.lbl' | translate }}" uib-tooltip="{{'Cancel'}}"
+                tooltip-placement="bottom" ng-click="CancelPO()">
+                <img class="drhms-edit-button" src="assets/svg/delete.svg" alt="">
+            </button> -->
+        </div>
+    </div>
+</div>
+<div class="row">
+    <form id="item_form" name="item_form" class="form-horizontal" role="form">
+        <div class="drhms-table-top-header">
+            <div class="drhms-table-head-border">
+
+
+                <div class="col-sm-12">
+                    <label class="col-sm-4" for="fromstore" translate="inventory.purchaseorder.store.lbl"></label>
+                    <div class="col-sm-8">
+                        <ui-select ng-model="item.StoreMasterId" tabindex="-1"
+                            on-select="SelectedFromStore($select.selected)" name="fromstore"
+                            ng-disabled="item.isDisabled" required>
+                            <ui-select-match>
+                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                <span ng-if="$select.selected.Text.length>20">...</span>
+                            </ui-select-match>
+                            <ui-select-choices
+                                repeat="lookupitem.Id as lookupitem in lookup.UserStores | filter: { Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                </div>
+                <!-- <div class="col-sm-12">
+                    <label class="col-sm-4" for="potype" translate="inventory.purchaseorder.type.lbl"></label>
+                    <div class="col-sm-8">
+                        <ui-select ng-model="item.PoTypeId" tabindex="-1" name="potype" ng-disabled="item.isDisabled"
+                            required>
+                            <ui-select-match>
+                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                <span ng-if="$select.selected.Text.length>20">...</span>
+                            </ui-select-match>
+                            <ui-select-choices
+                                repeat="lookupitem.Id as lookupitem in lookup.PoType | filter: { Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                </div> -->
+                <!-- <div class="col-sm-12">
+                    <label class="col-sm-4" translate="inventory.purchaseorder.expecteddelivey.lbl"></label>
+                    <div class="col-sm-8">
+                        <div class="datepicker">
+                            <input type="text" class="form-control" tabindex="-1" name="deliverydate"
+                                ng-disabled="item.isDisabled" ng-date-object
+                                uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                                placeholder="{{datePickerOptions.placeholder}}"
+                                ng-click="deliverydatePopup = { opened: true }"
+                                placeholder="{{datePickerOptions.placeholder}}"
+                                ng-click="deliverydatePopup = { opened: true }" is-open="deliverydatePopup.opened"
+                                ng-model="item.DeliveryDate" id="disabledInput" disabled>
+                            <i class="fa fa-calendar" aria-hidden="true"></i>
+                        </div>
+                    </div>
+                </div> -->
+                <!-- <div class="col-sm-12">
+                    <label class="col-sm-4" translate="inventory.purchaseorder.requestedstore.lbl"></label>
+                    <div class="col-sm-8">
+                        <ui-select ng-model="item.DeliveryStoreMasterId" id="tostoreid"
+                            ng-keyup="moveHeaderFocus('tostoreid')" on-select="SelectedDeliveryStore($select.selected)"
+                            name="tostore" ng-disabled="item.isDisabled">
+                            <ui-select-match>
+                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                <span ng-if="$select.selected.Text.length>20">...</span>
+                            </ui-select-match>
+                            <ui-select-choices
+                                repeat="lookupitem.Id as lookupitem in lookup.ToStore | filter: { Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                </div> -->
+                <div class="col-sm-12">
+                    <label class="col-sm-4" translate="inventory.purchaseorder.vendor.lbl"></label>
+                    <div class="col-sm-8">: {{item.VendorMaster.VendorName}}
+                    </div>
+                    <a class="link" ng-show="item.VendorMasterId>0"
+                        ng-click="vendorprofiledetails(item.VendorMasterId)"> View Supplier </a>
+                </div>
+                <div class="col-sm-12">
+                    <label class="col-sm-4" translate="Patient Name"></label>
+                    <div class="col-sm-8">: {{item.Patient.Title.Description}} {{item.Patient.FirstName}}
+                    </div>
+                    <!-- <a class="link" ng-show="item.VendorMasterId>0"
+                        ng-click="vendorprofiledetails(item.VendorMasterId)"> View Supplier </a> -->
+                </div>
+                <div class="col-sm-12">
+                    <label class="col-sm-4" translate="Age"></label>
+                    <div class="col-sm-8">: {{item.Patient.Age}}
+                    </div>
+                </div>
+                <div class="col-sm-12">
+                    <label class="col-sm-4" for="dcdate" translate="inventory.grn.dcdate.lbl"></label>
+                    <div class="col-sm-8">
+                        <div class="datepicker">
+                            <input type="text" class="form-control" name="dcdate" required ng-date-object required
+                                uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                                placeholder="{{datePickerOptions.placeholder}}"
+                                ng-click="dcdatePopup = { opened: true }" is-open="dcdatePopup.opened"
+                                ng-model="item.DcDate" tabindex="-1">
+                            <i class="fa fa-calendar" aria-hidden="true"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="drhms-table-head-border">
+                <div class="col-sm-12">
+                    <label class="col-sm-4" translate="Doctor Name"></label>
+                    <div class="col-sm-8">: {{item.Encounter.DoctorName}}
+                    </div>
+                </div>
+                <div class="col-sm-12">
+                    <label class="col-sm-4" translate="Payer"></label>
+                    <div class="col-sm-8">: {{item.Encounter.Guarantor.GuarantorName}}
+                    </div>
+                </div>
+                <div class="col-sm-12">
+                    <label class="col-sm-4" translate="Ward"></label>
+                    <div class="col-sm-8">: {{item.Encounter.WardMaster.WardName}}
+                    </div>
+                </div>
+                <div class="col-sm-12">
+                    <label class="col-sm-4" translate="Room"></label>
+                    <div class="col-sm-8">: {{item.Encounter.WardRoomMaster.RoomNo}}
+                    </div>
+                </div>
+                <div class="col-sm-12">
+                    <label class="col-sm-4" translate="inventory.grn.dcno.lbl"></label>
+                    <div class="col-sm-8">
+                        <input type="text" id="dcid" ng-keyup="moveHeaderFocus('dcid')" class="form-control"
+                            name="dcnumber" ng-disabled="item.isDisabled" ng-model="item.DcNumber"
+                            placeholder="Dc Number">
+                    </div>
+                </div>
+            </div>
+            <div class="drhms-table-head-border">
+
+                <div class="col-sm-12">
+                    <label class="col-sm-4" translate="inventory.purchaseorder.podate.lbl"></label>
+                    <div class="col-sm-8">:
+                        <displaydate date-val="item.PoDate"></displaydate>
+                    </div>
+                </div>
+                <div class="col-sm-12">
+                    <label class="col-sm-4" translate="inventory.purchaseorder.pono1.lbl"></label>
+                    <div class="col-sm-8">:
+                        <span class="head-title">{{item.PoNumber}}</span>
+                    </div>
+                </div>
+                <div class="col-sm-12">
+                    <label class="col-sm-4" translate="MRN / IP No"></label>
+                    <div class="col-sm-8">: {{item.Patient.MRN}} / {{item.Encounter.VisitIdentifier}}
+                    </div>
+                </div>
+               
+             
+                <!-- <div class="col-sm-12">
+                    <label class="col-sm-4" translate="PAN #"></label>
+                    <div class="col-sm-8">: {{item.PANNo}}
+                    </div>
+                </div>
+                <div class="col-sm-12">
+                    <label class="col-sm-4" translate="GST #"></label>
+                    <div class="col-sm-8">: {{item.GSTNo}}
+                    </div>
+                </div>
+                <div class="col-sm-12">
+                    <label class="col-sm-4" translate="TIN #"></label>
+                    <div class="col-sm-8">: {{item.TANNo}}
+                    </div>
+                </div>
+                <div class="col-sm-12">
+                    <label class="col-sm-4" translate="inventory.purchaseorder.contactno.lbl"></label>
+                    <div class="col-sm-8">: {{item.MobileNumber}}
+                    </div>
+                </div>
+                <div class="col-sm-12">
+                    <label class="col-sm-4" translate="Delivery Location"></label>
+                    <div class="col-sm-8">: {{item.AddressLine1}}&nbsp;{{item.AddressLine2}}{{item.AddressLine3}}
+                    </div>
+                </div> -->
+                <!-- <div class="col-sm-12">
+                    <label class="col-sm-4" translate="Approved"></label>
+                    <div class="col-sm-8">: {{item.ApprovedUser.FirstName}}{{item.ApprovedUser.LastName}}
+                    </div>
+                </div> -->
+                <!-- <div class="col-sm-12">
+                    <label class="col-sm-4" translate="Authorized"></label>
+                    <div class="col-sm-8">:{{item.AuthorizedUser.FirstName}}{{item.AuthorizedUser.LastName}}
+                    </div>
+                </div> -->
+                <div class="col-sm-12">
+                    <label class="col-sm-4" translate="Approved"></label>
+                    <div class="col-sm-8">: {{item.ApprovedUser.FirstName}}{{item.ApprovedUser.LastName}}
+                    </div>
+                </div>
+                <!-- <div class="col-sm-12" ng-if="vendorPriceDetails">
+                    <table class="">
+                        <thead>
+                            <tr>
+                                <th translate="Vendor Name"></th>
+                                <th translate="Price"></th>
+                                <th translate="Date"></th>
+
+                            </tr>
+                        </thead>
+                        <tbody class="">
+                            <tr ng-repeat="itemprice in vendorPriceDetails">
+                                <td>
+                                    <span class="form-control input-sm pull-left">{{ itemprice.VendorMaster.VendorName
+                                        }} </span>
+                                </td>
+                                <td>
+                                    <span class="form-control input-sm pull-right">{{ itemprice.PurchasePrice |
+                                        displaycurrency }} </span>
+                                </td>
+                                <td>
+                                    <span class="col-sm-12 text-white">{{ itemprice.UpdatedAt &nbsp;|&nbsp; date :
+                                        'dd-MMM-yyyy' }}</span>
+
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div> -->
+            </div>
+        </div>
+    </form>
+</div>
+<div class="col-sm-12">
+    <form id="item_form" name="item_form" class="form-horizontal" role="form">
+        <div class="drhms-table-control">
+            <div class="drhms-bg-pattern">
+                <div class="drhms-table-responsive-height">
+                    <table class="drhms-responsive-table">
+                        <thead class="bg-subhead">
+                            <tr>
+                                <th style="width: 5%;">
+                                    <span translate="inventory.purchaseorder.sno.lbl"></span>
+                                </th>
+                                <th style="width: 30%;">
+                                    <span translate="inventory.purchaseorder.item.lbl"></span>
+                                </th>
+                                <!--  <th style="width: 5%;">
+                                    <span translate="inventory.purchaseorder.uom.lbl"></span>
+                                </th>-->
+                                <th style="width: 5%;">
+                                    <span translate="inventory.purchaseorder.poqty.lbl"></span>
+                                </th>
+                                <th style="width: 5%;">
+                                    <span translate="inventory.purchaseorder.freeqty.lbl"></span>
+                                </th>
+                                <th style="width: 5%;">
+                                    <span translate="Pack.Qty"></span>
+                                </th>
+                                <!-- <th style="width: 5%;">
+                                    <span translate="inventory.purchaseorder.totalqty.lbl"></span>
+                                </th> -->
+                                <th style="width: 5%;">
+                                    <span translate="inventory.grn.uompurchase.lbl"></span>
+                                </th>
+                                <!-- <th ng-show="ShowMrp" style="width: 5%;">
+                                    <span translate="Mrp"></span>
+                                </th> -->
+                                <th style="width: 5%;">
+                                    <span translate="MRP"></span>
+                                </th>
+                                <th style="width: 5%;">
+                                    <span translate="inventory.purchaseorder.discountmode.lbl"></span>
+                                </th>
+                                <th style="width: 5%;">
+                                    <span translate="inventory.purchaseorder.discount.lbl"></span>
+                                </th>
+                                <th style="width: 5%;">
+                                    <span translate="inventory.purchaseorder.taxorgst.lbl"></span>
+                                </th>
+                                <th style="width: 5%;">
+                                    <span translate="inventory.grn.purchaseprice.lbl"></span>
+                                </th>
+                                <th style="width: 5%;">
+                                    <span translate="inventory.purchaseorder.salesprice.lbl"></span>
+                                </th>
+                                <th style="width: 5%;">
+                                    <span translate="inventory.purchaseorder.ucp.lbl"></span>
+                                </th>
+                                <th style="width: 5%;">
+                                    <span translate="inventory.purchaseorder.amount.lbl"></span>
+                                </th>
+                                <!-- <th class=" col-sm-1 col-sm-4">
+                                    <span translate="inventory.purchaseorder.profit.lbl"></span>
+                                </th> -->
+                                <!-- <th class=" col-sm-1 col-sm-4">
+                                <span translate="inventory.purchaseorder.profitpercentage.lbl"></span>
+                            </th> -->
+                                <th style="width: 5%;">
+                                    <span translate="inventory.purchaseorder.action.lbl"></span>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="purchaseorder in purchaseorderDetails | filter:{Status:1}">
+                                <td class="text-right">
+                                    <span> {{ purchaseorder.SNo }}</span>
+                                </td>
+                                <!-- <td ng-if="!item.IsOpenPO">
+                                    <autosearch controlid="purchaseorder.itemidxdesc" ; placeholder="'Item Name'" ng-keyup="moveFocus('qty','desc','desc','desc',$index,$event,purchaseorder)"
+                                        itemid="purchaseorder.ItemVendorMapId" iteminfo="purchaseorder.SelectedItem" rowdata="purchaseorder"
+                                        config="vm.purchaseorderitemcontrolconfig" ng-show="item.VendorMasterId > 0" itemchange="onVendorItemSelected($index, purchaseorder)"
+                                        candisable="purchaseorder.RdoItemMasterId"></autosearch>
+                                </td> -->
+                                <td>
+                                    <autosearch controlid="purchaseorder.itemidxdesc" ; ng-keyup="moveFocus('qty','desc','desc','desc',$index,$event,purchaseorder)"
+                                        itemid="purchaseorder.ItemMasterId" placeholder="'Item Name'" iteminfo="purchaseorder.SelectedItem"
+                                        rowdata="purchaseorder" config="vm.purchaseorderitemcontrolconfig" itemchange="onMasterItemSelected($index, purchaseorder)"></autosearch>
+                                </td>
+                                <!-- <td class="text-center">
+                                    <span> {{ purchaseorder.PurchaseUom.UomCode }}</span>
+                                </td>-->
+                                <!-- <td class="text-center">
+                                <span> {{purchaseorder.RequestedQuantity }}</span>
+                            </td> -->
+                                <td class="text-center">
+                                    <input type="text" min="0" id="{{purchaseorder.itemidxqty}}" ng-keypress="numberonly($event)" ng-keyup="moveFocus('freeqty','desc','qty','qty',$index,$event, purchaseorder)"
+                                        class="form-control" ng-model="purchaseorder.PoQuantity" placeholder="" ng-change="computeAmount(purchaseorder)"
+                                        ng-disabled="item.isDisabled" required>
+                                </td>
+                                <td class="text-center">
+                                    <input type="text" min="0" id="freeqty{{$index}}" ng-keypress="numberonly($event)" ng-keyup="moveFocus('uomprice','qty','freeqty','freeqty',$index,$event, purchaseorder)"
+                                        class="form-control" ng-model="purchaseorder.FreeQty" placeholder="" ng-change="computeAmount(purchaseorder)"
+                                        ng-disabled="item.isDisabled">
+                                </td>
+                                <td class="text-center">
+                                    <span> {{purchaseorder.ConversionQuantity }}</span>
+                                </td>
+                                <!-- <td class="text-center">
+                                    <span> {{purchaseorder.TotalQuantityAfterConversion }}</span>
+                                </td> -->
+                                <td class="text-center">
+                                    <input type="text" min="0" class="form-control" id="uomprice{{$index}}" ng-keyup="moveFocus('uommrprice','freeqty','uomprice','uomprice',$index,$event, purchaseorder)"
+                                        ng-keypress="numberwithdecimal($event)" ng-model="purchaseorder.UomPrice" placeholder=""
+                                        ng-change="computeforgivenPrice(purchaseorder)" ng-disabled="item.isDisabled" required
+                                        style="width: 100px;">
+                                </td>
+                                <!-- <td ng-show="ShowMrp">
+                                    <input type="text" id="uomprice{{$index}}"
+                                        ng-keyup="moveFocus('uommrp','dispExpiryDate','uomprice','uomprice',$index,$event, purchaseorder)"
+                                        ng-keypress="numberwithdecimal($event)" min="0" class="form-control"
+                                        ng-model="purchaseorder.Mrp" placeholder="" ng-disabled="item.isDisabled">
+                                </td> -->
+                                <td class="text-center">
+                                    <span ng-if="purchaseorder.CanNotEditUomMrPrice">{{purchaseorder.UomMrPrice | displaycurrency}}
+                                    </span>
+                                    <span ng-if="purchaseorder.CanEditUomMrPrice">
+                                        <input type="text" min="0" class="form-control" id="uomprice{{$index}}" ng-keyup="moveFocus('uommrprice','freeqty','uomprice','uomprice',$index,$event, purchaseorder)"
+                                            ng-keypress="numberwithdecimal($event)" ng-model="purchaseorder.UomMrPrice" placeholder=""
+                                            ng-change="computeforgivenMrPrice(purchaseorder)" ng-disabled="item.isDisabled" style="width: 100px;">
+                                    </span>
+                                </td>
+                                <td>
+                                    <ui-select ng-model="purchaseorder.DiscountModeId" ng-change="computeforgivenDiscount(purchaseorder)" class="filter-combo"
+                                        on-select="onDiscountModeChange(purchaseorder, $select.selected, $index)" tabindex="-1"
+                                        ng-disabled="item.isDisabled">
+                                        <ui-select-match>
+                                            {{$select.selected.Text | limitTo : 8 : 0}}
+                                            <span ng-if="$select.selected.Text.length > 8">...</span>
+                                        </ui-select-match>
+                                        <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.DiscountMode | filter: { Text: $select.search }">
+                                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                        </ui-select-choices>
+                                    </ui-select>
+                                </td>
+                                <td class="text-center">
+                                    <input type="text" min="0" class="form-control" id="discount{{$index}}" ng-keyup="moveFocus('uommrprice','uomprice','discount','discount',$index,$event,purchaseorder)"
+                                        ng-keypress="numberwithdecimal($event)" ng-model="purchaseorder.Discount" placeholder=""
+                                        ng-change="computeforgivenDiscount(purchaseorder)" ng-disabled="item.isDisabled" required>
+                                </td>
+                                <td class="text-center" ng-if="!item.IsGstEditablePo">
+                                    <span>{{ purchaseorder.GstPercentage }}</span>
+                                </td>
+                                <td ng-if="item.IsGstEditablePo">
+                                    <ui-select ng-model="purchaseorder.GstId" class="filter-combo" on-select="OnSelectGst(purchaseorder,$select.selected,$index)"
+                                        ng-disabled="item.isDisabled" tabindex="-1">
+                                        <ui-select-match>
+                                            {{$select.selected.Text | limitTo : 8 : 0}}
+                                            <span ng-if="$select.selected.Text.length > 8">...</span>
+                                        </ui-select-match>
+                                        <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.GstMaster | filter: { Text: $select.search }">
+                                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                        </ui-select-choices>
+                                    </ui-select>
+                                </td>
+                                <!--<td class="text-center">
+                                            <span>{{ purchaseorder.InGstPercentage }}</span>
+                                        </td>-->
+                                <!--<td class="text-center">
+                                            <span>{{ purchaseorder.CGstPercentage }}</span>
+                                        </td>-->
+                                <!--<td class="text-center">
+                                            <span>{{ purchaseorder.SGstPercentage }}</span>
+                                        </td>-->
+
+
+
+
+                                <td class="currency-align">
+                                    <span> {{ purchaseorder.PurchasePrice | displaycurrency}}</span>
+                                </td>
+
+                                <td class="currency-align">
+                                    <span> {{ purchaseorder.MrPrice | displaycurrency}}</span>
+                                </td>
+
+
+                                <td class="currency-align">
+                                    <span>{{ (purchaseorder.UomCostPrice | displaycurrency) }}</span>
+                                </td>
+
+                                <td class="currency-align">
+                                    <span>{{ (purchaseorder.NetAmount | displaycurrency) }}</span>
+                                </td>
+                                <!-- <td class="text-center">
+                                    <span>{{ (purchaseorder.ProfitAmount | displaycurrency) }}</span>
+                                </td> -->
+                                <!-- <td class="text-center">
+                                <span>{{ (purchaseorder.ProfitPercentage) }}</span>
+                            </td> -->
+                                <td class="text-center">
+                                    <!-- <button type="button" class="btn btn-info btn-xs" uib-tooltip="Alternatives" tabindex="-1" tooltip-placement="top" ng-click="alternateDetails($index,purchaseorder)">
+                                    <i class="fa fa-calendar-check-o" aria-hidden="true"></i>
+                                </button> -->
+                                    <i class="fa fa-history fa-xs" aria-hidden="true" tabindex="-1" uib-tooltip="History" tabindex="-1" tooltip-placement="top"
+                                        ng-click="History(purchaseorder, $index)"></i>
+
+                                    <!-- <img class="imgsrc" src="app/img/main/history.png" uib-tooltip="History"
+                                        tabindex="-1" tooltip-placement="top" ng-click="History(purchaseorder, $index)"> -->
+                                    <!-- <button type="button" class="text-white btn dem-color4 btn-xs " uib-tooltip="Stock" tabindex="-1" tooltip-placement="top"
+                                    ng-click="Stock(purchaseorder, $index)">
+                                    <i class="fa fa-database fa-xs" aria-hidden="true"></i>
+                                </button> -->
+                                    <button type="button" class="drhms-edit-button" tabindex="-1" ng-click="deletePurchaseOrderDetail($index,purchaseorder)"
+                                        ng-disabled="item.isDisabled">
+                                        <img src="assets/svg/delete.svg" alt="">
+                                    </button>
+
+                                    <!-- <i class="fa fa-times icon" aria-hidden="true"
+                                        ng-click="deletePurchaseOrderDetail($index,purchaseorder)"
+                                        ng-disabled="item.isDisabled"></i> -->
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="footerbars">
+                <div class="sub-footer">
+                    <div class="bgfoot">
+                        <div class="col-sm-12">
+
+                            <div class="col-sm-6">
+                                <div class="form-group commnet col-sm-12">
+                                    <label class="col-sm-4 control-label" translate="Levies and Taxes"></label>
+                                    <div class="col-sm-8">
+                                        <input type="text" class="inputbox form-control" ng-model="item.LeviesandTaxes">
+                                    </div>
+                                </div>
+                                <div class="form-group commnet col-sm-12">
+                                    <label class="col-sm-4 control-label" translate="Delivery Schedule"></label>
+                                    <div class="col-sm-8">
+                                        <input type="text" class="inputbox form-control" ng-model="item.DeliverySchedule">
+                                    </div>
+                                </div>
+                                <div class="form-group commnet col-sm-12">
+                                    <label class="col-sm-4 control-label" translate="Terms of Dispatch"></label>
+                                    <div class="col-sm-8">
+                                        <input type="text" class="inputbox form-control" ng-model="item.TermsofDispatch">
+                                    </div>
+                                </div>
+                                <div class="form-group commnet col-sm-12">
+                                    <label class="col-sm-4 control-label" translate="Terms of Payment"></label>
+                                    <div class="col-sm-8">
+                                        <ui-select ng-model="item.PaymentTermsId" ng-disabled="item.isDisabled" theme="bootstrap">
+                                            <ui-select-match>
+                                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                                <span ng-if="$select.selected.Text.length>20">...</span>
+                                            </ui-select-match>
+                                            <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.PaymentTerms | filter: { Text: $select.search }">
+                                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                            </ui-select-choices>
+                                        </ui-select>
+                                        <!-- <input type="text" class="inputbox form-control" ng-model="item.TermsofPayment"> -->
+                                    </div>
+                                </div>
+                                <div class="form-group commnet col-sm-12">
+                                    <label class="col-sm-4 control-label" translate="Remarks"></label>
+                                    <div class="col-sm-8">
+                                        <textarea type="text" class="form-control" tabindex="-1" name="comments" ng-model="item.Remarks" placeholder="" ng-disabled="item.DisableComments"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- <div class="col-sm-6">
+                                <div class="form-group commnet">
+                                    <label class="col-sm-12 control-label" for="comments"
+                                        translate="inventory.purchaseorders.comments.lbl"></label>
+                                    <div class="col-sm-12">
+                                        <textarea type="text" class="form-control" tabindex="-1" name="comments"
+                                            ng-model="item.Comments" placeholder="Comments"
+                                            ng-disabled="item.DisableComments"></textarea>
+                                    </div>
+                                </div>
+                            </div> -->
+                            <div class="col-sm-6">
+                                <div class="billingbanner">
+                                    <table id="bannerdetails" class="foot">
+                                        <tr>
+                                            <td translate="inventory.purchaseorders.grossamount.lbl"></td>
+                                            <td class="currency-align">
+                                                {{ item.TotalGrossAmount | displaycurrency }}
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td translate="inventory.purchaseorders.discountamount.lbl"></td>
+                                            <td class="currency-align">
+                                                {{ item.TotalDiscountAmount | displaycurrency }}
+                                            </td>
+                                        </tr>
+
+                                        <tr>
+                                            <td translate="inventory.purchaseorders.taxorgstamt.lbl"></td>
+                                            <td class="currency-align">
+                                                {{ item.TotalGstAmount | displaycurrency }}
+                                            </td>
+                                        </tr>
+
+                                        <tr>
+                                            <td translate="inventory.purchaseorders.othercharges.lbl"></td>
+                                            <td class="currency-align">
+                                                <input type="number" min="0" tabindex="-1" class="form-control" name="othercharges" ng-model="item.OtherCharges" ng-change="computeOtherCharges(item)"
+                                                    placeholder="0.00" ng-disabled="item.isDisabled">
+                                            </td>
+                                        </tr>
+
+                                        <tr>
+                                            <td translate="GST(%) for Other Charges"></td>
+                                            <td class="currency-align">
+                                                <ui-select ng-model="item.OtherChargesGstId" class="filter-combo" on-select="OnSelectGstothercharges(item,$select.selected,$index)"
+                                                    ng-disabled="item.isDisabled">
+                                                    <ui-select-match>
+                                                        {{$select.selected.Text | limitTo : 8 : 0}}
+                                                        <span ng-if="$select.selected.Text.length > 8">...</span>
+                                                    </ui-select-match>
+                                                    <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.GstMaster | filter: { Text: $select.search }">
+                                                        <div ng-bind-html="lookupitem.Text | highlight: $select.search">
+                                                        </div>
+                                                    </ui-select-choices>
+                                                </ui-select>
+                                            </td>
+                                        </tr>
+
+                                        <tr>
+                                            <td translate="GST Amount for Other Charges"></td>
+                                            <td class="currency-align">
+                                                <input type="number" min="0" tabindex="-1" class="form-control" name="othercharges" ng-model="item.OtherChargesGstAmount"
+                                                    ng-change="computeOtherGstAmountCharges(item)" placeholder="0.00">
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td translate="Transport Charges"></td>
+                                            <td class="currency-align">
+                                                <input type="number" min="0" tabindex="-1" class="form-control" name="othercharges" ng-model="item.TransportCharges" ng-change="computeTransportCharges(item)"
+                                                    placeholder="0.00" ng-disabled="item.isDisabled">
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td translate="inventory.grn.roundoff.lbl"></td>
+                                            <td>
+                                                <input type="text" class="form-control currency-align" name="roundoff " ng-model="item.RoundOff" placeholder="0.00" tabindex="-1"
+                                                    ng-change="computeRoundOff(item)" ng-disabled="item.isDisabled">
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="drhms-special-count" translate="inventory.purchaseorders.netamount.lbl"></td>
+                                            <td class="currency-align drhms-special-count">
+                                                <span>{{ item.TotalNetAmount | displaycurrency }}</span>
+                                            </td>
+                                        </tr>
+
+                                        <tr>
+                                            <td translate="inventory.purchaseorders.profitamount.lbl"></td>
+                                            <td class="currency-align">
+                                                {{ item.TotalProfitAmount | displaycurrency }}
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-12">
+                <div class="print-header">
+                    <div class="checkbox-print">
+                        <span>
+                            <input type="checkbox" id="withheader" class="custom-checkbox" ng-model="item.WithHeader" ng-change="checkHeader(1)"> </span>
+                        <span>With Header</span>
+                    </div>
+                    <div class="checkbox-print">
+                        <span>
+                            <input type="checkbox" id="withoutheader" class="custom-checkbox" ng-model="item.WithoutHeader" ng-change="checkHeader(2)">
+                        </span>
+                        <span>WithOut Header</span>
+                    </div>
+                </div>
+            </div>
+            <div class="fooder-bgs">
+                <div class="pull-left">
+                    <button type="button" class="btn pyr-color10 btn-sm" uib-tooltip="Back to List" tooltip-placement="top" tabindex="-1" ng-click="backToList()">
+                        <i class="fa fa-angle-left" aria-hidden="true"></i>
+                        <span class="btn-fontsize"> &nbsp; Back</span>
+                    </button>
+                    <button type="button" class="draftbutton" ng-show="canShowDeleteBtn" tabindex="-1" ng-click="draftDelete()" translate="inventory.purchaseorder.deletepo.lbl"></button>
+                </div>
+                <div class="pull-right d-flex-buttons1">
+                    <button type="button" class="draftbutton" tabindex="-1" hotkey="{'alt+p' : print}" ng-show="canShowPrintBtn" ng-click="print()">
+                        <i class="fa fa-print"></i> Preview Print</button>
+                    <!-- <button type="button" class="draftbutton" ng-if="HasAccess('PurchaseOrder_Buttons', 'PurchaseOrder_Save')&&canShowSaveBtn"
+                        translate="Draft" hotkey="{'alt+t' : SaveandDraft}" ng-click="SaveandDraft()"></button> -->
+                    <button type="button" ng-keyup="moveHeaderFocus('approvebtnsubmit')" class="draftbutton" translate="Amend" hotkey="{'alt+a': SaveandApprove}"
+                        ng-click="SaveandAmend()"></button>
+                    <button type="button" ng-keyup="moveFocus('authorizebtnsubmit')" ng-if="HasAccess('PurchaseOrder_Buttons', 'PurchaseOrder_Authorize') && canShowAuthorizeBtn"
+                        class="draftbutton" translate="Approve" ng-click="SaveandAuthorize() "></button>
+                    <!--<button type="button" tabindex="-1" class="draftbutton" translate="common.cancelaction.lbl" ng-show="canShowCancelBtn" ng-click="Cancel()"></button> -->
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script>
+    $(".drhms-supplier-header").click(function () {
+        $header = $(this);
+        $content = $header.next();
+        $content.slideToggle(500, function () {
+        });
+
+    });
+</script>

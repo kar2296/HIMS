@@ -1,0 +1,128 @@
+<style>
+    .content-wrapper {
+        padding: 0px 10px 10px 10px !important;
+    }
+
+    @media only screen and (min-width:1360px) and (min-height:675px) {
+        .onerow-filter .ui-grid-viewport,
+        .single-filter .ui-grid-render-container-body .ui-grid-viewport {
+            height: 355px !important;
+            min-height: 329px;
+        }
+    }
+
+    @media only screen and (min-width:1200px) and (min-height:637px) {
+        .onerow-filter .ui-grid-viewport,
+        .single-filter .ui-grid-render-container-body .ui-grid-viewport {
+            min-height: 338px;
+            height: 354px !important;
+        }
+    }
+    @media (device-width:100vw) and (device-height:100vh){
+        .onerow-filter .ui-grid-viewport, .single-filter .ui-grid-render-container-body .ui-grid-viewport {
+            min-height: 481px;
+            height: 100% !important;
+}
+    }
+    /* table.table.table-bordered.table-condensed.dropdown-menu {
+    height: 397px !important;
+    overflow-x: unset;
+} */
+</style>
+<div class="row page-header sample">
+    <div class="col-sm-6 col-md-6 col-lg-6">
+        <h4 class="mt0 col-sm-12" translate="patientemr.mrdfilesdownloadupload.pagetitle.lbl"></h4>
+    </div>
+    <div class="col-sm-6 col-md-6 col-lg-6">
+
+        <span ng-click="doctor_dashboard()">
+            <img src="app/img/download.png" class="img-responsive icon_home" alt="home" uib-tooltip=" Doctor Dashboard "
+                tooltip-placement="bottom">
+        </span>
+        <span ng-click="patient_dashboard()">
+            <img src="app/img/patdash.png" class="img-responsive icon_emrboard"  alt="home" uib-tooltip="Patient Dashboard"
+                tooltip-placement="bottom">
+        </span>
+        <div class="pull-right">
+            <button class="btn bt-color2 btn-xs pull-right btn-filter text-white" ng-click="addNew()" uib-tooltip="{{ 'patientemr.mrdfilesdownloadupload.addnew.lbl' | translate }}"
+                tooltip-placement="bottom">
+                <i class="fa fa-plus" aria-hidden="true"></i>
+                <span translate="patientemr.mrdfilesdownloadupload.addnew.lbl"></span>
+            </button>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+
+
+    <div class="row filter-area">
+        <div class="col-sm-12">
+            <div class="col-sm-4">
+                <div class="form-group">
+                    <label class="col-sm-6 control-label" translate="patientemr.mrdfilesdownloadupload.mrn.lbl"></label>
+                    <div class="col-sm-6">
+                        <input type="text" class="form-control" name="name" ng-model="currentfilter.MRN" placeholder="{{ 'patientemr.mrdfilesdownloadupload.mrn.lbl' | translate }}">
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-4">
+                <label class="col-sm-6 control-label" translate="patientemr.mrdfilesdownloadupload.visitidentifier.lbl"></label>
+                <div class="col-sm-6">
+                    <input type="text" class="form-control" name="name" ng-model="currentfilter.VisitIdentifier" placeholder="{{ 'patientemr.mrdfilesdownloadupload.visitidentifier.lbl' | translate }}">
+                </div>
+            </div>
+            <div class="col-sm-4">
+                <label class="col-sm-6 control-label" translate="patientemr.mrdfilesdownloadupload.encountertype.lbl"></label>
+                <div class="col-sm-6">
+                    <ui-select ng-model="currentfilter.EncounterTypeId" class="filter-combo">
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 8 : 0}}
+                            <span ng-if="$select.selected.Text.length>8">...</span>
+                        </ui-select-match>
+                        <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.EncounterType | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-12">
+            <div class="col-sm-4">
+                <label class="col-sm-6 control-label" translate="patientemr.mrdfilesdownloadupload.admissiondate.lbl"></label>
+                <div class="col-sm-6">
+                    <input type="text" class="form-control" name="admissiondate" ng-date-object datetime-picker="{{datePickerOptions.dateTimeFormat}}"
+                        placeholder="{{datePickerOptions.placeholder}}" ng-click="admissiondate = { opened: true }" is-open="admissiondate.opened"
+                        ng-model="currentfilter.AdmissionDate">
+                </div>
+            </div>
+            <div class="col-sm-4">
+                <label class="col-sm-6 control-label" for="name" translate="patientemr.mrdfilesdownloadupload.mrdfiletype.lbl"></label>
+                <div class="col-sm-6">
+                    <ui-select ng-model="currentfilter.MRDFileTypeId" class="filter-combo">
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 8 : 0}}
+                            <span ng-if="$select.selected.Text.length>8">...</span>
+                        </ui-select-match>
+                        <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.MRDFileType | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+            <div class="col-sm-4 ">
+                <button type="button" class="draftbutton" translate="common.searchaction.lbl" ng-click="getList()"></button>
+            </div>
+        </div>
+    </div>
+
+    <div class="container-fluid single-filter">
+        <div ui-grid="vm.gridConfig" class="table-uigrid"></div>
+        <!-- <div class="site-footer"> -->
+        <div class="fooder-bgs">
+            <ul uib-pagination total-items="vm.gridConfig.pagerObj.totalItems" items-per-page="vm.gridConfig.pagerObj.pageSize" start-index="vm.gridConfig.pagerObj.startIndex"
+                ng-model="vm.gridConfig.pagerObj.currentPage" ng-change="getList()"></ul>
+        </div>
+    </div>
+</div>

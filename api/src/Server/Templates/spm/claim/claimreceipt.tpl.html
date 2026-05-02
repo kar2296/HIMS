@@ -1,0 +1,175 @@
+<html>
+    
+    <head>
+        <style>
+            .table1 {
+                border: 1px solid black;
+                border-bottom: 0px solid black;
+                border-top: 1px solid black;
+                text-align: left;
+                font-size: 8px;
+            }
+    
+            .table2 {
+                border: 1px solid black;
+                border-bottom: 0px solid black;
+                border-top: 1px solid black;
+                text-align: left;
+                font-size: 8px;
+            }
+    
+            .table3 {
+                border: 1px solid black;
+                border-bottom: 1px solid black;
+                font-size: 8px;
+            }
+    
+            .border {
+                border-collapse: collapse;
+                border-left: 1px solid black;
+                font-size: 8px;
+            }
+    
+            .table4 {
+                border: 1px solid black;
+                border-bottom: 0px solid black;
+                text-align: left;
+                font-size: 8px;
+            }
+    
+            .table5 {
+                border: 1px solid black;
+                border-bottom: 0px solid black;
+                text-align: center;
+                font-size: 8px;
+            }
+    
+            .table6 {
+                border: 1px solid black;
+                border-bottom: 0px solid black;
+                border-top: 0px solid black;
+                text-align: center;
+                font-size: 8px;
+            }
+    
+    
+            .size {
+                border: 1px solid black;
+                font-size: 8px;
+                border-collapse: collapse;
+                border-top: 0px solid black;
+                border-bottom: 1px solid black;
+            }
+    
+            {{include '/Templates/assets/css/core.css'}}
+        </style>
+    </head>
+    
+    <body>
+        <div id="pageHeader">
+            {{{include '/Templates/bewell-hospital/common/header.tpl.html' 'tpl'}}}
+        </div>
+        <table style="width:100%;font-size:8px">
+            <tr>
+                <td style="width:20%;"><b>Sponsor Type</b></td>
+                <td>:</td>
+                <td style="width:30%;"><b>{{data.InsurancePayment.GuarantorType.Description}}</b></td>
+                <td style="width:20%;"><b>Receipt Date</b></td>
+                <td>:</td>
+                <td style="width:30%;"><b>{{datetimeformat data.InsurancePayment.PaymentDate}}</b></td>
+            </tr>
+            <tr>
+                    <td style="width:20%;"><b>Sponsor</b></td>
+                <td>:</td>
+                    <td style="width:30%;"><b>{{data.Guarantor.GuarantorName}}</b></td>
+                    <td style="width:20%;"><b>Receipt No</b></td>
+                <td>:</td>
+                    <td style="width:30%;"><b>{{data.InsurancePayment.PaymentIdentifier}}</b></td>
+            </tr>
+            <tr>
+                    <td style="width:20%;">Sponsor Address</td>
+                    <td >:</td>
+                    <td style="width:30%;">{{#if data.Guarantor.AddressLine1}} {{/if}}{{data.Guarantor.AddressLine1}}{{#if data.Guarantor.Area}}, {{/if}}{{data.Guarantor.Area}}{{#if data.Guarantor.CityMaster.CityName}}, {{/if}}{{data.Guarantor.CityMaster.CityName}}{{#if data.Guarantor.StateMaster.StateName}}, {{/if}}{{data.Guarantor.StateMaster.StateName}}
+                            {{#if data.Guarantor.PincodeMaster.Pincode}}, {{/if}}{{data.Guarantor.PincodeMaster.Pincode}}{{#if data.Guarantor.CountryMaster.CountryName}}, {{/if}}{{data.Guarantor.CountryMaster.CountryName}}{{#if data.Guarantor.Phone}}, {{/if}}{{data.Guarantor.Phone}}</td>
+                    <td style="width:20%;"><b>Approved By</b></td>
+                    <td>:</td>
+                    <td style="width:30%;">{{data.InsurancePayment.ApprovedUser.Title.Description}} {{data.InsurancePayment.ApprovedUser.FirstName}} {{data.InsurancePayment.ApprovedUser.LastName}}</td>
+            </tr>
+        </table>
+        <hr style="border-top:solid 1px;" />
+        <table style="width:100%;font-size:8px">
+            <tr>
+                <td style="text-align:center;font-size: 1.2em;"><b>Insurance Receipt</b></td>
+            </tr>
+        </table>
+        <table border class="size" style="width:100%;">
+            <tr>
+                <th style="width:5%" align="left">S.No</th>
+                    <th style="width:10%" align="left">Date</th>
+                <th style="width:10%" align="left">Bill No</th>
+                    <th style="width:15%" align="left">Patient Name</th>
+                    <th style="width:10%" align="left">Visit Number</th>
+                <th style="width:10%" align="left">Due Amount</th>
+                <th style="width:10%" align="left">Paid</th>
+                <th style="width:10%" align="left">TDS</th>
+                <th style="width:10%" align="left">Disallowanse</th>
+                    <th style="width:10%" align="left">Remarks</th>
+            </tr>
+        </table>
+    
+        <table class="table6" style="width:100%">
+            {{#each data.InsurancePayment.InsurancePaymentDetails}}
+            <tr>
+                <td style="width:5%" align="left">{{inc @index}}</td>
+                    <td style="width:10%" align="left">{{datetimeformat BillDateTime}}</td>
+                <td style="width:10%" align="left">{{BillIdentifier}}</td>
+                    <td style="width:15%" align="left">{{Patient.Title.Description}} {{Patient.FirstName}}
+                    {{Patient.LastName}}</td>
+                    <td style="width:10%" align="left">{{VisitIdentifier}}</td>
+                <td style="width:10%" align="left">{{currencyformat ToBeClaimAmount}}</td>
+                <td style="width:10%" align="left">{{currencyformat ReceivedAmount}}</td>
+                <td style="width:10%" align="left">{{currencyformat TDSAmount}}</td>
+                <td style="width:10%" align="left">{{currencyformat Disallowed}}</td>
+                    <td style="width:10%" align="left">{{Comments}}</td>
+            </tr>
+            {{/each}}
+        </table>
+        <table class="table2" style="width:100%">
+            <tr>
+                <td style="width:40%;"></td>
+                <td style="width:50%;text-align:right">Total Amount</td>
+                <td>:</td>
+                <td style="width:10%;">{{currencyformat data.InsurancePayment.ToBeClaimAmount}}</td>
+            </tr>
+            <tr>
+                <td style="width:40%;"></td>
+                <td style="width:50%;text-align:right">Paid</td>
+                <td>:</td>
+                <td>{{currencyformat data.InsurancePayment.ReceivedAmount}}</td>
+            </tr>
+            <tr>
+                <td colspan="2" style="width:90%;text-align:right">TDS</td>
+                <td>:</td>
+                <td>{{currencyformat data.InsurancePayment.TDSAmount}}</td>
+            </tr>
+            <tr>
+                <td colspan="2" style="width:90%;text-align:right">Disallowanse</td>
+                <td>:</td>
+                <td>{{currencyformat data.InsurancePayment.Disallowed}}</td>
+            </tr>
+        </table>
+        <table class="table3" style="width:100%;">
+            <tr>
+                <td><u>Receipt Details</u></td>
+            </tr>
+            <tr>
+                    <td style="width:20%;"><b>{{#if data.InsurancePayment.PaymentDate}}  {{/if}} {{datetimeformat data.InsurancePayment.PaymentDate}} {{#if data.PaidAmount}} , {{/if}} {{currencyformat data.PaidAmount}} {{#if data.InsurancePayment.PaymentType.Description}} , {{/if}} {{data.InsurancePayment.PaymentType.Description}} 
+                        {{#if data.InsurancePayment.ChequeNo}} , {{/if}} {{data.InsurancePayment.ChequeNo}} {{#if data.InsurancePayment.ChequeDate}} , {{/if}} {{dateformat data.InsurancePayment.ChequeDate}} 
+                        {{#if data.InsurancePayment.DDNumber}} , {{/if}} {{data.InsurancePayment.DDNumber}} {{#if data.InsurancePayment.DDDate}} , {{/if}} {{dateformat data.InsurancePayment.DDDate}} 
+                        {{#if data.InsurancePayment.Bank.Description}} , {{/if}} {{data.InsurancePayment.Bank.Description}} {{#if data.InsurancePayment.AuthorizedCode}} , {{/if}} {{data.InsurancePayment.AuthorizeNumber}} {{#if data.InsurancePayment.AuthorizeNumber}} , {{/if}} {{data.InsurancePayment.AuthorizedCode}}</b></td>
+            </tr>
+        </table>
+        <div style="width:100%; font-size:8px;">Printed On: {{now}}</div>
+    </body>
+    
+    </html>

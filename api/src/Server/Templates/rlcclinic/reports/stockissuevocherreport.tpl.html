@@ -1,0 +1,89 @@
+<html>
+
+<head>
+  <style>
+    .table1 {
+      border: 1px solid black;
+      font-size: 8px;
+    }
+
+    .table2 {
+      border: 1px solid black;
+      border-top: 0px solid black;
+      font-size: 8px;
+    } 
+    {{include '/Templates/assets/css/core.css'}}
+
+  </style>
+</head>
+
+<body>
+  <div id="pageHeader">
+    {{{include '/Templates/rlcclinic/common/header1.tpl.html' 'tpl'}}}
+  </div> 
+    <div style="text-align:center;font-size: 8px;"><b>Stock Issue Vocher Report</b></div>
+    <table class="table1" style="width:100%;"> 
+        <tr style='vertical-align: top'>
+          <td style="width:5%;"><b>FromDate</b></td>
+          <td>:</td>
+          <td style="width:15%;"><b>{{data.FromDate}}</b></td>
+          <td style="width:5%;"><b>ToDate</b></td>
+          <td>:</td>
+          <td style="width:15%;"><b>{{data.ToDate}}</b></td>
+          <td style="width:5%;"><b>Store Name</b></td>
+          <td>:</td>
+          <td style="width:25%;"><b>{{data.StoreName}}</b></td>
+          <td style="width:5%;"><b>ItemName</b></td>
+          <td>:</td>
+          <td style="width:25%;"><b>{{data.ItemName}}</b></td>
+        </tr> 
+      </table> 
+    </br>
+    <table class="table1" style="width:100%;">
+      <tr>
+        <td style="width:10%;"><b>S.No</b></td>
+        <td style="width:10%"><b>Issue Number</b></td>
+        <td style="width:10%"><b>Issue Date</b></td>
+        <td style="width:10%"><b>Item Name</b></td>
+        <td style="width:10%"><b>Batch Id</b></td>
+        <td style="width:10%"><b>Qty</b></td>
+        <td style="width:10%"><b>From Store</b></td>
+        <td style="width:10%"><b>To Store</b></td>
+        <td style="width:10%"><b>Total Amt</b></td>
+        <td style="width:10%"><b>Issued By</b></td> 
+      </tr>
+    </table>
+    <table class="table2" style="width:100%;">
+      {{#each data.StockTransferDetails}}
+      <tr>
+        <td style="width:10%;">{{inc @index}}</td>
+        <td style="width:10%;">{{StockTransfer.TransferNumber}}</td>
+        <td style="width:10%;">{{datetimeformat StockTransfer.TransferDate}}</td> 
+        <td style="width:10%;">{{ItemName}}</td>
+        <td style="width:10%;">{{BatchId}}</td>
+        <td style="width:10%;">{{TransferedQuantity}}</td>
+        <td style="width:10%;">{{StockTransfer.StoreName}}</td> 
+        <td style="width:10%;">{{StockTransfer.ToStoreName}}</td>
+        <td style="width:10%;">{{currencyformat NetAmount}}</td>
+        <td style="width:10%;">{{StockTransfer.TranferedUser.Title.Description}} {{StockTransfer.TranferedUser.FirstName}} {{StockTransfer.TranferedUser.LastName}}</td> 
+      </tr>{{/each}}
+    </table>
+
+    <table class="table2" style="width:100%;"> 
+      <tr>
+        <td style="width:10%;"></td>
+        <td style="width:10%;"></td>
+        <td style="width:10%;"></td> 
+        <td style="width:10%;"></td>
+        <td style="width:10%;"></td>
+        <td style="width:10%;"></td>
+        <td style="width:10%;"></td> 
+        <td style="width:10%;"></td>
+        <td style="width:10%;">{{currencyformat data.TotalNetAmt}}</td>
+        <td style="width:10%;"></td> 
+      </tr>
+    </table>
+  </body>
+  <div style="width:100%; font-size:8px;">Printed On: {{now}}</div>
+
+</html>

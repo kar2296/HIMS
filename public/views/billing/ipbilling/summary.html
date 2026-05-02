@@ -1,0 +1,1776 @@
+<link rel="stylesheet" href="app/css/drhms.css">
+<style>
+    .container {
+        position: relative;
+        width: 100%;
+        border: 1px solid rgb(0 0 0 / 8%);
+        background: #fafafa;
+        margin-bottom: 10px;
+    }
+
+    .container:after,
+    .container:before {
+        content: " ";
+        display: table
+    }
+
+    b,
+    strong {
+        font-weight: 600 !important;
+        color: #1f1e1e;
+    }
+
+    .table-hover>tbody>tr:hover {
+        background-color: #ffffff;
+    }
+
+    .estcost.ng-binding {
+        color: deeppink;
+        font-weight: bold;
+        margin-left: 75px;
+    }
+
+    .package-details-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 4px 14px 4px 14px;
+        background: #efefef;
+        color: #000;
+        font-weight: 600;
+        flex-wrap: wrap;
+        margin-bottom: 10px;
+        margin-top: 10px;
+    }
+
+    .package-table {
+        margin-top: 10px;
+    }
+
+    .package-edit button {
+        color: #0073bc;
+        border: 1.7px solid #0073bc;
+        border-radius: 4px;
+        background: #fff;
+    }
+
+    .package-name {
+        color: #0073bc;
+    }
+
+    .package-amount {
+        color: #4CAF50;
+    }
+
+    textarea.form-control {
+        margin-bottom: 19px !important;
+    }
+
+    .package-details-header div:nth-child(1) {
+        width: 81%;
+    }
+
+    .package-details table {
+        border: unset;
+    }
+
+    .package-details table td {
+        border: unset !important;
+    }
+
+    .package-details {
+        margin-bottom: 10px;
+    }
+
+    .package-details h3 {
+        margin: 0;
+        margin-bottom: 10px;
+        font-weight: 500 !important;
+        color: #0073bc;
+        font-size: 19px !important;
+    }
+
+    fieldset {
+        padding-bottom: 0px;
+        border-bottom: 1px dashed #eee;
+        margin-bottom: 0px;
+    }
+
+    .amt {
+        font-weight: 600;
+        color: #e95858 !important;
+        text-align: right;
+    }
+
+    .switch span {
+        background: #00ffa3;
+    }
+</style>
+<script>
+    $(document).ready(function () {
+        $("#clickdownctrl1").click(function () {
+            $("#hideshow1").fadeToggle();
+            $("i", this).toggleClass("fa fa-minus fa fa-plus");
+        });
+    });
+</script>
+<div class="col-sm-12">
+    <div id="opbillingcontrol">
+        <div class="row">
+            <button type="button" class=" pull-right lock" style="margin-top: -37px;"
+                ng-disabled="item.AdmissionStatusId==5||item.AdmissionStatusId==6" ng-click="lockctrl()" &&
+                ng-if="HasAccess('IPBILLING_SUMMARY','IPSUM_BILL_LOCK')">
+                <span ng-if="item.IsBillLock==true">
+                    <i id="lock" title="UnLock Bill" class="fa solid fa-lock"></i>
+                </span>
+                <span ng-if="item.IsBillLock==false">
+                    <i id="unlock" title="Lock Bill" class="fas solid fa-lock-open"></i>
+                </span>
+            </button>
+            <button type="button" class="pull-right pending" style="margin-top: -37px;margin-right: 50px;"
+                ng-click="pendingorders()" title="Pending Orders">
+                <i class="far fa-clock"></i>
+            </button>
+            <div class="" ng-if="EncounterInfo.IsPackageAssigned">
+                <div class="table-control">
+                    <div class="bg-pattern">
+                        <fieldset ng-disabled="isSaving">
+                            <div class="" id="maintable">
+                                <div class="">
+                                    <div class="package-details">
+                                        <h3>Package Details</h3>
+                                        <table>
+                                            <tr ng-repeat="item in PackageDetails">
+                                                <td>
+                                                    {{$index +1}}
+                                                </td>
+                                                <td>
+                                                    <b> {{item.IPPackageName}}- {{item.IPPackageDescription}}</b>
+                                                </td>
+                                                <td class="amt">
+                                                    {{item.PackageAmount|displaycurrency}}
+                                                </td>
+                                                <td>
+                                                    <div class="package-edit" ng-if="HasAccess('IPBILLING_SUMMARY', 'packageeditButton')">
+                                                        <button ng-click="editBill(item)">Edit</button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                    <!-- <div class=" container ">
+                                        <div class="package-details-header " ng-repeat="item in PackageDetails"
+                                            ng-if="EncounterInfo.IsPackageAssigned">
+                                            <div class="package-name ">
+                                                {{item.IPPackageName}}- {{item.IPPackageDescription}}
+                                            </div>
+                                            <div class="package-amount ">
+                                                Amount: {{item.PackageAmount|displaycurrency}}
+                                            </div>
+                                            <div class="package-edit ">
+                                                <button ng-click="editBill(item) ">Edit</button>
+                                            </div>
+                                        </div>
+                                    </div> -->
+                                </div>
+                            </div>
+                            <div class="" id="maintable">
+                                <div class="">
+                                    <div class=" container ">
+                                        <div class="col-sm-12 package-table ">
+                                            <div class="summary-table-data-list ">
+                                                <table class="table table-hover table-responsive table-bordered ">
+                                                    <thead class="bg-subhead ">
+                                                        <tr>
+                                                            <th class="col-sm-2 ">
+                                                                <span translate="Description "></span>
+                                                            </th>
+                                                            <th class="col-sm-2 ">
+                                                                <span translate="Amount "></span>
+                                                            </th>
+                                                            <th class="col-sm-2 ">
+                                                                <span translate="Discount "></span>
+                                                            </th>
+                                                            <!-- <th class="col-sm-2 ">
+                                                                <span translate="Tax Amount "></span>
+                                                            </th> -->
+                                                            <th class="col-sm-1">
+                                                                <span
+                                                                    translate="billing.summary.netinclusion.lbl"></span>
+                                                            </th>
+                                                            <th class="col-sm-1 ">
+                                                                <span translate="billing.summary.Action.lbl "></span>
+                                                            </th>
+                                                            <th class="col-sm-1">
+                                                                <span translate="billing.summary.exclusion.lbl"></span>
+                                                            </th>
+                                                            <th class="col-sm-1">
+                                                                <span translate="billing.summary.discount.lbl"></span>
+                                                            </th>
+                                                            <th class="col-sm-1">
+                                                                <span
+                                                                    translate="billing.summary.netexclusion.lbl"></span>
+                                                            </th>
+                                                            <th class="col-sm-1">
+                                                                <span translate="billing.summary.Action.lbl"></span>
+                                                            </th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody ng-repeat="item in PackageDetails"
+                                                        ng-if="EncounterInfo.IsPackageAssigned">
+                                                        <tr
+                                                            ng-repeat="bill in item.PatientSummaryDetails | filter:{Status:1}">
+                                                            <td>
+                                                                <b>{{bill.ServiceCategory.ServiceCategoryName}}</b>
+                                                            </td>
+                                                            <td class="drhms-currency-align ">
+                                                                {{bill.GroupGrossAmount | displaycurrency}}
+                                                            </td>
+                                                            <td class="drhms-currency-align ">
+                                                                {{bill.GroupDiscountAmount | displaycurrency}}
+                                                            </td>
+                                                            <td class="drhms-currency-align ">
+                                                                {{bill.GroupNetAmount | displaycurrency}}
+                                                            </td>
+                                                            <td>
+                                                                <button class="btn btn-warning btn-rounded"
+                                                                    ng-click="supplementaryDetails(bill,false)"
+                                                                    ng-if="bill.GroupNetAmount!=0">
+                                                                    <img class="drhms-edit-button"
+                                                                        src="assets/svg/edit.svg" alt="">
+                                                                </button>
+                                                            </td>
+                                                            <td class="drhms-currency-align">
+                                                                {{bill.GroupSplitGrossAmount | displaycurrency}}
+                                                            </td>
+                                                            <td class="drhms-currency-align">
+                                                                {{bill.GroupSplitDiscountAmount | displaycurrency}}
+                                                            </td>
+                                                            <td class="drhms-currency-align">
+                                                                <b>{{bill.GroupSplitNetAmount | displaycurrency}}</b>
+                                                            </td>
+                                                            <td>
+                                                                <img class="drhms-edit-button"
+                                                                    ng-click="supplementaryDetails(bill,false)"
+                                                                    ng-if="bill.GroupNetEclusionAmount!=0"
+                                                                    src="assets/svg/edit.svg">
+                                                            </td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+
+                                            <div class="drhms-currency-align">
+                                                <!-- <span class="drhms-due-amount">
+                                                    Total Amount </span>
+                                                <span class="drhms-due-amount">&nbsp;:&nbsp;{{item.GrossAmount}}
+                                                </span> -->
+                                                <b>Total Amount : {{item.GrossAmount}}</b>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </fieldset>
+                    </div>
+                </div>
+            </div>
+            <div class="" ng-if="EncounterInfo.IsPackageAssigned" ng-if="item.GuarantorTypeId>1">
+                <div class="container">
+                    <div class="drhms-unhide-content">
+                        <div class="drhms-summary-collapse" translate="{{currentcontext.RankSecGuarantor}}">
+                            <span>Consultation Bill
+                            </span>
+                        </div>
+                        <button type="button" id="tagul2" class="drhms-collapse-btn" data-toggle="collapse"
+                            data-target="#demo2" aria-expanded="false">
+                            <i class="fa fa-chevron-up"></i>
+                        </button>
+                    </div>
+                    <div id="demo2" class="collapse">
+                        <div class="summary-table-data-list" ng-repeat="item in PackageDetails" id="summaryselftable"
+                            style="padding: 4px 14px 4px 14px;margin-top: 10px;">
+                            <table class="table table-hover table-responsive table-bordered">
+                                <thead class="" ng-if="EncounterInfo.EncounterTypeId==2">
+                                    <tr>
+                                        <th class="col-sm-2">
+                                            <span translate="Description"></span>
+                                        </th>
+                                        <th class="col-sm-2">
+                                            <span translate="Amount"></span>
+                                        </th>
+                                        <th class="col-sm-2">
+                                            <span translate="Discount"></span>
+                                        </th>
+                                        <th class="col-sm-1">
+                                            <span translate="Net Amount"></span>
+                                        </th>
+                                        <th class="col-sm-1">
+                                            <span translate="billing.summary.Action.lbl"></span>
+                                        </th>
+
+                                    </tr>
+                                </thead>
+                                <tbody ng-if="EncounterInfo.EncounterTypeId==2">
+                                    <tr ng-repeat="bill in item.PatientSummaryDetails | filter:{Status:1}">
+                                        <td>
+                                            <b>{{bill.ServiceCategory.ServiceCategoryName}}</b>
+                                        </td>
+
+                                        <td class="drhms-currency-align">
+                                            {{bill.GroupSplitPatAmount | displaycurrency}}
+                                        </td>
+                                        <td class="drhms-currency-align">
+                                            {{bill.GroupSplitDiscountAmount | displaycurrency}}
+                                        </td>
+                                        <td class="drhms-currency-align">
+                                            <b>{{bill.GroupSplitPatAmount |
+                                                displaycurrency}}</b>
+                                        </td>
+                                        <td>
+                                            <i class="fa fa-print" ng-hide="currentcontext.DisableCategoryPrint"
+                                                ng-click="print3(bill.EncounterId,bill.ServiceCategoryId,bill.ServiceCategory.ServiceCategoryName)"></i>
+                                            <i class="fa fa-eye" aria-hidden="true"
+                                                ng-click="plusopenselfsupplementary(bill,true)"
+                                                ng-if="bill.GroupSplitPatAmount>0"></i>
+                                            <!-- <button class=""
+                                                                        ng-click="plusopenselfsupplementary(bill,true)"
+                                                                        ng-if="bill.GroupSplitGrossAmount!=0">
+                                                                        <img class="drhms-edit-button" src="assets/svg/edit.svg" alt="">
+                                                                    </button> -->
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="col-sm-12" style="padding: 4px 14px 4px 14px;margin-top: 10px;">
+                            <div class="summary-table-data-list" id="summaryselftable">
+                                <table class="table table-hover table-responsive table-bordered">
+                                    <thead class="bg-subhead">
+                                        <tr>
+                                            <th class="col-sm-2">
+                                                <span translate="billing.supplementary-details.date.lbl"></span>
+                                            </th>
+                                            <th class="col-sm-2">
+                                                <span translate="Description"></span>
+                                            </th>
+                                            <th class="col-sm-1">
+                                                <span translate="billing.supplementary-details.qty.lbl"></span>
+                                            </th>
+                                            <th class="col-sm-1">
+                                                <span translate="Amount"></span>
+                                            </th>
+                                            <th class="col-sm-1">
+                                                <span translate="Discount"></span>
+                                            </th>
+                                            <th class="col-sm-1">
+                                                <span translate="Insurance Amount"></span>
+                                            </th>
+                                            <th class="col-sm-1">
+                                                <span translate="Patient Amount"></span>
+                                            </th>
+                                            <th class="col-sm-1">
+                                                <span translate="Tax Amount"></span>
+                                            </th>
+                                            <th class="col-sm-1">
+                                                <span translate="Net Amount"></span>
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr
+                                            ng-repeat="bill in SupplementaryDetails | filter:{IsSupplementary:IsSupplementary}">
+                                            <td>
+                                                <b>{{bill.ServiceName}}</b>
+                                            </td>
+                                            <td>
+                                                <span>{{bill.BillDateTime | date :
+                                                    'dd-MMM-yyyy'}}&nbsp;{{bill.BillDateTime|
+                                                    date: 'HH:mm'}}
+                                            </td>
+                                            <td>
+                                                {{bill.Quantity}}
+                                            </td>
+                                            <td class="drhms-currency-align">
+                                                {{bill.Rate | displaycurrency}}
+                                            </td>
+                                            <td class="drhms-currency-align">
+                                                {{bill.DiscountAmount | displaycurrency}}
+                                            </td>
+                                            <td class="drhms-currency-align" ng-show="item.GuarantorTypeId >1">
+                                                {{bill.InsNetAmount | displaycurrency}}
+                                            </td>
+                                            <td class="drhms-currency-align" ng-show="item.GuarantorTypeId  > 1">
+                                                {{bill.PatNetAmount | displaycurrency}}
+                                            </td>
+                                            <td class="drhms-currency-align">
+                                                {{bill.GSTAmount | displaycurrency}}
+                                            </td>
+                                            <td class="drhms-currency-align">
+                                                <b>{{bill.NetAmount | displaycurrency}}</b>
+                                            </td>
+                                        </tr>
+
+                                    </tbody>
+                                </table>
+
+                            </div>
+                        </div>
+                        <div class="drhms-currency-align">
+                            <span class="drhms-due-amount">
+                                Total Amount </span>
+                            <span class="drhms-due-amount">&nbsp;:&nbsp;{{item.SplitGrossAmount
+                                |displaycurrency}}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="">
+                <div class="container" ng-if="!EncounterInfo.IsPackageAssigned">
+                    <div class="drhms-unhide-content">
+                        <div class="drhms-summary-collapse" translate="{{currentcontext.RankFirstGuarantor}}">
+                            <span>Consultation Bill
+                            </span>
+                        </div>
+                        <button type="button" id="tagul1" class="drhms-collapse-btn" data-toggle="collapse"
+                            data-target="#demo1" aria-expanded="false">
+                            <i class="fa fa-chevron-up"></i>
+                        </button>
+                    </div>
+                    <div id="demo1" class="collapse in">
+                        <div class="col-sm-12" style="padding: 0px 14px 4px 14px;">
+                            <div class="summary-table-data-list">
+                                <table class="table table-hover table-responsive table-bordered"
+                                    ng-if="!EncounterInfo.IsPackageAssigned">
+                                    <thead class="bg-subhead" ng-if="EncounterInfo.EncounterTypeId==2">
+                                        <tr>
+                                            <th class="col-sm-2">
+                                                <span translate="Description"></span>
+                                            </th>
+                                            <th class="col-sm-2">
+                                                <span translate="Amount"></span>
+                                            </th>
+                                            <th class="col-sm-2">
+                                                <span translate="Discount"></span>
+                                            </th>
+                                            <th class="col-sm-2">
+                                                <span translate="Tax Amount"></span>
+                                            </th>
+                                            <th class="col-sm-1">
+                                                <span translate="Net Amount"></span>
+                                            </th>
+                                            <th class="col-sm-1">
+                                                <span translate="billing.summary.Action.lbl"></span>
+                                            </th>
+
+                                        </tr>
+                                    </thead>
+                                    <thead class="bg-subhead" ng-if="EncounterInfo.EncounterTypeId!=2">
+                                        <tr>
+                                            <th class="col-sm-2">
+                                                <span translate="billing.summary.groupname.lbl"></span>
+                                            </th>
+                                            <th class="col-sm-2 drhms-currency-align">
+                                                <span translate="billing.summary.grossamount.lbl"></span>
+                                            </th>
+                                            <th class="col-sm-2 drhms-currency-align">
+                                                <span translate="billing.summary.discount.lbl"></span>
+                                            </th>
+                                            <th class="col-sm-1 drhms-currency-align">
+                                                <span translate="billing.summary.netamount.lbl"></span>
+                                            </th>
+                                            <th class="col-sm-1">
+                                                <span translate="billing.summary.Action.lbl"></span>
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody ng-if="EncounterInfo.EncounterTypeId==2">
+                                        <tr ng-repeat="bill in PatientSummaryDetails | filter:{Status:1}">
+                                            <td>
+                                                <b>{{bill.ServiceCategory.ServiceCategoryName}}</b>
+                                            </td>
+                                            <td class="drhms-currency-align">
+                                                {{bill.GroupGrossAmount | displaycurrency}}
+
+                                            </td>
+                                            <td class="drhms-currency-align">
+                                                {{bill.GroupDiscountAmount | displaycurrency}}
+
+                                            </td>
+                                            <td class="drhms-currency-align">
+                                                {{bill.GroupTaxAmount | displaycurrency}}
+
+                                            </td>
+                                            <td class="drhms-currency-align">
+                                                <b>{{bill.GroupNetAmount | displaycurrency}}</b>
+
+                                            </td>
+                                            <td>
+                                                <i class="fa fa-print" ng-hide="currentcontext.DisableCategoryPrint"
+                                                    ng-click="print3(bill.EncounterId,bill.ServiceCategoryId,bill.ServiceCategory.ServiceCategoryName)"></i>
+                                                <i class="fa fa-eye" ng-click="plusopensupplementary(bill,false)"
+                                                    ng-if="bill.GroupGrossAmount!=0"></i>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                    <tbody ng-if="EncounterInfo.EncounterTypeId!=2">
+                                        <tr ng-repeat="bill in PatientSummaryDetails | filter:{Status:1}">
+                                            <td>
+                                                <b>{{bill.ServiceCategory.ServiceCategoryName}}</b>
+                                            </td>
+                                            <td class="drhms-currency-align">
+                                                {{bill.GroupGrossAmount | displaycurrency}}
+                                            </td>
+                                            <td class="drhms-currency-align">
+                                                {{bill.GroupDiscountAmount | displaycurrency}}
+                                            </td>
+                                            <td class="drhms-currency-align">
+                                                <b>{{bill.GroupNetAmount | displaycurrency}}</b>
+                                            </td>
+                                            <td>
+                                                <i class="fa fa-print" ng-hide="currentcontext.DisableCategoryPrint"
+                                                    ng-click="print3(bill.EncounterId,bill.ServiceCategoryId,bill.ServiceCategory.ServiceCategoryName)"></i>
+                                                <button class="btn btn-warning btn-rounded"
+                                                    ng-click="plusopensupplementary(bill,false)"
+                                                    ng-if="bill.GroupGrossAmount!=0">
+                                                    <img class="drhms-edit-button" src="assets/svg/edit.svg" alt="">
+                                                </button>
+                                                <button class="btn btn-danger btn-rounded"
+                                                    ng-click="intermediateBillDetails(bill,false)"
+                                                    ng-if="bill.ServiceCategoryId==49&&bill.GroupGrossAmount!=0">
+                                                    <i class="fa fa-money" aria-hidden="true"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="drhms-currency-align">
+                                <span class="drhms-due-amount">
+                                    Total Amount </span>
+                                <span class="drhms-due-amount">&nbsp;:&nbsp;{{currentcontext.viewGrossAmount
+                                    |
+                                    displaycurrency}}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-sm-12" style="padding: 0px 14px 4px 14px;margin-top: 10px;">
+                            <p>Bill Details</p>
+                            <div class="summary-table-data-list" id="summaryselftable">
+                                <table ng-if="!EncounterInfo.IsPackageAssigned"
+                                    class="table table-hover table-responsive table-bordered">
+                                    <thead class="bg-subhead">
+                                        <tr>
+
+                                            <th class="col-sm-1">
+                                                <span translate="billing.supplementary-details.date.lbl"></span>
+                                            </th>
+                                            <th class="col-sm-1">
+                                                <span translate="Description"></span>
+                                            </th>
+                                            <th class="col-sm-1">
+                                                <span translate="billing.supplementary-details.qty.lbl"></span>
+                                            </th>
+                                            <th class="col-sm-1">
+                                                <span translate="Amount"></span>
+                                            </th>
+                                            <th class="col-sm-1">
+                                                <span translate="Discount"></span>
+                                            </th>
+                                            <th class="col-sm-1">
+                                                <span translate="Insurance Amount"></span>
+                                            </th>
+                                            <th class="col-sm-1">
+                                                <span translate="Patient Amount"></span>
+                                            </th>
+                                            <th class="col-sm-1">
+                                                <span translate="Tax Amount"></span>
+                                            </th>
+                                            <th class="col-sm-1">
+                                                <span translate="Net Amount"></span>
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr
+                                            ng-repeat="bill in SupplementaryDetails | filter:{IsSupplementary:IsSupplementary}">
+                                            <td>
+                                                {{bill.BillDateTime | date : 'dd-MMM-yyyy'}}&nbsp;{{bill.BillDateTime|
+                                                date: 'HH:mm'}}
+                                            </td>
+                                            <td>
+                                                <b>{{bill.ServiceName}}</b>
+                                            </td>
+                                            <td>
+                                                {{bill.Quantity}}
+                                            </td>
+                                            <td class="drhms-currency-align">
+                                                {{bill.Rate | displaycurrency}}
+                                            </td>
+                                            <td class="drhms-currency-align">
+                                                {{bill.DiscountAmount | displaycurrency}}
+                                            </td>
+                                            <td class="drhms-currency-align" ng-show="item.GuarantorTypeId >1">
+                                                {{bill.InsNetAmount | displaycurrency}}
+                                            </td>
+                                            <td class="drhms-currency-align" ng-show="item.GuarantorTypeId  > 1">
+                                                {{bill.PatNetAmount | displaycurrency}}
+                                            </td>
+                                            <td class="drhms-currency-align" ng-show="item.GuarantorTypeId == 1">
+                                                0
+                                            </td>
+                                            <td class="drhms-currency-align" ng-show="item.GuarantorTypeId  == 1">
+                                                {{bill.GrossAmount | displaycurrency}}
+                                            </td>
+                                            <td class="drhms-currency-align">
+                                                {{bill.GSTAmount | displaycurrency}}
+                                            </td>
+                                            <td class="drhms-currency-align">
+                                                <b>{{bill.NetAmount | displaycurrency}}</b>
+                                            </td>
+                                        </tr>
+
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="drhms-currency-align">
+                                <span class="drhms-due-amount">
+                                    Total Amount </span>
+                                <span class="drhms-due-amount">&nbsp;:&nbsp;{{currentcontext.viewGrossAmount
+                                    |displaycurrency}}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="">
+                <div class="container">
+                    <div class="drhms-unhide-content" ng-if="!EncounterInfo.IsPackageAssigned">
+                        <div class="drhms-summary-collapse" translate="{{currentcontext.RankSecGuarantor}}">
+                            <span>Consultation Bill
+                            </span>
+                        </div>
+                        <button type="button" id="tagul2" class="drhms-collapse-btn" data-toggle="collapse"
+                            data-target="#demo2" aria-expanded="false">
+                            <i class="fa fa-chevron-up"></i>
+                        </button>
+                    </div>
+                    <div id="demo2" class="collapse">
+                        <div class="summary-table-data-list" ng-if="!EncounterInfo.IsPackageAssigned"
+                            id="summaryselftable" style="padding: 4px 14px 4px 14px;margin-top: 10px;">
+                            <table class="table table-hover table-responsive table-bordered">
+                                <thead class="" ng-if="EncounterInfo.EncounterTypeId==2">
+                                    <tr>
+                                        <th class="col-sm-2">
+                                            <span translate="Description"></span>
+                                        </th>
+                                        <th class="col-sm-2">
+                                            <span translate="Amount"></span>
+                                        </th>
+                                        <th class="col-sm-2">
+                                            <span translate="Discount"></span>
+                                        </th>
+                                        <th class="col-sm-1">
+                                            <span translate="Net Amount"></span>
+                                        </th>
+                                        <th class="col-sm-1">
+                                            <span translate="billing.summary.Action.lbl"></span>
+                                        </th>
+
+                                    </tr>
+                                </thead>
+                                <thead class="bg-subhead" ng-if="EncounterInfo.EncounterTypeId!=2">
+                                    <tr>
+                                        <th class="col-sm-2">
+                                            <span translate="billing.summary.groupname.lbl"></span>
+                                        </th>
+                                        <th class="col-sm-2 drhms-currency-align">
+                                            <span translate="billing.summary.grossamount.lbl"></span>
+                                        </th>
+                                        <th class="col-sm-2 drhms-currency-align">
+                                            <span translate="billing.summary.discount.lbl"></span>
+                                        </th>
+                                        <th class="col-sm-1 drhms-currency-align">
+                                            <span translate="billing.summary.netamount.lbl"></span>
+                                        </th>
+                                        <th class="col-sm-1">
+                                            <span translate="billing.summary.Action.lbl"></span>
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody ng-if="EncounterInfo.EncounterTypeId==2">
+                                    <tr ng-repeat="bill in PatientSummaryDetails | filter:{Status:1}">
+                                        <td>
+                                            <b>{{bill.ServiceCategory.ServiceCategoryName}}</b>
+                                        </td>
+
+                                        <td class="drhms-currency-align">
+                                            {{bill.GroupSplitGrossAmount | displaycurrency}}
+                                        </td>
+                                        <td class="drhms-currency-align">
+                                            {{bill.GroupSplitDiscountAmount | displaycurrency}}
+                                        </td>
+                                        <td class="drhms-currency-align">
+                                            <b>{{bill.GroupSplitNetAmount |
+                                                displaycurrency}}</b>
+                                        </td>
+                                        <td>
+                                            <i class="fa fa-print" ng-hide="currentcontext.DisableCategoryPrint"
+                                                ng-click="print3(bill.EncounterId,bill.ServiceCategoryId,bill.ServiceCategory.ServiceCategoryName)"></i>
+                                            <i class="fa fa-eye" aria-hidden="true"
+                                                ng-click="plusopenselfsupplementary(bill,true)"
+                                                ng-if="bill.GroupSplitGrossAmount!=0"></i>
+                                            <!-- <button class=""
+                                                                        ng-click="plusopenselfsupplementary(bill,true)"
+                                                                        ng-if="bill.GroupSplitGrossAmount!=0">
+                                                                        <img class="drhms-edit-button" src="assets/svg/edit.svg" alt="">
+                                                                    </button> -->
+                                        </td>
+                                    </tr>
+                                </tbody>
+                                <tbody ng-if="EncounterInfo.EncounterTypeId!=2">
+                                    <tr ng-repeat="bill in PatientSummaryDetails | filter:{Status:1}">
+                                        <td>
+                                            <b>{{bill.ServiceCategory.ServiceCategoryName}}</b>
+                                        </td>
+                                        <td class="drhms-currency-align">
+                                            {{bill.GroupGrossAmount | displaycurrency}}
+                                        </td>
+                                        <td class="drhms-currency-align">
+                                            {{bill.GroupDiscountAmount | displaycurrency}}
+                                        </td>
+                                        <td class="drhms-currency-align">
+                                            <b>{{bill.GroupNetAmount | displaycurrency}}</b>
+                                        </td>
+                                        <td>
+                                            <i class="fa fa-print" ng-hide="currentcontext.DisableCategoryPrint"
+                                                ng-click="print3(bill.EncounterId,bill.ServiceCategoryId,bill.ServiceCategory.ServiceCategoryName)"></i>
+                                            <button class="btn btn-warning btn-rounded"
+                                                ng-click="supplementaryDetails(bill,false)"
+                                                ng-if="bill.GroupGrossAmount!=0">
+                                                <img class="drhms-edit-button" src="assets/svg/edit.svg" alt="">
+                                            </button>
+                                            <button class="btn btn-danger btn-rounded"
+                                                ng-click="intermediateBillDetails(bill,false)"
+                                                ng-if="bill.ServiceCategoryId==49&&bill.GroupGrossAmount!=0">
+                                                <i class="fa fa-money" aria-hidden="true"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="col-sm-12" ng-if="!EncounterInfo.IsPackageAssigned"
+                            style="padding: 4px 14px 4px 14px;margin-top: 10px;">
+                            <div class="summary-table-data-list" id="summaryselftable">
+                                <table ng-if="!EncounterInfo.IsPackageAssigned"
+                                    class="table table-hover table-responsive table-bordered">
+                                    <thead class="bg-subhead">
+                                        <tr>
+                                            <th class="col-sm-2">
+                                                <span translate="billing.supplementary-details.date.lbl"></span>
+                                            </th>
+                                            <th class="col-sm-2">
+                                                <span translate="Description"></span>
+                                            </th>
+                                            <th class="col-sm-1">
+                                                <span translate="billing.supplementary-details.qty.lbl"></span>
+                                            </th>
+                                            <th class="col-sm-1">
+                                                <span translate="Amount"></span>
+                                            </th>
+                                            <th class="col-sm-1">
+                                                <span translate="Discount"></span>
+                                            </th>
+                                            <th class="col-sm-1">
+                                                <span translate="Insurance Amount"></span>
+                                            </th>
+                                            <th class="col-sm-1">
+                                                <span translate="Patient Amount"></span>
+                                            </th>
+                                            <th class="col-sm-1">
+                                                <span translate="Tax Amount"></span>
+                                            </th>
+                                            <th class="col-sm-1">
+                                                <span translate="Net Amount"></span>
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr
+                                            ng-repeat="bill in SupplementaryDetails | filter:{IsSupplementary:IsSupplementary}">
+                                            <td>
+                                                <b>{{bill.ServiceName}}</b>
+                                            </td>
+                                            <td>
+                                                <span>{{bill.BillDateTime | date :
+                                                    'dd-MMM-yyyy'}}&nbsp;{{bill.BillDateTime|
+                                                    date: 'HH:mm'}}
+                                            </td>
+                                            <td>
+                                                {{bill.Quantity}}
+                                            </td>
+                                            <td class="drhms-currency-align">
+                                                {{bill.Rate | displaycurrency}}
+                                            </td>
+                                            <td class="drhms-currency-align">
+                                                {{bill.DiscountAmount | displaycurrency}}
+                                            </td>
+                                            <td class="drhms-currency-align" ng-show="item.GuarantorTypeId >1">
+                                                {{bill.InsNetAmount | displaycurrency}}
+                                            </td>
+                                            <td class="drhms-currency-align" ng-show="item.GuarantorTypeId  > 1">
+                                                {{bill.PatNetAmount | displaycurrency}}
+                                            </td>
+                                            <td class="drhms-currency-align">
+                                                {{bill.GSTAmount | displaycurrency}}
+                                            </td>
+                                            <td class="drhms-currency-align">
+                                                <b>{{bill.NetAmount | displaycurrency}}</b>
+                                            </td>
+                                        </tr>
+
+                                    </tbody>
+                                </table>
+
+                            </div>
+                        </div>
+                        <div class="drhms-currency-align">
+                            <span class="drhms-due-amount">
+                                Total Amount </span>
+                            <span class="drhms-due-amount">&nbsp;:&nbsp;{{item.SplitGrossAmount
+                                |displaycurrency}}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- <div ng-repeat="item in PackageDetails">
+                    <div class="" ng-if="EncounterInfo.IsPackageAssigned" style="margin-top: 8px;margin-bottom: 8px;">
+                        <div class="drhms-backage-details" translate="{{item.IPPackageDescription}}&nbsp;- &nbsp;{{item.IPPackageName}}&nbsp;({{item.PackageAmount|displaycurrency}})">
+                            <span>Consultation Bill</span>
+                        </div>
+                    </div>
+                    <table class="table table-hover table-responsive table-bordered" ng-if="EncounterInfo.IsPackageAssigned">
+                        <thead class="bg-subhead">
+                            <thead class="bg-subhead">
+                                <tr>
+                                    <th class="col-sm-3">
+                                        <span translate="billing.summary.groupname.lbl"></span>
+                                    </th>
+                                    <th class="col-sm-1">
+                                        <span translate="billing.summary.inclusion.lbl"></span>
+                                    </th>
+                                    <th class="col-sm-1">
+                                        <span translate="billing.summary.discount.lbl"></span>
+                                    </th>
+                                    <th class="col-sm-1">
+                                        <span translate="billing.summary.netinclusion.lbl"></span>
+                                    </th>
+                                    <th class="col-sm-1">
+                                        <span translate="billing.summary.Action.lbl"></span>
+                                    </th>
+                                    <th class="col-sm-1">
+                                        <span translate="billing.summary.exclusion.lbl"></span>
+                                    </th>
+                                    <th class="col-sm-1">
+                                        <span translate="billing.summary.discount.lbl"></span>
+                                    </th>
+                                    <th class="col-sm-1">
+                                        <span translate="billing.summary.netexclusion.lbl"></span>
+                                    </th>
+                                    <th class="col-sm-1">
+                                        <span translate="billing.summary.Action.lbl"></span>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-repeat="bill in item.PatientSummaryDetails | filter:{Status:1}">
+                                    <td class="col-sm-3">
+                                        <b>{{bill.ServiceCategory.ServiceCategoryName}}</b>
+                                    </td>
+                                    <td class="drhms-currency-align">
+                                        {{bill.GroupGrossAmount | displaycurrency}}
+                                    </td>
+                                    <td class="drhms-currency-align">
+                                        {{bill.GroupDiscountAmount | displaycurrency}}
+                                    </td>
+                                    <td class="drhms-currency-align">
+                                        {{bill.GroupNetAmount | displaycurrency}}
+                                    </td>
+                                    <td>
+                                        <button class="btn btn-warning btn-rounded" ng-click="supplementaryDetails(bill,false)" ng-if="bill.GroupNetAmount!=0">
+                                    <img class="drhms-edit-button" src="assets/svg/edit.svg" alt="">
+                                </button>
+                                    </td>
+                                    <td class="drhms-currency-align">
+                                        {{bill.GroupSplitGrossAmount | displaycurrency}}
+                                    </td>
+                                    <td class="drhms-currency-align">
+                                        {{bill.GroupSplitDiscountAmount | displaycurrency}}
+                                    </td>
+                                    <td class="drhms-currency-align">
+                                        <b>{{bill.GroupSplitNetAmount | displaycurrency}}</b>
+                                    </td>
+                                    <td>
+                                        <button class="btn btn-warning btn-rounded" ng-click="supplementaryDetails(bill,false)" ng-if="bill.GroupNetEclusionAmount!=0">
+                                    <img class="drhms-edit-button" src="assets/svg/edit.svg" alt="">
+                                </button>
+                                    </td>
+                                </tr>
+                                <tr class="highlight">
+                                    <td class="col-sm-3">
+                                        Total Net.Inc
+                                    </td>
+                                    <td>
+
+                                    </td>
+                                    <td>
+
+                                    </td>
+                                    <td class="drhms-currency-align">
+                                        <b> {{item.NetInclusion|displaycurrency}} </b>
+                                    </td>
+                                    <td>
+
+                                    </td>
+                                    <td>
+                                        Total Net.Exc
+                                    </td>
+                                    <td>
+
+                                    </td>
+                                    <td class="drhms-currency-align">
+                                        <b> {{item.NetExclusion|displaycurrency}} </b>
+                                    </td>
+                                    <td>
+                                    </td>
+                                </tr>
+                            </tbody>
+                    </table>
+                </div> -->
+        </div>
+        </fieldset>
+
+    </div>
+    <div class="footerbars">
+        <div class="sub-footer">
+            <div class="bgfoot">
+                <div id="paymenttype">
+                    <div class="estcost" ng-if="item.EstimationCost">Estimation Amount : {{item.EstimationCost |
+                        displaycurrency}} </div>
+                    <div class="drhms-due-amount">Balance : {{currentcontext.TotBalanceAmt | displaycurrency}}
+                        <span ng-show="item.GuarantorTypeId >1||currentcontext.EligibleAmount>0">
+                            ({{currentcontext.ApprovedAmount | displaycurrency}})
+                        </span>
+                    </div>
+
+                    <div class="col-sm-4">
+                        <div>
+                            <table id="bannerdetails">
+                                <tr ng-if="HasAccess('IPDiscount', 'IPDiscount') ">
+                                    <td translate="Type"></td>
+                                    <td>
+                                        <ui-select ng-model="currentfilter.DiscountModeId"
+                                            ng-disabled="currentcontext.RdoBillDiscountMode||isFinalized"
+                                            ng-change="DiscountModeChange($select.selected)" tabindex="-1"
+                                            name="headerdiscountmode">
+                                            <ui-select-match>
+                                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                                <span ng-if="$select.selected.Text.length>20">...</span>
+                                            </ui-select-match>
+                                            <ui-select-choices
+                                                repeat="lookupitem.Id as lookupitem in lookup.DiscountMode | filter: { Text: $select.search }">
+                                                <div ng-bind-html="lookupitem.Text | highlight: $select.search">
+                                                </div>
+                                            </ui-select-choices>
+                                        </ui-select>
+                                    </td>
+                                </tr>
+                                <tr ng-if="HasAccess('IPDiscount', 'IPDiscount') ">
+                                    <td translate="billing.opbilling-list.discount.lbl" readonly>
+                                    </td>
+                                    <td>
+                                        <input type="text" class="form-control" name="discountvalue" tabindex="9"
+                                            ng-change="DiscountChange()"
+                                            ng-disabled="currentcontext.RdoBillDiscount||isFinalized"
+                                            ng-model="currentcontext.BillDiscount" placeholder="">
+
+                                    </td>
+                                </tr>
+                                <tr ng-if="moudiscount == 1">
+                                    <td translate="MOU Discount" readonly>
+                                    </td>
+                                    <td>
+                                        <input type="text" class="form-control" name="discountvalue"
+                                            tabindex="9" ng-change="MOUDiscountChange()"
+                                            ng-disabled="currentcontext.RdoBillDiscount||isFinalized"
+                                            ng-model="currentcontext.MOUBillDiscount" placeholder="">
+
+                                    </td>
+                                </tr>
+                                <tr ng-if="HasAccess('IPDiscount', 'IPDiscount')&&currentcontext.BillDiscount > 0 ">
+                                    <td translate="Approved By"></td>
+                                    <td>
+                                        <ui-select ng-model="currentcontext.DiscountApprovedBy" tabindex="10"
+                                            ng-change="setDiscountLimit($select.selected)"
+                                            ng-disabled="RdoApprovedById||isFinalized" tabindex="-1" name="approvedby"
+                                            uib-tooltip="{{$select.selected.Text | limitTo : 20 : 0}}"
+                                            tooltip-placement="right" required>
+                                            <ui-select-match>
+                                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                                <span ng-if="$select.selected.Text.length>20">...</span>
+                                            </ui-select-match>
+                                            <ui-select-choices
+                                                repeat="lookupitem.Id as lookupitem in lookup.DiscountApprover | filter: { Text: $select.search }">
+                                                <div ng-bind-html="lookupitem.Text | highlight: $select.search">
+                                                </div>
+                                            </ui-select-choices>
+                                        </ui-select>
+                                    </td>
+
+                                </tr>
+                                <tr>
+                                    <td translate="Category"></td>
+                                    <td>
+                                        <ui-select id='GuarantorTypeId' ng-keyup="moveHeaderFocus('GuarantorTypeId')"
+                                            ng-model="currentfilter.GuarantorTypeId" tabindex="-1"
+                                            ng-change="GuarantorTypeChange($select.selected)" name="screen"
+                                            class="ui-select-grid">
+                                            <ui-select-match>
+                                                {{$select.selected.Text | limitTo : 10 : 0}}
+                                                <span ng-if="$select.selected.Text.length>10">...</span>
+                                            </ui-select-match>
+                                            <ui-select-choices
+                                                repeat="lookupitem.Id as lookupitem in lookup.GuarantorType | filter: { Text: $select.search }">
+                                                <div ng-bind-html="lookupitem.Text | highlight: $select.search">
+                                                </div>
+                                            </ui-select-choices>
+                                        </ui-select>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td translate="Coupon"></td>
+                                    <td>
+                                        <input type="text" class="form-control" name="disccoupon"
+                                            tooltip-placement="bottom" ng-model="item.DiscountCoupon"
+                                            placeholder="DiscountCoupon" ng-disabled="isFinalized">
+                                    </td>
+                                </tr>
+                            </table>
+
+
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="col-sm-12">
+                            <table id="bannerdetails" ng-show="item.GuarantorTypeId==1">
+                                <tr>
+                                    <td translate="Settlement Type"></td>
+                                    <td>
+                                        <ui-select ng-model="currentcontext.FSTypeId" name="fstype"
+                                            ng-change="changeFSTType()" required
+                                            ng-disabled="canChangeFSType||!item.IsBillLock||isFinalized">
+                                            <ui-select-match>
+                                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                                <span ng-if="$select.selected.Text.length>20">...</span>
+                                            </ui-select-match>
+                                            <ui-select-choices
+                                                repeat="lookupitem.Id as lookupitem in lookup.SettlementType | filter: { Text: $select.search }">
+                                                <div ng-bind-html="lookupitem.Text | highlight: $select.search">
+                                                </div>
+                                            </ui-select-choices>
+                                        </ui-select>
+                                        <button ng-if="MultiPay" ng-click="addPay()" class=" btn btn-xs btn-success">
+                                            <i class="fa fa-plus"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr ng-hide="currentcontext.FSTypeId==3||currentcontext.FSTypeId==4">
+                                    <td translate="billing.opbilling-list.paymenttype.lbl"></td>
+                                    <td>
+                                        <ui-select id="paymenttype" ng-keyup="FooterFocus('paymenttype')"
+                                            ng-model="currentcontext.PaymentTypeId"
+                                            ng-disabled="RdoPaymentTypeId||isFinalized" name="paymenttype" required>
+                                            <ui-select-match>
+                                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                                <span ng-if="$select.selected.Text.length>20">...</span>
+                                            </ui-select-match>
+                                            <ui-select-choices
+                                                repeat="lookupitem.Id as lookupitem in lookup.PaymentType | filter: { Text: $select.search }">
+                                                <div ng-bind-html="lookupitem.Text | highlight: $select.search">
+                                                </div>
+                                            </ui-select-choices>
+                                        </ui-select>
+                                        <button type="button" ng-if="MultiPay" ng-click="addPay()"
+                                            class=" btn btn-xs btn-success">
+                                            <i class="fa fa-plus"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr ng-hide="currentcontext.FSTypeId ==3||currentcontext.FSTypeId==4">
+                                    <td>
+                                        <span translate="billing.opbilling-list.receiptamount.lbl"></span>
+                                        <span class="mandatory-asterix">*</span>
+                                    </td>
+                                    <td>
+                                        <input type="text"
+                                            class="form-control ng-valid ng-dirty ng-valid-parse ng-empty ng-touched"
+                                            name="receivedamt"
+                                            ng-disabled="isFinalized||currentcontext.RdoReceiptAmt||currentcontext.FSTypeId ==2||currentcontext.FSTypeId ==4"
+                                            id="receivedamt" ng-keyup="FooterFocus('receivedamt')"
+                                            ng-model="currentcontext.ReceiptAmt" ng-change="CalculateNetAmt()"
+                                            placeholder="" required>
+                                    </td>
+                                </tr>
+                                <tr ng-if="currentcontext.FSTypeId == 5">
+                                    <td>Transfer To</td>
+                                    <td>
+                                        <ui-select ng-if="currentcontext.FSTypeId == 5" ng-model="item.FamilyLinkId"
+                                            name="transferto"
+                                            ng-disabled="canChangeFSType||!item.IsBillLock||isFinalized" required
+                                            ng-change="onFamilyLinkChange($select.selected)">
+                                            <ui-select-match>
+                                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                                <span ng-if="$select.selected.Text.length>20">...</span>
+                                            </ui-select-match>
+                                            <ui-select-choices
+                                                repeat="lookupitem.Id as lookupitem in lookup.FamilyLink | filter: { Text: $select.search }">
+                                                <div ng-bind-html="lookupitem.Text | highlight: $select.search">
+                                                </div>
+                                            </ui-select-choices>
+                                        </ui-select>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td translate="billing.directbilling.creditapprover.lbl"
+                                        ng-if="currentcontext.TotBalanceAmt>0 "></td>
+                                    <td ng-if="currentcontext.TotBalanceAmt>0 ">
+                                        <ui-select ng-model="item.GuarantorDueId" name="creditapprovedby"
+                                            ng-if="currentcontext.FSTypeId == 3 && !currentcontext.isSelfGuarantor"
+                                            ng-disabled="currentcontext.FSTypeId == 3||isFinalized">
+                                            <ui-select-match>
+                                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                                <span ng-if="$select.selected.Text.length>20">...</span>
+                                            </ui-select-match>
+                                            <ui-select-choices
+                                                repeat="lookupitem.Id as lookupitem in lookup.Guarantor | filter: { Text: $select.search }">
+                                                <div ng-bind-html="lookupitem.Text | highlight: $select.search">
+                                                </div>
+                                            </ui-select-choices>
+                                        </ui-select>
+                                        <ui-select
+                                            ng-if="currentcontext.FSTypeId == 3 && currentcontext.isSelfGuarantor"
+                                            ng-model="currentcontext.SelfCreditApprovedBy" name="selfcreditvocher"
+                                            ng-disabled="canChangeFSType||!item.IsBillLock||isFinalized">
+                                            <ui-select-match>
+                                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                                <span ng-if="$select.selected.Text.length>20">...</span>
+                                            </ui-select-match>
+                                            <ui-select-choices
+                                                repeat="lookupitem.Id as lookupitem in lookup.PrivateDueApprover | filter: { Text: $select.search }">
+                                                <div ng-bind-html="lookupitem.Text | highlight: $select.search">
+                                                </div>
+                                            </ui-select-choices>
+                                        </ui-select>
+
+                                        <ui-select id="creditapprover" tabindex="14"
+                                            ng-keyup="FooterFocus('creditapprover')" ng-model="item.PrivateDueId"
+                                            ng-hide="isFinalized" ng-if="currentcontext.FSTypeId != 3 "
+                                            ng-disabled="currentcontext.RdoGuarantorDue" name="creditapprover">
+                                            <ui-select-match>
+                                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                                <span ng-if="$select.selected.Text.length>20">...</span>
+                                            </ui-select-match>
+                                            <ui-select-choices
+                                                repeat="lookupitem.Id as lookupitem in lookup.PrivateDueApprover | filter: { Text: $select.search }">
+                                                <div ng-bind-html="lookupitem.Text | highlight: $select.search">
+                                                </div>
+                                            </ui-select-choices>
+                                        </ui-select>
+                                    </td>
+                                </tr>
+                            </table>
+                            <table id="bannerdetails" ng-show="item.GuarantorTypeId>1">
+                                <tr>
+                                    <td translate="Settlement Type"></td>
+                                    <td>
+                                        <ui-select ng-model="currentcontext.FSTypeId" name="fstype"
+                                            ng-change="changeFSTType()" required
+                                            ng-disabled="canChangeFSType||!item.IsBillLock||isFinalized">
+                                            <ui-select-match>
+                                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                                <span ng-if="$select.selected.Text.length>20">...</span>
+                                            </ui-select-match>
+                                            <ui-select-choices
+                                                repeat="lookupitem.Id as lookupitem in lookup.SettlementType | filter: { Text: $select.search }">
+                                                <div ng-bind-html="lookupitem.Text | highlight: $select.search">
+                                                </div>
+                                            </ui-select-choices>
+                                        </ui-select>
+                                        <button ng-if="MultiPay" ng-click="addPay()" class=" btn btn-xs btn-success">
+                                            <i class="fa fa-plus"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr
+                                    ng-hide="currentcontext.FSTypeId==4||currentcontext.FSTypeId==2||item.NetPatientAmount==0">
+                                    <td translate="billing.opbilling-list.paymenttype.lbl"></td>
+                                    <td>
+                                        <ui-select id="paymenttype" ng-keyup="FooterFocus('paymenttype')"
+                                            ng-model="currentcontext.PaymentTypeId"
+                                            ng-disabled="RdoPaymentTypeId||isFinalized" name="paymenttype" required>
+                                            <ui-select-match>
+                                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                                <span ng-if="$select.selected.Text.length>20">...</span>
+                                            </ui-select-match>
+                                            <ui-select-choices
+                                                repeat="lookupitem.Id as lookupitem in lookup.PaymentType | filter: { Text: $select.search }">
+                                                <div ng-bind-html="lookupitem.Text | highlight: $select.search">
+                                                </div>
+                                            </ui-select-choices>
+                                        </ui-select>
+                                        <button type="button" ng-if="MultiPay" ng-click="addPay()"
+                                            class=" btn btn-xs btn-success">
+                                            <i class="fa fa-plus"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr
+                                    ng-hide="currentcontext.FSTypeId==4||currentcontext.FSTypeId==2||item.NetPatientAmount==0">
+                                    <td>
+                                        <span translate="billing.opbilling-list.receiptamount.lbl"></span>
+                                        <span class="mandatory-asterix">*</span>
+                                    </td>
+                                    <td>
+                                        <input type="text"
+                                            class="form-control ng-valid ng-dirty ng-valid-parse ng-empty ng-touched"
+                                            name="receivedamt"
+                                            ng-disabled="isFinalized||currentcontext.RdoReceiptAmt||currentcontext.FSTypeId ==2||currentcontext.FSTypeId ==4"
+                                            id="receivedamt" ng-keyup="FooterFocus('receivedamt')"
+                                            ng-model="currentcontext.ReceiptAmt" ng-change="calcFinaldue()" placeholder=""
+                                            required>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td translate="billing.directbilling.creditapprover.lbl"
+                                        ng-if="currentcontext.PatOutstandingAmt>0 "></td>
+                                    <td ng-if="currentcontext.PatOutstandingAmt>0 ">
+                                        <ui-select id="creditapprover" ng-keyup="FooterFocus('creditapprover')"
+                                            ng-model="item.PrivateDueId" ng-disabled="isFinalized"
+                                            name="creditapprover">
+                                            <ui-select-match>
+                                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                                <span ng-if="$select.selected.Text.length>20">...</span>
+                                            </ui-select-match>
+                                            <ui-select-choices
+                                                repeat="lookupitem.Id as lookupitem in lookup.PrivateDueApprover | filter: { Text: $select.search }">
+                                                <div ng-bind-html="lookupitem.Text | highlight: $select.search">
+                                                </div>
+                                            </ui-select-choices>
+                                        </ui-select>
+                                    </td>
+                                </tr>
+                            </table>
+                            <table id="bannerdetails" ng-show="item.GuarantorTypeId >1">
+                                <tr>
+                                    <td>Insurance Amount</td>
+                                    <td>
+                                        <input type="text" class="form-control" name="insamt" ng-change="calcinsamt()"
+                                            ng-model="currentcontext.InsuranceAmount" ng-disabled="notEditIns">
+                                        <!-- {{item.NetInsuranceAmount | displaycurrency}} -->
+                                    </td>
+                                </tr>
+                                <tr ng-hide="isFinalized">
+                                    <!-- <td>Balance Insurance Amount</td> -->
+                                    <td>Patient Final Balance</td>
+                                    <td>{{currentcontext.TotBalanceAmt | displaycurrency}}</td>
+                                </tr>
+                                <tr>
+                                    <td>Insurance By</td>
+                                    <td>{{item.GuarantorName}}</td>
+                                </tr>
+                            </table>
+
+                        </div>
+                        <div class="col-sm-12">
+                            <table id="bannerdetails">
+                                <tr>
+                                    <td ng-if="currentcontext.PaymentTypeId > 1 && currentcontext.PaymentTypeId != 7 && currentcontext.PaymentTypeId != 12"
+                                        translate="billing.receipt-form.bankname.lbl"></td>
+                                    <td
+                                        ng-if="currentcontext.PaymentTypeId > 1 && currentcontext.PaymentTypeId != 7 && currentcontext.PaymentTypeId != 12">
+                                        <ui-select id="BankName" ng-keyup="FooterFocus('BankName')"
+                                            ng-model="item.BankId" name="bankname" ng-disabled="item.isCompleted">
+                                            <ui-select-match>
+                                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                                <span ng-if="$select.selected.Text.length>20">...</span>
+                                            </ui-select-match>
+                                            <ui-select-choices
+                                                repeat="lookupitem.Id as lookupitem in lookup.Bank | filter: { Text: $select.search }">
+                                                <div ng-bind-html="lookupitem.Text | highlight: $select.search">
+                                                </div>
+                                            </ui-select-choices>
+                                        </ui-select>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td ng-if="currentcontext.PaymentTypeId == 2"
+                                        translate="billing.receipt-form.chequeno.lbl"></td>
+                                    <td ng-if="currentcontext.PaymentTypeId == 2">
+                                        <input type="text" class="form-control" name="chequeno" id="chequeno"
+                                            ng-keyup="FooterFocus('chequeno')" ng-model="item.ChequeNo"
+                                            ng-disabled="item.isCompleted" placeholder="" required>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td ng-if="currentcontext.PaymentTypeId == 11||currentcontext.PaymentTypeId == 12"
+                                        translate="Ref Number"></td>
+                                    <td ng-if="currentcontext.PaymentTypeId == 11||currentcontext.PaymentTypeId == 12">
+                                        <input type="text" class="form-control" name="upirefno" id="upirefno"
+                                            ng-keyup="FooterFocus('upirefno')" ng-model="item.UPIRefNumber"
+                                            ng-disabled="item.isCompleted" placeholder="" required>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td ng-if="currentcontext.PaymentTypeId == 3"
+                                        translate="billing.receipt-form.ddno.lbl"></td>
+                                    <td ng-if="currentcontext.PaymentTypeId == 3">
+                                        <input type="text" class="form-control" name="ddno" id="ddno"
+                                            ng-keyup="FooterFocus('ddno')" ng-model="item.DDNumber"
+                                            ng-disabled="item.isCompleted" placeholder="" ng-minlength=""
+                                            ng-pattern="/^\d+$/" required>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td ng-if="currentcontext.PaymentTypeId == 4"
+                                        translate="billing.receipt-form.transationno.lbl"></td>
+                                    <td ng-if="currentcontext.PaymentTypeId == 4">
+                                        <input type="text" class="form-control" name="transationno" id="transationno"
+                                            ng-keyup="FooterFocus('transationno')" ng-model="item.WireTransferId"
+                                            placeholder="" ng-disabled="item.isCompleted" required>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td ng-if="currentcontext.PaymentTypeId == 5 || currentcontext.PaymentTypeId == 6"
+                                        translate="billing.receipt-form.authorisedcode.lbl"></td>
+                                    <td ng-if="currentcontext.PaymentTypeId == 5 || currentcontext.PaymentTypeId == 6">
+                                        <input type="text" class="form-control" name="cardno" id="cardno"
+                                            ng-keyup="FooterFocus('cardno')" ng-model="item.AuthorizeNumber"
+                                            maxlength="8" ng-disabled="item.isCompleted" placeholder="" required>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="col-sm-12">
+                            <table id="bannerdetails">
+                                <tr>
+                                    <td ng-if="currentcontext.PaymentTypeId == 2"
+                                        translate="billing.receipt-form.Chequedate.lbl"></td>
+                                    <td ng-if="currentcontext.PaymentTypeId == 2">
+                                        <input type="text" class="form-control" name="Chequedate" ng-date-object
+                                            datepicker-options="datePickerOptions"
+                                            show-button-bar="{{datePickerOptions.showButtonBar}}"
+                                            uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                                            placeholder="{{datePickerOptions.placeholder}}"
+                                            ng-click="activefromPopup = { opened: true }"
+                                            is-open="activefromPopup.opened" id="Chequedate"
+                                            ng-keyup="FooterFocus('Chequedate')" ng-model="item.ChequeDate"
+                                            ng-disabled="item.isCompleted">
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td ng-if="currentcontext.PaymentTypeId == 3"
+                                        translate="billing.receipt-form.dddate.lbl"></td>
+                                    <td ng-if="currentcontext.PaymentTypeId == 3">
+                                        <input type="text" class="form-control" name="dddate" ng-date-object
+                                            datepicker-options="datePickerOptions"
+                                            show-button-bar="{{datePickerOptions.showButtonBar}}"
+                                            uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                                            placeholder="{{datePickerOptions.placeholder}}"
+                                            ng-click="activetoPopup = { opened: true }" is-open="activetoPopup.opened"
+                                            id="dddate" ng-keyup="FooterFocus('dddate')" ng-model="item.DDDate"
+                                            ng-disabled="item.isCompleted">
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td ng-if="currentcontext.PaymentTypeId == 4"
+                                        translate="billing.receipt-form.transferredon.lbl"></td>
+                                    <td ng-if="currentcontext.PaymentTypeId == 4">
+                                        <input type="text" class="form-control" name="transferredon" ng-date-object
+                                            datepicker-options="datePickerOptions"
+                                            show-button-bar="{{datePickerOptions.showButtonBar}}"
+                                            uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                                            placeholder="{{datePickerOptions.placeholder}}"
+                                            ng-click="transationfromPopup = { opened: true }"
+                                            is-open="transationfromPopup.opened" id="transferredon"
+                                            ng-keyup="FooterFocus('transferredon')" ng-model="item.WireTransferDate"
+                                            ng-disabled="item.isCompleted">
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td ng-if="currentcontext.PaymentTypeId == 5 || currentcontext.PaymentTypeId == 6"
+                                        translate="billing.receipt-form.cardtype.lbl"></td>
+                                    <td ng-if="currentcontext.PaymentTypeId == 5 || currentcontext.PaymentTypeId == 6">
+                                        <ui-select id="CardType" ng-keyup="FooterFocus('CardType')"
+                                            ng-model="item.CardTypeId" name="cardtype" ng-disabled="item.isCompleted">
+                                            <ui-select-match>
+                                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                                <span ng-if="$select.selected.Text.length>20">...</span>
+                                            </ui-select-match>
+                                            <ui-select-choices
+                                                repeat="lookupitem.Id as lookupitem in lookup.CardType | filter: { Text: $select.search }">
+                                                <div ng-bind-html="lookupitem.Text | highlight: $select.search">
+                                                </div>
+                                            </ui-select-choices>
+                                        </ui-select>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td ng-if="currentcontext.PaymentTypeId==5||currentcontext.PaymentTypeId == 6"
+                                        translate="Card # (Last 4 Digits)"></td>
+                                    <td ng-if="currentcontext.PaymentTypeId==5||currentcontext.PaymentTypeId == 6">
+                                        <input type="text" class="form-control" name="cardnum"
+                                            ng-model="item.CardNumber" maxlength="4" ng-disabled="IsCompleted"
+                                            placeholder="">
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td ng-if="currentcontext.PaymentTypeId == 4 || currentcontext.PaymentTypeId == 3 || currentcontext.PaymentTypeId == 2"
+                                        translate="billing.receipt-form.Collected On.lbl"></td>
+                                    <td
+                                        ng-if="currentcontext.PaymentTypeId == 4 || currentcontext.PaymentTypeId == 3 || currentcontext.PaymentTypeId == 2">
+                                        <input type="text" class="form-control" name="Collected On" id="CollectedOn"
+                                            ng-keyup="FooterFocus('CollectedOn')" ng-date-object
+                                            datepicker-options="datePickerOptions"
+                                            show-button-bar="{{datePickerOptions.showButtonBar}}"
+                                            uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                                            placeholder="{{datePickerOptions.placeholder}}"
+                                            ng-click="activefromPopup = { opened: true }"
+                                            is-open="activefromPopup.opened" ng-model="item.CollectedOn"
+                                            ng-disabled="item.isCompleted">
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+
+                    </div>
+                    <!-- <div class="col-sm-3">
+                                            <table id="bannerdetails">
+                                                <tr>
+                                                    <td>Lab1(
+                                                        <span
+                                                            class="drhms-special-count">{{currentcontext.Lab1Name}}</span>)
+                                                    </td>
+                                                    <td class="drhms-currency-align">{{currentcontext.Lab1Amount}}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Lab2(
+                                                        <span
+                                                            class="drhms-special-count">{{currentcontext.Lab2Name}}</span>)
+                                                    </td>
+                                                    <td class="drhms-currency-align">{{currentcontext.Lab2Amount}}</td>
+                                                </tr>
+                                            </table>
+                                        </div> -->
+                    <div class="col-sm-4">
+                        <table id="bannerdetails">
+                            <tr>
+                                <td>Gross Amount</td>
+                                <td class="drhms-currency-align">
+                                    {{currentcontext.TotGrossAmount | displaycurrency}} </td>
+                            </tr>
+                            <tr ng-show="EncounterInfo.IsPackageAssigned">
+                                <td>Excluded Amount</td>
+                                <td class="drhms-currency-align">
+                                    {{item.SplitGrossAmount | displaycurrency}} </td>
+                            </tr>
+                            <tr ng-if="item.GuarantorTypeId > 1">
+                                <td>From Insurance</td>
+                                <td class="drhms-currency-align">
+                                    {{currentcontext.FromInsuranceAmount | displaycurrency}} </td>
+                            </tr>
+                            <tr ng-if="item.GuarantorTypeId > 1">
+                                <td>Insurance Approved Credit</td>
+                                <td class="drhms-currency-align">
+                                    {{currentcontext.InsuranceAmount | displaycurrency}} </td>
+                            </tr>
+                            <tr ng-if="item.GuarantorTypeId > 1">
+                                <td>CoPay Amount</td>
+                                <td class="drhms-currency-align">
+                                    {{item.CoPayAmount| displaycurrency}} </td>
+                            </tr>
+                            <tr ng-if="item.GuarantorTypeId > 1">
+                                <td>Non-Medical Amount</td>
+                                <td class="drhms-currency-align">
+                                    {{item.NonMedicalAmount| displaycurrency}} </td>
+                            </tr>
+                            <tr ng-if="item.GuarantorTypeId > 1">
+                                <td>From Patient</td>
+                                <td class="drhms-currency-align">
+                                    {{currentcontext.PatientAmount| displaycurrency}} </td>
+                            </tr>
+                            <tr>
+                                <td>Advance / Receipt</td>
+                                <td class="drhms-currency-align">
+                                    {{currentcontext.TotalReceiptAmount | displaycurrency}}</td>
+                            </tr>
+                            <tr>
+                                <td>Discount</td>
+                                <td class="drhms-currency-align">{{currentcontext.TotDiscAmount | displaycurrency}}
+                                </td>
+                                <!-- <td class="drhms-currency-align">{{currentcontext.BillDiscount | displaycurrency}}
+                                                        </td> -->
+                            </tr>
+                            <tr>
+                                <td>Tax Amount</td>
+                                <td class="drhms-currency-align">{{item.GSTAmount | displaycurrency}}
+                                </td>
+                            </tr>
+                            <tr ng-if="currentcontext.TotalRefundAmount>0">
+                                <td>Refunded Amount</td>
+                                <td class="drhms-currency-align">
+                                    {{currentcontext.TotalRefundAmount || 0 | displaycurrency}}</td>
+                            </tr>
+                            <tr ng-if="currentcontext.ToBeRefunded>0">
+                                <td>To Be Refunded</td>
+                                <td class=" drhms-currency-align">
+                                    {{currentcontext.ToBeRefunded || 0 | displaycurrency}}</td>
+                            </tr>
+                            <tr>
+                                <td>Net Amount</td>
+                                <td class="drhms-currency-align drhms-special-count">
+                                    {{currentcontext.TotNetAmount | displaycurrency}}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Balance</td>
+                                <td class="drhms-currency-align drhms-special-count">
+                                    {{currentcontext.TotBalanceAmt | displaycurrency}}
+                                </td>
+                            </tr>
+                            <tr ng-if="item.GuarantorTypeId >1 && item.AdmissionStatusId > 5">
+                                <td>Patient Balance</td>
+                                <td class="drhms-currency-align drhms-special-count">
+                                    {{currentcontext.PatOutstandingAmt | displaycurrency}}
+                                </td>
+                            </tr>
+                            <tr ng-if="item.GuarantorTypeId >1 && item.AdmissionStatusId > 5">
+                                <td>TDS Amount</td>
+                                <td class="drhms-currency-align drhms-special-count">
+                                    {{currentcontext.TDSAmount | displaycurrency}}
+                                </td>
+                            </tr>
+                            <tr ng-if="item.GuarantorTypeId >1 && item.AdmissionStatusId > 5">
+                                <td>DisAllowed</td>
+                                <td class="drhms-currency-align drhms-special-count">
+                                    {{currentcontext.Disallowed | displaycurrency}}
+                                </td>
+                            </tr>
+                            <tr ng-if="item.GuarantorTypeId >1 && item.AdmissionStatusId > 5 && moudiscount == 0">
+                                <td>MOU Discount</td>
+                                <td class="drhms-currency-align drhms-special-count">
+                                    {{currentcontext.AgreementDiscountAmt| displaycurrency}}
+                                </td>
+                            </tr>
+                            <tr ng-if="item.GuarantorTypeId >1 && moudiscount == 1">
+                                <td>MOU Discount</td>
+                                <td class="drhms-currency-align drhms-special-count">
+                                    {{currentcontext.AgreementDiscountAmt| displaycurrency}}
+                                </td>
+                            </tr>
+                            <!-- <tr ng-if="item.GuarantorTypeId >1 && item.IsBillLock">
+                                                        <td>Credit Note</td>
+                                                        <td class="">
+                                                            <input type="text" class="form-control" ng-model="item.CreditNote" ng-change="calcFinaldue(item)">
+                                                    </tr>
+                                                    <tr ng-if="item.GuarantorTypeId >1 && item.IsBillLock">
+                                                        <td>Sec. Gurantor</td>
+                                                        <td class="">
+                                                            <input type="text" class="form-control" ng-model="item.Secondarygurantor" ng-change="calcFinaldue(item)">
+                                                    </tr>
+                                                    <tr ng-if="item.GuarantorTypeId >1 && item.IsBillLock">
+                                                        <td>Final Due</td>
+                                                        <td class="drhms-currency-align">
+                                                            {{currentcontext.FinalDue| displaycurrency}} </td>
+                                                    </tr> -->
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-12">
+            <div class="form-group col-sm-2">
+                <div class="col-sm-3">
+                    <label class="switch">
+                        <input type="checkbox" id="patientBill" ng-model="item.PatientBill" ng-change="checkbill(1)">
+                        <span class="slider round"></span>
+                    </label>
+                </div>
+                <label class="col-sm-9" for="header" id="nameswap">Patient Bill</label>
+            </div>
+            <div class="form-group col-sm-2">
+                <div class="col-sm-2">
+                    <input type="checkbox" id="withheader" class="custom-checkbox" ng-model="item.WithHeader"
+                        ng-change="checkHeader(1)">
+                </div>
+                <label class="col-sm-10 mt-10" for="header" translate="With Header"></label>
+            </div>
+            <div class="form-group col-sm-2">
+                <div class="col-sm-2">
+                    <input type="checkbox" id="withoutheader" class="custom-checkbox" ng-model="item.WithoutHeader"
+                        ng-change="checkHeader(2)">
+                </div>
+                <label class="col-sm-10 mt-10" for="header" translate="WithOut Header"></label>
+            </div>
+            <div class="form-group col-sm-2" ng-if="EncounterInfo.GuarantorId > 1">
+                <div class="col-sm-2">
+                    <input type="checkbox" name="nonmedical" class="custom-checkbox" ng-model="item.NonMedical">
+                </div>
+                <label class="col-sm-10 mt-10" for="" translate="Non Medical"></label>
+            </div>
+            <div class="form-group col-sm-2">
+                <div class="col-sm-2">
+                    <input type="checkbox" name="BothBill" class="custom-checkbox" ng-model="item.BothBill">
+                </div>
+                <label class="col-sm-10 mt-10" for="" translate="Both Bills"></label>
+            </div>
+            <div class="form-group col-sm-2">
+                <div class="col-sm-2">
+                    <input type="checkbox" name="DrugBill" class="custom-checkbox" ng-model="item.DrugBill">
+                </div>
+                <label class="col-sm-10 mt-10" for="" translate="PhamacyBreakUp"></label>
+            </div>
+        </div>
+
+        <!-- <div class="col-sm-12 pd0">
+            <div class="form-group col-sm-2 pd0">
+                <label class="col-sm-12 pd0" for="header" translate="With Header"></label>
+                <input type="checkbox" id="withheader" class="custom-checkbox" ng-model="item.WithHeader"
+                    ng-change="checkHeader(1)">
+            </div>
+            <div class="form-group col-sm-2 pd0">
+                <label class="col-sm-12 pd0" for="header" translate="WithOut Header"></label>
+                <input type="checkbox" id="withoutheader" class="custom-checkbox" ng-model="item.WithoutHeader"
+                    ng-change="checkHeader(2)">
+            </div>
+            <div class="form-group col-sm-2 pd0">
+                <label class="col-sm-12 pd0" for="" translate="With Payments"></label>
+                <input type="checkbox" name="withpayment" class="custom-checkbox" ng-model="item.WithPayments">
+            </div>
+
+        </div> -->
+        <div class="col-sm-12 pd0">
+            <div class="form-group col-sm-6 pd0">
+                <label class="col-sm-12 pd0" for="" translate="billing.receipt-form.remarks.lbl"></label>
+                <textarea type="text" class="form-control" tabindex="-1" name="remarks" uib-tooltip="{{item.Comments}}"
+                    tooltip-placement="bottom" ng-disabled="IsDue" ng-model="item.Comments"
+                    ng-disabled="isFinalized"></textarea>
+            </div>
+        </div>
+        </form>
+    </div>
+    <!-- <div class="col-sm-12 pd0">
+        <div class="form-group col-sm-6 pd0">
+            <label class="col-sm-12 pd0" for="" translate="billing.receipt-form.remarks.lbl"></label>
+            <textarea type="text" class="form-control" tabindex="-1" name="remarks" uib-tooltip="{{item.Comments}}"
+                tooltip-placement="bottom" ng-disabled="IsDue" ng-model="item.Comments"
+                ng-disabled="isFinalized"></textarea>
+        </div>
+    </div>
+    </form> -->
+</div>
+<div class="fooder-bgs">
+    <div class="row">
+        <div class="pull-left">
+            <button type="button" class="drhms-common-back-btn pull-left" ng-click="backToList()">
+                <i class="fa fa-angle-left" aria-hidden="true"></i>&nbsp;&nbsp;
+                <span class="btn-fontsize" translate="common.backaction.lbl"></span>
+            </button>
+            <button type="button" class="drhms-common-btn" tabindex="-1" ng-click="print7()"
+                ng-hide="currentfilter.isdaycare" ng-if="HasAccess('IPBILLING_SUMMARY','IPSUM_PHARMACY')"
+                ng-hide="currentfilter.isdaycare">
+                <span>Pharmacy</span>&nbsp;&nbsp;&nbsp;
+                <i class="fa fa-print" aria-hidden="true"></i>
+            </button>
+            <button type="button" class="drhms-common-btn" tabindex="-1"  ng-show="item.AdmissionStatusId === 4 || item.AdmissionStatusId === 5 || item.AdmissionStatusId === 6 || currentfilter.isdaycare"
+                ng-click="printDischargeSlip()">
+                <span>DischargeSlip</span>&nbsp;&nbsp;&nbsp;
+                <i class="fa fa-print" aria-hidden="true"></i>
+            </button>
+            <ul class="nav navbar-nav" id="print">
+                <li uib-dropdown="" class="dropdown dropdown-list custom-li">
+                    <button uib-dropdown-toggle="" class="drhms-common-btn"
+                        ng-if="HasAccess('IPBILLING_SUMMARY','IPSUM_PRINT')">
+                        <span translate="common.printaction.lbl"></span>&nbsp;&nbsp;&nbsp;
+                        <i class="fa fa-print" aria-hidden="true"></i>
+                    </button>
+                    <!-- <button type="button" tabindex="-1" class="drhms-common-btn" translate="OT Pharmacy"
+                        ng-hide="currentfilter.isdaycare" Fng-click="otpharmacyprint()"></button> -->
+                    <ul class="dropdown-menu top" role="menu" aria-labelledby="dLabel">
+                        <li ng-if="HasAccess('IPBillingPrintpreviewlink','IPBillsummaryPrint_Btn')">
+                            <a ng-hide="EncounterInfo.IsPackageAssigned" class="" ng-click="print()">
+                                <span>
+                                    <i class="fa fa-angle-right" aria-hidden="true"></i>
+                                </span>&nbsp;&nbsp;&nbsp;
+                                <span translate="billing.receipt-form.billsummary.lbl"></span>
+                            </a>
+                        </li>
+                        <li ng-if="HasAccess('IPBillingPrintpreviewlink','IPBillDetailPrint_Btn')">
+                            <a ng-hide="EncounterInfo.IsPackageAssigned" ng-click="print2()">
+                                <span>
+                                    <i class="fa fa-angle-right" aria-hidden="true"></i>
+                                </span>&nbsp;&nbsp;&nbsp;
+                                <span translate="billing.receipt-form.billdetails.lbl"></span>
+                            </a>
+                        </li>
+                        <li ng-if="HasAccess('IPBillingPrintpreviewlink','IPPackagedetailsPrint_Btn')">
+                            <a ng-show="EncounterInfo.IsPackageAssigned" ng-click="printPackageDetails()">
+                                <span>
+                                    <i class="fa fa-angle-right" aria-hidden="true"></i>
+                                </span>&nbsp;&nbsp;&nbsp;
+                                <span translate="billing.receipt-form.packagedetails.lbl"></span>
+                            </a>
+                        </li>
+                        <li ng-if="HasAccess('IPBillingPrintpreviewlink','IPPackageInclusionPrint_Btn')">
+                            <a ng-show="EncounterInfo.IsPackageAssigned" ng-click="printIncPackageDetails()">
+                                <span>
+                                    <i class="fa fa-angle-right" aria-hidden="true"></i>
+                                </span>&nbsp;&nbsp;&nbsp;
+                                <span translate="Package Inclusion Details"></span>
+                            </a>
+                        </li>
+                        <li ng-if="HasAccess('IPBillingPrintpreviewlink','IPDailywisePrint_Btn')">
+                            <a ng-click="dailyprint()">
+                                <span>
+                                    <i class="fa fa-angle-right" aria-hidden="true"></i>
+                                </span>&nbsp;&nbsp;&nbsp;
+                                <span translate="billing.receipt-form.dailywise.lbl"></span>
+                            </a>
+                        </li>
+                        <li ng-if="HasAccess('IPBillingPrintpreviewlink','IPNonMedicalPrint_Btn')">
+                            <a ng-click="printnonmedical()">
+                                <span>
+                                    <i class="fa fa-angle-right" aria-hidden="true"></i>
+                                </span>&nbsp;&nbsp;&nbsp;
+                                <span translate="Non-Medical"></span>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+            <button type="button" class="drhms-common-btn" ng-click="excelDownload()" uib-tooltip="Excel" tooltip-placement="bottom">Excel <i class="icofont-file-excel" ng-click="excelDownload()"></i></button>
+        </div>
+        <div class="pull-right">
+            <button type="button" class="drhms-common-btn" ng-click="patientDischarge()" style="background: #e91010;"
+                ng-if="item.AdmissionStatusId == 5  && !candisabledischargebtn && HasAccess('IPBILLING_SUMMARY','IPSUM_DISCHARGE')">Discharge</button>
+            <!-- <button type="button" class="drhms-common-btn" ng-show="!canShowSaveBtn&&item.IsBillLock" ng-click="saveAndApprove()" ng-if="HasAccess('IPBILLING_SUMMARY','IPSUM_FINALIZE')">Finalize</button> -->
+            <button type="button" class="drhms-common-btn" ng-show="!isFinalized&&item.IsBillLock"
+                style="background: #e91010;" ng-click="saveAndApprove()"
+                ng-if="HasAccess('IPBILLING_SUMMARY','IPSUM_FINALIZE')">Finalize</button>
+        </div>
+    </div>
+</div>

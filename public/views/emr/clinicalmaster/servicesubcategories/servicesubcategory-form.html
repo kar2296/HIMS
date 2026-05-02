@@ -1,0 +1,174 @@
+<style>
+.grid-height{
+    height :200px !important;
+}
+.formRoot{height:313px !important;}
+.modal-content .panel-body{margin:5px;}
+    .page-header{margin:0px !important;}
+    .nav > li.disabled > a:hover,
+    .nav > li.disabled > a:focus {
+        color: #000000 !important;
+        text-decoration: none;
+        background-color: #3c5a76;
+        cursor: not-allowed;
+    }
+    .bg-subhead{ background-color: #597a9a;
+    color: #fff;
+    font-size: 14px;
+}
+    .nav-tabs > li.active > a,
+    .nav-tabs > li.active > a:hover {
+        color: #000000 !important;
+        border-bottom-color: #fff;
+        background-color: #3c5a76 !important;
+    }
+    .nav-tabs > li > a {
+    padding: 4px 15px;
+}
+.mt0{margin-top:-3px !important;}
+</style>
+<div class="modal-header custom-modal-header">
+    <h4 class="modal-title custom-modal-title" translate="clinicalmaster.servicesubcategory-form.pagetitle.lbl"></h4>
+</div>
+<div class="row mt0">
+    <div class="col-sm-12">
+         <uib-tabset active="active">
+            <uib-tab index="$index" ng-repeat="tab in tabs" heading="{{tab.title}}" ng-click="switchTab(tab)">
+            </uib-tab>
+        </uib-tabset>
+        <div class="formRoot">
+            <div class="panel panel-default bg-pattern">
+                <div class="panel-body form-panel">
+                    <div class="col-sm-12 well">
+		<div ng-show="currentcontext.selectedtab == 'details'">
+                  <div class="form-group">
+                        <label class="col-sm-4 control-label" translate="clinicalmaster.servicesubcategory-form.isdiagnosismandatory.lbl"></label>
+                    <div class="col-sm-8">
+                        <input type="checkbox" name="isdiagnosismandatory" class="custom-checkbox"
+                     ng-model="item.IsDiagnosisMandatory" >
+                    </div>
+                </div>
+                  <div class="form-group">
+                        <label class="col-sm-4 control-label" translate="clinicalmaster.servicesubcategory-form.isgeneratecpinvoice.lbl"></label>
+                    <div class="col-sm-8">
+                        <input type="checkbox" name="isgeneratecpinvoice" class="custom-checkbox"
+                     ng-model="item.IsGenerateDoctorInvoice" >
+                    </div>
+                </div>
+                  <div class="form-group">
+                        <label class="col-sm-4 control-label" translate="clinicalmaster.servicesubcategory-form.careprovidermandatory.lbl"></label>
+                    <div class="col-sm-8">
+                        <input type="checkbox" name="careprovidermandatory" class="custom-checkbox"
+                     ng-model="item.IsDoctorMandatory" >
+                    </div>
+                </div>
+                  <div class="form-group">
+                        <label class="col-sm-4 control-label" translate="clinicalmaster.servicesubcategory-form.showpopupwhileorder.lbl"></label>
+                    <div class="col-sm-8">
+                        <input type="checkbox" name="showpopupwhileorder" class="custom-checkbox"
+                     ng-model="item.ShowPopUpWhileOrder" >
+                    </div>
+                </div>
+                  <div class="form-group">
+                        <label class="col-sm-4 control-label" translate="clinicalmaster.servicesubcategory-form.showduplicateentry.lbl"></label>
+                    <div class="col-sm-8">
+                        <input type="checkbox" name="showduplicateentry" class="custom-checkbox"
+                     ng-model="item.ShowDuplicateEntry" >
+                    </div>
+                </div>
+                  <div class="form-group">
+                        <label class="col-sm-4 control-label" translate="clinicalmaster.servicesubcategory-form.showrefusetobuy.lbl"></label>
+                    <div class="col-sm-8">
+                        <input type="checkbox" name="showrefusetobuy" class="custom-checkbox"
+                     ng-model="item.ShowRefuseToBuy" >
+                    </div>
+                </div>
+        </div>
+        <div ng-show="currentcontext.selectedtab == 'priority'">
+            <div class="row filter-area">
+                <div class="col-sm-12 padding-top-10">
+                    <div class="col-sm-3">
+                        <label class="col-sm-4 control-label text-right" for="prioirtycmb" translate="clinicalmaster.servicesubcategory-form.priority.lbl"></label>
+                        <div class="col-sm-8">
+                            <ui-select ng-model="currentPriority.PriorityId" name="prioritycmb">
+                                <ui-select-match>
+                                    {{$select.selected.Text | limitTo : 8 : 0}}
+                                    <span ng-if="$select.selected.Text.length>8">...</span>
+                                </ui-select-match>
+                                <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.OrderPriority | filter: { Text: $select.search }">
+                                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                </ui-select-choices>
+                            </ui-select>
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <label class="col-sm-4 control-label text-right" for="trunaroundtime"  translate="clinicalmaster.servicesubcategory-form.turnaroundtime.lbl"></label>
+                        <div class="col-sm-7">
+                            <input type="text" class="form-control" name="trunaroundtime" ng-model="currentPriority.TurnAroundTime" 
+                                        translate translate-attr-placeholder="clinicalmaster.servicesubcategory-form.turnaroundtime.lbl">
+                        </div>
+                    </div>
+                    <div class="col-sm-3">
+                        <label class="col-sm-5 control-label text-right" translate="clinicalmaster.servicesubcategory-form.duration.lbl"></label>
+                        <div class="col-sm-7">
+                            <ui-select ng-model="currentPriority.TurnAroundTimePeriodId">
+                                <ui-select-match>
+                                    {{$select.selected.Text | limitTo : 8 : 0}}
+                                    <span ng-if="$select.selected.Text.length>8">...</span>
+                                </ui-select-match>
+                                <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.DurationPeriod | filter: { Text: $select.search }">
+                                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                </ui-select-choices>
+                            </ui-select>
+                        </div>
+                    </div>
+                    <div class="col-sm-2">
+                        <button class="btn bt-color2 btn-xs pull-right btn-filter" ng-click="addPriority()"
+                                    uib-tooltip="{{'clinicalmaster.servicesubcategory-form.addnew-tooltip.lbl' | translate }}" tooltip-placement="bottom">
+                            <i class="fa fa-plus" aria-hidden="true"></i><span translate="lis.containertypes.addnew.lbl"></span></button>
+                    </div>
+                </div>
+            </div>
+       <div class="col-sm-12 grid-height">
+            <table class="editable-table table-striped table-bordered">
+                <thead class="bg-subhead">
+                    <tr>
+                        <th class="col-sm-4"><span translate="clinicalmaster.servicesubcategory-form.priority.lbl"></span></th>
+                        <th class="col-sm-4"><span translate="clinicalmaster.servicesubcategory-form.turnaroundtime.lbl"></span></th>
+                        <th class="col-sm-4"><span translate="common.actions_col.lbl"></span></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="idx in item.Priorities | filter:{Status:1}">
+                        <td>
+                            <span>
+                            {{idx.Priority}}    
+                            </span>
+                        </td>
+                         <td>
+                            <span>
+                            {{idx.TurnAroundTime}}<span>&nbsp;</span><span>{{idx.TurnAroundTimePeriod}}</span>    
+                            </span>
+                        </td>
+                        <td>
+                            <button class="drhms-edit-button" ng-click="deleteItem($index,idx)">
+                                <img src="assets/svg/delete.svg" alt="">
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+                </table>
+            </div>
+        </div>
+                </div>  
+                </div>
+        </div>
+        </div>
+         <div class="fooder-bg formactionbar">
+                <div class="pull-right">
+                    <button type="button" ng-click="saveItem()" ng-show="currentcontext.button" class="draftbutton" translate="common.doneaction.lbl"></button>
+                    <button id="btnCancelForm" type="button" class="draftbutton" ng-click="cancelCallback()" translate="common.cancelaction.lbl"></button>						
+                </div>
+            </div>
+    </div>
+</div>

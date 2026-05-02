@@ -1,0 +1,143 @@
+<style>
+    button.draftbutton {
+        margin-top: 30px;
+    }
+</style>
+<div class="row">
+    <form id="item_form" name="item_form" class="form-horizontal" role="form">
+        <div class="col-sm-2">
+            <label class="col-sm-12" translate="billing.pharmacy-billdetails.fromdate.lbl"></label>
+            <div class="col-sm-12">
+                <input type="text" class="form-control" name="FromBillDate" ng-date-object
+                    datetime-picker="{{datePickerOptions.dateTimeFormat}}" datepicker-append-to-body="true"
+                    placeholder="{{datePickerOptions.placeholder}}" ng-click="FromBillDatePopup = { opened: true }"
+                    is-open="FromBillDatePopup.opened" ng-model="currentfilter.FromBillDate">
+            </div>
+        </div>
+        <div class="col-sm-2">
+            <label class="col-sm-12" translate="billing.pharmacy-billdetails.todate.lbl"></label>
+            <div class="col-sm-12">
+                <input type="text" class="form-control" name="ToBillDate" ng-date-object
+                    datetime-picker="{{datePickerOptions.dateTimeFormat}}" datepicker-append-to-body="true"
+                    placeholder="{{datePickerOptions.placeholder}}" ng-click="ToBillDatePopup = { opened: true }"
+                    is-open="ToBillDatePopup.opened" ng-model="currentfilter.ToBillDate">
+            </div>
+        </div>
+
+        <div class="col-sm-2">
+            <label class="col-sm-12" translate="Receipt Number"></label>
+            <div class="col-sm-12">
+                <input type="text" tabindex="-1" class="form-control" ng-model="currentfilter.ReceiptNumber"
+                    placeholder="">
+            </div>
+        </div>
+        <div class="col-sm-2">
+            <label class="col-sm-12" translate="billing.opbilling-list.patientsearch.lbl"></label>
+            <div class="col-sm-12">
+                <patientsearch controlid="'pid'" patientid="currentfilter.PatientId" name="txtpatientsearch" patientinfo="selectedPatient"
+                    isdisabled="" filterconfig="patientfilterconfig"></patientsearch>
+            </div>
+        </div>
+
+        <div class="col-sm-2">
+            <div class="col-sm-12">
+                <button class="draftbutton" ng-click="getList()">
+                    <span translate="Fetch"></span>
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+<div class="row">
+    <form id="item_form" name="item_form" class="form-horizontal" role="form">
+        <div class="drhms-table-control">
+            <div class="drhms-bg-pattern">
+                <div class="drhms-table-height">
+                    <table class="drhms-responsive-table">
+                        <thead class="bg-subhead" ng-if="PaymentDetails">
+                            <tr>
+                                <th>
+                                    <span translate="billing.paymodechange.billdate.lbl"></span>
+                                </th>
+                                <th>
+                                    <span translate="billing.paymodechange.receiptno.lbl"></span>
+                                </th>
+                                <th>
+                                    <span translate="billing.paymodechange.patientname.lbl"></span>
+                                </th>
+                                <th>
+                                    <span translate="billing.paymodechange.doctor.lbl"></span>
+                                </th>
+                                <th>
+                                    <span translate="billing.paymodechange.cash.lbl"></span>
+                                </th>
+                                <th>
+                                    <span translate="billing.paymodechange.card.lbl"></span>
+                                </th>
+                                <th>
+                                    <span translate="billing.paymodechange.chequeothers.lbl"></span>
+                                </th>
+                                <th>
+                                    <span translate="billing.paymodechange.status.lbl"></span>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="PaymentDetail in PaymentDetails">
+                                <td class="text-left">
+                                    <span>
+                                        {{PaymentDetail.ReceiptDateTime | date : 'dd/MMM/yyyy' }}&nbsp;
+                                        {{PaymentDetail.ReceiptDateTime | date:'HH:mm'}}
+                                    </span>
+                                </td>
+                                <td class="text-left">
+                                    <span> {{ PaymentDetail.ReceiptNumber }}</span>
+                                </td>
+                                <td class="text-left">
+                                    <span> {{ PaymentDetail.Patient.MRN }}
+                                        {{ PaymentDetail.Patient.FirstName }}</span>
+                                    <span ng-if="PaymentDetail.EncounterTypeId == 2"> IP </span>
+                                    <span ng-if="PaymentDetail.EncounterTypeId != 2"> OP </span>
+                                </td>
+                                <td class="text-left">
+                                    <span> {{ PaymentDetail.PatientBill.DoctorName }}</span>
+                                </td>
+                                <td class="text-right">
+                                    <span ng-if="PaymentDetail.PaymentTypeId==1">{{ PaymentDetail.AmountPaid |
+                                        displaycurrency }}</span>
+                                    <span ng-if="PaymentDetail.PaymentTypeId!=1">{{ 0 | displaycurrency }}</span>
+                                </td>
+                                <td class="text-right">
+                                    <span ng-if="PaymentDetail.PaymentTypeId==5 || PaymentDetail.PaymentTypeId==6">
+                                        {{ PaymentDetail.AmountPaid | displaycurrency }}</span>
+                                    <span ng-if="PaymentDetail.PaymentTypeId!=5 && PaymentDetail.PaymentTypeId!=6">
+                                        {{ 0 | displaycurrency }}</span>
+                                </td>
+                                <td class="text-right">
+                                    <span ng-if="PaymentDetail.PaymentTypeId!=1 &&
+                                    PaymentDetail.PaymentTypeId!=5 && PaymentDetail.PaymentTypeId!=6">
+                                        {{ PaymentDetail.AmountPaid | displaycurrency }}</span>
+                                    <span ng-if="PaymentDetail.PaymentTypeId==1 ||
+                                    PaymentDetail.PaymentTypeId==5 || PaymentDetail.PaymentTypeId==6">
+                                        {{ 0 | displaycurrency }}</span>
+                                </td>
+                                <td>
+                                    <button type="button" class="drhms-edit-button"
+                                        ng-click="paymodechange(PaymentDetail)">
+                                        <img src="assets/svg/edit.svg" alt="">
+                                    </button>
+                                    <button type="button" class="drhms-edit-button"
+                                        ng-click="paymodechangeprint(PaymentDetail)">
+                                        <i class="fa fa-print"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+<div class="fooder-bgs">
+</div>

@@ -1,0 +1,262 @@
+<style>
+    .page-header h4 {
+        height: 19px;
+        padding-left: 13px;
+    }
+
+    .table-uigrid {
+        height: 406px!important;
+    }
+
+    .ui-grid-render-container-body .ui-grid-viewport {
+        /* height: 420px !important; */
+        height:62vh;min-height:62vh;
+    }
+
+    .autosearch-div .custom-popup-wrapper>.dropdown-menu {
+        max-height: 150px !important;
+    }
+
+    .table-uigrid.ui-grid .ui-grid-cell-contents {
+        padding: 0px 13px;
+    }
+
+    /* @media (device-width:100vw) and (device-height:100vh) {
+        .ui-grid-render-container-body .ui-grid-viewport {
+            height: 560px !important;
+        }
+    } */
+
+    /* @media (min-height: 637px) and (min-width: 1200px) {
+        .ui-grid-viewport {
+            height: 382px !important;
+            min-height: 435px;
+        }
+    } */
+
+    /* @media (min-height: 675px) and (min-width: 1360px) {
+        .ui-grid-viewport {
+            height: 440px;
+            min-height: 470px;
+        }
+    } */
+
+    @media (device-height:100vh) and (device-width:100vw) {
+        .ui-grid-render-container-body .ui-grid-viewport  {
+            /* min-height: 520px; */
+            height:67vh;min-height:67vh;
+        }
+    }
+
+    #stockstatus .table-uigrid {
+        height: 433px !important;
+    }
+
+    .custom_grid {
+        height: 435px !important;
+
+    }
+
+    .aside-collapsed .fooder-bg {
+        width: 100% !important;
+    }
+
+    .fooder-bg {
+        width: 87% !important;
+    }
+
+    .well.total_footer {
+        background: #b7a448c2 !important;
+        background-image: none;
+        color: #000;
+    }
+
+    /* .grid1515665054949 .ui-grid-render-container-body .ui-grid-viewport {
+        height: 400px;
+    }
+
+    .grid1505807204102 .ui-grid-render-container-body .ui-grid-viewport {
+        height: 385px !important;
+    } */
+
+    .total_footer {
+        position: fixed;
+        bottom: 5.5%;
+        width: 86%;
+        height: 0px !important;
+    }
+
+    .col-sm-4.count {
+        margin-top: -11px;
+        margin-left: 64px;
+    }
+</style>
+
+<div class="row page-header">
+    <div class="col-sm-12">
+        <h4 class="page-header mt0" translate="ordermanagement.ordertat-list.pagetitle.lbl"></h4>
+    </div>
+</div>
+<div class="row filter-area">
+    <div class="col-sm-12">
+        <div class="col-sm-3">
+            <label class="col-sm-4 control-label filter-lbl" translate="admissionrequests.filter_name_mrn.lbl"></label>
+            <div class="col-sm-8">
+                <input type="text" class="form-control" name="filter_patient" on-enter="getList()" ng-model="currentfilter.PatientMRN" translate
+                    translate-attr-placeholder="ordermanagement.ordertat-list.filter_patient.lbl">
+            </div>
+        </div>
+        <div class="col-sm-3">
+            <label class="col-sm-5 control-label filter-lbl" translate="ordermanagement.ordertat-list.From.lbl"></label>
+            <div class="col-sm-7">
+                <input type="text" class="form-control" name="registereddate" ng-change="getList()" datepicker-options="datePickerOptions"
+                    show-button-bar="{{datePickerOptions.showButtonBar}}" uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                    placeholder="{{datePickerOptions.placeholder}}" ng-click="registereddatePopup = { opened: true }" is-open="registereddatePopup.opened"
+                    ng-model="currentfilter.orderedon">
+            </div>
+        </div>
+        <div class="col-sm-3">
+            <label class="col-sm-5 control-label filter-lbl" translate="patientemr.patientorder-list.number.lbl"></label>
+            <div class="col-sm-7">
+                <input type="text" class="form-control" name="filter_patient" on-enter="getList()" ng-model="currentfilter.PatientOrderId"
+                    translate translate-attr-placeholder="patientemr.patientorder-list.number.lbl">
+            </div>
+        </div>
+        <div class="col-sm-3">
+            <label class="col-sm-6 control-label filter-lbl pdl0" translate="appmanager.user.subdepartment.lbl"></label>
+            <div class="col-sm-6">
+                <ui-select ng-model="currentfilter.SubDepartmentId" ng-change="getList()" class="filter-combo" ng-disabled="SubdeptDisable">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 8 : 0}}
+                        <span ng-if="$select.selected.Text.length>8">...</span>
+                    </ui-select-match>
+                    <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.SubDepartment | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-12">
+        <div class="col-sm-3">
+            <label class="col-sm-4 control-label filter-lbl" translate="ordermanagement.ordertat-list.To.lbl"></label>
+            <div class="col-sm-8">
+                <input type="text" class="form-control" name="dobdate" ng-change="getList()" datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}"
+                    uib-datepicker-popup="{{datePickerOptions.dateFormat}}" placeholder="{{datePickerOptions.placeholder}}" ng-click="dobdatePopup = { opened: true }"
+                    is-open="dobdatePopup.opened" ng-model="currentfilter.acceptedon">
+            </div>
+
+        </div>
+        <div class="col-sm-3">
+            <label class="col-sm-5 control-label filter-lbl" translate="ordermanagement.ordertat-list.filter_testname.lbl"></label>
+            <div class="col-sm-7">
+                <autosearch itemid="currentfilter.TestId" iteminfo="" rowdata="" name="'testid'" config="vm.testcontrolconfig" itemchange="getList()"
+                    isrequired="true"></autosearch>
+            </div>
+        </div>
+        <div class="col-sm-3" ng-if="currentfilter.TestTypeId==1">
+            <label class="col-sm-5 control-label" for="approvedby">
+                <span translate="Approved By"></span>
+            </label>
+            <div class="col-sm-7">
+                <ui-select ng-model="currentfilter.Approvedbyid" name="approvedby" ng-change="getList()">
+                    <ui-select-match>
+                        <span ng-if="$select.selected.Id==-1">{{$select.selected.Text | limitTo : 8 : 0}}</span>
+                        <span ng-if="$select.selected.Id!=-1">{{$select.selected.Title.Description}}&nbsp;{{$select.selected.FirstName}}&nbsp;{{$select.selected.LastName
+                            | limitTo : 10: 0}}</span>
+                        <span ng-if="$select.selected.Text.length>20">...</span>
+                    </ui-select-match>
+                    <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.LabIncharge | filter: { Text: $select.search }">
+                        <div ng-if="lookupitem.Id==-1">
+                            <span ng-bind-html="lookupitem.Text | highlight: $select.search"></span>
+                        </div>
+                        <div ng-if="lookupitem.Id!=-1">
+                            <span>{{lookupitem.Title.Description}}</span>
+                            <span ng-bind-html="lookupitem.FirstName | highlight: $select.search"></span>
+                            <span>{{lookupitem.LastName}}</span>
+                        </div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+        <div class="col-sm-3" ng-if="currentfilter.TestTypeId==2">
+            <label class="col-sm-5 control-label pdl0" for="approvedby">
+                <span translate="Approved By"></span>
+            </label>
+            <div class="col-sm-7">
+                <ui-select ng-model="currentfilter.Approvedbyid" name="approvedby" ng-change="getList()">
+                    <ui-select-match>
+                        <span ng-if="$select.selected.Id==-1">{{$select.selected.Text | limitTo : 8 : 0}}</span>
+                        <span ng-if="$select.selected.Id!=-1">{{$select.selected.Title.Description}}&nbsp;{{$select.selected.FirstName}}&nbsp;{{$select.selected.LastName
+                            | limitTo : 10: 0}}</span>
+                        <span ng-if="$select.selected.Text.length>20">...</span>
+                    </ui-select-match>
+                    <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.RadiologyIncharge | filter: { Text: $select.search }">
+                        <div ng-if="lookupitem.Id==-1">
+                            <span ng-bind-html="lookupitem.Text | highlight: $select.search"></span>
+                        </div>
+                        <div ng-if="lookupitem.Id!=-1">
+                            <span>{{lookupitem.Title.Description}}</span>
+                            <span ng-bind-html="lookupitem.FirstName | highlight: $select.search"></span>
+                            <span>{{lookupitem.LastName}}</span>
+                        </div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+        <div class="col-sm-3" ng-if="currentfilter.TestTypeId==3">
+            <label class="col-sm-5 control-label" for="approvedby">
+                <span translate="Approved By"></span>
+            </label>
+            <div class="col-sm-7">
+                <ui-select ng-model="currentfilter.Approvedbyid" name="approvedby" ng-change="getList()">
+                    <ui-select-match>
+                        <span ng-if="$select.selected.Id==-1">{{$select.selected.Text | limitTo : 8 : 0}}</span>
+                        <span ng-if="$select.selected.Id!=-1">{{$select.selected.Title.Description}}&nbsp;{{$select.selected.FirstName}}&nbsp;{{$select.selected.LastName
+                            | limitTo : 10: 0}}</span>
+                        <span ng-if="$select.selected.Text.length>20">...</span>
+                    </ui-select-match>
+                    <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.EndoscopyIncharge | filter: { Text: $select.search }">
+                        <div ng-if="lookupitem.Id==-1">
+                            <span ng-bind-html="lookupitem.Text | highlight: $select.search"></span>
+                        </div>
+                        <div ng-if="lookupitem.Id!=-1">
+                            <span>{{lookupitem.Title.Description}}</span>
+                            <span ng-bind-html="lookupitem.FirstName | highlight: $select.search"></span>
+                            <span>{{lookupitem.LastName}}</span>
+                        </div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="im_stkstshg">
+    <div class="container-fluid im_stockstatus" id="stockstatus">
+        <div ui-grid="vm.gridConfig" class="table-uigrid custom_grid "></div>
+        <div class=" col-sm-12 footerbar pd0">
+            <div class="col-sm-12 well total_footer">
+                <div class="col-sm-7 ">
+                </div>
+                <div class="col-sm-4 count">
+                    <div class="col-sm-6 text-right">
+                        <label class="control-label" for="totalcount">Total Order Count</label>
+                    </div>
+                    <div class="col-sm-6">
+                        <input type="text" class="form-control" name="totalcount" ng-model="TotalOrderCount" placeholder="0.00" id="disabledInput"
+                            disabled>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="fooder-bg custom_stock_footer">
+    <div class=" col-sm-12">
+        <div class=" col-sm-11">
+            <ul uib-pagination total-items="vm.gridConfig.pagerObj.totalItems" items-per-page="vm.gridConfig.pagerObj.pageSize" start-index="vm.gridConfig.pagerObj.startIndex"
+                ng-model="vm.gridConfig.pagerObj.currentPage" ng-change="getList()"></ul>
+        </div>
+    </div>
+</div>

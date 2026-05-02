@@ -1,0 +1,257 @@
+<link href="app/css/billing-pharmacy-customs.css" rel="stylesheet">
+<style>
+    .table {
+        margin-bottom: 1px;
+
+    }
+
+    input[type=text] {
+        margin-bottom: 2px;
+    }
+
+    /* .fsStyle .form-group {
+        margin-bottom: 2px !important;
+    } */
+
+
+    .page-header h4 {
+        padding-top: 2px;
+        padding-left: 9px;
+    }
+
+    .padding-top1 {
+        padding-top: 2px;
+    }
+
+    .filter-area {
+        margin: 3px 11px 3px !important;
+        box-shadow: 1px 9px 10px -13px rgba(0, 0, 0, .75);
+        padding-bottom: 7px;
+    }
+
+    .autosearch-div>input,
+    .form-group patientsearch.logo {
+        background-size: 12.7% !important;
+    }
+
+    #mainresponsivetablecontrol>.table>tbody>tr:nth-child(1)>td>autosearch>.autosearch-div>.custom-popup-wrapper>.dropdown-menu {
+        background-color: rgba(245, 249, 238, 0) !important;
+        border: 0px solid #ccc !important;
+    }
+
+    #pmrmaster .formRoot {
+        height: 303px !important;
+    }
+
+    #pmrmaster .table-control {
+        overflow: auto;
+    }
+
+    .aside-collapsed .fooder-bg {
+        position: sticky;
+        bottom: 0;
+        width: 99.5% !important;
+    }
+
+    .fooder-bg {
+        width: 87%;
+        text-align: center;
+        margin: 0px auto;
+        bottom: 0;
+    }
+
+    .aside-collapsed .fooder-bg {
+        position: sticky;
+        bottom: 0;
+        width: 97.5% !important;
+    }
+
+    .pull-left {
+        padding-left: 1% !important;
+    }
+
+    #mainresponsivetablecontrol>.table>tbody>tr>td>autosearch>.autosearch-div>.custom-popup-wrapper>.dropdown-menu {
+        overflow-x: hidden;
+    }
+
+    table.table.table-bordered.table-condensed.dropdown-menu {
+        height: auto !important;
+    }
+
+
+
+    .footerbar {
+        margin-top: 0px;
+    }
+
+    @media (device-height:100vh) and (device-width:100vw) {
+        #pmrmaster .formRoot {
+            height: 438px !important;
+        }
+    }
+
+    .custom-popup-wrapper>table>tbody>tr {
+        height: 30px;
+    }
+
+    table.table.table-bordered.table-condensed.dropdown-menu {
+        height: 151px !important;
+    }
+</style>
+<!-- <div id="pmrmaster"> -->
+    <div class="row page-header">
+        <h4 class="page-header col-sm-6" translate="linenandlaundry.linenstockentry.pagetitle1.lbl"></h4>
+        <div class="col-sm-6 text-right">
+                <span>
+                    <button class="btn-add" ng-click="addNew()" uib-tooltip="{{ 'linenandlaundry.linenstockentry.pagetitle1.lbl' | translate }}"
+                        tooltip-placement="bottom">
+                        <i class="fa fa-plus" aria-hidden="true"></i>  </button>
+                    <!-- <span ng-click="linendashboard()" ng-hide="context == 'emr'">
+                        <img src="app/img/icons/laundry.png" class="img-responsive emr-drdashicon" alt="home" uib-tooltip="{{'Linen Dashboard'| translate}} "
+                            tooltip-placement="bottom">
+                    </span> -->
+                </span>
+            </div>
+    </div>
+    <div class="row ">
+        <div class="col-sm-12">
+            <form id="item_form" name="item_form" role="form">
+                <div class="filter-area row">
+                    <table id="bannerdetails">
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <label class="col-sm-6 control-label" for="stockpoint" translate="linenandlaundry.linenstockentry.stockpoint.lbl"></label>
+                                </td>
+                                <td>
+                                    <ui-select ng-model="item.DepartmentId" ng-disabled="isDisabled" ng-change="getList()" name="stockpoint" required>
+                                        <ui-select-match>
+                                            {{$select.selected.Text | limitTo : 20 : 0}}
+                                            <span ng-if="$select.selected.Text.length>20">...</span>
+                                        </ui-select-match>
+                                        <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.Department | filter: { Text: $select.search }">
+                                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                        </ui-select-choices>
+                                    </ui-select>
+                                </td>
+                                <td>
+                                    <label class="col-sm-5 control-label" for="diposeddate" translate="linenandlaundry.linenstockentry.date.lbl"></label>
+                                </td>
+                                <td>
+                                    <input type="text" class="form-control" name="diposeddate" ng-date-object datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}"
+                                    uib-datepicker-popup="{{datePickerOptions.dateFormat}}" placeholder="{{datePickerOptions.placeholder}}"
+                                    ng-click="expirydatePopup = { opened: true }" is-open="expirydatePopup.opened" ng-model="item.EnteredDate"
+                                    ng-change="getList()" ng-disabled="isDisabled">
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <label class="col-sm-6 control-label" for="disposeddate" translate="linenandlaundry.linenstockentry.approvedby.lbl"></label>
+                                </td>
+                                <td>
+                                    <autosearch itemid="item.ApprovedBy"  candisable="isDisabled" iteminfo="" rowdata="" config="vm.usercontrolconfig"></autosearch>
+                                </td>
+                                <td>
+                                    <label class="col-sm-5 control-label"  translate="linenandlaundry.linenstockentry.status.lbl"></label>
+                                </td>
+                                <td>
+                                    <ui-select ng-model="item.LinenStockEntryStatusId"   ng-disabled="true">
+                                        <ui-select-match>
+                                            {{$select.selected.Text | limitTo : 20 : 0}}
+                                            <span ng-if="$select.selected.Text.length>20">...</span>
+                                        </ui-select-match>
+                                        <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.StockEntryStatus | filter: { Text: $select.search }">
+                                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                        </ui-select-choices>
+                                    </ui-select>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                   
+
+
+                </div>
+                <div class=" table-control">
+                    <div class=" bg-pattern">
+                        <div class="table-height formRoot" id="mainresponsivetablecontrol">
+                            <table class="table table-hover table-responsive table-bordered">
+                                <thead class="bg-subhead">
+                                    <tr>
+                                        <th>
+                                            <span translate="linenandlaundry.linenstockentry.sno.lbl"></span>
+                                        </th>
+                                        <th>
+                                            <span translate="linenandlaundry.linenstockentry.itemname.lbl"></span>
+                                        </th>
+                                        <th>
+                                            <span translate="linenandlaundry.linenstockentry.type.lbl"></span>
+                                        </th>
+                                        <th>
+                                            <span translate="linenandlaundry.linenstockentry.qty.lbl"></span>
+                                        </th>
+                                        <th>
+                                            <span translate="linenandlaundry.linenstockentry.price.lbl"></span>
+                                        </th>
+                                        <th>
+                                            <span translate="linenandlaundry.linenstockentry.amount.lbl"></span>
+                                        </th>
+                                        <th>
+                                            <span translate="linenandlaundry.linenstockentry.action.lbl"></span>
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+
+                                    <tr ng-repeat="item in stockentryDetails | filter:{Status:1}">
+                                        <td class="">
+                                            <span> {{item.SNo}}</span>
+                                        </td>
+                                        <td class="">
+                                            <autosearch itemid="item.LinenItemName"  candisable="isDisabled" rowdata="item" iteminfo="item.SelectedItem" config="vm.linenitemmastercontrolconfig"
+                                                itemchange="OnItemselected($index, item)"></autosearch>
+                                        </td>
+                                        <td>
+                                            <span> {{item.LinenType}}</span>
+                                        </td>
+
+                                        <td class="">
+                                            <input type="number" ng-disabled="isDisabled" class="form-control"  ng-model="item.Quantity">
+                                        </td>
+                                        <td class="">
+                                            <input type="text" ng-disabled="isDisabled" class="form-control" ng-change="computeAmount(item)" ng-model="item.Price">
+                                        </td>
+                                        <td class="">
+                                            <input type="number" ng-disabled="isDisabled" class="form-control" ng-model="item.Amount">
+                                        </td>
+
+                                        <td>
+                                            <button type="button" ng-disabled="isDisabled" class="btn btn-danger btn-xs"  uib-tooltip="Delete"  tooltip-placement="bottom"  ng-click="deletelinenstockentryDetail(item,$index)">
+                                                <i class="fa fa-trash" aria-hidden="true"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="col-sm-12 fooder-bg">
+                        <div class="pull-left">
+                            <button type="button" class="btn pyr-color10 btn-sm" uib-tooltip="Back to List" tooltip-placement="top" ng-click="backtolist()">
+                                <i class="fa fa-angle-left" aria-hidden="true"></i>
+                                <span class="btn-fontsize"> &nbsp; Back</span>
+                            </button>
+                        </div>
+                        <div class="pull-right">
+                            <button type="button" class="draftbutton" ng-show="canShowsaveBtn" translate="common.saveaction.lbl" ng-click="save()"></button>
+                            <button type="button" class="btn dem-color4 text-white btn-sm" ng-show="canShowsaveandapprovedBtn" translate="common.saveapprove-action.lbl" ng-click="saveandapprove()"></button>
+                            <button type="button" id="authorizebtnsubmit" class="btn btn-info btn-sm" ng-show="canShowsaveandauthorizedBtn" translate="common.authorize.lbl" ng-click="saveandauthorized() "></button>
+                            <button type="button" class="btn btn-warning btn-sm" translate="common.clearaction.lbl" ng-show="canShowClearBtn" ng-click="clear()"></button>
+                            <button type="button" class="draftbutton" translate="common.cancelaction.lbl" ng-hide="canShowCancelBtn" ng-click="backtolist()"></button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+<!-- </div> -->

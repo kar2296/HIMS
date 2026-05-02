@@ -1,0 +1,80 @@
+<div class="row page-header">
+    <!-- <h4 class="col-sm-6 mt0" translate="inventory.itemuomconversion.pagetitle.lbl"></h4> -->
+    <div class="col-sm-12">
+        <button class="btn-add" ng-click="addNew()" uib-tooltip="{{ 'inventory.itemuomconversion.addnew-tooltip.lbl' | translate }}"
+            tooltip-placement="bottom">
+            <i class="fa fa-plus" aria-hidden="true"></i>
+            <!-- <span translate="inventory.itemuomconversion.addnew.lbl"></span> -->
+        </button>
+    </div>
+</div>
+<div class="row">
+    
+    <table class="table table-hover table-responsive table-bordered">
+        <thead class="bg-subhead">
+            <tr>
+                <th class="col-sm-2">
+                    <span translate="inventory.itemuomconversion.uomtype.lbl"></span>
+                </th>
+                <th class="col-sm-1">
+                    <span translate="inventory.itemuomconversion.uomname.lbl"></span>
+                </th>
+                <th class="col-sm-2">
+                    <span translate="inventory.itemuomconversion.conversionquantity.lbl"></span>
+                </th>
+                <!--<th class="col-sm-2"><span translate="clinicalmaster.servicecategory-list.displayorder.lbl"></span></th>-->
+                <!--<th class="col-sm-1"><span translate="clinicalmaster.servicecategory-list.printorder.lbl"></span></th>-->
+                <th class="col-sm-1">
+                    <span translate="inventory.itemuomconversion.status.lbl"></span>
+                </th>
+                <!--<th class="col-sm-1"><span translate="common.actions_col.lbl"></span></th>-->
+            </tr>
+        </thead>
+        <tbody>
+            <tr ng-repeat="item in vm.items | filter:{Status:1}">
+                <td>
+                    <ui-select ng-model="item.UomTypeId" class="ui-select-grid">
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 20 : 0}}
+                            <span ng-if="$select.selected.Text.length>20">...</span>
+                        </ui-select-match>
+                        <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.UomType | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </td>
+                <td>
+                    <ui-select ng-model="item.UomId" class="ui-select-grid">
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 20 : 0}}
+                            <span ng-if="$select.selected.Text.length>20">...</span>
+                        </ui-select-match>
+                        <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.UomMaster | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </td>
+                <td>
+                    <input type="text" class="form-control" ng-model="item.ConversionQuantity" placeholder="">
+                </td>
+                <td align="center">
+                    <input type="checkbox" class="custom-checkbox" ng-model="item.StatusId">
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+<div class="container-fluid">
+    <div class="fooder-bgs">
+        <div class="pull-left">
+            <!-- <button type="button" class="btn bt-color2 btn-sm" ng-click="backToFacilityItemList()">
+                <i class="fa fa-angle-left"></i>&nbsp;&nbsp;
+                <span translate="inventory.itemmaster.gotofacilityitemmaster.lbl"></span>
+            </button> -->
+        </div>
+        <div class="pull-right">
+            <button type="button" class="draftbutton" translate="common.saveaction.lbl" ng-click="saveItem()"></button>
+            <!-- <button id="btnClearForm" type="button" class="btn btn-warning btn-sm" ng-click="clear()" translate="common.clearaction.lbl"></button> -->
+        </div>
+    </div>
+</div>

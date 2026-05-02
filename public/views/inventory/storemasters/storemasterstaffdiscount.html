@@ -1,0 +1,176 @@
+<style>
+    .panel-footer {
+        padding: 4px 15px;
+        background-color: #ccecf5;
+        border-top: 1px solid #eeeeee;
+        border-bottom-right-radius: 3px;
+        border-bottom-left-radius: 3px;
+        margin: 0px -5px;
+    }
+
+    .panel-body .well {
+        min-height: 425px;
+    }
+
+    .formRoot {
+        overflow: inherit;
+    }
+
+    .modal-content .panel-body {
+        overflow: inherit;
+    }
+
+    .uib-datepicker-popup.dropdown-menu {
+        top: -251px !important;
+    }
+</style>
+<div class="modal-header custom-modal-header">
+  
+    <div class="col-sm-6">
+            <h4 class="mt0 col-sm-12 text-white" translate="inventory.storeusermap.pagetitle2.lbl"></h4>
+                </div>
+            <div class="col-sm-6">
+                    <button type="button" class="btn btn-danger btn-sm pull-right" translate="x"
+                    ng-click="cancelCallback()"></button>
+                    </div>
+        </div>
+</div>
+<div class="row">
+    <div class="col-sm-12">
+        <form id="item_form" name="item_form" class="form-horizontal" role="form">
+            <div class="formRoot">
+                <div class=" panel-default">
+                    <div class="panel-body form-panel">
+                        <div class="col-sm-12">
+                                    <div class="form-group col-sm-4">
+                                        <label class="col-sm-12"
+                                            translate="inventory.storeusermap.storetype.lbl"></label>
+                                        <div class="col-sm-12">
+                                            <input type="text" class="form-control" name="StoreType"
+                                                ng-model="item.StoreType" placeholder="" disabled>
+                                        </div>
+                                    </div>
+                                    <div class="form-group col-sm-4">
+                                        <label class="col-sm-12"
+                                            translate="inventory.storeusermap.storecode.lbl"></label>
+                                        <div class="col-sm-12">
+                                            <input type="text" class="form-control" name="StoreCode"
+                                                ng-model="item.StoreCode" placeholder="" disabled>
+                                        </div>
+                                    </div>
+                                    <div class="form-group col-sm-4">
+                                        <label class="col-sm-12"
+                                            translate="inventory.storeusermap.storename.lbl"></label>
+                                        <div class="col-sm-12">
+                                            <input type="text" class="form-control" name="StoreName"
+                                                ng-model="item.StoreName" placeholder="" disabled>
+                                        </div>
+                                    </div>
+                                    <div class="form-group col-sm-4">
+                                        <label class="col-sm-12" for="staffdiscounttype"
+                                            translate="inventory.storeusermap.staffdiscounttype.lbl"></label>
+                                        <div class="col-sm-12">
+                                            <ui-select ng-model="item.StaffDiscountTypeId" name="staffdiscounttype"
+                                                class="filter-combo">
+                                                <ui-select-match>
+                                                    {{$select.selected.Text | limitTo : 25 : 0}}
+                                                    <span ng-if="$select.selected.Text.length > 25">...</span>
+                                                </ui-select-match>
+                                                <ui-select-choices
+                                                    repeat="lookupitem.Id as lookupitem in lookup.StaffDiscountType | filter: { Text: $select.search }">
+                                                    <div ng-bind-html="lookupitem.Text | highlight: $select.search">
+                                                    </div>
+                                                </ui-select-choices>
+                                            </ui-select>
+                                        </div>
+                                    </div>
+                                    <div class="form-group col-sm-4">
+                                        <label class="col-sm-12" for="activefrom"
+                                            translate="inventory.itemmaster.activefrom.lbl"></label>
+                                        <div class="col-sm-12">
+                                            <input type="text" class="form-control" name="activefrom" ng-date-object
+                                                uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                                                placeholder="{{datePickerOptions.placeholder}}"
+                                                ng-click="activefromPopup = { opened: true }"
+                                                is-open="activefromPopup.opened" ng-model="item.ActiveFrom">
+                                        </div>
+                                    </div>
+                                    <div class="form-group col-sm-4">
+                                        <label class="col-sm-12" for="isactive"
+                                            translate="inventory.itemmastervendormapping.isactive.lbl"></label>
+                                        <div class="col-sm-12">
+                                            <input type="checkbox" class="custom-checkbox" name="isactive"
+                                                ng-model="item.IsActive" autofocus>
+                                        </div>
+                                    </div>
+                        </div>
+                                    <div class="col-sm-12">
+                                    <div class="form-group col-sm-4">
+                                        <label class="col-sm-12" for="usertype"
+                                            translate="inventory.storeusermap.filter_usertype.lbl"></label>
+                                        <div class="col-sm-12">
+                                            <ui-select ng-model="item.UserTypeId" name="usertype" class="filter-combo">
+                                                <ui-select-match>
+                                                    {{$select.selected.Text | limitTo : 25 : 0}}
+                                                    <span ng-if="$select.selected.Text.length > 25">...</span>
+                                                </ui-select-match>
+                                                <ui-select-choices
+                                                    repeat="lookupitem.Id as lookupitem in lookup.UserType | filter: { Text: $select.search }">
+                                                    <div ng-bind-html="lookupitem.Text | highlight: $select.search">
+                                                    </div>
+                                                </ui-select-choices>
+                                            </ui-select>
+                                        </div>
+                                    </div>
+                                    <div class="form-group col-sm-4">
+                                        <label class="col-sm-12" for="username"
+                                            translate="inventory.storeusermap.filter_username.lbl"></label>
+                                        <div class="col-sm-12">
+                                            <autosearch itemid="item.UserId" iteminfo=""
+                                                on-enter="onUserSelected($select.selected)" name="username" rowdata=""
+                                                config="vm.usercontrolconfig"
+                                                itemchange="onUserSelected($select.selected)" candisable="item.RdoUser">
+                                            </autosearch>
+                                        </div>
+                                    </div>
+                                    <div class="form-group col-sm-4">
+                                        <label class="col-sm-12"
+                                            translate="inventory.storeusermap.defaultdiscount.lbl"></label>
+                                        <div class="col-sm-12">
+                                            <input type="text" class="form-control" name="defaultdiscount"
+                                                ng-model="item.StaffDiscountPercentage" placeholder="Default Discount">
+                                        </div>
+                                    </div>
+                                    <div class="form-group col-sm-4">
+                                        <label class="col-sm-12" for="activeto"
+                                            translate="inventory.itemmaster.activeto.lbl"></label>
+                                        <div class="col-sm-12">
+                                            <input type="text" class="form-control" name="activeto" ng-date-object
+                                                uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                                                placeholder="{{datePickerOptions.placeholder}}"
+                                                ng-click="activetoPopup = { opened: true }"
+                                                is-open="activetoPopup.opened" ng-model="item.ActiveTo">
+                                        </div>
+                            </div>
+                        </div>
+                        <div class="fooder-bgs">
+                                <div class="col-sm-12">
+                                    <div class="pull-right">
+                                        <button type="button"   class="draftbutton"
+                                            translate="common.saveaction.lbl" ng-click="save()"></button>
+                                        <button type="button" class="draftbutton"
+                                            translate="common.saveapprove-action.lbl" ng-click="saveandApprove()"></button>
+                                        <!-- <button id="btnCancelForm" type="button" class="btn btn-danger btn-sm ng-scope"
+                                            ng-click="cancelCallback()" translate="common.cancelaction.lbl">
+                                            <span class="ng-scope">Cancel</span>
+                                        </button> -->
+                                    </div>
+                                </div>
+                            </div>
+                    </div>
+                </div>
+            </div>
+            
+        </form>
+    </div>
+</div>

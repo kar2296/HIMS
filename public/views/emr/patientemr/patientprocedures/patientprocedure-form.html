@@ -1,0 +1,113 @@
+<ul class="breadcrumb" ng-if="!currentcontext.ismodal">
+    <li><a ng-click="backToList()" translate="patientemr.patientprocedure-form.parentpagetitle.lbl"></a></li>
+    <li class="active" translate="patientemr.patientprocedure-form.pagetitle.lbl"></li>
+</ul>
+<div class="modal-header custom-modal-header" ng-if="currentcontext.ismodal">
+    <div class="col-sm-6">
+        <h4 class="modal-title custom-modal-title" translate="patientemr.patientprocedure-form.pagetitle.lbl"></h4>
+    </div>
+    <div class="col-sm-6">
+        <div class="filters">
+            <img src="../../../../../assets/svg/close.svg" ng-click="cancelCallback()">
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <form id="item_form0" name="item_form" class="form-horizontal" role="form" ng-submit="saveItem()">
+        <div class="form-group col-sm-4">
+            <label class="col-sm-12 control-label" for="proceduretype"
+                translate="patientemr.patientprocedure-form.proceduretype.lbl"></label>
+            <div class="col-sm-12">
+                <ui-select ng-model="item.ProcedureTypeId" name="proceduretype" required>
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 20 : 0}}
+                        <span ng-if="$select.selected.Text.length>20">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.ProcedureType | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+        <div class="form-group col-sm-4">
+            <label class="col-sm-12 control-label" for="procedure"
+                translate="patientemr.patientprocedure-form.procedure.lbl"></label>
+            <div class="col-sm-12">
+                <ui-select ng-model="item.ProcedureId" name="procedure" ng-change="fillMasterInfo($select.selected)"
+                    required>
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 20 : 0}}
+                        <span ng-if="$select.selected.Text.length>20">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.Procedure | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+        <div class="form-group col-sm-4">
+            <label class="col-sm-12 control-label" for="description" translate="Name"></label>
+            <div class="col-sm-12">
+                <input type="text" class="form-control" name="description" ng-model="item.Description" placeholder="">
+            </div>
+        </div>
+        <div class="form-group col-sm-4">
+            <label class="col-sm-12 control-label" for="performedby"
+                translate="patientemr.patientprocedure-form.performedby.lbl"></label>
+            <div class="col-sm-12">
+                <ui-select ng-model="item.PerformedBy" name="performedby" required>
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 20 : 0}}
+                        <span ng-if="$select.selected.Text.length>20">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.Doctor | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+        <div class="form-group col-sm-4">
+            <label class="col-sm-12 control-label" for="performeddate"
+                translate="patientemr.patientprocedure-form.performeddate.lbl"></label>
+            <div class="col-sm-12">
+                <input type="text" class="form-control" name="performeddate" ng-date-object
+                    uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                    placeholder="{{datePickerOptions.placeholder}}" ng-click="performeddatePopup = { opened: true }"
+                    is-open="performeddatePopup.opened" ng-model="item.PerformedDate" required>
+            </div>
+        </div>
+        <div class="form-group col-sm-4">
+            <label class="col-sm-12 control-label" for="status"
+                translate="patientemr.patientprocedure-form.status.lbl"></label>
+            <div class="col-sm-12">
+                <ui-select ng-model="item.PatientProcedureStatusId" name="status">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 20 : 0}}
+                        <span ng-if="$select.selected.Text.length>20">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.PatientProcedureStatus | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+        <div class="form-group col-sm-4">
+            <label class="col-sm-12 control-label" for="comments"
+                translate="patientemr.patientprocedure-form.comments.lbl"></label>
+            <div class="col-sm-12">
+                <commentscontrol comments="item.Comments"></commentscontrol>
+            </div>
+        </div>
+    </form>
+</div>
+<div class="row">
+    <div class="pull-right">
+        <button type="submit" class="draftbutton" ng-click="saveItem()" translate="common.saveaction.lbl"></button>
+        <!-- <button id="btnCancelForm" type="button" class="draftbutton" ng-click="backToList()" translate="common.cancelaction.lbl"></button>						 -->
+    </div>
+</div>

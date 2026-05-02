@@ -1,0 +1,71 @@
+<div class="row page-header">
+    <div class="col-sm-10">
+        <h4 class="mt0" translate="inventory.itemcategory.pnlitemcategory.lbl"></h4>
+    </div>
+    <div class="col-sm-2">
+        <div class="filters">
+            <button type="button" tabindex="-1" class="drhms-billing-btn drhms-add-btn" ng-click="addNew()"
+                uib-tooltip="Item Category" tooltip-placement="bottom">
+                <i class="fa fa-plus" aria-hidden="true"></i>
+            </button>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-sm-3">
+        <label class="col-sm-12 control-label" translate="appmanager.specialitys.filter_facility.lbl"></label>
+        <div class="col-sm-12">
+            <ui-select ng-model="currentfilter.FacilityId" ng-change="getList()" class="filter-combo">
+                <ui-select-match>
+                    {{$select.selected.Text | limitTo : 35 : 0}}
+                    <span ng-if="$select.selected.Text.length>35">...</span>
+                </ui-select-match>
+                <ui-select-choices
+                    repeat="lookupitem.Id as lookupitem in lookup.Facility | filter: { Text: $select.search }">
+                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                </ui-select-choices>
+            </ui-select>
+        </div>
+    </div>
+    <div class="col-sm-3">
+        <label class="col-sm-12 control-label" translate="inventory.itemcategorys.filter_categorycode.lbl"></label>
+        <div class="col-sm-12">
+            <input type="text" class="form-control autosearch-input" on-enter="getList()"
+                ng-model="currentfilter.categorycode" translate
+                translate-attr-placeholder="inventory.itemcategorys.filter_categorycode.lbl">
+        </div>
+    </div>
+    <div class="col-sm-3">
+        <label class="col-sm-12 control-label" translate="inventory.itemcategorys.name.lbl"></label>
+        <div class="col-sm-12">
+            <input type="text" class="form-control autosearch-input" on-enter="getList()"
+                ng-model="currentfilter.categoryname" translate
+                translate-attr-placeholder="inventory.itemcategorys.name.lbl">
+        </div>
+    </div>
+
+    <div class="col-sm-3">
+        <label class="col-sm-12 control-label" translate="inventory.itemcategorys.filter_status.lbl"></label>
+        <div class="col-sm-12">
+            <ui-select ng-model="currentfilter.ActiveStatusId" ng-change="getList()" class="filter-combo">
+                <ui-select-match>
+                    {{$select.selected.Text | limitTo : 35 : 0}}
+                    <span ng-if="$select.selected.Text.length>35">...</span>
+                </ui-select-match>
+                <ui-select-choices
+                    repeat="lookupitem.Id as lookupitem in lookup.ActiveStatus | filter: { Text: $select.search }">
+                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                </ui-select-choices>
+            </ui-select>
+        </div>
+    </div>
+</div>
+<div class="fooder-bgs">
+    <div class="row">
+        <custom-table config="vm.gridConfig"></custom-table>
+        <ul uib-pagination total-items="vm.gridConfig.pagerObj.totalItems"
+            items-per-page="vm.gridConfig.pagerObj.pageSize" start-index="vm.gridConfig.pagerObj.startIndex"
+            ng-model="vm.gridConfig.pagerObj.currentPage" ng-change="getList()"></ul>
+    </div>
+</div>

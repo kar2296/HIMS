@@ -1,0 +1,71 @@
+<style>
+    label.btn.btn-default {
+         background: #46761b;
+        color: #fafafa;
+        border-radius: 0;
+        margin-top: 10px;
+        height: 32px;
+    }
+</style>
+<div class="col-sm-12">
+    <div class="btn-group">
+        <label class="btn btn-default" ng-repeat="maptype in currentcontext.maptypes" ng-model="currentcontext.mapType"
+            uib-btn-radio="'{{maptype.Id}}'" ng-click="mapTypeClick(maptype)">{{maptype.Text}}</label>
+    </div>
+</div>
+<div class="row">
+    <form id="item_form" name="item_form" class="form-horizontal" role="form">
+        <div class="col-sm-3">
+            <label class="col-sm-12 control-label" ng-show="canShowTestControl()"
+                translate="lis.testmasteranalytemap.analyteId.lbl"></label>
+            <div class="col-sm-12" ng-show="canShowTestControl()">
+                <autosearch itemid="item.TestAnalyteId" iteminfo="item.SelectedItem" rowdata="item"
+                    config="vm.testcontrolconfig" itemchange="onAnalyteSelected(item.SelectedItem)"
+                    class="inputsearchlogo" candisable=""></autosearch>
+            </div>
+        </div>
+        <div class="col-sm-3" ng-show="canShowProfileControl()">
+            <label class="col-sm-12 control-label" translate="lis.testmasteranalytemap.profile.lbl"></label>
+            <div class="col-sm-12">
+                <ui-select ng-model="item.TestmasterMapId" name="profileid">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 20 : 0}}
+                        <span ng-if="$select.selected.Text.length>20">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.TestProfile | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+        <div class="col-sm-3">
+            <label class="col-sm-12 control-label" translate="lis.testmasteranalytemap.display.lbl"></label>
+            <div class="col-sm-12">
+                <input type="text" class="form-control" name="display" ng-model="item.DisplayOrder" placeholder="">
+            </div>
+        </div>
+        <div class="col-sm-3">
+            <label class="col-sm-12 control-label" translate="lis.testmasteranalytemap.ismanditory.lbl"></label>
+            <div class="col-sm-6">
+                <input type="checkbox" name="IsManditory" class="custom-checkbox" ng-model="item.IsManditory">
+            </div>
+            <div class="col-sm-6">
+                <button class="btn-add" ng-click="saveItem()"
+                    uib-tooltip="{{ 'lis.testmasters.addnew-tooltip.lbl' | translate }}" tooltip-placement="bottom">
+                    <i class="fa fa-plus" aria-hidden="true"></i>
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+<div class="row">
+    <custom-table config="vm.gridConfig"></custom-table>
+</div>
+<div class="fooder-bgs">
+    <div class="row">
+        <ul uib-pagination total-items="vm.gridConfig.pagerObj.totalItems"
+            items-per-page="vm.gridConfig.pagerObj.pageSize" start-index="vm.gridConfig.pagerObj.startIndex"
+            ng-model="vm.gridConfig.pagerObj.currentPage" ng-change="getList()"></ul>
+    </div>
+</div>

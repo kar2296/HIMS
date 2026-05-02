@@ -1,0 +1,288 @@
+<style>
+    .panel-heading {
+        padding: 4px 15px;
+    }
+
+    .well {
+        min-height: 460px;
+        margin-bottom: 0px;
+        padding: 19px;
+        border: 1px solid #ededed;
+        border-radius: 4px;
+        background: rgb(233, 246, 253);
+        /* Old browsers */
+        background: -moz-linear-gradient(top, rgba(233, 246, 253, 1) 0%, rgba(211, 238, 251, 1) 100%);
+        /* FF3.6-15 */
+        background: -webkit-linear-gradient(top, rgba(233, 246, 253, 1) 0%, rgba(211, 238, 251, 1) 100%);
+        /* Chrome10-25,Safari5.1-6 */
+        background: linear-gradient(to bottom, rgb(250, 250, 250) 0%, rgb(247, 252, 253) 100%);
+        /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+        filter: progid: DXImageTransform.Microsoft.gradient( startColorstr='#e9f6fd', endColorstr='#d3eefb', GradientType=0);
+        /* IE6-9 */
+        box-shadow: 4px 2px 13px -7px rgba(0, 0, 0, 0.75);
+    }
+
+    .toprighttext1 .dropdown-menu {
+        top: -89px !important;
+        left: 15px !important;
+    }
+
+    .panel-body {
+        padding: 15px;
+        margin-left: 0px;
+        margin-top: 0px;
+        margin-right: 0px;
+        margin-bottom: 0px;
+        /* background-image: url(app/img/bg-body.jpg); */
+        background-repeat: repeat;
+        overflow: auto;
+    }
+
+    .wrapper>section {
+        height: 595px;
+    }
+
+    .panel {
+        margin-bottom: 0px;
+    }
+
+    .formRoot {
+        overflow: auto;
+        height: 503px;
+    }
+
+    #depheight .well {
+        min-height: 440px;
+    }
+
+    #depheight .well1 {
+        min-height: 184px;
+    }
+
+    .panel-footer {
+        padding: 4px 15px;
+        background-color: #ccecf5;
+        border-top: 1px solid #eeeeee;
+        border-bottom-right-radius: 3px;
+        border-bottom-left-radius: 3px;
+    }
+
+    .page-header {
+        margin: 0px 0px 0px 0px !important;
+    }
+</style>
+<div class="row">
+    <div class="col-sm-12">
+        <form id="item_form" name="item_form" class="form-horizontal" role="form">
+            <div class="formRoot">
+                <div class="panel panel-default" id="inventorytab">
+                    <!-- <div class="panel-heading"><h3 class="panel-title" translate="inventory.facilityvendormaster.pnlvendormaster.lbl"></h3></div>!-->
+                    <div class="panel-body form-panel">
+                        <div class="col-sm-12 ">
+                                <div class="form-group col-sm-4">
+                                    <label class="col-sm-12 control-label" for="type" translate="inventory.facilityvendormaster.type.lbl"></label>
+                                    <div class="col-sm-12">
+                                        <ui-select ng-model="item.VendorTypeId" ng-disabled="item.isDisabled" theme="bootstrap" name="type" autofocus required>
+                                            <ui-select-match>
+                                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                                <span ng-if="$select.selected.Text.length>20">...</span>
+                                            </ui-select-match>
+                                            <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.VendorType | filter: { Text: $select.search }">
+                                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                            </ui-select-choices>
+                                        </ui-select>
+                                    </div>
+                                </div>
+                                 <div class="form-group col-sm-4"> <!--ng-if="item.VendorTypeId == 1" -->
+                                    <label class="col-sm-12 control-label" for="supplytype" translate="inventory.vendormaster.supplytype.lbl"></label>
+                                    <div class="col-sm-12">
+                                        <ui-select ng-model="item.SupplyTypeId" required name="supplytype"  ng-disabled="item.isDisabled" theme="bootstrap">
+                                            <ui-select-match>
+                                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                                <span ng-if="$select.selected.Text.length>20">...</span>
+                                            </ui-select-match>
+                                            <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.SupplyType | filter: { Text: $select.search }">
+                                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                            </ui-select-choices>
+                                        </ui-select>
+                                    </div>
+                                </div>
+                                <div class="form-group col-sm-4">
+                                    <label class="col-sm-12 control-label" for="code" translate="inventory.facilityvendormaster.code.lbl"></label>
+                                    <div class="col-sm-12">
+                                        <input type="text" class="form-control" ng-disabled="item.isDisabled" name="code" ng-model="item.VendorCode" placeholder=""
+                                            required autofocus>
+                                    </div>
+                                </div>
+                                <div class="form-group col-sm-4">
+                                    <label class="col-sm-12 control-label" for="name" translate="inventory.facilityvendormaster.name.lbl"></label>
+                                    <div class="col-sm-12">
+                                        <input type="text" class="form-control" ng-disabled="item.isDisabled" name="name" ng-model="item.VendorName" placeholder=""
+                                            required autofocus>
+                                    </div>
+                                </div>
+                                <div class="form-group col-sm-4">
+                                    <label class="col-sm-12 control-label" translate="inventory.facilityvendormaster.contactperson.lbl"></label>
+                                    <div class="col-sm-12">
+                                        <input type="text" class="form-control" name="contactperson" ng-disabled="item.isDisabled" ng-model="item.ContactPerson"
+                                            placeholder="">
+                                    </div>
+                                </div>
+                                <div class="form-group col-sm-4">
+                                    <label class="col-sm-12 control-label" for="mobilenumber" ng-disabled="item.isDisabled" translate="inventory.facilityvendormaster.mobilenumber.lbl"></label>
+                                    <div class="col-sm-12">
+                                        <input type="text" class="form-control" name="mobilenumber" ng-model="item.MobileNumber" ng-disabled="item.isDisabled" placeholder=""
+                                            ng-minlength="10" ng-pattern="/^\d+$/" autofocus required>
+                                    </div>
+                                </div>
+                                <div class="form-group col-sm-4">
+                                    <label class="col-sm-12 control-label" translate="inventory.facilityvendormaster.phonenumber.lbl"></label>
+                                    <div class="col-sm-12">
+                                        <input type="text" class="form-control" name="phonenumber" ng-disabled="item.isDisabled" ng-model="item.PhoneNumber" ng-minlength="10"
+                                            ng-pattern="/^\d+$/" placeholder="">
+                                    </div>
+                                </div>
+                                <div class="form-group col-sm-4">
+                                    <label class="col-sm-12 control-label" for="emailaddress" translate="inventory.facilityvendormaster.emailaddress.lbl"></label>
+                                    <div class="col-sm-12">
+                                        <input type="email" class="form-control" name="email" ng-model="item.EmailAddress" ng-disabled="item.isDisabled" placeholder=""
+                                            ng-required="false"> </div>
+                                </div>
+                                <div class="form-group col-sm-4">
+                                    <label class="col-sm-12 control-label" translate="inventory.facilityvendormaster.faxnumber.lbl"></label>
+                                    <div class="col-sm-12">
+                                        <input type="text" class="form-control" ng-disabled="item.isDisabled" name="faxnumber" ng-model="item.FaxNumber" placeholder="">
+                                    </div>
+                                </div>
+                                <div class="form-group col-sm-4">
+                                    <label class="col-sm-12 control-label" translate="inventory.facilityvendormaster.businessdomain.lbl"></label>
+                                    <div class="col-sm-12 toprighttext2">
+                                        <ui-select ng-model="item.BusinessDomainId" theme="bootstrap" ng-disabled="item.isDisabled">
+                                            <ui-select-match>
+                                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                                <span ng-if="$select.selected.Text.length>20">...</span>
+                                            </ui-select-match>
+                                            <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.BusinessDomain | filter: { Text: $select.search }">
+                                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                            </ui-select-choices>
+                                        </ui-select>
+                                    </div>
+                                </div>
+                                <div class="form-group col-sm-4">
+                                    <label class="col-sm-12 control-label" translate="inventory.facilityvendormaster.distributiontype.lbl"></label>
+                                    <div class="col-sm-12 toprighttext1">
+                                        <ui-select ng-model="item.DistributionTypeId" ng-disabled="item.isDisabled" theme="bootstrap">
+                                            <ui-select-match>
+                                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                                <span ng-if="$select.selected.Text.length>20">...</span>
+                                            </ui-select-match>
+                                            <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.DistributionType | filter: { Text: $select.search }">
+                                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                            </ui-select-choices>
+                                        </ui-select>
+                                    </div>
+                                </div>
+
+                                <div class="form-group col-sm-4">
+                                    <label class="col-sm-12 control-label" translate="inventory.facilityvendormaster.licencecode.lbl"></label>
+                                    <div class="col-sm-12">
+                                        <input type="text" class="form-control" ng-disabled="item.isDisabled" name="licencecode" ng-model="item.LicenceCode" placeholder="">
+                                    </div>
+                                </div>
+                                <div class="form-group col-sm-4">
+                                    <label class="col-sm-12 control-label" translate="inventory.facilityvendormaster.city.lbl"></label>
+                                    <div class="col-sm-12">
+                                        <input type="text" class="form-control" name="city" ng-model="item.City" placeholder="">
+                                    </div>
+                                </div>
+                                <div class="form-group col-sm-4">
+                                    <label class="col-sm-12 control-label" translate="inventory.facilityvendormaster.paymentterms.lbl"></label>
+                                    <div class="col-sm-12">
+                                        <ui-select ng-model="item.PaymentTermsId" ng-disabled="item.isDisabled" theme="bootstrap">
+                                            <ui-select-match>
+                                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                                <span ng-if="$select.selected.Text.length>20">...</span>
+                                            </ui-select-match>
+                                            <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.PaymentTerms | filter: { Text: $select.search }">
+                                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                            </ui-select-choices>
+                                        </ui-select>
+                                    </div>
+                                </div>
+                                <div class="form-group col-sm-4">
+                                    <label class="col-sm-12 control-label" translate="inventory.facilityvendormaster.facilityvendorurl.lbl"></label>
+                                    <div class="col-sm-12">
+                                        <input type="text" class="form-control" name="vendorurl" ng-disabled="item.isDisabled" ng-model="item.VendorUrl" placeholder="">
+                                    </div>
+                                </div>
+                                <div class="form-group col-sm-4">
+                                    <label class="col-sm-12 control-label" for="leadtime" translate="inventory.facilityvendormaster.leadtime.lbl"></label>
+                                    <div class="col-sm-12">
+                                        <input type="text" class="form-control" name="leadtime" ng-disabled="item.isDisabled" ng-model="item.LeadTime" placeholder=""
+                                            autofocus required>
+                                    </div>
+                                </div>
+                                <div class="form-group col-sm-4">
+                                    <label class="col-sm-12 control-label" translate="inventory.facilityvendormaster.currencycode.lbl"></label>
+                                    <div class="col-sm-12">
+                                        <ui-select ng-model="item.CurrencyCodeId" ng-disabled="item.isDisabled" theme="bootstrap">
+                                            <ui-select-match>
+                                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                                <span ng-if="$select.selected.Text.length>20">...</span>
+                                            </ui-select-match>
+                                            <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.CurrencyCode | filter: { Text: $select.search }">
+                                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                            </ui-select-choices>
+                                        </ui-select>
+                                    </div>
+                                </div>
+                                <!-- <div class="form-group col-sm-4">
+                                    <label class="col-sm-12 control-label" for="activefrom" translate="inventory.facilityvendormaster.activefrom.lbl"></label>
+                                    <div class="col-sm-12 ">
+                                        <input type="text" class="form-control" name="activefrom" ng-date-object uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                                            placeholder="{{datePickerOptions.placeholder}}" ng-click="activefromPopup = { opened: true }"
+                                            is-open="activefromPopup.opened" ng-model="item.ActiveFrom">
+                                    </div>
+                                </div>
+                                <div class="form-group col-sm-4">
+                                    <label class="col-sm-12 control-label" translate="inventory.facilityvendormaster.activeto.lbl"></label>
+                                    <div class="col-sm-12 topright">
+                                        <input type="text" class="form-control" name="activeto" ng-date-object uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                                            placeholder="{{datePickerOptions.placeholder}}" ng-click="activetoPopup = { opened: true }"
+                                            is-open="activetoPopup.opened" ng-model="item.ActiveTo" ng-disabled="item.isDisabled">
+                                    </div>
+                                </div>
+                                <div class="form-group col-sm-4">
+                                    <label class="col-sm-12 control-label" translate="inventory.facilityvendormaster.comments.lbl"></label>
+                                    <div class="col-sm-12">
+                                        <textarea name="comments" ng-model="item.Comments" maxlength="4000" style="width:100%;" class="notes-textarea" ng-disabled="item.isl"
+                                            tabindex="-1"></textarea>
+                                    </div>
+                                </div> -->
+                                <div class="form-group col-sm-4">
+                                    <label class="col-sm-4 control-label" translate="inventory.facilityvendormaster.isactive.lbl"></label>
+                                    <div class="col-sm-12">
+                                        <input type="checkbox" class="custom-checkbox" name="isactive" ng-model="item.IsActive" ng-checked="item.IsActive == 1">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="fooder-bgs">
+                                <button type="button" class="btn pyr-color10 btn-sm pull-left" ng-click="backToList()">
+                                    <i class="fa fa-angle-left"></i>&nbsp;&nbsp;
+                                    <span translate="common.backaction.lbl"></span>
+                                </button>
+                                <div class="pull-right">
+                                    <button type="button"   class="draftbutton" translate="common.saveaction.lbl" ng-click="save()"></button>
+                                    <button type="button" class="draftbutton" translate="common.saveapprove-action.lbl" ng-click="saveandApprove()"></button>
+                                    <button id="btnClearForm" type="button" class="btn btn-warning btn-sm" ng-click="clear()" translate="common.clearaction.lbl"></button>
+                                        <!-- <button id="btnCancelForm" type="button" class="cancelbutton" ng-click="backToList()" translate="common.cancelaction.lbl"></button> -->
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+            </div>
+            
+        </form>
+    </div>
+</div>

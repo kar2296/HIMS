@@ -1,0 +1,83 @@
+<style>
+    .pull-right-table {
+        display: flex;
+        justify-content: flex-end;
+    }
+</style>
+<div class="row">
+    <div class="col-sm-4">
+        <label class="col-sm-4" translate="billing.patientadjustmentinfo.patientsearch.lbl"></label>
+        <div class="col-sm-8">
+            <patientsearch controlid="'pid'" ng-keyup="moveHeaderFocus('pid')" patientid="currentfilter.PatientId"
+                name="txtpatientsearch" patientinfo="selectedPatient" patientchange="patientChange()"
+                tabindex="tabindexmap.patienttabindex" isdisabled="" filterconfig="patientfilterconfig">
+            </patientsearch>
+        </div>
+    </div>
+    <div class="col-sm-4">
+        <label class="col-sm-4" for="fromdate" translate="billing.patientadjustmentinfo.fromdate.lbl"></label>
+        <div class="col-sm-8">
+            <input type="text" class="form-control" name="fromdate" ng-change="getList()" ng-date-object
+                uib-datepicker-popup="{{datePickerOptions.dateFormat}}" placeholder="{{datePickerOptions.placeholder}}"
+                ng-click="fromdatePopup = { opened: true }" is-open="fromdatePopup.opened"
+                ng-model="currentfilter.FromDate">
+        </div>
+    </div>
+    <div class="col-sm-4">
+        <label class="col-sm-4" for="todate" translate="billing.patientadjustmentinfo.todate.lbl"></label>
+        <div class="col-sm-8">
+            <input type="text" class="form-control" name="todate" ng-change="getList()" ng-date-object
+                uib-datepicker-popup="{{datePickerOptions.dateFormat}}" placeholder="{{datePickerOptions.placeholder}}"
+                ng-click="todatePopup = { opened: true }" is-open="todatePopup.opened" ng-model="currentfilter.ToDate">
+        </div>
+    </div>
+</div>
+<div class="row">
+    <custom-table config="vm.gridConfig"></custom-table>
+</div>
+<div class="row">
+    <div class="pull-right-table">
+        <div class="col-sm-4">
+            <table id="bannerdetails">
+                <tr>
+                    <td class="totallabel">Total</td>
+                    <td>
+                        <span>{{currentcontext.TotalBillAmount | displaycurrency}}</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="totallabel">TotalPaidAmount</td>
+                    <td>
+
+                        <span>{{currentcontext.TotalPaidAmount | displaycurrency}}</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="totallabel">Amount</td>
+                    <td>
+                        <span>{{currentcontext.TotalAdjustedAmount | displaycurrency}}</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="totallabel">Unpaid Amount</td>
+                    <td>
+                        <span>{{currentcontext.TotalUnAdjustedAmount | displaycurrency}}</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="totallabel">Due</td>
+                    <td>
+                        <span>{{currentcontext.TotalDueAmount | displaycurrency}}</span>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</div>
+<div class="fooder-bgs">
+    <div class="row">
+        <ul uib-pagination total-items="vm.gridConfig.pagerObj.totalItems"
+            items-per-page="vm.gridConfig.pagerObj.pageSize" start-index="vm.gridConfig.pagerObj.startIndex"
+            ng-model="vm.gridConfig.pagerObj.currentPage" ng-change="getList()"></ul>
+    </div>
+</div>

@@ -1,0 +1,84 @@
+<link rel="stylesheet" href="app/css/drhms.css">
+<style>
+    .drhms-receipt span {
+        font-size: 12px;
+    }
+</style>
+<div class="row">
+    <div class="drhms-filters">
+        <div class="col-sm-10">
+            <h4 translate="billing.pharmacy.staffcreditbills.lbl"></h4>
+        </div>
+        <div class="col-sm-4">
+            <input type="text" class="form-control textbox-search" on-enter="getList()" ng-model="currentfilter.MRN"
+                placeholder="Staff Name/MRN #">
+        </div>
+        <div class="col-sm-2">
+            <button class="btn-add" ng-click="addNew()"
+                uib-tooltip="{{ 'billing.pharmacy.addnew-tooltip.lbl' | translate }}" tooltip-placement="bottom">
+                <i class="fa fa-plus" aria-hidden="true"></i>
+            </button>
+            <span class="drhms-billing-btn drhms-home-btn" ng-click="backtoList()" uib-tooltip="Dashboard" tooltip-placement="bottom"><i
+                    class="fas fa-home"></i></span>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="form-group col-sm-3">
+        <label class="col-sm-12 control-label" translate="billing.pharmacy.date.lbl"></label>
+        <div class="col-sm-12">
+            <div class="datepicker">
+                <input type="text" class="form-control" name="fromdate" ng-change="getList()"
+                    datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}"
+                    uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                    placeholder="{{datePickerOptions.placeholder}}" ng-click="fromdatedatePopup = { opened: true }"
+                    is-open="fromdatedatePopup.opened" ng-model="currentfilter.From">
+                <i class="fa fa-calendar" aria-hidden="true"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-group col-sm-3">
+        <label class="col-sm-12 control-label" translate="billing.pharmacy.todate.lbl"></label>
+        <div class="col-sm-12">
+            <div class="datepicker">
+                <input type="text" class="form-control" name="todate" ng-change="getList()"
+                    datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}"
+                    uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                    placeholder="{{datePickerOptions.placeholder}}" ng-click="todatePopup = { opened: true }"
+                    is-open="todatePopup.opened" ng-model="currentfilter.To">
+                <i class="fa fa-calendar" aria-hidden="true"></i>
+            </div>
+        </div>
+    </div>
+    <div class="form-group col-sm-3">
+        <label class="col-sm-12 control-label" translate="billing.pharmacy.bill#.lbl"></label>
+        <div class="col-sm-12">
+            <input type="text" class="form-control textbox-search" on-enter="getList()"
+                ng-model="currentfilter.BillNumber" translate translate-attr-placeholder="billing.pharmacy.bill#.lbl">
+        </div>
+    </div>
+    <div class="form-group col-sm-3">
+        <label class="col-sm-12 control-label" translate="billing.pharmacy.status.lbl"></label>
+        <div class="col-sm-12">
+            <ui-select ng-model="currentfilter.PatientBillStatusId" ng-change="getList()" class="filter-combo">
+                <ui-select-match>
+                    {{$select.selected.Text | limitTo : 20 : 0}}
+                    <span ng-if="$select.selected.Text.length>20">...</span>
+                </ui-select-match>
+                <ui-select-choices
+                    repeat="lookupitem.Id as lookupitem in lookup.PatientBillStatus | filter: { Text: $select.search }">
+                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                </ui-select-choices>
+            </ui-select>
+        </div>
+    </div>
+</div>
+<div class="fooder-bgs">
+    <div class="row">
+        <custom-table config="vm.gridConfig"></custom-table>
+        <ul uib-pagination total-items="vm.gridConfig.pagerObj.totalItems"
+            items-per-page="vm.gridConfig.pagerObj.pageSize" start-index="vm.gridConfig.pagerObj.startIndex"
+            ng-model="vm.gridConfig.pagerObj.currentPage" ng-change="getList()"></ul>
+    </div>
+</div>

@@ -1,0 +1,237 @@
+<link href="app/css/regbilling.css" rel="stylesheet">
+<style>
+    .form-horizontal .form-group {
+        height: 60px;
+    }
+</style>
+<div class="row">
+    <form id="item_form" name="item_form" class="form-horizontal" role="form">
+        <div class="row">
+            <div class="form-group col-sm-4">
+                <label class="col-sm-12 control-label0 " translate="lis.testmaster.Code.lbl" for="Code"></label>
+                <div class="col-sm-12">
+                    <input type="text" class="form-control" name="Code" ng-model="item.Code" placeholder="" autofocus required>
+                </div>
+            </div>
+            <div class="form-group col-sm-4">
+                <label class="col-sm-12 control-label0 " translate="lis.testmaster.Mnemonics.lbl" for="Mnemonics"></label>
+                <div class="col-sm-12">
+                    <input type="text" class="form-control" name="Mnemonics" ng-model="item.Mnemonics" placeholder="" autofocus required>
+                </div>
+            </div>
+            <div class="form-group col-sm-4">
+                <label class="col-sm-12 control-label0 " translate="lis.testmaster.Name.lbl" for="Name"></label>
+                <div class="col-sm-12">
+                    <input type="text" class="form-control" name="Name" ng-model="item.Name" placeholder="" required>
+                </div>
+            </div>
+            <div class="form-group col-sm-4">
+                <label class="col-sm-12 control-label0 " translate="lis.testmaster.testmastertype_e.lbl"></label>
+                <div class="col-sm-12">
+                    <ui-select ng-model="item.TESTMASTERTYPId">
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 20 : 0}}
+                            <span ng-if="$select.selected.Text.length>20">...</span>
+                        </ui-select-match>
+                        <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.TESTMASTERTYP | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search">
+                            </div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+            <div class="form-group col-sm-4">
+                <label class="col-sm-12 control-label0 " for="dept" translate="lis.testmaster.DepartmentId.lbl"></label>
+                <div class="col-sm-12">
+                    <ui-select ng-model="item.DepartmentId" name="dept" ng-change="getsubdeptUsers()" required>
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 20 : 0}}
+                            <span ng-if="$select.selected.Text.length>20">...</span>
+                        </ui-select-match>
+                        <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.Department | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search">
+                            </div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+            <div class="form-group col-sm-4">
+                <label class="col-sm-12 control-label0 " for="subdept" translate="lis.testmaster.SubDepartmentId.lbl"></label>
+                <div class="col-sm-12">
+                    <ui-select ng-model="item.SubDepartmentId" name="subdept" on-select="onDeptSelected($select.selected)" required>
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 20 : 0}}
+                            <span ng-if="$select.selected.Text.length>20">...</span>
+                        </ui-select-match>
+                        <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.SubDepartment | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search">
+                            </div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+            <div class="form-group col-sm-4">
+                <label class="col-sm-12 control-label0 " translate="lis.testmaster.TestFromLocationId.lbl"></label>
+                <div class="col-sm-12">
+                    <ui-select ng-model="item.TestFromLocationId">
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 20 : 0}}
+                            <span ng-if="$select.selected.Text.length>20">...</span>
+                        </ui-select-match>
+                        <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.LOCATION | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search">
+                            </div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+            <div class="form-group col-sm-4">
+                <label class="col-sm-12 control-label0 " translate="lis.testmaster.SampletypeId.lbl"></label>
+                <div class="col-sm-12">
+                    <ui-select ng-model="item.SampletypeId" ng-change="getSampleVolume($select.selected)">
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 20 : 0}}
+                            <span ng-if="$select.selected.Text.length>20">...</span>
+                        </ui-select-match>
+                        <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.SampleMaster | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search">
+                            </div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+            <div class="form-group col-sm-4">
+                <label class="col-sm-12 control-label0 " translate="lis.testmaster.resources.lbl"></label>
+                <div class="col-sm-12">
+                    <ui-select ng-model="item.ResourceId">
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 20 : 0}}
+                            <span ng-if="$select.selected.Text.length>20">...</span>
+                        </ui-select-match>
+                        <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.ResourceMaster | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search">
+                            </div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+            <div class="form-group col-sm-4">
+                <label class="col-sm-12 control-label0 " translate="lis.testmaster.SampleVolume.lbl"></label>
+                <div class="col-sm-12">
+                    <input type="text" class="form-control" name="SampleVolume" ng-model="item.SampleVolume" placeholder="Sample Volume">
+                </div>
+            </div>
+            <div class="form-group col-sm-4">
+                <label class="col-sm-12 control-label0 " translate="lis.testmaster.ContainertypeId.lbl"></label>
+                <div class="col-sm-12">
+                    <ui-select ng-model="item.ContainertypeId">
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 20 : 0}}
+                            <span ng-if="$select.selected.Text.length>20">...</span>
+                        </ui-select-match>
+                        <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.ContainterMaster | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search">
+                            </div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+            <div class="form-group col-sm-4">
+                <label class="col-sm-12 control-label0 " translate="lis.testmaster.Methodology.lbl" for="Methodology"></label>
+                <div class="col-sm-12">
+                    <input type="text" class="form-control" name="Methodology" ng-model="item.Methodology" placeholder="" autofocus required>
+                </div>
+            </div>
+
+            <div class="form-group col-sm-4">
+                <label class="col-sm-12 control-label0 " translate="lis.testmaster.DisplayOrder.lbl"></label>
+                <div class="col-sm-12">
+                    <input type="number" class="form-control" name="DisplayOrder" ng-model="item.DisplayOrder" />
+                </div>
+            </div>
+            <div class="form-group col-sm-4">
+                <label class="col-sm-12 control-label0 " translate="lis.testmaster.PrintOrder.lbl"></label>
+                <div class="col-sm-12">
+                    <input type="number" class="form-control" name="PrintOrder" ng-model="item.PrintOrder" />
+                </div>
+            </div>
+            <div class="form-group col-sm-4">
+                <label class="col-sm-12 control-label0" translate="lis.analytemaster.observation.lbl"></label>
+                <div class="col-sm-12">
+                    <input type="text" class="form-control" name="observation" ng-model="item.Observation" placeholder="">
+                </div>
+            </div>
+            <div class="form-group col-sm-4">
+                <label class="col-sm-12 control-label0 " translate="lis.testmaster.isProfile.lbl"></label>
+                <div class="col-sm-12">
+                    <input type="checkbox" name="IsProfile" class="custom-checkbox" ng-model="item.IsProfile" ng-change="profile()">
+                </div>
+            </div>
+            <!-- <div class="form-group col-sm-4">
+                <label class="col-sm-12 control-label0 " translate="lis.testmaster.SampleVolume.lbl"></label>
+                <div class="col-sm-12">
+                    <input type="text" class="form-control" name="SampleVolume" ng-model="item.SampleVolume" placeholder="Sample Volume">
+                </div>
+            </div> -->
+            <div class="form-group col-sm-4">
+                <label class="col-sm-12 control-label0 " for="TAT" translate="TAT"></label>
+                <div class="col-sm-12">
+                    <div class="">
+                        <div class="col-sm-12">
+                            <input type="text" name="TAT" class="form-control" ng-model="item.TATInHours" placeholder="TATInHours">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group col-sm-4">
+                <label class="col-sm-12 control-label0 " for="isdirectbill" translate="lis.testmaster.isdirectbill.lbl"></label>
+                <div class="col-sm-12">
+                    <input type="checkbox" name="isdirectbill" class="custom-checkbox" ng-model="item.IsDirectBill">
+                </div>
+            </div>
+            <div class="form-group col-sm-4">
+                <label class="col-sm-12 control-label0 " for="isculture" translate="Is Culture"></label>
+                <div class="col-sm-12">
+                    <input type="checkbox" name="isculture" class="custom-checkbox" ng-model="item.IsCulture">
+                </div>
+            </div>
+            <div class="form-group col-sm-4">
+                <label class="col-sm-12 control-label0 " for="isactive" translate="Is Active"></label>
+                <div class="col-sm-12">
+                    <input type="checkbox" name="isactive" class="custom-checkbox" ng-model="item.IsActive">
+                </div>
+            </div>
+            <div class="form-group col-sm-4">
+                <label class="col-sm-12 control-label0 " for="isnabl" translate="Is NABLTest"></label>
+                <div class="col-sm-12">
+                    <input type="checkbox" name="isnabl" class="custom-checkbox" ng-model="item.IsNABLTest">
+                </div>
+            </div>
+            <div class="form-group col-sm-4">
+                <label class="col-sm-12 control-label0 " for="isris" translate="Is RIS Sync"></label>
+                <div class="col-sm-12">
+                    <input type="checkbox" name="isris" class="custom-checkbox" ng-model="item.IsRISSync">
+                </div>
+            </div>
+        </div>
+
+    </form>
+
+    <div class="fooder-bgs">
+        <div class="row ">
+            <div class="col-sm-12">
+                <div class="pull-left">
+                    <button class="btn pyr-color10 btn-sm" type="button" ng-click="backToList()">
+                        <i class="fa fa-angle-left" aria-hidden="true"></i>&nbsp;&nbsp;
+                        <span class="btn-fontsize" translate="common.backaction.lbl"></span>
+                    </button>
+
+                </div>
+                <div class="pull-right">
+                    <button type="button" class="draftbutton" translate="common.saveaction.lbl" ng-click="save()"></button>
+                    <button id="btnSaveApprove" type="button" class="draftbutton text-white btn-sm" translate="common.saveapprove-action.lbl" ng-click="saveAndApprove()"></button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

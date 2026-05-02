@@ -1,0 +1,145 @@
+<html>
+
+<head>
+    <style>
+        .title {
+            font-size: 13px;
+            text-align: center;
+        }
+
+        .table1 {
+            border: 1px solid black;
+            font-size: 13px;
+        }
+
+        .table2 {
+            border: 1px solid black;
+            border-top: 0px solid black;
+            font-size: 13px;
+            background-color: #AAAAAA
+        }
+
+        .table3 {
+            border: 1px solid black;
+            border-top: 0px solid black;
+            font-size: 13px;
+        }
+
+        .table4 {
+            text-align: right;
+            font-size: 13px;
+        }
+        .table5 {
+            border: 1px solid black;
+            border-top: 0px solid black;
+            text-align: right;
+            font-size: 13px;
+        }
+        {{include '/Templates/assets/css/core.css'}}
+    </style>
+</head>
+
+<body>
+    <div id="pageHeader">
+        {{{include '/Templates/babu/common/header.tpl.html' 'tpl'}}}
+    </div>
+    <div class="title" style=" font-size: 15px;">Consolidated Lab Results</div>
+    <table class="table1" style="width:100%;">
+        <tr>
+            <td style="width:10%;"><b>Name</b></td>
+            <td>:</td>
+            <td style="width:40%;text-align:left"><b>{{data.Patient.Title.Description}} {{data.Patient.FirstName}} {{data.Patient.MiddleName}} {{data.Patient.LastName}}</b></td>
+            <td><b>MRN</b></td>
+            <td>:</td>
+            <td style="text-align:left"><b>{{data.Patient.MRN}}</b></td>
+        </tr>
+        <tr>
+            <td><b>Age / Sex</b></td>
+            <td>:</td>
+            <td style="text-align:left"><b>{{age data.Patient.DOB}} / {{data.Patient.Gender.Description}}</b></td>
+            <td><b>OP / IP NO</b></td>
+            <td>:</td>
+            <td style="text-align:left"><b>{{data.PatientOrder.Encounter.VisitIdentifier}}</b></td>
+        </tr>
+        <tr>
+            <td><b>DOB</b></td>
+            <td>:</td>
+            <td style="text-align:left"><b>{{data.Patient.DOB}}</b></td>
+            <td><b>Address</b></td>
+            <td>:</td>
+            <td style="text-transform: uppercase;"><b>{{#if data.Patient.AddressLine1}} {{data.Patient.AddressLine1}} {{/if}}&nbsp;{{#if data.Patient.AddressLine2}} {{data.Patient.AddressLine2}} {{/if}}
+                {{#if data.Patient.Area}} <br> {{data.Patient.Area}} {{/if}} {{#if data.Patient.City}} {{data.Patient.City}} {{/if}}
+                {{#if data.Patient.State}} <br> {{data.Patient.State}} {{/if}}
+                {{#if data.Patient.Pincode}} <br> {{data.Patient.Pincode}} {{/if}} {{#if data.Patient.Country}} {{data.Patient.Country}} {{/if}}</b>
+            </td>
+        </tr>
+        <tr>
+            <td><b>Admission Date</b></td>
+            <td>:</td>
+            <td style="text-align:left"><b>{{#if data.PatientOrder.Encounter.AdmissionDate}} {{datetimeformat data.PatientOrder.Encounter.AdmissionDate}} {{/if}}</b></td>
+            <td><b>Discharge Date</b></td>
+            <td>:</td>
+            <td><b>{{#if data.PatientOrder.Encounter.DischargeDate}} {{datetimeformat data.PatientOrder.Encounter.DischargeDate}} {{/if}}</b></td>
+        </tr>
+    </table>
+    <table class="table2" style="width:100%;">
+        <tr>
+            <td style="width:10%;">Date</td>
+            <td style="width:15%;">Order No</td>
+            <td style="width:25%;">Test Details</td>
+            <td style="width:15%;">Results</td>
+            <td style="width:15%;">UOM</td>
+            <td style="width:20%;">Reference Range</td>
+        </tr>
+    </table>
+    <table  class="table3" style="width:100%;">
+    {{#each data.PatientWorkOrderHeaderDetails}}
+
+            <tr>
+                <td style="width:10%">{{datetimeformat OrderRequestDate}}</td>
+                <td style="width:15%">{{OrderNumber}}</td>
+                <td style="width:25%;">&nbsp;</td>
+                <td style="width:15%;">&nbsp;</td>
+                <td style="width:15%;">&nbsp;</td>
+                <td style="width:20%;">&nbsp;</td>
+            </tr>
+            {{#each WorkOrderDetails}}
+             <tr>
+                {{setVariable 'Resultvalue' Resultvalue}}
+                {{setVariable 'QualifierId' QualifierId}}
+                <td style="width:10%;"></td>
+                <td style="width:15%;"></td>
+                <td style="width:25%;">{{Analytename}}</td>
+                <td style="width:15%;">
+                    {{#ifCond 'g.QualifierId' '==' 2}}
+                    <div style="display:inline-block;color:red;">
+                        <b>{{{getVariable 'g.Resultvalue'}}}</b>
+                    </div>
+                    {{else ifCond 'g.QualifierId' '==' 3}}
+                    <div style="display:inline-block;color:red;">
+                        <b>{{{getVariable 'g.Resultvalue'}}}</b>
+                    </div>
+                    {{else}}
+                    <div style="display:inline-block;">
+                        <b>{{{getVariable 'g.Resultvalue'}}}</b>
+                    </div>
+                    {{/ifCond}}
+                </td>
+                <td style="width:15%;">{{AnalyteUOM}}</td>
+                <td style="width:20%;">{{Analyterange}}</td>
+            </tr>
+            {{/each}}
+
+        {{/each}}
+    </table>
+    <br>
+    <br>
+    <table  class="table4"style="width:100%;">
+        <tr>
+            <td style="width:20%;" align="left">Printed On: {{now}}</td>
+            <td style="width:60%;" align="center" class="title">*****End OF Consolidated Lab Result*****</td>
+            <td style="width:20%;" align="right">Authorized Signature</td>
+        </tr>
+    </table>
+</body>
+</html>

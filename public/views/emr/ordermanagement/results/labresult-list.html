@@ -1,0 +1,306 @@
+<style>
+    #workorder {
+        min-height: auto;
+    }
+
+    .tab {
+        float: left;
+        /* border: 1px solid #ccc; */
+        /* background-color: #f4f4f4; */
+        box-shadow: rgb(230 218 218) 0px 4px 12px;
+        width: 30%;
+        overflow: auto;
+        padding: 10px;
+        height: 100vh;
+        border-radius: 10px;
+        margin: 3px;
+        padding-bottom: 90px !important;
+    }
+
+    /* .tab button {
+        background: #fff;
+        color: #000000;
+        border: 1px solid;
+        width: 100%;
+        display: flex;
+        padding: 10px 4px;
+        margin-bottom: 5px;
+        border-radius: 3px;
+        font-size: 12px;
+        justify-content: space-between;
+        align-items: center;
+    } */
+
+    .tab button {
+        background: #f1f3f4;
+        color: #000000;
+        border: 0;
+        border-right: 3px solid;
+        border-left: 3px solid;
+        border-radius: 0px 20px 0px 20px !important;
+        width: 100%;
+        display: flex;
+        padding: 10px 4px;
+        margin-bottom: 5px;
+        border-radius: 0px;
+        font-size: 12px;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    /* Change background color of buttons on hover */
+
+    .tab button:hover {
+        background-color: #5c6bc0;
+        color: #fff;
+    }
+
+    /* Create an active/current "tab button" class */
+
+    .tab button.active {
+        background-color: #1d6090;
+        color: #fff;
+    }
+
+    /* Style the tab content */
+
+    .tabcontent {
+        float: left;
+        padding: 0px 10px;
+        border-radius: 10px;
+        width: 68%;
+        overflow: auto;
+        box-shadow: rgb(230 218 218) 0px 4px 12px;
+        border-left: none;
+        height: 100vh;
+        margin: 3px;
+    }
+
+    .emr_labresults {
+        height: 100vh;
+        overflow: auto;
+    }
+
+    #patient_res td,
+    th {
+        border: none !important;
+        border-bottom: 1px solid #ccc !important;
+    }
+
+    .lbl-test {
+        text-transform: uppercase;
+        color: #c70808 !important;
+    }
+
+    .dr-name {
+        font-weight: 600;
+    }
+
+    .mb-5 {
+        margin-bottom: 100px;
+    }
+
+    ::-webkit-scrollbar {
+        width: 3px;
+    }
+
+    .pull-right.footer_reg_align {
+        margin-top: 14px;
+    }
+
+    .content-wrapper.ng-scope.ng-fadeInUp {
+        margin-bottom: 46px !important;
+    }
+
+    .custom-table {
+        overflow: auto;
+        height: 80vh;
+    }
+
+    span.prov {
+        color: red;
+        font-weight: bolder;
+    }
+
+    label.btn.btn-secondary.opt-selected {
+        color: #006c9a !important;
+        background: #fff !important;
+        border: 1px solid #006c9a;
+        box-shadow: rgb(50 50 93 / 25%) 0px 2px 5px -1px, rgb(0 0 0 / 30%) 0px 1px 3px -1px;
+    }
+</style>
+<script language="javascript">
+    function openCity(evt, cityName) {
+        var i, tabcontent, tablinks;
+        tabcontent = document.getElementsByClassName("tabcontent");
+        for (i = 0; i < tabcontent.length; i++) {
+            tabcontent[i].style.display = "none";
+        }
+        tablinks = document.getElementsByClassName("tablinks");
+        for (i = 0; i < tablinks.length; i++) {
+            tablinks[i].className = tablinks[i].className.replace(" active", "");
+        }
+        document.getElementById(cityName).style.display = "block";
+        evt.currentTarget.className += " active";
+    }
+
+    // Get the element with id="defaultOpen" and click on it
+    document.getElementById("defaultOpen").click();
+</script>
+
+<div class="row">
+    <div class="col-sm-12">
+        <h4 class="page-header mt0" translate="ordermanagement.labresult-list.pagetitle.lbl"></h4>
+
+        <!-- <div class="col-sm-5">
+        </div>
+        <div class="col-sm-4">
+            <div class="col-sm-12">
+                <div class="pull-right">
+                    <button type="button" class="draftbutton" ng-click="print1()"
+                        translate="common.printaction.lbl"></button>
+                    <span class="drhms-billing-btn drhms-outstandingbill-btn" ng-click="doctor_dashboard()"
+                        uib-tooltip="{{'patientemr.mock.emrdashboard.lbl' | translate}}" tooltip-placement="bottom">
+                        <i class="fas fa-th-large" aria-hidden="true"></i>
+                    </span>
+                    <span class="drhms-billing-btn drhms-home-btn" ng-click="checkedinpatients()" ng-if="context=='emr'"
+                        uib-tooltip="{{'patientemr.pmhxdashboard.oplist.lbl' | translate}}" tooltip-placement="bottom">
+                        <i class="fas fa-user-injured"></i>
+                    </span>
+                </div>
+            </div>
+        </div> -->
+    </div>
+</div>
+<emrpatientbanner ng-if="context=='emr'||context=='vorders'" patientid="currentcontext.pid"
+    encounterid="currentcontext.eid">
+</emrpatientbanner>
+<ippatientbanner ng-if="context=='ipemr'||context=='aeemr'||context=='surgery'" patientid="currentcontext.pid"
+    encounterid="currentcontext.eid">
+</ippatientbanner>
+
+
+<!-- <div class="pull-right footer_reg_align"> -->
+
+<!-- </div> -->
+
+<div class="row tablebox" id="tablebox">
+    <div class="col-sm-4">
+        <label class="btn btn-secondary top-option" ng-repeat="option in options" ng-click="getList()"
+            ng-model="currentcontext.option" uib-btn-radio="option.key">{{option.name}}</label>
+        <div ui-view></div>
+    </div>
+    <div class="col-sm-8">
+        <div class="col-sm-3">
+            <input type="text" class="form-control" name="from" ng-change="getList(tab)" ng-date-object
+                uib-datepicker-popup="{{datePickerOptions.dateFormat}}" placeholder="{{datePickerOptions.placeholder}}"
+                ng-click="fromPopup = { opened: true }" is-open="fromPopup.opened" ng-model="currentfilter.From">
+        </div>
+        <div class="col-sm-3">
+            <input type="text" class="form-control" name="to" ng-change="getList()" ng-date-object
+                uib-datepicker-popup="{{datePickerOptions.dateFormat}}" placeholder="{{datePickerOptions.placeholder}}"
+                ng-click="toPopup = { opened: true }" is-open="toPopup.opened" ng-model="currentfilter.To">
+        </div>
+        <div class="col-sm-6">
+            <!-- <button type="button" class="draftbutton" ng-click="printcon()" translate="Consolidate Print"></button> -->
+
+            <button ng-click="openLabResults()" class="default-color2">
+                Previous Lab Results
+            </button>
+            <!-- <span class="pull-right drhms-billing-btn drhms-uplaod-icon" ngf-select ng-model="currentcontext.file"
+                name="file" ngf-max-size="200MB" ngf-change="fileSelected()"><i class="fas fa-upload"></i></span> -->
+            <!-- <img class="imgsrc" src="app/img/main/computer1.png" ngf-select ng-model="currentcontext.file" name="file"
+        ngf-max-size="200MB" ngf-change="fileSelected()"> -->
+        </div>
+    </div>
+</div>
+<div class="tab">
+    <div ng-repeat="item in vm.orders">
+        <button class="tablinks" ng-click="getDetails(item)" id="defaultOpen">
+            <span class="prov" ng-show="item.IsProvisional">PROVISIONAL</span>
+            <div>
+                <displaydate datetime-val='item.OrderRequestDate'></displaydate>
+            </div>
+            <div>{{item.OrderNumber}}</div>
+            <div><span class="dr-name">{{item.DoctorName}} </span><br>
+                <span>{{item.ParentDeparement.DepartmentName}}</span>
+            </div>
+            <div><i class="fas fa-chevron-right"></i></div>
+        </button>
+    </div>
+</div>
+<div id="patient_res" class="tabcontent">
+    <div>
+        <div ng-if="AttachementImgs" id="mySidenav" class="sidenav">
+            <div ng-repeat="AttachementImg in AttachementImgs | orderBy : 'Id' ">
+                <div class="imgrow">
+                </div>
+            </div>
+        </div>
+        <div id="" class="emr_labresults">
+            <div class="col-sm-12">{{OrderInfo.OrderNumber}}&nbsp;/&nbsp; <span class="prov"
+                    ng-show="OrderInfo.IsProvisional">PROVISIONAL &nbsp;/&nbsp; </span>
+                <displaydate datetime-val='OrderInfo.OrderRequestDate'></displaydate>
+            </div>
+            <div class="mb-5">
+                <div>
+                    <div id='workorder' ng-repeat="wo in vm.woorders">
+                        <table class="table table-hover table-responsive table-bordered">
+                            <tbody ng-repeat="test in wo.woDetails">
+                                <tr ng-if="test.RootProfileName">
+                                    <td colspan="9">
+                                        <span class="lbl-profile">{{test.RootProfileName}}</span>
+                                    </td>
+                                </tr>
+                                <tr ng-if="test.ProfileName">
+                                    <td colspan="9">
+                                        <span class="lbl-profile">{{test.ProfileName}}</span>
+                                    </td>
+                                </tr>
+
+                                <tr class="test-name-header"
+                                    ng-hide="test.details.length == 1 && test.Testname.toLowerCase() == test.details[0].Analytename.toLowerCase()">
+                                    <td colspan="9">
+                                        <span class="lbl-test"> {{test.Testname}}</span>
+                                    </td>
+                                </tr>
+                                <tr ng-repeat="item in test.details | filter:{Status:1}">
+                                    <td>
+                                        <span style="color: #5c6bc0;font-weight: 500;">{{item.Analytename}}</span>
+                                    </td>
+                                    <td colspan="{{item.TestValueType == 3 ? '3' : '1'}}">
+                                        <span
+                                            ng-if="(item.QualifierId==1||!item.QualifierId) && item.TestValueType != 3">
+                                            {{item.Resultvalue}}
+                                        </span>
+                                        <span
+                                            ng-if="(item.QualifierId!=1 && item.QualifierId) && item.TestValueType != 3"
+                                            style="color:red;">
+                                            {{item.Resultvalue}}
+                                        </span>
+                                        <span ng-if="item.TestValueType == 3">
+                                            <p ng-bind-html="item.Resultvalue"></p>
+                                        </span>
+                                    </td>
+                                    <td ng-if="item.TestValueType != 3">
+                                        <span ng-model="item.AnalyteUOM">{{item.AnalyteUOM}}</span>
+                                    </td>
+                                    <td>
+                                        <span>{{item.Analyterange}}</span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                    </div>
+                </div>
+                <div class="pull-right">
+                    <button type="button" class="draftbutton" ng-show="currentcontext.WoId>0" ng-click="print()"
+                        translate="common.printaction.lbl"></button>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+</div>

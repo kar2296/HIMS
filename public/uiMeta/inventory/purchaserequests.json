@@ -1,0 +1,49 @@
+{
+    "Title" : "Purchase Request(s)",
+    "ControllerName" : "purchaseRequestList",
+    "InitAction" : {
+        "url" : "General/Options/getoptions",
+        "behaviour" : "default",
+        "optionkeys" : [ {"name" : "Facility"}, {"name" : "PRType"}, {"name" : "StoreMaster"} ]
+    },
+    "FilterConfig" :[ {
+        "localizationpath" : "inventory.purchaserequests",
+        "controls" :[
+               { "combo" : true, "label" : "Facility", "name" : "filter_facility", "model" : "currentfilter.FacilityId", "placeholder" : "", "collection" : "lookup.Facility", "valuefield" : "Id", "displayfield" : "Text" },
+               { "combo" : true, "label" : "PRType", "name" : "filter_type", "model" : "currentfilter.PRTypeId", "placeholder" : "", "collection" : "lookup.PRType", "valuefield" : "Id", "displayfield" : "Text" },
+               { "combo" : true, "label" : "StoreMaster", "name" : "filter_store", "model" : "currentfilter.StoreId", "placeholder" : "", "collection" : "lookup.StoreMaster", "valuefield" : "Id", "displayfield" : "Text" }
+            ]
+        }
+    ],
+    "FetchAction" : {
+        "url" : "pharmacy/purchaserequest/GetPurchaseRequests",
+        "behaviour" : "default"
+    },
+    "EditAction" : {
+                "url": "",
+                "state": "inventory.purchaserequest",
+                "params": ["id:row.entity.Id", "prid: $scope.currentcontext.prid"]
+                },
+    "AddAction" : {
+        "url": "",
+        "state": "inventory.purchaserequest",
+        "params": ["id:0", "prid: $scope.currentcontext.prid"]
+        },
+    "DeleteAction" : {
+        "url": "pharmacy/purchaserequest/DeletePurchaseRequest",
+        "behaviour" : "default"
+    },
+    "Localization" : { "localizationmodule" : "inventory", "screenkey" : "purchaserequests" },
+    "GridConfig" :[ {
+        "localizationpath" : "inventory.purchaserequests",
+        "columnDefs": [ { "field": "RequestedDate", "displayName": "PR Date", "name" : "requesteddate" },
+                        { "field": "PRNumber", "displayName": "PR Number", "name" : "prnumber" }, 
+                        { "field": "StoreMaster.StoreName", "displayName": "From Store", "name" : "fromstore" },
+                        { "field": "StoreMaster.StoreName", "displayName": "To Store", "name" : "tostore" },
+                        { "field": "PRType.Description", "displayName": "Type", "name" : "type" },
+                        { "field": "VendorMaster.VendorName", "displayName": "Vendor Name", "name" : "vendorname" },
+                        { "field": "StatusTODO", "displayName": "Status", "name" : "status" }
+                    ]
+        }
+    ]
+}

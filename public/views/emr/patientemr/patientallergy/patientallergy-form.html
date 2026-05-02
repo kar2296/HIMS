@@ -1,0 +1,82 @@
+<ul class="breadcrumb" ng-if="!currentcontext.ismodal">
+    <li><a ng-click="backToList()" translate="patientemr.patientallergy-form.parentpagetitle.lbl"></a></li>
+    <li class="active" translate="patientemr.patientallergy-form.pagetitle.lbl"></li>
+</ul>
+<div class="modal-header custom-modal-header" ng-if="currentcontext.ismodal">
+    <div class="col-sm-10">
+        <h4 class="modal-title custom-modal-title" translate="patientemr.patientallergy-form.pagetitle.lbl"></h4>
+    </div>
+    <div class="col-sm-2">
+        <div class="filters">
+            <img src="../../../../../assets/svg/close.svg" ng-click="backToList()">
+        </div>
+    </div>
+</div>
+<div class="row">
+    <form id="item_form0" name="item_form" class="form-horizontal" role="form" ng-submit="saveItem()">
+        <div class="form-group col-sm-4">
+            <label class="col-sm-12 control-label" for="allergy"
+                translate="patientemr.patientallergy-form.allergy.lbl"></label>
+            <div class="col-sm-12">
+                <ui-select id="allergy" ng-model="item.AllergyId" name="allergy"
+                    ng-change="fillMasterInfo($select.selected)" required>
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 20 : 0}}
+                        <span ng-if="$select.selected.Text.length>20">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.Allergy | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+        <div class="form-group col-sm-4">
+            <label class="col-sm-12 control-label" for="type"
+                translate="patientemr.patientallergy-form.type.lbl"></label>
+            <div class="col-sm-12">
+                <ui-select ng-model="item.AllergyTypeId" name="type" required>
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 20 : 0}}
+                        <span ng-if="$select.selected.Text.length>20">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.AllergyType | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+        <div class="form-group col-sm-4">
+            <label class="col-sm-12 control-label" for="allergyname"
+                translate="patientemr.patientallergy-form.allergyname.lbl"></label>
+            <div class="col-sm-12">
+                <input type="text" class="form-control" name="allergyname" ng-model="item.AllergyName" placeholder=""
+                    required>
+            </div>
+        </div>
+        <div class="form-group col-sm-4">
+            <label class="col-sm-12 control-label" for="startdate"
+                translate="patientemr.patientallergy-form.startdate.lbl"></label>
+            <div class="col-sm-12">
+                <input type="text" class="form-control" name="startdate" ng-date-object
+                    uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                    placeholder="{{datePickerOptions.placeholder}}" ng-click="startdatePopup = { opened: true }"
+                    is-open="startdatePopup.opened" ng-model="item.StartDate" required>
+            </div>
+        </div>
+        <div class="form-group col-sm-4">
+            <label class="col-sm-12 control-label" for="comments"
+                translate="patientemr.patientallergy-form.comments.lbl"></label>
+            <div class="col-sm-12">
+                <commentscontrol comments="item.Comments"></commentscontrol>
+            </div>
+        </div>
+    </form>
+</div>
+<div class="row">
+    <div class="pull-right">
+        <button type="submit" ng-click="saveItem()" ng-if="canUpdatePatientEMR()" class="draftbutton"
+            translate="common.saveaction.lbl"></button>
+    </div>
+</div>

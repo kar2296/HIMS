@@ -1,0 +1,54 @@
+<link rel="stylesheet" href="app/css/drhms.css">
+<div class="row">
+    <div class="drhms-filters">
+        <div class="col-sm-5">
+            <h4 translate="inventory.uommaster.pnluommaster.lbl"></h4>
+        </div>
+        <div class="col-sm-3">
+            <ui-select ng-model="currentfilter.FacilityId" ng-change="getList()" class="filter-combo">
+                <ui-select-match>
+                    {{$select.selected.Text | limitTo : 8 : 0}}
+                    <span ng-if="$select.selected.Text.length>8">...</span>
+                </ui-select-match>
+                <ui-select-choices
+                    repeat="lookupitem.Id as lookupitem in lookup.Facility | filter: { Text: $select.search }">
+                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                </ui-select-choices>
+            </ui-select>
+        </div>
+        <div class="col-sm-3">
+            <ui-select ng-model="currentfilter.ActiveStatusId" ng-change="getList()" class="filter-combo">
+                <ui-select-match>
+                    {{$select.selected.Text | limitTo : 8 : 0}}
+                    <span ng-if="$select.selected.Text.length>8">...</span>
+                </ui-select-match>
+                <ui-select-choices
+                    repeat="lookupitem.Id as lookupitem in lookup.ActiveStatus | filter: { Text: $select.search }">
+                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                </ui-select-choices>
+            </ui-select>
+        </div>
+        <div class="col-sm-3">
+            <div class="search">
+                <input type="text" id="pid" class="form-control" on-enter="getList()" ng-model="currentfilter.uomname"
+                    translate translate-attr-placeholder="inventory.uommasters.filter_name.lbl"> <i class="fas fa-search"
+                    aria-hidden="true"></i>
+            </div>
+        </div>
+        <div class="col-sm-1">
+            <button type="button" class="drhms-billing-btn drhms-add-btn" ng-click="addNew()" uib-tooltip="UOM'S">
+                <i class="fa fa-plus"></i>
+            </button>
+            <span class="drhms-billing-btn drhms-home-btn"><i class="fas fa-home" ng-click="backtoList()"
+                    uib-tooltip="Dashboard" tooltip-placement="bottom"></i></span>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="fooder-bgs">
+        <custom-table config="vm.gridConfig"></custom-table>
+        <ul uib-pagination total-items="vm.gridConfig.pagerObj.totalItems"
+            items-per-page="vm.gridConfig.pagerObj.pageSize" start-index="vm.gridConfig.pagerObj.startIndex"
+            ng-model="vm.gridConfig.pagerObj.currentPage" ng-change="getList()"></ul>
+    </div>
+</div

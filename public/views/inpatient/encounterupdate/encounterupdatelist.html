@@ -1,0 +1,111 @@
+<style>
+    .form-horizontal .form-group {
+        margin-bottom: 10px;
+    }
+</style>
+<div class="row">
+    <div class="col-sm-9">
+        <h4 class="mt0" translate="Referral Doctor Change"></h4>
+    </div>
+    <div class="col-sm-3">
+        <div class="filters">
+            <input type="text" id="pid" class="form-control" on-enter="getList()"
+                ng-model="currentfilter.PatientNameMRN" placeholder="Search Patient/UHID/Visit#/Mobile#"> 
+                <!-- <i class="fas fa-search" aria-hidden="true"></i> -->
+        </div>
+    </div>
+</div>
+<div class="row">
+    <form id="item_form" name="item_form" class="form-horizontal" role="form">
+        <div class="form-group col-sm-4">
+            <label class="col-sm-5 control-label" translate="From Date"></label>
+            <div class="col-sm-7">
+                <div class="datepicker">
+                    <input type="text" class="form-control" name="fromdate" ng-change="getList()"
+                        datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}"
+                        uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                        placeholder="{{datePickerOptions.placeholder}}" ng-click="fromdatePopup = { opened: true }"
+                        is-open="fromdatePopup.opened" ng-model="currentfilter.FromDate">
+                    <i class="fa fa-calendar" aria-hidden="true"></i>
+                </div>
+            </div>
+        </div>
+        <div class="form-group col-sm-4">
+            <label class="col-sm-5 control-label" translate="To Date"></label>
+            <div class="col-sm-7">
+                <div class="datepicker">
+                    <input type="text" class="form-control" name="todate" ng-change="getList()"
+                        datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}"
+                        uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                        placeholder="{{datePickerOptions.placeholder}}" ng-click="todatePopup = { opened: true }"
+                        is-open="todatePopup.opened" ng-model="currentfilter.ToDate">
+                    <i class="fa fa-calendar" aria-hidden="true"></i>
+                </div>
+            </div>
+        </div>
+        <div class="form-group col-sm-4">
+            <label class="col-sm-5 control-label" translate="Doctor Name"></label>
+            <div class="col-sm-7">
+                <ui-select ng-model="currentfilter.DoctorId" ng-change="getList()" class="filter-combo">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 20 : 0}}
+                        <span ng-if="$select.selected.Text.length>20">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.Doctor | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+        <div class="form-group col-sm-4">
+            <label class="col-sm-5 control-label" translate="Visit Type"></label>
+            <div class="col-sm-7">
+                <ui-select ng-model="currentfilter.EncounterTypeId" ng-change="getList()" class="filter-combo">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 20 : 0}}
+                        <span ng-if="$select.selected.Text.length>20">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.EncounterType | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+        <div class="form-group col-sm-4">
+            <label class="col-sm-5 control-label" translate="Source Type"></label>
+            <div class="col-sm-7">
+                <ui-select ng-model="currentfilter.ReferralTypeId" ng-change="getList()" class="filter-combo">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 8 : 0}}
+                        <span ng-if="$select.selected.Text.length>8">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.ReferralType | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+        <div class="form-group col-sm-4">
+            <label class="col-sm-5 control-label" translate="Referral"></label>
+            <div class="col-sm-7">
+                <autosearch itemid="currentfilter.ReferralId" itemchange="getList()" config="vm.referralcontrolconfig"
+                    placeholder="'Referral'" isrequired="true" onenter=onenter()>
+                </autosearch>
+            </div>
+        </div>
+    </form>
+</div>
+</div>
+<div class="row">
+    <custom-table config="vm.gridConfig"></custom-table>
+</div>
+<div class="fooder-bgs">
+    <div class="row">
+        <ul uib-pagination total-items="vm.gridConfig.pagerObj.totalItems"
+            items-per-page="vm.gridConfig.pagerObj.pageSize" start-index="vm.gridConfig.pagerObj.startIndex"
+            ng-model="vm.gridConfig.pagerObj.currentPage" ng-change="getList()"></ul>
+    </div>
+</div>

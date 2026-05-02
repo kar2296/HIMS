@@ -1,0 +1,77 @@
+<style>
+    .modal-dialog.modal-lg {
+        width: 38%;
+    }
+    
+    .modal-content .panel-body {
+        height: 123px;
+        overflow: inherit;
+    }
+</style>
+<div class="modal-header custom-modal-header">
+    <h4 class="modal-title custom-modal-title" translate="mlc-list.updateencdata.lbl"></h4>
+</div>
+<div class="">
+    <patientbanner patientid="currentcontext.pid"></patientbanner>
+</div>
+<div class="row">
+    <div class="col-sm-12" style="margin-top: 10px;">
+        <form id="item_form" name="item_form" class="form-horizontal" role="form">
+            <div class="panel-body form-panel outer_border">
+                <div class="panel panel-default">
+                    <div class="form-group col-sm-3">
+                        <label class="col-sm-12 control-label" for="approvedby" translate="admissionrequests.doctor.lbl"></label>
+                        <div class="col-sm-12">
+                            <ui-select ng-model="item.DoctorId" name="approvedby" ng-change="onDoctorSelected($select.selected)">
+                                <ui-select-match>
+                                    <span ng-if="$select.selected.Id==-1">{{$select.selected.Text | limitTo : 8 : 0}}
+                                    </span>
+                                    <span ng-if="$select.selected.Id!=-1">{{$select.selected.Title.Description}}&nbsp;{{$select.selected.FirstName}}&nbsp;{{$select.selected.LastName
+                                        | limitTo : 10: 0}}</span>
+                                    <span ng-if="$select.selected.Text.length>20">...</span>
+                                </ui-select-match>
+                                <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.Doctor | filter: { Text: $select.search }">
+                                    <div ng-if="lookupitem.Id==-1">
+                                        <span ng-bind-html="lookupitem.Text | highlight: $select.search"></span>
+                                    </div>
+                                    <div ng-if="lookupitem.Id!=-1">
+                                        <span>{{lookupitem.Title.Description}}</span>
+                                        <span ng-bind-html="lookupitem.FirstName | highlight: $select.search"></span>
+                                        <span>{{lookupitem.LastName}}</span>
+                                    </div>
+                                </ui-select-choices>
+                            </ui-select>
+                        </div>
+                    </div>
+                    <div class="form-group col-sm-3">
+                        <label class="col-sm-12 control-label" for="referraltype" translate="Source Type"></label>
+                        <div class="col-sm-12">
+                            <ui-select ng-model="item.ReferralTypeId" ng-change="getReferralLookUp()" name="referraltype" ng-disabled="DisableReferral">
+                                <ui-select-match>
+                                    {{$select.selected.Text | limitTo : 20 : 0}}
+                                    <span ng-if="$select.selected.Text.length>20">...</span>
+                                </ui-select-match>
+                                <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.ReferralType | filter: { Text: $select.search }">
+                                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                </ui-select-choices>
+                            </ui-select>
+                        </div>
+                    </div>
+                    <div class="form-group col-sm-3">
+                        <label class="col-sm-12 control-label" for="referredby" translate="admission.referral.lbl"></label>
+                        <div class="col-sm-12 minifisearch" id="referralname">
+                            <autosearch itemid="item.ReferralId" iteminfo="" rowdata="" name="'referredby'" config="vm.referralcontrolconfig" itemchange="getReferral($select.selected)" isrequired="true">
+                            </autosearch>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </form>
+    </div>
+</div>
+<div class="fooder-bgs">
+    <div class="pull-right">
+        <button type="button" class="draftbutton" ng-click="UpdateEncData()" translate="common.saveaction.lbl"></button>
+    </div>
+</div>

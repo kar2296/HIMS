@@ -1,0 +1,257 @@
+<html>
+
+<head>
+    <style>
+        .table1 {
+            border: 1px solid black;
+            border-bottom: 0px solid black;
+        }
+
+        .table2 {
+            border: 1px solid black;
+            border-bottom: 0px solid black;
+            border-top: 0px solid black;
+            text-align: left;
+            border-collapse: collapse;
+        }
+
+        .table3 {
+            border: 1px solid black;
+            border-bottom: 1px solid black;
+        }
+
+        .border {
+            border-collapse: collapse;
+            border-left: 1px solid black;
+        }
+
+        .table4 {
+            border: 1px solid black;
+            border-bottom: 0px solid black;
+            border-top: 0px solid black;
+            text-align: left;
+        }
+
+        .table5 {
+            border: 1px solid black;
+            border-bottom: 0px solid black;
+        }
+
+        .table6 {
+            border: 0px solid;
+            border-bottom: 0px solid;
+            text-align: left;
+        }
+
+        .table2 tr th,
+        .table2 tr td {
+            border: 1px solid black;
+        }
+
+        .table2 {
+            border: 1px solid black;
+        }
+
+        .amt {
+            border-bottom: 0px solid;
+            border-left: 0px solid;
+            border-right: 0px solid;
+        }
+
+        td {
+            padding: 2px !important;
+            font-family: sans-serif;
+            vertical-align: top;
+
+        }
+
+        th {
+            padding: 3px;
+            font-family: sans-serif;
+            vertical-align: top;
+        }
+
+        .table2 td {
+            padding: 3px !important;
+        }
+
+        table {
+            border: 0px !important;
+        }
+
+        .table2 {
+            border: 1px !important;
+        }
+
+        .table5 {
+            border-top: 1px solid !important;
+            border-bottom: 1px solid !important;
+        }
+
+        {{ include '/Templates/champion/assets/css/core.css'}}
+    </style>
+</head>
+
+
+
+<body>
+    <div id="pageHeader">
+        {{{include '/Templates/champion/common/header.tpl.html' 'tpl'}}}
+    </div>
+    <div class="content">
+        <div class="border-top"></div>
+            <table style="width:100%;">
+                <tr>
+                <tr>
+                    <td style="text-align:center;" style="width:100%"><b style="font-size: 20px;">Dispense Work Lists</b></td>
+                </tr>
+            </table>
+            <div class="border-top"></div>
+            <br>
+    <table class="table6" style="width:100%;">
+        <tr>
+            <td><b>Registration No.</b></td>
+            <td>:</td>
+            <td><b>{{data.PatientDispense.Patient.MRN}}</b></td>
+            <td><b>Dispense NO</b></td>
+            <td>:</td>
+            <td><b>{{data.PatientDispense.DispenseNumber}}</b></td>
+        </tr>
+
+        <tr>
+            <td><b>Patient Name</b></td>
+            <td>:</td>
+            <td><b>{{data.PatientDispense.Patient.Title.Description}} {{data.PatientDispense.Patient.FirstName}} {{data.PatientDispense.Patient.MiddleName}}
+                {{data.PatientDispense.Patient.LastName}}</b></td>
+            <td><b>Dispense Date</b></td>
+            <td>:</td>
+            <td>{{datetimeformat data.PatientDispense.DispenseDateTime}}</td>
+        </tr>
+        <tr>
+            <td><b>Age / Sex</b></td>
+            <td>:</td>
+            <td style="text-transform:uppercase;">{{ageonlyyear data.PatientDispense.Patient.DOB}} /
+                {{data.PatientDispense.Patient.Gender.Description}}</td>
+
+            <td><b>Bed No. / Room</b></td>
+            <td>:</td>
+            <td><b> {{data.PatientDispense.BedId}} / {{data.PatientDispense.WardRoomMaster.RoomNo}}</b></td>
+        </tr>
+        <tr>
+            <td><b>Doctor Name</b></td>
+            <td>:</td>
+            <td>{{data.PatientDispense.User.Title.Description}} {{data.PatientDispense.User.FirstName}}
+                {{data.PatientDispense.User.LastName}}
+            </td>
+            <td><b>Ward</b></td>
+            <td>:</td>
+            <td><b>{{data.PatientDispense.WardMaster.WardName}}</b></td>
+
+        </tr>
+    </table>
+
+    <table class="table2" style="width:100%;">
+        <tr>
+            <th style="width:5%" align="center">S.No</th>
+            <th style="width:30%" align="left">Description</th>
+            <!-- <th style="width:6%" align="left">HSN</th>
+            <th style="width:5%" align="left">Sch.</th> -->
+            <th style="width:15%" align="center">Batch /Exp</th>
+            <th style="width:10%" align="right">MRP</th>
+            <th style="width:10%" align="center">Req.Q</th>
+            <th style="width:10%" align="center">Disp.Q</th>
+            <th style="width:10%" align="right">Value</th>
+            <!-- <th colspan="2" style="width:12%" align="center">CGST</th>
+            <th colspan="2" style="width:12%" align="center">SGST</th> -->
+            <th style="width:10%" align="right">Amount</th>
+        </tr>
+
+        <!-- <tr>
+            <th colspan="9" style="width:71%" align="left"></th>
+            <th style="width:5%" align="left">Rate%</th>
+            <th style="width:7%" align="left">Amt</th>
+            <th style="width:5%" align="left">Rate%</th>
+            <th style="width:7%" align="left">Amt</th>
+            <th style="width:5%" align="left">Amount</th>
+        </tr> -->
+
+        {{#each data.PatientDispenseDetails}}
+        <tr>
+            <td align="center">{{inc @index}}</td>
+            <td align="left">{{ItemName}}</td>
+            <!-- <td>{{ItemMaster.ProductRegNo}}</td>
+            <td>{{ScheduleTypeDescription}}</td> -->
+            <td align="center">{{BatchId}} / {{expdateformat ExpiryDate}}</td>
+            <td align="right">{{currencyformat Mrp}}</td>
+            <td align="center">{{RequestedQuantity}}</td>
+            <td align="center">{{DispensedQuantity}}</td>
+            <td align="right">{{currencyformat Amt}}</td>
+            <!-- <td>{{CGstPercentage}}</td>
+            <td>{{currencyformat CGstAmount}}</td>
+            <td>{{SGstPercentage}}</td>
+            <td>{{currencyformat SGstAmount}}</td> -->
+            <td align="right">{{currencyformat Amount}}</td>
+        </tr>
+        {{/each}}
+    </table>
+<br>
+<br>
+    <table class="amt" style="width:100%;border-top:unset !important;">
+        <tr>
+            <td style="width: 60%;">
+                <!-- <img class="" style="width10%;"
+                    src="https://chart.googleapis.com/chart?chs=90x90&cht=qr&chl={{data.QrInfo}}" /> -->
+                    <b>Amount in words</b><span>:</span> <span>Rupees <span style="text-transform: capitalize">
+                        {{decimalnrInWords data.PatientDispense.DispensedValue}}</span> only</span>
+            </td>
+            <td>
+                <table style="width:100%;font-size:10px;">
+                    <tr>
+                        <td align="right"><b>Net Amount</b></td>
+                        <td>:</td>
+                        <td align="right">{{currencyformat currencyformat data.PatientDispense.DispensedValue}}
+                        </td>
+                    </tr>
+                    {{#if data.PatientDispenseDetails.RefundedAmount}}
+                    <tr>
+                        <td align="right"> Refunded </td>
+                        <td>:</td>
+                        <td align="right">{{currencyformat data.PatientReturns.RefundedAmount}}</td>
+                    </tr>
+                    {{/if}}
+                    {{#if data.PatientReturns.ToBeRefundAmount}}
+                    <tr>
+                        <td align="right"> Refunded </td>
+                        <td>:</td>
+                        <td align="right">{{currencyformat data.PatientReturns.ToBeRefundAmount}}</td>
+                    </tr>
+                    {{/if}}
+                </table>
+            </td>
+        </tr>
+    </table> 
+
+    <table class="table3" style="width:100%;">
+        <tr style="border:1px solid;">
+            <td>
+                Whether Tax Payable Under RCM: No
+            </td>
+        </tr>
+        <tr>
+            <td style="list-style-position: inside">
+                Bill Generated By : <b>{{data.PatientDispense.ApprovedUser.Title.Description}}
+                    {{data.PatientDispense.ApprovedUser.FirstName}} {{data.PatientDispense.ApprovedUser.LastName}}</b>
+                on <b>{{now}}</b>
+            </td>
+        </tr>
+        <tr>
+            <td style="list-style-position: inside">
+                DL NO: KABNG/III/20&21/1928.|KABNG/III/21F-42
+            </td>
+
+        </tr>
+    </table>
+    </div>
+</body>
+
+</html>

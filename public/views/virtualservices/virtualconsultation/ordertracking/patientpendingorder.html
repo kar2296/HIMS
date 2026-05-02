@@ -1,0 +1,260 @@
+<style>
+    .col-xs-2.col-sm-2 {
+    width: 16%;
+    display: flex;
+    padding: 0;
+}
+.scheduledate {
+    display: inline-flex;
+    font-size: 14px !important;
+    color: #ad6700;
+    margin-top: 4px;
+}
+.col-sm-3 {
+    width: 25%;
+    padding: 5px;
+    display: flex;
+}
+.col-sm-5 {
+    width: 40   .666667% !important;
+    display: flex;
+}
+i.fa.fa-clock {
+    margin-top: 2px;
+    margin-right: 6px;
+    font-size: 14px;
+}
+[class^="icofont-"], [class*=" icofont-"] {
+    font-size: 25px;
+    color: #164360;
+    margin: 0 7px;
+}
+.col-sm-1 {
+    width: 13.333333% !important;
+}
+h6.orderstatus.ng-binding {
+    position: relative;
+    bottom: 5px;
+}
+.card {
+    padding: 0px 0 0px !important;
+}
+.titlediv {
+    background: #164360;
+    margin-bottom: 9px;
+    color: white;
+    padding: 1px 8px;
+    margin-top: 11px;
+    border-radius: 4px;
+}
+h5.patientname.ng-binding {
+    font-weight: bolder !important;
+}
+.col-lg-12.col-md-12.col-sm-12.col-xs-12.bhoechie-tab-container {
+    height: 67vh;
+    overflow: scroll;
+}
+
+::-webkit-scrollbar {
+        width: 2px !important;
+        background: #e4e2e2;
+        border-radius: 16px;
+        height: 2px;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background-color: #6f6a6a;
+    }
+    h6.categoryname.ng-binding {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+</style>
+<div class="modal-header custom-modal-header">
+    <h4 class="modal-title custom-modal-title col-sm-10">Pending Orders</h4>
+    <div class="col-sm-2">
+        <button id="btnCancelForm" style="float: right;" type="button" class="draftbutton"
+            ng-click="confirmCallback()" translate="X"></button>
+    </div>
+</div>
+
+<div id="checkedinpatients" class="doct_checkedinpatients">
+    <div class="col-sm-12">
+        <div class="col-sm-6">
+            <label class="col-sm-4 control-label filter-lbl" translate="virtualhealth.doctors.category.lbl"
+                style="color: black !important;"></label>
+            <div class="col-sm-8">
+                <ui-select ng-model="currentfilter.VirtualCategoryId" ng-change="getList()" class="filter-combo">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 20 : 0}}
+                        <span ng-if="$select.selected.Text.length > 20">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.VirtualCategory | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+        <div class="col-sm-6">
+            <label class="col-sm-4 control-label filter-lbl" translate="virtualhealth.doctors.subcategory.lbl"
+                style="color: black !important;"></label>
+            <div class="col-sm-8">
+                <ui-select ng-model="currentfilter.VirtualSubCategoryId" ng-change="getList()" class="filter-combo">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 20 : 0}}
+                        <span ng-if="$select.selected.Text.length > 20">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.VirtualSubCategory | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- <custom-table config="vm.gridConfig"></custom-table> -->
+<div class="">
+
+    <div class="row" style="margin-top:0px;">
+        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 bhoechie-tab-container">
+      
+            <div class="col-lg-10 col-md-12 col-sm-12 col-xs-12 bhoechie-tab">
+                <div class="titlediv">
+                    <h4>Order Details</h4>
+                </div>
+                <div class="bhoechie-tab-content card" ng-repeat="ctgry in PendingOrders">
+
+                    <div class="col-md-12 col-sm-12">
+                        <div class="col-xs-2 col-sm-2">
+                            <h5 class="orderno">{{ctgry.OrderNumber}}&nbsp;|</h5>&nbsp;&nbsp;
+                            <h6 class="orderdate">
+                                <displaydate date-val="ctgry.OrderRequestDate">
+                                </displaydate>
+                            </h6>
+                        </div>
+                        <div class="col-xs-5 col-sm-5">
+                            <h5 class="patientname">{{ctgry.Patient.Title.Description}} .
+                                {{ctgry.Patient.FirstName}}&nbsp;{{ctgry.Patient.LastName}} | <span
+                                    style="font-weight: 600;color: #164360;">{{ctgry.Patient.MRN}}</span></h5> &nbsp;&nbsp;
+                            <h6 class="categoryname">{{ctgry.VirtualCategory.CategoryName}} |
+                                {{ctgry.VirtualSubCategory.SubCategoryName}} </p>
+
+                        </div>
+                        <div class="col-xs-3 col-sm-3">
+                            <div class="scheduledate"><i class="fa fa-clock" aria-hidden="true"></i>
+                                <displaydate date-val="ctgry.OrderScheduleDate">
+                                </displaydate> &nbsp;&nbsp;
+                                <span>{{ctgry.StartTime}} to {{ctgry.EndTime}}</span>
+                            </div>&nbsp;&nbsp;
+                            <h6 class="orderstatus"> {{ctgry.VirtualOrderStatus.Description}}</h6>
+                        </div>
+                        <div class="col-xs-1 col-sm-1" style="padding: 5px;">
+                            <!-- <h4>{{ctgry.StartDate}}</h4> -->
+                            <div class="ui-grid-cell-contents">
+                                    <i class="icofont-tick-boxed" ng-click="handleEvents('confirm',ctgry)"
+                                    ng-if="ctgry.VirtualOrderStatusId==1" tooltip-placement="top" ></i>
+
+                                    <i class="icofont-doctor-alt"  ng-click="handleEvents('assign',ctgry)"
+                                    ng-if="ctgry.VirtualOrderStatusId==2" tooltip-placement="top"></i>
+
+                                    <i class="icofont-ebook" ng-click="handleEvents('orderinfo',ctgry)"
+                                    tooltip-placement="top"></i>
+                            </div>
+
+
+                        </div>
+                    </div>
+
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+<div class="container-fluid " style="margin-top: 11px;">
+    <div class="fooder-bgs " style="margin-bottom: -2px !important;">
+        <div class="row">
+            <ul uib-pagination total-items="vm.gridConfig.pagerObj.totalItems"
+                items-per-page="vm.gridConfig.pagerObj.pageSize" start-index="vm.gridConfig.pagerObj.startIndex"
+                ng-model="vm.gridConfig.pagerObj.currentPage" ng-change="getList()"></ul>
+        </div>
+    </div>
+</div>
+<div class="fooder-bgs" ng-show="context=='bypid'">
+    <div class="pull-left">
+        <button class="btn pyr-color10 btn-sm" type="button" ng-click="backToList()">
+            <i class="fa fa-angle-left" aria-hidden="true"></i>&nbsp;&nbsp;
+            <span class="btn-fontsize" translate="common.backaction.lbl"></span>
+        </button>
+    </div>
+</div>
+
+<style>
+    i.fa.fa-clock {
+    margin-top: 2px;
+    margin-right: 6px;
+}
+h3, .h3, h4, .h4, h5, .h5, h6, .h6 {
+    margin-top: 10.5px;
+    margin-bottom: 10.5px;
+    font-size: 14px !important;
+}
+    .col-md-12.col-sm-12 {
+    margin-bottom: unset !important;
+    border-bottom: unset !important;
+    padding: unset !important;
+    width: 97%;
+    margin-left: 2%;
+    font-size: unset;
+}
+.col-sm-3 {
+    width: 30%;
+    padding: 5px;
+}
+.card {
+    padding: 0px 0 10px;
+    -webkit-transition: .3s ease;
+    min-height: 0;
+    transition: .5s;
+    border: 1px solid #f2f2f2;
+    display: inline-block;
+    position: relative;
+    width: 100%;
+    border-radius: 4px;
+    color: rgba(0, 0, 0, .87);
+    background: #fff;
+    box-shadow: 0 2px 2px 0 rgba(0, 0, 0, .14), 0 3px 1px -2px rgba(0, 0, 0, .2), 0 1px 5px 0 rgba(0, 0, 0, .12);
+    font-size: 11px !important;
+}
+.scheduledate {
+    display: inline-flex;
+    font-size: 17px;
+    color: #ad6700;
+}
+button.grid-action.check {
+    background: #ef6767;
+    color: white;
+    padding: 2px 4px;
+    border-radius: 5px;
+    font-size: 14px;
+}
+button.grid-action.advice {
+    background: #16ad1abf;
+    color: white;
+    padding: 3px 12px;
+    border-radius: 5px;
+    font-size: 14px;
+}
+button.grid-action.confrim.ng-scope {
+    background: #14147b96;
+    color: white;
+    padding: 2px 5px;
+    border-radius: 5px;
+    font-size: 14px;
+
+}
+</style>

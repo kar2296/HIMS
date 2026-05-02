@@ -1,0 +1,183 @@
+<style>
+  .modal-lg {
+        width:600px !important;
+    }
+    .panel-body {
+        background-image: url(app/img/bg-body.jpg);
+        background-repeat: repeat;
+        overflow: auto;
+    }
+    .panel{margin: 0px ;}
+    
+    .well {
+        min-height: 20px;
+        padding: 19px;
+        margin-bottom: 0px;
+        border: 1px solid #ededed;
+        border-radius: 4px;
+        background: rgb(233, 246, 253);
+        /* Old browsers */
+        background: -moz-linear-gradient(top, rgba(233, 246, 253, 1) 0%, rgba(211, 238, 251, 1) 100%);
+        /* FF3.6-15 */
+        background: -webkit-linear-gradient(top, rgba(233, 246, 253, 1) 0%, rgba(211, 238, 251, 1) 100%);
+        /* Chrome10-25,Safari5.1-6 */
+        background: linear-gradient(to bottom, rgb(250, 250, 250) 0%, rgb(247, 252, 253) 100%);
+        /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+        filter: progid: DXImageTransform.Microsoft.gradient( startColorstr='#e9f6fd', endColorstr='#d3eefb', GradientType=0);
+        /* IE6-9 */
+        box-shadow: 4px 2px 13px -7px rgba(0, 0, 0, 0.75);
+    }
+    
+    .formactionbar {
+        padding: 5px 15px;
+        height: 40px;
+        background-color: #ccecf5;
+    }
+    
+    .custom-modal-header {
+        margin-bottom: 10px;
+        background-color: #597a9a;
+        color: #fff;
+    }
+    
+    .modal-content {
+        -webkit-box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+        box-shadow: -1px 3px 20px 7px rgba(249, 244, 244, 0.5);
+    }
+    
+    .modal-header {
+        padding: 4px 10px;
+        border-bottom: 1px solid #e5e5e5;
+    }
+</style>
+<!--<ul class="breadcrumb">
+    <li><a ng-click="backToList()" translate="registration.guarantor-form-form.parentpagetitle.lbl"></a></li>
+    <li class="active" translate="registration.guarantor-form-form.pagetitle.lbl"></li>
+</ul>	-->
+<div class="modal-header custom-modal-header">
+    <h4 class="modal-title custom-modal-title" translate="billing.opbillinginfo-form.pagetitle.lbl"></h4>
+</div>
+<div class="row">
+    <div class="col-sm-12">
+        <div class="fullreg-profiles">
+            <div class="col-sm-12">
+                  <label>Name :</label> abcd 
+                | <label>MRN Number :</label> UHID1015 
+                | <label>Age / DOB :</label> 7 
+                | <label>Gender :</label> Male 
+            </div>
+        </div>
+        <div class="panel panel-body form-panel">
+            <form id="item_form" name="item_form" class="form-horizontal" role="form" ng-submit="saveItem()">
+                <div class="col-sm-12 well">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label" for="" translate="billing.opbillinginfo-form.priority.lbl"></label>
+                        <div class="col-sm-8">
+                            <ui-select ng-model="item.PriorityId" name="" required>
+                                <ui-select-match>
+                                    {{$select.selected.Text | limitTo : 20 : 0}}
+                                    <span ng-if="$select.selected.Text.length>20">...</span>
+                                </ui-select-match>
+                                <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.Priority | filter: { Text: $select.search }">
+                                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                </ui-select-choices>
+                            </ui-select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label" for="" translate="billing.opbillinginfo-form.guarantortype.lbl"></label>
+                        <div class="col-sm-8">
+                            <ui-select ng-model="item.GuarantorTypeId" name="" required>
+                                <ui-select-match>
+                                    {{$select.selected.Text | limitTo : 20 : 0}}
+                                    <span ng-if="$select.selected.Text.length>20">...</span>
+                                </ui-select-match>
+                                <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.GuarantorType | filter: { Text: $select.search }">
+                                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                </ui-select-choices>
+                            </ui-select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label" for="" translate="billing.opbillinginfo-form.doctorname.lbl"></label>
+                        <div class="col-sm-8">
+                            <ui-select ng-model="item.DoctorName" name="" required>
+                                <ui-select-match>
+                                    {{$select.selected.Text | limitTo : 20 : 0}}
+                                    <span ng-if="$select.selected.Text.length>20">...</span>
+                                </ui-select-match>
+                                <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.DoctorName | filter: { Text: $select.search }">
+                                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                </ui-select-choices>
+                            </ui-select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label" for="" translate="billing.opbillinginfo-form.department.lbl"></label>
+                        <div class="col-sm-8">
+                            <ui-select ng-model="item.DepartmentId" name="" required>
+                                <ui-select-match>
+                                    {{$select.selected.Text | limitTo : 20 : 0}}
+                                    <span ng-if="$select.selected.Text.length>20">...</span>
+                                </ui-select-match>
+                                <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.Department | filter: { Text: $select.search }">
+                                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                </ui-select-choices>
+                            </ui-select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label" for="" translate="billing.opbillinginfo-form.ordertolocation.lbl"></label>
+                        <div class="col-sm-8">
+                            <ui-select ng-model="item.ToLocationId" name="" required>
+                                <ui-select-match>
+                                    {{$select.selected.Text | limitTo : 20 : 0}}
+                                    <span ng-if="$select.selected.Text.length>20">...</span>
+                                </ui-select-match>
+                                <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.ToLocation| filter: { Text: $select.search }">
+                                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                </ui-select-choices>
+                            </ui-select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label" for="" translate="billing.opbillinginfo-form.doctordiscount.lbl"></label>
+                        <div class="col-sm-8">
+                            <input type="text" class="form-control" name="" ng-model="item.DoctorDiscount" placeholder="" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label" for="" translate="billing.opbillinginfo-form.orderstatus.lbl"></label>
+                        <div class="col-sm-8">
+                            <input type="text" class="form-control" name="" ng-model="item.OrderStatus" placeholder="" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label" for="" translate="billing.opbillinginfo-form.billingstatus.lbl"></label>
+                        <div class="col-sm-8">
+                            <input type="text" class="form-control" name="" ng-model="item.BillingStatus" placeholder="" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label" for="" translate="billing.opbillinginfo-form.comments.lbl"></label>
+                        <div class="col-sm-8">
+                            <input type="text" class="form-control" name="" ng-model="item.Comments" placeholder="" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label" for="" translate="billing.opbillinginfo-form.clinicalcomments.lbl"></label>
+                        <div class="col-sm-8">
+                            <input type="text" class="form-control" name="" ng-model="item.clinicalcomments" placeholder="" required>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<div class="panel-footer formactionbar">
+    <div class="pull-right">
+        <button type="submit" class="btn btn-primary btn-sm" translate="common.saveaction.lbl"></button>
+        <button id="btnCancelForm" type="button" class="cancelbutton" ng-click="backToList()" translate="common.cancelaction.lbl"></button>
+    </div>
+</div>

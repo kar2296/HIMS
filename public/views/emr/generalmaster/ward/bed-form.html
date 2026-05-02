@@ -1,0 +1,103 @@
+<style>
+    /* .modal-dialog {
+        width: 900px;
+        margin: 30px auto;
+    } */
+
+    .form-horizontal .form-group {
+        height: 62px;
+    }
+
+    .table-bordered>thead>tr>th,
+    .table-bordered>thead>tr>td {
+        border-bottom-width: 1px;
+        background: #EFEFEF !important;
+        border: 1px solid #D9D9D9 !important;
+        color: #373737 !important;
+        font-size: 13px;
+        font-weight: 400;
+        padding: 6px;
+    }
+</style>
+<div class="modal-header custom-modal-header">
+    <div class="col-sm-10">
+        <h4 class="modal-title custom-modal-title" translate="generalmaster.wardmastertab.pnlbedtitle.lbl"></h4>
+    </div>
+    <div class="col-sm-2">
+        <div class="filters">
+            <img src="../../../../../assets/svg/close.svg" ng-click="cancelCallback()">
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="pull-right" style="margin-bottom: 10px;">
+        <button class="btn-add" ng-click="addNew()"
+            uib-tooltip="{{ 'generalmaster.wardmastertab.pnlbedtitle.lbl' | translate }}" tooltip-placement="bottom">
+            <i class="fa fa-plus" aria-hidden="true"></i></button>
+    </div>
+    <div class="">
+        <form id="item_form" name="item_form" class="form-horizontal" role="form">
+            <table class="application-table table-striped table-bordered">
+                <thead class="bg-subhead">
+                    <tr>
+                        <th class="fs-12 "><span translate="generalmaster.wardmastertab.bedno.lbl"></span></th>
+                        <th class="fs-12 "><span translate="generalmaster.wardmastertab.prefix.lbl"></span></th>
+                        <th class="fs-12"><span translate="generalmaster.wardmastertab.istemp.lbl"></span></th>
+                        <th class="fs-12"><span translate="generalmaster.wardmastertab.serviceratecategory.lbl"></span>
+                        </th>
+                        <th class="fs-12"><span translate="generalmaster.wardmastertab.status.lbl"></span></th>
+                        <th class="fs-12"><span translate="generalmaster.wardmastertab.action.lbl"></span></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="item in bedDetails | filter:{Status:1}">
+                        <td class="fs-12 cell-align-center">
+                            <input type="text" class="form-control" ng-model="item.BedNo">
+                        </td>
+                        <td class="fs-12">
+                            <input type="text" class="form-control" ng-model="item.Prefix">
+                        </td>
+                        <td class="fs-12 " align="center">
+                            <input type="checkbox" class="custom-checkbox" ng-model="item.IsTemp">
+                        </td>
+                        <td class="fs-12 topright">
+                            <ui-select ng-model="item.ServiceRateCategoryId" class="ui-select-grid">
+                                <ui-select-match>
+                                    {{$select.selected.Text | limitTo : 20 : 0}}
+                                    <span ng-if="$select.selected.Text.length>20">...</span>
+                                </ui-select-match>
+                                <ui-select-choices
+                                    repeat="lookupitem.Id as lookupitem in lookup.ServiceRateCategory | filter: { Text: $select.search }">
+                                    <div ng-bind-html="lookupitem.Text | highlight: $select.search">
+                                    </div>
+                                </ui-select-choices>
+                            </ui-select>
+                        </td>
+                        <td class="fs-12 cell-align-center">
+                            <input type="checkbox" class="custom-checkbox" ng-model="item.IsActive">
+                        </td>
+                        <td>
+                            <div class="col-sm-4"></div>
+                            <div class="col-sm-4">
+                                <img class="drhms-edit-button" ng-click="deleteBedDetails($index,item)"
+                                    src="assets/svg/delete.svg" alt="">
+                                <!-- <i class="fa fa-times" aria-hidden="true" ng-click="deleteBedDetails($index,item)"></i> -->
+                            </div>
+                            <div class="col-sm-4"></div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </form>
+    </div>
+    <div class="">
+        <ul uib-pagination total-items="vm.gridConfig.pagerObj.totalItems"
+            items-per-page="vm.gridConfig.pagerObj.pageSize" start-index="vm.gridConfig.pagerObj.startIndex"
+            ng-model="vm.gridConfig.pagerObj.currentPage" ng-change="getList()"></ul>
+        <div class="pull-right" style="margin-top: 10px;">
+            <button type="button" id="btnsubmit" class="draftbutton" translate="common.saveaction.lbl"
+                ng-click="saveItem()"></button>
+        </div>
+    </div>
+</div>

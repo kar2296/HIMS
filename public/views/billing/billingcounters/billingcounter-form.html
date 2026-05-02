@@ -1,0 +1,602 @@
+<style>
+    .filter-area {
+        box-shadow: 1px 4px 18px -10px rgba(0, 0, 0, .75);
+        padding-bottom: 4px;
+    }
+
+    .typeahead-demo>input {
+        background: url(app/img/patterns-bg/search.png) 102.2% center no-repeat #fff;
+        background-size: 10.7% !important;
+    }
+
+    .form-group {
+        margin-bottom: 5px !important;
+    }
+
+    .well.custom_padtop {
+        padding: 0px !important;
+        box-shadow: unset;
+    }
+    .print_dropdown {
+        top: initial;
+        bottom: 100%;
+        margin-bottom: 5px;
+        background: #1e7d9a !important;
+    }
+
+    .print_dropdown span {
+        color: #fff;
+    }
+
+    .print_dropdown li :hover {
+        background: #ad1414 !important;
+        color: #000000 !important;
+    }
+
+    ul#print {
+        margin-right: 3px;
+    }
+
+    .panel-body.form-panel.bg-pattern {
+        overflow: scroll;
+        height: 505px;
+        overflow-x: hidden;
+    }
+
+    .filter-area.row {
+        clear: both;
+    }
+
+    textarea.form-control.notes-textarea.ng-pristine.ng-valid.ng-empty.ng-touched {
+        border: 1px solid #808080;
+    }
+
+    @media (device-width:100vw) and (device-height:100vh) {
+        .panel-body.form-panel.bg-pattern {
+            height: 590px;
+        }
+
+        .inner_content {
+            height: 636px !important;
+            overflow-x: hidden;
+            min-height: 636px;
+        }
+    }
+
+    .table>thead>tr>th {
+        padding: 8px;
+    }
+
+    fieldset {
+        padding-bottom: 0px;
+        border-bottom: 1px dashed #eee;
+        margin-bottom: 0px;
+    }
+
+    #cashcounter thead {
+        background: #0287a5b8;
+        color: #fff;
+        font-weight: 600;
+        font-size: 14px;
+        letter-spacing: 1px;
+    }
+
+    .table>thead>tr>th {
+        color: #fff;
+    }
+
+    .inner_content {
+        height: 508px;
+        overflow-x: hidden;
+    }
+
+    #cashcounter .table-bordered>tbody>tr>td,
+    .table>thead>tr>th {
+        border: 1px solid #bbaeae;
+    }
+
+    #cashcounter .table>tbody>tr>td,
+    .table>thead>tr>th {
+        padding: 1px;
+        text-align: center;
+        font-weight: 700;
+        color: #000;
+    }
+
+    #cashcounter.panel {
+        margin-bottom: 0px;
+    }
+
+    #cashcounter.table {
+        margin-bottom: 1px;
+    }
+
+    #cashcounter .panel.panel-default {
+        border-top-width: 0px;
+        margin-bottom: 8px;
+    }
+
+    @media (min-width: 576px) {
+        #cash_counter {
+            height: 557px;
+            overflow: scroll;
+        }
+    }
+
+    @media (min-width:768px) {
+        #cash_counter {
+            height: 556px;
+            overflow: scroll;
+            overflow-x: hidden;
+        }
+    }
+
+    @media (min-width:1200px) {
+        #cash_counter {
+            height: 530px;
+            overflow: scroll;
+            overflow-x: hidden;
+        }
+    }
+
+    @media (min-width:1360px) {
+        #cash_counter {
+            height: 556px;
+            overflow: scroll;
+            overflow-x: hidden;
+        }
+    }
+
+    .details {
+        color: #bf219d !important;
+    }
+
+    .legendStyle {
+        background: #0073bc !important;
+        clear: both;
+        padding: 5px;
+        margin-bottom: 0px;
+        height: 40px;
+    }
+
+    .legendStyle span {
+        color: #ffffff !important;
+        font-size: 16px;
+        font-family: 'Poppins', sans-serif;
+        font-weight: 700;
+    }
+
+    fieldset.fsStyle {
+        border: 1px solid #01748b !important;
+        padding: 0px;
+        padding-bottom: 10px;
+        background-color: #ffffff;
+    }
+
+    label>span {
+        vertical-align: baseline;
+        color: #076dad !important;
+        font-size: 16px;
+        font-weight: 500;
+    }
+
+    .table>tbody>tr>td {
+        color: #076dad !important;
+        font-size: 16px;
+        font-family: 'Poppins', sans-serif;
+        font-weight: 700;
+    }
+
+    .cash_amount {
+        background-color: #fff;
+        color: #000;
+    }
+
+    .fsStyle .form-group {
+        margin-bottom: 5px !important;
+        background-color: #ffffff;
+        /* border: 1px solid #01748b !important; */
+        padding: 0px !important;
+        padding-bottom: 10px;
+        background: #fff;
+        margin: 0px;
+    }
+
+    .table>tbody>tr>td,
+    .table>thead>tr>th {
+        padding: 10px 10px !important;
+    }
+
+    .mgt7 {
+        margin-top: 7px;
+    }
+
+    .mgb7 {
+        margin-bottom: 7px;
+    }
+
+    .mgt10 {
+        margin-top: 10px !important
+    }
+</style>
+
+<div id="cashcounter">
+    <form id="item_form" name="item_form" class="form-horizontal" role="form">
+        <div class="row page-header">
+            <div class="col-sm-12">
+                <div class="col-sm-4 col-md-6 col-lg-4">
+                    <h4 class=" mt0 qr_font" translate="billing.billingcounter.managebillingcounter.lbl"></h4>
+                </div>
+                <div ng-if="!CounterRunning" class="col-sm-8 col-md-6 col-lg-8">
+                    <h4 class="details mt0" style="color: #bf219d !important;">{{item.UserName}} | {{item.CounterName}}
+                        |
+                        {{item.CounterStatus}}
+                    </h4>
+                </div>
+                <div ng-if="CounterRunning" class="col-sm-8 col-md-6 col-lg-8">
+                    <h4 class="details mt0" style="color: #bf2121 !important;">{{item.CounterStartStatus}}</h4>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-12 " id="cash_counter">
+                <div class="formRoot">
+                    <div class="col-sm-5 pd0">
+                        <!--left-first-starts-->
+                        <div class="panel panel-default">
+                            <div class="form-panel bg-pattern">
+                                <div class="well custom_padtop inner_content0">
+                                    <fieldset class="fsStyle  col6control" style="height: auto;" id="textboxctrlmaster">
+                                        <div class="legendStyle mgb7">
+                                            <div class="col-sm-8">
+                                                <span translate="billing.billingcounter.opening.lbl"></span>
+                                            </div>
+                                            <div class="col-sm-2">
+                                                <div class="form-group cash_actionbtn0">
+                                                    <button type="button" id="startbtnsubmit" class="draftbutton"
+                                                        ng-show="canShowStartBtn" ng-click="Start()">Start</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="">
+                                            <div class="col-sm-12">
+                                                <div class="form-group">
+                                                    <label class="col-sm-6 control-label"
+                                                        translate="billing.billingcounter.startdateandtime.lbl"></label>
+                                                    <div class="col-sm-6 topright">
+                                                        <input type="text" class="form-control" name="openingdate"
+                                                            ng-date-object
+                                                            datetime-picker="{{datePickerOptions.dateTimeFormat}}"
+                                                            datepicker-append-to-body="true"
+                                                            placeholder="{{datePickerOptions.placeholder}}"
+                                                            ng-click="openingdatePopup = { opened: true }"
+                                                            is-open="openingdatePopup.opened"
+                                                            ng-model="item.OpeningDate" ng-disabled="true">
+                                                    </div>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label class="col-sm-6 control-label"
+                                                        translate="billing.billingcounter.department.lbl"></label>
+                                                    <div class="col-sm-6">
+                                                        <ui-select ng-model="item.DepartmentId" name="department"
+                                                            ng-disabled="true">
+                                                            <ui-select-match>
+                                                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                                                <span ng-if="$select.selected.Text.length>20">...</span>
+                                                            </ui-select-match>
+                                                            <ui-select-choices
+                                                                repeat="lookupitem.Id as lookupitem in lookup.Department | filter: { Text: $select.search }">
+                                                                <div
+                                                                    ng-bind-html="lookupitem.Text | highlight: $select.search">
+                                                                </div>
+                                                            </ui-select-choices>
+                                                        </ui-select>
+                                                    </div>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label class="col-sm-6 control-label"
+                                                        translate="billing.billingcounter.counter.lbl"></label>
+                                                    <div class="col-sm-6">
+                                                        <ui-select ng-model="item.BillingCounterId"
+                                                            name="billingcounter" ng-disabled="item.OpenedStatus">
+                                                            <ui-select-match>
+                                                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                                                <span ng-if="$select.selected.Text.length>20">...</span>
+                                                            </ui-select-match>
+                                                            <ui-select-choices
+                                                                repeat="lookupitem.Id as lookupitem in lookup.BillingCounter | filter: { Text: $select.search }">
+                                                                <div
+                                                                    ng-bind-html="lookupitem.Text | highlight: $select.search">
+                                                                </div>
+                                                            </ui-select-choices>
+                                                        </ui-select>
+                                                    </div>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label class="col-sm-6 control-label" for="OpeningBalance"
+                                                        translate="billing.billingcounter.openingbalance.lbl"></label>
+                                                    <div class="col-sm-6">
+                                                        <input type="text" min="0" ng-keypress="numberonly($event)"
+                                                            ng-pattern="/^\d+$/" class="form-control"
+                                                            name="OpeningBalance" ng-model="item.OpeningBalance"
+                                                            placeholder="" ng-disabled="item.OpenedStatus">
+                                                    </div>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label class="col-sm-6 control-label" for="OpeningRemarks"
+                                                        translate="billing.billingcounter.remarks.lbl"></label>
+                                                    <div class="col-sm-6">
+                                                        <textarea rows="3" name="OpeningRemarks"
+                                                            ng-model="item.OpeningRemarks" maxlength="4000"
+                                                            style="width:100%;" class="notes-textarea"
+                                                            ng-disabled="item.OpenedStatus"></textarea>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                    </fieldset>
+                                </div>
+                            </div>
+                        </div>
+                        <!--left-first-ends-->
+
+                        <!--left-second-starts-->
+                        <div class="panel panel-default">
+                            <div class="form-panel bg-pattern">
+                                <div class="well custom_padtop inner_content0">
+                                    <fieldset class="fsStyle  col6control" style="height: auto;" id="textboxctrlmaster">
+                                        <div class="legendStyle mgb7">
+                                            <div class="col-sm-9">
+                                                <span translate="billing.billingcounter.closing.lbl"></span>
+                                            </div>
+                                            <div class="col-sm-2">
+                                                <div class="form-group cash_actionbtn_close0">
+                                                    <button type="button" id="closebtnsubmit" class="btn btn-danger"
+                                                        ng-show="canShowCloseBtn" ng-click="Close()">Close</button>
+                                                    <button type="button" id="revertbtnsubmit" class="btn btn-danger"
+                                                        ng-show="canShowRevertBtn" ng-click="Revert()">Revert</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="">
+                                            <div class="col-sm-12">
+                                                <div class="form-group">
+                                                    <label class="col-sm-6 control-label"
+                                                        translate="billing.billingcounter.enddateandtime.lbl"></label>
+                                                    <div class="col-sm-6 topright">
+                                                        <input type="text" class="form-control" name="closingdate"
+                                                            ng-date-object
+                                                            datetime-picker="{{datePickerOptions.dateTimeFormat}}"
+                                                            datepicker-append-to-body="true"
+                                                            placeholder="{{datePickerOptions.placeholder}}"
+                                                            ng-click="closingdatePopup = { opened: true }"
+                                                            is-open="closingdatePopup.opened"
+                                                            ng-model="item.ClosingDate" ng-disabled="true">
+                                                    </div>
+                                                </div>
+                                                <!--
+                                                <div class="form-group">
+                                                    <label class="col-sm-6 control-label" translate="billing.billingcounter.closingbalance.lbl"></label>
+                                                    <div class="col-sm-6">
+                                                        <input type="text" min="0" ng-keypress="numberonly($event)" ng-pattern="/^\d+$/" class="form-control" name="ClosingBalance"
+                                                            ng-model="item.ClosingBalance" placeholder="" ng-disabled="true">
+                                                    </div>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label class="col-sm-6 control-label" translate="billing.billingcounter.creditdebitcard.lbl"></label>
+                                                    <div class="col-sm-6">
+                                                        <input type="text" min="0" ng-keypress="numberonly($event)" ng-pattern="/^\d+$/" class="form-control" name="ClosingCard"
+                                                            ng-model="item.ClosingCard" placeholder="" ng-disabled="true">
+                                                    </div>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label class="col-sm-6 control-label" translate="billing.billingcounter.chequedd.lbl"></label>
+                                                    <div class="col-sm-6">
+                                                        <input type="text" min="0" ng-keypress="numberonly($event)" ng-pattern="/^\d+$/" class="form-control" name="ClosingCheque"
+                                                            ng-model="item.ClosingCheque" placeholder="" ng-disabled="true">
+                                                    </div>
+                                                </div>
+                                                -->
+                                                <div class="form-group">
+                                                    <label class="col-sm-6 control-label" for="ClosingRemarks"
+                                                        translate="billing.billingcounter.remarks.lbl"></label>
+                                                    <div class="col-sm-6">
+                                                        <textarea rows="3" name="ClosingRemarks"
+                                                            ng-model="item.ClosingRemarks" maxlength="4000"
+                                                            style="width:100%;" class="notes-textarea"
+                                                            ng-disabled="item.ClosedStatus"></textarea>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                    </fieldset>
+                                </div>
+                            </div>
+                        </div>
+                        <!--left-second-ends-->
+
+                        <!--left-third-starts-->
+                        <!--
+                        <div class="panel panel-default">
+                            <div class="form-panel bg-pattern">
+                                <div class="well custom_padtop inner_content0">
+                                    <fieldset class="fsStyle bdrnone" style="margin-top: 2px;">
+                                        <legend class="legendStyle">
+                                            <span translate="billing.billingcounter.cancelbills.lbl"></span>
+                                        </legend>
+                                        <table class="table table-bordered">
+                                            <thead>
+                                                <tr>
+                                                    <th colspan="3" translate="billing.billingcounter.billreceiptno.lbl"></th>
+                                                    <th colspan="1" translate="billing.billingcounter.cancelamount.lbl"></th>
+                                                    <th colspan="1" translate="billing.billingcounter.reason.lbl"></th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr ng-repeat="cancel in UserCounterCancelledReceipts">
+                                                    <td colspan="3" ng-if="cancel.BillNumber">{{ cancel.BillNumber }} / {{
+                                                        cancel.ReceiptNumber }}</td>
+                                                    <td colspan="3" ng-if="!cancel.BillNumber">{{ cancel.ReceiptNumber }}</td>
+                                                    <td colspan="1">
+                                                        {{ (cancel.CancelledAmount | displaycurrency) }}
+                                                    </td>
+                                                    <td colspan="1">
+                                                        {{ cancel.CancelledReason }}
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </fieldset>
+                                </div>
+                            </div>
+                        </div>
+                        -->
+                        <!--left-third-ends-->
+                    </div>
+                    <div class="col-sm-7 pdr0">
+                        <!--right-first-starts-->
+                        <fieldset class="fsStyle bdrnone" style="margin-top: 2px;">
+                            <div class="legendStyle">
+                                <span translate="billing.billingcounter.denominations.lbl"></span>
+                            </div>
+                            <table class="table table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th colspan="3" translate="billing.billingcounter.denomination.lbl"></th>
+                                        <th colspan="1" translate="billing.billingcounter.number.lbl"></th>
+                                        <th colspan="1" translate="billing.billingcounter.amount.lbl"></th>
+                                    </tr>
+                                </thead>
+                                <tbody class="amount_value">
+                                    <tr ng-repeat="denomination in DefinedDenominations">
+                                        <td colspan="3">{{ denomination.DenominationName }}</td>
+                                        <td colspan="1">
+                                            <input type="text" min="0" ng-keypress="numberonly($event)"
+                                                ng-pattern="/^\d+$/" class="form-control"
+                                                ng-model="denomination.DenominationCount" placeholder=""
+                                                ng-change="CalculateTotal(denomination)"
+                                                ng-disabled="item.SubmittedStatus">
+                                        </td>
+                                        <td colspan="1">
+                                            <input type="text" min="0" class="form-control"
+                                                ng-model="denomination.DenominationTotal" placeholder="0.00"
+                                                ng-disabled="true">
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="3" translate="billing.billingcounter.amount.lbl"
+                                            class="cash_amount"></td>
+                                        <td colspan="1">
+                                            <input type="text" min="0" class="form-control"
+                                                ng-model="item.DenominationsNetCount" placeholder="0.00"
+                                                ng-disabled="true">
+                                        </td>
+                                        <td colspan="1">
+                                            <input type="text" min="0" class="form-control"
+                                                ng-model="item.DenominationsNetTotal" placeholder="0.00"
+                                                ng-disabled="true">
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </fieldset>
+                        <!--right-first-ends-->
+
+                        <!--right-second-starts-->
+                        <fieldset class="fsStyle bdrnone" style="margin-top: 2px;">
+                            <div class="col-sm-6">
+                                <div class="form-group mgt10">
+                                    <label class="col-sm-6 control-label"
+                                        translate="billing.billingcounter.opening.lbl"></label>
+                                    <div class="col-sm-6">
+                                        <input type="text" min="0" ng-keypress="numberonly($event)" ng-pattern="/^\d+$/"
+                                            class="form-control" ng-model="item.OpeningBalance" placeholder="0.00"
+                                            ng-disabled="true">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="form-group mgt10">
+                                    <label class="col-sm-6 control-label"
+                                        translate="billing.billingcounter.denominations.lbl"></label>
+                                    <div class="col-sm-6">
+                                        <input type="text" min="0" ng-keypress="numberonly($event)" ng-pattern="/^\d+$/"
+                                            class="form-control" ng-model="item.DenominationsNetTotal"
+                                            placeholder="0.00" ng-disabled="true">
+                                    </div>
+                                </div>
+                            </div>
+                            <!--
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <label class="col-sm-6 control-label" translate="billing.billingcounter.opening.lbl"></label>
+                                    <div class="col-sm-6">
+                                        <input type="text" min="0" ng-keypress="numberonly($event)" ng-pattern="/^\d+$/" class="form-control" ng-model="item.OpeningBalance"
+                                            placeholder="0.00" ng-disabled="true">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-6 control-label" translate="billing.billingcounter.closingcash.lbl"></label>
+                                    <div class="col-sm-6">
+                                        <input type="text" min="0" ng-keypress="numberonly($event)" ng-pattern="/^\d+$/" class="form-control" ng-model="item.ClosingBalance"
+                                            placeholder="0.00" ng-disabled="true">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-6 control-label" translate="billing.billingcounter.difference.lbl"></label>
+                                    <div class="col-sm-6">
+                                        <input type="text" min="0" ng-keypress="numberonly($event)" ng-pattern="/^\d+$/" class="form-control" ng-model="item.DifferenceAmount"
+                                            placeholder="0.00" ng-disabled="true">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <label class="col-sm-6 control-label" translate="billing.billingcounter.denominations.lbl"></label>
+                                    <div class="col-sm-6">
+                                        <input type="text" min="0" ng-keypress="numberonly($event)" ng-pattern="/^\d+$/" class="form-control" ng-model="item.DenominationsNetTotal"
+                                            placeholder="0.00" ng-disabled="true">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-6 control-label" translate="billing.billingcounter.denominationother.lbl"></label>
+                                    <div class="col-sm-6">
+                                        <input type="text" min="0" ng-keypress="numberonly($event)" ng-pattern="/^\d+$/" class="form-control" ng-model="item.OtherDenominationsTotal"
+                                            placeholder="0.00" ng-disabled="true">
+                                    </div>
+                                </div>
+                            </div>
+                            -->
+                        </fieldset>
+                        <!--right-second-ends-->
+                    </div>
+                </div>
+                <div class="fooder-bgs">
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="pull-left footer_reg_align">
+                                <button type="button" class="btn pyr-color10 btn-sm" ng-click="backToList()"
+                                    tabindex="-1" hotkey="{'alt+b': backToList}">
+                                    <i class="fa fa-angle-left" aria-hidden="true"></i>&nbsp;&nbsp;
+                                    <span class="btn-fontsize" translate="common.backaction.lbl"></span>
+                                </button>
+                            </div>
+                            <div class="pull-right footer_reg_align">
+                                <button id="btnSavetForm" type="button" class="btn dem-color4 text-white btn-sm"
+                                    ng-show="canShowSaveBtn" translate="common.saveaction.lbl"
+                                    ng-click="Save()"></button>
+                                <button id="btnSubmitForm" type="button" class="btn dem-color4 text-white btn-sm"
+                                    ng-show="canShowSubmitBtn" translate="common.submit.lbl"
+                                    ng-click="Submit()"></button>
+                                <button id="btnPrintForm" type="button" class="btn dem-color4 text-white btn-sm"
+                                    ng-show="canShowPrintBtn" translate="Print" ng-click="print()"></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>

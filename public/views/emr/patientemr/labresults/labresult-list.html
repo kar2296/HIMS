@@ -1,0 +1,209 @@
+<!-- <style>
+    .modal-content {
+        width: 90% !important;
+        margin-left: 6% !important;
+    }
+
+    #mainresponsivetablecontrol .table>tbody>tr>td {
+        white-space: normal !important;
+        clear: both;
+        text-align: left !important;
+    }
+
+    #patientlabresult {
+        overflow-y: scroll;
+        height: 66vh !important;
+        color: black;
+        overflow-x: hidden;
+    }
+
+    button#btnCancelForm {
+        float: right;
+    }
+
+    .padding {
+        padding-top: 23px;
+        padding-bottom: 21px;
+    }
+
+    .table-height.custom_view {
+        padding: 13px;
+    }
+
+    .table>thead>tr>th {
+        padding: 8px 8px !important;
+        color: #888;
+        text-align: center !important;
+        white-space: nowrap;
+    }
+
+    .fooder-bgs {
+        margin-bottom: 72px !important;
+        height: 9% !important;
+    }
+</style> -->
+<style>
+    .filters img {
+        margin-left: 30px;
+    }
+</style>
+<div class="modal-header custom-modal-header">
+    <div class="col-sm-6">
+        <h4 class="modal-title custom-modal-title" translate="patientemr.labresultview.pagetitle.lbl"></h4>
+    </div>
+    <div class="col-sm-6">
+        <div class="filters">
+            <div class="filters">
+                <img src="../../../../../assets/svg/graph-line.svg" ng-click="viewChart()"
+                    ng-show="!currentcontext.canshowchart" uib-tooltip="Chart View" tooltip-placement="bottom">
+                <img src="../../../../../assets/svg/list.svg" ng-click="viewList()"
+                    ng-show="currentcontext.canshowchart" uib-tooltip="List View" tooltip-placement="bottom">
+                <img src="../../../../../assets/svg/close.svg" ng-click="backToList()">
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div ng-hide="currentcontext.ismodal">
+        <div class="row">
+            <div class="col-sm-4">
+                <label class="col-sm-5 control-label filter-lbl"
+                    translate="patientemr.labresultview.filter_subdept.lbl"></label>
+                <div class="col-sm-7">
+                    <ui-select id="subdept" ng-model="currentfilter.subdepartmentid" ng-change="getList()"
+                        class="filter-combo">
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 8 : 0}}
+                            <span ng-if="$select.selected.Text.length>8">...</span>
+                        </ui-select-match>
+                        <ui-select-choices
+                            repeat="lookupitem.Id as lookupitem in lookup.Department | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+            <div class="col-sm-4">
+                <label class="col-sm-4 control-label filter-lbl"
+                    translate="patientemr.labresultview.filter_from.lbl"></label>
+                <div class="col-sm-8">
+                    <input type="text" class="form-control" name="from" ng-change="getList()" ng-date-object
+                        uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                        placeholder="{{datePickerOptions.placeholder}}" ng-click="fromPopup = { opened: true }"
+                        is-open="fromPopup.opened" ng-model="currentfilter.fromdate">
+                </div>
+            </div>
+            <div class="col-sm-4">
+                <label class="col-sm-4 control-label filter-lbl"
+                    translate="patientemr.labresultview.filter_to.lbl"></label>
+                <div class="col-sm-8">
+                    <input type="text" class="form-control" name="to" ng-change="getList()" ng-date-object
+                        uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                        placeholder="{{datePickerOptions.placeholder}}" ng-click="toPopup = { opened: true }"
+                        is-open="toPopup.opened" ng-model="currentfilter.todate">
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="custom-table" ng-show="!currentcontext.canshowchart">
+        <div class="row">
+            <div class="table-height formRoot">
+                <table class="table table-hover table-responsive table-bordered result_color">
+                    <thead class="bg-subhead">
+                        <tr>
+                            <th class="col-sm-1">
+                                <span>
+                                    <input type="checkbox" ng-model="currentcontext.selectall"
+                                        ng-click="selectAllItems()">
+                                </span>
+                            </th>
+                            <th>
+                                <span>Test/Analyte</span>
+                            </th>
+                            <th>
+                                <span>Refer.Range</span>
+                            </th>
+                            <th>
+                                <span>Unit</span>
+                            </th>
+                            <th ng-repeat="header in currentcontext.headerData">
+                                <span>{{header.Date}}</span>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="row in currentcontext.groupedData">
+                            <td class="list_txtcolor2">
+                                <input type="checkbox" ng-model="row.IsSelected">
+                            </td>
+                            <td class="list_tablevw" ng-repeat="item in row.Record" ng-if="item in row.">
+                                <span class="list_txtcolor">{{item.ColVal}}</span>
+                            </td>
+                            <td class="list_tablevw" ng-repeat="item in row.Record">
+                                <span class="list_txtcolor">
+                                    <p class="list_txtcolor" data-ng-bind-html="item.ColVal"></p>
+                                </span>
+                                <!-- <span class="list_txtcolor">{{item.ColVal}}</span> -->
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <!-- Chart Div -->
+    <div class="row custom-table" ng-show="currentcontext.canshowchart">
+        <div class="bg-pattern">
+            <div class="table-height custom_view">
+                <table class="table table-hover table-responsive table-bordered">
+                    <thead class="bg-subhead">
+                        <tr>
+                            <th style="width: 15% !important;">
+                                <span>Test/Analyte</span>
+                            </th>
+                            <th style="width: 15% !important;">
+                                <span>Refer.Range</span>
+                            </th>
+                            <th style="width: 15% !important;">
+                                <span>Unit</span>
+                            </th>
+                            <th>
+                                <span>Chart</span>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="item in vm.chartlist">
+                            <td class="data_name">
+                                <span>{{item.name}}</span>
+                            </td>
+                            <td class="data_range">
+                                <span>{{item.range}}</span>
+                            </td>
+                            <td class="data_uom">
+                                <span>{{item.uom}}</span>
+                            </td>
+                            <td>
+                                <div class="padding">
+                                    <canvas class="chart chart-line" chart-data="item.lineData"
+                                        chart-labels="item.lineLabels" chart-series="item.lineSeries"
+                                        chart-colors="vm.lineColors" chart-options="vm.lineOptions"
+                                        height="80"></canvas>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="" style="margin-top: 10px;">
+        <div class="pull-right">
+            <!-- <button type="button" id="btnsubmit" class="draftbutton" translate="common.saveaction.lbl"
+                ng-click="save()"></button> -->
+                <button type="button" id="btnsubmit" class="draftbutton" translate="Print"
+                ng-click="print()"></button>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,175 @@
+<link rel="stylesheet" href="app/css/drhms.css">
+<style>
+
+</style>
+
+<div class="">
+    <form id="item_form" name="item_form" class="form-horizontal" role="form">
+        <div class="drhms-table-top-header">
+            <div class="drhms-table-head-border">
+                <div class="col-sm-12">
+                    <label class="col-sm-4" translate="Patient Name"></label>
+                    <div class="col-sm-8">:
+                        <span class="head-title"><strong>{{item.PatientName}}</strong></span>
+                    </div>
+                </div>
+                <div class="col-sm-12">
+                    <label class="col-sm-4" translate="Ward / Rooms Details"></label>
+                    <div class="col-sm-8">:
+                        <span class="head-title"> {{item.WardDetail}}</span>
+                    </div>
+                </div>
+                <div class="col-sm-12">
+                    <label class="col-sm-4" translate="Date Of Admission"></label>
+                    <div class="col-sm-8">:
+                        <span class="head-title">
+                            <displaydate datetime-val="item.AdmissionDate"></displaydate>
+                        </span>
+                    </div>
+                </div>
+                <div class="col-sm-12">
+                    <label class="col-sm-4" translate="Age / Sex"></label>
+                    <div class="col-sm-8">:
+                        <span class="head-title">{{item.Age}} / {{item.Gender}}</span>
+                    </div>
+                </div>
+            </div>
+            <div class="drhms-table-head-border">
+                <div class="col-sm-12">
+                    <label class="col-sm-4" translate="Doctor Name"></label>
+                    <div class="col-sm-8">:
+                        <span class="head-title">{{item.DoctorName}}&nbsp;({{item.DepartmentName}})</span>
+                    </div>
+                </div>
+                <div class="col-sm-12">
+                    <label class="col-sm-4" translate="Date Of Discharge"></label>
+                    <div class="col-sm-8">
+                        <div class="datepicker" id="datepicker">
+                            <input type="text" class="form-control" name="dischargedate" ng-date-object
+                                datetime-picker="{{datePickerOptions.datetimeFormat}}"
+                                placeholder="{{datePickerOptions.placeholder}}"
+                                ng-click="dischargedatePopup = { opened: true }" is-open="dischargedatePopup.opened"
+                                ng-model="item.DischargeDate" required>
+                            <i class="fa fa-calendar" aria-hidden="true"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-12">
+                    <label class="col-sm-4" translate="UHID/ Vist#"></label>
+                    <div class="col-sm-8">:
+                        <span class="head-title">{{item.PatientMrn}}/{{item.VisitIdentifier}}</span>
+                    </div>
+                </div>
+                <div class="col-sm-12">
+                    <label class="col-sm-4" translate="Payer Name"></label>
+                    <div class="col-sm-8">:
+                        <span class="head-title">{{item.GuarantorName}}</span>
+                    </div>
+                </div>
+            </div>
+            <div class="drhms-table-head-border">
+                <div class="col-sm-12">
+                    <label class="col-sm-4" translate="Created Date / Approved Date"></label>
+                    <div class="col-sm-8">:
+                        <span class="head-title">
+                            <displaydate datetime-val="item.CreatedAt"></displaydate> &nbsp;/&nbsp;
+                            <displaydate datetime-val="item.ApprovedOn"></displaydate>
+                        </span>
+                    </div>
+                </div>
+                <div class="col-sm-12">
+                    <label class="col-sm-4" translate="Discharge Type"></label>
+                    <div class="col-sm-8">
+                        <ui-select ng-model="item.DischargeTypeId" name="notetype">
+                            <ui-select-match>
+                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                <span ng-if="$select.selected.Text.length>20">...</span>
+                            </ui-select-match>
+                            <ui-select-choices
+                                repeat="lookupitem.Id as lookupitem in lookup.DischargeType | filter: { Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                </div>
+                <div class="col-sm-12">
+                    <label class="col-sm-4" translate="Select Template"></label>
+                    <div class="col-sm-8">
+                        <ui-select ng-model="item.NoteTemplateId" name="templatename" ng-disabled="item.isCompleted"
+                            ng-change="onNoteTemplateChange()">
+                            <ui-select-match>
+                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                <span ng-if="$select.selected.Text.length>20">...</span>
+                            </ui-select-match>
+                            <ui-select-choices
+                                repeat="lookupitem.Id as lookupitem in lookup.NoteTemplate | filter: { Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                </div>
+                <div class="col-sm-12">
+                    <label class="col-sm-4" translate="Created By / Approved By"></label>
+                    <div class="col-sm-8">:
+                        <span class="head-title">{{CreatedBy}} / {{AprovedBy}}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+<div class="col-sm-12">
+    <div class="pull-right" style="color: #f05050;font-weight: 600;padding: 4px 10px;" translate="Diagnosis:">
+        {{item.Diagnosis}}</div>
+</div>
+<div class="col-sm-12">
+    <richtexteditor inserthtml="addondata" richtext="item.DataTemplate" ng-disabled="item.isCompleted">
+    </richtexteditor>
+</div>
+<div class="fooder-bgs">
+    <div class="row">
+        <div class="pull-left">
+            <button uib-dropdown-toggle="" class="draftbutton" ng-show="canprintBtn"
+                ng-click="print()" ng-disabled="" hotkey="{'alt+p': print}">
+                <span translate="With Header"></span>&nbsp;&nbsp;&nbsp;
+            </button>
+            <button uib-dropdown-toggle="" class="draftbutton" ng-show="canprintBtn"
+                ng-click="print2()" ng-disabled="" hotkey="{'alt+p': print}">
+                <span translate="Without Header"></span>&nbsp;&nbsp;&nbsp;
+            </button>
+            <ul class="dropdown-menu top" role="menu" aria-labelledby="dLabel">
+                <li>
+                    <a class="" ng-click="print2()">
+                        <span>
+                            <i class="fa fa-angle-right" aria-hidden="true"></i>
+                        </span>&nbsp;&nbsp;&nbsp;
+                        <span translate="Without Header"></span>
+                        <i class="fa fa-print" aria-hidden="true"></i>
+                    </a>
+                </li>
+                <li>
+                    <a ng-click="print()">
+                        <span>
+                            <i class="fa fa-angle-right" aria-hidden="true"></i>
+                        </span>&nbsp;&nbsp;&nbsp;
+                        <span translate="With Header"></span>
+                        <i class="fa fa-print" aria-hidden="true"></i>
+                    </a>
+                </li>
+            </ul>
+            </li>
+            </ul>
+        </div>
+        <div class="pull-right">
+            <button type="button" class="draftbutton" translate="common.saveaction.lbl" ng-show="canShowSaveBtn"
+                ng-click="save()"></button>
+            <button type="button" class="draftbutton" ng-show="canShowSaveactiveBtn"
+                translate="medicalcertificate.dischargesummary-form.saveandactive.lbl"
+                ng-click="saveandActive()"></button>
+            <button type="button" class="draftbutton" ng-show="canShowSaveandApproveBtn" ng-click="approve()"
+                translate="medicalcertificate.dischargesummary-form.Approve.lbl"></button>
+            <button type="button" class="draftbutton" ng-show="canShowclearBtn" ng-click="clear()"
+                translate="common.clearaction.lbl"></button>
+        </div>
+    </div>
+</div>

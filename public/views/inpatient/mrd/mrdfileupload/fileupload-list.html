@@ -1,0 +1,81 @@
+<style>
+    .form-group {
+        height: 42px;
+    }
+</style>
+<div class="row page-header">
+    <h4 class="col-sm-5 mt0" translate="patientemr.mrdfilesdownloadupload.pagetitle.lbl"></h4>
+    <div class="col-sm-7">
+        <div class="filters">
+            <div class="search">
+                <input type="text" id="pid" class="form-control" name="name" ng-model="currentfilter.MRN"
+                    on-enter="getList()" placeholder="{{ 'patientemr.mrdfilesdownloadupload.mrn.lbl' | translate }}"> <i
+                    class="fas fa-search" aria-hidden="true"></i>
+            </div> &nbsp;
+            <button class="btn-add" ng-click="addNew()"
+                uib-tooltip="{{ 'patientemr.mrdfilesdownloadupload.addnew.lbl' | translate }}"
+                tooltip-placement="bottom">
+                <i class="fa fa-plus" aria-hidden="true"></i>
+            </button>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-sm-3 form-group">
+        <label class="col-sm-4" translate="patientemr.mrdfilesdownloadupload.visitidentifier.lbl"></label>
+        <div class="col-sm-8">
+            <input type="text" class="form-control" name="name" ng-model="currentfilter.VisitIdentifier"
+                on-enter="getList()"
+                placeholder="{{ 'patientemr.mrdfilesdownloadupload.visitidentifier.lbl' | translate }}">
+        </div>
+    </div>
+    <div class="col-sm-3 form-group">
+        <label class="col-sm-4" translate="patientemr.mrdfilesdownloadupload.encountertype.lbl"></label>
+        <div class="col-sm-8">
+            <ui-select ng-model="currentfilter.EncounterTypeId" class="filter-combo" ng-change="getList()">
+                <ui-select-match>
+                    {{$select.selected.Text | limitTo : 20 : 0}}
+                    <span ng-if="$select.selected.Text.length>20">...</span>
+                </ui-select-match>
+                <ui-select-choices
+                    repeat="lookupitem.Id as lookupitem in lookup.EncounterType | filter: { Text: $select.search }">
+                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                </ui-select-choices>
+            </ui-select>
+        </div>
+    </div>
+    <div class="col-sm-3 form-group">
+        <label class="col-sm-4" translate="patientemr.mrdfilesdownloadupload.capturedate.lbl"></label>
+        <div class="col-sm-8">
+            <input type="text" class="form-control" name="requestdate" ng-change="getList()" ng-date-object
+                uib-datepicker-popup="{{datePickerOptions.dateFormat}}" placeholder="{{datePickerOptions.placeholder}}"
+                ng-click="requestdatePopup = { opened: true}" is-open="requestdatePopup.opened"
+                ng-model="currentfilter.CapturedDate">
+        </div>
+    </div>
+    <div class="col-sm-3 form-group">
+        <label class="col-sm-4" translate="patientemr.mrdfilesdownloadupload.mrdfiletype.lbl"></label>
+        <div class="col-sm-8">
+            <ui-select ng-model="currentfilter.MRDFileTypeId" class="filter-combo" ng-change="getList()">
+                <ui-select-match>
+                    {{$select.selected.Text | limitTo : 20 : 0}}
+                    <span ng-if="$select.selected.Text.length>20">...</span>
+                </ui-select-match>
+                <ui-select-choices
+                    repeat="lookupitem.Id as lookupitem in lookup.MRDFileType | filter: { Text: $select.search }">
+                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                </ui-select-choices>
+            </ui-select>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <custom-table config="vm.gridConfig"></custom-table>
+</div>
+<div class="fooder-bgs">
+    <div class="row">
+        <ul uib-pagination total-items="vm.gridConfig.pagerObj.totalItems"
+            items-per-page="vm.gridConfig.pagerObj.pageSize" start-index="vm.gridConfig.pagerObj.startIndex"
+            ng-model="vm.gridConfig.pagerObj.currentPage" ng-change="getList()"></ul>
+    </div>
+</div>

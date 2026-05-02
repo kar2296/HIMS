@@ -1,0 +1,50 @@
+{
+    "Title" : "Frequency List",
+    "ControllerName" : "frequencyMasterList",
+    "InitAction" : {
+        "url" : "General/Options/getoptions",
+        "behaviour" : "default",
+        "optionkeys" : [  {"name" : "Facility"} , {"name" : "FrequencyType"}, {"name" : "ActiveStatus"} ]
+    },
+    "FilterConfig" :[ {
+        "localizationpath" : "clinicalmaster.frequency-list",
+        "controls" :[
+               { "combo" : true, "label" : "Facility", "name" : "filter_facility", "model" : "currentfilter.FacilityId", "placeholder" : "", "collection" : "lookup.Facility", "valuefield" : "Id", "displayfield" : "Text" },
+               { "text" : true, "label" : "Name/Code", "name" : "filter_namecode", "model" : "currentfilter.Name", "placeholder" : "" },
+               { "combo" : true, "label" : "Type", "name" : "filter_frequencytype", "model" : "currentfilter.FrequencyTypeId", "placeholder" : "", "collection" : "lookup.FrequencyType", "valuefield" : "Id", "displayfield" : "Text" },
+               { "combo" : true, "label" : "Status", "name" : "filter_status", "model" : "currentfilter.StatusId", "placeholder" : "", "collection" : "lookup.Status", "valuefield" : "Id", "displayfield" : "Text" }
+         ]
+        }
+    ],
+    "FetchAction" : {
+        "url" : "clinicalmaster/FrequencyMaster/GetFrequencyMasters",
+        "behaviour" : "default"
+    },
+    "EditAction" : {
+                "url": "",
+                "state": "app.frequencymaster",
+                "params": ["id:row.entity.Id"]
+                },
+    "AddAction" : {
+        "url": "",
+        "state": "app.frequencymaster",
+        "params": ["id:0"]
+        },
+    "DeleteAction" : {
+        "url": "clinicalmaster/FrequencyMaster/DeleteFrequencyMaster",
+        "behaviour" : "default"
+    },
+    "Localization" : { "localizationmodule" : "clinicalmaster", "screenkey" : "frequency-list" },
+    "GridConfig" :[ {
+        "localizationpath" : "clinicalmaster.frequency-list",
+        "columnDefs": [ { "field": "Facility.FacilityName", "displayName": "Facility", "name" : "facility" } ,
+                        { "field": "Code", "displayName": "Code", "name" : "code" } ,
+                        { "field": "Name", "displayName": "Frequency Name", "name" : "name" } ,
+                        { "field": "FrequencyType.Description", "displayName": "Type", "name" : "type" },
+                        { "field": "FrequencySIGCode.Description", "displayName": "SIG Code", "name" : "sigcode" },
+                        { "field": "NoOfTimes", "displayName": "No Of Times", "name" : "nooftimes" },
+                        { "field": "StatusTODO", "displayName": "Status", "name" : "status" }
+                    ]
+        }
+    ]
+}

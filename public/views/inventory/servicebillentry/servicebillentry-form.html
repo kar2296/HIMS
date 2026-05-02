@@ -1,0 +1,153 @@
+<style>
+    .modal-content .panel-body {
+        overflow: inherit;
+    }
+</style>
+<div class="modal-header custom-modal-header">
+    <div class="col-sm-12 ">
+        <h3 class="panel-title" translate="inventory.inventoryworkorder.pagetitle1.lbl"></h3>
+    </div>
+</div>
+</div>
+<div class="row">
+    <div class="col-sm-12">
+        <form id="item_form" name="item_form" class="form-horizontal" role="form">
+            <div>
+                <div class="">
+                    <div class="panel-body form-panel">
+                        <!--tOP bANNER-->
+                        <div class="col-sm-12 well">
+                            <div class="col-sm-6 ">
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label" for="type" translate="inventory.inventoryworkorder.type.lbl"></label>
+                                    <div class="col-sm-8">
+                                        <ui-select id="type" ng-model="item.ServiceBillTypeId" name="type" class="filter-combo"
+                                            ng-disabled="IsDisabled" required>
+                                            <ui-select-match>
+                                                {{$select.selected.Text | limitTo : 25 : 0}}
+                                            </ui-select-match>
+                                            <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.ServiceBillType | filter: { Text: $select.search }">
+                                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                            </ui-select-choices>
+                                        </ui-select>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label" for="vendorname" translate="inventory.inventoryworkorder.vendorname.lbl"></label>
+                                    <div class="col-sm-8">
+                                        <autosearch itemid="item.VendorMasterId" name="'vendorname'" iteminfo=""
+                                            rowdata="" config="vm.vendorcontrolconfig" itemchange="getList()"
+                                            candisable="isDisabled" required></autosearch>
+                                        <!-- <ui-select ng-model="item.VendorMasterId" name="vendorname">
+                                            <ui-select-match>
+                                                {{$select.selected.Text | limitTo : 25 : 0}}
+                                            </ui-select-match>
+                                            <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.VendorMaster | filter: { Text: $select.search }">
+                                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                            </ui-select-choices>
+                                        </ui-select> -->
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label" for="department" translate="inventory.inventoryworkorder.department.lbl"></label>
+                                    <div class="col-sm-8">
+                                        <ui-select ng-model="item.DepartmentId" name="department" ng-disabled="isDisabled"
+                                            required>
+                                            <ui-select-match>
+                                                {{$select.selected.Text | limitTo : 25 : 0}}
+                                            </ui-select-match>
+                                            <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.Department | filter: { Text: $select.search }">
+                                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                            </ui-select-choices>
+                                        </ui-select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-6  ">
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label" for="billdate" translate="inventory.inventoryworkorder.billdate.lbl"></label>
+                                    <div class="col-sm-8">
+                                        <input type="text" class="form-control" name="billdate" ng-date-object
+                                            datetime-picker="{{datePickerOptions.dateTimeFormat}}" placeholder="{{datePickerOptions.placeholder}}"
+                                            ng-click="startdateandtimePopup = { opened: true }" is-open="startdateandtimePopup.opened"
+                                            ng-model="item.ServiceBillDate" ng-disabled="isDisabled" required>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label" for="billno" translate="inventory.inventoryworkorder.billno.lbl"></label>
+                                    <div class="col-sm-8">
+                                        <input type="text" class="form-control" name="billno" disabled ng-model="item.ServiceBillNo"
+                                            translate translate-attr-placeholder="inventory.inventoryworkorder.billno.lbl">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label" for="createdby" translate="inventory.inventoryworkorder.createdby.lbl"></label>
+                                    <div class="col-sm-8">
+                                        <ui-select ng-model="item.CreatedBy" name="createdby" class="filter-combo"
+                                            ng-disabled="isDisabled">
+                                            <ui-select-match>
+                                                {{$select.selected.Title.Description | limitTo : 5 : 0}}
+                                                {{$select.selected.Text | limitTo : 25 : 0}}
+                                            </ui-select-match>
+                                            <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.User | filter: { Text: $select.search }">
+                                                <span ng-bind-html="lookupitem.Title.Description | highlight: $select.search"></span>
+                                                <span ng-bind-html="lookupitem.Text | highlight: $select.search"></span>
+                                            </ui-select-choices>
+                                        </ui-select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!--Bottom Banner-->
+                        <div class="col-sm-12 well">
+                            <div class="col-sm-6 ">
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label" for="particulars" translate="inventory.inventoryworkorder.particulars.lbl"></label>
+                                    <div class="col-sm-8 col-md-7">
+                                        <textarea rows="3" name="particulars" required ng-model="item.Particulars"
+                                            maxlength="5000" style="width: 240%; margin-top: 10px; margin-bottom: 0px; height: 115px;"
+                                            class="notes-textarea ng-pristine ng-valid ng-empty ng-valid-maxlength ng-touched"
+                                            ng-disabled="isDisabled"></textarea>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label" for="amount" translate="inventory.inventoryworkorder.amount.lbl"></label>
+                                    <div class="col-sm-8 col-md-7">
+                                        <input type="text" class="form-control" required name="amount" on-enter="getList()"
+                                            ng-disabled="isDisabled" ng-model="item.Amount" onChange="numberwithdecimal($event)"
+                                            onKeyUp="numberwithdecimal($event)" ng-keypress="numberwithdecimal($event)"
+                                            translate translate-attr-placeholder="inventory.inventoryworkorder.amount.lbl">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="panel-footer formactionbar">
+                <div class="col-sm-4">
+                    <div class="pull-left">
+                        <!-- <button type="button" class="btn pyr-color10 btn-sm" uib-tooltip="Back to List"
+                            tooltip-placement="top" tabindex="-1" ng-click="backtolist()">
+                            <i class="fa fa-angle-left" aria-hidden="true"></i>
+                            <span class="btn-fontsize"> &nbsp; Back</span>
+                        </button> -->
+                        <button type="button" class="draftbutton" ng-show="canShowCancelBtn" translate="Cancel Bill" uib-tooltip="Cancel Bill"
+                            tooltip-placement="top" ng-click="CancelBill()"></button>
+                    </div>
+                </div>
+                <div class="pull-right">
+                    <button type="button"   ng-show="canShowSaveBtn" class="draftbutton" translate="common.saveaction.lbl"
+                        ng-click="save()"></button>
+                    <button type="button" ng-show="canShowSaveandApproveBtn" class="btn dem-color4 text-white btn-sm" translate="common.saveapprove-action.lbl"
+                        ng-click="saveandapprove()"></button>
+                    <button id="btnClearForm" type="button" ng-show="canShowClearBtn" class="btn btn-warning btn-sm" ng-click="clear()" translate="common.clearaction.lbl"></button>
+                    <button id="btnCancelForm" type="button" class="draftbutton" ng-click="backToList()"
+                        translate="common.cancelaction.lbl"></button>
+                        <button id="button" type="button" class="draftbutton" ng-click="printWagesServices()"
+                        translate="print"></button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

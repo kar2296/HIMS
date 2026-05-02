@@ -1,0 +1,242 @@
+<style>
+    .form-group {
+        height: 70px;
+    }
+
+    table.pro-tab {
+        width: 100%;
+    }
+
+    table.pro-tab th {
+        /* background: #0073bc;
+        color: white; */
+        padding: 10px;
+        font-weight: 400;
+    }
+
+    .opt-selected {
+        color: #006c9a !important;
+        background: #fff !important;
+        border: 1px solid #006c9a;
+        box-shadow: rgb(50 50 93 / 25%) 0px 2px 5px -1px, rgb(0 0 0 / 30%) 0px 1px 3px -1px;
+    }
+</style>
+<div class="row">
+    <h4 class="title" translate="Manage Promotional Scheme"></h4>
+</div>
+<div class="row">
+    <form id="item_form" name="item_form" class="form-horizontal" role="form">
+        <div class="form-group col-sm-3">
+            <label class="col-sm-12 control-label" for="scheme"
+                translate="billing.promotionalscheme.scheme.lbl"></label>
+            <div class="col-sm-12">
+                <ui-select ng-model="item.PromotionSchemeTypeId" name="scheme" autofocus required>
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 20 : 0}}
+                        <span ng-if="$select.selected.Text.length>20">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.PromotionSchemeType | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+        <!-- <div class="form-group col-sm-3">
+                                <label class="col-sm-12 control-label" translate="Scheme Code"></label>
+                                <div class="col-sm-12">
+                                    <input type="text" id="Manualadd" class="form-control" name="schemecode"
+                                        ng-model="item.PromotionSchemeCode" ng-disabled="item.candisable"
+                                        placeholder="">
+                                </div>
+                            </div> -->
+        <div class="form-group col-sm-3">
+            <label class="col-sm-12 control-label" translate="Scheme Name"></label>
+            <div class="col-sm-12">
+                <input type="text" id="Manualadd" class="form-control" name="schemename"
+                    ng-model="item.PromotionSchemeName" ng-disabled="item.candisable" placeholder="">
+            </div>
+        </div>
+        <div class="form-group col-sm-3">
+            <label class="col-sm-12 control-label" for="issuedate" translate="Active From"></label>
+            <div class="col-sm-12">
+                <input type="text" class="form-control" name="issuedate" ng-change="getExpiryDate()" ng-date-object
+                    uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                    placeholder="{{datePickerOptions.placeholder}}" ng-click="issuedatePopup = { opened: true }"
+                    is-open="issuedatePopup.opened" ng-model="item.ActiveFrom" required>
+            </div>
+        </div>
+        <div class="form-group col-sm-3">
+            <label class="col-sm-12 control-label" for="expirydate" translate="Active To"></label>
+            <div class="col-sm-12">
+                <input type="text" class="form-control" name="expirydate" ng-date-object
+                    uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                    placeholder="{{datePickerOptions.placeholder}}" ng-click="expirydatePopup = { opened: true }"
+                    is-open="expirydatePopup.opened" ng-model="item.ActiveTo" required>
+            </div>
+        </div>
+        <div class="form-group col-sm-3">
+            <label class="col-sm-12 control-label" for="scheme"
+                translate="billing.promotionalscheme.discountmode.lbl"></label>
+            <div class="col-sm-12">
+                <ui-select ng-model="item.DiscountModeId" name="DiscountMode" autofocus required>
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 20 : 0}}
+                        <span ng-if="$select.selected.Text.length>20">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.DiscountMode | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+        <div class="form-group col-sm-3">
+            <label class="col-sm-12 control-label" translate="billing.promotionalscheme.discount.lbl"></label>
+            <div class="col-sm-12">
+                <input type="text" id="Manualadd" class="form-control" name="Discount" ng-model="item.Discount"
+                    ng-disabled="item.candisable" placeholder="">
+            </div>
+        </div>
+        <div class="form-group col-sm-3">
+            <label class="col-sm-12 control-label" for="isactive"
+                translate="billing.promotionalscheme.isactive.lbl"></label>
+            <div class="col-sm-12">
+                <input type="checkbox" class="custom-checkbox" name="isactive" ng-model="item.IsActive" autofocus>
+            </div>
+        </div>
+        <div class="form-group col-sm-3">
+            <!-- <label class="col-sm-12 control-label" translate="billing.promotionalscheme.discount.lbl"></label> -->
+            <div class="col-sm-12">
+                <button type="button" class="draftbutton" style="margin-top: 20px;"
+                    translate="billing.promotionalscheme.populate.lbl" ng-click="Populate()"></button>
+            </div>
+        </div>
+    </form>
+</div>
+<div class="row">
+    <div class="patient_navtab custom_cpatients">
+        <label class="btn btn-secondary top-option" ng-repeat="option in options" ng-click="getList()"
+            ng-model="currentcontext.option" uib-btn-radio="option.key">{{option.name}}</label>
+    </div>
+</div>
+<div class="row">
+    <form id="item_form" name="item_form" class="form-horizontal" role="form">
+        <table class="pro-tab" ng-if="canShowCategoryList()">
+            <thead class="bg-subhead">
+                <tr>
+                    <th>
+                        <span>
+                            <input type="checkbox" ng-model="currentcontext.selectall" ng-click="selectAllItems()">
+                        </span>
+                    </th>
+                    <th class="col-sm-6">
+                        <span translate="Service Category"></span>
+                    </th>
+                    <th class="col-sm-3">
+                        <span translate="Discount Mode"></span>
+                    </th>
+                    <th class="col-sm-3">
+                        <span translate="Discount"></span>
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="item in Details | filter:{Status:1}">
+                    <td>
+                        <input type="checkbox" class="case" ng-model="item.IsAllOrderSelected"
+                            ng-click="IsAllOrderSelectedChange(Details, item)" />
+                    </td>
+                    <td>
+                        {{item.ServiceCategoryName}}
+                    </td>
+                    <td>
+                        <ui-select ng-model="item.DiscountModeId" name="discountmode">
+                            <ui-select-match>
+                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                <span ng-if="$select.selected.Text.length > 20">...</span>
+                            </ui-select-match>
+                            <ui-select-choices
+                                repeat="lookupitem.Id as lookupitem in lookup.DiscountMode | filter: { Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                            </ui-select-choices>
+                        </ui-select>
+                    </td>
+                    <td>
+                        <input type="number" class="form-control" ng-model="item.Discount" min="0" placeholder=""
+                            ng-required="false">
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </form>
+</div>
+<div class="row" ng-if="canShowItemList()">
+    <div class="col-sm-2 pull-right">
+        <button type="button" class="btn-add" ng-click="addDetail()" uib-tooltip="{{ 'Add Items' | translate }}"
+            tooltip-placement="bottom">
+            <i class="fa fa-plus" aria-hidden="true"></i>
+        </button>
+    </div>
+    <form id="item_form" name="item_form" class="form-horizontal" role="form">
+        <table class="pro-tab">
+            <thead class="bg-subhead">
+                <tr>
+                    <th class="col-sm-6">
+                        <span translate="Item Name"></span>
+                    </th>
+                    <th class="col-sm-3">
+                        <span translate="Discount Mode"></span>
+                    </th>
+                    <th class="col-sm-3">
+                        <span translate="Discount"></span>
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="item in ItemDetails | filter:{Status:1}">
+                    <td>
+                        <autosearch itemid="item.ServiceItemId" iteminfo="" rowdata=""
+                            config="vm.serviceitemcontrolconfig" itemchange="ServiceItemChanged($index, item)"
+                            class="inputsearchlogo">
+                        </autosearch>
+                    </td>
+                    <td>
+                        <ui-select ng-model="item.DiscountModeId" name="discountmode">
+                            <ui-select-match>
+                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                <span ng-if="$select.selected.Text.length > 20">...</span>
+                            </ui-select-match>
+                            <ui-select-choices
+                                repeat="lookupitem.Id as lookupitem in lookup.DiscountMode | filter: { Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search">
+                                </div>
+                            </ui-select-choices>
+                        </ui-select>
+                    </td>
+                    <td>
+                        <input type="number" class="form-control" ng-model="item.Discount" min="0" placeholder=""
+                            ng-required="false">
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </form>
+</div>
+<div class="fooder-bgs">
+    <div class="row">
+        <div class="pull-left">
+            <button class="btn pyr-color10 btn-sm" type="button" ng-click="backtoList()">
+                <i class="fa fa-angle-left" aria-hidden="true"></i>&nbsp;&nbsp;
+                <span class="btn-fontsize" translate="common.backaction.lbl"></span>
+            </button>
+        </div>
+        <div class="pull-right">
+            <button type="button" class="draftbutton" translate="common.saveaction.lbl" ng-click="save()"></button>
+            <button type="button" class="draftbutton" translate="common.saveapprove-action.lbl"
+                ng-click="saveandApprove()"></button>
+            <!-- <button type="reset" class="btn btn-warning btn-sm" translate="common.clearaction.lbl"
+                            ng-click="clear()"></button> -->
+        </div>
+    </div>
+</div>

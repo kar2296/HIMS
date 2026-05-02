@@ -1,0 +1,160 @@
+<html>
+
+    <head>
+        <style>
+            .table1 {
+                border: 1px solid black;
+                border-bottom: 0px solid black;
+                text-align: center;
+                font-size: 16px;
+            }
+
+            .table2 {
+                border: 1px solid black;
+                border-bottom: 0px solid black;
+                text-align: left;
+                font-size: 10px;
+            }
+
+            .table3 {
+                border: 1px solid black;
+                border-bottom: 1px solid black;
+                font-size: 10px;
+            }
+
+            .border {
+                border-collapse: collapse;
+                border-left: 1px solid black;
+                font-size: 10px;
+            }
+
+            .table4 {
+                border: 1px solid black;
+                border-bottom: 0px solid black;
+                text-align: left;
+                font-size: 10px;
+            }
+            .table5 {
+                border: 1px solid black;
+                border-bottom: 0px solid black;
+                text-align: center;
+                font-size: 10px;
+            }
+            .size {
+                font-size: 10px;
+            }
+ 	   .header1 {
+            font-size: 16px;
+            text-align: center;
+            }
+            .table6 {
+                border: 1px solid black;
+                border-bottom: 1px solid black;
+                text-align: left;
+                font-size: 10px;
+            }
+
+    {{include '/Templates/assets/css/core.css'}}
+            </style>
+        </head>
+        <body>
+        <div id="pageHeader">
+        {{{include '/Templates/prakriya/common/header.tpl.html' 'tpl'}}}
+    </div>
+
+        <table class="table1" style="width:100%;">
+            <tr>
+                <td style="vertical-align:text-middle;font-size: 10px;"><b>Stock Transfer</b></td>
+            </tr>
+        </table>
+        <table class="table2" style="width:100%;">
+            <tr>
+                <td style="width:15%;"><b>From Store</b></td>
+                <td>:</td>
+                <td style="width:20%;">{{data.StockTransfer.FromStore.StoreName}}</td>
+                <td style="width:10%;"><b>Issue No</b></td>
+                <td>:</td>
+                <td style="width:20%;"><b>{{data.StockTransfer.TransferNumber}}</b></td>
+                <td style="width:15%;"><b>Requested By</b></td>
+                <td>:</td>
+                <td style="width:20%;"><b>{{data.StockTransfer.RequestedUser.Title.Description}} {{data.StockTransfer.RequestedUser.FirstName}} {{data.StockTransfer.RequestedUser.LastName}}</b></td>
+
+            </tr>
+            <tr>
+                <td><b>To Store</b></td>
+                <td>:</td>
+                <td>{{data.StockTransfer.ToStore.StoreName}}</td>
+                <td><b>Issue Date</b></td>
+                <td>:</td>
+                <td>{{datetimeformat data.StockTransfer.TransferDate}}</td>
+                <td><b>Approved By</b></td>
+                <td>:</td>
+                <td>{{data.StockTransfer.ApprovedUser.Title.Description}} {{data.StockTransfer.ApprovedUser.FirstName}} {{data.StockTransfer.ApprovedUser.LastName}}</td>
+            </tr>
+
+            <tr>
+                <td><b>Priority</b></td>
+                <td>:</td>
+                <td><b>{{data.StockTransfer.StockRequest.StockPriority.Description}}</b></td>
+                <td><b>Transferred By</b></td>
+                <td>:</td>
+                <td>{{data.StockTransfer.TranferedUser.Title.Description}} {{data.StockTransfer.TranferedUser.FirstName}} {{data.StockTransfer.TranferedUser.LastName}}</td>
+                <td><b>Requested No</b></td>
+                <td>:</td>
+                <td>{{data.StockTransfer.RequestNumber}}</td>
+            </tr>
+        </table>
+
+       <table   class="table2" style="width:100%;">
+            <tr>
+                <th style="width:5%" align="left">S.No</th>
+                <th style="width:20%" align="left">Description</th>
+                <th style="width:10%" align="left">Batch ID</th>
+                <th style="width:17%" align="left">Expiry Date</th>
+                <th style="width:10%" align="left">Issue Qty</th>
+                <th style="width:10%" align="left">Rate</th>
+                <th style="width:8%" align="left">Net Amount</th>
+                <th style="width:10%" align="left">MRP</th>
+                <th style="width:10%" align="left">Total MRP</th>
+
+            </tr>
+        </table>
+
+     <table class="table4" style="width:100%">{{#each data.StockTransferDetail}}
+            <tr>
+                <td style="width:5%">{{inc @index}}</td>
+                <td style="width:20%">{{ItemName}}</td>
+                <td style="width:10%">{{BatchId}}</td>
+                <td style="width:17%">{{dateformat ExpiryDate}}</td>
+                <td style="width:10%">{{TransferedQuantity}}</td>
+                <td style="width:10%">{{currencyformat MrPrice}}</td>
+                <td style="width:8%">{{currencyformat NetAmount}}</td>
+                <td style="width:10%">{{currencyformat MrPrice}}</td>
+                <td style="width:10%">{{currencyformat TotalMRP}}</td>
+            </tr>
+            {{/each}}
+        </table>
+
+    <table  class="table5" style="width:100%">
+            <tr>
+                <td style="width:90%;text-align:right">Net Amount</td>
+                <td>:</td>
+                <td style="width:10%;">{{currencyformat data.StockTransfer.TotalNetAmount}}</td>
+            </tr>
+        </table>
+        <table class="table6" style="width:100%;">
+            <tr>
+                <td style="width:35%;">Comments</td>
+                <td style="width:30%;"></td>
+                <td style="width:35%;text-align:right;"><b>{{data.StockTransfer.ApprovedUser.Title.Description}} {{data.StockTransfer.ApprovedUser.FirstName}} {{data.StockTransfer.ApprovedUser.LastName}}</b></td>
+            </tr>
+            <tr>
+                <td style="width:35%;">{{data.StockTransfer.TransfererComments}}</td>
+                <td style="width:30%;"></td>
+                <td style="width:35%;text-align:right;"><b>Authorized Signature</b></td>
+            </tr>
+        </table>
+
+            <div style="width:100%; font-size:10px;">Printed On: {{now}}</div>
+    </body>
+    </html>

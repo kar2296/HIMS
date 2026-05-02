@@ -1,0 +1,135 @@
+<link rel="stylesheet" href="app/css/drhms.css">
+<style>
+    .ui-grid-cell-contentsname {
+        display: flex;
+        align-items: center;
+        justify-content: space-evenly;
+        padding: 0px 10px;
+    }
+
+    th.Actions.align {
+        width: 12em;
+    }
+
+    span.grid-action.can-0 {
+        display: none !important;
+    }
+
+    span.grid-action.can-1 {
+        display: block !important;
+    }
+</style>
+<div class="row">
+    <div class="drhms-filters">
+        <div class="col-sm-10">
+            <h4 translate="inventory.purchaseorders.pagetitle.lbl"></h4>
+        </div>
+        <div class="col-sm-4">
+            <div class="search">
+                <input type="text" class="form-control textbox-search" on-enter="getList()"
+                    ng-model="currentfilter.PoNumber" translate translate-attr-placeholder="PO #">
+                <i class="fas fa-search" aria-hidden="true"></i>
+            </div>
+        </div>
+        <div class="col-sm-2">
+            <button type="button" class="drhms-billing-btn drhms-add-btn" ng-click="addNew()"
+                uib-tooltip="{{ 'inventory.purchaseorders.addnew-tooltip.lbl' | translate }}"
+                tooltip-placement="bottom">
+                <i class="fa fa-plus" aria-hidden="true"></i>
+            </button>
+            <span class="drhms-billing-btn drhms-home-btn" ng-if="Context =='store'">
+                <i class="fas fa-home" ng-click="backtoList()" uib-tooltip="Dashboard" tooltip-placement="bottom"></i>
+            </span>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="form-group col-sm-2">
+        <label class="col-sm-12" for="fromdate" translate="From Date"></label>
+        <div class="col-sm-12">
+            <div class="datepicker">
+                <input type="text" class="form-control" name="fromdate" ng-change="getList()"
+                    datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}"
+                    uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                    placeholder="{{datePickerOptions.placeholder}}" ng-click="fromdatePopup = { opened: true }"
+                    is-open="fromdatePopup.opened" ng-model="currentfilter.FromDate">
+                <i class="fa fa-calendar" aria-hidden="true"></i>
+            </div>
+        </div>
+    </div>
+    <div class="form-group col-sm-2">
+        <label class="col-sm-12" for="todate" translate="To Date"></label>
+        <div class="col-sm-12">
+            <div class="datepicker">
+                <input type="text" class="form-control" name="todate" ng-change="getList()"
+                    datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}"
+                    uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                    placeholder="{{datePickerOptions.placeholder}}" ng-click="todatePopup = { opened: true }"
+                    is-open="todatePopup.opened" ng-model="currentfilter.ToDate">
+                <i class="fa fa-calendar" aria-hidden="true"></i>
+            </div>
+        </div>
+    </div>
+    <div class="form-group col-sm-2">
+        <label class="col-sm-12" for="vendor" translate="inventory.purchaseorders.vendor.lbl"></label>
+        <div class="col-sm-12">
+            <autosearch controlid="'vendorid'" class="inputsearchlogo" tabindex="1"
+                ng-keyup="moveHeaderFocus('vendorid')" itemid="currentfilter.VendorMasterId" iteminfo="" rowdata=""
+                name="'vendorid'" config="vm.vendorcontrolconfig" itemchange="getList()" onenter="onenter()"
+                candisable="item.isDisabled" isrequired="true" placeholder="'Supplier'"></autosearch>
+            <!-- <autosearch itemid="currentfilter.VendorMasterId" placeholder="'Supplier'" iteminfo="" rowdata=""
+                config="vm.vendorcontrolconfig" onenter="getList()" itemchange="getList()"></autosearch> -->
+        </div>
+    </div>
+    <div class="form-group col-sm-2">
+        <label class="col-sm-12" for="fromstore" translate="inventory.purchaseorders.store.lbl"></label>
+        <div class="col-sm-12">
+            <ui-select ng-model="currentfilter.StoreMasterId" ng-change="getList()" name="fromstore" required>
+                <ui-select-match>
+                    {{$select.selected.Text | limitTo : 20 : 0}}
+                    <span ng-if="$select.selected.Text.length>20">...</span>
+                </ui-select-match>
+                <ui-select-choices
+                    repeat="lookupitem.Id as lookupitem in lookup.UserStores | filter: { Text: $select.search }">
+                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                </ui-select-choices>
+            </ui-select>
+        </div>
+    </div>
+    <div class="form-group col-sm-2">
+        <label class="col-sm-12" for="status" translate="inventory.purchaseorders.status.lbl"></label>
+        <div class="col-sm-12">
+            <multiselectchk list="lookup.PoStatus" selected="currentfilter.PoStatusId" change="getList()">
+            </multiselectchk>
+        </div>
+    </div>
+    <div class="form-group col-sm-2">
+        <label class="col-sm-12" for="facility" translate="Facility"></label>
+        <div class="col-sm-12">
+            <ui-select ng-model="currentfilter.FacilityId" ng-change="getList()" name="facility">
+                <ui-select-match>
+                    {{$select.selected.Text | limitTo: 20: 0}}
+                    <span ng-if="$select.selected.Text.length > 20">...</span>
+                </ui-select-match>
+                <ui-select-choices
+                    repeat="lookupitem.Id as lookupitem in lookup.Facility | filter: { Text: $select.search }">
+                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                </ui-select-choices>
+            </ui-select>
+        </div>
+    </div>
+
+</div>
+
+<div class="row">
+    <custom-table config="vm.gridConfig"></custom-table>
+    <customreport-table config="vm.gridConfig"></customreport-table>
+    <customreport-table config="vm.gridConfig"></customreport-table>
+</div>
+<div class="fooder-bgs">
+    <div class="row">
+        <ul uib-pagination total-items="vm.gridConfig.pagerObj.totalItems"
+            items-per-page="vm.gridConfig.pagerObj.pageSize" start-index="vm.gridConfig.pagerObj.startIndex"
+            ng-model="vm.gridConfig.pagerObj.currentPage" ng-change="getList()"></ul>
+    </div>
+</div>

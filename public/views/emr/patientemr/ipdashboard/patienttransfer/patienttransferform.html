@@ -1,0 +1,291 @@
+<!-- <style>
+    .label-form label>span {
+        float: left;
+    }
+
+    .layout-fixed .wrapper {
+        height: 78vh;
+        overflow: scroll;
+        overflow-x: hidden;
+    }
+
+    #pastnotes .dropdown-menu {
+        top: initial;
+        margin-bottom: 6px;
+        bottom: 100%;
+        background-color: #050d33 !important;
+        left: -41px;
+        min-width: 160px;
+        margin-left: 36px;
+    }
+
+    #pastnotes .dropdown-menu>li {
+        border-bottom: 1px solid #fff;
+    }
+
+    #pastnotes .dropdown-menu>li>a {
+        color: #000000 !important;
+    }
+
+    #pastnotes .top>li {
+        margin-bottom: 0px !important;
+    }
+
+    #pastnotes .dropdown-menu {
+        top: initial;
+        bottom: 100%;
+        background-color: transparent;
+        border: none;
+        box-shadow: none;
+        background-clip: none;
+    }
+
+    #pastnotes .top>li {
+        margin-bottom: 5px;
+    }
+
+    .dropdown-menu>li>a:hover,
+    .dropdown-menu>li>a:focus {
+        background-color: #f05050 !important;
+        text-decoration: none;
+        color: #fff;
+    }
+
+    .nav-tabs>li>a {
+        background: #eadfb5 !important;
+        color: #000;
+    }
+
+    .nav-tabs>li.active>a,
+    .nav-tabs>li.active>a:hover {
+        background: #dc143c !important;
+    }
+
+    button.dropdown-toggle.btn-btnpast.text-white.btn-sm {
+        background-color: #ff902b;
+    }
+
+</style> -->
+<div class="row page-header" >
+    <h4 class="col-sm-6 page-header pdl10" translate="patientemr.patienttransfer.pagetitle.lbl"></h4>
+    <div class="col-sm-6 text-right">
+            <span ng-click="doctor_dashboard()">
+                    <img src="app/img/icons/doctordashboard.png" class="img-responsive emr-drdashicon pull-right" alt="home" uib-tooltip=" Doctor Dashboard "
+                        tooltip-placement="bottom">
+                </span>
+        <span ng-click="patient_dashboard()">
+            <img src="app/img/icons/patientdashboard.png" class="img-responsive emr-patienticon pull-right" alt="home" uib-tooltip="Patient Dashboard"
+                tooltip-placement="bottom">
+        </span>
+
+    </div>
+</div>
+
+<div id="fullregistrationheight2">
+    <div class="row" id="fullregistrationheight">
+        <div class="col-sm-12">
+            <form id="item_form" name="item_form" class="form-horizontal label-form" role="form">
+                <div class="formRoot0 emr_admissionrequest0">
+                    <div class="panel panel-default">
+                        <div class="panel-body form-panel">
+                            <div class="col-sm-12">
+                                <div class="col-sm-12">
+                                    <div class="col-sm-6 form-group">
+                                        <label class="col-sm-12 col-md-12 col-lg-12 control-label0" translate="patientemr.patienttransfer.date.lbl"></label>
+                                        <div class="col-sm-12 col-md-12 col-lg-12">
+                                            <input type="text" tabindex="1" class="form-control" id="dob" name="dob" ng-date-object datepicker-options="datePickerOptions"
+                                                show-button-bar="{{datePickerOptions.showButtonBar}}" uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                                                placeholder="{{datePickerOptions.placeholder}}" ng-click="dobPopup = { opened: true }"
+                                                is-open="dobPopup.opened" ng-model="item.TransferDate">
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6 form-group">
+                                        <label class="col-sm-12 col-md-12 col-lg-12 control-label0" for="starttime" translate="patientemr.patienttransfer.time.lbl"></label>
+                                        <div class="col-sm-12 col-md-12 col-lg-12">
+                                            <uib-timepicker name="starttime" ng-model="item.StartTime" ng-time-object>
+                                            </uib-timepicker>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-12" ng-hide="currentcontext.encountertypeid ==2">
+                                    <label class="col-sm-12 col-md-12 col-lg-12 control-label0" style="font-size: 18px;" translate="patientemr.patienttransfer.admission.lbl"></label>
+                                    <div class="col-sm-6 form-group">
+                                        <label class="col-sm-12 col-md-12 col-lg-12 control-label0" translate="patientemr.patienttransfer.dept.lbl"></label>
+                                        <div class="col-sm-12 col-md-12 col-lg-12">
+                                            <ui-select tabindex="3" ng-model="item.AdmissionDepartmentId">
+                                                <ui-select-match>
+                                                    {{$select.selected.Text | limitTo : 20 : 0}}
+                                                    <span ng-if="$select.selected.Text.length>20">...</span>
+                                                </ui-select-match>
+                                                <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.Department | filter: { Text: $select.search }">
+                                                    <div ng-bind-html="lookupitem.Text | highlight: $select.search">
+                                                    </div>
+                                                </ui-select-choices>
+                                            </ui-select>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6 form-group">
+                                        <label class="col-sm-12 col-md-12 col-lg-12 control-label0" translate="patientemr.patienttransfer.ward.lbl"></label>
+                                        <div class="col-sm-12 col-md-12 col-lg-12">
+                                            <ui-select tabindex="3" ng-model="item.AdmissionWardId">
+                                                <ui-select-match>
+                                                    {{$select.selected.Text | limitTo : 20 : 0}}
+                                                    <span ng-if="$select.selected.Text.length>20">...</span>
+                                                </ui-select-match>
+                                                <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.Ward | filter: { Text: $select.search }">
+                                                    <div ng-bind-html="lookupitem.Text | highlight: $select.search">
+                                                    </div>
+                                                </ui-select-choices>
+                                            </ui-select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-12">
+                                    <label class="col-sm-12 col-md-12 col-lg-12 control-label0" style="font-size: 18px;" translate="patientemr.patienttransfer.referral.lbl"></label>
+                                    <div class="col-sm-6 form-group">
+                                        <label class="col-sm-12 col-md-12 col-lg-12 control-label0" translate="patientemr.patienttransfer.referto.lbl"></label>
+                                        <div class="col-sm-12 col-md-12 col-lg-12">
+                                            <ui-select id='refdeptid' tabindex="3" ng-model="item.ReferralDeptartmentId">
+                                                <ui-select-match>
+                                                    {{$select.selected.Text | limitTo : 20 : 0}}
+                                                    <span ng-if="$select.selected.Text.length>20">...</span>
+                                                </ui-select-match>
+                                                <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.Department | filter: { Text: $select.search }">
+                                                    <div ng-bind-html="lookupitem.Text | highlight: $select.search">
+                                                    </div>
+                                                </ui-select-choices>
+                                            </ui-select>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6 form-group">
+                                        <label class="col-sm-12 col-md-12 col-lg-12 control-label0" translate="patientemr.patienttransfer.remarks.lbl"></label>
+                                        <div class="col-sm-12 col-md-12 col-lg-12">
+                                            <input type="text" class="form-control" name="comments" ng-model="item.DeptartmentComments" placeholder="" tabindex="4">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-sm-12">
+                                    <label class="col-sm-12 col-md-12 col-lg-12 control-label0" style="font-size: 18px;" translate="patientemr.patienttransfer.transfer.lbl"></label>
+                                    <div class="col-sm-6 form-group">
+                                        <label class="col-sm-12 col-md-12 col-lg-12 control-label0" translate="patientemr.patienttransfer.transferto.lbl"></label>
+                                        <div class="col-sm-12 col-md-12 col-lg-12">
+                                            <ui-select id='deptid' tabindex="5" ng-model="item.FacilityDeptartmentId">
+                                                <ui-select-match>
+                                                    {{$select.selected.Text | limitTo : 20 : 0}}
+                                                    <span ng-if="$select.selected.Text.length>20">...</span>
+                                                </ui-select-match>
+                                                <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.Department | filter: { Text: $select.search }">
+                                                    <div ng-bind-html="lookupitem.Text | highlight: $select.search">
+                                                    </div>
+                                                </ui-select-choices>
+                                            </ui-select>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6 form-group">
+                                        <label class="col-sm-12 col-md-12 col-lg-12 control-label0" translate="patientemr.patienttransfer.transfertofacility.lbl"></label>
+                                        <div class="col-sm-12 col-md-12 col-lg-12">
+                                            <autosearch itemid="item.FacilityId" iteminfo="item.SelectedItem" controlid="'FacilityId'" config="vm.facilityitemcontrolconfig"></autosearch>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-12">
+                                    <div class="col-sm-6 form-group">
+                                        <label class="col-sm-12 col-md-12 col-lg-12 control-label0" translate="patientemr.patienttransfer.remarks.lbl"></label>
+                                        <div class="col-sm-12 col-md-12 col-lg-12">
+                                            <input type="text" class="form-control" name="comments" ng-model="item.FacilityComments" placeholder="" tabindex="7">
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6 form-group"></div>
+                                </div>
+                                <div class="col-sm-12">
+                                    <label class="col-sm-12 col-md-12 col-lg-12 control-label0" style="font-size: 18px;" translate="patientemr.patienttransfer.refertootherfacility.lbl"></label>
+                                    <div class="col-sm-6 form-group">
+                                        <label class="col-sm-12 col-md-12 col-lg-12 control-label0" translate="patientemr.patienttransfer.refertootherfacility.lbl"></label>
+                                        <div class="col-sm-12 col-md-12 col-lg-12">
+                                            <autosearch itemid="item.ReferOtherFacilityId" iteminfo="item.SelectedItem" controlid="'ReferOtherFacilityId'" config="vm.facilityitemcontrolconfig"></autosearch>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6 form-group">
+                                        <label class="col-sm-12 col-md-12 col-lg-12 control-label0" translate="patientemr.patienttransfer.dept.lbl"></label>
+                                        <div class="col-sm-12 col-md-12 col-lg-12">
+                                            <ui-select id='deptid' ng-change="getreferdept()" ng-model="item.ReferOtherDepartmentId">
+                                                <ui-select-match>
+                                                    {{$select.selected.Text | limitTo : 20 : 0}}
+                                                    <span ng-if="$select.selected.Text.length>20">...</span>
+                                                </ui-select-match>
+                                                <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.Department | filter: { Text: $select.search }">
+                                                    <div ng-bind-html="lookupitem.Text | highlight: $select.search">
+                                                    </div>
+                                                </ui-select-choices>
+                                            </ui-select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-12">
+                                    <div class="col-sm-6 form-group">
+                                        <label class="col-sm-12 col-md-12 col-lg-12 control-label0" translate="patientemr.patienttransfer.remarks.lbl"></label>
+                                        <div class="col-sm-12 col-md-12 col-lg-12">
+                                            <input type="text" class="form-control" name="comments" ng-model="item.ReferOtherComments" placeholder="" tabindex="7">
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6 form-group"></div>
+                                </div>
+                                <div class="col-sm-12" ng-if="currentcontext.encountertypeid > 1">
+                                    <label class="col-sm-12 col-md-12 col-lg-12 control-label0" style="font-size: 18px;" translate="patientemr.patienttransfer.discharged.lbl"></label>
+                                    <div class="col-sm-12 form-group">
+                                        <!-- <label class="col-sm-12 col-md-12 col-lg-12 control-label0" style="font-size: 18px;" translate="patientemr.patienttransfer.discharged.lbl"></label> -->
+                                        <div class="col-sm-12 col-md-12 col-lg-12" ng-repeat="typeid in lookup.TransRefDischargeType">
+                                            <input type="radio" tabindex="-1" name="transtypeid" class="custom-checkbox" ng-click="selectTypeId(typeid)" ng-model="typeid.status"
+                                                ng-checked="typeid.status == 1">{{typeid.Text}}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-12" ng-if="currentcontext.encountertypeid > 1">
+                                    <label class="col-sm-12 col-md-12 col-lg-12 control-label0" style="font-size: 18px;" translate="patientemr.patienttransfer.dischargecomments.lbl"></label>
+                                    <div class="col-sm-12 form-group">
+                                        <!-- <label class="col-sm-12 col-md-12 col-lg-12 control-label0" style="font-size: 18px;" translate="patientemr.patienttransfer.dischargecomments.lbl"></label> -->
+                                        <div class="col-sm-12 col-md-12 col-lg-12">
+                                            <input type="text" class="form-control" name="comments" ng-model="item.DischargeComments" placeholder="" tabindex="-8">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="fooder-bgs">
+                    <div class="row">
+                        <div class="col-sm-12">
+
+                            <ul class="nav navbar-nav pull-left" id="pastnotes" ng-hide="currentcontext.ismodal">
+                                <li uib-dropdown="" class="dropdown dropdown-list custom-li">
+                                    <button uib-dropdown-toggle="" class="draftbutton">
+                                        <span translate="Previous Notes"></span>&nbsp;&nbsp;&nbsp;
+                                    </button>
+                                    <ul class="dropdown-menu top" role="menu" aria-labelledby="dLabel">
+                                        <li ng-repeat="item in patienttrasnferinfo | limitTo: 5">
+                                            <a class=" " ng-click="viewPatientTransfer(item) ">
+                                                <span>
+                                                    <i class="fa fa-angle-right " aria-hidden="true "></i>
+                                                </span>&nbsp;&nbsp;&nbsp;
+                                                <displaydate class="disp_date0 " datetime-val="item.TransferDate ">
+                                                </displaydate>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </li>
+                            </ul>
+
+                            <div class="pull-right">
+                                <button id="btnSaveApprove" type="button" class="btn dem-color4 text-white btn-sm" translate="common.saveapprove-action.lbl"
+                                    ng-click="saveAndApprove()"></button>
+                                <button id="btnClearForm" type="button" class="btn btn-warning btn-sm" ng-click="clearItem()" translate="common.clearaction.lbl"></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

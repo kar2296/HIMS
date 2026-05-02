@@ -1,0 +1,155 @@
+<style>
+    .panel-body .well {
+        min-height: 142px !important;
+        padding: 9px !important;
+    }
+
+    .formRoot {
+        overflow: inherit !important;
+    }
+
+    .modal-content .panel-body {
+        overflow: inherit !important;
+    }
+
+    .modal-full {
+        width: 90% !important;
+    }
+</style>
+
+<!-- <div class="modal-header custom-modal-header">
+    <h4 class=" mt0" translate="ordermanagement.orderassignment-list.pagetitle.lbl"></h4>
+    <button id="btnCancelForm" type="button" class="cancelbutton"
+    translate="common.cancelaction.lbl" ng-click="closePopUp()"></button>
+</div> -->
+<div class="modal-header custom-modal-header">
+    
+        <div class="col-sm-6">
+                <h4 class=" mt0" translate="ordermanagement.orderassignment-list.pagetitle.lbl"></h4>
+    </div>
+        <div class="col-sm-5">
+            <div class="filters">                
+                    <button type="button" class="cancelbutton pull-right" ng-click="cancelCallback()"> <img class="drhms-edit-button" src="assets/svg/delete.svg" alt=""></button>
+            
+            </div>
+        </div>
+</div>
+<patientbanner patientid="currentcontext.pid"></patientbanner>
+<div class="row">
+    <div class="col-sm-12">
+        <form id="item_form" name="item_form" class="form-horizontal" role="form">
+            <div class="formRoot">
+                <div class="panel panel-default">
+                    <div class="panel-body form-panel bg-footer">
+                        <div class="col-sm-12">
+                                   <div class="form-group col-sm-4">
+                                        <label class="col-sm-12 control-label" for="asigntype"
+                                            translate="ordermanagement.orderassignment-form.asigntype.lbl"></label>
+                                        <div class="col-sm-12">
+                                            <ui-select ng-change="changeAssignType(item.LabAssignTypeId)"
+                                                ng-model="item.LabAssignTypeId" name="asigntype" autofocus required>
+                                                <ui-select-match>
+                                                    {{$select.selected.Text | limitTo : 20 : 0}}
+                                                    <span ng-if="$select.selected.Text.length>20">...</span>
+                                                </ui-select-match>
+                                                <ui-select-choices
+                                                    repeat="lookupitem.Id as lookupitem in lookup.LabAssignType | filter: { Text: $select.search }">
+                                                    <div ng-bind-html="lookupitem.Text | highlight: $select.search">
+                                                    </div>
+                                                </ui-select-choices>
+                                            </ui-select>
+                                        </div>
+                                    </div>
+                                    <div ng-if="item.LabAssignTypeId == 1"class="form-group col-sm-4">
+                                        <label class="col-sm-12 control-label"
+                                            translate="ordermanagement.orderassignment-form.pagetitle.lbl"></label>
+                                        <div class="col-sm-12">
+                                            <ui-select ng-model="item.FacilityId">
+                                                <ui-select-match>
+                                                    {{$select.selected.Text | limitTo : 20 : 0}}
+                                                    <span ng-if="$select.selected.Text.length>20">...</span>
+                                                </ui-select-match>
+                                                <ui-select-choices
+                                                    repeat="lookupitem.Id as lookupitem in item.OtherFacility | filter: { Text: $select.search }">
+                                                    <div ng-bind-html="lookupitem.Text | highlight: $select.search">
+                                                    </div>
+                                                </ui-select-choices>
+                                            </ui-select>
+                                        </div>
+                                    </div>
+                                    <div class="form-group" ng-if="item.LabAssignTypeId == 2">
+                                        <label class="col-sm-12 control-label" for="externalprovider"
+                                            translate="ordermanagement.orderassignment-form.externalprovider.lbl"></label>
+                                        <div class="col-sm-12">
+                                            <ui-select ng-model="item.ExternalProviderId">
+                                                <ui-select-match>
+                                                    {{$select.selected.Text | limitTo : 20 : 0}}
+                                                    <span ng-if="$select.selected.Text.length>20">...</span>
+                                                </ui-select-match>
+                                                <ui-select-choices
+                                                    repeat="lookupitem.Id as lookupitem in lookup.ExternalProvider | filter: { Text: $select.search }">
+                                                    <div ng-bind-html="lookupitem.Text | highlight: $select.search">
+                                                    </div>
+                                                </ui-select-choices>
+                                            </ui-select>
+                                        </div>
+                                    </div>
+                                   <div class="form-group col-sm-4">
+                                        <label class="col-sm-12 control-label" for=""
+                                            translate="ordermanagement.orderassignment-form.comments.lbl"></label>
+                                        <div class="col-sm-12">
+                                            <textarea rows="3" name="description" ng-model="item.Description"
+                                                maxlength="4000"
+                                                style="width: 100%; margin-top: 10px; margin-bottom: 0px; height: 30px;"
+                                                class="notes-textarea ng-pristine ng-valid ng-empty ng-valid-maxlength ng-touched"></textarea>
+                                        </div>
+                                    </div>
+                                   <div class="form-group col-sm-4">
+                                        <label class="col-sm-12 control-label" for=""
+                                            translate="ordermanagement.orderassignment-form.assignedby.lbl"></label>
+                                        <div class="col-sm-12">
+                                            <ui-select ng-model="item.AssignedById">
+                                                <ui-select-match>
+                                                    {{$select.selected.Text | limitTo : 20 : 0}}
+                                                    <span ng-if="$select.selected.Text.length>20">...</span>
+                                                </ui-select-match>
+                                                <ui-select-choices
+                                                    repeat="lookupitem.Id as lookupitem in lookup.User | filter: { Text: $select.search }">
+                                                    <div ng-bind-html="lookupitem.Text | highlight: $select.search">
+                                                    </div>
+                                                </ui-select-choices>
+                                            </ui-select>
+                                        </div>
+                                    </div>
+                                   <div class="form-group col-sm-4">
+                                        <label class="col-sm-12 control-label" for=""
+                                            translate="ordermanagement.orderassignment-form.assignedon.lbl"></label>
+                                        <div class="col-sm-12">
+                                            <input type="text" class="form-control" name="assigndate" ng-date-object
+                                                datepicker-options="datePickerOptions"
+                                                show-button-bar="{{datePickerOptions.showButtonBar}}"
+                                                uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                                                placeholder="{{datePickerOptions.placeholder}}"
+                                                ng-click="assigndatePopup = { opened: true }"
+                                                is-open="assigndatePopup.opened" ng-model="item.Assigndate">
+                                        </div>
+                                    </div>
+                                </div>
+                    </div>
+                </div>
+            </div>
+            <div class="fooder-bgs">
+                <div class="row ">
+                    <div class="col-sm-12">
+                        <div class="pull-right">
+                           
+                            <button id="acceptBtn" type="button" class="btn btn-info btn-sm"
+                                translate="ordermanagement.orderassignment-form.assignaction.lbl"
+                                ng-click="Accept()"></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

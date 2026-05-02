@@ -1,0 +1,424 @@
+<style>
+    #setheight .formRoot {
+        height: 506px
+    }
+
+    .footerbar.stock_transfercont {
+        margin-bottom: 48px;
+    }
+
+    #setheight .well {
+        min-height: 464px !important;
+    }
+
+    .durationtxt {
+        width: 50px !important;
+        float: left;
+        margin-right: 5px;
+    }
+
+    .ui-select-grid {
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+
+    element.style {
+        height: 419px !important;
+    }
+
+    .header-panel {
+        margin-bottom: 5px !important;
+    }
+
+    .header-second-row {
+        margin-bottom: -7px !important;
+    }
+
+    #fullregistrationheight2 .formRoot {
+        height: 485px;
+        overflow: auto;
+    }
+
+    #fullregistrationheight2 .well {
+        min-height: 423px;
+    }
+
+    .panel-footer {
+        background-color: #ccecf5 !important;
+    }
+
+    .header-panel-body {
+        padding: 3px !important;
+        background-color: #e3ecef;
+    }
+
+    .bg-subhead {
+        background-color: #597a9a;
+        color: #fff;
+        font-size: 14px;
+        width: 100%;
+    }
+
+    .profile-header {
+        height: 29px;
+    }
+
+    .mt0 {
+        font-size: 15px;
+        margin-top: 5px !important;
+    }
+
+    .footerbar .well {
+        padding: 4px !important;
+    }
+
+    .field-height {
+        height: 20px;
+    }
+
+    .countbg {
+        padding: 0 55px !important;
+    }
+
+    .inputheightctrl {
+        height: 19px !important;
+        margin-top: 6px;
+    }
+
+    .page-header h4 {
+        padding-top: 2px;
+        padding-left: 9px;
+    }
+
+    .padding-top1 {
+        padding-top: 2px;
+    }
+
+    .filter-area {
+        margin: 3px 11px 3px !important;
+    }
+
+    .ui-select-bootstrap>.ui-select-choices {
+        width: 250% !important;
+    }
+
+    .fooder-bg {
+        width: 86%;
+        text-align: center;
+        margin: 0px auto;
+        bottom: 0;
+    }
+
+    #purchaserequest .table-control {
+        height: 374px !important;
+    }
+
+    div#mainresponsivetablecontrol {
+        overflow-x: hidden;
+    }
+
+    /* table.table.table-bordered.table-condensed.dropdown-menu {
+        overflow-x: hidden;
+        max-height: 130px !important;
+        height: auto !important;
+    } */
+
+    #mainresponsivetablecontrol>.table>tbody>tr>td>autosearch>.autosearch-div>.custom-popup-wrapper>.dropdown-menu {
+        /* margin-top:-81px !important; */
+    }
+
+    #purchaserequest .formRoot {
+        height: 374px !important;
+    }
+
+    @media (device-width:100vw) and (device-height:100vh) {
+        #purchaserequest .formRoot {
+            height: 530px !important;
+            min-height: 530px;
+        }
+
+        #purchaserequest .table-control {
+            height: 530px !important;
+            min-height: 530px !important;
+        }
+    }
+
+    #bannerdetails tr td {
+        padding: 5px !IMPORTANT;
+    }
+
+    /* .form-horizontal .control-label {
+        padding-top: 15px !important;
+    } */
+
+    .fooder-bgs {
+        margin-bottom: 42px !important;
+    }
+
+    i.fas.fa-prescription-bottle-alt {
+        float: right;
+        border: 1px solid;
+        padding: 8px 10px;
+        font-size: 23px;
+        border-radius: 6px;
+        background: #e74424;
+        color: white;
+        position: relative;
+        bottom: 4px;
+    }
+
+    i.fas.fa-receipt {
+        float: right;
+        border: 1px solid;
+        padding: 6px 9px;
+        font-size: 23px;
+        border-radius: 6px;
+        background: #e74424;
+        color: white;
+    }
+</style>
+<div class="row page-header">
+    <h4 class="col-sm-6 mt0" translate="Medicine Returns"></h4>
+    <div class="col-sm-6" style="text-align: end;">
+        <i class="fas fa-prescription-bottle-alt" ng-click="openOTDispensedList()"
+            uib-tooltip="{{ 'patientreturn.picklist-tooltip.lbl' | translate }}" tooltip-placement="bottom"
+            aria-hidden="true"></i>
+
+
+        <!-- <button class="btn bt-color3 btn-xs pull-right btn-filter" ng-click="openOTDispensedList()"
+            uib-tooltip="{{ 'patientreturn.picklist-tooltip.lbl' | translate }}" tooltip-placement="bottom"
+            style="background:#ff4988;">
+            <i class="fas fa-search" aria-hidden="true"></i>&nbsp;
+            <span translate="patientreturn.picklist.lbl"></span>
+        </button> -->
+    </div>
+</div>
+
+<ippatientbanner patientid="item.PatientId"></ippatientbanner>
+<div id="purchaserequest">
+    <link href="app/css/billing-pharmacy-customs.css" rel="stylesheet">
+    <div class="row ">
+        <div class="col-sm-12">
+            <form id="item_form" name="item_form" class="form-horizontal" role="form">
+                <table id="bannerdetails">
+                    <tr>
+                        <td>
+                            <label class="control-label" for="storemaster"
+                                translate="patientreturn.tostore.lbl"></label>
+                        </td>
+                        <td>
+                            <ui-select ng-model="item.StoreMasterId" name="storemaster"
+                                ng-disabled="item.CanDisableHeader">
+                                <ui-select-match>
+                                    {{$select.selected.Text | limitTo : 20 : 0}}
+                                    <span ng-if="$select.selected.Text.length>20">...</span>
+                                </ui-select-match>
+                                <ui-select-choices
+                                    repeat="lookupitem.Id as lookupitem in lookup.UserStores | filter: { Text: $select.search }">
+                                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                </ui-select-choices>
+                            </ui-select>
+                        </td>
+                        <td>
+                            <label class="control-label" for="returnnumber"
+                                translate="billing.patientdispense-form.returnnumber.lbl"></label>
+                        </td>
+                        <td>
+                            <div class="col-sm-9">
+                                <input type="text" class="form-control" name="returnnumber"
+                                    ng-model="item.DispenseReturnNumber" placeholder="Return Number" id="disabledInput"
+                                    disabled>
+                            </div>
+                            <div class="col-sm-1">
+                                <button class="infosummary" ng-click="patientreturndetails()">
+                                    <i class="fas fa-info-circle" aria-hidden="true"></i>
+                                </button>
+                                <!-- <a ng-click="patientreturndetails()"
+                                    uib-tooltip="{{ 'billing.returnreceive-form.returnicon.lbl' | translate }}"
+                                    tooltip-placement="bottom">
+                                    <i class="icon-info-sign" aria-hidden="true"></i>
+                                </a> -->
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+
+                <!-- <div class="filter-area row">
+                    <div class="col-sm-12">
+                        <div class="col-sm-4">
+                            <label class="col-sm-5 control-label" for="storemaster" translate="patientreturn.tostore.lbl"></label>
+                            <div class="col-sm-7">
+                                <ui-select ng-model="item.StoreMasterId" name="storemaster" ng-disabled="item.CanDisableHeader">
+                                    <ui-select-match>
+                                        {{$select.selected.Text | limitTo : 20 : 0}}
+                                        <span ng-if="$select.selected.Text.length>20">...</span>
+                                    </ui-select-match>
+                                    <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.UserStores | filter: { Text: $select.search }">
+                                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                    </ui-select-choices>
+                                </ui-select>
+                            </div>
+                        </div>
+                        <div class="col-sm-4">
+                            <div class="form-group">
+                                <label class="col-sm-5 control-label" for="returnnumber" translate="billing.patientdispense-form.returnnumber.lbl"></label>
+                                <div class="col-sm-6">
+                                    <input type="text" class="form-control" name="returnnumber" ng-model="item.DispenseReturnNumber" placeholder="Return Number"
+                                        id="disabledInput" disabled>
+                                </div>
+                                <div class="col-sm-1">
+                                    <a ng-click="patientreturndetails()" uib-tooltip="{{ 'billing.returnreceive-form.returnicon.lbl' | translate }}" tooltip-placement="bottom">
+                                        <i class="icon-info-sign" aria-hidden="true"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-4">
+                            <label class="col-sm-5 control-label" for="" translate=""></label>
+                            <div class="col-sm-7">
+                                <button class="btn bt-color3 btn-xs pull-right btn-filter" ng-click="openOTDispensedList()" uib-tooltip="{{ 'patientreturn.picklist-tooltip.lbl' | translate }}"
+                                    tooltip-placement="bottom" style="background:#ff4988;">
+                                    <i class="fas fa-search" aria-hidden="true"></i>&nbsp;
+                                    <span translate="patientreturn.picklist.lbl"></span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div> -->
+                <div class=" table-control  bg-pattern">
+                    <div class="table-height formRoot" id="mainresponsivetablecontrol">
+                        <table class="table table-hover table-responsive table-bordered">
+                            <thead class="bg-subhead">
+                                <tr>
+                                    <th class="fs-12 col-sm-1">
+                                        <span translate="inventory.stocktransfer.sno.lbl"></span>
+                                    </th>
+                                    <th class="fs-12 col-sm-3">
+                                        <span translate="patientreturn.itemname.lbl"></span>
+                                    </th>
+                                    <th class="fs-12 col-sm-1">
+                                        <span translate="patientreturn.billedqty.lbl"></span>
+                                    </th>
+                                    <th class="fs-12 col-sm-1">
+                                        <span translate="patientreturn.returnedqty.lbl"></span>
+                                    </th>
+                                    <th class="fs-12 col-sm-1">
+                                        <span translate="patientreturn.returnqty.lbl"></span>
+                                    </th>
+                                    <th class="fs-12 col-sm-1">
+                                        <span translate="patientreturn.price.lbl"></span>
+                                    </th>
+                                    <th class="fs-12 col-sm-1">
+                                        <span translate="patientreturn.amount.lbl"></span>
+                                    </th>
+                                    <th class="fs-12 col-sm-2">
+                                        <span translate="patientreturn.action.lbl"></span>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-repeat="patientreturn in PatientStockReturnDetails | filter:{Status:1}">
+                                    <td class="fs-12 col-sm-1">
+                                        <span> {{ patientreturn.SNo }}</span>
+                                    </td>
+                                    <td class="fs-12 col-sm-3">
+                                        <span> {{ patientreturn.ItemName }}</span>
+                                    </td>
+                                    <td class="fs-12 col-sm-1">
+                                        <span> {{ patientreturn.BilledQuantity }}</span>
+                                    </td>
+                                    <td class="fs-12 col-sm-1">
+                                        <span> {{ patientreturn.ReturnedQuantity }}</span>
+                                    </td>
+                                    <td class="fs-12 col-sm-1">
+                                        <input type="number" min="0" class="form-control"
+                                            ng-model="patientreturn.ReturnQuantity" name="returnquantity"
+                                            ng-disabled="patientreturn.CanDisableDetails"
+                                            ng-change="computeAmount(patientreturn)" tabindex="patientreturn.tabindex"
+                                            placeholder="" ng-pattern="/^\d+$/" ng-keypress="numberonly($event)">
+                                    </td>
+                                    <td class="fs-12 col-sm-1">
+                                        <span>{{ patientreturn.Mrp | displaycurrency }}</span>
+                                    </td>
+                                    <td class="fs-12 col-sm-1">
+                                        <span>{{ patientreturn.NetAmount | displaycurrency }}</span>
+                                    </td>
+                                    <td class="text-center">
+                                        <button type="button" class="btn btn-info texthover btn-xs ng-scope"
+                                            tabindex="-1" uib-tooltip="History" tooltip-placement="top"
+                                            ng-click="History(patientreturn, $index)">
+                                            <i class="fa fa-history fa-xs" aria-hidden="true"></i>
+                                        </button>
+                                        <button type="button" class="text-white btn dem-color4 btn-xs " tabindex="-1"
+                                            uib-tooltip="Stock" tooltip-placement="top"
+                                            ng-click="Stock(patientreturn,$index)">
+                                            <i class="fa fa-database fa-xs" aria-hidden="true"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-danger btn-xs" tabindex="-1"
+                                            uib-tooltip="Delete" tooltip-placement="top"
+                                            ng-click="deletePatientReturnDetail(patientreturn,$index)"
+                                            ng-disabled="item.IsDisabled">
+                                            <i class="fa fa-trash" aria-hidden="true"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class=" col-sm-12 footerbar stock_transfercont" style="padding: 0px">
+                    <div class="col-sm-12">
+                        <div class="col-sm-4 pull-left">
+                            <label class="col-sm-4 control-label" tabindex="-1" for="comments"
+                                translate="inventory.stockadjustments.comments.lbl"></label>
+                            <div class="col-sm-8">
+                                <input type="text" tabindex="-1" class="form-control field-height inputheightctrl"
+                                    name="comments" ng-model="item.Comments" ng-disabled="item.IsDisabled"
+                                    placeholder="Comments">
+                            </div>
+                        </div>
+                        <div class="col-sm-4 pull-right">
+                            <span class="col-sm-4 control-label" tabindex="-1" for="total"
+                                translate="inventory.stocktransfer.total.lbl"></span>
+                            <div class="col-sm-8">
+                                <input type="text" tabindex="-1" value="{{(item.TotalNetAmount | displaycurrency)}}"
+                                    class="inputbox form-control" disabled>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-12 fooder-bgs">
+                    <div class="pull-left">
+                        <button type="button" class="btn pyr-color10 btn-sm" tabindex="-1" ng-click="backToList()">
+                            <i class="fa fa-angle-left" aria-hidden="true"></i>
+                            <span class="btn-fontsize"> &nbsp; Back</span>
+                        </button>
+                        <button type="button" class="draftbutton" tabindex="-1"
+                            uib-tooltip="Attachments" tooltip-placement="top" ng-click="openAttachments()">
+                            <i class="fa fa-paperclip fa-xs" aria-hidden="true">&nbsp;&nbsp;(0)</i>
+                        </button>
+                        <button type="button" class="btn btn-info texthover btn-sm ng-scope" tabindex="-1"
+                            uib-tooltip="History" ng-show="canShowHistoryBtn" tooltip-placement="top"
+                            ng-click="history()">
+                            <i class="fa fa-history fa-xs" aria-hidden="true"></i>
+                        </button>
+                        <button type="button" id="btnCancelForm" class="btn btn-warning btn-sm"
+                            ng-show="canShowCancelBtn" translate="common.cancelaction.lbl"
+                            ng-click="CancelReturn()"></button>
+                    </div>
+                    <div class="pull-right">
+                        <button type="button" tabindex="-1" id="btnprint"  class="draftbutton"
+                            ng-show="canShowPrintBtn" translate="common.printaction.lbl" ng-click="print()"></button>
+                        <button type="button" tabindex="-1" id="btndmprint" class="draftbutton"
+                            ng-show="canShowPrintBtn" ng-click="dmPrint()">DM Print</button>
+                        <button type="button" id="btnDispense" class="draftbutton"
+                            ng-show="canShowReturnBtn" translate="common.return-action.lbl"
+                            ng-click="Return()"></button>
+                        <button type="button" id="btnClearForm" class="btn btn-warning btn-sm" ng-show="canShowClearBtn"
+                            translate="common.clearaction.lbl" ng-click="Clear()"></button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

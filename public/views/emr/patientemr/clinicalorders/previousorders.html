@@ -1,0 +1,80 @@
+<link href="app/css/emr.css" rel="stylesheet">
+<style>
+   .list-items-d-flex {
+      display: flex;
+      width: 100%;
+      color: #fff;
+      justify-content: space-between;
+       background: #46761b;
+      padding: 6px 3px;
+   }
+
+   .list-items-d-flex a {
+      color: #fff;
+   }
+
+   table {
+      width: 100%;
+   }
+</style>
+
+<div class="row">
+   <div class="col-sm-4" ng-hide="currentcontext.option=='currentvisits'">
+      <label class="col-sm-4 col-md-4 col-lg-4 control-label filter-lbl"
+         translate="patientemr.patientvital-list.filter_from.lbl"></label>
+      <div class="col-sm-8 col-md-8 col-lg-8">
+         <input type="text" class="form-control" name="from" ng-change="getList(tab)" ng-date-object
+            uib-datepicker-popup="{{datePickerOptions.dateFormat}}" placeholder="{{datePickerOptions.placeholder}}"
+            ng-click="fromPopup = { opened: true }" is-open="fromPopup.opened" ng-model="currentfilter.From">
+      </div>
+   </div>
+   <div class="col-sm-4" ng-hide="currentcontext.option=='currentvisits'">
+      <label class="col-sm-4 col-md-4 col-lg-4 control-label filter-lbl"
+         translate="patientemr.patientvital-list.filter_to.lbl"></label>
+      <div class="col-sm-8 col-md-8 col-lg-8 custom_align">
+         <input type="text" class="form-control" name="to" ng-change="getList()" ng-date-object
+            uib-datepicker-popup="{{datePickerOptions.dateFormat}}" placeholder="{{datePickerOptions.placeholder}}"
+            ng-click="toPopup = { opened: true }" is-open="toPopup.opened" ng-model="currentfilter.To">
+      </div>
+   </div>
+</div>
+<div class="row">
+   <div aria-multiselectable="true">
+      <div style="margin-bottom: 10px;" ng-repeat="item in items" ng-repeat="detail in item.PatientOrderDetails">
+         <div class="list-items-d-flex">
+            <div>
+               <ngformatdate datetime-val='item.OrderRequestDate'></ngformatdate>
+            </div>
+            <div>{{item.OrderNumber}}</div>
+            <div class="hidencontent">
+               <displayuserlbl user="item.User"></displayuserlbl>
+            </div>
+            <div class="hidencontent"> {{item.OrderFrom.DepartmentName}}</div>
+            <div>{{item.OrderStatus.DisplayName}}</div>
+            <div> <button type="button" style="float: right;" class="btn btn-default btn-xs"
+                  ng-click="toggleCanShowDetails(item)">
+                  <i class="fa fa-angle-down" aria-hidden="true" ng-show="!item.CanShowDetails"></i>
+                  <i class="fa fa-angle-up" aria-hidden="true" ng-show="item.CanShowDetails"></i>
+               </button></div>
+         </div>
+         <div class="table-content" ng-show="item.CanShowDetails">
+            <table>
+               <tr ng-repeat="detail in item.PatientOrderDetails">
+                  <td class="col-sm-3">
+                     <span class="drugname">{{detail.TestCode}}</span>
+                  </td>
+                  <td class="col-sm-3">
+                     <span class="duration">
+                        {{detail.TestName}}
+                     </span>
+                  </td>
+                  <td class="col-sm-3">
+                     <span class="description">{{detail.Quantity}}</span>
+                  </td>
+               </tr>
+            </table>
+         </div>
+      </div>
+   </div>
+</div>
+<div class="fooder-bgs"></div>

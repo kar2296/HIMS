@@ -1,0 +1,202 @@
+
+<!---->
+<style>
+    .panel-body{overflow: visible !important;}
+</style>
+<!---->
+<div class="modal-header custom-modal-header">
+    <h4 class="modal-title custom-modal-title" translate="registration.encounterguarantor-form.pagetitle.lbl"></h4>
+</div>
+
+<div class="row">
+    <div class="col-sm-12">
+        <form id="item_form" name="item_form" class="form-horizontal" role="form" ng-submit="saveItem()">
+                    <div class="panel-body form-panel">
+                        <div class="col-sm-12">
+
+                            <!--left panel-->
+                            <div class="col-sm-6 ">
+                                <div class="col-sm-12 well">
+                                    <div class="form-group">
+                                        <label class="col-sm-4 control-label" for="guarantortype" translate="registration.encounterguarantor-form.type.lbl"></label>
+                                        <div class="col-sm-8">
+                                            <ui-select ng-model="item.GuarantorTypeId" name="guarantortype" ng-change="guarantorTypeChange()" required>
+                                                <ui-select-match>
+                                                    {{$select.selected.Text | limitTo : 20 : 0}}
+                                                    <span ng-if="$select.selected.Text.length>20">...</span>
+                                                </ui-select-match>
+                                                <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.GuarantorType | filter: { Text: $select.search }">
+                                                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                                </ui-select-choices>
+                                            </ui-select>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-sm-4 control-label" for="guarantor" translate="registration.encounterguarantor-form.guarantor.lbl"></label>
+                                        <div class="col-sm-8">
+                                            <ui-select ng-model="item.GuarantorId" name="guarantor" ng-change="guarantorChange($select.selected)" required>
+                                                <ui-select-match>
+                                                    {{$select.selected.Text | limitTo : 20 : 0}}
+                                                    <span ng-if="$select.selected.Text.length>20">...</span>
+                                                </ui-select-match>
+                                                <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.Guarantor | filter: { Text: $select.search }">
+                                                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                                </ui-select-choices>
+                                            </ui-select>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-sm-4 control-label" for="tpa" translate="registration.encounterguarantor-form.tpa.lbl"></label>
+                                        <div class="col-sm-8">
+                                            <ui-select ng-model="item.TpaId" name="tpa" required>
+                                                <ui-select-match>
+                                                    {{$select.selected.Text | limitTo : 20 : 0}}
+                                                    <span ng-if="$select.selected.Text.length>20">...</span>
+                                                </ui-select-match>
+                                                <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.Tpa | filter: { Text: $select.search }">
+                                                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                                </ui-select-choices>
+                                            </ui-select>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-sm-4 control-label" for="rank" translate="registration.encounterguarantor-form.rank.lbl"></label>
+                                        <div class="col-sm-8">
+                                            <ui-select ng-model="item.Rank" name="rank" required>
+                                                <ui-select-match>
+                                                    {{$select.selected.Text | limitTo : 20 : 0}}
+                                                    <span ng-if="$select.selected.Text.length>20">...</span>
+                                                </ui-select-match>
+                                                <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.Rank | filter: { Text: $select.search }">
+                                                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                                </ui-select-choices>
+                                            </ui-select>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-sm-4 control-label" for="effectivedate" translate="registration.encounterguarantor-form.effectivedate.lbl"></label>
+                                        <div class="col-sm-8">
+                                            <input type="text" class="form-control" name="effectivedate" ng-date-object datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}"
+                                                uib-datepicker-popup="{{datePickerOptions.dateFormat}}" placeholder="{{datePickerOptions.placeholder}}"
+                                                ng-click="effectivedatePopup = { opened: true }" is-open="effectivedatePopup.opened"
+                                                ng-model="item.EffectiveFrom" required>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-sm-4 control-label" translate="registration.encounterguarantor-form.expirydate.lbl"></label>
+                                        <div class="col-sm-8">
+                                            <input type="text" class="form-control" name="expirydate" ng-date-object datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}"
+                                                uib-datepicker-popup="{{datePickerOptions.dateFormat}}" placeholder="{{datePickerOptions.placeholder}}"
+                                                ng-click="expirydatePopup = { opened: true }" is-open="expirydatePopup.opened"
+                                                ng-model="item.EffectiveTo">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-sm-4 control-label" translate="registration.encounterguarantor-form.gldate.lbl"></label>
+                                        <div class="col-sm-8">
+                                            <input type="text" class="form-control" name="gldate" ng-date-object datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}"
+                                                uib-datepicker-popup="{{datePickerOptions.dateFormat}}" placeholder="{{datePickerOptions.placeholder}}"
+                                                ng-click="gldatePopup = { opened: true }" is-open="gldatePopup.opened" ng-model="item.GuarantorLetterDate">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-sm-4 control-label" for="status" translate="registration.encounterguarantor-form.status.lbl"></label>
+                                        <div class="col-sm-8">
+                                            <ui-select ng-model="item.ActiveStatusId" name="status">
+                                                <ui-select-match>
+                                                    {{$select.selected.Text | limitTo : 20 : 0}}
+                                                    <span ng-if="$select.selected.Text.length>20">...</span>
+                                                </ui-select-match>
+                                                <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.ActiveStatus | filter: { Text: $select.search }">
+                                                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                                </ui-select-choices>
+                                            </ui-select>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-sm-4 control-label" translate="registration.encounterguarantor-form.isprimary.lbl"></label>
+                                        <div class="col-sm-8">
+                                            <input type="checkbox" name="isprimary" class="custom-checkbox" ng-model="item.IsPrimary">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!--Right Panel-->
+                            <div class="col-sm-6 well">
+                                <div class="col-sm-12">
+                                    <div class="form-group">
+                                        <label class="col-sm-4 control-label" translate="registration.encounterguarantor-form.policyname.lbl"></label>
+                                        <div class="col-sm-8">
+                                            <input type="text" class="form-control" ng-model="item.PolicyName" placeholder="">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-sm-4 control-label" for="policyno" translate="registration.encounterguarantor-form.policyno.lbl"></label>
+                                        <div class="col-sm-8">
+                                            <input type="text" class="form-control" name="policyno" ng-model="item.PolicyNo" placeholder="" required>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-sm-4 control-label" translate="registration.encounterguarantor-form.subscribername.lbl"></label>
+                                        <div class="col-sm-8">
+                                            <input type="text" class="form-control" ng-model="item.SubscriberName" placeholder="">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-sm-4 control-label" translate="registration.encounterguarantor-form.relationtype.lbl"></label>
+                                        <div class="col-sm-8">
+                                            <ui-select ng-model="item.GuardianTypeId">
+                                                <ui-select-match>
+                                                    {{$select.selected.Text | limitTo : 20 : 0}}
+                                                    <span ng-if="$select.selected.Text.length>20">...</span>
+                                                </ui-select-match>
+                                                <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.GuardianType | filter: { Text: $select.search }">
+                                                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                                </ui-select-choices>
+                                            </ui-select>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-sm-4 control-label" for="eligibleamount" translate="registration.encounterguarantor-form.eligibleamount.lbl"></label>
+                                        <div class="col-sm-8">
+                                            <input type="text" class="form-control" name="eligibleamount" ng-model="item.EligibleAmount" ng-pattern="/^\d+$/" required>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-sm-4 control-label" translate="registration.encounterguarantor-form.glno.lbl"></label>
+                                        <div class="col-sm-8">
+                                            <input type="text" class="form-control" ng-model="item.GuarantorLetterNo" placeholder="">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-sm-4 control-label"for="approvedamount" translate="registration.encounterguarantor-form.approvedamount.lbl"></label>
+                                        <div class="col-sm-8">
+                                            <input type="text" class="form-control" name="approvedamount" ng-model="item.CreditLimit" ng-pattern="/^\d+$/"required>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-sm-4 control-label" translate="registration.encounterguarantor-form.remarks.lbl"></label>
+                                        <div class="col-sm-8">
+                                            <input type="text" class="form-control" ng-model="item.Remarks" placeholder="">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+            <div class="panel-footer formactionbar">
+                <div class="pull-left">
+                    <button type="button" class="draftbutton" uib-tooltip="Attachments" ng-click="openattachments()"
+                        tooltip-placement="top"><i class="fa fa-paperclip fa-xs" aria-hidden="true">&nbsp;&nbsp;({{currentcontext.attachmentcount}})</i></button>
+                </div>
+                <div class="pull-right">
+                    <button type="submit" class="draftbutton" translate="common.saveaction.lbl"></button>
+                   <button id="btnClearForm" type="button" class="btn btn-warning btn-sm ng-scope" ng-click="clear()" translate="common.clearaction.lbl"></button>
+                    <button id="btnCancelForm" type="button" class="draftbutton" ng-click="backToList()" translate="common.cancelaction.lbl"></button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

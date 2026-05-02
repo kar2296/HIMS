@@ -1,0 +1,133 @@
+<div class="row page-header">
+    <div class="col-sm-5">
+        <h4 class="mt0" translate="reports.invoicesummarysupplier.lbl"></h4>
+    </div>
+    <div class="col-sm-6">
+        <div class="filters">
+            <i class="icofont-filter" uib-tooltip="Filter" tooltip-placement="bottom" ng-click="openFilterTab()"></i>
+            <!-- <i class="icofont-file-excel" uib-tooltip="Excel" tooltip-placement="bottom" ng-click="excelDownload()"></i> -->
+            <i class="icofont-file-excel" uib-tooltip="Excel" tooltip-placement="bottom"
+                onclick="exportTableToExcel('tblData', 'members-data')"></i>
+            <i class="icofont-print" uib-tooltip="Print" tooltip-placement="bottom" ng-click="print()"></i>
+            <i class="icofont-home" ng-click="backtoReport()" tabindex="-1" uib-tooltip="Report"
+                tooltip-placement="bottom"></i>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <table id="bannerdetails">
+        <tr>
+            <td translate="reports.fromdate.lbl"></td>
+            <td>
+                <div class="datepicker" id="datepicker">
+                    <input type="text" class="form-control" name="from" datepicker-options="datePickerOptions"
+                        show-button-bar="{{datePickerOptions.showButtonBar}}"
+                        uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                        placeholder="{{datePickerOptions.placeholder}}" ng-click="fromdatePopup = { opened: true }"
+                        is-open="fromdatePopup.opened" ng-model="currentfilter.From">
+                    <i class="fa fa-calendar" aria-hidden="true"></i>
+                </div>
+            </td>
+            <td translate="reports.todate.lbl"></td>
+            <td>
+                <div class="datepicker" id="datepicker">
+                    <input type="text" class="form-control" name="from" datepicker-options="datePickerOptions"
+                        show-button-bar="{{datePickerOptions.showButtonBar}}"
+                        uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                        placeholder="{{datePickerOptions.placeholder}}" ng-click="todatePopup = { opened: true }"
+                        is-open="todatePopup.opened" ng-model="currentfilter.To">
+            </td>
+            <td style="text-align: center;">
+                <button class="loadbtn" ng-click="GetPharmacyOptions()">
+                    <i class="fas fa-sync loading-icon" aria-hidden="true" uib-tooltip="Search"
+                        tooltip-placement="bottom"></i> <span>Load</span>
+                </button>
+            </td>
+        </tr>
+    </table>
+</div>
+<!-- <div>
+    <i class="icofont-filter" uib-tooltip="Search" tooltip-placement="bottom" ng-click="GetPharmacyOptions()"></i>
+</div> -->
+<div class="row">
+    <div id="reportsdetail">
+        <table id="tblData">
+            <thead>
+                <th class="cus-col tbl-header cust_Particulars" style="font-weight: 700;">
+                    <span translate="Vendor Name"></span>
+                </th>
+                <th class="cus-col tbl-header" style="font-weight: 700;">
+                    <span translate="Gross Amt"></span>
+                </th>
+                <th class="cus-col tbl-header" style="font-weight: 700;">
+                    <span translate="Gst Amt"></span>
+                </th>
+                <th class="cus-col tbl-header" style="font-weight: 700;">
+                    <span translate="Net Amt"></span>
+                </th>
+                <th class="cus-col tbl-header" style="font-weight: 700;">
+                    <span translate="Credit Amt"></span>
+                </th>
+                <th class="cus-col tbl-header" style="font-weight: 700;">
+                    <span translate="Invoice Amt"></span>
+                </th>
+                <th class="cus-col tbl-header" style="font-weight: 700;">
+                    <span translate="Return Amt"></span>
+                </th>
+            </thead>
+            <tr ng-repeat="item in NetSupplierCollection">
+                <td class=""><span class="">{{item.Key}}</span></td>
+                <td class="currency-align">{{ item.Value.GrossAmt | displaycurrency }}</td>
+                <td class="currency-align">{{ item.Value.GstAmt | displaycurrency }}</td>
+                <td class="currency-align">{{ item.Value.NetAmt | displaycurrency }}</td>
+                <td class="currency-align">{{ item.Value.CreditAmt | displaycurrency }}</td>
+                <td class="currency-align">{{ item.Value.InvoiceAmt | displaycurrency }}</td>
+                <td class="currency-align">{{ item.Value.ReturnAmt | displaycurrency }}</td>
+
+            </tr>
+        </table>
+    </div>
+</div>
+
+<!-- 
+
+    <div class="fooder-bgs" style="margin-bottom:40px;">
+        <div class="row">
+            <ul uib-pagination total-items="vm.gridConfig.pagerObj.totalItems"
+                items-per-page="vm.gridConfig.pagerObj.pageSize" start-index="vm.gridConfig.pagerObj.startIndex"
+                ng-model="vm.gridConfig.pagerObj.currentPage" ng-change="getList()"></ul>
+        </div>
+    </div>
+</div> -->
+<script>
+    function exportTableToExcel(tableID, filename = '') {
+        var downloadLink;
+        var dataType = 'application/vnd.ms-excel';
+        var tableSelect = document.getElementById(tableID);
+        var tableHTML = tableSelect.outerHTML.replace(/ /g, '%20');
+
+        // Specify file name
+        filename = filename ? filename + '.xls' : 'excel_data.xls';
+
+        // Create download link element
+        downloadLink = document.createElement("a");
+
+        document.body.appendChild(downloadLink);
+
+        if (navigator.msSaveOrOpenBlob) {
+            var blob = new Blob(['\ufeff', tableHTML], {
+                type: dataType
+            });
+            navigator.msSaveOrOpenBlob(blob, filename);
+        } else {
+            // Create a link to the file
+            downloadLink.href = 'data:' + dataType + ', ' + tableHTML;
+
+            // Setting the file name
+            downloadLink.download = filename;
+
+            //triggering the function
+            downloadLink.click();
+        }
+    }
+</script>

@@ -1,0 +1,143 @@
+<!--<ul class="breadcrumb">
+    <li><a ng-click="backToList()" translate="clinicalmaster.proceduretemplate-form.parentpagetitle.lbl"></a></li>
+    <li class="active" translate="clinicalmaster.proceduretemplate-form.pagetitle.lbl"></li>
+</ul>	-->
+<style>
+    .modal-lg {
+        width: 800px !important;
+        height: 400px !important;
+    }
+    
+    .panel-body {
+        padding: 15px;
+        margin-left: 0px;
+        margin-top: -53px;
+        margin-right: 0px;
+        margin-bottom: 0px;
+        background-image: url(app/img/bg-body.jpg);
+        background-repeat: repeat;
+        overflow: auto;
+    }
+    
+    .well {
+        min-height: 20px;
+        padding: 19px;
+        margin-bottom: 0px;
+        border: 1px solid #ededed;
+        border-radius: 4px;
+        background: rgb(233, 246, 253);
+        /* Old browsers */
+        background: -moz-linear-gradient(top, rgba(233, 246, 253, 1) 0%, rgba(211, 238, 251, 1) 100%);
+        /* FF3.6-15 */
+        background: -webkit-linear-gradient(top, rgba(233, 246, 253, 1) 0%, rgba(211, 238, 251, 1) 100%);
+        /* Chrome10-25,Safari5.1-6 */
+        background: linear-gradient(to bottom, rgb(250, 250, 250) 0%, rgb(247, 252, 253) 100%);
+        /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+        filter: progid: DXImageTransform.Microsoft.gradient( startColorstr='#e9f6fd', endColorstr='#d3eefb', GradientType=0);
+        /* IE6-9 */
+        box-shadow: 4px 2px 13px -7px rgba(0, 0, 0, 0.75);
+    }
+    
+    .formactionbar {
+        padding: 5px 15px;
+        height: 40px;
+        background-color: #ccecf5;
+    }
+    
+    .custom-modal-header {
+        margin-bottom: 10px;
+        background-color: #597a9a;
+        color: #fff;
+    }
+    
+    .modal-content {
+        -webkit-box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+        box-shadow: -1px 3px 20px 7px rgba(249, 244, 244, 0.5);
+    }
+    
+    .modal-header {
+        padding: 4px 10px;
+        border-bottom: 1px solid #e5e5e5;
+    }
+</style>
+<div class="modal-header custom-modal-header">
+        <h4 class="modal-title custom-modal-title" translate="clinicalmaster.proceduretemplate-form.pagetitle.lbl"></h4>
+</div>
+
+<div class="row">
+    <div class="col-sm-12">
+        <form id="item_form" name="item_form" class="form-horizontal" role="form" ng-submit="saveItem()">	
+            <div class="formRoot">
+                <div class="panel panel-default bg-pattern">
+                    <!--<div class="panel-heading"><h3 class="panel-title" translate="clinicalmaster.proceduretemplate-form.pnldetails.lbl"></h3></div>!-->
+                    <div class="panel-body form-panel">	
+                        <div class="col-sm-12">			
+                            
+                            <!-- leftpanel -->
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label" for="templatetype" translate="clinicalmaster.proceduretemplate-form.templatetype.lbl"></label>
+                                    <div class="col-sm-8">
+                                        <ui-select ng-model="item.ProcedureTemplateTypeId" name="templatetype">
+                                            <ui-select-match>
+                                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                                <span ng-if="$select.selected.Text.length>20">...</span>
+                                            </ui-select-match>
+                                            <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.ProcedureTemplateType | filter: { Text: $select.search }">
+                                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                            </ui-select-choices>
+                                        </ui-select>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label" for="category" translate="clinicalmaster.proceduretemplate-form.category.lbl"></label>
+                                    <div class="col-sm-8">
+                                        <ui-select ng-model="item.ProcedureTemplateCategoryId" name="category">
+                                            <ui-select-match>
+                                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                                <span ng-if="$select.selected.Text.length>20">...</span>
+                                            </ui-select-match>
+                                            <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.ProcedureTemplateCategory | filter: { Text: $select.search }">
+                                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                            </ui-select-choices>
+                                        </ui-select>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- rightpanel -->
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label" for="groupname" translate="clinicalmaster.proceduretemplate-form.groupname.lbl"></label>
+                                    <div class="col-sm-8">
+                                        <ui-select ng-model="item.ProcedureTemplateGroupId" name="groupname">
+                                            <ui-select-match>
+                                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                                <span ng-if="$select.selected.Text.length>20">...</span>
+                                            </ui-select-match>
+                                            <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.ProcedureTemplateGroup | filter: { Text: $select.search }">
+                                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                            </ui-select-choices>
+                                        </ui-select>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label" for="displayorder" translate="clinicalmaster.proceduretemplate-form.displayorder.lbl"></label>
+                                    <div class="col-sm-8">
+                                        <input type="text" class="form-control" name="displayorder" ng-model="item.DisplayOrder" placeholder="" >
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="panel-footer formactionbar">
+                <div class="pull-right">
+                    <button type="submit" class="draftbutton" ng-click="save()" translate="common.saveaction.lbl"></button>
+                    <button id="btnCancelForm" type="button" class="draftbutton" ng-click="backToList()" translate="common.cancelaction.lbl"></button>						
+                </div>
+            </div>
+        </form>		
+    </div>
+</div>

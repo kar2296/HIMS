@@ -1,0 +1,122 @@
+<link href="app/css/regbilling.css" rel="stylesheet">
+
+<div class="row ">
+    <div class="col-sm-12">
+        <div class="col-sm-9">
+            <h4 class="mt0" translate="bedtransfer-list.pagetitle.lbl"></h4>
+        </div>
+        <div class="col-sm-3">
+            <div class="filters">
+                <div class="search">
+                    <input type="text" id="pid" class="form-control" on-enter="getList()"
+                        ng-model="currentfilter.patientnamemrn" placeholder="NAME/MRN">
+                    <div class="drhms-search-icon"><i class="fas fa-search" aria-hidden="true"></i></div>
+                </div>
+                <button type="button" tabindex="-1" class="btn-add" ng-click="addNew()"
+                    uib-tooltip="{{ 'bedtransfer-list.addnew-tooltip.lbl' | translate}}" tooltip-placement="bottom">
+                    <i class="fa fa-plus" aria-hidden="true"></i>
+                </button>
+                <button class="default-color" ng-if=" Context =='frontoffice'|| Context =='nursing'" ng-click="backtoList()">
+                    <i  class="fa fa-home" uib-tooltip="Dashboard"
+                    tooltip-placement="bottom"></i>
+                </button>
+              
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="myModal" class="modal">
+
+    <!-- Modal content -->
+    <div class="modal-content" style="width:88%;margin:0 auto; left:6%;top:4%;">
+
+        <div class="modal-body">
+            <span class="close link_close">&times;</span>
+            <img src="mock/usermanual/admissions/admissions.jpg" style="margin:0px auto;height: -webkit-fill-available;"
+                class="img-responsive"></img>
+
+
+        </div>
+
+    </div>
+
+</div>
+<!-- <script>
+    // Get the modal
+    var modal = document.getElementById('myModal');
+
+    // Get the button that opens the modal
+    var btn = document.getElementById("myBtn");
+
+    // Get the <span> element that closes the modal
+    var span = document.getElementsByClassName("close")[0];
+
+    // When the user clicks the button, open the modal
+    btn.onclick = function () {
+        modal.style.display = "block";
+    }
+
+    // When the user clicks on <span> (x), close the modal
+    span.onclick = function () {
+        modal.style.display = "none";
+    }
+
+    // When the user clicks anywhere outside of the modal, close it
+    window.onclick = function (event) {
+        if (event.target == modal) {
+            modal.style.display = "none";
+        }
+    }
+</script> -->
+<div class="row">
+    <div class="drhms-list-filters">
+        <div class="col-sm-4">
+            <label class="col-sm-3" translate="bedtransfer-list.filter_ward.lbl"></label>
+            <div class="col-sm-9">
+                <ui-select ng-model="currentfilter.FromWardId" ng-change="getList()" class="filter-combo">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 15 : 0}}
+                        <span ng-if="$select.selected.Text.length>15">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.Ward | filter: {Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <label class="col-sm-3" translate="bedtransfer-list.filter_status.lbl"></label>
+            <div class="col-sm-9">
+                <multiselectchk list="lookup.RequestedStatus" selected="currentfilter.RequestedStatusId"
+                    change="getList()">
+                </multiselectchk>
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <label class="col-sm-3" translate="Date"></label>
+            <div class="col-sm-9">
+                <div class="datepicker" id="datepicker">
+                    <input type="text" class="form-control" name="registereddate" ng-change="getList()"
+                        datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}"
+                        uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                        placeholder="{{datePickerOptions.placeholder}}"
+                        ng-click="registereddatePopup = { opened: true }" is-open="registereddatePopup.opened"
+                        ng-model="currentfilter.TransferDate"><i class="fa fa-calendar" aria-hidden="true"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<custom-table config="vm.gridConfig"></custom-table>
+<div class="container-fluid single-filter">
+    <!-- <div ui-grid="vm.gridConfig" class="table-uigrid"></div> -->
+    <div class="fooder-bgs" style="margin-bottom:10px;">
+        <div class="row">
+            <ul uib-pagination total-items="vm.gridConfig.pagerObj.totalItems"
+                items-per-page="vm.gridConfig.pagerObj.pageSize" start-index="vm.gridConfig.pagerObj.startIndex"
+                ng-model="vm.gridConfig.pagerObj.currentPage" ng-change="getList()"></ul>
+        </div>
+    </div>
+</div>

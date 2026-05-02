@@ -1,0 +1,104 @@
+<style>
+    .modal-lg {
+    width: 81%;
+}
+div#mainresponsivetablecontrol .table {
+    width: 98%;
+}
+#mainresponsivetablecontrol .table>tbody>tr>td {
+    border: 1px solid #ccc !important;
+    white-space: normal !IMPORTANT;
+}
+.table-control {
+    height: 50vh;
+    min-height: 50vh !important;
+    overflow: auto;
+}
+.modal-content {
+    height: 82vh;
+}
+.bg-pattern.ng-scope {
+    height: 411px !important;
+}
+.table-control {
+    height: 53vh !important;
+    min-height: 44vh !important;
+}
+</style>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        $("#itembtn").click(function () {
+            $(".items").toggle();
+        });
+    });
+    $(document).ready(function () {
+        $("#categorybtn").click(function () {
+            $(".catogories").toggle();
+        });
+    });
+
+</script>
+<div class="modal-header custom-modal-header">
+    <h4 class="modal-title custom-modal-title col-sm-11">{{ServiceCategoryName}}</h4>
+    <div class="col-sm-1">
+        <button id="btnCancelForm" type="button" class="draftbutton" ng-click="cancelCallback()" translate="X"></button>
+    </div>
+</div>
+<div class="bg-pattern">
+    <patientbanner patientid="PatientId"></patientbanner>
+    <div class=" table-control">
+        <div class="table-height" id="mainresponsivetablecontrol">
+            <table class="table table-hover table-responsive table-bordered">
+                <thead class="bg-subhead">
+                    <tr>
+                        <th class="col-sm-3"><span translate="billing.supplementary-details.serviceitem.lbl"></span> </th>
+                        <th class="col-sm-2"><span translate="billing.supplementary-details.date.lbl"></span> </th>
+                        <th class="col-sm-1"><span translate="billing.supplementary-details.qty.lbl"></span> </th>
+                        <th class="col-sm-2"><span translate="billing.supplementary-details.rate.lbl"></span> </th>
+                        <th class="col-sm-3"><span translate="billing.supplementary-details.doctor.lbl"></span> </th>
+                        <th class="col-sm-1"><span translate="billing.supplementary-details.share.lbl"></span> </th>
+                        <th class="col-sm-1"><span translate="billing.supplementary-details.discount.lbl"></span> </th>
+                        <th class="col-sm-1"><span translate="billing.supplementary-details.net.lbl"></span> </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="bill in SupplementaryDetails | filter:{IsSupplementary:IsSupplementary}">
+                        <td>
+                            <label>{{bill.ServiceName}}</label>
+                        </td>
+                        <td>
+                            <label><span>{{bill.BillDateTime | date : 'dd-MMM-yyyy'}}&nbsp;{{bill.BillDateTime| date: 'HH:mm'}}</label>
+                        </td>
+                        <td>
+                            <label>{{bill.Quantity}}</label>
+                        </td>
+                        <td class="currency-align">
+                            <label>{{bill.Rate | displaycurrency}}</label>
+                        </td>
+                        <td>
+                            <label>{{bill.User.FirstName}}&nbsp;{{bill.User.LastName}}</label>
+                        </td>
+                        <td class="currency-align">
+                            <label>{{bill.DoctorShare | displaycurrency}}</label>
+                        </td>
+                        <td class="currency-align">
+                            <label>{{bill.DiscountAmount | displaycurrency}}</label>
+                        </td>
+                        <td class="currency-align">
+                            <label>{{bill.NetAmount | displaycurrency}}</label>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<div class="fooder-bgs" style="margin-bottom: 30px !important;">
+    <div class="pull-right">
+        <div class="col-sm-12">
+            <button type="button" ng-if="SupplementaryDetails.length > 0" class="btn btn-inverse btn-sm" ng-click="confirmCallback({method:'print',categoryid:CategoryId,categoryname:ServiceCategoryName})"  translate="common.printaction.lbl"></button>
+            <!--<button type="button" id="btnsubmit" class="draftbutton" translate="billing.billlock.split.lbl" ng-click="save()"></button>-->
+           </div>
+    </div>
+</div>

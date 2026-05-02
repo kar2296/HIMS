@@ -1,0 +1,126 @@
+<ul class="breadcrumb" ng-if="!currentcontext.ismodal">
+    <li><a ng-click="backToList()" translate="patientemr.patientmedication-form.parentpagetitle.lbl"></a></li>
+    <li class="active" translate="patientemr.patientmedication-form.pagetitle.lbl"></li>
+</ul>	
+<div class="col-sm-12 custom-modal-header" ng-if="currentcontext.ismodal">
+    <h4 class="modal-title custom-modal-title col-sm-6" translate="patientemr.patientmedication-form.pagetitle.lbl"></h4>
+    <div class="col-sm-6">
+            <div class="filters">
+                <img src="../../../../../assets/svg/close.svg"  ng-click="cancelCallback()">
+            </div>
+        </div>
+</div>
+
+<div class="row">
+    <div class="col-sm-12">
+        <form id="item_form" name="item_form" class="form-horizontal" role="form" ng-submit="saveItem()">	
+            <div class="formRoot">
+                 <div class="panel-body form-panel">	
+                        <div class="col-sm-12">		
+                                <div class="form-group col-sm-4">
+                                    <label class="col-sm-12 control-label" for="drug" translate="patientemr.patientmedication-form.drug.lbl"></label>
+                                    <div class="col-sm-12">
+                                        <drugcontrol drugid="item.DrugId" drugrouteid="item.DrugRouteId"
+                                            drugfrequencyid="item.DrugFrequencyId" ng-show="!item.IsGeneric"></drugcontrol>
+                                        <genericcontrol genericid="item.GenericId"  ng-show="item.IsGeneric"></genericcontrol>
+                                    </div>
+                                </div>
+                                <div class="form-group col-sm-4">
+                                    <label class="col-sm-12 control-label" for="generic" translate="patientemr.patientmedication-form.generic.lbl"></label>
+                                    <div class="col-sm-12">
+                                        <input type="checkbox" name="generic" class="custom-checkbox"
+                                            ng-model="item.IsGeneric">
+                                    </div>
+                                </div>
+                                <div class="form-group col-sm-4">
+                                    <label class="col-sm-12 control-label" for="dosage" translate="patientemr.patientmedication-form.dosage.lbl"></label>
+                                    <div class="col-sm-12">
+                                        <input type="text" class="form-control" name="dosage" ng-model="item.Dosage" placeholder="" required>
+                                    </div>
+                                </div>
+                                <div class="form-group col-sm-4">
+                                    <label class="col-sm-12 control-label" for="route" translate="patientemr.patientmedication-form.route.lbl"></label>
+                                    <div class="col-sm-12">
+                                        <ui-select ng-model="item.DrugRouteId" name="route">
+                                            <ui-select-match>
+                                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                                <span ng-if="$select.selected.Text.length>20">...</span>
+                                            </ui-select-match>
+                                            <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.DrugRoute | filter: { Text: $select.search }">
+                                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                            </ui-select-choices>
+                                        </ui-select>
+                                    </div>
+                                </div>
+                                <div class="form-group col-sm-4">
+                                    <label class="col-sm-12 control-label" for="frequency" translate="patientemr.patientmedication-form.frequency.lbl"></label>
+                                    <div class="col-sm-12">
+                                        <ui-select ng-model="item.DrugFrequencyId" name="frequency" required>
+                                            <ui-select-match>
+                                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                                <span ng-if="$select.selected.Text.length>20">...</span>
+                                            </ui-select-match>
+                                            <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.DrugFrequency | filter: { Text: $select.search }">
+                                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                            </ui-select-choices>
+                                        </ui-select>
+                                    </div>
+                                </div>
+                                <div class="form-group col-sm-4">
+                                    <label class="col-sm-12 control-label" for="description" translate="patientemr.patientmedication-form.description.lbl"></label>
+                                    <div class="col-sm-12">
+                                        <input type="text" class="form-control" name="description" ng-model="item.Description" placeholder="" >
+                                    </div>
+                                </div>
+                                     <div class="form-group col-sm-4">
+                                    <label class="col-sm-12 control-label" for="startdate" translate="patientemr.patientmedication-form.startdate.lbl"></label>
+                                     <div class="col-sm-12">
+                                        <input type="text" class="form-control" name="PerformedDate" ng-change="getList()" datepicker-options="datePickerOptions"
+                    show-button-bar="{{datePickerOptions.showButtonBar}}" uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                    placeholder="{{datePickerOptions.placeholder}}" ng-click="PerformedDatePopup = { opened: true }" is-open="PerformedDatePopup.opened"
+                    ng-model="currentfilter.PerformedDate">
+                                  </div>
+                                </div>
+                                <div class="form-group col-sm-4">
+                                    <label class="col-sm-12 control-label" for="enddate" translate="patientemr.patientmedication-form.enddate.lbl"></label>
+                                    <div class="col-sm-12">
+                                        <input type="text" class="form-control" name="enddate" ng-date-object 
+                                                uib-datepicker-popup="{{datePickerOptions.dateFormat}}" 
+                                                placeholder="{{datePickerOptions.placeholder}}" 
+                                                ng-click="enddatePopup = { opened: true }" 
+                                                is-open="enddatePopup.opened" ng-model="item.EndDate" >
+                                    </div>
+                                </div>              
+                                <div class="form-group col-sm-4">
+                                    <label class="col-sm-12 control-label" for="status" translate="patientemr.patientmedication-form.status.lbl"></label>
+                                    <div class="col-sm-12">
+                                        <ui-select ng-model="item.PatientMedicationStatusId" name="status">
+                                            <ui-select-match>
+                                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                                <span ng-if="$select.selected.Text.length>20">...</span>
+                                            </ui-select-match>
+                                            <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.PatientMedicationStatus | filter: { Text: $select.search }">
+                                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                            </ui-select-choices>
+                                        </ui-select>
+                                    </div>
+                                </div>          
+                                <div class="form-group col-sm-4">
+                                    <label class="col-sm-12 control-label" for="comments" translate="patientemr.patientmedication-form.comments.lbl"></label>
+                                    <div class="col-sm-12">
+                                         <commentscontrol comments="item.Comments"></commentscontrol>
+                                    </div>
+                                </div>
+                                </div>
+                    </div>
+              
+            </div>
+            <div class="fooder-bgs" style="margin-bottom: 30px;">
+                <div class="pull-right">
+                    <button type="submit" class="draftbutton" translate="common.saveaction.lbl"></button>
+                    <!-- <button id="btnCancelForm" type="button" class="draftbutton" ng-click="backToList()" translate="common.cancelaction.lbl"></button>						 -->
+                </div>
+            </div>
+        </form>		
+    </div>
+</div>

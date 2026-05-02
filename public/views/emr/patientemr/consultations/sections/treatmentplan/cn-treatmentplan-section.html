@@ -1,0 +1,84 @@
+<style>
+    .service-list i {
+        color: #F44336;
+    }
+
+    .service-list span {
+        font-size: 11px;
+        color: #607D8B;
+    }
+
+    .service-list {
+        height: 17vh;
+        overflow: auto;
+        padding-top: 10px;
+    }
+
+    .service-list div {
+        padding-bottom: 10px;
+    }
+</style>
+<div class="row">
+    <form id="item_form" name="item_form" class="form-horizontal" role="form">
+        <div class="form-group col-sm-8">
+            <div class="form-group col-sm-6">
+                <label class="col-sm-12 control-label" for="daystotal" translate="Total Days"></label>
+                <div class="col-sm-12">
+                    <input type="text" class="form-control" ng-model="item.NoOfDays" placeholder="" name="daystotal"
+                        ng-change="computedays(item)" required>
+                </div>
+            </div>
+            <div class="form-group col-sm-6">
+                <label class="col-sm-12 control-label" for="service" translate="Treatment Name"></label>
+                <div class="col-sm-12">
+                    <autosearch controlid="'serviceid'" itemid="item.ServiceItemId" iteminfo="item.SelectedItem"
+                        name="'service'" rowdata="item" config="vm.serviceitemcontrolconfig"
+                        itemchange="serviceChanged(item)" required class="inputsearchlogo" isrequired="true">
+                    </autosearch>
+                </div>
+            </div>
+            <div class="form-group col-sm-6">
+                <label class="col-sm-12 control-label" for="interval" translate="Interval Days"></label>
+                <div class="col-sm-12">
+                    <input type="text" class="form-control" for="interval" ng-model="item.IntervalDays" placeholder=""
+                        ng-change="computedays(item)">
+                </div>
+            </div>
+            <!-- <div class="form-group col-sm-6">
+            <label class="col-sm-12 control-label" for="fromdate" translate="From Date"></label>
+            <div class="col-sm-12">
+                <input type="text" class="form-control" name="fromdate" ng-date-object datetime-picker="{{datePickerOptions.dateTimeFormat}}" placeholder="{{datePickerOptions.placeholder}}" ng-click="fromdatePopup = { opened: true }" is-open="fromdatePopup.opened" ng-model="item.PlanScheduledFrom">
+            </div>
+        </div>
+        <div class="form-group col-sm-6">
+            <label class="col-sm-12 control-label" for="todate" translate="To Date"></label>
+            <div class="col-sm-12">
+                <input type="text" class="form-control" name="todatte" ng-date-object datetime-picker="{{datePickerOptions.dateTimeFormat}}" placeholder="{{datePickerOptions.placeholder}}" ng-click="todattePopup = { opened: true }" is-open="todattePopup.opened" ng-model="item.PlanScheduledTo">
+            </div>
+        </div> -->
+            <div class="form-group col-sm-6">
+                <label class="col-sm-12 control-label" for="comments" translate="Comments"></label>
+                <div class="col-sm-12">
+                    <input type="text" class="form-control" ng-model="item.Comments" name="comments" placeholder=""
+                        required>
+                </div>
+            </div>
+        </div>
+        <div class="form-group col-sm-4 service-list">
+            <div class="col-sm-12" ng-repeat="service in SelectedServices">
+                <i class="fa fa-trash" ng-click="removeService(item, service.ServiceItemId)" aria-hidden="true"></i>
+                <span>{{service.ServiceName}}({{service.ServiceCode}})</span> &nbsp;
+                <span>-</span>&nbsp;<span>{{service.ServicePrice}}</span>
+            </div>
+        </div>
+    </form>
+</div>
+<div class="row">
+    <div class="pull-right">
+        <button type="button" id="btnsubmit" class="draftbutton" translate="Create" ng-show="canShowCreate"
+            ng-click="create()"  ng-hide="Consult.ProgressNoteStatusId==2"></button>
+    </div>
+</div>
+<div class="row">
+    <custom-table config="vm.gridConfig"></custom-table>
+</div>

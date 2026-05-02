@@ -1,0 +1,351 @@
+<style>
+    /* h3.panel-title {
+        color: #1c1c77 !important;
+        border-bottom: 2px solid gray;
+        width: 100% !IMPORTANT;
+    } */
+
+    /* .col-sm-4 {
+        width: 36.333333%;
+    } */
+
+    h3.panel-title {
+        margin-left: 15px;
+    }
+
+    .footer-bgs {
+        margin-bottom: 140px;
+    }
+
+    .modal-header {
+        border-bottom: unset !important;
+    }
+
+    textarea.notes-textarea {
+        border: 1px solid gray !important;
+        margin-top: 2px !important;
+    }
+
+    .form-group.col-sm-4 {
+        height: 72px;
+    }
+</style>
+<div class="modal-header">
+    <h4 class="col-sm-6 modal-title custom-modal-title" translate="assetmanagement.assettransfer.manageassets.lbl"></h4>
+    <div class="col-sm-6" style="float: right;width: 22% !important; margin-bottom: 4px;">
+        <!-- <button type="button" class="btn btn-danger btn-sm pull-right" translate="x"
+            ng-click="cancelCallback()"></button> -->
+        <autosearch itemid="item.AssetId" iteminfo="item.selecteditem" rowdata="" config="vm.assettransfercontrolconfig"
+            itemchange="selecteditem()" placeholder="'Asset'">
+        </autosearch>
+    </div>
+</div>
+
+<!-- <div class="col-sm-6" style="float: right;width: 37%;    margin-bottom: 4px;">
+        <autosearch itemid="item.AssetId" iteminfo="item.selecteditem" rowdata="" config="vm.assettransfercontrolconfig"
+            itemchange="selecteditem()" placeholder="'Asset'">
+        </autosearch>
+    </div> -->
+<div class="col-sm-12">
+    <div class="row">
+        <form id="item_form" name="item_form" class="form-horizontal" role="form">
+            <div class="form-group col-sm-12">
+                <div class="col-sm-12 page-header">
+                    <div class="col-sm-12">
+                        <h3 class="panel-title" style="margin-left: -2px;"
+                            translate="assetmanagement.assettransfer.pnlassetinformation.lbl"></h3>
+
+                    </div>
+                </div>
+                <div class="col-sm-12" style="padding: 0;">
+                    <!-- <div class="form-group col-sm-4">
+                                <div class="col-sm-12">
+                                    <label translate="Search"></label>
+                                <autosearch itemid="item.AssetId" iteminfo="item.selecteditem" rowdata=""
+                                config="vm.assettransfercontrolconfig" itemchange="getList()" placeholder="'Asset'"
+                                style="width: 50%;padding-bottom: 5px;  margin-left: -77px;">
+                            </autosearch>
+                            </div>
+                        </div> -->
+                    <div class="form-group col-sm-4">
+                        <div class="col-sm-12">
+                            <label class="control-label" for="type"
+                                translate="assetmanagement.assettransfer.assettype.lbl"></label>
+                            <input type="text" class="form-control" name="type" required ng-model="item.AssetTypeId"
+                                placeholder="Asset Type" disabled>
+                        </div>
+                    </div>
+
+                    <div class="form-group col-sm-4">
+                        <div class="col-sm-12">
+                            <label class="control-label" for="name"
+                                translate="assetmanagement.assettransfer.assetname.lbl"></label>
+                            <input type="text" class="form-control" name="name" required ng-model="item.AssetName"
+                                placeholder="Asset Name" disabled>
+                        </div>
+                    </div>
+                    <div class="form-group col-sm-4">
+                        <div class="col-sm-12">
+                            <label class="control-label" for="transfer"
+                                translate="assetmanagement.assets.department.lbl"></label>
+                            <ui-select ng-model="item.FromDepartmentId" name="transfer" required
+                                placeholder="From Department" ng-disabled="true">
+                                <ui-select-match>
+                                    {{$select.selected.Text | limitTo : 40 : 0}}
+                                    <span ng-if="$select.selected.Text.length>40">...</span>
+                                </ui-select-match>
+                                <ui-select-choices
+                                    repeat="lookupitem.Id as lookupitem in lookup.Department | filter: { Text: $select.search }">
+                                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                </ui-select-choices>
+                        </div>
+                    </div>
+                    <!-- <div class="form-group col-sm-4">
+                            <div class="col-sm-12">
+                                <label translate="assetmanagement.assettransfer.location.lbl"></label>
+                                <ui-select ng-model="item.LocationId" placeholder="Location">
+                                    <ui-select-match>
+                                        {{$select.selected.Text | limitTo : 40 : 0}}
+                                        <span ng-if="$select.selected.Text.length>40">...</span>
+                                    </ui-select-match>
+                                    <ui-select-choices
+                                        repeat="lookupitem.Id as lookupitem in lookup.Location | filter: { Text: $select.search }">
+                                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                    </ui-select-choices>
+                                </ui-select>
+                            </div>
+                        </div> -->
+                    <div class="form-group col-sm-4">
+                        <div class="col-sm-12">
+                            <label class="control-label" for="number"
+                                translate="assetmanagement.assettransfer.serialnum.lbl"></label>
+                            <input type="text" class="form-control" name="number" required ng-model="item.Serial"
+                                placeholder="Serial Number" disabled>
+                        </div>
+                    </div>
+                    <div class="form-group col-sm-4">
+                        <div class="col-sm-12">
+                            <label class="control-label" for="number"
+                                translate="assetmanagement.assettransfer.modelnum.lbl"></label>
+                            <input type="text" class="form-control" ng-model="item.ModelNum" placeholder="Model Number"
+                                disabled>
+                        </div>
+                    </div>
+
+                    <div class="form-group col-sm-4">
+                        <div class="col-sm-12">
+                            <label translate="assetmanagement.assettransfer.vendor.lbl"></label>
+                            <ui-select ng-model="item.VendorId" ng-disabled="true" placeholder="Vendor">
+                                <ui-select-match>
+                                    {{$select.selected.Text | limitTo : 40 : 0}}
+                                    <span ng-if="$select.selected.Text.length>40">...</span>
+                                </ui-select-match>
+                                <ui-select-choices
+                                    repeat="lookupitem.Id as lookupitem in lookup.VendorMaster | filter: { Text: $select.search }">
+                                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                </ui-select-choices>
+                            </ui-select>
+                        </div>
+                    </div>
+
+                    <div class="form-group col-sm-4">
+                        <div class="col-sm-12">
+                            <label class="control-label" for="manufacturer"
+                                translate="assetmanagement.assettransfer.manufacturer.lbl"></label>
+                            <!-- <ui-select ng-model="item.ManufacturerId" name="manufacturer" disabled>
+                                    <ui-select-match>
+                                        {{$select.selected.Text | limitTo : 40 : 0}}
+                                        <span ng-if="$select.selected.Text.length>40">...</span>
+                                    </ui-select-match>
+                                    <ui-select-choices
+                                        repeat="lookupitem.Id as lookupitem in lookup.Manufacturer | filter: { Text: $select.search }">
+                                        <div ng-bind-html="lookupitem.Text | highlight: $select.search">
+                                        </div>
+                                    </ui-select-choices>
+                                </ui-select> -->
+                            <input type="text" class="form-control" name="name" ng-model="item.Manufacturer"
+                                placeholder="Manufacturer" disabled>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group col-sm-12">
+                <div class="page-header">
+                    <h3 class="panel-title" translate="assetmanagement.assettransfer.pnltransferto.lbl"></h3>
+                </div>
+                <div class="col-sm-12" style="padding: 0;">
+                    <div class="form-group col-sm-4">
+                        <div class="col-sm-12">
+                            <label translate="assetmanagement.assettransfer.transfer#.lbl"></label>
+                            <input type="text" class="form-control" name="transfer#" ng-model="item.AssetTransferNo"
+                                placeholder="Transfer#" ng-pattern="/^\d+$/" disabled>
+                        </div>
+                    </div>
+                    <div class="form-group col-sm-4">
+                        <div class="col-sm-12">
+                            <label translate="assetmanagement.assettransfer.facility.lbl"></label>
+                            <ui-select ng-model="item.TOFacilityId" placeholder="Company">
+                                <ui-select-match>
+                                    {{$select.selected.Text | limitTo : 40 : 0}}
+                                    <span ng-if="$select.selected.Text.length>40">...</span>
+                                </ui-select-match>
+                                <ui-select-choices
+                                    repeat="lookupitem.Id as lookupitem in lookup.Company | filter: { Text: $select.search }">
+                                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                </ui-select-choices>
+                            </ui-select>
+                        </div>
+                    </div>
+                    <div class="form-group col-sm-4">
+                        <div class="col-sm-12">
+                            <label translate="assetmanagement.assettransfer.todepartment.lbl"></label>
+                            <ui-select ng-model="item.ToDepartmentId" on-select="SelectedToDept($select.selected)"
+                                placeholder="To Department">
+                                <ui-select-match>
+                                    {{$select.selected.Text | limitTo : 40 : 0}}
+                                    <span ng-if="$select.selected.Text.length>40">...</span>
+                                </ui-select-match>
+                                <ui-select-choices
+                                    repeat="lookupitem.Id as lookupitem in lookup.Department | filter: { Text: $select.search }">
+                                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                </ui-select-choices>
+                            </ui-select>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-12" style="padding: 0;">
+                    <div class="form-group col-sm-4">
+                        <div class="col-sm-12">
+                            <label translate="assetmanagement.assettransfer.touser.lbl"></label>
+                            <autosearch itemid="item.ToUserId" iteminfo="" name="username" rowdata=""
+                                config="vm.tousercontrolconfig" itemchange="" placeholder="'To User'">
+                            </autosearch>
+                        </div>
+                    </div>
+                    <div class="form-group col-sm-4">
+                        <div class="col-sm-12">
+                            <label translate="assetmanagement.assettransfer.transferedby.lbl"></label>
+                            <autosearch itemid="item.TransferedById" iteminfo="" name="username" rowdata=""
+                                config="vm.usercontrolconfig" itemchange="" placeholder="'Transfered By'">
+                            </autosearch>
+                            <!-- <ui-select ng-model="item.TransferedById" placeholder="Transfered By">
+                                        <ui-select-match>
+                                            {{$select.selected.Text | limitTo : 40 : 0}}
+                                            <span ng-if="$select.selected.Text.length>40">...</span>
+                                        </ui-select-match>
+                                        <ui-select-choices
+                                            repeat="lookupitem.Id as lookupitem in lookup.User | filter: { Text: $select.search }">
+                                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                        </ui-select-choices>
+                                    </ui-select> -->
+                        </div>
+                    </div>
+                    <div class="form-group col-sm-4">
+                        <div class="col-sm-12">
+                            <label translate="assetmanagement.assettransfer.transfereddate.lbl"></label>
+                            <input type="text" class="form-control" name="transferdateandtime" ng-date-object required
+                                datetime-picker="{{datePickerOptions.dateTimeFormat}}" placeholder="TransferedDate"
+                                ng-click="transferdateandtimePopup = { opened: true }"
+                                is-open="transferdateandtimePopup.opened" ng-model="item.TransferedDate">
+                        </div>
+                    </div>
+
+                    <div class="form-group col-sm-4">
+                        <div class="col-sm-12">
+                            <label translate="assetmanagement.assettransfer.requestuser.lbl"></label>
+                            <autosearch itemid="item.RequestedById" iteminfo="" name="username" rowdata=""
+                                config="vm.usercontrolconfig" itemchange="" placeholder="'Request User'">
+                            </autosearch>
+                            <!-- <ui-select ng-model="item.RequestedById" placeholder="Requested By">
+                                        <ui-select-match>
+                                            {{$select.selected.Text | limitTo : 40 : 0}}
+                                            <span ng-if="$select.selected.Text.length>40">...</span>
+                                        </ui-select-match>
+                                        <ui-select-choices
+                                            repeat="lookupitem.Id as lookupitem in lookup.User | filter: { Text: $select.search }">
+                                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                        </ui-select-choices>
+                                    </ui-select> -->
+                        </div>
+                    </div>
+                    <div class="form-group col-sm-4">
+                        <div class="col-sm-12">
+                            <label translate="assetmanagement.assettransfer.requesteddate.lbl"></label>
+                            <input type="text" class="form-control" name="requesteddate" ng-date-object
+                                uib-datepicker-popup="{{datePickerOptions.dateFormat}}" placeholder="RequestedDate"
+                                ng-click="requesteddatePopup = { opened: true }" is-open="requesteddatePopup.opened"
+                                ng-model="item.RequestedDate">
+                        </div>
+                    </div>
+                    <div class="form-group col-sm-4">
+                        <div class="col-sm-12">
+                            <label translate="Approver User"></label>
+                            <autosearch itemid="item.ApprovedById" iteminfo="" name="username" rowdata=""
+                                config="vm.usercontrolconfig" itemchange="" placeholder="'Approve User'">
+                            </autosearch>
+                            <!-- <ui-select ng-model="item.ApprovedById" placeholder="Approved By">
+                                        <ui-select-match>
+                                            {{$select.selected.Text | limitTo : 40 : 0}}
+                                            <span ng-if="$select.selected.Text.length>40">...</span>
+                                        </ui-select-match>
+                                        <ui-select-choices
+                                            repeat="lookupitem.Id as lookupitem in lookup.User | filter: { Text: $select.search }">
+                                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                        </ui-select-choices>
+                                    </ui-select> -->
+                        </div>
+                    </div>
+                    <div class="form-group col-sm-4">
+                        <div class="col-sm-12">
+                            <label translate="assetmanagement.assettransfer.approveddate.lbl"></label>
+                            <input type="text" class="form-control" name="approvedate" ng-date-object
+                                uib-datepicker-popup="{{datePickerOptions.dateFormat}}" placeholder="Approved Date"
+                                ng-click="approvedatePopup = { opened: true }" is-open="approvedatePopup.opened"
+                                ng-model="item.ApprovedDate">
+                        </div>
+                    </div>
+                    <div class="form-group col-sm-4">
+                        <div class="col-sm-12">
+                            <label translate="assetmanagement.assettransfer.purpose.lbl"></label>
+                            <input type="text" class="form-control" name="alert" ng-model="item.Purpose"
+                                placeholder="Purpose">
+                        </div>
+                    </div>
+                    <div class="form-group col-sm-4">
+                        <div class="col-sm-12">
+                            <label translate="assetmanagement.assettransfer.comments.lbl"></label>
+                            <commentscontrol comments="item.Comments" placeholder="'Comments'">
+                            </commentscontrol>
+                        </div>
+                    </div>
+                    <div class="form-group col-sm-4">
+                        <div class="col-sm-12">
+                            <label translate="assetmanagement.assettransfer.location.lbl"></label>
+                            <ui-select ng-model="item.LocationId" placeholder="Location">
+                                <ui-select-match>
+                                    {{$select.selected.Text | limitTo : 40 : 0}}
+                                    <span ng-if="$select.selected.Text.length>40">...</span>
+                                </ui-select-match>
+                                <ui-select-choices
+                                    repeat="lookupitem.Id as lookupitem in lookup.Location | filter: { Text: $select.search }">
+                                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                </ui-select-choices>
+                            </ui-select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="footer-bgs">
+        <div class="pull-right btn">
+            <button type="submit" class="btn btn-info text-white btn-sm ng-scope" ng-show="canShowTransfer"
+                style="background: #F44336;" translate="Transfer" ng-click="Transfer()"
+                style="border-radius: 5px;"></button>
+            <button type="button" class="draftbutton" translate="Approve" ng-show="canShowApprove"
+                ng-click="Approve()"></button>
+            <!-- <button id="btnCancelForm" type="button" class="draftbutton" ng-click="backToList()"
+            translate="common.cancelaction.lbl"></button> -->
+        </div>
+    </div>
+</div>

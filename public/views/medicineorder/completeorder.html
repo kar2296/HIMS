@@ -1,0 +1,80 @@
+<style>
+        .pager-div {
+            float: right;
+            right: 0;
+            box-sizing: border-box;
+            position: fixed;
+            box-sizing: border-box;
+        }
+
+        .single-filter .ui-grid-render-container-body .ui-grid-viewport {
+            margin-left: 0 !important;
+            margin-right: 0 !important;
+            height: 422px !important;
+        }
+    </style>
+    
+    <div id="itemmasters">
+        <div class="col-sm-12">
+    
+    
+    
+            <table id="bannerdetails" style="width:101%;">
+                <tr>
+                    <td>
+                        <label class="control-label text-right filter-lbl" translate="patientportal.medicineorder.fromdate.lbl"></label>
+                    </td>
+                    <td>
+                        <input type="text" class="text-box form-control" name="orderdate" ng-date-object datepicker-options="datePickerOptions" ng-change="getList()"
+                            show-button-bar="{{datePickerOptions.showButtonBar}}" uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                            placeholder="{{datePickerOptions.placeholder}}" ng-click="fromdatePopup = { opened: true }" is-open="fromdatePopup.opened"
+                            ng-model="currentfilter.FromDate" tabindex="tabindexmap.patienttabindex">
+                    </td>
+                    <td>
+                        <label class="control-label text-right filter-lbl" translate="patientportal.medicineorder.todate.lbl"></label>
+    
+                    </td>
+                    <td>
+                        <input type="text" class="text-box form-control" name="orderdate" ng-date-object datepicker-options="datePickerOptions" ng-change="getList()"
+                            show-button-bar="{{datePickerOptions.showButtonBar}}" uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                            placeholder="{{datePickerOptions.placeholder}}" ng-click="startPopup = { opened: true }" is-open="startPopup.opened"
+                            ng-model="currentfilter.ToDate" tabindex="tabindexmap.patienttabindex">
+                    </td>
+                    <td>
+                        <label class="control-label text-right filter-lbl" translate="patientportal.medicineorder.orderno.lbl"></label>
+    
+                    </td>
+                    <td>
+                        <input type="text" id="codeid" ng-keyup="moveHeaderFocus('codeid')" class="form-control" name="pincode" on-enter="getList()"
+                            ng-model="currentfilter.MedicineOrderNo" placeholder="Order #" uppercase>
+                    </td>
+                    <td>
+                        <label class="control-label text-right filter-lbl" translate="patientportal.medicineorder.status.lbl"></label>
+                    </td>
+                    <td>
+                        <ui-select ng-model="currentfilter.MedicineOrderStatusId" ng-change="getList()" class="filter-combo">
+                            <ui-select-match>
+                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                <span ng-if="$select.selected.Text.length > 20">...</span>
+                            </ui-select-match>
+                            <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.MedicineOrderStatus | filter: { Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                            </ui-select-choices>
+                        </ui-select>
+                    </td>
+    
+                </tr>
+            </table>
+        </div>
+        <div id="itemmaster">
+            <custom-table config="vm.gridConfig"></custom-table>
+        </div>
+        <div class="container-fluid single-filter">
+            <!-- <div ui-grid="vm.gridConfig" class="table-uigrid"></div> -->
+            <div class="fooder-bgs" style="margin-bottom: 40px !important;">
+                <div class="row">
+                    <ul uib-pagination total-items="vm.gridConfig.pagerObj.totalItems" items-per-page="vm.gridConfig.pagerObj.pageSize" start-index="vm.gridConfig.pagerObj.startIndex"
+                        ng-model="vm.gridConfig.pagerObj.currentPage" ng-change="getList()"></ul>
+                </div>
+            </div>
+        </div>

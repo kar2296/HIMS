@@ -1,0 +1,107 @@
+<style>
+    .form-group{
+        margin-top:10px;
+    }
+</style>
+<div class="row page-header">
+    <h4 translate="Patient Followup Tracker"></h4>
+</div>
+<div class="row">
+    <div class="form-group col-sm-3">
+        <label class="col-sm-4 control-label" translate="Name"></label>
+        <div class="col-sm-8">
+            <div class="search">
+                <input type="text" id="pid" class="form-control" on-enter="getList()"
+                    ng-model="currentfilter.patientname" translate
+                    translate-attr-placeholder="registration.checkedinpatients.namemrn.lbl"> <i class="fas fa-search"
+                    aria-hidden="true"></i>
+            </div>
+        </div>
+    </div>
+    <div class="form-group col-sm-3">
+        <label class="col-sm-4 control-label" for="date" translate="From Date"></label>
+        <div class="col-sm-8">
+            <div class="datepicker">
+                <input type="text" class="form-control" name="fromdate" ng-change="getList()" datepicker-options="datePickerOptions"
+                    show-button-bar="{{datePickerOptions.showButtonBar}}" uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                    placeholder="{{datePickerOptions.placeholder}}" ng-click="fromdatePopup = { opened: true }" is-open="fromdatePopup.opened"
+                    ng-model="currentfilter.FromDate">
+                <i class="fa fa-calendar" aria-hidden="true"></i>
+            </div>
+        </div>
+    </div>
+    <div class="form-group col-sm-3">
+        <label class="col-sm-4 control-label" for="date" translate="To Date"></label>
+        <div class="col-sm-8">
+            <div class="datepicker">
+                <input type="text" class="form-control" name="todate" ng-change="getList()" datepicker-options="datePickerOptions"
+                    show-button-bar="{{datePickerOptions.showButtonBar}}" uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                    placeholder="{{datePickerOptions.placeholder}}" ng-click="todatePopup = { opened: true }" is-open="todatePopup.opened"
+                    ng-model="currentfilter.ToDate">
+                <i class="fa fa-calendar" aria-hidden="true"></i>
+            </div>
+        </div>
+    </div>
+    <div class="form-group col-sm-3">
+        <label class="col-sm-4 control-label0" for="department"
+            translate="assetmanagement.assetaudit.department.lbl"></label>
+        <div class="col-sm-8 ">
+            <ui-select ng-model="currentfilter.DepartmentId" name="department" ng-change="getUsers()">
+                <ui-select-match>
+                    {{$select.selected.Text | limitTo : 20 : 0}}
+                    <span ng-if="$select.selected.Text.length>20">...</span>
+                </ui-select-match>
+                <ui-select-choices
+                    repeat="lookupitem.Id as lookupitem in lookup.Department | filter: { Text: $select.search }">
+                    <div ng-bind-html="lookupitem.Text | highlight: $select.search">
+                    </div>
+                </ui-select-choices>
+            </ui-select>
+        </div>
+    </div>
+    <div class="form-group col-sm-3">
+        <label class="col-sm-4" translate="appointment.appointment-list.filter_doctor.lbl"></label>
+        <div class="col-sm-8">
+            
+                <ui-select ng-model="currentfilter.DoctorId" ng-change="getList()" class="filter-combo">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 20 : 0}}
+                        <span ng-if="$select.selected.Text.length > 20">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.Doctor | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            
+            <!-- <multiselectchk list="lookup.Doctor" selected="currentfilter.DoctorId" change="getList()">
+            </multiselectchk> -->
+        </div>
+    </div>
+    <div class="form-group col-sm-3">
+        <label class="col-sm-4 control-label" translate="billing.servicebilldiscounts.approvalstatus.lbl"></label>
+        <div class="col-sm-8">
+            <ui-select ng-model="currentfilter.consultationstatusid" ng-change="getList()" class="filter-combo">
+                <ui-select-match>
+                    {{$select.selected.Text | limitTo : 20 : 0}}
+                    <span ng-if="$select.selected.Text.length > 20">...</span>
+                </ui-select-match>
+                <ui-select-choices
+                    repeat="lookupitem.Id as lookupitem in lookup.ConsultationStatus | filter: { Text: $select.search }">
+                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                </ui-select-choices>
+            </ui-select>
+        </div>
+    </div>
+
+</div>
+<div class="row">
+    <custom-table config="vm.gridConfig"></custom-table>
+</div>
+<div class="fooder-bgs">
+    <div class="row">
+        <ul uib-pagination total-items="vm.gridConfig.pagerObj.totalItems"
+            items-per-page="vm.gridConfig.pagerObj.pageSize" start-index="vm.gridConfig.pagerObj.startIndex"
+            ng-model="vm.gridConfig.pagerObj.currentPage" ng-change="getList()"></ul>
+    </div>
+</div>

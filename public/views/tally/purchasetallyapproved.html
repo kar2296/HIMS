@@ -1,0 +1,203 @@
+<style>
+    ul.dropdown-menu.dropdown-menu-form.ng-scope {
+        margin-left: -114px !important;
+        /* position: relative; */
+    }
+</style>
+<div id="grnlist">
+    <div class="row page-header">
+        <div class="col-sm-12">
+            <div class="col-sm-6">
+                <h4 class="page-header mt0" translate="Purchase Tally Approved"></h4>
+            </div>
+            <div class="col-sm-6">
+                <div class="filters" style="margin-left: 28% !important;">
+
+                    <div class="search" style=" width: 300px;">
+                        <input type="text" class="form-control textbox-search" on-enter="getList()" name="ponumber" ng-model="currentfilter.GrnNumber"
+                            translate translate-attr-placeholder="Search PO # / Invoice / GRN #">
+                        <i class="fas fa-search" aria-hidden="true"></i>
+
+                    </div>
+                    <!-- <button class="btn-add" ng-click="addamend()" style="margin:0px 4px !important;"
+                        uib-tooltip="{{ 'inventory.grns.pagetitle.lbl' | translate }}" tooltip-placement="bottom">
+                        <!-- <i class="fa fa-plus" aria-hidden="true"></i> --
+                        <strong class="btn-fontsize" translate="Amend"> </strong>
+                    </button> -->
+                    <button class="btn-add" ng-click="addNew()" style="margin:0px 4px !important;" uib-tooltip="{{ 'inventory.grns.pagetitle.lbl' | translate }}"
+                        tooltip-placement="bottom">
+                        <i class="fa fa-plus" aria-hidden="true"></i>
+                        <!-- <strong class="btn-fontsize" translate="common.addnewaction.lbl"> </strong> -->
+                    </button>
+                    <i ng-if=" Context =='store'" class="fa fa-home" align="right" ng-click="backtoList()" uib-tooltip="Dashboard" tooltip-placement="bottom"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="">
+        <div class="row">
+            <table id="bannerdetails" style="width:99%;">
+                <tr>
+                    <td>
+                        <label class="control-label" for="date" translate="inventory.grns.date.lbl"></label>
+                    </td>
+                    <td>
+                        <div class="datepicker">
+                            <input type="text" class="form-control" name="grndate" ng-change="getList()" datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}"
+                                uib-datepicker-popup="{{datePickerOptions.dateFormat}}" placeholder="{{datePickerOptions.placeholder}}"
+                                ng-click="grndatePopup = { opened: true }" is-open="grndatePopup.opened" ng-model="currentfilter.GrnDate">
+                            <i class="fa fa-calendar" aria-hidden="true"></i>
+                        </div>
+                    </td>
+                    <td>
+                        <label class="control-label" for="vendor" translate="inventory.grns.vendorname1.lbl"></label>
+                    </td>
+                    <td>
+                        <autosearch itemid="currentfilter.VendorMasterId" iteminfo="" rowdata="" config="vm.vendorcontrolconfig" itemchange="getList()"
+                            onenter="getList()" placeholder="'Supplier'"></autosearch>
+                    </td>
+                    <td>
+                        <label class="control-label" for="fstore" translate="inventory.grns.store.lbl"></label>
+                    </td>
+                    <td>
+                        <ui-select ng-model="currentfilter.StoreMasterId" name="fstore" ng-change="getList()" required>
+                            <ui-select-match>
+                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                <span ng-if="$select.selected.Text.length>20">...</span>
+                            </ui-select-match>
+                            <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.UserStores | filter: { Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                            </ui-select-choices>
+                        </ui-select>
+                    </td>
+                    <td>
+                        <label class="control-label filter-lbl" for="status" translate="Purchase Status"></label>
+                    </td>
+                    <td>
+                        <multiselectchk list="lookup.GrnStatus" selected="currentfilter.GrnStatusId" change="getList()">
+                        </multiselectchk>
+                    </td>
+                    <td>
+                        <label class="control-label filter-lbl" for="status" translate="Tally Status"></label>
+                    </td>
+                    <td>
+                        <ui-select ng-model="currentfilter.TallyApprovedStatusId" name="fstore" ng-change="getList()" required>
+                            <ui-select-match>
+                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                <span ng-if="$select.selected.Text.length>20">...</span>
+                            </ui-select-match>
+                            <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.TallyApprovedStatus | filter: { Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                            </ui-select-choices>
+                        </ui-select>
+                        <!-- <multiselectchk list="lookup.TallyApprovedStatus" selected="currentfilter.TallyApprovedStatusId" change="getList()">
+                        </multiselectchk> -->
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</div>
+<div class="col-sm-12 overflow-section">
+    <table style="width: 100%;">
+        <thead class="bg-subhead">
+            <tr>
+                <th class="col-sm-1">
+                    <span>
+                        <input type="checkbox" ng-model="currentcontext.selectall" ng-click="selectAllItems()">
+                        <!-- ng-disabled="(item.SampleStatusId==3 || item.SampleStatusId==5)"> -->
+                    </span>
+                </th>
+                <th translate="Grn/Inv#"></th>
+                <th translate="inventory.grns.date.lbl"></th>
+                <th translate="inventory.grns.vendorname.lbl"></th>
+                <th translate="Invoice#"></th>
+                <th translate="Gross"></th>
+                <!-- <th translate="patientemr.patientdietorder-list.scheduledateandtime.lbl"></th> -->
+                <th translate="inventory.grns.discount.lbl"></th>
+                <th translate="Tax or GST"></th>
+                <th translate="inventory.grns.netamount.lbl"></th>
+                <th translate="Purchase Status"></th>
+                <th translate="Tally Status"></th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr ng-repeat="item in items">
+                <td>
+                    <center>
+                        <span>
+                            <input type="checkbox" class="case" ng-disabled="item.IsAllReadOnly" ng-model="item.IsAllSelected" ng-click="SelectionChange(items, item)"
+                            />
+                        </span>
+                        <!-- <span ng-if="item.SampleTypeIndex > 0"
+                        style="white-space: normal;">&nbsp;</span> -->
+                    </center>
+                </td>
+                <td>
+                    {{item.GrnNumber}}&nbsp;/&nbsp;{{item.InvoiceNumber}}
+
+                </td>
+                <td>
+                    <displaydate datetime-val="item.GrnDate"></displaydate>
+                </td>
+                <td>{{item.VendorMaster.VendorName}}</td>
+                <td>{{item.InvoiceNumber}}
+                </td>
+
+                <td class="currency-align">{{item.TotalGrossAmount}}</td>
+                <!-- <td>
+                <displaydate datetime-val="item.OrderScheduleDate"></displaydate>
+            </td> -->
+                <td class="currency-align">{{item.TotalDiscountAmount}}
+                </td>
+                <td class="currency-align">{{item.TotalGstAmount}}</td>
+                <td class="currency-align">{{item.TotalNetAmount}}</td>
+                <td>{{item.GrnStatus.Description}}</td>
+                <td>{{item.TallyApprovedStatus.Description}}</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+<!-- <custom-table config="vm.gridConfig"></custom-table> -->
+<div class="container-fluid im_stockstatus" id="stockstatus">
+    <div class="col-sm-12 footerbar0 pd0">
+        <div class="col-sm-12">
+            <div class="col-sm-6"></div>
+            <div class="col-sm-6">
+                <div class="col-sm-5 text-right">
+                    <label class="control-label ">Total Net Amount:</label>
+                </div>
+                <div class="col-sm-6">
+                    <!--
+                    <input type="text" class="form-control" name="totalquantity" ng-model="TotalNetamount" placeholder="0.00" id="disabledInput" disabled>
+                    -->
+                    <span>{{(TotalNetamount|displaycurrency)}}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="pull-right">
+    <div class="col-sm-12">
+        <span class="pull-right">
+            <button type="button" class="draftbutton" translate="Approve" ng-click="approve()"></button>
+
+    </div>
+</div>
+<!-- <div class="fooder-bgs">
+    <div class="row">
+        <ul uib-pagination total-items="vm.gridConfig.pagerObj.totalItems" items-per-page="vm.gridConfig.pagerObj.pageSize" start-index="vm.gridConfig.pagerObj.startIndex"
+            ng-model="vm.gridConfig.pagerObj.currentPage" ng-change="getList()"></ul>
+    </div>
+</div> -->
+<!--
+<div class="container-fluid" id="patientidentitiesheight">
+    <div ui-grid="vm.gridConfig" class="table-uigrid table-uigrid-tab "></div>
+    <div class="fooder-bgs">
+        <div class="row">
+            <ul uib-pagination total-items="vm.gridConfig.pagerObj.totalItems" items-per-page="vm.gridConfig.pagerObj.pageSize" start-index="vm.gridConfig.pagerObj.startIndex"
+                ng-model="vm.gridConfig.pagerObj.currentPage" ng-change="getList()"></ul>
+        </div>
+    </div>
+</div>
+-->

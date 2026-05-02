@@ -1,0 +1,633 @@
+<style>
+    .form-horizontal .form-group {
+        height: 62px;
+    }
+
+    label.col-sm-12.control-label.false span {
+        display: none;
+    }
+
+    sider-trans-text {
+        display: none;
+    }
+</style>
+<div class="row" id="inventorytab">
+    <form id="item_form" name="item_form" class="form-horizontal" role="form">
+        <div class="row">
+
+            <div class="form-group col-sm-3">
+                <label class="col-sm-12 control-label" for="itemcode" translate="inventory.itemmaster.code.lbl"></label>
+                <div class="col-sm-12">
+                    <input type="text" id="codeid" ng-keyup="moveHeaderFocus('codeid')" class="form-control"
+                    name="itemcode" ng-model="item.ItemCode" ng-disabled="item.IsItemCodeEdit==true" placeholder="" required
+                        uppercase>
+                </div>
+            </div>
+            <div class="form-group col-sm-3">
+                <label class="col-sm-12 control-label" for="itemname" translate="inventory.itemmaster.name.lbl"></label>
+                <div class="col-sm-12">
+                    <input type="text" id="nameid" ng-keyup="moveHeaderFocus('nameid')" class="form-control"
+                        name="itemname" ng-model="item.ItemName" placeholder="" uppercase ng-if="currentcontext.id > 0">
+                    <!-- <input type="text" id="nameid" ng-keyup="moveHeaderFocus('nameid')" class="form-control" name="itemname" ng-model="item.ItemName"
+                            placeholder="" required uppercase> -->
+                    <!-- <autosearch itemid="currentfilter.ItemMasterId" iteminfo="" rowdata="" config="vm.itemcontrolconfig"
+                            itemchange="getList()" onenter="getList()"></autosearch> -->
+                    <autosearch itemid="item.ItemMasterId" isrequired="true" name="'itemname'" iteminfo=""
+                        rowdata="item" config="vm.itemcontrolconfig" itemchange="getDrugs($select.selected)"
+                        class="inputsearchlogo" ng-if="currentcontext.id == 0"></autosearch>
+                </div>
+            </div>
+            <div class="form-group col-sm-3" ng-if="item.IsShowItemType==true">
+                <label class="col-sm-12 control-label" for="Type" translate="Type"></label>
+                <div class="col-sm-10">
+                    <ui-select id="categoryid" ng-keyup="moveHeaderFocus('categoryid')" ng-model="item.CategoryId"
+                        ng-change="getSubCategory()" theme="bootstrap" name="Type" required>
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 20 : 0}}
+                            <span ng-if="$select.selected.Text.length > 20">...</span>
+                        </ui-select-match>
+                        <ui-select-choices
+                            repeat="lookupitem.Id as lookupitem in lookup.ItemCategory | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+            <div class="form-group col-sm-3">
+                <label class="col-sm-12 control-label" for="subCategoryId" translate="Item category"></label>
+                <div class="col-sm-10">
+                    <ui-select id="subcategoryid" ng-keyup="moveHeaderFocus('subcategoryid')"
+                        ng-model="item.SubCategoryId" theme="bootstrap" ng-change="getSubType()" name="subCategoryId"
+                        required>
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo: 20: 0}}
+                            <span ng-if="$select.selected.Text.length > 20">...</span>
+                        </ui-select-match>
+                        <ui-select-choices
+                            repeat="lookupitem.Id as lookupitem in lookup.ItemSubCategory | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+                <div class="col-sm-2">
+                    <button type="button" class="btn-add" tabindex="-1" ng-click="addsubcategory()"
+                        uib-tooltip="{{ 'Add SubCategory'}}" tooltip-placement="top">
+                        <i class="fa fa-plus" aria-hidden="true"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="form-group col-sm-3">
+                <label class="col-sm-12 control-label" for="scategoryId" translate="Main Category"></label>
+                <div class="col-sm-10">
+                    <ui-select id="categoryid" ng-keyup="moveHeaderFocus('categoryid')" ng-change="getProductType()"
+                        ng-model="item.SubTypeId" ng-change="" theme="bootstrap" name="scategoryId" required>
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 20 : 0}}
+                            <span ng-if="$select.selected.Text.length > 20">...</span>
+                        </ui-select-match>
+                        <ui-select-choices
+                            repeat="lookupitem.Id as lookupitem in lookup.ItemSubType | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+                <div class="col-sm-2">
+                    <button type="button" class="btn-add" tabindex="-1" ng-click="addsubtype()"
+                        uib-tooltip="{{ 'Add Category'}}" tooltip-placement="top">
+                        <i class="fa fa-plus" aria-hidden="true"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="form-group col-sm-3">
+                <label class="col-sm-12 control-label" for="productTypeId" translate="Sub Category"></label>
+                <div class="col-sm-10">
+                    <ui-select id="producttypeid" ng-keyup="moveHeaderFocus('producttypeid')"
+                        ng-model="item.ProductTypeId" ng-change="getProductSubType()" name="productTypeId"
+                        theme="bootstrap" required placeholder="">
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 20 : 0}}
+                            <span ng-if="$select.selected.Text.length>20">...</span>
+                        </ui-select-match>
+                        <ui-select-choices
+                            repeat="lookupitem.Id as lookupitem in lookup.ProductType | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+                <div class="col-sm-2">
+                    <button type="button" class="btn-add" tabindex="-1" ng-click="addproducttype()"
+                        uib-tooltip="{{ 'Add SubCategory'}}" tooltip-placement="top">
+                        <i class="fa fa-plus" aria-hidden="true"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="form-group col-sm-3">
+                <label class="col-sm-12 control-label" for="implantTypeId" translate="Implant Type"></label>
+                <div class="col-sm-12" ng-if="item.SubCategoryId==24">
+                    <ui-select id="implantTypeId" ng-model="item.ImplantTypeId" theme="bootstrap" name="implantTypeId"
+                        required>
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 20 : 0}}
+                        </ui-select-match>
+                        <ui-select-choices
+                            repeat="lookupitem.Id as lookupitem in lookup.ImplantType | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+                <div class="col-sm-12" ng-if="item.SubCategoryId!=24">
+                    <ui-select ng-model="item.ImplantTypeId" theme="bootstrap">
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 20 : 0}}
+                        </ui-select-match>
+                        <ui-select-choices
+                            repeat="lookupitem.Id as lookupitem in lookup.ImplantType | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+            <div class="form-group col-sm-3" ng-if="item.IsItemmasterDrugshow==true">
+                <label class="col-sm-12 control-label" translate="inventory.itemmaster.drugname.lbl"></label>
+                <div class="col-sm-10">
+                    <autosearch itemid="item.DrugId" name="'drug'" iteminfo="item.SelectedItem" rowdata="item"
+                        config="vm.drugcontrolconfig" class="inputsearchlogo" candisable="IsDisabled"></autosearch>
+                </div>
+                <!-- <div class="col-sm-1"></div> -->
+                <div class="col-sm-2">
+                    <button type="button" class="btn-add" tabindex="-1" ng-click="addDrug()"
+                        uib-tooltip="{{ 'Add Drugs'}}" tooltip-placement="top">
+                        <i class="fa fa-plus" aria-hidden="true"></i>
+                    </button>
+                </div>
+
+            </div>
+            <div class="form-group col-sm-3">
+                <label class="col-sm-12 control-label" translate="inventory.itemmaster.genericId.lbl"></label>
+                <div class="col-sm-10">
+                    <autosearch itemid="item.GenericId" iteminfo="item.SelectedItem" rowdata="item"
+                        config="vm.genericcontrolconfig" itemchange="" class="inputsearchlogo" candisable="IsDisabled">
+                    </autosearch>
+                    <!--<autosearch itemid="item.MasterItemId" name="'masteritem'" iteminfo="item.SelectedItem" rowdata="item" config="vm.testcontrolconfig" itemchange="testChanged($index,item)" class="inputsearchlogo" candisable="IsDisabled" isrequired="true"></autosearch>-->
+                </div>
+                <div class="col-sm-2">
+                    <button type="button" class="btn-add" tabindex="-1" ng-click="addGeneric()"
+                        uib-tooltip="{{ 'Add Generic'}}" tooltip-placement="top">
+                        <i class="fa fa-plus" aria-hidden="true"></i>
+                    </button>
+                </div>
+
+            </div>
+            <div class="form-group col-sm-3">
+                <label class="col-sm-12 control-label" for="manufacturer"
+                    translate="inventory.itemmaster.manufacturerId.lbl"></label>
+                <div class="col-sm-10">
+                    <autosearch itemid="item.ManufacturerId" iteminfo="" config="vm.manufacturercontrolconfig"
+                        itemchange="ManufacturerChanged(item.SelectedItem)"></autosearch>
+                </div>
+                <div class="col-sm-2">
+                    <button type="button" class="btn-add" tabindex="-1" ng-click="addManufacture()"
+                        uib-tooltip="{{ 'Add Manufacture' }}" tooltip-placement="top">
+                        <i class="fa fa-plus" aria-hidden="true"></i>
+                    </button>
+                </div>
+
+            </div>
+            <!-- <div class="form-group col-sm-3">
+                    <label class="col-sm-12 control-label" for="baseuomId" translate="inventory.itemmaster.baseuomId.lbl"></label>
+                    <div class="col-sm-12">
+                        <ui-select id="baseuomid" ng-keyup="moveHeaderFocus('baseuomid')" ng-model="item.BaseUomId" theme="bootstrap" name="baseuomId"
+                            required>
+                            <ui-select-match>
+                                {{$select.selected.UomName | limitTo : 20 : 0}}
+                                <span ng-if="$select.selected.UomName.length>20">...</span>
+                            </ui-select-match>
+                            <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.UomMaster | filter: { UomName: $select.search }">
+                                <div ng-bind-html="lookupitem.UomName | highlight: $select.search">
+                                </div>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                </div> -->
+            <div class="form-group col-sm-2">
+                <label class="col-sm-12 control-label" for="purchaseuomId"
+                    translate="inventory.itemmaster.purchaseuomId.lbl"></label>
+                <div class="col-sm-12">
+                    <ui-select id="purchaseuomid" ng-keyup="moveHeaderFocus('purchaseuomid')"
+                        ng-model="item.PurchaseUomId" theme="bootstrap" name="purchaseuomId" required>
+                        <ui-select-match>
+                            {{$select.selected.UomName | limitTo : 20 : 0}}
+                            <span ng-if="$select.selected.UomName.length>20">...</span>
+                        </ui-select-match>
+                        <ui-select-choices
+                            repeat="lookupitem.Id as lookupitem in lookup.UomMaster | filter: { UomName: $select.search }">
+                            <div ng-bind-html="lookupitem.UomName | highlight: $select.search">
+                            </div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+
+            <!-- <div class="form-group col-sm-3">
+                    <label class="col-sm-12 control-label" for="saleuomId" translate="inventory.itemmaster.saleuomId.lbl"></label>
+                    <div class="col-sm-12">
+                        <ui-select id="salesuomid" ng-keyup="moveHeaderFocus('salesuomid')" on-select="SelectedSaleUom($select.selected)" ng-model="item.SaleUomId"
+                            theme="bootstrap" name="saleuomId" required>
+                            <ui-select-match>
+                                {{$select.selected.UomName | limitTo : 20 : 0}}
+                                <span ng-if="$select.selected.UomName.length>20">...</span>
+                            </ui-select-match>
+                            <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.UomMaster | filter: { UomName: $select.search }">
+                                <div ng-bind-html="lookupitem.UomName | highlight: $select.search">
+                                </div>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                </div> -->
+            <div class="form-group col-sm-1">
+                <label class="col-sm-12 control-label" for="saleuomId" translate="Pack Qty"></label>
+                <div class="col-sm-12">
+                    <input type="text" class="form-control" name="itemconqty" ng-model="item.PurConQty" placeholder="">
+                </div>
+            </div>
+            <!-- <div class="form-group col-sm-3">
+                    <label class="col-sm-12 control-label" translate="inventory.itemmaster.nooftransaction.lbl"></label>
+                    <div class="col-sm-12">
+                        <input type="text" class="form-control" name="nooftransaction" ng-model="item.NoOfTransactions"
+                            placeholder="">
+                    </div>
+                </div>-->
+            <div class="form-group col-sm-1">
+                <label class="col-sm-12 control-label" translate="Free Qty"></label>
+                <div class="col-sm-12">
+                    <input type="text" ng-keypress="numberonly($event)" ng-pattern="/^\d+$/" class="form-control"
+                        name="FreeQty" ng-model="item.FreeQty" placeholder="">
+                </div>
+            </div>
+            <div class="form-group col-sm-1">
+                <label class="col-sm-12 control-label" translate="Pr.Price"></label>
+                <div class="col-sm-12">
+                    <input type="text" class="form-control" name="itemprice" ng-model="item.ItemPrice" placeholder="">
+                </div>
+            </div>
+            <div class="form-group col-sm-1">
+                <label class="col-sm-12 control-label {{item.IsBillable}}" for="mrp" translate="MRP"
+                    ng-show="item.IsBillable == true"></label>
+                <label class="col-sm-12 control-label {{item.IsBillable}}" for="" translate="MRP"
+                    ng-show="item.IsBillable == false"></label>
+                <div class="col-sm-12 {{item.IsBillable}}" ng-show="item.IsBillable == true">
+                    <input type="text" class="form-control" ng-model="item.MrPrice" name="mrp">
+                </div>
+                <div class="col-sm-12 {{item.IsBillable}}" ng-show="item.IsBillable == false">
+                    <input type="text" class="form-control" ng-model="item.MrPrice">
+                </div>
+            </div>
+            <div class="form-group col-sm-2">
+                <label class="col-sm-12 control-label" translate="inventory.itemmaster.discountmodeId.lbl"></label>
+                <div class="col-sm-12">
+                    <ui-select ng-model="item.DiscountModeId" theme="bootstrap">
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 20 : 0}}
+                            <span ng-if="$select.selected.Text.length>20">...</span>
+                        </ui-select-match>
+                        <ui-select-choices
+                            repeat="lookupitem.Id as lookupitem in lookup.DiscountMode | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+            <div class="form-group col-sm-2">
+                <label class="col-sm-12 control-label" translate="inventory.itemmaster.discount.lbl"></label>
+                <div class="col-sm-12">
+                    <input type="text" class="form-control" name="discount" ng-model="item.Discount" placeholder="">
+                </div>
+                <!-- ng-disabled="item.AllowStaffDiscount == 0" -->
+            </div>
+
+            <!-- <div class="form-group col-sm-2" ng-show="item.IsVAT==true">
+                <label class="col-sm-12 control-label0" for="gst" translate="GST"></label>
+                <div class="col-sm-12">
+                    <ui-select ng-model="item.GstId" name="gst">
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 20 : 0}}
+                            <span ng-if="$select.selected.Text.length > 20">...</span>
+                        </ui-select-match>
+                        <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.GstMaster | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div> -->
+            <div class="form-group col-sm-2">
+                <label class="col-sm-12 control-label" for="'gst'Id" translate="inventory.itemmaster.gstId.lbl"></label>
+                <div class="col-sm-12">
+                    <ui-select id="gstid" ng-keyup="moveHeaderFocus('gstid')" ng-model="item.GstId"
+                        on-select="SelectedGst($select.selected)" theme="bootstrap" name="gstId" required>
+                        <ui-select-match>
+                            {{$select.selected.GstCode | limitTo : 20 : 0}}
+                            <span ng-if="$select.selected.GstCode.length>20">...</span>
+                        </ui-select-match>
+                        <ui-select-choices
+                            repeat="lookupitem.Id as lookupitem in lookup.GstMaster | filter: { GstCode: $select.search }">
+                            <div ng-bind-html="lookupitem.GstCode | highlight: $select.search">
+                            </div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+            <div class="form-group col-sm-2">
+                <label class="col-sm-12 control-label" for="ingst" translate="inventory.itemmaster.ingst.lbl"></label>
+                <div class="col-sm-12">
+                    <ui-select id="intersgstid" ng-keyup="moveHeaderFocus('intersgstid')" ng-model="item.InGstId"
+                        theme="bootstrap" name="ingstId" required>
+                        <ui-select-match>
+                            {{$select.selected.GstCode | limitTo : 20 : 0}}
+                            <span ng-if="$select.selected.GstCode.length>20">...</span>
+                        </ui-select-match>
+                        <ui-select-choices
+                            repeat="lookupitem.Id as lookupitem in lookup.GstMaster | filter: { GstCode: $select.search }">
+                            <div ng-bind-html="lookupitem.GstCode | highlight: $select.search">
+                            </div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+            <div class="form-group col-sm-2">
+                <label class="col-sm-12 control-label" for="productregno" translate="HSN Code"></label>
+                <div class="col-sm-12">
+                    <input type="text" class="form-control" name="productregno" required ng-model="item.ProductRegNo"
+                        placeholder="">
+                </div>
+            </div>
+            <!--<div class="form-group col-sm-3" ng-hide="item.IsVAT==true">
+                    <label class="col-sm-12 control-label" for="cgstId"
+                        translate="inventory.itemmaster.cgst.lbl"></label>
+                    <div class="col-sm-12">
+                        <ui-select id="sgstid" ng-keyup="moveHeaderFocus('sgstid')" ng-model="item.CGstId"
+                            theme="bootstrap" name="cgstId" required>
+                            <ui-select-match>
+                                {{$select.selected.GstCode | limitTo : 20 : 0}}
+                                <span ng-if="$select.selected.GstCode.length>20">...</span>
+                            </ui-select-match>
+                            <ui-select-choices
+                                repeat="lookupitem.Id as lookupitem in lookup.GstMaster | filter: { GstCode: $select.search }">
+                                <div ng-bind-html="lookupitem.GstCode | highlight: $select.search">
+                                </div>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                </div>-->
+            <!-- <div class="form-group col-sm-3" ng-hide="item.IsVAT==true">
+                    <label class="col-sm-12 control-label" for="sgstId"
+                        translate="inventory.itemmaster.sgst.lbl"></label>
+                    <div class="col-sm-12">
+                        <ui-select id="cgstid" ng-keyup="moveHeaderFocus('cgstid')" ng-model="item.SGstId"
+                            theme="bootstrap" name="sgstId" required>
+                            <ui-select-match>
+                                {{$select.selected.GstCode | limitTo : 20 : 0}}
+                                <span ng-if="$select.selected.GstCode.length>20">...</span>
+                            </ui-select-match>
+                            <ui-select-choices
+                                repeat="lookupitem.Id as lookupitem in lookup.GstMaster | filter: { GstCode: $select.search }">
+                                <div ng-bind-html="lookupitem.GstCode | highlight: $select.search">
+                                </div>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                </div>-->
+
+
+
+            <div class="form-group col-sm-2">
+                <label class="col-sm-12 control-label" translate="inventory.itemmaster.scheduletypeId.lbl"></label>
+                <div class="col-sm-12">
+                    <ui-select ng-model="item.ScheduleTypeId" theme="bootstrap">
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 20 : 0}}
+                            <span ng-if="$select.selected.Text.length>20">...</span>
+                        </ui-select-match>
+                        <ui-select-choices
+                            repeat="lookupitem.Id as lookupitem in lookup.ScheduleType | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+
+
+            <div class="form-group col-sm-2">
+                <label class="col-sm-12 control-label" translate="Batch no mandatory"></label>
+                <div class="col-sm-12">
+                    <input type="checkbox" class="custom-checkbox" name="isbatchmandatory"
+                        ng-change="IsBatchMandatory()" ng-model="item.IsBatchMandatory">
+                </div>
+            </div>
+            <div class="form-group col-sm-3">
+                <label class="col-sm-12 control-label" translate="Expiry Date Mandatory"></label>
+                <div class="col-sm-12">
+                    <input type="checkbox" class="custom-checkbox" ng-model="item.IsExpiryMandatory">
+                </div>
+            </div>
+            <div class="form-group col-sm-3">
+                <label class="col-sm-12 control-label" for="IsBillable" translate="Is Billable"></label>
+                <div class="col-sm-12">
+                    <input type="checkbox" class="custom-checkbox" name="IsBillable" ng-change="Isbillable()"
+                        ng-model="item.IsBillable">
+                </div>
+            </div>
+            <!-- <div class="form-group col-sm-2">
+                <label class="col-sm-12 control-label" translate="inventory.itemmaster.ismrprequired.lbl"></label>
+                <div class="col-sm-12">
+                    <input type="checkbox" class="custom-checkbox" name="ismrprequired" ng-model="item.IsMRPRequired"
+                        ng-checked="item.IsMRPRequired == 1">
+                </div>
+            </div> -->
+            <div class="form-group col-sm-3">
+                <label class="col-sm-12 control-label" translate="Manufacture Date Mandatory"></label>
+                <div class="col-sm-12">
+                    <input type="checkbox" class="custom-checkbox" name="ismanufacture" ng-model="item.IsManufacture"
+                        ng-checked="item.IsManufacture == 1">
+                </div>
+            </div>
+            <div class="form-group col-sm-3">
+                <label class="col-sm-12 control-label" translate="inventory.itemmaster.isnonclaimable.lbl"></label>
+                <div class="col-sm-12">
+                    <input type="checkbox" class="custom-checkbox" name="isnonclaimable" ng-model="item.IsNonClaimable"
+                        ng-checked="item.IsNonClaimable == 1">
+                </div>
+            </div>
+            <!-- <div class="form-group col-sm-2">
+                <label class="col-sm-12 control-label" translate="inventory.itemmaster.allowstaffdiscount.lbl"></label>
+                <div class="col-sm-12">
+                    <input type="checkbox" class="custom-checkbox" name="allowstaffdiscount" ng-model="item.AllowStaffDiscount" ng-checked="item.AllowStaffDiscount == 1">
+                </div>
+            </div> -->
+            <div class="form-group col-sm-3">
+                <label class="col-sm-12 control-label" for="isactive"
+                    translate="inventory.itemmaster.isactive.lbl"></label>
+                <div class="col-sm-12">
+                    <input type="checkbox" class="custom-checkbox" name="isactive" ng-model="item.IsActive">
+                </div>
+            </div>
+
+            <div class="form-group col-sm-3">
+                <label class="col-sm-12 control-label" for="IsSeniorCitizenDiscount"
+                    translate="Is Sr Citizen Dis"></label>
+                <div class="col-sm-12">
+                    <input type="checkbox" class="custom-checkbox" name="IsSeniorCitizenDiscount"
+                        ng-model="item.IsSeniorCitizenDiscount">
+                </div>
+            </div>
+
+            <div class="form-group col-sm-3">
+                <label class="col-sm-12 control-label" translate="inventory.itemmaster.caneditpriceforgrn.lbl"></label>
+                <div class="col-sm-12">
+                    <input type="checkbox" class="custom-checkbox" name="caneditpriceforgrn"
+                        ng-model="item.CanEditPriceForGrn" ng-checked="item.CanEditPriceForGrn == 1">
+                </div>
+            </div>
+            <div class="form-group col-sm-3">
+                <label class="col-sm-12 control-label" for="ishighalert"
+                    translate="inventory.itemmaster.ishighalert.lbl"></label>
+                <div class="col-sm-12">
+                    <input type="checkbox" class="custom-checkbox" name="ishighalert" ng-model="item.IsHighAlert">
+                </div>
+            </div>
+            <div class="form-group col-sm-3">
+                <label class="col-sm-12 control-label" for="isnarcotic"
+                    translate="inventory.itemmaster.isnarcotic.lbl"></label>
+                <div class="col-sm-12">
+                    <input type="checkbox" class="custom-checkbox" name="isnarcotic" ng-model="item.IsNarcotic">
+                </div>
+            </div>
+            <div class="form-group col-sm-3">
+                <label class="col-sm-12 control-label" for="isemergency"
+                    translate="inventory.itemmaster.isemergency.lbl"></label>
+                <div class="col-sm-12">
+                    <input type="checkbox" class="custom-checkbox" name="isemergency" ng-model="item.IsEmergency">
+                </div>
+            </div>
+            <div class="form-group col-sm-3">
+                <label class="col-sm-12 control-label" translate="IsConsignment"></label>
+                <div class="col-sm-12">
+                    <input type="checkbox" name="IsConsignment" class="custom-checkbox" ng-model="item.IsConsignment">
+                </div>
+            </div>
+            <div class="form-group col-sm-3">
+                <label class="col-sm-12 control-label" for="islasadrug"
+                    translate="inventory.itemmaster.islasadrug.lbl"></label>
+                <div class="col-sm-12">
+                    <input type="checkbox" class="custom-checkbox" name="islasadrug" ng-model="item.IsLASADrug">
+                </div>
+            </div>
+
+            <div class="form-group col-sm-3">
+                <label class="col-sm-12 control-label" for="IsAllFacility" translate="Is Allfacility"></label>
+                <div class="col-sm-12">
+                    <input type="checkbox" class="custom-checkbox" name="IsAllFacility" ng-change="Isallfacility()"
+                        ng-model="item.IsAllFacility">
+                </div>
+            </div>
+            <div class="form-group col-sm-3">
+                <label class="col-sm-12 control-label" translate="inventory.itemmaster.isreusable.lbl"></label>
+                <div class="col-sm-12">
+                    <input type="checkbox" class="custom-checkbox" name="isreusable" ng-model="item.IsReusable"
+                        ng-checked="item.IsReusable == 1">
+                </div>
+            </div>
+            <div class="form-group col-sm-3" for="Min" ng-show="item.IsReusable==true">
+                <label class="col-sm-12 control-label" translate="Min Usage"></label>
+                <div class="col-sm-12">
+                    <input type="text" class="form-control" name="Min" ng-model="item.Min" placeholder="">
+                </div>
+            </div>
+            <div class="form-group col-sm-3" for="Max" ng-show="item.IsReusable==true">
+                <label class="col-sm-12 control-label" translate="Max Usage"></label>
+                <div class="col-sm-12">
+                    <input type="text" class="form-control" name="Max" ng-model="item.Max" placeholder="">
+                </div>
+            </div>
+            <div class="form-group col-sm-3" ng-show="item.IsReusable==true">
+                <label class="col-sm-12 control-label" translate="IsDecimal Allowed"></label>
+                <div class="col-sm-12">
+                    <input type="checkbox" class="custom-checkbox" name="isdecimal" ng-model="item.IsDecimalAllowed"
+                        ng-checked="item.IsDecimalAllowed == 1">
+                </div>
+            </div>
+            <div class="form-group col-sm-3">
+                <label class="col-sm-12 control-label" for="department" translate="Division"></label>
+                <div class="col-sm-12">
+                    <ui-select ng-model="item.DepartmentId" theme="bootstrap">
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 20 : 0}}
+                        </ui-select-match>
+                        <ui-select-choices
+                            repeat="lookupitem.Id as lookupitem in lookup.Division | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+            <div class="form-group col-sm-3">
+                <label class="col-sm-12 control-label" for="abcclass"
+                    translate="inventory.itemmaster.abcclass.lbl"></label>
+                <div class="col-sm-12">
+                    <ui-select ng-model="item.ABCClassId" theme="bootstrap">
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 20 : 0}}
+                        </ui-select-match>
+                        <ui-select-choices
+                            repeat="lookupitem.Id as lookupitem in lookup.ABCClass | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+            <div class="form-group col-sm-3">
+                <label class="col-sm-12 control-label" for="ved" translate="inventory.itemmaster.ved.lbl"></label>
+                <div class="col-sm-12">
+                    <ui-select ng-model="item.VEDId" theme="bootstrap">
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 20 : 0}}
+                        </ui-select-match>
+                        <ui-select-choices
+                            repeat="lookupitem.Id as lookupitem in lookup.VED | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+            <div class="form-group col-sm-3">
+                <label class="col-sm-12 control-label" translate="Created By"></label>
+                <div class="col-sm-12">
+                    <b>{{createdBy}}</b>
+                </div>
+            </div>
+            <div class="form-group col-sm-3">
+                <label class="col-sm-12 control-label" translate="Updated By"></label>
+                <div class="col-sm-12">
+                    <b>{{updatedBy}}</b>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+<div class="fooder-bgs">
+    <div class="pull-left">
+        <button type="button" class="btn btn-sm pyr-color10" ng-click="backToList()">
+            <i class="fa fa-angle-left"></i>&nbsp;&nbsp;
+            <span translate="common.backaction.lbl"></span>
+        </button>
+    </div>
+    <div class="pull-right">
+        <button type="button" class="draftbutton" translate="common.saveaction.lbl"
+            ng-if="HasAccess('itemmaster', 'itemmastersave') && savebuttondisable" ng-click="save()"
+            ng-hide="item.ActiveStatusId==1 || item.ActiveStatusId==2"></button>
+        <button type="button" class="draftbutton" id="saveAndApproveid"
+            ng-if="HasAccess('itemmaster', 'itemmasterSaveandApprove') && savebuttondisable"
+            ng-keyup="FooterFocus('saveAndApproveid')" translate="common.saveapprove-action.lbl"
+            ng-click="SaveandApprove()"></button>
+    </div>
+</div>

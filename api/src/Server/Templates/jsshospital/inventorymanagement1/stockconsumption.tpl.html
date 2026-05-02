@@ -1,0 +1,145 @@
+<html>
+
+<head>
+    <style>
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        td {
+            padding: 3px;
+            vertical-align: top;
+        }
+
+        * {
+            font-family: sans-serif;
+            font-size: 12px;
+        }
+
+        th {
+            border: 1px !important;
+            border-top: 1px solid black !important;
+            border-bottom: 1px solid black !important;
+            font-size: 12px;
+            padding-left: 4px;
+            padding-top: 6px;
+            padding-bottom: 6px;
+        }
+
+        td {
+            border: 1px !important;
+            font-size: 12px;
+        }
+
+        .size td,
+        .size th {
+            border: 0px solid black !important;
+        }
+
+        .sub-total {
+            border: 0px !important;
+            border-top: 0px solid black !important;
+            border-bottom: 0px solid black !important;
+            width: 100%;
+        }
+
+        .botbold {
+            border: 2px solid black !important;
+        }
+
+        .caps {
+            text-transform: uppercase;
+        }
+
+        .size th {
+            text-transform: uppercase;
+            text-align: center;
+        }
+
+        .size th {
+            border-bottom: 1px solid black !important;
+        }
+
+        .size tr:last-child td {
+             border-top: 1px solid black !important;
+        }
+
+        {{ include '/Templates/assets/css/core.css' }}
+    </style>
+</head>
+
+<body>
+    <div id="pageHeader">
+        {{{include '/Templates/jsshospital/common/header.tpl.html' 'tpl'}}}
+    </div>
+    <div class="botbold"></div>
+    <table style="width:100%;">
+        <tr>
+            <td height="20" style="vertical-align:text-middle; text-align: center;font-size: 17px !important;"><b>Department
+                    Consumption Report</b>
+            </td>
+        </tr>
+    </table>
+    <div class="botbold"></div>
+    <table style="width:100%;" class="caps">
+        <tr>
+            <td style="width:20%;"><b>Consumption No</b></td>
+            <td style="width:30%;">: {{data.StockConsumptions.StockConsumptionNumber}}</td>
+            <td style="width:20%;"><b>Date</b></td>
+            <td style="width:30%;">: {{datetimeformat data.StockConsumptions.ConsumptionDate}}</td>
+        </tr>
+        <tr>
+            <td><b>From Department</b></td>
+            <td colspan="3">: {{data.StockConsumptions.StoreMaster.StoreName}}</td>
+        </tr>
+        <!-- <tr>
+            <td>Request Type</td>
+            <td>: {{data.StockRequest.StockRequestType.Description}}</td>
+            <td>Store Type</td>
+            <td>: {{data.StockRequest.FromStore.StoreType.Description}}</td>
+        </tr>
+        <tr>
+            <td>Status</td>
+            <td>: {{data.StockRequest.RequestStatus.Description}}</td>
+        </tr> -->
+    </table>
+    <table class="size" style="width:100%;">
+        <tr>
+            <th align="left" style="width:5%;">S.No</th>
+            <th align="left" style="width:60%;">Item Name</th>
+            <th align="center" style="width:10%;">Req.Qty</th>
+            <th align="right" style="width:25%;">Landed Amount</th>
+        </tr>
+        {{#each data.StockConsumptionDetail}}
+        <tr>
+            <td align="left">{{inc @index}}</td>
+            <td align="left">{{ItemName}}</td>
+            <td align="center">{{QtyConsumed}}</td>
+            <td align="right" style="padding-right: 20px;">{{currencyformatwosymbol NetAmount}}</td>
+        </tr>{{/each}}
+        <tr class="bot">
+            <td></td>
+            <td></td>
+            <td></td>
+            <td align="right" style="padding-right: 20px;"><b>{{currencyformatwosymbol data.StockConsumptions.TotalNetAmount}}</b></td>
+        </tr>
+    </table>
+    <br>
+    <table style="width:100%;">
+        <tr>
+            <td style="width: 5%;"></td>
+            <td style="width: 30%;" align="center"><b>CONSUMED BY</b><br>
+                {{data.StockConsumptions.AuthorizedUser.Title.Description}} {{data.StockConsumptions.AuthorizedUser.FirstName}} {{data.StockConsumptions.AuthorizedUser.LastName}}
+            </td>
+            <td style="width: 30%;" align="center"><b></b></td>
+            <td style="width: 30%;" align="center"><b>APPROVED BY </b> <br>
+                {{data.StockConsumptions.ApprovedUser.Title.Description}} {{data.StockConsumptions.ApprovedUser.FirstName}} {{data.StockConsumptions.ApprovedUser.LastName}}
+                <!-- {{data.StockRequest.RequestedUser.Title.Description}} {{data.StockRequest.RequestedUser.FirstName}} {{data.StockRequest.RequestedUser.LastName}} -->
+            </td>
+            <td style="width: 5%;"></td>
+        </tr>
+    </table>
+</body>
+
+</html>

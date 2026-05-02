@@ -1,0 +1,278 @@
+<link rel="stylesheet" href="app/css/drhms.css">
+<style>
+    .form-horizontal .form-group {
+        height: 40px;
+    }
+    td.text-center.d-flex {
+    white-space: nowrap;
+    }
+    table td {
+    white-space: normal;
+    }
+    .error-true>td {
+        background: #ff8484;
+    }
+
+    .error-true {
+        border: 2px solid #e2e2e2;
+        /* animation-name: blinking;
+        animation-duration: 1s;
+        animation-iteration-count: 100; */
+    }
+</style>
+<div class="row">
+    <div class="drhms-filters">
+        <div class="col-sm-11">
+            <h4 translate="billing.patientdispense-form.pagetitle1.lbl"></h4>
+        </div>
+        <div class="col-sm-1">
+            <button type="button" class="drhms-billing-btn drhms-previousbill-btn" uib-tooltip="Previous Orders"
+                tooltip-placement="bottom" ng-click="previousOrders()" aria-hidden="true">
+                <i class="fa fa-search-plus" aria-hidden="true"></i>
+            </button>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <patientbanner patientid="item.PatientId"></patientbanner>
+</div>
+<div class="row">
+    <form id="item_form" name="item_form" class="form-horizontal" role="form">
+        <div class="form-group col-sm-4">
+            <label class="col-sm-4" for="mystore" translate="billing.patientdispense-form.mystore.lbl"></label>
+            <div class="col-sm-8">
+                <ui-select ng-model="item.StoreMasterId" ng-change="getStoreItems()" name="mystore" class="filter-combo"
+                    ng-disabled="item.ReadOnly" required>
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 20 : 0}}
+                        <span ng-if="$select.selected.Text.length>20">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.UserStores | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+        <div class="form-group col-sm-4">
+            <label class="col-sm-4" for="wardroom" translate="billing.patientdispense-form.wardroom.lbl"></label>
+            <div class="col-sm-8">
+                <input type="text" class="form-control" name="wardroom" ng-model="item.WardRoom"
+                    placeholder="Ward / Room" id="disabledInput" disabled>
+            </div>
+        </div>
+        <div class="form-group col-sm-4">
+            <label class="col-sm-4" for="requestno" translate="billing.patientdispense-form.requestno.lbl"></label>
+            <div class="col-sm-8">
+                <input type="text" class="form-control" name="requestno" ng-model="item.PatientRequestNumber"
+                    placeholder="Patient Request Number" id="disabledInput" disabled>
+            </div>
+        </div>
+        <div class="form-group col-sm-4">
+            <label class="col-sm-4" for="dispensedatetime"
+                translate="billing.patientdispense-form.dispensedatetime.lbl"></label>
+            <div class="col-sm-8">
+                <input type="text" class="form-control" name="dispensedatetime" ng-date-object
+                    uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                    placeholder="{{datePickerOptions.placeholder}}" ng-click="dispensedatetimePopup = { opened: true }"
+                    is-open="dispensedatetimePopup.opened" ng-model="item.DispenseDateTime" id="disabledInput" disabled>
+            </div>
+        </div>
+        <div class="form-group col-sm-4">
+            <label class="col-sm-4" for="dispensenumber"
+                translate="billing.patientdispense-form.dispensenumber.lbl"></label>
+            <div class="col-sm-8">
+                <input type="text" class="form-control" name="dispensenumber" ng-model="item.DispenseNumber"
+                    placeholder="Dispense Number" id="disabledInput" disabled>
+            </div>
+        </div>
+        <div class="form-group col-sm-4">
+            <label class="col-sm-4" for="dispensestatus"
+                translate="billing.patientdispense-form.dispensestatus.lbl"></label>
+            <div class="col-sm-8">
+                <input type="text" class="form-control" name="dispensestatus" ng-model="item.DisplayDispenseStatus"
+                    placeholder="Dispense Status" id="disabledInput" disabled>
+            </div>
+        </div>
+    </form>
+</div>
+<div class="row">
+    <form id="item_form" name="item_form" class="form-horizontal" role="form">
+        <div class="drhms-table-height">
+            <table class="drhms-responsive-table">
+                <thead class="bg-subhead">
+                    <tr>
+                        <th>
+                            <span translate="billing.pharmacy.sno.lbl"></span>
+                        </th>
+                        <th>
+                            <span translate="billing.patientdispense-form.itemname.lbl"></span>
+                        </th>
+                        <th>
+                            <span translate="billing.patientdispense-form.totalqty.lbl"></span>
+                        </th>
+                        <th>
+                            <span translate="billing.patientdispense-form.batchqty.lbl"></span>
+                        </th>
+                        <th>
+                            <span translate="billing.patientdispense-form.reqqty.lbl"></span>
+                        </th>
+                        <th>
+                            <span translate="billing.patientdispense-form.disqty.lbl"></span>
+                        </th>
+                        <th>
+                            <span translate="billing.patientdispense-form.qty.lbl"></span>
+                        </th>
+                        <th>
+                            <span translate="billing.patientdispense-form.batch.lbl"></span>
+                        </th>
+                        <th>
+                            <span translate="billing.patientdispense-form.expirydate.lbl"></span>
+                        </th>
+                        <th>
+                            <span translate="billing.patientdispense-form.ucp.lbl"></span>
+                        </th>
+                        <th>
+                            <span translate="billing.patientdispense-form.mrp.lbl"></span>
+                        </th>
+                        <th>
+                            <span translate="billing.patientdispense-form.amount.lbl"></span>
+                        </th>
+                        <th>
+                            <span translate="billing.patientdispense-form.action.lbl"></span>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="stockdispense in patientdispenseDetails | filter:{Status:1}" class="error-{{stockdispense.removeEntry}}"
+                        ng-style="{actualitem: stockdispense.ReqItemMasterId == 0}"
+                        ng-class="{alternateitem: stockdispense.IsAlternateIssued}">
+
+                        <td class="text-right">
+                            <span> {{stockdispense.SNo}}</span>
+                        </td>
+                        <td>
+                            <span> {{stockdispense.ItemName }}</span>
+                        </td>
+                        <td>
+                            <!--<span> {{stockdispense.TotalAvailableQuantity }}</span>-->
+                            <span ng-if="stockdispense.IsFallUnderMinQty" ng-style="{'color':'red'}">
+                                {{ stockdispense.TotalAvailableQuantity }} </span>
+                            <span ng-if="!stockdispense.IsFallUnderMinQty">
+                                {{ stockdispense.TotalAvailableQuantity }} </span>
+                        </td>
+                        <td>
+                            <span> {{stockdispense.QuantityBeforeDispense }}</span>
+                        </td>
+                        <td>
+                            <span> {{stockdispense.RequestedQuantity }}</span>
+                        </td>
+                        <td>
+                            <span> {{stockdispense.ReceivedQuantity }}</span>
+                        </td>
+                        <td>
+                            <input type="number" min="0" class="form-control" ng-model="stockdispense.DispensedQuantity"
+                                placeholder="" ng-disabled="stockdispense.IsFullyDispensed"
+                                ng-change="computeAmount(stockdispense)">
+                        </td>
+                        <td class="fs-12 batch_drop">
+                            <span> {{stockdispense.BatchId }}</span>
+                            <i ng-if="stockdispense.Batch" uib-tooltip="Alter Batch" tooltip-placement="top"
+                                class="fas fa-layer-group" tabindex="-1"
+                                ng-click="batchDetails($index, stockdispense)"></i>
+                        </td>
+                        <!--
+                        <td>
+                            <ui-select ng-model="stockdispense.BatchId" on-select="onBatchSelected(stockdispense, $select.selected, $index)" name="screen" class="ui-select-grid" ng-disabled="stockdispense.IsFullyDispensed">
+                                <ui-select-match>
+                                    {{$select.selected.BatchId | limitTo : 20 : 0}}
+                                    <span ng-if="$select.selected.BatchId.length>20">...</span>
+                                </ui-select-match>
+                                <ui-select-choices repeat="lookupitem.BatchId as lookupitem in stockdispense.BatchDetails | filter: { BatchId: $select.search }">
+                                    <div ng-bind-html="lookupitem.SerialDetails | highlight: $select.search"></div>
+                                </ui-select-choices>
+                            </ui-select>
+                        </td>
+                        -->
+                        <td>
+                            <span ng-if="stockdispense.ExpiryStop" ng-style="{'color':'red'}">
+                                {{stockdispense.ExpiryDate &nbsp;|&nbsp; date : 'dd-MMM-yyyy'}} </span>
+                            <span ng-if="stockdispense.ExpiryAlert" ng-style="{'color':'orange'}">
+                                {{stockdispense.ExpiryDate &nbsp;|&nbsp; date : 'dd-MMM-yyyy'}} </span>
+                            <span ng-if="stockdispense.ExpiryProceed">
+                                {{stockdispense.ExpiryDate &nbsp;|&nbsp; date : 'dd-MMM-yyyy'}} </span>
+                        </td>
+                        <td>
+                            <span>{{(stockdispense.UnitCostPrice | displaycurrency)}}</span>
+                        </td>
+                        <td>
+                            <span>{{(stockdispense.MrPrice | displaycurrency)}}</span>
+                        </td>
+                        <td>
+                            <span>{{(stockdispense.NetAmount | displaycurrency)}}</span>
+                        </td>
+                        <td class="text-center d-flex">
+                            <i class="fa fa-calendar-check-o" aria-hidden="true" tabindex="-1" uib-tooltip="Alternates"
+                                tooltip-placement="top" ng-click="alternateDetails($index,stockdispense)"
+                                ng-disabled="stockdispense.CanOpenAlternates"></i>
+                            <!-- <i class="fa fa-database fa-xs" aria-hidden="true" tabindex="-1" uib-tooltip="Stock"
+                            tooltip-placement="top" ng-click="Stock(stockdispense,$index)"
+                            ng-disabled="stockdispense.CanViewStock"></i> -->
+                            <button type="button" class="btn-history" aria-hidden="true" tabindex="-1"
+                                uib-tooltip="Stock" tooltip-placement="top" ng-click="Stock(stockdispense,$index)"
+                                ng-disabled="stockdispense.CanViewStock"></i>
+                            </button>
+
+                            <img src="assets/svg/delete.svg" alt="" uib-tooltip="Delete" tooltip-placement="top"
+                                ng-click="deleteStockDispenseDetail($index,stockdispense)"
+                                ng-disabled="stockdispense.CanDelete" ng-hide="item.DispenseStatusId==2">
+
+                            <!-- <i class="fa fa-trash" aria-hidden="true" tabindex="-1" uib-tooltip="Delete"
+                            tooltip-placement="top" ng-click="deleteStockDispenseDetail($index,stockdispense)"
+                            ng-disabled="stockdispense.CanDelete"></i> -->
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </form>
+</div>
+<div class="row">
+    <div class="col-sm-8">
+        <label class="col-sm-3 control-label" for="comments" translate="inventory.grn.comments.lbl"></label>
+        <div class="col-sm-8">
+            <input type="text" tabindex="-1" class="form-control field-height inputheightctrl" name="comments"
+                ng-model="item.TransfererComments" ng-disabled="item.isDisabled" placeholder="Comments">
+        </div>
+    </div>
+    <div class="col-sm-4">
+        <div class="pull-right">
+            <table id="bannerdetails" class="foot">
+                <tr>
+                    <td class="drhms-special-count" translate="inventory.purchaseorders.grossamount.lbl">
+                    </td>
+                    <td class="drhms-special-count">
+                        {{(item.TotalNetAmount | displaycurrency)}}
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="fooder-bgs">
+    <div class="pull-left">
+        <button type="button" class="btn pyr-color10 btn-sm" tabindex="-1" ng-click="backToList()">
+            <i class="fa fa-angle-left" aria-hidden="true"></i>
+            <span class="btn-fontsize"> &nbsp; Back</span>
+        </button>
+    </div>
+    <div class="pull-right">
+        <button type="button" class="draftbutton" ng-click="print()" ng-show="item.DispenseStatusId==2"
+            translate="common.printaction.lbl"></button>
+        <button type="button" class="draftbutton" ng-show="canShowCompleteBtn" ng-click="Complete()"
+            translate="common.complete-action.lbl"></button>
+        <button type="submit" ng-hide="item.DispenseStatusId==2" class="draftbutton" ng-click="Dispense()"
+            translate="common.dispense-action.lbl"></button>
+    </div>
+</div>

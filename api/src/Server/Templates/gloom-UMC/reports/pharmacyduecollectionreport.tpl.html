@@ -1,0 +1,88 @@
+<html>
+
+<head>
+  <style>
+    .table1 {
+      border: 1px solid black;
+      font-size: 14px;
+    }
+    
+    .table2 {
+      border: 1px solid black;
+      border-top: 0px solid black;
+      font-size: 14px;
+    } 
+    
+    {{include '/Templates/assets/css/core.css'}}
+  </style>
+</head>
+
+<body>
+  <div id="pageHeader">
+    {{{include '/Templates/gloom-UMC/common/header1.tpl.html' 'tpl'}}}
+  </div>  
+    <div style="text-align:center;font-size: 16px;"><b>Pharmacy Due Collection Report</b></div>
+    <table class="table1" style="width:100%;"> 
+      <tr style='vertical-align: top'>
+        <td style="width:5%;"><b>FromDate</b></td>
+        <td>:</td>
+        <td style="width:15%;"><b>{{data.FromDate}}</b></td>
+        <td style="width:5%;"><b>ToDate</b></td>
+        <td>:</td>
+        <td style="width:15%;"><b>{{data.ToDate}}</b></td>
+        <td style="width:5%;"><b>User Name</b></td>
+        <td>:</td>
+        <td style="width:25%;"><b>{{data.UserName}}</b></td>
+        <td style="width:5%;"><b></b></td>
+        <td>:</td>
+        <td style="width:25%;"><b> </b></td>
+      </tr>  
+    </table> 
+  </br> 
+    <table class="table1" style="width:100%;padding-top:10px;">
+      <tr>
+        <td style="width:5%;"><b>S.No</b></td>
+        <td style="width:10%"><b>Rec Date</b></td>
+        <td style="width:10%"><b>Bill Date</b></td>
+        <td style="width:10%"><b>Bill No</b></td>
+        <td style="width:10%"><b>Receipt No</b></td>
+        <td style="width:20%"><b>Patient Name</b></td>
+        <td style="width:15%"><b>Doctor</b></td>
+        <td style="width:5%"><b>Cash</b></td>
+        <td style="width:5%"><b>Card</b></td>
+        <td style="width:10%"><b>Cheque</b></td>
+      </tr>
+    </table>
+    <table class="table2" style="width:100%;">
+      {{#each data.PaymentOPDueCollections}}
+      <tr>
+        <td style="width:5%;">{{inc @index}}</td>
+        <td style="width:10%">{{datetimeformat ReceiptDate}}</td>
+        <td style="width:10%">{{datetimeformat BillDate}}</td>
+        <td style="width:10%">{{BillNumber}}</td>
+        <td style="width:10%">{{ReceiptNumber}}</td> 
+        <td style="width:20%">{{PatientName}}</td> 
+        <td style="width:15%">{{DoctorName}}</td>
+        <td style="width:5%">{{currencyformat Cash}}</td>
+        <td style="width:5%;">{{currencyformat Card}}</td>
+        <td style="width:10%">{{currencyformat ChequeOthers}}</td> 
+      </tr>{{/each}}
+    </table> 
+    <table class="table2" style="width:100%;"> 
+      <tr>
+        <td style="width:5%;"> </td>
+        <td style="width:10%"> </td>
+        <td style="width:10%"> </td>
+        <td style="width:10%"> </td>
+        <td style="width:10%"> </td> 
+        <td style="width:20%"> </td> 
+        <td style="width:15%"> </td>
+        <td style="width:5%">{{currencyformat data.TotCashDue}}</td>
+        <td style="width:5%;">{{currencyformat data.TotCardDue}}</td>
+        <td style="width:10%">{{currencyformat data.TotChequeOthersDue}}</td> 
+      </tr> 
+    </table> 
+  </body>
+  <div style="width:100%; font-size: 14px;">Printed On: {{now}}</div>
+
+</html>

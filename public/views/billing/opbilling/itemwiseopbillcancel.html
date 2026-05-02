@@ -1,0 +1,243 @@
+<div class="modal-header custom-modal-header">
+    <div class="col-sm-10">
+        <h4 class="modal-title custom-modal-title" translate="billing.opbilling-list.itemwisecancelbill.lbl"></h4>
+    </div>
+    <div class="col-sm-2">
+        <div class="filters">
+            <img src="../../../../../assets/svg/close.svg" ng-click="cancelCallback()">
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="doublepage-editor">
+        <form id="item_form" name="item_form" class="form-horizontal" role="form">
+            <div class="">
+                <div class="col-sm-12">
+                    <table class="table table-responsive table-bordered">
+                        <thead class="bg-subhead">
+                            <tr>
+                                <th>
+                                    <span translate="">
+                                        <input type="checkbox" class="custom-checkbox"
+                                            ng-model="currentcontext.selectallchk"
+                                            ng-click="SelectAll(currentcontext.selectallchk)" />
+                                    </span>
+                                </th>
+                                <th><span translate="Service Name"></span></th>
+                                <th><span translate="Dept. Name"></span></th>
+                                <th><span translate="Qty"></span></th>
+                                <th><span translate="Rate"></span></th>
+                                <th><span translate="Disc"></span></th>
+                                <th><span translate="Sales Amt(total-return)"></span></th>
+                                <th><span translate="Rec.Amt"></span></th>
+                                <th><span translate="Status"></span></th>
+                                <!-- <th><span translate="Order#"></span></th> -->
+                                <th><span translate="Reason"></span></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="item in billinfo | filter: billingFilter"
+                                ng-class="{canceleditem: item.PatientBillStatusId == 2 || item.OrderStatusId == 10}">
+                                <td>
+                                    <input type="checkbox" class="custom-checkbox" id="select{{$index}}"
+                                        ng-disabled="item.PatientBillStatusId == 2 || item.OrderStatusId == 10"
+                                        ng-model="item.select" ng-change="selectionChangedCal()" />
+                                </td>
+                                <td>
+                                    {{item.ServiceName}}
+                                </td>
+                                <td>
+                                    {{item.Department.DepartmentName}}
+                                </td>
+                                <td>
+                                    {{item.Quantity}}
+                                </td>
+                                <td>
+                                    {{item.Rate | displaycurrency}}
+                                </td>
+                                <td>
+                                    {{item.totDiscount | displaycurrency}}
+                                </td>
+                                <td>
+                                    {{item.NetAmount | displaycurrency}}
+                                </td>
+                                <td>
+                                    {{item.ReceivedAmount | displaycurrency}}
+                                </td>
+                                <td>
+                                    {{item.PatientBillStatus.Description}}
+                                </td>
+                                <!-- <td>
+                                    {{item.OrderStatus.DisplayName}}
+                                </td> -->
+                                <td>
+                                    <input type="text" class="form-control"
+                                        ng-disabled="item.PatientBillStatusId == 2 || item.OrderStatusId == 10"
+                                        ng-model="item.CancelReason" placeholder="" ng-required="item.select">
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="col-sm-12" style="margin-top: 16px;">
+                    <!-- leftpanel -->
+                    <div class="col-sm-6">
+                        <div class="form-group paddingtop">
+                            <label class="col-sm-4 control-label" for="payments"
+                                translate="billing.refund-form.paymentmode.lbl"></label>
+                            <div class="col-sm-8">
+                                <ui-select ng-model="currentcontext.PaymentTypeId" name="payments"
+                                    ng-disabled="IsCompleted" required>
+                                    <ui-select-match>
+                                        {{$select.selected.Text | limitTo : 20 : 0}}
+                                        <span ng-if="$select.selected.Text.length>20">...</span>
+                                    </ui-select-match>
+                                    <ui-select-choices
+                                        repeat="lookupitem.Id as lookupitem in lookup.PaymentType | filter: { Text: $select.search }">
+                                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                    </ui-select-choices>
+                                </ui-select>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- rightpanel -->
+                    <div class="col-sm-6 paddingtop">
+                        <table id="bannerdetails">
+                            <tr ng-if="currentcontext.PaymentTypeId != 1 && currentcontext.PaymentTypeId != 12">
+                                <td translate="billing.refund-form.bankname.lbl"></td>
+                                <td>
+                                    <ui-select ng-model="currentcontext.BankId" name="bankname"
+                                        ng-disabled="IsCompleted">
+                                        <ui-select-match>
+                                            {{$select.selected.Text | limitTo : 20 : 0}}
+                                            <span ng-if="$select.selected.Text.length>20">...</span>
+                                        </ui-select-match>
+                                        <ui-select-choices
+                                            repeat="lookupitem.Id as lookupitem in lookup.Bank | filter: { Text: $select.search }">
+                                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                        </ui-select-choices>
+                                    </ui-select>
+                                </td>
+                            </tr>
+                            <tr ng-if="currentcontext.PaymentTypeId==2">
+                                <td translate="billing.refund-form.chequeno.lbl"></td>
+                                <td><input type="text" class="form-control" name="chequeno"
+                                        ng-model="currentcontext.ChequeNo" ng-disabled="IsCompleted" placeholder=""
+                                        required></td>
+                            </tr>
+                            <tr ng-if="currentcontext.PaymentTypeId==11">
+                                <td translate="Ref Number"></td>
+                                <td>
+                                    <input type="text" class="form-control" name="upirefno" ng-model="item.UPIRefNumber"
+                                        ng-disabled="IsCompleted" placeholder="">
+                                </td>
+                            </tr>
+                            <tr ng-if="currentcontext.PaymentTypeId==3">
+                                <td translate="billing.refund-form.ddno.lbl"></td>
+                                <td> <input type="text" class="form-control" name="ddno"
+                                        ng-model="currentcontext.DDNumber" ng-disabled="IsCompleted" placeholder=""
+                                        ng-minlength="" ng-pattern="/^\d+$/" required></td>
+                            </tr>
+                            <tr ng-if="currentcontext.PaymentTypeId==4">
+                                <td translate="billing.refund-form.transationno.lbl"></td>
+                                <td><input type="text" class="form-control" name="transationno"
+                                        ng-model="currentcontext.WireTransferId" placeholder=""
+                                        ng-disabled="IsCompleted" required></td>
+                            </tr>
+                            <tr ng-if="currentcontext.PaymentTypeId==5||currentcontext.PaymentTypeId == 6">
+                                <td translate="billing.refund-form.authorisedcode.lbl"></td>
+                                <td><input type="text" class="form-control" name="cardno"
+                                        ng-model="currentcontext.AuthorizeNumber" maxlength="8"
+                                        ng-disabled="IsCompleted" placeholder=""></td>
+                            </tr>
+                            <tr
+                                ng-if="currentcontext.PaymentTypeId == 4||currentcontext.PaymentTypeId == 3||currentcontext.PaymentTypeId == 2">
+                                <td translate="billing.refund-form.Collected On.lbl"></td>
+                                <td id="datepick"> <input type="text" class="form-control" name="Collected On"
+                                        ng-date-object datepicker-options="datePickerOptions"
+                                        show-button-bar="{{datePickerOptions.showButtonBar}}"
+                                        uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                                        placeholder="{{datePickerOptions.placeholder}}"
+                                        ng-click="activefromPopup = { opened: true }" is-open="activefromPopup.opened"
+                                        ng-model="currentcontext.CollectedOn" ng-disabled="IsCompleted"></td>
+                            </tr>
+                            <tr ng-if="currentcontext.PaymentTypeId==2">
+                                <td translate="billing.refund-form.Chequedate.lbl"></td>
+                                <td id="datepick"> <input type="text" class="form-control" name="Chequedate"
+                                        ng-date-object datepicker-options="datePickerOptions"
+                                        show-button-bar="{{datePickerOptions.showButtonBar}}"
+                                        uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                                        placeholder="{{datePickerOptions.placeholder}}"
+                                        ng-click="activefromPopup = { opened: true }" is-open="activefromPopup.opened"
+                                        ng-model="currentcontext.ChequeDate" ng-disabled="IsCompleted"></td>
+                            </tr>
+                            <tr ng-if="currentcontext.PaymentTypeId==3">
+                                <td translate="billing.refund-form.dddate.lbl"></td>
+                                <td id="datepick"> <input type="text" class="form-control" name="dddate" ng-date-object
+                                        datepicker-options="datePickerOptions"
+                                        show-button-bar="{{datePickerOptions.showButtonBar}}"
+                                        uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                                        placeholder="{{datePickerOptions.placeholder}}"
+                                        ng-click="activetoPopup = { opened: true }" is-open="activetoPopup.opened"
+                                        ng-model="currentcontext.DDDate" ng-disabled="IsCompleted"></td>
+                            </tr>
+                            <tr ng-if="currentcontext.PaymentTypeId==4">
+                                <td translate="billing.refund-form.transferredon.lbl"></td>
+                                <td id="datepick"> <input type="text" class="form-control" name="transferredon"
+                                        ng-date-object datepicker-options="datePickerOptions"
+                                        show-button-bar="{{datePickerOptions.showButtonBar}}"
+                                        uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                                        placeholder="{{datePickerOptions.placeholder}}"
+                                        ng-click="transationfromPopup = { opened: true }"
+                                        is-open="transationfromPopup.opened" ng-model="currentcontext.WireTransferDate"
+                                        ng-disabled="IsCompleted"></td>
+                            </tr>
+                            <tr ng-if="currentcontext.PaymentTypeId==5||currentcontext.PaymentTypeId == 6">
+                                <td translate="billing.refund-form.cardtype.lbl"></td>
+                                <td>
+                                    <ui-select ng-model="currentcontext.CardTypeId" name="cardtype"
+                                        ng-disabled="IsCompleted">
+                                        <ui-select-match>
+                                            {{$select.selected.Text | limitTo : 20 : 0}}
+                                            <span ng-if="$select.selected.Text.length>20">...</span>
+                                        </ui-select-match>
+                                        <ui-select-choices
+                                            repeat="lookupitem.Id as lookupitem in lookup.CardType | filter: { Text: $select.search }">
+                                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                        </ui-select-choices>
+                                    </ui-select>
+                                </td>
+                            </tr>
+                            <tr ng-if="currentcontext.PaymentTypeId==5||currentcontext.PaymentTypeId == 6">
+                                <td translate="billing.receipt-form.terminalno.lbl"></td>
+                                <td>
+                                    <ui-select ng-model="item.TerminalNoId" name="terminal" ng-disabled="IsCompleted">
+                                        <ui-select-match>
+                                            {{$select.selected.Text | limitTo : 20 : 0}}
+                                            <span ng-if="$select.selected.Text.length>20">...</span>
+                                        </ui-select-match>
+                                        <ui-select-choices
+                                            repeat="lookupitem.Id as lookupitem in lookup.Terminal | filter: { Text: $select.search }">
+                                            <div ng-bind-html="lookupitem.Text | highlight: $select.search">
+                                            </div>
+                                        </ui-select-choices>
+                                    </ui-select>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="fooder-bgs">
+                <div class="pull-right">
+                    <button type="button" class="draftbutton" ng-click="CancelRequest()" ng-show="CanShowCancelReqbtn"
+                        translate="Cancel Request" tabindex="-1"></button>
+                    <button type="button" class="draftbutton" ng-click="cancel()" ng-show="CanShowCancelbtn"
+                        translate="Refund" tabindex="-1"></button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

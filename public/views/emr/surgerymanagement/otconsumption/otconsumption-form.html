@@ -1,0 +1,400 @@
+<style>
+    .page-header h4 {
+        padding-top: 2px;
+        padding-left: 9px;
+    }
+
+
+
+    .padding-top1 {
+        padding-top: 2px;
+    }
+
+    .filter-area {
+        margin: 3px 11px 3px !important;
+    }
+
+    #purchaserequest .table-control {
+        /* height: 468px !important; */
+        height: 438px !important;
+    }
+
+    /***/
+
+    .fooder-bg {
+        width: 87% !important;
+    }
+
+    .consumption_batch .dropdown-menu {
+        min-width: 429px !important;
+    }
+
+    #mainresponsivetablecontrol>.table>tbody>tr>td>autosearch>.autosearch-div>.custom-popup-wrapper>.dropdown-menu {
+        overflow-x: hidden;
+    }
+/* 
+    table.table.table-bordered.table-condensed.dropdown-menu {
+
+        max-height: 130px !important;
+        height: auto !important;
+    } */
+
+    #mainresponsivetablecontrol>.table>tbody>tr>td>autosearch>.autosearch-div>.custom-popup-wrapper>.dropdown-menu {
+        /* margin-top:-81px !important; */
+    }
+
+    /* #purchaserequest .formRoot{
+        height: 378px !important;
+    } */
+
+    @media (device-height:100vh) and (device-width:100vw) {
+        /* #purchaserequest .formRoot{
+        height: 575px !important;
+    } */
+        #purchaserequest .table-control {
+            height: 575px !important;
+            min-height: 575px !important;
+        }
+        #purchaserequest .formRoot {
+            height: 67vh !important;
+            min-height: 67vh;
+        }
+    }
+
+    .well.total_footer {
+        background: #b7a448c2 !important;
+        background-image: none;
+        color: #000;
+    }
+
+    /* @media (min-width:768px){#purchaserequest .table-control{height:476px;min-height:453px;}}
+    @media (min-width:1200px) and (min-height:637px){#purchaserequest .table-control{height:476px;min-height:443px;}}
+    @media (min-width:1360px) and (min-height:675px){#purchaserequest .table-control{height:476px;min-height:476px;}} */
+</style>
+<link href="app/css/billing-pharmacy-customs.css" rel="stylesheet">
+<div id="purchaserequest">
+    <div class="row page-header">
+        <h4 class="col-sm-2 page-header" translate="inventory.stockconsumption.pagetitle1.lbl"></h4>
+        <div class="col-sm-10 ">
+            <div class="page-calendar1 col-sm-8">
+                <div class="col-sm-4">
+                    <div class="event-name b-greensea  ">
+                        <span class="forpadd" uib-tooltip="  {{item.isDisabled ? (item.ConsumptionDate &nbsp;|&nbsp; date : 'dd-MMM-yyyy HH:MM a') : ''}}"
+                            tooltip-placement="bottom">
+                            <span translate="inventory.stockconsumption.consumptiondate.lbl"></span> :
+                            <span> {{item.isDisabled ? (item.ConsumptionDate &nbsp;|&nbsp; date : 'dd-MMM-yyyy HH:MM a') : ''}}
+                            </span>
+                        </span>
+                    </div>
+                </div>
+                <div class="col-sm-4">
+                    <div class="event-name b-greensea  ">
+                        <span class="forpadd" uib-tooltip="  {{item.isDisabled ? item.StockConsumptionNumber : ''}} " tooltip-placement="bottom">
+                            <span translate="inventory.stockconsumption.consumptionnumber.lbl"></span>:
+                            <span> {{item.isDisabled ? item.StockConsumptionNumber : ''}}
+                            </span>
+                        </span>
+                    </div>
+                </div>
+                <div class="col-sm-4">
+                    <div class="event-name b-greensea  ">
+                        <span class="forpadd" uib-tooltip=" {{item.DisplayConsumptionStatus}} " tooltip-placement="bottom">
+                            <span translate="inventory.stockconsumption.consumptionstatus.lbl"></span>:
+                            <span> {{item.DisplayConsumptionStatus}} </span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div class=" col-sm-4">
+                <button class="btn bt-color2 btn-xs pull-right btn-filter" ng-click="addNew()" uib-tooltip="{{ 'inventory.stockconsumption.pagetitle.lbl' | translate }}"
+                    ng-if="HasPrivilege('StockConsumption', 'AddNew')" tooltip-placement="bottom">
+                    <i class="fa fa-plus" aria-hidden="true"></i>
+                    <span translate="clinicalmaster.serviceitem-list.addnew.lbl"></span>
+                </button>
+            </div>
+        </div>
+    </div>
+    <div class="">
+        <patientbanner patientid="item.PatientId" delegatefn="setBannerDelegate(cmp)"></patientbanner>
+    </div>
+
+    <!--
+<div class="col-sm-12 fullreg-profiles">
+    <div>
+        <div class="col-sm-3">
+            <span><em class="text-primary"><span translate="inventory.stockconsumption.consumptiondate.lbl"></span></em> <strong>&nbsp; : {{item.CreatedAt | date : 'dd-MMM-yyyy'}}&nbsp;  {{item.CreatedAt | date : 'HH:mm'}}</strong></span>
+        </div>
+        <div class="col-sm-3 border-left-profile">
+            <span><em class="text-primary"><span translate="inventory.stockconsumption.consumptionno.lbl"></span></em> <strong>&nbsp; : {{item.StockConsumptionNumber}}</strong></span>
+        </div>
+        <div class="col-sm-3 border-left-profile">
+            <span><em class="text-primary"><span translate="inventory.stockconsumption.createdby.lbl"></span></em> <strong>&nbsp; : {{Data.CreatedUser.FirstName}}</strong></span>
+        </div>
+        <div class="col-sm-3 border-left-profile">
+            <span><em class="text-primary"><span translate="inventory.stockconsumption.approvedby.lbl"></span></em> <strong>&nbsp; : {{Data.CreatedBy}}</strong></span>
+        </div>
+    </div>
+</div>
+-->
+
+    <div class="row">
+        <div class="col-sm-12">
+            <form id="item_form" name="item_form" class="form-horizontal" role="form">
+                <div class="filter-area row">
+                    <div class="col-sm-12">
+                        <div class="col-sm-4">
+                            <div class="form-group">
+                                <label class="col-sm-5 control-label" for="facility" translate="inventory.stockconsumption.patients.lbl"></label>
+                                <div class="col-sm-7">
+                                        <patientsearch patientid="item.PatientId" candisable="item.isDisabled" class="" name="txtpatientsearch" patientinfo="selectedPatient"
+                                        patientchange="patientChange()" required></patientsearch>
+                                    <!-- <autosearch controlid="'pid'" itemid="item.EncounterId" iteminfo="item.SelectedItem" rowdata="item" config="vm.patientcontrolconfig"
+                                        itemchange="patientChanged()" name="'patient'" isrequired="true" candisable="item.isApproved"
+                                        focus-if></autosearch> -->
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-4">
+                            <div class="form-group">
+                                <label class="col-sm-5 control-label" for="store" translate="inventory.stockconsumption.store.lbl"></label>
+                                <div class="col-sm-7">
+                                    <ui-select ng-model="item.StoreMasterId" ng-change="getStoreItems()" name="store" ng-disabled="item.isDisabled" required>
+                                        <ui-select-match>
+                                            {{$select.selected.Text | limitTo : 20 : 0}}
+                                            <span ng-if="$select.selected.Text.length>20">...</span>
+                                        </ui-select-match>
+                                        <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.UserStores | filter: { Text: $select.search }">
+                                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                        </ui-select-choices>
+                                    </ui-select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-4">
+                            <div class="form-group">
+                                <label class="col-sm-5 control-label" for="consumptiontype" translate="inventory.stockconsumption.consumptiontype.lbl"></label>
+                                <div class="col-sm-7">
+                                    <ui-select ng-model="item.ConsumptionTypeId" name="consumptiontype" ng-disabled="true" required>
+                                        <ui-select-match>
+                                            {{$select.selected.Text | limitTo : 20 : 0}}
+                                            <span ng-if="$select.selected.Text.length>20">...</span>
+                                        </ui-select-match>
+                                        <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.ConsumptionType | filter: { Text: $select.search }">
+                                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                        </ui-select-choices>
+                                    </ui-select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-12">
+                        <div class="col-sm-4">
+                            <div class="form-group">
+                                <label class="col-sm-5 control-label" for="procedure" translate="inventory.stockconsumption.procedurename.lbl"></label>
+                                <div class="col-sm-7">
+                                    <autosearch itemid="item.ProcedureId" iteminfo="" rowdata="" name="'procedure'" config="vm.procedurecontrolconfig" itemchange=""
+                                        candisable="item.isDisabled" isrequired="true"></autosearch>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-4">
+                            <div class="form-group">
+                                <label class="col-sm-5 control-label" for="stockconsumptionnumber" translate="inventory.stockconsumption.starttime.lbl"></label>
+                                <div class="col-sm-7">
+                                    <input type="text" class="form-control" name="startdate" ng-date-object datetime-picker="{{datePickerOptions.dateTimeFormat}}"
+                                        placeholder="{{datePickerOptions.placeholder}}" ng-click="startdatePopup = { opened: true }"
+                                        is-open="startdatePopup.opened" ng-model="item.StartTime" required>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-4">
+                            <div class="form-group">
+                                <label class="col-sm-5 control-label" for="consumptiondate" translate="inventory.stockconsumption.endtime.lbl"></label>
+                                <div class="col-sm-7">
+                                    <input type="text" class="form-control" name="SurgeryEndDateDate" ng-date-object datetime-picker="{{datePickerOptions.dateTimeFormat}}"
+                                        placeholder="{{datePickerOptions.placeholder}}" ng-click="SurgeryEndDatePopup = { opened: true }"
+                                        is-open="SurgeryEndDatePopup.opened" ng-model="item.EndTime" required>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-12">
+                        <div class="col-sm-4">
+                            <div class="form-group">
+                                <label class="col-sm-5 control-label" for="surgeon" translate="inventory.stockconsumption.surgeon.lbl"></label>
+                                <div class="col-sm-7">
+                                    <autosearch itemid="item.DoctorId" iteminfo="" rowdata="item" name="'surgeon'"
+                                        config="vm.doctorcontrolconfig"  candisable="item.isDisabled"
+                                        isrequired="true"></autosearch>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-4">
+                            <div class="form-group">
+                                <label class="col-sm-5 control-label" for="assistant" translate="inventory.stockconsumption.assistant.lbl"></label>
+                                <div class="col-sm-7">
+                                    <input type="text" class="form-control" name="assistant" ng-model="item.Assistant" placeholder="">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-4">
+                            <div class="form-group">
+                                <label class="col-sm-5 control-label" for="comments" translate="inventory.stockconsumption.comments.lbl"></label>
+                                <div class="col-sm-7">
+                                        <input type="text" class="form-control" name="comments" ng-model="item.OTComments" placeholder="">
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class=" table-control  bg-pattern">
+                    <div class="table-height formRoot" id="mainresponsivetablecontrol">
+                        <table class="table table-hover table-responsive table-bordered">
+                            <thead class="bg-subhead">
+                                <tr>
+                                    <th class="fs-12 col-sm-3">
+                                        <span translate="inventory.stockconsumption.itemname.lbl"></span>&nbsp;*</th>
+                                    <th class="fs-12">
+                                        <span translate="inventory.stockconsumption.manufacture.lbl"></span>&nbsp;*</th>
+                                    <th class="fs-12">
+                                        <span translate="inventory.stockconsumption.stockinhand.lbl"></span>
+                                    </th>
+                                    <th class="fs-12 col-sm-1">
+                                        <span translate="inventory.stockconsumption.qty.lbl"></span>&nbsp;*</th>
+                                    <th class="fs-12  col-sm-1">
+                                        <span translate="inventory.stockconsumption.batch.lbl"></span>
+                                    </th>
+                                    <th class="fs-12  col-sm-1">
+                                        <span translate="inventory.stockconsumption.expirydate.lbl"></span>
+                                    </th>
+                                    <th class="fs-12">
+                                        <span translate="inventory.stockconsumption.ucp.lbl"></span>
+                                    </th>
+                                    <th class="fs-12">
+                                        <span translate="inventory.stockconsumption.mrp.lbl"></span>
+                                    </th>
+                                    <th class="fs-12 col-sm-1">
+                                        <span translate="inventory.stockconsumption.amount.lbl"></span>
+                                    </th>
+                                    <th class="fs-12  col-sm-1">
+                                        <span translate="inventory.stockconsumption.action.lbl"></span>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-repeat="stockconsumption in stockconsumptionDetails | filter:{Status:1}">
+                                    <td class="fs-12">
+                                        <autosearch itemid="stockconsumption.ItemMasterId" iteminfo="stockconsumption.SelectedItem" rowdata="stockconsumption" config="vm.stockconsumptionitemcontrolconfig"
+                                            itemchange="onItemSelected($index, stockconsumption)" candisable="item.isDisabled"></autosearch>
+                                    </td>
+                                    <td class="fs-12">
+                                        <span> {{stockconsumption.ManufacturerName }}</span>
+                                    </td>
+                                    <td class=" fs-12 ">
+                                        <span> {{stockconsumption.QtyBeforeConsumption }}</span>
+                                    </td>
+                                    <td class="fs-12 ">
+                                        <input type="number" min="0" class="form-control" ng-model="stockconsumption.QtyConsumed" placeholder="" ng-disabled="item.isDisabled"
+                                            ng-change="computeAmount(stockconsumption)" required>
+                                    </td>
+                                    <td class="fs-12 consumption_batch">
+                                        <ui-select ng-model="stockconsumption.SelectedBatchId" on-select="onBatchSelected(stockconsumption, $select.selected, $index)"
+                                            name="screen" class="ui-select-grid" ng-disabled="item.isDisabled">
+                                            <ui-select-match>
+                                                {{$select.selected.BatchId | limitTo : 20 : 0}}
+                                                <span ng-if="$select.selected.BatchId.length>20">...</span>
+                                            </ui-select-match>
+                                            <ui-select-choices repeat="lookupitem.BatchId as lookupitem in stockconsumption.BatchDetails | filter: { BatchId: $select.search }">
+                                                <div ng-bind-html="lookupitem.SerialDetails | highlight: $select.search"></div>
+                                            </ui-select-choices>
+                                        </ui-select>
+                                    </td>
+                                    <td class="fs-12 ">
+                                        <span>{{stockconsumption.ExpiryDate &nbsp;|&nbsp; date : 'dd-MMM-yyyy'}}</span>
+                                    </td>
+                                    <td class="fs-12 ">
+                                        <span>{{stockconsumption.UnitCostPrice | displaycurrency}}</span>
+                                    </td>
+                                    <td class="fs-12 ">
+                                        <span>{{stockconsumption.MrPrice | displaycurrency}}</span>
+                                    </td>
+                                    <td class="fs-12 ">
+                                        <span>{{stockconsumption.NetAmount | displaycurrency}}</span>
+                                    </td>
+                                    <td class="text-center">
+                                        <button class="btn btn-info texthover btn-xs ng-scope" tabindex="-1" uib-tooltip="History" tooltip-placement="top" ng-click="History(stockconsumption, $index)">
+                                            <i class="fa fa-history fa-xs" aria-hidden="true"></i>
+                                        </button>
+                                        <button class="text-white btn dem-color4 btn-xs " tabindex="-1" uib-tooltip="Stock" tooltip-placement="top" ng-click="Stock(stockconsumption, $index)">
+                                            <i class="fa fa-database fa-xs" aria-hidden="true"></i>
+                                        </button>
+                                        <button class="btn btn-danger btn-xs" tabindex="-1" ng-click="deleteStockConsumptionDetail($index,stockconsumptions)" ng-disabled="item.isDisabled">
+                                            <i class="fa fa-trash" aria-hidden="true"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class=" col-sm-12 footerbar stockcon_ftr pdl0 ">
+                    <div class="col-sm-12 well total_footer">
+                        <div class="col-sm-4 pull-left">
+                            <label class="col-sm-4 control-label" for="comments" translate="inventory.stockadjustments.comments.lbl"></label>
+                            <div class="col-sm-8">
+                                <input type="text" class="form-control field-height" name="comments" ng-model="item.ApproverComments" ng-disabled="item.isDisabled"
+                                    placeholder="Comments">
+                            </div>
+                        </div>
+                        <div class="col-sm-4 pull-right">
+                            <div class="col-sm-6 text-right">
+                                <label class="control-label" for="totalnetamount" translate="inventory.stockadjustments.total.lbl"></label>
+                            </div>
+                            <div class="col-sm-6">
+                                <span>{{ item.TotalNetAmount | displaycurrency }}</span>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div class="fooder-bgs">
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="pull-left">
+                                <button type="button" class="btn pyr-color10 btn-sm" ng-click="backToList()" tabindex="-1">
+                                    <i class="fa fa-angle-left" aria-hidden="true"></i>
+                                    <span class="btn-fontsize"> &nbsp; Back</span>
+                                </button>
+                                <button class="draftbutton" tabindex="-1" uib-tooltip="Attachments" ng-if="HasPrivilege('StockConsumption', 'Attachment')"
+                                    ng-click="openAttachments()" tooltip-placement="top">
+                                    <i class="fa fa-paperclip fa-xs" aria-hidden="true">&nbsp;&nbsp;(0)</i>
+                                </button>
+                                <button class="btn btn-info texthover btn-sm ng-scope" tabindex="-1" uib-tooltip="History" tooltip-placement="top" ng-if="HasPrivilege('StockConsumption','History')"
+                                    ng-click="history()">
+                                    <i class="fa fa-history fa-xs" aria-hidden="true"></i>
+                                </button>
+                                <button type="button" class="draftbutton" tabindex="-1" ng-click="CancelConsumption()" ng-show="canShowCancelBtn"
+                                    translate="inventory.stockconsumption.cancel.lbl"></button>
+                            </div>
+                            <div class="pull-right">
+                                <button type="button" id="btnsubmit"  class="draftbutton" tabindex="-1" ng-show="canShowPrintBtn" ng-if="HasPrivilege('StockConsumption', 'ORIGINAL_PRINT')"
+                                    translate="common.printaction.lbl" ng-click="print()"></button>
+                                <button type="button" id="btnsubmit" class="draftbutton" ng-show="canShowSaveBtn" translate="common.saveaction.lbl"
+                                    ng-if="HasPrivilege('StockConsumption', 'Save')" ng-click="SaveandDraft()"></button>
+                                <button type="submit" class="draftbutton" ng-show="canShowSaveandApproveBtn" ng-if="HasPrivilege('StockConsumption', 'Approve')"
+                                    translate="common.saveapprove-action.lbl" ng-click="SaveandApprove()"></button>
+                                <button type="button" id="btnsubmit" class="btn btn-info btn-sm" ng-show="canShowAuthorizeBtn" ng-if="HasPrivilege('StockConsumption', 'Authorize')"
+                                    translate="common.authorize.lbl" ng-click="SaveandAuthorize() "></button>
+                                <button type="button" id="btnClearForm" class="btn btn-warning btn-sm" ng-show="canShowClearBtn" translate="common.clearaction.lbl"
+                                    ng-click="Clear()"></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

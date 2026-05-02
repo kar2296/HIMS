@@ -1,0 +1,352 @@
+<style>
+    .modal-content .panel-body {
+        overflow: inherit;
+    }
+
+    .autosearch-div>input {
+        background-size: 10.7%!important;
+    }
+
+    .typeahead-demo>input {
+        background: url(app/img/patterns-bg/search.png) 102.2% center no-repeat #fff;
+        background-size: 10.7%!important;
+    }
+
+    .custom-popup-wrapper>.table>thead>tr>td:nth-child(4) {
+        width: 23%;
+    }
+    address div{
+        padding-right:13px;
+    }
+
+    .btn:focus {
+        border: 2px solid black;
+    }
+    .modal-dialog.modal-full #fullregistrationheight .well {
+    min-height: 590px;
+    overflow-x: hidden;
+}
+    .autosearch-div .custom-popup-wrapper>.dropdown-menu {
+        width: 71% !important;
+    }
+
+    /* #Diagnosis .autosearch-div .custom-popup-wrapper {
+        width: 250% !important;
+        margin-left: -191px;
+    } */
+
+    .fullreg-profiles {
+        min-height: 21px;
+        padding: 0px;
+        background: #081473c7 !important;
+        color: #fff;
+    }
+
+    .ui-select-grid {
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+
+    /* #fullregistrationheight2 .well {
+        min-height: 706px;
+    }
+
+    #fullregistrationheight .formRoot {
+        height: 463px;
+    } */
+
+    .panel {
+        margin-bottom: 4px;
+    }
+
+    .header-panel {
+        margin-bottom: 5px !important;
+    }
+</style>
+<div class="modal-header custom-modal-header">
+    <div class="col-sm-12 ">
+        <h3 class="panel-title" translate="registration.fullregistration.mlctitle.lbl"></h3>
+    </div>
+</div>
+<div class="col-sm-12 fullreg-profiles">
+    <span ng-module="currentcontext.patinfo" ng-if="currentcontext.selectedPatient.MRN.length > 0" class="forpadd">
+        <b>
+            <span>{{currentcontext.selectedPatient.Title.Description}} {{currentcontext.selectedPatient.FirstName}}</span> |
+            <span>{{currentcontext.selectedPatient.MRN}} </span> |
+            <span> {{currentcontext.selectedPatient.Gender.Description}}</span> |
+            <span> {{currentcontext.selectedPatient.Age}} Years </span> |
+            <span>{{currentcontext.selectedPatient.DOB | date : 'dd/MMM/yyyy' }}</span>
+        </b>
+        <span ng-click="patientprofiledetails()">
+            <i class="icon-info-sign"></i>
+        </span>
+    </span>
+</div>
+<div id="fullregistrationheight2">
+    <div class="row" id="fullregistrationheight">
+        <div class="col-sm-12 mlc_formgroup">
+            <form id="item_form" name="item_form" class="form-horizontal" role="form">
+                <div class="formRoot">
+                    <div class="panel panel-default">
+                        <div class="panel-body0 form-panel bg-pattern pad0">
+                            <div class="col-sm-12 pad0">
+                                <!-- leftpanel -->
+                                <div class="col-sm-6 pad0">
+                                    <div class="col-sm-12 pad0">
+                                        <fieldset class="fsStyle well">
+                                            <legend class="legendStyle">
+                                                <span translate="mlc-list.mlcdetails.lbl"></span>
+                                            </legend>
+
+                                            <div class="form-group">
+                                                <label class="col-sm-4 control-label" for="escorttype" translate="mlc-list.escorttype.lbl"></label>
+                                                <div class="col-sm-7">
+                                                    <ui-select ng-model="item.EscortTypeId" name="escorttype" ng-disabled="!item.IsMLC" ng-checked="item.IsMlc == 1" required>
+                                                        <ui-select-match>
+                                                            {{$select.selected.Text | limitTo : 20 : 0}}
+                                                            <span ng-if="$select.selected.Text.length>20">...</span>
+                                                        </ui-select-match>
+                                                        <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.EscortType | filter: { Text: $select.search }">
+                                                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                                        </ui-select-choices>
+                                                    </ui-select>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="col-sm-4 control-label" translate="mlc-list.escortedby.lbl"></label>
+                                                <div class="col-sm-7">
+                                                    <ui-select ng-model="item.EscortUserId" ng-disabled="!item.IsMLC" ng-change="getEscortName($select.selected)" ng-disabled="!item.IsMLC">
+                                                        <ui-select-match>
+                                                            {{$select.selected.Text | limitTo : 20 : 0}}
+                                                            <span ng-if="$select.selected.Text.length>20">...</span>
+                                                        </ui-select-match>
+                                                        <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.EscortUser | filter: { Text: $select.search }">
+                                                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                                        </ui-select-choices>
+                                                    </ui-select>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="col-sm-4 control-label" translate="mlc-list.vehicleref.no.lbl"></label>
+                                                <div class="col-sm-7">
+                                                    <input type="text" class="form-control" ng-disabled="!item.IsMLC" ng-model="item.VeichleNo" placeholder="">
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="col-sm-4 control-label" translate="mlc-list.mlcno.lbl"></label>
+                                                <div class="col-sm-7">
+                                                    <input type="text" class="form-control" ng-model="item.MLCNo" ng-disabled="true" placeholder="">
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="col-sm-4 control-label" for="mlc-listfacility" translate="mlc-list.ismlc.lbl"></label>
+                                                <div class="col-sm-7">
+                                                    <input type="checkbox" class="custom-checkbox" name="IsMLC" ng-model="item.IsMLC">
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="col-sm-4 control-label" for="mlc-listAccidentType" translate="mlc-list.typeofaccident.lbl"></label>
+                                                <div class="col-sm-7">
+                                                    <ui-select ng-model="item.AccidentTypeId" name="mlc-listAccidentType" ng-disabled="!item.IsMLC" required>
+                                                        <ui-select-match>
+                                                            {{$select.selected.Text | limitTo : 20 : 0}}
+                                                            <span ng-if="$select.selected.Text.length>20">...</span>
+                                                        </ui-select-match>
+                                                        <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.AccidentType | filter: { Text: $select.search }">
+                                                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                                        </ui-select-choices>
+                                                    </ui-select>
+                                                </div>
+                                            </div>
+
+                                            <div class="form-group">
+                                                <label class="col-sm-4 control-label" translate="mlc-list.datetimeofincident.lbl"></label>
+                                                <div class="col-sm-7">
+                                                    <!--<input type="text" class="form-control" name="Chequedate" ng-date-object datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}"
+                                                    uib-datepicker-popup="{{datePickerOptions.dateFormat}}" placeholder="{{datePickerOptions.placeholder}}"
+                                                    ng-click="activefromPopup = { opened: true }" is-open="activefromPopup.opened"
+                                                    ng-model="item.IncidentDate" ng-disabled="!item.IsMLC">-->
+                                                    <input type="text" class="form-control" name="admissiondate" ng-date-object datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}"
+                                                        uib-datepicker-popup="{{datePickerOptions.dateFormat}}" placeholder="{{datePickerOptions.placeholder}}"
+                                                        ng-click="activefromPopup = { opened: true }" is-open="activefromPopup.opened"
+                                                        ng-model="item.IncidentDate" ng-disabled="!item.IsMLC" required>
+
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="col-sm-4 control-label " for="mlc-listmlc-listidentificationmar" translate="mlc-list.identificationmark.lbl "></label>
+                                                <div class="col-sm-7">
+                                                    <input type="text" class="form-control" name="mlc-listmlc-listidentificationmark" ng-model="item.IdentificationMark " ng-disabled="!item.IsMLC"
+                                                        placeholder=" ">
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="col-sm-4 control-label" for="doctorid" translate="billing.opbilling-list.doctor.lbl"></label>
+                                                <div class="col-sm-7">
+                                                    <autosearch itemid="item.DoctorId" iteminfo="" rowdata="" name="'doctorid'" config="vm.doctorcontrolconfig" itemchange="doctorChange()"
+                                                        candisable="!item.IsMLC" isrequired="true"></autosearch>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="col-sm-4 control-label" for="mlc-listpatientstatus" translate="mlc-list.patientstatus.lbl"></label>
+                                                <div class="col-sm-7">
+                                                    <ui-select ng-model="item.MLCPatientStatus" name="mlc-listpatientstatus" ng-disabled="!item.IsMLC" required>
+                                                        <ui-select-match>
+                                                            {{$select.selected.Text | limitTo : 20 : 0}}
+                                                            <span ng-if="$select.selected.Text.length>20">...</span>
+                                                        </ui-select-match>
+                                                        <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.PatientStatus | filter: { Text: $select.search }">
+                                                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                                        </ui-select-choices>
+                                                    </ui-select>
+                                                </div>
+                                            </div>
+                                            <address addressline1="item.AddressOfAcident" addressline2="item.AddressOfAcident2" pincodeid="item.PinCodeId" pincode="item.Pincode"
+                                                area="item.Area" city="item.City" cityid="item.CityId" state="item.State" stateid="item.StateId"
+                                                country="item.Country" countryid="item.CountryId" ng-disabled="!item.IsMLC">
+                                            </address>
+
+                                            <!--
+                                        <div class="form-group">
+                                            <label class="col-sm-4 control-label" translate="mlc-list.addressofincident.lbl"></label>
+                                            <div class="col-sm-7 filter-lbl">
+                                                <input type="text" class="form-control" name="addressofincident" ng-model="item.AddressOfAcident"  ng-disabled="!item.IsMLC" placeholder="">
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="col-sm-4 control-label" translate="mlc-list.country.lbl" ></label>
+                                            <div class="col-sm-7">
+                                                <ui-select ng-model="item.CountryId" ng-disabled="!item.IsMLC">
+                                                    <ui-select-match>
+                                                        {{$select.selected.Text | limitTo : 20 : 0}}
+                                                        <span ng-if="$select.selected.Text.length>20">...</span>
+                                                    </ui-select-match>
+                                                    <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.Country | filter: { Text: $select.search } ">
+                                                        <div ng-bind-html="lookupitem.Text | highlight: $select.search "></div>
+                                                    </ui-select-choices>
+                                                </ui-select>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="col-sm-4 control-label" translate="mlc-list.state.lbl" ></label>
+                                            <div class="col-sm-7">
+                                                <ui-select ng-model="item.StateId" ng-disabled="!item.IsMLC">
+                                                    <ui-select-match>
+                                                        {{$select.selected.Text | limitTo : 20 : 0}}
+                                                        <span ng-if="$select.selected.Text.length>20">...</span>
+                                                    </ui-select-match>
+                                                    <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.State | filter: { Text: $select.search } ">
+                                                        <div ng-bind-html="lookupitem.Text | highlight: $select.search "></div>
+                                                    </ui-select-choices>
+                                                </ui-select>
+                                            </div>
+                                        </div>-->
+                                            <div class="form-group">
+                                                <label class="col-sm-4 control-label" for="AccidentName" translate="mlc-list.breifdetailofincident.lbl"></label>
+                                                <div class="col-sm-7">
+                                                    <textarea rows="3" ng-model="item.BriefOfAccident" maxlength="4000" ng-disabled="!item.IsMLC" name="AccidentName" style="width:100%;"
+                                                        class="notes-textarea" required></textarea>
+                                                </div>
+                                            </div>
+                                        </fieldset>
+                                    </div>
+                                </div>
+
+                                <!-- rightpanel -->
+                                <div class="col-sm-6 pad0">
+
+                                    <div class="col-sm-12 pad0">
+                                        <fieldset class="fsStyle well">
+                                            <legend class="legendStyle">
+                                                <span translate="mlc-list.policedetails.lbl"></span>
+                                            </legend>
+
+                                            <div class="form-group">
+                                                <label class="col-sm-4 control-label" translate="mlc-list.policestation.lbl"></label>
+                                                <div class="col-sm-7">
+                                                    <input type="text" class="form-control" name="policestation" ng-model="item.PoliceStation" ng-disabled="!item.IsMLC" placeholder="">
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="col-sm-4 control-label" translate="mlc-list.datetime.lbl"></label>
+                                                <div class="col-sm-7">
+                                                    <!--<input type="text" class="form-control" name="Chequedate" ng-date-object datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}"
+                                                    uib-datepicker-popup="{{datePickerOptions.dateFormat}}" placeholder="{{datePickerOptions.placeholder}}"
+                                                    ng-click="activefromPopup = { opened: true }" is-open="activefromPopup.opened"
+                                                    ng-model="item.IncidentDate" ng-disabled="!item.IsMLC">-->
+                                                    <input type="text" class="form-control" name="admissiondate1" ng-date-object datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}"
+                                                        uib-datepicker-popup="{{datePickerOptions.dateFormat}}" placeholder="{{datePickerOptions.placeholder}}"
+                                                        ng-click="activefromPopup = { opened: true }" is-open="activefromPopup.opened"
+                                                        ng-model="item.PoliceCertificateDate" ng-disabled="!item.IsMLC" required>
+
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="col-sm-4 control-label" translate="mlc-list.certificateno.lbl"></label>
+                                                <div class="col-sm-7">
+                                                    <input type="text" class="form-control" name="policestation" ng-model="item.CertificateNo" ng-disabled="!item.IsMLC" placeholder="">
+                                                </div>
+                                            </div>
+
+                                            <div class="form-group">
+                                                <label class="col-sm-4 control-label" translate="mlc-list.buckleno.lbl"></label>
+                                                <div class="col-sm-7">
+                                                    <input type="text" class="form-control" name="policestation" ng-model="item.BuckleNo" ng-disabled="!item.IsMLC" placeholder="">
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="col-sm-4 control-label" for="mobile" translate="mlc-list.contactnumber.lbl"></label>
+                                                <div class="col-sm-7">
+                                                    <input type="text" class="form-control" name="mobile" ng-model="item.ContactNo" placeholder="" ng-disabled="!item.IsMLC"
+                                                        ng-minlength="10" ng-pattern="/^\d+$/" required>
+                                                </div>
+                                                <!--<div class="col-sm-1" ng-if="item.IsMLC">
+                                                <button class="btn btn-success btn-xs pull-right" type="button" ng-click="addNewMLCOfficer()" uib-tooltip="{{'mlc-list.addnew-tooltip3.lbl' | translate }}"
+                                                    tooltip-placement="left"><i class="fa fa-plus"  aria-hidden="true" ng-disabled="!item.IsMLC"></i></button>
+                                            </div>-->
+                                                <!--<div class="col-sm-1"></div>-->
+
+                                                <div class="col-sm-1" ng-if="item.IsMLC">
+                                                    <button class="btn btn-success btn-xs pull-right" type="button" ng-click="addNewMLCOfficer()" ng-disabled="!item.IsMLC" uib-tooltip="{{'mlc-list.addnew-tooltip3.lbl' | translate }}"
+                                                        tooltip-placement="top">
+                                                        <i class="fa fa-plus" aria-hidden="true"></i>
+                                                    </button>
+
+                                                </div>
+
+                                            </div>
+                                            <div class="form-group">
+                                                <div class="col-sm-4"></div>
+
+                                            </div>
+                                            <div class="container-fluid">
+                                                <div ui-grid="vm.gridConfig" class="table-uigrid"></div>
+                                            </div>
+                                        </fieldset>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="fooder-bgs">
+    <div class="row ">
+        <div class="col-sm-12">
+            <!-- <div class="pull-left">
+                <button type="button" class="btn pyr-color10 btn-sm" ng-click="backToList()">
+                    <i class="fa fa-angle-left" aria-hidden="true"></i>
+                    <span class="btn-fontsize"> &nbsp; Back</span>
+                </button>
+            </div> -->
+            <div class="pull-right">
+                <button type="button"  class="draftbutton" ng-hide="item.MLCStatusId!=1" ng-click="print()" translate="common.printaction.lbl"></button>
+                <button id="btnSave" type="button" class="draftbutton" translate="common.saveaction.lbl" ng-click="save()"></button>
+            </div>
+        </div>
+    </div>
+</div>

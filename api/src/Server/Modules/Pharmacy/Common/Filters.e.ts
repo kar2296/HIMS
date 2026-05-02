@@ -1,0 +1,923 @@
+export enum ItemVendorFilters {
+    Id,
+    VendorMasterId,
+    ItemMasterId,
+    Code,
+    StoreMasterId,
+    ActiveStatus,
+    Rank,
+    Status,
+    Type,
+    ProductTypeId,
+    ItemActiveStatus,
+    ItemFacilityMapId,
+    FacilityId,
+    CategoryId,
+    ItemName,
+    excelCode
+}
+export enum VendorErpFilters {
+    Id,
+    Name,
+    VendorMasterId,
+    Status,
+    Type,
+    VendorFacilityMapId
+}
+export enum VendorContactFilters {
+    Id,
+    Name,
+    VendorMasterId,
+    Status,
+    Type,
+    VendorFacilityMapId
+}
+export enum ItemCustomerFilters {
+    Id,
+    CustomerMasterId,
+    ItemMasterId,
+    Code,
+    StoreMasterId,
+    ActiveStatus,
+    Rank,
+    Status,
+    Type,
+    ProductTypeId,
+    ItemActiveStatus,
+    ItemFacilityMapId,
+    FacilityId
+}
+export enum CustomerContactFilters {
+    Id,
+    Name,
+    CustomerMasterId,
+    Status,
+    Type
+}
+export enum CssdItemSetUpFilters {
+    Id,
+    Name
+}
+export enum CssdGroupItemFilters {
+    Id,
+    Name
+}
+export enum StockRequestFilters {
+    Id,
+    RequestNumber,
+    StockRequestTypeId,
+    RequestStatusId,
+    RequestedDate,
+    FacilityId,
+    StoreMasterId,
+    ToStoreMasterId,
+    TransferNumber,
+    ApprovedUser,
+    CreatedUser,
+    From,
+    To,
+    FromFacility,
+    ToFacility,
+    StockPriorityId,
+    CreatedUserId,
+    ApprovedUserId
+}
+export enum StockRequestDetailFilters {
+    Id,
+    StockRequestId,
+    ItemMasterId,
+    ToStoreMasterId,
+    FromStoreMasterId,
+    RequestedQuantity,
+    CreatedFrom,
+    CreatedTo
+}
+export enum StockTransferFilters {
+    Id,
+    TransferNumber,
+    TransferTypeId,
+    TransferStatusId,
+    TransferDate,
+    FacilityId,
+    StoreMasterId,
+    ToStoreMasterId,
+    RequestNumber,
+    AcceptanceStatusId,
+    RequestedUser,
+    ApprovedUser,
+    TranferedUser,
+    AcceptanceNumber,
+    From,
+    To,
+    StockTransferAcceptNo,
+    ToFacilityId,
+    StatusId,
+    TotalNetAmount,
+    StockRequestId
+}
+export enum StockTransferDetailFilters {
+    Id,
+    StockTransferId,
+    ItemMasterId,
+    CreatedAt,
+    FromDate,
+    ToDate,
+    StoreMasterId,
+    BatchId,
+    RequestedQuantity,
+    TransferedQuantity,
+    TransitQuantity
+
+}
+export enum StockAdjustmentFilters {
+    Id,
+    StockAdjustmentNumber,
+    AdjustmentTypeId,
+    AdjustmentStatusId,
+    AdjustedDate,
+    From,
+    To,
+    FacilityId,
+    StoreMasterId
+}
+export enum StockAdjustmentDetailFilters {
+    Id,
+    StockAdjustmentId,
+    ItemMasterId,
+    AdjustmentStatus,
+    Type,
+    AdjustedDate,
+    From,
+    To,
+    FacilityId,
+    StoreMasterId,
+    AdjustmentTypeId
+}
+export enum StockConsumptionFilters {
+    Id,
+    StockConsumptionNumber,
+    ConsumptionTypeId,
+    ConsumptionStatusId,
+    ConsumptionDate,
+    FacilityId,
+    StoreMasterId,
+    From,
+    To,
+    PatientName
+}
+export enum StockConsumptionDetailFilters {
+    Id,
+    StockConsumptionId,
+    ItemMasterId,
+    CreatedAt,
+    BatchId,
+    CreatedFrom,
+    CreatedTo,
+    FacilityId,
+    ConsumptionDate,
+    From,
+    To,
+    StoreMasterId
+}
+export enum ItemMasterFilters {
+    Id,
+    Code,
+    Name,
+    Status,
+    OrganizationId,
+    ProductType,
+    SubCategoryId,
+    CategoryId,
+    GenericId,//8
+    SubProductType,
+    RackId,
+    StoreMasterId,//11
+    DrugId,
+    CurrentDate,
+    IsBatchMandatory,
+    IsBillable,
+    IsExpiryMandatory,
+    IsManufacture,
+    IsMRPRequired,
+    IsReusable,
+    Guarantor,
+    PharmacyId,
+    IndicationId,
+    ToStoreMasterId,
+    VendorMasterId,
+    ManufacturerId,
+    FacilityId,
+    OnlyStoreMasterId,
+    IsConsignment,//28
+    CategorySubId,
+    SubTypeId,
+    ItemName,
+    StoreMasterQty,
+    From,
+    To,
+    IsExcelUpload,
+    excelCode
+}
+export enum GenericMasterFilters {
+    Id,
+    Code,
+    Name,
+    Status,
+    FacilityId,
+    Type
+}
+export enum GstMasterFilters {
+    Id,
+    Code,
+    Name,
+    Status,
+    GstPercentage,
+    FacilityId,
+    Type,
+    ParentGstId,
+    IsParent
+}
+export enum ItemCategoryFilters {
+    Id,
+    Code,
+    Name,
+    Status,
+    FacilityId,
+    Type
+}
+export enum ItemSubCategoryFilters {
+    Id,
+    Code,
+    Name,
+    Status,
+    FacilityId,
+    CategoryId,
+    Type
+}
+export enum ItemSubTypeFilters {
+    Id,
+    Code,
+    Name,
+    Status,
+    FacilityId,
+    CategoryId,
+    Type,
+    SubCategoryId
+}
+export enum ProductTypeFilters {
+    Id,
+    Code,
+    Name,
+    Status,
+    FacilityId,
+    CategoryId,
+    SubCategoryId,
+    Type,
+    IsAllFacility,
+    SubTypeId
+}
+export enum ProductSubTypeFilters {
+    Id,
+    Code,
+    Name,
+    ActiveStatusId,
+    productsubtype,
+    ProductTypeId,
+    FacilityId,
+    Type
+}
+export enum StoreMasterFilters {
+    Id,
+    Name,
+    StoreTypeId,
+    StoreSubTypeId,
+    StorePolicy,
+    DepartmentId,
+    FacilityId,
+    ActiveStatus,
+    IsOpticalStore,
+    IsDefaultWardindentStore,
+    IsIndentStore
+}
+export enum StoreMasterDetailFilters {
+    Id,
+    StoreMasterId,
+    Name,
+    StoreTypeId,
+    StoreSubTypeId,
+    StorePolicy,
+    DepartmentId,
+    FacilityId,
+    ActiveStatus,
+    IsOpticalStore,
+    IsDefaultWardindentStore,
+    IsIndentStore
+}
+export enum StoreUserMapFilters {
+    Id,
+    UserId,
+    FacilityId,
+    StoreMasterId,
+    UserTypeId,
+    ActiveStatus,
+    IsDefault,
+    IsOpticalStore,
+    StoreTypeId
+}
+export enum StoreApprovalMatrixFilters {
+    Id,
+    UserId,
+    FacilityId,
+    StoreMasterId,
+    UserTypeId,
+    ActiveStatus
+}
+export enum UomMasterFilters {
+    Id,
+    Code,
+    Name,
+    Status,
+    FacilityId,
+    UomTypeId,
+    Type
+}
+export enum VendorMasterFilters {
+    Id,
+    Code,
+    Name,
+    VendorTypeId,
+    ActiveStatusId,
+    DistributionTypeId,
+    BusinessDomainId,
+    PhoneNumber,
+    EmailAddress,
+    City,
+    LeadTime,
+    SupplyTypeId,
+    IsAssetVendor,
+    FacilityId,
+    From,
+    To,
+    IsExcelUpload
+}
+export enum VendorMasterGSTFilters {
+    Id,
+    Name,
+    VendorMasterId,
+    VendorFacilityMapId
+}
+export enum CustomerMasterFilters {
+    Id,
+    Code,
+    Name,
+    CustomerTypeId,
+    ActiveStatusId,
+    DistributionTypeId,
+    BusinessDomainId,
+    PhoneNumber,
+    EmailAddress,
+    City,
+    LeadTime
+}
+export enum PurchaseRequestFilters {
+    Id,
+    PrNumber,
+    PrTypeId,
+    StoreMasterId,
+    PrStatusId,
+    FacilityId,
+    RequestedDate,
+    ToStoreMasterId,
+    VendorMasterId,
+    From,
+    To,
+    ApprovedBy,
+    AuthorizedBy,
+    VendorFacilityMapId,
+    FromStoreMasterId,
+    DepartmentId
+}
+export enum PurchaseRequestDetailFilters {
+    Id,
+    PurchaseRequestId,
+    ItemMasterId,
+    CreatedAt,
+    Status,
+    Type
+}
+export enum PurchaseOrderFilters {
+    Id,
+    PoNumber,
+    PoTypeId,
+    VendorMasterId,//3
+    PoStatusId,
+    StoreMasterId,
+    DeliveryStoreMasterId,
+    PoDate,
+    From,
+    To,
+    ToStoreMasterId,//10
+    FromFacility,
+    ToFacility,
+    ApprovedBy,
+    AuthorizedBy,
+    Type,//15
+    FacilityId,
+    VendorFacilityMapId,
+    Itemmaster,
+    PoStatus,
+    IsGeneralPo,
+    IsConsignment,//21
+    PatientId,
+    EncounterId,
+    DcNumber
+}
+export enum PurchaseOrderDetailFilters {
+    Id,
+    PurchaseOrderId,
+    ItemMasterId,
+    CreatedAt,
+    Status,
+    Type,
+    StoreMasterId,
+    PoDate,
+    From,
+    To,
+    PoStatusId,
+    VendorMasterId
+}
+export enum GrnFilters {
+    Id,
+    GrnNumber,
+    GrnTypeId,
+    StoreMasterId,
+    VendorMasterId,
+    InvoiceNumber,
+    GrnStatusId,
+    GrnDate,
+    From,
+    To,
+    PoNumber,//10
+    GpNumber,
+    CreatedBy,
+    ApprovedBy,
+    Facility,
+    VendorFacilityMapId,
+    ItemMasterId,
+    IsPaidFully,
+    GrnNo,
+    TallyApprovedStatusId,
+    SubmissionStatusId,
+    SubmittedDate,
+    SubFrom,
+    SubTo,
+    IsGeneralPoGrn,
+    IsConsignment,//25
+    IsConsignmentPO,
+    IsStockTransferred,
+    StoreTypeId,
+    TotalGrossAmount,
+    DcNumber,
+    IsConsignmentDC
+}
+export enum GrnDetailFilters {
+    Id,
+    GrnId,
+    ItemMasterId,
+    CreatedAt,
+    Status,
+    Type,
+    GrnDate,
+    From,
+    To,
+    StoreMasterId,
+    VendorMasterId,
+    GrnStatusId,
+    ProductTypeId,
+    GrnIds,
+    FacilityId,//14
+    CreatedFrom,
+    CreatedTo
+}
+export enum PurchaseReturnFilters {
+    Id,
+    PrnNumber,
+    PrnTypeId,
+    VendorMasterId,
+    StoreMasterId,
+    PrnStatusId,
+    Pono,
+    FacilityId,
+    PrnDate,
+    From,
+    To,
+    GrnId,
+    GrnNumber,
+    ReturnedBy,
+    ReturnReasonId,
+    InvoiceNumber,
+    ApprovedBy,
+    ItemMasterId,
+    TallyApprovedStatusId
+}
+export enum PurchaseReturnDetailFilters {
+    Id,
+    PurchaseReturnId,
+    ItemMasterId,
+    CreatedAt,
+    Status,
+    Type
+}
+export enum StockEntryFilters {
+    Id,
+    StockEntryNumber,
+    StockEntryTypeId,
+    FacilityId,
+    StoreMasterId,
+    StockEntryStatusId,
+    StockEntryDate,
+    From,
+    To,
+    ApprovedBy,
+    AuthorizedBy
+}
+export enum StockEntryDetailFilters {
+    Id,
+    StockEntryId,
+    ItemMasterId,
+    Status,
+    Type
+}
+export enum StockItemFilters {
+    Id,
+    StoreMasterId,
+    ItemMasterId,
+    Code,
+    Status,
+    Type,
+    Quantity,
+    IncludeSerialItems,
+    FacilityId,
+    IsConsignment
+}
+export enum StockSerialItemFilters {
+    Id,
+    ItemMasterId,
+    StoreMasterId,
+    FacilityId,
+    Status,
+    Type,
+    ExpiryDate,
+    FromDate,
+    ToDate,
+    VendorMasterId,
+    ProductTypeId,
+    Quantity,
+    GenericId,
+    TransactionDate,
+    From,
+    To,
+    OnlyItemMasterId,
+    CategoryId,
+    CurrentExpiry,
+    ActiveStatusId,
+    IsBillable,
+    BarcodeNo,
+    IsConsignment,
+    Code,
+    StoreMaster,
+    ItemMaster,
+    StoreMasters,
+    GrnId,
+    GrnDetailId,
+    BatchId
+}
+export enum StockMovementFilters {
+    Id,
+    ItemMasterId,
+    StoreMasterId,
+    FacilityId,
+    TransactionDate,
+    From,
+    To,
+    TransactionTypeId,
+    Quantity,
+    ProductTypeId,
+    TransactionId,
+    FromCreated,
+    ToCreated
+}
+export enum StockSerialMovementFilters {
+    Id,
+    StockMovementId,
+    Status,
+    Type,
+    ItemMasterId,
+    ProductTypeId,
+    TransactionDate,
+    From,
+    To,
+    FacilityId,
+    StoreMasterId,
+    StockSerialItemId
+}
+export enum StoreSettingFilters {
+    Id,
+    FacilityId,
+    StoreMasterId,
+    ActiveStatus
+}
+export enum StoreRackFilters {
+    Id,
+    FacilityId,
+    StoreMasterId,
+    ActiveStatus,
+    RackCode,
+    RackName
+}
+export enum ItemStoreFilters {
+    Id,
+    StoreMasterId,
+    ItemMasterId,
+    Code,
+    Status,
+    Type,
+    ProductTypeId,
+    RackId,
+    CategoryId,
+    SubCategoryId,
+    SubProductTypeId,
+    ToStoreMasterId,
+    CurrentDate,
+    ActiveStatus,
+    VendorMasterId,
+    IsBillable,
+    FacilityId,
+    ItemFacilityMapId,
+    Guarantor,
+    IsOpenReOrder,
+    IsActive,
+    GenericName,
+    IsConsignment,//22
+    Qty,
+    ExactSearch,
+    excelCode
+}
+export enum ItemFacilityFilters {
+    Id,
+    FacilityId,
+    ItemMasterId,
+    Code,
+    Status,
+    Type,
+    ProductTypeId,
+    CategoryId,
+    SubCategoryId,
+    SubProductTypeId,
+    CurrentDate,
+    ActiveStatusId,
+    IsBillable,
+    GenericId,
+    DrugId
+}
+export enum VendorFacilityFilters {
+    Id,
+    Code,
+    Name,
+    VendorTypeId,
+    ActiveStatusId,
+    DistributionTypeId,
+    BusinessDomainId,
+    PhoneNumber,
+    EmailAddress,
+    City,
+    LeadTime,
+    VendorMasterId,
+    FacilityId,
+    SupplyTypeId
+}
+export enum ThreewayMatchingFilters {
+    Id,
+}
+export enum ItemContractMapFilters {
+    Id,
+    ItemId
+}
+export enum UomConversionFilters {
+    Id,
+    ItemMasterId,
+    UomTypeId,
+    UomId,
+    Facility,
+    Status
+}
+export enum BudgetFilters {
+    Id,
+    DepartmentId,
+    ActiveStatusId
+}
+export enum BudgetDetailFilters {
+    Id,
+    BudgetId
+}
+export enum HsnMasterFilters {
+    Id,
+    Code,
+    Company,
+    Status
+}
+export enum StorePreferenceFilters {
+    Id,
+    Category,
+    PreferenceKey,
+    PreferenceKeys,
+    FacilityId,
+    StoreMasterId
+}
+export enum StorePreferenceMasterFilters {
+    Id,
+    Category
+}
+export enum PMRFilters {
+    Id,
+    PMR,
+    PMRCategoryId,
+    ProcedureId,
+    ActiveStatusId,
+    Procedure,
+    StoreMasterId,
+    CurrentDate,
+    SpecialityId,
+    FacilityId
+}
+export enum PMRDetailFilters {
+    Id,
+    PMRId
+}
+export enum IndicationFilters {
+    Id,
+    ActiveStatusId,
+    Indications,
+    IndicationTypeId
+}
+export enum InvWorkorderFilters {
+    Id,
+    DepartmentId,
+    InvWorkorderDate,
+    From,
+    To,
+    InvWorkorderTypeId,
+    InvWorkorderStatusId,
+    InvWorkorderNumber,
+    VendorMasterId
+}
+export enum InvWorkorderDetailFilters {
+    Id,
+    InvWorkorderId,
+}
+export enum ServiceBillEntryFilters {
+    Id,
+    DepartmentId,
+    ServiceBillDate,
+    From,
+    To,
+    ServiceBillTypeId,
+    ServiceBillStatusId,
+    ServiceBillNo
+}
+export enum OpticalItemMasterFilters {
+    Id,
+    FacilityId,
+    OpticalProductTypeId,
+    ItemCode,
+    ItemName,
+    IsActive,
+    ActiveStatusId,
+    ItemNameAndCode
+}
+export enum OpticalStockItemFilters {
+    Id,
+    FacilityId,
+    ActiveStatusId,
+    OpticalItemMasterId,
+    OpticalProductTypeId,
+    StoreMasterId,
+    ItemCode,
+    ItemName,
+    ItemNameAndCode,
+    OpticalCategoryId
+}
+export enum OpticalStockMovementFilters {
+    Id,
+    FacilityId,
+    ActiveStatusId
+}
+export enum OpticalGrnFilters {
+    Id,
+    OpticalGrnNumber,
+    OpticalGrnTypeId,
+    StoreMasterId,
+    VendorMasterId,
+    InvoiceNumber,
+    OpticalGrnStatusId,
+    OpticalGrnDate,
+    From,
+    To,
+    OpticalPoNumber,
+    OpticalGpNumber,
+    CreatedBy,
+    ApprovedBy,
+    Facility,
+    VendorFacilityMapId,
+    OpticalItemMasterId
+}
+export enum OpticalGrnDetailFilters {
+    Id,
+    OpticalGrnId,
+    OpticalItemMasterId,
+    CreatedAt,
+    FacilityId,
+    ActiveStatusId
+}
+export enum StaffDiscountFilters {
+    Id,
+    FacilityId,
+    StoreTypeId,
+    StoreMasterId,
+    UserTypeId,
+    UserId,
+    StaffDiscountTypeId,
+    ActiveFrom,
+    ActiveTo,
+    ActiveStatus
+}
+export enum VendorPaymentFilters {
+    Id,
+    FacilityId,
+    VendorPaymentDate,
+    FromDate,
+    ToDate,
+    VendorMasterId,
+    VendorPaymentStatusId,
+    VendorPaymentIdentifier,
+    PaymentTypeId
+}
+export enum VendorPaymentDetailsFilters {
+    Id,
+    VendorPaymentId,
+    VendorPaymentDate,
+    FromDate,
+    ToDate
+}
+export enum ItemWantedListFilters {
+    Id,
+    FacilityId,
+    StoreMasterId,
+    RequestedDate,
+    From,
+    To,
+    ItemMasterId
+}
+export enum OpticalEntryFilters {
+    Id,
+}
+export enum DivisionFilters {
+    Id,
+    Name,
+    DivisionCode,
+    ActiveStatus
+}
+export enum ReorderLevelFilters {
+    Id,
+    StoreMasterId,
+    ProductTypeId,
+    ItemMasterId
+}
+export enum DeviceManufacturerFilters {
+    Id,
+    DeviceManufacturerCode,
+    Version,
+    ActiveStatus,
+    FacilityId
+}
+export enum DeviceFilters {
+    Id,
+    DeviceCode,
+    DeviceManufacturerId,
+    ActiveStatusId,
+    FacilityId
+}
+export enum DeviceParametersFilters {
+    Id,
+    Code,
+    DeviceParameterTypeId,
+    ActiveStatusId,
+    FacilityId
+}
+export enum InventoryAttachmentFilters {
+    Id,
+    Name,
+    ObjectTypeId,
+    AttachmentTypeId,
+    ItemId
+}

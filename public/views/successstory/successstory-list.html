@@ -1,0 +1,72 @@
+<div class="row page-header">
+    <h4 class="col-sm-4 mt0" translate="virtualhealth.successstory.pagetitle.lbl"></h4>
+    <div class="col-sm-8">
+        <!-- <label class="col-sm-3 mt0 active" style="margin-left: 217px;width: 58%;margin-top: -3px !important;">
+            <input type="text" class="form-control" on-enter="getList()" ng-model="currentfilter.AssetName" style="background: antiquewhite;"
+                translate translate-attr-placeholder="Search your ID/Number/Name..">
+        </label> -->
+        <button class="btn-add" ng-click="addNew()"
+            uib-tooltip="{{ 'virtualhealth.successstory.pagetitle.lbl' | translate }}" tooltip-placement="bottom">
+            <i class="fa fa-plus" aria-hidden="true"></i>
+        </button>
+    </div>
+</div>
+<div class="row">
+    <div class="col-sm-3">
+        <label class="col-sm-3" translate="virtualhealth.successstory.category.lbl"></label>
+        <div class="col-sm-9">
+            <ui-select ng-model="currentfilter.CategoryId" ng-change="getList()" class="filter-combo">
+                <ui-select-match>
+                    {{$select.selected.Text | limitTo : 8 : 0}}
+                    <span ng-if="$select.selected.Text.length>8">...</span>
+                </ui-select-match>
+                <ui-select-choices
+                    repeat="lookupitem.Id as lookupitem in lookup.SuccessCategory | filter: { Text: $select.search }">
+                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                </ui-select-choices>
+            </ui-select>
+        </div>
+    </div>
+    <div class="col-sm-3">
+        <label class="col-sm-3" translate="virtualhealth.successstory.date.lbl"></label>
+        <div class="col-sm-9">
+            <input type="text" class="form-control" name="periodstart" ng-date-object
+                uib-datepicker-popup="{{datePickerOptions.dateFormat}}" placeholder="{{datePickerOptions.placeholder}}"
+                ng-click="fromdatePopup = { opened: true }" is-open="fromdatePopup.opened"
+                ng-model="currentfilter.CreatedDate">
+        </div>
+    </div>
+    <div class="col-sm-3">
+        <label class="col-sm-3" translate="virtualhealth.successstory.createdby.lbl"></label>
+        <div class="col-sm-9">
+            <autosearch itemid="currentfilter.CreatedBy" iteminfo="" candisable="isDisabled" rowdata=""
+                config="vm.usercontrolconfig" itemchange="getList()" onenter="getList()">
+            </autosearch>
+        </div>
+    </div>
+    <div class="col-sm-3">
+        <label class="col-sm-3" translate="virtualhealth.successstory.status.lbl"></label>
+        <div class="col-sm-9">
+            <ui-select ng-model="currentfilter.ActiveStatusId" ng-change="getList()" class="filter-combo">
+                <ui-select-match>
+                    {{$select.selected.Text | limitTo : 8 : 0}}
+                    <span ng-if="$select.selected.Text.length>8">...</span>
+                </ui-select-match>
+                <ui-select-choices
+                    repeat="lookupitem.Id as lookupitem in lookup.ActiveStatus | filter: { Text: $select.search }">
+                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                </ui-select-choices>
+            </ui-select>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <custom-table config="vm.gridConfig"></custom-table>
+</div>
+<div class="fooder-bgs">
+    <div class="row">
+        <ul uib-pagination total-items="vm.gridConfig.pagerObj.totalItems"
+            items-per-page="vm.gridConfig.pagerObj.pageSize" start-index="vm.gridConfig.pagerObj.startIndex"
+            ng-model="vm.gridConfig.pagerObj.currentPage" ng-change="getList()"></ul>
+    </div>
+</div>

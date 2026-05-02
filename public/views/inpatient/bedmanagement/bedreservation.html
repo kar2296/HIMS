@@ -1,0 +1,80 @@
+<div class="modal-header custom-modal-header">
+    <div class="col-sm-10">
+        <h4 class="modal-title custom-modal-title" translate="bedreservation.pagetitle.lbl"></h4>
+    </div>
+    <div class="col-sm-2">
+        <div class="filters">
+            <img src="../../../../../assets/svg/close.svg" ng-click="cancelCallback()">
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <form id="item_form" name="item_form" class="form-horizontal" role="form">
+        <div class="form-group col-sm-4">
+            <label class="col-sm-4 control-label" for="fromdate" translate="bedreservation.fromdate.lbl"></label>
+            <div class="col-sm-12">
+                <input type="text" class="form-control" name="fromdate" datepicker-options="datePickerOptions"
+                    show-button-bar="{{datePickerOptions.showButtonBar}}"
+                    datetime-picker="{{datePickerOptions.dateTimeFormat}}"
+                    placeholder="{{datePickerOptions.placeholder}}" ng-click="FromDatePopup = { opened: true }"
+                    is-open="FromDatePopup.opened" ng-model="item.FromDate" required
+                    ng-disabled="BedInfo.BedStatusId==3">
+            </div>
+        </div>
+        <div class="form-group col-sm-4">
+            <label class="col-sm-4 control-label" for="type" translate="bedreservation.reservationtype.lbl"></label>
+            <div class="col-sm-12">
+                <ui-select ng-model="item.BedReservationTypeId" name="type" ng-disabled="BedInfo.BedStatusId==3"
+                    required>
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 20 : 0}}
+                        <span ng-if="$select.selected.Text.length>20">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.BedReservationType | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+        <div class="form-group col-sm-4">
+            <label class="col-sm-4 control-label" translate="bedreservation.todate.lbl"></label>
+            <div class="col-sm-12">
+                <input type="text" class="form-control" datepicker-options="datePickerOptions"
+                    show-button-bar="{{datePickerOptions.showButtonBar}}"
+                    datetime-picker="{{datePickerOptions.dateTimeFormat}}"
+                    placeholder="{{datePickerOptions.placeholder}}" ng-click="ToDatePopup = { opened: true }"
+                    is-open="ToDatePopup.opened" ng-model="item.ToDate" ng-disabled="BedInfo.BedStatusId==3">
+            </div>
+        </div>
+        <div class="form-group col-sm-4">
+            <label class="col-sm-4 control-label" translate="bedreservation.reservationdetails.lbl"></label>
+            <div class="col-sm-12">
+                <input type="text" class="form-control" ng-model="item.Details" ng-disabled="BedInfo.BedStatusId==3">
+            </div>
+        </div>
+        <div class="col-sm-12">
+            <div class="pull-right">
+                <button type="button"   class="draftbutton"
+                    translate="bedreservation.release.lbl" ng-click="Confirm(1)"
+                    ng-if="BedInfo.BedStatusId==3"></button>
+                <button type="button"   class="draftbutton" translate="common.saveaction.lbl"
+                    ng-click="Confirm(3)" ng-if="BedInfo.BedStatusId==1"></button>
+                <!-- <button id="btnCancelForm" type="button" class="draftbutton" ng-click="cancelCallback()"
+                    translate="common.cancelaction.lbl"></button> -->
+            </div>
+        </div>
+    </form>
+</div>
+<div class="row">
+    <custom-table config="vm.gridConfig"></custom-table>
+</div>
+<!-- <div ui-grid="vm.gridConfig" class="table-uigrid table-uigrid-tab "></div> -->
+<div class="fooder-bgs">
+    <div class="row">
+        <ul uib-pagination total-items="vm.gridConfig.pagerObj.totalItems"
+            items-per-page="vm.gridConfig.pagerObj.pageSize" start-index="vm.gridConfig.pagerObj.startIndex"
+            ng-model="vm.gridConfig.pagerObj.currentPage" ng-change="getList()"></ul>
+    </div>
+</div>

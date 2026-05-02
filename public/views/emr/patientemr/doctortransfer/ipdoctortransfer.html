@@ -1,0 +1,123 @@
+<link rel="stylesheet" href="app/css/drhms.css">
+<div class="row">
+    <h3 class="col-sm-9 mt0" translate="doctor-transfer.pagetitle.lbl"></h3>
+    <div class="col-sm-3">
+        <span class="drhms-billing-btn drhms-outstandingbill-btn" ng-click="doctor_dashboard()"
+            uib-tooltip="{{'patientemr.mock.emrdashboard.lbl' | translate}}" tooltip-placement="bottom">
+            <i class="fas fa-th-large" aria-hidden="true"></i>
+        </span>
+    </div>
+</div>
+<div class="row">
+    <ippatientbanner patientid="currentcontext.pid" encounterid="currentcontext.eid">
+    </ippatientbanner>
+</div>
+
+<!-- <div class="row">
+    <div class="col-sm-12">
+        <h4 class="mt0" translate="doctor-transfer.pagetitle.lbl"></h4>
+    </div>
+</div>
+<div class="row">
+    <ippatientbanner patientid="currentcontext.pid" encounterid="currentcontext.eid">
+    </ippatientbanner>
+</div> -->
+<div class="row" style="padding: 0px 14px;">
+    <div class="pull-right">
+        <button class="btn-add" ng-click="addNew()" uib-tooltip="{{ 'admissions.addnew-tooltip.lbl' | translate }}"
+            tooltip-placement="bottom">
+            <i class="fa fa-plus" aria-hidden="true"></i>
+        </button>
+    </div>
+</div>
+<div class="row">
+    <div class="col-sm-12" id="mainresponsivetablecontrol00">
+        <form id="item_form" name="item_form" class="form-horizontal" role="form">
+            <div class="panel-body">
+                <div class=" table-control">
+                    <div class="formRoot">
+                        <table class="table table-hover table-responsive table-bordered" id="tabledata">
+                            <thead class="bg-subhead head_font">
+                                <tr>
+                                    <th translate="doctor-transfer.doctorname.lbl"> </th>
+                                    <th translate="doctor-transfer.department.lbl"> </th>
+                                    <th translate="doctor-transfer.fromdate.lbl"> </th>
+                                    <th translate="doctor-transfer.todate.lbl"> </th>
+                                    <th translate="doctor-transfer.transferedby.lbl"> </th>
+                                    <th translate="doctor-transfer.isprimary.lbl"> </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-repeat="item in DoctorDetails">
+                                    <td>
+                                        <autosearch itemid="item.DoctorId" iteminfo="item.SelectedDoctor" rowdata="item"
+                                            name="'doctor'" itemchange="doctorChange(item)"
+                                            config="vm.doctorcontrolconfig" candisable="item.IsDisabled"
+                                            isrequired="true"></autosearch>
+                                    </td>
+                                    <td>
+                                        <ui-select ng-model="item.DepartmentId" name="departmentid" required
+                                            ng-change="departmentChange()" ng-disabled="true">
+                                            <ui-select-match>
+                                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                                <span ng-if="$select.selected.Text.length>20">...</span>
+                                            </ui-select-match>
+                                            <ui-select-choices
+                                                repeat="lookupitem.Id as lookupitem in lookup.Department | filter: { Text: $select.search }">
+                                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                            </ui-select-choices>
+                                        </ui-select>
+                                    </td>
+                                    <td>
+                                        <input type="text" class="form-control" name="StartDate" ng-date-object
+                                            datepicker-options="datePickerOptions"
+                                            show-button-bar="{{datePickerOptions.showButtonBar}}"
+                                            datetime-picker="{{datePickerOptions.dateTimeFormat}}"
+                                            placeholder="{{datePickerOptions.placeholder}}"
+                                            ng-click="StartDatePopup = { opened: true }" is-open="StartDatePopup.opened"
+                                            ng-disabled="item.IsDisabled" ng-model="item.StartDate">
+                                    </td>
+                                    <td>
+                                        <input type="text" class="form-control" name="EndDate" ng-date-object
+                                            datepicker-options="datePickerOptions"
+                                            show-button-bar="{{datePickerOptions.showButtonBar}}"
+                                            datetime-picker="{{datePickerOptions.dateTimeFormat}}"
+                                            placeholder="{{datePickerOptions.placeholder}}"
+                                            ng-click="EndDatePopup = { opened: true }" is-open="EndDatePopup.opened"
+                                            ng-disabled="item.IsDisabled" ng-model="item.EndDate">
+                                    </td>
+                                    <td>
+                                        <ui-select ng-model="item.TransferedById" name="user" required
+                                            ng-disabled="true">
+                                            <ui-select-match>
+                                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                                <span ng-if="$select.selected.Text.length>20">...</span>
+                                            </ui-select-match>
+                                            <ui-select-choices
+                                                repeat="lookupitem.Id as lookupitem in lookup.User | filter: { Text: $select.search }">
+                                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                            </ui-select-choices>
+                                        </ui-select>
+                                    </td>
+                                    <td class="text-center">
+                                        <input type="checkbox" class="custom-checkbox" ng-disabled="true"
+                                            ng-model="item.IsPrimary">
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+<div class="fooder-bgs">
+    <div class="row">
+        <div class="pull-right">
+            <button type="submit" class="draftbutton" translate="common.saveaction.lbl" ng-click="saveItem()"></button>
+            <button id="btnCancelForm" type="button" class="draftbutton" ng-click="cancelCallback()"
+                translate="common.cancelaction.lbl"></button>
+        </div>
+    </div>
+</div>

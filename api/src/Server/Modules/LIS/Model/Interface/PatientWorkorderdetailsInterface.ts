@@ -1,0 +1,80 @@
+import { IAttributes } from '../../../Base/Index';
+import { Instance } from '../../../../Core/Index';
+
+export interface PatientWorkorderdetailsAttributes extends IAttributes {
+    Id: number;
+    Workorderid: number;
+    Orderid: number;
+    Encounterorderid: number;
+    Patientid: number;
+    EncounterId: number;
+    Orderdetailid: number;
+    Testid: number;
+    Testname: string;
+    Analyteid: number;
+    AnalyteCode: string;
+    Analytename: string;
+    Analyterange: string;
+    Qualifier: string;
+    QualifierId: number;
+    Resultvalue: string;
+    AnalyteUOM: number;
+    Methodology: string;
+    TestValueType: string;
+    AcceptedDate: Date;
+    WorkOrderDetailStatusId: number;
+    Departmentid: number;
+    Subdepartmentid: number;
+    SubdeptDisplayOrder: number;
+    Sampleid: number;
+    Samplecollectiondate: Date;
+    SpecReceiveddate: Date;
+    Performedondate: Date;
+    Comments: string;
+    TechValidationId: number;
+    TechValidationName: string;
+    TechValidationdate: Date;
+    MedValidationById: number;
+    MedValidationByName: string;
+    MedValidationdate: Date;
+    ReleasedBy: number;
+    ReleasedDate: Date;
+    IsReleased: boolean;
+    IsReleasedToPatient: boolean;
+    ProfileName: string;
+    ProfileDisplayOrder: number;
+    TestDisplayOrder: number;
+    TestPrintOrder: number;
+    AnalyteDisplayOrder: number;
+    AnalytePrintOrder: number;
+    RootProfileDisplayOrder: number;
+    RootProfileId: number;
+    RootProfileName: string;
+    SampleType: string;
+    SampleTypeId: number;
+    Status: number;
+    Rev: number;
+    CreatedBy: number;
+    CreatedAt: Date;
+    UpdatedBy: number;
+    UpdatedAt: Date;
+    Reason: string;
+    IsLISResult: boolean;
+    IsLISRequest: boolean;
+    IsSeparateSampleId: number;
+    ImpressionId: number;
+    ClinicalFindingId: number;
+    ConsultationId: number;
+    IsIncludeDischargeSheet: boolean;
+    IsExternalLab: boolean;
+    IsCriticalValue: boolean;
+    IsPrinted: boolean;
+    ExternalPrice: number;
+}
+
+export interface PatientWorkorderdetailsInstance extends Instance<PatientWorkorderdetailsAttributes> {
+    // I'm exposing every DB column as an instance field to so that tsc won't complain.
+    // CreatedAt: Date;
+    // UpdatedAt: Date;
+    dataValues: PatientWorkorderdetailsAttributes;
+}

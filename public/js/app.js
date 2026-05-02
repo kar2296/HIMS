@@ -63,7 +63,7 @@
         })
         .directive('cellTemplate', cellTemplateFun)
         .component('customTable', {
-            templateUrl: 'app/js/custom-table.html',
+            templateUrl: 'js/custom-table.html',
             controller: customTableController,
             bindings: {
                 config: '<',
@@ -579,18 +579,18 @@
                         'vendor/common/ngFormatHelper.js', 'vendor/common/ngValidatorHelper.js',
                         'vendor/common/ngSessionHelper.js', 'vendor/common/ngModalHelper.js',
                         'vendor/common/ngChartHelper.js', 'vendor/common/ngPrivilegeHelper.js',
-                        'app/views/emr/patientemr/topbar/patientemr-topbar.js',
-                        'app/views/patientportal/topbar/patientportal-topbar.js',
+                        'views/emr/patientemr/topbar/patientemr-topbar.js',
+                        'views/patientportal/topbar/patientportal-topbar.js',
                         'vendor/common/ngCtrlHelper.js',
-                        'app/views/common/basecontroller.js',
-                        'app/views/common/cnsection-basecontroller.js',
-                        'app/views/common/emrbasecontroller.js',
-                        'app/views/common/userpreferencecontroller.js',
-                        'app/views/common/privilegecontroller.js',
-                        'app/views/common/validationcontroller.js',
-                        'app/views/common/dotmatrixcontroller.js',
-                        'app/views/common/dotmatrixprintcontroller.js',
-                        'app/views/common/barcodeprintcontroller.js',
+                        'views/common/basecontroller.js',
+                        'views/common/cnsection-basecontroller.js',
+                        'views/common/emrbasecontroller.js',
+                        'views/common/userpreferencecontroller.js',
+                        'views/common/privilegecontroller.js',
+                        'views/common/validationcontroller.js',
+                        'views/common/dotmatrixcontroller.js',
+                        'views/common/dotmatrixprintcontroller.js',
+                        'views/common/barcodeprintcontroller.js',
                         'vendor/common/ngUtils.js', 'vendor/common/ngWebCamHelper.js',
                         'vendor/components/address.js', 'vendor/components/pincodecontrol.js',
                         'vendor/components/countrycontrol.js', 'vendor/components/statecontrol.js',
@@ -929,7 +929,7 @@
         // Set here the base of the relative path
         // for all app views
         function basepath(uri) {
-            return 'app/views/' + uri;
+            return 'views/' + uri;
         }
 
         // Generates a resolve object by passing script names

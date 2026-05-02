@@ -1,0 +1,105 @@
+<link href="app/css/regbilling.css" rel="stylesheet">
+<style>
+    button.draftbutton {
+    margin-top: 30px;
+}
+</style>
+<div class="row">
+    <div class="col-sm-6">
+        <h4 class="mt0" translate="Order Status Change"></h4>
+    </div>
+    <div class="col-sm-3">
+        <div class="filters">
+            <div class="search">
+                <input type="text" id="pid" class="form-control bill" name="filter_billnumber" on-enter="getList()" ng-model="currentfilter.PatName" translate placeholder="Name/UHID">
+                <div class="drhms-search-icon"><i class="fas fa-search" aria-hidden="true"></i></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-3">
+        <div class="filters">
+            <div class="search">
+                <input type="text" id="pid" class="form-control bill" name="filter_billnumber" ng-model="currentfilter.BillOrderNumber" translate placeholder="Order#/Bill#">
+                <div class="drhms-search-icon">
+                    <i class="fas fa-search" aria-hidden="true"></i>
+                </div>
+            </div>
+            <button class="default-color">
+                <i class="fa fa-home" ng-click="backtoList()" uib-tooltip="Dashboard" tooltip-placement="bottom">
+                </i>
+            </button>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="drhms-list-filters">
+        <div class="col-sm-2 form-group">
+            <label class="col-sm-12" translate="ordermanagement.orderacknowledgement-list.filter_fromdate.lbl"></label>
+            <div class="col-sm-12">
+                <div class="datepicker">
+                    <input type="text" class="form-control" name="Orderassignment" ng-date-object datepicker-options="datePickerOptions" uib-datepicker-popup="{{datePickerOptions.dateFormat}}" placeholder="{{datePickerOptions.placeholder}}" ng-click="OrderassignmentPopup = { opened: true }"
+                        is-open="OrderassignmentPopup.opened" ng-model="currentfilter.FromDate">
+                    <i class="fa fa-calendar" aria-hidden="true"></i>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-2 form-group">
+            <label class="col-sm-12" translate="To Date"></label>
+            <div class="col-sm-12">
+                <div class="datepicker">
+                    <input type="text" class="form-control" name="todate" ng-date-object datepicker-options="datePickerOptions" uib-datepicker-popup="{{datePickerOptions.dateFormat}}" placeholder="{{datePickerOptions.placeholder}}" ng-click="todatePopup = { opened: true }"
+                        is-open="todatePopup.opened" ng-model="currentfilter.ToDate">
+                    <i class="fa fa-calendar" aria-hidden="true"></i>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-2 form-group">
+            <label class="col-sm-12" translate="Visit Type"></label>
+            <div class="col-sm-12">
+                <ui-select ng-model="currentfilter.EncounterTypeId">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 20 : 0}}
+                        <span ng-if="$select.selected.Text.length>20">...</span>
+                    </ui-select-match>
+                    <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.EncounterType | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search">
+                        </div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+        <div class="col-sm-2 form-group">
+            <label class="col-sm-12" translate="ordermanagement.orderacknowledgement-list.filter_status.lbl"></label>
+            <div class="col-sm-12">
+                <multiselectchk list="lookup.OrderStatus" selected="currentfilter.OrderStatusId">
+                </multiselectchk>
+            </div>
+        </div>
+        <!-- <div class="col-sm-2 form-group">
+            <label class="col-sm-12" translate="Order#/Bill#"></label>
+            <div class="col-sm-12">
+                <div class="search">
+                    <input type="text" id="pid" class="form-control bill" name="filter_billnumber" ng-model="currentfilter.BillOrderNumber" translate placeholder="Order#/Bill#">
+                    <div class="drhms-search-icon">
+                        <i class="fas fa-search" aria-hidden="true"></i>
+                    </div>
+                </div>
+            </div>
+        </div> -->
+        <div class="form-group col-sm-3">
+            <button class="draftbutton" ng-click="getList()">
+                <!-- <i class="fas fa-search" aria-hidden="true"></i> -->
+                <span translate="Fetch"></span>
+            </button>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <custom-table config="vm.gridConfig"></custom-table>
+</div>
+<div class="fooder-bgs">
+    <div class="row">
+        <ul uib-pagination total-items="vm.gridConfig.pagerObj.totalItems" items-per-page="vm.gridConfig.pagerObj.pageSize" start-index="vm.gridConfig.pagerObj.startIndex" ng-model="vm.gridConfig.pagerObj.currentPage" ng-change="getList()"></ul>
+    </div>
+</div>

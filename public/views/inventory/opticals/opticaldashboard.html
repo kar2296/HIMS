@@ -1,0 +1,390 @@
+<link href="app/css/dashboard.css" rel="stylesheet">
+<style>
+    table#pendingorder>thead>tr>th {
+        background: #193b82;
+        padding: 4px;
+        color: white;
+    }
+
+    h3.count {
+        position: absolute;
+        font-size: 34px !important;
+        width: 100%;
+        padding-left: 8px;
+        margin: 0;
+        padding-top: 8px;
+        color: #59a0d5;
+        font-weight: 500 !important;
+    }
+
+    i.fa.fa-times {
+        float: inherit;
+        margin-bottom: 10px;
+        right: 6px;
+        position: relative;
+    }
+
+    table#pendingorder>thead>tr>th {
+        background: #cecece;
+        padding: 4px;
+        color: white;
+    }
+
+    #banner td,
+    th {
+        padding: 0;
+        border: 1px solid #c1b9b9;
+        border: unset !IMPORTANT;
+    }
+
+    .au-card.recent-report {
+        position: relative;
+        float: left;
+        width: 100%;
+        height: 300px;
+        box-shadow: 0 0 6px 0 grey;
+        margin-bottom: 23px;
+        border-radius: 11px;
+        padding: 15px;
+        padding-top: 0px;
+    }
+
+    h3.title-2 {
+        color: #004e77;
+    }
+
+    .table-stats.order-table.ov-h .table th {
+        min-width: 10px;
+        background-color: #eaeaea !important;
+        color: #444141 !important;
+        font-size: 14px;
+        text-align: center !important;
+        border: 1px solid #d6d4d4 !important;
+        padding: 8px !important;
+    }
+
+    .table-stats.order-table.ov-h .table td {
+        min-width: 10px;
+        background-color: #ffffff !important;
+        color: #444141 !important;
+        font-size: 14px;
+        text-align: center !important;
+        border: unset !important;
+        padding: 8px !important;
+        text-align: left !IMPORTANT;
+    }
+
+    .table-stats.order-table.ov-h .table tr {
+        border: 1px solid gainsboro;
+    }
+
+    .table-stats.order-table.ov-h .table-stats.order-table.ov-h {
+        height: 229px;
+        overflow: auto;
+    }
+
+    .table-stats.order-table.ov-h .table tr:nth-child(even) td {
+        background: #f3f3f3 !IMPORTANT;
+    }
+</style>
+<div class="row page-header second_nav">
+    <h4 class="mt0" translate="sidebar.nav.inventory.OPTICAL_DASHBOARD"></h4>
+</div>
+<div class="col-sm-12" style="margin-top: 20px;">
+    <div class="card-flex-box-billing">
+        <div class="card-box-item box-bg-color1" ng-if="HasAccess('DoctorDashboard', 'OP_Patients')">
+            <div class="card-box-header"><i class="fa fa-registered" aria-hidden="true"></i>
+                <div translate="Today GRN Value"></div>
+            </div>
+            <div>{{Items.checkedincount}}</div>
+        </div>
+        <div class="card-box-item box-bg-color2" ng-if="HasAccess('DoctorDashboard', 'Appointments')">
+            <div class="card-box-header">
+                <div> <i class="fa fa-user" aria-hidden="true"></i></div>
+                <div translate="Today Sale Value"></div>
+            </div>
+            <div>{{Items.appoinmentCount}}</div>
+        </div>
+        <div class="card-box-item box-bg-color3" ng-if="HasAccess('DoctorDashboard', 'Reports')">
+            <div class="card-box-header">
+                <div><i class="fa fa-file-text-o" aria-hidden="true"></i></div>
+                <div translate="Today Order Entry"></div>
+            </div>
+            <div>10</div>
+        </div>
+    </div>
+</div>
+<div class="col-sm-12" style="margin-top: 20px;">
+    <div class="col-lg-6" style="padding-right: 28px;">
+        <div class="au-card recent-report">
+            <div class="au-card-inner">
+                <h3 class="title-2" translate="Today GRN"></h3>
+                <div class="recent-report__chart">
+                    <div class="table-stats order-table ov-h">
+                        <table class="table ">
+                            <thead>
+                                <tr>
+                                    <th translate="Date"></th>
+                                    <th translate="Supplier"></th>
+                                    <th translate="Invoice No"></th>
+                                    <th translate="Value"></th>
+                                </tr>
+                            </thead>
+                            <tr ng-repeat="pending in TodayPendingList">
+                                <td style="width: 16%;">
+                                    <span>{{pending.PatientMrn}}</span>
+                                </td>
+                                <td style="width: 33%;"><span class="time">
+                                        <displaydate datetime-val="pending.StartDate">
+                                        </displaydate>
+                                    </span>
+                                </td>
+                                <td style="width: 33%;"> <span class="patientName">{{pending.PatientName}}</span>
+                                </td>
+                                <td style="width: 33%;"> <span class="patientName">{{pending.PatientName}}</span>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="au-card recent-report">
+            <div class="au-card-inner">
+                <h3 class="title-2" translate="Today Bills"></h3>
+                <div class="recent-report__chart">
+                    <div class="table-stats order-table ov-h">
+                        <table class="table ">
+                            <thead>
+                                <tr>
+                                    <th translate="Date"></th>
+                                    <th translate="Bill Daye"></th>
+                                    <th translate="Patient Name"></th>
+                                    <th translate="Amount"></th>
+                                </tr>
+                            </thead>
+                            <tr ng-repeat="completed in TodayCompletedList">
+                                <td style="width: 16%;">
+                                    <span>{{completed.PatientMrn}}</span>
+                                </td>
+                                <td style="width: 33%;">
+                                    <span class="time">
+                                        <displaydate datetime-val="completed.StartDate">
+                                        </displaydate>
+                                    </span>
+                                </td>
+                                <td style="width: 33%;">
+                                    <span class="patientname">{{completed.PatientName}}</span>
+                                </td>
+                                <td style="width: 33%;">
+                                    <span class="patientname">{{completed.PatientName}}</span>
+                                </td>
+
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- <div class="col-lg-6" style="padding-right: 28px;">
+        <div class="au-card recent-report">
+            <div class="au-card-inner">
+                <h3 class="title-2" translate="appointment.doctordashboard.tooppatients.lbl"></h3>
+                <div class="recent-report__chart">
+                    <div class="table-stats order-table ov-h">
+                        <table class="table ">
+                            <thead>
+                                <tr>
+                                    <th translate="MRN#"></th>
+                                    <th translate="Date"></th>
+                                    <th translate="Patient Name"></th>
+                                </tr>
+                            </thead>
+                            <tr ng-repeat="oplist in outpatientlist">
+                                <td style="width: 16%;">
+                                    <span>{{oplist.PatientMrn}}</span>
+                                </td>
+                                <td style="width: 33%;">
+                                    <span class="time">
+                                        <displaydate datetime-val="oplist.AdmissionDate">
+                                        </displaydate>
+                                    </span>
+                                </td>
+                                <td style="width: 33%;">
+                                    <span class="patientname">{{oplist.PatientName}}</span>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div> -->
+    <div class="col-lg-6" style="padding-right: 28px;">
+        <div class="au-card recent-report">
+            <div class="au-card-inner">
+                <h3 class="title-2" translate="Today Deliveries"></h3>
+                <div class="recent-report__chart">
+                    <div class="table-stats order-table ov-h">
+                        <table class="table ">
+                            <thead>
+                                <tr>
+                                    <th translate="Patient Name"></th>
+                                    <th translate="ID"></th>
+                                    <th translate="Phone No"></th>
+                                    <th translate="Order No"></th>
+                                </tr>
+                            </thead>
+                            <tr ng-repeat="admlist in admissionlist">
+                                <td style="width: 16%;">
+                                    <span>{{admlist.VisitIdentifier}}</span>
+                                </td>
+                                <td style="width: 33%;">
+                                    <span class="time">
+                                        <displaydate datetime-val="admlist.AdmissionDate">
+                                        </displaydate>
+                                    </span>
+                                </td>
+                                <td style="width: 33%;">
+                                    <span class="patientname">{{admlist.PatientName}} /
+                                        {{admlist.PatientMrn}}</span>
+                                </td>
+                                <td style="width: 33%;">
+                                    <span class="patientname">{{admlist.PatientName}} /
+                                        {{admlist.PatientMrn}}</span>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="au-card recent-report">
+            <div class="au-card-inner">
+                <h3 class="title-2" translate="Today Order Form"></h3>
+                <div class="recent-report__chart">
+                    <div class="table-stats order-table ov-h">
+                        <table class="table ">
+                            <thead>
+                                <tr>
+                                    <th translate="IP#"></th>
+                                    <th translate="Date"></th>
+                                    <th translate="Patient Name"></th>
+                                </tr>
+                            </thead>
+                            <tr ng-repeat="dislist in dischargedlist">
+                                <td style="width: 16%;">
+                                    <span>{{dislist.VisitIdentifier}}</span>
+                                </td>
+                                <td style="width: 33%;">
+                                    <span class="time">
+                                        <displaydate datetime-val="dislist.DischargeDate">
+                                        </displaydate>
+                                    </span>
+                                </td>
+                                <td style="width: 33%;">
+                                    <span class="patientname">{{dislist.PatientName}} /
+                                        {{dislist.PatientMrn}}</span>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- <div class="col-lg-6" style="padding-right: 28px;">
+        <div class="au-card recent-report">
+            <div class="au-card-inner">
+                <h3 class="title-2" translate="Today Surgery Patients"></h3>
+                <div class="recent-report__chart">
+                    <div class="table-stats order-table ov-h">
+                        <table class="table ">
+                            <thead>
+                                <tr>
+                                    <th translate="IP#"></th>
+                                    <th translate="Schedule Date"></th>
+                                    <th translate="Patient Name"></th>
+                                </tr>
+                            </thead>
+                            <tr ng-repeat="schedule in ScheduleList">
+                                <td style="width: 16%;">
+                                    <span>{{schedule.Encounter.VisitIdentifier}}</span>
+                                </td>
+                                <td style="width: 33%;">
+                                    <span class="time">
+                                        <displaydate datetime-val="schedule.OTScheduledOn">
+                                        </displaydate>
+                                    </span>
+                                </td>
+                                <td style="width: 33%;">
+                                    <span class="patientname">{{schedule.PatientName}} /
+                                        {{schedule.PatientMrn}}</span>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6" style="padding-right: 28px;">
+        <div class="au-card recent-report">
+            <div class="au-card-inner">
+                <h3 class="title-2" translate="appointment.doctordashboard.toappt.lbl"></h3>
+                <div class="recent-report__chart">
+                    <div class="table-stats order-table ov-h">
+                        <table class="table ">
+                            <thead>
+                                <tr>
+                                    <th translate="MRN"></th>
+                                    <th translate="Appointment Date"></th>
+                                    <th translate="Schedule Time"></th>
+                                    <th translate="Patient Name"></th>
+                                </tr>
+                            </thead>
+                            <tr ng-repeat="apnmnt in ApnmntList">
+                                <td style="width: 16%;">
+                                    <span>{{apnmnt.PatientMrn}}</span>
+                                </td>
+                                <td style="width: 33%;">
+                                    <span class="time">
+                                        <displaydate date-val="apnmnt.AppointmentDate">
+                                        </displaydate>
+                                    </span>
+                                </td>
+                                <td style="width: 16%;">
+                                    <span>{{apnmnt.StartTime}} &nbsp; - {{apnmnt.EndTime}}</span>
+                                </td>
+                                <td style="width: 33%;">
+                                    <span class="patientname">{{apnmnt.PatientName}}</span>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div> -->
+</div>
+<!-- <div class="col-sm-12 cal">
+                    <jqx-scheduler jqx-settings="settings" id="scheduler"></jqx-scheduler>
+                </div> -->
+<div class="fooder-bgs"></div>
+<script>
+    $(document).ready(function () {
+        $('.act').click(function () {
+            $('.act.active').removeClass("active");
+            $(this).addClass("active");
+        });
+    });
+</script>
+<script>
+    $(document).ready(function () {
+        $('.act').click(function () {
+            $('.act.active').removeClass("active");
+            $(this).addClass("active");
+        });
+    });
+</script>

@@ -1,0 +1,199 @@
+<style>
+    .page-header {
+        margin: 0px 0px 2px 0px !important;
+    }
+    .modal-full {
+        height: 80%;
+    }
+    .fontctrl {
+        color: #ffffff;
+        text-shadow: 0 1px 1px #194B7E;
+    }
+
+    .calender_align ul {
+        left: -6px !important;
+}
+
+.custom-table {
+    padding : 10px;
+}
+#patientlabresult {
+        /* height: auto; */
+    overflow: auto;
+    }
+    .custom_view{
+        height:382px;
+        /* overflow-x: hidden; */
+    }
+    canvas.chart-line{
+        background-color: bisque;
+    }
+   
+    td.list_tablevw {
+        color:#000;
+    }
+     td.list_tablevw{
+        
+    }
+    td:first-child{
+        color:red;
+    }
+    /* span.list_txtcolor.ng-binding:first-child{
+       color:#0A0AEC !important;
+    } */
+   
+    /* tr:nth-child(2) td{color:aqua;} */
+     span.list_txtcolor.ng-binding{color:#198FFD;font-weight:600;}
+     @media only screen and (max-width:768px){.page-header{padding-top:27px;}
+     .wrapper>.aside .aside-inner {
+    padding-top: 74px !important;
+}
+    }
+    @media only screen and (max-width: 768px){
+.custom_logout {
+    top: 0px !important;
+    position: relative !important;background: #008080;}}
+   @media only screen and (max-width:360px){.pat_views{padding-left:0px;}
+   .page-header{margin-top:10px !important;}
+   .page-header h4{margin-top:0px !important;}
+} 
+ @media only screen and (max-width: 414px){
+.custom_logout {top:0px !important;font-size: 20px;}} 
+</style>
+<div class="row page-header">
+    <div class="col-sm-12">
+        <div class="col-sm-6 pat_views" style="display:block;float:left">
+            <h4 class="page-header mt0" translate="patientportal.labresultview.pagetitle.lbl"></h4>
+        </div>
+        <div class="col-sm-6">
+                <button type="button" class="btn bt-color2 btn-xs pull-right back_but">
+                        <a href="/www/index.html#/patientportal/patientportal/"><i class="fa fa-arrow-left"></i>&nbsp;&nbsp;<span class="ng-scope">Back</span></a>
+                      </button>
+            <a class="btn btn-xs btn-warning pull-right" ng-click="viewChart()" ng-show="!currentcontext.canshowchart">
+              <i class="fa fa-line-chart" aria-hidden="true"></i>
+              Graphical View
+            </a>
+            <a class="btn btn-xs btn-warning pull-right" ng-click="viewList()" ng-show="currentcontext.canshowchart">
+                List View
+            </a>
+        </div>
+    </div>
+</div>
+<div id="patientlabresult"> 
+    <div class="row filter-area" ng-hide="currentcontext.ismodal">
+        <div class="col-sm-12">
+            <div class="col-sm-4 lablist_view">
+                <label class="col-sm-5 control-label filter-lbl" translate="patientportal.labresultview.filter_subdept.lbl"></label>
+                <div class="col-sm-7">
+                    <ui-select id="subdept" ng-model="currentfilter.subdepartmentid" ng-change="getList()" class="filter-combo">
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 8 : 0}}
+                            <span ng-if="$select.selected.Text.length>8">...</span>
+                        </ui-select-match>
+                        <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.Department | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+            <div class="col-sm-4">
+                <label class="col-sm-4 control-label filter-lbl" translate="patientportal.labresultview.filter_from.lbl"></label>
+                <div class="col-sm-8">
+                    <input type="text" class="form-control" name="from" ng-change="getList()" ng-date-object uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                        placeholder="{{datePickerOptions.placeholder}}" ng-click="fromPopup = { opened: true }" is-open="fromPopup.opened"
+                        ng-model="currentfilter.fromdate">
+                </div>
+            </div>
+            <div class="col-sm-4">
+                <label class="col-sm-4 control-label filter-lbl" translate="patientportal.labresultview.filter_to.lbl"></label>
+                <div class="col-sm-8">
+                    <input type="text" class="form-control" name="to" ng-change="getList()" ng-date-object uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                        placeholder="{{datePickerOptions.placeholder}}" ng-click="toPopup = { opened: true }" is-open="toPopup.opened"
+                        ng-model="currentfilter.todate">
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="mainresponsivetablecontrol" class="lisdrpctrl custom-table" ng-show="!currentcontext.canshowchart">
+        <div class=" table-control  bg-pattern">
+            <div class="table-height formRoot">
+                <table class="table table-hover table-responsive table-bordered result_color">
+                    <thead class="bg-subhead">
+                        <tr>
+                            <th>
+                                <span>Test/Analyte</span>
+                            </th>
+                            <th>
+                                <span>Refer.Range</span>
+                            </th>
+                            <th>
+                                <span>Unit</span>
+                            </th>
+                            <th ng-repeat="header in currentcontext.headerData">
+                                <span>{{header.Date}}</span>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="row in currentcontext.groupedData">
+                            <td  class="list_tablevw" ng-repeat="item in row.Record">
+                                <span class="list_txtcolor">{{item.ColVal}}</span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chart Div -->
+    <div id="mainresponsivetablecontrol" class="lisdrpctrl custom-table" ng-show="currentcontext.canshowchart">
+            <div class="table-control bg-pattern">
+                <div class="table-height custom_view">
+                    <table class="table table-hover table-responsive table-bordered">
+                        <thead class="bg-subhead">
+                            <tr>
+                                <th>
+                                    <span>Test/Analyte</span>
+                                </th>
+                                <th>
+                                    <span>Refer.Range</span>
+                                </th>
+                                <th>
+                                    <span>Unit</span>
+                                </th>
+                                <th>
+                                    <span>Chart</span>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody >
+                            <tr ng-repeat="item in vm.chartlist">
+                                <td class="data_name">
+                                    <span>{{item.name}}</span>
+                                </td>
+                                <td class="data_range">
+                                    <span>{{item.range}}</span>
+                                </td>
+                                <td class="data_uom">
+                                    <span>{{item.uom}}</span>
+                                </td>  
+                                <td>
+                                    <canvas class="chart chart-line" chart-data="item.lineData" 
+                                        chart-labels="item.lineLabels" chart-series="item.lineSeries" 
+                                        chart-colors="vm.lineColors" chart-options="vm.lineOptions"  height="50"></canvas>
+                                </td>     
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+</div>
+ <div class="fooder-bgs">
+    <div class="row">
+            
+            <ul uib-pagination total-items="vm.gridConfig.pagerObj.totalItems" items-per-page="vm.gridConfig.pagerObj.pageSize" start-index="vm.gridConfig.pagerObj.startIndex"
+            ng-model="vm.gridConfig.pagerObj.currentPage" ng-change="getList()"></ul>
+    </div>
+</div> 

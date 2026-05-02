@@ -1,0 +1,94 @@
+<html>
+
+<head>
+  <style>
+    .table1 {
+      border: 1px solid black;
+      font-size: 10px;
+    }
+
+    .table2 {
+      border: 1px solid black;
+      border-top: 0px solid black;
+      font-size: 10px;
+    }
+{{include '/Templates/assets/css/core.css'}}
+  </style>
+</head>
+
+<body>
+  <div id="pageHeader">
+    {{{include '/Templates/rkmhospital/common/header.tpl.html' 'tpl'}}}
+  </div>
+  <div style="text-align:center;font-size: 8px;"><b>Insurance Payment Details With Patient</b></div>
+  <table class="table1" style="width:100%;">
+    <tr style='vertical-align: top'>
+      <td style="width:5%;"><b>From Date</b></td>
+      <td>:</td>
+      <td style="width:15%;"><b>{{data.FromDate}}</b></td>
+      <td style="width:5%;"><b>To Date</b></td>
+      <td>:</td>
+      <td style="width:15%;"><b>{{data.ToDate}}</b></td>
+      <td style="width:5%;"><b>GuarantorType</b></td>
+      <td>:</td>
+      <td style="width:25%;"><b>{{data.GuarantorType}}</b></td>
+      <td style="width:5%;"><b>GuarantorName</b></td>
+      <td>:</td>
+      <td style="width:25%;"><b>{{data.GuarantorName}}</b></td>
+    </tr>
+  </table>
+  </br>
+  <table class="table1" style="width:100%;">
+    <tr>
+      <td style="width:5%;"><b>S.No</b></td>
+      <td style="width:10%"><b>Payment Date</b></td>
+      <td style="width:10%"><b>Receipt Number</b></td>
+      <td style="width:10%"><b>Insurance Name</b></td>
+      <td style="width:10%"><b>Patient Name</b></td>
+      <td style="width:10%"><b>MRN</b></td>
+      <td style="width:10%"><b>Bill No</b></td>
+      <td style="width:10%"><b>Bill Date</b></td>
+      <td style="width:10%"><b>Receipt Amount</b></td>
+      <td style="width:5%"><b>TDS</b></td>
+      <td style="width:5%"><b>Disallowance</b></td>
+      <td style="width:5%"><b>Remark</b></td> 
+    </tr>
+  </table>
+  <table class="table2" style="width:100%;">
+    {{#each data.InsuranceDetails}}
+    <tr>
+      <td style="width:5%;">{{inc @index}}</td>
+      <td style="width:10%">{{datetimeformat InsurancePayment.PaymentDate}}</td>
+      <td style="width:10%">{{InsurancePayment.PaymentIdentifier}}</td>
+      <td style="width:10%">{{InsurancePayment.GuarantorName}}</td>
+      <td style="width:10%">{{Patient.Title.Description}} {{Patient.FirstName}} {{Patient.LastName}}</td>
+      <td style="width:10%">{{Patient.MRN}}</td>
+      <td style="width:10%">{{BillIdentifier}}</td>
+      <td style="width:10%">{{datetimeformat BillDateTime}}</td>
+      <td style="width:10%">{{currencyformat ReceivedAmount}}</td>
+      <td style="width:5%;">{{currencyformat TDSAmount}}</td>
+      <td style="width:5%">{{currencyformat Disallowed}}</td>
+      <td style="width:5%">{{InsurancePayment.Comments}}</td> 
+    </tr>{{/each}}
+  </table>
+  <table class="table2" style="width:100%">
+    <tr>
+      <td style="width:5%;"></td>
+      <td style="width:10%"></td>
+      <td style="width:10%"></td>
+      <td style="width:10%"></td>
+      <td style="width:10%"></td>
+      <td style="width:10%"></td>
+      <td style="width:10%"></td>
+      <td style="width:10%"></td>
+      <td style="width:10%">{{currencyformat data.TotalRecAmt}}</td>
+      <td style="width:5%;">{{currencyformat data.TotalTDS}}</td>
+      <td style="width:5%">{{currencyformat data.TotalDisallowance}}</td>
+      <td style="width:5%"></td> 
+    </tr>
+  </table>
+
+</body>
+<div style="width:100%; font-size:8px;">Printed On: {{now}}</div>
+
+</html>

@@ -1,0 +1,124 @@
+<style>
+    .nameinfo {
+        font-size: 13px;
+        font-weight: 700;
+        color: #337ab7;
+    }
+    .nameinfo.mrninfo {
+        color: black
+    }
+    .contactinfo {
+        font-size: 10px;
+        color: #808080
+    }
+    .block {
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+    .linkstyle {
+        font-weight: 700;
+        text-align: right;
+    }
+    .statusinfo {
+        font-size: 13px;
+    }
+    .sr-only {
+    height: 22px !important;}
+    .filter-area{padding-top:0px !important;}
+    patientsearch input.form-control.ng-pristine.ng-valid.ng-empty.ng-touched{width:128px;}
+    patientsearch .col-sm-12{padding: 0px !important;}
+    patientsearch .form-group {
+        margin-bottom: 0px!important;
+    }
+
+    patientsearch .col-sm-12 {
+        padding-left: 8px !important;
+    }
+</style>
+<!--  start -->
+<div class="row page-header ">
+    <h4 class="col-sm-6 mt0 ng-scope" translate="billing.executableprocedureslist.pagetitle.lbl"></h4>
+</div>
+<!--  end -->
+<div class="row filter-area">
+    <div class="col-sm-12">
+        <div class="form-group">
+            <div class="col-sm-4 col-md-4 filter-lbl">
+                <label class="col-sm-4 control-label filter-lbl" translate="billing.executableprocedureslist.department.lbl"></label>
+                <div class="col-sm-8">
+                    <ui-select ng-model="currentfilter.DepartmentId" ng-change="getList()" class="filter-combo">
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 8 : 0}}
+                            <span ng-if="$select.selected.Text.length>8">...</span>
+                        </ui-select-match>
+                        <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.Department | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+            <div class="col-sm-4 col-md-4 filter-lbl">
+                <label class="sr-only col-sm-4 control-label filter-lbl" translate="billing.executableprocedureslist.patientname.lbl"></label>
+                <div class="input-group col-sm-8" style="padding: 0px;">
+                    <patientsearch patientid="currentfilter.PatientId"
+                    class="logo" name="txtpatientsearch" patientinfo="selectedPatient" patientchange="patientChange()"
+                    tabindex="tabindexmap.patienttabindex" isdisabled="" filterconfig="patientfilterconfig"></patientsearch>
+                </div>
+            </div>
+            <div class="col-sm-4 col-md-4 filter-lbl">
+                <label class="col-sm-4 nopad control-label filter-lbl" translate="billing.executableprocedureslist.date.lbl"></label>
+                <div class="col-sm-8 claim_sub">
+                    <input type="text" class="form-control" name="from" ng-change="getList()" datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}"
+                        uib-datepicker-popup="{{datePickerOptions.dateFormat}}" placeholder="{{datePickerOptions.placeholder}}" ng-click="fromdatePopup = { opened: true }"
+                        is-open="fromdatePopup.opened" ng-model="currentfilter.BillDateTime">
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <div class="col-sm-12">
+        <div class="form-group">
+            <div class="col-sm-4 col-md-4 filter-lbl">
+                <label class="col-sm-4 nopad control-label filter-lbl" translate="billing.executableprocedureslist.status.lbl"></label>
+                <div class="col-sm-8 claim_sub">
+                    <ui-select ng-model="currentfilter.ExecutableProcedureStatusId" ng-change="getList()" class="filter-combo">
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 8 : 0}}
+                            <span ng-if="$select.selected.Text.length>8">...</span>
+                        </ui-select-match>
+                        <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.ExecutableProcedureStatus | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+            <div class="col-sm-4 col-md-4 filter-lbl">
+                <label class="col-sm-4 nopad control-label filter-lbl" translate="billing.executableprocedureslist.raisedfrom.lbl"></label>
+                <div class="col-sm-8 claim_sub">
+                    <ui-select ng-model="currentfilter.BillsRaisedFromId" ng-change="getList()" class="filter-combo">
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 8 : 0}}
+                            <span ng-if="$select.selected.Text.length>8">...</span>
+                        </ui-select-match>
+                        <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.BillsRaisedFrom | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container-fluid onerow-filter">
+    <div ui-grid="vm.gridConfig" ng-if="currentfilter.BillsRaisedFromId !=3" class="table-uigrid"></div>
+    <div ui-grid="vm.patientordergridConfig" ng-if="currentfilter.BillsRaisedFromId ==3" class="table-uigrid"></div>
+
+    <div class="fooder-bgs">
+        <div class="row">
+            <ul uib-pagination total-items="vm.gridConfig.pagerObj.totalItems" items-per-page="vm.gridConfig.pagerObj.pageSize" start-index="vm.gridConfig.pagerObj.startIndex"
+                ng-model="vm.gridConfig.pagerObj.currentPage" ng-change="getList()"></ul>
+        </div>
+    </div>
+</div>

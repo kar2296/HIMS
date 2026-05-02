@@ -1,0 +1,91 @@
+<div class="row page-header">
+    <h4 class="col-sm-6 mt0" translate="billingmaster.procedureservice-list.pagetitle.lbl"></h4>
+    <div class="col-sm-6">
+        <!-- <button class="btn bt-color2 btn-xs pull-right btn-filter" ng-click="addNew()"
+            uib-tooltip="{{'billingmaster.procedureservice-list.addnew-tooltip.lbl' | translate}}"
+            tooltip-placement="bottom"><i class="fa fa-plus" aria-hidden="true"></i><span
+                translate="billingmaster.procedureservice-list.addnew.lbl"></span></button> -->
+    </div>
+</div>
+<div class="row filter-area">
+    <div class="padding-top5">
+        <div class="col-sm-3">
+            <label class="col-sm-6 control-label text-right filter-lbl"
+                translate="billingmaster.procedureservice-list.code/name.lbl"></label>
+            <div class="col-sm-6 input-group">
+                <div class="input-group-addon"><i class="fas fa-search" aria-hidden="true"></i></div>
+                <input type="text" class="form-control" name="filter_code" on-enter="getList()"
+                    ng-model="currentfilter.Code" translate
+                    translate-attr-placeholder="billingmaster.procedureservice-list.code/name.lbl">
+            </div>
+        </div>
+        <div class="col-sm-3">
+            <label class="col-sm-6 col-md-5 text-right control-label filter-lbl"
+                translate="billingmaster.procedureservice-list.department.lbl"></label>
+            <div class="col-sm-6 col-md-6 input-group">
+                <ui-select ng-model="currentfilter.Department" ng-change="getList()" class="filter-combo">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 8 : 0}}
+                        <span ng-if="$select.selected.Text.length>8">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.Department | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+        <!--<div class="col-sm-4">
+            <label class="col-sm-6 col-md-5 text-right control-label filter-lbl" translate="billingmaster.procedureservice-list.filter_name.lbl"></label>
+            <div class="col-sm-6 col-md-6 input-group"><div class="input-group-addon"><i class="fas fa-search" aria-hidden="true"></i></div>
+                <input type="text" class="form-control" name="filter_name" on-enter="getList()" ng-model="currentfilter.ProcedureName" translate
+                translate-attr-placeholder="billingmaster.procedureservice-list.filter_name.lbl">
+            </div>
+        </div>-->
+        <div class="col-sm-3">
+            <label class="col-sm-6 col-md-5 text-right control-label filter-lbl"
+                translate="billingmaster.procedureservice-list.category.lbl"></label>
+            <div class="col-sm-6 col-md-6">
+                <ui-select ng-model="currentfilter.ProcedureTypeId" ng-change="getList()" class="filter-combo">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 8 : 0}}
+                        <span ng-if="$select.selected.Text.length>8">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.ProcedureType | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+        <div class="col-sm-3">
+            <label class="col-sm-6 col-md-5 text-right control-label filter-lbl"
+                translate="billingmaster.procedureservice-list.status.lbl"></label>
+            <div class="col-sm-6 col-md-6 input-group">
+                <ui-select ng-model="currentfilter.ActiveStatusId" ng-change="getList()" class="filter-combo">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 8 : 0}}
+                        <span ng-if="$select.selected.Text.length>8">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.ActiveStatus | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+    </div>
+    <!--<div class="col-sm-12">
+         </div>-->
+</div>
+
+<div class="container-fluid onerow-filter">
+    <div ui-grid="vm.gridConfig" class="table-uigrid"></div>
+    <div class="fooder-bgs">
+        <div class="row">
+            <ul uib-pagination total-items="vm.gridConfig.pagerObj.totalItems"
+                items-per-page="vm.gridConfig.pagerObj.pageSize" start-index="vm.gridConfig.pagerObj.startIndex"
+                ng-model="vm.gridConfig.pagerObj.currentPage" ng-change="getList()"></ul>
+        </div>
+    </div>
+</div>

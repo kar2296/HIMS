@@ -1,0 +1,469 @@
+<style>
+    #setheight .formRoot {
+        height: 506px
+    }
+
+    #setheight .well {
+        min-height: 464px !important;
+    }
+
+    .durationtxt {
+        width: 50px !important;
+        float: left;
+        margin-right: 5px;
+    }
+
+    .ui-select-grid {
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+
+    element.style {
+        height: 419px !important;
+    }
+
+    .header-panel {
+        margin-bottom: 5px !important;
+    }
+
+    .header-second-row {
+        margin-bottom: -7px !important;
+    }
+
+    #fullregistrationheight2 .formRoot {
+        height: 485px;
+        overflow: auto;
+    }
+
+    #fullregistrationheight2 .well {
+        min-height: 423px;
+    }
+
+    .panel-footer {
+        background-color: #ccecf5 !important;
+    }
+
+    .header-panel-body {
+        padding: 3px !important;
+        background-color: #e3ecef;
+    }
+
+    .bg-subhead {
+        background-color: #597a9a;
+        color: #fff;
+        font-size: 14px;
+        width: 100%;
+    }
+
+    .profile-header {
+        height: 29px;
+    }
+
+    .mt0 {
+        font-size: 15px;
+        margin-top: 5px !important;
+    }
+
+    .footerbar .well {
+        padding: 4px !important;
+    }
+
+    .field-height {
+        height: 20px;
+    }
+
+    .countbg {
+        padding: 0 55px !important;
+    }
+
+    .inputheightctrl {
+        height: 19px !important;
+        margin-top: 6px;
+    }
+
+    .page-header h4 {
+        padding-top: 2px;
+        padding-left: 9px;
+    }
+
+
+
+    .padding-top1 {
+        padding-top: 2px;
+    }
+
+    .filter-area {
+        margin: 3px 11px 3px !important;
+    }
+
+    .ui-select-bootstrap>.ui-select-choices {
+        width: 250% !important;
+    }
+
+    .fooder-bg {
+        width: 86%;
+        text-align: center;
+        margin: 0px auto;
+        bottom: 0;
+    }
+
+    #purchaserequest .table-control {
+        height: 374px !important;
+    }
+
+    div#mainresponsivetablecontrol {
+        overflow-x: hidden;
+    }
+
+    /* table.table.table-bordered.table-condensed.dropdown-menu {
+        overflow-x: hidden;
+        max-height: 130px !important;
+        height: auto !important;
+    } */
+    table#bannerdetails td {
+    padding: 5px !important;
+}
+    #mainresponsivetablecontrol>.table>tbody>tr>td>autosearch>.autosearch-div>.custom-popup-wrapper>.dropdown-menu {
+        /* margin-top:-81px !important; */
+    }
+
+    #purchaserequest .formRoot {
+        height: 374px !important;
+    }
+
+    @media (device-width:100vw) and (device-height:100vh) {
+        #purchaserequest .formRoot {
+            height: 530px !important;
+            min-height: 530px;
+        }
+
+        #purchaserequest .table-control {
+            height: 530px !important;
+            min-height: 530px !important;
+        }
+    }
+    td.text-center i {
+    font-size: 12px;
+    border: 1px solid #ce281c;
+    padding: 7px 8px;
+    border-radius: 34px;
+}
+</style>
+<link href="app/css/billing-pharmacy-customs.css" rel="stylesheet">
+<div class="row page-header">
+    <h4 class="col-sm-6 mt0" translate="Medicine Issues"></h4>
+</div>
+<div class="">
+    <ippatientbanner patientid="item.PatientId"></ippatientbanner>
+</div>
+<div id="purchaserequest">
+    <div class="row ">
+        <div class="col-sm-12">
+            <form id="item_form" name="item_form" class="form-horizontal" role="form">
+                <table id="bannerdetails">
+                    <tr>
+                        <td>
+                            <label class="control-label" for="store"
+                            translate="inventory.stocktransfer.store.lbl"></label>
+                        </td>
+                        <td>
+                            <ui-select ng-model="item.StoreMasterId"
+                            ng-change="SelectedFromStore($select.selected)" name="store"
+                            class="filter-combo" ng-disabled="item.IsDisabled" required>
+                            <ui-select-match>
+                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                <span ng-if="$select.selected.Text.length>20">...</span>
+                            </ui-select-match>
+                            <ui-select-choices
+                                repeat="lookupitem.Id as lookupitem in lookup.UserStores | filter: { Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                            </ui-select-choices>
+                        </ui-select>
+                        </td>
+                        <td>
+                            <label class="control-label" for="dispensenumber"
+                            translate="billing.patientdispense-form.dispensenumber.lbl"></label>
+                        </td>
+                        <td>
+                            <div class="col-sm-9">
+                                <input type="text" class="form-control" name="dispensenumber"
+                                    ng-model="item.DispenseNumber" placeholder="Dispense Number" id="disabledInput"
+                                    disabled>
+                            </div>
+                            <div class="col-sm-1">
+                                <a ng-click="patientdispensedetails()"
+                                    uib-tooltip="{{ 'billing.patientdispense-form.requesticon.lbl' | translate }}"
+                                    tooltip-placement="bottom">
+                                    <i class="icon-info-sign" aria-hidden="true"></i>
+                                </a>
+                            </div>
+                        </td>
+                        <td>
+                            <label class="control-label" for="type" for="Surgery"
+                            translate="otregister-form.surgeryname.lbl"></label>
+                        </td>
+                        <td>
+                            <autosearch itemid="item.PMRId" iteminfo="" rowdata=""
+                                        config="vm.procedurecontrolconfig" itemchange="" candisable="item.IsDisabled">
+                                    </autosearch>
+                        </td>
+                    </tr>
+                </table>
+
+                <!-- <div class="filter-area row">
+                    <div class="col-sm-12">
+                        <div class="col-sm-4">
+                            <div class="form-group">
+                                <label class="col-sm-5 control-label" for="store"
+                                    translate="inventory.stocktransfer.store.lbl"></label>
+                                <div class="col-sm-7">
+                                    <ui-select ng-model="item.StoreMasterId"
+                                        ng-change="SelectedFromStore($select.selected)" name="store"
+                                        class="filter-combo" ng-disabled="item.IsDisabled" required>
+                                        <ui-select-match>
+                                            {{$select.selected.Text | limitTo : 20 : 0}}
+                                            <span ng-if="$select.selected.Text.length>20">...</span>
+                                        </ui-select-match>
+                                        <ui-select-choices
+                                            repeat="lookupitem.Id as lookupitem in lookup.UserStores | filter: { Text: $select.search }">
+                                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                        </ui-select-choices>
+                                    </ui-select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-4">
+                            <div class="form-group">
+                                <label class="col-sm-5 control-label" for="dispensenumber"
+                                    translate="billing.patientdispense-form.dispensenumber.lbl"></label>
+                                <div class="col-sm-6">
+                                    <input type="text" class="form-control" name="dispensenumber"
+                                        ng-model="item.DispenseNumber" placeholder="Dispense Number" id="disabledInput"
+                                        disabled>
+                                </div>
+                                <div class="col-sm-1">
+                                    <a ng-click="patientdispensedetails()"
+                                        uib-tooltip="{{ 'billing.patientdispense-form.requesticon.lbl' | translate }}"
+                                        tooltip-placement="bottom">
+                                        <i class="icon-info-sign" aria-hidden="true"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-4">
+                            
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label" for="Surgery" translate="otregister-form.surgeryname.lbl"></label>
+                                <div class="col-sm-8">
+                                    <autosearch itemid="item.ProcedureId" iteminfo="" rowdata="" name="'Surgery'" config="vm.procedurecontrolconfig" itemchange=""
+                                        candisable="item.IsDisabled" isrequired="true"></autosearch>
+                                </div>
+                            </div>
+                           
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label" for="Surgery"
+                                    translate="otregister-form.surgeryname.lbl"></label>
+                                <div class="col-sm-8">
+                                    <autosearch itemid="item.PMRId" iteminfo="" rowdata=""
+                                        config="vm.procedurecontrolconfig" itemchange="" candisable="item.IsDisabled">
+                                    </autosearch>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div> -->
+
+                <div class=" table-control  bg-pattern">
+                    <div class="table-height formRoot" id="mainresponsivetablecontrol">
+                        <table class="table table-hover table-responsive table-bordered">
+                            <thead class="bg-subhead">
+                                <tr>
+                                    <th class="fs-12 ">
+                                        <span translate="inventory.stocktransfer.sno.lbl"></span>
+                                    </th>
+                                    <th class="fs-12 col-sm-3">
+                                        <span translate="inventory.stocktransfer.itemname.lbl"></span>
+                                    </th>
+                                    <th class="fs-12 col-sm-1">
+                                        <span translate="inventory.stocktransfer.availableqty.lbl"></span>
+                                    </th>
+                                    <th class="fs-12 col-sm-1">
+                                        <span translate="inventory.stocktransfer.batchqty.lbl"></span>
+                                    </th>
+                                    <th class="fs-12 col-sm-1">
+                                        <span translate="inventory.stocktransfer.qty.lbl"></span>
+                                    </th>
+                                    <th class="fs-12 col-sm-1">
+                                        <span translate="inventory.stocktransfer.batch.lbl"></span>
+                                    </th>
+                                    <th class="fs-12 col-sm-1">
+                                        <span translate="inventory.stocktransfer.expirydate.lbl"></span>
+                                    </th>
+                                    <th class="fs-12 col-sm-1">
+                                        <span translate="inventory.stocktransfer.ucp.lbl"></span>
+                                    </th>
+                                    <th class="fs-12 col-sm-1">
+                                        <span translate="inventory.stockconsumption.mrp.lbl"></span>
+                                    </th>
+                                    <th class="fs-12 col-sm-1">
+                                        <span translate="inventory.stocktransfer.amount.lbl"></span>
+                                    </th>
+                                    <th class="fs-12 col-sm-1">
+                                        <span translate="inventory.stocktransfer.action.lbl"></span>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-repeat="patientdispense in patientdispenseDetails | filter:{Status:1}">
+                                    <td class="fs-12">
+                                        <span> {{patientdispense.SNo }}</span>
+                                    </td>
+                                    <td class="fs-12">
+                                        <autosearch controlid="patientdispense.itemidxdesc"
+                                            ng-keyup="moveFocus('qty','desc','desc','desc',$index,$event,patientdispense)"
+                                            itemid="patientdispense.ItemStoreMapId"
+                                            iteminfo="patientdispense.SelectedItem" rowdata="patientdispense"
+                                            config="vm.patientdispenseitemcontrolconfig"
+                                            itemchange="onItemSelected($index, patientdispense)"
+                                            candisable="item.IsDisabled"></autosearch>
+                                    </td>
+                                    <td class="fs-12">
+                                        <!--<span> {{patientdispense.TotalAvailableQuantity }}</span>-->
+                                        <span ng-if="patientdispense.IsFallUnderMinQty" ng-style="{'color':'red'}"> {{
+                                            patientdispense.TotalAvailableQuantity }} </span>
+                                        <span ng-if="!patientdispense.IsFallUnderMinQty"> {{
+                                            patientdispense.TotalAvailableQuantity }} </span>
+                                    </td>
+                                    <td class="fs-12">
+                                        <span> {{patientdispense.QuantityBeforeDispense }}</span>
+                                    </td>
+                                    <td class="fs-12">
+                                        <input type="text" min="0" id="{{patientdispense.itemidxqty}}"
+                                            ng-keypress="numberonly($event)" ng-pattern="/^\d+$/"
+                                            ng-keyup="moveFocus('desc','desc','qty','qty',$index,$event,patientdispense)"
+                                            class="form-control" ng-disabled="item.IsDisabled"
+                                            ng-model="patientdispense.DispensedQuantity"
+                                            tabindex="patientdispense.tabindex" placeholder="" required>
+                                    </td>
+                                    <td class="fs-12">
+                                        <!--<span>{{patientdispense.BatchId }}</span>-->
+                                        <span class="pharmabatch_id" uib-tooltip="{{ patientdispense.BatchId }}"
+                                            tooltip-placement="bottom">{{ patientdispense.BatchId }}</span>
+                                        <button ng-if="patientdispense.Batch" type="button"
+                                            class="btn btn-info btn-xs pull-right" tabindex="-1"
+                                            ng-click="batchDetails($index, patientdispense)">
+                                            <i class="fa fa-bold" aria-hidden="true"></i>
+                                        </button>
+                                    </td>
+                                    <td class="fs-12">
+                                        <span ng-if="patientdispense.ExpiryStop" ng-style="{'color':'red'}">
+                                            {{patientdispense.ExpiryDate &nbsp;|&nbsp; date : 'dd-MMM-yyyy'}} </span>
+                                        <span ng-if="patientdispense.ExpiryAlert" ng-style="{'color':'orange'}">
+                                            {{patientdispense.ExpiryDate &nbsp;|&nbsp; date : 'dd-MMM-yyyy'}} </span>
+                                        <span ng-if="patientdispense.ExpiryProceed"> {{patientdispense.ExpiryDate
+                                            &nbsp;|&nbsp; date : 'dd-MMM-yyyy'}} </span>
+                                    </td>
+                                    <td class="fs-12">
+                                        <span>{{patientdispense.UnitCostPrice | displaycurrency}}</span>
+                                    </td>
+                                    <td class="fs-12">
+                                        <span>{{patientdispense.MrPrice}}</span>
+                                    </td>
+                                    <td class="fs-12">
+                                        <input type="text" value="{{patientdispense.NetAmount | displaycurrency}}"
+                                            class="inputbox form-control" disabled>
+                                    </td>
+                                    <td class="text-center">
+                                        <!-- <button type="button" class="btn btn-info texthover btn-xs ng-scope"
+                                            tabindex="-1" uib-tooltip="History" tooltip-placement="top"
+                                            ng-click="History(patientdispense, $index)">
+                                            <i class="fa fa-history fa-xs" aria-hidden="true"></i>
+                                        </button>
+                                        <button type="button" class="text-white btn dem-color4 btn-xs " tabindex="-1"
+                                            uib-tooltip="Stock" tooltip-placement="top"
+                                            ng-click="Stock(patientdispense,$index)">
+                                            <i class="fa fa-database fa-xs" aria-hidden="true"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-danger btn-xs" tabindex="-1"
+                                            uib-tooltip="Delete" tooltip-placement="top"
+                                            ng-click="deletePatientDispenseDetail(patientdispense,$index)"
+                                            ng-disabled="item.IsDisabled">
+                                            <i class="fa fa-trash" aria-hidden="true"></i>
+                                        </button> -->
+                                        <i class="fa fa-history fa-xs" aria-hidden="true" tabindex="-1" uib-tooltip="History" 
+                                        tooltip-placement="top" ng-click="History(patientdispense, $index)"></i>
+                                        <i class="fa fa-database fa-xs" aria-hidden="true" tabindex="-1" uib-tooltip="Stock" 
+                                        tooltip-placement="top" ng-click="Stock(patientdispense,$index)"></i>
+                                        <i class="fa fa-trash" aria-hidden="true" tabindex="-1" uib-tooltip="Delete" 
+                                        tooltip-placement="top" ng-click="deletePatientDispenseDetail(patientdispense,$index)" ng-disabled="item.IsDisabled"></i>
+    
+    
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="col-sm-12">
+                        <div class="col-sm-4">
+                        </div>
+                        <div class="col-sm-4">
+                        </div>
+                        <div class="col-sm-4">
+                            <span class="text-white">Total :</span>
+                            <span class="countbg">{{(item.TotalNetAmount | displaycurrency)}}</span>
+                        </div>
+                    </div>
+                </div>
+                <div class=" col-sm-12 footerbar stock_transfercont" style="padding: 0px">
+                    <div class="col-sm-12 well ">
+                        <div class="col-sm-4 pull-left">
+                            <label class="col-sm-4 control-label" tabindex="-1" for="comments"
+                                translate="inventory.stockadjustments.comments.lbl"></label>
+                            <div class="col-sm-8">
+                                <input type="text" tabindex="-1" class="form-control field-height inputheightctrl"
+                                    name="comments" ng-model="item.Comments" ng-disabled="item.IsDisabled"
+                                    placeholder="Comments">
+                            </div>
+                        </div>
+                        <div class="col-sm-4 pull-right">
+                            <span class="col-sm-4 control-label" tabindex="-1" for="total"
+                                translate="inventory.stocktransfer.total.lbl"></span>
+                            <div class="col-sm-8">
+                                <input type="text" tabindex="-1" value="{{(item.TotalNetAmount | displaycurrency)}}"
+                                    class="inputbox form-control" disabled>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-12 fooder-bg">
+                    <div class="pull-left">
+                        <button type="button" class="btn pyr-color10 btn-sm" tabindex="-1" ng-click="backToList()">
+                            <i class="fa fa-angle-left" aria-hidden="true"></i>
+                            <span class="btn-fontsize"> &nbsp; Back</span>
+                        </button>
+                        <!-- <button type="button" class="draftbutton" tabindex="-1"
+                            uib-tooltip="Attachments" tooltip-placement="top" ng-click="openAttachments()">
+                            <i class="fa fa-paperclip fa-xs" aria-hidden="true">&nbsp;&nbsp;(0)</i>
+                        </button>
+                        <button type="button" class="btn btn-info texthover btn-sm ng-scope" tabindex="-1"
+                            uib-tooltip="History" ng-show="canShowHistoryBtn" tooltip-placement="top"
+                            ng-click="history()">
+                            <i class="fa fa-history fa-xs" aria-hidden="true"></i>
+                        </button> -->
+                    </div>
+                    <div class="pull-right">
+                        <!--<button type="button" id="savebtnsubmit" class="draftbutton" translate="common.saveaction.lbl" ng-show="canShowSaveBtn"
+                            ng-click="save()"></button>-->
+                        <button type="button" tabindex="-1" id="btnprint"  class="draftbutton"
+                            ng-show="canShowPrintBtn" translate="common.printaction.lbl" ng-click="print()"></button>
+                        <button type="button" id="btnDispense" class="draftbutton"
+                            ng-show="canShowDispenseBtn" translate="common.dispense-action.lbl"
+                            ng-click="Dispense()"></button>
+                        <button type="button" id="btnClearForm" class="btn btn-warning btn-sm" ng-show="canShowClearBtn"
+                            translate="common.clearaction.lbl" ng-click="Clear()"></button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

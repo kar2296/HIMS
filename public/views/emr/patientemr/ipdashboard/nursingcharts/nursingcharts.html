@@ -1,0 +1,843 @@
+<style>
+    .opt-selected {
+        color: #006c9a !important;
+        background: #fff !important;
+        border: 1px solid #006c9a;
+        box-shadow: rgb(50 50 93 / 25%) 0px 2px 5px -1px, rgb(0 0 0 / 30%) 0px 1px 3px -1px;
+    }
+</style>
+<div class="row">
+    <div class="page-header">
+        <div class="col-sm-8">
+            <h4 class="page-header mt0" translate="patientemr.criticalcharts.pagetitle.lbl"></h4>
+        </div>
+        <div class="col-sm-4">
+            <div class="pull-right">
+                <span class="drhms-billing-btn drhms-outstandingbill-btn" ng-click="doctor_dashboard()" uib-tooltip="{{'patientemr.mock.emrdashboard.lbl' | translate}}"
+                    tooltip-placement="bottom">
+                    <i class="fas fa-th-large" aria-hidden="true"></i>
+                </span>
+                <span class="drhms-billing-btn drhms-home-btn" ng-click="checkedinpatients()" ng-if="context=='emr'" uib-tooltip="{{'patientemr.pmhxdashboard.oplist.lbl' | translate}}"
+                    tooltip-placement="bottom">
+                    <i class="fas fa-user-injured"></i>
+                </span>
+            </div>
+        </div>
+    </div>
+</div>
+<emrpatientbanner ng-if="context=='emr'||context=='vorders'" patientid="currentcontext.pid"></emrpatientbanner>
+<ippatientbanner ng-if="context=='ipemr'||context=='aeemr'" patientid="currentcontext.pid" encounterid="currentcontext.eid">
+</ippatientbanner>
+
+<div class="row">
+    <label class="btn btn-secondary top-option" ng-repeat="option in options" ng-click="getList()" ng-model="currentcontext.option"
+        uib-btn-radio="option.key">{{option.name}}</label>
+</div>
+<div class="row">
+    <div class="col-sm-3">
+        <label class="col-sm-12 control-label" translate="patientemr.criticalcharts.from.lbl"></label>
+        <div class="col-sm-12">
+            <input type="text" class="form-control" name="from" ng-change="getList()" ng-date-object uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                placeholder="{{datePickerOptions.placeholder}}" ng-click="fromPopup = { opened: true }" is-open="fromPopup.opened"
+                ng-model="currentfilter.FromDate">
+        </div>
+    </div>
+    <div class="col-sm-3">
+        <label class="col-sm-12 control-label" translate="patientemr.criticalcharts.to.lbl"></label>
+        <div class="col-sm-12">
+            <input type="text" class="form-control cwidth" ng-change="getList()" uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                placeholder="{{datePickerOptions.placeholder}}" ng-click="todatePopup = { opened: true }" is-open="todatePopup.opened"
+                ng-model="currentfilter.ToDate">
+        </div>
+    </div>
+    <div class="col-sm-3">
+        <label class="col-sm-12 control-label" translate="patientemr.criticalcharts.totaldays.lbl"></label>
+        <div class="col-sm-12">
+            {{currentcontext.diffdays}}
+        </div>
+    </div>
+    <div class="col-sm-3">
+        <div class="col-sm-12">
+            <button class="btn-add" ng-click="addNew()" uib-tooltip="{{ 'Add New' | translate }}" tooltip-placement="bottom">
+                <i class="fa fa-plus" aria-hidden="true"></i>
+            </button>
+            <button class="drhms-billing-btn drhms-home-btn" uib-tooltip="Chart View" tooltip-placement="bottom" ng-click="chartview()">
+                <i class="fas fa-user-injured"></i>
+            </button>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div id="" class="lisdrpctrl" ng-if="currentcontext.option == 'ventilator'">
+        <div id='workorder'>
+            <div>
+                <table class="table table-hover table-responsive table-bordered">
+                    <thead class="bg-subhead">
+                        <tr>
+                            <th>
+                                <span translate="Date"></span>
+                            </th>
+                            <th>
+                                <span translate="patientemr.criticalcharts.time.lbl"></span>
+                            </th>
+                            <th>
+                                <span translate="patientemr.criticalcharts.mode.lbl"></span>
+                            </th>
+                            <th>
+                                <span translate="patientemr.criticalcharts.rate.lbl"></span>
+                            </th>
+                            <th>
+                                <span translate="patientemr.criticalcharts.tv.lbl"></span>
+                            </th>
+                            <th>
+                                <span translate="patientemr.criticalcharts.mv.lbl"></span>
+                            </th>
+                            <th>
+                                <span translate="patientemr.criticalcharts.ps.lbl"></span>
+                            </th>
+                            <th>
+                                <span translate="patientemr.criticalcharts.peakpress.lbl"></span>
+                            </th>
+                            <th>
+                                <span translate="patientemr.criticalcharts.peep.lbl"></span>
+                            </th>
+                            <th>
+                                <span translate="patientemr.criticalcharts.meanpress.lbl"></span>
+                            </th>
+                            <th>
+                                <span translate="patientemr.criticalcharts.fio2.lbl"></span>
+                            </th>
+                            <th>
+                                <span translate="patientemr.criticalcharts.suction.lbl"></span>
+                            </th>
+                            <th>
+                                <span translate="patientemr.criticalcharts.posture.lbl"></span>
+                            </th>
+                            <th>
+                                <span translate="patientemr.criticalcharts.powerscore.lbl"></span>
+                            </th>
+                            <th>
+                                <span translate="common.actions_col.lbl"></span>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="item in ventilatorcharts | filter:{Status:1}">
+                            <td>
+                                <span>{{item.VentilatorDate}} </span>
+                            </td>
+                            <td>
+                                <span> {{item.VentilatorTime}} </span>
+                            </td>
+                            <td>
+                                <span>{{item.VentilatorMode.Description}}</span>
+                            </td>
+                            <td>
+                                <span>{{item.Rate}}</span>
+                            </td>
+                            <td>
+                                <span>{{item.TV}}</span>
+                            </td>
+                            <td>
+                                <span>{{item.MV}}</span>
+                            </td>
+                            <td>
+                                <span>{{item.PS}}</span>
+                            </td>
+                            <td>
+                                <span>{{item.PeakPress}}</span>
+                            </td>
+                            <td>
+                                <span>{{item.Peep}}</span>
+                            </td>
+                            <td>
+                                <span>{{item.MeanPress}}</span>
+                            </td>
+                            <td>
+                                <span>{{item.FIO2}}</span>
+                                <span>{{item.DiscountMode.Description}}</span>
+                            </td>
+                            <td>
+                                <span ng-if="item.IsSuction==true">Yes</span>
+                                <span ng-if="item.IsSuction==false">No</span>
+                            </td>
+                            <td>
+                                <span>{{item.Posture}}</span>
+                            </td>
+                            <td>
+                                <span>{{item.PowerScore}}</span>
+                            </td>
+                            <td>
+                                <button class="ffa fa-line-chart" tabindex="-1" style="vertical-align: super;" ng-click="edit(item, $index)">
+                                    <img class="drhms-edit-button" src="assets/svg/edit.svg" aria-hidden="true">
+                                </button>
+                                <button class="ffa fa-line-chart" tabindex="-1" style="vertical-align: super;" ng-click="deletevaccination(item, $index)">
+                                    <i class="fa fa-trash" aria-hidden="true"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div id="" class="lisdrpctrl" ng-if="currentcontext.option == 'abgchart'">
+        <div id='workorder'>
+            <div>
+                <table class="table table-hover table-responsive table-bordered">
+                    <thead class="bg-subhead">
+                        <tr>
+                            <th>
+                                <span translate="patientemr.criticalcharts.time.lbl"></span>
+                            </th>
+                            <!-- <th>
+                            <span translate="patientemr.criticalcharts.time.lbl"></span>
+                        </th> -->
+                            <th ng-repeat="header in currentcontext.headerData">
+                                <span>{{header.ABGParameters}}</span>
+                            </th>
+                            <th>
+                                <span translate="common.actions_col.lbl"></span>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="items in currentcontext.groupedData">
+                            <td ng-repeat="item in items">
+                                <span>
+                                    <p data-ng-bind-html="item.ColVal"></p>
+                                </span>
+                            </td>
+                            <td>
+                                <button class="ffa fa-line-chart" tabindex="-1" style="vertical-align: super;" ng-click="edit(item, $index)">
+                                    <img class="drhms-edit-button" src="assets/svg/edit.svg" aria-hidden="true">
+                                </button>
+                                <button class="ffa fa-line-chart" tabindex="-1" style="vertical-align: super;" ng-click="deleteabg(item, $index)">
+                                    <i class="fa fa-trash" aria-hidden="true"></i>
+                                </button>
+                            </td>
+                        </tr>
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div id="" class="lisdrpctrl" ng-if="currentcontext.option == 'monitorchart'">
+        <div id='workorder'>
+            <div>
+                <table class="table table-hover table-responsive table-bordered">
+                    <thead class="bg-subhead">
+                        <tr>
+                            <th rowspan="2" style="text-align: center;">
+                                <span translate="patientemr.criticalcharts.time.lbl"></span>
+                            </th>
+                            <th colspan="3" style="text-align: center;">
+                                <span translate="patientemr.criticalcharts.cvs.lbl"></span>
+                            </th>
+                            <th colspan="2" style="text-align: center;">
+                                <span translate="patientemr.criticalcharts.rs.lbl"></span>
+                            </th>
+                            <th colspan="3" style="text-align: center;">
+                                <span translate="patientemr.criticalcharts.cns.lbl"></span>
+                            </th>
+                            <th rowspan="2" style="text-align: center;">
+                                <span translate="patientemr.criticalcharts.git.lbl"></span>
+                            </th>
+                            <th rowspan="2" style="text-align: center;">
+                                <span translate="patientemr.criticalcharts.spo2.lbl"></span>
+                            </th>
+                            <th rowspan="2" style="text-align: center;">
+                                <span translate="patientemr.criticalcharts.remarks.lbl"></span>
+                            </th>
+                            <th rowspan="2" style="text-align: center;">
+                                <span translate="common.actions_col.lbl"></span>
+                            </th>
+                        </tr>
+                        <tr>
+                            <th style="text-align: center;">
+                                <span translate="patientemr.criticalcharts.pulse.lbl"></span>
+                            </th>
+                            <th style="text-align: center;">
+                                <span translate="patientemr.criticalcharts.bp.lbl"></span>
+                            </th>
+                            <th style="text-align: center;">
+                                <span translate="patientemr.criticalcharts.temperature.lbl"></span>
+                            </th>
+                            <th style="text-align: center;">
+                                <span translate="patientemr.criticalcharts.rate.lbl"></span>
+                            </th>
+                            <th style="text-align: center;">
+                                <span translate="patientemr.criticalcharts.ls.lbl"></span>
+                            </th>
+                            <th style="text-align: center;">
+                                <span translate="patientemr.criticalcharts.grade.lbl"></span>
+                            </th>
+                            <th style="text-align: center;">
+                                <span translate="patientemr.criticalcharts.leftpupils.lbl"></span>
+                            </th>
+                            <th style="text-align: center;">
+                                <span translate="patientemr.criticalcharts.rightpupils.lbl"></span>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="item in monitorcharts | filter:{Status:1}">
+                            <td>
+                                <span>{{item.MonitorChartDate}} {{item.MonitorChartTime}} </span>
+                            </td>
+                            <td>
+                                <span>{{item.Pulse}}</span>
+                            </td>
+                            <td>
+                                <span>{{item.BP}}</span>
+                            </td>
+                            <td>
+                                <span>{{item.Temperature}}</span>
+                            </td>
+                            <td>
+                                <span>{{item.Rate}}</span>
+                            </td>
+                            <td>
+                                <span>{{item.LS}}</span>
+                            </td>
+                            <td>
+                                <span>{{item.Grade}}</span>
+                            </td>
+                            <td>
+                                <span>{{item.RightPupil}}</span>
+                                <span>{{item.DiscountMode.Description}}</span>
+                            </td>
+                            <td>
+                                <span>{{item.LeftPupil}}</span>
+                                <span>{{item.DiscountMode.Description}}</span>
+                            </td>
+                            <td>
+                                <span>{{item.GIT}}</span>
+                                <span>{{item.DiscountMode.Description}}</span>
+                            </td>
+                            <td>
+                                <span>{{item.SPO2}}</span>
+                                <span>{{item.DiscountMode.Description}}</span>
+                            </td>
+                            <td>
+                                <span>{{item.Remarks}}</span>
+                            </td>
+                            <td>
+                                <button class="ffa fa-line-chart" tabindex="-1" style="vertical-align: super;" ng-click="edit(item, $index)">
+                                    <img class="drhms-edit-button" src="assets/svg/edit.svg" aria-hidden="true">
+                                </button>
+                                <button class="ffa fa-line-chart" tabindex="-1" style="vertical-align: super;" ng-click="deletemonitor(item, $index)">
+                                    <i class="fa fa-trash" aria-hidden="true"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div id="" class="lisdrpctrl" ng-if="currentcontext.option == 'intakeoutput'">
+        <div id='workorder'>
+            <div>
+                <table class="table table-hover table-responsive table-bordered">
+                    <thead class="bg-subhead">
+                        <tr>
+                            <th rowspan="2" style="text-align: center;">
+                                <span translate="patientemr.criticalcharts.time.lbl"></span>
+                            </th>
+                            <th colspan="3" style="text-align: center;">
+                                <span translate="patientemr.criticalcharts.intake.lbl"></span>
+                            </th>
+                            <th colspan="4" style="text-align: center;">
+                                <span translate="patientemr.criticalcharts.output.lbl"></span>
+                            </th>
+                            <th rowspan="2" style="text-align: center;">
+                                <span translate="Drains"></span>
+                            </th>
+                            <th rowspan="2" style="text-align: center;">
+                                <span translate="patientemr.criticalcharts.remarks.lbl"></span>
+                            </th>
+
+                            <th rowspan="2" style="text-align: center;">
+                                <span translate="common.actions_col.lbl"></span>
+                            </th>
+                        </tr>
+                        <tr>
+                            <th style="text-align: center;">
+                                <span translate="patientemr.criticalcharts.iv.lbl"></span>
+                            </th>
+                            <th style="text-align: center;">
+                                <span translate="patientemr.criticalcharts.oral.lbl"></span>
+                            </th>
+                            <th style="text-align: center;">
+                                <span translate="patientemr.criticalcharts.total.lbl"></span>
+                            </th>
+                            <th style="text-align: center;">
+                                <span translate="patientemr.criticalcharts.urine.lbl"></span>
+                            </th>
+                            <th style="text-align: center;">
+                                <span translate="patientemr.criticalcharts.aspiration.lbl"></span>
+                            </th>
+                            <th style="text-align: center;">
+                                <span translate="patientemr.criticalcharts.diarhoea.lbl"></span>
+                            </th>
+                            <th style="text-align: center;">
+                                <span translate="patientemr.criticalcharts.total.lbl"></span>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="item in intakeoutputs | filter:{Status:1}">
+                            <td>
+                                <span>{{item.IntakeOutputChartDate}} {{item.IntakeOutputChartTime}} </span>
+                            </td>
+                            <td>
+                                <span>{{item.IV}}</span>
+                            </td>
+                            <td>
+                                <span>{{item.Oral}}</span>
+                            </td>
+                            <td>
+                                <span>{{item.IntakeTotal}}</span>
+                            </td>
+                            <td>
+                                <span>{{item.Urine}}</span>
+                            </td>
+                            <td>
+                                <span>{{item.Aspiration}}</span>
+                            </td>
+                            <td>
+                                <span>{{item.VomitousDiarhoea}}</span>
+                            </td>
+                            <td>
+                                <span>{{item.OutputTotal}}</span>
+                            </td>
+                            <td>
+                                <span>{{item.Drains}}</span>
+                            </td>
+                            <td>
+                                <span>{{item.Comments}}</span>
+                            </td>
+                            <td>
+                                <button class="ffa fa-line-chart" tabindex="-1" style="vertical-align: super;" ng-click="edit(item, $index)">
+                                    <img class="drhms-edit-button" src="assets/svg/edit.svg" aria-hidden="true">
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="col-sm-12">
+            <div class="col-sm-5">
+                <div class="col-sm-6">
+                    <label class="control-label readonly" for="totalquantity">Cumulative TotalIntake :</label>
+                </div>
+                <div class="col-sm-6">
+                    <span class="countbg">{{NetTotalIntake}}</span>
+                </div>
+            </div>
+            <div class="col-sm-5">
+                <div class="col-sm-6">
+                    <label class="control-label readonly" for="totalquantity">Cumulative TotalOutput :</label>
+                </div>
+                <div class="col-sm-6">
+                    <span class="countbg">{{NetTotalOutput}}</span>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <div id="" class="lisdrpctrl" ng-if="currentcontext.option == 'bpcharts'">
+        <div id='workorder'>
+            <div>
+                <table class="table table-hover table-responsive table-bordered">
+                    <thead class="bg-subhead">
+                        <tr>
+                            <th rowspan="3" colspan="2" style="text-align: center;">
+                                <span translate="patientemr.criticalcharts.date.lbl"></span>/
+                                <span translate="patientemr.criticalcharts.time.lbl"></span>
+                            </th>
+                            <th colspan="3" style="text-align: center;">
+                                <span translate="patientemr.criticalcharts.rightarm.lbl"></span>
+                            </th>
+                            <th colspan="3" style="text-align: center;">
+                                <span translate="patientemr.criticalcharts.leftarm.lbl"></span>
+                            </th>
+                            <th rowspan="2" style="text-align: center;">
+                                <span translate="patientemr.criticalcharts.pulserate.lbl"></span>
+                            </th>
+                            <th rowspan="3" style="text-align: center;">
+                                <span translate="patientemr.criticalcharts.signature.lbl"></span>
+                            </th>
+                            <th rowspan="3" style="text-align: center;">
+                                <span translate="common.actions_col.lbl"></span>
+                            </th>
+                        </tr>
+                        <tr>
+                            <th style="text-align: center;">
+                                <span translate="patientemr.criticalcharts.supine.lbl"></span>
+                            </th>
+                            <th style="text-align: center;">
+                                <span translate="patientemr.criticalcharts.sitting.lbl"></span>
+                            </th>
+                            <th style="text-align: center;">
+                                <span translate="patientemr.criticalcharts.standing.lbl"></span>
+                            </th>
+                            <th style="text-align: center;">
+                                <span translate="patientemr.criticalcharts.supine.lbl"></span>
+                            </th>
+                            <th style="text-align: center;">
+                                <span translate="patientemr.criticalcharts.sitting.lbl"></span>
+                            </th>
+                            <th style="text-align: center;">
+                                <span translate="patientemr.criticalcharts.standing.lbl"></span>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody ng-repeat="item in bpcharts | filter:{Status:1}">
+                        <tr align="center">
+                            <td rowspan="4">
+                                <span class="lefcol3"> {{item.BPChartDate}} {{item.BPChartTime}} </span>
+                            </td>
+                            <tr align="center">
+                                <td class="lefcol2">
+                                    <span translate="patientemr.criticalcharts.chartbp.lbl"></span>
+                                </td>
+                                <td>
+                                    <span>{{item.RightArmBPSupine}}</span>
+                                </td>
+                                <td>
+                                    <span>{{item.RightArmBPSitting}}</span>
+                                </td>
+                                <td>
+                                    <span>{{item.RightArmBPStanding}}</span>
+                                </td>
+                                <td>
+                                    <span>{{item.LeftArmBPSupine}}</span>
+                                </td>
+                                <td>
+                                    <span>{{item.LeftArmBPSitting}}</span>
+                                </td>
+                                <td>
+                                    <span>{{item.LeftArmBPStanding}}</span>
+                                </td>
+                                <td>
+                                    <span>{{item.BPPulseRate}}</span>
+                                </td>
+
+                                <td rowspan="3" colspan="1" align="center">
+                                    <span class="lefcol8">{{item.Signatory}}</span>
+                                </td>
+                                <td rowspan="3" align="center">
+                                    <button class="ffa fa-line-chart" tabindex="-1" style="vertical-align: super;" ng-click="edit(item, $index)">
+                                        <img class="drhms-edit-button" src="assets/svg/edit.svg" aria-hidden="true">
+                                    </button>
+                                </td>
+                            </tr>
+
+
+                            <tr align="center">
+                                <td class="lefcol2">
+                                    <span translate="patientemr.criticalcharts.pp.lbl"></span>
+                                </td>
+                                <td>
+                                    <span>{{item.RightArmPPSupine}}</span>
+                                </td>
+                                <td>
+                                    <span>{{item.RightArmPPSitting}}</span>
+                                </td>
+                                <td>
+                                    <span>{{item.RightArmPPStanding}}</span>
+                                </td>
+                                <td>
+                                    <span>{{item.LeftArmPPSupine}}</span>
+                                </td>
+                                <td>
+                                    <span>{{item.LeftArmPPSitting}}</span>
+                                </td>
+                                <td>
+                                    <span>{{item.LeftArmPPStanding}}</span>
+                                </td>
+                                <td>
+                                    <span>{{item.PPPulseRate}}</span>
+                                </td>
+                            </tr>
+                            <tr align="center">
+                                <td class="lefcol2">
+                                    <span translate="patientemr.criticalcharts.map.lbl"></span>
+                                </td>
+                                <td>
+                                    <span>{{item.RightArmMAPSupine}}</span>
+                                </td>
+                                <td>
+                                    <span>{{item.RightArmMAPSitting}}</span>
+                                </td>
+                                <td>
+                                    <span>{{item.RightArmMAPStanding}}</span>
+                                </td>
+                                <td>
+                                    <span>{{item.LeftArmMAPSupine}}</span>
+                                </td>
+                                <td>
+                                    <span>{{item.LeftArmMAPSitting}}</span>
+                                </td>
+                                <td>
+                                    <span>{{item.LeftArmMAPStanding}}</span>
+                                </td>
+                                <td>
+                                    <span>{{item.MAPPulseRate}}</span>
+                                </td>
+                            </tr>
+                        </tr>
+                        </tr>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div id="" class="lisdrpctrl" ng-if="currentcontext.option == 'diabetes'">
+        <div id='workorder'>
+            <div>
+                <table class="table table-hover table-responsive table-bordered">
+                    <thead class="bg-subhead">
+                        <tr>
+                            <th rowspan="2" style="text-align: center;">
+                                <span translate="patientemr.criticalcharts.date.lbl"></span>/
+                                <span translate="patientemr.criticalcharts.time.lbl"></span>
+                            </th>
+                            <th rowspan="2" style="text-align: center;">
+                                <span translate="patientemr.criticalcharts.method.lbl"></span>
+                            </th>
+                            <th colspan="3" style="text-align: center;">
+                                <span translate="patientemr.criticalcharts.bloodsugar.lbl"></span>
+                            </th>
+                            <th colspan="3" style="text-align: center;">
+                                <span translate="patientemr.criticalcharts.urinesugar.lbl"></span>
+                            </th>
+                            <th rowspan="2" style="text-align: center;">
+                                <span translate="Insulin dose given by"></span>
+                            </th>
+                            <th rowspan="2" style="text-align: center;">
+                                <span translate="Checked By"></span>
+                            </th>
+                            <th rowspan="2" style="text-align: center;">
+                                <span translate="Entered By"></span>
+                            </th>
+                            <!-- <th rowspan="2" style="text-align: center;">
+                            <span translate="Signature"></span>
+                        </th> -->
+                            <th rowspan="2" style="text-align: center;">
+                                <span translate="common.actions_col.lbl"></span>
+                            </th>
+                        </tr>
+                        <tr>
+                            <th style="text-align: center;">
+                                <span translate="patientemr.criticalcharts.fasting.lbl"></span>
+                            </th>
+                            <th style="text-align: center;">
+                                <span translate="patientemr.criticalcharts.pp.lbl"></span>
+                            </th>
+                            <th style="text-align: center;">
+                                <span translate="patientemr.criticalcharts.random.lbl"></span>
+                            </th>
+                            <th style="text-align: center;">
+                                <span translate="patientemr.criticalcharts.fasting.lbl"></span>
+                            </th>
+                            <th style="text-align: center;">
+                                <span translate="patientemr.criticalcharts.pp.lbl"></span>
+                            </th>
+                            <th style="text-align: center;">
+                                <span translate="patientemr.criticalcharts.random.lbl"></span>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="item in diabetescharts | filter:{Status:1}">
+                            <td style="text-align: center;">
+                                <span> {{item.DiabetesChartDate}}&nbsp;{{item.DiabetesChartTime}} </span>
+                            </td>
+                            <td style="text-align: center;">
+                                <span>{{item.Method}}</span>
+                            </td>
+                            <td style="text-align: center;">
+                                <span>{{item.BloodSugarFasting}}</span>
+                            </td>
+                            <td style="text-align: center;">
+                                <span>{{item.BloodSugarPP}}</span>
+                            </td>
+                            <td style="text-align: center;">
+                                <span>{{item.BloodSugarRandom}}</span>
+                            </td>
+                            <td style="text-align: center;">
+                                <span>{{item.UrineSugarFasting}}</span>
+                            </td>
+                            <td style="text-align: center;">
+                                <span>{{item.UrineSugarPP}}</span>
+                            </td>
+                            <td style="text-align: center;">
+                                <span>{{item.UrineSugarRandom}}</span>
+                            </td>
+                            <td style="text-align: center;">
+                                <span>{{item.Comments}}</span>
+                            </td>
+                            <td style="text-align: center;">
+                                <span>{{item.CheckedBy}}</span>
+                            </td>
+                            <td style="text-align: center;">
+                                <span>{{item.EnteredBy}}</span>
+                            </td>
+                            <!-- <td style="text-align: center;">
+                            <span>{{item.Signature}}</span>
+                        </td> -->
+                            <td style="text-align: center;">
+                                <button class="ffa fa-line-chart" tabindex="-1" style="vertical-align: super;" ng-click="edit(item, $index)">
+                                    <img class="drhms-edit-button" src="assets/svg/edit.svg" aria-hidden="true">
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div id="" class="lisdrpctrl" ng-if="currentcontext.option == 'dialysis'">
+        <div id='workorder'>
+            <div>
+                <table class="table table-hover table-responsive table-bordered">
+                    <thead class="bg-subhead">
+                        <tr>
+                            <th class="col-sm-2">
+                                <span translate="patientemr.criticalcharts.date.lbl"></span>/
+                                <span translate="patientemr.criticalcharts.time.lbl"></span>
+                            </th>
+                            <th>
+                                <span translate="patientemr.criticalcharts.bp.lbl"></span>
+                            </th>
+                            <th>
+                                <span translate="Pulse"></span>
+                            </th>
+                            <th>
+                                <span translate="Resp."></span>
+                            </th>
+                            <th>
+                                <span translate="Temp."></span>
+                            </th>
+                            <th>
+                                <span translate="BI Flow"></span>
+                            </th>
+                            <th>
+                                <span translate="Negative Pressure"></span>
+                            </th>
+                            <th>
+                                <span translate="Venus Pressure"></span>
+                            </th>
+                            <th>
+                                <span translate="Heparin"></span>
+                            </th>
+                            <th>
+                                <span translate="Salin"></span>
+                            </th>
+                            <th>
+                                <span translate="Captured By"></span>
+                            </th>
+                            <th>
+                                <span translate="common.actions_col.lbl"></span>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="item in dialysischarts | filter:{Status:1}">
+                            <td>
+                                <span> {{item.DialysisChartDate}}&nbsp;{{item.DialysisChartTime}} </span>
+                            </td>
+                            <td>
+                                <span>{{item.BP}}</span>
+                            </td>
+                            <td>
+                                <span>{{item.Pulse}}</span>
+                            </td>
+                            <td>
+                                <span>{{item.Resp}}</span>
+                            </td>
+                            <td>
+                                <span>{{item.Temp}}</span>
+                            </td>
+                            <td>
+                                <span>{{item.BIFlow}}</span>
+                            </td>
+                            <td>
+                                <span>{{item.NegativePressure}}</span>
+                            </td>
+                            <td>
+                                <span>{{item.VenusePressure}}</span>
+                            </td>
+                            <td>
+                                <span>{{item.Haparin}}</span>
+                            </td>
+                            <td>
+                                <span>{{item.Salin}}</span>
+                            </td>
+                            <td>
+                                <span>{{item.CapturedByUser.Title.Description}}&nbsp;{{item.CapturedByUser.FirstName}}&nbsp;{{item.CapturedByUser.LastName}}</span>
+                            </td>
+                            <td style="text-align: center;">
+                                <button class="ffa fa-line-chart" tabindex="-1" style="vertical-align: super;" ng-click="edit(item, $index)">
+                                    <img class="drhms-edit-button" src="assets/svg/edit.svg" aria-hidden="true">
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div id="" class="lisdrpctrl" ng-if="currentcontext.option == 'vitalchart'">
+        <div id='workorder'>
+            <div>
+                <table class="table table-hover table-responsive table-bordered">
+                    <thead class="bg-subhead">
+                        <tr>
+                            <th>
+                                <span>Date</span>
+                            </th>
+                            <th ng-repeat="header in currentcontext.headerData">
+                                <span>{{header.VitalName}}</span>
+                            </th>
+                            <th>
+                                <span translate="common.actions_col.lbl"></span>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="items in currentcontext.groupedData">
+                            <td ng-repeat="item in items">
+                                <span>{{item.ColVal}}</span>
+                            </td>
+                            <td style="text-align: center;">
+                                <button class="ffa fa-line-chart" tabindex="-1" class="drhms-edit-button" ng-click="edit(items, $index)">
+                                    <img src="assets/svg/edit.svg" aria-hidden="true">
+                                </button>
+                                <button class="ffa fa-line-chart" tabindex="-1" class="drhms-edit-button" ng-click="delete(items, $index)">
+                                    <i class="fa fa-bin-square-o" aria-hidden="true"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="fooder-bgs">
+    <div class="row">
+        <div class="pull-right">
+            <button type="button" class="draftbutton" tabindex="-1" ng-click="print()">
+                <i class="fa fa-print"></i>With Header</button>
+            <button type="button" class="draftbutton" tabindex="-1" ng-click="printwithoutHeader()">
+                <i class="fa fa-print"></i> With Out Header</button>
+        </div>
+    </div>
+</div>

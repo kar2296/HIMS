@@ -1,0 +1,75 @@
+<style>
+    .modal-content {
+        width: 50%;
+        margin: 30px auto;
+    }
+</style>
+<div class="modal-header custom-modal-header" ng-if="currentcontext.ismodal">
+    <div class="col-sm-10">
+        <h4 class="modal-title custom-modal-title" translate="Assign Users"></h4>
+    </div>
+    <div class="col-sm-2">
+        <div class="filters">
+            <img src="../../../../../assets/svg/close.svg" ng-click="cancelCallback()">
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <form id="item_form" name="item_form" class="form-horizontal" role="form" ng-submit="saveItem()">
+        <div class="col-sm-4 form-group">
+            <label class="col-sm-12 control-label" for="username"
+                translate="clinicalmaster.profileuser-form.username.lbl"></label>
+            <div class="col-sm-12">
+                <autosearch itemid="item.UserId" iteminfo="" rowdata="" config="vm.usercontrolconfig" itemchange=""
+                    required></autosearch>
+            </div>
+        </div>
+        <div class="col-sm-4 form-group">
+            <label class="col-sm-12 control-label" for="department"
+                translate="clinicalmaster.profileuser-form.department.lbl"></label>
+            <div class="col-sm-12">
+                <ui-select ng-model="item.DepartmentId" name="department">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 20 : 0}}
+                        <span ng-if="$select.selected.Text.length>20">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.Department | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+        <div class="col-sm-4 form-group">
+            <label class="col-sm-12 control-label" for="visittype"
+                translate="clinicalmaster.profileuser-form.visittype.lbl"></label>
+            <div class="col-sm-12">
+                <ui-select ng-model="item.VisitTypeId" name="visittype">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 20 : 0}}
+                        <span ng-if="$select.selected.Text.length>20">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.VisitType | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+        <div class="col-sm-4 form-group">
+            <label class="col-sm-12 control-label" for="isdefault" translate="Is Default"></label>
+            <div class="col-sm-12">
+                <input type="checkbox" name="isdefault" class="custom-checkbox" ng-model="item.IsDefault">
+            </div>
+        </div>
+    </form>
+</div>
+<div class="">
+    <div class="row">
+        <div class="pull-right">
+            <button type="submit" ng-click="saveItem()" class="draftbutton" translate="common.saveaction.lbl"></button>
+            <!-- <button id="btnCancelForm" type="button" class="draftbutton" ng-click="backToList()" translate="common.cancelaction.lbl"></button>						 -->
+        </div>
+    </div>
+</div>

@@ -1,0 +1,294 @@
+<link rel="stylesheet" href="app/css/drhms.css">
+<style>
+    .uib-datepicker-popup.dropdown-menu {
+        margin-top: -126px;
+    }
+
+    .custom-popup-wrapper {
+        margin-left: -200px;
+    }
+    patientsearch.logo .custom-popup-wrapper {
+    margin-left: -410px;
+}
+</style>
+<div class="row page-header">
+    <h4 class="col-sm-5 mt0" translate="Optical Entry Form"></h4>
+    <div class="col-sm-7">
+        <div class="filters">
+            <div class="search">
+                <patientsearch class="logo" ng-keyup="moveHeaderFocus('pid')" patientid="item.PatientId"
+                    ng-disabled="RdoPatientId" name="txtpatientsearch" patientinfo="selectedPatient"
+                    patientchange="getPatient()" tabindex="tabindexmap.patienttabindex"></patientsearch>
+            </div>
+            <button type="button" tabindex="-1" class="btn-add" ng-click="addNew()"
+                uib-tooltip="{{ 'Add New' | translate }}" tooltip-placement="bottom">
+                <i class="fa fa-plus" aria-hidden="true"></i>
+                <!-- <span translate="clinicalmaster.serviceitem-list.addnew.lbl " class="text-white"></span> -->
+            </button>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <patientbanner patientid="item.PatientId"></patientbanner>
+</div>
+<form id="item_form" name="item_form" class="form-horizontal" role="form">
+    <div class="col-sm-12 bodyscroll">
+        <div class="unhide-content">
+            <h4 style="width: 100%;display: inline-block;border-bottom: 1px solid;margin:0px;padding:10px 0;color:#164360 !important;"
+                translate="Order Details">
+            </h4>
+            <div class="test col-sm-12 pd0">
+                <div class="" style0="height: auto;" id="textboxctrlmaster">
+                    <div class="col-sm-12 popup_content">
+                        <div class="form col-sm-4">
+                            <div class="col-sm-4">
+                                <b>
+                                    <span translate="Order # :"></span>
+                                </b>
+                            </div>
+                            <div class="col-sm-8 testname">
+                                {{item.OrderNo}}</div>
+                        </div>
+                        <div class="form col-sm-4">
+                            <div class="col-sm-4">
+                                <b>
+                                    <span translate="Order Date :"></span>
+                                </b>
+                            </div>
+                            <div class="col-sm-8 testname">
+                                <displaydate date-val="item.OrderDate"></displaydate>
+                            </div>
+                        </div>
+                        <div class="form col-sm-4">
+                            <div class="col-sm-4">
+                                <b>
+                                    <span translate="Status"></span>
+                                </b>:
+                            </div>
+                            <div class="col-sm-8 testname">
+                                {{item.OrderStatus.DisplayName}}</div>
+                        </div>
+                    </div>
+                    <div class="col-sm-12 bdr-right10 mgt10">
+                        <div class="form-group col-sm-4">
+                            <label class="col-sm-12 control-label" translate="Address 1"></label>
+                            <div class="col-sm-12">
+                                <input type="text" id="Manualadd" class="form-control" name="addressline1" tabindex="19"
+                                    ng-model="item.AddressLine1" ng-disabled="item.candisable" placeholder="">
+                            </div>
+                        </div>
+                        <div class="form-group col-sm-4">
+                            <label class="col-sm-12 control-label" translate="Address 2"></label>
+                            <div class="col-sm-12">
+                                <input type="text" id="Manualadd" class="form-control" name="addressline2" tabindex="19"
+                                    ng-model="item.AddressLine2" ng-disabled="item.candisable" placeholder="">
+                            </div>
+                        </div>
+                        <div class="form-group col-sm-4">
+                            <label class="col-sm-12 control-label" translate="Doctor Name"></label>
+                            <div class="col-sm-12">
+                                <ui-select ng-model="item.DoctorId" name="type" ng-change="getList()" required>
+                                    <ui-select-match>
+                                        {{$select.selected.Text | limitTo : 20 : 0}}
+                                        <span ng-if="$select.selected.Text.length>20">...</span>
+                                    </ui-select-match>
+                                    <ui-select-choices
+                                        repeat="lookupitem.Id as lookupitem in lookup.Doctor | filter: { Text: $select.search }">
+                                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                    </ui-select-choices>
+                                </ui-select>
+                            </div>
+                        </div>
+                        <div class="form-group col-sm-4">
+                            <label class="col-sm-12 control-label" translate="Make Size"></label>
+                            <div class="col-sm-12">
+                                <input type="text" id="Manualadd" class="form-control" name="makesize" tabindex="19"
+                                    ng-model="item.OpticalSize" ng-disabled="item.candisable" placeholder="">
+                            </div>
+                        </div>
+                        <div class="form-group col-sm-4">
+                            <label class="col-sm-12 control-label" translate="Color of the Frame"></label>
+                            <div class="col-sm-12">
+                                <input type="text" id="Manualadd" class="form-control" name="framecolor" tabindex="19"
+                                    ng-model="item.FrameColor" ng-disabled="item.candisable" placeholder="">
+                            </div>
+                        </div>
+                        <div class="form-group col-sm-4">
+                            <label class="col-sm-12 control-label" translate="Type of Lens"></label>
+                            <div class="col-sm-12">
+                                <ui-select ng-model="item.LensTypeId" name="type" ng-change="getList()">
+                                    <ui-select-match>
+                                        {{$select.selected.Text | limitTo : 20 : 0}}
+                                        <span ng-if="$select.selected.Text.length>20">...</span>
+                                    </ui-select-match>
+                                    <ui-select-choices
+                                        repeat="lookupitem.Id as lookupitem in lookup.LensType | filter: { Text: $select.search }">
+                                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                    </ui-select-choices>
+                                </ui-select>
+                            </div>
+                        </div>
+                        <div class="form-group col-sm-4">
+                            <label class="col-sm-12 control-label" translate="Grinding Charge"></label>
+                            <div class="col-sm-12">
+                                <input type="text" id="Manualadd" class="form-control" name="grindingcharge"
+                                    tabindex="19" ng-model="item.GrindingCharges" ng-disabled="item.candisable"
+                                    placeholder="">
+                            </div>
+                        </div>
+                        <div class="form-group col-sm-4">
+                            <label class="col-sm-12 control-label" translate="Remarks"></label>
+                            <div class="col-sm-12">
+                                <input type="text" id="Manualadd" class="form-control" name="remark" tabindex="19"
+                                    ng-model="item.Remarks" ng-disabled="item.candisable" placeholder="">
+                            </div>
+                        </div>
+                        <div class="col-sm-12" style="margin-top: 20px;">
+                            <table class="lens-tab">
+                                <tr>
+                                    <td colspan="4">Right</td>
+                                    <td colspan="4">Left</td>
+                                </tr>
+                                <tr>
+                                    <td></td>
+                                    <td>SPH</td>
+                                    <td>CYL</td>
+                                    <td>AXIS</td>
+                                    <td></td>
+                                    <td>SPH</td>
+                                    <td>CYL</td>
+                                    <td>AXIS</td>
+                                </tr>
+                                <tr>
+                                    <td>DV</td>
+                                    <td>
+                                        <input type="text" ng-model="item.RightNVSPH" placeholder="">
+                                    </td>
+                                    <td>
+                                        <input type="text" ng-model="item.RightNVCYL" placeholder="">
+                                    </td>
+                                    <td>
+                                        <input type="text" ng-model="item.RightNVAXIS" placeholder="">
+                                    </td>
+                                    <td>Dv</td>
+                                    <td>
+                                        <input type="text" ng-model="item.LeftDVSPH" placeholder="">
+                                    </td>
+                                    <td>
+                                        <input type="text" ng-model="item.LeftDVCYL" placeholder="">
+                                    </td>
+                                    <td>
+                                        <input type="text" ng-model="item.LeftDVAXIS" placeholder="">
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>NV</td>
+                                    <td>
+                                        <input type="text" ng-model="item.RightDVSPH" placeholder="">
+                                    </td>
+                                    <td>
+                                        <input type="text" ng-model="item.RightDVCYL" placeholder="">
+                                    </td>
+                                    <td>
+                                        <input type="text" ng-model="item.RightDVAXIS" placeholder="">
+                                    </td>
+                                    <td>Nv</td>
+                                    <td>
+                                        <input type="text" ng-model="item.LeftNVSPH" placeholder="">
+                                    </td>
+                                    <td>
+                                        <input type="text" ng-model="item.LeftNVCYL" placeholder="">
+                                    </td>
+                                    <td>
+                                        <input type="text" ng-model="item.LeftNVAXIS" placeholder="">
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-12 bodyscroll" style="margin-top:10px;">
+            <div class="unhide-content">
+                <h4 style="width: 100%;display: inline-block;border-bottom: 1px solid;margin:0px;padding:10px 0;color:#164360 !important;"
+                    translate="Payment Details">
+                </h4>
+                <div class="test col-sm-12 pd0">
+                    <div class="opvisit" style0="height: auto;" id="textboxctrlmaster">
+                        <div class="form-group col-sm-4">
+                            <label class="col-sm-12 control-label" translate="Total Value"></label>
+                            <div class="col-sm-12">
+                                <input type="text" id="Manualadd" ng-change="calculatebalamt(item)" class="form-control"
+                                    name="totalvalue" tabindex="19" ng-model="item.TotalAmount"
+                                    ng-disabled="item.candisable" placeholder="">
+                            </div>
+                        </div>
+                        <div class="form-group col-sm-4">
+                            <label class="col-sm-12 control-label" translate="Delivery Date"></label>
+                            <div class="col-sm-12">
+                                <!-- <input type="text" id="Manualadd" class="form-control" name="deliverydate" tabindex="19" ng-model="item.DeliveryDate" ng-disabled="item.candisable"
+                                        placeholder=""> -->
+                                <div class="datepicker">
+                                    <input type="text" class="form-control" name="grndate" ng-change="getList()"
+                                        datepicker-options="datePickerOptions"
+                                        show-button-bar="{{datePickerOptions.showButtonBar}}"
+                                        uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                                        placeholder="{{datePickerOptions.placeholder}}"
+                                        ng-click="grndatePopup = { opened: true }" is-open="grndatePopup.opened"
+                                        ng-model="item.DeliveryDate">
+                                    <i class="fa fa-calendar" aria-hidden="true"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group col-sm-4">
+                            <label class="col-sm-12 control-label" translate="Advance"></label>
+                            <div class="col-sm-12">
+                                <input type="text" id="Manualadd" class="form-control" name="advance" tabindex="19"
+                                    ng-change="calculatebalamt(item)" ng-model="item.AdvanceAmount"
+                                    ng-disabled="item.candisable" placeholder="">
+                            </div>
+                        </div>
+                        <div class="form-group col-sm-4">
+                            <label class="col-sm-12 control-label" translate="Received By"></label>
+                            <div class="col-sm-12">
+                                <input type="text" id="Manualadd" class="form-control" name="receivedby" tabindex="19"
+                                    ng-model="item.ReceivedBy" ng-disabled="item.candisable" placeholder="">
+                            </div>
+                        </div>
+                        <div class="form-group col-sm-4">
+                            <label class="col-sm-12 control-label" translate="Balance"></label>
+                            <div class="col-sm-12">
+                                <input type="text" id="Manualadd" class="form-control" name="Remarks" tabindex="19"
+                                    ng-model="item.BalanceAmount" ng-disabled="item.candisable" placeholder="">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="fooder-bgs">
+        <div class="pull-left">
+            <button type="button" class="btn pyr-color10 btn-sm" ng-click="backToList()" tabindex="-1">
+                <i class="fa fa-angle-left " aria-hidden="true "></i>
+                <span class="btn-fontsize "> &nbsp; Back</span>
+            </button>
+            <button type="button" class="draftbutton" ng-click="cancel()" tabindex="-1">
+                <span class="btn-fontsize"> &nbsp; Cancel</span>
+            </button>
+            <button type="button" class="draftbutton" ng-click="Receipt()" tabindex="-1">
+                <span class="btn-fontsize "> &nbsp; Receipt</span>
+            </button>
+        </div>
+        <div class="pull-right">
+            <button type="button" id="savebtnsubmit" class="draftbutton" tabindex="-1" translate="common.saveaction.lbl"
+                hotkey="{'alt+t':SaveandDraft}" ng-click="SaveandDraft()"></button>
+            <button type="button" ng-keyup="moveHeaderFocus('approvebtnsubmit')" class="draftbutton"
+                translate="common.saveapprove-action.lbl" hotkey="{'alt+a':SaveandApprove}"
+                ng-click="SaveandApprove()"></button>
+        </div>
+    </div>
+</form>

@@ -1,0 +1,95 @@
+<div class="row">
+    <div class="col-sm-8">
+        <h4 class="page-header mt0" translate="patientemr.patientdietorder-list.pagetitle.lbl"></h4>
+    </div>
+    <div class="col-sm-4">
+        <div class="pull-right">
+            <div class="col-sm-8">
+                <div class="search">
+                    <input type="text" id="pid" class="form-control" name="filter_patient" on-enter="getList()"
+                        ng-model="currentfilter.OrderNumber" translate translate-attr-placeholder="search Order#">
+                </div>
+            </div>
+            <button class="btn-add" ng-hide="IsBillLocked==true" ng-click="addNewOrder()"
+                uib-tooltip="{{ 'patientemr.patientdietorder-list.pagetitle.lbl' | translate }}"
+                tooltip-placement="bottom">
+                <i class="fa fa-plus" aria-hidden="true"></i>
+            </button>
+            <span class="drhms-billing-btn drhms-outstandingbill-btn" ng-click="doctor_dashboard()"
+                uib-tooltip="Doctor Dashboard" tooltip-placement="bottom">
+                <i class="fas fa-th-large" aria-hidden="true"></i>
+            </span>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <ippatientbanner patientid="currentcontext.pid" encounterid="currentcontext.eid"></ippatientbanner>
+</div>
+<div class="row">
+    <div class="col-sm-3">
+        <label class="col-sm-3" translate="patientemr.patientdietorder-list.filter_priority.lbl"></label>
+        <div class="col-sm-9">
+            <ui-select ng-model="currentfilter.orderpriorityid" ng-change="getList()" class="filter-combo">
+                <ui-select-match>
+                    {{$select.selected.Text | limitTo : 20 : 0}}
+                    <span ng-if="$select.selected.Text.length>20">...</span>
+                </ui-select-match>
+                <ui-select-choices
+                    repeat="lookupitem.Id as lookupitem in lookup.OrderPriority | filter: { Text: $select.search }">
+                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                </ui-select-choices>
+            </ui-select>
+        </div>
+    </div>
+    <div class="col-sm-3">
+        <label class="col-sm-3" translate="patientemr.patientdietorder-list.filter_status.lbl"></label>
+        <div class="col-sm-9">
+            <ui-select ng-model="currentfilter.orderstatusid" ng-change="getList()" class="filter-combo">
+                <ui-select-match>
+                    {{$select.selected.Text | limitTo : 20 : 0}}
+                    <span ng-if="$select.selected.Text.length>20">...</span>
+                </ui-select-match>
+                <ui-select-choices
+                    repeat="lookupitem.Id as lookupitem in lookup.OrderStatus | filter: { Text: $select.search }">
+                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                </ui-select-choices>
+            </ui-select>
+        </div>
+    </div>
+    <div class="col-sm-3">
+        <label class="col-sm-3" translate="kitchenworklist.fromdate_filter.lbl"></label>
+        <div class="col-sm-9">
+            <input type="text" class="form-control" name="fromdate" ng-change="getList()"
+                datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}"
+                uib-datepicker-popup="{{datePickerOptions.dateFormat}}" placeholder="{{datePickerOptions.placeholder}}"
+                ng-click="fromdatePopup = { opened: true }" is-open="fromdatePopup.opened"
+                ng-model="currentfilter.orderdate">
+        </div>
+    </div>
+    <div class="col-sm-3">
+        <label class="col-sm-3" translate="patientemr.patientdietorder-form.frequency.lbl"></label>
+        <div class="col-sm-9">
+            <ui-select ng-model="currentfilter.DietFrequencyId" ng-change="getList()">
+                <ui-select-match>
+                    {{$select.selected.Text | limitTo : 20 : 0}}
+                    <span ng-if="$select.selected.Text.length>20">...</span>
+                </ui-select-match>
+                <ui-select-choices
+                    repeat="lookupitem.Id as lookupitem in lookup.DietFrequency | filter: { Text: $select.search }">
+                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                </ui-select-choices>
+            </ui-select>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <custom-table config="vm.gridConfig"></custom-table>
+</div>
+<div class="fooder-bgs">
+    <div class="row">
+        <ul uib-pagination total-items="vm.gridConfig.pagerObj.totalItems"
+            items-per-page="vm.gridConfig.pagerObj.pageSize" start-index="vm.gridConfig.pagerObj.startIndex"
+            ng-model="vm.gridConfig.pagerObj.currentPage" ng-change="getList()"></ul>
+    </div>
+</div>

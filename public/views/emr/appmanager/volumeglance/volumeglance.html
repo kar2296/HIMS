@@ -1,0 +1,194 @@
+<style>
+    input.form-control {
+        background: #F8F8F8 0% 0% no-repeat padding-box;
+        border: 2px solid #666666;
+        border-radius: 15px;
+    }
+
+    span.btn.btn-default.form-control.ui-select-toggle {
+        height: 32px;
+        background: #F8F8F8 0% 0% no-repeat padding-box !important;
+        border: 2px solid #666666;
+        border-radius: 15px;
+    }
+
+    h2.page-title {
+        color: #003366;
+        margin-top: 10px;
+    }
+
+    .glance {
+        display: flex;
+        justify-content: space-between;
+    }
+
+    table.volume-glance {
+        width: 100%;
+        display: block;
+        padding: 8px;
+    }
+
+    th {
+        text-align: center;
+        padding: 10px;
+    }
+
+    .glance-balance {
+        background: #008A1D;
+        color: #fff;
+        border: 2px solid #666666 !important;
+    }
+
+    .count {
+        color: #008A1D;
+        font-weight: bold !important;
+        text-align: right;
+    }
+
+    .glance-title {
+        color: #000;
+        font-weight: bold !important;
+    }
+
+    .secont-count {
+        color: #003366;
+        text-align: right;
+        font-weight: bold !important;
+    }
+
+    .content-wrapper.ng-scope.ng-fadeInUp {
+        margin-bottom: 100px !important;
+    }
+
+    .glance-button {
+        text-align: right;
+        margin: 5px 30px;
+    }
+
+    button.print {
+        background: #008A1D;
+        border: 0;
+        color: #fff;
+        border-radius: 6px;
+        padding: 0 10px;
+        width: 80px;
+    }
+
+    button.exit {
+        background: #FF3C36;
+        border: 0;
+        color: #fff;
+        border-radius: 6px;
+        padding: 0 10px;
+        width: 80px;
+    }
+
+    .form-group i.fa.fa-calendar {
+        position: absolute;
+        right: 20px;
+        top: 8px;
+    }
+</style>
+
+<div class="col-sm-12 page-header">
+    <div class="col-sm-6">
+        <h2 class="page-title">Volume at a Glance</h2>
+    </div>
+    <div class="col-sm-6">
+        <div class="form-group col-sm-6">
+            <input type="text" class="form-control" name="from" datepicker-options="datePickerOptions"
+                show-button-bar="{{datePickerOptions.showButtonBar}}"
+                uib-datepicker-popup="{{datePickerOptions.dateFormat}}" ng-change="loadData()"
+                placeholder="{{datePickerOptions.placeholder}}" ng-click="fromdatePopup = { opened: true }"
+                is-open="fromdatePopup.opened" ng-model="currentcontext.CurrentDate">
+            <i class="fa fa-calendar" aria-hidden="true"></i>
+        </div>
+        <div class="form-group col-sm-6">
+            <ui-select ng-model="currentcontext.FacilityId" class="filer-combo" ng-change="loadData()">
+                <ui-select-match>
+                    {{$select.selected.Text | limitTo: 25 : 0}}
+                    <span ng-if="$select.selected.Text.length>25">...</span>
+                </ui-select-match>
+                <ui-select-choices
+                    repeat="lookupitem.Id as lookupitem in lookup.Facility | filter: {Text: $select.search }">
+                    <div ng-bind-html="lookupitem.Text | highlight: $select.search">
+                </ui-select-choices>
+            </ui-select>
+        </div>
+    </div>
+</div>
+
+<div class="col-12 glance">
+    <div>
+        <table class="volume-glance">
+            <tr>
+                <th class="glance-balance">PROCEDURES</th>
+                <th class="glance-balance" colspan="5">OUT PATIENTS</th>
+            </tr>
+            <tr>
+                <td></td>
+                <td class="glance-balance">For The Date <br> 07-Jan-2007</td>
+                <td class="glance-balance">Month to Date</td>
+                <td class="glance-balance">Current Year to Date (FY)</td>
+                <td class="glance-balance">Previous Year Same Period</td>
+                <td class="glance-balance">Growth % in CY</td>
+            </tr>
+
+            <tr ng-repeat="item in OPCat">
+                <td class="glance-title">{{item.MisSubGroup}}</td>
+                <td class="count">{{item.RevenueDate }} / {{ActualAmount}}</td>
+                <td class="count">{{ item.MonthToDay }}</td>
+                <td class="count">{{ item.CurrentYearRevenue }}</td>
+                <td class="count">{{ item.PreviousYearRevenue }}</td>
+                <td class="count">{{ item.GrowthInYear }}</td>
+            </tr>
+            <!-- <tr>
+                <td class="glance-title">Microbiology</td>
+                <td class="count">6</td>
+                <td class="count">6</td>
+                <td class="count">6</td>
+                <td class="count">6</td>
+                <td class="count">6</td>
+            </tr> -->
+
+        </table>
+    </div>
+    <div>
+        <table class="volume-glance">
+            <tr>
+                <th class="glance-balance">PROCEDURES</th>
+                <th class="glance-balance" colspan="5">IN PATIENTS</th>
+            </tr>
+            <tr>
+                <td></td>
+                <td class="glance-balance">For The Date <br> 07-Jan-2007</td>
+                <td class="glance-balance">Month to Date</td>
+                <td class="glance-balance">Current Year to Date (FY)</td>
+                <td class="glance-balance">Previous Year Same Period</td>
+                <td class="glance-balance">Growth % in CY</td>
+            </tr>
+
+            <tr ng-repeat="item in IPCat">
+                <td class="glance-title">{{item.MisSubGroup}}</td>
+                <td class="count">{{item.RevenueDate }} / {{ActualAmount}}</td>
+                <td class="count">{{ item.MonthToDay }}</td>
+                <td class="count">{{ item.CurrentYearRevenue }}</td>
+                <td class="count">{{ item.PreviousYearRevenue }}</td>
+                <td class="count">{{ item.GrowthInYear }}</td>
+            </tr>
+            <!-- <tr>
+                <td class="glance-title">Microbiology</td>
+                <td class="count">6</td>
+                <td class="count">6</td>
+                <td class="count">6</td>
+                <td class="count">6</td>
+                <td class="count">6</td>
+            </tr> -->
+
+        </table>
+    </div>
+</div>
+<div class="glance-button">
+    <button class="print">Print</button>
+    <button class="exit">Exit</button>
+</div>

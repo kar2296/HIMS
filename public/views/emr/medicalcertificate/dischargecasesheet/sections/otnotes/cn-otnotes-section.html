@@ -1,0 +1,154 @@
+<style>
+    .form-group.col-sm-12 {
+        margin-bottom: 19px;
+    }
+
+    /* table.table.table-bordered.table-condensed.dropdown-menu {
+        width: 51% !important;
+        overflow: scroll;
+    } */
+</style>
+<div class="row">
+    <div class="col-sm-12">
+        <form id="item_form" name="item_form" class="form-horizontal" role="form">
+            <div class="panel-body form-panel outer_border">
+                <div class="panel panel-default">
+                    <div class="col-sm-12 popup_content">
+                        <div class="form-group col-sm-12">
+                            <div class="col-sm-4">
+                                <span translate="SurgeryDate"></span>
+                            </div>
+                            <div class="col-sm-4">
+                                <input type="text" class="form-control" name="reviewdate" ng-disabled="IsDisabled"
+                                    ng-date-object required datetime-picker="{{datePickerOptions.dateTimeFormat}}"
+                                    placeholder="{{datePickerOptions.placeholder}}"
+                                    ng-click="reviewdatePopup = { opened: true }" is-open="reviewdatePopup.opened"
+                                    ng-model="item.SurgeryStartedate" tabindex="-1">
+                            </div>
+                        </div>
+                        <div class="form-group col-sm-12">
+                            <div class="col-sm-4">
+                                <span translate="Procedure Name"></span>
+                            </div>
+                            <div class="col-sm-4">
+                                <autosearch itemid="item.ProcedureId" iteminfo="item.SelectedItem" rowdata="item"
+                                    config="vm.procedurecontrolconfig" itemchange="OnProcedureSelected($index,item)">
+                                </autosearch>
+                            </div>
+                        </div>
+                        <div class="form-group col-sm-12">
+                            <div class="col-sm-4">
+                                <span translate="Surgeon Name"></span>
+                            </div>
+                            <div class="col-sm-4">
+                                <autosearch itemid="item.ChiefSurgeonId" iteminfo="item.ChiefSurgeon" rowdata="item"
+                                    name="'ChiefSurgeon'" fieldname="'chiefsurgeon'" config="vm.doctorcontrolconfig">
+                                </autosearch>
+                            </div>
+                        </div>
+                        <div class="form-group col-sm-12">
+                            <div class="col-sm-4">
+                                <span translate="Asst.Surgeon"></span>
+                            </div>
+                            <div class="col-sm-4">
+                                <autosearch controlid="'asstsurgeonid'" itemid="item.AssistantSurgeonId" iteminfo=""
+                                    rowdata="" name="'AssistantSurgeon'" fieldname="'surgeon'"
+                                    config="vm.doctorcontrolconfig"></autosearch>
+                            </div>
+                            <div class="col-sm-1">
+                                <button type="button" class="btn refresh btn-xs" tabindex="-1"
+                                    ng-click="clearasstsurgeon()" uib-tooltip="Clear" tooltip-placement="bottom">
+                                    <i class="fa fa-refresh" aria-hidden="true"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="form-group col-sm-12">
+                            <div class="col-sm-4">
+                                <span translate="Anaesthetist Name"></span>
+                            </div>
+                            <div class="col-sm-4">
+                                <autosearch controlid="'anaesthisitid'" itemid="item.AnaesthesistId" rowdata="item"
+                                    name="Anaesthesist" fieldname="'anesthesist'" config="vm.doctorcontrolconfig">
+                                </autosearch>
+                            </div>
+                            <div class="col-sm-1">
+                                <button type="button" class="btn refresh btn-xs" tabindex="-1"
+                                    ng-click="clearanaesthesist()" uib-tooltip="Clear" tooltip-placement="bottom">
+                                    <i class="fa fa-refresh" aria-hidden="true"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="form-group col-sm-12">
+                            <div class="col-sm-4">
+                                <span translate="Surgery Notes"></span>
+                            </div>
+                            <div class="col-sm-4">
+                                <!-- <span ng-bind-html="item.OtNotes[0].DataTemplate | limitTo : 1000"> </span> -->
+                                <textarea name="w3review" rows="4" cols="50"
+                                    ng-bind-html="item.OtNotes[0].DataTemplate | limitTo : 1000"></textarea>
+                                <a ng-click="openSurgeryNotes()">
+                                    <strong>Edit</strong>
+                                </a>
+                                <textarea name="w3review" rows="4" cols="50"
+                                    ng-bind-html="item.OtNotes[0].DataTemplate"></textarea>
+                                <!-- <p ng-bind-html="item.OtNotes[0].DataTemplate"></p> -->
+                                <!-- <textarea rows="3" name="comments" ng-model="item.Comments" maxlength="4000" style="width:100%;"></textarea> -->
+                            </div>
+                            <div class="col-sm-1">
+                                <button type="button" class="btn refresh btn-xs" tabindex="-1"
+                                    ng-click="clearsurgerynotes()" uib-tooltip="Clear" tooltip-placement="bottom">
+                                    <i class="fa fa-refresh" aria-hidden="true"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="form-group col-sm-12">
+                            <div class="col-sm-4">
+                                <span translate="Anaesthetist Notes"></span>
+                            </div>
+                            <div class="col-sm-4">
+                                <!-- <span ng-bind-html="item.OtNotes[1].DataTemplate | limitTo : 1000"> </span> -->
+                                <textarea name="w3review" rows="4" cols="50"
+                                    ng-bind-html="item.OtNotes[1].DataTemplate | limitTo : 1000"></textarea>
+                                <a ng-click="openAnaesthesistNotes()">
+                                    <strong>Edit</strong>
+                                </a>
+                                <textarea name="w3review" rows="4" cols="50"
+                                    ng-bind-html="item.OtNotes[1].DataTemplate"></textarea>
+                                <!-- <p ng-bind-html="item.OtNotes[1].DataTemplate"></p> -->
+                                <!-- <textarea rows="3" name="comments" ng-model="item.Comments" maxlength="4000" style="width:100%;"></textarea> -->
+                            </div>
+                            <div class="col-sm-1">
+                                <button type="button" class="btn refresh btn-xs" tabindex="-1"
+                                    ng-click="clearanaesthesistnotes()" uib-tooltip="Clear" tooltip-placement="bottom">
+                                    <i class="fa fa-refresh" aria-hidden="true"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="fooder-bgs">
+                <div class="row">
+                    <div class="pull-left">
+                        <button type="button" class="btn pyr-color10 btn-sm" tabindex="-1" ng-click="backToList()">
+                            <i class="fa fa-angle-left" aria-hidden="true"></i>&nbsp;&nbsp;
+                            <span class="btn-fontsize" translate="common.backaction.lbl"></span>
+                        </button>
+                        <!-- <button id="btn" type="button" class="btn bt-color3 btn-sm" ng-click="labresult()" uib-tooltip="{{ 'medicalcertificate.dischargesummary-form.labresult.lbl' | translate }}"
+                        tooltip-placement="top">
+                        <i class="fa fa-flask"></i>
+                    </button>
+                    <button id="btn" type="button" class="btn bt-color1 btn-sm" ng-click="radiologyresult()" uib-tooltip="{{ 'medicalcertificate.dischargesummary-form.radiology.lbl' | translate }}"
+                        tooltip-placement="top">
+                        <i class="fa fa-file-image-o"></i>
+                    </button> -->
+                    </div>
+                    <div class="pull-right">
+                        <button id="btnSave" type="button" class="draftbutton"
+                            translate="common.saveaction.lbl" ng-click="saveItem()" ng-disabled="Disabled"></button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

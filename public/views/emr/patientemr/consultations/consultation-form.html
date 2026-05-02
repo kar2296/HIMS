@@ -1,0 +1,106 @@
+<style>
+    .modal-dialog.modal-full {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .modal-content {
+        width: 500px;
+    }
+</style>
+<div class="modal-header custom-modal-header">
+    <div class="col-sm-10">
+        <h4 class="modal-title custom-modal-title" translate="patientemr.consultation-form.visitinformation.lbl"></h4>
+    </div>
+    <div class="col-sm-2">
+        <div class="filters">
+            <img src="../../../../../assets/svg/close.svg" ng-click="backToList()">
+        </div>
+    </div>
+</div>
+<div class="row">
+    <form id="item_form" name="item_form" class="form-horizontal" role="form">
+        <div class="form-group col-sm-12">
+            <label class="col-sm-12 control-label" for="visittype"
+                translate="patientemr.consultation-form.visittype.lbl"></label>
+            <div class="col-sm-12">
+                <ui-select ng-model="item.VisitTypeId" name="visittype">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 50 : 0}}
+                        <span ng-if="$select.selected.Text.length>50">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.VisitType | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+        <div class="form-group col-sm-12">
+            <label class="col-sm-12 control-label" for="note"
+                translate="patientemr.consultation-form.consultationnote.lbl"></label>
+            <div class="col-sm-12">
+                <ui-select ng-model="item.ProfileId" name="note" ng-change="profileChanged()" required>
+                    <ui-select-match>
+                        {{$select.selected.Name | limitTo : 50 : 0}}
+                        <span ng-if="$select.selected.Name.length>50">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.UserSelectedProfile | filter: { Name: $select.search }">
+                        <div ng-bind-html="lookupitem.Name | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+    </form>
+    <!-- <div class="form-group col-sm-6">
+                            <label class="col-sm-12 control-label" for="reason"
+                                translate="patientemr.consultation-form.reasonforvisit.lbl"></label>
+                            <div class="col-sm-12">
+                                <input type="text" class="form-control" name="reason"
+                                    ng-model="currentcontext.ReasonForVisit" placeholder="" disabled>
+                            </div>
+                        </div>
+
+                        <div class="form-group col-sm-6">
+                            <label class="col-sm-12 control-label" for="referredby"
+                                translate="patientemr.consultation-form.referredby.lbl"></label>
+                            <div class="col-sm-12">
+                                <input type="text" class="form-control" name="refferedby"
+                                    ng-model="currentcontext.ReferredBy" placeholder="" disabled>
+                            </div>
+                        </div>
+                        <div class="form-group col-sm-6">
+                            <label class="col-sm-12 control-label" for="doctorname"
+                                translate="patientemr.consultation-form.doctorname.lbl"></label>
+                            <div class="col-sm-12">
+                                <input type="text" class="form-control" name="doctorname"
+                                    ng-model="currentcontext.encounter.DoctorName" placeholder="" disabled>
+                            </div>
+                        </div>
+
+                        <div class="form-group col-sm-6">
+                            <label class="col-sm-12 control-label" for="lastconsultationdate"
+                                translate="patientemr.consultation-form.lastconsultationdate.lbl"></label>
+                            <div class="col-sm-12">
+                                <input type="text" class="form-control" name="lastconsultationdate"
+                                    ng-model="currentcontext.LastConsultationDate" placeholder="">
+                            </div>
+                        </div>
+                        <div class="form-group col-sm-6">
+                            <label class="col-sm-12 control-label" for="attendedby"
+                                translate="patientemr.consultation-form.attendedby.lbl"></label>
+                            <div class="col-sm-12">
+                                <input type="text" class="form-control" name="attendedby"
+                                    ng-model="currentcontext.encounter.AttendedBy" placeholder="">
+                            </div>
+                        </div> -->
+</div>
+<div class="">
+    <div class="row">
+        <div class="pull-right">
+            <button type="button" ng-if="canUpdatePatientEMR()" class="draftbutton" translate="common.saveaction.lbl"
+                ng-click="saveItem()"></button>
+        </div>
+    </div>
+</div>

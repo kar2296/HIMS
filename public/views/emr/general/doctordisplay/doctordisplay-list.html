@@ -1,0 +1,89 @@
+<style>
+    .pager-div {
+        float: right;
+        right: 0;
+        box-sizing: border-box;
+        position: fixed;
+        box-sizing: border-box;
+    }
+    .formRoot { overflow: inherit;}
+    .modal-content .panel-body { overflow: inherit;}
+</style>
+
+<div class="row page-header">
+    <h4 class="col-sm-6 mt0" translate="appointment.doctordisplay-list.pagetitle.lbl"></h4>
+    <div class="col-sm-6">
+        <button class="btn bt-color3 btn-xs pull-right btn-filter" ng-click="" uib-tooltip="{{ 'clinicalmaster.serviceitem-list.filter-tooltip.lbl' | translate}}"
+         tooltip-placement="bottom"><i class="fa fa-filter" aria-hidden="true"></i>&nbsp;&nbsp;<span translate="clinicalmaster.serviceitem-list.filter.lbl"></span></button>
+        <button class="btn bt-color2 btn-xs pull-right btn-filter" ng-click="addNew()" uib-tooltip="{{ 'appointment.doctordisplay-list.addnew-tooltip.lbl' | translate
+}}" tooltip-placement="bottom"><i class="fa fa-plus" aria-hidden="true"></i><span translate="clinicalmaster.serviceitem-list.addnew.lbl"></span></button>
+    </div>
+</div>
+<div class="row filter-area">
+    <div class="col-sm-12">
+        <div class="col-sm-3">
+            <label class="col-sm-6 col-md-5 control-label text-right filter-lbl" translate="appointment.doctordisplay-list.departmentId.lbl"></label>
+            <div class="input-group col-sm-6 col-md-6">
+                <ui-select ng-model="currentfilter.DepartmentId" ng-change="getList()" class="filter-combo">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 8 : 0}}
+                        <span ng-if="$select.selected.Text.length>8">...</span>
+                    </ui-select-match>
+                    <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.Speciality | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+        <div class="col-sm-3">
+            <label class="col-sm-6 col-md-5 control-label text-right filter-lbl" translate="appointment.doctordisplay-list.locationId.lbl"></label>
+            <div class="input-group col-sm-6 col-md-6">
+                <ui-select ng-model="currentfilter.LocationId" ng-change="getList()" class="filter-combo">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 8 : 0}}
+                        <span ng-if="$select.selected.Text.length>8">...</span>
+                    </ui-select-match>
+                    <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.LOCATION | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+        <div class="col-sm-3">
+            <label class="col-sm-6 col-md-6 control-label text-right filter-lbl" translate="appointment.doctordisplay-list.Doctorname.lbl"></label>
+            <div class="input-group col-sm-6 col-md-6">
+                <ui-select ng-model="currentfilter.DoctorName" ng-change="getList()" class="filter-combo">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 8 : 0}}
+                        <span ng-if="$select.selected.Text.length>8">...</span>
+                    </ui-select-match>
+                    <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.Doctor | filter: { Text: $select.search }">
+                        <span ng-bind-html="lookupitem.Title.Description | highlight: $select.search"></span>
+                        <span ng-bind-html="lookupitem.Text | highlight: $select.search"></span>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+        <div class="col-sm-3">
+            <label class="col-sm-6 control-label filter-lbl" translate="appointment.doctordisplay-list.displaystatusId.lbl"></label>
+            <div class="col-sm-6">
+                <ui-select ng-model="currentfilter.DisplayStatusId" ng-change="getList()" class="filter-combo">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 8 : 0}}
+                        <span ng-if="$select.selected.Text.length>8">...</span>
+                    </ui-select-match>
+                    <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.DisplayStatus | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+     </div>
+</div>
+<div class="container-fluid single-filter">
+    <div ui-grid="vm.gridConfig" class="table-uigrid"></div>
+    <div class="site-footer">
+        <ul uib-pagination total-items="vm.gridConfig.pagerObj.totalItems" items-per-page="vm.gridConfig.pagerObj.pageSize" start-index="vm.gridConfig.pagerObj.startIndex"
+            ng-model="vm.gridConfig.pagerObj.currentPage" ng-change="getList()"></ul>
+    </div>
+</div>

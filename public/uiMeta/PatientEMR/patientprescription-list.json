@@ -1,0 +1,48 @@
+{
+    "Title" : "Prescription",
+    "ControllerName" : "patientPrescriptionList",
+    "InitAction" : {
+        "url" : "General/Options/getoptions",
+        "behaviour" : "default",
+        "optionkeys" : [ {"name" : "Doctor"}, {"name" : "Department"}, {"name" : "Pharmacy"} ]
+    },
+    "FilterConfig" :[ {
+        "localizationpath" : "patientemr.patientprescription-list",
+        "controls" :[
+               { "combo" : true, "label" : "Doctor", "name" : "filter_doctor", "model" : "currentfilter.DoctorId", "placeholder" : "", "collection" : "lookup.Doctor", "valuefield" : "Id", "displayfield" : "Text" },
+               { "combo" : true, "label" : "Department", "name" : "filter_department", "model" : "currentfilter.DepartmentId", "placeholder" : "", "collection" : "lookup.Department", "valuefield" : "Id", "displayfield" : "Text" },
+               { "combo" : true, "label" : "Pharmacy", "name" : "filter_pharmacy", "model" : "currentfilter.PharmacyId", "placeholder" : "", "collection" : "lookup.Pharmacy", "valuefield" : "Id", "displayfield" : "Text" }
+            ]
+        }
+    ],
+    "FetchAction" : {
+        "url" : "patientemr/prescription/GetPrescriptions",
+        "behaviour" : "default"
+    },
+    "EditAction" : {
+                "url": "",
+                "state": "patientemr.prescription",
+                "params": ["id:row.entity.Id", "pid: $scope.currentcontext.pid"]
+                },
+    "AddAction" : {
+        "url": "",
+        "state": "patientemr.prescription",
+        "params": ["id:0", "pid: $scope.currentcontext.pid"]
+        },
+    "DeleteAction" : {
+        "url": "patientemr/prescription/DeletePrescription",
+        "behaviour" : "default"
+    },
+    "Localization" : { "localizationmodule" : "patientemr", "screenkey" : "patientprescription-list" },
+    "GridConfig" :[ {
+        "localizationpath" : "patientemr.patientprescription-list",
+        "columnDefs": [ { "field": "User.FirstName", "displayName": "Doctor", "name" : "doctor" } ,
+                        { "field": "PrescriptionDate", "displayName": "Prescription Date", "name" : "prescriptiondate" } , 
+                        { "field": "Department.DepartmentName", "displayName": "Department", "name" : "department" },
+                        { "field": "PrescriptionPriority.Description", "displayName": "Prescription Priority", "name" : "prescriptionpriority" },
+                        { "field": "Pharmacy.Description", "displayName": "Pharmacy", "name" : "pharmacy" },
+                        { "field": "StatusTODO", "displayName": "Status", "name" : "status" }
+                    ]
+        }
+    ]
+}

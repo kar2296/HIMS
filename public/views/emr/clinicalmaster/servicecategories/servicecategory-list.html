@@ -1,0 +1,134 @@
+<div class="row page-header">
+    <div class="col-sm-3">
+        <h4 class="mt0" translate="clinicalmaster.servicecategory-list.pagetitle.lbl"></h4>
+    </div>
+    <div class="col-sm-3">
+        <label class="col-sm-6 col-md-4 col-lg-4 control-label text-right filter-lbl" translate="Facility"></label>
+        <div class="col-sm-8">
+            <ui-select ng-model="currentfilter.FacilityId" ng-change="getList()" class="filter-combo">
+                <ui-select-match>
+                    {{$select.selected.Text | limitTo : 20 : 0}}
+                    <span ng-if="$select.selected.Text.length>20">...</span>
+                </ui-select-match>
+                <ui-select-choices
+                    repeat="lookupitem.Id as lookupitem in lookup.Facility | filter: { Text: $select.search }">
+                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                </ui-select-choices>
+            </ui-select>
+        </div>
+    </div>
+    <div class="col-sm-6">
+        <div class="filters">
+            <div class="search">
+                <input type="text" id="pid" class="form-control" on-enter="getList()" ng-model="currentfilter.Name"
+                    translate translate-attr-placeholder="Code/Name">
+                <div class="drhms-search-icon"><i class="fas fa-search" aria-hidden="true"></i></div>
+            </div>
+            <button type="button" tabindex="-1" class="btn-add" ng-click="addNew()"
+                uib-tooltip="{{ 'clinicalmaster.servicecategory-list.pagetitle.lbl' | translate}}"
+                tooltip-placement="bottom">
+                <i class="fa fa-plus" aria-hidden="true"></i>
+                <!-- <span translate="clinicalmaster.serviceitem-list.addnew.lbl " class="text-white"></span> -->
+            </button>
+        </div>
+    </div>
+</div>
+</div>
+<div class="row">
+    <table class="table table-hover table-responsive table-bordered">
+        <thead class="bg-subhead">
+            <tr>
+                <th class="col-sm-1">
+                    <span translate="clinicalmaster.servicecategory-list.code.lbl"></span>
+                    <span class="mandatory-asterix">*</span>
+                </th>
+                <th class="col-sm-2">
+                    <span translate="clinicalmaster.servicecategory-list.categoryname.lbl"></span>
+                    <span class="mandatory-asterix">*</span>
+                </th>
+                <!-- <th class="col-sm-2 ><span translate="clinicalmaster.servicecategory-list.groupname.lbl"></span><span class="mandatory-asterix">*</span></th> -->
+                <th class="col-sm-2 ">
+                    <span translate="clinicalmaster.servicecategory-list.displayorder.lbl"></span>
+                </th>
+                <th class="col-sm-1">
+                    <span translate="clinicalmaster.servicecategory-list.printorder.lbl"></span>
+                </th>
+                <th class="col-sm-1">
+                    <span translate="clinicalmaster.servicecategory-list.status.lbl"></span>
+                </th>
+                <th class="col-sm-1">
+                    <span translate="Is AllFacility"></span>
+                </th>
+                <th class="col-sm-1">
+                    <span translate="Doctor Share"></span>
+                </th>
+                <th class="col-sm-1">
+                    <span translate="common.actions_col.lbl"></span>
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr ng-repeat="item in vm.items | filter:{Status:1}">
+                <!-- <td>
+                    <ui-select ng-model="item.FacilityId" class="ui-select-grid">
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 20 : 0}}
+                            <span ng-if="$select.selected.Text.length>20">...</span>
+                        </ui-select-match>
+                        <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.Facility | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </td> -->
+                <td>
+                    <input type="text" class="form-control" ng-model="item.ServiceCategoryCode" placeholder="">
+                </td>
+                <td>
+                    <input type="text" class="form-control" ng-model="item.ServiceCategoryName" placeholder="">
+                </td>
+                <!-- <td>
+                    <ui-select ng-model="item.ServiceGroupId" class="ui-select-grid">
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 20 : 0}}
+                            <span ng-if="$select.selected.Text.length>20">...</span>
+                        </ui-select-match>
+                        <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.ServiceGroup | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </td> -->
+                <td>
+                    <input type="text" class="form-control" ng-model="item.DisplayOrder" placeholder="">
+                </td>
+                <td>
+                    <input type="text" class="form-control" ng-model="item.PrintOrder" placeholder="">
+                </td>
+                <td align="center">
+                    <input type="checkbox" class="custom-checkbox" ng-model="item.StatusId">
+                </td>
+                <td align="center">
+                    <input type="checkbox" class="custom-checkbox" ng-model="item.IsAllFacility">
+                </td>
+                <td align="center">
+                    <input type="checkbox" class="custom-checkbox" ng-model="item.IsDoctorShare">
+                </td>
+                <td align="center">
+                    <button class="drhms-edit-button" ng-click="deleteItem($index,item)">
+                        <img src="assets/svg/delete.svg" alt="">
+                    </button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+<custom-table config="vm.gridConfig"></custom-table>
+<div class="fooder-bgs">
+    <div class="row">
+        <div class="pull-right">
+            <button type="button" class="draftbutton" translate="common.saveaction.lbl"
+                ng-click="saveItem()"></button>
+            <!-- <button id="btnClearForm" type="button" class="btn btn-warning btn-sm" ng-click="clear()"
+                translate="common.clearaction.lbl"></button> -->
+        </div>
+    </div>
+</div>

@@ -1,0 +1,327 @@
+<html>
+
+<head>
+    <style>
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        td {
+            padding: 3px;
+            vertical-align: top;
+        }
+
+        * {
+            font-family: sans-serif;
+        }
+
+        th {
+            white-space: break-spaces;
+            border: 1px !important;
+            border-top: 1px solid black !important;
+            border-bottom: 1px solid black !important;
+            font-size: 10px;
+            padding-left: 4px;
+            padding-top: 6px;
+            padding-bottom: 6px;
+        }
+
+        td {
+            border: 1px !important;
+            font-size: 10px;
+        }
+
+        p {
+            font-size: 10px;
+        }
+
+        .size td,
+        .size th {
+            border: 1px solid black !important;
+        }
+
+        .secondary-tab {
+            position: absolute;
+            width: 97.5%;
+            margin-left: 0px;
+        }
+
+        .table2 tr th,
+        .table2 tr td {
+            border: 1px solid black !important;
+            font-size: 9px !important;
+        }
+
+        .table2 .secondary-tab table tr td,
+        .table2 .secondary-tab table tr th {
+            border: 0px solid black !important;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            word-break: break-all;
+        }
+
+        .table2 .secondary-tab table {
+            border: unset !important;
+            border-collapse: collapse;
+            width: 94%;
+        }
+
+        .secondary-tab td div {
+            word-break: break-all;
+        }
+
+        .content * {
+            font-size: 13px !important;
+        }
+
+        .bg-color {
+            background: #c5c5c5;
+        }
+
+        table.calc {
+            border: 1px solid;
+            border-top: 0;
+        }
+
+        .sub-total {
+            border: 0px !important;
+            border-top: 0px solid black !important;
+            border-bottom: 0px solid black !important;
+            width: 100%;
+        }
+
+        .no-bot tr td {
+            border: 0px !important;
+            padding-bottom: 15px;
+        }
+
+        .table2 .sub-total td {
+            border-color: white !important;
+        }
+
+        .table2 .sub-total td:nth-child(odd) {
+            border-right: 0px solid black !important;
+        }
+
+        .table2 .sub-total td {
+            border-bottom: 0px solid black !important;
+        }
+
+        .table2 .sub-total tr:last-child td {
+            border-bottom: 0px solid black !important;
+        }
+
+        .table2 tr th,
+        .table2 tr td {
+            font-size: 9px !important;
+        }
+        {{include '/Templates/assets/css/core.css'}}
+    </style>
+</head>
+
+<body style="padding-left: 50px;">
+    {{#if data.generalPo}}
+    <div id="pageHeader">
+        {{#if data.Flags.header}}
+        {{{include '/Templates/jsshospital/common/header.tpl.html' 'tpl'}}}
+        {{/if}}
+    </div>
+    {{else}}
+    <div id="pageHeader">
+        {{#if data.Flags.header}}
+        {{{include '/Templates/jsshospital/common/pharmacyheader1.tpl.html' 'tpl'}}}
+        {{/if}}
+    </div>
+    {{/if}}
+    <table style="width:100%;">
+        <tr>
+            <td style="text-align: center;font-size: 15px;" class="bg-color"><b>PURCHASE RETURN</b></td>
+        </tr>
+    </table>
+    <br>
+    <div class="content">
+        <table>
+            <tr>
+                <td>Vendor Name</td>
+                <td>: {{data.PurchaseReturn.VendorMaster.VendorName}}</td>
+                <td>PO No</td>
+                <td>: {{data.PurchaseReturn.PurchaseOrder.PoNumber}}</td>
+            </tr>
+            <tr>
+                <td>GRN No</td>
+                <td>: {{data.PurchaseReturn.Grn.GrnNumber}}</td>
+                <td>PO Date</td>
+                <td>: {{datetimeformat data.PurchaseReturn.PurchaseOrder.PoDate}}</td>
+            </tr>
+            <tr>
+                <td>Invoice No</td>
+                <td>: {{data.PurchaseReturn.Grn.InvoiceNumber}}</td>
+                <td>PO Return No</td>
+                <td>: {{data.PurchaseReturn.PrnNumber}}</td>
+            </tr>
+            <tr>
+                <td>Invoice Date</td>
+                <td>: {{datetimeformat data.PurchaseReturn.Grn.InvoiceDate}}</td>
+                <td>PO Return Date</td>
+                <td>: {{datetimeformat data.PurchaseReturn.PrnDate}}</td>
+            </tr>
+        </table>
+        <div border>
+            <table class="table2" style="width:100%;">
+                <tr>
+                    <th style="width: 5%;" align="left">No</th>
+                    <th style="width: 23%;" align="left">Item Name</th>
+                    <th style="width: 6%;" align="center">Mfr</th>
+                    <th style="width: 7%;" align="center">Batch</th>
+                    <th style="width: 8%;" align="center">Exp</th>
+                    <th style="width: 7%;" align="center">Po QTY</th>
+                    <th style="width: 7%;" align="center">Rtn Qty</th>
+                    <th style="width: 5%;" align="right">MRP</th>
+                    <th style="width: 7%;" align="right">Rate</th>
+                    <th style="width: 4%;" align="center">Dis</th>
+                    <th style="width: 5%;" align="center">GST</th>
+                    <th style="width: 8%;" align="right">Tax Amt</th>
+                    <th style="width: 8%;" align="right">Total Amt</th>
+                </tr>
+                <tr>
+                    <td style="height: 300px;padding:0 !important">
+                        <div class="secondary-tab">
+                            <table>
+                                <tr>
+                    <th style="width: 5%;" align="left"></th>
+                    <th style="width: 23%;" align="left"></th>
+                    <th style="width: 6%;" align="center"></th>
+                    <th style="width: 7%;" align="center"></th>
+                    <th style="width: 8%;" align="center"></th>
+                    <th style="width: 7%;" align="center"></th>
+                    <th style="width: 7%;" align="center"></th>
+                    <th style="width: 5%;" align="right"></th>
+                    <th style="width: 7%;" align="right"></th>
+                    <th style="width: 4%;" align="center"></th>
+                    <th style="width: 5%;" align="center"></th>
+                    <th style="width: 8%;" align="right"></th>
+                    <th style="width: 8%;" align="right"></th>
+                                </tr>
+                                {{#each data.PurchaseReturnDetail}}
+                                <tr>
+                                    <td align="left">{{inc @index}}</td>
+                                    <td align="left">{{ItemName}}</td>
+                                    <td align="left">{{ItemMaster.ManufacturerName}}</td>
+                                    <td align="center">{{BatchId}}</td>
+                                    <td align="left">{{dateformat ExpiryDate}}</td>
+                                    <td align="center">{{GrnQuantity}}</td>
+                                    <td align="center">{{PrnQuantity}}</td>
+                                    <td align="center">{{MrPrice}}</td>
+                                    <td align="right">{{currencyformatwosymbol UomPrice}}</td>
+                                    <td align="center">{{Discount}}</td>
+                                    <td align="center">{{GstPercentage}}</td>
+                                    <td align="right">{{currencyformatwosymbol GstAmount}}</td>
+                                    <td align="right">{{currencyformatwosymbol NetAmount}}</td>
+                                </tr>
+                                {{/each}}
+                            </table>
+                        </div>
+                    </td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td colspan="7">
+                        <table class="no-bot">
+                            <tr>
+                                <td style="width: 20%;">
+                                    Remarks
+                                </td>
+                                <td style="width: 2%;">:</td>
+                                <td style="width: 70%;">
+                                    {{data.PurchaseReturn.Comments}}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="width: 20%;">
+                                    Amount in Words
+                                </td>
+                                <td style="width: 2%;">:</td>
+                                <td style="width: 70%;">
+                                    {{numberInWords data.PurchaseReturn.TotalNetAmount}} Rupees Only
+                                </td>
+                            </tr>
+                </tr>
+            </table>
+            </td>
+            <td colspan="6">
+                <table class="sub-total">
+                    <tr>
+                        <td align="right" style="width: 63%;">Total Amount:</td>
+                        <td align="right">{{currencyformatwosymbol data.PurchaseReturn.TotalGrossAmount}}</td>
+                    </tr>
+                    {{#if data.PurchaseReturn.TotalDiscountAmount}}
+                    <tr>
+                        <td align="right">Dis Amt(-):</td>
+                        <td align="right">{{currencyformatwosymbol data.PurchaseReturn.TotalDiscountAmount}}</td>
+                    </tr>
+                    {{/if}}
+                    <tr>
+                        <td align="right">Total Tax(+):</td>
+                        <td align="right">{{currencyformatwosymbol data.PurchaseReturn.TotalGstAmount}}</td>
+                    </tr>
+                    {{#if data.PurchaseReturn.RoundOff}}
+                    <tr>
+                        <td align="right">Round Off:</td>
+                        <td align="right">{{currencyformatwosymbol data.PurchaseReturn.RoundOff}}</td>
+                    </tr>
+                    {{/if}}
+                    <tr>
+                        <td align="right">Landed Cost:</td>
+                        <td align="right">{{currencyformatwosymbol data.PurchaseReturn.TotalNetAmount}}</td>
+                    </tr>
+                    <!-- <tr>
+                                    <td><b>Transportation Charges:</b></td>
+                                    <td align="right"></td>
+                            </tr>  -->
+                    {{#if data.PurchaseReturn.OtherCharges}}
+                    <tr>
+                        <td align="right">Other Charges:</td>
+                        <td align="right">{{currencyformatwosymbol data.PurchaseReturn.OtherCharges}}</td>
+                    </tr>
+                    {{/if}}
+                    <tr>
+                        <td align="right"><b>Net Amount:</b></td>
+                        <td align="right"><b>{{currencyformatwosymbol data.PurchaseReturn.TotalNetAmount}}</b></td>
+                    </tr>
+                </table>
+            </td>
+            </tr>
+            </table>
+        </div>
+        <table style="width:100%;">
+            <tr>
+                <td style="width: 2%;"></td>
+                <td style="width: 32%;" align="center"><b>PREPARED BY</b>: :
+                    {{data.PurchaseReturn.CreatedUser.Title.Description}}
+                    {{data.PurchaseReturn.CreatedUser.FirstName}} {{data.PurchaseReturn.CreatedUser.LastName}}</td>
+                <td style="width: 31%;" align="center">
+                    <b>APPROVED BY </b> :
+                    {{data.PurchaseReturn.ApprovedUser.Title.Description}}
+                    {{data.PurchaseReturn.ApprovedUser.FirstName}} {{data.PurchaseReturn.ApprovedUser.LastName}}
+                </td>
+                <td style="width: 33%;" align="center">
+                    <b>STORE INCHARGE</b> :
+                    {{data.PurchaseReturn.AuthorizedUser.Title.Description}}
+                    {{data.PurchaseReturn.AuthorizedUser.FirstName}} {{data.PurchaseReturn.AuthorizedUser.LastName}}
+                </td>
+                <td style="width: 2%;"></td>
+            </tr>
+        </table>
+    </div>

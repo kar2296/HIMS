@@ -1,0 +1,86 @@
+<div class="modal-header custom-modal-header">
+    <div class="col-sm-10">
+        <h4 class="modal-title custom-modal-title" translate="patientemr.patientallergy-list.pagetitle.lbl"></h4>
+    </div>
+    <div class="col-sm-2">
+        <div class="filters">
+            <img src="../../../../../assets/svg/close.svg" ng-click="cancelCallback()">
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="pull-right">
+        <button type="button" tabindex="-1" class="drhms-billing-btn drhms-add-btn" ng-if="canUpdatePatientEMR()"
+            ng-click="addNew()" uib-tooltip="{{ 'patientemr.patientallergy-list.pagetitle.lbl' | translate }}"
+            tooltip-placement="bottom">
+            <i class="fa fa-plus" aria-hidden="true"></i>
+        </button>
+        <span class="drhms-billing-btn drhms-home-btn"><i class="fas fa-home" ng-click="doctor_dashboard()"
+                uib-tooltip="Doctor Dashboard" tooltip-placement="bottom"></i></span>
+        <span class="drhms-billing-btn drhms-home-btn"><i class="fas fa-home" ng-click="patient_dashboard()"
+                uib-tooltip="Patient Dashboard" tooltip-placement="bottom"></i></span>
+        <span class="drhms-billing-btn drhms-home-btn"><i class="fas fa-home" ng-click="dashboard()"
+                uib-tooltip="{{ 'patientemr.mock.emrdashboard.lbl' | translate }}"
+                tooltip-placement="bottom"></i></span>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-sm-4">
+        <label class="col-sm-4 control-label filter-lbl"
+            translate="patientemr.patientallergy-list.filter_name.lbl"></label>
+        <div class="col-sm-8">
+            <input type="text" class="form-control" name="allergyname" on-enter="getList()"
+                ng-model="currentfilter.Name" translate
+                translate-attr-placeholder="patientemr.patientallergy-list.filter_name.lbl">
+        </div>
+    </div>
+    <div class="col-sm-4">
+        <label class="col-sm-4 control-label filter-lbl"
+            translate="patientemr.patientallergy-list.filter_allergytype.lbl"></label>
+        <div class="col-sm-8">
+            <ui-select ng-model="currentfilter.AllergyTypeId" ng-change="getList()" class="filter-combo">
+                <ui-select-match>
+                    {{$select.selected.Text | limitTo : 8 : 0}}
+                    <span ng-if="$select.selected.Text.length>8">...</span>
+                </ui-select-match>
+                <ui-select-choices
+                    repeat="lookupitem.Id as lookupitem in lookup.AllergyType | filter: { Text: $select.search }">
+                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                </ui-select-choices>
+            </ui-select>
+        </div>
+    </div>
+    <div class="col-sm-4">
+        <label class="col-sm-4 control-label filter-lbl"
+            translate="patientemr.patientallergy-list.filter_patientallergystatus.lbl"></label>
+        <div class="col-sm-8">
+            <ui-select ng-model="currentfilter.PatientAllergyStatusId" ng-change="getList()" class="filter-combo">
+                <ui-select-match>
+                    {{$select.selected.Text | limitTo : 8 : 0}}
+                    <span ng-if="$select.selected.Text.length>8">...</span>
+                </ui-select-match>
+                <ui-select-choices
+                    repeat="lookupitem.Id as lookupitem in lookup.PatientAllergyStatus | filter: { Text: $select.search }">
+                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                </ui-select-choices>
+            </ui-select>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <favoritecontrol config="favconfig" ng-if="canUpdatePatientEMR()" addclick="addFavorite()"
+        saveclick="saveFavorites()" class="header-panel-body"></favoritecontrol>
+</div>
+<div class="row">
+    <custom-table config="vm.gridConfig"></custom-table>
+    <!-- <div ui-grid="vm.gridConfig" class="table-uigrid"></div> -->
+</div>
+<div class="fooder-bgs">
+    <div class="row">
+        <ul uib-pagination total-items="vm.gridConfig.pagerObj.totalItems"
+            items-per-page="vm.gridConfig.pagerObj.pageSize" start-index="vm.gridConfig.pagerObj.startIndex"
+            ng-model="vm.gridConfig.pagerObj.currentPage" ng-change="getList()"></ul>
+    </div>
+</div>

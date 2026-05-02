@@ -1,0 +1,109 @@
+<html>
+
+<head>
+    <style>
+        .table1 {
+            border: 1px solid black;
+            border-bottom: 0px solid black;
+            font-size: 10px;
+        }
+
+        .table2 {
+            border: 1px solid black;
+            border-bottom: 0px;
+            text-align: left;
+            font-size: 10px;
+        }
+
+        .table3 {
+            border: 1px solid black;
+            text-align: right;
+            font-size: 10px;
+        }
+   }
+{{include '/Templates/assets/css/core.css'}}
+        </style>
+    </head>
+    <body>
+    <div id="pageHeader">
+        {{{include '/Templates/medfirst/common/header.tpl.html' 'tpl'}}}
+    </div>
+    <table class="table1" style="width:100%;">
+        <tr>
+            <td style="width:25%;">Name</td>
+            <td>:</td>
+            <td style="width:25%;">{{data.Encounter.Patient.Title.Description}} {{data.Encounter.Patient.FirstName}}{{data.Encounter.Patient.LastName}}</td>
+            <td style="width:25%;">MRN</td>
+            <td></td>
+            <td style="width:25%;"><img style="height: 30px; width: 100px;" src="{{barcode data.Encounter.PatientMrn}}" /></td>
+        </tr>
+        <tr>
+            <td style="width:25%;">Age/Sex</td>
+            <td>:</td>
+            <td style="width:25%;">{{ageonlyyear data.Encounter.Patient.DOB}} / {{data.Encounter.Patient.Gender.Description}}</td>
+            <td style="width:25%;">Visit Number</td>
+            <td>:</td>
+            <td style="width:25%;">{{data.Encounter.VisitIdentifier}}</td>
+        </tr>
+        <tr>
+            <td style="width:25%;">DOB</td>
+            <td>:</td>
+            <td style="width:25%;">{{data.Encounter.Patient.DOB}}</td>
+            <td style="width:25%;">DOA</td>
+            <td>:</td>
+            <td style="width:25%;">{{datetimeformat data.Encounter.AdmissionDate}}</td>
+        </tr>
+        <tr>
+            <td style="width:25%;">Ward /Room /Bed No</td>
+            <td>:</td>
+            <td style="width:25%;">{{data.Encounter.WardMaster.WardName}} / {{data.Encounter.WardRoomMaster.RoomNo}} / {{data.Encounter.WardRoomBedMaster.Description}}</td>
+            <td style="width:25%;">DOD</td>
+            <td>:</td>
+            <td style="width:25%;">{{datetimeformat data.Encounter.DischargeDate}}</td>
+        </tr>
+    </table>
+    <table class="table2" style="width:100%;">
+        <tr>
+            <th style="width:10%;"><b>Date</b></th>
+            <th style="width:30%;"><b>Service Name</b></th>
+            <th style="width:20%;"><b>Doctor Name</b></th>
+            <th style="width:5%;"><b>QTY</b></th>
+            <th style="width:10%;"><b>Rate</b></th>
+            <th style="width:10%;"><b>Discount</b></th>
+            <th style="width:15%;"><b>Net Amount</b></th>
+        </tr>
+    </table>
+    <table class="table2" style="width:100%;">
+        <tr>
+            <td colspan="7">{{data.ServiceName}}</td>
+        </tr>{{#each data.PatientBillDetails}}
+        <tr>
+            <td style="width:10%;">{{datetimeformat BillDateTime}}</td>
+            <td style="width:30%;">{{ServiceName}}</td>
+            <td style="width:20%;">{{User.Title.Description}} {{User.FirstName}} {{User.LastName}}</td>
+            <td style="width:5%;">{{Quantity}}</td>
+            <td style="width:10%;">{{currencyformat Rate}}</td>
+            <td style="width:10%;">{{currencyformat DiscountAmount}}</td>
+            <td style="width:15%;">{{currencyformat NetAmount}}</td>
+        </tr> {{/each}}
+    </table>
+    <table class="table3" style="width:100%;">
+        <tr>
+            <td style="width:85%;">Gross Amount</td>
+            <td>:</td>
+            <td style="width:15%;text-align: left;">{{currencyformat data.GrossAmount}}</td>
+        </tr>
+        <tr>
+            <td style="width:85%;">Discount Amount</td>
+            <td></td>
+            <td style="width:15%;text-align: left;">{{currencyformat data.DiscountAmount}}</td>
+        </tr>
+        <tr>
+            <td style="width:85%;">Net Amount</td>
+            <td>:</td>
+            <td style="width:15%;text-align: left;">{{currencyformat data.NetAmount}}</td>
+        </tr>
+    </table>
+    <div style="width:100%; font-size:8px;">Printed On: {{now}}</div>
+</body>
+</html>

@@ -1,0 +1,133 @@
+<style>
+    .panel-body .well {
+        min-height: 142px !important;
+        padding: 9px !important;
+    }
+
+    .modal-content .panel-body {
+        overflow: inherit;
+        height: 60vh;
+    }
+
+    .modal-header {
+        padding: 4px 10px;
+        border-bottom: 1px solid #e5e5e5;
+    }
+</style>
+
+<div class="modal-header custom-modal-header">
+    <h4 class="modal-title custom-modal-title" translate="assetmanagement.assignment-list.pagetitle.lbl"></h4>
+</div>
+<div class="col-sm-12 fullreg-profiles" style="color:white;">
+    <div>
+        <div class="col-sm-3">
+            <span translate="assetmanagement.assignment-list.ticket.lbl"></span> : <label ng-bind="item.TicketNumberIdentifier"></label>
+        </div>
+        <div class="col-sm-3">
+            <span translate="assetmanagement.assignment-form.date.lbl"></span> : <span>&nbsp; {{item.CreatedAt | date : 'dd-MMM-yyyy'}} &nbsp; {{item.CreatedAt | date : 'HH:mm'}}</span>
+        </div>
+        <div class="col-sm-3">
+            <span translate="assetmanagement.assignment-form.assetname.lbl"></span> : <span>{{item.AssetName}}</span>
+        </div>
+        <div class="col-sm-2">
+            <span translate="assetmanagement.assignment-form.status.lbl"></span> : <span>&nbsp;  {{item.AssetTicketStatus}}</span>
+        </div>
+        <div class="col-sm-1">
+
+            <a class="ng-scope">
+                <i class="icon-info-sign btn-circle" aria-hidden="true"></i>
+            </a>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-sm-12">
+        <form id="item_form" name="item_form" class="form-horizontal" role="form">
+            <div class="panel panel-default">
+                <div class="panel-body form-panel bg-footer">
+                    <div class="col-sm-12">
+                        <!-- leftpanel -->
+                        <div class="col-sm-6">
+                            <div class="well">
+                                <div class="form-group">
+                                    <label class="col-sm-7 col-md-5 control-label" for="user" translate="assetmanagement.assignment-form.assigntype.lbl"></label>
+                                    <div class="col-sm-5 col-md-7">
+                                        <ui-select ng-model="item.AssignTypeId" name="assigntype" ng-disabled="item.isAssigned">
+                                            <ui-select-match>
+                                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                                <span ng-if="$select.selected.Text.length>20">...</span>
+                                            </ui-select-match>
+                                            <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.AssetAssignType | filter: { Text: $select.search }">
+                                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                            </ui-select-choices>
+                                        </ui-select>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-7 col-md-5 control-label" for="assignedto" translate="assetmanagement.assignment-form.assignedto.lbl"></label>
+                                    <div class="col-sm-5 col-md-7">
+                                        <ui-select ng-model="item.AssignedId" name="assignedto" required ng-disabled="item.isAssigned">
+                                            <ui-select-match>
+                                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                                <span ng-if="$select.selected.Text.length>20">...</span>
+                                            </ui-select-match>
+                                            <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.User | filter: { Text: $select.search }">
+                                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                            </ui-select-choices>
+                                        </ui-select>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-7 col-md-5 control-label" translate="assetmanagement.assignment-form.assignedon.lbl" for="date"></label>
+                                    <div class="col-sm-5 col-md-7">
+                                        <input type="text" class="form-control" name="dddate" ng-date-object datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}"
+                                            uib-datepicker-popup="{{datePickerOptions.dateFormat}}" placeholder="{{datePickerOptions.placeholder}}"
+                                            ng-click="activetoPopup = { opened: true }" is-open="activetoPopup.opened" ng-model="item.AssignedOn" ng-disabled="item.isAssigned">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- rightpanel -->
+                        <div class="col-sm-6">
+                            <div class="well">
+                                <div class="form-group">
+                                    <label class="col-sm-7 col-md-5 control-label" for="comments" translate="assetmanagement.servicerequest.comments.lbl"></label>
+                                    <div class="col-sm-5 col-md-7">
+                                        <textarea rows="3" name="remarks" ng-model="item.Remarks" maxlength="4000" style="width:100%;" class="notes-textarea" ng-disabled="item.isAssigned"></textarea>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-7 col-md-5 control-label" for="" translate="assetmanagement.assignment-form.assignedby.lbl"></label>
+                                    <div class="col-sm-5 col-md-7">
+                                        <ui-select ng-model="item.CreatedBy" name="assignedto" ng-disabled="true">
+                                            <ui-select-match>
+                                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                                <span ng-if="$select.selected.Text.length>20">...</span>
+                                            </ui-select-match>
+                                            <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.User | filter: { Text: $select.search }">
+                                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                            </ui-select-choices>
+                                        </ui-select>
+                                    </div>
+
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="fooder-bgs">
+                <div class="row ">
+                    <div class="col-sm-12">
+                        <div class="pull-right">
+                            <button id="btnCancelForm" type="button" class="draftbutton" translate="common.cancelaction.lbl" ng-click="closePopUp()"></button>
+                            <button type="button" class="btn btn-info text-white btn-sm" translate="Assign" ng-click="saveAndAssign()"></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

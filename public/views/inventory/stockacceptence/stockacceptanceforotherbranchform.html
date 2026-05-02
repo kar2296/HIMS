@@ -1,0 +1,251 @@
+<link rel="stylesheet" href="app/css/drhms.css">
+<style>
+    table.drhms-responsive-table thead th {
+        padding: 5px 20px;
+        white-space: nowrap;
+    }
+
+    input#desc0 {
+        width: 260px
+    }
+
+    autosearch.inputsearchlogo table.table.table-bordered.table-condensed.dropdown-menu.align {
+        margin-left: -200px;
+    }
+</style>
+
+<div class="row page-header">
+    <h4 class="col-sm-4" translate="Stock Acceptance For Other Branch"></h4>
+    <div class="col-sm-6">
+        <span translate="inventory.purchaseorders.status.lbl"></span>:
+        <span style="color: brown;"> {{item.DisplayTransferStatus}} </span>
+
+    </div>
+</div>
+
+<div class="row">
+    <form id="item_form" name="item_form" class="form-horizontal" role="form">
+        <div class="drhms-table-top-header">
+            <div class="drhms-table-head-border">
+                <div class="col-sm-12">
+                    <label class="col-sm-4" for="toFacility" translate="My Facility"></label>
+                    <div class="col-sm-8">
+                        <ui-select ng-model="item.ToFacilityId" name="toFacility" ng-disabled="true" ng-change="getList()">
+                            <ui-select-match>
+                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                <span ng-if="$select.selected.Text.length>20">...</span>
+                            </ui-select-match>
+                            <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.Facility | filter: { Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                </div>
+                <div class="col-sm-12">
+                    <label class="col-sm-4" for="store" translate="My Store"></label>
+                    <div class="col-sm-8">
+                        <ui-select ng-model="item.ToStoreMasterId" ng-disabled="true" ng-change="getList()" name="store" required>
+                            <ui-select-match>
+                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                <span ng-if="$select.selected.Text.length>20">...</span>
+                            </ui-select-match>
+                            <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.UserStores | filter: { Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                </div>
+                <div class="col-sm-12">
+                    <label class="col-sm-4" translate="inventory.openingstockentry.type.lbl"></label>
+                    <div class="col-sm-8">
+                        <ui-select ng-model="item.TransferTypeId" ng-disabled="true" name="stockentrytype" ng-disabled="item.isDisabled" required>
+                            <ui-select-match>
+                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                <span ng-if="$select.selected.Text.length>20">...</span>
+                            </ui-select-match>
+                            <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.TransferType | filter: { Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                </div>
+
+            </div>
+            <div class="drhms-table-head-border">
+                <div class="col-sm-12">
+                    <label class="col-sm-4" for="FromFacility" translate="From Facility"></label>
+                    <div class="col-sm-8">
+                        <ui-select ng-model="item.FacilityId" ng-disabled="true" name="FromFacility" ng-change="getstore()">
+                            <ui-select-match>
+                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                <span ng-if="$select.selected.Text.length>20">...</span>
+                            </ui-select-match>
+                            <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.Facility | filter: { Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                </div>
+                <div class="col-sm-12">
+                    <label class="col-sm-4" for="fromstore" translate="From Store"></label>
+                    <div class="col-sm-8">
+                        <ui-select ng-model="item.StoreMasterId" ng-disabled="true" name="fromstore" ng-change="getList()">
+                            <ui-select-match>
+                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                <span ng-if="$select.selected.Text.length>20">...</span>
+                            </ui-select-match>
+                            <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.ToStore | filter: { Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                </div>
+                <div class="col-sm-12">
+                    <label class="col-sm-4" translate="inventory.openingstockentry.createdby.lbl"></label>
+                    <div class="col-sm-8">: {{item.TranferedUser.Title.Description}}{{item.TranferedUser.FirstName}}{{item.TranferedUser.LastName}}
+                    </div>
+                </div>
+
+            </div>
+            <div class="drhms-table-head-border">
+                <div class="col-sm-12">
+                    <label class="col-sm-4" translate="inventory.openingstockentry.voucher#.lbl"></label>
+                    <div class="col-sm-8">:
+                        <span class="head-title">
+                            {{item.TransferNumber}}
+                        </span>
+                    </div>
+                </div>
+                <div class="col-sm-12">
+                    <label class="col-sm-4" translate="inventory.openingstockentry.approvedby.lbl"></label>
+                    <div class="col-sm-8">: {{item.ApprovedUser.Title.Description}}{{item.ApprovedUser.FirstName}}{{item.ApprovedUser.LastName}}
+                    </div>
+                </div>
+                <div class="col-sm-12">
+                    <label class="col-sm-4" translate="inventory.openingstockentry.date.lbl"></label>
+                    <div class="col-sm-8">
+                        <displaydate date-val="item.TransferedDate"></displaydate>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+
+<div class="col-sm-12">
+    <form id="item_form" name="item_form" class="form-horizontal" role="form">
+        <div class="drhms-table-control">
+            <div class="drhms-bg-pattern">
+                <div class="drhms-table-responsive-height">
+                    <table class="drhms-responsive-table">
+                        <thead class="bg-subhead">
+                            <tr>
+                                <th>
+                                    <span translate="inventory.stockaccept.itemname.lbl"></span>
+                                </th>
+                                <th>
+                                    <span translate="inventory.stockaccept.requestedqty.lbl"></span>
+                                </th>
+                                <th>
+                                    <span translate="inventory.stockaccept.transferedqty.lbl"></span>
+                                </th>
+                                <th>
+                                    <span translate="inventory.stockaccept.batchid.lbl"></span>
+                                </th>
+                                <th>
+                                    <span translate="inventory.stockaccept.expirydate.lbl"></span>
+                                </th>
+                                <th>
+                                    <span translate="inventory.stockaccept.ucp.lbl"></span>
+                                </th>
+                                <th>
+                                    <span translate="inventory.stockaccept.mrp.lbl"></span>
+                                </th>
+                                <th>
+                                    <span translate="inventory.stockaccept.amount.lbl"></span>
+                                </th>
+                                <th>
+                                    <span translate="inventory.stockaccept.action.lbl"></span>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="stocktransfer in stocktransferDetails | filter:{Status:1}">
+                                <td>
+                                    <span> {{ stocktransfer.ItemName }} </span>
+                                </td>
+                                <td>
+                                    <span> {{ stocktransfer.RequestedQuantity }} </span>
+                                </td>
+                                <td>
+                                    <span> {{ stocktransfer.TransferedQuantity }} </span>
+                                </td>
+                                <td>
+                                    <span> {{ stocktransfer.BatchId }} </span>
+                                </td>
+                                <td>
+                                    <span> {{ stocktransfer.ExpiryDate &nbsp;|&nbsp; date : 'dd-MMM-yyyy' }} </span>
+                                </td>
+                                <td>
+                                    <span> {{ stocktransfer.UnitCostPrice | displaycurrency }} </span>
+                                </td>
+                                <td>
+                                    <span> {{ stocktransfer.MrPrice | displaycurrency }} </span>
+                                </td>
+                                <td>
+                                    <span> {{ stocktransfer.NetAmount | displaycurrency }} </span>
+                                </td>
+                                <td class="text-center">
+                                    <i class="fa fa-history fa-xs" aria-hidden="true" uib-tooltip="History" tooltip-placement="top" ng-click="History(stockconsumption, $index)"></i>
+
+                                    <!-- <button class="btn_history" tabindex="-1" uib-tooltip="History" tooltip-placement="top"
+                                        ng-click="History(stockconsumption, $index)">
+                                        <i class="fa fa-history fa-xs" aria-hidden="true"></i>
+                                    </button> -->
+                                    <!-- <button class="text-white btn dem-color4 btn-xs " uib-tooltip="Stock" tooltip-placement="top" ng-click="Stock($index,stocktransfer)">
+                                        <i class="fa fa-database fa-xs" aria-hidden="true"></i>
+                                    </button> -->
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="footerbars">
+                <div class="sub-footer">
+                    <div class="bgfoot">
+                        <div class="col-sm-9"></div>
+                        <div class="col-sm-3">
+                            <span class="col-sm-4 control-label" for="total" translate="inventory.stocktransfer.total.lbl"></span>
+                            <div class="col-sm-8">
+                                <span> {{ (item.TotalNetAmount | displaycurrency) }} </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="fooder-bgs">
+                <div class="pull-left">
+                    <button type="button" class="btn pyr-color10 btn-sm" tabindex="-1" ng-click="backToList()">
+                        <i class="fa fa-angle-left" aria-hidden="true"></i>
+                        <span class="btn-fontsize"> &nbsp; Back
+                        </span>
+                    </button>
+
+                </div>
+                <div class="pull-right">
+                    <button type="button" class="draftbutton" ng-show="canShowAcceptBtn" translate="common.acceptaction.lbl" ng-click="AcceptTransfer()"></button>
+                    <!-- <button type="button" class="btn pyr-color10 btn-sm" ng-click="acceptanceprint()">
+                    <strong class="btn-fontsize"> &nbsp; Print</strong>
+                </button> -->
+                    <button class="draftbutton" type="button" ng-show="canShowPrintBtn" ng-click="acceptanceprint()">Print</span>
+                        </span>&nbsp;&nbsp;&nbsp;
+                        <i class="fa fa-print" aria-hidden="true"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>

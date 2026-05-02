@@ -1,0 +1,105 @@
+<link rel="stylesheet" href="app/css/drhms.css">
+<div class="row page-header">
+    <h4 class="mt0" translate="inventory.updateexpiryprice.pagetitle.lbl"></h4>
+</div>
+<div class="row">
+    <div class="form-group col-sm-4">
+        <label class="col-sm-4" translate="inventory.updateexpiryprice.itemname.lbl"></label>
+        <div class="col-sm-8">
+            <autosearch itemid="currentfilter.ItemMasterId" iteminfo="" rowdata="" config="vm.stockitemcontrolconfig"
+                itemchange="getList()"></autosearch>
+        </div>
+    </div>
+    <div class="form-group col-sm-4">
+        <label class="col-sm-4" translate="inventory.updateexpiryprice.store.lbl"></label>
+        <div class="col-sm-8">
+            <ui-select ng-model="currentfilter.StoreMasterId" ng-change="getList()" class="filter-combo">
+                <ui-select-match>
+                    {{$select.selected.Text | limitTo : 20 : 0}}
+                    <span ng-if="$select.selected.Text.length>20">...</span>
+                </ui-select-match>
+                <ui-select-choices
+                    repeat="lookupitem.Id as lookupitem in lookup.UserStores | filter: { Text: $select.search }">
+                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                </ui-select-choices>
+            </ui-select>
+        </div>
+    </div>
+    <div class="form-group col-sm-4">
+        <label class="col-sm-4" translate="inventory.updateexpiryprice.facility.lbl"></label>
+        <div class="col-sm-8">
+            <ui-select ng-model="currentfilter.FacilityId" ng-change="getList()" class="filter-combo">
+                <ui-select-match>
+                    {{$select.selected.Text | limitTo : 20 : 0}}
+                    <span ng-if="$select.selected.Text.length>20">...</span>
+                </ui-select-match>
+                <ui-select-choices
+                    repeat="lookupitem.Id as lookupitem in lookup.Facility | filter: { Text: $select.search }">
+                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                </ui-select-choices>
+            </ui-select>
+        </div>
+    </div>
+
+</div>
+<div class="row">
+    <form id="item_form" name="item_form" class="form-horizontal" role="form">
+        <div class="drhms-table-control">
+            <div class="drhms-bg-pattern">
+                <div class="drhms-table-responsive-height">
+                    <table class="drhms-responsive-table">
+                        <thead class="bg-subhead">
+                            <tr>
+                                <th><span translate="inventory.updateexpiryprice.batchid.lbl"></span></th>
+                                <th><span translate="inventory.updateexpiryprice.expirydate.lbl"></span></th>
+                                <th><span translate="inventory.updateexpiryprice.quantity.lbl"></span></th>
+                                <th><span translate="inventory.updateexpiryprice.ucp.lbl"></span></th>
+                                <th><span translate="inventory.updateexpiryprice.mrp.lbl"></span></th>
+                                <th><span translate="inventory.updateexpiryprice.grnnumber.lbl"></span></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="serialitem in StockSerialItems | filter:{Status:1}">
+                                <td>
+                                    <!-- <span> {{ serialitem.BatchId }} </span> -->
+                                    <input type="text" class="form-control" name="batchid" placeholder="Batch Id"
+                                        ng-model="serialitem.BatchId">
+                                </td>
+                                <td>
+                                    <input type="text" class="form-control" name="expirydate" ng-date-object
+                                        ng-required="item.IsExpiryRequired"
+                                        uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                                        placeholder="{{datePickerOptions.placeholder}}"
+                                        ng-click="expirydatePopup = { opened: true }" is-open="expirydatePopup.opened"
+                                        ng-model="serialitem.ExpiryDate">
+                                </td>
+                                <td>
+                                    <span> {{ serialitem.Quantity }} </span>
+                                </td>
+                                <td class="currency-align">
+                                    <span> {{ serialitem.Ucp | displaycurrency }} </span>
+                                    <!--<input type="text" value="{{stocktransfer.NetAmount | displaycurrency}}" class="inputbox form-control" disabled>-->
+                                </td>
+                                <td>
+                                    <input type="number" min="0" class="form-control" ng-model="serialitem.Mrp">
+
+                                </td>
+                                <td>
+                                    <span> {{ serialitem.Grn.GrnNumber }} </span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+<div class="fooder-bgs">
+    <div class="row">
+        <div class="pull-right">
+            <button type="button" class="draftbutton" translate="common.updateaction.lbl"
+                ng-click="onUpdate()"></button>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,156 @@
+<!-- <style>
+    tr.th-name td,
+    th {
+        background: #0073bc;
+        color: white;
+        white-space: normal;
+        font-size: 13px !IMPORTANT;
+        width: 1px;
+    }
+
+    div#tblData {
+        padding: 0% 2% 0% 1%;
+    }
+
+    #datepicker button.btn.btn-default.btn-sm.uib-title {
+        width: 173px !important;
+        text-align: center;
+    }
+
+    table#bannerdetails #lidatepicker table.uib-daypicker th {
+        padding: 0;
+        width: 0 !IMPORTANT;
+    }
+
+    #lidatepicker table {
+        table-layout: auto !important;
+    }
+
+    table.uib-monthpicker thead tr th {
+        background: transparent;
+    }
+</style> -->
+<div class="row page-header">
+    <div class="col-sm-6">
+        <h4 class="mt0" translate="Covid Statistics Report"></h4>
+    </div>
+    <div class="col-sm-6">
+        <div class="filters">
+            <i class="icofont-filter" uib-tooltip="Filter" tooltip-placement="bottom" ng-click="openFilterTab()"></i>
+            <i class="icofont-file-excel" uib-tooltip="Excel" tooltip-placement="bottom"
+                onclick="exportTableToExcel('tblData', 'members-data')"></i>
+            <i class="icofont-print" uib-tooltip="Print" tooltip-placement="bottom" ng-click="print()"></i>
+            <i class="icofont-home" ng-click="backtoReport()" tabindex="-1" uib-tooltip="Report"
+                tooltip-placement="bottom"></i>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <table id="bannerdetails">
+        <tr>
+            <td translate="reports.fromdate.lbl"></td>
+            <td>
+                <div>
+                    <input type="text" class="form-control" name="from" datepicker-options="datePickerOptions"
+                        show-button-bar="{{datePickerOptions.showButtonBar}}"
+                        uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                        placeholder="{{datePickerOptions.placeholder}}" ng-click="fromdatePopup = { opened: true }"
+                        is-open="fromdatePopup.opened" ng-model="currentfilter.From">
+
+
+
+
+                    <!-- <input type="text" class="form-control" name="from" datepicker-options="datePickerOptions"
+                    show-button-bar="{{datePickerOptions.showButtonBar}}"
+                    uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                    placeholder="{{datePickerOptions.placeholder}}" ng-click="fromdatePopup = { opened: true }"
+                    is-open="fromdatePopup.opened" ng-model="currentfilter.From">
+                <i class="fa fa-calendar" aria-hidden="true"></i> -->
+                </div>
+            </td>
+            <td translate="reports.todate.lbl"></td>
+            <td>
+                <div>
+                    <input type="text" class="form-control" name="from" datepicker-options="datePickerOptions"
+                        show-button-bar="{{datePickerOptions.showButtonBar}}"
+                        uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                        placeholder="{{datePickerOptions.placeholder}}" ng-click="todatePopup = { opened: true }"
+                        is-open="todatePopup.opened" ng-model="currentfilter.To">
+                    <!-- <i class="fa fa-calendar" aria-hidden="true"></i> -->
+                </div>
+            </td>
+
+            <td style="text-align: center;">
+                <button class="loadbtn" ng-click="GetFacilityDashboardOptions()">
+                    <i class="fas fa-sync loading-icon" aria-hidden="true" uib-tooltip="Search"
+                        tooltip-placement="bottom"></i> <span>Load</span>
+                </button>
+            </td>
+        </tr>
+    </table>
+</div>
+<!-- <div>
+    <i class="icofont-filter" uib-tooltip="Search" tooltip-placement="bottom"
+        ng-click="GetFacilityDashboardOptions()"></i>
+</div> -->
+<div class="row">
+    <div id="reportsdetail">
+        <table id="tblData">
+            <col>
+            <col>
+            <col>
+            <col>
+            <col>
+            <col>
+            <colgroup span="4"></colgroup>
+            <tr class="th-name">
+                <td rowspan="2" translate="Total Beds In The Hospital"></td>
+                <td rowspan="2" translate="Total Covid Beds Alotted"></td>
+                <td rowspan="2" translate="Covid Admission "></td>
+                <td rowspan="2" translate="Covid Discharge"></td>
+                <td rowspan="2" translate="Patient Discharged before 10th of the treatment"></td>
+                <td rowspan="2" translate="Covid Death"></td>
+                <th colspan="4" translate="Active Cases At Present" scope="colgroup"></th>
+            </tr>
+            <tr>
+                <th scope="col" translate="Severe On Ventilator"></th>
+                <th scope="col" translate="Moderate on High Flow Oxygen"></th>
+                <th scope="col" translate="Mild"></th>
+                <th scope="col" translate="Total"></th>
+            </tr>
+            <tr>
+                <td class="currency-align"><span>{{CovidInfo.bedInfo.allbedCount}}</span></td>
+                <td class="currency-align">{{ CovidInfo.bedInfo.covidbedCount }}</td>
+                <td class="currency-align">{{ CovidInfo.admissionInfo.covidadmissionCount }}</td>
+                <td class="currency-align">{{ CovidInfo.admissionInfo.coviddischargeCount }}</td>
+                <td class="currency-align">{{ CovidInfo.admissionInfo.Cov10DayCount }}</td>
+                <td class="currency-align">{{ CovidInfo.admissionInfo.coviddeathCount }}</td>
+                <td class="currency-align">{{ CovidInfo.admissionInfo.covidventilatorCount }}</td>
+                <td class="currency-align">{{ CovidInfo.admissionInfo.covidHighflowO2Count }}</td>
+                <td class="currency-align">{{ CovidInfo.admissionInfo.covidmildCount }}</td>
+                <td class="currency-align">{{Total}}</td>
+            </tr>
+        </table>
+    </div>
+</div>
+<div class="row">
+    <custom-table config="vm.gridConfig"></custom-table>
+</div>
+
+<div class="fooder-bgs">
+    <div class="row">
+        <ul uib-pagination total-items="vm.gridConfig.pagerObj.totalItems"
+            items-per-page="vm.gridConfig.pagerObj.pageSize" start-index="vm.gridConfig.pagerObj.startIndex"
+            ng-model="vm.gridConfig.pagerObj.currentPage" ng-change="getList()"></ul>
+    </div>
+</div>
+<!-- <div class="container-fluid " id="patientsearchheight">
+
+    <div class="fooder-bgs" style="margin-bottom:40px;">
+        <div class="row">
+            <ul uib-pagination total-items="vm.gridConfig.pagerObj.totalItems"
+                items-per-page="vm.gridConfig.pagerObj.pageSize" start-index="vm.gridConfig.pagerObj.startIndex"
+                ng-model="vm.gridConfig.pagerObj.currentPage" ng-change="getList()"></ul>
+        </div>
+    </div>
+</div> -->

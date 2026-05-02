@@ -1,0 +1,142 @@
+<!-- <style>
+    .modal-content .panel-body {
+        padding: 1px;
+        background-image: url(../../app/img/bg-body.jpg) !important;
+        background-repeat: repeat;
+        overflow: visible;
+        margin: -2px 0 5px;
+    }
+
+    .modal-lg {
+        width: 500px;
+    }
+
+    .bt-color16 {
+        color: white;
+        background-color: rgba(138, 43, 226, 0.53);
+    }
+
+    #dropdownctrl>a>.label {
+        left: 12px !important;
+    }
+
+    .form-horizontal .form-group {
+        margin-left: -15px;
+        margin-right: -15px;
+        height: 71px;
+    }
+
+    .form-horizontal .form-group {
+        margin-left: 0px;
+        margin-right: 0px;
+        height: 71px;
+        margin: 0 !IMPORTANT;
+        padding: 0 !important;
+    }
+</style> -->
+<style>
+    .modal-lg {
+        width: 500px;
+        margin: 30px auto;
+    }
+</style>
+<div class="modal-header custom-modal-header">
+    <div class="col-sm-10">
+        <h4 class="modal-title custom-modal-title" translate="ordermanagement.token.pagetitle.lbl"></h4>
+    </div>
+    <div class="col-sm-2">
+        <div class="filters">
+            <img src="../../../../../assets/svg/close.svg" ng-click="backToList()">
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <form id="item_form" name="item_form" class="form-horizontal" role="form">
+        <div class="col-sm-6 form-group">
+            <label class="col-sm-12 control-label" for="status" translate="ordermanagement.token.dept.lbl"></label>
+            <div class="col-sm-12">
+                <ui-select ng-model="item.DepartmentId" name="status">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 20 : 0}}
+                        <span ng-if="$select.selected.Text.length>s20">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.Department | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text |highlight:$select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+        <div class="col-sm-6 form-group">
+            <label class="col-sm-12 control-label" for="token" translate="ordermanagement.token.token.lbl"></label>
+            <div class="col-sm-12">
+                <input type="text" class="form-control" name="token" ng-model="item.TokenNo" placeholder=""
+                    ng-minlength="1" required>
+            </div>
+        </div>
+        <div class="col-sm-6 form-group">
+            <label class="col-sm-12 control-label" for="roomno" translate="ordermanagement.token.room.lbl"></label>
+            <div class="col-sm-12">
+                <ui-select ng-model="item.RoomNoId" name="roomno" required>
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 20 : 0}}
+                        <span ng-if="$select.selected.Text.length>20">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.OPDRoom | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+        <div class="col-sm-6 form-group">
+            <label class="col-sm-12 control-label" for="displayno"
+                translate="appointment.doctordisplay-form.displaynoId.lbl"></label>
+            <div class="col-sm-12">
+                <ui-select ng-model="item.DisplayNo" name="displayno" required>
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 20 : 0}}
+                        <span ng-if="$select.selected.Text.length>20">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.DisplayNo | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+        <div class="col-sm-6 form-group">
+            <label class="col-sm-12 control-label filter-lbl" for="location"
+                translate="appointment.doctordisplay-form.locationId.lbl"></label>
+            <div class="col-sm-12">
+                <ui-select ng-model="item.LocationId" name="location" class="filter-combo" required>
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 20 : 0}}
+                        <span ng-if="$select.selected.Text.length>20">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.QmsLocation | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+    </form>
+</div>
+
+<div class="">
+    <div class="row">
+        <div class="pull-right">
+            <button type="button" class="draftbutton" translate="ordermanagement.token.generate.lbl"
+                ng-click="saveItem()"
+                ng-hide="item.TokenStatusId==1||item.TokenStatusId==2||item.TokenStatusId==3||item.TokenStatusId==4"></button>
+            <button type="button" class="draftbutton" translate="ordermanagement.token.call.lbl" ng-click="call()"
+                ng-if="item.TokenStatusId==1||item.TokenStatusId==4"></button>
+            <button type="button" class="draftbutton" translate="ordermanagement.token.receive.lbl" ng-click="receive()"
+                ng-if="item.TokenStatusId==2"></button>
+            <button type="button" class="draftbutton" translate="ordermanagement.token.miss.lbl" ng-click="missed()"
+                ng-if="item.TokenStatusId==2"></button>
+        </div>
+    </div>
+</div>

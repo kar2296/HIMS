@@ -1,0 +1,151 @@
+<html>
+
+<head>
+    <style>
+        .table1 {
+            border: 1px solid black;
+            border-bottom: 0px solid black;
+            text-align: center;
+            font-size: 10px;
+        }
+
+        .table2 {
+            border: 1px solid black;
+            border-bottom: 0px solid black;
+            font-size: 10px;
+        }
+
+        .table3 {
+            border: 1px solid black;
+            border-bottom: 1px solid black;
+            font-size: 10px;
+        }
+
+        .col {
+            border-collapse: collapse;
+            font-size: 10px;
+        }
+
+        {{include '/Templates/assets/css/core.css'}}
+    </style>
+</head>
+
+<body>
+    <div id="pageHeader">
+        {{{include '/Templates/rkmhospital/common/header.tpl.html' 'tpl'}}}
+    </div>
+    <table class="table1" style="width:100%;">
+        <tr>
+            <td height="30" style="vertical-align:text-middle;font-size: 1.4em;"><b>IP REFUND</b></td>
+        </tr>
+    </table>
+    <table class="table2" style="width:100%;">
+        <tr>
+            <td style="width:15%;"><b>Name</b></td>
+            <td>:</td>
+            <td style="width:30%;"><b>{{data.Patient.Title.Description}} {{data.Patient.FirstName}} {{data.Patient.MiddleName}} {{data.Patient.LastName}}</b></td>
+            <td style="width:10%;"><b>Age</b></td>
+            <td>:</td>
+            <td style="width:10%;">{{ageonlyyear data.Patient.DOB}}</td>
+            <td style="width:15%;"><b>PHID NO</b></td>
+            <td>:</td>
+            <td style="width:20%;"><b>{{data.Patient.MRN}}</b></td>
+        </tr>
+        <tr>
+            <td style="height=30; vertical-align:text-top"><b>Address</b></td>
+            <td style="height=30; vertical-align:text-top">:</td>
+            <td>{{data.Patient.AddressLine1}} <br> {{data.Patient.Area}} <br> {{data.Patient.City}}</td>
+            <td><b>Gender</b></td>
+            <td>:</td>
+            <td>{{data.Patient.Gender.Description}}</td>
+            <td></td>
+            <td colspan="2"><img style="height: 30px; width: 100px;" src="{{barcode data.Patient.MRN}}" /></td>
+        </tr>
+        <tr>
+            <td></td>
+            <td></td>
+            <td colspan="4">{{data.Patient.State}} {{data.Patient.Pincode}} <br> {{data.Patient.Country}}</td>
+            <td><b>OP / IP Number</b></td>
+            <td>:</td>
+            <td>{{data.PatientRefund.Encounter.VisitIdentifier}}</td>
+        </tr>
+        <tr>
+            <td><b>Contact No.</b></td>
+            <td>:</td>
+            <td colspan="4">{{data.Patient.Mobile}}</td>
+            <td><b>Refund Type</b></td>
+            <td>:</td>
+            <td>{{data.PatientRefund.RefundType.Description}}</td>
+        </tr>
+
+    </table>
+    <table class="table2" style="width:100%;">
+        <tr>
+            <td style="width:15%;"><b>Doctor's Name</b></td>
+            <td>:</td>
+            <td colspan="4" style="width:40%;">{{data.Encounter.Doctor.Title.Description}} {{data.Encounter.Doctor.FirstName}} {{data.Encounter.Doctor.LastName}}</td>
+
+            <td style="width:25%;"><b>Refund No</b></td>
+            <td>:</td>
+            <td style="width:20%;">{{data.PatientRefund.RefundIdentifier}}</td>
+        </tr>
+        <tr>
+            <td><b>Department</b></td>
+            <td>:</td>
+            <td colspan="4">{{data.Encounter.Department.DepartmentName}}</td>
+
+            <td><b>Date</b></td>
+            <td>:</td>
+            <td>{{datetimeformat data.PatientRefund.RefundDateTime}}</td>
+        </tr>
+        <tr>
+            <td colspan="9"></td>
+        </tr>
+    </table>
+    <table class="table2" style="width:100%;">
+        <tr>
+            <td style="width:15%;">{{#if data.PatientRefund.PatientPaymentDetail.ReceiptNumber}}<b>Ref.Receipt</b>{{/if}} {{#if data.PatientRefund.PatientBill.BillNumber}}  <b>Ref.Bill</b>{{/if}}</td>
+            <td>{{#if data.PatientRefund.PatientPaymentDetail.ReceiptNumber}}:{{/if}} {{#if data.PatientRefund.PatientBill.BillNumber}} :{{/if}}</td>
+            <td colsspan="4" style="width:40%;">{{#if data.PatientRefund.PatientPaymentDetail.ReceiptNumber}} {{data.PatientRefund.PatientPaymentDetail.ReceiptNumber}} {{/if}} {{#if data.PatientRefund.PatientBill.BillNumber}}  {{data.PatientRefund.PatientBill.BillNumber}} {{/if}}</td>
+            <td style="width:25%;">{{#if data.PatientRefund.PatientPaymentDetail.ReceiptNumber}}<b>Receipt Date</b>{{/if}} {{#if data.PatientRefund.PatientBill.BillNumber}}<b>Bill Date</b>{{/if}}</td>
+            <td>:</td>
+            <td style="width:20%;">{{#if data.PatientRefund.PatientPaymentDetail.ReceiptDateTime}} {{datetimeformat data.PatientRefund.PatientPaymentDetail.ReceiptDateTime}}{{/if}} {{#if data.PatientRefund.PatientBill.BillNumber}} {{datetimeformat data.PatientRefund.PatientBill.BillDateTime}} {{/if}} </td>
+        </tr>
+    </table>
+    <table class="table2" style="width:100%;">
+        <tr>
+            <td style="width:15%;"><b>Refund Amount</b></td>
+            <td>:</td>
+            <td style="width:40%;">{{currencyformat data.PatientRefund.RefundAmount}}</td>
+            <td style="width:25%;"><b>Refund Status</b></td>
+            <td>:</td>
+            <td style="width:20%;"><b>{{data.PatientRefund.RefundStatus.Description}}</b></td>
+        </tr>
+        <tr>
+            <td><b>Amount in words</b></td>
+            <td>:</td>
+            <td colspan="4"><b>Rupees {{decimalnrInWords  data.PatientRefund.RefundAmount}} only</b></td>
+        </tr>
+    </table>
+    <table class="table2 col" style="width:100%">
+        <tr>
+            <td style="width:70%;" align="right"><b>Refund Amount</b></td>
+            <td class="table2 col" style="width:30%;" align="left">{{currencyformat data.PatientRefund.RefundAmount}}</td>
+        </tr>
+    </table>
+    <table class="table3" style="width:100%;">
+        <tr>
+            <td colspan="9">{{data.PatientRefund.CreatedUser.Title.Description}} {{data.PatientRefund.CreatedUser.FirstName}} {{data.PatientRefund.CreatedUser.LastName}}</td>
+        </tr>
+        <tr>
+            <td colspan="9"></td>
+        </tr>
+        <tr>
+            <td colspan="8">{{Title}}</td>
+
+            <td align="right">Authorized Signatory</td>        </tr>
+    </table>
+    <div style="width:100%; font-size:10px;">Printed On: {{now}}</div>
+</body>
+
+</html>

@@ -1,0 +1,184 @@
+<div class="row page-header">
+    <h4 class="mt0" translate="OP Visit Details"></h4>
+</div>
+<div class="row">
+    <div class="form-group col-sm-2">
+        <label class="col-sm-12 control-label" translate="From Date"></label>
+        <div class="col-sm-12">
+            <div class="datepicker" id="datepicker">
+                <input type="text" class="form-control cwidth" ng-change="getList()"
+                    uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                    placeholder="{{datePickerOptions.placeholder}}" ng-click="fromdatePopup = { opened: true }"
+                    is-open="fromdatePopup.opened" ng-model="currentfilter.FromDate">
+                <i class="fa fa-calendar" aria-hidden="true"></i>
+            </div>
+        </div>
+    </div>
+    <div class="form-group col-sm-2">
+        <label class="col-sm-12 control-label" translate="To Date"></label>
+        <div class="col-sm-12">
+            <div class="datepicker" id="datepicker">
+                <input type="text" class="form-control cwidth" ng-change="getList()"
+                    uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                    placeholder="{{datePickerOptions.placeholder}}" ng-click="todatePopup = { opened: true }"
+                    is-open="todatePopup.opened" ng-model="currentfilter.ToDate">
+                <i class="fa fa-calendar" aria-hidden="true"></i>
+            </div>
+        </div>
+    </div>
+    <div class="form-group col-sm-2">
+        <label class="col-sm-12 control-label" translate="Doctor"></label>
+        <div class="col-sm-12">
+            <autosearch itemid="currentfilter.DoctorId" iteminfo="" itemchange="getList()" rowdata="" name="'doctor'"
+                onenter="onenter()" config="vm.doctorcontrolconfig" placeholder="'Doctor'">
+            </autosearch>
+        </div>
+    </div>
+    <div class="form-group col-sm-2">
+        <label class="col-sm-12 control-label" translate="Patient Search"></label>
+        <div class="">
+            <patientsearch id="drhms-patinet-search-box" ng-keyup="moveHeaderFocus('pid')"
+                patientid="currentfilter.PatientId" name="txtpatientsearch" patientinfo="selectedPatient"
+                patientchange="getList()" on-enter="getList()" aria-placeholder="Patient Search"
+                tabindex="tabindexmap.patienttabindex" isdisabled="{{SaveCompleted}}"
+                filterconfig="patientfilterconfig"></patientsearch>
+        </div>
+    </div>
+    <div class="form-group col-sm-2">
+        <label class="col-sm-12 control-label" translate="Department"></label>
+        <div class="col-sm-12">
+            <ui-select ng-model="currentfilter.DepartmentId" name="department" ng-change="getList()">
+                <ui-select-match>
+                    {{$select.selected.Text | limitTo : 20 : 0}}
+                    <span ng-if="$select.selected.Text.length>20">...</span>
+                </ui-select-match>
+                <ui-select-choices
+                    repeat="lookupitem.Id as lookupitem in lookup.Department | filter: { Text: $select.search }">
+                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                </ui-select-choices>
+            </ui-select>
+        </div>
+    </div>
+    <div class="form-group col-sm-2">
+        <label class="col-sm-12 control-label" translate="Billing Status"></label>
+        <div class="col-sm-12">
+            <ui-select ng-model="currentfilter.BillingStatusId" name="billstatus" ng-change="getList()">
+                <ui-select-match>
+                    {{$select.selected.Text | limitTo : 20 : 0}}
+                    <span ng-if="$select.selected.Text.length>20">...</span>
+                </ui-select-match>
+                <ui-select-choices
+                    repeat="lookupitem.Id as lookupitem in lookup.BillingStatus | filter: { Text: $select.search }">
+                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                </ui-select-choices>
+            </ui-select>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <custom-table config="vm.gridConfig"></custom-table>
+</div>
+<div class="fooder-bgs">
+    <div class="row">
+        <ul uib-pagination total-items="vm.gridConfig.pagerObj.totalItems"
+            items-per-page="vm.gridConfig.pagerObj.pageSize" start-index="vm.gridConfig.pagerObj.startIndex"
+            ng-model="vm.gridConfig.pagerObj.currentPage" ng-change="getList()"></ul>
+    </div>
+</div>
+<!-- <div id="checkedinpatients" class="doct_checkedinpatients">
+    <div class="col-sm-12 col-md-12 col-lg-12 clearfix page-header row smpd3" style="margin-bottom: 10px !important;">
+        <div class="col-sm-12">
+            <div class="col-sm-3">
+                <label class="col-sm-12 control-label" translate="From Date"
+                    style="color: black !important;"></label>
+                <div class="col-sm-12">
+                    <div class="datepicker" id="datepicker">
+                        <input type="text" class="form-control cwidth" ng-change="getList()"
+                            uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                            placeholder="{{datePickerOptions.placeholder}}" ng-click="fromdatePopup = { opened: true }"
+                            is-open="fromdatePopup.opened" ng-model="currentfilter.FromDate">
+                        <i class="fa fa-calendar" aria-hidden="true"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-3">
+                <label class="col-sm-12 control-label" translate="To Date"
+                    style="color: black !important;"></label>
+                <div class="col-sm-12">
+                    <div class="datepicker" id="datepicker">
+                        <input type="text" class="form-control cwidth" ng-change="getList()"
+                            uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                            placeholder="{{datePickerOptions.placeholder}}" ng-click="todatePopup = { opened: true }"
+                            is-open="todatePopup.opened" ng-model="currentfilter.ToDate">
+                        <i class="fa fa-calendar" aria-hidden="true"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-3">
+                <label class="col-sm-12 control-label" translate="Doctor"
+                    style="color: black !important;"></label>
+                <div class="col-sm-12">
+                    <autosearch itemid="currentfilter.DoctorId" iteminfo="" itemchange="getList()" rowdata=""
+                        name="'doctor'" onenter="onenter()" config="vm.doctorcontrolconfig" placeholder="'Doctor'">
+                    </autosearch>
+                </div>
+            </div>
+            <div class="col-sm-3">
+                <label class="col-sm-12 control-label" translate="Department"
+                    style="color: black !important;"></label>
+                <div class="col-sm-12">
+                    <ui-select ng-model="currentfilter.DepartmentId" name="department" ng-change="getList()">
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 20 : 0}}
+                            <span ng-if="$select.selected.Text.length>20">...</span>
+                        </ui-select-match>
+                        <ui-select-choices
+                            repeat="lookupitem.Id as lookupitem in lookup.Department | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-12">
+            <div class="col-sm-3">
+                <label class="col-sm-12 control-label" translate="Billing Status"
+                    style="color: black !important;"></label>
+                <div class="col-sm-12">
+                    <ui-select ng-model="currentfilter.BillingStatusId" name="billstatus" ng-change="getList()">
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 20 : 0}}
+                            <span ng-if="$select.selected.Text.length>20">...</span>
+                        </ui-select-match>
+                        <ui-select-choices
+                            repeat="lookupitem.Id as lookupitem in lookup.BillingStatus | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+            <div class="col-sm-3">
+                <label class="col-sm-12 control-label" translate="Patient Search"
+                    style="color: black !important;"></label>
+                <div class="col-sm-12">
+                    <patientsearch id="drhms-patinet-search-box" ng-keyup="moveHeaderFocus('pid')"
+                        patientid="currentfilter.PatientId" class="logo" name="txtpatientsearch"
+                        patientinfo="selectedPatient" patientchange="getList()" on-enter="getList()"
+                        aria-placeholder="Patient Search" tabindex="tabindexmap.patienttabindex"
+                        isdisabled="{{SaveCompleted}}" filterconfig="patientfilterconfig"></patientsearch>
+                </div>
+            </div>
+        </div>
+    </div>
+    <custom-table config="vm.gridConfig"></custom-table>
+    <div class="container-fluid ">
+        <div class="fooder-bgs ">
+            <div class="row">
+                <ul uib-pagination total-items="vm.gridConfig.pagerObj.totalItems"
+                    items-per-page="vm.gridConfig.pagerObj.pageSize" start-index="vm.gridConfig.pagerObj.startIndex"
+                    ng-model="vm.gridConfig.pagerObj.currentPage" ng-change="getList()"></ul>
+            </div>
+        </div>
+    </div>
+
+</div> -->

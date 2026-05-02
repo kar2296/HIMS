@@ -1,0 +1,87 @@
+import { IAttributes } from '../../../Base/Index';
+import { Instance } from '../../../../Core/Index';
+
+export interface NewBornDetailAttributes extends IAttributes {
+    Id: number;
+    PatientId: number;
+    EncounterId: number;
+    GenderId: number;
+    DoctorId: number;
+    DeliveryDate: Date;
+    Weight: number;
+    Length: number;
+    FacilityId: number;
+    BtLr: number;
+    BtNsy: number;
+    CordBloodForId: number;
+    CordBlood: string;
+    HeadCircumference: number;
+    ChestCircumference: number;
+    Comments: string;
+    ModeOfDeliveryId: number;
+    JellyCordCutById: number;
+    ReflexesId1min: number;
+    ReflexesId5min: number;
+    ReflexesId10min: number;
+    BirthOutComeId: number;
+    UrineId: number;
+    BloodGroupId: number;
+    RhFactorId: number;
+    StoolsId: number;
+    PatencyOfAnusId: number;
+    PediatricianId: number;
+    JellyCordTypeId: number;
+    WeightUnitsId: number;
+    HEIGHTUNITSId: number;
+    CongentialAnomaliesId: number;
+    DeliveryComplicationsId: number;
+    Resuscitation: string;
+    TribandNumber: string;
+    ColourId1min: number;
+    ColourId5min: number;
+    ColourId10min: number;
+    HeartRateId1min: number;
+    HeartRateId5min: number;
+    HeartRateId10min: number;
+    ReflexesId: number;
+    MuscleToneId1min: number;
+    MuscleToneId5min: number;
+    MuscleToneId10min: number;
+    RespirationId1min: number;
+    RespirationId5min: number;
+    RespirationId10min: number;
+    NewBornStatusId: number;
+    APGARScore1min: number;
+    APGARScore5min: number;
+    APGARScore10min: number;
+    Min1min: number;
+    Min5min: number;
+    Min10min: number;
+    Oxygen1min: number;
+    Oxygen5min: number;
+    Oxygen10min: number;
+    PPV1min: number;
+    PPV5min: number;
+    PPV10min: number;
+    ETT1min: number;
+    ETT5min: number;
+    ETT10min: number;
+    ChestCompression1min: number;
+    ChestCompression5min: number;
+    ChestCompression10min: number;
+    Epinephrine1min: number;
+    Epinephrine5min: number;
+    Epinephrine10min: number;
+    Rev: number;
+    CreatedBy: number;
+    CreatedAt: Date;
+    UpdatedBy: number;
+    UpdatedAt: Date;
+}
+
+export interface NewBornDetailInstance extends Instance<NewBornDetailAttributes> {
+    // I'm exposing every DB column as an instance field to so that tsc won't complain.
+    // CreatedAt: Date;
+    // UpdatedAt: Date;
+    dataValues: NewBornDetailAttributes;
+}

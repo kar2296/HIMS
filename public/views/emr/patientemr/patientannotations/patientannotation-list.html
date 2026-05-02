@@ -1,0 +1,108 @@
+<style>
+    .aside-collapsed .fooder-bg{display: -webkit-box !important;}
+    @media (min-height: 637px) and (min-width: 1200px){
+        #depsheight .ui-grid-viewport{
+    height: 390px !important;
+    min-height: 387px;
+}}
+    @media (min-height: 675px) and (min-width: 1360px){
+        #depsheight .ui-grid-viewport{
+    height: 440px;
+    min-height: 428px;
+}}
+@media (device-height:100vh) and (device-width:100vw){
+    #depsheight .ui-grid-viewport{
+        min-height: 520px;
+    }
+}
+</style> 
+<div class="row page-header">
+    <div class="col-sm-12">
+        <div class="col-sm-6 col-md-9">
+            <h4 class="page-header mt0" translate="patientemr.patientannotation-list.pagetitle.lbl"></h4>
+        </div>
+        <div class="col-sm-6 col-md-3">
+               
+            <button class="btn-add" ng-if="canUpdatePatientEMR()" ng-click="addNew()" uib-tooltip="{{ 'patientemr.patientannotation-list.addnew-tooltip.lbl' | translate }}"
+                tooltip-placement="bottom">
+                      <i class="fa fa-plus" aria-hidden="true"></i>
+         </button>
+         <span ng-click="doctor_dashboard()">   
+                       
+                <img src="app/img/main/download.png" class="img-responsive icon_home"  alt="home" uib-tooltip=" Doctor Dashboard " tooltip-placement="bottom">
+           
+            </span> 
+        <span ng-click="patient_dashboard()">
+                <!-- <i class="bedicon pull-right" uib-tooltip="Bed Management " tooltip-placement="bottom"></i> -->
+                
+                    <img src="app/img/main/patdash.png" class="img-responsive icon_emrboard"  alt="home" uib-tooltip="Patient Dashboard" tooltip-placement="bottom">
+               
+            </span> 
+        </div>
+    </div>
+</div>
+
+
+  <div class="row filter-area">
+    <div class="col-sm-12">
+       <div class="col-sm-4">
+            <label class="col-sm-4 control-label filter-lbl" translate="patientemr.patientannotation-list.filter_annotationtype.lbl"></label>
+            <div class="col-sm-8">
+                <ui-select ng-model="currentfilter.AnnotationTypeId" ng-change="getList()" class="filter-combo">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 8 : 0}}
+                        <span ng-if="$select.selected.Text.length>8">...</span>
+                    </ui-select-match>
+                    <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.AnnotationType | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <label class="col-sm-4 control-label filter-lbl" translate="patientemr.patientannotation-list.filter_clinician.lbl"></label>
+            <div class="col-sm-8">
+                <ui-select ng-model="currentfilter.PerformedBy" ng-change="getList()" class="filter-combo">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 8 : 0}}
+                        <span ng-if="$select.selected.Text.length>8">...</span>
+                    </ui-select-match>
+                    <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.User | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <label class="col-sm-4 control-label filter-lbl" translate="patientemr.patientannotation-list.filter_status.lbl"></label>
+            <div class="col-sm-8">
+                <ui-select ng-model="currentfilter.AnnotationStatusId" ng-change="getList()" class="filter-combo">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 8 : 0}}
+                        <span ng-if="$select.selected.Text.length>8">...</span>
+                    </ui-select-match>
+                    <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.AnnotationStatus | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+        <div class="col-sm-3">
+        </div>
+    </div>
+</div>
+
+<!--<div class="container-fluid">
+    <div ui-grid="vm.gridConfig" class="table-uigrid" set-grid-height></div>
+    <ul uib-pagination total-items="vm.gridConfig.pagerObj.totalItems" items-per-page="vm.gridConfig.pagerObj.pageSize" start-index="vm.gridConfig.pagerObj.startIndex"
+        ng-model="vm.gridConfig.pagerObj.currentPage" ng-change="getList()"></ul>
+</div>-->
+
+<div class="container-fluid" id="depsheight">
+    <div ui-grid="vm.gridConfig" class="table-uigrid table-uigrid-tab "></div>
+
+    <div class="fooder-bgs">
+        <ul uib-pagination total-items="vm.gridConfig.pagerObj.totalItems" items-per-page="vm.gridConfig.pagerObj.pageSize" start-index="vm.gridConfig.pagerObj.startIndex"
+            ng-model="vm.gridConfig.pagerObj.currentPage" ng-change="getList()"></ul>
+    </div>
+</div>

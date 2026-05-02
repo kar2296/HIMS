@@ -1,0 +1,77 @@
+<!-- <style>
+  .usermap .ui-grid-viewport{height:432px !important;}
+  .table-uigrid{height:458px !important;}
+  i.fa.fa-times {
+    background: red;
+    height: 25px;
+    width: 25px;
+    padding: 4px 5px;
+    color: white;
+    border-radius: 5px;
+    font-size: 18px;
+}
+</style> -->
+<div class="row">
+    <form id="item_form" name="item_form" class="form-horizontal" role="form">
+        <div class="form-group col-sm-4">
+            <label class="col-sm-4 control-label" for="usertype"
+                translate="generalmaster.wardmastertab.filter_usertype.lbl"></label>
+            <div class="col-sm-8">
+                <ui-select ng-model="item.UserTypeId" ng-change="getFacilityUsers()" name="usertype"
+                    class="filter-combo" required>
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 20 : 0}}
+                        <span ng-if="$select.selected.Text.length>20">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.UserType | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+        <div class="form-group col-sm-4">
+            <label class="col-sm-4 control-label" for="username"
+                translate="generalmaster.wardmastertab.filter_username.lbl"></label>
+            <div class="col-sm-8">
+                <autosearch itemid="item.UserId" iteminfo="" on-enter="getList()" name="username"
+                    rowdata="" config="vm.usercontrolconfig" itemchange="getList()"
+                    candisable="item.RdoUser"></autosearch>
+                <!-- <ui-select ng-model="item.UserId" class="filter-combo" ng-change="userChange($select.selected)"
+                    name="username" required>
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 20 : 0}}
+                        <span ng-if="$select.selected.Text.length>20">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.User | filter: { Text: $select.search }">
+                        <div>
+                            <span>{{lookupitem.Title.Description}}</span>
+                            <span ng-bind-html="lookupitem.FirstName | highlight: $select.search"></span>
+                            <span>{{lookupitem.LastName}}</span>
+                        </div>
+                    </ui-select-choices>
+                </ui-select> -->
+            </div>
+        </div>
+        <div class="form-group col-sm-4">
+            <button class="btn-add" ng-click="addUsers()"
+                uib-tooltip="{{ 'generalmaster.wardmastertab.tabuser.lbl' | translate }}" tooltip-placement="bottom">
+                <i class="fa fa-plus" aria-hidden="true"></i></button>
+        </div>
+    </form>
+</div>
+
+<div class="fooder-bgs">
+    <div class="row">
+        <custom-table config="vm.gridConfig"></custom-table>
+        <ul uib-pagination total-items="vm.gridConfig.pagerObj.totalItems"
+            items-per-page="vm.gridConfig.pagerObj.pageSize" start-index="vm.gridConfig.pagerObj.startIndex"
+            ng-model="vm.gridConfig.pagerObj.currentPage" ng-change="getList()"></ul>
+    </div>
+    <div class="pull-left">
+        <button type="button" class="btn pyr-color10 btn-sm" ng-click="backToList()"><i class="fa fa-angle-left"
+            aria-hidden="true"></i>&nbsp;&nbsp;<span class="btn-fontsize"
+            translate="common.backaction.lbl"></span></button>
+    </div>
+</div>

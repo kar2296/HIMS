@@ -1,0 +1,323 @@
+<style>
+    #btnAddMember {
+        margin-left: 15px;
+        margin-top: -12px;
+    }
+
+    .panel-body {
+        padding: 15px;
+        margin-left: 0px;
+        margin-top: -53px;
+        margin-right: 0px;
+        margin-bottom: 0px;
+        background-image: unset !important;
+        background-repeat: repeat;
+        overflow: auto;
+    }
+
+    .modal-content .panel-body {
+        overflow: inherit;
+    }
+
+    /* .table-uigrid-members {
+        height: 200px !important;
+    } */
+
+    .well {
+        min-height: 20px;
+        padding: 19px;
+        margin-bottom: 0px;
+        border: 1px solid #ededed;
+        border-radius: 4px;
+        background: rgb(233, 246, 253);
+        /* Old browsers */
+        background: -moz-linear-gradient(top, rgba(233, 246, 253, 1) 0%, rgba(211, 238, 251, 1) 120%);
+        /* FF3.6-15 */
+        background: -webkit-linear-gradient(top, rgba(233, 246, 253, 1) 0%, rgba(211, 238, 251, 1) 120%);
+        /* Chrome12-25,Safari5.1-6 */
+        background: linear-gradient(to bottom, rgb(250, 250, 250) 0%, rgb(247, 252, 253) 120%);
+        /* W3C, IE12+, FF16+, Chrome26+, Opera12+, Safari7+ */
+        filter: progid: DXImageTransform.Microsoft.gradient(startColorstr='#e9f6fd', endColorstr='#d3eefb', GradientType=0);
+        /* IE6-9 */
+        box-shadow: 4px 2px 13px -7px rgba(0, 0, 0, 0.75);
+    }
+
+    .formactionbar {
+        padding: 5px 15px;
+        height: 40px;
+        background-color: #ccecf5;
+    }
+
+    .custom-modal-header {
+        margin-bottom: 12px;
+        color: #000;
+    }
+
+    .modal-content {
+        box-shadow: -1px 3px 0px 11px rgb(207, 231, 234);
+    }
+
+    .modal-header {
+        padding: 4px 12px;
+        border-bottom: 1px solid #e5e5e5;
+    }
+
+    .grid-root {
+        padding-right: 0px;
+        padding-left: 0px;
+    }
+
+    .panel-title {
+        margin-top: 0;
+        margin-bottom: 0;
+        font-size: 19px;
+        color: inherit;
+    }
+
+    .modal-header.custom-modal-header.ng-scope {
+        background-color: #6390a742;
+        margin-bottom: 8px !important;
+        padding: 12px;
+    }
+
+    span.btn.btn-default.form-control.ui-select-toggle {
+        height: 32px !important;
+        padding: 8px;
+        border-radius: 4px !important;
+    }
+
+    h3.panel-title.ng-scope span,
+    h4.panel-title.ng-scope span {
+        color: #0b541c !important;
+
+    }
+
+    .formactionbar {
+        padding: 5px 15px;
+        height: 50px;
+        margin-bottom: 0px;
+        margin-top: 20px;
+        background-color: #d6e2e8 !important;
+    }
+
+    .panel.panel-body.panel-default.tablebox .page-header {
+        margin-bottom: 20px !important;
+        background-color: #cfe7ea !important;
+    }
+
+    script#customPopupTemplate.html+.autosearch-div {
+
+        width: 50% !important;
+        float: right;
+        padding-bottom: 7px;
+    }
+
+    body.layout-fixed.aside-collapsed autosearch.ng-isolate-scope {
+        border: none !important;
+        width: 50%;
+        box-sizing: unset !important;
+        float: right;
+    }
+
+    .form-group label {
+        color: #3a3f51;
+    }
+
+    .form-group label span {
+        color: #333;
+        font-family: 'Rubik', sans-serif !important;
+        /* font-weight: 300 !important; */
+        font-size: 13px;
+    }
+
+    .form-horizontal .form-group {
+        margin-left: -10px;
+        margin-right: 10px;
+    }
+
+    .tabsizetopcontroller .fooder-bg,
+    .panel-footer.formactionbar {
+        width: 98% !important;
+        left: 5px !important;
+        /* height: 2px; */
+        margin-left: 5px;
+        /* margin-right: 2px; */
+    }
+
+    .panel-footer.formactionbar {
+        /* background: #d6e2e8 !important; */
+        margin: 0% 12px;
+    }
+</style>
+<div class="modal-header custom-modal-header">
+    <h4 class="modal-title custom-modal-title" translate="assetmanagement.newassetrequest.manageassetapprved.lbl"></h4>
+</div>
+<div class="row">
+    <div class="col-sm-12">
+        <form id="item_form" name="item_form" class="form-horizontal" role="form">
+            <div class=" panel panel-body panel-default tablebox">
+                <div class="col-sm-12" style="margin-bottom: 20px !important;">
+                    <div class="col-sm-12">
+                        <div class="col-sm-4 form-group">
+                            <div class="col-xs-10 col-sm-10 col-md-10 col-lg-10">
+                                <label translate="assetmanagement.newassetrequest.assetname.lbl" for="assetname"></label>
+                                <input type="text" class="form-control" name="assetname" ng-model="item.AssetName" required uppercase>
+                            </div>
+                        </div>
+                        <div class="col-sm-4 form-group">
+                            <div class="col-xs-10 col-sm-10 col-md-10 col-lg-10">
+                                <label translate="assetmanagement.newassetrequest.department.lbl"for="department"></label>
+                                <ui-select ng-model="item.DepartmentId" name="department" required>
+                                    <ui-select-match>
+                                        {{$select.selected.Text | limitTo : 40 : 0}}
+                                        <span ng-if="$select.selected.Text.length>20">...</span>
+                                    </ui-select-match>
+                                    <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.Department | filter: { Text: $select.search }">
+                                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                    </ui-select-choices>
+                                </ui-select>
+                            </div>
+                        </div>
+                        <div class="col-sm-4 form-group">
+                            <div class="col-xs-10 col-sm-10 col-md-10 col-lg-10">
+                                <label translate="assetmanagement.newassetrequest.ismanufacturer.lbl" for="IsManufacturer"></label>
+                                <div class="col-xs-10 col-sm-10 col-md-10 col-lg-10">
+                                    <input type="checkbox" name="IsManufacturer" class="custom-checkbox" ng-model="item.IsManufacturer">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-12">
+                        <div class="col-sm-4 form-group">
+                            <div class="col-xs-10 col-sm-10 col-md-10 col-lg-10">
+                                <label translate="assetmanagement.newassetrequest.manufacturer.lbl"></label>
+                                <div ng-if="item.IsManufacturer==true">
+                                    <input type="text" name="Manufacturer" class="form-control" ng-model="item.Manufacturer">
+                                </div>
+                                <div ng-if="item.IsManufacturer==false">
+                                    <ui-select ng-model="item.ManufacturerId">
+                                        <ui-select-match>
+                                            {{$select.selected.Text | limitTo : 40 : 0}}
+                                            <span ng-if="$select.selected.Text.length>20">...</span>
+                                        </ui-select-match>
+                                        <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.Manufacturer | filter: { Text: $select.search }">
+                                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                        </ui-select-choices>
+                                    </ui-select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-4 form-group">
+                            <div class="col-xs-10 col-sm-10 col-md-10 col-lg-10">
+                                <label translate="assetmanagement.newassetrequest.approximatevalue.lbl" for="approximatevalue"></label>
+                                <input type="text" class="form-control" name="approximatevalue" ng-model="item.ApproximateValue" required uppercase>
+                            </div>
+                        </div>
+                        <div class="col-sm-4 form-group">
+                            <div class="col-xs-10 col-sm-10 col-md-10 col-lg-10">
+                                <label translate="assetmanagement.newassetrequest.ispreferredsupplier.lbl" for="ispreferredsupplier"></label>
+                                <div class="col-xs-10 col-sm-10 col-md-10 col-lg-10">
+                                    <input type="checkbox" name="ispreferredsupplier" class="custom-checkbox" ng-model="item.IsPreferredSupplier">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-12">
+                        <div class="col-sm-4 form-group">
+                            <div class="col-xs-10 col-sm-10 col-md-10 col-lg-10">
+                                <label translate="assetmanagement.newassetrequest.preferredsupplier.lbl" for="preferredsupplier"></label>
+                                <div ng-if="item.IsPreferredSupplier==true">
+                                    <input type="text" name="preferredsupplier" class="form-control" ng-model="item.PreferredSupplier">
+                                </div>
+                                <div ng-if="item.IsPreferredSupplier==false">
+                                    <ui-select ng-model="item.PreferredSupplierId" ng-if="item.IsPreferredSupplier==false">
+                                        <ui-select-match>
+                                            {{$select.selected.Text | limitTo : 40 : 0}}
+                                            <span ng-if="$select.selected.Text.length>20">...</span>
+                                        </ui-select-match>
+                                        <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.PreferredSupplier | filter: { Text: $select.search }">
+                                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                        </ui-select-choices>
+                                    </ui-select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-4 form-group">
+                            <div class="col-xs-10 col-sm-10 col-md-10 col-lg-10">
+                                <label translate="assetmanagement.newassetrequest.requestedby.lbl"></label>
+                                <autosearch itemid="item.RequestedById" iteminfo="" rowdata="" config="vm.usercontrolconfig" itemchange="" onenter="">
+                                </autosearch>
+                            </div>
+                        </div>
+                        <div class="col-sm-4 form-group">
+                            <div class="col-xs-10 col-sm-10 col-md-10 col-lg-10">
+                                <label translate="assetmanagement.newassetrequest.requesteddate.lbl" for="requesteddate"></label>
+                                <input type="text" class="form-control" name="requesteddate" ng-date-object uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                                    placeholder="{{datePickerOptions.placeholder}}" ng-click="requesteddatePopup = { opened: true }"
+                                    is-open="requesteddatePopup.opened" ng-model="item.RequestedDate">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-12">
+                        <div class="col-sm-4 form-group">
+                            <div class="col-xs-10 col-sm-10 col-md-10 col-lg-10">
+                                <label translate="assetmanagement.newassetrequest.description.lbl" for="description"></label>
+                                <textarea name="comments" ng-model="item.Description" maxlength="4000" style="width:100%;" class="notes-textarea"></textarea>
+                            </div>
+                        </div>
+                        <div class="col-sm-4 form-group" ng-if="item.AssetRequestStatusId>=2">
+                            <div class="col-xs-10 col-sm-10 col-md-10 col-lg-10">
+                                <label translate="assetmanagement.newassetrequest.approvedby.lbl"></label>
+                                <autosearch itemid="item.ApprovedById" iteminfo="" rowdata="" config="vm.usercontrolconfig" itemchange="" onenter="">
+                                </autosearch>
+                            </div>
+                        </div>
+                        <div class="col-sm-4 form-group" ng-if="item.AssetRequestStatusId>=2">
+                            <div class="col-xs-10 col-sm-10 col-md-10 col-lg-10">
+                                <label translate="assetmanagement.newassetrequest.approveddate.lbl" for="approveddate"></label>
+                                <input type="text" class="form-control" name="approveddate" ng-date-object uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                                    placeholder="{{datePickerOptions.placeholder}}" ng-click="approveddatePopup = { opened: true }"
+                                    is-open="approveddatePopup.opened" ng-model="item.ApprovedDate">
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="col-sm-12">
+                        <div class="col-sm-4 form-group" ng-if="item.AssetRequestStatusId>=2">
+                            <div class="col-xs-10 col-sm-10 col-md-10 col-lg-10">
+                                <label translate="assetmanagement.newassetrequest.rejectedby.lbl"></label>
+                                <autosearch itemid="item.RejectedById" iteminfo="" rowdata="" config="vm.usercontrolconfig" placeholder="'RejectedBy'" itemchange="" onenter="">
+                                </autosearch>
+                            </div>
+                        </div>
+                        <div class="col-sm-4 form-group" ng-if="item.AssetRequestStatusId>=2">
+                            <div class="col-xs-10 col-sm-10 col-md-10 col-lg-10">
+                                <label translate="assetmanagement.newassetrequest.rejecteddate.lbl" for="rejecteddate"></label>
+                                <input type="text" class="form-control" name="rejecteddate" ng-date-object uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                                    placeholder="{{datePickerOptions.placeholder}}" ng-click="rejecteddatePopup = { opened: true }"
+                                    is-open="rejecteddatePopup.opened" ng-model="item.RejectedDate">
+                            </div>
+                        </div>
+                        <div class="col-sm-4 form-group">
+                            <div class="col-xs-10 col-sm-10 col-md-10 col-lg-10">
+                                <label translate="assetmanagement.newassetrequest.rejectedcmts.lbl" for="description"></label>
+                                <textarea name="comments" ng-model="item.RejectedComments" maxlength="4000" style="width:100%;" class="notes-textarea"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+        </form>
+        </div>
+    </div>
+    <div class="panel-footer formactionbar">
+        <div class="pull-right">
+            <button type="submit" class="draftbutton" ng-click="save()" ng-hide="item.AssetRequestStatusId>=2" translate="assetmanagement.newassetrequest.save.lbl"></button>
+            <button type="button" class="btn dem-color4 text-white btn-sm" ng-hide="item.AssetRequestStatusId>=2" translate="assetmanagement.newassetrequest.requested.lbl"
+                ng-click="Requested()"></button>
+            <button type="button" class="draftbutton" ng-if="item.AssetRequestStatusId>=2" translate="assetmanagement.newassetrequest.approved.lbl"
+                ng-click="Approved()"></button>
+            <button type="button" class="draftbutton" ng-if="item.AssetRequestStatusId>=2" translate="assetmanagement.newassetrequest.rejected.lbl"
+                ng-click="Rejected()"></button>
+            <button id="btnCancelForm" type="button" class="draftbutton" ng-click="backToList()" translate="common.cancelaction.lbl"></button>
+        </div>
+    </div>

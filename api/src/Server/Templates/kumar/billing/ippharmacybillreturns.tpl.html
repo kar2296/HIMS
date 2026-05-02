@@ -1,0 +1,183 @@
+<html>
+
+    <head>
+        <style>
+            .table1 {
+                border: 1px solid black;
+                border-bottom: 0px solid black;
+                text-align: left;
+                font-size: 10px;
+            }
+            .table1 td {
+                font-size: 10px;
+            }
+
+            .table2 {
+                border: 1px solid black;
+                border-bottom: 0px solid black;
+                border-top: 0px solid black;
+                text-align: left;
+                font-size: 10px;
+            }
+
+            .table3 {
+                border: 1px solid black;
+                border-bottom: 1px solid black;
+                font-size: 10px;
+            }
+
+            .border {
+                border-collapse: collapse;
+                border-left: 1px solid black;
+                font-size: 10px;
+            }
+
+            .table4 {
+                border: 1px solid black;
+                border-bottom: 0px solid black;
+                text-align: left;
+                font-size: 10px;
+            }
+
+            .table5 {
+                border: 1px solid black;
+                border-bottom: 1px solid black;
+                border-top: 0px solid black;
+                text-align: left;
+                font-size: 10px;
+            }
+
+            .size {
+                border: 1px solid black;
+                font-size: 10px;
+                border-collapse: collapse;
+                border-top: 0px solid black;
+                border-bottom: 1px solid black;
+            }
+    .size { 
+      font-size: 11px; 
+    } 
+    .size tr th{ 
+      border: 1px solid black; 
+      border-top: 0px solid black; 
+    } 
+
+            {{include '/Templates/assets/css/core.css'}}
+        </style>
+    </head>
+
+    <body style="padding: 10px;">
+        <div id="pageHeader">
+            {{{include '/Templates/kumar/common/pharmacyheader1.tpl.html' 'tpl'}}}
+        </div>
+           <div class="center"style="vertical-align:text-middle;font-size:11px;text-align:center;"><b>PHARMACY CREDIT RETURN </b></div>
+        <table class="table1" style="width:100%;">
+            <tr>
+                <td><b>Name</b></td>
+                <td>:</td>
+                <td><b>{{data.PatientBills.Patient.Title.Description}} {{data.PatientBills.Patient.FirstName}} {{data.PatientBills.Patient.MiddleName}}
+                    {{data.PatientBills.Patient.LastName}}</b></td>
+                <td><b>UHID NO</b></td>
+                <td>:</td>
+                <td><b>{{data.PatientBills.Patient.MRN}}</b></td>
+            </tr>
+            <tr>
+                <td><b>Visit NO</b></td>
+                <td>:</td>
+                <td><b>{{data.Encounter.VisitIdentifier}}</b></td>
+                <td><b>Age / Sex</b></td>
+                <td>:</td>
+                <td>{{ageonlyyear data.PatientBills.Patient.DOB}} / {{data.PatientBills.Patient.Gender.Description}}</td>
+            </tr>
+            <tr>
+                <td><b>Return No</b></td>
+                <td>:</td>
+                <td>{{data.PatientReturns.ReturnNumber}}</td>
+                <td><b>Return Date</b></td>
+                <td>:</td>
+               <td>{{datetimeformat data.PatientReturns.ReturnDateTime}}</td>
+            </tr>
+
+            <tr>
+                <td><b>Bill NO</b></td>
+                <td>:</td>
+                <td><b>{{data.PatientBills.BillNumber}}</b></td>
+                <td>Bill Date</td>
+                <td>:</td>
+                <td>{{datetimeformat data.PatientBills.BillDateTime}}</td>             
+            </tr>
+        </table>
+
+        <table class="size" style="width:100%; ">
+            <tr>
+                <th style="width:5%" align="left">S.No</th>
+                <th style="width:27%" align="left">Description</th>
+                <th style="width:23%" align="left">Batch /Exp</th>
+                <th style="width:10%" align="center">MRP</th>
+                <th style="width:12%" align="center">Billed Qty</th>
+                <th style="width:13%" align="center">Return Qty</th> 
+                <th style="width:10%" align="right">Amount</th>
+            </tr> 
+ {{#each data.Patientreturndetails}}
+            <tr>
+                <td>{{inc @index}}</td>
+                <td>{{ServiceName}}</td>
+                <td>{{BatchId}} / {{dateformat ExpiryDate}}</td>
+                <td>{{currencyformat Rate}}</td>
+                <td align="center">{{BilledQuantity}}</td>
+                <td align="center">{{ReturnQuantity}}</td> 
+                <td align="right">{{currencyformat Amount}}</td>
+            </tr>
+            {{/each}}
+        </table>
+
+        <table class="size" style="width:100%; ">
+           
+        </table> 
+        <table class="table2" style="width:100%; ">
+            <tr>
+                <td style="width:40%;"></td>
+                <td style="width:50%;text-align:right"><b>Net Amount</b></td>
+                <td>:</td>
+                <td style="width:10%; text-align:right"><b>{{currencyformat data.PatientReturns.ReturnAmount}}</b></td>
+            </tr>
+            <tr>
+                <td style="width:40%;"></td>
+                <td style="width:50%;text-align:right">{{#if data.PatientReturns.RefundedAmount}} Refunded {{/if}}</td>
+                <td>{{#if data.PatientReturns.RefundedAmount}}: {{/if}}</td>
+                <td>{{#if data.PatientReturns.RefundedAmount}} {{currencyformat data.PatientReturns.RefundedAmount}} {{/if}}</td>
+            </tr>
+            <tr>
+                <td colspan="2"style="width:90%;text-align:right">{{#if data.PatientReturns.ToBeRefundAmount}}To Be Refunded{{/if}}</td>
+                <td>{{#if data.PatientReturns.ToBeRefundAmount}}:{{/if}}</td>
+                <td>{{#if data.PatientReturns.ToBeRefundAmount}} {{currencyformat data.PatientReturns.ToBeRefundAmount}} {{/if}}</td>
+            </tr>
+        </table>
+        <table class="table4" style="width:100%;">
+            <tr>
+                <td><b>Amount in words</b> : <b style="text-transform: capitalize">Rupees {{decimalnrInWords1 data.PatientReturns.ReturnAmount}} only</b></td>
+                <td>:</td>
+                <td></td>
+            </tr>
+        </table>
+        <table class="table3" style="width:100%; height:50px;">
+            <tr>
+                <td style="width:80%;">
+                    <u></u>
+                </td>
+                <td  colspan="4" style="width:20%;"> {{data.PatientBills.CreatedUser.FirstName}} {{data.PatientBills.CreatedUser.LastName}}</td>
+            </tr>
+            <tr>
+                <td style="width:80%;">Patient Signature
+                    <u><b></b></u>
+                </td>
+                <td colspan="4" style="width:20%;">Authorized Signature</td>
+            </tr>
+        </table>
+        <div style="width:100%; font-size:10px; ">Printed On: {{now}}</div>
+    </body>
+
+    </html>
+
+
+    </html>

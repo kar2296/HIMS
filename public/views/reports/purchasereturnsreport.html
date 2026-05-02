@@ -1,0 +1,225 @@
+<link href="app/css/inventory.css" rel="stylesheet">
+<div id="purchasereturn">
+    <div class="row page-header">
+        <div class="col-sm-12">
+            <div class="col-sm-4">
+                <h4 class="page-header mt0" translate="inventory.purchasereturn.pagetitle.lbl"></h4>
+            </div>
+            <div class="col-sm-8">
+                <!-- <span>
+                    <button class="btn bt-color3 btn-xs pull-right btn-filter" ng-click="openAdvancedFilter()"
+                        uib-tooltip="{{ '  clinicalmaster.serviceitem-list.filter-tooltip.lbl' | translate }}"
+                        tooltip-placement="bottom"><i class="fas fa-search" aria-hidden="true"></i>&nbsp;&nbsp;
+                </span> -->
+                <span style="float: center;">
+                    <input type="text" class="form-control textbox-search" style="width:300px;" on-enter="getList()"
+                        name="ponumber" ng-model="currentfilter.PoNumber" translate
+                        translate-attr-placeholder="Search Po# / GRN #/ Invoice#">
+                </span>
+                <span>
+                    <button type="button" class="" style="border: 1px;background: white;" ng-click="backtoReport()"
+                        uib-tooltip="{{ 'Report'}}" tooltip-placement="bottom">
+                        <i class="fa fa-home" aria-hidden="true"></i>&nbsp;&nbsp;
+                    </button>
+                    <button type="button"   class="pull-right btn btn-inverse btn-sm"
+                        translate="common.printaction.lbl" ng-click="print()"></button>
+
+                </span>
+                <!-- <button class="btn bt-color2 btn-xs pull-right back_but" style="margin-right:10px">
+        <a href="/www/index.html#/app/inventorydashboard/"><i class="fa fa-arrow-left"></i>&nbsp;&nbsp;<span class="ng-scope">Back</span></a>
+      </button>-->
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <table id="bannerdetails" style="width:101%;">
+        <tr>
+            <td> <label class="col-sm-4 control-label" for="prndate"
+                    translate="inventory.purchasereturns.prndate.lbl"></label></td>
+            <td>
+                <div class="datepicker">
+                    <input type="text" class="form-control" name="prndate" ng-change="getList()"
+                        datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}"
+                        uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                        placeholder="{{datePickerOptions.placeholder}}" ng-click="prndatePopup = { opened: true }"
+                        is-open="prndatePopup.opened" ng-model="currentfilter.PrnDate">
+                    <i class="fa fa-calendar" aria-hidden="true"></i>
+                </div>
+            </td>
+            <td> <label class="control-label" for="vendor" translate="inventory.purchasereturns.vendor.lbl"></label>
+            </td>
+            <td>
+                <autosearch itemid="currentfilter.VendorMasterId" iteminfo="" rowdata="" config="vm.vendorcontrolconfig"
+                    itemchange="getList()" candisable="item.IsGrnReturn">
+                </autosearch>
+            </td>
+            <td> <label class="control-label" for="returnstore"
+                    translate="inventory.purchasereturns.returnstore.lbl"></label></td>
+            <td><ui-select ng-model="currentfilter.StoreMasterId" name="returnstore" ng-change="getList()" required>
+                    <ui-select-match>
+                        {{$select.selected.StoreName | limitTo : 20 : 0}}
+                        <span ng-if="$select.selected.StoreName.length>20">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.UserStores | filter: { StoreName: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select></td>
+            <td><label class="control-label filter-lbl" for="status"
+                    translate="inventory.purchasereturns.status.lbl"></label></td>
+            <td>
+                <multiselectchk list="lookup.PrnStatus" selected="currentfilter.PrnStatusId" change="getList()">
+                </multiselectchk>
+            </td>
+
+        </tr>
+    </table>
+</div>
+
+
+<!-- <div class="col-sm-3">
+                <div class="datepicker">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label" for="prndate"
+                            translate="inventory.purchasereturns.prndate.lbl"></label>
+                        <div class="col-sm-8">
+                            <input type="date" class="form-control" name="prndate" ng-change="getList()" datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}" uib-datepicker-popup="{{datePickerOptions.dateFormat}}" placeholder="{{datePickerOptions.placeholder}}"
+                                ng-click="PrnDatePopup = { opened: true }" is-open="PrnDatePopup.opened" ng-model="currentfilter.PrnDate">
+                            <input type="text" class="form-control" name="prndate" ng-change="getList()"
+                                datepicker-options="datePickerOptions"
+                                show-button-bar="{{datePickerOptions.showButtonBar}}"
+                                uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                                placeholder="{{datePickerOptions.placeholder}}"
+                                ng-click="prndatePopup = { opened: true }" is-open="prndatePopup.opened"
+                                ng-model="currentfilter.PrnDate">
+                            <i class="fa fa-calendar" aria-hidden="true"></i>
+                        </div>
+                    </div>
+                </div>
+            </div> -->
+<!-- <div class="col-sm-3 form-group">
+                <div class="col-sm-4">
+                    <label class="control-label" for="vendor" translate="inventory.purchasereturns.vendor.lbl"></label>
+                </div>
+                <div class="col-sm-8">
+                    <autosearch itemid="currentfilter.VendorMasterId" iteminfo="" rowdata=""
+                        config="vm.vendorcontrolconfig" itemchange="getList()" candisable="item.IsGrnReturn">
+                    </autosearch>
+                </div>
+            </div> -->
+
+<!-- <div class="col-sm-3 form-group">
+                <div class="col-sm-4">
+                    <label class="control-label" for="returnstore"
+                        translate="inventory.purchasereturns.returnstore.lbl"></label>
+                </div>
+                <div class="col-sm-8">
+                    <ui-select ng-model="currentfilter.StoreMasterId" name="returnstore" ng-change="getList()" required>
+                        <ui-select-match>
+                            {{$select.selected.StoreName | limitTo : 20 : 0}}
+                            <span ng-if="$select.selected.StoreName.length>20">...</span>
+                        </ui-select-match>
+                        <ui-select-choices
+                            repeat="lookupitem.Id as lookupitem in lookup.UserStores | filter: { StoreName: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div> -->
+
+<!-- <div class="col-sm-3">
+                <div class="col-sm-4">
+                    <label class="control-label filter-lbl" for="status"
+                        translate="inventory.purchasereturns.status.lbl"></label>
+                </div>
+                <div class="col-sm-8">
+                    <multiselectchk list="lookup.PrnStatus" selected="currentfilter.PrnStatusId" change="getList()">
+                    </multiselectchk>
+                </div>
+            </div> -->
+<!-- <div class="col-sm-4 form-group">
+            <div class="col-sm-4">
+                <label class="control-label" for="prntype" translate="inventory.purchasereturns.type.lbl"></label>
+            </div>
+            <div class="col-sm-8">
+                <ui-select ng-model="currentfilter.PrnTypeId" name="prntype" ng-change="getList()" required>
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 20 : 0}}
+                        <span ng-if="$select.selected.Text.length>20">...</span>
+                    </ui-select-match>
+                    <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.PrnType | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div> -->
+
+<!-- <div class="col-sm-4 form-group">
+            <div class="col-sm-4">
+                <label class="control-label" for="prnnumber" translate="inventory.purchasereturns.returnno.lbl"></label>
+            </div>
+            <div class="col-sm-8">
+                <input type="text" class="form-control" on-enter="getList()" ng-model="currentfilter.PrnNumber" translate translate-attr-placeholder="inventory.purchasereturns.returnno.lbl">
+            </div>
+        </div> -->
+<!-- </div> -->
+
+<!-- <div class="col-sm-12">
+            <div class="col-sm-4">
+                    <div class="col-sm-4">
+                        <label class="control-label filter-lbl" for="status" translate="inventory.purchasereturns.status.lbl"></label>
+                    </div>
+                    <div class="col-sm-8">
+                        <multiselectchk list="lookup.PrnStatus" selected="currentfilter.PrnStatusId" change="getList()"></multiselectchk>
+                    </div>
+                </div> -->
+<!-- <div class="col-sm-4 form-group">
+            <div class="col-sm-4">
+                <label class="control-label" for="returnstore" translate="inventory.purchasereturns.returnstore.lbl"></label>
+            </div>
+            <div class="col-sm-8">
+                <ui-select ng-model="currentfilter.StoreMasterId" name="returnstore" ng-change="getList()" required>
+                    <ui-select-match>
+                        {{$select.selected.StoreName | limitTo : 20 : 0}}
+                        <span ng-if="$select.selected.StoreName.length>20">...</span>
+                    </ui-select-match>
+                    <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.UserStores | filter: { StoreName: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <div class="form-group">
+                <label class="col-sm-4 control-label" for="prndate" translate="inventory.purchasereturns.prndate.lbl"></label>
+                <div class="col-sm-8">
+                    <input type="date" class="form-control" name="prndate" ng-change="getList()" datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}" uib-datepicker-popup="{{datePickerOptions.dateFormat}}" placeholder="{{datePickerOptions.placeholder}}"
+                        ng-click="PrnDatePopup = { opened: true }" is-open="PrnDatePopup.opened" ng-model="currentfilter.PrnDate">
+                    <input type="text" class="form-control" name="prndate" ng-change="getList()" datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}"
+                        uib-datepicker-popup="{{datePickerOptions.dateFormat}}" placeholder="{{datePickerOptions.placeholder}}"
+                        ng-click="prndatePopup = { opened: true }" is-open="prndatePopup.opened" ng-model="currentfilter.PrnDate">
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-4">
+            <div class="col-sm-4">
+                <label class="control-label filter-lbl" for="status" translate="inventory.purchasereturns.status.lbl"></label>
+            </div>
+            <div class="col-sm-8">
+                <multiselectchk list="lookup.PrnStatus" selected="currentfilter.PrnStatusId" change="getList()"></multiselectchk>
+            </div>
+        </div> -->
+<!-- </div> -->
+<div class="row">
+    <custom-table config="vm.gridConfig"></custom-table>
+</div>
+
+<div class="fooder-bgs">
+   <div class="row">
+    <ul uib-pagination total-items="vm.gridConfig.pagerObj.totalItems" items-per-page="vm.gridConfig.pagerObj.pageSize"
+    start-index="vm.gridConfig.pagerObj.startIndex" ng-model="vm.gridConfig.pagerObj.currentPage"
+    ng-change="getList()"></ul>
+   </div>
+</div>

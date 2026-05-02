@@ -1,0 +1,288 @@
+<link href="app/css/billing-pharmacy-customs.css" rel="stylesheet">
+
+<style>
+    #opbillingcontrol .table-control {
+        /* height: 405px !important; */
+        height:373px !important;
+    }
+    
+    #opbillingcontrol .formRoot {
+        /* height: 391px !important; */
+        height:355px !important;
+    }
+    
+    .filter-area {
+        margin-top: 5px;
+    }
+    
+    .well .col-sm-6 {
+        padding-left: 8px !important;
+        padding-right: 0px !important;
+    }
+    
+    .table-control .col-sm-12 {
+        padding-left: 0px !important;
+        padding-right: 4px !important;
+    }
+
+    .well {
+        padding: 5px;
+    }
+
+    .table-uigrid {
+    margin-left: 0px;
+    margin-right: 0px;}
+
+    .ui-grid-viewport { min-height: 361px !important;}
+    .table-uigrid { height:300px !important;}
+    .bgfoot .btn-sm,
+    .btn-group-sm>.btn {
+        padding: 0px 6px;
+        font-size: 10px;
+        line-height: 1.5;
+        border-radius: 3px;
+    }
+    .bgfoot .toprightchequedate .dropdown-menu {
+        top: -21px !important;
+        max-height: 175px;
+    }
+    .page-header {
+    margin: 0px 0 8px!important;
+    padding-left: 15px;
+}
+@media (device-width:100vw) and (device-height:100vh){
+    #opbillingcontrol .table-control {
+        /* height: 405px !important; */
+        height:505px !important;
+    }
+    
+    #opbillingcontrol .formRoot {
+        /* height: 391px !important; */
+        height:475px !important;
+    }
+}
+</style>
+
+<div class="row page-header">
+    <h4 class="col-sm-6 page-header" translate="inventory.threewaymatching-list.pagetitle.lbl"></h4>
+</div>
+<div id="opbillingcontrol">
+    <div class="row filter-area">
+        <div class="col-sm-12">
+            <div class="col-sm-4">
+                <label class="col-sm-6 control-label filter-lbl" translate="inventory.threewaymatching-list.vendorname.lbl"></label>
+                <div class="col-sm-6">
+                    <ui-select ng-model="currentfilter.VendorId" ng-change="getList()" class="filter-combo">
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 8 : 0}}
+                            <span ng-if="$select.selected.Text.length>8">...</span>
+                        </ui-select-match>
+                        <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.VendorMaster | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+            <div class="col-sm-5">
+                <label class="col-sm-6 control-label" translate="inventory.threewaymatching-form.purchaseorder.lbl"></label>
+                <div class="input-group col-sm-6">
+                    <div class="input-group-addon"><i class="fas fa-search" aria-hidden="true"></i></div>
+                    <input type="text" class="form-control" on-enter="getList()" ng-model="currentfilter.DoctorInvoiceNo" name="invoiceno" translate translate-attr-placeholder="inventory.threewaymatching-form.purchaseorder.lbl">
+                </div>
+            </div>
+            <button class="btn-add" ng-click="">&nbsp;&nbsp;
+                <i class="fa fa-plus" aria-hidden="true"></i><strong class="btn-fontsize" translate="Load"></strong>&nbsp;&nbsp;
+                        </button>
+        </div>
+    </div>
+    <div class="table-control">
+        <div class="col-sm-12 well ">
+            <div class="" id="mainresponsivetablecontrol">
+                <div class="col-sm-6">
+                    <div class=" bg-pattern1 table-height formRoot">
+                        <div class="container-fluid" id="depsheight">
+                            <div ui-grid="vm.gridConfig" class="table-uigrid table-uigrid-tab "></div>
+                            <!--<div class="fooder-bgs">
+                                <div class="row">
+                                    <ul uib-pagination total-items="vm.gridConfig.pagerObj.totalItems" items-per-page="vm.gridConfig.pagerObj.pageSize" start-index="vm.gridConfig.pagerObj.startIndex"
+                                        ng-model="vm.gridConfig.pagerObj.currentPage" ng-change="getList()"></ul>
+                                </div>
+                            </div>-->
+                        </div>
+                    </div>
+                </div>
+                <div class="container-fluid" id="depsheight">
+                    <div class="col-sm-6">
+                        <div class=" bg-pattern2 table-height formRoot">
+                            <table class="table table-hover table-responsive table-bordered">
+                                <thead class="bg-subhead">
+                                    <tr>
+                                        <th><span translate="inventory.threewaymatching-form.grnno.lbl"></span> </th>
+                                        <th><span translate="inventory.threewaymatching-form.grndate.lbl"></span> </th>
+                                        <th><span translate="inventory.threewaymatching-form.itemcode.lbl"></span> </th>
+                                        <th><span translate="inventory.threewaymatching-form.itemname.lbl"></span> </th>
+                                        <th><span translate="inventory.purchaserequest.qty.lbl"></span> </th>
+                                        <th><span translate="inventory.threewaymatching-form.cost.lbl"></span> </th>
+                                        <th><span translate="inventory.threewaymatching-form.amount.lbl"></span> </th>
+                                        <th><span translate="inventory.threewaymatching-form.tax.lbl"></span> </th>
+                                        <th><span translate="inventory.threewaymatching-form.disc.lbl"></span> </th>
+                                        <th><span translate="inventory.threewaymatching-form.net.lbl"></span> </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr ng-repeat="item in PatientBillDetails | filter:{Status:1}">
+                                        <td>
+                                            <ui-select ng-model="item.ServiceId" ng-change="getServiceItem($index)" name="" ng-disabled="true">
+                                                <ui-select-match>
+                                                    {{$select.selected.Text | limitTo : 20 : 0}}
+                                                    <span ng-if="$select.selected.Text.length>20">...</span>
+                                                </ui-select-match>
+                                                <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.ServiceItem | filter: { Text: $select.search }">
+                                                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                                </ui-select-choices>
+                                            </ui-select>
+                                        </td>
+                                        <td>
+                                            <input type="text" class="form-control" ng-model="item.Quantity" ng-change="calcAmt($index)" disabled>
+                                        </td>
+                                        <td class=" " align="center">
+                                            <input type="text" class="form-control" ng-model="item.Rate" disabled>
+                                        </td>
+                                        <td>
+                                            <ui-select ng-model="item.DoctorId" ng-change="" name="" ng-disabled="true">
+                                                <ui-select-match>
+                                                    {{$select.selected.Text | limitTo : 20 : 0}}
+                                                    <span ng-if="$select.selected.Text.length>20">...</span>
+                                                </ui-select-match>
+                                                <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.Doctor | filter: { Text: $select.search }">
+                                                    <span ng-bind-html="lookupitem.Title.Description | highlight: $select.search"></span>
+                                                    <span ng-bind-html="lookupitem.Text | highlight: $select.search"></span>
+                                                </ui-select-choices>
+                                            </ui-select>
+                                        </td>
+                                        <td class=" " align="center">
+                                            <input type="text" class="form-control" ng-model="item.DoctorShare" disabled>
+                                        </td>
+                                        <td>
+                                            <input type="text" class="form-control" ng-model="item.discount" disabled>
+                                        </td>
+                                        <td>
+                                            <span disabled>{{item.NetAmount}}</span>
+                                        </td>
+
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="footerbar">
+        <div class="sub-footer">
+            <div class=" bgfoot ">
+                <div class="col-sm-12 total_footer0">
+                    <div class="col-sm-3" style="margin-top: 9px;">
+                        <div class="form-group">
+                            <label class="col-sm-6 ng-scope" for="PONetAmount" translate="inventory.threewaymatching-form.ponetamount.lbl"></label>
+                            <div class="col-sm-6">
+                                <input type="text" class="form-control ng-valid ng-dirty ng-valid-parse ng-empty ng-touched" name="PONetAmount"
+                                ng-model="PONetAmount" ng-change="CalcualteNetAmt()" placeholder="">
+                            </div>
+                        </div>
+                        <div class="form-group col-sm-12">
+                            <label class="col-sm-6 ng-scope" for="GRNNetAmount" translate="inventory.threewaymatching-form.grnnetamount.lbl"></label>
+                            <div class="col-sm-6">
+                                <input type="text" class="form-control" name="GRNNetAmount" ng-model="GRNNetAmount">
+                            </div>
+                        </div>
+                        <div class="form-group col-sm-12">
+                            <label class="  col-sm-6 ng-scope" for="DifferentAmount" translate="inventory.threewaymatching-form.difference.lbl">  </label>
+                            <div class="col-sm-6">
+                                <input type="text" class="form-control" name="DifferentAmount" ng-model="currentcontext.DifferentAmount">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-3" style="margin-top: 9px;">
+                        <div class="form-group">
+                            <label class="col-sm-6" for="patientbills" translate="inventory.threewaymatching-form.invoicedate.lbl"></label>
+                            <div class="col-sm-6 toprightchequedate">
+                                <input type="text" class="form-control" name="invoicedate" ng-change="getList()" datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}"
+                                    uib-datepicker-popup="{{datePickerOptions.dateFormat}}" placeholder="{{datePickerOptions.placeholder}}"
+                                    ng-click="invoicedatePopup = { opened: true }" is-open="invoicedatePopup.opened"
+                                    ng-model="currentfilter.invoiceDate" class="col-sm-11">
+                            </div>
+                        </div>
+                        <div class="form-group col-sm-12">
+                            <label class="col-sm-6" for="InvoiceAmount" translate="inventory.threewaymatching-form.invoice.lbl"></label>
+                            <div class="col-sm-6">
+                                <input type="text" class="form-control" name="InvoiceAmount" ng-model="InvoiceAmount">
+                            </div>
+                        </div>
+                        <div class="form-group col-sm-12">
+                            <label class="col-sm-6 ng-scope" for="RoundOff" translate="inventory.threewaymatching-form.roundoff.lbl"></label>
+                            <div class="col-sm-6">
+                                <input type="text" class="form-control ng-valid ng-dirty ng-valid-parse ng-empty ng-touched" name="RoundOff" ng-disabled="currentcontext.RdoReceiptAmt"
+                                    ng-model="RoundOff" ng-change="CalcualteNetAmt()" placeholder="">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-3" style="margin-top: 9px;">
+                        <div class="form-group">
+                            <label class="col-sm-6 control-label" for="invoiceamount" translate="inventory.threewaymatching-form.invoiceamt.lbl"></label>
+                            <div class="col-sm-6">
+                                <input type="text" class="form-control" name="invoiceamount" ng-model="InvoiceAmount">
+                            </div>
+                        </div>
+                        <div class="form-group col-sm-12">
+                            <label class="col-sm-6 control-label" for="taxamount" translate="inventory.threewaymatching-form.taxamount.lbl"></label>
+                            <div class="col-sm-6">
+                                <input type="text" class="form-control" name="taxamount" ng-model="" placeholder=""
+                                    required>
+                            </div>
+                        </div>
+                        <div class="form-group col-sm-12">
+                            <label class="col-sm-6 control-label" for="netamount" translate="inventory.threewaymatching-form.netamount.lbl"></label>
+                            <div class="col-sm-6">
+                                <input type="text" class="form-control" name="netamount" ng-model="TotalNetAmount" placeholder="" disabled
+                                    ng-minlength="" ng-pattern="/^\d+$/" required>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-3" style="margin-top: 9px;">
+                        <div class="form-group">
+                            <label class="col-sm-6 control-label" for="transationno" translate="inventory.threewaymatching-form.comments.lbl"></label>
+                            <textarea class="notes-textarea" rows="3" name="comments" maxlength="4000" ng-model="Comments"></textarea>
+                        </div>
+                        </fieldset>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="fooder-bgs">
+        <div class="col-sm-12">
+            <div class=" col-sm-4">
+                <div class="pull-left">
+                    <!--<button type="button" class="btn btn-info btn-sm" translate="billing.opbilling-list.history.lbl" ng-click="billHistory()"></button>-->
+                    <button id="btnCancelForm" type="button" class="btn pyr-color10 btn-sm" ng-click="backToList()"><i class="fa fa-angle-left"></i>&nbsp;&nbsp;<span translate="common.backaction.lbl"></span></button>
+                    <button type="button" class="text-white btn prv-color12 btn-sm" ng-click="openAttachments()"><i class="fa fa-paperclip"></i>(0)</button>
+                    <!--<button type="button" class="draftbutton" ng-click="saveCancelled()" translate="billing.opbilling-list.cancelbill.lbl"></button>-->
+                    <!--<button type="button" class="text-white btn dem-color4 btn-sm" translate="billing.opbilling-list.financeinfo.lbl"></button>-->
+                </div>
+            </div>
+            <div class=" col-sm-4">
+                <label translate="billing.opbilling-list.billstatus.lbl"></label>&nbsp;:&nbsp; {{item.PatientBillStatus}}
+            </div>
+            <div class=" col-sm-4">
+                <div class="pull-right">
+                    <!--<button type="button"  class="draftbutton" ng-click="print()" translate="common.printaction.lbl" ng-hide="HidePrintBtn"></button>-->
+                    <button type="button"   class="draftbutton" translate="common.saveaction.lbl" ng-click="saveDraft()"></button>
+                    <button type="button" class="btn btn-info btn-sm" translate="billing.opbilling-list.saveandapprove.lbl" ng-click="saveAndApprove()"></button>
+                    <button type="button" class="btn btn-warning btn-sm" ng-click="clear()" translate="common.clearaction.lbl"></button>
+                    <button id="btnCancelForm" type="button" class="draftbutton" ng-click="cancel()" translate="common.cancelaction.lbl"></button>
+                </div>
+            </div>
+        </div>
+    </div>

@@ -1,0 +1,151 @@
+<link rel="stylesheet" href="app/css/drhms.css">
+<style>
+    .table>tbody>tr>td>* {
+    font-weight: 300;
+    font-size: 14px;
+    color: #5c5c5c !important;
+    text-overflow: ellipsis;
+    font-weight: 600;
+}
+</style>
+<div class="modal-header custom-modal-header">
+    <div class="col-sm-6">
+        <h4 class="modal-title custom-modal-title" translate="patientemr.previousorder.pagetitle.lbl"></h4>
+    </div>
+    <div class="col-sm-6">
+        <div class="filters">
+            <img src="../../../../../assets/svg/close.svg" ng-click="cancelCallback()">
+        </div>
+    </div>
+</div>
+
+<div class="row" ng-if="currentcontext.isModal">
+    <patientbanner patientid="currentcontext.pid" delegatefn="setBannerDelegate(cmp)"></patientbanner>
+</div>
+<!-- <div class="col-sm-12">
+    <form id="item_form" name="item_form" class="form-horizontal" role="form">
+        <div class="drhms-table-top-header">
+            <div class="drhms-table-head-border">
+                <div class="col-sm-12">
+                    <label class="col-sm-4" translate="patientemr.previousorder.fromdate.lbl"></label>
+                    <div class="col-sm-8">
+                        <input type="text" class="form-control" name="from" ng-change="getList()" ng-date-object
+                            uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                            placeholder="{{datePickerOptions.placeholder}}" ng-click="fromPopup = { opened: true }"
+                            is-open="fromPopup.opened" ng-model="currentfilter.fromdate">
+                    </div>
+                </div>
+            </div>
+            <div class="drhms-table-head-border">
+                <div class="col-sm-12">
+                    <label class="col-sm-4" translate="patientemr.previousorder.todate.lbl"></label>
+                    <div class="col-sm-8">
+                        <input type="text" class="form-control" name="to" ng-change="getList()" ng-date-object
+                            uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                            placeholder="{{datePickerOptions.placeholder}}" ng-click="toPopup = { opened: true }"
+                            is-open="toPopup.opened" ng-model="currentfilter.todate">
+                    </div>
+                </div>
+            </div>
+            <div class="drhms-table-head-border">
+                <div class="col-sm-12">
+                    <label class="col-sm-4" translate="billing.summary.billinggroup.lbl"></label>
+                    <div class="col-sm-8">
+                        <ui-select ng-model="currentfilter.ServiceCategoryId" ng-change="getList()">
+                            <ui-select-match>
+                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                <span ng-if="$select.selected.Text.length>20">...</span>
+                            </ui-select-match>
+                            <ui-select-choices
+                                repeat="lookupitem.Id as lookupitem in lookup.ServiceCategory | filter: { Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div> -->
+<div class="row">
+    <form id="item_form" name="item_form" class="form-horizontal" role="form" ng-submit="">
+        <div class="table-height formRoot bill_opbilling">
+            <table
+                class="table table-bordered bordered table-striped table-condensed datatable ng-isolate-scope rz-table">
+                <thead class="bg-subhead">
+                    <tr>
+                        <th class="col-sm-2">
+                            <span translate="patientemr.previousorder.billdate.lbl"></span>
+                        </th>
+                        <th class="col-sm-2">
+                            <span translate="Billing Group"></span>
+                        </th>
+                        <th class="col-sm-2" style="width: 230px;">
+                            <span translate="patientemr.previousorder.servicename.lbl"></span>
+                        </th>
+                        <th class="col-sm-1">
+                            <span translate="patientemr.previousorder.qty.lbl"></span>
+                        </th>
+                        <th class="col-sm-2">
+                            <span translate="patientemr.previousorder.doctor.lbl"></span>
+                        </th>
+                        <th class="col-sm-1">
+                            <span translate="patientemr.previousorder.rate.lbl"></span>
+                        </th>
+                        <th class="col-sm-1">
+                            <span translate="patientemr.previousorder.discount.lbl"></span>
+                        </th>
+                        <th class="col-sm-1">
+                            <span translate="patientemr.previousorder.netamount.lbl"></span>
+                        </th>
+                        <th class="col-sm-2">
+                            <span translate="billing.claim-history.createdby.lbl"></span>
+                        </th>
+                        <th class="col-sm-3">
+                            <span translate="billing.summary.ward/bed.lbl"></span>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="item in PreviousOrderDetails"
+                        ng-hide="item.OrderStatus=='CANCELLED'||item.PatientBillStatusId==2">
+                        <td class="col-sm-2">
+                            <span>
+                                <displaydate datetime-val="item.BillDateTime"></displaydate>
+                            </span>
+                        </td>
+                        <td>
+                            <span>{{item.ServiceCategory.ServiceCategoryName}}</span>
+                        </td>
+                        <td>
+                            <span>{{item.ServiceName}}</span>
+                        </td>
+                        <td>
+                            <span>{{item.Quantity}}</span>
+                        </td>
+                        <td>
+                            <span>{{item.Doctor.Title.Description}}&nbsp;{{item.Doctor.FirstName}}&nbsp;{{item.Doctor.LastName}}</span>
+                        </td>
+                        <td>
+                            <span>{{item.Rate|displaycurrency}}</span>
+                        </td>
+                        <td>
+                            <span>{{item.DiscountAmount|displaycurrency}}</span>
+                        </td>
+                        <td>
+                            <span>{{item.NetAmount|displaycurrency}}</span>
+                        </td>
+                        <td>
+                            <span>{{item.CreatedUser.Title.Description}} {{item.CreatedUser.FirstName}}
+                                {{item.CreatedUser.LastName}}</span>
+                        </td>
+                        <td>
+                            <span>{{item.Encounter.WardMaster.WardName}}/{{item.Encounter.WardRoomMaster.RoomNo}}/{{item.Encounter.WardRoomBedMaster.BedNo}}
+                            </span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </form>
+</div>

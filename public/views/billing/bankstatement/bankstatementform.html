@@ -1,0 +1,347 @@
+<style>
+    .table>thead>tr>th {
+        padding: 8px;
+    }
+
+    fieldset {
+        padding-bottom: 0px;
+        border-bottom: 1px dashed #eee;
+        margin-bottom: 0px;
+    }
+
+    #cashcounter thead {
+        background: #0287a5b8;
+        color: #fff;
+        font-weight: 600;
+        font-size: 14px;
+        letter-spacing: 1px;
+    }
+
+    span.btn.btn-default.form-control.ui-select-toggle,
+    .form-horizontal input,
+    input[type=text] {
+        height: 32px;
+    }
+
+
+    /* .amount_value tbody tr:nth-child(1) td{color:crimson;} */
+    .legendStyle {
+        padding: 5px;
+        font-weight: 600;
+        text-align: center;
+        height: 40px;
+        background: #EFEFEF !important;
+        color: #373737 !important;
+        font-size: 13px;
+    }
+
+
+    .footer-content {
+        height: 52px;
+        position: fixed;
+        bottom: 0;
+        background: #042e71;
+        width: 100%;
+    }
+
+    .footer-content.ng-scope {
+        padding: 11px 19px 1px 246px;
+        left: 0px;
+    }
+
+    .cash_amount {
+        background: #fff;
+    }
+
+    .cash_amount span {
+        color: #000;
+    }
+
+    .page-header h4 b {
+        color: #194f78 !important;
+    }
+
+    .mgt7 {
+        margin-top: 7px;
+    }
+
+    .fsStyle .form-group {
+        margin-bottom: 10px !important;
+    }
+
+    /* fieldset.fsStyle {
+        padding-top: 10px;
+    } */
+</style>
+
+<div class="row">
+    <form id="item_form" name="item_form" class="form-horizontal" role="form">
+        <div class="row">
+            <h4 class="mt0" translate="billing.bankstatementform.managebankstatementform.lbl"></h4>
+        </div>
+        <div class="row">
+            <div class="col-sm-2">
+                <label class="col-sm-12" for="category" translate="billing.bankstatementform.fromdate.lbl"></label>
+                <div class="col-sm-12">
+                    <input type="text" class="form-control" name="FromBillDate" ng-date-object
+                        datetime-picker="{{datePickerOptions.dateTimeFormat}}" datepicker-append-to-body="true"
+                        placeholder="{{datePickerOptions.placeholder}}" ng-disabled="currentfilter.DisableFromBillDate"
+                        ng-click="FromBillDatePopup = { opened: true }" is-open="FromBillDatePopup.opened"
+                        ng-model="currentfilter.FromBillDate" ng-disabled="currentcontext.id">
+                </div>
+            </div>
+            <div class="col-sm-2">
+                <label class="col-sm-12" for="subcategory" translate="billing.bankstatementform.todate.lbl"></label>
+                <div class="col-sm-12">
+                    <input type="text" class="form-control" name="ToBillDate" ng-date-object
+                        datetime-picker="{{datePickerOptions.dateTimeFormat}}" datepicker-append-to-body="true"
+                        placeholder="{{datePickerOptions.placeholder}}" ng-disabled="currentfilter.DisableToBillDate"
+                        ng-click="ToBillDatePopup = { opened: true }" is-open="ToBillDatePopup.opened"
+                        ng-model="currentfilter.ToBillDate" ng-disabled="currentcontext.id">
+                </div>
+            </div>
+            <div class="col-sm-2">
+                <label class="col-sm-12" for="department" translate="billing.bankstatementform.department.lbl"></label>
+                <div class="col-sm-12">
+                    <ui-select ng-model="item.FilterDepartmentId" ng-change="getDepartmentUsers()"
+                        ng-disabled="currentcontext.id" name="department">
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 20 : 0}}
+                            <span ng-if="$select.selected.Text.length>20">...</span>
+                        </ui-select-match>
+                        <ui-select-choices
+                            repeat="lookupitem.Id as lookupitem in lookup.Department | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+            <div class="col-sm-2">
+                <label class="col-sm-12" for="user" translate="billing.bankstatementform.user.lbl"></label>
+                <div class="col-sm-12">
+                    <ui-select ng-model="item.FilterUserId" ng-change="getList()" name="user"
+                        ng-disabled="currentcontext.id">
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 20 : 0}}
+                            <span ng-if="$select.selected.Text.length>20">...</span>
+                        </ui-select-match>
+                        <ui-select-choices
+                            repeat="lookupitem.Id as lookupitem in lookup.User | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+            <div class="col-sm-2" style="margin-top: 20px;">
+                <button ng-if="!currentcontext.id" style="float: right;margin-top: 10px;" type="button" class="draftbutton"
+                    ng-click="getList()" translate="common.applyaction.lbl">
+                </button>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-7">
+                <!--left-second-starts-->
+                <div class="panel panel-default">
+                    <div class="form-panel bg-pattern">
+                        <div class="custom_padtop inner_content0">
+                            <fieldset class="fsStyle  col6control" style="height: auto;" id="textboxctrlmaster">
+                                <div class="legendStyle">
+                                    <span translate="billing.bankstatementform.closing.lbl"></span>
+                                </div>
+                                <table class="table table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th class="col-sm-4">
+                                                <span translate="billing.bankstatementform.users.lbl"></span>
+                                            </th>
+                                            <th>
+                                                <span translate="billing.bankstatementform.cash.lbl"></span>
+                                            </th>
+                                            <th>
+                                                <span translate="billing.bankstatementform.card.lbl"></span>
+                                            </th>
+                                            <th>
+                                                <span translate="billing.bankstatementform.others.lbl"></span>
+                                            </th>
+                                            <th>
+                                                <span translate="billing.bankstatementform.lhrc.lbl"></span>
+                                            </th>
+                                            <th>
+                                                <span translate="billing.bankstatementform.voucher.lbl"></span>
+                                            </th>
+                                            <th>
+                                                <span translate="billing.bankstatementform.netcash.lbl"></span>
+                                            </th>
+                                            <!-- <th>
+                                                    <span translate="billing.bankstatementform.excessshort.lbl"></span>
+                                                </th> -->
+                                        </tr>
+                                    </thead>
+
+                                    <tbody class="stmtdata">
+                                        <tr ng-repeat="stmt in StatementData">
+                                            <td> {{ stmt.Name }}</td>
+                                            <td> {{ stmt.Cash }} </td>
+                                            <td> {{ stmt.Card }} </td>
+                                            <td> {{ stmt.Others }} </td>
+                                            <td> {{ stmt.LHRC }} </td>
+                                            <td> {{ stmt.Voucher }} </td>
+                                            <td> {{ stmt.NetCash }} </td>
+                                            <!-- <td> {{ stmt.ExcessShort }} </td> -->
+                                        </tr>
+                                        <tr>
+                                            <td> <span translate="billing.bankstatementform.total.lbl"></span>
+                                            </td>
+                                            <td> </td>
+                                            <td> </td>
+                                            <td> </td>
+                                            <td> </td>
+                                            <td> </td>
+                                            <td> {{NetCashAmt}} </td>
+                                            <!-- <td> </td> -->
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </fieldset>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-5">
+                <!--right-first-starts-->
+                <fieldset class="fsStyle bdrnone">
+                    <div class="legendStyle">
+                        <span translate="billing.bankstatementform.denominations.lbl"></span>
+                    </div>
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th colspan="3" translate="billing.bankstatementform.denomination.lbl"></th>
+                                <th colspan="1" translate="billing.bankstatementform.number.lbl"></th>
+                                <th colspan="1" translate="billing.bankstatementform.amount.lbl"></th>
+                            </tr>
+                        </thead>
+                        <tbody class="amount_value">
+                            <tr ng-repeat="denomination in DefinedDenominations">
+                                <td colspan="3">{{ denomination.DenominationName }}</td>
+                                <td colspan="1">
+                                    <input type="text" min="0" ng-keypress="numberonly($event)" ng-pattern="/^\d+$/"
+                                        class="form-control" ng-model="denomination.DenominationCount" placeholder=""
+                                        ng-change="CalculateTotal(denomination)" ng-disabled="item.SubmittedStatus">
+                                </td>
+                                <td colspan="1">
+                                    <input type="text" min="0" class="form-control"
+                                        ng-model="denomination.DenominationTotal" placeholder="0.00" ng-disabled="true">
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colspan="3" translate="billing.bankstatementform.amount.lbl" class="cash_amount">
+                                </td>
+                                <td colspan="1">
+                                    <input type="text" min="0" class="form-control"
+                                        ng-model="item.DenominationsNetCount" placeholder="0.00" ng-disabled="true">
+                                </td>
+                                <td colspan="1">
+                                    <input type="text" min="0" class="form-control"
+                                        ng-model="item.DenominationsNetTotal" placeholder="0.00" ng-disabled="true">
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </fieldset>
+                <!--right-first-ends-->
+            </div>
+        </div>
+        <div class="row">
+            <fieldset class="fsStyle bdrnone">
+                <div class="col-sm-6" style="padding-top: 10px;">
+                    <div class="col-sm-12">
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label"
+                                translate="billing.bankstatementform.totalcashfetalamt.lbl"></label>
+                            <div class="col-sm-8">
+                                <input type="text" class="form-control" ng-model="item.FetalAmount"
+                                    ng-disabled="(item.Id > 0)" ng-keypress="numberonly($event)"
+                                    ng-keyup="StatementAmt()" ng-pattern="/^\d+$/" placeholder="">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-12">
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label"
+                                translate="billing.bankstatementform.totalcashinhand.lbl"></label>
+                            <div class="col-sm-8">
+                                <input type="text" class="form-control" ng-model="TotalCashInHand" ng-disabled="true"
+                                    ng-keypress="numberonly($event)" ng-pattern="/^\d+$/" placeholder="">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-12">
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label"
+                                translate="billing.bankstatementform.overallnetcash.lbl"></label>
+                            <div class="col-sm-8">
+                                <input type="text" class="form-control" ng-model="OverAllNetCash" ng-disabled="true"
+                                    ng-keypress="numberonly($event)" ng-pattern="/^\d+$/" placeholder="">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-12">
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label"
+                                translate="billing.bankstatementform.totalcashamt.lbl"></label>
+                            <div class="col-sm-8">
+                                <input type="text" class="form-control" ng-model="TotalCashAmount" ng-disabled="true"
+                                    ng-keypress="numberonly($event)" ng-pattern="/^\d+$/" placeholder="">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-12">
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label"
+                                translate="billing.bankstatementform.totalcardamt.lbl"></label>
+                            <div class="col-sm-8">
+                                <input type="text" class="form-control" ng-model="TotalCardAmount" ng-disabled="true"
+                                    ng-keypress="numberonly($event)" ng-pattern="/^\d+$/" placeholder="">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6" style="padding-top: 10px;">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label"
+                            translate="billing.bankstatementform.denominations.lbl"></label>
+                        <div class="col-sm-6">
+                            <input type="text" min="0" ng-keypress="numberonly($event)" ng-pattern="/^\d+$/"
+                                class="form-control" ng-model="item.DenominationsNetTotal" placeholder="0.00"
+                                ng-disabled="true">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label"
+                            translate="billing.bankstatementform.totalamountdiff.lbl"></label>
+                        <div class="col-sm-6">
+                            <input type="text" min="0" ng-keypress="numberonly($event)" ng-pattern="/^\d+$/"
+                                class="form-control" ng-model="item.DifferenceAmount" placeholder="0.00"
+                                ng-disabled="true">
+                        </div>
+                    </div>
+                </div>
+            </fieldset>
+        </div>
+        <div class="fooder-bgs">
+            <div class="row">
+                <div class="pull-left">
+                    <button id="btnSubmit" type="button" class="btn pyr-color10 btn-sm"
+                        translate="common.backaction.lbl" ng-click="backtoList()"></button>
+                </div>
+                <div class="pull-right">
+                    <button ng-if="!currentcontext.id" type="button" class="draftbutton" translate="common.submit.lbl"
+                        ng-click="Submit()"></button>
+                    <button ng-if="currentcontext.id" id="btnPrintForm" type="button" class="draftbutton"
+                        translate="Print" ng-click="print()"></button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>

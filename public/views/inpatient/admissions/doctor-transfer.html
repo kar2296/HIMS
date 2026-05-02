@@ -1,0 +1,107 @@
+<style>
+    .form-horizontal input.custom-checkbox {
+        height: auto;
+    }
+</style>
+<div class="modal-header custom-modal-header">
+    <div class="col-sm-10">
+        <h4 class="modal-title custom-modal-title" translate="doctor-transfer.pagetitle.lbl"></h4>
+    </div>
+    <div class="col-sm-2">
+        <div class="filters">
+            <img src="../../../../../assets/svg/close.svg" ng-click="cancelCallback()">
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-sm-12">
+        <div class="pull-right">
+            <button type="button" tabindex="-1" class="drhms-billing-btn drhms-add-btn" ng-click="addNew()"
+                uib-tooltip="{{ 'admissions.addnew-tooltip.lbl' | translate }}" tooltip-placement="bottom">
+                <i class="fa fa-plus" aria-hidden="true"></i>
+            </button>
+        </div>
+    </div>
+    <div class="col-sm-12">
+        <form id="item_form" name="item_form" class="form-horizontal" role="form">
+            <div class="">
+                <table class="table table-hover table-responsive table-bordered">
+                    <thead class="bg-subhead head_font">
+                        <tr>
+                            <th translate="doctor-transfer.doctorname.lbl"> </th>
+                            <th translate="doctor-transfer.department.lbl"> </th>
+                            <th translate="doctor-transfer.fromdate.lbl"> </th>
+                            <th translate="doctor-transfer.todate.lbl"> </th>
+                            <th translate="doctor-transfer.transferedby.lbl"> </th>
+                            <th translate="doctor-transfer.isprimary.lbl"> </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="item in DoctorDetails">
+                            <td>
+                                <autosearch itemid="item.DoctorId" iteminfo="item.SelectedDoctor" rowdata="item"
+                                    name="'doctor'" itemchange="doctorChange(item)" config="vm.doctorcontrolconfig"
+                                    candisable="item.IsDisabled" isrequired="true"></autosearch>
+                            </td>
+                            <td>
+                                <ui-select ng-model="item.DepartmentId" name="departmentid" required
+                                    ng-change="departmentChange()" ng-disabled="true">
+                                    <ui-select-match>
+                                        {{$select.selected.Text | limitTo : 20 : 0}}
+                                        <span ng-if="$select.selected.Text.length>20">...</span>
+                                    </ui-select-match>
+                                    <ui-select-choices
+                                        repeat="lookupitem.Id as lookupitem in lookup.Department | filter: { Text: $select.search }">
+                                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                    </ui-select-choices>
+                                </ui-select>
+                            </td>
+                            <td>
+                                <input type="text" class="form-control" name="StartDate" ng-date-object
+                                    datepicker-options="datePickerOptions"
+                                    show-button-bar="{{datePickerOptions.showButtonBar}}"
+                                    datetime-picker="{{datePickerOptions.dateTimeFormat}}"
+                                    placeholder="{{datePickerOptions.placeholder}}"
+                                    ng-click="StartDatePopup = { opened: true }" is-open="StartDatePopup.opened"
+                                    ng-disabled="item.IsDisabled" ng-model="item.StartDate">
+                            </td>
+                            <td>
+                                <input type="text" class="form-control" name="EndDate" ng-date-object
+                                    datepicker-options="datePickerOptions"
+                                    show-button-bar="{{datePickerOptions.showButtonBar}}"
+                                    datetime-picker="{{datePickerOptions.dateTimeFormat}}"
+                                    placeholder="{{datePickerOptions.placeholder}}"
+                                    ng-click="EndDatePopup = { opened: true }" is-open="EndDatePopup.opened"
+                                    ng-disabled="item.IsDisabled" ng-model="item.EndDate">
+                            </td>
+                            <td>
+                                <ui-select ng-model="item.TransferedById" name="user" required ng-disabled="true">
+                                    <ui-select-match>
+                                        {{$select.selected.Text | limitTo : 20 : 0}}
+                                        <span ng-if="$select.selected.Text.length>20">...</span>
+                                    </ui-select-match>
+                                    <ui-select-choices
+                                        repeat="lookupitem.Id as lookupitem in lookup.User | filter: { Text: $select.search }">
+                                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                    </ui-select-choices>
+                                </ui-select>
+                            </td>
+                            <td class="text-center">
+                                <input type="checkbox" class="custom-checkbox" ng-disabled="true"
+                                    ng-model="item.IsPrimary">
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="">
+                <div class="pull-right">
+                    <button style="margin-top: 10px;" type="submit" class="draftbutton" translate="common.saveaction.lbl"
+                        ng-hide="currentcontext.AdmissionStatusId==5||currentcontext.AdmissionStatusId==6"
+                        ng-click="saveItem()"></button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

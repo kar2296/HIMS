@@ -1,0 +1,224 @@
+<div class="row page-header">
+    <div class="col-sm-6">
+        <h4 class="mt0" translate="reports.overallcollection.lbl"></h4>
+    </div>
+    <div class="col-sm-6">
+        <div class="filters">
+            <i class="icofont-filter" uib-tooltip="Filter" tooltip-placement="bottom" ng-click="openFilterTab()"></i>
+            <i class="icofont-file-excel" uib-tooltip="Excel" tooltip-placement="bottom"
+                onclick="exportTableToExcel('tblData', 'members-data')"></i>
+            <i class="icofont-print" uib-tooltip="Print" tooltip-placement="bottom" ng-click="print()"></i>
+            <i class="icofont-home" ng-click="backtoReport()" tabindex="-1" uib-tooltip="Report"
+                tooltip-placement="bottom"></i>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <table id="bannerdetails">
+        <tr>
+            <td translate="reports.fromdate.lbl"></td>
+            <td>
+                <div class="datepicker" id="datepicker">
+                    <input type="text" class="form-control" name="fromdate" ng-date-object
+                        datetime-picker="{{dateTimePickerOptions.dateTimeFormat}}"
+                        placeholder="{{datePickerOptions.placeholder}}" ng-click="fromdatePopup = { opened: true }"
+                        is-open="fromdatePopup.opened" ng-model="currentfilter.From">
+                    <i class="fa fa-calendar"></i>
+                </div>
+            </td>
+            <td translate="reports.todate.lbl"></td>
+            <td>
+                <div class="datepicker" id="datepicker">
+                    <input type="text" class="form-control" name="todate" ng-date-object
+                        datetime-picker="{{dateTimePickerOptions.dateTimeFormat}}"
+                        placeholder="{{datePickerOptions.placeholder}}" ng-click="todatePopup = { opened: true }"
+                        is-open="todatePopup.opened" ng-model="currentfilter.To">
+                    <i class="fa fa-calendar"></i>
+                </div>
+            </td>
+            <td style="text-align: center;">
+                <button class="loadbtn" ng-click="GetPharmacyOptions()">
+                    <i class="fas fa-sync loading-icon" aria-hidden="true" uib-tooltip="Search"
+                        tooltip-placement="bottom"></i>
+                    <span>Load</span>
+                </button>
+            </td>
+        </tr>
+    </table>
+</div>
+<!-- <div>
+    <i class="icofont-filter" uib-tooltip="Search" tooltip-placement="bottom" ng-click="GetPharmacyOptions()"></i>
+</div> -->
+<div class="row">
+    <div id="reportsdetail">
+        <table id="tblData">
+            <thead>
+                <th class="cus-col tbl-header cust_Particulars" style="font-weight: 700;">
+                    <span translate="Collection Details"></span>
+                </th>
+                <th class="cus-col tbl-header" style="font-weight: 700;">
+                    <span translate="Bill Amount"></span>
+                </th>
+                <th class="cus-col tbl-header" style="font-weight: 700;">
+                    <span translate="Bill Discount"></span>
+                </th>
+                <th class="cus-col tbl-header" style="font-weight: 700;">
+                    <span translate="Net Amount"></span>
+                </th>
+                <th class="cus-col tbl-header" style="font-weight: 700;">
+                    <span translate="Due"></span>
+                </th>
+                <th class="cus-col tbl-header" style="font-weight: 700;">
+                    <span translate="Refund"></span>
+                </th>
+                <!-- <th class="cus-col tbl-header" style="font-weight: 700;">
+                            <span translate="IP Return"></span>
+                        </th> -->
+                <th class="cus-col tbl-header" style="font-weight: 700;">
+                    <span translate="Net Cash"></span>
+                </th>
+                <th class="cus-col tbl-header" style="font-weight: 700;">
+                    <span translate="Net Card"></span>
+                </th>
+                <th class="cus-col tbl-header" style="font-weight: 700;">
+                    <span translate="Net Others"></span>
+                </th>
+                <th class="cus-col tbl-header" style="font-weight: 700;">
+                    <span translate="Net UPI"></span>
+                </th>
+                <th class="cus-col tbl-header" style="font-weight: 700;">
+                    <span translate="Doc Cash"></span>
+                </th>
+                <th class="cus-col tbl-header" style="font-weight: 700;">
+                    <span translate="Doc Card"></span>
+                </th>
+                <th class="cus-col tbl-header" style="font-weight: 700;">
+                    <span translate="Doc Others"></span>
+                </th>
+                <th class="cus-col tbl-header" style="font-weight: 700;">
+                    <span translate="Doc UPI"></span>
+                </th>
+                <th class="cus-col tbl-header" style="font-weight: 700;">
+                    <span translate="Doc Total"></span>
+                </th>
+                <th class="cus-col tbl-header" style="font-weight: 700;">
+                    <span translate="Total Collection"></span>
+                </th>
+            </thead>
+            <tr ng-repeat="item in OverallCollectSummary">
+                <td class="">
+                    <span class="">{{item.Key}}</span>
+                </td>
+                <td class="currency-align">{{ item.BillAmount }}</td>
+                <td class="currency-align">{{ item.BillDiscount }}</td>
+                <td class="currency-align">{{ item.NetAmount }}</td>
+                <td class="currency-align">{{ item.DueAmount }}</td>
+                <td class="currency-align">{{ item.NetRef }}</td>
+                <!-- <td class="currency-align">{{ item.NetIPRet }}</td>  -->
+                <td class="currency-align">{{ item.NetCash }}</td>
+                <td class="currency-align">{{ item.NetCard }}</td>
+                <td class="currency-align">{{ item.NetOthers }}</td>
+                <td class="currency-align">{{ item.NetUPI }}</td>
+                <td class="minusamt currency-align">
+                    <span>-</span>
+                    <span>{{ item.DocCash }}</span>
+                </td>
+                <td class="minusamt currency-align">
+                    <span>-</span>
+                    <span>{{ item.DocCard }}</span>
+                </td>
+                <td class="minusamt currency-align">
+                    <span>-</span>
+                    <span>{{ item.DocOthers }}</span>
+                </td>
+                <td class="minusamt currency-align">
+                    <span>-</span>
+                    <span>{{ item.DocUPI }}</span>
+                </td>
+                <td class="minusamt currency-align">
+                    <span>-</span>
+                    <span>{{ item.DocTotal }}</span>
+                </td>
+                <td class=" {{item.Key}}">{{ item.TotalCollect }}</td>
+            </tr>
+            <tr class="highlite">
+                <td class="">
+                    <span class="">Total</span>
+                </td>
+                <td class="currency-align">{{ TotBillAmt }}</td>
+                <td class="currency-align">{{ TotBillDis }}</td>
+                <td class="currency-align">{{ TotNetAmt }}</td>
+                <td class="currency-align">{{ TotDueAmt }}</td>
+                <td class="currency-align">{{ TotalRefAmt }}</td>
+                <!-- <td class="currency-align">{{ TotalIPRetAmt }}</td> -->
+                <td class="currency-align">{{ TotCashAmt }}</td>
+                <td class="currency-align">{{ TotCardAmt }}</td>
+                <td class="currency-align">{{ TotOtherAmt }}</td>
+                <td class="currency-align">{{ TotUPIAmt }}</td>
+                <td class="minusamt currency-align">
+                    <span>-</span>
+                    <span>{{ DocCashAmt }}</span>
+                </td>
+                <td class="minusamt currency-align">
+                    <span>-</span>
+                    <span>{{ DocCardAmt }}</span>
+                </td>
+                <td class="minusamt currency-align">
+                    <span>-</span>
+                    <span>{{ DocOtherAmt }}</span>
+                </td>
+                <td class="minusamt currency-align">
+                    <span>-</span>
+                    <span>{{ DocUPIAmt }}</span>
+                </td>
+                <td class="minusamt currency-align">
+                    <span>-</span>
+                    <span>{{ TotalDocAmt }}</span>
+                </td>
+                <td class="currency-align">{{ TotCollectionAmt }}</td>
+            </tr>
+        </table>
+    </div>
+</div>
+<div class="fooder-bgs"></div>
+<!-- <div class="col-sm-5    " style="float: right;    margin-bottom: 12px;">
+    <table id="bannerdetails">
+        <tr>
+            <td><label class="control-label text-white" for="totalquantity">Overall Collection(Collection-DocShare):</label></td>
+            <td><span class="countbg text-white">{{(OverallCollection|displaycurrency)}}</span></td>
+        </tr>
+    </table>
+</div> -->
+<script>
+    function exportTableToExcel(tableID, filename = '') {
+        var downloadLink;
+        var dataType = 'application/vnd.ms-excel';
+        var tableSelect = document.getElementById(tableID);
+        var tableHTML = tableSelect.outerHTML.replace(/ /g, '%20');
+
+        // Specify file name
+        filename = filename ? filename + '.xls' : 'excel_data.xls';
+
+        // Create download link element
+        downloadLink = document.createElement("a");
+
+        document.body.appendChild(downloadLink);
+
+        if (navigator.msSaveOrOpenBlob) {
+            var blob = new Blob(['\ufeff', tableHTML], {
+                type: dataType
+            });
+            navigator.msSaveOrOpenBlob(blob, filename);
+        } else {
+            // Create a link to the file
+            downloadLink.href = 'data:' + dataType + ', ' + tableHTML;
+
+            // Setting the file name
+            downloadLink.download = filename;
+
+            //triggering the function
+            downloadLink.click();
+        }
+    }
+</script>

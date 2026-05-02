@@ -1,0 +1,64 @@
+<link rel="stylesheet" href="app/css/drhms.css">
+<div class="row page-header">
+    <div class="col-sm-5">
+        <h4 class="mt0" translate="Discharged Patients"></h4>
+    </div>
+    <div class="col-sm-7">
+        <div class="filters">
+            <span class="drhms-billing-btn drhms-outstandingbill-btn" ng-click="doctordashboard()"
+                uib-tooltip="Dashboard" tooltip-placement="bottom">
+                <i class="fas fa-th-large" aria-hidden="true"></i>
+            </span>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-sm-4">
+        <label class="col-sm-4" translate="reports.fromdate.lbl"></label>
+        <div class="col-sm-8">
+            <div class="datepicker">
+                <input type="text" class="form-control" name="from" ng-change="getList()"
+                    datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}"
+                    uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                    placeholder="{{datePickerOptions.placeholder}}" ng-click="fromdatePopup = { opened: true }"
+                    is-open="fromdatePopup.opened" ng-model="currentfilter.FromDate">
+                <i class="fa fa-calendar" aria-hidden="true"></i>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-4">
+        <label class="col-sm-4" translate="Name"></label>
+        <div class="col-sm-8">
+            <div class="search">
+                <input type="text" id="pid" class="form-control" style="width: 97% !important;" on-enter="getList()"
+                    ng-model="currentfilter.patientnamemrn" placeholder="NAME/MRN"> <i class="fas fa-search"
+                    aria-hidden="true"></i>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-4">
+        <label class="col-sm-4" translate="bedmanagement-grid.filter_doctor.lbl"></label>
+        <div class="col-sm-8">
+            <ui-select ng-model="currentfilter.DoctorId" ng-change="getList()" class="filter-combo">
+                <ui-select-match>
+                    {{$select.selected.Text | limitTo : 20 : 0}}
+                    <span ng-if="$select.selected.Text.length>20">...</span>
+                </ui-select-match>
+                <ui-select-choices
+                    repeat="lookupitem.Id as lookupitem in lookup.Doctor | filter: { Text: $select.search }">
+                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                </ui-select-choices>
+            </ui-select>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <custom-table config="vm.gridConfig"></custom-table>
+</div>
+<div class="fooder-bgs">
+    <div class="row">
+        <ul uib-pagination total-items="vm.gridConfig.pagerObj.totalItems"
+            items-per-page="vm.gridConfig.pagerObj.pageSize" start-index="vm.gridConfig.pagerObj.startIndex"
+            ng-model="vm.gridConfig.pagerObj.currentPage" ng-change="getList()"></ul>
+    </div>
+</div>

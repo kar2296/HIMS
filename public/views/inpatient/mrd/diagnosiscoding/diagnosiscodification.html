@@ -1,0 +1,220 @@
+<!-- <style>
+    .patientprofile-img {
+        width: 70px !important;
+        height: 70px !important;
+    }
+
+    .modal-dialog.modal-lg .panel-body .well {
+        height: 280px;
+    }
+
+    .fullreg-profiles2 {
+        min-height: 22px;
+        color: #fff;
+        background: -moz-linear-gradient(top, #fff 0, #f3f3f3 50%, #ededed 100%, #fff 100%);
+        -moz-box-shadow: 7px 5px 15px -9px rgba(0, 0, 0, .75);
+        box-shadow: 7px 5px 15px -9px rgba(0, 0, 0, .75);
+        background: url(app/img/header-bg.jpg) repeat-x left top;
+    }
+
+    .custom-modal-header {
+        padding: 0px 7px !important;
+    }
+
+    .custom-modal-header {
+        padding: 0px 11px;
+    }
+
+    .custom-modal-header h4 {
+        margin: 4px 0px;
+        font-size: 14px;
+    }
+
+    .panel-body .well {
+        padding: 0px 19px !important;
+    }
+
+    .panel {
+        margin-bottom: 0;
+    }
+
+    .top {
+        margin: 4px !important;
+    }
+
+    .autosearch-div>input {
+        background: url(app/img/patterns-bg/search.png) 102.2% center no-repeat #fff;
+        background-size: 15.7% !important;
+        z-index: 777777;
+    }
+
+    table>tbody>tr>td {
+        vertical-align: initial !important;
+    }
+
+    .custom-popup-wrapper>.table>thead>tr>td:nth-child(3) {
+        width: 32% !important;
+    }
+
+    .custom-popup-wrapper>.table>tbody>tr>td:nth-child(3)>span {
+        width: 30% !important;
+        position: absolute;
+        text-overflow: ellipsis;
+        overflow: hidden;
+        white-space: nowrap;
+    }
+
+    .custom-popup-wrapper>table>tbody>tr:nth-child(even) {
+        background-color: #fff;
+    }
+
+    .table-condensed>thead>tr>td {
+        padding: 1px 10px;
+        white-space: nowrap;
+    }
+
+    .autosearch-div .custom-popup-wrapper {
+        position: absolute;
+        width: 282% !important;
+    }
+
+    .modal-dialog.modal-lg {
+        width: 50%;
+    }
+
+    .modal-content {
+        width: 134vh;
+    }
+
+    td.td-name {
+        width: 60% !important;
+    }
+</style> -->
+<style>
+    autosearch.logo .custom-popup-wrapper {
+        margin-left: -200px;
+    }
+</style>
+<div class="modal-header custom-modal-header">
+    <div class="col-sm-10">
+        <h4 class="modal-title custom-modal-title" translate="Diagnosis Codification"></h4>
+    </div>
+    <div class="col-sm-2">
+        <div class="filters">
+            <img src="../../../../../assets/svg/close.svg" ng-click="cancelCallback()">
+        </div>
+    </div>
+</div>
+<!-- <div class="modal-header custom-modal-header">
+     <span ng-module="currentcontext.patinfo" class="forpadd">
+                    <span>{{Patient.Title.Description}} {{Patient.FirstName}}</span> |
+                    <span>{{Patient.MRN}} </span> |
+                    <span> {{Patient.Gender.Description}}</span> |
+                    <span> {{Patient.Age}} Years </span> |
+                    <span>{{Patient.DOB | date : 'dd/MMM/yyyy' }} </span>
+                    <span ng-click="patientprofiledetails()">
+                        <i class="icon-info-sign"></i>
+                    </span>
+                </span>
+</div> -->
+<div class="row">
+    <patientbanner patientid="item.PatientId"></patientbanner>
+</div>
+<div class="row">
+    <form id="item_form" name="item_form" class="form-horizontal" role="form">
+        <div class="form-group col-sm-3" ng-if="currentcontext.EncType == 2">
+            <label class="col-sm-12 control-label" for="facility"
+                translate="currentinpatient.dischargetype.lbl"></label>
+            <div class="col-sm-12">
+                <ui-select ng-model="item.DischargeTypeId" name="facility">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 20 : 0}}
+                        <span ng-if="$select.selected.Text.length>20">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.DischargeType | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+        <div class="form-group col-sm-3">
+            <label class="col-sm-12 control-label" for="primarycategory"
+                translate="currentinpatient.advicedby.lbl"></label>
+            <div class="col-sm-12">
+                <autosearch itemid="item.DoctorId" iteminfo="" rowdata="" config="vm.doctorcontrolconfig"
+                    itemchange="doctorChange()"></autosearch>
+            </div>
+        </div>
+        <div class="form-group col-sm-3">
+            <label class="col-sm-12 control-label" for="diagnosis" translate="mrd.diagnosis.lbl"></label>
+            <div class="col-sm-12">
+                <autosearch itemid="item.DiagnosisId" iteminfo="item.selectedItem" rowdata=""
+                    config="vm.diagnosiscontrolconfig" itemchange="getDiagnosis()"
+                    ng-change="fillMasterInfo($select.selected)"></autosearch>
+            </div>
+        </div>
+        <div class="form-group col-sm-3">
+            <label class="col-sm-12 control-label" for="diagnosis" translate="mrd.secdiagnosis.lbl"></label>
+            <div class="col-sm-12">
+                <autosearch itemid="item.Diagnosis2Id" iteminfo="item.selectedItem" rowdata=""
+                    config="vm.diagnosiscontrolconfig" itemchange="getDiagnosis()"
+                    ng-change="fillMasterInfo($select.selected)"></autosearch>
+            </div>
+        </div>
+        <div class="form-group col-sm-3">
+            <label class="col-sm-12 control-label" for="diagnosis" translate="mrd.thirddiagnosis.lbl"></label>
+            <div class="col-sm-12">
+                <autosearch class="logo" itemid="item.Diagnosis3Id" iteminfo="item.selectedItem" rowdata=""
+                    config="vm.diagnosiscontrolconfig" itemchange="getDiagnosis()"
+                    ng-change="fillMasterInfo($select.selected)"></autosearch>
+            </div>
+        </div>
+        <div class="form-group col-sm-3">
+            <label class="col-sm-12 control-label" translate="admission.otherdiagnosis.lbl"></label>
+            <div class="col-sm-12 filter-lbl">
+                <input type="text" class="form-control" name="otherdiagnosis" ng-model="item.OtherDiagnosis"
+                    placeholder="" tabindex="-1">
+            </div>
+        </div>
+        <div class="form-group col-sm-3" ng-if="currentcontext.EncType == 2">
+            <label class="col-sm-12 control-label" for="primarycategory"
+                translate="currentinpatient.clinicalstatus.lbl"></label>
+            <div class="col-sm-12">
+                <ui-select ng-model="item.ClicalDischargeId" name="primarycategory">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 20 : 0}}
+                        <span ng-if="$select.selected.Text.length>20">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.ClinicalStatus | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+        <div class="form-group col-sm-3">
+            <label class="col-sm-12 control-label" for="diagnosis" translate="CPT"></label>
+            <div class="col-sm-12">
+                <autosearch class="logo" itemid="item.CPTDiagnosisId" iteminfo="item.selectedItem" rowdata=""
+                    config="vm.ctpdiagnosiscontrolconfig" itemchange="getDiagnosis()"
+                    ng-change="fillMasterInfo($select.selected)"></autosearch>
+            </div>
+        </div>
+        <div class="form-group col-sm-3" ng-if="currentcontext.EncType == 2">
+            <label class="col-sm-12 control-label" for="comments" translate="currentinpatient.comments.lbl"></label>
+            <div class="col-sm-12">
+                <textarea rows="3" name="comments" ng-disabled="item.isRequested" ng-model="item.Comments"
+                    maxlength="4000" style="width:100%;" class="notes-textarea"></textarea>
+            </div>
+        </div>
+    </form>
+</div>
+<div class="fooder-bgs">
+    <div class="row">
+        <div class="pull-right">
+            <button type="button" class="draftbutton" ng-click="saveItem()">Save</button>
+            <!-- <button id="btnCancelForm" type="button" class="draftbutton" ng-click="backToList()" translate="common.cancelaction.lbl"></button> -->
+        </div>
+    </div>
+</div>

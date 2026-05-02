@@ -1,0 +1,372 @@
+<link href="app/css/pharmacy.css" rel="stylesheet">
+<div class="row page-header">
+    <h4 class="col-sm-12 mt0" translate="billing.pharmacycollections.pagetitle.lbl"></h4>
+</div>
+<div class="container-fluid">
+    <!-----form------>
+    <div class="row">
+        <form id="item_form" name="item_form" class="form-horizontal" role="form">
+            <div class="form-group col-sm-3">
+                <label class="col-sm-4" translate="billing.pharmacy-billdetails.fromdate.lbl"></label>
+                <div class="col-sm-8">
+                    <input type="text" class="form-control" name="FromBillDate" ng-date-object
+                        datetime-picker="{{datePickerOptions.dateTimeFormat}}" datepicker-append-to-body="true"
+                        placeholder="{{datePickerOptions.placeholder}}" ng-click="FromBillDatePopup = { opened: true }"
+                        is-open="FromBillDatePopup.opened" ng-model="currentfilter.FromBillDate">
+                </div>
+            </div>
+            <div class="form-group col-sm-3">
+                <label class="col-sm-4" translate="billing.pharmacy-billdetails.todate.lbl"></label>
+                <div class="col-sm-8">
+                    <input type="text" class="form-control" name="ToBillDate" ng-date-object
+                        datetime-picker="{{datePickerOptions.dateTimeFormat}}" datepicker-append-to-body="true"
+                        placeholder="{{datePickerOptions.placeholder}}" ng-click="ToBillDatePopup = { opened: true }"
+                        is-open="ToBillDatePopup.opened" ng-model="currentfilter.ToBillDate">
+                </div>
+            </div>
+            <div class="form-group col-sm-4">
+                <label class="col-sm-5" translate="billing.opbilling-list.paymenttype.lbl"></label>
+                <div class="col-sm-7">
+                    <ui-select ng-model="currentfilter.PaymentTypeId" class="filter-combo">
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 20 : 0}}
+                            <span ng-if="$select.selected.Text.length>20">...</span>
+                        </ui-select-match>
+                        <ui-select-choices
+                            repeat="lookupitem.Id as lookupitem in lookup.PaymentType | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+            <div class="form-group col-sm-2">
+                <button class="draftbutton" ng-click="getList()">
+                    <!-- <i class="fas fa-search" aria-hidden="true"></i>&nbsp;&nbsp; -->
+                    <span translate="clinicalmaster.serviceitem-list.filter.lbl"></span>
+                </button>
+            </div>
+        </form>
+    </div>
+    <!--form-ends-->
+    <div class="row">
+        <table id="bannerdetails">
+            <tr>
+                <td translate="billing.pharmacycollections.totalcash.lbl"></td>
+                <td class="currency-align">{{TotCash |displaycurrency}}</td>
+                <td translate="billing.pharmacycollections.totalcard.lbl"></td>
+                <td class="currency-align">{{TotCard | displaycurrency}}</td>
+                <td translate="billing.pharmacycollections.totalcheque.lbl"></td>
+                <td class="currency-align">{{TotChequeOthers | displaycurrency}}</td>
+            </tr>
+            <tr>
+                <td translate="billing.pharmacycollections.duecash.lbl"></td>
+                <td class="currency-align">{{TotCashDue | displaycurrency}}</td>
+                <td translate="billing.pharmacycollections.duecard.lbl"></td>
+                <td class="currency-align">{{TotCardDue | displaycurrency}}</td>
+                <td translate="billing.pharmacycollections.duecheque.lbl"></td>
+                <td class="currency-align">{{TotChequeOthersDue | displaycurrency}}</td>
+
+            </tr>
+            <tr>
+                <td translate="billing.pharmacycollections.cashrefund.lbl"></td>
+                <td class="currency-align"> {{TotCashReturn | displaycurrency}}</td>
+                <td translate="billing.pharmacycollections.cardrefund.lbl"></td>
+                <td class="currency-align">{{TotCardReturn | displaycurrency}}</td>
+                <td translate="billing.pharmacycollections.otherrefund.lbl"></td>
+                <td class="currency-align">{{TotChequeOthersReturn | displaycurrency}}</td>
+
+            </tr>
+            <tr>
+                <td translate="billing.pharmacycollections.netcash.lbl"></td>
+                <td class="currency-align" style="border: 1px solid #38386b !important;"> <span>
+                        {{(NetCash)-(NetReturn) | displaycurrency }}
+                    </span></td>
+                <td translate="billing.pharmacycollections.netcard.lbl"></td>
+                <td class="currency-align" style="border: 1px solid #38386b !important;"><span> {{NetCard |
+                        displaycurrency
+                        }}
+                    </span></td>
+                <td translate="billing.billingcollections.netothers.lbl"></td>
+                <td class="currency-align"> <span> {{NetCheque | displaycurrency }} </span></td>
+
+
+            </tr>
+        </table>
+    </div>
+    <div class="row">
+        <table style="float: right;">
+            <tr>
+                <td translate="billing.pharmacycollections.balance.lbl" style="width: 182px;"></td>
+                <td class="currency-align" style="width: 182px; height: 32px;">
+                    <span> {{TotSales + TotDues - TotReturn | displaycurrency }} </span>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class="table-control" style="margin-top: 52px;">
+        <div class=" bg-pattern">
+            <div class="table-control formRoot pharmacycollections" id="mainresponsivetablecontrol">
+                <table class="table table-hover table-responsive table-bordered">
+                    <thead class="bg-subhead" ng-if="PatientBills">
+                        <tr>
+                            <th>
+                                <span translate="billing.pharmacy.sno.lbl"></span>
+                            </th>
+                            <th>
+                                <span translate="billing.pharmacycollections.billdate.lbl"></span>
+                            </th>
+                            <th>
+                                <span translate="billing.pharmacycollections.billno.lbl"></span>
+                            </th>
+                            <th>
+                                <span translate="billing.pharmacycollections.receiptno.lbl"></span>
+                            </th>
+                            <th>
+                                <span translate="billing.pharmacycollections.patientname.lbl"></span>
+                            </th>
+                            <th>
+                                <span translate="billing.pharmacycollections.doctor.lbl"></span>
+                            </th>
+                            <th>
+                                <span translate="billing.pharmacycollections.cash.lbl"></span>
+                            </th>
+                            <th>
+                                <span translate="billing.pharmacycollections.card.lbl"></span>
+                            </th>
+                            <th>
+                                <span translate="billing.pharmacycollections.cheque/others.lbl"></span>
+                            </th>
+                            <!--
+                                            <th>
+                                                <span translate="billing.pharmacycollections.status.lbl"></span>
+                                            </th>
+                                            -->
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="PaymentDetail in PaymentOPSales">
+                            <td class="text-left">
+                                <span> {{ PaymentDetail.SNo }}</span>
+                            </td>
+                            <td class="text-left">
+                                <span>
+                                    {{PaymentDetail.BillDt | date : 'dd-MMM-yyyy' }}&nbsp;
+                                    {{PaymentDetail.BillDt | date:'HH:mm'}}
+                                </span>
+                            </td>
+                            <td class="text-left">
+                                <span> {{ PaymentDetail.Billnumber }}</span>
+                            </td>
+                            <td class="text-left">
+                                <span> {{ PaymentDetail.Receiptnumber }}</span>
+                            </td>
+                            <td class="text-left">
+                                <span> {{ PaymentDetail.PatientName }}</span>
+                            </td>
+                            <td class="text-left">
+                                <span> {{ PaymentDetail.Drname }}</span>
+                            </td>
+                            <td class="text-right">
+                                <span> {{ PaymentDetail.Cash | displaycurrency }}</span>
+                            </td>
+                            <td class="text-right">
+                                <span> {{ PaymentDetail.Card | displaycurrency }}</span>
+                            </td>
+                            <td class="text-right">
+                                <span> {{ PaymentDetail.ChequeOthers | displaycurrency }}</span>
+                            </td>
+                            <!--
+                                            <td class="text-left">
+                                                <span> {{ PaymentDetail.Status }}</span>
+                                            </td>
+                                            -->
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="table-control formRoot pharmacycollections" id="mainresponsivetablecontrol"
+                ng-if="PatientDueCollections">
+                <table class="table table-hover table-responsive table-bordered">
+                    <thead class="bg-subhead" ng-if="PatientDueCollections">
+                        <tr>
+                            <th>
+                                <span translate="billing.pharmacy.sno.lbl"></span>
+                            </th>
+                            <th>
+                                <span translate="billing.pharmacycollections.receiptdate.lbl"></span>
+                            </th>
+                            <th>
+                                <span translate="billing.pharmacycollections.receiptno.lbl"></span>
+                            </th>
+                            <th>
+                                <span translate="billing.pharmacycollections.billno.lbl"></span>
+                            </th>
+                            <th>
+                                <span translate="billing.pharmacycollections.patientname.lbl"></span>
+                            </th>
+                            <th>
+                                <span translate="billing.pharmacycollections.doctor.lbl"></span>
+                            </th>
+                            <th>
+                                <span translate="billing.pharmacycollections.cash.lbl"></span>
+                            </th>
+                            <th>
+                                <span translate="billing.pharmacycollections.card.lbl"></span>
+                            </th>
+                            <th>
+                                <span translate="billing.pharmacycollections.cheque/others.lbl"></span>
+                            </th>
+                            <!--
+                                            <th>
+                                                <span translate="billing.pharmacycollections.status.lbl"></span>
+                                            </th>
+                                            -->
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="PaymentOPDueCollection in PaymentOPDueCollections">
+                            <td class="text-left">
+                                <span> {{ PaymentOPDueCollection.SNo }}</span>
+                            </td>
+                            <td class="text-left">
+                                <span>
+                                    {{PaymentOPDueCollection.ReceiptDt | date : 'dd-MMM-yyyy' }}&nbsp;
+                                    {{PaymentOPDueCollection.ReceiptDt | date:'HH:mm'}}
+                                </span>
+                            </td>
+                            <td class="text-left">
+                                <span> {{ PaymentOPDueCollection.Receiptnumber }}</span>
+                            </td>
+                            <td class="text-left">
+                                <span> {{ PaymentOPDueCollection.Billnumber }}</span>
+                            </td>
+                            <td class="text-left">
+                                <span> {{ PaymentOPDueCollection.PatientName }}</span>
+                            </td>
+                            <td class="text-left">
+                                <span> {{ PaymentOPDueCollection.Drname }}</span>
+                            </td>
+                            <td class="text-right">
+                                <span> {{ PaymentOPDueCollection.Cash | displaycurrency }}</span>
+                            </td>
+                            <td class="text-right">
+                                <span> {{ PaymentOPDueCollection.Card | displaycurrency }}</span>
+                            </td>
+                            <td class="text-right">
+                                <span> {{ PaymentOPDueCollection.ChequeOthers | displaycurrency }}</span>
+                            </td>
+                            <!--
+                                            <td class="text-left">
+                                                <span> {{ PaymentOPDueCollection.Status }}</span>
+                                            </td>
+                                            -->
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="table-control formRoot pharmacycollections" id="mainresponsivetablecontrol"
+                ng-if="PatientReturns">
+                <table class="table table-hover table-responsive table-bordered">
+                    <thead class="bg-subhead" ng-if="PatientReturns">
+                        <tr>
+                            <th>
+                                <span translate="billing.pharmacy.sno.lbl"></span>
+                            </th>
+                            <th>
+                                <span translate="billing.pharmacycollections.returndate.lbl"></span>
+                            </th>
+                            <th>
+                                <span translate="billing.pharmacycollections.returnno.lbl"></span>
+                            </th>
+                            <th>
+                                <span translate="billing.pharmacycollections.billno.lbl"></span>
+                            </th>
+                            <th>
+                                <span translate="billing.pharmacycollections.patientname.lbl"></span>
+                            </th>
+                            <th>
+                                <span translate="billing.pharmacycollections.doctor.lbl"></span>
+                            </th>
+                            <th>
+                                <span translate="billing.pharmacycollections.cash.lbl"></span>
+                            </th>
+                            <th>
+                                <span translate="billing.pharmacycollections.card.lbl"></span>
+                            </th>
+                            <th>
+                                <span translate="billing.pharmacycollections.cheque/others.lbl"></span>
+                            </th>
+                            <!--
+                                            <th>
+                                                <span translate="billing.pharmacycollections.status.lbl"></span>
+                                            </th>
+                                            -->
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="PaymentReturn in PaymentOPReturn">
+                            <td class="text-left">
+                                <span> {{ PaymentReturn.SNo }}</span>
+                            </td>
+                            <td class="text-left">
+                                <span>
+                                    {{PaymentReturn.ReturnDt | date : 'dd-MMM-yyyy' }}&nbsp;
+                                    {{PaymentReturn.ReturnDt | date:'HH:mm'}}
+                                </span>
+                            </td>
+                            <td class="text-left">
+                                <span> {{ PaymentReturn.Returnnumber }}</span>
+                            </td>
+                            <td class="text-left">
+                                <span> {{ PaymentReturn.BillNumber }}</span>
+                            </td>
+                            <td class="text-left">
+                                <span> {{ PaymentReturn.PatientName }}</span>
+                            </td>
+                            <td class="text-left">
+                                <span> {{ PaymentReturn.Drname }}</span>
+                            </td>
+                            <td class="text-right">
+                                <span> {{ PaymentReturn.Cash | displaycurrency }}</span>
+                            </td>
+                            <td class="text-right">
+                                <span> {{ PaymentReturn.Card | displaycurrency }}</span>
+                            </td>
+                            <td class="text-right">
+                                <span> {{ PaymentReturn.ChequeOthers | displaycurrency }}</span>
+                            </td>
+                            <!--
+                                            <td class="text-left">
+                                                <span> {{ PaymentReturn.Status }}</span>
+                                            </td>
+                                            -->
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- <div class="fooder-bgs">
+        <div class="pull-right">
+            <div class="col-sm-12">
+                <button id="btnCancelForm" type="button" class="draftbutton" ng-click="backToList()" translate="common.cancelaction.lbl"></button>
+            </div>
+        </div>
+    </div> -->
+<!-- <div class="fooder-bgs">
+    <button type="button" class="btn btn-sm pyr-color10" ng-click="backToList()">
+        <i class="fa fa-angle-left"></i>&nbsp;&nbsp;
+        <span translate="common.backaction.lbl" class="ng-scope">
+            <span class="ng-scope">Back</span>
+        </span>
+    </button>
+    <div class="footer-right">
+        <button type="button" class="btn btn-success btn-sm ng-scope" ng-click="saveAndApprove()" translate="common.saveaction.lbl"><span class="ng-scope">Save</span></button>
+        <button id="btnCancelForm" type="button" class="btn btn-danger btn-sm ng-scope" ng-click="backToList()" translate="common.cancelaction.lbl">
+            <span class="ng-scope">Cancel</span>
+        </button>
+    </div>
+</div> -->
+
+</html>

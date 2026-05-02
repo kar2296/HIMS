@@ -1,0 +1,28 @@
+import * as SequelizeStatic from 'sequelize';
+import {DataTypes, Sequelize} from 'sequelize';
+import * as i from './Interface/Index';
+
+export default function (sequelize: Sequelize, DataTypes: DataTypes):
+    SequelizeStatic.Model<i.{{data.Name}}Instance, i.{{data.Name}}Attributes> {
+    let {{data.Name}} = sequelize.define<i.{{data.Name}}Instance, i.{{data.Name}}Attributes>('{{data.Name}}', {
+    {{#each data.Details}}
+       {{#if IsPrimaryKey}}Id{{else}}{{ColumnName}}{{/if}}: { type: {{SequelizeType}}, field: '{{ColumnName}}'{{#if IsPrimaryKey}}, primaryKey: true{{/if}}{{#if IsIdentity}}, autoIncrement: true {{/if}} },
+    {{/each}}
+    },
+        {
+            indexes: [],
+            classMethods: {},
+            timestamps: true,
+            tableName: '{{data.Table}}',
+            createdAt: 'CreatedAt',
+            updatedAt: 'UpdatedAt',
+            freezeTableName: true,
+            defaultScope: {
+                where: {
+                    Status: 1
+                }
+            }
+        });
+
+    return {{data.Name}};
+}

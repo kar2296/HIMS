@@ -1,0 +1,122 @@
+<style>
+    /**
+    * The dnd-list should always have a min-height,
+    * otherwise you can't drop to it once it's empty
+    */
+    .simpleDemo ul[dnd-list] {
+        height: 400px;
+        padding-left: 0px;
+    }
+
+    /**
+    * The dndDraggingSource class will be applied to
+    * the source element of a drag operation. It makes
+    * sense to hide it to give the user the feeling
+    * that he's actually moving it.
+    */
+    .simpleDemo ul[dnd-list] .dndDraggingSource {
+        display: none;
+    }
+
+    /**
+    * An element with .dndPlaceholder class will be
+    * added to the dnd-list while the user is dragging
+    * over it.
+    */
+    .simpleDemo ul[dnd-list] .dndPlaceholder {
+        background-color: #ddd;
+        display: block;
+        min-height: 42px;
+    }
+
+    .simpleDemo ul[dnd-list] li {
+        /* background-color: #fff; */
+        border: 1px solid #ddd;
+        border-top-right-radius: 4px;
+        border-top-left-radius: 4px;
+        display: block;
+        padding: 3px 15px;
+        margin-bottom: 3px;
+        color:#fff;
+        /* font-style: oblique; */
+        font-weight: 500;
+        letter-spacing: 0.1px;
+        text-transform: uppercase;
+    }
+
+    /**
+    * Show selected elements in green
+    */
+    .simpleDemo ul[dnd-list] li.selected {
+        background-color: #dff0d8;
+        color: #3c763d;
+    }
+    .formactionbar{
+        margin:0px;
+    }
+    .panel-heading.mb5{
+        /* background-color: #23b7e5eb; */
+        /* background: #ff6262; */
+        background:#de08699c !important;
+    }
+   </style>
+<div class="modal-header custom-modal-header">
+    <h4 class="modal-title custom-modal-title" translate="Discharge Summary Configuration"></h4>
+</div>
+
+<div class="row">
+    <div class="col-sm-12">
+        <div class="tab-content">
+            <div class="col-sm-12 bg-pattern">
+                <div class="tab-pane fade in active" id="demos">
+                    <div class="col-sm-1"></div>
+                    <div class="panel panel-info col-sm-4 simpleDemo casesheet_available">
+                        <div class="panel-heading mb5 text-center">
+                            <h3 class="panel-title ng-binding" style="color:#fff">Available sections</h3>
+                        </div>
+                        <div class="panel-body ng-scope">
+                            <ul dnd-list="currentcontext.MasterList">
+                                <li ng-repeat="item in currentcontext.MasterList"
+                                    dnd-draggable="item"
+                                    dnd-moved="currentcontext.MasterList.splice($index, 1)"
+                                    dnd-effect-allowed="move"
+                                    dnd-selected="currentcontext.Selected = item"
+                                    ng-class="{'selected': currentcontext.Selected === item}">
+                                    {{item.Text}}
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-sm-2"></div>
+                    <div class="panel panel-info col-sm-4 simpleDemo casesheet_selected">
+                        <div class="panel-heading mb5 text-center">
+                            <h3 class="panel-title ng-binding" style="color:#fff">Selected sections</h3>
+                        </div>
+                        <div class="panel-body ng-scope">
+                            <ul dnd-list="currentcontext.SelectedList">
+                                <li ng-repeat="item in currentcontext.SelectedList"
+                                    dnd-draggable="item"
+                                    dnd-moved="currentcontext.SelectedList.splice($index, 1)"
+                                    dnd-effect-allowed="move"
+                                    dnd-selected="currentcontext.Selected = item"
+                                    ng-class="{'selected': currentcontext.Selected === item}">
+                                    {{item.Text}}
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-sm-2"></div>
+                    </div>
+                </div>
+                <div class="panel-footer formactionbar">
+                    <div class="col-sm-12">
+                        <div class="pull-right">
+                            <button type="button" class="btn btn-success btn-sm ng-scope" ng-click="saveItem()" translate="common.saveaction.lbl"></button>
+                            <button id="btnCancelForm" type="button" class="draftbutton" ng-click="cancelCallback()" translate="common.cancelaction.lbl"></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

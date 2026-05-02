@@ -1,0 +1,95 @@
+<style>
+    .pull-right-table {
+        display: flex;
+        justify-content: flex-end;
+    }
+</style>
+<div class="row">
+    <div class="col-sm-4">
+        <label class="col-sm-4" translate="billing.patientadjustmentinfo.patientsearch.lbl"></label>
+        <div class="col-sm-8">
+            <patientsearch controlid="'pid'" ng-keyup="moveHeaderFocus('pid')" patientid="currentfilter.PatientId"
+                name="txtpatientsearch" patientinfo="selectedPatient" patientchange="patientChange()"
+                tabindex="tabindexmap.patienttabindex" isdisabled="" filterconfig="patientfilterconfig"></patientsearch>
+        </div>
+    </div>
+    <div class="col-sm-4">
+        <label class="col-sm-4" for="fromdate" translate="billing.patientadjustmentinfo.fromdate.lbl"></label>
+        <div class="col-sm-8">
+            <input type="text" class="form-control" name="fromdate" ng-change="getList()" ng-date-object
+                uib-datepicker-popup="{{datePickerOptions.dateFormat}}" placeholder="{{datePickerOptions.placeholder}}"
+                ng-click="fromdatePopup = { opened: true }" is-open="fromdatePopup.opened"
+                ng-model="currentfilter.FromDate">
+        </div>
+    </div>
+    <div class="col-sm-4">
+        <label class="col-sm-4" for="todate" translate="billing.patientadjustmentinfo.todate.lbl"></label>
+        <div class="col-sm-8">
+            <input type="text" class="form-control" name="todate" ng-change="getList()" ng-date-object
+                uib-datepicker-popup="{{datePickerOptions.dateFormat}}" placeholder="{{datePickerOptions.placeholder}}"
+                ng-click="todatePopup = { opened: true }" is-open="todatePopup.opened" ng-model="currentfilter.ToDate">
+        </div>
+    </div>
+</div>
+<div class="row">
+    <form id="item_form" name="item_form" class="form-horizontal" role="form">
+        <div class="table-height formRoot bill_patrevenueinfo" id="mainresponsivetablecontrol">
+            <table class="table table-hover table-responsive table-bordered">
+                <thead class="bg-subhead">
+                    <tr>
+                        <th class="col-sm-3">
+                            <span translate="billing.patientrevenueinfo.transactiondate.lbl"></span>
+                        </th>
+                        <th class="col-sm-3">
+                            <span translate="billing.patientrevenueinfo.revenuecategory.lbl"></span>
+                        </th>
+                        <th class="col-sm-3">
+                            <span translate="billing.patientrevenueinfo.credit.lbl"></span>
+                        </th>
+                        <th class="col-sm-3">
+                            <span translate="billing.patientrevenueinfo.debit.lbl"></span>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="category in ServiceCategories | filter:{Status:1}">
+                        <td>
+                            {{category.TransactionDate}}
+                        </td>
+                        <td>
+                            {{category.ServiceCategoryName}}
+                        </td>
+                        <td>
+                            <label class="pull-right">{{category.CreditAmount | displaycurrency}}</label>
+                        </td>
+                        <td>
+                            <label class="pull-right">{{category.DebitAmount | displaycurrency}}</label>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </form>
+</div>
+
+<div class="row">
+    <div class="pull-right-table">
+        <div class="col-sm-4">
+            <table id="bannerdetails">
+                <tr>
+                    <td class="totallabel">Total</td>
+                    <td>
+                        <span>{{currentcontext.TotalCredit | displaycurrency}}</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="totallabel">Debit</td>
+                    <td>
+
+                        <span>{{currentcontext.TotalDebit | displaycurrency}}</span>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</div>

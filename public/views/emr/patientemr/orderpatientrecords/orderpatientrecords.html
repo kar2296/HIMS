@@ -1,0 +1,148 @@
+<style>
+    @media only screen and (max-width: 767px) {
+        .img-thumbnail {
+            width: 50%;
+            margin-top: 30px;
+        }
+    }
+</style>
+
+<link href="app/css/claimprocessform.css" rel="stylesheet">
+<div id="clmb_form">
+    <div class="row page-header">
+        <div class="col-sm-6">
+            <h4 class="col-sm-12 mt0" translate="Order Patient Record"></h4>
+        </div>
+        <div class="col-sm-2" style="color: chocolate;font-weight: 500">
+            {{item.EncounterStatus}}{{item.AdmissionStatus}}
+        </div>
+        <div class="col-sm-2">
+            <a ng-click="checkoutorder()" class="pull-right lnk-portlet-header-action "
+                uib-tooltip="{{ 'CompleteOrder' | translate }}" tooltip-placement="bottom">
+                <strong>Complete Order</strong>
+            </a>
+        </div>
+        <div class="col-sm-2">
+            <div class="col-sm-12">
+                <div class="pull-right">
+                    <span class="drhms-billing-btn drhms-outstandingbill-btn" ng-click="doctor_dashboard()"
+                        uib-tooltip="{{'patientemr.pmhxdashboard.doctordashboard.lbl' | translate}}"
+                        tooltip-placement="bottom">
+                        <i class="fas fa-th-large" aria-hidden="true"></i>
+                    </span>
+
+                    <!-- <img class="imgsrc" src="app/img/main/speedometer.png" ng-click="doctor_dashboard()"
+                        uib-tooltip="{{'patientemr.pmhxdashboard.doctordashboard.lbl' | translate}}"
+                        tooltip-placement="bottom" style="margin-top: -3px;width: 35px;"> -->
+                    <img class="imgsrc" src="app/img/main/check-in.png" ng-click="checkedinpatients()"
+                        ng-if="context=='emr'" uib-tooltip="{{'patientemr.pmhxdashboard.oplist.lbl' | translate}}"
+                        tooltip-placement="bottom" style="margin-top: -3px;width: 35px;">
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <div class="container-fluid">
+        <div class="row" id="visitinfo">
+            <div class="col-sm-9">
+                <table id="bannerdetails">
+                    <tr>
+                        <td translate="registration.fullregistration.firstname.lbl"></td>
+                        <td class="font_b" style="font-weight:bolder; color: black">{{item.PatientName}}</td>
+                        <td translate="billing.claimprocess.mobileno.lbl"></td>
+                        <td>{{item.Mobile}}</td>
+
+                    </tr>
+                    <tr>
+                        <td translate="registration.fullregistration.dob/age.lbl"></td>
+                        <td>{{item.DOB}} / {{item.Age}}</td>
+                        <td translate="registration.registrationcumvisit.address.lbl"></td>
+                        <td>{{item.AddressLine1}},{{item.AddressLine2}},{{item.City}},{{item.Country}},{{item.State}}
+                        </td>
+
+                    </tr>
+                    <tr>
+                        <td translate="billing.claimprocess.claimmrn.lbl"></td>
+                        <td style="font-weight:bolder; color: black">{{item.MRN}}</td style="font-weight:bolder; color:black">
+                        <td translate="registration.registrationcumvisit.nationality.lbl"></td>
+                        <td>{{item.Nationality}}</td>
+                    </tr>
+                    <tr>
+                        <td translate="registration.registrationcumvisit.gender.lbl"> </td>
+                        <td>{{item.Gender}}</td>
+                        <td translate="registration.fullregistration.insurancename.lbl"></td>
+                        <td style="font-weight:bolder; color: black">{{item.GuarantorName}} </td>
+
+                    </tr>
+                    <tr>
+                        <td translate="registration.registrationcumvisit.iqamanum.lbl"></td>
+                        <td> {{item.NationalityId}}</td>
+                        <td translate="registration.registrationcumvisit.passport.lbl"></td>
+                        <td>{{item.PasspostNumber}}</td>
+
+                    </tr>
+
+                </table>
+                <table id="bannerdetails">
+                    <div class="unhide-content nopad">
+                        <h4 class="col-sm-12 mt0 text-color" translate="Order Info"
+                            style="margin-bottom: 5px !important; display: inline-block;margin:0px;padding:10px;">
+                        </h4>
+                    </div>
+                    <tr>
+                        <td translate="Schedule Date"></td>
+                        <td>
+                            <displaydate datetime-val="vodata.OrderScheduleDate"></displaydate>
+                        </td>
+                        <td translate="Consultation Start"></td>
+                        <td>{{vodata.StartTime}}</td>
+                        <td translate="Consultation End"></td>
+                        <td>{{vodata.EndTime}}</td>
+                    </tr>
+                    <tr>
+                        <td translate="Order #"></td>
+                        <td style="font-weight:bolder;color: black; "> {{vodata.OrderNumber}}</td>
+                        <td translate="Request Date"></td>
+                        <td>
+                            <displaydate datetime-val="vodata.OrderRequestDate"></displaydate>
+                        </td>
+                        <td translate="Doctor Name"></td>
+                        <td>{{vodata.DoctorName}}</td>
+                    </tr>
+                    <tr>
+                        <td translate="registration.registrationcumvisit.department.lbl"></td>
+                        <td>{{vodata.Department.DepartmentName}}</td>
+                        <td translate="Category"></td>
+                        <td>{{vodata.VirtualCategory.CategoryName}}</td>
+                        <td translate="Sub Category"></td>
+                        <td>{{vodata.VirtualSubCategory.SubCategoryName}}</td>
+                    </tr>
+                </table>
+            </div>
+            <div class="col-sm-3">
+                <div class="col-sm-12 attachment_image " ng-show="!item.iswebcamphoto">
+                    <img class="patient-img img-responsive image-height-control img-thumbnail  center-block ng-hide"
+                        tabindex="-1" ng-show="!!currentcontext.file" ngf-thumbnail="currentcontext.file">
+                    <img ng-show="!currentcontext.file &amp;&amp; item.PhotoPath"
+                        data-ng-src="data:image/png;base64,{{currentcontext.Photo}}" tabindex="-1"
+                        class="patient-img img-responsive image-height-control img-thumbnail center-block ng-hide empty_atttach"
+                        src="app/img/main/img.jpg">
+                    <img ng-show="!currentcontext.file &amp;&amp; !item.PhotoPath" src="app/img/main/img.jpg"
+                        tabindex="-1"
+                        class="img-responsive image-height-control img-thumbnail center-block empty_atttach">
+                </div></br>
+                <div class="col-sm-12" ng-show="CanshowVideo">
+                    <center>
+                        <img class="smallicon" ng-click="videoconference()" uib-tooltip="Video Conference"
+                            src="app/img/care img/video.png"></a>
+                    </center>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="fooder-bgs">
+    <div class="pull-left">
+
+    </div>
+</div>

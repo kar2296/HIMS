@@ -1,0 +1,142 @@
+<!-- <style>
+    .panel-footer {
+        background-color: #ccecf5 !important;
+    }
+
+    .grid1485611170638 .ui-grid-coluiGrid-00AD {
+        min-width: 163px;
+        max-width: 163px;
+    }
+
+    .custom_marbot {
+        margin-bottom: 10px;
+    }
+
+    ul.uib-datepicker-popup.dropdown-menu.ng-scope {
+        left: -30px !important;
+    }
+
+    .pl-4{
+        padding-left: 3%;
+    }
+
+    .status {
+        background-color: rgba(241, 208, 63, 0.34);
+    }
+
+    .m_bottom {
+        margin-bottom: 7px;
+    }
+</style> -->
+<!-- <div class="row page-header">
+    <div class="col-sm-12">
+        <div class="col-sm-6">
+            <h4 class="page-header mt0" translate="inventory.pmrmaster.pagetitle.lbl"></h4>
+        </div>
+        <div class="col-sm-6">
+            <span>
+                <button class="btn bt-color2 btn-xs pull-right  btn-filter" ng-click="addNew()" uib-tooltip="{{ 'inventory.pmrmaster.pagetitle.lbl' | translate }}"
+                    tooltip-placement="bottom">
+                    <i class="fa fa-plus" aria-hidden="true"></i>
+                    <strong class="btn-fontsize" translate="common.addnewaction.lbl"> </strong>
+                </button>
+            </span>
+        </div>
+    </div>
+</div> -->
+<style>
+    .form-horizontal .control-label {
+        margin: 0;
+    }
+</style>
+<div class="row page-header">
+    <div class="col-sm-12">
+        <div class="col-sm-6">
+            <h4 class="page-header mt0" translate="inventory.pmrmaster.pagetitle.lbl"></h4>
+        </div>
+        <div class="col-sm-6">
+            <div class="filters">
+                <div class="search">
+                    <input type="text" id="pid" class="form-control" on-enter="getList()"
+                        ng-model="currentfilter.PMRCode" translate
+                        translate-attr-placeholder="inventory.producttypes.filter_producttypename.lbl"> <i
+                        class="fas fa-search" aria-hidden="true"></i>
+
+                </div>
+                <button type="button" tabindex="-1" class="btn-add" ng-click="addNew()"
+                    uib-tooltip="{{ 'inventory.pmrmaster.pagetitle.lbl' | translate }}" tooltip-placement="bottom">
+                    <i class="fa fa-plus" aria-hidden="true"></i>
+                    <!-- <span translate="clinicalmaster.serviceitem-list.addnew.lbl " class="text-white"></span> -->
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <form id="item_form" name="item_form" class="form-horizontal" role="form">
+        <!-- <div class="col-sm-4">
+                <div class="col-sm-5">
+                    <label class="control-label" for="name" translate="inventory.pmrmaster.name/code.lbl"></label>
+                </div>
+                <div class="input-group col-sm-7">
+                    <div class="input-group-addon">
+                        <i class="fas fa-search" aria-hidden="true"></i>
+                    </div>
+                    <input type="text" class="form-control" on-enter="getList()" ng-model="currentfilter.PMRCode" translate translate-attr-placeholder="inventory.producttypes.filter_producttypename.lbl">
+                </div>
+            </div> -->
+        <div class="col-sm-4 form-group">
+            <div class="col-sm-4">
+                <label class="control-label" for="categoryname" translate="inventory.pmrmaster.category.lbl"></label>
+            </div>
+            <div class="col-sm-8">
+                <ui-select ng-model="currentfilter.PMRCategoryId" ng-change="getList()" name="categoryname">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 20 : 0}}
+                        <span ng-if="$select.selected.Text.length>20">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.PMRCategory | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+        <div class="col-sm-4 form-group">
+            <div class="col-sm-4">
+                <label class="control-label" for="procedurename" translate="inventory.pmrmaster.procedure.lbl"></label>
+            </div>
+            <div class="col-sm-8">
+                <autosearch itemid="currentfilter.ProcedureId" iteminfo="" rowdata="" config="vm.procedurecontrolconfig"
+                    itemchange="getList()" fieldname="'procedure'" onenter="onEnter(data)"></autosearch>
+            </div>
+        </div>
+        <div class="col-sm-4 form-group">
+            <div class="col-sm-4">
+                <label class="control-label" for="status" translate="inventory.pmrmaster.status.lbl"></label>
+            </div>
+            <div class="col-sm-8">
+                <ui-select ng-model="currentfilter.ActiveStatusId" ng-change="getList()" name="status">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 20 : 0}}
+                        <span ng-if="$select.selected.Text.length>20">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.ActiveStatus | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+    </form>
+</div>
+<div class="row">
+    <custom-table config="vm.gridConfig"></custom-table>
+</div>
+<div class="fooder-bgs">
+    <div class="row">
+        <ul uib-pagination total-items="vm.gridConfig.pagerObj.totalItems"
+            items-per-page="vm.gridConfig.pagerObj.pageSize" start-index="vm.gridConfig.pagerObj.startIndex"
+            ng-model="vm.gridConfig.pagerObj.currentPage" ng-change="getList()"></ul>
+    </div>
+</div>

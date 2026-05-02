@@ -1,0 +1,641 @@
+<html>
+
+<head>
+    <style>
+        .border-bottom {
+            border-bottom: 0px solid black;
+            font-size: 11px;
+        }
+
+        .center {
+            text-align: center;
+            font-size: 11px;
+        }
+
+        .header4 {
+            font-size: 11px;
+        }
+
+        .border {
+            border: 1px solid black;
+            border-bottom: 0px solid black;
+            border-top: 0px solid black;
+            font-size: 11px;
+            border-collapse: collapse;
+        }
+
+        .border-top {
+            border: 1px solid black;
+            border-top: 1px solid black;
+            font-size: 11px;
+        }
+
+        .left {
+            text-align: left;
+            font-size: 11px;
+        }
+
+        .right {
+            text-align: right;
+            font-size: 11px;
+        }
+
+        .noborder {
+            border: 1px solid black;
+            border-top: 0px solid black;
+            border-bottom: 0px solid black;
+            font-size: 11px;
+        }
+
+        .displaynone {
+            display: none;
+        }
+
+        .size {
+            font-size: 11px;
+        }
+
+        .analyteCls {
+            padding-left: 30px;
+            font-weight: 600;
+        }
+
+        .textAlign {
+            text-align: left;
+            vertical-align: top;
+        }
+
+        .textAlign1 {
+            text-align: left;
+            vertical-align: top;
+        }
+
+        .testCls {
+            font-weight: 600;
+            font-style: italic;
+            font-size: 14px;
+            text-decoration: underline;
+        }
+
+        .remarkCls {
+            font-weight: 600;
+            font-size: 11px;
+            text-decoration: underline;
+        }
+
+        .remarkCommentsCls {
+            font-weight: normal;
+            font-style: normal;
+            font-size: 11px;
+            text-decoration: none;
+        }
+
+        .methodologyCls {
+            font-weight: normal;
+            font-style: normal;
+            font-size: 11px;
+            text-decoration: none;
+        }
+
+        .no-underline {
+            text-decoration: none;
+        }
+
+        /* Create four equal columns that floats next to each other */
+        .column {
+            float: left;
+            width: 25%;
+            padding: 25px;
+            height: 200px;
+            box-sizing: border-box;
+        }
+
+        /* Clear floats after the columns */
+        .row:after {
+            border-style: solid;
+            width: 95%;
+            display: table;
+            clear: both;
+        }
+
+        .pageheader {
+            position: relative;
+            top: 40px;
+        }
+
+        .pat-info {
+            border-top: 1px solid;
+            border-bottom: 1px solid;
+        }
+
+        
+
+        table.header4.lab-data th {
+            border-bottom: 1px solid gray;
+        }
+
+        .qr-code div {
+            font-size: 11px;
+        }
+
+        .pat-info td {
+            white-space: normal;
+        }
+
+        table.header4.lab-data.no-bot {
+            border-bottom: unset !important
+        }
+
+        td {
+            font-weight: 500 !important;
+            font-family: sans-serif;
+            font-size: 13px !important;
+        }
+
+        .size td {
+            padding: 2px !important;
+            padding-left: 10px !important;
+        }
+
+        .lab-data th {
+            padding: 8px !important;
+        }
+        .pat-info {
+            margin-left: 45px !important;
+        }
+
+         {{include '/Templates/assets/css/core.css'}}
+    </style>
+</head>
+
+<body style="padding-left:45px;">
+    <div id="pageHeader" class="pageheader"> 
+        {{#if data.Flags.header}}
+        {{{include '/Templates/SDH/common/header.tpl.html' 'tpl'}}}
+        {{/if}} 
+{{#if data.Flags.header}}
+         
+ <div class="pat-info" style="position:relative;top:0px;" >
+            <table class="size inf" style="width:100%;">
+                <tr>
+                    <td style="width:13%">Patient Name</td>
+                    <td style="width:45%">: <b>{{data.Patient.Title.Description}} {{data.Patient.FirstName}} {{data.Patient.LastName}}</b>
+                    </td>
+                    <td style="width:17%">Ordered On</td>
+                    <td style="width:25%">:{{#if data.PatientWorkorder.Ordereddate}} {{datetimeformat data.PatientWorkorder.Ordereddate}}
+                        {{/if}} </td>
+                </tr>
+                <tr>
+                    <td>Age / Gender</td>
+                    <td>: {{age data.Patient.DOB}} / {{data.Patient.Gender.Description}}</td>
+                    <td>Collected On</td>
+                    <td>:{{#if data.PatientWorkorder.PatientOrder.OrderRequestDate}} {{datetimeformat
+                        data.PatientWorkorder.PatientOrder.OrderRequestDate}}{{/if}} </td>
+                </tr>
+                <tr>
+                    <td>UHID</td>
+                    <td>: <b>{{data.Patient.MRN}}</b> </td>
+                    <!-- <td style="width:20%;">Priority</td> <td>:</td> <td>{{data.PatientWorkorder.OrderPriority.Description}}</td> -->
+                    <!-- <td colspan="2"> <img style="height: 15px; width: 110px;" src="{{barcode data.Patient.MRN}}" /> -->
+                    </td>
+                    <td>Reported On</td>
+                    <td>: {{#if data.PatientWorkorder.TechValidationdate}} {{datetimeformat
+                        data.PatientWorkorder.TechValidationdate}}{{/if}} </td>
+                </tr>
+                <tr>
+                    <td><label>Refferred by.</label></td>
+                    <td>: {{data.PatientWorkorder.Encounter.DoctorName}}</td>
+                    <td>Ref. No</td>
+                    <td>: {{data.PatientWorkorder.WorkOrderdid}} </td>
+                </tr>
+                <tr>
+                    <td><label>OP / IP No</label></td>
+                    <td>: {{data.PatientWorkorder.Encounter.VisitIdentifier}}</td>
+                    <td>Ward Info</td>
+                    <td style=>: {{data.PatientWorkorder.Encounter.WardMaster.WardName}} /
+                        {{data.PatientWorkorder.Encounter.WardRoomMaster.RoomNo}} /
+                        {{data.PatientWorkorder.Encounter.WardRoomBedMaster.BedNo}} </td>
+                </tr>
+            </table>
+        </div>
+        <div id="pageHeader-2" style="font-size:13px; width:100%;">        
+            {{#if data.Flags.header}}
+            {{{include '/Templates/SDH/common/header.tpl.html' 'tpl'}}}
+            {{/if}} 
+            <div class="pat-info" style="position:relative;top:10px;">
+                <table class="size inf" style="width:100%;">
+                    <tr>
+                        <td style="width:13%">Patient Name</td>
+                        <td style="width:45%">: <b>{{data.Patient.Title.Description}} {{data.Patient.FirstName}} {{data.Patient.LastName}}</b>
+                        </td>
+                        <td style="width:17%">Ordered On</td>
+                        <td style="width:25%">:{{#if data.PatientWorkorder.Ordereddate}} {{datetimeformat data.PatientWorkorder.Ordereddate}}
+                            {{/if}} </td>
+                    </tr>
+                    <tr>
+                        <td>Age / Gender</td>
+                        <td>: {{age data.Patient.DOB}} / {{data.Patient.Gender.Description}}</td>
+                        <td>Collected On</td>
+                        <td>:{{#if data.PatientWorkorder.PatientOrder.OrderRequestDate}} {{datetimeformat
+                            data.PatientWorkorder.PatientOrder.OrderRequestDate}}{{/if}} </td>
+                    </tr>
+                    <tr>
+                        <td>UHID</td>
+                        <td>: <b>{{data.Patient.MRN}}</b> </td>
+                        <!-- <td style="width:20%;">Priority</td> <td>:</td> <td>{{data.PatientWorkorder.OrderPriority.Description}}</td> -->
+                        <!-- <td colspan="2"> <img style="height: 15px; width: 110px;" src="{{barcode data.Patient.MRN}}" /> -->
+                        </td>
+                        <td>Reported On</td>
+                        <td>: {{#if data.PatientWorkorder.TechValidationdate}} {{datetimeformat
+                            data.PatientWorkorder.TechValidationdate}}{{/if}} </td>
+                    </tr>
+                    <tr>
+                        <td><label>Refferred by.</label></td>
+                        <td>: {{data.PatientWorkorder.Encounter.DoctorName}}</td>
+                        <td>Ref. No</td>
+                        <td>: {{data.PatientWorkorder.WorkOrderdid}} </td>
+                    </tr>
+                    <tr>
+                        <td><label>OP / IP No</label></td>
+                        <td>: {{data.PatientWorkorder.Encounter.VisitIdentifier}}</td>
+                        <td>Ward Info</td>
+                        <td>: {{data.PatientWorkorder.Encounter.WardMaster.WardName}} /
+                            {{data.PatientWorkorder.Encounter.WardRoomMaster.RoomNo}} /
+                            {{data.PatientWorkorder.Encounter.WardRoomBedMaster.BedNo}} </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        <div id="pageHeader-3" style="font-size:13px; width:100%;">        
+            {{#if data.Flags.header}}
+            {{{include '/Templates/SDH/common/header.tpl.html' 'tpl'}}}
+            {{/if}} 
+            <div class="pat-info" style="position:relative;top:10px;">
+                <table class="size inf" style="width:100%;">
+                    <tr>
+                        <td style="width:13%">Patient Name</td>
+                        <td style="width:45%">: <b>{{data.Patient.Title.Description}} {{data.Patient.FirstName}} {{data.Patient.LastName}}</b>
+                        </td>
+                        <td style="width:17%">Ordered On</td>
+                        <td style="width:25%">:{{#if data.PatientWorkorder.Ordereddate}} {{datetimeformat data.PatientWorkorder.Ordereddate}}
+                            {{/if}} </td>
+                    </tr>
+                    <tr>
+                        <td>Age / Gender</td>
+                        <td>: {{age data.Patient.DOB}} / {{data.Patient.Gender.Description}}</td>
+                        <td>Collected On</td>
+                        <td>:{{#if data.PatientWorkorder.PatientOrder.OrderRequestDate}} {{datetimeformat
+                            data.PatientWorkorder.PatientOrder.OrderRequestDate}}{{/if}} </td>
+                    </tr>
+                    <tr>
+                        <td>UHID</td>
+                        <td>: <b>{{data.Patient.MRN}}</b> </td>
+                        <!-- <td style="width:20%;">Priority</td> <td>:</td> <td>{{data.PatientWorkorder.OrderPriority.Description}}</td> -->
+                        <!-- <td colspan="2"> <img style="height: 15px; width: 110px;" src="{{barcode data.Patient.MRN}}" /> -->
+                        </td>
+                        <td>Reported On</td>
+                        <td>: {{#if data.PatientWorkorder.TechValidationdate}} {{datetimeformat
+                            data.PatientWorkorder.TechValidationdate}}{{/if}} </td>
+                    </tr>
+                    <tr>
+                        <td><label>Refferred by.</label></td>
+                        <td>: {{data.PatientWorkorder.Encounter.DoctorName}}</td>
+                        <td>Ref. No</td>
+                        <td>: {{data.PatientWorkorder.WorkOrderdid}} </td>
+                    </tr>
+                    <tr>
+                        <td><label>OP / IP No</label></td>
+                        <td>: {{data.PatientWorkorder.Encounter.VisitIdentifier}}</td>
+                        <td>Ward Info</td>
+                        <td>: {{data.PatientWorkorder.Encounter.WardMaster.WardName}} /
+                            {{data.PatientWorkorder.Encounter.WardRoomMaster.RoomNo}} /
+                            {{data.PatientWorkorder.Encounter.WardRoomBedMaster.BedNo}} </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        <div id="pageHeader-4" style="font-size:13px; width:100%;">        
+            {{#if data.Flags.header}}
+            {{{include '/Templates/SDH/common/header.tpl.html' 'tpl'}}}
+            {{/if}} 
+            <div class="pat-info" style="position:relative;top:20px;">
+                <table class="size inf" style="width:100%;">
+                    <tr>
+                        <td style="width:13%">Patient Name</td>
+                        <td style="width:45%">: <b>{{data.Patient.Title.Description}} {{data.Patient.FirstName}} {{data.Patient.LastName}}</b>
+                        </td>
+                        <td style="width:17%">Ordered On</td>
+                        <td style="width:25%">:{{#if data.PatientWorkorder.Ordereddate}} {{datetimeformat data.PatientWorkorder.Ordereddate}}
+                            {{/if}} </td>
+                    </tr>
+                    <tr>
+                        <td>Age / Gender</td>
+                        <td>: {{age data.Patient.DOB}} / {{data.Patient.Gender.Description}}</td>
+                        <td>Collected On</td>
+                        <td>:{{#if data.PatientWorkorder.PatientOrder.OrderRequestDate}} {{datetimeformat
+                            data.PatientWorkorder.PatientOrder.OrderRequestDate}}{{/if}} </td>
+                    </tr>
+                    <tr>
+                        <td>UHID</td>
+                        <td>: <b>{{data.Patient.MRN}}</b> </td>
+                        <!-- <td style="width:20%;">Priority</td> <td>:</td> <td>{{data.PatientWorkorder.OrderPriority.Description}}</td> -->
+                        <!-- <td colspan="2"> <img style="height: 15px; width: 110px;" src="{{barcode data.Patient.MRN}}" /> -->
+                        </td>
+                        <td>Reported On</td>
+                        <td>: {{#if data.PatientWorkorder.TechValidationdate}} {{datetimeformat
+                            data.PatientWorkorder.TechValidationdate}}{{/if}} </td>
+                    </tr>
+                    <tr>
+                       <td><label>Refferred by.</label></td>
+                        <td>: {{data.PatientWorkorder.Encounter.DoctorName}}</td>
+                        <td>Ref. No</td>
+                        <td>: {{data.PatientWorkorder.WorkOrderdid}} </td>
+                    </tr>
+                    <tr>
+                        <td><label>OP / IP No</label></td>
+                        <td>: {{data.PatientWorkorder.Encounter.VisitIdentifier}}</td>
+                        <td>Ward Info</td>
+                        <td>: {{data.PatientWorkorder.Encounter.WardMaster.WardName}} /
+                            {{data.PatientWorkorder.Encounter.WardRoomMaster.RoomNo}} /
+                            {{data.PatientWorkorder.Encounter.WardRoomBedMaster.BedNo}} </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    
+        <div id="pageHeader-5" style="font-size:13px; width:100%;">
+            
+            {{#if data.Flags.header}}
+            {{{include '/Templates/SDH/common/header.tpl.html' 'tpl'}}}
+            {{/if}} 
+            <div>
+                <div class="pat-info" style="position:relative;top:20px;">
+                    <table class="size inf" style="width:100%;">
+                    <tr>
+                        <td style="width:13%">Patient Name</td>
+                        <td style="width:45%">: <b>{{data.Patient.Title.Description}} {{data.Patient.FirstName}} {{data.Patient.LastName}}</b>
+                        </td>
+                        <td style="width:17%">Ordered On</td>
+                        <td style="width:25%">:{{#if data.PatientWorkorder.Ordereddate}} {{datetimeformat data.PatientWorkorder.Ordereddate}}
+                            {{/if}} </td>
+                    </tr>
+                        <tr>
+                            <td>Age / Gender</td>
+                            <td>: {{age data.Patient.DOB}} / {{data.Patient.Gender.Description}}</td>
+                            <td>Collected On</td>
+                            <td>:{{#if data.PatientWorkorder.PatientOrder.OrderRequestDate}} {{datetimeformat
+                                data.PatientWorkorder.PatientOrder.OrderRequestDate}}{{/if}} </td>
+                        </tr>
+                        <tr>
+                            <td>UHID</td>
+                            <td>: <b>{{data.Patient.MRN}}</b> </td>
+                            <!-- <td style="width:20%;">Priority</td> <td>:</td> <td>{{data.PatientWorkorder.OrderPriority.Description}}</td> -->
+                            <!-- <td colspan="2"> <img style="height: 15px; width: 110px;" src="{{barcode data.Patient.MRN}}" /> -->
+                            </td>
+                            <td>Reported On</td>
+                            <td>: {{#if data.PatientWorkorder.TechValidationdate}} {{datetimeformat
+                                data.PatientWorkorder.TechValidationdate}}{{/if}} </td>
+                        </tr>
+                        <tr>
+                           <td><label>Refferred by.</label></td>
+                        <td>: {{data.PatientWorkorder.Encounter.DoctorName}}</td>
+                            <td>Ref. No</td>
+                            <td>: {{data.PatientWorkorder.WorkOrderdid}} </td>
+                        </tr>
+                        <tr>
+                            <td><label>OP / IP No</label></td>
+                            <td>: {{data.PatientWorkorder.Encounter.VisitIdentifier}}</td>
+                            <td>Ward Info</td>
+                            <td>: {{data.PatientWorkorder.Encounter.WardMaster.WardName}} /
+                                {{data.PatientWorkorder.Encounter.WardRoomMaster.RoomNo}} /
+                                {{data.PatientWorkorder.Encounter.WardRoomBedMaster.BedNo}} </td>
+                        </tr>
+                    </table>
+                </div>
+    
+            </div>
+        </div>
+  {{/if}} 
+{{#if data.Flags.woheader}} 
+ <table style="width:100%;font-size:11px;text-align:center;margin-top: 125px;">
+
+            
+        </table> 
+<div style="font-size:13px; width:100%;">       
+         {{#if data.Flags.header}}
+            {{{include '/Templates/SDH/common/header.tpl.html' 'tpl'}}}
+            {{/if}} 
+            <div class="pat-info">
+                <table class="size inf" style="width:100%;">
+                    <tr>
+                        <td style="width:13%">Patient Name</td>
+                        <td style="width:45%">: <b>{{data.Patient.Title.Description}} {{data.Patient.FirstName}} {{data.Patient.LastName}}</b>
+                        </td>
+                        <td style="width:17%">Ordered On</td>
+                        <td style="width:25%">:{{#if data.PatientWorkorder.Ordereddate}} {{datetimeformat data.PatientWorkorder.Ordereddate}}
+                            {{/if}} </td>
+                    </tr>
+                    <tr>
+                        <td>Age / Gender</td>
+                        <td>: {{age data.Patient.DOB}} / {{data.Patient.Gender.Description}}</td>
+                        <td>Collected On</td>
+                        <td>:{{#if data.PatientWorkorder.PatientOrder.OrderRequestDate}} {{datetimeformat
+                            data.PatientWorkorder.PatientOrder.OrderRequestDate}}{{/if}} </td>
+                    </tr>
+                    <tr>
+                        <td>UHID</td>
+                        <td>: <b>{{data.Patient.MRN}}</b> </td>
+                        <!-- <td style="width:20%;">Priority</td> <td>:</td> <td>{{data.PatientWorkorder.OrderPriority.Description}}</td> -->
+                        <!-- <td colspan="2"> <img style="height: 15px; width: 110px;" src="{{barcode data.Patient.MRN}}" /> -->
+                        </td>
+                        <td>Reported On</td>
+                        <td>: {{#if data.PatientWorkorder.TechValidationdate}} {{datetimeformat
+                            data.PatientWorkorder.TechValidationdate}}{{/if}} </td>
+                    </tr>
+                    <tr>
+                        <td><label>Refferred by.</label></td>
+                        <td>: {{data.PatientWorkorder.Encounter.DoctorName}}</td>
+                        <td>Ref. No</td>
+                        <td>: {{data.PatientWorkorder.WorkOrderdid}} </td>
+                    </tr>
+                    <tr>
+                        <td><label>OP / IP No</label></td>
+                        <td>: {{data.PatientWorkorder.Encounter.VisitIdentifier}}</td>
+                        <td>Ward Info</td>
+                        <td>: {{data.PatientWorkorder.Encounter.WardMaster.WardName}} /
+                            {{data.PatientWorkorder.Encounter.WardRoomMaster.RoomNo}} /
+                            {{data.PatientWorkorder.Encounter.WardRoomBedMaster.BedNo}} </td>
+                    </tr>
+                </table>
+            </div>
+</div>
+            {{/if}}  
+
+    </div>
+    
+    <div id="pageFooter"> {{{include '/Templates/SDH/common/footer.tpl.html' 'tpl'}}} </div>
+                <br>
+    <div style="width:100%;">
+            <table class="header4" style="width:100%;">
+
+
+
+        {{#each data.PatientWorkorderDetails}}
+
+        <!-- {{setVariable 'CDN' SubDepartment.DepartmentName}}
+        {{#ifCond 'g.LDN' '!=' 'g.CDN'}}
+        {{setVariable 'LDN' 'g.CDN'}}
+        <tr>
+            <td colspan="6" style="width:100%;text-align:center;font-size:10px"><u><b></b></u></td>
+        </tr>
+        {{/ifCond}} -->
+
+        <!-- {{setVariable 'CRPN' RootProfileName}}
+        {{#ifCond 'g.LRPN' '!=' 'g.CRPN'}}
+        {{setVariable 'LRPN' 'g.CRPN'}}
+          <tr>
+                    <td colspan="7" style="width:100%;"><b>{{getVariable 'g.CRPN'}}<b></td>
+                </tr>
+        <tr>
+            <td colspan="7" style="width:100%;"><b><b></td>
+        </tr>
+        {{/ifCond}} -->
+
+        <!-- {{setVariable 'CPN' ProfileName}}
+        {{#ifCond 'g.LPN' '!=' 'g.CPN'}}
+        {{setVariable 'LPN' 'g.CPN'}}
+          <tr>
+                    <td colspan="7" style="width:100%;"><b>{{getVariable 'g.CPN'}}<b></td>
+                </tr>
+        <tr>
+            <td colspan="6" style="width:100%;"><b><b></td>
+        </tr>
+        {{/ifCond}} -->
+        
+        {{setVariable 'CTN' Testname}}
+        {{#ifCond 'g.LTN' '!=' 'g.CTN'}}
+        {{setVariable 'LTN' 'g.CTN'}}
+        <tr>
+            <td>
+                <!--<span class="{{getVariable 'g.testCls'}}"><b>{{getVariable 'g.CTN'}}<b></span>-->
+            </td>
+        </tr>
+        {{/ifCond}}
+
+        {{setVariable 'Analytename' Analytename}}
+        {{setVariable 'Resultvalue' Resultvalue}}
+        {{setVariable 'QualifierId' QualifierId}}
+        {{setVariable 'AnalyteUOM' AnalyteUOM}}
+        {{setVariable 'Methodology' Methodology}}
+        {{#ifCond TestValueType '==' '3'}}
+        <tr>
+            <td>
+               <!-- <span class="{{getVariable 'g.analyteCls'}}">{{getVariable 'g.Analytename'}}</span>-->
+            </td>
+        </tr>
+        <tr>
+            <td style="text-align:left;">
+                <div style="text-align:left;">{{{getVariable 'g.Resultvalue'}}}</div>
+            </td>
+        </tr>
+        {{/ifCond}}
+
+        {{#ifCond TestValueType '!=' '3'}}
+        <tr>
+            <td style="width:32%;">
+                <span class="{{getVariable 'g.analyteCls'}}">{{getVariable 'g.Analytename'}}</span>
+            </td>
+            {{#ifCond 'g.QualifierId' '==' 2}}
+            <td style="width:10%;" class="textAlign">
+                <div ><b>{{{getVariable 'g.Resultvalue'}}}</b></div>
+            </td>
+            {{/ifCond}}
+            {{#ifCond 'g.QualifierId' '==' 3}}
+            <td style="width:10%;" class="textAlign">
+                <div ><b>{{{getVariable 'g.Resultvalue'}}}</b></div>
+            </td>
+            {{/ifCond}}
+            {{#ifCond 'g.QualifierId' '==' 1}}
+            <td style="width:10%;" class="textAlign">
+                <div >{{{getVariable 'g.Resultvalue'}}}</div>
+            </td>
+            {{/ifCond}}
+            {{#ifCond 'g.QualifierId' '==' null}}
+            <td style="width:10%;" class="textAlign">
+                <div >{{{getVariable 'g.Resultvalue'}}}</div>
+            </td>
+            {{/ifCond}}
+            <!--  
+                   <td style="width:5%;" class="textAlign">
+                       <div  style="margin-left:5px; margin-bottom:-2px;" class="arrow{{getVariable 'g.QualifierId'}}"></div></td>
+                   </td>
+                   -->
+            <td style="width:8%;">{{getVariable 'g.AnalyteUOM'}}</td>
+            <td style="width:15%;">{{getVariable 'g.Methodology'}}</td>
+            <td style="width:20%;text-align:left;">{{{splitToLines ../Analyterange}}}</td>
+        </tr>
+        {{/ifCond}}
+        {{/each}}
+    </table>
+    </div>   
+    <table> {{#if data.PatientWorkorder.PrintableComments}}
+        <tr>
+            <td><b>Notes :</b></td>
+            <td><b>{{data.PatientWorkorder.PrintableComments}}</b></td>
+        </tr>  {{/if}}
+    </table>
+    <!--<table class="approve" style="width: 100%;">
+        <tr>
+            <td style="width: 33%;">
+                <div style="width:100%">
+                    <div style="white-space:nowrap;text-align:center;margin-bottom: 5px;">
+                        <!--<div class="img-sign"> {{#if data.PatientWorkorder.Techuser.SignPath}}<img style="height: 30px; width: 100px;" src="{{include @root.data.PatientWorkorder.Techuser.SignPath 'fullpath-img'}}" /></div> {{/if}}-->
+                       <!-- <div style="white-space:nowrap;text-align:center;margin-bottom: 5px;">
+                            <b style="font-size:13px;"> {{data.PatientWorkorder.Techuser.Title.Description}}
+                                {{data.PatientWorkorder.Techuser.FirstName}} {{data.PatientWorkorder.Techuser.LastName}}
+                                <span style="color:#000;">{{data.PatientWorkorder.Techuser.Qualification}}</br>
+                                    </span> </b>
+                            <span style="text-decoration: underline;font-size:13px;">Verified By</span>
+                        </div>
+                    </div>
+            </td>
+            <td style="width: 33%;">
+                <div style="width:100%">
+                    <div style="white-space:nowrap;text-align:left;margin-bottom: 5px;">
+                        <!--<div class="img-sign"> {{#if data.PatientWorkorder.Techuser.SignPath}}<img style="height: 30px; width: 100px;" src="{{include @root.data.PatientWorkorder.Techuser.SignPath 'fullpath-img'}}" /></div> {{/if}}-->
+                     <!--   <div style="white-space:nowrap;text-align:center;margin-bottom: 5px;">
+                            <b style="font-size:13px;"> {{data.PatientWorkorder.ResultApprovedUser.FirstName}}</span>
+                            </b></br>
+                            <span style="text-decoration: underline;font-size:13px;"></span>
+                        </div>
+                    </div>
+            </td>
+            <td style="width: 33%;">
+                <div style="width:100%">
+                    <div style="white-space:nowrap;text-align:center;margin-bottom: 10px;">
+                        <div class="img-sign"> {{#if data.PatientWorkorder.MedUser.SignPath}}<img style="height: 50px; width: 100px;" 
+                            src="{{include @root.data.PatientWorkorder.MedUser.SignPath 'fullpath-img'}}" /></div> {{/if}}
+                        <div style="white-space:nowrap;text-align:left;margin-bottom: 5px;">
+                            <div style="white-space:nowrap;text-align:center;margin-bottom: 5px;"> {{#if data.PatientWorkorder.MedUser.FirstName}}
+                                <b style="font-size:13px;"> {{data.PatientWorkorder.MedUser.Title.Description}}
+                                    {{data.PatientWorkorder.MedUser.FirstName}}
+                                    {{data.PatientWorkorder.MedUser.LastName}}
+                                    <span> <br> {{data.PatientWorkorder.MedUser.Qualification}}  <br>   KMC NO: {{data.PatientWorkorder.MedUser.LicenseNo}}
+</span> </b>
+                                <br> <span style="text-decoration: underline;font-size:13px;">Approved By</span> <span
+                                    style="font-size:13px;text-decoration: underline;"></span> 
+                            </div> <span style="text-decoration: underline;font-size:13px;"></span>  {{/if}}
+                        </div>
+                    </div>
+            </td>
+        </tr>
+    </table>  --> 
+    <div class="center fs13">------End of Lab ResultS------</div>
+
+    <!--<div style="width:100%; font-size:8px;text-align:center">** mentioned tests are within the scope of Promed Hospital-NABL accreditation</div>
+        <!-- <div class="right"><img style="width:15%" src="{{include '/Templates/promed/assets/NABLLOGO.jpeg' 'img'}}" /></div>-->
+
+
+</body>
+
+</html>

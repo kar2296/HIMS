@@ -1,0 +1,129 @@
+<div class="row">
+    <div class="col-sm-3">
+        <label class="col-sm-6 control-label filter-lbl"
+            translate="ordermanagement.orderacknowledgement-list.filter_patient.lbl"></label>
+        <div class="col-sm-6">
+            <input type="text" class="form-control" name="filter_patient" on-enter="getList()"
+                ng-model="currentfilter.PatientMRN" translate
+                translate-attr-placeholder="ordermanagement.orderacknowledgement-list.namemrn.lbl">
+        </div>
+    </div>
+    <div class="col-sm-3">
+        <label class="col-sm-4 control-label filter-lbl" translate="appointment.appointment-form.visittype.lbl"></label>
+        <div class="col-sm-8">
+            <ui-select ng-model="currentfilter.EncounterTypeId" ng-change="getList()" class="filter-combo">
+                <ui-select-match>
+                    {{$select.selected.Text | limitTo : 20 : 0}}
+                    <span ng-if="$select.selected.Text.length>20">...</span>
+                </ui-select-match>
+                <ui-select-choices
+                    repeat="lookupitem.Id as lookupitem in lookup.EncounterType | filter: { Text: $select.search }">
+                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                </ui-select-choices>
+            </ui-select>
+        </div>
+    </div>
+    <div class="col-sm-3">
+        <label class="col-sm-6 control-label filter-lbl"
+            translate="ordermanagement.orderassignment-list.filter_fromdate.lbl"></label>
+        <div class="col-sm-6">
+            <input type="text" class="form-control" name="filter_fromdate" ng-change="getList()" ng-date-object
+                datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}"
+                uib-datepicker-popup="{{datePickerOptions.dateFormat}}" placeholder="{{datePickerOptions.placeholder}}"
+                ng-click="filter_fromdatePopup = { opened: true }" is-open="filter_fromdatePopup.opened"
+                ng-model="currentfilter.Ordereddate">
+        </div>
+    </div>
+    <div class="col-sm-3">
+        <label class="col-sm-6 control-label filter-lbl" translate="appmanager.user.subdepartment.lbl"></label>
+        <div class="col-sm-6">
+            <ui-select ng-model="currentfilter.SubDepartmentId" ng-change="getList()" class="filter-combo"
+                ng-disabled="SubdeptDisable">
+                <ui-select-match>
+                    {{$select.selected.Text | limitTo : 20 : 0}}
+                    <span ng-if="$select.selected.Text.length>20">...</span>
+                </ui-select-match>
+                <ui-select-choices
+                    repeat="lookupitem.Id as lookupitem in lookup.SubDepartment | filter: { Text: $select.search }">
+                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                </ui-select-choices>
+            </ui-select>
+        </div>
+    </div>
+</div>
+<div class="col-sm-12">
+    <div class="col-sm-3">
+        <label class="col-sm-6 control-label filter-lbl"
+            translate="ordermanagement.orderassignment-list.filter_ordernumber.lbl"></label>
+        <div class="col-sm-6">
+            <input type="text" class="form-control" name="filter_ordernumber" on-enter="getList()"
+                ng-model="currentfilter.WorkOrderdid" translate
+                translate-attr-placeholder="ordermanagement.orderassignment-list.filter_ordernumber.lbl">
+        </div>
+    </div>
+    <div class="col-sm-3">
+        <label class="col-sm-4 control-label filter-lbl"
+            translate="ordermanagement.myorderprocess-list.filter_status.lbl"></label>
+        <div class="col-sm-8">
+            <multiselectchk list="lookup.WorkOrderStatus" selected="currentfilter.WorkOrderStatusId" change="getList()">
+            </multiselectchk>
+            <!--<ui-select ng-model="currentfilter.WorkOrderStatusId" ng-change="getList()" class="filter-combo">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 8 : 0}}
+                        <span ng-if="$select.selected.Text.length>8">...</span>
+                    </ui-select-match>
+                    <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.WorkOrderStatus | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>-->
+        </div>
+    </div>
+    <div class="col-sm-3">
+        <label class="col-sm-6 control-label filter-lbl"
+            translate="ordermanagement.orderassignment-list.externalprovider.lbl"></label>
+        <div class="col-sm-6">
+            <ui-select ng-model="currentfilter.ExternalProviderId" ng-change="getList()" class="filter-combo">
+                <ui-select-match>
+                    {{$select.selected.Text | limitTo : 20 : 0}}
+                    <span ng-if="$select.selected.Text.length>20">...</span>
+                </ui-select-match>
+                <ui-select-choices
+                    repeat="lookupitem.Id as lookupitem in lookup.ExternalProvider | filter: { Text: $select.search }">
+                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                </ui-select-choices>
+            </ui-select>
+        </div>
+    </div>
+    <!--<div class="col-sm-3">
+            <button type="button" class="pull-right text-white btn prv-color12 btn-xs" uib-tooltip="{{'clinicalmaster.serviceitem-list.filter-tooltip.lbl' | translate }}"
+                tooltip-placement="bottom" ng-click="openAdvancedFilter()">
+                <i class="fa fa-search-plus" aria-hidden="true"></i>
+            </button>
+        </div>-->
+    <div class="col-sm-3">
+        <label class="col-sm-3 control-label filter-lbl" translate="patientemr.patientorder-list.opipno.lbl"></label>
+        <div class="col-sm-7">
+            <input type="text" class="form-control" name="order" on-enter="getList()"
+                ng-model="currentfilter.VisitIdentifier" placeholder="OP/IP No">
+        </div>
+        <div class="col-sm-2">
+            <button type="button" class="pull-right text-white btn prv-color12 btn-xs"
+                uib-tooltip="{{'clinicalmaster.serviceitem-list.filter-tooltip.lbl' | translate }}"
+                tooltip-placement="bottom" ng-click="openAdvancedFilter()">
+                <i class="fa fa-search-plus" aria-hidden="true"></i>
+            </button>
+        </div>
+    </div>
+</div>
+</div>
+
+<div class="row">
+    <custom-table config="vm.gridConfig"></custom-table>
+</div>
+<div class="fooder-bgs">
+    <div class="row">
+        <ul uib-pagination total-items="vm.gridConfig.pagerObj.totalItems"
+            items-per-page="vm.gridConfig.pagerObj.pageSize" start-index="vm.gridConfig.pagerObj.startIndex"
+            ng-model="vm.gridConfig.pagerObj.currentPage" ng-change="getList()"></ul>
+    </div>
+</div>

@@ -1,0 +1,150 @@
+<html>
+
+<head>
+    <style>
+        .title {
+            font-size: 10px;
+            text-align: center;
+        }
+
+        .table1 {
+            border: 1px solid black;
+            font-size: 8px;
+        }
+
+        .table2 {
+            border: 1px solid black;
+            border-top: 0px solid black;
+            font-size: 8px;
+            background-color: #AAAAAA
+        }
+
+        .table3 {
+            border: 1px solid black;
+            border-top: 0px solid black;
+            font-size: 8px;
+        }
+
+        .table4 {
+            border: 1px solid black;
+            border-top: 0px solid black;
+            border-bottom: 0px solid black;
+            text-align: right;
+            font-size: 8px;
+        }
+
+        .table5 {
+            border: 1px solid black;
+            border-top: 0px solid black;
+            text-align: right;
+            font-size: 8px;
+        }
+
+            {{include '/Templates/assets/css/core.css'}}
+    </style>
+</head>
+
+<body>
+    <!-- <div id="pageHeader">
+        {{{include '/Templates/jsshospital/common/header.tpl.html' 'tpl'}}}
+    </div> -->
+    <div class="title">Consolidated Lab Results</div>
+    <table class="table1" style="width:100%;">
+        <tr>
+            <td>
+                <b>Name</b>
+            </td>
+            <td>:</td>
+            <td style="text-align:left">
+                <b>{{data.Patient.Title.Description}} {{data.Patient.FirstName}} {{data.Patient.MiddleName}} {{data.Patient.LastName}}</b>
+            </td>
+            <td>
+                <b>UHID</b>
+            </td>
+            <td>:</td>
+            <td style="text-align:left">
+                <b>{{data.Patient.MRN}}</b>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <b>Age / Sex</b>
+            </td>
+            <td>:</td>
+            <td style="text-align:left">
+                <b>{{age data.Patient.DOB}} / {{data.Patient.Gender.Description}}</b>
+            </td>
+            <td>
+                <b>OP / IP NO</b>
+            </td>
+            <td>:</td>
+            <td style="text-align:left">
+                <b>{{data.PatientOrder.Encounter.VisitIdentifier}}</b>
+            </td>
+        </tr>
+    </table>
+    <table class="table2" style="width:100%;">
+        <tr>
+            <td style="width:10%;">Date</td>
+            <td style="width:15%;">Order No</td>
+            <td style="width:25%;">Test Details</td>
+            <td style="width:25%;">Results</td>
+            <td style="width:15%;">UOM</td>
+            <td style="width:10%;">Reference Range</td>
+        </tr>
+        {{#each data.PatientWorkorderDetail}}
+        <table class="table3" style="width:100%;">
+            <tr>
+                <td colspan="6" style="width:100%;text-align:center;font-size:10px">
+                    <b>
+                        <b>
+                </td>
+            </tr>
+            <tr>
+                <td style="width:10%">{{datetimeformat orderdate}}</td>
+                <td style="width:10%">{{orderid}}</td>
+                <td colspan="3" style="width:80%;text-align:center;font-size:10px">
+                    <b>
+                        <b>
+                </td>
+            </tr>
+            {{#each Details}}
+            <tr>
+                <td colspan="6" style="width:100%;">
+                    <b>
+                        <b>
+                </td>
+            </tr> {{#each Details}}
+            <tr>
+                <td style="width:10%;"></td>
+                <td style="width:15%;"></td>
+                <td style="width:25%;">{{Analytename}}</td>
+                <td style="width:25%;">{{{Resultvalue}}}</td>
+                <td style="width:15%;">{{AnalyteUOM}}</td>
+                <td style="width:10%;">{{Analyterange}}</td>
+            </tr>
+            {{/each}}{{/each}}
+        </table> {{/each}}
+        <table class="table4" style="width:100%;">
+            <tr>
+                <td></td>
+            </tr>
+            <tr>
+                <td height="50">Authorized Signature</td>
+            </tr>
+        </table>
+        <table class="table5" style="width:100%;">
+            <tr>
+                <td></td>
+            </tr>
+            <tr>
+                <td style="width:50%; text-align:right;">
+                    <img width="100px" src="{{include data.PatientWorkorder.MedUser.SignPath 'fullpath-img'}}" />
+                </td>
+            </tr>
+        </table>
+        <div class="title">*****End OF Consolidated Lab Result*****</div>
+        <div style="width:100%; font-size:8px;text-align:left">Printed On: {{now}}</div>
+</body>
+
+</html>

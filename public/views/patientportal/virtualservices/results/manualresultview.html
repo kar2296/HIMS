@@ -1,0 +1,85 @@
+<style>
+    .emr_labresults.ng-scope {
+        padding: 23px;
+    }
+
+    .emr_labresults.ng-scope {
+        padding: 23px;
+        height: 468px;
+        overflow: scroll;
+        overflow-x: hidden;
+    }
+button#btnsubmit {
+    position: relative;
+    right: 30px;
+    top: 10px;
+}
+</style>
+<div class="modal-header custom-modal-headers">
+    <div class="col-sm-12 col-xs-12">
+        <div class="col-sm-11 col-xs-10">
+            <h4 class="page-header mt0" translate="Result View"></h4>
+        </div>
+        <div class="col-sm-1 col-xs-2">
+            <button type="button" class="btn btn-danger btn-sm pull-right" translate="x"
+                ng-click="backToList()"></button>
+        </div>
+    </div>
+</div>
+<div id="" class="emr_labresults">
+    <div>
+        <div ng-repeat="wo in vm.orders">
+            <div id='workorder'>
+                <table class="table table-hover table-responsive table-bordered">
+                    <tbody ng-repeat="test in wo.woDetails">
+                        <tr ng-if="test.RootProfileName">
+                            <td colspan="9">
+                                <span class="lbl-profile">{{test.RootProfileName}}</span>
+                            </td>
+                        </tr>
+                        <tr ng-if="test.ProfileName">
+                            <td colspan="9">
+                                <span class="lbl-profile">{{test.ProfileName}}</span>
+                            </td>
+                        </tr>
+
+                        <tr
+                            ng-hide="test.details.length == 1 && test.Testname.toLowerCase() == test.details[0].Analytename.toLowerCase()">
+                            <td colspan="9">
+                                <span class="lbl-test"> {{test.Testname}}</span>
+                            </td>
+                        </tr>
+                        <tr ng-repeat="item in test.details | filter:{Status:1}">
+                            <td>
+                                <span
+                                    style="vertical-align: super; color: #0066cc; font-weight: 500; white-space: nowrap; text-overflow: ellipsis; overflow: auto;">{{item.Analytename}}</span>
+                            </td>
+                            <td colspan="{{item.TestValueType == 3 ? '3' : '1'}}">
+                                <span ng-if="item.QualifierId==1||!item.QualifierId"> {{item.Resultvalue}}
+                                </span>
+                                <span ng-if="item.QualifierId!=1 && item.QualifierId" style="color:red;">
+                                    {{item.Resultvalue}}
+                                </span>
+                            </td>
+                            <td ng-if="item.TestValueType != 3">
+                                <span ng-model="item.AnalyteUOM">{{item.AnalyteUOM}}</span>
+                            </td>
+                            <td>
+                                <span>{{item.Analyterange}}</span>
+                            </td>
+
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="fooder-bgs">
+    <div class="pull-right">
+        <button type="button"    class="draftbutton" translate="common.printaction.lbl"
+            ng-click="print()"></button>
+            <!-- <button type="button"    class="draftbutton" style="background-color: #1977cc !important;" translate="certificate"
+            ng-click="certificate(item)"></button> -->
+    </div>
+</div>

@@ -1,0 +1,855 @@
+<link href="app/css/regbilling.css" rel="stylesheet">
+<style>
+    .token-num input {
+        border-radius: 103px;
+        width: 46px;
+        height: 46px !important;
+        text-align: center;
+        font-size: 13px;
+        color: #2196f3;
+    }
+
+    .form-horizontal .form-group {
+        height: 72px;
+    }
+
+    td.drhms-special-count {
+        color: #f44336 !important;
+    }
+
+    .filters {
+        margin: 5px auto;
+    }
+
+    patientsearch#drhms-patinet-search-box .custom-popup-wrapper {
+        margin-left: -240px;
+    }
+
+
+.patient-options {
+  border: 1px solid #B6B6B6;
+  height: 143px;
+  justify-content: space-around;
+  align-items: center;
+  margin-left: -12px;
+  padding-top: 10px;
+}
+
+.patient-options tr:nth-child(odd) td {
+  background: #fbfbfb;
+}
+
+.patient-options td {
+  border: unset !important;
+  padding: 3px;
+  height: 40px !important;
+}
+
+.patient-options button {
+  border: 1px solid;
+  border-radius: 20px;
+  background: transparent;
+  height: 27px;
+}
+
+.patient-options div {
+  display: flex;
+  align-items: center;
+  padding: 3px;
+  height: 40px;
+}
+
+.patient-options-deactivate {
+  outline: #3f51b5;
+  color: #3f51b5;
+}
+
+.patient-options-paper {
+  outline: #f44336;
+  color: #f44336;
+}
+
+.patient-options-barcode {
+  outline: #3c5a76;
+  color: #3c5a76;
+}
+
+.patient-options-checkout {
+  color: #4caf50;
+}
+
+.patient-options-calendar {
+  color: #3c5a76;
+  padding: 1px 18px;
+}
+
+.patient-options-charges {
+  color: #ff1981;
+}
+</style>
+<div class="row">
+    <div class="drhms-filters">
+        <div class="col-sm-8">
+            <h4 class="mt0" translate="registration.registrationcumvisit.reg&admission.lbl"></h4>
+        </div>
+        <div class="col-sm-4">
+            <div class="filters">
+                <div class="search">
+                    <patientsearch id="drhms-patinet-search-box" ng-keyup="moveHeaderFocus('pid')"
+                        patientid="item.PatientId" class="logo" name="txtpatientsearch" patientinfo="selectedPatient"
+                        patientchange="patientChange()" aria-placeholder="Patient Search"
+                        tabindex="tabindexmap.patienttabindex" isdisabled="{{SaveCompleted}}"
+                        filterconfig="patientfilterconfig"></patientsearch>
+                    <div class="drhms-search-icon">
+                        <i class="fas fa-search" aria-hidden="true"></i>
+                    </div>
+                </div>
+                <button type="button" class="drhms-billing-btn drhms-previousbill-btn"
+                    ng-if="SaveCompleted && HasAccess('Registration','Reg_Billing')" ng-click="OPDBill()" tabindex="-1"
+                    uib-tooltip="Billing" tooltip-placement="bottom" ng-hide="item.PatientStatusId==3">
+                    <span>
+                        <i class="fas fa-usd" aria-hidden="true"></i>
+                    </span>
+                </button>
+                <button type="button" tabindex="-1" class="drhms-billing-btn drhms-outstandingbill-btn"
+                    ng-click="admission()" ng-show="true" ng-disabled="isPatientDeactivated"
+                    ng-if="SaveCompleted || item.PatientStatusId==2" uib-tooltip="{{ 'Admission' | translate}}"
+                    tooltip-placement="bottom">
+                    <i class="fas fa-bed" aria-hidden="true"></i>
+                </button>
+                <button type="button" tabindex="-1" class="btn-add" ng-click="addNew()"
+                    uib-tooltip="{{ 'registration.registrationcumvisit.registration.lbl' | translate}}"
+                    tooltip-placement="bottom">
+                    <i class="fas fa-plus" aria-hidden="true"></i>
+                </button>
+                <span class="drhms-billing-btn drhms-home-btn" ng-if="Context =='frontoffice'|| Context =='billing'">
+                    <i class="fas fa-home" ng-click="backtoList()" uib-tooltip="Dashboard"
+                        tooltip-placement="bottom"></i>
+                </span>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-12">
+        <div class="col-sm-9">
+            <patientbanner patientid="item.PatientId"></patientbanner>
+        </div>
+        <div class="col-lg-3">
+            <div class="patient-options" ng-show="true" ng-if="CanShow==1" ng-disabled="isPatientDeactivated"
+                ng-if="SaveCompleted || item.PatientStatusId==2">
+                <div class="d-flex-btn">
+                    <button class="patient-options-calendar" ng-click="clinicalalertview()" ng-if="item.ReferredNewVisit"
+                        uib-tooltip="{{'common.clinicalalert.lbl' | translate }}" tooltip-placement="bottom"
+                        ng-hide="item.PatientStatusId==3">
+                        <span>
+                            <i class="fas fa-exclamation-triangle" aria-hidden="true"></i>
+                        </span>
+                    </button>
+                    <button type="button" class="patient-options-charges" ng-show="BillCompleted"
+                        ng-click="consultationcharges()" ng-disabled="isPatientDeactivated" tabindex="-1"
+                        uib-tooltip="consultationcharges" tooltip-placement="bottom">
+                        <span>
+                            <i class="fas fa-hospital-o fa-lg" aria-hidden="true"></i>
+                        </span>
+                    </button>
+
+                    <button type="button" class="patient-options-checkout" tabindex="-1" uib-tooltip="Checkout"
+                        ng-click="checkout()" ng-hide="item.PatientStatusId==3"
+                        ng-if="SaveCompleted &&  HasAccess('Registration','Reg_CheckOut')" uib-tooltip="Checkout"
+                        tooltip-placement="bottom">
+                        <span>
+                            <i class="fas fa-sign-out-alt" aria-hidden="true"></i>
+                        </span>
+                    </button>
+                    <button id="btnSaveInactive" type="button" class="patient-options-deactivate" tabindex="-1"
+                        ng-click="saveAndInactive(item)" ng-if="HasAccess('Registration','Reg_Deactivate')"
+                        ng-show="item.PatientStatusId==2" uib-tooltip="Deactivate" tooltip-placement="bottom">
+                        <span>
+                            <i class="fas fa-close" aria-hidden="true"></i>
+                        </span>
+
+                    </button>
+
+                    <!-- <button type="button" class="patient-options-paper" tabindex="-1" uib-tooltip="Attachments"
+                        ng-click="openattachments()" ng-show="item.PatientStatusId==2"
+                        ng-if="HasAccess('Registration','Reg_Attachment')" tooltip-placement="bottom">
+                        <i class="fas fa-paperclip fa-xs" tabindex="-1" aria-hidden="true"></i>
+                        <span class="drhms-badge-count">
+                            {{currentcontext.attachmentcount}}
+                        </span>
+                    </button> -->
+                    <button type="button" class="patient-options-barcode" ng-show="true" ng-show="item.PatientStatusId==2"
+                        ng-if="HasAccess('Registration','Reg_BarCode')" uib-tooltip="{{'Barcode'}}"
+                        tooltip-placement="bottom" ng-click="patientidcard()">
+                        <i class="fas fa-barcode" aria-hidden="true"></i>
+                    </button>
+                </div>
+                <div class="col-sm-12">
+                  <label class="col-sm-5" translate="Registered By"></label>
+                  <div class="col-sm-7">
+                    <span class="head-title">: {{item.CreatedUser.Title.Description}}{{item.CreatedUser.FirstName}}{{item.CreatedUser.LastName}}</span>
+                  </div>
+                </div>
+                <div class="col-sm-12">
+                  <label class="col-sm-5" translate="Last Updated By"></label>
+                  <div class="col-sm-7">
+                    <span class="head-title">: {{item.UpdatedUser.Title.Description}}{{item.UpdatedUser.FirstName}}{{item.UpdatedUser.LastName}}</span>
+                  </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <br>
+    <form id="item_form" name="item_form" class="form-horizontal" role="form">
+        <div class="row">
+            <div class="form-group col-lg-3">
+                <label class="col-sm-12 control-label" for="tittle"
+                    translate="registration.registrationcumvisit.title.lbl"></label>
+                <div class="col-sm-12">
+                    <ui-select id="title" tabindex="1" ng-model="item.TitleId" aria-placeholder="Please Select"
+                        name="tittle" ng-change="fillGenderInfo()" tabindex="tabindexmap.patienttabindex"
+                        on-select="SelectedTitle($select.selected)" required>
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 20 : 0}}
+                            <span ng-if="$select.selected.Text.length>20">...</span>
+                        </ui-select-match>
+                        <ui-select-choices
+                            repeat="lookupitem.Id as lookupitem in lookup.Title | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search">
+                            </div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+            <div class="form-group col-lg-3">
+                <label class="col-sm-12 control-label" for="firstname"
+                    translate="registration.fullregistration.firstname.lbl"></label>
+                <div class="col-sm-12">
+                    <input type="text" name="firstname" class="form-control" tabindex="2" ng-model="item.FirstName"
+                        placeholder="First Name" required uppercase>
+                </div>
+            </div>
+            <div class="form-group col-lg-3">
+                <label class="col-sm-12 control-label" for="lastname"
+                    translate="registration.fullregistration.lastname.lbl"></label>
+                <div class="col-sm-12">
+                    <input type="text" tabindex="3" class="form-control" name="lastname" ng-model="item.LastName"
+                        placeholder="Last Name" required uppercase>
+                </div>
+            </div>
+            <div class="form-group col-lg-3" ng-show="canShowApproxAge(item.TitleId)">
+                <label class="col-sm-12 control-label" translate="registration.fullregistration.approxage.lbl"></label>
+                <div class="col-sm-12 approxagediv">
+                    <div class="col-sm-4">
+                        <input type="text" class="form-control" tabindex="5" ng-model="item.ApproxAgeDays"
+                            placeholder="Days" ng-change="calculateDOB(item.ApproxAgeDays, 'days')">
+                    </div>
+                    <div class="col-sm-4">
+                        <input type="text" class="form-control" tabindex="6" ng-model="item.ApproxAgeMonths"
+                            placeholder="Months" ng-change="calculateDOB(item.ApproxAgeMonths, 'months')">
+                    </div>
+                    <div class="col-sm-4">
+                        <input type="text" class="form-control" tabindex="7" ng-model="item.Age" placeholder="Years"
+                            ng-change="calculateDOB(item.Age, 'years')">
+                    </div>
+                </div>
+            </div>
+            <div class="form-group col-lg-3">
+                <div class="form-group col-sm-6">
+                    <label class="col-sm-12 control-label" for="dob"
+                        translate="registration.registrationcumvisit.dob.lbl"></label>
+                    <div class="col-sm-12">
+                        <div class="datepicker">
+                            <input type="text" class="form-control" name="dob" ng-date-object
+                                datepicker-options="datePickerOptions"
+                                show-button-bar="{{datePickerOptions.showButtonBar}}"
+                                uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                                placeholder="{{datePickerOptions.placeholder}}" ng-click="dobPopup = { opened: true }"
+                                is-open="dobPopup.opened" ng-model="item.DOB" ng-change="calculateAge()"
+                                tabindex="tabindexmap.patienttabindex">
+                            <i class="fa fa-calendar" aria-hidden="true"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group col-sm-6">
+                    <label class="col-sm-12 control-label" for="age"
+                        translate="registration.registrationcumvisit.age.lbl"></label>
+                    <div class="col-sm-12">
+                        <input type="text" tabindex="8" class="form-control" name="age"
+                            tabindex="tabindexmap.patienttabindex" ng-model="item.Age" placeholder="Age" required
+                            uppercase ng-change="calculateDOB(item.Age, 'years')">
+                    </div>
+
+                </div>
+            </div>
+            <div class="form-group col-lg-3">
+                <label class="col-sm-12 control-label" for="gender"
+                    translate="registration.registrationcumvisit.gender.lbl"></label>
+                <div class="col-sm-12">
+                    <ui-select ng-model="item.GenderId" tabindex="12" name="gender"
+                        tabindex="tabindexmap.patienttabindex" required>
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 20 : 0}}
+                            <span ng-if="$select.selected.Text.length>20">...</span>
+                        </ui-select-match>
+                        <ui-select-choices
+                            repeat="lookupitem.Id as lookupitem in lookup.Gender | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search">
+                            </div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+            <div class="form-group col-lg-3">
+                <label class="col-sm-12 control-label" translate="registration.fullregistration.bloodgroup.lbl"></label>
+                <div class="col-sm-12">
+                    <ui-select ng-model="item.BloodGroupId" tabindex="11">
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 20 : 0}}
+                            <span ng-if="$select.selected.Text.length > 20">...</span>
+                        </ui-select-match>
+                        <ui-select-choices
+                            repeat="lookupitem.Id as lookupitem in lookup.BloodGroup | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search">
+                            </div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+
+            <div class="form-group col-lg-3">
+                <label class="col-sm-12 control-label" for="maritalstatus"
+                    translate="registration.fullregistration.maritalstatus.lbl"></label>
+                <div class="col-sm-12">
+                    <ui-select ng-model="item.MaritalStatusId" name="maritalstatus" tabindex="10">
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 20 : 0}}
+                            <span ng-if="$select.selected.Text.length>20">...</span>
+                        </ui-select-match>
+                        <ui-select-choices
+                            repeat="lookupitem.Id as lookupitem in lookup.MaritalStatus | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search">
+                            </div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+
+            <div class="form-group col-lg-3">
+                <label class="col-sm-12 control-label" translate="registration.fullregistration.religion.lbl"></label>
+                <div class="col-sm-12">
+                    <ui-select tabindex="13" ng-model="item.ReligionId" name="">
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 20 : 0}}
+                            <span ng-if="$select.selected.Text.length > 20">...</span>
+                        </ui-select-match>
+                        <ui-select-choices
+                            repeat="lookupitem.Id as lookupitem in lookup.Religion | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search">
+                            </div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+            <div class="form-group col-lg-3">
+                <label class="col-sm-12 control-label" for="mobile"
+                    translate="registration.registrationcumvisit.mobile.lbl"></label>
+                <div class="col-sm-12">
+                    <input type="text" tabindex="14" ng-keyup="keyPress($event, 0, 'contactnr', 'aadharnr')"
+                        class="form-control" id="contactnr" MINLENGTH="10" MAXLENGTH="10" size="10" value=""
+                        name="mobile" onChange="numberonly($event)" onKeyUp="numberonly($event)"
+                        ng-keypress="numberonly($event)" ng-model="item.Mobile" required>
+                </div>
+            </div>
+            <div class="form-group col-lg-3">
+                <label class="col-sm-12 control-label"
+                    translate="registration.fullregistration.passpostnumber.lbl"></label>
+                <div class="col-sm-12">
+                    <input type="text" name="passpostnumber" class="form-control" tabindex="15"
+                        ng-model="item.PasspostNumber" placeholder="Nationality ID" ng-required="false">
+                </div>
+            </div>
+            <div class="form-group col-lg-3">
+                <label class="col-sm-12 control-label" translate="Attender Information"></label>
+                <div class="col-sm-12">
+                    <textarea ng-model="item.GuardianName"></textarea>
+                </div>
+            </div>
+            <div class="form-group col-lg-3">
+                <label class="col-sm-12 control-label" for="nationality"
+                    translate="registration.fullregistration.nationality.lbl"></label>
+                <div class="col-sm-12">
+                    <ui-select tabindex="16" ng-model="item.NationalityId" name="nationality" required>
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 20 : 0}}
+                            <span ng-if="$select.selected.Text.length>20">...</span>
+                        </ui-select-match>
+                        <ui-select-choices
+                            repeat="lookupitem.Id as lookupitem in lookup.Nationality | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search">
+                            </div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+            <div class="form-group col-lg-3">
+                <label class="col-sm-12 control-label"
+                    translate="registration.fullregistration.googleaddress.lbl"></label>
+                <div class="col-sm-10">
+                    <input type="text" id="googleaddopt" tabindex="17" ng-disabled="disablegoogleaddopt"
+                        class="form-control" gm-places-autocomplete="autocompleteOptions"
+                        ng-model="autocompleteModel" />
+                </div>
+                <div class="col-sm-1 col-md-1 col-lg-1">
+                    <input type="checkbox" name="googleaddressoption" class="custom-checkbox" tabindex="18"
+                        ng-click="enablegoogleaddopt()" ng-model="chkgoogleaddopt">
+                </div>
+            </div>
+            <div class="form-group col-lg-3">
+                <label class="col-sm-12 control-label"
+                    translate="registration.registrationcumvisit.address.lbl"></label>
+                <div class="col-sm-12">
+                    <input type="text" id="Manualadd" class="form-control" name="addressline1" tabindex="19"
+                        ng-model="item.AddressLine1" ng-disabled="item.candisable" placeholder="">
+                </div>
+            </div>
+            <address addressline1="item.AddressLine1" tabindex="tabindexmap.patienttabindex"
+            addressline2="item.AddressLine2" pincodeid="item.PinCodeId" pincode="item.Pincode" area="item.Ward"
+            areaid="item.WardId" city="item.City" district="item.District" districtid="item.DistrictId"
+            cityid="item.CityId" state="item.State" stateid="item.StateId" country="item.Country"
+            countryid="item.CountryId" class="upercase" pintext="item.Pincode"
+            ng-if="item.IsPincodeFreeText == false"></address>
+        <address addressline1="item.AddressLine1" tabindex="tabindexmap.patienttabindex"
+            addressline2="item.AddressLine2" area="item.Area" areaid="item.WardId" city="item.City"
+            district="item.District" pincodeid="item.PinCodeId" pincode="'freetext'" pintext="item.Pincode"
+            districtid="item.DistrictId" cityid="item.CityId" state="item.State" stateid="item.StateId"
+            country="item.Country" countryid="item.CountryId" class="upercase"
+            ng-if="item.IsPincodeFreeText == true">
+        </address>
+            <!-- <div class="form-group col-lg-3">
+                <label class="col-sm-12 control-label" translate="registration.patientsearch.city.lbl"></label>
+                <div class="col-sm-12">
+                    <citycontrol pincodeid="item.PinCodeId" pincode="item.PinCode" area="item.Area" tabindex="20"
+                        stateid="item.StateId" city="item.City" cityid="item.CityId">
+                    </citycontrol>
+                </div>
+            </div>
+            <div class="form-group col-lg-3">
+                <label class="col-sm-12 control-label" translate="registration.fullregistration.state.lbl"></label>
+                <div class="col-sm-12">
+                    <statecontrol pincodeid="item.PinCodeId" pincode="item.PinCode" area="item.Area" tabindex="21"
+                        city="item.City" cityid="item.CityId" state="item.State" stateid="item.StateId"
+                        country="item.Country" countryid="item.CountryId">
+                    </statecontrol>
+
+                </div>
+            </div>
+            <div class="form-group col-lg-3">
+                <label class="col-sm-12 control-label" translate="registration.fullregistration.country.lbl"></label>
+                <div class="col-sm-12">
+                    <countrycontrol country="item.Country" tabindex="22" countryid="item.CountryId">
+                    </countrycontrol>
+                </div>
+            </div> -->
+            <!-- <address candisable="SaveCompleted" addressline1="item.AddressLine1" tabindex="tabindexmap.patienttabindex"
+                addressline2="item.AddressLine2" pincodeid="item.PinCodeId" pincode="item.Pincode" area="item.Ward"
+                areaid="item.WardId" city="item.City" district="item.District" districtid="item.DistrictId"
+                cityid="item.CityId" state="item.State" stateid="item.StateId" country="item.Country"
+                countryid="item.CountryId" class="upercase"></address> -->
+            <div class="form-group col-lg-3">
+                <label class="col-sm-12 control-label" for="patienttype" translate="Patient Type"></label>
+                <div class="col-sm-12">
+                    <ui-select ng-model="item.PatientTypeId" tabindex="-1">
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 20 : 0}}
+                            <span ng-if="$select.selected.Text.length>20">...</span>
+                        </ui-select-match>
+                        <ui-select-choices
+                            repeat="lookupitem.Id as lookupitem in lookup.PatientType | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search">
+                            </div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="accordian-button">
+                <div class="drhms-sub-header" translate="Visit"></div>
+                <!-- <button type="button" class="drhms-past-visit"
+                    tabindex="-1" ng-click="openPastVisit()" uib-tooltip="{{ 'Past Visits'}}" tooltip-placement="top">
+                    <i class="fas fa-undo" aria-hidden="true"></i>
+                </button> -->
+            </div>
+            <div class="form-group col-lg-3">
+                <label class="col-sm-12 control-label" for="VisitType"
+                    translate="registration.registrationcumvisit.visittype.lbl"></label>
+                <div class="col-sm-12">
+                    <ui-select ng-disabled="true" ng-model="item.VisitTypeId" name="VisitType" required>
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 20 : 0}}
+                            <span ng-if="$select.selected.Text.length>20">...</span>
+                        </ui-select-match>
+                        <ui-select-choices
+                            repeat="lookupitem.Id as lookupitem in lookup.VisitType | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search">
+                            </div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+            <div class="form-group col-lg-3">
+                <label class="col-sm-12 control-label" for="doctor"
+                    translate="registration.registrationcumvisit.doctor.lbl"></label>
+                <div class="col-sm-12 autodrop" id="doctorview">
+
+                    <autosearch controlid="'DoctorId'" itemid="item.DoctorId" tabindex="tabindexmap.patienttabindex"
+                        iteminfo="" rowdata="" name="'doctor'" config="vm.doctorcontrolconfig"
+                        candisable="SaveCompleted" isrequired="true" placeholder="'Doctor'">
+                    </autosearch>
+                </div>
+            </div>
+            <div class="form-group col-lg-3">
+                <label class="col-sm-12 control-label" for="department"
+                    translate="registration.registrationcumvisit.department.lbl"></label>
+                <div class="col-sm-12">
+                    <ui-select ng-model="item.DepartmentId" name="department">
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 20 : 0}}
+                            <span ng-if="$select.selected.Text.length>20">...</span>
+                        </ui-select-match>
+                        <ui-select-choices
+                            repeat="lookupitem.Id as lookupitem in lookup.Department | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search">
+                            </div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+            <div class="form-group col-lg-3">
+                <label class="col-sm-12 control-label pdl0" for="guarantortype"
+                    translate="registration.registrationcumvisit.guarantortype.lbl"></label>
+                <div class="col-sm-10">
+                    <ui-select ng-model="currentcontext.GuarantorTypeId" tabindex="tabindexmap.patienttabindex"
+                        name="guarantortype" ng-change="GetGuarantor()" required>
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 20 : 0}}
+                            <span ng-if="$select.selected.Text.length>20">...</span>
+                        </ui-select-match>
+                        <ui-select-choices
+                            repeat="lookupitem.Id as lookupitem in lookup.GuarantorType | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search">
+                            </div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+                <div class="col-sm-2">
+                    <button type="button" ng-if="PatientGuarantor > 0" class="btn-add"
+                        tabindex="tabindexmap.patienttabindex" ng-click="addPatientGuarantor()"
+                        uib-tooltip="{{ 'registration.fullregistration.addnewguar-tooltip.lbl' | translate }}"
+                        tooltip-placement="top">
+                        <i class="fa fa-plus" aria-hidden="true"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="form-group col-lg-3">
+                <label class="col-sm-12 control-label" for="guarantor"
+                    translate="registration.registrationcumvisit.guarantor.lbl "></label>
+                <div class="col-sm-12">
+                    <ui-select ng-model="item.GuarantorId" tabindex="tabindexmap.patienttabindex" name="guarantor"
+                        ng-change="setDefaultService()" required>
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 20 : 0}}
+                            <span ng-if="$select.selected.Text.length>20">...</span>
+                        </ui-select-match>
+                        <ui-select-choices
+                            repeat="lookupitem.Id as lookupitem in lookup.Guarantor | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search">
+                            </div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+            <div class="form-group col-lg-3">
+                <label class="col-sm-12 control-label0" for="VisitType"
+                    translate="registration.registrationcumvisit.sourcetype.lbl"></label>
+                <div class="col-sm-12">
+                    <ui-select tabindex="23" ng-model="item.ReferTypeId" ng-change="referralTypeChange()" required>
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 20 : 0}}
+                            <span ng-if="$select.selected.Text.length>20">...</span>
+                        </ui-select-match>
+                        <ui-select-choices
+                            repeat="lookupitem.Id as lookupitem in lookup.ReferralType | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search">
+                            </div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+            <div class="form-group col-lg-3">
+                <label class="col-sm-12 control-label" for="referredby"
+                    translate="registration.registrationcumvisit.referredby.lbl"></label>
+                <div class="col-sm-10" id="referral">
+                    <autosearch itemid="item.ReferrerId" tabindex="24" iteminfo="" name="'referredby'" rowdata=""
+                        config="vm.referralcontrolconfig" itemchange="referralChange($select.selected)"
+                        isrequired="true">
+                    </autosearch>
+                </div>
+                <div class="col-sm-2">
+                    <button type="button" class="btn-add" tabindex="25" ng-click="addReferral()"
+                        uib-tooltip="{{ 'registration.fullregistration.addnewref-tooltip.lbl' | translate }}"
+                        tooltip-placement="top">
+                        <i class="fa fa-plus" aria-hidden="true"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="form-group col-lg-3">
+                <label class="col-sm-12 control-label" translate="Reason"></label>
+                <div class="col-sm-10" id="reason">
+                    <autosearch itemid="item.RemarkId" iteminfo="" rowdata="" config="vm.remarkcontrolconfig">
+                    </autosearch>
+                </div>
+                <div class="col-sm-2">
+                    <button type="button" class="btn-add" tabindex="25" ng-click="addRemark()"
+                        uib-tooltip="{{ 'Add New Reason'}}" tooltip-placement="top">
+                        <i class="fa fa-plus" aria-hidden="true"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="form-group col-lg-3">
+                <label class="col-sm-12 control-label" translate="MLC">
+                </label>
+                <div class="col-sm-12">
+                    <input type="checkbox" name="mlc"
+                        class="custom-checkbox cstmckbx ng-pristine ng-untouched ng-valid ng-empty"
+                        ng-model="item.IsMLC" ng-disabled="SaveCompleted">
+                </div>
+            </div>
+            <div class="form-group col-lg-3">
+                <label class="col-sm-12 control-label" translate="MLC Information"></label>
+                <div class="col-sm-12">
+                    <input type="text" class="form-control" name="mlcinformation" ng-model="item.MLCInfo"
+                        placeholder="">
+                </div>
+            </div>
+            <div class="form-group col-lg-3">
+                <div class="token-num">
+                    <label class="col-lg-12 control-label">Token Num</label>
+                    <div class="col-sm-12">
+                        <input type="text" ng-disabled="true" ng-model="currentcontext.TokenNo" class="form-control"
+                            placeholder="">
+                    </div>
+                </div>
+            </div>
+            <div class="form-group col-lg-3">
+                <label class="col-sm-12 control-label" translate="Is A&E Admissions">
+                </label>
+                <div class="col-sm-12">
+                    <input type="checkbox" name="mlc"
+                        class="custom-checkbox cstmckbx ng-pristine ng-untouched ng-valid ng-empty"
+                        ng-model="item.IsDayCare" ng-click="isdaycarechanged(item.IsDayCare)">
+                </div>
+            </div>
+            <!-- <div class="form-group col-sm-3" ng-show="ShowDayCarefields">
+                <label class="col-sm-12 control-label" for="location" translate="admission.location.lbl"></label>
+                <div class="col-sm-10">
+                    <ui-select ng-model="item.LocationId" name="location" ng-disabled="IsDisabled" ng-change="wardLookUp()">
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 20 : 0}}
+                            <span ng-if="$select.selected.Text.length>20">...</span>
+                        </ui-select-match>
+                        <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.Location | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+                <div class="col-sm-2">
+                    <button type="button" class="btn-add" tabindex="tabindexmap.patienttabindex" ng-click="openWardBed()" uib-tooltip="Bed Board" tooltip-placement="bottom">
+                        <i class="fa fa-plus" aria-hidden="true"></i>
+                    </button>
+                </div>
+            </div> -->
+            <div class="form-group col-lg-3" ng-show="ShowDayCarefields">
+                <label class="col-sm-12 control-label" for="ward" translate="aeregistration.ward.lbl"></label>
+                <div class="col-sm-12">
+                    <ui-select ng-model="item.WardId" name="ward" ng-disabled="IsDisabled" ng-change="getRoomLookUp()">
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 20 : 0}}
+                            <span ng-if="$select.selected.Text.length>20">...</span>
+                        </ui-select-match>
+                        <ui-select-choices
+                            repeat="lookupitem.Id as lookupitem in lookup.Ward | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+            <div class="form-group col-lg-3" ng-show="ShowDayCarefields">
+                <label class="col-sm-12 control-label" for="room" translate="aeregistration.room.lbl"></label>
+                <div class="col-sm-12">
+                    <ui-select ng-model="item.RoomId" name="room" ng-disabled="IsDisabled" ng-change="getBedLookUp()" >
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 20 : 0}}
+                            <span ng-if="$select.selected.Text.length>20">...</span>
+                        </ui-select-match>
+                        <ui-select-choices
+                            repeat="lookupitem.Id as lookupitem in lookup.Room | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+            <div class="form-group col-lg-3" ng-show="ShowDayCarefields">
+                <label class="col-sm-12 control-label" for="bed" translate="aeregistration.bed.lbl"></label>
+                <div class="col-sm-12">
+                    <ui-select ng-model="item.BedId" name="bed" ng-disabled="IsDisabled" ng-change="" >
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 20 : 0}}
+                            <span ng-if="$select.selected.Text.length>20">...</span>
+                        </ui-select-match>
+                        <ui-select-choices
+                            repeat="lookupitem.Id as lookupitem in lookup.Bed | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="drhms-sub-header-border" translate="Upload & Image Preview">
+            </div>
+            <div class="col-sm-6">
+                <div class="drhms-user_image" ng-show="!item.iswebcamphoto">
+                    <img class="patient-img drhms-img-thumbnail" tabindex="-1" ng-show="!!currentcontext.file"
+                        ngf-thumbnail="currentcontext.file" />
+                    <img ng-show="!currentcontext.file && item.PhotoPath"
+                        data-ng-src="data:image/png;base64,{{currentcontext.Photo}}" tabindex="-1"
+                        class="patient-img drhms-img-thumbnail" />
+                    <img ng-show="!currentcontext.file && !item.PhotoPath" src="app/img/main/img.jpg" tabindex="-1"
+                        class="drhms-img-thumbnail ">
+                </div>
+                <div class="drhms-webcam-pic" ng-show="item.iswebcamphoto">
+                    <img data-ng-src="data:image/png;base64,{{item.webcamphoto}}" tabindex="-1"
+                        class="patient-img drhms-img-thumbnail" />
+                </div>
+                <div class="drhms-outer_ilayer">
+                    <div class="drhms-profile-upload-btn">
+                        <input type="file" ng-disabled="SaveCompleted" ngf-select ng-model="currentcontext.file"
+                            tabindex="-1" name="file" id="drhms-input-file" class="inputfile" ngf-max-size="200MB"
+                            ng-change="photoFileChanged()" />
+                        <label for="file-1" class="drhms-upload-btn" tabindex="-1" ng-disabled="SaveCompleted"
+                            uib-tooltip="Upload" tooltip-placement="bottom">
+                            <span class="drhms-registration-btn">Upload</span>
+                        </label>
+                        <button type="button" class="drhms-webcam-btn" tabindex="-1" ng-click="openWebCam()"
+                            uib-tooltip="webcam" tooltip-placement="bottom">
+                            <span class="drhms-registration-btn">Web Camera</span>
+                        </button>
+                        <button type="button" class="drhms-clear-btn" tabindex="-1" ng-click="clearimage()"
+                            uib-tooltip="Clear" tooltip-placement="bottom">
+                            <span class="drhms-registration-btn">Remove</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="fooder-bgs">
+            <div class="row">
+                <div class="pull-left footer_reg_align">
+                    <ul class="nav navbar-nav" id="print">
+                        <li uib-dropdown="" class="dropdown dropdown-list custom-li">
+                            <button uib-dropdown-toggle="" class="draftbutton" ng-disabled="" hotkey="{'alt+p': print}">
+                                <span translate="common.printaction.lbl"></span>&nbsp;&nbsp;&nbsp;
+                            </button>
+                            <ul class="dropdown-menu top" role="menu" aria-labelledby="dLabel">
+                                <li>
+                                    <a class="" ng-click="printRegistration()">
+                                        <span>
+                                            <i class="fa fa-angle-right" aria-hidden="true"></i>
+                                        </span>&nbsp;&nbsp;&nbsp;
+                                        <span translate="registration.fullregistration.print_registration.lbl"></span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a ng-click="printRegistrationIdlabel()">
+                                        <span>
+                                            <i class="fa fa-angle-right" aria-hidden="true"></i>
+                                        </span>&nbsp;&nbsp;&nbsp;
+                                        <span translate="registration.fullregistration.print_registrationid.lbl"></span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a ng-click="printRegistrationIdCard()">
+                                        <span>
+                                            <i class="fa fa-angle-right" aria-hidden="true"></i>
+                                        </span>&nbsp;&nbsp;&nbsp;
+                                        <span
+                                            translate="registration.fullregistration.print_registrationid_card.lbl"></span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a ng-click="printVisitSlip()">
+                                        <span>
+                                            <i class="fa fa-angle-right" aria-hidden="true"></i>
+                                        </span>&nbsp;&nbsp;&nbsp;
+                                        <span translate="registration.fullregistration.visitprint.lbl"></span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a ng-click="printOPBill()">
+                                        <span>
+                                            <i class="fa fa-angle-right" aria-hidden="true"></i>
+                                        </span>&nbsp;&nbsp;&nbsp;
+                                        <span translate="registration.fullregistration.opbill.lbl"></span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                    </ul>
+                    <ul class="nav navbar-nav" id="print" ng-show="item.IsDayCare">
+                        <li uib-dropdown="" class="dropdown dropdown-list custom-li">
+                            <button uib-dropdown-toggle="" class="draftbutton" hotkey="{'alt+p': print}">
+                                <span translate="DayCare Admission Print"></span>
+                            </button>
+                            <ul class="dropdown-menu top" role="menu" aria-labelledby="dLabel">
+                                <li>
+                                    <a ng-click="openPatientConsentPrint()">
+                                        <span>
+                                            <i class="fa fa-angle-right" aria-hidden="true"></i>
+                                        </span>&nbsp;&nbsp;&nbsp;
+                                        <span translate="Consent Form"></span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a ng-click="print()">
+                                        <span>
+                                            <i class="fa fa-angle-right" aria-hidden="true"></i>
+                                        </span>&nbsp;&nbsp;&nbsp;
+                                        <span translate="Admin Form"></span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+                <div class="pull-right footer_reg_align">
+                    <button type="button" id="btnSaveApprove" class="draftbutton" tabindex="32"
+                        translate="common.saveactivate-action.lbl" ng-click="saveAndApprove()"
+                        hotkey="{'alt+a': saveAndApprove}"></button>
+                </div>
+            </div>
+        </div>
+
+
+    </form>
+</div>
+
+<script>
+    const iconUpDown = document.querySelectorAll(".icon");
+    iconUpDown.forEach((icon) => {
+        icon.addEventListener("click", (e) => {
+            icon.classList.toggle("icon-rotate");
+            icon.parentElement.classList.toggle("open");
+        });
+    });
+</script>

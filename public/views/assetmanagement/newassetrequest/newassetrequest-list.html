@@ -1,0 +1,103 @@
+<style>
+    .nameinfo {
+        font-size: 13px;
+        font-weight: 700;
+        color: #337ab7;
+    }
+
+    .nameinfo.mrninfo {
+        color: black
+    }
+
+    .contactinfo {
+        font-size: 10px;
+        color: #808080
+    }
+
+    .block {
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        overflow: hidden;
+    }
+
+    .linkstyle {
+        font-weight: 700;
+        text-align: right;
+    }
+
+    .statusinfo {
+        font-size: 13px;
+    }
+
+    .sr-only {
+        height: 22px !important;
+    }
+
+    .filter-area {
+        padding-top: 0px !important;
+    }
+    i.fa.fa-home {
+    position: relative;
+    bottom: 4px;
+}
+table#bannerdetails {
+    WIDTH: 98%;
+    margin-left: 7px;
+}
+</style>
+<!--  start -->
+<div class="row page-header ">
+    <h4 class="col-sm-6 mt0 ng-scope" translate="assetmanagement.newassetrequest.pagetitle.lbl"></h4>
+    <div class="col-sm-6">
+        <button class="btn-add" ng-click="addNew()" uib-tooltip="{{ 'assetmanagement.newassetrequest.pagetitle.lbl' | translate }}"
+            tooltip-placement="bottom">
+            <i class="fa fa-plus" aria-hidden="true"></i>
+            <!-- <span translate="common.addaction.lbl"></span> -->
+        </button>
+        <button type="button" tabindex="-1" class="btn-add" ng-click="Asset_dashboard()" uib-tooltip="Dashboard" tooltip-placement="bottom">
+            <i class="fa fa-home" aria-hidden="true"> </i>
+        </button>
+
+        <!-- <i class="fa fa-home" align="right" style="float: right;"  ng-click="Asset_dashboard()" 
+            uib-tooltip="Dashboard" tooltip-placement="bottom" aria-hidden="true"></i> -->
+    </div>
+</div>
+<!--  end -->
+<table id="bannerdetails">
+    <tr>
+        <td translate="assetmanagement.newassetrequest.assetname.lbl"></td>
+        <td>  <input type="text" class="form-control"  ng-model="currentfilter.AssetName"  on-enter="getList()"  uppercase></td>
+        <td translate="assetmanagement.newassetrequest.department.lbl"></td>
+        <td>  <ui-select ng-model="currentfilter.DepartmentId" ng-change="getList()" class="filter-combo">
+                            <ui-select-match>
+                                {{$select.selected.Text | limitTo : 10 : 0}}
+                                <span ng-if="$select.selected.Text.length>10">...</span>
+                            </ui-select-match>
+                            <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.Department | filter: { Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                            </ui-select-choices>
+                        </ui-select></td>
+        <td translate="assetmanagement.newassetrequest.status.lbl"></td>
+        <td>  <ui-select ng-model="currentfilter.AssetRequestStatusId" ng-change="getList()" class="filter-combo">
+                            <ui-select-match>
+                                {{$select.selected.Text | limitTo : 10 : 0}}
+                                <span ng-if="$select.selected.Text.length>10">...</span>
+                            </ui-select-match>
+                            <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.AssetRequestStatus | filter: { Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                            </ui-select-choices>
+                        </ui-select></td>
+    </tr>
+</table>
+
+<div class="tablebox">
+    <custom-table config="vm.gridConfig"></custom-table>
+</div>
+<div class="container-fluid onerow-filter">
+    <div class="fooder-bgs">
+        <div class="row">
+            <ul uib-pagination total-items="vm.gridConfig.pagerObj.totalItems" items-per-page="vm.gridConfig.pagerObj.pageSize" start-index="vm.gridConfig.pagerObj.startIndex"
+                ng-model="vm.gridConfig.pagerObj.currentPage" ng-change="getList()"></ul>
+        </div>
+    </div>
+</div>

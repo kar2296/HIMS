@@ -12,7 +12,7 @@
         window.printcode = 'hosmat';
         window.barcodeclientcode = 'equitas';
         window.appPath = window.appPath || {};
-        window.appPath.apiroot = "//localhost:2012/";
+        window.appPath.apiroot = "/api/";
         sessionStorage.setItem('base-path', window.appPath.apiroot);
         window.QR_CODE_URL='https://iswaryauat.drhms.in/';
     }

@@ -1,0 +1,310 @@
+<style>
+    .page-header {
+        margin: 0px 0px 2px 0px !important;
+    }
+
+    .fontctrl {
+        color: #ffffff;
+        text-shadow: 0 1px 1px #194B7E;
+    }
+
+    .wobanner {
+        background-color: #597A9A
+    }
+
+    .calender_align ul {
+        left: -6px !important;
+    }
+
+    #patientlabresult {
+        overflow-x: hidden;
+    }
+
+    .btn-rounded {
+        width: 33px;
+        height: 24px;
+        font-size: 16px !important;
+    }
+
+    #print .dropdown-menu {
+        top: initial;
+        margin-bottom: 6px;
+        bottom: 100%;
+        background-color: #1e7d9a !important;
+        left: -41px;
+        min-width: 160px;
+    }
+
+    #print .dropdown-menu>li {
+        border-bottom: 1px solid #fff;
+    }
+
+    #print .dropdown-menu>li>a {
+        color: #000000 !important;
+    }
+
+    #print .top>li {
+        margin-bottom: 0px !important;
+    }
+
+    .dropdown-menu>li>a:hover,
+    .dropdown-menu>li>a:focus {
+        background-color: #ad1414 !important;
+        text-decoration: none;
+        color: #fff;
+    }
+
+    #print .dropdown-menu {
+        top: initial;
+        bottom: 100%;
+        background-color: transparent;
+        border: none;
+        box-shadow: none;
+        background-clip: none;
+    }
+
+    #print .top>li {
+        margin-bottom: 5px;
+    }
+
+    #workorder {
+        min-height: auto;
+    }
+
+    .modal-dialog.modal-full .fooder-bg {
+        position: absolute !important;
+    }
+
+    #patientlabresult {
+        overflow-y: scroll;
+        height: unset !important;
+        color: black;
+    }
+
+    .panel-group.ng-scope {
+        margin-top: 51px;
+        height: 63vh;
+        overflow-y: scroll;
+    }
+
+    .modal-content {
+        width: 128%;
+        margin-left: -12%;
+    }
+</style>
+<script language="javascript">
+    $(function () {
+
+        // add multiple select / deselect functionality
+        $("#selectall").click(function () {
+            $('.case').attr('checked', this.checked);
+
+        });
+    });
+</script>
+<div class="modal-header custom-modal-header">
+    <div class="col-sm-6">
+        <h4 class="mt0" translate="Previous Lab Result"></h4>
+    </div>
+    <div class="col-sm-6">
+        <div class="filters">
+            <button type="button" class="btn btn-danger btn-sm pull-right" translate="x"
+                ng-click="cancelCallback()"></button>
+            <i class="fa fa-line-chart btn btn-warning btn-rounded pull-right" style="margin-top: 1px; margin-left: 5px;
+    margin-right: 6px; height: 28px;border-radius: 3px !important;padding: 2px;" aria-hidden="true"
+                ng-click="resultview()"></i>
+            <button type="button" id="imgOpen" style="width: 7%;" ng-show="AttachementImgs"
+                class="pull-right btn pyr-color10 btn-sm" style="right: 0px; position: relative;"
+                ng-click="openAttachments()">
+                <strong style="color: white !important;margin-left: -2px;"><i class="fa fa-picture-o"
+                        aria-hidden="true"></i></strong>
+            </button>
+        </div>
+    </div>
+</div>
+<div id="patientlabresult" class="emr_labresults">
+    <div class="">
+        <div class="col-sm-12">
+            <div class="col-sm-4">
+                <label class="col-sm-4 col-md-4 col-lg-4 control-label filter-lbl"
+                    translate="ordermanagement.labresult-list.filter_from.lbl"></label>
+                <div class="col-sm-8 col-md-8 col-lg-8">
+                    <input type="text" class="form-control" name="from" ng-change="getList(tab)" ng-date-object
+                        uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                        placeholder="{{datePickerOptions.placeholder}}" ng-click="fromPopup = { opened: true }"
+                        is-open="fromPopup.opened" ng-model="currentfilter.From">
+                </div>
+            </div>
+            <div class="col-sm-4">
+                <label class="col-sm-4 col-md-4 col-lg-4 control-label filter-lbl"
+                    translate="ordermanagement.labresult-list.filter_to.lbl"></label>
+                <div class="col-sm-8 col-md-8 col-lg-8 calender_align">
+                    <input type="text" class="form-control" name="to" ng-change="getList()" ng-date-object
+                        uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                        placeholder="{{datePickerOptions.placeholder}}" ng-click="toPopup = { opened: true }"
+                        is-open="toPopup.opened" ng-model="currentfilter.To">
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <!-- <div class="container-fluid" id="tabpatientsearchheight">
+        <div ui-grid="vm.gridConfig" class="table-uigrid"></div>
+        <div class="fooderctrl">
+            <div class="fooder-bgs">
+                <div class="col-sm-1 col-md-1">
+                </div>
+                <div class="col-sm-1 col-md-1">
+                </div>
+                <div class="col-sm-10 col-md-10">
+                    <div class="row">
+                        <ul uib-pagination total-items="vm.gridConfig.pagerObj.totalItems"
+                            items-per-page="vm.gridConfig.pagerObj.pageSize"
+                            start-index="vm.gridConfig.pagerObj.startIndex"
+                            ng-model="vm.gridConfig.pagerObj.currentPage" ng-change="getList()"></ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div> -->
+</div>
+
+<div class="panel-group" aria-multiselectable="true" style="margin-top: 6px;">
+    <div class="panel panel-default" ng-repeat="item in vm.orders">
+        <div class="panel-heading">
+            <div class="col-sm-12 currentclr">
+                <div class="col-sm-3">
+                    <displaydate datetime-val='item.OrderRequestDate'></displaydate>
+                </div>
+                <div class="col-sm-3">
+                    {{item.OrderNumber}}
+                </div>
+                <div class="col-sm-3">
+                    {{item.DoctorName}}
+                </div>
+                <div class="col-sm-2">
+                    <i class="fa fa-print" style="font-size: 17px; " aria-hidden="true"></i>
+                </div>
+                <div class="col-sm-1">
+                    <button type="button" style="float: right;" class="togglebtn" ng-click="toggleCanShowDetails(item)">
+                        <i class="fa fa-angle-down" aria-hidden="true" ng-show="!item.CanShowDetails"></i>
+                        <i class="fa fa-angle-up" aria-hidden="true" ng-show="item.CanShowDetails"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="panel" ng-show="item.CanShowDetails">
+            <div class="panel-body">
+                <div class="container">
+                    <div ng-repeat="order in vm.woorders">
+                        <div id='workorder' ng-repeat="wo in order.PatientWorkorders">
+
+                            <table class="table table-hover table-responsive table-bordered">
+                                <!-- <thead class="bg-subhead">
+                                    <tr>
+                                        <th class="col-sm-2">
+                                            <span translate="ordermanagement.labresult-list.observation.lbl"></span>
+                                        </th>
+                                        <th class="col-sm-2">
+                                            <span translate="ordermanagement.labresult-list.result.lbl"></span>
+                                            <span class="mandatory-asterix">*</span>
+                                        </th>
+                                        <th class="col-sm-2">
+                                            <span translate="ordermanagement.labresult-list.uom.lbl"></span>
+                                        </th>
+                                        <th class="col-sm-3">
+                                            <span translate="ordermanagement.labresult-list.referrence.lbl"></span>
+                                        </th>
+                                        <th>
+                                            <span translate="ordermanagement.labresult-list.phr.lbl"></span>
+                                        </th>
+                                        <th>
+                                            <span translate="common.actions_col.lbl"></span>
+                                        </th>
+                                    </tr>
+                                </thead> -->
+                                <tbody ng-repeat="test in wo.woDetails">
+                                    <tr ng-if="test.RootProfileName">
+                                        <td colspan="9">
+                                            <span class="lbl-profile">{{test.RootProfileName}}</span>
+                                        </td>
+                                    </tr>
+                                    <tr ng-if="test.ProfileName">
+                                        <td colspan="9">
+                                            <span class="lbl-profile">{{test.ProfileName}}</span>
+                                        </td>
+                                    </tr>
+                                    <tr
+                                        ng-hide="test.details.length == 1 && test.Testname.toLowerCase() == test.details[0].Analytename.toLowerCase()">
+                                        <td colspan="9">
+                                            <span class="lbl-test"> {{test.Testname}}</span>
+                                        </td>
+                                    </tr>
+                                    <tr ng-repeat="item in test.details | filter:{Status:1}">
+                                        <td colspan="2">
+                                            <span
+                                                style="vertical-align: super; color: #0066cc; font-weight: 700; white-space: nowrap; text-overflow: ellipsis; overflow: auto;">{{item.Analytename}}</span>
+                                        </td>
+                                        <td colspan="2">
+                                            <span ng-if="item.QualifierId==1||!item.QualifierId"> {{item.Resultvalue}}
+                                            </span>
+                                            <span ng-if="item.QualifierId!=1 && item.QualifierId" style="color:red;">
+                                                {{item.Resultvalue}}
+                                            </span>
+                                        </td>
+                                        <td colspan="2" ng-if="item.TestValueType != 3">
+                                            <span ng-model="item.AnalyteUOM">{{item.AnalyteUOM}}</span>
+                                        </td>
+                                        <td colspan="2">
+                                            <span>{{item.Analyterange}}</span>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <!-- <div class="row" style="margin-top: -20px;margin-bottom: -22px;">
+                        <table style="margin-left: 5% !important;">
+                            <tbody  ng-repeat="test in wo.woDetails">
+                                <tr ng-repeat="test in wo.woDetails">
+                                    <td class="col-sm-2">
+                                        <span class="drugname">{{test.RootProfileName}}</span>
+                                    </td>
+                                    <td class="col-sm-2">
+                                        <span class="duration">
+                                            {{test.ProfileName}}
+                                        </span>
+                                    </td>
+                                    <td class="col-sm-2">
+                                        <span class="duration">
+                                            {{test.Testname}}
+                                        </span>
+                                    </td>
+                                    <td class="col-sm-2">
+                                        <span class="duration">
+                                            {{test.Resultvalue}}
+                                        </span>
+                                    </td>
+
+                                    <td class="col-sm-2">
+                                        <span class="description">{{item.AnalyteUOM}}</span>
+                                        <span>{{item.Analyterange}}</span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div> -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="fooder-bgs" style="margin-bottom: 10px;">
+    <div class="col-sm-12" style="margin-top: -4%;">
+        <button type="button" style="padding: 3px 7px;" class="btn btn-danger btn-sm pull-left"
+            ng-click="PrintConsolidateLabResult()">
+            <span translate="Consolidate Print"></span>
+            <span><i class="fa fa-print" aria-hidden="true"></i> </span>
+        </button>
+    </div>
+</div>

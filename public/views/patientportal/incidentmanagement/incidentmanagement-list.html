@@ -1,0 +1,118 @@
+<link rel="stylesheet" href="app/css/drhms.css">
+<div class="row page-header">
+    <div class="col-sm-10">
+        <h4 class="mt0" translate="taskmanagement.incidentmanagement.lbl"></h4>
+    </div>
+    <div class="col-sm-2">
+        <div class="filters">
+            <span class="drhms-billing-btn drhms-outstandingbill-btn" ng-click="doctor_dashboard()" uib-tooltip="Doctor Dashboard" tooltip-placement="bottom">
+                <i class="fas fa-th-large" aria-hidden="true"></i>
+            </span>
+        </div>
+    </div>
+</div>
+<emrpatientbanner patientid="currentcontext.pid" encounterid="currentcontext.eid">
+</emrpatientbanner>
+<div class="row">
+    <div class="col-sm-3">
+        <label class="col-sm-12 control-label" for="date" translate="taskmanagement.date.lbl"></label>
+        <div class="col-sm-12">
+            <input type="text" class="form-control" name="todate" ng-change="getList()" datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}"
+                uib-datepicker-popup="{{datePickerOptions.dateFormat}}" placeholder="{{datePickerOptions.placeholder}}" ng-click="todatePopup = { opened: true }"
+                is-open="todatePopup.opened" ng-model="currentfilter.IncidentDate">
+        </div>
+    </div>
+    <div class="col-sm-3">
+        <label class="col-sm-12 control-label" for="status" translate="taskmanagement.status.lbl"></label>
+        <div class="col-sm-12">
+            <ui-select ng-model="currentfilter.IncidentStatusId" ng-change="getList()" class="filter-combo">
+                <ui-select-match>
+                    {{$select.selected.Text | limitTo : 20 : 0}}
+                    <span ng-if="$select.selected.Text.length>20">...</span>
+                </ui-select-match>
+                <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.IncidentStatus | filter: { Text: $select.search }">
+                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                </ui-select-choices>
+            </ui-select>
+        </div>
+    </div>
+    <div class="col-sm-3">
+        <label class="col-sm-12 control-label" for="status" translate="taskmanagement.department.lbl"></label>
+        <div class="col-sm-12">
+            <ui-select ng-model="currentfilter.DepartmentId" ng-change="getList()" class="filter-combo">
+                <ui-select-match>
+                    {{$select.selected.Text | limitTo : 20 : 0}}
+                    <span ng-if="$select.selected.Text.length>20">...</span>
+                </ui-select-match>
+                <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.Department | filter: { Text: $select.search }">
+                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                </ui-select-choices>
+            </ui-select>
+        </div>
+    </div>
+    <!-- <div class="col-sm-3">
+        <label class="col-sm-12 control-label" for="status" translate="taskmanagement.priority.lbl"></label>
+        <div class="col-sm-12">
+            <ui-select ng-model="currentfilter.PriorityId" ng-change="getList()" class="filter-combo">
+                <ui-select-match>
+                    {{$select.selected.Text | limitTo : 20 : 0}}
+                    <span ng-if="$select.selected.Text.length>20">...</span>
+                </ui-select-match>
+                <ui-select-choices
+                    repeat="lookupitem.Id as lookupitem in lookup.Priority | filter: { Text: $select.search }">
+                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                </ui-select-choices>
+            </ui-select>
+        </div>
+    </div> -->
+    <div class="col-sm-2">
+        <button class="btn-add" ng-click="addNew()" style="margin-top: 30px;" uib-tooltip="{{ 'taskmanagement.addnew-tooltip.lbl' | translate }}"
+            tooltip-placement="bottom">
+            <i class="fa fa-plus" aria-hidden="true"></i>
+        </button>
+    </div>
+</div>
+<div class="row">
+    <custom-table config="vm.gridConfig"></custom-table>
+</div>
+<div class="fooder-bgs">
+    <div class="row">
+        <div class="col-md-12 padding-top5">
+            <div class="col-sm-12 ng-isolate-scope ng-not-empty ng-valid" uib-pagination="" total-items="vm.gridConfig.pagerObj.totalItems"
+                items-per-page="vm.gridConfig.pagerObj.pageSize" start-index="vm.gridConfig.pagerObj.startIndex" ng-model="vm.gridConfig.pagerObj.currentPage"
+                ng-change="getList()">
+                <div class="col-sm-2 pager-msg ng-binding">Showing 1-8 of 8 items</div>
+                <div class="col-sm-5 pager-div">
+                    <ul class="pagination pagination-sm">
+                        <!-- ngIf: ::boundaryLinks -->
+                        <li ng-if="::boundaryLinks" ng-class="{disabled: noPrevious()||ngDisabled}" class="pagination-first ng-scope disabled">
+                            <a href="" ng-click="selectPage(1, $event)" class="ng-binding">First</a>
+                        </li>
+                        <!-- end ngIf: ::boundaryLinks -->
+                        <!-- ngIf: ::directionLinks -->
+                        <li ng-if="::directionLinks" ng-class="{disabled: noPrevious()||ngDisabled}" class="pagination-prev ng-scope disabled">
+                            <a href="" ng-click="selectPage(page - 1, $event)" class="ng-binding">Previous</a>
+                        </li>
+                        <!-- end ngIf: ::directionLinks -->
+                        <!-- ngRepeat: page in pages track by $index -->
+                        <li ng-repeat="page in pages track by $index" ng-class="{active: page.active,disabled: ngDisabled&amp;&amp;!page.active}"
+                            class="pagination-page ng-scope active">
+                            <a href="" ng-click="selectPage(page.number, $event)" class="ng-binding">1</a>
+                        </li>
+                        <!-- end ngRepeat: page in pages track by $index -->
+                        <!-- ngIf: ::directionLinks -->
+                        <li ng-if="::directionLinks" ng-class="{disabled: noNext()||ngDisabled}" class="pagination-next ng-scope disabled">
+                            <a href="" ng-click="selectPage(page + 1, $event)" class="ng-binding">Next</a>
+                        </li>
+                        <!-- end ngIf: ::directionLinks -->
+                        <!-- ngIf: ::boundaryLinks -->
+                        <li ng-if="::boundaryLinks" ng-class="{disabled: noNext()||ngDisabled}" class="pagination-last ng-scope disabled">
+                            <a href="" ng-click="selectPage(totalPages, $event)" class="ng-binding">Last</a>
+                        </li>
+                        <!-- end ngIf: ::boundaryLinks -->
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,301 @@
+<link rel="stylesheet" href="app/css/drhms.css">
+<style>
+    autosearch.logo .custom-popup-wrapper {
+        margin-left: -200px;
+    }
+</style>
+<div class="row">
+    <div class="drhms-filters">
+        <div class="col-sm-10">
+            <h4 translate="billing.ippharmacyreturn.pagetitle.lbl"></h4>
+        </div>
+        <div class="col-sm-4">
+            <label translate="billing.opbilling-list.billstatus.lbl">: {{item.PatientReturnStatus}}</label>
+        </div>
+        <div class="col-sm-4">
+            <autosearch class="logo" ng-keyup="moveHeaderFocus('pid')" itemid="item.EncounterId"
+                iteminfo="item.SelectedItem" rowdata="item" config="vm.patientcontrolconfig" name="patientname"
+                candisable="item.RdoPatientId" isrequired="true">
+            </autosearch>
+        </div>
+        <div class="col-sm-4">
+            <button type="button" class="drhms-billing-btn drhms-add-btn" uib-tooltip="Add New (F7)"
+                tooltip-placement="bottom" ng-click="clear()">
+                <i class="fa fa-plus" aria-hidden="true"></i>
+            </button>
+            <button type="button" class="drhms-billing-btn drhms-previousbill-btn" uib-tooltip="Previous Returns (F9)"
+                tooltip-placement="bottom" ng-click="findReturn()">
+                <i class="fa fa-search-plus" aria-hidden="true"></i>
+            </button>
+
+            <button type="button" class="drhms-billing-btn drhms-outstandingbill-btn ng-scope" uib-tooltip="Pick List"
+                tooltip-placement="bottom" ng-click="pickreturns()">
+                <i class="fa fa-search-plus" aria-hidden="true"></i>
+            </button>
+            <span class="drhms-billing-btn drhms-home-btn" ng-if="Context =='pharmacy'"><i class="fas fa-home"
+                    ng-click="backtoList()" uib-tooltip="Dashboard" tooltip-placement="bottom"></i></span>
+        </div>
+    </div>
+</div>
+<div class="col-sm-12">
+    <form id="item_form" name="item_form" class="form-horizontal" role="form">
+        <div class="drhms-table-top-header">
+            <div class="drhms-table-head-border">
+                <div class="col-sm-12">
+                    <label class="col-sm-4" translate="billing.opbilling-list.patientname.lbl"></label>
+                    <div class="col-sm-8">:
+                        {{selectedPatient.Title.Description}} {{selectedPatient.FirstName}}
+                    </div>
+                </div>
+                <div class="col-sm-12">
+                    <label class="col-sm-4" for="Doctor" translate="billing.opbilling-list.doctor.lbl"></label>
+                    <div class="col-sm-8">
+                        <ui-select ng-model="item.DoctorId" tabindex="-1" ng-change="doctorChange()" name="Doctor"
+                            ng-disabled="item.RdoDoctorId" required>
+                            <ui-select-match>
+                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                <span ng-if="$select.selected.Text.length>20">...</span>
+                            </ui-select-match>
+                            <ui-select-choices
+                                repeat="lookupitem.Id as lookupitem in lookup.Doctor | filter: { Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                </div>
+                <div class="col-sm-12">
+                    <label class="col-sm-4" for="Room" translate="housekeeprequest.room.lbl"></label>
+                    <div class="col-sm-8">
+                        <ui-select ng-model="item.RoomId" name="Room" ng-change="bedlook()" ng-disabled="item.RdoRoomId"
+                            required>
+                            <ui-select-match>
+                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                <span ng-if="$select.selected.Text.length>20">...</span>
+                            </ui-select-match>
+                            <ui-select-choices
+                                repeat="lookupitem.Id as lookupitem in lookup.Room | filter: { Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                </div>
+            </div>
+            <div class="drhms-table-head-border">
+                <div class="col-sm-12">
+                    <label class="col-sm-4" translate="Age / Sex"></label>
+                    <div class="col-sm-8">:
+                        <span class="head-title">{{selectedPatient.Age}} / {{selectedPatient.Gender.Description}}</span>
+                    </div>
+                </div>
+                <div class="col-sm-12">
+                    <label class="col-sm-4" for="Guarantor" translate="billing.opbilling-list.guarantor.lbl"></label>
+                    <div class="col-sm-8">
+                        <ui-select ng-model="item.GuarantorId" tabindex="-1" ng-disabled="item.RdoGuarantorId"
+                            ng-change="GuarantorChange($select.selected)" name="Guarantor" required>
+                            <ui-select-match>
+                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                <span ng-if="$select.selected.Text.length>20">...</span>
+                            </ui-select-match>
+                            <ui-select-choices
+                                repeat="lookupitem.Id as lookupitem in lookup.Guarantor | filter: { Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                </div>
+                <div class="col-sm-12">
+                    <label class="col-sm-4" for="Ward" translate="housekeeprequest.ward.lbl"></label>
+                    <div class="col-sm-8">
+                        <ui-select ng-model="item.WardId" name="Ward" ng-change="roomLookUp()"
+                            ng-disabled="item.RdoWardId" required>
+                            <ui-select-match>
+                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                <span ng-if="$select.selected.Text.length>20">...</span>
+                            </ui-select-match>
+                            <ui-select-choices
+                                repeat="lookupitem.Id as lookupitem in lookup.Ward | filter: { Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                </div>
+            </div>
+            <div class="drhms-table-head-border">
+                <div class="col-sm-12">
+                    <label class="col-sm-4" translate="UHID/Visit#"></label>
+                    <div class="col-sm-8">:
+                        {{selectedPatient.MRN}} / {{item.VisitIdentifier}}
+                    </div>
+                </div>
+                <div class="col-sm-12">
+                    <label class="col-sm-4" translate="billing.opbilling-list.store.lbl"></label>
+                    <div class="col-sm-8">
+                        <ui-select ng-model="item.StoreMasterId" tabindex="-1" ng-disabled="item.RdoStoreMasterId"
+                            ng-change="StoreChange($select.selected)" name="StoreMaster">
+                            <ui-select-match>
+                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                <span ng-if="$select.selected.Text.length>20">...</span>
+                            </ui-select-match>
+                            <ui-select-choices
+                                repeat="lookupitem.Id as lookupitem in lookup.UserStores | filter: { Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                </div>
+                <div class="col-sm-12">
+                    <label class="col-sm-4" translate="Admission Status"></label>
+                    <div class="col-sm-8"> {{item.AdmissionStatus}}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+<div class="col-sm-12">
+    <form id="item_form" name="item_form" class="form-horizontal" role="form">
+        <div class="drhms-table-control">
+            <div class="drhms-bg-pattern">
+                <div class="drhms-table-height">
+                    <table class="drhms-responsive-table">
+                        <thead class="bg-subhead">
+                            <tr>
+                                <th>
+                                    <span translate="billing.pharmacy.medicinename.lbl"></span>
+                                </th>
+                                <!-- <th>
+                                        <span translate="billing.pharmacy.genericname.lbl"></span>
+                                    </th> -->
+                                <th>
+                                    <span translate="billing.pharmacy.billedqty.lbl"></span>
+                                </th>
+                                <th>
+                                    <span translate="billing.pharmacy.returnedqty.lbl"></span>
+                                </th>
+                                <th>
+                                    <span translate="billing.pharmacy.qty.lbl"></span>
+                                </th>
+                                <th>
+                                    <span translate="billing.pharmacy.batch.lbl"></span>
+                                </th>
+                                <th ng-if="item.IsPicked">
+                                    <span translate="Dispensed Store"></span>
+                                </th>
+                                <th>
+                                    <span translate="billing.pharmacy.expirydate.lbl"></span>
+                                </th>
+                                <th>
+                                    <span translate="billing.pharmacy.rate.lbl"></span>
+                                </th>
+                                <th>
+                                    <span translate="billing.pharmacy.gst.lbl"></span>
+                                </th>
+                                <th>
+                                    <span translate="billing.pharmacy.amount.lbl"></span>
+                                </th>
+                                <th ng-show="CanshowInsfield">
+                                    <span translate="Insurance Amount"></span>
+                                </th>
+                                <th ng-show="CanshowInsfield">
+                                    <span translate="CoPay Amount"></span>
+                                </th>
+                                <th>
+                                    <span translate="billing.pharmacy.action.lbl"></span>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="pharmacyitem in PatientReturnDetails | filter:{Status:1}">
+                                <td>
+                                    <autosearch controlid="pharmacyitem.itemidxdesc" ;
+                                        ng-keyup="moveFocus('qty','desc','desc','desc',$index,$event,pharmacyitem)"
+                                        itemid="pharmacyitem.ItemMasterId" iteminfo="pharmacyitem.SelectedItem"
+                                        rowdata="pharmacyitem" config="vm.pharmacyitemcontrolconfig"
+                                        itemchange="ServiceItemChanged($index, pharmacyitem)" class="inputsearchlogo"
+                                        candisable="pharmacyitem.RdoItemMasterId" isrequired="true"
+                                        tabindex="pharmacyitem.tabindex"></autosearch>
+                                </td>
+                                <!-- <td>
+                                        <span ng-if="pharmacyitem.IsPrescribed" ng-style="{'color':'orange'}" uib-tooltip="{{ pharmacyitem.GenericName }}" tooltip-placement="bottom">{{ pharmacyitem.GenericName | limitTo : 18 : 0}}
+                                            <span ng-if="pharmacyitem.GenericName.length>20">...</span>
+                                        </span>
+
+                                        <span ng-if="!pharmacyitem.IsPrescribed" uib-tooltip="{{ pharmacyitem.GenericName }}" tooltip-placement="bottom">{{ pharmacyitem.GenericName | limitTo : 18 : 0}}
+                                            <span ng-if="pharmacyitem.GenericName.length>20">...</span>
+                                        </span>
+                                    </td> -->
+                                <td>
+                                    <span> {{ pharmacyitem.BilledQuantity }}</span>
+                                </td>
+                                <td>
+                                    <span> {{ pharmacyitem.ReturnedQuantity }}</span>
+                                </td>
+                                <td>
+                                    <!--<input type="number" min="0" class="form-control" ng-model="pharmacyitem.Quantity" placeholder="Qty" ng-change="CalcualteAmt(pharmacyitem)">-->
+                                    <input type="text" id="{{pharmacyitem.itemidxqty}}"
+                                        ng-keyup="moveFocus('desc','desc','qty','qty',$index,$event, pharmacyitem)"
+                                        min="0" class="form-control" ng-disabled="pharmacyitem.RdoItemMasterId"
+                                        ng-model="pharmacyitem.ReturnQuantity" ng-change="CalcualteAmt(pharmacyitem)"
+                                        tabindex="pharmacyitem.tabindex" placeholder="" ng-pattern="/^\d+$/"
+                                        ng-keypress="numberonly($event)">
+                                </td>
+                                <td>
+                                    <span> {{ pharmacyitem.BatchId }}</span>
+                                </td>
+                                <td ng-if="item.IsPicked">
+                                    <span> {{ pharmacyitem.StoreName }}</span>
+                                </td>
+                                <td>
+                                    <span> {{ pharmacyitem.ExpiryDate &nbsp;|&nbsp; date : 'dd-MMM-yyyy' }} </span>
+                                </td>
+                                <td>
+                                    <span> {{ pharmacyitem.MrPrice|displaycurrency }}</span>
+                                </td>
+                                <td>
+                                    <span> {{ pharmacyitem.GSTPercentage }}</span>
+                                </td>
+                                <td>
+                                    <span> {{ pharmacyitem.NetAmount|displaycurrency }}</span>
+                                </td>
+                                <td ng-show="CanshowInsfield">
+                                    <span> {{ pharmacyitem.InsNetAmount|displaycurrency }}</span>
+                                </td>
+                                <td ng-show="CanshowInsfield">
+                                    <span> {{ pharmacyitem.PatNetAmount|displaycurrency }}</span>
+                                </td>
+                                <td>
+                                    <button type="button" class="drhms-edit-button" tabindex="-1"
+                                        ng-click="deletePatientReturnDetails($index,pharmacyitem)"
+                                        ng-disabled="pharmacyitem.RdoItemMasterId">
+                                        <img src="assets/svg/delete.svg" alt="">
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="cols-sm-12 pending-order">
+                <div class="col-sm-4"></div>
+                <div class="col-sm-4"></div>
+                <div class="col-sm-4">
+                    <div class="drhms-due-amount">Total : {{(item.TotalGrossAmount|displaycurrency)}}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+<div class="fooder-bgs">
+    <div class="pull-right d-flex-buttons">
+        <button type="button" class="draftbutton" ng-click="dmPrint()" ng-show="!HidePrintBtn">DM Print</button>
+        <button type="button" ng-keyup="FooterFocus('btnsubmit')" class="draftbutton" ng-show="canShowSaveBtn"
+            translate="common.saveaction.lbl" ng-click="saveDraft()"></button>
+        <button type="button" ng-keyup="FooterFocus('saveAndApproveid')" class="draftbutton"
+            translate="billing.opbilling-list.saveandapprove.lbl" ng-show="canShowSaveapproveBtn"
+            ng-click="saveAndApprove()"></button>
+            <printcontrol ng-if="!HidePrintBtn" printclick="print()" originalprintclick="originalprint()"
+            reason="currentcontext.printreason" entity="'PharmacySale'" withheader="item.WithHeader" withoutheader="item.WithoutHeader"></printcontrol>
+    </div>
+</div>

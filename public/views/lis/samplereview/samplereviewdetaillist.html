@@ -1,0 +1,64 @@
+
+<h4 class="page-header mt0" translate="lis.samplecollection.pagetitle.lbl"> </h4>
+
+<div class="row filter-area">
+  <div class="col-sm-12">   
+
+            <label class="col-sm-2 control-label filter-lbl" translate="lis.orderdetaillist.filterorderstatus.lbl"></label>            
+            <div class="col-sm-4">
+                <ui-select ng-model="currentfilter.Orderstatuse" ng-change="getList()">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 8 : 0}}
+                        <span ng-if="$select.selected.Text.length>8">...</span>
+                    </ui-select-match>
+                    <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.OrderStatus | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div> 
+            <div class="col-sm-4"></div>
+            <div class="col-sm-2">
+                  <button id="btnCancelForm" type="button" class="btn btn-danger btn-sm pull-rig" ng-click="backToList()" translate="common.cancelaction.lbl"></button>                  
+            </div>
+            
+   </div>
+   <div class="col-sm-12">
+        <div class="col-sm-6">
+            <label class="col-sm-4 hdtxtalgin">MRN </label>  
+            <label class="col-sm-3 hdtxtalgin">{{currentfilter.patmrn}}</label>  
+        </div> 
+        <div class="col-sm-6">
+            <label class="col-sm-4 hdtxtalgin">Order #</label>  
+            <label class="col-sm-3 hdtxtalgin">{{currentfilter.ordnr}}</label>  
+        </div>
+   </div>
+   <div class="col-sm-12">
+       <div class="col-sm-6">
+            <label class="col-sm-4 hdtxtalgin">Patient Name</label> 
+            <label class="col-sm-4 hdtxtalgin">{{currentfilter.patname}}</label>  
+        </div>
+        <div class="col-sm-6">
+            <label class="col-sm-4 hdtxtalgin">Order Date</label>  
+            <label class="col-sm-6 hdtxtalgin"> {{currentfilter.orddt | date : 'dd/MM/yyyy HH:mm:ss' }} </label>  
+        </div>
+   </div>  
+</div>
+ 
+<div class="container-fluid">    
+    <div ui-grid="vm.gridConfig" class="table-uigrid" set-grid-height></div>
+</div> 
+
+<div class="panel-footer formactionbar">
+    <div class="pull-right">
+        <button type="submit" class="btn btn-primary btn-sm" ng-click="onApproveConfirmed()" translate="lis.orderdetaillist.approveditem.lbl"></button>
+        <button id="btnCancelForm" type="button" class="draftbutton" ng-click="onCancelConfirmed()" translate="lis.orderdetaillist.cancelleditem.lbl"></button>						
+    </div>
+</div>
+
+<style type="text/css">
+.hdtxtalgin{
+        font-weight: 700; 
+} 
+</style>
+
+ 

@@ -1,0 +1,74 @@
+<style>
+    table {
+        margin-bottom: 10px;
+    }
+</style>
+<div class="modal-header custom-modal-header">
+    <div class="col-sm-10">
+        <h4 class="modal-title custom-modal-title" translate="patientemr.patientfeedbacks-form.pagetitle.lbl"></h4>
+    </div>
+    <div class="col-sm-2">
+        <div class="filters">
+            <img src="../../../../../assets/svg/close.svg" ng-click="cancelCallback()">
+        </div>
+    </div>
+</div>
+<div class="row">
+    <patientbanner patientid="item.PatientId" ng-if="currentcontext.ismodal"></patientbanner>
+</div>
+<div class="row">
+    <form id="item_form" name="item_form" class="form-horizontal" role="form">
+        <div class="col-sm-12" ng-repeat="item in FeedbackDetails">
+            <div class="header">
+                <h3>{{item.Text ||item.FeedbackCategory}}</h3>
+            </div>
+            <div class="col-sm-12">
+                <table>
+                    <tr ng-repeat="feedback in item.Feedbacks | filter:{FeedbackCategoryId:item.Id}">
+                        <td class="col-sm-4 col-lg-6 col-xs-4">
+                            <span>{{feedback.Text||feedback.FeedbacksMaster.Feedbacks}}</span>
+                            <span>{{feedback.Description}}</span>
+                        </td>
+                        <td class="col-sm-8 col-lg-6 col-xs-8">
+                            <radiogroupcontrol itemid="feedback.RatingId" items="lookup.Rating"
+                                isdisabled="IsCompleted">
+                            </radiogroupcontrol>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        <div>
+            <fieldset class="well">
+                <legend class="legendStyle">
+                    <span>Signature</span>
+                </legend>
+                <div class="col-sm-6">
+                    <img ng-if="item.signimagedata" height="100" width="250" ng-src="{{item.signimagedata}}">
+                    <img ng-if="!item.signimagedata && item.SignPath" height="100" width="250"
+                        data-ng-src="data:image/png;base64,{{currentcontext.SignPhoto}}" />
+                </div>
+                <div class="col-sm-8">
+                    <button type="button" class="btn btn-info btn-xs" translate="appmanager.user.signaction.lbl"
+                        ng-click="openSignModal()"></button>
+                </div>
+            </fieldset>
+        </div>
+    </form>
+</div>
+<div class="">
+    <div class="row">
+        <div class="pull-left">
+            <button type="button" class="btn pyr-color10 btn-sm" ng-click="backToList()">
+                <i class="fa fa-angle-left" aria-hidden="true"></i>&nbsp;&nbsp;
+                <span class="btn-fontsize" translate="common.backaction.lbl"></span>
+            </button>
+        </div>
+        <div class="pull-right">
+            <button type="button" class="draftbutton" ng-if="EnableSave" translate="common.saveaction.lbl"
+                ng-click="savedraft()"></button>
+            <button type="button" class="draftbutton" ng-if="EnableApprove" translate="common.saveapprove-action.lbl"
+                ng-click="saveapprove()"></button>
+        </div>
+    </div>
+</div>

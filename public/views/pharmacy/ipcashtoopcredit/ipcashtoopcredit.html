@@ -1,0 +1,238 @@
+<link href="app/css/billing-pharmacy-customs.css" rel="stylesheet">
+<style>
+    .container {
+        position: relative;
+        width: 100%;
+        margin-top: 4px
+    }
+
+    .container:after,
+    .container:before {
+        content: " ";
+        display: table
+    }
+
+    .fontsize {
+        font-size: 16px;
+        font-weight: 700;
+        padding: 0 7px
+    }
+
+    .bgfoot .btn-sm,
+    .btn-group-sm>.btn {
+        padding: 0 6px;
+        font-size: 10px;
+        line-height: 1.5;
+        border-radius: 3px
+    }
+
+    .bgfoot .topright .dropdown-menu {
+        top: -67px!important;
+        left: 15px!important
+    }
+
+    .toprighttext .dropdown-menu {
+        top: 0px !important;
+        left: 15px!important;
+        max-height: 150px
+    }
+
+    .padding-top1 {
+        padding-top: 1px
+    }
+
+    .page-header h4 {
+        padding-top: 0;
+        height: 19px
+    }
+
+    .table-uigrid.ui-grid .ui-grid-row.ui-grid-row-selected>[ui-grid-row]>.ui-grid-cell {
+        background-color: lightgreen;
+    }
+
+    .padding-top1 .col-sm-4 {
+        padding-left: 2px;
+        padding-right: 2px
+    }
+
+    .typeahead-demo>input[type=text] {
+        background-color: #fff;
+        border: 1px solid #ccc;
+    }
+
+    .autosearch-div>input {
+        background-size: 10.7%!important;
+    }
+
+    .typeahead-demo>input {
+        background: url(app/img/patterns-bg/search.png) 102.2% center no-repeat #fff;
+        background-size: 10.7%!important;
+    }
+
+    .ui-grid-viewport.ng-isolate-scope{
+        height: 270px !important;
+    }
+    .table-uigrid{
+        /* height:310px !important; */
+    }
+    .bgfoot .ui-select-match-text{
+        width:80%;
+    }
+    #opbillingcontrol .table-control{
+        height:474px;
+    }
+	.doct_invoice_btn span{
+        color:#fff !important;
+    }
+    .billreceived_amt {
+    float: left;
+    width: 100%;
+    background: #1a1a9cf5;
+    color: #fff;
+    margin-top: 8%;
+    margin-bottom: 2px;
+}
+@media (min-width:1200px) and (min-height:637px){.ui-grid-viewport.ng-isolate-scope {
+    height: 290px !important;min-height:290px;
+}}
+@media(min-width:1360px) and (min-height:675px){.ui-grid-viewport.ng-isolate-scope {
+    height: 290px !important;min-height:290px;
+}}
+@media (device-height:100vh) and (device-width:100vw){
+    .ui-grid-viewport.ng-isolate-scope{min-height:368px;}
+    .table-uigrid{min-height:400px;}
+    #opbillingcontrol .table-control{min-height:650px;}
+    .bill_ipcashtoopcredit{
+    height: 80vh;
+    min-height: 80vh;
+}
+.table-uigrid{
+    height:51vh !important;
+    min-height:51vh !important;
+}
+.ui-grid-viewport.ng-isolate-scope{
+    height:50vh !important;
+}
+}
+.table-uigrid{
+    height:47vh !important;
+    min-height:47vh;
+}
+.bill_ipcashtoopcredit{
+    height: 77vh;
+    min-height: 77vh;
+}
+</style>
+<div id="opbillingcontrol">
+    <div class="row page-header mt1">
+        <h4 class="page-header pdl15" translate="billing.ipcashtoopcredit.pagetitle.lbl"></h4>
+    </div>
+    <div class="row">
+        <div class="col-sm-12">
+            <form id="item_form" name="item_form" class="form-horizontal" role="form">
+                <div class="filter-area row">
+                    <div class="col-sm-4">
+                        <label class="col-sm-4 control-label" translate="billing.ipcashtoopcredit.patient.lbl"></label>
+                        <div class="col-sm-8">
+                            <patientsearch patientid="currentfilter.PatientId" class="" name="txtpatientsearch" patientinfo="selectedPatient"
+                                tabindex="tabindexmap.patienttabindex" filterconfig="patientfilterconfig" patientchange="patientChange()" required></patientsearch>
+                        </div>
+                    </div>
+                    <div ng-hide="false" class="col-sm-4">
+                        <label class="col-sm-4 control-label" for="" translate="billing.ipcashtoopcredit.billtype.lbl"></label>
+                        <div class="col-sm-8 doct_invoice_ifield">
+                            <ui-select ng-disabled="true" ng-model="currentfilter.BillTypeId" name="" class="filter-combo">
+                                <ui-select-match>
+                                    {{$select.selected.Text | limitTo : 20 : 0}}
+                                    <span ng-if="$select.selected.Text.length>20">...</span>
+                                </ui-select-match>
+                                <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.BillType | filter: { Text: $select.search }">
+                                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                </ui-select-choices>
+                            </ui-select>
+                        </div>
+                    </div>
+                    <div class="col-sm-4 doct_invoice_btn">
+                        <button id="btnSearch" type="button" class="draftbutton" translate="billing.ipcashtoopcredit.loadbills.lbl"
+                            ng-click="getList()"></button>
+                        <button id="btnSearch"  type="button" class="text-white btn prv-color12 btn-sm" translate="billing.ipcashtoopcredit.find.lbl"
+                            ng-click="findipcashtoopcreditPayBills()"> <i class="fa fa-search-plus" aria-hidden="true"></i> </button>
+                        <button id="btnSearch"  type="button" class="btn btn-warning btn-sm text-white  btn-sm" translate="billing.ipcashtoopcredit.clear.lbl"
+                            ng-click="Clear()"> <i class="fa fa-search-plus" aria-hidden="true"></i> </button>
+                    </div>
+                </div>
+                <div class=" table-control bill_ipcashtoopcredit">
+                    <div ui-grid="vm.gridConfig" class="table-uigrid" ui-grid-selection></div>
+                    <div class=" bg-pattern">
+                        <div class="col-sm-12 fullreg-profiles ">
+                            <div class="col-sm-3">
+                                <span class="text-white">Discount :</span><span class="countbg">{{item.Discount | displaycurrency}}</span>
+                            </div>
+                            <div class="col-sm-3">
+                               <span class="text-white">Total :</span>  <span class="countbg">{{item.BillAmount | displaycurrency}}</span>
+                            </div>
+                            <div class="col-sm-3">
+                              <span class="text-white"> Round Off :</span>  <span class="countbg">{{item.TotRndoffAmt | displaycurrency}}</span>
+                            </div>
+                            <div class="col-sm-3">
+                              <span class="text-white"> Due Amount : </span> <span class="countbg">{{item.OutStandingAmt | displaycurrency}}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="footerbar">
+                        <div class="sub-footer">
+                            <div class=" bgfoot ">
+                                <div class="col-sm-12">
+                                    <div class="col-sm-9">
+                                        <fieldset class="fsStyle  col6control" style="height: 164px;" id="textboxctrlmaster">
+                                            <legend class="legendStyle">
+                                                <span> Approved By &nbsp; &nbsp;</span>
+                                            </legend>
+                                            <div class="form-group" >
+                                                <label class="col-sm-2 " for="creditapprover" translate="billing.ipcashtoopcredit.creditapprover.lbl"></label>
+                                                <div class="col-sm-4 toprighttext">
+                                                    <ui-select id="creditapprover" ng-model="item.PrivateDueId" tabindex="-1" name="creditapprover" required>
+                                                        <ui-select-match>
+                                                            {{$select.selected.Text | limitTo : 20 : 0}}
+                                                            <span ng-if="$select.selected.Text.length>20">...</span>
+                                                        </ui-select-match>
+                                                        <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.PrivateDueApprover | filter: { Text: $select.search }">
+                                                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                                        </ui-select-choices>
+                                                    </ui-select>
+                                                </div>
+                                            </div>
+                                        </fieldset>
+                                    </div>
+                                    <div class="col-sm-3">
+                                        <div class="container">
+                                            <div class="card" style="height: 10px;min-height: 120px;">
+                                                <h1 class="title">{{item.Received | displaycurrency}}
+                                                </h1>
+                                                <div class="billreceived_amt"><span class="fontsize pull-left">Due : {{item.OutStandingAmt  | displaycurrency}}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="fooder-bgs">
+    <div class="col-sm-12">
+        <div class="pull-left">
+        </div>
+        <div class="pull-right ">
+            <button type="button" id="btnprint" ng-click="print()"  class="draftbutton" tabindex="-1" translate="billing.ipcashtoopcredit.print.lbl"></button>
+            <!-- <button type="button" id="btndmprint" class="draftbutton" ng-click="dmPrint()" translate="billing.ipcashtoopcredit.dmprint.lbl" ></button> -->
+            <button type="button" ng-show="canSaveAndApprove" id="saveAndApproveid" ng-keyup="FooterFocus('saveAndApproveid')" class="saveapprove btn btn-info btn-sm"
+                translate="billing.ipcashtoopcredit.saveandapprove.lbl" ng-click="saveAndApprove()"></button>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,688 @@
+<link rel="stylesheet" href="app/css/drhms.css">
+<style>
+    body {
+        color: #1e1e1e;
+    }
+
+    .patient-record-boxshadow {
+        background: #FFFFFF;
+        box-shadow: 0px 0px 10px rgb(0 0 0 / 25%);
+        padding: 5px;
+    }
+
+    .patient-record-header {
+        display: flex;
+        justify-content: space-between;
+        border-bottom: 2px solid #00bcd4;
+        margin-bottom: 10px;
+        box-shadow: #00bcd4 0px 7px 7px -11px;
+    }
+
+    .patient-record-title {
+        font-weight: 500;
+    }
+
+    .profile-pic-info {
+        width: 90%;
+    }
+
+    .patient-profile-info {
+        display: flex;
+        justify-content: space-between;
+        font-size: 16px;
+    }
+
+    .contact-info-hr-lines {
+        border: 1.5px solid #00bcd4;
+        display: flex;
+        position: relative;
+        justify-content: space-between;
+        margin-top: 20px;
+    }
+
+    .contact-info-hr-lines:before {
+        content: "Name & Contact";
+        position: absolute;
+        color: #00bcd4;
+        left: 23px;
+        top: -12px;
+        background: #fff;
+        padding: 0 20px;
+        padding: 0 10px;
+    }
+
+    .contact-info-hr-lines:after {
+        content: "\f04d Emergency";
+        position: absolute;
+        background: #fff;
+        color: #e09478;
+        padding: 0 20px;
+        right: 40px;
+        font-family: 'FontAwesome';
+        top: -12px;
+    }
+
+    .contact-info {
+        width: 90%;
+        margin-top: 20px;
+    }
+
+    .profile-pic img {
+        width: 100px;
+        height: 100px;
+        border-radius: 50px;
+        border: 1px solid #ccc;
+        padding: 2px;
+    }
+
+    .contact-person-profile img {
+        width: 100px;
+    }
+
+    .contact-person-profile {
+        margin: 14px 10px;
+    }
+
+    .patient-mrn-number {
+        display: flex;
+        justify-content: space-between;
+        border-bottom: 1.5px solid #00bcd4;
+        color: #00bcd4;
+        font-weight: 600;
+        font-size: 17px;
+    }
+
+    .content-details {
+        display: flex;
+        /* justify-content: space-between; */
+        font-size: 14px;
+    }
+
+    .content-details span {
+        padding-right: 25px;
+    }
+
+    .visit-info {
+        display: flex;
+        /* justify-content: space-between; */
+        font-size: 14px;
+    }
+
+    .visit-info span {
+        padding-right: 40px;
+    }
+
+    .allergy {
+        font-size: 14px;
+    }
+
+    .specil-color {
+        color: #DA0404;
+        font-weight: 500;
+    }
+
+    .content-details span i {
+        padding-right: 8px;
+    }
+
+    .navyblue {
+        color: #00bcd4;
+    }
+
+    .contact-info div p {
+        margin: 0;
+    }
+
+    .update-pic-button {
+        display: flex;
+        justify-content: space-evenly;
+        margin-top: 10px
+    }
+
+    button.update-profile-btn {
+        background: #4caf50;
+        color: #fff;
+        border: 0;
+        border-radius: 4px;
+    }
+
+    button.remove-profile-btn {
+        background: #DA0404;
+        color: #fff;
+        border: 0;
+        border-radius: 4px;
+    }
+
+    .general-details {
+        border: 1.5px solid #00bcd4;
+        height: 40vh;
+        margin-top: 20px;
+        position: relative;
+    }
+
+    .general-details div p {
+        margin: 0;
+    }
+
+    .general-details:before {
+        content: "General Details";
+        position: absolute;
+        color: #00bcd4;
+        left: 23px;
+        top: -12px;
+        background: #fff;
+        padding: 0 10px;
+    }
+
+    .visit-details {
+        border: 1.5px solid #00bcd4;
+        height: 40vh;
+        margin-top: 20px;
+        position: relative;
+    }
+
+    .visit-details div p {
+        margin: 0;
+    }
+
+    .visit-details:before {
+        content: "Visit Information";
+        position: absolute;
+        color: #00bcd4;
+        left: 23px;
+        top: -12px;
+        background: #fff;
+        padding: 0 10px;
+    }
+
+    .manditary-lable {
+        color: #e91e63;
+    }
+</style>
+<div class="row">
+    <div class="patient-record-boxshadow">
+        <div class="patient-record-header">
+            <div class="patient-record-title" translate="patientemr.patientdiagnosis-list.patientrecords.lbl"></div>
+            <div class="billing-status" ng-show="Encounter.AdmissionStatusId==4">
+                <span translate="Clinical Discharge Completed"></span>
+            </div>
+            <div class="billing-update">
+                <span>{{item.EncounterStatus}}{{item.AdmissionStatus}}&nbsp;&nbsp; {{IsBillLock}}
+                </span>
+            </div>
+            <div>
+                <span class="drhms-billing-btn drhms-outstandingbill-btn" ng-click="doctor_dashboard()"
+                    uib-tooltip="{{'patientemr.mock.emrdashboard.lbl' | translate}}" tooltip-placement="bottom">
+                    <i class="fas fa-th-large"></i>
+                </span>
+                <span class="drhms-billing-btn drhms-dayone-btn" ng-if="item.EncounterTypeId==2" ng-show="item.IsDay1Discharge==0"
+                    ng-click="day1discharge()" uib-tooltip="Day-1 Discharge" tooltip-placement="bottom">
+                    <i class="fas fa-wheelchair"></i>
+                </span>
+                <!-- <a ng-show="item.IsDay1Discharge==1" ng-click="undoday1discharge()">Undo Day-1 Discharge</a> -->
+                <span ng-show="Encounter.EncounterTypeId==2">
+                    <span class="drhms-billing-btn drhms-undo-btn" ng-show="item.IsDay1Discharge==1"
+                        ng-click="undoday1discharge()" uib-tooltip="Undo Day-1 Discharge" tooltip-placement="bottom">
+                        <i class="fas fa-undo"></i>
+                    </span>
+                </span>
+                <span class="drhms-billing-btn drhms-remark-btn" ng-hide="pagecontext=='ipemr'"
+                    ng-click="billingremarks()" uib-tooltip="{{ 'Billing Remarks' | translate }}"
+                    tooltip-placement="bottom">
+                    <i class="fas fa-exclamation-circle"></i>
+                </span>
+                <span class="drhms-billing-btn drhms-checkout-btn" ng-hide="pagecontext=='ipemr'"
+                    ng-click="checkoutorder()" uib-tooltip="{{ 'CompleteOrder' | translate }}"
+                    tooltip-placement="bottom">
+                    <i class="fas fa-sign-out-alt"></i>
+                </span>
+                <span class="drhms-billing-btn drhms-discharge-btn" uib-tooltip="{{ 'Discharge Advice' | translate }}"
+                    tooltip-placement="bottom" ng-click="fitfordischarge()" ng-show="Encounter.AdmissionStatusId==2">
+                    <i class="fas fa-bed"></i>
+                </span>
+                <!-- <span class="drhms-billing-btn drhms-add-btn" ng-click="clinicalDischarge()"
+                    ng-show="Encounter.AdmissionStatusId==3||Encounter.AdmissionStatusId==4"
+                    uib-tooltip="{{ 'admission.clinicaldischarge.lbl' | translate }}" tooltip-placement="bottom">
+                    <i class="fas fa-hospital-user"></i>
+                </span> -->
+                <span class="drhms-billing-btn drhms-add-btn" ng-click="clinicalDischarge()" ng-show="Encounter.AdmissionStatusId==3||Encounter.AdmissionStatusId==4"
+                uib-tooltip="{{ 'admission.clinicaldischarge.lbl' | translate }}" tooltip-placement="bottom">
+                    <i class="fas fa-hospital-user"></i>
+                </span>
+                <span class="drhms-billing-btn drhms-clearence-btn" ng-click="getIPClearence()"
+                    ng-show="Encounter.AdmissionStatusId==3||Encounter.AdmissionStatusId==4"
+                    uib-tooltip="{{ 'IP Clearence Status' | translate }}" tooltip-placement="bottom">
+                    <i class="fas fa-lightbulb"></i>
+                </span>
+                <span class="drhms-billing-btn drhms-previousbill-btn" ng-click="housekeeping()"
+                    ng-show="Encounter.EncounterTypeId==2"
+                    uib-tooltip="{{'patientemr.mock.housekeeping.lbl' | translate}}" tooltip-placement="bottom">
+                    <i class="fas fa-broom"></i>
+                </span>
+                <span class="drhms-billing-btn drhms-ipbill-btn" ng-click="transport()"
+                    ng-show="Encounter.EncounterTypeId==2"
+                    uib-tooltip="{{'patientemr.mock.transportrequest.lbl' | translate}}" tooltip-placement="bottom">
+                    <i class="fas fa-ambulance"></i>
+                </span>
+                <span class="drhms-billing-btn drhms-home-btn" ng-click="checkedinpatients()"
+                    ng-if="context=='emr'||'ae'" uib-tooltip="{{'patientemr.pmhxdashboard.oplist.lbl' | translate}}"
+                    tooltip-placement="bottom">
+                    <i class="fas fa-user-injured"></i>
+                </span>
+                <span class="drhms-billing-btn drhms-discharge-btn" ng-click="patientDischarge()" ng-show="DischargeBtn"
+                    uib-tooltip="{{'Discharge'}}" tooltip-placement="bottom">
+                    <i class="fas fa-bed" aria-hidden="true"></i>
+                </span>
+                <button type="button" class="drhms-billing-btn drhms-barcode-btn" uib-tooltip="{{'Barcode'}}"
+                    tooltip-placement="bottom" ng-click="wristbandprint()" ng-show="Encounter.AdmissionStatusId==2">
+                    <i class="fa fa-barcode" aria-hidden="true"></i>
+                </button>
+                <button type="button" class="drhms-billing-btn settingbtn" uib-tooltip="{{'Bed Transfer'}}"
+                    tooltip-placement="bottom" ng-click="bedtransfer()" ng-show="Encounter.AdmissionStatusId==2">
+                    <i class="fas fa-exchange-alt" aria-hidden="true"></i>
+                </button>
+            </div>
+        </div>
+        <div class="patient-profile-info">
+            <div class="profile-pic" ng-show="!item.iswebcamphoto">
+                <img tabindex="-1" ng-show="!!currentcontext.file" ngf-thumbnail="currentcontext.file">
+                <img ng-show="!currentcontext.file &amp;&amp; item.PhotoPath"
+                    data-ng-src="data:image/png;base64,{{currentcontext.Photo}}" tabindex="-1"
+                    src="app/img/main/img.jpg">
+                <img ng-show="!currentcontext.file &amp;&amp; !item.PhotoPath" src="app/img/main/img.jpg" tabindex="-1">
+            </div>
+            <div ng-show="CanshowVideo">
+                <img class="video-button" ng-click="videoconference()" uib-tooltip="Video Conference"
+                    src="app/img/care img/video.png">
+            </div>
+            <div class="profile-pic-info">
+                <div class="patient-mrn-number">
+                    <div>{{item.PatientName}}</div>
+                    <div>{{item.MRN}} &nbsp;
+                        <i class="fas fa-user"></i>
+                    </div>
+                </div>
+                <div class="content-details">
+                    <span>
+                        <i class="fas fa-mobile"></i>{{item.Mobile}}</span>
+                    <span>
+                        <i class="fas fa-envelope"></i> {{item. Email ? item.Email:'-'}}</span>
+                    <span>
+                        <i class="fas fa-flag"></i>{{item.Nationality}}</span>
+                    <span class="specil-color">
+                        <i class="fas fa-tint"></i>
+                        {{item.BloodGroup}}</span>
+                    <span>
+                        <i class="fas fa-id-card"> </i>
+                        <b>NationalityId</b> : {{item.NationalityIdentifier}} </span>
+
+                </div>
+                <div ng-if="item.IsDeathConfirmed == true">
+                    <span>
+                        <i class="fa-solid fa-bed-pulse"></i>
+                        <b>Patient Status</b> :
+                        <span style="color: red;"> Death +</span>
+                    </span>
+                </div>
+                <!-- <div class="visit-info">
+                    <span>Admission Date &nbsp;&nbsp;
+                        <span class="navyblue">
+                            <displaydate datetime-val="item.AdmissionDate"></displaydate>
+                        </span>
+                    </span>
+                    <span>Record From &nbsp;&nbsp;
+                        <span class="navyblue">
+                            <displaydate datetime-val="item.CreatedAt"></displaydate>
+                        </span>
+                    </span> -->
+                <!-- <span>Payment Balance &nbsp;&nbsp;
+                        <span class="specil-color">(206,88)</span> -->
+                <!-- <span class="specil-color">({{currentcontext.TotDueAmount}})</span> -->
+                <!-- </span> -->
+                <!-- </div>
+                <div class="allergy">Allergy &nbsp;&nbsp;
+                    <span class="specil-color">{{AdmissionRequestType.Description}}</span>
+                </div> -->
+            </div>
+        </div>
+        <div class="contact-info-hr-lines">
+            <div class="contact-info">
+                <div class="col-sm-3">
+                    <label for="">Salutation</label>
+                    <p>{{item.Title}}</p>
+                </div>
+                <div class="col-sm-3">
+                    <label for="" class="manditary-lable">First Name</label>
+                    <p>{{item.FirstName}}</p>
+                </div>
+                <!-- <div class="col-sm-3">
+                    <label for="">Middle Name</label>
+                    <p>{{item.MiddleName ? item.MiddleName: ''}}</p>
+                </div> -->
+                <div class="col-sm-3">
+                    <label for="" class="manditary-lable">Last Name</label>
+                    <p>{{item.LastName}}</p>
+                </div>
+                <div class="col-sm-3">
+                    <label for="" class="manditary-lable">Mobile No.</label>
+                    <p>+91 {{item.Mobile}}</p>
+                </div>
+                <!-- <div class="col-sm-3">
+                    <label for="">Country Code</label>
+                    <p>
+                        <i class="fas fa-globe-asia"></i>
+                        <span>+ {{item.CityId}}</span>
+                    </p>
+                </div> -->
+                <div class="col-sm-3">
+                    <label for="" class="manditary-lable">Default Email ID</label>
+                    <p>{{item.Email ? item.Email : ''}}</p>
+                </div>
+            </div>
+            <!-- <div class="contact-person-profile">
+                <div class="profile-pic" ng-show="!item.iswebcamphoto">
+                    <img tabindex="-1" ng-show="!!currentcontext.file" ngf-thumbnail="currentcontext.file">
+                    <img ng-show="!currentcontext.file &amp;&amp; item.PhotoPath" data-ng-src="data:image/png;base64,{{currentcontext.Photo}}"
+                        tabindex="-1" src="app/img/main/img.jpg">
+                    <img ng-show="!currentcontext.file &amp;&amp; !item.PhotoPath" src="app/img/main/img.jpg" tabindex="-1">
+                </div>
+                <div class="update-pic-button">
+                    <button class="update-profile-btn">
+                        <i class="fas fa-user" aria-hidden="true"></i>
+                    </button>
+                    <button class="remove-profile-btn">
+                        <i class="fas fa-window-close"></i>
+                    </button>
+                </div>
+            </div> -->
+        </div>
+        <div class="general-details">
+            <div class="col-sm-3">
+                <label for="" class="manditary-lable">DOB</label>
+                <p>{{item.DOB}}</p>
+            </div>
+            <div class="col-sm-3">
+                <label for="">Age</label>
+                <p>{{item.Age}}</p>
+            </div>
+            <div class="col-sm-3">
+                <label for="" class="manditary-lable">Gender</label>
+                <p>{{item.Gender}}</p>
+            </div>
+            <div class="col-sm-3">
+                <label for="">Marital Status</label>
+                <p>{{item.MaritalStatus}}</p>
+            </div>
+            <!-- <div class="col-sm-3">
+                <label for="">Blood Group</label>
+                <p>{{item.BloodGroup}}</p>
+            </div> -->
+            <!-- <div class="col-sm-3">
+                <label for="">VIP Status</label>
+                <p>{{VIP}}</p>
+            </div> -->
+            <div class="col-sm-3">
+                <label for="">Address Details</label>
+                <p>{{item.AddressLine1}},{{item.AddressLine2}}</br>{{item.City}}</br>{{item.State}}</br>
+                    {{item.Country}}</br>{{item.Pincode}}</p>
+            </div>
+            <!-- <div class="col-sm-3">
+                <label for="">Country</label>
+                <p>{{item.Country}}</p>
+            </div>
+            <div class="col-sm-3">
+                <label for="">State</label>
+                <p>{{item.State}}</p>
+            </div>
+            <div class="col-sm-3">
+                <label for="">City</label>
+                <p>{{item.City}}</p>
+            </div>
+            <div class="col-sm-3">
+                <label for="">Area</label>
+                <p>{{item.AddressLine1}},{{item.AddressLine2}}</p>
+            </div> -->
+            <div class="col-sm-3">
+                <label for="">Payer Name</label>
+                <p>{{item.GuarantorName}}</p>
+            </div>
+            <div class="col-sm-3">
+                <label for="" class="manditary-lable">Nationality</label>
+                <p>{{item.Nationality}}</p>
+            </div>
+            <div class="col-sm-3">
+                <label for="">Nationality ID</label>
+                <p>{{item.NationalityId}}</p>
+            </div>
+            <div class="col-sm-3">
+                <label for="">Passport No.</label>
+                <p>{{item.PasspostNumber}}</p>
+            </div>
+            <div class="col-sm-3">
+                <label for="">Attender Name</label>
+                <p>{{item.GuardianName}}</p>
+            </div>
+            <div class="col-sm-3">
+                <label for="">Attender Phone</label>
+                <p>{{item.AlternateMobileNum}}</p>
+            </div>
+        </div>
+        <div class="visit-details">
+            <div class="col-sm-3">
+                <label for="" class="manditary-lable">Doctor Name</label>
+                <p>{{item.DoctorName}}</p>
+            </div>
+            <div class="col-sm-3">
+                <label for="">Department</label>
+                <p>{{item.Department}}</p>
+            </div>
+            <div class="col-sm-3">
+                <label for="" class="manditary-lable">Registered Date</label>
+                <p>
+                    <displaydate datetime-val="item.RegisteredDate"></displaydate>
+                </p>
+            </div>
+            <div class="col-sm-3">
+                <label for="" ng-show="item.EncounterTypeId==1" class="manditary-lable">Visit Date</label>
+                <label for="" ng-show="item.EncounterTypeId==2" class="manditary-lable">Admission Date</label>
+                <p>
+                    <displaydate datetime-val="item.AdmissionDate"></displaydate>
+                </p>
+            </div>
+            <div class="col-sm-3">
+                <label for="">Visit No.</label>
+                <p>{{item.VisitIdentifier}}</p>
+            </div>
+            <div class="col-sm-3" ng-if="item.EncounterTypeId==1">
+                <label for="">Visit Type</label>
+                <p>{{item.VisitType}}</p>
+            </div>
+            <div class="col-sm-3" ng-if="item.EncounterTypeId==1">
+                <label for="">Encounter Type</label>
+                <p>{{item.EncounterType}}</p>
+            </div>
+            <div class="col-sm-3" ng-if="item.EncounterTypeId==2">
+                <label for="" class="manditary-lable">WardDetails</label>
+                <p>{{item.WardName}}</p>
+            </div>
+            <div class="col-sm-3" ng-if="item.EncounterTypeId==2">
+                <label for="">Encounter Type</label>
+                <p>{{item.EncounterType}}</p>
+            </div>
+            <div class="col-sm-3">
+                <label for="">Visit Reason</label>
+                <p>{{item.Remark}}</p>
+            </div>
+            <div class="col-sm-3">
+                <label for="">Diagnosis</label>
+                <p>{{item.OtherDiagnosis}}</p>
+            </div>
+            <div class="col-sm-3">
+                <label for="">Referral Type</label>
+                <p>{{Encounter.ReferralType.Description}}</p>
+            </div>
+            <div class="col-sm-3">
+                <label for="">Referral Name</label>
+                <p>{{Encounter.Referral.ReferralName}}</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="fooder-bgs" style="min-height: 10%;">
+
+</div>
+
+<!-- <link rel="stylesheet" href="app/css/drhms.css">
+<div class="row">
+    <div class="drhms-filters">
+        <div class="col-sm-4">
+            <div translate="patientemr.patientdiagnosis-list.patientrecords.lbl"></div>
+        </div>
+        <div class="col-sm-4 billing-status" ng-show="Encounter.AdmissionStatusId==4">
+            <span translate="Clinical Discharge Completed"></span>
+        </div>
+        <div class="col-sm-3">
+            <span class="billing-update">{{item.EncounterStatus}}{{item.AdmissionStatus}}&nbsp;&nbsp;
+                {{IsBillLock}}</span>
+        </div>
+        <div class="col-sm-10">
+            <span class="drhms-billing-btn drhms-dayone-btn" ng-show="item.IsDay1Discharge==0"
+                ng-click="day1discharge()" uib-tooltip="Day-1 Discharge" tooltip-placement="bottom"> <i
+                    class="fas fa-wheelchair"></i></span>
+            <span class="drhms-billing-btn drhms-undo-btn" ng-show="item.IsDay1Discharge==1"
+                ng-click="undoday1discharge()" uib-tooltip="Undo Day-1 Discharge" tooltip-placement="bottom"><i
+                    class="fas fa-undo"></i></span>
+            <span class="drhms-billing-btn drhms-checkout-btn" ng-hide="pagecontext=='ipemr'" ng-click="checkoutorder()"
+                uib-tooltip="{{ 'CompleteOrder' | translate }}" tooltip-placement="bottom"> <i
+                    class="fas fa-sign-out-alt"></i></span>
+            <span class="drhms-billing-btn drhms-discharge-btn" uib-tooltip="{{ 'Discharge Advice' | translate }}"
+                tooltip-placement="bottom" ng-click="fitfordischarge()" ng-show="Encounter.AdmissionStatusId==2"><i
+                    class="fas fa-bed"></i></span>
+            <span class="drhms-billing-btn drhms-add-btn" ng-click="clinicalDischarge()"
+                ng-show="Encounter.AdmissionStatusId==3||Encounter.AdmissionStatusId==4"
+                uib-tooltip="{{ 'admission.clinicaldischarge.lbl' | translate }}" tooltip-placement="bottom"> <i
+                    class="fas fa-hospital-user"></i></span>
+            <span class="drhms-billing-btn drhms-previousbill-btn" ng-click="housekeeping()"
+                uib-tooltip="{{'patientemr.mock.housekeeping.lbl' | translate}}" tooltip-placement="bottom"> <i
+                    class="fas fa-broom"></i></span>
+            <span class="drhms-billing-btn drhms-ipbill-btn" ng-click="transport()"
+                uib-tooltip="{{'patientemr.mock.transportrequest.lbl' | translate}}" tooltip-placement="bottom"> <i
+                    class="fas fa-ambulance"></i></span>
+            <span class="drhms-billing-btn drhms-outstandingbill-btn" ng-click="doctor_dashboard()"
+                uib-tooltip="{{'patientemr.mock.emrdashboard.lbl' | translate}}" tooltip-placement="bottom"> <i
+                    class="fas fa-th-large"></i></span>
+            <span class="drhms-billing-btn drhms-home-btn" ng-click="checkedinpatients()" ng-if="context=='emr'"
+                uib-tooltip="{{'patientemr.pmhxdashboard.oplist.lbl' | translate}}" tooltip-placement="bottom"> <i
+                    class="fas fa-user-injured"></i></span>
+            <button type="button" class="drhms-billing-btn drhms-barcode-btn" uib-tooltip="{{'Barcode'}}"
+                tooltip-placement="bottom" ng-click="patientidcard()" ng-show="Encounter.AdmissionStatusId==2">
+                <i class="fa fa-barcode" aria-hidden="true"></i>
+            </button>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-sm-9">
+        <table id="bannerdetails">
+            <tr>
+                <td translate="registration.fullregistration.firstname.lbl"></td>
+                <td class="font_b">{{item.PatientName}}</td>
+                <td translate="billing.claimprocess.mobileno.lbl"></td>
+                <td>{{item.Mobile}}</td>
+
+            </tr>
+            <tr>
+                <td translate="registration.fullregistration.dob/age.lbl"></td>
+                <td>{{item.DOB}} / {{item.Age}}</td>
+                <td translate="registration.registrationcumvisit.address.lbl"></td>
+                <td>{{item.AddressLine1}},{{item.AddressLine2}},{{item.City}},{{item.Country}},{{item.State}}
+                </td>
+
+            </tr>
+            <tr>
+                <td translate="billing.claimprocess.claimmrn.lbl"></td>
+                <td>{{item.MRN}}</td>
+                <td translate="registration.registrationcumvisit.nationality.lbl"></td>
+                <td>{{item.Nationality}}</td>
+            </tr>
+            <tr>
+                <td translate="registration.registrationcumvisit.gender.lbl"> </td>
+                <td>{{item.Gender}}</td>
+                <td translate="registration.fullregistration.insurancename.lbl"></td>
+                <td>{{item.GuarantorName}} </td>
+
+            </tr>
+            <tr>
+                <td translate="registration.registrationcumvisit.iqamanum.lbl"></td>
+                <td> {{item.NationalityId}}</td>
+                <td translate="registration.registrationcumvisit.passport.lbl"></td>
+                <td>{{item.PasspostNumber}}</td>
+
+            </tr>
+            <tr>
+                <td translate="registration.registrationcumvisit.attendername.lbl"></td>
+                <td> {{item.AttenderName}}</td>
+                <td translate="registration.registrationcumvisit.attenderno.lbl"></td>
+                <td>{{item.AttenderPhone}}</td>
+            </tr>
+        </table>
+        <table id="bannerdetails">
+            <div class="unhide-content nopad">
+                <h4 class="col-sm-12 mt0 text-color" translate="registration.registrationcumvisit.patientrecords.lbl">
+                </h4>
+            </div>
+            <tr>
+                <td translate="billing.claimprocess.doctorname.lbl"></td>
+                <td> {{item.DoctorName}}</td>
+                <td translate="registration.registrationcumvisit.department.lbl"></td>
+                <td>{{item.Department}}</td>
+
+            </tr>
+            <tr>
+                <td translate="billing.claimprocess.lastvisitdate.lbl"></td>
+                <td>
+                    <displaydate datetime-val="item.AdmissionDate"></displaydate>
+                </td>
+                <td translate="billing.claimprocess.visitno.lbl"></td>
+                <td>{{item.VisitIdentifier}}</td>
+            </tr>
+            <tr ng-if="item.EncounterTypeId==1">
+                <td translate="registration.checkedinpatients.visittype.lbl"></td>
+                <td>{{item.VisitType}}</td>
+                <td translate="registration.checkedinpatients.encountertype.lbl"></td>
+                <td>{{item.EncounterType}}</td>
+            </tr>
+            <tr ng-if="item.EncounterTypeId==2">
+                <td>WardDetails</td>
+                <td>{{item.WardName}}</td>
+                <td translate="registration.checkedinpatients.encountertype.lbl"></td>
+                <td>{{item.EncounterType}}</td>
+            </tr>
+            <tr>
+                <td translate="Visit Reason"></td>
+                <td> {{item.Remark}}</td>
+                <td translate="Diagnosis"></td>
+                <td>{{item.OtherDiagnosis}}</td>
+
+            </tr>
+        </table>
+    </div>
+    <div class="col-sm-3">
+        <div class="col-sm-12 attachment_image " ng-show="!item.iswebcamphoto">
+            <img class="patient-img img-responsive image-height-control img-thumbnail  center-block ng-hide"
+                tabindex="-1" ng-show="!!currentcontext.file" ngf-thumbnail="currentcontext.file">
+            <img ng-show="!currentcontext.file &amp;&amp; item.PhotoPath"
+                data-ng-src="data:image/png;base64,{{currentcontext.Photo}}" tabindex="-1"
+                class="patient-img img-responsive image-height-control img-thumbnail center-block ng-hide empty_atttach"
+                src="app/img/main/img.jpg">
+            <img ng-show="!currentcontext.file &amp;&amp; !item.PhotoPath" src="app/img/main/img.jpg" tabindex="-1"
+                class="img-responsive image-height-control img-thumbnail center-block empty_atttach">
+        </div></br>
+        <div class="col-sm-12" ng-show="CanshowVideo">
+            <center>
+                <img class="smallicon" ng-click="videoconference()" uib-tooltip="Video Conference"
+                    src="app/img/care img/video.png"></a>
+            </center>
+        </div>
+    </div>
+</div> -->

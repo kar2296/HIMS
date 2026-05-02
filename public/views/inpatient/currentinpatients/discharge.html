@@ -1,0 +1,239 @@
+<style>
+    .form-horizontal .form-group {
+        height: 62px;
+    }
+
+    h4.header {
+        color: #F44336;
+        font-size: 14px !important;
+        padding: 0px 10px;
+    }
+</style>
+<div class="modal-header custom-modal-header">
+    <div class="col-sm-10">
+        <h4 class="modal-title custom-modal-title" ng-module="currentcontext.patinfo">
+            <span class="forpadd">
+                <span>{{Patient.Title.Description}} {{Patient.FirstName}}</span> |
+                <span>{{Patient.MRN}} </span> |
+                <span> {{Patient.Gender.Description}}</span> |
+                <span> {{Patient.Age}} Years </span> |
+                <span>{{Patient.DOB | date : 'dd/MMM/yyyy' }} </span>
+                <span ng-click="patientprofiledetails()"><i class="fas fa-info-circle"></i>
+                </span>
+            </span>
+        </h4>
+    </div>
+    <div class="col-sm-2">
+        <div class="filters">
+            <img src="../../../../../assets/svg/close.svg" ng-click="backToList()">
+        </div>
+    </div>
+</div>
+<div class="row">
+    <h4 class="header" translate="Dischage Advice">
+    </h4>
+    <form id="item_form" name="item_form" class="form-horizontal" role="form">
+        <div class="form-group col-sm-3">
+            <label class="col-sm-12 control-label" for="facility"
+                translate="currentinpatient.dischargetype.lbl"></label>
+            <div class="col-sm-12">
+                <ui-select ng-model="item.DischargeTypeId" name="facility" required>
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 20 : 0}}
+                        <span ng-if="$select.selected.Text.length>20">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.DischargeType | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+        <div class="form-group col-sm-3">
+            <label class="col-sm-12 control-label" for="encountertype"
+                translate="currentinpatient.tentativedischargedate.lbl"></label>
+            <div class="col-sm-12">
+                <input type="text" class="form-control" name="transferredon" ng-date-object
+                    datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}"
+                    uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                    placeholder="{{datePickerOptions.placeholder}}" ng-click="transationfromPopup = { opened: true }"
+                    is-open="transationfromPopup.opened" ng-model="item.Tentativedischargedate">
+            </div>
+        </div>
+        <div class="form-group col-sm-3">
+            <label class="col-sm-12 control-label" for="dischargedoctorid"
+                translate="currentinpatient.dischargedoctor.lbl"></label>
+            <div class="col-sm-12">
+                <autosearch itemid="item.DoctorId" iteminfo="" rowdata="" IsRequired="true"
+                    config="vm.doctorcontrolconfig" itemchange="doctorChange()" candisable="item.isAdmitted">
+                </autosearch>
+                <!-- <ui-select ng-model="item.DoctorId" ng-change="doctorChange($select.selected)" name="doctorid" ng-disabled="item.isAdmitted"
+                                            required>
+                                            <ui-select-match>
+                                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                                <span ng-if="$select.selected.Text.length>20">...</span>
+                                            </ui-select-match>
+                                            <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.Doctor | filter: { Text: $select.search }">
+                                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                            </ui-select-choices>
+                                            </ui-select> -->
+            </div>
+        </div>
+        <div class="form-group col-sm-3">
+            <label class="col-sm-12 control-label" for="isbasic"
+                translate="currentinpatient.dischargedepartment.lbl"></label>
+            <div class="col-sm-12">
+                <ui-select ng-model="item.DepartmentId" name="dischargedepartment">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 20 : 0}}
+                        <span ng-if="$select.selected.Text.length>20">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.Department | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+        <div class="form-group col-sm-3">
+            <label class="col-sm-12 control-label" for="isdefault"
+                translate="currentinpatient.clinicalstatus.lbl"></label>
+            <div class="col-sm-12">
+                <ui-select ng-model="item.ClicalDischargeId" name="primarycategory">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 20 : 0}}
+                        <span ng-if="$select.selected.Text.length>20">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.ClinicalStatus | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+        <div class="form-group col-sm-3">
+            <label class="col-sm-12 control-label" for="comments" translate="currentinpatient.comments.lbl"></label>
+            <div class="col-sm-12">
+                <textarea rows="3" name="comments" ng-disabled="item.isRequested" ng-model="item.Comments"
+                    maxlength="4000" class="notes-textarea"></textarea>
+            </div>
+        </div>
+        <!-- <div class="form-group col-sm-3">
+                                    <label class="col-sm-12 control-label" for="dischargeorderstatus" translate="currentinpatient.dischargeorderstatus.lbl"></label>
+                                    <div class="col-sm-12">
+                                        <ui-select ng-model="item.DischargeorderstatusId" name="dischargeorderstatus">
+                                            <ui-select-match>
+                                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                                <span ng-if="$select.selected.Text.length>20">...</span>
+                                            </ui-select-match>
+                                            <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.DischargeOrderStatus | filter: { Text: $select.search }">
+                                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                            </ui-select-choices>
+                                        </ui-select>
+                                    </div>
+                                </div>
+                                <div class="form-group col-sm-3">
+                                    <label class="col-sm-12 control-label" for="comments" translate="currentinpatient.dischargeorderdate.lbl"></label>
+                                    <div class="col-sm-12">
+                                        <input type="text" class="form-control" name="Chequedate" ng-date-object datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}"
+                                            uib-datepicker-popup="{{datePickerOptions.dateFormat}}" placeholder="{{datePickerOptions.placeholder}}"
+                                   ng-click="activefromPopup = { opened: true }" is-open="activefromPopup.opened"ng-model="item.DischargeOrderDate" >
+                                    </div>
+                                </div>
+                                <div class="form-group col-sm-3">
+                                    <label class="col-sm-12 control-label" for="serviceratecategory" translate="currentinpatient.clinicaldischargedate.lbl"></label>
+                                <div class="col-sm-12">
+                                   <input type="text" class="form-control" name="clinicaldischargedate"ng-change="populateEstimateDisDate()"datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}"datetime-picker="{{datePickerOptions.dateTimeFormat}}" placeholder="{{datePickerOptions.placeholder}}"
+                                            ng-click="activetoPopup = { opened: true }" is-open="activetoPopup.opened" ng-model="item.ClinicalDischargeDate">
+
+                                    </div>
+                                </div> -->
+    </form>
+</div>
+<div class="row">
+    <h4 class="header" translate="Clinical Discharge">
+    </h4>
+    <form id="item_form" name="item_form" class="form-horizontal" role="form">
+        <div class="form-group col-sm-3">
+            <label class="col-sm-12 control-label" for="facility"
+                translate="currentinpatient.infectiontype.lbl"></label>
+            <div class="col-sm-12">
+                <ui-select ng-model="item.InfectiontypeId" name="facility">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 20 : 0}}
+                        <span ng-if="$select.selected.Text.length>20">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.InfectionType | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+        <div class="form-group col-sm-3">
+            <label class="col-sm-12 control-label" for="encountertype" translate="currentinpatient.outcome.lbl"></label>
+            <div class="col-sm-12">
+                <ui-select ng-model="item.OutcomeId" name="encountertype">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 20 : 0}}
+                        <span ng-if="$select.selected.Text.length>20">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.Outcome | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+        <div class="form-group col-sm-3">
+            <label class="col-sm-12 control-label" for="primarycategory"
+                translate="currentinpatient.modeoftransport.lbl"></label>
+            <div class="col-sm-12">
+                <ui-select ng-model="item.ModeofTransportId" name="primarycategory">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 20 : 0}}
+                        <span ng-if="$select.selected.Text.length>20">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.ModeOfTransport | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+        <div class="form-group col-sm-3">
+            <label class="col-sm-12 control-label" for="isbasic" translate="currentinpatient.followupday.lbl"></label>
+            <div class="col-sm-8">
+                <input type="text" class="form-control" name="serviceratecategory" ng-model="item.Followupdays"
+                    placeholder="">
+            </div>
+        </div>
+        <div class="form-group col-sm-3">
+            <label class="col-sm-12 control-label" for="primarycategory" translate="Primary Category"></label>
+            <div class="col-sm-12">
+                <ui-select ng-model="item.PeriodId" name="primarycategory">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 20 : 0}}
+                        <span ng-if="$select.selected.Text.length>20">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.Period | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+    </form>
+</div>
+<div class="">
+    <div class="row">
+        <div class="pull-left">
+            <button id="btnClearForm" ng-if="HasAccess('Clinicaldischargereversebutton', 'Reversebutton')"  type="button" class="draftbutton" ng-click="Reverse()"
+                translate="currentinpatient.reverse.lbl"></button>
+        </div>
+        <div class="pull-right">
+            <button id="btnCancelForm" type="button" class="draftbutton" ng-show="ShowSave"
+                ng-click="save()">Save</button>
+        </div>
+    </div>
+</div>

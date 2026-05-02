@@ -1,0 +1,135 @@
+<link href="app/css/emr.css" rel="stylesheet">
+<style>
+    .col-sm-12.tab-content-div {
+        border: 1px solid gainsboro;
+        padding-left: 0px;
+        margin-top: 7px;
+    }
+
+    .nav-tabs>li {
+        float: left;
+        margin-bottom: 5px;
+        margin-right: 4px;
+        z-index: 999999;
+        background: #e0dada;
+        height: 29px;
+        border-radius: 3px;
+    }
+
+    #notestabs .nav-tabs>li a span {
+        font-weight: 500;
+        font-size: 13px;
+        padding: 0;
+        position: relative;
+        bottom: 3px;
+    }
+
+    #notestabs .nav-tabs>li.active:after {
+        bottom: -17px !important;
+    }
+
+    li.uib-tab a {
+        border: unset !IMPORTANT;
+    }
+
+    .btn-group.col-sm-12 {
+        margin-bottom: 7px;
+    }
+</style>
+<script type="text/ng-template" id="cn-dummy.html">
+    <div class="col-sm-12">
+        No data found!
+    </div>
+</script>
+
+<div class="row page-header">
+    <!-- <h4 class="col-sm-3 mt0" translate="patientemr.consultation.pagetitle.lbl"></h4> -->
+    <div class="col-sm-12">
+        <!-- <div class="header">
+            <span class="con_hdate">{{item.CreatedAt|date:'dd:MM:yyyy'}} {{item.CreatedAt|date:'HH:mm'}}</span>|
+            <span class="con_hname">{{item.Encounter.DoctorName}}</span>|
+            <span class="con_hdesc">{{item.VisitType.Description}}</span>|
+            <span class="con_hmaster">{{item.ProfileMaster.Name}}</span>|
+            <span class="status hnotes">{{item.ProgressNoteStatus.Description}}</span>
+            <span class="con_hstatus" ng-click="update()" uib-tooltip="{{ 'Update' | translate }}" tooltip-placement="bottom">
+                <i class="icon-info-sign btn-circle cust_info" aria-hidden="true"></i>
+            </span>
+        </span>
+        </div> -->
+        <!-- <div class="col-sm-5">
+            <label class="col-sm-4 control-label" translate="patientemr.consultation.consultationname.lbl"></label>
+            <div class="col-sm-8">
+                <ui-select ng-model="cncontext.consultationid" ng-change="consultationChanged()">
+                    <ui-select-match>
+                        {{$select.selected.Name | limitTo : 20 : 0}}
+                        <span ng-if="$select.selected.Name.length>20">...</span>
+                    </ui-select-match>
+                    <ui-select-choices repeat="lookupitem.Id as lookupitem in cncontext.consultations | filter: { Name: $select.search }">
+                        <div ng-bind-html="lookupitem.Name | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div> -->
+        <div class="col-sm-7 pull-right">
+            <!-- <button class="btn bt-color2 btn-xs pull-right btn-filter" ng-click="openConsultModal()"><i class="fa fa-plus" aria-hidden="true"></i><span translate="clinicalmaster.serviceitem-list.addnew.lbl"></span></button> -->
+
+        </div>
+    </div>
+</div>
+
+
+<div class="col-md-12">
+    <div class="col-sm-4 form-group">
+        <label class="col-sm-5 control-label" translate="patientemr.consultation.profile.lbl"></label>
+        <div class="col-sm-21">
+            <ui-select ng-disabled="consultationloaded" ng-model="profileinfo.profileid"
+                ng-change="profilePrefChanged($select.selected)">
+                <ui-select-match>
+                    {{$select.selected.Text | limitTo : 20 : 0}}
+                    <span ng-if="$select.selected.Text.length>20">...</span>
+                </ui-select-match>
+                <ui-select-choices
+                    repeat="lookupitem.Id as lookupitem in lookup.Profile | filter: { Text: $select.search }">
+                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                </ui-select-choices>
+            </ui-select>
+        </div>
+    </div>
+    <div class="col-sm-4" style="margin-top: 34px;">
+        <button class="draftbutton" type="button" ng-disabled="consultationloaded"
+            ng-click="saveItem()">Save</button>
+        <button class="btn btn-danger" type="button" ng-disabled="!consultationloaded"
+            ng-click="deleteItem()">Delete</button>
+    </div>
+    <div class="col-sm-4">
+    </div>
+</div>
+
+
+<div class="row">
+    <div class="col-sm-12">
+        <div class="col-sm-12">
+            <uib-tabset active="active">
+                <uib-tab index="$index" ng-repeat="item in cncontext.tabstop" heading="{{item.title}}"
+                    ng-click="switchTopTab(item)"></uib-tab>
+                <!-- <button class="btn bt-color2 btn-sm pull-right btn-filter" style="background-color: #13D;color: #fff;
+                border: 1px solid #ccc;" ng-click="reviewNote()">
+                <i class="fa fa-file-text-o fa-lg" aria-hidden="true"></i>
+                Review Note</button> -->
+            </uib-tabset>
+        </div>
+        <div class="col-sm-12 side_popup0">
+            <div class="col-sm-12 tab-content-div">
+                <!-- <div ng-include="cncontext.currenttmpl"></div> -->
+                <tab ng-show="cncontext.currentsection" currentsection="cncontext.currentsection"></tab>
+            </div>
+            <!-- <div class="col-sm-1 right-tab" class="formRoot" id="tab-sidebar" style="height:445px";>
+                <ul class="nav nav-tabs tabs-right sideways">
+                    <li ng-repeat="item in cncontext.tabsright">
+                        <a data-toggle="tab" ng-click="switchSideTab(item)">{{item.title}}</a>
+                    </li>
+                </ul>
+            </div> -->
+        </div>
+    </div>
+</div>

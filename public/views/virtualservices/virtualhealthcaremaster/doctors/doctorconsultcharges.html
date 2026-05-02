@@ -1,0 +1,162 @@
+<!-- <style>
+    .form-group {
+        margin-bottom: 28px !important;
+    }
+
+    .panel {
+        margin-bottom: 0px;
+    }
+
+    .formRoot {
+        overflow: auto;
+        height: 495px;
+    }
+
+    .panel-footer {
+        padding: 4px 15px;
+        background-color: #ccecf5;
+        border-top: 1px solid #eeeeee;
+        border-bottom-right-radius: 3px;
+        border-bottom-left-radius: 3px;
+        margin-top: 473px;
+        height: 40px;
+    }
+
+    .page-header {
+        margin: 0px 0px 0px 0px !important;
+    }
+
+    .btn-filter span {
+        color: #000000 !important;
+    }
+
+    .bg-subhead {
+        background-color: #65c4ca !important;
+        color: #fff;
+        font-size: 14px;
+        white-space: nowrap;
+    }
+</style> -->
+<style>
+    .bg-subhead {
+        font-weight: 300 !important;
+        background: #EFEFEF !important;
+        border: 1px solid #D9D9D9 !important;
+        color: #373737 !important;
+        font-size: 13px;
+        white-space: nowrap;
+    }
+</style>
+<div class="row">
+    <button class="btn-add" ng-click="addNew()" uib-tooltip="Hospital" tooltip-placement="bottom">
+        <i class="fa fa-plus" aria-hidden="true"></i>
+    </button>
+</div>
+<div id="inventorytab">
+    <div class="col-sm-12 app_defaultservices" set-tab-grid-height reduce-height="-50" id="servicename">
+        <table class="editable-table table-striped table-bordered">
+            <thead class="bg-subhead">
+                <tr>
+                    <th class="col-sm-2"><span translate="virtualhealth.docconsult.servicename.lbl"></span><span
+                            class="mandatory-asterix">*</span></th>
+                    <th class="col-sm-1"><span translate="virtualhealth.docconsult.qty.lbl"></span><span
+                            class="mandatory-asterix">*</span></th>
+                    <th class="col-sm-1"><span translate="virtualhealth.docconsult.patienttype.lbl"></span><span
+                            class="mandatory-asterix">*</span></th>
+                    <th class="col-sm-2"><span translate="virtualhealth.docconsult.visittype.lbl"></span></th>
+                    <th class="col-sm-1"><span translate="Consult Charges"></span></th>
+                    <th class="col-sm-1"><span translate="virtualhealth.docconsult.discountmode.lbl"></span></th>
+                    <th class="col-sm-2"><span translate="virtualhealth.docconsult.discount.lbl"></span></th>
+                    <th class="col-sm-1"><span translate="virtualhealth.docconsult.eligibledaysfrom.lbl"></span><span
+                            class="mandatory-asterix">*</span></th>
+                    <th class="col-sm-1"><span translate="virtualhealth.docconsult.eligibledays.lbl"></span><span
+                            class="mandatory-asterix">*</span></th>
+                    <th class="col-sm-1"><span translate="virtualhealth.docconsult.noofvisitfree.lbl"></span><span
+                            class="mandatory-asterix">*</span></th>
+                    <th class="col-sm-1"><span translate="clinicalmaster.serviceitemalias-list.status.lbl"></span></th>
+                    <th class="col-sm-1"><span translate="common.actions_col.lbl"></span></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="item in vm.items | filter:{Status:1}">
+                    <td>
+                        <autosearch itemid="item.ServiceItemId" iteminfo="item.SelectedItem" rowdata="item"
+                            config="vm.serviceitemcontrolconfig" class="inputsearchlogo"
+                            itemchange="ServiceItemChanged($index, item)" candisable="item.RdoServiceId"></autosearch>
+                    </td>
+                    <td>
+                        <input type="text" class="form-control" ng-model="item.Quantity" placeholder="">
+                    </td>
+                    <td>
+                        <ui-select ng-model="item.PatientTypeId" class="ui-select-grid">
+                            <ui-select-match>
+                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                <span ng-if="$select.selected.Text.length>20">...</span>
+                            </ui-select-match>
+                            <ui-select-choices
+                                repeat="lookupitem.Id as lookupitem in lookup.EncounterType | filter: { Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                            </ui-select-choices>
+                        </ui-select>
+                    </td>
+                    <td>
+                        <ui-select ng-model="item.VisitTypeId" class="ui-select-grid">
+                            <ui-select-match>
+                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                <span ng-if="$select.selected.Text.length>20">...</span>
+                            </ui-select-match>
+                            <ui-select-choices
+                                repeat="lookupitem.Id as lookupitem in lookup.VisitType | filter: { Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                            </ui-select-choices>
+                        </ui-select>
+                    </td>
+                    <td>
+                        <input type="text" class="form-control" ng-model="item.Rate" placeholder="">
+                    </td>
+                    <td>
+                        <ui-select ng-model="item.DiscountModeId" class="ui-select-grid">
+                            <ui-select-match>
+                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                <span ng-if="$select.selected.Text.length>20">...</span>
+                            </ui-select-match>
+                            <ui-select-choices
+                                repeat="lookupitem.Id as lookupitem in lookup.DiscountMode | filter: { Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                            </ui-select-choices>
+                        </ui-select>
+                    </td>
+                    <td>
+                        <input type="text" class="form-control" ng-model="item.Discount" placeholder="">
+                    </td>
+                    <td>
+                        <input type="text" class="form-control" ng-model="item.EligibleDaysFrom" placeholder="">
+                    </td>
+                    <td>
+                        <input type="text" class="form-control" ng-model="item.EligibleDays" placeholder="">
+                    </td>
+                    <td>
+                        <input type="text" class="form-control" ng-model="item.NooFVisitFree" placeholder="">
+                    </td>
+                    <td align="center">
+                        <input type="checkbox" class="custom-checkbox" ng-model="item.StatusId">
+                    </td>
+                    <td align="center">
+                        <button class="drhms-edit-button" ng-click="deleteItem($index,item)">
+                            <img src="assets/svg/delete.svg" alt=""></button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="fooder-bgs">
+        <div class="pull-left">
+            <button type="button" class=" btn btn-sm pyr-color10" ng-click="backToList()"><i
+                    class="fa fa-angle-left"></i>&nbsp;&nbsp;<span translate="common.backaction.lbl"></span></button>
+        </div>
+        <div class="pull-right">
+            <button id="btnSaveForm" type="button" class="draftbutton" translate="common.saveaction.lbl"
+                ng-click="saveItem()"></button>
+        </div>
+    </div>
+</div>

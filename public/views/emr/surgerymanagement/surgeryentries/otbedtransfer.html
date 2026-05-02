@@ -1,0 +1,402 @@
+<style>
+    .panel-body {
+        overflow: inherit;
+    }
+
+    .custom-modal-header {
+        padding: 0px 11px;
+    }
+
+    .custom-modal-header h4 {
+        margin: 4px 0px;
+        font-size: 14px;
+    }
+
+    .panel-body .well {
+        padding: 0px 19px !important;
+    }
+
+    .panel {
+        margin-bottom: 0;
+    }
+
+    .aside-collapsed .fooder-bg {
+        position: static !important;
+        width: 100%!important;
+        left: 0 !important;
+    }
+
+    .right_comheight {
+        height: 482px;
+        overflow: scroll;
+        overflow-x: hidden;
+    }
+
+    .modal-dialog.modal-full .formRoot {
+        height: 492px;
+    }
+</style>
+<div class="modal-header custom-modal-header">
+    <div class="row">
+        <div class="col-sm-12">
+
+            <h4 class="col-sm-12 active mt0">
+                <span ng-module="currentcontext.patinfo" ng-if="selectedPatient.MRN.length > 0" class="forpadd">
+                    <span>{{selectedPatient.Title.Description}} {{selectedPatient.FirstName}}</span> |
+                    <span>{{selectedPatient.MRN}} </span> |
+                    <span> {{selectedPatient.Gender.Description}}</span> |
+                    <span> {{selectedPatient.Age}} Years </span> |
+                    <span>{{selectedPatient.DOB | date : 'dd/MMM/yyyy' }} </span>
+                    <span ng-click="patientprofiledetails()">
+                        <i class="icon-info-sign"></i>
+                    </span>
+                </span>
+            </h4>
+        </div>
+    </div>
+</div>
+<div class="col-sm-12 fullreg-profiles">
+    <div class="col-sm-4">
+        <span>
+            <em class="text-primary">
+                <span translate="otbedtransfer.requestedon.lbl">
+                </span>
+            </em>
+            <strong style="color: #656565">&nbsp; :
+                <span>{{item.RequestDate|date:'dd-MMM-yyyy'}} {{item.RequestDate|date:'HH:mm'}}</span>
+            </strong>
+        </span>
+    </div>
+    <div class="col-sm-4 border-left-profile">
+        <span>
+            <em class="text-primary">
+                <span translate="otbedtransfer.requestedno.lbl"></span>
+            </em>
+            <strong style="color: #656565">&nbsp; :
+                <label ng-bind="item.RequestIdentifier"></label>
+            </strong>
+        </span>
+    </div>
+    <div class="col-sm-4 border-left-profile">
+        <span>
+            <em class="text-primary">
+                <span translate="otbedtransfer.createdby.lbl"></span>
+            </em>
+            <strong style="color: #656565">&nbsp; :
+                <label>{{item.Created.Title.Description}}&nbsp;{{item.Created.FirstName}}&nbsp;{{item.Created.LastName}}</label>
+            </strong>
+        </span>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-sm-12">
+        <form id="item_form" name="item_form" class="form-horizontal" role="form">
+            <div class="formRoot">
+                <div class="panel panel-default">
+
+                    <div class="panel-body form-panel">
+
+
+                        <div class="col-sm-12">
+
+                            <!-- leftpanel -->
+                            <div class="col-sm-6">
+                                <fieldset class="fsStyle well">
+                                    <legend class="legendStyle">
+                                        <span translate="otbedtransfer.pnlfrombed.lbl"></span>
+                                    </legend>
+                                    <br>
+                                    <div class="form-group">
+                                        <label class="col-sm-4 control-label" translate="otbedtransfer.patient.lbl"></label>
+
+                                        <div class="col-sm-8">
+                                            <patientsearch patientid="item.PatientId" ng-disabled="item.isFrom" class="" name="txtpatientsearch" patientinfo="selectedPatient"
+                                                patientchange="patientChange()" required></patientsearch>
+                                        </div>
+
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-sm-4 control-label" translate="otbedtransfer.facility.lbl"></label>
+                                        <div class="col-sm-8">
+                                            <ui-select ng-model="item.FromFacilityId" ng-disabled="item.isFrom">
+                                                <ui-select-match>
+                                                    {{$select.selected.Text | limitTo : 20 : 0}}
+                                                    <span ng-if="$select.selected.Text.length>20">...</span>
+                                                </ui-select-match>
+                                                <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.Facility | filter: { Text: $select.search }">
+                                                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                                </ui-select-choices>
+                                            </ui-select>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-sm-4 control-label" translate="admission.location.lbl"></label>
+                                        <div class="col-sm-8">
+                                            <ui-select ng-model="item.FromLocationId" ng-disabled="item.isFrom" ng-change="wardLookUp()">
+                                                <ui-select-match>
+                                                    {{$select.selected.Text | limitTo : 20 : 0}}
+                                                    <span ng-if="$select.selected.Text.length>20">...</span>
+                                                </ui-select-match>
+                                                <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.Location | filter: { Text: $select.search }">
+                                                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                                </ui-select-choices>
+                                            </ui-select>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-sm-4 control-label" translate="admission.ward.lbl"></label>
+                                        <div class="col-sm-8">
+                                            <ui-select ng-model="item.FromWardId" ng-disabled="item.isFrom" ng-change="getRoomLookUp()">
+                                                <ui-select-match>
+                                                    {{$select.selected.Text | limitTo : 20 : 0}}
+                                                    <span ng-if="$select.selected.Text.length>20">...</span>
+                                                </ui-select-match>
+                                                <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.Ward | filter: { Text: $select.search }">
+                                                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                                </ui-select-choices>
+                                            </ui-select>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-sm-4 control-label" translate="admission.room.lbl"></label>
+                                        <div class="col-sm-8">
+                                            <ui-select ng-model="item.FromRoomId" ng-disabled="item.isFrom" ng-change="getBedLookUp()">
+                                                <ui-select-match>
+                                                    {{$select.selected.Text | limitTo : 20 : 0}}
+                                                    <span ng-if="$select.selected.Text.length>20">...</span>
+                                                </ui-select-match>
+                                                <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.Room | filter: { Text: $select.search }">
+                                                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                                </ui-select-choices>
+                                            </ui-select>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-sm-4 control-label" translate="admission.bed.lbl"></label>
+                                        <div class="col-sm-8">
+                                            <ui-select ng-model="item.FromBedId" ng-disabled="item.isFrom" ng-change="tariffChange()">
+                                                <ui-select-match>
+                                                    {{$select.selected.Text | limitTo : 20 : 0}}
+                                                    <span ng-if="$select.selected.Text.length>20">...</span>
+                                                </ui-select-match>
+                                                <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.Bed | filter: { Text: $select.search }">
+                                                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                                </ui-select-choices>
+                                            </ui-select>
+                                        </div>
+
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-sm-4 control-label" translate="otbedtransfer.bedcategory.lbl"></label>
+                                        <div class="col-sm-8">
+                                            <ui-select ng-model="item.ServiceRateCategoryId" ng-disabled="item.isFrom">
+                                                <ui-select-match>
+                                                    {{$select.selected.Text | limitTo : 20 : 0}}
+                                                    <span ng-if="$select.selected.Text.length>20">...</span>
+                                                </ui-select-match>
+                                                <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.ServiceRateCategory | filter: { Text: $select.search }">
+                                                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                                </ui-select-choices>
+                                            </ui-select>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-sm-4 control-label" translate="otbedtransfer.primarydoctor.lbl"></label>
+                                        <div class="col-sm-8">
+                                            <ui-select ng-model="item.DoctorId" ng-disabled="item.isFrom">
+                                                <ui-select-match>
+                                                    {{$select.selected.Text | limitTo : 20 : 0}}
+                                                    <span ng-if="$select.selected.Text.length>20">...</span>
+                                                </ui-select-match>
+                                                <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.Doctor | filter: { Text: $select.search }">
+                                                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                                </ui-select-choices>
+                                            </ui-select>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label class="col-sm-4 control-label" translate="otbedtransfer.samebedoccupancy.lbl"></label>
+                                        <div class="col-sm-8">
+                                            <input type="checkbox" class="custom-checkbox" name="samebedoccupancy" ng-disabled="item.DoubleOccupancy" ng-model="item.IsSameBedOccupancy"
+                                                placeholder="">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-sm-4 control-label" translate="otbedtransfer.backtosamebed.lbl"></label>
+                                        <div class="col-sm-8">
+                                            <input type="checkbox" class="custom-checkbox" ng-change="getDoubleOccupancyBed()" name="backsamebed" ng-disabled="!item.DoubleOccupancy"
+                                                ng-model="item.IsBackToSameBed" placeholder="">
+                                        </div>
+                                    </div>
+                                </fieldset>
+
+                            </div>
+
+                            <!-- rightpanel -->
+                            <div class="col-sm-6 right_comheight">
+                                <div class="col-sm-12">
+                                    <fieldset class="fsStyle well" ng-disabled="item.IsBackToSameBed">
+                                        <legend class="legendStyle">
+                                            <span translate="otbedtransfer.pnlotbed.lbl"></span>
+                                        </legend>
+                                        <br>
+                                        <div class="form-group">
+                                            <label class="col-sm-4 control-label" translate="otbedtransfer.facility.lbl"></label>
+                                            <div class="col-sm-8">
+                                                <ui-select ng-model="item.ToFacilityId">
+                                                    <ui-select-match>
+                                                        {{$select.selected.Text | limitTo : 20 : 0}}
+                                                        <span ng-if="$select.selected.Text.length>20">...</span>
+                                                    </ui-select-match>
+                                                    <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.Facility | filter: { Text: $select.search }">
+                                                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                                    </ui-select-choices>
+                                                </ui-select>
+                                            </div>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label class="col-sm-4 control-label" for="ward" translate="bedtransfertab.ward.lbl"></label>
+                                            <div class="col-sm-8">
+                                                <ui-select ng-model="item.ToWardId" name="ward" ng-disabled="item.isTo" ng-change="getRoomLookUp()" required>
+                                                    <ui-select-match>
+                                                        {{$select.selected.Text | limitTo : 20 : 0}}
+                                                        <span ng-if="$select.selected.Text.length>20">...</span>
+                                                    </ui-select-match>
+                                                    <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.Ward | filter: { Text: $select.search }">
+                                                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                                    </ui-select-choices>
+                                                </ui-select>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="col-sm-4 control-label" for="room" translate="otbedtransfer.otroom.lbl"></label>
+                                            <div class="col-sm-8">
+                                                <ui-select ng-model="item.ToRoomId" name="room" ng-disabled="item.isTo" ng-change="getBedLookUp()" required>
+                                                    <ui-select-match>
+                                                        {{$select.selected.Text | limitTo : 20 : 0}}
+                                                        <span ng-if="$select.selected.Text.length>20">...</span>
+                                                    </ui-select-match>
+                                                    <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.Room | filter: { Text: $select.search }">
+                                                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                                    </ui-select-choices>
+                                                </ui-select>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="col-sm-4 control-label" for="Bed" translate="otbedtransfer.otbed.lbl"></label>
+                                            <div class="col-sm-8">
+                                                <ui-select ng-model="item.ToBedId" name="Bed" ng-disabled="item.isTo" ng-change="tariffChange()">
+                                                    <ui-select-match>
+                                                        {{$select.selected.Text | limitTo : 20 : 0}}
+                                                        <span ng-if="$select.selected.Text.length>20">...</span>
+                                                    </ui-select-match>
+                                                    <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.Bed | filter: { Text: $select.search }">
+                                                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                                    </ui-select-choices>
+                                                </ui-select>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="col-sm-4 control-label filter-lbl" for="admissiondate" translate="otbedtransfer.transferdate.lbl"></label>
+                                            <div class="col-sm-8 topright ">
+                                                <input type="text" class="form-control" name="admissiondate" name="admissiondate" datepicker-options="datePickerOptions"
+                                                    show-button-bar="{{datePickerOptions.showButtonBar}}" datetime-picker="{{datePickerOptions.dateTimeFormat}}"
+                                                    placeholder="{{datePickerOptions.placeholder}}" ng-click="AdmissionDatePopup = { opened: true }"
+                                                    is-open="AdmissionDatePopup.opened" ng-model="item.TransferDate" required>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="col-sm-4 control-label" for="AssistantSurgeon" translate="otbedtransfer.surgeon.lbl"></label>
+                                            <div class="col-sm-8">
+                                                <autosearch itemid="item.AssistantSurgeonId" iteminfo="" rowdata="" config="vm.doctorcontrolconfig" itemchange=""
+                                                    candisable=""></autosearch>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="col-sm-4 control-label" for="anesthetist" translate="otbedtransfer.anesthetist.lbl"></label>
+                                            <div class="col-sm-8">
+                                                <ui-select ng-model="item.AnaesthesistId" name="anesthetist" ng-disabled="item.isRequested">
+                                                    <ui-select-match>
+                                                        {{$select.selected.Text | limitTo : 20 : 0}}
+                                                        <span ng-if="$select.selected.Text.length>20">...</span>
+                                                    </ui-select-match>
+                                                    <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.User | filter: { Text: $select.search }">
+                                                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                                    </ui-select-choices>
+                                                </ui-select>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="col-sm-4 control-label" for="Surgery" translate="otbedtransfer.surgeryname.lbl"></label>
+                                            <div class="col-sm-8">
+                                                <autosearch itemid="item.ProcedureId" iteminfo="" rowdata="" config="vm.procedurecontrolconfig" itemchange="" candisable="item.isApproved"></autosearch>
+                                                <!-- <ui-select ng-model="item.ProcedureId" ng-disabled="" ng-change="" name="surgerycategory">
+                                                    <ui-select-match>
+                                                        {{$select.selected.ProcedureName | limitTo : 20 : 0}}
+                                                        <span ng-if="$select.selected.ProcedureName.length>20">...</span>
+                                                    </ui-select-match>
+                                                    <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.Procedure | filter: { ProcedureName: $select.search }">
+                                                        <div ng-bind-html="lookupitem.ProcedureName | highlight: $select.search"></div>
+                                                    </ui-select-choices>
+                                                </ui-select> -->
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="col-sm-4 control-label" translate="otbedtransfer.cleancurrentbed.lbl"></label>
+                                            <div class="col-sm-8">
+                                                <input type="checkbox" class="custom-checkbox" name="cleancurrentbed" ng-model="item.CleanCurrentBedId" placeholder="">
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="col-sm-4 control-label" for="comments" translate="admission.comments.lbl"></label>
+                                            <div class="col-sm-8">
+                                                <textarea rows="3" name="comments" ng-model="item.ReqCompletedComments" maxlength="4000" style="width:100%;" class="notes-textarea"></textarea>
+                                            </div>
+                                        </div>
+                                    </fieldset>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="fooder-bgs">
+                <div class="row ">
+                    <div class="col-sm-12">
+                        <div class="pull-left">
+                            <button class="btn bt-color1 btn-sm" type="button" uib-tooltip="Bed Occupancy History" tooltip-placement="top" ng-click="occupancy()"
+                                translate="BedOccupancy">
+                                </i>
+                            </button>
+
+                            <!--<button class="btn pyr-color10 btn-sm" ng-click="backToList()" ss> <i class="fa fa-angle-left" aria-hidden="true"></i><span class="btn-fontsize"> &nbsp; Back</span></button>
+                            <button class="btn bt-color1 btn-sm" uib-tooltip="Previous Admission" tooltip-placement="top" ng-click="preadmission()"><i class="fa fa-book fa-xs" aria-hidden="true"></i></button>
+                            <button class="draftbutton" uib-tooltip="Attachments" tooltip-placement="top"><i class="fa fa-paperclip fa-xs" aria-hidden="true">&nbsp;&nbsp;(0)</i></button>
+                            <button class="btn btn-info texthover btn-sm ng-scope" uib-tooltip="History" tooltip-placement="top" ng-click="history()"><i class="fa fa-history fa-xs" aria-hidden="true"></i></button>-->
+                        </div>
+                        <div class="pull-right">
+
+                            <!--<button type="button"  class="draftbutton" ng-click="print()" translate="common.printaction.lbl"></button>
+
+                            <button id="btnSave" type="button" class="draftbutton" translate="common.saveaction.lbl" ng-click="save()"></button>
+                            <button id="btnSaveApprove" type="button" class="btn dem-color4 text-white btn-sm" translate="housekeeprequest.saveapprove-action.lbl"
+                                ng-click="saveAndApprove()"></button>-->
+                            <!--<button id="btnClearForm" type="button" class="btn btn-warning btn-sm" ng-if="compltebtn" ng-click="Savecomplete()"  translate="otbedtransfer.complete.lbl"></button>-->
+                            <button id="btnClearForm" type="button" class="btn btn-warning btn-sm" ng-if="HasPrivilege('BedTransfer', 'BT_Complete')&&item.RequestedStatusId!=3" ng-click="Savecomplete()"
+                                translate="otbedtransfer.complete.lbl"></button>
+                            <button id="btnSaveApprove" type="button" class="btn dem-color4 text-white btn-sm" ng-if="item.RequestedStatusId!=2 && item.RequestedStatusId!=3"
+                                translate="housekeeprequest.saverequest.lbl" ng-click="saveAndApprove()"></button>
+                            <button id="btnSave" type="button" class="draftbutton" ng-if="item.RequestedStatusId!=3" translate="common.saveaction.lbl"
+                                ng-click="save()"></button>
+                            <button id="btnCancelForm" type="button" class="draftbutton" ng-if="item.RequestedStatusId!=3" ng-click="cancelCallback()"
+                                translate="common.cancelaction.lbl"></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

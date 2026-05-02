@@ -1,0 +1,93 @@
+<link rel="stylesheet" href="app/css/drhms.css">
+<div class="row">
+    <div class="drhms-filters">
+        <div class="col-sm-10">
+            <h4 translate="inventory.openingstockentry.pagetitle.lbl"></h4>
+        </div>
+        <div class="col-sm-4">
+            <input type="text" class="form-control textbox-search" on-enter="getList()"
+                ng-model="currentfilter.StockEntryNumber" placeholder="Ref #">
+        </div>
+        <div class="col-sm-1">
+            <button type="button" ng-click="addNew()" class="drhms-billing-btn drhms-add-btn"
+                uib-tooltip="{{ 'inventory.openingstockentrys.addnew-tooltip.lbl' | translate }}"
+                tooltip-placement="bottom">
+                <i class="fa fa-plus" aria-hidden="true"></i>
+            </button>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="form-group col-sm-2">
+        <label class="col-sm-12" translate="inventory.openingstockentrys.date.lbl"></label>
+        <div class="col-sm-12">
+            <div class="datepicker">
+                <input type="text" class="form-control" name="podate" ng-change="getList()"
+                    datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}"
+                    uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                    placeholder="{{datePickerOptions.placeholder}}" ng-click="fromdatedatePopup = { opened: true }"
+                    is-open="fromdatedatePopup.opened" ng-model="currentfilter.From">
+                <i class="fa fa-calendar" aria-hidden="true"></i>
+            </div>
+        </div>
+    </div>
+    <div class="form-group col-sm-2">
+        <label class="col-sm-12" translate="inventory.openingstockentrys.todate.lbl"></label>
+        <div class="col-sm-12">
+            <div class="datepicker">
+                <input type="text" class="form-control" name="podate" ng-change="getList()"
+                    datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}"
+                    uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                    placeholder="{{datePickerOptions.placeholder}}" ng-click="todatePopup = { opened: true }"
+                    is-open="todatePopup.opened" ng-model="currentfilter.To">
+                <i class="fa fa-calendar" aria-hidden="true"></i>
+            </div>
+        </div>
+    </div>
+    <div class="form-group col-sm-2">
+        <label class="col-sm-12" translate="inventory.openingstockentrys.store.lbl"></label>
+        <div class="col-sm-12">
+            <ui-select ng-model="currentfilter.StoreMasterId" ng-change="getList()" class="filter-combo">
+                <ui-select-match>
+                    {{$select.selected.Text | limitTo : 8 : 0}}
+                    <span ng-if="$select.selected.Text.length>8">...</span>
+                </ui-select-match>
+                <ui-select-choices
+                    repeat="lookupitem.Id as lookupitem in lookup.UserStores | filter: { Text: $select.search }">
+                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                </ui-select-choices>
+            </ui-select>
+        </div>
+    </div>
+    <div class="form-group col-sm-2">
+        <label class="col-sm-12" translate="inventory.openingstockentrys.stockentrystatus.lbl"></label>
+        <div class="col-sm-12">
+            <multiselectchk list="lookup.StockEntryStatus" selected="currentfilter.StockEntryStatusId"
+                change="getList()"></multiselectchk>
+        </div>
+    </div>
+    <div class="form-group col-sm-2">
+        <label class="col-sm-12" translate="Facility"></label>
+        <div class="col-sm-12">
+            <ui-select ng-model="currentfilter.FacilityId" ng-change="getList()" class="filter-combo">
+                <ui-select-match>
+                    {{$select.selected.Text | limitTo : 30 : 0}}
+                    <span ng-if="$select.selected.Text.length>8">...</span>
+                </ui-select-match>
+                <ui-select-choices
+                    repeat="lookupitem.Id as lookupitem in lookup.Facility | filter: { Text: $select.search }">
+                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                </ui-select-choices>
+            </ui-select>
+        </div>
+    </div>
+</div>
+
+<div class="fooder-bgs">
+    <div class="row">
+        <custom-table config="vm.gridConfig"></custom-table>
+        <ul uib-pagination total-items="vm.gridConfig.pagerObj.totalItems"
+            items-per-page="vm.gridConfig.pagerObj.pageSize" start-index="vm.gridConfig.pagerObj.startIndex"
+            ng-model="vm.gridConfig.pagerObj.currentPage" ng-change="getList()"></ul>
+    </div>
+</div>

@@ -1,0 +1,121 @@
+<style>
+    .padding-top1 {
+        padding-top: 1px;
+    }
+
+
+    .padding-top1 .col-sm-4 {
+        padding-left: 2px;
+        padding-right: 2px;
+    }
+
+    .table-uigrid {
+        margin-left: 10px;
+        margin-right: 10px;
+        height: 486px !important;
+    }
+
+    .icon_home {
+        width: 5%;
+        float: right;
+    }
+
+    .single-filter .ui-grid-render-container-body .ui-grid-viewport {
+        height: 459px !important;
+    }
+
+    @media(min-width:1360px) and (min-height:675px) {
+        .single-filter .ui-grid-render-container-body .ui-grid-viewport {
+            min-height: 473px;
+            height: 438px !important;
+        }
+    }
+
+    @media(min-width:1200px) and (min-height:637px) {
+        .single-filter .ui-grid-render-container-body .ui-grid-viewport {
+            min-height: 438px;
+            height: 435px !important;
+        }
+    }
+
+    .single-filter .ui-grid-render-container-body .ui-grid-viewport {
+        height: 64vh;
+        min-height: 64vh;
+    }
+
+    @media (device-width:100vw) and (device-height:100vh) {
+        .single-filter .ui-grid-render-container-body .ui-grid-viewport {
+            height: 74vh;
+            min-height: 74vh;
+        }
+    }
+</style>
+
+<div class="row page-header">
+    <h4 class="col-sm-6 mt0" translate="billing.doctorshare.pagetitle.lbl"></h4>
+    <div class="col-sm-6 padding-top5">
+        <button class="btn bt-color2 btn-xs pull-right btn-filter" ng-click="addNew()" uib-tooltip="{{ 'billing.doctorshare.pagetitle.lbl' | translate}}"
+            tooltip-placement="bottom">
+            <i class="fa fa-plus" aria-hidden="true"></i>
+            <span translate="billing.doctorshare.addnew.lbl"></span>
+        </button>
+    </div>
+</div>
+<div class="row filter-area">
+    <div class="col-sm-12">
+        <div class="col-sm-4">
+            <label class="col-sm-5 control-label filter-lbl" translate="billing.doctorshare.drshareclass.lbl"></label>
+            <div class="col-sm-7">
+                <ui-select ng-model="currentfilter.DoctorClassId" ng-change="getList()" class="filter-combo">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 8 : 0}}
+                        <span ng-if="$select.selected.Text.length>8">...</span>
+                    </ui-select-match>
+                    <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.DoctorClass | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <label class="col-sm-5 control-label filter-lbl" translate="billing.doctorshare.feetype.lbl"></label>
+            <div class="col-sm-7">
+                <ui-select ng-model="currentfilter.ShareTypeId" ng-change="getList()" class="filter-combo">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 8 : 0}}
+                        <span ng-if="$select.selected.Text.length>8">...</span>
+                    </ui-select-match>
+                    <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.ShareType | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <label class="col-sm-5 control-label filter-lbl" translate="billing.doctorshare.status.lbl"></label>
+            <div class="col-sm-7">
+                <ui-select ng-model="currentfilter.ActiveStatusId" ng-change="getList()" class="filter-combo">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 8 : 0}}
+                        <span ng-if="$select.selected.Text.length>8">...</span>
+                    </ui-select-match>
+                    <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.ActiveStatus | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container-fluid single-filter">
+    <div ui-grid="vm.gridConfig" class="table-uigrid bill_creditnote"></div>
+</div>
+
+
+<div class="fooder-bgs">
+    <div class="col-sm-12">
+        <ul uib-pagination total-items="vm.gridConfig.pagerObj.totalItems" items-per-page="vm.gridConfig.pagerObj.pageSize"
+            start-index="vm.gridConfig.pagerObj.startIndex" ng-model="vm.gridConfig.pagerObj.currentPage" ng-change="getList()"></ul>
+    </div>
+</div>

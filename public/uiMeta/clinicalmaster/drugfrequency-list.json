@@ -1,0 +1,50 @@
+{
+    "Title" : "Drug Frequency List",
+    "ControllerName" : "drugFrequencyList",
+    "InitAction" : {
+        "url" : "General/Options/getoptions",
+        "behaviour" : "default",
+        "optionkeys" : [  {"name" : "Facility"} , {"name" : "DrugFrequencyType"}, {"name" : "ActiveStatus"} ]
+    },
+    "FilterConfig" :[ {
+        "localizationpath" : "clinicalmaster.drugfrequency-list",
+        "controls" :[
+               { "combo" : true, "label" : "Facility", "name" : "filter_facility", "model" : "currentfilter.FacilityId", "placeholder" : "", "collection" : "lookup.Facility", "valuefield" : "Id", "displayfield" : "Text" },
+               { "text" : true, "label" : "Name/Code", "name" : "filter_namecode", "model" : "currentfilter.Name", "placeholder" : "" },
+               { "combo" : true, "label" : "Type", "name" : "filter_drugfrequencytype", "model" : "currentfilter.DrugFrequencyTypeId", "placeholder" : "", "collection" : "lookup.DrugFrequencyType", "valuefield" : "Id", "displayfield" : "Text" },
+               { "combo" : true, "label" : "Status", "name" : "filter_status", "model" : "currentfilter.StatusId", "placeholder" : "", "collection" : "lookup.Status", "valuefield" : "Id", "displayfield" : "Text" }
+         ]
+        }
+    ],
+    "FetchAction" : {
+        "url" : "clinicalmaster/DrugFrequency/GetDrugFrequencys",
+        "behaviour" : "default"
+    },
+    "EditAction" : {
+                "url": "",
+                "state": "app.drugfrequency",
+                "params": ["id:row.entity.Id"]
+                },
+    "AddAction" : {
+        "url": "",
+        "state": "app.drugfrequency",
+        "params": ["id:0"]
+        },
+    "DeleteAction" : {
+        "url": "clinicalmaster/DrugFrequency/DeleteDrugFrequency",
+        "behaviour" : "default"
+    },
+    "Localization" : { "localizationmodule" : "clinicalmaster", "screenkey" : "drugfrequency-list" },
+    "GridConfig" :[ {
+        "localizationpath" : "clinicalmaster.drugfrequency-list",
+        "columnDefs": [ { "field": "Facility.FacilityName", "displayName": "Facility", "name" : "facility" } ,
+                        { "field": "Code", "displayName": "Code", "name" : "code" } ,
+                        { "field": "Name", "displayName": "Frequency Name", "name" : "name" } ,
+                        { "field": "DrugFrequencyType.Description", "displayName": "Type", "name" : "type" },
+                        { "field": "DrugFrequencySIGCode.Description", "displayName": "SIG Code", "name" : "sigcode" },
+                        { "field": "NoOfTimes", "displayName": "No Of Times", "name" : "nooftimes" },
+                        { "field": "StatusTODO", "displayName": "Status", "name" : "status" }
+                    ]
+        }
+    ]
+}

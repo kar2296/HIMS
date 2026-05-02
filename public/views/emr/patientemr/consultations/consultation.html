@@ -1,0 +1,124 @@
+<style>
+    /* History-notess-css */
+    /* label.btn.btn-sm.width.btn-custom-radio.btn-default-tab {
+         background: #46761b;
+        color: #fafafa;
+        border-radius: 0;
+        margin-right: 2px;
+    } */
+
+    label.btn.btn-sm.width.btn-custom-radio.btn-default-tab.ng-not-empty.ng-dirty.btn-primary {
+        color: #000000 !important;
+        background: #006c9a !important;
+        height: 32px;
+        border: 1px solid #006c9a;
+        border-radius: 3px;
+        box-shadow: rgb(50 50 93 / 25%) 0px 2px 5px -1px, rgb(0 0 0 / 30%) 0px 1px 3px -1px;
+    }
+</style>
+<script type="text/ng-template" id="cn-dummy.html">
+    <div class="col-sm-12">
+        No data found!
+    </div>
+</script>
+<div class="row page-header">
+    <div class="col-sm-12">
+        <h4 class="mt0" translate="Notes"></h4>
+    </div>
+    <!-- <div class="col-sm-4">
+        <div class="pull-right">
+            <span class="drhms-billing-btn drhms-outstandingbill-btn" ng-click="doctor_dashboard()" uib-tooltip="{{'patientemr.pmhxdashboard.doctordashboard.lbl' | translate}}" tooltip-placement="bottom">
+                <i class="fas fa-th-large" aria-hidden="true"></i>
+            </span>
+            <span class="drhms-billing-btn drhms-home-btn" ng-click="checkedinpatients()" uib-tooltip="{{'patientemr.pmhxdashboard.oplist.lbl' | translate}}" tooltip-placement="bottom">
+                <i class="fas fa-user-injured"></i>
+            </span>
+        </div>
+    </div> -->
+</div>
+
+<emrpatientbanner ng-if="Context=='emr'||Context=='vorders'" patientid="currentcontext.pid" encounterid="currentcontext.eid">
+</emrpatientbanner>
+<ippatientbanner ng-if="Context=='ipemr'||context=='aeemr'" patientid="currentcontext.pid" encounterid="currentcontext.eid">
+</ippatientbanner>
+
+<div class="row">
+    <!-- <div class="col-sm-12">
+        <div class="header">
+            <emrpatientbanner ng-if="Context=='emr'" patientid="currentcontext.pid" encounterid="currentcontext.eid">
+            </emrpatientbanner>
+            <ippatientbanner ng-if="Context=='ipemr'" patientid="currentcontext.pid" encounterid="currentcontext.eid">
+            </ippatientbanner>
+            <div class="col-sm-7 pull-right">
+            </div>
+        </div>
+    </div> -->
+
+    <div ng-show="cncontext.canshowaddnew">
+        <div class="col-md-12" style="padding: 5px; border: 1px solid gray;border-radius: 5px;">
+            <div class="col-sm-3 form-group">
+                <label class="col-sm-5 control-label" translate="patientemr.consultation.profile.lbl"></label>
+                <div class="col-sm-7">
+                    <ui-select ng-model="item.ProfileId">
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 20 : 0}}
+                            <span ng-if="$select.selected.Text.length>20">...</span>
+                        </ui-select-match>
+                        <ui-select-choices
+                            repeat="lookupitem.Id as lookupitem in lookup.Profile | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+            <div class="col-sm-3 form-group">
+                <label class="col-sm-5 control-label" translate="patientemr.consultation.consultationname.lbl"></label>
+                <div class="col-sm-7">
+                    <input type="text" class="form-control" name="cosultationname" ng-model="item.Name" placeholder="">
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <button ng-if="canUpdatePatientEMR()" class="btn btn-primary btn-xs" type="button"
+                    ng-click="saveItem()">Save</button>
+                <button class="btn btn-danger btn-xs" type="button" ng-click="closeConsultModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+    <div ng-show="cncontext.canshowuserpref">
+        <div class="col-md-12" style="padding: 5px; border: 1px solid gray;border-radius: 5px;">
+            <div class="col-sm-4 form-group">
+                <label class="col-sm-5 control-label" translate="patientemr.consultation.profile.lbl"></label>
+                <div class="col-sm-7">
+                    <ui-select ng-model="prefcontext.profileid" ng-change="profilePrefChanged($select.selected)">
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 20 : 0}}
+                            <span ng-if="$select.selected.Text.length>20">...</span>
+                        </ui-select-match>
+                        <ui-select-choices
+                            repeat="lookupitem.Id as lookupitem in lookup.Profile | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+            <div class="col-sm-4">
+                <button ng-if="canUpdatePatientEMR()" class="btn btn-primary btn-xs" type="button"
+                    ng-click="saveUserPref()">Save</button>
+                <button class="btn btn-danger btn-xs" type="button" ng-click="closeUserPref()">Cancel</button>
+            </div>
+            <div class="col-sm-4">
+            </div>
+        </div>
+    </div>
+</div>
+<div id="receipt_tab">
+    <div class="row">
+        <div class="col-sm-12">
+            <uib-tabset active="active">
+                <uib-tab index="$index" ng-repeat="item in cncontext.tabstop" heading="{{item.title}}"
+                    ng-click="switchTopTab(item)"></uib-tab>
+            </uib-tabset>
+            <tab ng-show="cncontext.currentsection" currentsection="cncontext.currentsection"></tab>
+        </div>
+    </div>
+</div>

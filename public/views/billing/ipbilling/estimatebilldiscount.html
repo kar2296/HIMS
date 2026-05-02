@@ -1,0 +1,149 @@
+<style>
+    .container-fluid {
+        margin-left: 0px;
+        margin-right: 0px;
+        margin-bottom: 0px;
+        background-image: url(app/img/bg-body.jpg);
+        background-repeat: repeat;
+    }
+
+    .panel-footer {
+        padding: 2px 15px !important;
+        ;
+    }
+
+    /* .modal-content {
+            height: 500px !important;
+        } */
+
+    .modal-lg {
+        width: 1200px !important;
+    }
+
+    .modal-content #mainresponsivetablecontrol {
+        height: 204px !important;
+    }
+
+    .custom-table {
+        margin-bottom: 0px !important;
+    }
+
+    pre {
+        display: block;
+        padding: 2px;
+        margin: 0 0 10.5px;
+        font-size: 12px;
+        line-height: 1.52857143;
+        word-break: break-all;
+        word-wrap: break-word;
+        color: #a70808;
+        /* background-color: #7f6cb9; */
+        /* border: 1px solid #cccccc; */
+        /* border-radius: 4px; */
+    }
+
+    b,
+    strong {
+        font-weight: 700;
+        color: darkblue;
+    }
+
+    .bg-subhead {
+        background-color: #11679a;
+        color: #fff;
+        font-size: 16px;
+        font-weight: 500;
+    }
+
+    .modal-dialog.modal-lg .modal-content {
+        height: 25vh !important;
+        width: 85vh !important;
+    }
+
+    .modal-dialog.modal-lg .modal-content td {
+        border: 1px solid gray;
+        font-weight: 500;
+    }
+
+    .modal-dialog.modal-lg .modal-content .btn:focus {
+        border: 1px solid #000;
+    }
+
+    td.cus-col.tbl-header {
+        padding: 0px;
+    }
+
+    .po_list td {
+        padding: 2px !important;
+    }
+
+    .po_body {
+        padding: 2px;
+    }
+
+    table input[type=search],
+    input[type=text],
+    span.btn.btn-default.form-control.ui-select-toggle {
+        height: 32px;
+    }
+
+</style>
+
+
+<div class="modal-header custom-modal-header">
+    <div class="col-sm-12">
+        <div class="col-sm-8 col-lg-7 col-md-7">
+            <h4 class="modal-title custom-modal-title" translate="billing.estimatebilldiscount.pagetitle.lbl"></h4>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-sm-12">
+        <form id="item_form" name="item_form" class="form-horizontal well" role="form">
+            <div class=" form-group">
+                <label class="col-sm-4 control-label " for="totnet" translate="billing.estimatebilldiscount.netamount.lbl" readonly></label>
+                <div class="col-sm-6">
+                    <input type="text" class="form-control" name="totnet" ng-disabled="true" ng-model="currentcontext.totnet" placeholder="">
+                </div>
+            </div>
+            <div class=" form-group">
+                <label class="col-sm-4 control-label " for="discountvalue" translate="billing.estimatebilldiscount.discount.lbl" readonly></label>
+                <div class="col-sm-6">
+                    <input type="text" class="form-control" id="discountvalue" name="discountvalue" ng-keyup="DiscountChange()"  ng-model="currentcontext.BillDiscount"
+                        placeholder="">
+                </div>
+            </div>
+            <div class=" form-group">
+                <label class="col-sm-4 control-label " for="headerdiscountmode" translate="billing.estimatebilldiscount.dicountmode.lbl" readonly></label>
+                <div class="col-sm-6" id="widthctrl">
+                    <ui-select ng-model="currentcontext.DiscountModeId" ng-change="DiscountChange()" name="headerdiscountmode">
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 20 : 0}}
+                            <span ng-if="$select.selected.Text.length>20">...</span>
+                        </ui-select-match>
+                        <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.DiscountMode | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+            <div class=" form-group">
+                <label class="col-sm-4 control-label " for="totdiscountvalue" translate="billing.estimatebilldiscount.totaldiscount.lbl" readonly></label>
+                <div class="col-sm-6">
+                    <input type="text" class="form-control" name="totdiscountvalue" ng-disabled="true" ng-model="currentcontext.TotDiscAmount"
+                        placeholder="">
+                </div>
+            </div>
+
+        </form>
+        <div class="panel-footer formactionbar clearfix">
+                <div class="col-sm-7"></div>
+                <div class="col-sm-3 pull-right">
+                    <button type="button" class="draftbutton" ng-click="cancelCallback()">Cancel</button>
+                    <button type="button" id="btnsubmit" class="draftbutton" ng-click="saveAndApprove()">Save</button>
+                </div>
+                <div class="col-sm-2"></div>
+            </div>
+    </div>
+    </div>

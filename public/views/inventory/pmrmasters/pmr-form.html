@@ -1,0 +1,155 @@
+<link href="app/css/billing-pharmacy-customs.css" rel="stylesheet">
+<style>
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    input.form-control {
+        border-radius: 10px !important;
+    }
+</style>
+<div id="pmrmaster">
+    <div class="row page-header">
+        <h4 class="col-sm-2 page-header" translate="inventory.pmrmaster.pagetitle1.lbl"></h4>
+    </div>
+    <div class="row ">
+        <div class="col-sm-12">
+            <form id="item_form" name="item_form" role="form">
+                <div class="row">
+                    <div class="form-group col-sm-4">
+                        <label class="col-sm-5 control-label" for="code"
+                            translate="inventory.pmrmaster.code.lbl"></label>
+                        <div class="input-group col-sm-7">
+                            <input type="text" class="form-control" on-enter="getList()" name="code"
+                                ng-model="item.PMRCode" required translate
+                                translate-attr-placeholder="inventory.pmrmaster.code.lbl">
+                        </div>
+                    </div>
+                    <div class="form-group col-sm-4">
+                        <label class="col-sm-5 control-label" for="name"
+                            translate="inventory.pmrmaster.name.lbl"></label>
+                        <div class="input-group col-sm-7">
+                            <input type="text" class="form-control" on-enter="getList()" name="name"
+                                ng-model="item.PMRName" required translate
+                                translate-attr-placeholder="inventory.pmrmaster.name.lbl">
+                        </div>
+                    </div>
+                    <div class="form-group col-sm-4">
+                        <label class="col-sm-5 control-label" for="category"
+                            translate="inventory.pmrmaster.category.lbl"></label>
+                        <div class="input-group col-sm-7">
+                            <ui-select ng-model="item.PMRCategoryId" name="category" required>
+                                <ui-select-match>
+                                    {{$select.selected.Text | limitTo : 20 : 0}}
+                                    <span ng-if="$select.selected.Text.length>20">...</span>
+                                </ui-select-match>
+                                <ui-select-choices
+                                    repeat="lookupitem.Id as lookupitem in lookup.PMRCategory | filter: { Text: $select.search }">
+                                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                </ui-select-choices>
+                            </ui-select>
+                        </div>
+                    </div>
+                    <div class="form-group col-sm-4">
+                        <label class="col-sm-5 control-label" for="procedurename"
+                            translate="inventory.pmrmaster.procedurename.lbl"></label>
+                        <div class="col-sm-7 input-group">
+                            <autosearch itemid="item.ProcedureId" itemchange="onProcedureSelected($select.selected)"
+                                iteminfo="" rowdata="" name="'Surgery'" config="vm.procedurecontrolconfig" itemchange=""
+                                isrequired="true"></autosearch>
+                        </div>
+                    </div>
+                    <div class="form-group col-sm-4">
+                        <label class="col-sm-5 control-label" for="speciality"
+                            translate="inventory.pmrmaster.speciality.lbl"></label>
+                        <div class="input-group col-sm-7">
+                            <ui-select ng-model="item.SpecialityId" name="speciality" required>
+                                <ui-select-match>
+                                    {{$select.selected.Text | limitTo : 20 : 0}}
+                                    <span ng-if="$select.selected.Text.length>20">...</span>
+                                </ui-select-match>
+                                <ui-select-choices
+                                    repeat="lookupitem.Id as lookupitem in lookup.Department | filter: { Text: $select.search }">
+                                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                </ui-select-choices>
+                            </ui-select>
+                        </div>
+                    </div>
+                    <div class="form-group col-sm-4">
+                        <label class="col-sm-5 control-label" for="active"
+                            translate="inventory.pmrmaster.active.lbl"></label>
+                        <div class="col-sm-7 input-group">
+                            <input type="checkbox" class="custom-checkbox" name="active" ng-model="item.IsActive">
+                        </div>
+                    </div>
+                </div>
+                <div class=" table-control">
+                    <div class=" bg-pattern">
+                        <div class="table-height formRoot" id="mainresponsivetablecontrol">
+                            <table class="table table-hover table-responsive table-bordered">
+                                <thead class="bg-subhead">
+                                    <tr>
+                                        <th>
+                                            <span translate="inventory.pmrmaster.itemname.lbl"></span>
+                                        </th>
+                                        <th>
+                                            <span translate="inventory.pmrmaster.genericname.lbl"></span>
+                                        </th>
+                                        <th>
+                                            <span translate="inventory.pmrmaster.producttype.lbl"></span>
+                                        </th>
+                                        <th>
+                                            <span translate="inventory.pmrmaster.quantity.lbl"></span>
+                                        </th>
+                                        <th>
+                                            <span translate="inventory.pmrmaster.action.lbl"></span>
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr ng-repeat="item in pmrDetails | filter:{Status:1}">
+                                        <td class="text-center" style="width: 30%;">
+                                            <autosearch itemid="item.ItemMasterId" rowdata="item"
+                                                iteminfo="item.SelectedItem" config="vm.itemmastercontrolconfig"
+                                                itemchange="OnItemselected($index, item)"></autosearch>
+                                        </td>
+                                        <td style="width: 30%;">
+                                            <span> {{item.GenericName}}</span>
+                                        </td>
+                                        <td style="width: 20%;">
+                                            <span> {{item.ProductType }}</span>
+                                        </td>
+                                        <td class="text-center" style="width: 10%;">
+                                            <input type="number" class="form-control" ng-model="item.Quantity">
+                                        </td>
+                                        <td style="width: 10%;">
+                                            <button type="button" class="btn btn-danger btn-xs"
+                                                ng-click="deletePMRDetail(item,$index)" ng-disabled="false">
+                                                <i class="fa fa-trash" aria-hidden="true"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<div class="col-sm-12 fooder-bgs">
+    <div class="pull-left">
+        <button type="button" class="btn pyr-color10 btn-sm" uib-tooltip="Back to List" tooltip-placement="top"
+            tabindex="-1" ng-click="backToList()">
+            <i class="fa fa-angle-left" aria-hidden="true"></i>
+            <strong class="btn-fontsize"> &nbsp; Back</strong>
+        </button>
+    </div>
+    <div class="pull-right">
+        <button type="button" class="draftbutton" translate="common.saveaction.lbl" ng-hide="item.ActiveStatusId>=2"
+            ng-click="save()"></button>
+        <button type="button" class="draftbutton" translate="common.saveapprove-action.lbl"
+            ng-click="saveandapprove()"></button>
+    </div>
+</div>

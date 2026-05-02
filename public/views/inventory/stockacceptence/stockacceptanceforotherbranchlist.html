@@ -1,0 +1,109 @@
+<link rel="stylesheet" href="app/css/drhms.css">
+<div class="row">
+    <div class="drhms-filters">
+        <div class="col-sm-8">
+            <h4 translate="Stock Acceptance For Other Branch"></h4>
+        </div>
+        <div class="col-sm-4">
+            <input type="text" class="form-control textbox-search" on-enter="getList()" ng-model="currentfilter.StockTransferAcceptNo"
+                translate translate-attr-placeholder="Search Voucher #">
+        </div>
+        <div class="col-sm-3">
+            <button type="button" class="draftbutton" ng-click="print()">
+                <i class="fa fa-print" aria-hidden="true"></i> Preview
+            </button>
+            <span class="drhms-billing-btn drhms-home-btn" ng-if="Context =='store'|| Context =='pharmacy'|| Context =='nursing'  || Context =='surgery'">
+                <i class="fas fa-home" ng-click="backtoList()" uib-tooltip="Dashboard" tooltip-placement="bottom"></i>
+            </span>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="form-group col-sm-3">
+        <label class="col-sm-4" for="toFacility" translate="My Facility"></label>
+        <div class="col-sm-8">
+            <ui-select ng-model="currentfilter.FacilityId" name="toFacility" ng-change="getList()">
+                <ui-select-match>
+                    {{$select.selected.Text | limitTo : 20 : 0}}
+                    <span ng-if="$select.selected.Text.length>20">...</span>
+                </ui-select-match>
+                <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.Facility | filter: { Text: $select.search }">
+                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                </ui-select-choices>
+            </ui-select>
+        </div>
+    </div>
+    <div class="form-group col-sm-3">
+        <label class="col-sm-4" for="store" translate="inventory.stocktransfers.store.lbl"></label>
+        <div class="col-sm-8">
+            <ui-select ng-model="currentfilter.StoreMasterId" ng-change="getList()" name="store" required>
+                <ui-select-match>
+                    {{$select.selected.Text | limitTo : 20 : 0}}
+                    <span ng-if="$select.selected.Text.length>20">...</span>
+                </ui-select-match>
+                <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.UserStores | filter: { Text: $select.search }">
+                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                </ui-select-choices>
+            </ui-select>
+        </div>
+    </div>
+    <div class="form-group col-sm-3">
+        <label class="col-sm-4" for="FromFacility" translate="To Facility"></label>
+        <div class="col-sm-8">
+            <ui-select ng-model="currentfilter.ToFacilityId" name="FromFacility" ng-change="getstore()">
+                <ui-select-match>
+                    {{$select.selected.Text | limitTo : 20 : 0}}
+                    <span ng-if="$select.selected.Text.length>20">...</span>
+                </ui-select-match>
+                <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.Facility | filter: { Text: $select.search }">
+                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                </ui-select-choices>
+            </ui-select>
+        </div>
+    </div>
+
+
+    <div class="form-group col-sm-3">
+        <label class="col-sm-4" for="fromstore" translate="From Store"></label>
+        <div class="col-sm-8">
+            <ui-select ng-model="currentfilter.ToStoreMasterId" name="fromstore" ng-change="getList()">
+                <ui-select-match>
+                    {{$select.selected.Text | limitTo : 20 : 0}}
+                    <span ng-if="$select.selected.Text.length>20">...</span>
+                </ui-select-match>
+                <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.ToStore | filter: { Text: $select.search }">
+                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                </ui-select-choices>
+            </ui-select>
+        </div>
+    </div>
+    <div class="form-group col-sm-3">
+        <label class="col-sm-4" for="requestnumber" translate="inventory.stocktransfers.requestnumber.lbl"></label>
+        <div class="col-sm-8">
+            <input type="text" class="form-control" on-enter="getList()" ng-model="currentfilter.RequestNumber" translate translate-attr-placeholder="inventory.stocktransfers.requestnumber.lbl">
+        </div>
+    </div>
+    <div class="form-group col-sm-3">
+        <label class="col-sm-4" for="acceptancestatus" translate="inventory.stocktransfers.transferstatus.lbl"></label>
+        <div class="col-sm-8">
+            <multiselectchk list="lookup.AcceptanceStatus" selected="currentfilter.AcceptanceStatusId" change="getList()"></multiselectchk>
+        </div>
+    </div>
+    <div class="form-group col-sm-3">
+        <label class="col-sm-4" for="transferdate" translate="inventory.stocktransfers.transferdate.lbl"></label>
+        <div class="col-sm-8">
+            <input type="text" class="form-control" name="transferdate" ng-change="getList()" ng-date-object uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                placeholder="{{datePickerOptions.placeholder}}" ng-click="transferdatePopup = { opened: true }" is-open="transferdatePopup.opened"
+                ng-model="currentfilter.TransferDate">
+        </div>
+    </div>
+</div>
+<div class="row">
+    <custom-table config="vm.gridConfig"></custom-table>
+</div>
+<div class="fooder-bgs">
+    <div class="row">
+        <ul uib-pagination total-items="vm.gridConfig.pagerObj.totalItems" items-per-page="vm.gridConfig.pagerObj.pageSize" start-index="vm.gridConfig.pagerObj.startIndex"
+            ng-model="vm.gridConfig.pagerObj.currentPage" ng-change="getList()"></ul>
+    </div>
+</div>

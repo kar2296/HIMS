@@ -1,0 +1,220 @@
+<style>
+    .card {
+        background: #fff;
+        min-height: 118px;
+        box-shadow: none;
+        position: relative;
+        transition: .5s;
+        border: 1px solid #f2f2f2;
+        border-radius: 0
+    }
+
+    .card .title {
+        position: relative;
+        z-index: 1;
+        border-left: 5px solid #01c0c8;
+        padding: 1px 0 0px 38px;
+        color: #01c0c8;
+        font-size: 34px;
+        font-weight: 600;
+        text-transform: uppercase
+    }
+
+    .card .title span {
+        font-size: 13px;
+        display: block;
+        margin: 0;
+        line-height: 18px;
+        font-weight: 600;
+        color: #444
+    }
+
+    .card .title .msg {
+        font-size: 13px;
+        color: #666;
+        display: block;
+        margin: 0;
+        padding: 0;
+        font-weight: normal;
+        line-height: 18px;
+        margin-top: 10px;
+        text-transform: none
+    }
+
+    .fontsize {
+        font-size: 16px;
+        font-weight: 700;
+        padding: 0px 7px
+    }
+
+    .bgfoot .btn-sm,
+    .btn-group-sm>.btn {
+        padding: 0px 6px;
+        font-size: 10px;
+        line-height: 1.5;
+        border-radius: 3px
+    }
+
+    .topright .dropdown-menu {
+        top: -60px !important;
+        left: 15px !important;
+        max-height: 120px
+    }
+
+    .padding-top1 {
+        padding-top: 1px
+    }
+
+    .page-header h4 {
+        padding-top: 2px;
+        height: 7px;
+        padding-left: 17px
+    }
+
+    #opbillingcontrol .formRoot {
+        height: 476px !important
+    }
+
+    #opbillingcontrol .table-control {
+        height: 478px !important;
+        overflow: auto
+    }
+
+
+
+    .container {
+        width: 100%;
+    }
+
+    #cndropdownctrl .ui-select-bootstrap>.ui-select-choices {
+        width: 100%;
+        height: auto;
+        height: 85px;
+        overflow-x: hidden;
+        margin-top: -1px;
+    }
+
+    .bgfoot .ui-select-match-text {
+        width: 98px !important;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .fs-12 input[type=text] {
+        margin-bottom: 13px;
+    }
+
+    .ui-select-container {
+        padding: 4px 0px 0px 2px;
+    }
+</style>
+
+
+<link href="app/css/billing-pharmacy-customs.css" rel="stylesheet">
+
+<!---Header-->
+<div id="opbillingcontrol">
+    <div class="row ">
+        <div class="col-sm-12 ">
+            <div class=" table-control">
+                <div class=" bg-pattern">
+                    <div class="table-height formRoot " id="mainresponsivetablecontrol">
+                        <table class="table table-hover table-responsive table-bordered">
+                            <thead class="bg-subhead">
+                                <tr>
+                                    <th class="col-sm-2"><span
+                                            translate="generalmaster.supplementary.itemcode.lbl"></span>
+                                    </th>
+                                    <th class="col-sm-2"><span
+                                            translate="generalmaster.supplementary.facility.lbl"></span>
+                                    </th>
+                                    <th class="col-sm-2"><span
+                                            translate="generalmaster.supplementary.category.lbl"></span>
+                                    </th>
+                                    <th class="col-sm-2"><span translate="generalmaster.supplementary.qty.lbl"></span>
+                                    </th>
+                                    <th class="col-sm-2"><span
+                                            translate="generalmaster.supplementary.printorder.lbl"></span>
+                                    </th>
+                                    <th class="col-sm-2"><span
+                                            translate="generalmaster.supplementary.status.lbl"></span>
+                                    </th>
+                                    <th class="col-sm-1"><span translate="common.actions_col.lbl"></span></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-repeat="item in Details | filter:{Status:1}">
+                                    <td>
+                                        <autosearch itemid="item.ServiceItemId" iteminfo="item.SelectedItem"
+                                            name="'service'" rowdata="item" config="vm.serviceitemcontrolconfig"
+                                            itemchange="ServiceItemChanged(item)" class="inputsearchlogo"
+                                            candisable="item.RdoServiceId" isrequired="true"></autosearch>
+                                    </td>
+                                    <td>
+                                        <ui-select ng-model="item.FacilityId" class="ui-select-grid">
+                                            <ui-select-match>
+                                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                                <span ng-if="$select.selected.Text.length>20">...</span>
+                                            </ui-select-match>
+                                            <ui-select-choices
+                                                repeat="lookupitem.Id as lookupitem in lookup.Facility | filter: { Text: $select.search }">
+                                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                            </ui-select-choices>
+                                        </ui-select>
+                                    </td>
+                                    <td>
+                                        <ui-select ng-model="item.ServiceCategoryId" class="ui-select-grid">
+                                            <ui-select-match>
+                                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                                <span ng-if="$select.selected.Text.length>20">...</span>
+                                            </ui-select-match>
+                                            <ui-select-choices
+                                                repeat="lookupitem.Id as lookupitem in lookup.ServiceCategory | filter: { Text: $select.search }">
+                                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                            </ui-select-choices>
+                                        </ui-select>
+                                    </td>
+                                    <td>
+                                        <input type="text" class="form-control" ng-model="item.Quantity" placeholder=""
+                                            ng-keypress="numberonly($event)">
+                                    </td>
+                                    <td>
+                                        <input type="text" class="form-control" ng-model="item.PrintOrder"
+                                            placeholder="" ng-keypress="numberonly($event)">
+                                    </td>
+                                    <td align="center">
+                                        <input type="checkbox" class="custom-checkbox"
+                                            ng-model="item.GuarantorSupplementaryStatus">
+                                    </td>
+                                    <td align="center">
+                                        <button type="button" class="drhms-edit-button"
+                                            ng-click="deleteDetail(item)">
+                                            <img src="assets/svg/delete.svg" alt="">
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <!-- grid area ends -->
+                    </div>
+                </div>
+            </div>
+
+            <div class="fooder-bgs">
+                <div class="col-sm-12">
+                    <button type="button" class="pull-left btn btn-sm pyr-color10" ng-click="backToList()"><i
+                            class="fa fa-angle-left"></i>&nbsp;&nbsp;<span
+                            translate="common.backaction.lbl"></span></button>
+                    <div class="pull-right">
+                        <button id="btnSaveForm" type="button" class="draftbutton" translate="common.saveaction.lbl"
+                            ng-click="saveItem()"></button>
+                        <!--<button type="button" class="btn btn-primary btn-sm" translate="common.saveapprove-action.lbl" ng-click="saveAndApprove()"></button>-->
+                        <button id="btnClearForm" type="button" class="btn btn-warning btn-sm" ng-click="clear()"
+                            translate="common.clearaction.lbl"></button>
+                        <!--<button id="btnCancelForm" type="button" class="draftbutton" ng-click="back()" translate="common.cancelaction.lbl"></button>-->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

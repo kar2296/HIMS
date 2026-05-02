@@ -1,0 +1,205 @@
+<style>
+    .form-group {
+        height: 42px;
+    }
+    #banner td, th {
+    padding: 4px;
+}
+</style>
+<div class="row">
+    <div class="col-sm-9">
+        <h4 translate="kitchenworklist.pagetitle.lbl"></h4>
+    </div>
+    <div class="col-sm-3">
+        <div class="filters">
+            <div class="search">
+                <input type="text" id="drhms-patinet-search-box" class="form-control" name="filter_patient"
+                    on-enter="getList()" ng-model="currentfilter.patient" translate
+                    translate-attr-placeholder="patientemr.patientdietorder-list.filter_patient.lbl">
+                <div class="drhms-search-icon"><i class="fas fa-search" aria-hidden="true"></i></div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-sm-4 form-group">
+        <label class="col-sm-4" translate="kitchenworklist.ward_filter.lbl"></label>
+        <div class="col-sm-8">
+            <ui-select ng-model="currentfilter.WardId" ng-change="getList()" class="filter-combo">
+                <ui-select-match>
+                    {{$select.selected.Text | limitTo : 20 : 0}}
+                    <span ng-if="$select.selected.Text.length>20">...</span>
+                </ui-select-match>
+                <ui-select-choices
+                    repeat="lookupitem.Id as lookupitem in lookup.Ward | filter: { Text: $select.search }">
+                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                </ui-select-choices>
+            </ui-select>
+        </div>
+    </div>
+    <div class="col-sm-4 form-group">
+        <label class="col-sm-4" translate="kitchenworklist.fromdate_filter.lbl"></label>
+        <div class="col-sm-8">
+            <div class="datepicker">
+                <input type="text" class="form-control" name="fromdate" ng-change="getList()"
+                    datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}"
+                    uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                    placeholder="{{datePickerOptions.placeholder}}" ng-click="fromdatePopup = { opened: true }"
+                    is-open="fromdatePopup.opened" ng-model="currentfilter.OrderRequestDate">
+                <i class="fa fa-calendar" aria-hidden="true"></i>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-4 form-group">
+        <label class="col-sm-4" translate="patientemr.patientdietorder-list.order.lbl"
+            ng-if="canShowPatientFilter()"></label>
+        <div class="col-sm-8" ng-if="canShowPatientFilter()">
+            <input type="text" class="form-control" name="order" on-enter="getList()"
+                ng-model="currentfilter.OrderNumber" placeholder="Order#">
+        </div>
+    </div>
+    <div class="col-sm-4 form-group">
+        <label class="col-sm-4" translate="patientemr.patientdietorder-list.filter_priority.lbl"></label>
+        <div class="col-sm-8">
+            <ui-select ng-model="currentfilter.orderpriorityid" ng-change="getList()" class="filter-combo">
+                <ui-select-match>
+                    {{$select.selected.Text | limitTo : 20 : 0}}
+                    <span ng-if="$select.selected.Text.length>20">...</span>
+                </ui-select-match>
+                <ui-select-choices
+                    repeat="lookupitem.Id as lookupitem in lookup.OrderPriority | filter: { Text: $select.search }">
+                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                </ui-select-choices>
+            </ui-select>
+        </div>
+    </div>
+    <div class="col-sm-4 form-group">
+        <label class="col-sm-4" translate="kitchenworklist.frequency.lbl"></label>
+        <div class="col-sm-8">
+            <ui-select ng-model="currentfilter.DietFrequencyId" ng-change="getList()" class="filter-combo">
+                <ui-select-match>
+                    {{$select.selected.Text | limitTo : 20 : 0}}
+                    <span ng-if="$select.selected.Text.length>20">...</span>
+                </ui-select-match>
+                <ui-select-choices
+                    repeat="lookupitem.Id as lookupitem in lookup.DietFrequency | filter: { Text: $select.search }">
+                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                </ui-select-choices>
+            </ui-select>
+        </div>
+    </div>
+    <div class="col-sm-4 form-group">
+        <label class="col-sm-4" translate="patientemr.patientdietorder-list.filter_status.lbl"></label>
+        <div class="col-sm-8">
+            <ui-select ng-model="currentfilter.OrderStatusId" ng-change="getList()" class="filter-combo">
+                <ui-select-match>
+                    {{$select.selected.Text | limitTo : 20 : 0}}
+                    <span ng-if="$select.selected.Text.length>20">...</span>
+                </ui-select-match>
+                <ui-select-choices
+                    repeat="lookupitem.Id as lookupitem in lookup.OrderStatus | filter: { Text: $select.search }">
+                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                </ui-select-choices>
+            </ui-select>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <table style="width: 100%;">
+        <thead class="bg-subhead">
+            <tr>
+                <th class="col-sm-1">
+                    <span>
+                        <input type="checkbox" ng-model="currentcontext.selectall" ng-click="selectAllItems()">
+                        <!-- ng-disabled="(item.SampleStatusId==3 || item.SampleStatusId==5)"> -->
+                    </span>
+                </th>
+                <th translate="patientemr.patientdietorder-list.patient.lbl"></th>
+                <th translate="patientemr.patientdietorder-list.number.lbl"></th>
+                <th translate="patientemr.patientdietorder-list.orderedby.lbl"></th>
+                <th translate="patientemr.patientdietorder-list.ordereddateandtime.lbl"></th>
+                <th translate="Frequency"></th>
+                <!-- <th translate="patientemr.patientdietorder-list.scheduledateandtime.lbl"></th> -->
+                <th translate="patientemr.patientdietorder-list.orderfrom.lbl"></th>
+                <th translate="patientemr.patientdietorder-list.orderto.lbl"></th>
+                <th translate="patientemr.patientdietorder-list.status.lbl"></th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr ng-repeat="item in DietOrders" ng-hide="item.OrderStatus=='CANCELLED'">
+                <td>
+                    <center>
+                        <span>
+                            <input type="checkbox" class="case" ng-disabled="item.IsAllReadOnly"
+                                ng-model="item.IsAllSelected" ng-click="SelectionChange(DietOrders, item)" />
+                        </span>
+                        <!-- <span ng-if="item.SampleTypeIndex > 0"
+                        style="white-space: normal;">&nbsp;</span> -->
+                    </center>
+                </td>
+                <td>
+                    {{item.Patient.Title.Description}}.{{item.Patient.FirstName}}&nbsp;{{item.Patient.LastName}}
+
+                </td>
+                <td>{{item.OrderNumber}}</td>
+                <td>{{item.CreatedUser.Title.Description}}&nbsp;{{item.CreatedUser.FirstName}}&nbsp;{{item.CreatedUser.LastName}}
+                </td>
+                <td>
+                    <displaydate datetime-val="item.OrderRequestDate"></displaydate>
+                </td>
+                <td>{{item.DietFrequency.Description}}</td>
+                <!-- <td>
+                <displaydate datetime-val="item.OrderScheduleDate"></displaydate>
+            </td> -->
+                <td>{{item.WardMaster.WardName}}&nbsp;/&nbsp;{{item.WardRoomMaster.RoomNo}}&nbsp;/&nbsp;{{item.WardRoomBedMaster.BedNo}}
+                </td>
+                <td>{{item.DietName}}</td>
+                <td>{{item.OrderStatus}}</td>
+            </tr>
+            <tr ng-repeat="item in DietOrders" style="background-color: salmon;"
+                ng-show="item.OrderStatus=='CANCELLED'">
+                <td>
+                    <center>
+                        <span>
+                            <input type="checkbox" class="case" ng-disabled="item.IsAllReadOnly"
+                                ng-model="item.IsAllSelected" ng-click="SelectionChange(DietOrders, item)" />
+                        </span>
+                        <!-- <span ng-if="item.SampleTypeIndex > 0"
+                        style="white-space: normal;">&nbsp;</span> -->
+                    </center>
+                </td>
+                <td>
+                    {{item.Patient.Title.Description}}.{{item.Patient.FirstName}}&nbsp;{{item.Patient.LastName}}
+
+                </td>
+                <td>{{item.OrderNumber}}</td>
+                <td>{{item.CreatedUser.Title.Description}}&nbsp;{{item.CreatedUser.FirstName}}&nbsp;{{item.CreatedUser.LastName}}
+                </td>
+                <td>
+                    <displaydate datetime-val="item.OrderRequestDate"></displaydate>
+                </td>
+                <td>{{item.DietFrequency.Description}}</td>
+                <!-- <td>
+                <displaydate datetime-val="item.OrderScheduleDate"></displaydate>
+            </td> -->
+                <td>{{item.WardMaster.WardName}}&nbsp;/&nbsp;{{item.WardRoomMaster.RoomNo}}&nbsp;/&nbsp;{{item.WardRoomBedMaster.BedNo}}
+                </td>
+                <td>{{item.DietName}}</td>
+                <td>{{item.OrderStatus}}</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+<div class="fooder-bgs">
+    <div class="row">
+        <div class="pull-right">
+            <button type="button" class="draftbutton" ng-click="print()" translate="common.printaction.lbl"></button>
+            <button type="button" class="draftbutton" translate="Execute" ng-show="canShowexcuteBtn"
+                ng-click="excute()"></button>
+            <button type="button" class="draftbutton" translate="Complete" ng-show="canShowcompleteBtn"
+                ng-click="completed()"></button>
+            <button id="btnCancelForm" type="button" class="draftbutton" ng-show="canShowcancelBtn"
+                ng-click="saveCancelled()" translate="patientemr.patientdietorder-form.cancelorder.lbl"></button>
+        </div>
+    </div>
+</div>

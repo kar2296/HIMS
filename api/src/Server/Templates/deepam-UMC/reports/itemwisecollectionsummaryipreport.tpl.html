@@ -1,0 +1,97 @@
+<html>
+
+<head>
+  <style>
+    .table1 {
+      border: 1px solid black;
+      font-size: 15px;
+    }
+
+    .table2 {
+      border: 1px solid black;
+      border-top: 0px solid black;
+      font-size: 15px;
+    }
+
+    {{include '/Templates/assets/css/core.css'}}
+  </style>
+</head>
+
+<body>
+  <div id="pageHeader">
+    {{{include '/Templates/deepam-UMC/common/header.tpl.html' 'tpl'}}}
+  </div>
+    <div style="text-align:center;font-size: 15px;"><b>Item Wise Collection Summary For IP</b></div>
+    <table class="table1" style="width:100%;">
+      <tr style='vertical-align: top'>
+        <td style="width:5%;"><b>FromDate</b></td>
+        <td>:</td>
+        <td style="width:15%;"><b>{{data.FromDate}}</b></td>
+        <td style="width:5%;"><b>ToDate</b></td>
+        <td>:</td>
+        <td style="width:15%;"><b>{{data.ToDate}}</b></td>
+        <td style="width:5%;"><b>Billing Group</b></td>
+        <td>:</td>
+        <td style="width:25%;"><b>{{data.BillingGroup}}</b></td>
+        <td style="width:5%;"><b>Doctor Name</b></td>
+        <td>:</td>
+        <td style="width:25%;"><b>{{data.DoctorName}}</b></td>
+      </tr>
+      <tr style='vertical-align: top'>
+        <td><b>Billing Service</b></td>
+        <td>:</td>
+        <td><b>{{data.BillingService}}</b></td>
+      </tr>
+    </table>
+  </br>
+    <table class="table1" style="width:100%;">
+      <tr>
+        <td style="width:5%;"><b>S.No</b></td>
+        <td style="width:10%"><b>Date</b></td>
+        <td style="width:5%"><b>Bill No</b></td>
+        <td style="width:10%"><b>Patient Name</b></td>
+        <td style="width:10%"><b>MRN</b></td>
+        <td style="width:10%"><b>Doctor Name</b></td>
+        <td style="width:10%"><b>Service Name</b></td>
+        <td style="width:10%"><b>Amount</b></td>
+        <td style="width:10%"><b>Dis Amt</b></td>
+        <td style="width:10%"><b>Net Amt</b></td>
+        <td style="width:10%"><b>Doc Share</b></td>
+      </tr>
+    </table>
+    <table class="table2" style="width:100%;">
+      {{#each data.PatientBillDetails}}
+      <tr>
+        <td style="width:5%;">{{inc @index}}</td>
+        <td style="width:10%">{{datetimeformat BillDateTime}}</td>
+        <td style="width:5%">{{PatientBill.BillNumber}}</td>
+        <td style="width:10%">{{PatientBill.Patient.Title.Description}} {{PatientBill.Patient.FirstName}} {{PatientBill.Patient.LastName}}</td>
+        <td style="width:10%">{{PatientBill.Patient.MRN}}</td>
+        <td style="width:10%">{{User.Title.Description}} {{User.FirstName}} {{User.LastName}}</td>
+        <td style="width:10%">{{ServiceName}}</td>
+        <td style="width:10%;">{{currencyformat Rate}}</td>
+        <td style="width:10%">{{currencyformat DiscountAmount}}</td>
+        <td style="width:10%">{{currencyformat Amount}}</td>
+        <td style="width:10%">{{currencyformat DoctorShare}}</td>
+      </tr>{{/each}}
+    </table>
+    <table class="table2" style="width:100%;">
+      <tr>
+        <td style="width:5%;"></td>
+        <td style="width:10%"></td>
+        <td style="width:5%"></td>
+        <td style="width:10%"></td>
+        <td style="width:10%"></td>
+        <td style="width:10%"></td>
+        <td style="width:10%"></td>
+        <td style="width:10%;">{{currencyformat data.TotalAmount}}</td>
+        <td style="width:10%">{{currencyformat data.TotalDisAmount}}</td>
+        <td style="width:10%">{{currencyformat data.TotalNetAmount}}</td>
+        <td style="width:10%">{{currencyformat data.TotalDocshare}}</td>
+      </tr>
+    </table>
+
+  </body>
+  <div style="width:100%; font-size:15px;">Printed On: {{now}}</div>
+
+</html>

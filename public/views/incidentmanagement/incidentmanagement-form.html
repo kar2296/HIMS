@@ -1,0 +1,86 @@
+<div class="modal-header custom-modal-header">
+    <div class="col-sm-10">
+        <h4 class="modal-title custom-modal-title" translate="taskmanagement.incidentmanagement.lbl"></h4>
+    </div>
+    <div class="col-sm-2">
+        <div class="filters">
+            <img src="../../../../../assets/svg/close.svg" ng-click="cancelCallback()">
+        </div>
+    </div>
+</div>
+<div class="row">
+    <form id="item_form" name="item_form" class="form-horizontal" role="form">
+        <div class="form-group col-sm-4">
+            <label class="col-sm-12 control-label" for="date" translate="taskmanagement.date.lbl"></label>
+            <div class="col-sm-12">
+                <input type="text" class="form-control" name="Chequedate" ng-date-object datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}"
+                    uib-datepicker-popup="{{datePickerOptions.dateFormat}}" placeholder="{{datePickerOptions.placeholder}}" ng-click="activefromPopup = { opened: true }"
+                    is-open="activefromPopup.opened" ng-model="item.IncidentDate">
+            </div>
+        </div>
+        <div class="form-group col-sm-4">
+            <label class="col-sm-12 control-label" for="TaskTypeId" translate="taskmanagement.type.lbl"></label>
+            <div class="col-sm-12">
+                <ui-select ng-model="item.IncidentTypeId" on-select="OnSelectPurchaseUOM($select.selected)" name="TaskTypeId">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 20 : 0}}
+                        <span ng-if="$select.selected.Text.length>20">...</span>
+                    </ui-select-match>
+                    <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.IncidentType | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+        <div class="form-group col-sm-4">
+            <label class="col-sm-12 control-label" for="task" translate="taskmanagement.description.lbl"></label>
+            <div class="col-sm-12">
+                <textarea rows="" name="task" required ng-model="item.IncidentDescription" maxlength="7000" style="width:100%;" ng-disabled="item.OpenedStatus"></textarea>
+            </div>
+        </div>
+        <div class="form-group col-sm-4">
+            <label class="col-sm-12 control-label" for="priority" translate="taskmanagement.priority.lbl"></label>
+            <div class="col-sm-12">
+                <ui-select ng-model="item.PriorityId" on-select="OnSelectPurchaseUOM($select.selected)" name="priority" required autofocus
+                    required>
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 20 : 0}}
+                        <span ng-if="$select.selected.Text.length>20">...</span>
+                    </ui-select-match>
+                    <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.Priority | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+        <div class="form-group col-sm-4">
+            <label class="col-sm-12 control-label" translate="taskmanagement.assignto.lbl"></label>
+            <div class="col-sm-12">
+                <autosearch itemid="item.AssignedTo" iteminfo="" name="username" rowdata="" config="vm.usercontrolconfig" itemchange="" placeholder="'Assign To'">
+                </autosearch>
+                <!-- <ui-select ng-model="item.AssignedTo" name="assignto" autofocus required>
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 20 : 0}}
+                        <span ng-if="$select.selected.Text.length>20">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.User | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select> -->
+            </div>
+        </div>
+    </form>
+</div>
+<div class="">
+    <div class="row">
+        <div class="pull-right">
+            <!-- <button type="button"   class="draftbutton" translate="common.saveaction.lbl" ng-click="save()"></button> -->
+            <button type="button" class="draftbutton" translate="taskmanagement.assign.lbl" ng-if="Canshowassignbtn" ng-click="saveandApprove()"></button>
+            <!-- <button type="button" class="draftbutton" translate="taskmanagement.complete.lbl"  ng-if="Canshowcompletebtn" ng-click="saveandApprove()"></button>
+            <button id="btnClearForm" type="reset" class="btn btn-warning btn-sm" ng-click="clear()"   ng-if="Canshowcancelbtn" translate="taskmanagement.cancel.lbl"></button> -->
+            <!-- <button id="btnCancelForm" type="button" class="draftbutton" ng-click="backToList()" translate="common.cancelaction.lbl"></button> -->
+            <!-- <button id="btnCancelForm" type="button" class="btn btn-danger btn-sm ng-scope" ng-click="cancelCallback()" translate="common.cancelaction.lbl"><span class="ng-scope">Cancel</span></button> -->
+        </div>
+    </div>
+</div>

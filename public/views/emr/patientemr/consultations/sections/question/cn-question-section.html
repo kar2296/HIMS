@@ -1,0 +1,338 @@
+<link href="app/css/emr.css" rel="stylesheet">
+<!-- question section css -->
+<style>
+    .selection-btn {
+        width: 160px;
+        text-overflow: ellipsis;
+        overflow: hidden;
+        white-space: nowrap;
+        border: none;
+        background: none;
+        padding-bottom: 0px;
+        /* padding-top: 3px; */
+        color: #000;
+    }
+
+    .btn.btn-default {
+        border: none;
+    }
+
+    .data_name,
+    .data_range,
+    .data_uom,
+    .lefcol1,
+    .lefcol2,
+    .lefcol3 {
+        margin-bottom: 0px;
+    }
+
+    .page-header input[type=text] {
+        margin-bottom: 10px !important;
+    }
+
+    .btn-default:hover {
+        background: transparent;
+    }
+
+    .form-horizontal input,
+    input[type=text] {
+        margin-bottom: 6px !important;
+        margin-top: 6px !important;
+    }
+
+    i.fas.fa-info-circle {
+        margin-top: 8px;
+    }
+
+    textarea {
+        width: 100% !important;
+    }
+
+    a.btn-add {
+        background-color: #dce512;
+        padding: 3px 6px;
+        color: #fff;
+        border: 0px;
+        border-radius: 50%;
+    }
+</style>
+<!--control templates starts-->
+<script type="text/ng-template" id="qn-text.html">
+    <div class="form-group col-sm-12">
+        <label class="col-sm-4 control-label no-pad">{{item.ConceptName}}</label>
+        <div class="col-sm-5">
+            <input type="text" class="form-control consult_txt" ng-model="modeldata[item.model].resultvalue">
+        </div>
+    </div>
+</script>
+
+<script type="text/ng-template" id="qn-email.html">
+    <div class="form-group col-sm-12">
+        <label class="col-sm-4 control-label">{{item.ConceptName}}</label>
+        <div class="col-sm-5">
+            <input type="email" class="form-control" style="border:1px solid;" ng-model="modeldata[item.model].resultvalue">
+        </div>
+    </div>
+</script>
+<script type="text/ng-template" id="qn-combo.html">
+    <div class="form-group col-sm-12">
+        <label class="col-sm-4 control-label">{{item.ConceptName}}</label>
+        <div class="col-sm-5">
+            <ui-select ng-model="modeldata[item.model].resultvalue">
+                <ui-select-match>
+                    {{$select.selected.TermName | limitTo : 20 : 0}}
+                    <span ng-if="$select.selected.TermName.length>20">...</span>
+                </ui-select-match>
+                <ui-select-choices repeat="lookupitem.Code as lookupitem in item.Terms | filter: { TermName: $select.search }">
+                    <div ng-bind-html="lookupitem.TermName | highlight: $select.search"></div>
+                </ui-select-choices>
+            </ui-select>
+        </div>
+    </div>
+</script>
+<script type="text/ng-template" id="qn-date.html ">
+    <div class="form-group col-sm-12">
+        <label class="col-sm-4 control-label">{{item.ConceptName}}</label>
+        <div class="col-sm-5">
+            <!-- <input type="text" class="form-control" name="startdateandtime"  ng-date-object datetime-picker="{{datePickerOptions.dateTimeFormat}}"
+                placeholder="{{datePickerOptions.placeholder}}" ng-click="toPopup = { opened: true }" is-open="toPopup.opened"
+                ng-model="modeldata[item.model].resultvalue"><i class="fa fa-calendar date_cal" aria-hidden="true" ng-click="datePopup = { opened: true }"></i> -->
+            <input type="text" class="form-control" ng-date-object uib-datepicker-popup="{{datePickerOptions.dateFormat}}" placeholder="{{datePickerOptions.placeholder}}" ng-click="datePopup = { opened: true }" is-open="datePopup.opened" ng-model="modeldata[item.model].resultvalue">
+            <i class="fa fa-calendar date_cal" aria-hidden="true" ng-click="datePopup = { opened: true }"></i>
+
+        </div>
+    </div>
+</script>
+<script type="text/ng-template" id="qn-textarea.html">
+    <div class="form-group col-sm-12">
+        <label class="col-sm-4 control-label">{{item.ConceptName}}</label>
+        <div class="col-sm-5">
+            <!-- <div class="col-sm-5"> -->
+            <textarea rows="3" cols="30" class="textarea" ng-model="modeldata[item.model].resultvaluerichtext"></textarea>
+            <!-- </div> -->
+        </div>
+        <div class="col-sm-1">
+            <a class="infosummary" ng-click="opennotes(item)">
+                <i class="fas fa-info-circle"></i> </a>
+
+                <a class="infosummary" ng-click="adduser(item)">
+                    <i class="fas fa-notes-medical"></i> </a>
+        </div>
+</script>
+<script type="text/ng-template" id="qn-checkbox.html">
+    <div class="form-group">
+        <label class="col-sm-3 control-label" style="padding-top: 6px !important;">{{item.ConceptName}}</label>
+        <div class="col-sm-3">
+            <input type="checkbox" class="custom-checkbox" ng-model="modeldata[item.model].resultvalue">
+        </div>
+    </div>
+</script>
+<script type="text/ng-template" id="qn-boolean.html">
+    <div class="form-group col-sm-12">
+        <label class="col-sm-4 control-label">{{item.ConceptName}}</label>
+        <div class="col-sm-8">
+            <radiogroupcontrol itemid="modeldata[item.model].resultvalue" items="lookup.booleanValues"></radiogroupcontrol>
+        </div>
+    </div>
+</script>
+
+<!-- <script type="text/ng-template" id="qn-termbased-single.html">
+    <div class="form-group col-sm-12 chief_compliants">
+        <label class="col-sm-3 control-label custlbl">{{item.ConceptName}}</label>
+        <div class="col-sm-9 cust_vitalsbtn">
+            <div class="term-opt" ng-repeat="term in item.Terms">
+                <div uib-tooltip="{{term.TermName}}" tooltip-placement="top" class="term-opt btn-group cust_btnouter"
+                    ng-model="modeldata[item.model].resultvalue" uib-btn-radio="'{{term.Code}}'" title="{{term.TermName}}">
+                    <button class="btn btn-mini" data-toggle="button" ng-click="termSelection(item, term)"><span>{{term.TermName}}</span></button>
+                </div>
+                <div class="term-opt">
+                    <button ng-click="openCommentsModal(item, $event)" ng-disabled="modeldata[item.model].resultvalue!=term.Code" style="padding-left:7px;box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);" class="term-cmt btn btn-mini side">
+                        <img class="cmtimg" src="app/img/glyphicons-halflings.png" alt="">
+                        </button>
+                    </div>
+            </div>
+        </div>
+    </div>
+</script> -->
+<script type="text/ng-template" id="qn-termbased-single.html">
+    <div class="form-group col-sm-12 chief_compliants">
+        <label class="col-sm-4 control-label custlbl">{{item.ConceptName}}</label>
+        <div class="col-sm-8 cust_vitalsbtn">
+            <div class="term-opt" ng-repeat="term in item.Terms">
+                <div uib-tooltip="{{term.TermName}}" tooltip-placement="top" class="term-opt btn-group cust_btnouter" ng-model="modeldata[item.model].resultvalue" uib-btn-radio="'{{term.Code}}'" title="{{term.TermName}}">
+                    <button class="btn btn-mini selection-btn" ng-click="termSelection(item, term)">
+                    <span>{{term.TermName}}</span></button>
+                    <!-- </div>
+
+                <div class="term-opt"> -->
+                    <button ng-click="openCommentsModal(item, $event)" ng-disabled="modeldata[item.model].resultvalue!=term.Code" class="term-cmt1 btn btn-mini "><span>
+                        <!-- <img class="imgsrc" src="app/img/glyphicons-halflings.png" style="margin-top:1px; width:17px;    margin: 1px -3px;"> -->
+                        <i class="fa fa-commenting-o consult_cmnt"></i>
+                    </span>
+                        </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</script>
+<script type="text/ng-template" id="qn-termbased-multiple.html ">
+    <div class="form-group">
+        <label class="col-sm-4 control-label">{{item.ConceptName}}</label>
+        <div class="col-sm-8 term_name">
+            <div class="">
+                <div class="btn-group cust_btnouter" uib-tooltip="{{term.TermName}}" tooltip-placement="top" ng-repeat="term in item.Terms" ng-model="modeldata[term.model].resultvalue" uib-btn-checkbox="{{term.Code}}" title="{{term.TermName}}">
+                    <button class="btn btn-default cust_termbtn selection-btn">
+                    <span>{{term.TermName}}</span>
+                    </button>
+                    <button ng-click="openCommentsModal(term, $event)" class="term-cmt0 btn btn-mini "><span >
+                        <!-- <img class="imgsrc" src="app/img/glyphicons-halflings.png" style="margin-top:1px; width:17px;    margin: 1px -3px;"> -->
+                        <i class="fa fa-commenting-o consult_cmnt"></i>
+                    </span>
+                    </button>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</script>
+<!-- <script type="text/ng-template" id="qn-termbased-multiple.html ">
+    <div class="form-group col-sm-12">
+        <label class="col-sm-3 control-label">{{item.ConceptName}}</label>
+        <div class="col-sm-9 term_name">
+            <div class="">
+                <div class="btn-group cust_btnouter" uib-tooltip="{{term.TermName}}" tooltip-placement="top" ng-repeat="term in item.Terms"
+                    ng-model="modeldata[term.model].resultvalue" uib-btn-checkbox="{{term.Code}}" title="{{term.TermName}}">
+                    <button class="btn btn-mini" data-toggle="button" style="width:120px;text-overflow:ellipsis;overflow:hidden;white-space: nowrap;border:none;background:none;padding-bottom:0px;padding-top:3px;"><span>{{term.TermName}}</span>
+                    </button>
+                    <button ng-click="openCommentsModal(term, $event)"  data-toggle="button" class="btn btn-mini side">
+                        <img class="cmtimg" src="app/img/glyphicons-halflings.png" alt="">
+                    </button>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</script> -->
+<script type="text/ng-template" id="qn-cpt.html">
+    <div class="row cpt-icd">
+        <label class="col-sm-4 control-label">
+            {{item.ConceptName}}
+        </label>
+        <div class="col-sm-3">
+            <autosearch itemid="item.procedureId" config="vm.procedureconfig" iteminfo="item.selectedcptvalue" itemchange="procedureChange(item)"></autosearch>
+        </div>
+        <div class="col-sm-3">
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-2"></div>
+        <div class="col-sm-8">
+            <div ng-repeat="proc in modeldata[item.model].resultvaluejson">
+                <div>
+                    <i class="fa fa-times" ng-click="removeProcedure(item.model,proc.ProcedureId)" aria-hidden="true"></i> {{proc.ProcedureName}}
+                </div>
+            </div>
+        </div>
+    </div>
+</script>
+<script type="text/ng-template" id="qn-rating.html">
+    <div class="row form-group col-sm-12">
+        <label class="col-sm-2 control-label">{{item.ConceptName}}</label>
+        <div class="col-sm-3">
+            <slider class="bs-slider slider-horizontal" ng-model="modeldata[item.model].resultvalue" min="modeldata[item.model].attr.Min" max="modeldata[item.model].attr.Max" step="modeldata[item.model].attr.Step" orientation="horizontal"></slider>
+        </div>
+        <div class="col-sm-3"></div>
+    </div>
+</script>
+<script type="text/ng-template" id="qn-icd.html">
+    <div class="row cpt-icd">
+        <label class="col-sm-4 control-label">
+            {{item.ConceptName}}
+        </label>
+        <div class="col-sm-3">
+            <autosearch config="vm.diagnosisconfig" iteminfo="item.selectedicdvalue" itemchange="diagnosisChange(item)"></autosearch>
+        </div>
+        <div class="col-sm-3"></div>
+    </div>
+    <div class="row">
+        <div class="col-sm-4"></div>
+        <div class="col-sm-8">
+            <div ng-repeat="diag in modeldata[item.model].resultvaluejson">
+                <div>
+                    <i class="fa fa-times" ng-click="removeDiagnosis(item.model, diag.DiagnosisId)" aria-hidden="true"></i>
+                    <span>{{diag.DiagnosisName}}</span>
+                    <span ng-if="diag.Category">,{{diag.Category}}</span>
+                    <span ng-if="diag.Type">,{{diag.Type}}</span>
+                    <span ng-if="diag.Side">,{{diag.Side}}</span>
+                    <span ng-if="diag.Grade">,{{diag.Grade}}</span>
+                    <span ng-if="diag.Position">,{{diag.Position}}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</script>
+<script type="text/ng-template" id="qn-ckeditor.html">
+    <div class="form-group">
+        <label class="col-sm-3 control-label">{{item.ConceptName}}</label>
+        <div class="col-sm-9 term_name">
+            <div class="ckeditor-value">
+                <div ng-bind-html="modeldata[item.model].resultvaluerichtext"></div>
+            </div>
+            <div style="padding: 10px 0;">
+                <a class="editer-btn" ng-click="openRichTextEditor(item.model)" tooltip-placement="bottom">
+                    <i class="" aria-hidden="true">Open Editor</i>
+                </a>
+            </div>
+        </div>
+    </div>
+</script>
+<!-- rating, slider, master lookup -->
+
+<div class="row">
+    <div class="col-sm-12 cheif_compliants0 emr_consultationslist" class="formRoot">
+        <div class="panel panel-default contheight" ng-repeat="category in currentcontext.categories"
+            style="padding-top: 10px;">
+            <h4 class="custom-modal-headerz cn_mainhead casesheets_emr">
+                <span class="customhead">{{category.CategoryName}}</span>
+            </h4>
+            <div class="panel-body">
+                <div ng-repeat="item in category.Concepts" ng-include="item.tmpl"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="fooder-bgs" style="margin-bottom: 60px;">
+    <div class="pull-left">
+        <button type="button" class="btn pyr-color10 btn-sm pull-left" tabindex="-1" ng-click="backToList()">
+            <i class="fa fa-angle-left" aria-hidden="true"></i>&nbsp;&nbsp;
+            <span class="btn-fontsize" translate="common.backaction.lbl"></span>
+        </button>
+        <ul class="nav navbar-nav pull-left0" id="pastnotes">
+            <li uib-dropdown="" class="dropdown dropdown-list custom-li">
+                <button uib-dropdown-toggle="" class="draftbutton" ng-disabled="">
+                    <span translate="Previous Notes"></span>&nbsp;&nbsp;&nbsp;
+                    <!-- <span>
+                                        <i class="fa fa-caret-up" aria-hidden="true"></i>
+                                    </span> -->
+                </button>
+                <ul class="dropdown-menu top" role="menu" aria-labelledby="dLabel">
+                    <li ng-repeat="item in consultlist| limitTo: currentcontext.recordcount">
+                        <a class=" " ng-click="viewConsultation(item) ">
+                            <span>
+                                <i class="fa fa-angle-right " aria-hidden="true "></i>
+                            </span>&nbsp;&nbsp;&nbsp;
+                            <span class="dr_name0 ">{{item.Encounter.DoctorName}} - </span>
+                            <displaydate class="disp_date0 " datetime-val="item.CreatedAt "></displaydate>
+                            <span class="dr_profile0 "> - {{item.ProfileMaster.Name}}</span>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+    <div class="pull-right ">
+        <button type="button" class="draftbutton" translate="common.saveaction.lbl"
+            ng-click="manualsaveItem()"  ng-hide="item.ProgressNoteStatusId==2" ></button>
+    </div>
+
+</div>

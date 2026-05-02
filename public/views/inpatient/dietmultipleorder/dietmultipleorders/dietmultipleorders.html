@@ -1,0 +1,133 @@
+<div class="row page-header">
+    <h4 class="col-sm-6 mt0" translate="dietmultipleorders.pagetitle.lbl"></h4>
+    <div class="col-sm-6">
+        <button class="btn bt-color3 btn-xs pull-right btn-filter" ng-click="" uib-tooltip="{{'clinicalmaster.serviceitem-list.filter-tooltip.lbl' | translate}}"
+            tooltip-placement="bottom"><i class="fas fa-search" aria-hidden="true"></i>&nbsp;&nbsp;<span translate="clinicalmaster.serviceitem-list.filter.lbl"></span></button>
+            <button class="btn bt-color2 btn-xs pull-right btn-filter" ng-click="addNew()" uib-tooltip="{{ 'Diet Multiple Order' }}"
+                tooltip-placement="bottom"><i class="fa fa-plus" aria-hidden="true"></i><span translate="clinicalmaster.serviceitem-list.addnew.lbl"></span></button>
+                <button class="btn bt-color2 btn-xs pull-right back_but" style="margin-right:10px">
+        <a href="/www/index.html#/app/dietdashboard/"><i class="fa fa-arrow-left"></i>&nbsp;&nbsp;<span class="ng-scope">Back</span></a>
+      </button>
+    </div>
+</div>
+<div class="row filter-area">
+    <div class="col-sm-12">
+        <div class="col-sm-3">
+            <div class="form-group">
+              <label class="sr-only col-sm-5 control-label filter-lbl" translate="dietmultipleorders.ward_filter.lbl"></label>
+                 <div class="input-group col-sm-7">
+                <ui-select ng-model="currentfilter.WardId" ng-change="getList()" class="filter-combo">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 8 : 0}}
+                        <span ng-if="$select.selected.Text.length>8">...</span>
+                    </ui-select-match>
+                    <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.Ward | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-3">
+            <div class="form-group">
+                <label class="sr-only col-sm-5 control-label filter-lbl" translate="dietmultipleorders.mrn/name_filter.lbl"></label>
+                <div class="input-group col-sm-7">
+                    <div class="input-group-addon"><i class="fas fa-search" aria-hidden="true"></i></div>
+                    <input type="text" class="form-control" on-enter="getList()" ng-model="" placeholder="MRN/NAME">
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-2">
+            <div class="form-group">
+                <label class="col-sm-5 control-label filter-lbl" translate="dietmultipleorders.diettype_filter.lbl"></label>
+                <div class="input-group col-sm-7">
+                <ui-select ng-model="currentfilter.Diettype" ng-change="getList()" class="filter-combo">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 8 : 0}}
+                        <span ng-if="$select.selected.Text.length>8">...</span>
+                    </ui-select-match>
+                    <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.Diettype | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <div class="form-group">
+            <label class="col-sm-5 control-label filter-lbl" translate="dietmultipleorders.priority_filter.lbl"></label>
+            <div class="input-group col-sm-7">
+                <ui-select ng-model="currentfilter.Priority" ng-change="getList()" class="filter-combo">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 8 : 0}}
+                        <span ng-if="$select.selected.Text.length>8">...</span>
+                    </ui-select-match>
+                    <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.Priority | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+     </div>
+    </div>
+    <div class="col-sm-12 searchpadding">
+          <div class="col-sm-3">
+            <label class="col-sm-5 control-label filter-lbl" translate="dietmultipleorders.searchitems_filter.lbl"></label>
+           <div class="input-group col-sm-7"><div class="input-group-addon"><i class="fas fa-search" aria-hidden="true"></i></div>
+                <ui-select multiple ng-model="currentfilter.searchitems" ng-change="getList()" class="ui-select-multiple-filter" ng-multi-tag>
+                    <ui-select-match placeholder="Search Items">{{$item.Text }}</ui-select-match>
+                    <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.searchitems | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+          <div class="col-sm-3">
+            <label class="col-sm-5 control-label filter-lbl" translate="dietmultipleorders.startdate_filter.lbl"></label>
+            <div class="input-group col-sm-7">
+                <input type="text" class="form-control" name="fromdate" ng-change="getList()" datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}"
+                    uib-datepicker-popup="{{datePickerOptions.dateFormat}}" placeholder="{{datePickerOptions.placeholder}}" ng-click="fromdatePopup = { opened: true }"
+                    is-open="fromdatePopup.opened" ng-model="currentfilter.fromdate">
+            </div>
+        </div>
+        <div class="col-sm-2">
+            <label class="col-sm-5 control-label filter-lbl" translate="dietmultipleorders.foodpreference_filter.lbl"></label>
+            <div class="input-group col-sm-7">
+                <ui-select ng-model="currentfilter.Foodpreference" ng-change="getList()" class="filter-combo">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 8 : 0}}
+                        <span ng-if="$select.selected.Text.length>8">...</span>
+                    </ui-select-match>
+                    <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.Foodpreference | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <label class="col-sm-5 control-label filter-lbl" translate="dietmultipleorders.isnbm_filter.lbl"></label>
+            <div class="col-sm-2">
+            <input type="checkbox" class="custom-checkbox" name="isnbm" ng-model="item.IsNBM">
+            </div>
+            <div class="col-sm-5 pull-right">
+                <button type="button" class="btn btn-danger btn-sm pull-right" translate="dietmultipleorders.order_filter.lbl" ng-click="saveAndApprove()"></button>
+                <button type="button" class="draftbutton" style="margin-right:3px;" ng-click="print()" translate="dietmultipleorders.load_filter.lbl"></button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="container-fluid onerow-filter" id="patientsearchheight">
+    <div ui-grid="vm.gridConfig" class="table-uigrid" ui-grid-selection></div>
+    <div class="fooder-bgs">
+        <div class="row">
+            <ul uib-pagination total-items="vm.gridConfig.pagerObj.totalItems" items-per-page="vm.gridConfig.pagerObj.pageSize" start-index="vm.gridConfig.pagerObj.startIndex"
+                ng-model="vm.gridConfig.pagerObj.currentPage"></ul>
+                <!--<div class="col-sm-4"><span class="pull-right">
+                <button type="button" class="btn btn-inverse btn-sm pull" ng-click="print()" translate="common.printaction.lbl"></button>
+                <button type="button" class="btn dem-color4 text-white btn-sm" translate="dietmultipleorders.completed.lbl" ng-click="saveAndApprove()"></button>
+                <button type="button" class="draftbutton" translate="dietmultipleorders.executed.lbl" ng-click=""></button>
+                <button type="button" class="draftbutton" ng-click="backToList()" translate="common.cancelaction.lbl"></button>
+                </span></div>-->
+        </div>
+    </div>
+</div>

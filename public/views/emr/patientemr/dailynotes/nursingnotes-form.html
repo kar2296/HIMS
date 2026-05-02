@@ -1,0 +1,98 @@
+<div class="modal-header custom-modal-header">
+    <div class="col-sm-10">
+        <h4 class="modal-title custom-modal-title" translate="patientemr.nursingnotes-list.pagetitle1.lbl"></h4>
+    </div>
+    <div class="col-sm-2">
+        <div class="filters">
+            <img src="../../../../../assets/svg/close.svg" ng-click="backToList()">
+        </div>
+    </div>
+</div>
+<div class="row">
+    <form id="item_form" name="item_form" class="form-horizontal" role="form">
+        <div class="form-group col-sm-6">
+            <label class="col-sm-12 control-label" for="notetype"
+                translate="patientemr.progressnotes.notetype.lbl"></label>
+            <div class="col-sm-12">
+                <ui-select id="notetype" ng-model="item.NoteTypeId" name="notetype" class="filter-combo"
+                    ng-disabled="true" required>
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 25 : 0}}
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.Note | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+        <div class="form-group col-sm-6">
+            <label class="col-sm-12 control-label" for="capturedby"
+                translate="patientemr.progressnotes.capturedby.lbl"></label>
+            <div class="col-sm-12">
+                <ui-select ng-model="item.CapturedBy" class="filter-combo" ng-disabled="true">
+                    <ui-select-match>
+                        {{$select.selected.Title.Description | limitTo : 5 : 0}}
+                        {{$select.selected.Text | limitTo : 25 : 0}}
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.User | filter: { Text: $select.search }">
+                        <span ng-bind-html="lookupitem.Title.Description | highlight: $select.search"></span>
+                        <span ng-bind-html="lookupitem.Text | highlight: $select.search"></span>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+        <!-- <div class="form-group col-sm-6">
+                                <label class="col-sm-12 control-label" for="status"
+                                    translate="patientemr.progressnotes.status.lbl"></label>
+                                <div class="col-sm-12">
+                                    <ui-select ng-model="item.NoteStatusId" ng-disabled="true">
+                                        <ui-select-match>
+                                            {{$select.selected.Text | limitTo : 25 : 0}}
+                                        </ui-select-match>
+                                        <ui-select-choices
+                                            repeat="lookupitem.Id as lookupitem in lookup.NoteStatus | filter: { Text: $select.search }">
+                                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                        </ui-select-choices>
+                                    </ui-select>
+                                </div>
+                            </div> -->
+        <div class="form-group col-sm-6">
+            <label class="col-sm-12 control-label" translate="patientemr.progressnotes.dailynote.lbl"
+                for="dailynote"></label>
+            <div class="col-sm-12">
+                <textarea rows="3" name="dailynote" required ng-model="item.DailyNote" maxlength="5000"
+                    class="notes-textarea ng-pristine ng-valid ng-empty ng-valid-maxlength ng-touched"
+                    ng-disabled="IsDisabled"></textarea>
+            </div>
+        </div>
+        <div class="form-group col-sm-6">
+            <label class="col-sm-12 control-label" translate="patientemr.progressnotes.special.lbl"></label>
+            <div class="col-sm-12">
+                <textarea rows="3" name="special" ng-model="item.SpecialNote" maxlength="5000"
+                    class="notes-textarea ng-pristine ng-valid ng-empty ng-valid-maxlength ng-touched"
+                    ng-disabled="IsDisabled"></textarea>
+            </div>
+        </div>
+
+        <div class="form-group col-sm-6">
+            <label class="col-sm-12 control-label" for="allergyname"
+                translate="patientemr.progressnotes.capturedon.lbl"></label>
+            <div class="col-sm-12">
+                <input type="text" class="form-control" name="startdateandtime" ng-date-object
+                    datetime-picker="{{datePickerOptions.dateTimeFormat}}"
+                    placeholder="{{datePickerOptions.placeholder}}" ng-click="startdateandtimePopup = { opened: true }"
+                    is-open="startdateandtimePopup.opened" ng-model="item.CapturedOn" ng-disabled="IsDisabled">
+            </div>
+        </div>
+    </form>
+</div>
+<div class="fooder-bgs">
+    <div class="row">
+        <div class="pull-right">
+            <button type="button" class="draftbutton" translate="common.saveaction.lbl" ng-click="save()"
+                ng-hide="item.NoteStatusId==2"></button>
+        </div>
+    </div>
+</div>

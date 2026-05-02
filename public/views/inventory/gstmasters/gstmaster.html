@@ -1,0 +1,89 @@
+<div class="row">
+    <div class="col-sm-6">
+        <h4 translate="inventory.gstmaster.pagetitle.lbl"></h4>
+    </div>
+    <div class="col-sm-6">
+        <button class="btn-add" ng-click="addNew()" uib-tooltip="GST" tooltip-placement="bottom">
+            <i class="fa fa-plus" aria-hidden="true"></i>
+        </button>
+    </div>
+</div>
+<div class="row">
+    <form id="item_form" name="item_form" class="form-horizontal" role="form">
+        <div class="form-group col-sm-4">
+            <label class="col-sm-12 control-label" for="code" translate="inventory.gstmaster.code.lbl"></label>
+            <div class="col-sm-12">
+                <input type="text" class="form-control" name="code" ng-disabled="item.isDisabled"
+                    ng-model="item.GstCode" placeholder="" required>
+            </div>
+        </div>
+        <div class="form-group col-sm-4">
+            <label class="col-sm-12 control-label" for="name" translate="inventory.gstmaster.name.lbl"></label>
+            <div class="col-sm-12">
+                <input type="text" class="form-control" name="name" ng-disabled="item.isDisabled"
+                    ng-model="item.GstName" placeholder="" required>
+            </div>
+        </div>
+        <div class="form-group col-sm-4">
+            <label class="col-sm-12 control-label" translate="inventory.gstmaster.description.lbl"></label>
+            <div class="col-sm-12">
+                <input type="text" class="form-control" ng-disabled="item.isDisabled" name="description"
+                    ng-model="item.GstDescription" placeholder="">
+            </div>
+        </div>
+        <div class="form-group col-sm-4">
+            <label class="col-sm-12 control-label" translate="inventory.gstmaster.gstpercentage.lbl"></label>
+            <div class="col-sm-12">
+                <input type="text" class="form-control" name="gstpercentage" ng-model="item.GstPercentage"
+                    placeholder="">
+            </div>
+        </div>
+        <div class="form-group col-sm-4">
+            <label class="col-sm-12 control-label" translate="inventory.gstmaster.childgst.lbl"></label>
+            <div class="col-sm-12">
+                <ui-select ng-model="item.GstId" name="childgst" required>
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 20 : 0}}
+                        <span ng-if="$select.selected.Text.length > 20">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.GstMaster | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+        <div class="form-group col-sm-4">
+            <label class="col-sm-12 control-label" translate="inventory.gstmaster.isactive.lbl"></label>
+            <div class="col-sm-12">
+                <input type="checkbox" class="custom-checkbox" name="isactive" ng-model="item.IsActive"
+                    ng-checked="item.IsActive == 1">
+            </div>
+        </div>
+        <div class="form-group col-sm-4">
+            <label class="col-sm-12 control-label" translate="Is All Branch"></label>
+            <div class="col-sm-12">
+                <input type="checkbox" class="custom-checkbox" name="IsAllFacility" ng-model="item.IsAllFacility">
+            </div>
+        </div>
+        <div class="form-group col-sm-4">
+            <label class="col-sm-12 control-label" for="isparent" translate="Is Parent"></label>
+            <div class="col-sm-12">
+                <input type="checkbox" class="custom-checkbox" name="isparent" ng-model="item.IsParent">
+            </div>
+        </div>
+    </form>
+</div>
+<div class="fooder-bgs">
+    <div class="pull-left">
+        <button type="button" class="btn btn-sm pyr-color10" ng-click="backToList()">
+            <i class="fa fa-angle-left"></i>&nbsp;&nbsp;
+            <span translate="common.backaction.lbl"></span>
+        </button>
+    </div>
+    <div class="pull-right">
+        <button type="button" class="draftbutton" ng-click="save()" translate="common.saveaction.lbl"></button>
+        <button type="button" class="draftbutton" translate="common.saveapprove-action.lbl"
+            ng-click="saveandApprove()"></button>
+    </div>
+</div>

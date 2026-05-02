@@ -1,0 +1,717 @@
+<link rel="stylesheet" href="app/css/drhms.css">
+<style>
+    .form-horizontal .form-group {
+        height: 50px;
+    }
+    .loader_div {
+    position: absolute;
+    top: 0;
+    bottom: 0%;
+    left: 0;
+    right: 0%;
+    z-index: 99;
+    opacity: 0.7;
+    display: none;
+    background: lightgrey url('../../../images/youloadergif.gif') center center no-repeat;
+}
+
+#loading {
+    position: fixed;
+    display: block;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    text-align: center;
+    opacity: 0.7;
+    background-color: #fff;
+    z-index: 99;
+}
+
+#loading-image {
+    position: absolute;
+    top: 100px;
+    left: 240px;
+    z-index: 100;
+}
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    z-index: 9999;
+}
+.countdown-container {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgb(76 76 76 / 80%);
+    color: white;
+    padding: 20px 40px;
+    border-radius: 10px;
+    font-size: 24px;
+    font-weight: bold;
+    text-align: center;
+    z-index: 10000;
+}
+</style>
+<div class="row">
+    <div class="col-sm-11">
+        <h4 translate="billing.claimmanagement.pagetitle.lbl"></h4>
+    </div>
+    <div class="col-sm-1">
+        <button type="button" tabindex="-1" class="drhms-billing-btn drhms-add-btn" ng-click="addNew()"
+            uib-tooltip="{{ 'billing.claimsubmission-form.claim_receipt.lbl' | translate }}" tooltip-placement="bottom">
+            <i class="fa fa-plus" aria-hidden="true"></i>
+        </button>
+    </div>
+</div>
+<div class="row">
+    <div class="col-sm-3">
+        <label class="col-sm-12 control-label" translate="From"></label>
+        <div class="col-sm-12">
+            <input type="text" class="form-control" name="from" ng-change="loadBills()"
+                datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}"
+                uib-datepicker-popup="{{datePickerOptions.dateFormat}}" placeholder="{{datePickerOptions.placeholder}}"
+                ng-click="fromPopup = { opened: true }" is-open="fromPopup.opened" ng-model="currentfilter.From">
+        </div>
+    </div>
+    <div class="col-sm-3">
+        <label class="col-sm-12 control-label" translate="To"></label>
+        <div class="col-sm-12">
+            <input type="text" class="form-control" name="to" ng-change="loadBills()"
+                datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}"
+                uib-datepicker-popup="{{datePickerOptions.dateFormat}}" placeholder="{{datePickerOptions.placeholder}}"
+                ng-click="toPopup = { opened: true }" is-open="toPopup.opened" ng-model="currentfilter.To">
+        </div>
+    </div>
+    <div class="col-sm-3">
+        <label class="col-sm-12 control-label" translate="billing.claimmanagement.guarantortype.lbl"></label>
+        <div class="col-sm-12">
+            <ui-select ng-model="item.GuarantorTypeId" ng-disabled="IsDisabled" name="guarantortype"
+                ng-change="getGuarantor($select.selected)" required>
+                <ui-select-match>
+                    {{$select.selected.Text | limitTo : 25 : 0}}
+                    <span ng-if="$select.selected.Text.length>25">...</span>
+                </ui-select-match>
+                <ui-select-choices
+                    repeat="lookupitem.Id as lookupitem in lookup.GuarantorType | filter: { Text: $select.search }">
+                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                </ui-select-choices>
+            </ui-select>
+        </div>
+    </div>
+    <div class="col-sm-3">
+        <label class="col-sm-12 control-label" translate="Payer Name"></label>
+        <div class="col-sm-12">
+            <!-- <ui-select ng-model="item.GuarantorId" tabindex="-1" ng-change="loadBills()" name="guarantor"
+                ng-disabled="IsDisabled" class="col-sm-10" required>
+                <ui-select-match>
+                    {{$select.selected.Text | limitTo : 25 : 0}}
+                    <span ng-if="$select.selected.Text.length>25">...</span>
+                </ui-select-match>
+                <ui-select-choices
+                    repeat="lookupitem.Id as lookupitem in lookup.Guarantor | filter: { Text: $select.search }">
+                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                </ui-select-choices>
+            </ui-select> -->
+            <autosearch itemid="item.GuarantorId" ttabindex="tabindexmap.patienttabindex" iteminfo="" name="'guarantor'"
+                rowdata="" config="vm.guarantorcontrolconfig" candisable="" itemchange="loadBills()">
+            </autosearch>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <form id="item_form" name="item_form" class="form-horizontal" role="form">
+        <div class="drhms-table-top-header">
+            <div class="drhms-table-head-border">
+                <div class="col-sm-12">
+                    <label class="col-sm-4" translate="billing.claimmanagement.receiptnos.lbl"></label>
+                    <div class="col-sm-8">: {{item.PaymentIdentifier}}
+                    </div>
+                </div>
+                <div class="col-sm-12">
+                    <label class="col-sm-4" translate="billing.claimmanagement.receiptdate.lbl"></label>
+                    <div class="col-sm-8">:
+                        <span class="head-title">{{item.PaymentDate | date : 'dd-MMM-yyyy'}}&nbsp;{{item.PaymentDate |
+                            date
+                            :
+                            'HH:mm' }}</span>
+                    </div>
+                </div>
+                <div class="col-sm-12">
+                    <label class="col-sm-4" translate="billing.claimmanagement.status.lbl"></label>
+                    <div class="col-sm-8">:
+                        <span class="head-title">{{item.DisplayInsurancePaymentStatus}}</span>
+                    </div>
+                </div>
+            </div>
+            <div class="drhms-table-head-border">
+                <div class="col-sm-12">
+                    <label class="col-sm-4" translate="billing.claimmanagement.receiptno.lbl"></label>
+                    <div class="col-sm-8">
+                        <input type="text" class="form-control" name="receiptdate" ng-change="loadBills()"
+                            datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}"
+                            datetime-picker="{{datePickerOptions.dateTimeFormat}}"
+                            placeholder="{{datePickerOptions.placeholder}}"
+                            ng-click="receiptdatePopup = { opened: true }" is-open="receiptdatePopup.opened"
+                            ng-model="item.PaymentDate" ng-disabled="IsDisabled">
+                    </div>
+                </div>
+                <div class="col-sm-12">
+                    <label class="col-sm-4" translate="billing.claimmanagement.ipnumber.lbl"></label>
+                    <div class="col-sm-8">
+                        <input type="text" class="form-control" ng-model="currentfilter.ipnumber" on-enter="loadBills()"
+                            translate translate-attr-placeholder="IP Number" ng-disabled="IsDisabled">
+                    </div>
+                </div>
+                <div class="col-sm-12">
+                    <label class="col-sm-4" translate="Patient type"></label>
+                    <div class="col-sm-8">
+                        <ui-select ng-model="currentfilter.encountertypeid" name="" ng-disabled="IsDisabled"
+                            ng-change="loadBills()" class="filter-combo">
+                            <ui-select-match>
+                                {{$select.selected.Text | limitTo : 10 : 0}}
+                                <span ng-if="$select.selected.Text.length>20">...</span>
+                            </ui-select-match>
+                            <ui-select-choices
+                                repeat="lookupitem.Id as lookupitem in lookup.EncounterType | filter: { Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                </div>
+            </div>
+            <div class="drhms-table-head-border">
+                <div class="col-sm-12">
+                    <label class="col-sm-4" translate="billing.claimmanagement.patient.lbl"></label>
+                    <div class="col-sm-8">
+                        <input type="text" class="form-control" ng-model="currentfilter.patientnamemrn"
+                            on-enter="loadBills()" translate translate-attr-placeholder="Name/MRN"
+                            ng-disabled="IsDisabled">
+                    </div>
+                </div>
+                <div class="col-sm-12">
+                    <label class="col-sm-4" translate="billing.claimmanagement.billdate.lbl"></label>
+                    <div class="col-sm-8">
+                        <input type="text" class="form-control" name="billdate" ng-change="loadBills()"
+                            datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}"
+                            uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                            placeholder="{{datePickerOptions.placeholder}}" ng-click="billdatePopup = { opened: true }"
+                            is-open="billdatePopup.opened" ng-model="currentfilter.billdatetime"
+                            ng-disabled="IsDisabled">
+                    </div>
+                </div>
+                <div class="col-sm-12">
+                    <label class="col-sm-4" translate="billing.claimmanagement.billnumber.lbl"></label>
+                    <div class="col-sm-8">
+                        <input type="text" class="form-control" on-enter="loadBills()" ng-model="currentfilter.billno"
+                            translate translate-attr-placeholder="Bill Number" ng-disabled="IsDisabled">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+<div class="row">
+    <form id="item_form" name="item_form" class="form-horizontal" role="form">
+        <div class="">
+            <div class="bg-pattern">
+                <div ng-if="!IsDisabled">
+                    <table class="table table-hover table-responsive table-bordered">
+                        <thead class="bg-subhead">
+                            <tr>
+                                <th>
+                                    <span translate="billing.claimmanagement.visitno.lbl"></span>
+                                </th>
+                                <th>
+                                    <span translate="billing.claimmanagement.patientinfor.lbl"></span>
+                                </th>
+                                <th>
+                                    <span translate="billing.claimmanagement.billdate.lbl"></span>
+                                </th>
+                                <th>
+                                    <span translate="billing.claimmanagement.billnumber.lbl"></span>
+                                </th>
+                                <th>
+                                    <span translate="billing.claimmanagement.billamount.lbl"></span>
+                                </th>
+                                <th>
+                                    <span translate="billing.claimmanagement.discount.lbl"></span>
+                                </th>
+                                <th>
+                                    <span translate="billing.claimmanagement.receivedamount.lbl"></span>
+                                </th>
+                                <th>
+                                    <span translate="billing.claimmanagement.tobeclaimed.lbl"></span>
+                                </th>
+                                <th>
+                                    <span translate="billing.claimmanagement.status.lbl"></span>
+                                </th>
+                                <th>
+                                    <span translate="billing.claimmanagement.action.lbl"></span>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="claims in ClaimableBills | filter:{ClaimStatusId:1}">
+                                <td>{{claims.Encounter}}</td>
+                                <td>
+                                    <div class='ui-grid-cell-contents'>
+                                        <a ng-click="patientprofiledetails(claims.PatientId)">
+                                            <span ng-if='claims.Patient.Title && claims.Patient.Title.Description'
+                                                class='user-pl'>
+                                                {{claims.Patient.Title.Description}}</span>
+                                            <span class='user-pl'>{{claims.Patient.FirstName}}</span>
+                                            <span class='user-pl'>{{claims.Patient.LastName}}</span>
+                                            <span class='user-pl'>/</span>
+                                            <span class='user-pl'>{{claims.Patient.MRN}}</span>
+                                            <span class='user-pl'>/
+                                                <span>
+                                                    <span class='user-pl'>{{claims.Patient.Age}}</span>
+                                                    <span class='user-pl'>/</span>
+                                                    <span class='user-pl'>{{claims.Patient.Gender.Description}}</span>
+                                        </a>
+                                    </div>
+                                </td>
+                                <td>
+                                    <ngformatdate datetime-val='claims.BillDateTime'></ngformatdate>
+                                </td>
+                                <td class="currency-align">{{claims.BillIdentifier}}</td>
+                                <td class="currency-align">{{claims.BillAmount | displaycurrency}}</td>
+                                <td class="currency-align">{{claims.BillDiscount | displaycurrency}}</td>
+                                <td class="currency-align">{{claims.PaidAmount | displaycurrency}}</td>
+                                <td class="currency-align">{{claims.ToBeClaimAmount | displaycurrency}}</td>
+                                <td class="currency-align">{{claims.PatientBillStatus.Description}}</td>
+                                <td class="text-center">
+                                    <button type="button" id="btnadditems" class="" ng-click="addPayment(claims)">
+                                        <i class="fa fa-plus" aria-hidden="true"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="" id="">
+                    <table class="table table-hover table-responsive table-bordered">
+                        <thead class="bg-subhead">
+                            <tr>
+                                <th>
+                                    <span translate="billing.claimmanagement.visitno.lbl"></span>
+                                </th>
+                                <th>
+                                    <span translate="billing.claimmanagement.patientinfor.lbl"></span>
+                                </th>
+                                <th>
+                                    <span translate="billing.claimmanagement.billdate.lbl"></span>
+                                </th>
+                                <th>
+                                    <span translate="billing.claimmanagement.billnumber.lbl"></span>
+                                </th>
+                                <th>
+                                    <span translate="billing.claimmanagement.dueamount.lbl"></span>
+                                </th>
+                                <th>
+                                    <span translate="billing.claimmanagement.receivedamount.lbl"></span>
+                                </th>
+                                <th>
+                                    <span translate="billing.claimmanagement.tds.lbl"></span>
+                                </th>
+                                <th>
+                                    <span translate="Disallowed/Write Off"></span>
+                                </th>
+                                <th>
+                                    <span translate="MOU Discount"></span>
+                                </th>
+                                <th>
+                                    <span translate="Remarks"></span>
+                                </th>
+                                <th>
+                                    <span translate="billing.claimmanagement.action.lbl"></span>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="claims in ClaimableBills | filter:{ClaimStatusId:2}">
+                                <td>{{claims.Encounter}}</td>
+                                <td>
+                                    <div class='ui-grid-cell-contents'>
+                                        <a ng-click="patientprofiledetails(claims.PatientId)">
+                                            <span ng-if='claims.Patient.Title && claims.Patient.Title.Description'
+                                                class='user-pl'>
+                                                {{claims.Patient.Title.Description}}</span>
+                                            <span class='user-pl'>{{claims.Patient.FirstName}}</span>
+                                            <span class='user-pl'>{{claims.Patient.LastName}}</span>
+                                            <span class='user-pl'>/</span>
+                                            <span class='user-pl'>{{claims.Patient.MRN}}</span>
+                                            <span class='user-pl'>/
+                                                <span>
+                                                    <span class='user-pl'>{{claims.Patient.Age}}</span>
+                                                    <span class='user-pl'>/</span>
+                                                    <span class='user-pl'>{{claims.Patient.Gender.Description}}</span>
+                                        </a>
+                                    </div>
+                                </td>
+                                <td>
+                                    <ngformatdate datetime-val='claims.BillDateTime'></ngformatdate>
+                                </td>
+                                <td>{{claims.BillIdentifier}}</td>
+                                <td class="currency-align">{{claims.ToBeClaimAmount | displaycurrency}}</td>
+                                <td>
+                                    <input type="text"
+                                        class="form-control ng-valid ng-dirty ng-valid-parse ng-empty ng-touched"
+                                        name="receivedamt" ng-change="calculateLineValues(claims)"
+                                        ng-model="claims.ReceivedAmount" placeholder="Received Amount"
+                                        ng-pattern="/^\d+$/" ng-disabled="IsDisabled" required>
+                                </td>
+                                <td>
+                                    <input type="text"
+                                        class="form-control ng-valid ng-dirty ng-valid-parse ng-empty ng-touched"
+                                        name="tdsamt" ng-change="calculateLineValues(claims)"
+                                        ng-model="claims.TDSAmount" ng-pattern="/^\d+$/" placeholder="TDS Amount"
+                                        ng-disabled="IsDisabled">
+                                </td>
+                                <td>
+                                    <input type="text"
+                                        class="form-control ng-valid ng-dirty ng-valid-parse ng-empty ng-touched"
+                                        name="disallowedamt" ng-change="calculateLineValues(claims)"
+                                        ng-model="claims.Disallowed" ng-pattern="/^\d+$/"
+                                        placeholder="Disallowed Amount" ng-disabled="IsDisabled">
+                                </td>
+                                <td class="currency-align">
+                                    <input type="text"
+                                        class="form-control ng-valid ng-dirty ng-valid-parse ng-empty ng-touched"
+                                        name="mouamt" ng-change="calculateLineValues(claims)"
+                                        ng-model="claims.AgreementDiscountAmt" ng-pattern="/^\d+$/"
+                                        placeholder="Mou Amount" ng-disabled="IsDisabled">
+
+                                    <!-- {{claims.AgreementDiscountAmt | displaycurrency}} -->
+                                </td>
+                                <td>
+                                    <input type="text" class="form-control" name="remarks" ng-model="claims.Remarks"
+                                        placeholder="Remarks" ng-disabled="IsDisabled">
+                                </td>
+                                <td class="text-center">
+                                    <button type="button" id="btnremoveitems" class="btn btn-danger btn-xs"
+                                        ng-if="!IsDisabled" ng-click="removePayment(claims)">
+                                        <img class="drhms-edit-button" src="assets/svg/delete.svg" alt="">
+                                    </button>
+                                </td>
+
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="col-sm-6 pull-right">
+                    <div class="col-sm-4">
+                        <label class="drhms-due-amount">Total : </label>
+                        <label class="drhms-due-amount">{{item.ReceivedAmount | displaycurrency}}</label>
+                    </div>
+                    <div class="col-sm-4">
+                        <label class="drhms-due-amount" translate="billing.claimmanagement.tds.lbl">
+                            <span> : </span>
+                        </label>
+                        <label class="drhms-due-amount">{{item.TDSAmount | displaycurrency}}</label>
+                    </div>
+                    <div class="col-sm-4">
+                        <label class="drhms-due-amount" translate="billing.claimmanagement.disallowed.lbl">
+                            <span> : </span>
+                        </label>
+                        <label class="drhms-due-amount">{{item.Disallowed | displaycurrency}}</label>
+                    </div>
+                </div>
+            </div>
+            <div class="footerbar">
+                <div class="sub-footer">
+                    <div class="bgfoot">
+                        <div class="">
+                            <div class="col-sm-8 receipt">
+                                <p>Receipts</p>
+                                <div class="col-sm-5">
+                                    <div class="form-group">
+                                        <label class="col-sm-5" for="paymenttype"
+                                            translate="billing.claimmanagement.cashtype.lbl"></label>
+                                        <div class="col-sm-7 toprighttextnew">
+                                            <ui-select ng-model="currentcontext.PaymentTypeId" ng-disabled="IsDisabled"
+                                                name="paymenttype" required>
+                                                <ui-select-match>
+                                                    {{$select.selected.Text | limitTo : 20 : 0}}
+                                                    <span ng-if="$select.selected.Text.length>20">...</span>
+                                                </ui-select-match>
+                                                <ui-select-choices
+                                                    repeat="lookupitem.Id as lookupitem in lookup.PaymentType | filter: { Text: $select.search }">
+                                                    <div ng-bind-html="lookupitem.Text | highlight: $select.search">
+                                                    </div>
+                                                </ui-select-choices>
+                                            </ui-select>
+                                            <button ng-if="MultiPay" ng-click="addPay()"
+                                                class=" btn btn-xs btn-success">
+                                                <i class="fa fa-plus"></i>
+                                            </button>
+                                            <div class="col-sm-2">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <a class="link" ng-show="currentcontext.PaymentTypeId==7"
+                                        ng-click="AdjustAgainstAdvance()" style="margin-left: 46px;">
+                                        Adjustment
+                                    </a>
+                                    <div class="form-group">
+                                        <label class="col-sm-5 " for="remarks"
+                                            translate="billing.receipt-form.remarks.lbl"></label>
+                                        <div class="col-sm-7">
+                                            <input type="text" class="form-control" name="remarks"
+                                                ng-model="item.Comments" placeholder="Remarks" ng-disabled="IsDisabled">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6" id="receipt">
+                                    <div class="form-group"
+                                        ng-if="currentcontext.PaymentTypeId > 1 && currentcontext.PaymentTypeId != 7">
+                                        <label class="col-sm-5 control-label" for="bankname"
+                                            translate="billing.receipt-form.bankname.lbl"></label>
+                                        <div class="col-sm-7 toprightbankname">
+                                            <ui-select ng-model="item.BankId" name="bankname" ng-disabled="IsDisabled">
+                                                <ui-select-match>
+                                                    {{$select.selected.Text | limitTo : 20 : 0}}
+                                                    <span ng-if="$select.selected.Text.length>20">...</span>
+                                                </ui-select-match>
+                                                <ui-select-choices
+                                                    repeat="lookupitem.Id as lookupitem in lookup.Bank | filter: { Text: $select.search }">
+                                                    <div ng-bind-html="lookupitem.Text | highlight: $select.search">
+                                                    </div>
+                                                </ui-select-choices>
+                                            </ui-select>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group" ng-if="currentcontext.PaymentTypeId==2">
+                                        <label class="col-sm-5 control-label" for="chequeno"
+                                            translate="billing.receipt-form.chequeno.lbl"></label>
+                                        <div class="col-sm-7">
+                                            <input type="text" class="form-control" name="chequeno"
+                                                ng-model="item.ChequeNo" placeholder="Cheque No."
+                                                ng-disabled="IsDisabled">
+                                        </div>
+                                    </div>
+                                    <div class="form-group" ng-if="currentcontext.PaymentTypeId==3">
+                                        <label class="col-sm-5 control-label" for="ddno"
+                                            translate="billing.receipt-form.ddno.lbl"></label>
+                                        <div class="col-sm-7">
+                                            <input type="text" class="form-control" name="ddno" ng-model="item.DDNumber"
+                                                ng-disabled="item.isCompleted" placeholder="" ng-minlength=""
+                                                ng-pattern="/^\d+$/" required>
+                                        </div>
+                                    </div>
+                                    <div class="form-group" ng-if="currentcontext.PaymentTypeId==4 || currentcontext.PaymentTypeId == 11">
+                                        <label class="col-sm-5 control-label" for="transationno"
+                                            translate="billing.receipt-form.transationno.lbl"></label>
+                                        <div class="col-sm-7">
+                                            <input type="text" class="form-control" name="transationno"
+                                                ng-model="item.WireTransferId" placeholder="" ng-disabled="IsDisabled">
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group" ng-if="currentcontext.PaymentTypeId==5 || currentcontext.PaymentTypeId == 6">
+                                        <label class="col-sm-5 control-label" for="cardno"
+                                            translate="billing.receipt-form.authorisedcode.lbl"></label>
+                                        <div class="col-sm-7">
+                                            <input type="text" class="form-control" name="cardno"
+                                                ng-model="item.AuthorizedCode" maxlength="8"
+                                                ng-disabled="item.isCompleted" placeholder="" ng-disabled="IsDisabled">
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group"
+                                        ng-if="currentcontext.PaymentTypeId == 4 || currentcontext.PaymentTypeId == 3 || currentcontext.PaymentTypeId == 2">
+                                        <span ng-if="currentcontext.PaymentTypeId != 5">
+                                            <label class="col-sm-5 control-label"
+                                                translate="billing.receipt-form.Collected On.lbl"></label>
+                                            <div class="col-sm-7 toprightcollectedon">
+                                                <input type="text" class="form-control" name="Collected On"
+                                                    ng-date-object datepicker-options="datePickerOptions"
+                                                    show-button-bar="{{datePickerOptions.showButtonBar}}"
+                                                    uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                                                    placeholder="{{datePickerOptions.placeholder}}"
+                                                    ng-click="activefromPopup = { opened: true }"
+                                                    is-open="activefromPopup.opened" ng-model="item.CollectedOn"
+                                                    ng-disabled="IsDisabled">
+                                            </div>
+                                        </span>
+                                        <span ng-if="currentcontext.PaymentTypeId == 5">
+                                            <label class="col-sm-5 control-label" for="terminal"
+                                                translate="billing.receipt-form.terminal.lbl"></label>
+                                            <div class="col-sm-7 toprightchequedate">
+                                                <ui-select ng-model="item.TerminalNoId" ng-disabled="IsDisabled"
+                                                    name="terminal" required>
+                                                    <ui-select-match>
+                                                        {{$select.selected.Text | limitTo : 20 : 0}}
+                                                        <span ng-if="$select.selected.Text.length>20">...</span>
+                                                    </ui-select-match>
+                                                    <ui-select-choices
+                                                        repeat="lookupitem.Id as lookupitem in lookup.Terminal | filter: { Text: $select.search }">
+                                                        <div ng-bind-html="lookupitem.Text | highlight: $select.search">
+                                                        </div>
+                                                    </ui-select-choices>
+                                                </ui-select>
+                                            </div>
+                                        </span>
+                                    </div>
+                                    <div class="form-group" ng-if="currentcontext.PaymentTypeId==2">
+                                        <label class="col-sm-5 control-label"
+                                            translate="billing.receipt-form.Chequedate.lbl"></label>
+                                        <div class="col-sm-7 toprightchequedate">
+                                            <input type="text" class="form-control" name="Chequedate" ng-date-object
+                                                datepicker-options="datePickerOptions"
+                                                show-button-bar="{{datePickerOptions.showButtonBar}}"
+                                                uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                                                placeholder="{{datePickerOptions.placeholder}}"
+                                                ng-click="activefromPopup = { opened: true }"
+                                                is-open="activefromPopup.opened" ng-model="item.ChequeDate"
+                                                ng-disabled="IsDisabled">
+                                        </div>
+                                    </div>
+                                    <div class="form-group" ng-if="currentcontext.PaymentTypeId==3">
+                                        <label class="col-sm-5 control-label"
+                                            translate="billing.receipt-form.dddate.lbl"></label>
+                                        <div class="col-sm-7 toprightchequedate">
+                                            <input type="text" class="form-control" name="dddate" ng-date-object
+                                                datepicker-options="datePickerOptions"
+                                                show-button-bar="{{datePickerOptions.showButtonBar}}"
+                                                uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                                                placeholder="{{datePickerOptions.placeholder}}"
+                                                ng-click="activetoPopup = { opened: true }"
+                                                is-open="activetoPopup.opened" ng-model="item.DDDate"
+                                                ng-disabled="IsDisabled">
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group" ng-if="currentcontext.PaymentTypeId==4">
+                                        <label class="col-sm-5 control-label"
+                                            translate="billing.receipt-form.transferredon.lbl"></label>
+                                        <div class="col-sm-7  toprightchequedate">
+                                            <input type="text" class="form-control" name="transferredon" ng-date-object
+                                                datepicker-options="datePickerOptions"
+                                                show-button-bar="{{datePickerOptions.showButtonBar}}"
+                                                uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                                                placeholder="{{datePickerOptions.placeholder}}"
+                                                ng-click="transationfromPopup = { opened: true }"
+                                                is-open="transationfromPopup.opened" ng-model="item.WireTransferDate"
+                                                ng-disabled="IsDisabled">
+                                        </div>
+                                    </div>
+                                    <div class="form-group" ng-if="currentcontext.PaymentTypeId==5">
+                                        <label class="col-sm-5 control-label" for="cardtype"
+                                            translate="billing.receipt-form.cardtype.lbl"></label>
+                                        <div class="col-sm-7 toprightchequedate">
+                                            <ui-select ng-model="item.CardTypeId" name="cardtype"
+                                                ng-disabled="IsDisabled">
+                                                <ui-select-match>
+                                                    {{$select.selected.Text | limitTo : 20 : 0}}
+                                                    <span ng-if="$select.selected.Text.length>20">...</span>
+                                                </ui-select-match>
+                                                <ui-select-choices
+                                                    repeat="lookupitem.Id as lookupitem in lookup.CardType | filter: { Text: $select.search }">
+                                                    <div ng-bind-html="lookupitem.Text | highlight: $select.search">
+                                                    </div>
+                                                </ui-select-choices>
+                                            </ui-select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-4 summary">
+                                <p>Summary</p>
+                                <table id="opbillingfooter">
+                                    <tr>
+                                        <td translate="billing.claimmanagement.totalnobills.lbl"></td>
+                                        <td class="drhms-currency-align">
+                                            {{currentcontext.totalClaimedBills}}</td>
+                                    </tr>
+                                    <tr>
+                                        <td for="patientbills" translate="billing.claimmanagement.totaldueamount.lbl">
+                                        </td>
+                                        <td class="drhms-currency-align">
+                                            {{item.ToBeClaimAmount | displaycurrency}}</td>
+                                    </tr>
+                                    <tr>
+                                        <td for="patientbills"
+                                            translate="billing.claimmanagement.totalreceiptamount.lbl"></td>
+                                        <td class="drhms-currency-align">
+                                            {{item.ReceivedAmount | displaycurrency}}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td for="patientbills" translate="billing.claimmanagement.disallowedamount.lbl">
+                                        </td>
+                                        <td class="drhms-currency-align">
+                                            {{item.Disallowed | displaycurrency}}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td for="patientbills" class="drhms-special-count"
+                                            translate="billing.claimmanagement.totaltdsamount.lbl"></td>
+                                        <td class="drhms-currency-align drhms-special-count">
+                                            {{item.TDSAmount | displaycurrency}}
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+<div ng-show="paymentInProgress" class="overlay">
+    <div class="countdown-container">
+        <p>Time remaining: {{countdown}} seconds</p>
+    </div>
+</div>
+<div class="fooder-bgs">
+    <div class="pull-left">
+        <button type="button" class="btn pyr-color10 btn-sm" ng-click="backToList()">
+            <i class="fa fa-angle-left" aria-hidden="true"></i>&nbsp;&nbsp;
+            <span class="btn-fontsize" translate="common.backaction.lbl"></span>
+        </button>
+        <button type="button" class="draftbutton" uib-tooltip="Attachments" ng-click="openattachments()"
+            tooltip-placement="top">
+            <i class="fa fa-paperclip fa-xs" aria-hidden="true">&nbsp;&nbsp;({{currentcontext.attachmentcount}})</i>
+        </button>
+    </div>
+    <div class="pull-right">
+        <button type="button" id="btnsubmit" class="draftbutton"  ng-if="item.InsurancePaymentStatusId !== 3 && !(IsMomentPay && (currentcontext.PaymentTypeId == 5 || currentcontext.PaymentTypeId == 11))" 
+            ng-click="confirm()" ng-disabled="currentcontext.totalClaimedBills==0">Finalize</button>
+        <button type="button" id="btnsubmit" class="draftbutton" ng-click="print()"
+            ng-if="item.InsurancePaymentStatusId == 3">
+            <span>
+                <i class="fa fa-print" aria-hidden="true"></i>
+            </span>
+            <span translate="Print"></span>
+        </button>
+        <span class="paynowpos">
+            <form id="iframeForm" action="https://hosmat.momentpay.live/ma/v2/extended-iframe-payment" method="post">
+                <div id="response" class="text-center">
+                    <input id="txttoken" type="hidden" name="token" value="">
+                    <input type="hidden" name="mid" id="mid" value="">
+                    <input type="hidden" name="check_sum_hash" id="check_sum_hash" value="">
+                    <div class="text-center" ng-show="(currentcontext.PaymentTypeId == 5 || currentcontext.PaymentTypeId == 11) && IsMomentPay && 
+                                item.InsurancePaymentStatusId !== 3">
+                        <button class="drhms-common-btn" id="paynow" type="button" ng-disabled="currentcontext.totalClaimedBills==0">Pay Now</button>
+                    </div>
+                </div>
+            </form>
+
+            <div id="loading" style="visibility: visible; display: none;">
+                <img id="loading-image" src="./Iframe22_files/spinning-loading.gif" alt="Loading...">
+            </div>
+
+            <div class="loader_div"></div>
+        </span>
+    </div>
+</div>

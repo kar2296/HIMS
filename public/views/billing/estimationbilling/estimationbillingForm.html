@@ -1,0 +1,297 @@
+<style>
+    /* Css*/
+
+    #fullregistrationheight .formRoot {
+        height: 506px
+    }
+
+    #fullregistrationheight .well {
+        min-height: 450px !important;
+    }
+
+    .fooder-bgs {
+        margin-top: 57px !important;
+    }
+
+    .pull-right.footer {
+        margin-bottom: 100px;
+    }
+
+    .form-horizontal .form-group {
+        height: 70px;
+    }
+
+    .fooder-bgs {
+        margin-top: 70px !important;
+    }
+
+    .row {
+        margin-top: 20px;
+        padding: 4px;
+    }
+
+    .custom-popup-wrapper {
+        margin-left: -400px;
+    }
+
+    autosearch.estimation .custom-popup-wrapper {
+        margin-left: 0px;
+    }
+
+    textarea.form-control {
+        border: 1.5px solid #aaa;
+        border-radius: 0px;
+    }
+    .dropdown-menu > li > a {
+    white-space: normal !important;
+}
+    /* Css end*/
+</style>
+<div class="row">
+    <div class="col-sm-9">
+        <h4 class="mt0" translate="Estimation"></h4>
+    </div>
+    <div class="col-sm-3 text-right">
+        <label class="col-sm-4" translate="Search"></label>
+        <div class="col-sm-8">
+            <div class="filters">
+                <div class="search">
+                    <patientsearch ng-keyup="moveHeaderFocus('pid')" patientid="item.PatientId"
+                        class="logo inputsearchlogo" name="txtpatientsearch" patientinfo="selectedPatient"
+                        patientchange="patientChange()" aria-placeholder="Patient Search"
+                        tabindex="tabindexmap.patienttabindex" isdisabled="{{SaveCompleted}}"
+                        filterconfig="patientfilterconfig"></patientsearch>
+                    <div class="drhms-search-icon">
+                        <i class="fas fa-search" aria-hidden="true"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-12" style="margin-top: 10px;">
+        <patientbanner patientid="item.PatientId"></patientbanner>
+    </div>
+</div>
+
+<form id="item_form" name="item_form" class="form-horizontal" role="form">
+    <div class="row">
+        <div class="drhms-sub-header-border" translate="Estimation Patient Details">
+        </div>
+        <div class="form-group col-lg-3">
+            <label class="col-sm-12 control-label0" for="doctor" translate="Doctor"></label>
+            <div class="col-sm-12" id="doctorview">
+
+                <autosearch class="auto-search" controlid="'DoctorId'" itemid="item.DoctorId"
+                    tabindex="tabindexmap.patienttabindex" iteminfo="" rowdata="" name="'doctor'"
+                    config="vm.doctorcontrolconfig" candisable="SaveCompleted" isrequired="true" placeholder="'Doctor'">
+                </autosearch>
+            </div>
+        </div>
+        <div class="form-group col-sm-3">
+            <label class="col-sm-12 control-label0" for="date" translate="Date"></label>
+            <div class="col-sm-12">
+                <div class="datepicker">
+                    <input type="text" class="form-control" name="date" ng-date-object
+                        datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}"
+                        uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                        placeholder="{{datePickerOptions.placeholder}}"
+                        ng-click="filter_fromdatePopup = { opened: true }" is-open="filter_fromdatePopup.opened"
+                        ng-model="item.EstimationDate">
+                    <i class="fa fa-calendar" aria-hidden="true"></i>
+                </div>
+            </div>
+        </div>
+        <div class="form-group col-sm-3">
+            <label class="col-sm-12 control-label0" for="sponser" translate="Sponser"></label>
+            <div class="col-sm-12">
+                <div class="col-sm-12">
+                    <ui-select ng-model="item.GuarantorId" tabindex="-1" name="sponser" required>
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 20 : 0}}
+                            <span ng-if="$select.selected.Text.length > 20">...</span>
+                        </ui-select-match>
+                        <ui-select-choices
+                            repeat="lookupitem.Id as lookupitem in lookup.GuarantorType | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+        </div>
+        <div class="form-group col-sm-3">
+            <label class="col-sm-12 control-label0" for="details" translate="Contact Details"></label>
+            <div class="col-sm-12">
+                <input type="text"
+                         class="form-control" 
+                        MINLENGTH="10" MAXLENGTH="10" size="10" value="" name="details" onChange="numberonly($event)"
+                        onKeyUp="numberonly($event)" ng-keypress="numberonly($event)" ng-model="item.ContactDetails" required>
+            </div>
+        </div>
+        <div class="form-group col-sm-3">
+            <label class="col-sm-12 control-label0" for="treatment" translate="Treatment"></label>
+            <div class="col-sm-12">
+                <input type="text" class="form-control" name="treatment" ng-model="item.Treatment">
+            </div>
+        </div>
+        <div class="form-group col-sm-3">
+            <label class="col-sm-12 control-label0" for="attender" translate="Attenders Name"></label>
+            <div class="col-sm-12">
+                <input type="text" class="form-control" name="attender" ng-model="item.AttendersName">
+            </div>
+        </div>
+        <div class="form-group col-sm-3">
+            <label class="col-sm-12 control-label0" for="relationship" translate="Relationship"></label>
+            <div class="col-sm-12">
+                <div class="col-sm-12">
+                    <ui-select ng-model="item.RelationshipId" tabindex="-1">
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 20 : 0}}
+                            <span ng-if="$select.selected.Text.length > 20">...</span>
+                        </ui-select-match>
+                        <ui-select-choices
+                            repeat="lookupitem.Id as lookupitem in lookup.GuardianType | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+        </div>
+        <div class="form-group col-sm-3">
+            <label class="col-sm-12 control-label0" for="bed" translate="Bed Type"></label>
+            <div class="col-sm-12">
+                <div class="col-sm-12">
+                    <ui-select ng-model="item.BedTypeId" tabindex="-1" name="bed" required>
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 20 : 0}}
+                            <span ng-if="$select.selected.Text.length > 20">...</span>
+                        </ui-select-match>
+                        <ui-select-choices
+                            repeat="lookupitem.Id as lookupitem in lookup.BedType | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+        </div>
+        <div class="form-group col-sm-6">
+            <label class="col-sm-12 control-label0" for="remarks" translate="Remarks"></label>
+            <div class="col-sm-12">
+                <textarea class="form-control" name="remarks" ng-model="item.Remarks"></textarea>
+            </div>
+        </div>
+
+    </div>
+    <div class="row">
+        <div class="drhms-table-control">
+            <div class="drhms-bg-pattern">
+                <div class="drhms-table-height">
+                    <table class="drhms-responsive-table">
+                        <thead class="bg-subhead">
+                            <tr>
+                                <th class="col-sm-3">
+                                    <span translate="Particulars" for="service"></span>
+                                    <span class="mandatory-asterix">*</span>
+                                </th>
+                                <th class="col-sm-1">
+                                    <span translate="Bed Type"></span>
+                                </th>
+                                <th class="col-sm-1">
+                                    <span translate="Rate"></span>
+                                </th>
+                                <th class="col-sm-1">
+                                    <span translate="Stay"></span>
+                                </th>
+                                <th class="col-sm-1">
+                                    <span translate="Cost"></span>
+                                </th>
+                                <th class="col-sm-3">
+                                    <span translate="Remarks"></span>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="items in details">
+                                <td class="col-sm-3">
+                                    <autosearch controlid="items.itemidxdesc" ; class="estimation"
+                                        ng-keyup="moveFocus('qty','desc','desc','desc',$index,$event,items)"
+                                        itemid="items.ServiceGroupId" placeholder="'Item Name'"
+                                        iteminfo="items.SelectedItem" rowdata="items"
+                                        config="vm.servicegroupratemappingconfig"
+                                        itemchange="packageChanged($index, items)"></autosearch>
+                                </td>
+                                <td class="col-sm-2 text-center">
+                                    <input type="text" class="form-control" ng-model="items.BedTypes"
+                                        placeholder="Bed Type" readonly>
+                                </td>
+                                <td class="col-sm-1 text-center">
+                                    <input type="text" class="form-control" ng-model="items.Rate"
+                                        ng-change="updateEstimationAmount(items)" placeholder="Rate">
+                                </td>
+                                <td class="col-sm-1 text-center">
+                                    <input type="text" class="form-control" ng-model="items.Days"
+                                        ng-change="updateEstimationAmount(items)" placeholder="Stay">
+                                </td>
+                                <td class="col-sm-1 text-center">
+                                    <input type="text" class="form-control" ng-model="items.EstimationAmount"
+                                        ng-model="items.EstimationAmount" readonly>
+                                </td>
+                                <td class="col-sm-3 text-center">
+                                    <input type="text" class="form-control" ng-model="items.Remarks"
+                                        placeholder="Remarks">
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-6">
+            <label class="col-sm-4" translate="Estimation Inclusion"></label>
+            <div class="col-sm-8">
+                <multiselectchk list="lookup.EstimationInclusion" selected="item.EstimationInclusion"
+                    ng-change="getList()">
+                </multiselectchk>
+            </div>
+        </div>
+        <div class="col-sm-6">
+            <label class="col-sm-4" translate="Estimation Exclusion"></label>
+            <div class="col-sm-8">
+                <multiselectchk list="lookup.EstimationExclusion" selected="item.EstimationExclusion"
+                    ng-change="getList()">
+                </multiselectchk>
+            </div>
+        </div>
+    </div>
+    <div class="row" style="margin-top: 2%;">
+        <div class="pull-right">
+            <span for="total" translate="Total Amount"></span> :
+            <span class="countbg">{{TotalAmount}}</span>
+        </div>
+    </div>
+</form>
+<div class="fooder-bgs">
+    <div class="row">
+        <div class="pull-left">
+            <button type="button" class="pull-left btn btn-sm pyr-color10" ng-click="backToList()">
+                <i class="fa fa-angle-left"></i>&nbsp;&nbsp;
+                <span translate="common.backaction.lbl"></span>
+            </button>
+            <button uib-dropdown-toggle="" class="draftbutton" ng-show="canprintBtn" ng-click="print()" ng-disabled=""
+                hotkey="{'alt+p': print}">
+                <span translate="With Header"></span>&nbsp;&nbsp;&nbsp;
+            </button>
+            <button uib-dropdown-toggle="" class="draftbutton" ng-show="canprintBtn" ng-click="print2()" ng-disabled=""
+                hotkey="{'alt+p': print}">
+                <span translate="Without Header"></span>&nbsp;&nbsp;&nbsp;
+            </button>
+        </div>
+        <div class="pull-right">
+            <button type="button" class="draftbutton" translate="common.saveaction.lbl" ng-click="save()"></button>
+            <button type="button" class="draftbutton" translate="common.saveapprove-action.lbl"
+                ng-click="saveAndApprove()"></button>
+        </div>
+    </div>
+</div>

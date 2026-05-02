@@ -1,0 +1,236 @@
+(function () {
+    'use strict';
+
+    angular
+        .module('app.pages')
+        .controller('editunlockbillingrequestController', editunlockbillingrequestController);
+
+    function editunlockbillingrequestController($scope, $filter, $stateParams, $state, $translate, utl, $uibModalInstance, modalConfig) {
+
+        var vm = this;
+        $scope.currentcontext = {
+            ismodal: modalConfig && modalConfig.params ? true : false
+        };
+
+        if (modalConfig && modalConfig.params) {
+            $scope.Context = modalConfig.params.context;
+            $scope.confirmCallback = $uibModalInstance.close;
+            $scope.cancelCallback = $uibModalInstance.dismiss;
+        }
+        $scope.currentcontextedit = {};
+        $scope.currentfilter = {};
+        $scope.currentcontextedit.eid = modalConfig.params.id;
+        // $scope.currentcontext.id = modalConfig.params.patientbillid;
+        $scope.item = {};
+        $scope.items = {};
+        if (modalConfig && modalConfig.params && modalConfig.params.data) {
+            $scope.item = modalConfig.params.data;
+        }
+        // $scope.item.BillNumber = modalConfig.params.billnumber;
+        // $scope.item.PatientBillId = modalConfig.params.patientbillid;
+        // $scope.currentfilter.PatientId = modalConfig.params.pid;
+        // $scope.item.PatientId = $scope.currentfilter.PatientId;
+
+        $scope.getPatientInfo = function (scope, data, options, hasError) {
+            $scope.selectedPatient = data;
+            $scope.item.PatientName = $scope.selectedPatient.FirstName;
+            $scope.item.PatientId = $scope.selectedPatient.Id;
+            $scope.item.PatientMrn = $scope.selectedPatient.MRN;
+        }
+
+
+        $scope.patientChange = function () {
+            $scope.chkfindBill = 0;
+            if ($scope.currentfilter.PatientId > 0) {
+                var options = {
+                    action: 'registration/patient/GetPatientById',
+                    data: {
+                        Id: $scope.currentfilter.PatientId
+                    },
+                    type: 'post',
+                    onComplete: $scope.getPatientInfo
+                };
+                utl.Http.doAction(options);
+            }
+        };
+
+        $scope.getBillInfoCallback = function (scope, res, options, hasError) {
+            $scope.item.IsFromIPBill = 0;
+            $scope.PatientBillInfo = res.Data || [];
+            if ($scope.PatientBillInfo && $scope.PatientBillInfo.length > 0) {
+                $scope.isSaving = true;
+                $scope.outstanding = false;
+                $scope.IsDue = false;
+                $scope.PatientBillInfo.forEach(patientbills => {
+                    $scope.item.PatientId = patientbills.PatientId;
+                    $scope.item.PatientBillStatusId = patientbills.PatientBillStatusId;
+                    $scope.item.BillGeneratedBy = patientbills.BillGeneratedBy;
+                    $scope.item.BillAmount = patientbills.BillAmount;
+                    $scope.item.PaidAmount = patientbills.PaidAmount;
+
+                    $scope.currentfilter.PatientId = patientbills.PatientId;
+                    $scope.patientChange();
+                    if (patientbills.OutStandingAmount > 0) {
+                        $scope.IsDue = true
+                    } else {
+                        $scope.item.TotalDueAmount = patientbills.OutStandingAmount;
+                        $scope.item.TotalPaidAmount = patientbills.PaidAmount;
+                        $scope.canShowAdvanceBtn = true;
+                    }
+                    $scope.currentfilter.PatientId = patientbills.PatientId;
+                    $scope.currentcontext.FacilityId = patientbills.FacilityId;
+                    $scope.currentcontext.DiscountApprovedBy = patientbills.DiscountApprovedBy;
+                    $scope.currentcontext.id = patientbills.Id;
+                    $scope.currentcontext.ReceiptAmt = null;
+                    $scope.currentcontext.PaidAmt = patientbills.PaidAmount;
+                    $scope.currentcontext.ApprovedById = patientbills.BillApprovedBy;
+                    $scope.currentcontext.billdate = patientbills.BillDateTime;
+                    $scope.currentcontext.BillDiscount = patientbills.BillDiscount;
+                    $scope.currentcontext.CNAmount = patientbills.CNAmount;
+                    $scope.currentcontext.RefundAmount = patientbills.RefundAmount;
+                    $scope.currentcontext.CancelReason = patientbills.CancelReason;
+                    $scope.currentfilter.DiscountModeId = patientbills.BillDiscountModeId;
+                    $scope.item.BillNumber = patientbills.BillNumber;
+                    $scope.item.DepartmentId = patientbills.DepartmentId;
+                    $scope.item.DoctorId = patientbills.DoctorId;
+                    $scope.currentfilter.GuarantorId = patientbills.GuarantorId;
+                    $scope.currentfilter.GuarantorName = patientbills.GuarantorName;
+                    $scope.currentfilter.GuarantorTypeId = patientbills.GuarantorTypeId;
+                    $scope.currentfilter.ServiceRateCategoryId = patientbills.ServiceRateCategoryId;
+                    $scope.item.IsMultiplePayment = patientbills.IsMultiplePayment;
+
+                    if ($scope.currentfilter.DiscountModeId == 2) {
+                        $scope.currentcontext.BillDiscount = patientbills.DiscountPercentage;
+                    }
+                    $scope.currentcontext.PatientBillStatusId = patientbills.PatientBillStatusId;
+                    $scope.currentcontext.PatientStatusId = patientbills.PatientBillStatusId;
+                    $scope.item.PatientTypeId = patientbills.PatientTypeId;
+                    $scope.item.IsEmergency = patientbills.IsEmergency;
+                    $scope.item.EncounterId = patientbills.EncounterId;
+                    $scope.item.PatientName = patientbills.PatientName;
+                    $scope.item.PatientBillStatus = patientbills.PatientBillStatus.Description;
+                    $scope.item.GuarantorDueId = patientbills.GuarantorDueId || null;
+                    $scope.item.PrivateDueId = patientbills.PrivateDueId || null;
+                    $scope.item.IsManualBill = patientbills.IsManualBill;
+                    $scope.item.ManualBillNumber = patientbills.ManualBillNumber;
+                    $scope.item.ManualBillDate = patientbills.ManualBillDate;
+                    $scope.item.ManualBillComments = patientbills.ManualBillComments;
+                    $scope.isSaveandApprove = true;
+                });
+            }
+        };
+
+        $scope.getBillInfoByBillId = function () {
+            var SearchBillId = $scope.item.PatientBillId;
+            if (SearchBillId && SearchBillId > 0) {
+                var inputData = {
+                    Params: [{
+                        Key: 0,
+                        Value: SearchBillId
+                    }],
+                    PageContext: {
+                        PageSize: 100,
+                        PageNumber: 1
+                    }
+                };
+                var options = {
+                    action: 'billing/patientbills/GetPatientBills',
+                    data: inputData,
+                    type: 'post',
+                    onComplete: $scope.getBillInfoCallback
+                };
+                utl.Http.doAction(options);
+            }
+        };
+
+        $scope.UpdatePatientBillsForCancelCallback = function (scope, data, options, hasError) {
+            utl.Alert.showSuccessMsg($translate.instant('common.successmsg.lbl'));
+            $scope.confirmCallback();
+        };
+        $scope.UpdatePatientBillsForCancel = function () {
+
+            if ($scope.items.BillingRequestStatusId == 2) {
+                $scope.items.CancelReqRaisedStatusId = 2;
+            } else if ($scope.items.BillingRequestStatusId == 3) {
+                $scope.items.CancelReqRaisedStatusId = 3;
+            }
+
+            $scope.items.Id = $scope.item.PatientBillId;
+            // var lines = getLinesForSaveCancel();
+            var actionName = 'Billing/PatientBills/AddPatientBills';
+            if ($scope.currentcontext.id && $scope.currentcontext.id > 0) {
+                actionName = 'Billing/PatientBills/UpdatePatientBillsFromCancel';
+            }
+            var inputData = {
+                Header: $scope.items,
+            };
+            var options = {
+                action: actionName,
+                data: {
+                    Data: inputData
+                },
+                type: 'post',
+                onComplete: $scope.UpdatePatientBillsForCancelCallback
+            };
+            utl.Http.doAction(options);
+        };
+        $scope.UnlockApprovedCallback = function (scope, data, options, hasError) {
+            // utl.Alert.showSuccessMsg($translate.instant('common.successmsg.lbl'));
+            // $scope.UpdatePatientBillsForCancel();
+            $scope.confirmCallback();
+        };
+        $scope.UnlockApproved = function () {
+
+            $scope.items.BillingRequestStatusId = 2;
+            $scope.items.Id = $scope.item.BillingRequest.Id;
+            $scope.items.EncounterId = $scope.item.Id;
+            $scope.items.Unlock = 1;
+            $scope.items.BillUnlockApprovebyId = utl.Session.getCurrentUserId();
+            // var lines = getLinesForSaveCancel();
+            var actionName = 'Billing/BillingRequest/AddBillingRequest';
+            if ($scope.item.BillingRequest.Id && $scope.item.BillingRequest.Id > 0) {
+                actionName = 'Billing/BillingRequest/UpdateBillingRequest';
+            }
+            var options = {
+                action: actionName,
+                data: {
+                    Data: $scope.items
+                },
+                type: 'post',
+                onComplete: $scope.UnlockApprovedCallback
+            };
+            utl.Http.doAction(options);
+        };
+        $scope.UnlockRejectedCallback = function (scope, data, options, hasError) {
+            //  utl.Alert.showSuccessMsg($translate.instant('common.successmsg.lbl'));
+            // $scope.UpdatePatientBillsForCancel();
+            $scope.confirmCallback();
+        };
+        $scope.UnlockRejected = function () {
+
+            $scope.items.BillingRequestStatusId = 3;
+            $scope.items.Id = $scope.item.BillingRequest.Id;
+            $scope.items.EncounterId = $scope.item.Id;
+            $scope.items.Unlock = 1;
+            $scope.items.BillUnlockApprovebyId = utl.Session.getCurrentUserId();
+            // var lines = getLinesForSaveCancel();
+            var actionName = 'Billing/BillingRequest/AddBillingRequest';
+            if ($scope.item.BillingRequest.Id && $scope.item.BillingRequest.Id > 0) {
+                actionName = 'Billing/BillingRequest/UpdateBillingRequest';
+            }
+            var options = {
+                action: actionName,
+                data: {
+                    Data: $scope.items
+                },
+                type: 'post',
+                onComplete: $scope.UnlockRejectedCallback
+            };
+            utl.Http.doAction(options);
+        };
+        // $scope.getBillInfoByBillId();
+        // $scope.patientChange();
+    }
+    editunlockbillingrequestController.$inject = ['$scope', '$filter', '$stateParams', '$state', '$translate', 'utl', '$uibModalInstance', 'modalConfig'];
+
+})();

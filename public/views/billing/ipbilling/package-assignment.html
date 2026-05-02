@@ -1,0 +1,204 @@
+<link rel="stylesheet" href="app/css/drhms.css">
+<style>
+    .drhms-receipt span {
+        font-size: 12px;
+    }
+
+    autosearch.logo .custom-popup-wrapper {
+        margin-left: -300px;
+    }
+</style>
+<div class="row page-header">
+    <h4 translate="Packages"></h4>
+</div>
+<div class="col-sm-12">
+    <div class="drhms-table-top-header">
+        <div class="drhms-table-head-border">
+            <div class="col-sm-12">
+                <label class="col-sm-4" translate="Patient Name"></label>
+                <div class="col-sm-8">:
+                    <span class="head-title"><strong>{{selectedPatient.Title.Description}}
+                            {{selectedPatient.FirstName}}</strong></span>
+                </div>
+            </div>
+            <div class="col-sm-12">
+                <label class="col-sm-4" translate="Ward / Room"></label>
+                <div class="col-sm-8">:
+                    <span class="head-title">{{item.WardDetails}}
+                        <button type="button" class="infosummary" tabindex="-1" ng-click="Bedoccupancy()">
+                            <i class="fas fa-info-circle"></i>
+                        </button></span>
+                </div>
+            </div>
+            <div class="col-sm-12">
+                <label class="col-sm-4" translate="Date Of Admission"></label>
+                <div class="col-sm-8">:
+                    <span class="head-title">
+                        <displaydate datetime-val="Data.AdmissionDate"></displaydate>
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div class="drhms-table-head-border">
+            <div class="col-sm-12">
+                <label class="col-sm-4" translate="Age / Sex"></label>
+                <div class="col-sm-8">:
+                    <span class="head-title">{{selectedPatient.Age}} / {{selectedPatient.Gender.Description}}</span>
+                </div>
+            </div>
+            <div class="col-sm-12">
+                <label class="col-sm-4" translate="Doctor"></label>
+                <div class="col-sm-8">:
+                    <span class="head-title">{{item.DoctorName}}</span>
+                </div>
+            </div>
+            <div class="col-sm-12">
+                <label class="col-sm-4" translate="Date Of Discharge"></label>
+                <div class="col-sm-8">:
+                    <span class="head-title">{{EncounterDetails.DischargeDate | date :
+                        'dd-MMM-yyyy'}}&nbsp;{{EncounterDetails.DischargeDate | date :
+                        'HH:mm' }}</span>
+                </div>
+            </div>
+        </div>
+        <div class="drhms-table-head-border">
+            <div class="col-sm-12">
+                <label class="col-sm-4" translate="UHID"></label>
+                <div class="col-sm-8">:
+                    <span class="head-title">{{selectedPatient.MRN}}</span>
+                </div>
+            </div>
+            <div class="col-sm-12">
+                <label class="col-sm-4" translate="Payer"></label>
+                <div class="col-sm-8">:
+                    <span class="head-title">{{Data.Guarantor.GuarantorName}}
+                        <button class="infosummary" ng-show="Data.GuarantorTypeId==2" ng-click="addGuarantor()">
+                            <i class="fas fa-info-circle"></i>
+                        </button></span>
+                </div>
+            </div>
+            <div class="col-sm-12">
+                <label class="col-sm-4" translate="Bill # / Bill Date"></label>
+                <div class="col-sm-8">:
+                    <span class="head-title"> {{FinalBillInfo.BillNumber}} /
+                        {{FinalBillInfo.BillDateTime | date : 'dd-MMM-yyyy'}}&nbsp;{{FinalBillInfo.BillDateTime |
+                        date : 'HH:mm'
+                        }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <form id="item_form" name="item_form" class="form-horizontal" role="form">
+        <div class="col-sm-12">
+            <div class="col-sm-4 form-group">
+                <label class="col-sm-12 control-label" translate="billing.packageassignment.date.lbl"></label>
+                <div class="col-sm-12">
+                    <input type="text" class="form-control" name="packageassigneddate" ng-change="getList()"
+                        datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}"
+                        uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                        placeholder="{{datePickerOptions.placeholder}}"
+                        ng-click="packageassigneddatePopup = { opened: true }" is-open="packageassigneddatePopup.opened"
+                        ng-model="item.PackageAssignedDate">
+                </div>
+            </div>
+            <div class="col-sm-4 form-group">
+                <label class="col-sm-12 control-label filter-lbl"
+                    translate="billing.packageassignment.guarantortype.lbl"></label>
+                <div class="col-sm-12">
+                    <ui-select ng-model="item.GuarantorTypeId" name="guarantortypeid"
+                        uib-tooltip=" {{$select.selected.Text | limitTo : 20 : 0}}" tooltip-placement="bottom"
+                        ng-change="getGuarantor()">
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 20 : 0}}
+                            <span ng-if="$select.selected.Text.length>20">...</span>
+                        </ui-select-match>
+                        <ui-select-choices
+                            repeat="lookupitem.Id as lookupitem in lookup.GuarantorType | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+            <div class="col-sm-4 form-group">
+                <label class="col-sm-12 control-label filter-lbl" translate="Tariff Type"></label>
+                <div class="col-sm-12">
+                    <ui-select ng-model="item.ServiceRateCategoryId" class="ui-select-grid">
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 20 : 0}}
+                            <span ng-if="$select.selected.Text.length>20">...</span>
+                        </ui-select-match>
+                        <ui-select-choices
+                            repeat="lookupitem.Id as lookupitem in lookup.ServiceRateCategory | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+
+        </div>
+        <div class="col-sm-12">
+            <div class="col-sm-4 form-group">
+                <label class="col-sm-12 control-label filter-lbl"
+                    translate="billing.packageassignment.guarantor.lbl"></label>
+                <div class="col-sm-12">
+                    <ui-select ng-model="item.GuarantorId" name="guarantorid"
+                        uib-tooltip=" {{$select.selected.Text | limitTo : 20 : 0}}" tooltip-placement="bottom">
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 20 : 0}}
+                            <span ng-if="$select.selected.Text.length>20">...</span>
+                        </ui-select-match>
+                        <ui-select-choices
+                            repeat="lookupitem.Id as lookupitem in lookup.Guarantor | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+            <div class="col-sm-4 form-group">
+                <label class="col-sm-12 control-label filter-lbl" for="ippackagename"
+                    translate="billing.packageassignment.packagename.lbl"></label>
+                <div class="col-sm-12">
+                    <autosearch itemid="item.IPPackageId" controlid="'packid'" class="logo" iteminfo="item.selecteditem"
+                        name="ippackagename" rowdata="selectedItem" config="vm.ippackagecontrolconfig"
+                        itemchange="onPackageSelected(item)" candisable="item.RdoPackage"></autosearch>
+                </div>
+            </div>
+            <div class="col-sm-4 form-group">
+                <label class="col-sm-12 control-label" translate="Package Description"></label>
+                <div class="col-sm-12">
+                    <input type="text" class="form-control" ng-model="item.IPPackageDescription" placeholder="">
+                </div>
+            </div>
+            <div class="col-sm-4 form-group">
+                <label class="col-sm-12 control-label" for="packagamount"
+                    translate="clinicalmaster.package-form.packageamount.lbl"></label>
+                <div class="col-sm-12">
+                    <input type="number" class="form-control" ng-model="item.PackageAmount" name="packagamount"
+                        placeholder="">
+                </div>
+            </div>
+            <div class="form-group">
+                <button style="margin-top: 30px;" class="btn-add" uib-tooltip="Assign Package" tooltip-placement="bottom" ng-show="canShowAssignBtn"
+                ng-click="assignPackage()">
+                <i class="fas fa-plus"></i>
+            </button>
+            </div>
+        </div>
+
+    </form>
+</div>
+<div class="row">
+    <custom-table config="vm.gridConfig"></custom-table>
+</div>
+<div class="fooder-bgs">
+    <div class="row">
+        <div class="pull-left">
+            <button type="button" class="btn pyr-color10 btn-sm" ng-click="backToList()">
+                <i class="fa fa-angle-left" aria-hidden="true"></i>&nbsp;&nbsp;
+                <span class="btn-fontsize" translate="common.backaction.lbl"></span>
+            </button>
+        </div>
+    </div>
+</div>

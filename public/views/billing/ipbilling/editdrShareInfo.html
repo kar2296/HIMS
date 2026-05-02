@@ -1,0 +1,111 @@
+<!-- <style>
+    .profileinput {
+        height: 19px !important;
+        padding-bottom: 1px !important;
+    }
+
+    .fullreg-profiles label {
+        margin-bottom: -2px;
+    }
+
+    .ui-grid-viewport {
+        height: 212px !important;
+    }
+
+    .table-uigrid {
+        height: 260px !important;
+    }
+
+    .custom-modal-header {
+        margin-bottom: -1px;
+    }
+
+    .panel-body {
+        overflow: visible !important
+    }
+
+    .autosearch-div .custom-popup-wrapper {
+        position: absolute;
+        width: 600px !important;
+    }
+
+    .modal-content .fooder-bg {
+        position: sticky !important;
+        margin-bottom: 120px !important;
+        height: 1% !important
+    }
+
+    .modal-content input[type=search] {
+        width: 100% !important;
+    }
+
+    .modal-content .table>thead>tr>th {
+        padding: 10px 8px
+    }
+</style> -->
+<div class="modal-header custom-modal-header">
+    <div class="col-sm-10">
+        <h4 class="modal-title custom-modal-title" translate="Doctor Share Update"></h4>
+    </div>
+    <div class="col-sm-2">
+        <div class="filters">
+            <img src="../../../../../assets/svg/close.svg" ng-click="cancelCallback()">
+        </div>
+    </div>
+</div>
+<div class="row">
+    <form id="item_form" name="item_form" class="form-horizontal" role="form">
+        <table class="table table-hover table-responsive table-bordered">
+            <thead class="bg-subhead">
+                <tr>
+                    <!-- <th class="col-sm-3"><span translate="ServiceName"></span></th> -->
+                    <th class="col-sm-2">
+                        <span translate="Team"></span>
+                    </th>
+                    <th class="col-sm-3">
+                        <span translate="Doctor"></span>
+                    </th>
+                    <!-- <th class="col-sm-2"><span translate="Service Amount"></span></th> -->
+                    <th class="col-sm-2" ng-show="ShowDoctorShare">
+                        <span translate="Share Amount"></span>
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="item in DocShareDetails">
+                    <!-- <td>
+                            {{item.ServiceName}}
+                        </td> -->
+                    <td>
+                        {{item.Team.Description}}
+                    </td>
+                    <td>
+                        <ui-select id='doctorid' ng-model="item.DoctorId"
+                            on-select="SelectedDoctor(item,$select.selected)">
+                            <ui-select-match>
+                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                <span ng-if="$select.selected.Text.length>20">...</span>
+                            </ui-select-match>
+                            <ui-select-choices
+                                repeat="lookupitem.Id as lookupitem in lookup.Doctor | filter: { Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                            </ui-select-choices>
+                        </ui-select>
+                    </td>
+                    <!-- <td>
+                            {{item.ServiceAmount|displaycurrency}}
+                        </td> -->
+                    <td ng-show="ShowDoctorShare">
+                        <input type="text" class="form-control" ng-model="item.DoctorShareAmount">
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </form>
+</div>
+<div class="fooder-bgs">
+    <div class="pull-right">
+        <button type="button" id="btnsubmit" class="draftbutton" translate="Update" ng-click="Save()"
+            ng-show="CanShowUpdate"></button>
+    </div>
+</div>

@@ -1,0 +1,160 @@
+<div class="row">
+    <div class="form-group col-sm-3">
+        <label class="col-sm-12 control-label" translate="Name"></label>
+        <div class="col-sm-12">
+            <div class="search">
+                <input type="text" id="pid" class="form-control" on-enter="getList()"
+                    ng-model="currentfilter.patientnamemrn" placeholder="NAME/MRN"> <i class="fas fa-search"
+                    aria-hidden="true"></i>
+            </div>
+        </div>
+    </div>
+    <div class="form-group col-sm-3">
+        <label class="col-sm-12 control-label" translate="bedmanagement-grid.filter_doa.lbl"></label>
+        <div class="col-sm-12">
+            <div id="datepicker">
+                <input type="text" class="form-control" name="dateofbirth" ng-change="getList()"
+                    datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}"
+                    uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                    placeholder="{{datePickerOptions.placeholder}}" ng-click="dateofbirthPopup = { opened: true }"
+                    is-open="dateofbirthPopup.opened" ng-model="currentfilter.admissiondate">
+            </div>
+        </div>
+    </div>
+    <div class="form-group col-sm-3">
+        <label class="col-sm-12 control-label" translate="Ward"></label>
+        <div class="col-sm-12">
+            <ui-select ng-model="currentfilter.WardId" ng-change="getList()" class="filter-combo">
+                <ui-select-match>
+                    {{$select.selected.Text | limitTo : 8 : 0}}
+                    <span ng-if="$select.selected.Text.length>8">...</span>
+                </ui-select-match>
+                <ui-select-choices
+                    repeat="lookupitem.Id as lookupitem in lookup.Ward | filter: { Text: $select.search }">
+                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                </ui-select-choices>
+            </ui-select>
+        </div>
+    </div>
+    <div class="form-group col-sm-3">
+        <label class="col-sm-12 control-label" translate="bedmanagement-grid.filter_status.lbl"></label>
+        <div class="col-sm-12">
+            <multiselectchk list="lookup.AdmissionStatus" selected="currentfilter.admissionstatusid" change="getList()">
+            </multiselectchk>
+        </div>
+    </div>
+</div>
+<div class="fooder-bgs">
+    <div class="row">
+        <custom-table config="vm.gridConfig"></custom-table>
+        <ul uib-pagination total-items="vm.gridConfig.pagerObj.totalItems"
+            items-per-page="vm.gridConfig.pagerObj.pageSize" start-index="vm.gridConfig.pagerObj.startIndex"
+            ng-model="vm.gridConfig.pagerObj.currentPage" ng-change="getList()"></ul>
+    </div>
+</div>
+<script type="text/ng-template" id="currentinPatientsTemplate.html">
+<div class="patientprofilebg">
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 block">
+        <div class="ui-grid-cell-contents">
+            <div class="col-xs-2 col-sm-2 col-md-1 col-lg-1 ip_pat_img">
+                <span ng-show="!row.entity.Patient.PhotoPath">
+                    <img src="app/img/main/no-img-female.png" class="img-responsive image-height" ng-if="row.entity.Patient.GenderId == 2">
+                    <img src="app/img/main/no-img-icon.png" class="img-responsive image-height" ng-if="row.entity.Patient.GenderId != 2">
+                </span>
+                <img class="img-responsive image-height" ng-show="row.entity.Patient.PhotoPath && row.entity.Patient.Photo" data-ng-src="data:image/png;base64,{{row.entity.Patient.Photo}}"
+                />
+            </div>
+            <div class="col-xs-8 col-sm-8 col-md-4 col-lg-4 block">
+                <div class="nameinfo"> {{row.entity.Patient.Title.Description}} {{row.entity.Patient.FirstName}} {{row.entity.Patient.LastName}}</div>
+                <div class="nameinfo">
+                    <span class="nameinfo mrninfo">MRN - {{row.entity.Patient.MRN ? row.entity.Patient.MRN : 'N/A' }}</span> &nbsp; | &nbsp; {{row.entity.Patient.Gender.Description
+                    ? row.entity.Patient.Gender.Description : 'N/A'}} &nbsp; | &nbsp; {{row.entity.Patient.Age ? ((row.entity.Patient.Age
+                    <=1 ) ? row.entity.Patient.Age + 'Yr': row.entity.Patient.Age + ' Yrs') : 'N/A' }} &nbsp; | &nbsp; {{row.entity.Patient.DOB
+                        ? (row.entity.Patient.DOB| date : 'dd-MMM-yyyy') : 'N/A'}} </div>
+                        <div class="contactinfo" ng-if='row.entity.Patient.AddressLine1 || row.entity.Patient.AddressLine2'>
+                            <i class="fa fa-envelope text-address"></i> : &nbsp; {{row.entity.Patient.AddressLine1 + ',' }} {{row.entity.Patient.AddressLine2 ?
+                            row.entity.Patient.AddressLine2 + ',' : ""}} {{row.entity.Patient.Area ? row.entity.Patient.Area
+                            + ',' : ""}} {{row.entity.Patient.City ? row.entity.Patient.City + ',' : ""}} {{row.entity.Patient.State
+                            ? row.entity.Patient.State + ',' : ""}} {{row.entity.Patient.Country ? row.entity.Patient.Country
+                            : ""}}
+                        </div>
+                        <div class="contactinfo" ng-if='!row.entity.Patient.AddressLine1 && !row.entity.Patient.AddressLine2'>
+                            <i class="fa fa-envelope text-address"></i> : &nbsp; N/A
+                        </div>
+                        <div class="contactinfo">
+                            <i class="fa fa-phone-square text-cell"></i> : {{row.entity.Patient.LandLine}} &nbsp; | &nbsp; NRIC - {{row.entity.Patient.NationalityIdentifier
+                            ? row.entity.Patient.NationalityIdentifier : 'N/A'}}
+                        </div>
+                </div>
+                <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3 ip_hide">
+                    <ul class="timeline-xs">
+                        <li class="timeline-item">
+                            <div class="margin-left-15">
+                                <div class="text-muted text-small">
+                                    <label class="label label-warning">{{ row.entity.AdmittingReason.Description }}</label>
+                                    <div class="text-primary">
+                                        <displaydate datetime-val="row.entity.AdmissionDate"></displaydate>&nbsp;|&nbsp;{{row.entity.VisitIdentifier}}
+                                    </div>
+                                    <div>
+                                        <span class="text-primary">{{ row.entity.WardMaster.WardName }}</span>
+                                        <span class="text-primary">/</span>
+                                        <span class="text-primary">{{ row.entity.WardRoomMaster.RoomNo }}</span>
+                                        <span class="text-primary">/</span>
+                                        <span class="text-primary">{{ row.entity.WardRoomBedMaster.BedNo }}</span>
+                                    </div>
+                                    <div style="margin-top: -6px;">
+                                            <label class="label label-success">{{ row.entity.AdmissionStatus.Description }}</label>
+                                            <span class="statuss" style="color:red;font-size: 14px;" ng-if="row.entity.TeamId>0">Doc.Team:</span>
+                                                    <span class="token">{{row.entity.UserTeam.Team.Description}}</span>
+                                        </div>
+                                </div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+                <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3 ip_hide">
+                    <ul class="timeline-xs">
+                        <li class="timeline-item">
+                            <div class="margin-left-15">
+                                <div class="text-muted text-small">
+                                    <label class="label label-primary" style="font-size:85%">{{ row.entity.Diagnosis.DiagnosisName }}</label>
+                                    <div style="height: 7px;">&nbsp;</div>
+                                    <div>
+                                        <span class="text-primary">{{row.entity.Doctor.Title.Description}}</span>
+                                        <span class="text-primary"></span>
+                                        <span class="text-primary">{{row.entity.Doctor.FirstName}}</span>
+                                        <span class="text-primary"></span>
+                                        <span class="text-primary">{{row.entity.Doctor.LastName}}</span>
+                                    </div>
+                                    <div style="height: 1px;">&nbsp;</div>
+                                    <div>
+                                        <span class="label label-info">{{ row.entity.ALOS }} Days</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+                <div class="col-xs-1" style="margin-top: 23px;margin-left: -151px;">
+                    <!-- <ul class="timeline-xs"> -->
+                        <!-- <li class="timeline-item"> -->
+                            <!-- <div class="margin-left-15"> -->
+                                <div class="col-sm-3 menu">
+                                    <a ng-click="grid.appScope.handleEvents('ordertracker',row)" uib-tooltip="{{ 'registration.patientsearch.patientresult.lbl' | translate }}"
+                                        tooltip-placement="right" class=" text-white btn res-colortrack btn-sm" ng-disabled="row.entity.PatientStatusId == 3">
+                                        <strong>TRACKER</strong>
+                                    </a>
+                                </div>
+                            <!-- </div> -->
+                        <!-- </li>
+                    </ul> -->
+                </div>
+                <div class="col-xs-1 col-sm-1 col-md-1 col-lg-1 ">
+                    <button class="btn btn-default btn-xs ip_in" ng-click="grid.appScope.handleEvents('edit',row)" style="margin-top:25px;backgroun">
+                        <i class="fa fa-chevron-right" aria-hidden="true"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</script>

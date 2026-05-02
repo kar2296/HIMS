@@ -1,0 +1,133 @@
+<style>
+    .filter-area {
+        border: 0px;
+        box-shadow: none;
+    }
+
+    #userteamsnewheight .formRoot {
+        height: 475px!important;
+    }
+</style>
+<div id="userteamsnewheight">
+    <div class="row filter-area">
+        <div class="col-sm-12">
+            <div class="col-sm-6">
+            </div>
+            <div class="col-sm-6">
+                <!-- <button class="btn bt-color3 btn-xs pull-right btn-filter" ng-click="" uib-tooltip="{{ 'appmanager.users.advancefilter-tooltip.lbl' | translate  }}"
+                    tooltip-placement="bottom"><i class="fa fa-filter" aria-hidden="true"></i>&nbsp;&nbsp;<span translate="clinicalmaster.serviceitem-list.filter.lbl"></span></button> -->
+                <button class="btn bt-color2 btn-xs pull-right btn-filter" ng-click="addNew()" uib-tooltip="{{ 'appmanager.userteams.team-tooltip.lbl' | translate}}"
+                    tooltip-placement="bottom">
+                    <i class="fa fa-plus" aria-hidden="true"></i>
+                    <span translate="clinicalmaster.serviceitem-list.addnew.lbl"></span>
+                </button>
+            </div>
+        </div>
+    </div>
+    <div id="mainresponsivetablecontrol">
+        <div class="formRoot bg-pattern">
+            <div class="col-sm-12">
+                <table class="table table-hover table-responsive table-bordered">
+                    <thead class="bg-subhead">
+                        <tr>
+                            <th class="col-sm-4">
+                                <span translate="appmanager.userteams.teamname.lbl"></span>
+                                <span class="mandatory-asterix">*</span>
+                            </th>
+                            <th class="col-sm-4">
+                                <span translate="appmanager.userteam.groupname.lbl"></span>
+                                <span class="mandatory-asterix">*</span>
+                            </th>
+                            <th class="col-sm-1">
+                                <span translate="appmanager.userteam.isdefault.lbl"></span>
+                            </th>
+                            <th class="col-sm-2">
+                                <span translate="appmanager.userteams.activefrom.lbl"></span>
+                                <span class="mandatory-asterix">*</span>
+                            </th>
+                            <th class="col-sm-4">
+                                <span translate="appmanager.userteams.activeto.lbl"></span>
+                            </th>
+                            <th class="col-sm-1">
+                                <span translate="appmanager.userteams.comments.lbl"></span>
+                            </th>
+                            <th class="col-sm-1">
+                                <span translate="common.actions_col.lbl"></span>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="item in vm.items | filter:{Status:1}">
+                            <td>
+                                <ui-select ng-model="item.TeamId" name="type">
+                                    <ui-select-match>
+                                        {{$select.selected.Text | limitTo : 20 : 0}}
+                                        <span ng-if="$select.selected.Text.length>20">...</span>
+                                    </ui-select-match>
+                                    <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.Team | filter: { Text: $select.search }">
+                                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                    </ui-select-choices>
+                                </ui-select>
+                            </td>
+                            <td align="center">
+                                <ui-select ng-model="item.GroupId">
+                                    <ui-select-match>
+                                        {{$select.selected.Text | limitTo : 20 : 0}}
+                                        <span ng-if="$select.selected.Text.length>20">...</span>
+                                    </ui-select-match>
+                                    <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.Group | filter: { Text: $select.search }">
+                                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                    </ui-select-choices>
+                                </ui-select>
+                            </td>
+                            <td align="center">
+                                <input type="checkbox" class="custom-checkbox" ng-model="item.IsDefault">
+                            </td>
+                            <td>
+                                <input type="text" class="form-control" name="activefrom" ng-date-object uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                                    placeholder="{{datePickerOptions.placeholder}}" ng-click="activefromPopup = { opened: true }"
+                                    is-open="activefromPopup.opened" ng-model="currentfilter.ActiveFrom">
+                            </td>
+                            <td>
+                                <input type="text" class="form-control" name="activeto" ng-date-object datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}"
+                                    uib-datepicker-popup="{{datePickerOptions.dateFormat}}" placeholder="{{datePickerOptions.placeholder}}"
+                                    ng-click="activetoPopup = { opened: true }" is-open="activetoPopup.opened" ng-model="item.ActiveTo">
+                            </td>
+                            <td align="center">
+                                <input type="text" class="form-control" ng-model="item.Comments">
+                            </td>
+                            <td>
+                                <button class="drhms-edit-button" ng-click="deleteItem($index,item)">
+                                    <img src="assets/svg/delete.svg" alt="">
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="fooder-bgs">
+        <div class="row ">
+            <div class="col-sm-12">
+                <div class="col-sm-4 col-md-4">
+                    <div class="pull-left">
+                        <button type="button" class="btn pyr-color10 btn-sm" ng-click="backToList()">
+                            <i class="fa fa-angle-left" aria-hidden="true"></i>&nbsp;&nbsp;
+                            <span class="btn-fontsize" translate="common.backaction.lbl"></span>
+                        </button>
+                    </div>
+                </div>
+                <div class="col-sm-8 col-md-8">
+
+                    <div class="pull-right">
+                        <button type="button" class="draftbutton" translate="common.saveaction.lbl" ng-click="saveItem()"></button>
+                        <button type="button" class="btn btn-warning btn-sm" ng-click="clear()" translate="common.clearaction.lbl"></button>
+                        <button id="btnCancelForm" type="button" class="draftbutton" ng-click="backToList()" translate="common.cancelaction.lbl"></button>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

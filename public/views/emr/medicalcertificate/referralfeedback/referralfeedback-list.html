@@ -1,0 +1,126 @@
+<style>
+    .pager-div {
+        float: right;
+        right: 0;
+        box-sizing: border-box;
+        position: fixed;
+        box-sizing: border-box;
+    }
+</style>
+
+<div class="row page-header">
+    <h4 class="col-sm-6 mt0" translate="medicalcertificate.dischargesummary-list.pagetitle1.lbl"></h4>
+    <div class="col-sm-6">
+        <button class="btn bt-color3 btn-xs pull-right btn-filter" ng-click="" uib-tooltip="{{ '  clinicalmaster.serviceitem-list.filter-tooltip.lbl' | translate}}"
+            tooltip-placement="bottom">
+            <i class="fa fa-filter" aria-hidden="true"></i>&nbsp;&nbsp;
+            <span translate="clinicalmaster.serviceitem-list.filter.lbl"></span>
+        </button>
+        <button class="btn bt-color2 btn-xs pull-right btn-filter" ng-click="addNew()" uib-tooltip="{{ 'medicalcertificate.dischargesummary-list.pagetitle1.lbl' | translate
+}}" tooltip-placement="bottom">
+            <i class="fa fa-plus" aria-hidden="true"></i>
+            <span translate="clinicalmaster.serviceitem-list.addnew.lbl"></span>
+        </button>
+    </div>
+</div>
+<div class="row filter-area">
+    <div class="col-sm-12">
+        <div class="col-sm-3">
+            <div class="form-group">
+                <label class="sr-only col-sm-5 control-label filter-lbl" translate="medicalcertificate.dischargesummary-list.name/mrn.lbl"></label>
+                <div class="input-group col-sm-7">
+                    <div class="input-group-addon">
+                        <i class="fas fa-search" aria-hidden="true"></i>
+                    </div>
+                    <input type="text" class="form-control" on-enter="getList()" ng-model="currentfilter.PatientNameMRN" placeholder=" NAME/MRN">
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-3">
+            <div class="form-group">
+                <label class="sr-only col-sm-5 control-label filter-lbl" translate="medicalcertificate.dischargesummary-list.visitno.lbl"></label>
+                <div class="input-group col-sm-7">
+                    <div class="input-group-addon">
+                        <i class="fas fa-search" aria-hidden="true"></i>
+                    </div>
+                    <input type="text" class="form-control" on-enter="getList()" ng-model="currentfilter.VisitNo" placeholder="Visit No">
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-3">
+            <div class="form-group">
+                <label class="sr-only col-sm-5 control-label filter-lbl" translate="medicalcertificate.dischargesummary-list.phoneno.lbl"></label>
+                <div class="input-group col-sm-7">
+                    <div class="input-group-addon">
+                        <i class="fas fa-search" aria-hidden="true"></i>
+                    </div>
+                    <input type="text" class="form-control" on-enter="getList()" ng-model="currentfilter.PhoneNo" placeholder="Phone No">
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-3">
+            <label class="col-sm-5 col-md-4 control-label filter-lbl" translate="medicalcertificate.dischargesummary-list.date.lbl"></label>
+            <div class="col-sm-7 col-md-8">
+                <input type="text" class="form-control" ng-change="getList()" name="referraldate" ng-disabled="item.isDisabled" ng-date-object
+                    uib-datepicker-popup="{{datePickerOptions.dateFormat}}" placeholder="{{datePickerOptions.placeholder}}" ng-click="referraldatePopup = { opened: true }"
+                    placeholder="{{datePickerOptions.placeholder}}" ng-click="referraldatePopup = { opened: true }" is-open="referraldatePopup.opened"
+                    ng-model="currentfilter.ReferralDate" id="disabledInput" disabled>
+            </div>
+        </div>
+
+    </div>
+    <div class="col-sm-12">
+        <div class="col-sm-3">
+            <label class="col-sm-5 control-label" for="source" translate="medicalcertificate.dischargesummary-list.source.lbl"></label>
+            <div class="col-sm-7">
+                <ui-select ng-model="currentfilter.SourceId" ng-change="getList()" tabindex="-1" name="source" ng-disabled="item.RBDisabled">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 20 : 0}}
+                        <span ng-if="$select.selected.Text.length>20">...</span>
+                    </ui-select-match>
+                    <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.ReferralType | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+        <div class="col-sm-3">
+            <label class="col-sm-5 control-label" for="referral" translate="medicalcertificate.dischargesummary-list.referral.lbl"></label>
+            <div class="col-sm-7">
+                <autosearch itemid="currentfilter.ReferralId" iteminfo="" rowdata="" config="vm.referralcontrolconfig" onenter="getList()"
+                    itemchange="getList()"></autosearch>
+
+                <!-- <ui-select ng-model="currentfilter.ReferralId" ng-change="getList()" name="referral" >
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 20 : 0}}
+                        <span ng-if="$select.selected.Text.length>20">...</span>
+                    </ui-select-match>
+                    <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.Referral | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select> -->
+            </div>
+        </div>
+        <div class="col-sm-3">
+            <label class="col-sm-5 control-label" for="status" translate="medicalcertificate.dischargesummary-list.statuss.lbl"></label>
+            <div class="col-sm-7">
+                <ui-select ng-model="currentfilter.ReferralStatusId" ng-change="getList()" name="status">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 20 : 0}}
+                        <span ng-if="$select.selected.Text.length>20">...</span>
+                    </ui-select-match>
+                    <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.CertificateStatus | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="container-fluid single-filter">
+    <div ui-grid="vm.gridConfig" class="table-uigrid"></div>
+    <div class="site-footer">
+        <ul uib-pagination total-items="vm.gridConfig.pagerObj.totalItems" items-per-page="vm.gridConfig.pagerObj.pageSize" start-index="vm.gridConfig.pagerObj.startIndex"
+            ng-model="vm.gridConfig.pagerObj.currentPage" ng-change="getList()"></ul>
+    </div>
+</div>

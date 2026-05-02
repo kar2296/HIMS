@@ -1,0 +1,137 @@
+<div class="row">
+    <div class="col-sm-3">
+        <label class="col-sm-12" translate="Date"></label>
+        <div class="col-sm-12">
+            <div class="datepicker">
+                <input type="text" class="form-control cwidth" ng-change="getList()"
+                    uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                    placeholder="{{datePickerOptions.placeholder}}" ng-click="orderDatePopup = { opened: true }"
+                    is-open="orderDatePopup.opened" ng-model="currentfilter.orderDate">
+                <i class="fa fa-calendar" aria-hidden="true"></i>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-3">
+        <label class="col-sm-12" translate="billing.servicebilldiscounts.approvalstatus.lbl"></label>
+        <div class="col-sm-12">
+            <ui-select ng-model="currentfilter.VirtualOrderStatusId" ng-change="getList()" class="filter-combo">
+                <ui-select-match>
+                    {{$select.selected.Text | limitTo : 20 : 0}}
+                    <span ng-if="$select.selected.Text.length > 20">...</span>
+                </ui-select-match>
+                <ui-select-choices
+                    repeat="lookupitem.Id as lookupitem in lookup.VirtualOrderStatus | filter: { Text: $select.search }">
+                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                </ui-select-choices>
+            </ui-select>
+        </div>
+    </div>
+    <div class="col-sm-3">
+        <label class="col-sm-12" translate="virtualhealth.doctors.subcategory.lbl"></label>
+        <div class="col-sm-12">
+            <ui-select ng-model="currentfilter.VirtualSubCategoryId" ng-change="getList()" class="filter-combo">
+                <ui-select-match>
+                    {{$select.selected.Text | limitTo : 20 : 0}}
+                    <span ng-if="$select.selected.Text.length > 20">...</span>
+                </ui-select-match>
+                <ui-select-choices
+                    repeat="lookupitem.Id as lookupitem in lookup.VirtualSubCategory | filter: { Text: $select.search }">
+                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                </ui-select-choices>
+            </ui-select>
+        </div>
+    </div>
+    <div class="col-sm-3">
+        <label class="col-sm-12" translate="Search"></label>
+        <div class="col-sm-12">
+            <input type="text" id="pid" class="form-control" on-enter="getList()" ng-model="currentfilter.orderpatient"
+                translate placeholder="Order#/Patient Name/MRN#/Mobile">
+        </div>
+    </div>
+
+</div>
+
+<div class="row">
+    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 bhoechie-tab-container">
+        <div class="bhoechie-tab-menu">
+            <div class="list-group">
+                <a class="list-group-item text-center" ng-repeat="item in lookup.VirtualCategory">
+                    <div ng-click="setMaster(item)">
+                        <h4 class="tooltips" ng-click="CategorySelection(item.Id)" tooltip-placement="{{item.Text}}">
+                        </h4>
+                        <h4 style="color:#55518a;font-weight: 600 !important;font-size: 12px !important;"
+                            ng-click="CategorySelection(item.Id)" ng-class="{active : isSelected(item)}">
+                            <span>{{item.Text}}</span></h4>
+                    </div>
+                </a>
+            </div>
+        </div>
+        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 bhoechie-tab">
+            <div class="bhoechie-tab-content card" ng-repeat="ctgry in PendingOrders">
+                <div class="col-md-12 col-sm-12">
+                    <div class="col-xs-2 col-sm-2">
+                        <h5 class="">{{ctgry.OrderNumber}}</h5>
+                        <h6 class="orderdate">
+                            <displaydate date-val="ctgry.OrderRequestDate">
+                            </displaydate>
+                        </h6>
+                    </div>
+                    <div class="col-xs-4 col-sm-4">
+                        <h5 class="patientname">{{ctgry.Patient.Title.Description}} .
+                            {{ctgry.Patient.FirstName}}&nbsp;{{ctgry.Patient.LastName}} | <span
+                                style="font-weight: 600;color: #164360;">{{ctgry.Patient.MRN}}</span></h5>
+                        <h6 class="categoryname">{{ctgry.VirtualCategory.CategoryName}} |
+                            {{ctgry.VirtualSubCategory.SubCategoryName}}</p>
+                    </div>
+                    <div class="col-xs-4 col-md-4 col-sm-4">
+                        <h4 class="scheduledate"><i class="fa fa-clock" aria-hidden="true"></i>
+                            <displaydate date-val="ctgry.OrderScheduleDate">
+                            </displaydate>
+                            <span ng-if="ctgry.CategoryTypeId==1">{{ctgry.StartTime}} to {{ctgry.EndTime}}</span>
+                        </h4>
+                        <h6 class="orderstatus"> {{ctgry.VirtualOrderStatus.Description}}
+                            |{{ctgry.OrderMode.Description}}</h6>
+                    </div>
+                    <div class="col-xs-2 col-md-2 col-sm-2">
+                        <div class="ui-grid-cell-contents">
+                            <span class="grid-action" ng-click="handleEvents('confirm',ctgry)"
+                                ng-if="ctgry.VirtualOrderStatusId==1" uib-tooltip="Confrim" tooltip-placement="top">
+                                <i class="icofont-tick-boxed"></i>
+                            </span>
+                            <span class="grid-action" ng-click="handleEvents('assign',ctgry)"
+                                ng-if="ctgry.VirtualOrderStatusId==2" uib-tooltip="Assign" tooltip-placement="top">
+                                <i class="icofont-doctor-alt"></i>
+                            </span>
+                            <span class="grid-action" ng-click="handleEvents('orderinfo',ctgry)" uib-tooltip="OrderInfo"
+                                tooltip-placement="top">
+                                <i class="icofont-ebook"></i>
+                            </span>
+                            <span class="grid-action" ng-click="handleEvents('virtualbill',ctgry)"
+                                ng-hide="ctgry.VirtualOrderStatusId==1||ctgry.VirtualOrderStatusId==2"
+                                uib-tooltip="Generate Bills" tooltip-placement="top">
+                                <i class="icofont-license"></i>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="fooder-bgs"></div>
+<script>
+    $(document).ready(function () {
+
+        function contenttab() {
+
+        }
+        $("div.bhoechie-tab-menu>div.list-group>.col-sm-12.innertabs a label.btn").click(function (e) {
+            e.preventDefault();
+            $(this).siblings('a.active').removeClass("active");
+            $(this).addClass("active");
+            var index = $(this).index();
+            $("div.bhoechie-tab>div.bhoechie-tab-content").removeClass("active");
+            $("div.bhoechie-tab>div.bhoechie-tab-content").eq(index).addClass("active");
+        });
+    });
+</script>

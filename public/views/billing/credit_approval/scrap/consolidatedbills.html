@@ -1,0 +1,330 @@
+<link rel="stylesheet" href="app/css/drhms.css">
+<style>
+    .drhms-receipt span {
+        font-size: 12px;
+    }
+
+    .form-group.col-sm-3 {
+        height: 62px;
+    }
+
+    .pid-search input.form-control.pid {
+        background: #e8f0fe !important;
+    }
+    patientsearch.pid-search .custom-popup-wrapper {
+    margin-left: -200px;
+}
+</style>
+<div class="row">
+    <div class="col-sm-8">
+        <h4 translate="billing.pharmacy-billdetails.pagetitle.lbl"></h4>
+    </div>
+    <div class="col-sm-4">
+        <allpatientsearch class="pid-search" ng-keyup="moveHeaderFocus('pid')" patientid="currentfilter.PatientId"
+            name="txtpatientsearch" patientinfo="selectedPatient" patientchange="getPatient()"
+            tabindex="tabindexmap.patienttabindex">
+        </allpatientsearch>
+    </div>
+</div>
+<div class="row">
+    <div class="form-group col-sm-3">
+        <label class="col-sm-12 control-label" translate="billing.pharmacy-billdetails.fromdate.lbl"></label>
+        <div class="col-sm-12">
+            <input type="text" class="form-control" datepicker-options="datePickerOptions"
+                show-button-bar="{{datePickerOptions.showButtonBar}}"
+                ng-date-object datetime-picker="{{datePickerOptions.dateTimeFormat}}" placeholder="{{datePickerOptions.placeholder}}"
+                ng-change="getPharmacyBills()" ng-click="fromdatePopup = { opened: true }"
+                is-open="fromdatePopup.opened" ng-model="currentfilter.FromBillDate">
+        </div>
+    </div>
+
+    <div class="form-group col-sm-3">
+        <label class="col-sm-12 control-label" translate="billing.pharmacy-billdetails.todate.lbl"></label>
+        <div class="col-sm-12">
+            <input type="text" class="form-control" datepicker-options="datePickerOptions"
+                show-button-bar="{{datePickerOptions.showButtonBar}}"
+                ng-date-object datetime-picker="{{datePickerOptions.dateTimeFormat}}" placeholder="{{datePickerOptions.placeholder}}"
+                ng-change="getPharmacyBills()" ng-click="todatePopup = { opened: true }" is-open="todatePopup.opened"
+                ng-model="currentfilter.ToBillDate">
+        </div>
+    </div>
+    <div class="form-group col-sm-3">
+        <label class="col-sm-12 control-label" translate="billing.pharmacy-billdetails.billtype.lbl"></label>
+        <div class="col-sm-12">
+            <ui-select ng-model="currentfilter.PharmacySaleTypeId" class="filter-combo" ng-change="getPharmacyBills()">
+                <ui-select-match>
+                    {{$select.selected.Text | limitTo : 20 : 0}}
+                    <span ng-if="$select.selected.Text.length>20">...</span>
+                </ui-select-match>
+                <ui-select-choices
+                    repeat="lookupitem.Id as lookupitem in lookup.PharmacySaleType | filter: { Text: $select.search }">
+                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                </ui-select-choices>
+            </ui-select>
+        </div>
+    </div>
+    <div class="form-group col-sm-3">
+        <label class="col-sm-12 control-label" translate="billing.pharmacy-billdetails.approvedby.lbl"></label>
+        <div class="col-sm-12">
+            <ui-select ng-model="currentfilter.DueApprovedById" class="filter-combo" ng-change="getPharmacyBills()">
+                <ui-select-match>
+                    {{$select.selected.Text | limitTo : 20 : 0}}
+                    <span ng-if="$select.selected.Text.length>20">...</span>
+                </ui-select-match>
+                <ui-select-choices
+                    repeat="lookupitem.Id as lookupitem in lookup.PrivateDueApprover | filter: { Text: $select.search }">
+                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                </ui-select-choices>
+            </ui-select>
+        </div>
+    </div>
+    <div class="form-group col-sm-3">
+        <label class="col-sm-12 control-label" translate="Credit / Claim / Cash"></label>
+        <div class="col-sm-2">
+            <input type="checkbox" name="IsOutStanding" ng-click="UncheckCash()" class="custom-checkbox"
+                ng-model="currentfilter.IsOutStanding">
+        </div>
+        <div class="col-sm-2">
+            <input type="checkbox" name="Claim" ng-click="UncheckClaim()" class="custom-checkbox"
+                ng-model="currentfilter.Claim">
+        </div>
+        <div class="col-sm-2">
+            <input type="checkbox" name="NotOutStanding" ng-click="UncheckCredit()" class="custom-checkbox"
+                ng-model="currentfilter.NotOutStanding">
+        </div>
+    </div>
+
+    <!-- <div class="form-group col-sm-3">
+        <label class="col-sm-12 control-label" translate="billing.pharmacy-billdetails.claim.lbl"></label>
+        <div class="col-sm-12">
+            <input type="checkbox" name="Claim" ng-click="UncheckClaim()" class="custom-checkbox"
+                ng-model="currentfilter.Claim">
+        </div>
+    </div> -->
+    <!-- <div class="form-group col-sm-3">
+        <label class="col-sm-12 control-label" translate="billing.pharmacy-billdetails.notoutstanding.lbl"></label>
+        <div class="col-sm-12">
+            <input type="checkbox" name="NotOutStanding" ng-click="UncheckCredit()" class="custom-checkbox"
+                ng-model="currentfilter.NotOutStanding">
+        </div>
+    </div> -->
+    <div class="form-group col-sm-9" style="margin-top: 20px;">
+        <button type="button" class="draftbutton" translate="billing.pharmacy-billdetails.loadbill.lbl"
+            ng-click="getPharmacyBills()"></button>
+        <button type="button" class="draftbutton" translate="billing.pharmacy-billdetails.dmprint.lbl"
+            ng-click="dmPrint()" ng-show="canShowDMPrintBtn"></button>
+        <button type="button" class="draftbutton" translate="Sales & Return"
+            ng-click="dmPrintForPharmacyBillsWithReturn()" ng-show="canShowDMPrintBtn"></button>
+        <button type="button" class="draftbutton" translate="billing.pharmacy-billdetails.print.lbl" ng-click="Print1()"
+            ng-show="canShowDMPrintBtn"></button>
+        <button type="button" class="draftbutton" translate="Header print" ng-click="HeaderPrint()"
+            ng-show="canShowDMPrintBtn"></button>
+    </div>
+</div>
+<div class="col-sm-12" style="margin-top: 20px;">
+    <span translate="billing.pharmacy-billdetails.billdetails.lbl"></span>
+</div>
+<div class="col-sm-12">
+    <div class="drhms-table-control">
+        <div class="drhms-bg-pattern">
+            <div class="drhms-table-height">
+                <table class="drhms-responsive-table">
+                    <thead>
+                        <tr>
+                            <th>
+                                <span translate="billing.pharmacy-billdetails.serialno.lbl"></span>
+                            </th>
+                            <th>
+                                <span translate="billing.pharmacy-billdetails.billno.lbl"></span>
+                            </th>
+                            <th>
+                                <span translate="billing.pharmacy-billdetails.billdate.lbl"></span>
+                            </th>
+                            <th>
+                                <span translate="billing.pharmacy-billdetails.patient.lbl"></span>
+                            </th>
+                            <th>
+                                <span translate="billing.pharmacy-billdetails.opipno.lbl"></span>
+                            </th>
+                            <th>
+                                <span translate="billing.pharmacy-billdetails.doctor.lbl"></span>
+                            </th>
+                            <th>
+                                <span translate="billing.pharmacy-billdetails.billamount.lbl"></span>
+                            </th>
+                            <th>
+                                <span translate="billing.pharmacy-billdetails.discount.lbl"></span>
+                            </th>
+                            <th>
+                                <span translate="billing.pharmacy-billdetails.roundoff.lbl"></span>
+                            </th>
+                            <th>
+                                <span translate="billing.pharmacy-billdetails.netamount.lbl"></span>
+                            </th>
+                            <th>
+                                <span translate="billing.pharmacy-billdetails.paidamount.lbl"></span>
+                            </th>
+                            <th>
+                                <span translate="">
+                                    <input type="checkbox" class="custom-checkbox"
+                                        ng-model="currentcontext.selectallchk"
+                                        ng-click="SelectAll(currentcontext.selectallchk)" />
+                                </span>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="detail in PatientPharmacyBills">
+                            <td>{{detail.SalesSerialNo}}</td>
+                            <td>{{detail.BillNumber}}</td>
+                            <td>
+                                <displaydate date-val="detail.BillDateTime"></displaydate>
+                            </td>
+                            <td>{{detail.Patient.Title.Description}}&nbsp;
+                                {{detail.Patient.FirstName}}&nbsp;
+                                {{detail.Patient.LastName}}/
+                                {{detail.Patient.MRN}}/
+                                {{detail.Patient.Age}}/
+                                {{detail.Patient.Gender.Description}}
+                            </td>
+                            <td>{{detail.Encounter.VisitIdentifier}}</td>
+                            <td>{{detail.UserDoctor.Title.Description}}&nbsp;
+                                {{detail.UserDoctor.FirstName}}&nbsp;
+                                {{detail.UserDoctor.LastName}}
+                            </td>
+                            <td>{{detail.BillAmount}}</td>
+                            <td>{{detail.BillDiscount}}</td>
+                            <td>{{detail.RoundOffValue}}</td>
+                            <td>{{detail.NetAmount}}</td>
+                            <td>{{detail.PaidAmount}}</td>
+                            <td>
+                                <input type="checkbox" class="custom-checkbox" id="select{{$index}}"
+                                    ng-model="detail.select" ng-change="selectionChangedCal()" />
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="col-sm-12" style="margin-top: 20px;">
+    <span translate="billing.pharmacy-billdetails.returndetails.lbl"></span>
+</div>
+<div class="col-sm-12">
+    <div class="drhms-table-control">
+        <div class="drhms-bg-pattern">
+            <div class="drhms-table-height">
+                <table class="drhms-responsive-table">
+                    <thead>
+                        <tr>
+                            <th>
+                                <span translate="billing.pharmacy-billdetails.serialno.lbl"></span>
+                            </th>
+                            <th>
+                                <span translate="billing.pharmacy-billdetails.returnno.lbl"></span>
+                            </th>
+                            <th>
+                                <span translate="billing.pharmacy-billdetails.returndate.lbl"></span>
+                            </th>
+                            <th>
+                                <span translate="billing.pharmacy-billdetails.billno.lbl"></span>
+                            </th>
+                            <th>
+                                <span translate="billing.pharmacy-billdetails.billdate.lbl"></span>
+                            </th>
+                            <th>
+                                <span translate="billing.pharmacy-billdetails.patient.lbl"></span>
+                            </th>
+                            <th>
+                                <span translate="billing.pharmacy-billdetails.opipno.lbl"></span>
+                            </th>
+                            <th>
+                                <span translate="billing.pharmacy-billdetails.doctor.lbl"></span>
+                            </th>
+                            <th>
+                                <span translate="billing.pharmacy-billdetails.returnamount.lbl"></span>
+                            </th>
+                            <th>
+                                <span translate="billing.pharmacy-billdetails.roundoff.lbl"></span>
+                            </th>
+                            <th>
+                                <span translate="billing.pharmacy-billdetails.netamount.lbl"></span>
+                            </th>
+                            <th>
+                                <span translate="billing.pharmacy-billdetails.refundamount.lbl"></span>
+                            </th>
+                            <th>
+                                <span translate="">
+                                    <input type="checkbox" class="custom-checkbox"
+                                        ng-model="currentcontext.selectallchk1"
+                                        ng-click="SelectAll1(currentcontext.selectallchk1)" />
+                                </span>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="detail in PatientPharmacyReturns">
+                            <td>{{detail.ReturnSerialNo}}</td>
+                            <td>{{detail.ReturnNumber}}</td>
+                            <td>
+                                <displaydate date-val="detail.ReturnDateTime"></displaydate>
+                            </td>
+                            <td>{{detail.BillNumber}}</td>
+                            <td>
+                                <displaydate date-val="detail.BillDateTime"></displaydate>
+                            </td>
+                            <td>{{detail.Patient.Title.Description}}&nbsp;
+                                {{detail.Patient.FirstName}}&nbsp;
+                                {{detail.Patient.LastName}}/
+                                {{detail.Patient.MRN}}/
+                                {{detail.Patient.Age}}/
+                                {{detail.Patient.Gender.Description}}
+                            </td>
+                            <td>{{detail.Encounter.VisitIdentifier}}</td>
+                            <td>{{detail.User.Title.Description}}&nbsp;
+                                {{detail.User.FirstName}}&nbsp;
+                                {{detail.User.LastName}}
+                            </td>
+                            <td>{{detail.ReturnAmount}}</td>
+                            <td>{{detail.RoundOffValue}}</td>
+                            <td>{{detail.NetReturnAmount}}</td>
+                            <td>{{detail.RefundedAmount}}</td>
+                            <td>
+                                <input type="checkbox" class="custom-checkbox" id="select1{{$index}}"
+                                    ng-model="detail.select1" ng-change="selectionChangedCal()" />
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row" style="display: flex;justify-content: flex-end;">
+    <div class="col-sm-4">
+        <table id="bannerdetails" class="foot">
+            <tbody>
+                <tr>
+                    <td>Sales Amount</td>
+                    <td class="currency-align">
+                        <span>{{currentfilter.TotalSalesAmount|displaycurrency}}</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Return Amount</td>
+                    <td class="currency-align">
+                        <span>{{currentfilter.TotalReturnAmount|displaycurrency}}</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="drhms-special-count">Total Amount</td>
+                    <td class="drhms-special-count currency-align">
+                        <span>{{currentfilter.TotalAmount|displaycurrency}}</span>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+<div class="fooder-bgs"></div>

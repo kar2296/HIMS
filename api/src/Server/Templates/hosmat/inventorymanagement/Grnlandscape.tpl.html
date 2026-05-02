@@ -1,0 +1,242 @@
+<html>
+
+<head>
+    <style>
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        td, th {
+            padding: 3px;
+            vertical-align: top;
+        }
+
+        * {
+            font-family: sans-serif;
+        }
+
+        th {
+            white-space: break-spaces;
+            border: 1px !important;
+            border-top: 1px solid black !important;
+            border-bottom: 1px solid black !important;
+        }
+
+        td {
+            border: 1px !important;
+        }
+
+        .size td,
+        .size th {
+            border: 1px solid black !important;
+        }
+
+        .sub-total {
+            border: 0px !important;
+            border-top: 0px solid black !important;
+            border-bottom: 0px solid black !important;
+            width: 100%;
+        }
+        {{include '/Templates/hosmat/assets/css/core.css'}}
+    </style>
+</head>
+
+<body>
+    <div id="pageHeader">
+        {{#if data.Flags.header}}
+        {{{include '/Templates/hosmat/common/header.tpl.html' 'tpl'}}}
+        {{/if}}
+    </div>
+    <div class="content">
+        <table style="width:100%;">
+            <tr>
+                <td height="20" style="vertical-align:text-middle; text-align: center;font-size: 22px;"><b style="font-size: 22px;">GOODS
+                        RECEVIED
+                        NOTE</b></td>
+            </tr>
+        </table>
+        <br>
+        <br>
+        <table style="width:100%;">
+            <tr>
+                <td style="width:15%;">Supplier</td>
+                <td style="width:35%;"><b>: {{data.Vendor.VendorName}}</b></td>
+                <td style="width:15%;">GSTin No</td>
+                <td style="width:35%;">: </td>
+            </tr>
+            <tr>
+                <td>GRN No</td>
+                <td><b>: {{data.Grn.GrnNumber}}</b></td>
+                <td>GRN Date</td>
+                <td>: {{datetimeformat data.Grn.GrnDate}}</td>
+            </tr>
+            <tr>
+                <td>PO No</td>
+                <td>: {{data.Grn.PurchaseOrder.PoNumber}}</td>
+                <td>PO Date</td>
+                <td>: {{dateformat data.Grn.PurchaseOrder.PoDate}}</td>
+            </tr>
+            <tr>
+                <td>Invoice No</td>
+                <td>: {{data.Grn.InvoiceNumber}}</td>
+                <td>Invoice Date</td>
+                <td>: {{dateformat data.Grn.InvoiceDate}}</td>
+            </tr>
+        </table>
+        <table border class="size" style="width:100%;">
+            <tr>
+                <th align="center">No</th>
+                <th align="left">Item Description</th>
+                <th align="center">PO.Q</th>
+                <th align="center">In.Qty</th>
+                <th align="center">Free.Q</th>
+                <th align="center">Pack.Q</th>
+                <th align="center">TOT.Q</th>
+                <!-- <th style="width:6%;align="center">HSN</th> -->
+                <!-- <th align="center">UOM Stock</th> -->
+                <!-- <th align="center">Batch</th>
+                <th align="center">Exp</th> -->
+                <!-- <th align="left">Free Qty</th> -->
+                <th align="center">Rate</th>
+                <!-- <th align="center">GST</th> -->
+                <th align="center">MRP</th>
+                <th align="center">Dis%</th>
+                <!-- <th align="center">Total Value</th> -->
+                <!-- <th align="center">CGST %</th> -->
+                <th align="center">Tax%</th>
+                <!-- <th align="center">Tax Amount</th> -->
+                <!-- <th align="Center">Net Amount</th> -->
+                <th align="center">Amount</th>
+            </tr>
+            {{#each data.GrnDetailDetail}}
+            <tr>
+                <td align="center">{{inc @index}}</td>
+                <td align="left">{{ItemName}}({{ItemCode}})</td>
+                <!-- <td align="left">{{ItemMaster.ProductRegNo}}</td> -->
+                <!-- <td align="center">{{PurchaseUom.UomName}}</td> -->
+                <!-- <td align="left">{{BatchId}} / {{dateformat ExpiryDate}}</td>  -->
+                <!-- {{#if data.GrnDetailDetail.PoQuantity}}
+            <td align="right">{{PoQuantity}}</td>{{/if}} -->
+                <td align="center">{{PoQuantity}}</td>
+                <td align="center">{{GrnQuantity}}</td>
+                <td align="center">{{FreeQty}}</td>
+                <td align="center">{{ConversionQuantity}}</td>
+                <td align="center">{{TotalQuantityAfterConversion}}</td>
+                <!-- <td align="center">{{BatchId}}</td>
+                <td align="center">{{expyearformat ExpiryDate}}</td> -->
+                <!-- <td align="center">{{FreeQty}}</td> -->
+                <!-- <td align="center">{{TotalQuantityAfterConversion}}</td> -->
+                <td align="right">{{currencyformat UomPrice}}</td>
+                <!-- <td align="right">{{currencyformat UnitCostPrice}}</td> -->
+                <td align="right">{{currencyformat UomMrPrice}}</td>
+                <!-- <td align="right">{{currencyformat Amt}}</td> -->
+                <td align="center">{{Discount}}</td>
+                <!-- <td align="center">{{CGstPercentage}}</td> -->
+                <!-- <td align="right">{{currencyformat CgstTax}}</td> -->
+                <!-- <td align="center">{{SGstPercentage}}</td> -->
+                <td align="center">{{GstPercentage}}</td>
+                <!-- <td align="right">{{currencyformat SgstTax}}</td> -->
+                <!-- <td align="right">{{currencyformat GstAmount}}</td> -->
+                <!-- <td align="right">{{currencyformat GstAmount}}</td> -->
+                <!-- <td align="right">{{currencyformat NetAmount}}</td> -->
+                <td align="right">{{currencyformat NetAmount}}</td>
+                <!-- <td align="right">{{currencyformat TotalMRP}}</td> -->
+            </tr> {{/each}}
+        </table>
+        <br>
+        <table style="width:100%">
+            <tr>
+                <td style="width:20%;"><b>Amount In Words</b></td>
+                <td>:</td>
+                <td style="width:40%;">Rupees {{numberInWords data.Grn.TotalNetAmount}} Only</td>
+                <td style="width:40%;">
+                    <table class="sub-total">
+                        {{#if data.Grn.TotalDiscountAmount}}
+                        <tr>
+                            <td align="right"><b>Discount </b></td>
+                            <td>:</td>
+                            <td align="right">{{currencyformat data.Grn.TotalDiscountAmount}}</td>
+                        </tr>
+                        {{/if}}
+                        <tr>
+                            <td align="right"><b>Tax Amount</b></td>
+                            <td>:</td>
+                            <td align="right">{{currencyformat data.Grn.TotalGstAmount}}</td>
+                        </tr>
+                        {{#if data.Grn.RoundOff}}
+                        <tr>
+                            <td align="right"><b>Invoice Round Off Amt</b></td>
+                            <td>:</td>
+                            <td align="right">{{currencyformat data.Grn.RoundOff}}</td>
+                        </tr>
+                        {{/if}}
+                        <tr>
+                            <td align="right"><b>Net Amount</b></td>
+                            <td>:</td>
+                            <td align="right">{{currencyformat data.Grn.TotalInvoiceAmount}}</td>
+                        </tr>
+                        {{#if data.Grn.OtherCharges}}
+                        <tr>
+                            <td align="right"><b>Other Charges</b></td>
+                            <td>:</td>
+                            <td align="right">{{currencyformat data.Grn.OtherCharges}}</td>
+                        </tr>
+                        {{/if}}
+                        <tr>
+                            <td align="right"><b>Transportation Charges</b></td>
+                            <td>:</td>
+                            <td align="right"></td>
+                        </tr>
+                        <tr>
+                            <td align="right"><b>Total Amount</b></td>
+                            <td>:</td>
+                            <td align="right">{{currencyformat data.Grn.TotalNetAmount}}</td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
+        <table style="width:100%">
+            <!-- <tr>
+            <td style="width:20%;"><b>Terms & Conditions</b></td>
+            <td>:</td>
+            <td style="text-align:left;width:80%;"><b>{{data.Grn.VendorMaster.PaymentTerms.Description}}</b>
+            </td>
+        </tr> -->
+            <!-- <tr>
+            <td style="width:20%;"><b>Remarks</b></td>
+            <td>:</td>
+            <td style="text-align:left;width:80%;"><b>{{data.Grn.Comments}}</b></td>
+        </tr> -->
+        </table>
+        <br>
+        <br>
+        <br>
+        <table style="width:100%;">
+            <tr>
+                <td style="width: 5%;"></td>
+                <td style="width: 30%;" align="center"><b>RECEIVED BY</b></td>
+                <td style="width: 30%;" align="center"><b>INSPECTED BY</b></td>
+                <td style="width: 30%;" align="center"><b>PREPARED BY </b> : {{data.Grn.ApprovedUser.Title.Description}}
+                    {{data.Grn.ApprovedUser.FirstName}} {{data.Grn.ApprovedUser.LastName}}</td>
+                <td style="width: 5%;"></td>
+            </tr>
+            <!-- <tr>
+            <td style="width:35%;"><b>{{data.Grn.ApprovedUser.Title.Description}}
+                    {{data.Grn.ApprovedUser.FirstName}} {{data.Grn.ApprovedUser.LastName}}</b></td>
+            <td style="width:30%;"></td>
+            <td style="width:35%;text-align:right;"><b>{{data.Grn.AuthorizedUser.Title.Description}}
+                    {{data.Grn.AuthorizedUser.FirstName}} {{data.Grn.AuthorizedUser.LastName}}</b>
+            </td>
+        </tr>
+        <tr>
+            <td style="width:35%;"><b>Approved By</b></td>
+            <td style="width:30%;"></td>
+            <td style="width:35%;text-align:right;"><b>Authorized By</b></td>
+        </tr> -->
+        </table>
+        <br>
+    </div>
+</body>
+<!-- <div style="width:100%; font-size:10px;">Printed On: {{now}}</div> -->

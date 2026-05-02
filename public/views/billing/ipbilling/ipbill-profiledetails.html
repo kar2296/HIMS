@@ -1,0 +1,324 @@
+<link rel="stylesheet" href="app/css/drhms.css">
+<div class="modal-header custom-modal-header">
+    <div class="col-sm-6">
+        <h4 class="modal-title custom-modal-title" translate="Add New Bills"></h4>
+    </div>
+    <div class="col-sm-6">
+        <div class="filters">
+            <img src="../../../../../assets/svg/close.svg" ng-click="backToList()">
+        </div>
+    </div>
+</div>
+<div class="row">
+    <form id="item_form" name="item_form" class="form-horizontal" role="form">
+        <div class="drhms-table-top-header">
+            <div class="drhms-table-head-border">
+                <div class="col-sm-12">
+                    <label class="col-sm-4" translate="Patient Name"></label>
+                    <div class="col-sm-8">:
+                        <span class="head-title"><strong>{{selectedPatient.Title.Description}}
+                                {{selectedPatient.FirstName}}</strong></span>
+                    </div>
+                </div>
+                <div class="col-sm-12">
+                    <label class="col-sm-4" translate="Ward / Room"></label>
+                    <div class="col-sm-8">
+                        <autosearch itemid="Encounter.BedId" tabindex="-1" iteminfo="SelectedItem" rowdata=""
+                            config="vm.wardbedmastercontrolconfig" itemchange="" candisable="true"
+                            uib-tooltip=" {{SelectedItem.WardMaster.WardName+' / '+ SelectedItem.WardRoomMaster.RoomNo +' / '+ SelectedItem.Code | limitTo : 20 : 0}}"
+                            tooltip-placement="bottom"></autosearch>
+                    </div>
+                </div>
+                <div class="col-sm-12">
+                    <label class="col-sm-4" for="billdatetime" translate="Bill Date"></label>
+                    <div class="col-sm-8">
+                        <div class="datepicker">
+                            <input type="text" class="form-control" name="billdatetime" ng-date-object
+                                datetime-picker="{{dateTimePickerOptions.dateTimeFormat}}"
+                                placeholder="{{datePickerOptions.placeholder}}"
+                                ng-click="billdatetimePopup = { opened: true }" ng-change="CheckserviceDate(item)"
+                                is-open="billdatetimePopup.opened" ng-model="item.BillDateTime" required>
+                            <i class="fa fa-calendar"></i>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <div class="drhms-table-head-border">
+                <div class="col-sm-12">
+                    <label class="col-sm-4" translate="Age / Sex"></label>
+                    <div class="col-sm-8">:
+                        <span class="head-title">{{selectedPatient.Age}} / {{selectedPatient.Gender.Description}}</span>
+                    </div>
+                </div>
+                <div class="col-sm-12">
+                    <label class="col-sm-4" translate="Doctor"></label>
+                    <div class="col-sm-8">
+                        <autosearch class="auto-search" controlid="'DoctorId'" itemid="Encounter.DoctorId"
+                            tabindex="tabindexmap.patienttabindex" iteminfo=""
+                            itemchange="onDoctorSelected($select.selected)" rowdata="" name="'doctor'"
+                            config="vm.doctorcontrolconfig" candisable="SaveCompleted" isrequired="true"
+                            placeholder="'Doctor'">
+                        </autosearch>
+                        <!-- <ui-select ng-model="Encounter.DoctorId" tabindex="-1" name="doctor"
+                            ng-disabled="isCompleted||isCancelled" ng-change="onDoctorSelected()">
+                            <ui-select-match>
+                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                <span ng-if="$select.selected.Text.length>20">...</span>
+                            </ui-select-match>
+                            <ui-select-choices
+                                repeat="lookupitem.Id as lookupitem in lookup.Doctor | filter: { Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                            </ui-select-choices>
+                        </ui-select> -->
+                    </div>
+                </div>
+                <!-- <div class="col-sm-12">
+                    <label class="col-sm-4" translate="Department"></label>
+                    <div class="col-sm-8">
+                        <ui-select ng-model="Encounter.DepartmentId" tabindex="-1" name="department"
+                            ng-disabled="isCompleted||isCancelled">
+                            <ui-select-match>
+                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                <span ng-if="$select.selected.Text.length>20">...</span>
+                            </ui-select-match>
+                            <ui-select-choices
+                                repeat="lookupitem.Id as lookupitem in lookup.Department | filter: { Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                </div> -->
+            </div>
+            <div class="drhms-table-head-border">
+                <div class="col-sm-12">
+                    <label class="col-sm-4" translate="UHID"></label>
+                    <div class="col-sm-8">:
+                        {{selectedPatient.MRN}}
+                    </div>
+                </div>
+                <div class="col-sm-12">
+                    <label class="col-sm-4" translate="Payer"></label>
+                    <div class="col-sm-8">:
+                        {{Encounter.Guarantor.GuarantorName}}
+                    </div>
+                </div>
+                <div class="col-sm-12">
+                    <label class="col-sm-4" translate="Tariff"></label>
+                    <div class="col-sm-8">
+                        <!-- <ui-select ng-model="Encounter.ServiceRateCategoryId" tabindex="-1" name="tariff"
+                            ng-disabled="isCompleted||isCancelled"> -->
+                        <ui-select ng-model="Encounter.ServiceRateCategoryId" tabindex="-1" name="tariff" ng-disabled="currentcontext.CanEditTariff === false">
+                            <ui-select-match>
+                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                <span ng-if="$select.selected.Text.length>20">...</span>
+                            </ui-select-match>
+                            <ui-select-choices
+                                repeat="lookupitem.Id as lookupitem in lookup.ServiceRateCategory | filter: { Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                </div>
+                <div class="col-sm-12">
+                    <label class="col-sm-4" translate="Discount Type"></label>
+                    <div class="col-sm-8">
+                        <ui-select ng-model="currentfilter.DiscountModeId" ng-change="DiscountModechange()"
+                            class="ui-select-grid">
+                            <ui-select-match>
+                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                <span ng-if="$select.selected.Text.length>20">...</span>
+                            </ui-select-match>
+                            <ui-select-choices
+                                repeat="lookupitem.Id as lookupitem in lookup.DiscountMode | filter: { Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                </div>
+                <div class="col-sm-12" ng-show="CanShowScheme">
+                    <label class="col-sm-4" translate="Scheme"></label>
+                    <div class="col-sm-8">:
+                        {{currentfilter.PromotionalScheme}}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+<div class="row">
+    <form id="item_form" name="item_form" class="form-horizontal" role="form" ng-submit="">
+        <div class="formRoot popupheight">
+            <div class="panel-body form-panel">
+                <div class="col-sm-12 padding-top5">
+                    <div class="table-height formRoot bill_opbilling" id="mainresponsivetablecontrol">
+                        <table class="table table-hover table-responsive table-bordered" id="profile_billdropdown">
+                            <thead class="bg-subhead">
+                                <tr>
+                                    <th width="20%">
+                                        <span translate="billing.billing-details.itemname.lbl" for="service"></span>
+                                    </th>
+                                    <th class="col-sm-1">
+                                        <span translate="billing.billing-details.qty.lbl"></span>
+                                    </th>
+                                    <th class="col-sm-1">
+                                        <span translate="billing.ip-insurancebill.baserate.lbl"></span>
+                                    </th>
+                                    <th class="col-sm-1">
+                                        <span translate="billing.ip-insurancebill.adjrate.lbl"></span>
+                                    </th>
+                                    <th width="15%">
+                                        <span translate="billing.billing-details.doctor.lbl"></span>
+                                    </th>
+                                    <th class="col-sm-1">
+                                        <span translate="billing.billing-details.doctorshare.lbl"></span>
+                                    </th>
+                                    <th class="col-sm-1" ng-if="Encounter.GuarantorTypeId>1">
+                                        <span translate="MOU Discount"></span>
+                                    </th>
+                                    <th class="col-sm-1" ng-show="CanShowScheme">
+                                        <span translate="billing.opbilling-list.SchemeDiscountpercentage.lbl"></span>
+                                    </th>
+                                    <th class="col-sm-1" ng-show="CanShowScheme">
+                                        <span translate="billing.opbilling-list.SchemeDiscountrs.lbl"></span>
+                                    </th>
+                                    <th>
+                                        <span translate="billing.billing-details.discount.lbl"></span>
+                                    </th>
+                                    <th ng-show="ShowVAT">
+                                        <span translate="Tax Amount"></span>
+                                    </th>
+                                    <th class="col-sm-1">
+                                        <span translate="billing.billing-details.netamount.lbl"></span>
+                                    </th>
+                                    <th class="col-sm-1" ng-if="Encounter.GuarantorTypeId>1">
+                                        <span translate="Insurance Amount"></span>
+                                    </th>
+                                    <th class="col-sm-1" ng-if="Encounter.GuarantorTypeId>1">
+                                        <span translate="CoPay Amount"></span>
+                                    </th>
+                                    <th width="15%">
+                                        <span translate="billing.billing-details.action.lbl"></span>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-repeat="item in PatientBillDetails | filter: billingFilter">
+                                    <td>
+                                        <autosearch controlid="item.Serviceididx"
+                                            ng-keyup="moveFocus('rate','desc','desc','desc',$index,$event,item)"
+                                            itemid="item.ServiceId" tabindex="item.tabindex" name="'service'"
+                                            iteminfo="item.SelectedItem" rowdata="item"
+                                            config="vm.serviceitemcontrolconfig"
+                                            itemchange="getServiceItem($index, item)" candisable="false"
+                                            isrequired="true"></autosearch>
+
+                                    </td>
+                                    <td>
+                                        <input type="text" class="form-control" ng-model="item.Quantity"
+                                            onChange="numberonly($event)" onKeyUp="numberonly($event)"
+                                            ng-keypress="numberonly($event)" ng-disabled="item.ServiceId==0"
+                                            ng-change="calcAmt($index,item)" required>
+                                    </td>
+                                    <td class=" " align="center">
+                                        <input type="text" class="form-control" ng-model="item.UnitPrice"
+                                            ng-disabled="true">
+                                    </td>
+                                    <td class=" " align="center">
+                                        <input type="text" class="form-control" id="{{item.Rateidx}}"
+                                            ng-keyup="moveFocus('desc','desc','rate','rate',$index,$event, item)"
+                                            ng-model="item.Rate" ng-change="calcAmt($index,item)"
+                                            ng-disabled="IsBedcontext||item.ServiceId<1" required>
+                                    </td>
+                                    <td>
+                                        <autosearch itemid="item.DoctorId" tabindex="-1" iteminfo="" rowdata="" name=""
+                                            config="vm.doctorcontrolconfig" itemchange="doctorChange(item)"
+                                            candisable="item.ServiceId==0" isrequired="item.ServiceId > 0" ng-keyup="rejectKeys($event, item)"></autosearch>
+                                    </td>
+                                    <!-- <td>
+                                        <input type="text" tabindex="-1" class="form-control"
+                                            ng-model="item.DoctorShare" ng-change="calcAmt($index,item)">
+                                    </td> -->
+                                    <td>
+                                        <input type="text" ng-model="item.DoctorShare">
+                                    </td>
+                                    <td ng-if="Encounter.GuarantorTypeId>1">
+                                        <span>{{item.AgreementDiscountRate}}</span>
+                                    </td>
+                                    <td ng-show="CanShowScheme">
+                                        <span>{{item.SchemeDiscountRate}}</span>
+                                    </td>
+                                    <td ng-show="CanShowScheme">
+                                        <span>{{item.SchemeDiscountAmt}}</span>
+                                    </td>
+                                    <td>
+                                        <input type="text" tabindex="-1" class="form-control" ng-model="item.Discount"
+                                            ng-change="calcAmt($index,item)" onChange="numberonly($event)"
+                                            onKeyUp="numberonly($event)" ng-keypress="numberonly($event)"
+                                            ng-disabled="IsBedcontext||item.ServiceId<1">
+                                    </td>
+                                    <td class="currency-align" ng-show="ShowVAT">
+                                        <span>{{item.GSTAmount}}</span>
+                                    </td>
+                                    <td class="currency-align">
+                                        <span disabled>{{item.NetAmount | displaycurrency}}</span>
+                                    </td>
+                                    <td class="currency-align" ng-if="Encounter.GuarantorTypeId>1">
+                                        <span disabled>{{item.InsNetAmount | displaycurrency}}</span>
+                                    </td>
+                                    <td class="currency-align" ng-if="Encounter.GuarantorTypeId>1">
+                                        <span disabled>{{item.PatNetAmount | displaycurrency}}</span>
+                                    </td>
+                                    <td class="text-center">
+                                        <button type="button" tabindex="-1" class="drhms-edit-icon"
+                                            ng-click="editDocShareInfo($index,item)">
+                                            <img class="drhms-edit-button" src="assets/svg/edit.svg" alt="">
+                                            <!-- <i class="fas fa-pencil-alt doctshare" aria-hidden="true"></i> -->
+                                        </button>
+                                        <button type="button" tabindex="-1" class="drhms-edit-icon"
+                                            ng-click="editPatientBillDetails($index, item)">
+                                            <img class="drhms-edit-button" src="assets/svg/edit.svg" alt="">
+                                            <!-- <i class="fas fa-pencil-alt" aria-hidden="true"></i> -->
+                                        </button>
+                                        <!-- <button class="drhms-delete-icon" tabindex="-1" type="button"
+                                            uib-tooltip="Delete" tooltip-placement="top"
+                                            ng-click="deleteDetail($index,item)" ng-disabled="isCompleted||isCancelled">
+                                            <img class="drhms-edit-button" src="assets/svg/delete.svg" alt="">
+                                            <!-- <i class="fa fa-close" aria-hidden="true"></i> 
+                                        </button> -->
+                                        <button class="drhms-delete-icon" tabindex="-1" type="button"
+                                            uib-tooltip="Delete" tooltip-placement="top"
+                                            ng-click="deleteDetail($index,item)" ng-if="currentcontext.CanShowDelete === true">
+                                            <img class="drhms-edit-button" src="assets/svg/delete.svg" alt="">
+                                        </button>
+                                    </td>
+
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="pull-right" style="display: flex;justify-content: flex-end;">
+                    <div class="col-sm-6">
+                        <table id="bannerdetails">
+                            <tr>
+                                <!-- <td translate="billing.ip-insurancebill.overallbilltotal.lbl"></td>
+                                <td>{{currentcontext.BillTotal | displaycurrency}}</td> -->
+                                <td class="drhms-special-count" translate="billing.ip-insurancebill.netamount.lbl"></td>
+                                <td class="drhms-special-count">{{TotalNet | displaycurrency}}</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="fooder-bgs" style="margin-bottom:5px !important;padding: 3px 3px;">
+            <div class="pull-right">
+                <div class="col-sm-12">
+                    <button type="button" id="btnsubmit" ng-if="!isCancelled" class="draftbutton" translate="Approve"
+                        ng-click="completeBill()" ng-disabled="savehitcompleted"></button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>

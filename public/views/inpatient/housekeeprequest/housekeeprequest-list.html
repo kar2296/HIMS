@@ -1,0 +1,86 @@
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body> -->
+<div class="row page-header">
+    <h4 class="col-sm-6 mt0" translate="housekeeprequests.pagetitle.lbl"></h4>
+    <div class="col-sm-6">
+        <button class="btn-add" ng-click="addNew()" uib-tooltip="{{ 'housekeeprequest.addnew-tooltip.lbl' | translate }}" tooltip-placement="bottom">
+            <i class="fa fa-plus" aria-hidden="true"></i>
+            <!-- <span translate="clinicalmaster.serviceitem-list.addnew.lbl"></span> -->
+        </button>
+
+    </div>
+</div>
+<div class="row">
+    <div class="col-sm-3">
+        <label class="col-sm-12 control-label" for="date" translate="From Date"></label>
+        <div class="col-sm-12">
+            <input type="text" class="form-control" name="fromdate" ng-change="getList()" datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}"
+                uib-datepicker-popup="{{datePickerOptions.dateFormat}}" placeholder="{{datePickerOptions.placeholder}}" ng-click="fromdatePopup = { opened: true }"
+                is-open="fromdatePopup.opened" ng-model="currentfilter.FromDate">
+        </div>
+    </div>
+    <div class="col-sm-3">
+        <label class="col-sm-12 control-label" for="date" translate="To Date"></label>
+        <div class="col-sm-12">
+            <input type="text" class="text-box form-control" ng-date-object datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}"
+                uib-datepicker-popup="{{datePickerOptions.dateFormat}}" placeholder="{{datePickerOptions.placeholder}}" ng-click="todate = { opened: true }"
+                is-open="todate.opened" ng-model="currentfilter.ToDate" ng-change="getList()" tabindex="tabindexmap.patienttabindex">
+            <!-- <input type="text" class="form-control" name="todate" ng-change="getList()" datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}" uib-datepicker-popup="{{datePickerOptions.dateFormat}}" placeholder="{{datePickerOptions.placeholder}}"
+                        ng-click="todatePopup = { opened: true }" is-open="todatePopup.opened" ng-model="currentfilter.ToDate"> -->
+        </div>
+    </div>
+    <div class="form-group col-sm-3">
+        <label class="col-sm-12" for="patient" translate="admissionrequest.patient.lbl"></label>
+        <div class="col-sm-12">
+            <input type="text" class="form-control" on-enter="getList()" ng-model="currentfilter.patientnamemrn" placeholder="NAME/MRN">
+        </div>
+    </div>
+    <div class="form-group col-sm-3">
+        <label class="col-sm-12" translate="housekeeprequests.filter_requestedno.lbl"></label>
+        <div class="col-sm-12">
+            <input type="text" class="form-control" on-enter="getList()" ng-model="currentfilter.RequestIdentifier" placeholder="Requested No">
+        </div>
+    </div>
+    <div class="form-group col-sm-3">
+        <label class="col-sm-12" translate="housekeeprequests.filter_activity.lbl"></label>
+        <div class="col-sm-12">
+            <ui-select ng-model="currentfilter.HousekeepingActivityId" ng-change="getList()" class="filter-combo">
+                <ui-select-match>
+                    {{$select.selected.Text | limitTo : 8 : 0}}
+                    <span ng-if="$select.selected.Text.length>8">...</span>
+                </ui-select-match>
+                <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.HousekeepingActivity | filter: { Text: $select.search }">
+                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                </ui-select-choices>
+            </ui-select>
+        </div>
+    </div>
+    <div class="form-group col-sm-3">
+        <label class="col-sm-12" translate="housekeeprequests.filter_status.lbl"></label>
+        <div class="col-sm-12">
+            <ui-select ng-model="currentfilter.HousekeepingStatusId" ng-change="getList()" class="filter-combo">
+                <ui-select-match>
+                    {{$select.selected.Text | limitTo : 20 : 0}}
+                    <span ng-if="$select.selected.Text.length>8">...</span>
+                </ui-select-match>
+                <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.HouseKeepingStatus | filter: { Text: $select.search }">
+                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                </ui-select-choices>
+            </ui-select>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <custom-table config="vm.gridConfig"></custom-table>
+</div>
+<div class="fooder-bgs">
+    <div class="row">
+        <ul uib-pagination total-items="vm.gridConfig.pagerObj.totalItems" items-per-page="vm.gridConfig.pagerObj.pageSize" start-index="vm.gridConfig.pagerObj.startIndex"
+            ng-model="vm.gridConfig.pagerObj.currentPage" ng-change="getList()"></ul>
+    </div>
+</div>

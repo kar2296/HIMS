@@ -1,0 +1,78 @@
+<style>
+    .btn-upload {
+        
+    background: linear-gradient(270deg, #698700 0%, #c61f1f 100%);
+        border-radius: 0px;
+        width: auto;
+        padding: 0 30px;
+        height: 32px;
+        border: 0;
+        color: #000000 !important;
+        margin-top: 20px;
+    }
+</style>
+<div class="modal-header custom-modal-header" ng-if="currentcontext.ismodal">
+    <div class="col-sm-6">
+        <h4 class="modal-title custom-modal-title" translate="patientemr.patientdocument-form.pagetitle.lbl"></h4>
+    </div>
+    <div class="col-sm-6">
+        <div class="filters">
+            <img src="../../../../../assets/svg/close.svg" ng-click="backToList()">
+            <!-- <button type="button" class="btn btn-danger btn-sm pull-right" translate="x" ng-click="backToList()"></button> -->
+        </div>
+    </div>
+</div>
+<div class="row">
+    <form id="item_form0" name="item_form" class="form-horizontal" role="form" ng-submit="saveItem()">
+        <div class="form-group col-sm-3">
+            <label class="col-sm-12 control-label" for="documenttype"
+                translate="patientemr.patientdocument-form.documenttype.lbl"></label>
+            <div class="col-sm-12">
+                <ui-select ng-model="item.DocumentTypeId" name="documenttype" required>
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 20 : 0}}
+                        <span ng-if="$select.selected.Text.length>20">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.DocumentType | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+        <div class="form-group col-sm-3">
+            <label class="col-sm-12 control-label" for="createddate"
+                translate="patientemr.patientdocument-form.createddate.lbl"></label>
+            <div class="col-sm-12">
+                <input type="text" class="form-control" name="startdateandtime" ng-date-object
+                    datetime-picker="{{datePickerOptions.dateTimeFormat}}"
+                    placeholder="{{datePickerOptions.placeholder}}" ng-click="createddatePopup = { opened: true }"
+                    is-open="createddatePopup.opened" ng-model="item.CreatedDate">
+            </div>
+        </div>
+        <div class="form-group col-sm-3">
+            <label class="col-sm-12 control-label" for="comments"
+                translate="patientemr.patientdocument-form.comments.lbl"></label>
+            <div class="col-sm-12">
+                <textarea name="textarea" ng-model="cvm.comments" ng-disabled="cvm.candisable"></textarea>
+            </div>
+        </div>
+        <div class="form-group col-sm-3">
+            <!-- <label class="col-sm-12 control-label" for="file" translate="patientemr.patientdocument-form.document.lbl"></label> -->
+            <div class="col-sm-12">
+                <!-- <input type="file" ngf-select ng-model="currentcontext.file" name="file" ngf-max-size="200MB" 
+                    ngf-change="fileSelected()"/> -->
+                <button type="submit" ngf-select ng-model="currentcontext.file" name="file" ngf-max-size="200MB"
+                    ngf-change="fileSelected()" class="btn-upload" translate="Upload"></button>
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+<div class="row">
+    <div class="pull-right">
+        <button type="submit" ng-click="saveItem()" ng-if="canUpdatePatientEMR()" class="draftbutton"
+            translate="common.saveaction.lbl"></button>
+        <!-- <button id="btnCancelForm" type="button" class="draftbutton" ng-click="backToList()" translate="common.cancelaction.lbl"></button>						 -->
+    </div>
+</div>

@@ -1,0 +1,73 @@
+<link rel="stylesheet" href="app/css/drhms.css">
+<div class="row">
+    <div class="drhms-filters">
+        <div class="col-sm-10">
+            <h4 translate="Stock Status For All Stores"></h4>
+        </div>
+        <div class="col-sm-3">
+            <input type="text" class="form-control textbox-search" on-enter="getList()"
+                ng-model="currentfilter.StockTransferAcceptNo" translate translate-attr-placeholder="Search Voucher #">
+        </div>
+        <div class="col-sm-1">
+            <span class="drhms-billing-btn drhms-home-btn" ng-if="Context =='store'|| Context =='pharmacy'"><i
+                    class="fas fa-home" ng-click="backtoList()" uib-tooltip="Dashboard"
+                    tooltip-placement="bottom"></i></span>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="form-group col-sm-4">
+        <label class="col-sm-4" translate="inventory.stockstatus.producttype.lbl"></label>
+        <div class="col-sm-8">
+            <ui-select ng-model="currentfilter.ProductTypeId" ng-change="getList()" class="filter-combo">
+                <ui-select-match>
+                    {{$select.selected.Text | limitTo : 20 : 0}}
+                    <span ng-if="$select.selected.Text.length>20">...</span>
+                </ui-select-match>
+                <ui-select-choices
+                    repeat="lookupitem.Id as lookupitem in lookup.ProductType | filter: { Text: $select.search }">
+                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                </ui-select-choices>
+            </ui-select>
+        </div>
+    </div>
+    <div class="form-group col-sm-4">
+        <label class="col-sm-4" translate="inventory.stockstatus.itemsearch.lbl"></label>
+        <div class="col-sm-8">
+            <autosearch itemid="currentfilter.ItemMasterId" iteminfo="" placeholder="'Item Code/Name/Generic'"
+                rowdata="" config="vm.stockitemcontrolconfig" itemchange="getList()"></autosearch>
+        </div>
+    </div>
+    <div class="form-group col-sm-4">
+        <label class="col-sm-4" translate="inventory.stockstatus.store.lbl"></label>
+        <div class="col-sm-8">
+            <ui-select ng-model="currentfilter.StoreMasterId" ng-change="getList()" class="filter-combo">
+                <ui-select-match>
+                    {{$select.selected.Text | limitTo : 20 : 0}}
+                    <span ng-if="$select.selected.Text.length>20">...</span>
+                </ui-select-match>
+                <ui-select-choices
+                    repeat="lookupitem.Id as lookupitem in lookup.StoreMaster | filter: { Text: $select.search }">
+                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                </ui-select-choices>
+            </ui-select>
+        </div>
+    </div>
+
+</div>
+<div class="row">
+    <custom-table config="vm.gridConfig"></custom-table>
+</div>
+<div class="row">
+    <div class="col-sm-10"></div>
+    <div class="col-sm-2">
+        <span class="drhms-special-count" style="font-weight: 600;">Total Quantity: {{(TotalQuantity)}}</span>
+    </div>
+</div>
+<div class="fooder-bgs">
+    <div class="row">
+        <ul uib-pagination total-items="vm.gridConfig.pagerObj.totalItems"
+            items-per-page="vm.gridConfig.pagerObj.pageSize" start-index="vm.gridConfig.pagerObj.startIndex"
+            ng-model="vm.gridConfig.pagerObj.currentPage" ng-change="getList()"></ul>
+    </div>
+</div>

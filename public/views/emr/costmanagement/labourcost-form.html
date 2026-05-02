@@ -1,0 +1,95 @@
+<div class="modal-header custom-modal-header">
+    <div class="col-sm-10">
+        <h4 class="modal-title custom-modal-title" translate="costmanagement.labourcost-list.pagetitle.lbl"></h4>
+    </div>
+    <div class="col-sm-2">
+        <div class="filters">
+            <img src="../../../../../assets/svg/close.svg" ng-click="backToList()">
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <form id="item_form" name="item_form" class="form-horizontal" role="form">
+        <div class="form-group col-sm-4">
+            <label class="col-sm-12 control-label" translate="costmanagement.labourcost-list.employeetype.lbl"></label>
+            <div class="col-sm-12">
+                <ui-select ng-model="item.EmployeeTypeId">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 20 : 0}}
+                        <span ng-if="$select.selected.Text.length>20">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.EmployeeType | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+        <div class="form-group col-sm-4">
+            <label class="col-sm-12 control-label" translate="costmanagement.labourcost-list.employeename.lbl"></label>
+            <div class="col-sm-12">
+                <ui-select ng-model="item.EmployeeId">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 20 : 0}}
+                        <span ng-if="$select.selected.Text.length>20">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.User | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+        <div class="form-group col-sm-4">
+            <label class="col-sm-12 control-label"
+                translate="costmanagement.labourcost-list.additionalcost.lbl"></label>
+            <div class="col-sm-12">
+                <input type="number" min="0" class="form-control" ng-model="item.AdditionalCost" placeholder="">
+            </div>
+        </div>
+        <div class="form-group col-sm-4">
+            <label class="col-sm-12 control-label" translate="costmanagement.labourcost-list.ctc.lbl"></label>
+            <div class="col-sm-12">
+                <input type="number" min="0" class="form-control" ng-model="item.CTC" ng-change="computeAmount(item)"
+                    placeholder="">
+            </div>
+        </div>
+
+        <div class="form-group col-sm-4">
+            <label class="col-sm-12 control-label" translate="costmanagement.labourcost-list.totalctc.lbl"></label>
+            <div class="col-sm-12">
+                <input type="text" class="form-control" ng-model="item.TotalCTC" placeholder="" disabled>
+            </div>
+        </div>
+        <div class="form-group col-sm-4">
+            <label class="col-sm-12 control-label" translate="costmanagement.powercost-list.avgprocedure.lbl"></label>
+            <div class="col-sm-12">
+                <input type="number" class="form-control" ng-model="item.AvgProcedure"
+                    ng-change="computeprocedure(item)" placeholder="">
+            </div>
+        </div>
+        <div class="form-group col-sm-4">
+            <label class="col-sm-12 control-label"
+                translate="costmanagement.labourcost-list.avgprocedurepercost.lbl"></label>
+            <div class="col-sm-12">
+                <input type="number" class="form-control" ng-model="item.ProcedureCost" placeholder="" disabled>
+            </div>
+        </div>
+        <div class="form-group col-sm-4">
+            <label class="col-sm-12 control-label" for="comments"
+                translate="costmanagement.labourcost-list.comments.lbl"></label>
+            <div class="col-sm-12">
+                <commentscontrol comments="item.Comments"></commentscontrol>
+            </div>
+        </div>
+    </form>
+</div>
+<div class="fooder-bgs">
+    <div class="row">
+        <div class="pull-right">
+            <button type="button" id="btnsubmit" class="draftbutton" translate="common.saveaction.lbl"
+                ng-if="!item.isRequested" ng-click="save()"></button>
+        </div>
+    </div>
+</div>

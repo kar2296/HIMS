@@ -1,0 +1,79 @@
+<style>
+    .pager-div {
+        float: right;
+        right: 0;
+        box-sizing: border-box;
+        position: fixed;
+        box-sizing: border-box;
+    }
+</style>
+
+<div class="row page-header">
+    <h4 class="col-sm-6 mt0" translate="medicalcertificate.fitnesscertificate.pagetitle.lbl"></h4>
+    <div class="col-sm-6">
+        <button class="btn bt-color3 btn-xs pull-right btn-filter" ng-click="" uib-tooltip="{{ '  clinicalmaster.serviceitem-list.filter-tooltip.lbl' | translate}}"
+            tooltip-placement="bottom">
+            <i class="fa fa-filter" aria-hidden="true"></i>&nbsp;&nbsp;
+            <span translate="clinicalmaster.serviceitem-list.filter.lbl"></span>
+        </button>
+        <button class="btn bt-color2 btn-xs pull-right btn-filter" ng-click="addNew()" uib-tooltip="{{ 'medicalcertificate.fitnesscertificate.addnew.lbl' | translate
+}}" tooltip-placement="bottom">
+            <i class="fa fa-plus" aria-hidden="true"></i>
+            <span translate="clinicalmaster.serviceitem-list.addnew.lbl"></span>
+        </button>
+    </div>
+</div>
+<div class="row filter-area">
+    <div class="col-sm-12">
+        <div class="col-sm-4">
+            <div class="form-group">
+                <label class="sr-only col-sm-5 control-label filter-lbl" translate="medicalcertificate.dischargesummary-list.name/mrn.lbl"></label>
+                <div class="input-group col-sm-7">
+                    <div class="input-group-addon">
+                        <i class="fas fa-search" aria-hidden="true"></i>
+                    </div>
+                    <input type="text" class="form-control" on-enter="getList()" ng-model="currentfilter.patientnamemrn" placeholder=" NAME/MRN">
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <div class="form-group">
+                <label class="col-sm-5 control-label" for="templatename" translate="medicalcertificate.dischargesummary-form.templatename.lbl"></label>
+                <div class="col-sm-7">
+                    <ui-select ng-model="currentfilter.NoteTemplateId" name="templatename"  ng-change="getList()" class="filter-combo"
+                        required>
+                        <ui-select-match>
+                            {{$select.selected.Text | limitTo : 20 : 0}}
+                            <span ng-if="$select.selected.Text.length>20">...</span>
+                        </ui-select-match>
+                        <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.NoteTemplate | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <label class="col-sm-5 col-md-4 control-label filter-lbl" translate="registration.patientsearch.filter_status.lbl"></label>
+            <div class="col-sm-7 col-md-8">
+                <ui-select ng-model="currentfilter.CertificateStatusId" ng-change="getList()" class="filter-combo">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 8 : 0}}
+                        <span ng-if="$select.selected.Text.length>8">...</span>
+                    </ui-select-match>
+                    <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.CertificateStatus | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+
+    </div>
+</div>
+<div class="container-fluid single-filter">
+    <div ui-grid="vm.gridConfig" class="table-uigrid"></div>
+    <div class="site-footer">
+        <ul uib-pagination total-items="vm.gridConfig.pagerObj.totalItems" items-per-page="vm.gridConfig.pagerObj.pageSize" start-index="vm.gridConfig.pagerObj.startIndex"
+            ng-model="vm.gridConfig.pagerObj.currentPage" ng-change="getList()"></ul>
+    </div>
+</div>

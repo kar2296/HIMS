@@ -1,0 +1,78 @@
+<div class="row page-header">
+    <h4 class="col-sm-6" translate="doctorinvoice-list.pagetitle1.lbl"></h4>
+    <div class="col-sm-6">
+        <button type="button" tabindex="-1" class="btn-add" style="padding: 8px 12px !important;"
+            ng-click="addNew()" uib-tooltip="{{ 'doctorinvoice-list.pagetitle.lbl' | translate}}" tooltip-placement="bottom">
+            <i class="fa fa-plus" aria-hidden="true"></i>
+        </button>
+
+    </div>
+</div>
+<table id="bannerdetails" style="width:101%;">
+    <tr>
+        <td>
+            <label class="col-sm-4 control-label" for="doctor" translate="doctorinvoice-list.filter_doctorname.lbl"></label>
+        </td>
+        <td>
+            <autosearch itemid="currentfilter.DoctorId" iteminfo="" rowdata="" config="vm.doctorcontrolconfig" itemchange="getList()"
+                onenter="getList()"></autosearch>
+        </td>
+        <td>
+            <label class="col-sm-4 control-label filter-lbl" translate="doctorinvoice-list.filter_fromdate.lbl"></label>
+        </td>
+        <td>
+            <input type="text" class="form-control" name="fromdate" ng-change="getList()" datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}"
+                uib-datepicker-popup="{{datePickerOptions.dateFormat}}" placeholder="{{datePickerOptions.placeholder}}" ng-click="FrmDateToDatedatePopup = { opened: true }"
+                is-open="FrmDateToDatedatePopup.opened" ng-model="currentfilter.FrmDate">
+        </td>
+        <td>
+            <label class="col-sm-4 control-label" translate="patientrequests.status.lbl"></label>
+        </td>
+        <td>
+            <ui-select ng-model="currentfilter.InvoiceStatusId" ng-change="getList()" class="filter-combo">
+                <ui-select-match>
+                    {{$select.selected.Text | limitTo : 8 : 0}}
+                    <span ng-if="$select.selected.Text.length>8">...</span>
+                </ui-select-match>
+                <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.DoctorInvoiceStatus | filter: { Text: $select.search }">
+                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                </ui-select-choices>
+            </ui-select>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <label class="col-sm-4 control-label" translate="doctorinvoice-list.filter_invoiceno.lbl"></label>
+        </td>
+        <td>
+
+            <div class="search">
+                <input type="text" class="form-control" on-enter="getList()" ng-model="currentfilter.DoctorInvoiceNo" translate translate-attr-placeholder="doctorinvoice-list.filter_invoiceno.lbl">
+                <i class="fas fa-search" aria-hidden="true"></i>
+        </td>
+        <td>
+            <label class="col-sm-4 control-label filter-lbl" translate="doctorinvoice-list.filter_todate.lbl"></label>
+        </td>
+        <td>
+            <input type="text" class="form-control" name="invoicedate" ng-change="getList()" datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}"
+                uib-datepicker-popup="{{datePickerOptions.dateFormat}}" placeholder="{{datePickerOptions.placeholder}}" ng-click="ToDatedatePopup = { opened: true }"
+                is-open="ToDatedatePopup.opened" ng-model="currentfilter.ToDate">
+        </td>
+        <td>
+            <label class="col-sm-4 control-label filter-lbl" translate="doctorinvoice-list.totalinvamount.lbl"></label>
+        </td>
+        <td>
+            <span style="font:bold;">{{TotalNetamount}}</span>
+        </td>
+    </tr>
+</table>
+
+<custom-table config="vm.gridConfig"></custom-table>
+<div class="container-fluid single-filter">
+
+    <div class="fooder-bgs">
+        <ul uib-pagination total-items="vm.gridConfig.pagerObj.totalItems" items-per-page="vm.gridConfig.pagerObj.pageSize" start-index="vm.gridConfig.pagerObj.startIndex"
+            ng-model="vm.gridConfig.pagerObj.currentPage" ng-change="getList()"></ul>
+    </div>
+</div>
+

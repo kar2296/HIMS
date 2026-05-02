@@ -1,0 +1,32 @@
+import * as gulp from 'gulp';
+import * as gulpLoadPlugins from 'gulp-load-plugins';
+import {join} from 'path';
+import {APP_SRC, APP_TITLE, DOCS_DEST, TOOLS_DIR} from '../../config';
+const plugins = <any>gulpLoadPlugins();
+
+export = () => {
+
+  let src = [
+    'typings/index.d.ts',
+    TOOLS_DIR + '/manual_typings/**/*.d.ts',
+    join(APP_SRC, '**/*.ts'),
+    '!' + join(APP_SRC, '**/*.spec.ts'),
+    '!' + join(APP_SRC, '**/*.e2e.ts')
+  ];
+
+  return gulp.src(src)
+    .pipe(plugins.typedoc({
+      // TypeScript options (see typescript docs)
+      module: 'commonjs',
+      target: 'es6',
+      // excludeExternals: true,
+      includeDeclarations: true,
+      // Output options (see typedoc docs)
+      out: DOCS_DEST,
+      json: join(DOCS_DEST, 'data/docs.json'),
+      name: APP_TITLE,
+      ignoreCompilerErrors: false,
+      experimentalDecorators: true,
+      version: true
+    }));
+};

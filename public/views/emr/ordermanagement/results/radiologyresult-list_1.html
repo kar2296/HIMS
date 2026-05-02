@@ -1,0 +1,812 @@
+<style>
+    #workorder {
+        min-height: auto;
+    }
+
+    .tab {
+        float: left;
+        /* border: 1px solid #ccc; */
+        /* background-color: #f4f4f4; */
+        box-shadow: rgb(230 218 218) 0px 4px 12px;
+        width: 38%;
+        overflow: auto;
+        padding: 10px;
+        height: 100vh;
+        border-radius: 10px;
+        margin: 3px;
+    }
+
+    .item-center {
+        display: flex;
+        justify-content: flex-start;
+        align-items: center;
+        align-content: center;
+    }
+
+    .text-editor {
+        box-shadow: 0 0 13px 0 #e5e0e0;
+        display: inline-block;
+        width: 100%;
+        height: 100%;
+        padding: 10px;
+        border-radius: 10px;
+        margin: 10px;
+        width: 97%;
+    }
+
+    .page-header button {
+        margin: 0 2px;
+        padding: 7px 16px;
+    }
+
+    div#receipt_tab {
+        padding: 10px;
+    }
+
+    .border {
+        margin: 0px;
+        border: 1.5px solid #e1e1e1;
+        margin-left: 0px;
+        padding-left: 5px;
+        font-size: 12px;
+        width: 92%;
+        color: #494949 !important;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        background: #fafafa;
+    }
+
+    .lis input.form-control {
+        /* border-right: unset !important; */
+        border: 1.5px solid #e1e1e1;
+        border-radius: unset;
+        background: white !important;
+    }
+
+    .pull-right {
+        margin-right: 10px;
+    }
+
+    .item-center label {
+        display: flex;
+        align-items: center;
+    }
+
+    label>span {
+        vertical-align: baseline;
+        color: #494949;
+        margin-top: 1px;
+        font-size: 13px;
+    }
+
+    .patient-banner-table.lis .patient-banner-table-section>div {
+        background: none;
+        padding: 0;
+        height: 30px;
+    }
+
+    .patient-banner-table-section {
+        border: 1.5px solid #dadada;
+        width: 100%;
+        margin-right: 8px;
+        padding: 9px 0px 3px 9px;
+        margin-bottom: 10px;
+    }
+
+    span.head-title {
+        font-size: 12px;
+        color: #494949 !important;
+        font-size: 13px;
+    }
+
+    a {
+        font-weight: 400;
+        color: #494949;
+        font-size: 13px;
+    }
+
+    img.imgsrcs {
+        margin-top: -4px;
+    }
+
+    .patient-banner-table-section span.btn.btn-default.form-control.ui-select-toggle,
+    .patient-banner-table-section input.form-control {
+        border-radius: unset !important;
+        border-color: gainsboro;
+        background: white !important;
+        width: 85% !important;
+        border-right: 1px solid gainsboro !important;
+    }
+
+    .popup {
+        position: absolute;
+        width: 100% !important;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        top: 0;
+        z-index: 99999;
+    }
+
+    .bg-white {
+        background-color: #ffffff;
+        color: inherit !important;
+        width: 42%;
+        height: 53%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+    }
+
+
+    .overlay {
+        background: #00000078;
+        width: 100%;
+        height: 100%;
+        position: absolute;
+        z-index: 0;
+        left: -20px;
+    }
+
+    .bg-white {
+        background-color: #ffffff;
+        color: inherit !important;
+        width: 42%;
+        height: 53%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        z-index: 999;
+    }
+
+    .img-pro {
+        width: 30%;
+        height: 55%;
+    }
+
+    .center {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    button.drhms-clear-btn {
+        width: 100%;
+        margin-top: 13px;
+        font-size: 14px;
+    }
+
+    /* .head-title {
+        width: 100%;
+        display: flex;
+    } */
+
+    .head-title input {
+        margin-top: 10px;
+        width: 100% !important;
+        border-color: gainsboro !important;
+    }
+
+
+    .sidenav {
+        height: 100%;
+        width: 0%;
+        position: fixed;
+        z-index: 1000;
+        top: 0;
+        right: 0;
+        background-color: #F5F5F5;
+        overflow-x: hidden;
+        transition: 0.5s;
+        padding-top: 44px;
+        border: 1px solid #ccc;
+        /* height: 94%;
+        width: 0%;
+        position: fixed;
+        z-index: 1000;
+        top: 0;
+        right: 0;
+        background-color: #fff;
+        overflow-x: hidden;
+        transition: 0.5s;
+        padding-top: 38px;
+        border: 1px solid #ccc;
+        border-radius: 24px; */
+    }
+
+    .sidenav a {
+        padding: 8px 8px 8px 32px;
+        text-decoration: none;
+        font-size: 25px;
+        color: #818181;
+        display: block;
+        transition: 0.3s;
+        border: 2px solid #ffc0cb;
+        border-radius: 0px;
+    }
+
+    .sidenav a:hover {
+        color: #f1f1f1;
+    }
+
+    @media screen and (max-height: 450px) {
+        .sidenav {
+            padding-top: 15px;
+        }
+
+        .sidenav a {
+            font-size: 18px;
+        }
+    }
+
+    .imgrow:after {
+        border-style: solid;
+        width: 95%;
+        display: table;
+        clear: both;
+    }
+
+    .img_name {
+        text-overflow: ellipsis;
+        overflow: hidden;
+        white-space: nowrap;
+        width: 80%;
+    }
+
+    .eye_view {
+        background: #d87c1e !important;
+    }
+
+
+
+    p.btn-btn-worid.btn-xs.ng-binding {
+        background-color: #d84963;
+        color: white;
+        width: 80px;
+        font-size: 13px;
+        font-weight: 500;
+    }
+
+
+    i.fa.fa-times.icon {
+        height: 23px;
+        background: red;
+        width: 13px;
+        padding: 4px 0px;
+        border-radius: 5px;
+        color: white;
+        font-size: 17px;
+    } */
+
+    button.closebtn {
+        color: #f44336;
+        float: right;
+        width: 37px;
+        top: 11px;
+        position: relative;
+        border: unset;
+        background: transparent;
+    }
+
+    div#mySidenav i.fa.fa-pencil-square-o {
+        position: absolute;
+    }
+
+    img.img-responsive0 {
+        height: 117px !important;
+        width: 59%;
+        border: 1px solid gainsboro;
+        border-radius: 86px;
+        margin-top: 14px;
+    }
+
+    .imgrow {
+        text-align: center;
+        /* background-color: #fff; */
+        border: unset !important;
+        border-radius: 10px;
+        float: right;
+        width: 80%;
+        height: 113px;
+        margin: 9px 38px;
+        margin-bottom: 35px;
+    }
+
+    span.head-fo b {
+        font-weight: 500;
+    }
+
+    .item-center input.form-control {
+        border-color: gainsboro !important;
+    }
+
+    .draftbutton {
+        padding: 0px 10px;
+    }
+
+    td.lis .lab {
+        box-shadow: 0 0 13px 0 #9E9E9E;
+        display: inline-block;
+        height: 100%;
+        padding: 10px !important;
+        border-radius: 10px;
+        margin: 10px;
+        width: 96%;
+    }
+
+    td.lis .lab .text-ed i.fa.fa-pencil-square-o {
+        bottom: 20px;
+        left: 20px;
+    }
+
+    /* .tab button {
+        background: #fff;
+        color: #000000;
+        border: 1px solid;
+        width: 100%;
+        display: flex;
+        padding: 10px 4px;
+        margin-bottom: 5px;
+        border-radius: 3px;
+        font-size: 12px;
+        justify-content: space-between;
+        align-items: center;
+    } */
+
+    .tab button {
+        background: #f1f3f4;
+        color: #000000;
+        border: 0;
+        border-right: 3px solid;
+        border-left: 3px solid;
+        border-radius: 0px 20px 0px 20px !important;
+        width: 100%;
+        display: flex;
+        padding: 10px 4px;
+        margin-bottom: 5px;
+        border-radius: 0px;
+        font-size: 12px;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    /* Change background color of buttons on hover */
+    .tab button:hover {
+        background-color: #5c6bc0;
+        color: #fff;
+    }
+
+    /* Create an active/current "tab button" class */
+    .tab button.active {
+        background-color: #1d6090;
+        color: #fff;
+    }
+
+    /* Style the tab content */
+    .tabcontent {
+        float: left;
+        padding: 0px 10px;
+        border-radius: 10px;
+        width: 68%;
+        overflow: auto;
+        box-shadow: rgb(230 218 218) 0px 4px 12px;
+        border-left: none;
+        height: 100vh;
+        margin: 3px;
+    }
+
+    .emr_labresults {
+        height: 100vh;
+        overflow: auto;
+    }
+
+    #patient_res td,
+    th {
+        border: none !important;
+        border-bottom: 1px solid #ccc !important;
+    }
+
+    .lbl-test {
+        text-transform: uppercase;
+        color: #c70808 !important;
+    }
+
+    .dr-name {
+        font-weight: 600;
+    }
+
+    .mb-5 {
+        margin-bottom: 50px;
+    }
+
+    ::-webkit-scrollbar {
+        width: 3px;
+    }
+
+    .pull-right.footer_reg_align {
+        margin-top: 14px;
+    }
+
+    .content-wrapper.ng-scope.ng-fadeInUp {
+        margin-bottom: 46px !important;
+    }
+
+    span.dicom {
+        background: #2196F3;
+        padding: 0 5px;
+        border-radius: 20px;
+        color: #fff;
+        margin-left: 10px;
+    }
+</style>
+<!-- <script language="javascript">
+    function openCity(evt, cityName) {
+        var i, tabcontent, tablinks;
+        tabcontent = document.getElementsByClassName("tabcontent");
+        for (i = 0; i < tabcontent.length; i++) {
+            tabcontent[i].style.display = "none";
+        }
+        tablinks = document.getElementsByClassName("tablinks");
+        for (i = 0; i < tablinks.length; i++) {
+            tablinks[i].className = tablinks[i].className.replace(" active", "");
+        }
+        document.getElementById(cityName).style.display = "block";
+        evt.currentTarget.className += " active";
+    }
+
+    // Get the element with id="defaultOpen" and click on it
+    document.getElementById("defaultOpen").click();
+</script> -->
+<div class="row">
+    <h3 class="col-sm-12 mt0" translate="ordermanagement.radiologyresult-list.pagetitle.lbl"></h3>
+    <!-- <div class="col-sm-3">
+        <span class="drhms-billing-btn drhms-outstandingbill-btn" ng-click="doctor_dashboard()"
+            uib-tooltip="{{'patientemr.mock.emrdashboard.lbl' | translate}}" tooltip-placement="bottom">
+            <i class="fas fa-th-large" aria-hidden="true"></i>
+        </span>
+    </div> -->
+</div>
+
+<emrpatientbanner ng-if="context=='emr'||context=='vorders'" patientid="currentcontext.pid" encounterid="currentcontext.eid">
+</emrpatientbanner>
+<ippatientbanner ng-if="context=='ipemr'||context=='aeemr'||context=='surgery'" patientid="currentcontext.pid"
+    encounterid="currentcontext.eid">
+</ippatientbanner>
+
+<div class="pull-right footer_reg_align">
+    <div class="col-sm-6">
+        <input type="text" class="form-control" name="from" ng-change="getList(tab)" ng-date-object
+            uib-datepicker-popup="{{datePickerOptions.dateFormat}}" placeholder="{{datePickerOptions.placeholder}}"
+            ng-click="fromPopup = { opened: true }" is-open="fromPopup.opened" ng-model="currentfilter.FromDate">
+    </div>
+    <div class="col-sm-6">
+        <input type="text" class="form-control" name="to" ng-change="getList()" ng-date-object
+            uib-datepicker-popup="{{datePickerOptions.dateFormat}}" placeholder="{{datePickerOptions.placeholder}}"
+            ng-click="toPopup = { opened: true }" is-open="toPopup.opened" ng-model="currentfilter.ToDate">
+    </div>
+    <!-- <div class="col-sm-4">
+        <button type="button" class="pull-right drhms-billing-btn drhms-openmodule-icon" data-toggle="modal"
+            data-target="#imgs">
+            <i class="fa fa-image"></i>
+        </button>
+        <span class="pull-right drhms-billing-btn drhms-uplaod-icon" ngf-select ng-model="currentcontext.file"
+            name="file" ngf-max-size="200MB" ngf-change="fileSelected()"><i class="fas fa-upload"></i></span>
+    </div> -->
+</div>
+
+<div class="row tablebox" id="tablebox">
+    <div class="col-sm-6">
+        <label class="btn btn-secondary top-option" ng-repeat="option in options" ng-click="getList()"
+            ng-model="currentcontext.option" uib-btn-radio="option.key">{{option.name}}</label>
+
+        <!-- <uib-tabset active="active" id="assettabs">
+            <uib-tab index="$index" ng-repeat="tab in tabs" heading="{{tab.title}}" ng-model="currentcontext.tab"
+                ng-click="getList(tab)" disable="tab.canDisable">
+            </uib-tab>
+        </uib-tabset> -->
+        <div ui-view></div>
+    </div>
+</div>
+
+<div class="tab">
+    <div ng-repeat="item in vm.orders">
+        <button class="tablinks" id="defaultOpen">
+            <span ng-click="getDetails(item)">
+                <div>
+                    <displaydate datetime-val='item.OrderRequestDate'></displaydate>
+                </div>
+                <div>{{item.PatientOrder.OrderNumber}}</div>
+                <div><span class="dr-name">{{item.PatientOrder.DoctorName}}</span><br>
+                    <span>{{item.ParentDeparement.DepartmentName}}</span>
+                </div>
+            </span>
+            <span>
+                <span ng-click="openNav()" ng-show="AttachementImgs" class="default-color2 no-bot-left"><i
+                        style="font-size: 14px;" class="fa fa-picture-o" aria-hidden="true"></i></span>
+                <!-- <p>{{AttachementImgs.length}}</p> -->
+
+                <span class="dicom text-align-right" ng-click="OpenTab(item)">DICOM</span>
+            </span>
+        </button>
+    </div>
+</div>
+
+<div id="patient_res" class="tabcontent" ng-show="showImage">
+    <iframe id="calendar" sandbox="allow-same-origin allow-scripts allow-popups allow-forms" allowfullscreen="true"
+        frameBorder="0"></iframe>
+</div>
+<div id="patient_res" class="tabcontent" ng-show="showLab">
+    <div>
+        <!-- <displaydate datetime-val='item.OrderRequestDate'></displaydate>/{{item.OrderNumber}}
+        {{item.DoctorName}} /{{item.ParentDeparement.DepartmentName}} -->
+        <div ng-if="AttachementImgs" id="mySidenav" class="sidenav">
+            <button type="button" ng-show="AttachementImgs" class="closebtn" ng-click="openNav()">
+                <i class="fas fa-times icon" aria-hidden="true"></i>
+            </button>
+            <div ng-repeat="AttachementImg in AttachementImgs | orderBy : 'Id' ">
+                <div class="imgrow">
+                    <img width="100%; height:100px !important;" style="height:141px" class="img-responsive0"
+                        data-ng-src="data:image/png;base64,{{AttachementImg.ImgEncData}}" />
+                    <!-- <button type="button" class="btn pyr-color10 btn-xs odrprocess_view0 img_name"
+                       > -->
+                    <i class="fa fa-pencil-square-o" ng-click="downloadAttachment(AttachementImg.filepath,
+                        AttachementImg.filename, AttachementImg.Id)" style="font-size:14px;color:black;"
+                        aria-hidden="true"></i>&nbsp;&nbsp;
+                    <strong class="col-sm-12">{{AttachementImg.filename}}
+                    </strong>
+                    <!--
+                    </button> -->
+                </div>
+            </div>
+        </div>
+        <!-- <div ng-if="AttachementImgs" id="mySidenav" class="sidenav">
+            <div ng-repeat="AttachementImg in AttachementImgs | orderBy : 'Id' ">
+                <div class="imgrow">
+                    <p>ssssss</p>
+                </div>
+            </div>
+        </div> -->
+        <div id="" class="emr_labresults">
+            <div>
+                <div ng-repeat="order in vm.woorders">
+                    <!-- <div id='workorder' ng-repeat="wo in order.PatientWorkorders"> -->
+
+                    <table class="table table-hover table-responsive table-bordered">
+                        <!-- <thead class="bg-subhead">
+                                <tr>
+                                    <th class="col-sm-2">
+                                        <span translate="ordermanagement.labresult-list.observation.lbl"></span>
+                                    </th>
+                                    <th class="col-sm-2">
+                                        <span translate="ordermanagement.labresult-list.result.lbl"></span>
+                                        <span class="mandatory-asterix">*</span>
+                                    </th>
+                                    <th class="col-sm-2">
+                                        <span translate="ordermanagement.labresult-list.uom.lbl"></span>
+                                    </th>
+                                    <th class="col-sm-3">
+                                        <span translate="ordermanagement.labresult-list.referrence.lbl"></span>
+                                    </th>
+                                    <th>
+                                        <span translate="ordermanagement.labresult-list.phr.lbl"></span>
+                                    </th>
+                                    <th>
+                                        <span translate="common.actions_col.lbl"></span>
+                                    </th>
+                                </tr>
+                            </thead> -->
+                        <tbody ng-repeat="test in order.woDetails">
+                            <tr ng-if="test.RootProfileName">
+                                <td colspan="9">
+                                    <span class="lbl-profile">{{test.RootProfileName}}</span>
+                                </td>
+                            </tr>
+                            <tr ng-if="test.ProfileName">
+                                <td colspan="9">
+                                    <span class="lbl-profile">{{test.ProfileName}}</span>
+                                </td>
+                            </tr>
+
+                            <tr
+                                ng-hide="test.details.length == 1 && test.Testname.toLowerCase() == test.details[0].Analytename.toLowerCase()">
+                                <td colspan="9">
+                                    <span class="lbl-test"> {{test.Testname}}</span>
+                                </td>
+                            </tr>
+                            <tr ng-repeat="item in test.details | filter:{Status:1}">
+                                <td>
+                                    <span style="color: #5c6bc0;font-weight: 500;">{{item.Analytename}}</span>
+                                </td>
+                                <td colspan="{{item.TestValueType == 3 ? '3' : '1'}}">
+                                    <span ng-if="item.QualifierId==1||!item.QualifierId"> {{item.Resultvalue}}
+                                    </span>
+                                    <span ng-if="item.QualifierId!=1 && item.QualifierId" style="color:red;">
+                                        {{item.Resultvalue}}
+                                    </span>
+                                </td>
+                                <td ng-if="item.TestValueType != 3">
+                                    <span ng-model="item.AnalyteUOM">{{item.AnalyteUOM}}</span>
+                                </td>
+                                <td>
+                                    <span>{{item.Analyterange}}</span>
+                                </td>
+
+                                <!-- <td ng-if="item.TestValueType != 3">
+                                        <span class="pull-left">{{item.Analyterange}}</span>
+                                        <span class="pull-right"
+                                            style="color: #ff902b; font-weight: 700;">{{item.Qualifier}}</span>
+                                    </td> -->
+                                <!-- <td>
+                                        <displayyesno input-val='item.IsReleasedToPatient'></displayyesno>
+                                    </td> -->
+                                <!-- <td>
+                                        <button class="btn btn-primary btn-xs" tabindex="-1" style="vertical-align: super;"
+                                            ng-click="openAttachments(item)">
+                                            <i class="fa fa-file-text-o" aria-hidden="true"></i>
+                                        </button>
+                                        <button class="btn btn-danger btn-xs" tabindex="-1" style="vertical-align: super;"
+                                            ng-click="openObservations(item)">
+                                            <i class="fa fa-comment" aria-hidden="true"></i>
+                                        </button>
+                                        <span ng-repeat="AttachementImg in AttachementImgs | orderBy : 'Id' ">
+                                            <button type="button" ng-if=" AttachementImg.WODId == item.Id"
+                                                class="btn pyr-color10 btn-xs"
+                                                ng-click="downloadAttachment(AttachementImg.filepath,AttachementImg.filename, AttachementImg.Id)">
+                                                <i class="fa fa-cloud-download" aria-hidden="true"></i>
+                                            </button>
+                                        </span>
+                                    </td> -->
+                            </tr>
+                        </tbody>
+                    </table>
+                    <!-- </div> -->
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <!-- <div class="fooder-bgs">
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="pull-right">
+
+                    <button type="button"  class="draftbutton" ng-hide="currentcontext.ismodal" ng-click="print()" translate="common.printaction.lbl"></button>
+                    <button type="button"  class="draftbutton" ng-click="print1()" translate="common.printaction.lbl"></button>
+                    <button style="margin-right:40px" id="btnCancelForm" type="button" class="draftbutton" ng-click="cancelCallback()" translate="common.cancelaction.lbl"></button>
+                </div>
+            </div>
+        </div>
+    </div> -->
+    <!--
+    <div id="London" class="tabcontent">
+        <table class="table table-hover table-responsive table-bordered">
+            <thead class="bg-subhead">
+                <tr>
+                    <th class="col-sm-2">
+                        <span translate="ordermanagement.labresult-list.observation.lbl"></span>
+                    </th>
+                    <th class="col-sm-2">
+                        <span translate="ordermanagement.labresult-list.result.lbl"></span>
+                        <span class="mandatory-asterix">*</span>
+                    </th>
+                    <th class="col-sm-2">
+                        <span translate="ordermanagement.labresult-list.uom.lbl"></span>
+                    </th>
+                    <th class="col-sm-3">
+                        <span translate="ordermanagement.labresult-list.referrence.lbl"></span>
+                    </th>
+                    <th>
+                        <span translate="ordermanagement.labresult-list.phr.lbl"></span>
+                    </th>
+                    <th>
+                        <span translate="common.actions_col.lbl"></span>
+                    </th>
+                </tr>
+            </thead>
+            <tbody ng-repeat="test in wo.woDetails">
+                <tr ng-if="test.RootProfileName">
+                    <td colspan="9">
+                        <span class="lbl-profile">{{test.RootProfileName}}</span>
+                    </td>
+                </tr>
+                <tr ng-if="test.ProfileName">
+                    <td colspan="9">
+                        <span class="lbl-profile">{{test.ProfileName}}</span>
+                    </td>
+                </tr>
+                <tr
+                    ng-hide="test.details.length == 1 && test.Testname.toLowerCase() == test.details[0].Analytename.toLowerCase()">
+                    <td colspan="9">
+                        <span class=" btn btn-primary btn-xs"> {{test.Testname}}</span>
+                    </td>
+                </tr>
+                <tr ng-repeat="item in test.details | filter:{Status:1}">
+                    <td>
+                        <span
+                            style="margin-left:24px;  vertical-align: super; color: #0dbef1; font-weight: 700; white-space: nowrap; text-overflow: ellipsis; overflow: auto;">{{item.Analytename}}</span>
+                    </td>
+                    <td colspan="{{item.TestValueType == 3 ? '3' : '1'}}">
+                        <span ng-if="item.QualifierId==1"> {{item.Resultvalue}} </span>
+                        <span ng-if="item.QualifierId!=1" style="color:red;"> {{item.Resultvalue}} </span>
+                    </td>
+                    <td ng-if="item.TestValueType != 3">
+                        <span ng-model="item.AnalyteUOM">{{item.AnalyteUOM}}</span>
+                    </td>
+                    <td ng-if="item.TestValueType != 3">
+                        <span class="pull-left">{{item.Analyterange}}</span>
+                        <span class="pull-right" style="color: #ff902b; font-weight: 700;">{{item.Qualifier}}</span>
+                    </td>
+                    <td>
+                        <displayyesno input-val='item.IsReleasedToPatient'></displayyesno>
+                    </td>
+                    <td>
+                        <button class="btn btn-primary btn-xs" tabindex="-1" style="vertical-align: super;"
+                            ng-click="openAttachments(item)">
+                            <i class="fa fa-file-text-o" aria-hidden="true"></i>
+                        </button>
+                        <button class="btn btn-danger btn-xs" tabindex="-1" style="vertical-align: super;"
+                            ng-click="openObservations(item)">
+                            <i class="fa fa-comment" aria-hidden="true"></i>
+                        </button>
+                        <span ng-repeat="AttachementImg in AttachementImgs | orderBy : 'Id' ">
+                            <button type="button" ng-if=" AttachementImg.WODId == item.Id"
+                                class="btn pyr-color10 btn-xs"
+                                ng-click="downloadAttachment(AttachementImg.filepath,AttachementImg.filename, AttachementImg.Id)">
+                                <i class="fa fa-cloud-download" aria-hidden="true"></i>
+                            </button>
+                        </span>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div> -->
+    <!--
+    <div id="Paris" class="tabcontent">
+        <h3>Paris</h3>
+        <p>Paris is the capital of France.</p>
+    </div>
+
+    <div id="Tokyo" class="tabcontent">
+        <h3>Tokyo</h3>
+        <p>Tokyo is the capital of Japan.</p>
+    </div> -->
+</div>
+
+<!-- <div class="img-pop modal fade" id="imgs" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Uploaded Images</h4>
+            </div>
+            <div class="modal-body">
+                <div ng-if="AttachementImgs">
+                    <div>
+                        <div class="imgrow" style="text-align: center;
+                        border: 1px solid #333; border-radius: 10px; width:100%;height:auto;">
+                            <img class="img-responsive"
+                                data-ng-src="data:image/png;base64,{{AttachementImg.ImgEncData}}" />
+                            <button type="button" class="btn btn-primary odrprocess_view0 img_name"
+                                ng-click="downloadAttachment(AttachementImg.filepath,AttachementImg.filename, AttachementImg.Id)">
+                                <i class="fa fa-eye" style="font-size:14px;color:#fff;"
+                                    aria-hidden="true"></i>&nbsp;&nbsp;
+                                <strong class="btn-fontsize ng-scope ">{{AttachementImg.filename}}
+                                </strong>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div> -->
+<!-- <div class="fooder-bgs"></div> -->

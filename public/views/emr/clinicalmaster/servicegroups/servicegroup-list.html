@@ -1,0 +1,151 @@
+<style>
+/*.site-footer{height:40px;position:fixed;
+width:100%;bottom:0;z-index:1;left:0;right:0;display:-webkit-flex;display:-ms-flexbox;display:flex;
+-webkit-align-items:center;-ms-flex-align:center;
+align-items:center;white-space:nowrap;background-color: #ccecf5;box-shadow: 1px 0px rgba(146, 140, 140, 0.75);z-index:10;}
+.footer-right{float:right; right:0; box-sizing: border-box;position: fixed;margin: 0; padding: 20px;box-sizing: border-box;}*/
+.table > thead > tr > th {
+    padding: 5px 8px  !important;
+    color: #000000 !important;
+}
+.table > tbody > tr > td  {
+    border: 1px solid #ccc !important;
+}
+.table > tbody {
+
+    box-shadow: 1px 1px 16px -3px rgba(0, 0, 0, 0.75);
+}
+</style>
+<div class="row page-header">
+<h4 class="col-sm-6 mt0" translate="clinicalmaster.servicegroup-list.pagetitle.lbl"></h4>
+<div class="col-sm-6">
+    <!-- <button class="btn bt-color3 btn-xs pull-right btn-filter" ng-click="" uib-tooltip="{{'clinicalmaster.serviceitem-list.filter-tooltip.lbl' | translate }}"
+    tooltip-placement="bottom"><i class="fa fa-filter" aria-hidden="true"></i>&nbsp;&nbsp;<span translate="clinicalmaster.serviceitem-list.filter.lbl"></span></button> -->
+    <button class="btn bt-color2 btn-xs pull-right btn-filter" ng-click="addNew()"
+                        uib-tooltip="{{ 'clinicalmaster.servicegroup-list.addnew-tooltip.lbl' | translate }}" tooltip-placement="bottom">
+                <i class="fa fa-plus" aria-hidden="true"></i><span translate="clinicalmaster.serviceitem-list.addnew.lbl"></span></button>
+
+</div>
+</div>
+  <div class="row filter-area">
+    <div class="col-sm-12">
+        <div class="form-group">
+        <div class="col-sm-3 col-md-3">
+            <label class="col-sm-6 col-md-4 col-lg-4 control-label text-right filter-lbl" translate="clinicalmaster.servicegroup-list.filter_facility.lbl"></label>
+            <div class="input-group col-sm-7 col-md-9 col-lg-6">
+                <ui-select ng-model="currentfilter.FacilityId" ng-change="getList()" class="filter-combo">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 8 : 0}}
+                        <span ng-if="$select.selected.Text.length>8">...</span>
+                    </ui-select-match>
+                    <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.Facility | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+        <div class="col-sm-3 col-md-3">
+            <label class="row col-sm-6 col-md-6 control-label filter-lbl" translate="clinicalmaster.servicegroup-list.filter_sourcetype.lbl"></label>
+            <div class="input-group col-sm-7 col-md-3">
+                <ui-select ng-model="currentfilter.SourceTypeId" ng-change="getList()" class="filter-combo">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 8 : 0}}
+                        <span ng-if="$select.selected.Text.length>8">...</span>
+                    </ui-select-match>
+                    <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.SourceType | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+        <div class="col-sm-3 col-md-3">
+            <label class="col-sm-6 col-md-4 col-lg-5 control-label text-right filter-lbl"  translate="clinicalmaster.servicegroup-list.filter_name.lbl"></label>
+            <div class="input-group col-sm-7 col-md-9 col-lg-6 input-group"><div class="input-group-addon"><i class="fas fa-search" aria-hidden="true"></i></div>
+                <input type="text" class="form-control" name="filter_name" on-enter="getList()" ng-model="currentfilter.Name"
+                            translate translate-attr-placeholder="clinicalmaster.servicegroup-list.filter_name.lbl">
+            </div>
+        </div>
+        <div class="col-sm-3 col-md-3">
+            <label class="col-sm-6 col-md-4 col-lg-4 control-label text-right filter-lbl" translate="clinicalmaster.servicegroup-list.filter_status.lbl"></label>
+            <div class="input-group col-sm-7 col-md-9 col-lg-6">
+                <ui-select ng-model="currentfilter.StatusId" ng-change="getList()" class="filter-combo">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 8 : 0}}
+                        <span ng-if="$select.selected.Text.length>8">...</span>
+                    </ui-select-match>
+                    <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.OrderMasterStatus | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+        </div>
+    </div>
+</div>
+<div id="page-editor">
+    <table class="table table-hover table-bordered table-responsive">
+        <thead class="bg-subhead">
+            <tr>
+                <th class="col-sm-2"><span translate="clinicalmaster.servicegroup-list.facility.lbl"></span><span class="mandatory-asterix">*</span></th>
+                <th class="col-sm-2"><span translate="clinicalmaster.servicegroup-list.sourcetype.lbl"></span><span class="mandatory-asterix">*</span></th>
+                <th class="col-sm-2"><span translate="clinicalmaster.servicegroup-list.code.lbl"></span><span class="mandatory-asterix">*</span></th>
+                <th class="col-sm-2"><span translate="clinicalmaster.servicegroup-list.itemgroupname.lbl"></span><span class="mandatory-asterix">*</span></th>
+                <th class="col-sm-2"><span translate="clinicalmaster.servicegroup-list.displayorder.lbl"></span></th>
+                <th class="col-sm-2"><span translate="clinicalmaster.servicegroup-list.status.lbl"></span></th>
+                <th class="col-sm-1"><span translate="common.actions_col.lbl"></span></th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr ng-repeat="item in vm.items | filter:{Status:1}">
+                <td>
+                <ui-select ng-model="item.FacilityId" class="ui-select-grid">
+                            <ui-select-match>
+                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                <span ng-if="$select.selected.Text.length>20">...</span>
+                            </ui-select-match>
+                            <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.Facility | filter: { Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                            </ui-select-choices>
+                    </ui-select>
+                </td>
+                <td>
+                <ui-select ng-model="item.SourceTypeId" class="ui-select-grid">
+                            <ui-select-match>
+                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                <span ng-if="$select.selected.Text.length>20">...</span>
+                            </ui-select-match>
+                            <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.SourceType | filter: { Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                            </ui-select-choices>
+                    </ui-select>
+                </td>
+                <td>
+                    <input type="text" class="form-control" ng-model="item.ServiceGroupCode" placeholder="">
+                </td>
+                <td>
+                    <input type="text" class="form-control" ng-model="item.ServiceGroupName" placeholder="">
+                </td>
+                <td>
+                    <input type="text" class="form-control" ng-model="item.DisplayOrder" placeholder="">
+                </td>
+                <td align="center">
+                    <input type="checkbox" class="custom-checkbox" ng-model="item.StatusId">
+                </td>
+                <td>
+                    <button class="drhms-edit-button" ng-click="deleteItem($index,item)">
+                        <img src="assets/svg/delete.svg" alt="">
+                    </button>
+                </td>
+            </tr>
+        </tbody>
+        </table>
+    </div>
+   <div class="container-fluid">
+    <div class="site-footer panel-footer">
+        <div class="footer-right">
+                    <button type="button" class="draftbutton" translate="common.saveaction.lbl" ng-click="saveItem()"></button>
+                    <button id="btnClearForm" type="button" class="btn btn-warning btn-sm" ng-click="clear()" translate="common.clearaction.lbl"></button>
+
+                </div>
+    </div>
+</div>
