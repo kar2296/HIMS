@@ -101,4 +101,8 @@ Reply "Option 2" if you want a complete physical merge (High risk of breaking th
 * **Date:** May 2, 2026, 11:50 AM (IST)
 * **File Modified:** `api/src/Server/Modules/LIS/Business/WorkOrderSampleDetailBo.ts`
 * **Change:** Added a dummy/real `Id` property to the update payloads inside `UpdateSampleTypeInfo` and `UpdatePatientWorkOrderInfo` (`siInfo`, `SampleidCodition`, `Sampledata`). 
-* **Reason:** When `deferSequenceKey` is processed, it triggers `afterEvents` that update `PatientWorkorder` and `PatientWorkorderdetails` with the newly generated `SampleIdentifier`. These updates were failing silently with `Invalid Id. Operation Faild.` because the `BaseBo.Update` method enforces a `CheckId(entity)` validation (requiring `Id > 0`) before checking the `options.where` clause. Adding the `Id` bypasses this validation allowing the partial update to successfully complete and bind the `SampleIdentifier` to the WorkOrder.
+### 10. `ngPrivilegeHelper` TypeError Fix
+* **Date:** May 2, 2026, 12:10 PM (IST)
+* **File Modified:** `public/vendor/common/ngPrivilegeHelper.js`
+* **Change:** Refactored the `hasAccess` function to use `typeof func === 'function'` instead of executing `func()` directly and handling `TypeError` via `catch`. Also modified the failure branch to return a `false` boolean instead of returning an empty function.
+* **Reason:** When checking for an unmapped privilege key (like `CanOP_TheramlPrint`), the system threw a `TypeError` because `func` was undefined. The catch block then erroneously returned `function () { return false; }` which evaluating contexts interpreted as `true` (since a function object is truthy), and it also caused `TypeError: func is not a function` in the browser console.

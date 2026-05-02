@@ -3332,13 +3332,15 @@
                 var hasAccess = function (key) {
                     try {
                         var func = privileges[key];
-                        return func();
-                    } catch (ex) {
-                        console.log("Missing key : " + key);
-                        console.log(ex);
-                        return function () {
+                        if (typeof func === 'function') {
+                            return func();
+                        } else {
+                            console.log("Missing key : " + key);
                             return false;
                         }
+                    } catch (ex) {
+                        console.log("Exception evaluating privilege key: " + key, ex);
+                        return false;
                     }
                 }
                 return {

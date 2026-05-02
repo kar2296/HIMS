@@ -65,6 +65,76 @@
     text-align: center;
     z-index: 10000;
 }
+
+/* Modern React-like Styling for AngularJS OP Billing */
+#item_form .form-control, #item_form .ui-select-match, #item_form .ui-select-search {
+    border-radius: 8px !important;
+    border: 1px solid #dcdfe6;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+    padding: 6px 10px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    font-size: 13px;
+}
+
+#item_form .form-control:focus, #item_form .ui-select-search:focus {
+    border-color: #4a90e2;
+    box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2);
+}
+
+.drhms-table-top-header label, .drhms-responsive-table th span {
+    font-weight: 600;
+    color: #444;
+    font-size: 13px;
+}
+
+.drhms-responsive-table {
+    border-collapse: separate;
+    border-spacing: 0;
+    border: 1px solid #e0e4f0;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.drhms-responsive-table th {
+    background-color: #f8f9fa;
+    padding: 12px;
+    border-bottom: 2px solid #e0e4f0;
+}
+
+.drhms-responsive-table td {
+    padding: 8px;
+    border-bottom: 1px solid #f0f2f5;
+    vertical-align: middle;
+}
+
+.drhms-responsive-table tbody tr:hover {
+    background-color: #f8f9fa;
+}
+
+.drhms-table-head-border {
+    padding: 16px;
+    background: #fff;
+    border-radius: 8px;
+    border: 1px solid #e0e4f0;
+    margin-bottom: 16px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+}
+
+.footerbars {
+    background: #fff;
+    padding: 16px;
+    border-radius: 8px;
+    border: 1px solid #e0e4f0;
+    margin-top: 16px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+}
+
+.drhms-filters h4 {
+    color: #333;
+    font-weight: 600;
+    font-size: 20px;
+    margin-top: 8px;
+}
 </style>
 <div class="row">
     <div class="drhms-filters">
@@ -98,46 +168,7 @@
             <!-- <span class="drhms-search-icon"><i class="fas fa-search" aria-hidden="true"></i></span> -->
         </div>
         <div class="col-sm-5">
-            <span ng-if="vm.Context=='OP'">
-                <button type="button" tabindex="-1" class="drhms-billing-btn drhms-add-btn" ng-click="addNewBill()"
-                    uib-tooltip="Add New (F7)" tooltip-placement="bottom">
-                    <i class="fa fa-plus" aria-hidden="true"></i>
-                </button>
-            </span>
-            <span ng-if="vm.Context=='DG'">
-                <button type="button" class="drhms-billing-btn drhms-add-btn" uib-tooltip="Add New (F7)"
-                    tooltip-placement="bottom" ng-click="addNewBill()">
-                    <i class="fa fa-plus"></i>
-                </button>
-            </span>
-            <span ng-if="vm.Context=='OP'">
-                <button type="button" class="drhms-billing-btn drhms-previousbill-btn"
-                    uib-tooltip="{{'billing.opbilling-list.findbill.lbl' | translate }}" tooltip-placement="bottom"
-                    ng-if="HasAccess('OPBilling','OP_PreviousBills')" ng-click="findBill()">
-                    <i class="fa fa-search-plus" aria-hidden="true"></i>
-                </button>
-            </span>
-            <span ng-if="vm.Context=='DG'">
-                <button type="button" class="drhms-billing-btn drhms-previousbill-btn"
-                    uib-tooltip="{{'billing.opbilling-list.findbill.lbl' | translate }}" tooltip-placement="bottom"
-                    ng-click="findBill()">
-                    <i class="fa fa-search-plus" aria-hidden="true"></i>
-                </button>
-
-            </span>
-            <button type="button" class="drhms-billing-btn drhms-ipbill-btn" ng-hide="IPIsBillLock"
-                ng-click="getIPBillList()" ng-if="IpBillList"
-                uib-tooltip="{{'billing.opbilling-list.ipbilllist.lbl' | translate }}" tooltip-placement="bottom">
-                <i class="fa fa-calendar" aria-hidden="true"></i>
-            </button>
-            <button type="button" class="drhms-billing-btn drhms-outstandingbill-btn"
-                uib-tooltip="{{'billing.opbilling-list.outstanding.lbl' | translate }}"
-                ng-if="HasAccess('OPBilling','OP_OutStandingBills')" tooltip-placement="bottom"
-                ng-click="outstandingBill()">D
-            </button>
-            <span class="drhms-billing-btn drhms-home-btn" ng-if="Context =='frontoffice'|| Context =='billing'"><i
-                    class="fas fa-home" ng-click="backtoList()" uib-tooltip="Dashboard"
-                    tooltip-placement="bottom"></i></span>
+            <react-component name="OPBillingActionBar" props="{ reactProps: vm.reactPropsActionBar, onAction: handleReactAction }"></react-component>
         </div>
     </div>
 </div>
@@ -1090,37 +1121,7 @@
                 ng-click="DeleteCompleteBill()">Delete</button>
             <!-- <button type="button"  ng-if="HasAccess('OPBilling', 'ThernamPrint')" class="drhms-common-btn" ng-click="thermalprint()" ng-if="!HidePrintBtn">Thermal
                 Print</button> -->
-            <!-- <span ng-if="vm.Context=='OP'">
-                <button type="button" class="drhms-common-btn" ng-if="!HidePrintBtn" ng-click="printwithoutheader()"
-                    translate="Print WithoutHeader">
-                    <span><i class="fa fa-print" aria-hidden="true"></i></span>
-            </button>
-            </span> -->
-            <span ng-if="vm.Context=='OP' && item.IsFromIPBill == 0">
-                <button type="button" ng-keyup="FooterFocus('btnsubmit')" class="drhms-common-btn"
-                    ng-if="HasAccess('OPBilling', 'OPBilling_Save_Button') && canShowSaveBtn" tabindex="-1"
-                    translate="common.saveaction.lbl" hotkey="{'alt+s': save}"
-                    ng-click="completeBill(saveDraft)"></button>
-            </span>
-            <span ng-if="vm.Context=='DG' && item.IsFromIPBill == 0">
-                <button type="button" ng-keyup="FooterFocus('btnsubmit')" class="drhms-common-btn"
-                    ng-show="canShowSaveBtn" tabindex="-1" translate="common.saveaction.lbl" hotkey="{'alt+s': save}"
-                    ng-click="completeBill(saveDraft)"></button>
-            </span>
-            <span ng-if="vm.Context=='OP'">
-                <button type="button" id="saveAndApproveid" ng-keyup="FooterFocus('saveAndApproveid')"
-                    class="drhms-common-btn"
-                    ng-if="!(IsMomentPay && (currentcontext.PaymentTypeId == 5 || currentcontext.PaymentTypeId == 11)) &&
-                           (HasAccess('OPBilling', 'OPBilling_Saveapprove') && canShowSaveapproveBtn)"
-                    translate="billing.opbilling-list.saveandapprove.lbl" hotkey="{'alt+a': saveAndApprove}"
-                    ng-click="completeBill(saveAndApprove)"></button>
-            </span>
-            <span ng-if="vm.Context=='DG'">
-                <button type="button" id="saveAndApproveid" ng-keyup="FooterFocus('saveAndApproveid')"
-                    class="drhms-common-btn" translate="billing.opbilling-list.saveandapprove.lbl"
-                    ng-show="canShowSaveapproveBtn" hotkey="{'alt+a': saveAndApprove}"
-                    ng-click="completeBill(saveAndApprove)"></button>
-            </span>
+            <react-component name="OPBillingSaveBar" props="{ reactProps: vm.reactPropsSaveBar, onAction: handleReactAction }"></react-component>
             <span ng-if="vm.Context=='OP'">
                 <printcontrol ng-if="!HidePrintBtn" printclick="print(true)" originalprintclick="originalprint()"
                     hotkey="{'alt+p': print}" reason="currentcontext.printreason" entity="'OPbilling'"

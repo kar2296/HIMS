@@ -10,7 +10,7 @@
         angular.extend(this, utl.Ctrl.getPrivilegeCtrl({
             $scope: $scope
         }));
-        $scope.items = [];
+        $scope.items = {};
         $scope.currentcontext = {
             FacilityId: utl.Session.getCurrentFacilityId(),
             DoctorId: parseInt(utl.Session.getCurrentUserId()),
@@ -28,8 +28,39 @@
         $scope.currentcontext.CanCurrentIpPatients = utl.Privilege.hasAccess('CanCurrentIpPatients');
         $scope.currentcontext.CanFrontOfficeReports = utl.Privilege.hasAccess('CanFrontOfficeReports');
 
+        // For React Bridge
+        $scope.permissions = {
+            Registration: $scope.HasAccess('FrontOfficeDashboard', 'Registration'),
+            Appointments: $scope.HasAccess('FrontOfficeDashboard', 'Appointments'),
+            OPbilling: $scope.HasAccess('FrontOfficeDashboard', 'OPbilling'),
+            DirectBilling: $scope.HasAccess('FrontOfficeDashboard', 'DirectBilling'),
+            LabBilling: $scope.HasAccess('FrontOfficeDashboard', 'LabBilling'),
+            Admissions: $scope.HasAccess('FrontOfficeDashboard', 'Admissions'),
+            BedTransfer: $scope.HasAccess('FrontOfficeDashboard', 'BedTransfer'),
+            CurrentIpPatients: $scope.HasAccess('FrontOfficeDashboard', 'CurrentIpPatients'),
+            FrontOfficeReports: $scope.HasAccess('FrontOfficeDashboard', 'FrontOfficeReports')
+        };
 
-        $scope.Items = [];
+        $scope.handleNavigation = function(stateName, params) {
+            $timeout(function() {
+                $state.go(stateName, params);
+            });
+        };
+
+        // --- React Bridge ---
+        Object.defineProperty(vm, 'reactProps', {
+            get: function() {
+                return {
+                    items: $scope.Items,
+                    permissions: $scope.permissions,
+                    onNavigate: $scope.handleNavigation
+                };
+            }
+        });
+        // --------------------
+
+
+        $scope.Items = {};
         $scope.Items.TodayCheckInCount = '0';
         $scope.Items.TodayScheduledCount = '0';
         $scope.Items.appoinmentCount = '0';

@@ -32,6 +32,41 @@
         $scope.currentcontext.CanSurgerySchedule = utl.Privilege.hasAccess('CanSurgerySchedule');
         $scope.currentcontext.CanReports = utl.Privilege.hasAccess('CanReports');
 
+        // For React Bridge
+        $scope.permissions = {
+            OP_Patients: $scope.currentcontext.CanOP_Patients,
+            IP_Patients: $scope.currentcontext.CanIP_Patients,
+            Appointments: $scope.currentcontext.CanAppointments,
+            SurgerySchedule: $scope.currentcontext.CanSurgerySchedule,
+            Reports: $scope.currentcontext.CanReports
+        };
+
+        $scope.handleNavigation = function(stateName, params) {
+            if(params) {
+                $state.go(stateName, params);
+            } else {
+                $state.go(stateName);
+            }
+        };
+
+        // Bundle tables for React Bridge
+        // We use a getter so the React component can read the live $scope values
+        Object.defineProperty($scope, 'tablesData', {
+            get: function() {
+                return {
+                    TodayPendingList: $scope.TodayPendingList || [],
+                    TodayCompletedList: $scope.TodayCompletedList || [],
+                    outpatientlist: $scope.outpatientlist || [],
+                    admissionlist: $scope.admissionlist || [],
+                    dischargedlist: $scope.dischargedlist || [],
+                    ScheduleList: $scope.ScheduleList || [],
+                    ApnmntList: $scope.ApnmntList || [],
+                    LabCriticals: $scope.LabCriticals || [],
+                    RadCriticals: $scope.RadCriticals || []
+                };
+            }
+        });
+
         $scope.Items = [];
         $scope.Items.appoinmentCount = '0';
         $scope.Items.checkedincount = '0';

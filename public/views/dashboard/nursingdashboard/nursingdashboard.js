@@ -214,6 +214,28 @@
         }
         /* Side Menu close*/
 
+        // Expose navigation for React components
+        $scope.handleNavigation = function(stateName, params) {
+            $state.go(stateName, params);
+        };
+
+        // Bridge data to React
+        Object.defineProperty(vm, 'reactProps', {
+            get: function() {
+                return {
+                    permissions: $scope.currentcontext,
+                    admissions: $scope.LatAdmsnData || [],
+                    discharges: $scope.LatDiscrgData || [],
+                    availableBeds: $scope.LatavailbedData || [],
+                    dischargeClearance: $scope.LatDisclrData || [],
+                    wards: $scope.Wards || [],
+                    wardtotal: $scope.wardtotal || { BedsCount: 0, OccupiedBeds: 0, AvailableBeds: 0, OtherBeds: 0 },
+                    labCriticals: $scope.LabCriticals || [],
+                    radCriticals: $scope.RadCriticals || []
+                };
+            }
+        });
+
         $scope.getOutPatientList = function() {
             var FromDate = $filter('date')(utl.Formatter.getCurrentDate(), 'yyyy-MM-dd 00:00:00');
             var ToDate = $filter('date')(utl.Formatter.getCurrentDate(), 'yyyy-MM-dd 23:59:59');

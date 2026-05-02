@@ -34,7 +34,8 @@
             'ngFabForm',
             'jqwidgets',
             'ngIdle',
-            'rzTable'
+            'rzTable',
+            'app.reactBridge'
         ]).filter('dotParser', function() {
             return function(value, str) {
                 var breaq = false
@@ -1091,9 +1092,9 @@
         .module('app.sidebar')
         .controller('SidebarController', SidebarController);
 
-    SidebarController.$inject = ['$rootScope', '$scope', '$state', 'SidebarLoader', 'Utils'];
+    SidebarController.$inject = ['$rootScope', '$scope', '$state', 'SidebarLoader', 'Utils', '$timeout'];
 
-    function SidebarController($rootScope, $scope, $state, SidebarLoader, Utils) {
+    function SidebarController($rootScope, $scope, $state, SidebarLoader, Utils, $timeout) {
 
         activate();
 
@@ -1121,6 +1122,24 @@
 
             // Handle sidebar and collapse items
             // ----------------------------------
+            
+            // React Bridge Navigation
+            $scope.handleNavigation = function(sref, params) {
+                if (sref && sref !== '#') {
+                    $timeout(function() {
+                        $state.go(sref, params);
+                    });
+                }
+            };
+
+            Object.defineProperty($scope, 'reactProps', {
+                get: function() {
+                    return {
+                        menuItems: $scope.menuItems,
+                        onNavigate: $scope.handleNavigation
+                    };
+                }
+            });
 
             $scope.getMenuItemPropClasses = function(item) {
                 return (item.heading ? 'nav-heading' : '') +
@@ -2585,6 +2604,14 @@
             var licenseExpiresOn = moment(Number(licenseInfo.ExpiresOn));
             $scope.currentcontext.licenseExpiryDays = licenseExpiresOn.diff(moment(), 'days');
         }
+
+        // For React Bridge
+        $scope.toggleSidebar = function() {
+            if ($scope.app && $scope.app.layout) {
+                $scope.app.layout.isCollapsed = !$scope.app.layout.isCollapsed;
+                $scope.$applyAsync();
+            }
+        };
 
         function getMenu() {
             var menuFileName = 'main';

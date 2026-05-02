@@ -41,6 +41,52 @@
             $state.go('app.opddashboard');
         }
 
+        // --- React Bridge ---
+        $scope.handleReactAction = function(actionName) {
+            if (typeof $scope[actionName] === 'function') {
+                $scope[actionName]();
+            } else if (actionName === 'saveAndInactive') {
+                $scope.saveAndInactive($scope.item);
+            } else if (actionName === 'opdBill') {
+                $scope.OPDBill();
+            }
+        };
+
+        Object.defineProperty(vm, 'reactPropsActionBar', {
+            get: function() {
+                return {
+                    saveCompleted: $scope.SaveCompleted || false,
+                    billCompleted: $scope.BillCompleted || false,
+                    isPatientDeactivated: $scope.isPatientDeactivated || false,
+                    isTempPatient: $scope.currentcontext ? $scope.currentcontext.isTempPatient : false,
+                    patientStatusId: $scope.item ? $scope.item.PatientStatusId : 0,
+                    referredNewVisit: $scope.item ? $scope.item.ReferredNewVisit : false,
+                    attachmentCount: $scope.currentcontext ? $scope.currentcontext.attachmentcount : 0
+                };
+            }
+        });
+
+        Object.defineProperty(vm, 'reactPropsFooter', {
+            get: function() {
+                return {
+                    patientStatusId: $scope.item ? $scope.item.PatientStatusId : 0,
+                    attachmentCount: $scope.currentcontext ? $scope.currentcontext.attachmentcount : 0,
+                    enableOPD: $scope.EnableOPD || false,
+                    isTempPatient: $scope.currentcontext ? $scope.currentcontext.isTempPatient : false,
+                    vitalsEnabled: $scope.Vitals || false,
+                    visitPrintEnabled: $scope.Visitprint || false,
+                    canDisableApprove: $scope.currentcontext ? $scope.currentcontext.canDisableApprove : false,
+                    privileges: {
+                        canDeceased: utl.Privilege.hasPrivilege('QuickRegistration', 'QR-Deceased'),
+                        canAttachment: utl.Privilege.hasPrivilege('QuickRegistration', 'Attachment'),
+                        canNewVisit: utl.Privilege.hasPrivilege('QuickRegistration', 'QR-Newvisit'),
+                        canOPDBill: utl.Privilege.hasPrivilege('QuickRegistration', 'QR-OPDBill')
+                    }
+                };
+            }
+        });
+        // --------------------
+
         /* Google Address code starts */
         $scope.autocompleteModel = {};
         $scope.disablegoogleaddopt = true;

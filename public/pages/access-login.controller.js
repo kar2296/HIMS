@@ -45,16 +45,31 @@
             $scope.login.account.username = '';
             $scope.login.account.password = '';
             vm.currentcontext.currentlang = $translate.use();
+            
+            // For React Integration
+            vm.isLoading = false;
+            vm.handleLogin = function(username, password) {
+                vm.isLoading = true;
+                vm.account.username = username;
+                vm.account.password = password;
+                vm.authMsg = '';
+                $scope.$applyAsync();
+                vm.checkUserExist();
+            };
 
 
             vm.checkUserExistCallback = function (scope, res, options, hasError) {
                 if (hasError == true) {
                     vm.authMsg = 'Incorrect credentials.';
+                    vm.isLoading = false;
+                    $scope.$applyAsync();
                     utl.Alert.showErrorMsg(vm.authMsg);
                     return;
                 }
                 if (res.Data.LoginPermission == false || res.Data.IsActive == false || (res.Data.ActiveStatusId == 1 || res.Data.ActiveStatusId == 3)) {
                     vm.authMsg = 'No Permission to Login.';
+                    vm.isLoading = false;
+                    $scope.$applyAsync();
                     utl.Alert.showErrorMsg(vm.authMsg);
                     return;
                 }
@@ -95,12 +110,16 @@
             vm.incorrectData = function (scope, res, options, hasError) {
                 $("#divgifLoading").hide();
                 vm.authMsg = 'Incorrect credentials.';
+                vm.isLoading = false;
+                $scope.$applyAsync();
                 utl.Alert.showErrorMsg(vm.authMsg);
                 return;
             }
 
             vm.checkSessionAndLoginCallback = function (scope, data, options, hasError) {
                 if (data < 0) {
+                    vm.isLoading = false;
+                    $scope.$applyAsync();
                     var confirmOptions = {
                         headingKey: 'common.confirm-modal-header.lbl',
                         messageKey: 'User was already login, Do you want to override the login?',
@@ -365,11 +384,15 @@
                 $("#divgifLoading").hide();
                 if (hasError == true) {
                     vm.authMsg = 'Incorrect credentials.';
+                    vm.isLoading = false;
+                    $scope.$applyAsync();
                     utl.Alert.showErrorMsg(vm.authMsg);
                     return;
                 }
                 if (res.Data.LoginPermission == false || res.Data.IsActive == false || (res.Data.ActiveStatusId == 1 || res.Data.ActiveStatusId == 3)) {
                     vm.authMsg = 'No Permission to Login.';
+                    vm.isLoading = false;
+                    $scope.$applyAsync();
                     utl.Alert.showErrorMsg(vm.authMsg);
                     return;
                 }

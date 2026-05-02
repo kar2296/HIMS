@@ -14,6 +14,23 @@
             ToDate: $filter('date')(utl.Formatter.getCurrentDate(), 'yyyy-MM-dd 23:59:59'),
         }
 
+        // For React Bridge
+        Object.defineProperty($scope, 'reactProps', {
+            get: function() {
+                return {
+                    facilityInfo: $scope.FacilityInfo || {},
+                    totals: {
+                        cash: $scope.TotCashAmt || 0,
+                        card: $scope.TotCardAmt || 0,
+                        other: $scope.TotOtherAmt || 0,
+                        total: $scope.TotAmt || 0
+                    },
+                    wards: $scope.Wards || [],
+                    wardtotal: $scope.wardtotal || {}
+                };
+            }
+        });
+
         $scope.toggleCanShowDetails = function (clickedItem) {
             for (var idx in $scope.items) {
                 var item = $scope.items[idx];

@@ -228,6 +228,11 @@
         $scope.orgisolation = function () {
             $state.go('app.organismsisolations', { context: 'lab' });
         }
+
+        // Expose navigation for React components
+        $scope.handleNavigation = function(stateName, params) {
+            $state.go(stateName, params);
+        };
         /* Side Menu close*/
         $timeout(function () {
             removeFloatingNav();

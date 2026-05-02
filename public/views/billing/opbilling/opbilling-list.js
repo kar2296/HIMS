@@ -290,6 +290,56 @@
             }
 
         };
+
+        // --- React Bridge ---
+        $scope.handleReactAction = function(actionName) {
+            if (typeof $scope[actionName] === 'function') {
+                $scope[actionName]();
+            } else if (actionName === 'saveAndDraft') {
+                $scope.completeBill($scope.saveDraft);
+            } else if (actionName === 'saveAndApprove') {
+                $scope.completeBill($scope.saveAndApprove);
+            } else if (actionName === 'printReceipt') {
+                $scope.print(true);
+            }
+        };
+
+        Object.defineProperty(vm, 'reactPropsActionBar', {
+            get: function() {
+                return {
+                    context: vm.Context,
+                    ipIsBillLock: $scope.IPIsBillLock,
+                    ipBillListEnabled: !!$scope.IpBillList,
+                    privileges: {
+                        canViewPreviousBills: utl.Privilege.hasAccess('OPBilling','OP_PreviousBills'),
+                        canViewOutstandingBills: utl.Privilege.hasAccess('OPBilling','OP_OutStandingBills')
+                    }
+                };
+            }
+        });
+
+        Object.defineProperty(vm, 'reactPropsSaveBar', {
+            get: function() {
+                return {
+                    itemId: $scope.item ? $scope.item.Id : 0,
+                    patientBillStatusId: $scope.item ? $scope.item.PatientBillStatusId : 0,
+                    patientStatusId: $scope.item ? $scope.item.PatientStatusId : 0,
+                    advanceReceiptAmount: $scope.item ? $scope.item.AdvanceReceptAmount : 0,
+                    isShow: $scope.IsShow,
+                    canShowSaveBtn: $scope.canShowSaveBtn,
+                    canShowSaveapproveBtn: $scope.canShowSaveapproveBtn,
+                    isFromIPBill: $scope.item ? $scope.item.IsFromIPBill : 0,
+                    receiptNo: $scope.item ? $scope.item.ReceiptNo : '',
+                    attachmentCount: $scope.currentcontext ? $scope.currentcontext.attachmentcount : 0,
+                    privileges: {
+                        canAttachment: utl.Privilege.hasAccess('OPBilling','Attachment'),
+                        canSave: utl.Privilege.hasAccess('OPBilling', 'OPBilling_Save_Button'),
+                        canSaveApprove: utl.Privilege.hasAccess('OPBilling', 'OPBilling_Saveapprove')
+                    }
+                };
+            }
+        });
+        // --------------------
         $scope.EnableBillWithComeReceipt = function () {
             var flag = !$scope.item.BillWithComeReceipt;
             $scope.currentcontext.RdoReceiptAmt = flag;

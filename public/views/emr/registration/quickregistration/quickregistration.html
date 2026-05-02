@@ -2,6 +2,7 @@
 <style>
     .form-horizontal .form-group {
         height: 72px;
+        margin-bottom: 24px;
     }
 
     .token-num input {
@@ -19,6 +20,34 @@
 
     patientsearch#drhms-patinet-search-box .custom-popup-wrapper {
         margin-left: -200px;
+    }
+
+    /* Modern React-like Styling for AngularJS Form */
+    #item_form .form-control, #item_form .ui-select-match {
+        border-radius: 8px !important;
+        border: 1px solid #dcdfe6;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+        padding: 8px 12px;
+        transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    #item_form .form-control:focus {
+        border-color: #4a90e2;
+        box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2);
+    }
+
+    #item_form .control-label {
+        font-weight: 600;
+        color: #444;
+        font-size: 13px;
+        margin-bottom: 6px;
+    }
+
+    .drhms-filters h4 {
+        color: #333;
+        font-weight: 600;
+        font-size: 20px;
+        margin-top: 8px;
     }
 </style>
 <div class="row">
@@ -38,61 +67,7 @@
                         <i class="fas fa-search" aria-hidden="true"></i>
                     </div>
                 </div>
-                <button type="button" tabindex="-1" class="drhms-billing-btn drhms-outstandingbill-btn"
-                    ng-click="admission()" uib-tooltip="{{ 'Admission' | translate}}" tooltip-placement="bottom">
-                    <i class="fas fa-bed" aria-hidden="true"></i>
-                </button>
-                <button type="button" tabindex="-1" class="drhms-billing-btn drhms-alert-btn"
-                    ng-click="clinicalalertview()" ng-if="item.ReferredNewVisit"
-                    uib-tooltip="{{'common.clinicalalert.lbl' | translate }}" tooltip-placement="bottom"
-                    ng-hide="item.PatientStatusId==3">
-                    <i class="fas fa-exclamation-triangle" aria-hidden="true"></i>
-                </button>
-                <button type="button" class="drhms-billing-btn drhms-previousbill-btn" ng-show="BillCompleted"
-                    ng-click="consultationcharges()" ng-disabled="isPatientDeactivated" tabindex="-1"
-                    uib-tooltip="consultationcharges" tooltip-placement="bottom">
-                    <span>
-                        <i class="fas fa-hospital-o fa-lg" aria-hidden="true"></i>
-                    </span>
-                </button>
-                <button type="button" tabindex="-1" class="drhms-billing-btn drhms-bill-btn" ng-if="SaveCompleted"
-                    ng-click="OPDBill()" tabindex="-1" uib-tooltip="Billing" tooltip-placement="bottom"
-                    ng-hide="item.PatientStatusId==3">
-                    <i class="fas fa-calculator fa-lg" aria-hidden="true"></i>
-                </button>
-                <button type="button" class="drhms-billing-btn drhms-checkout-btn" tabindex="-1" uib-tooltip="Checkout"
-                    ng-click="checkout()" ng-hide="item.PatientStatusId==3" ng-if="SaveCompleted" uib-tooltip="Checkout"
-                    tooltip-placement="bottom">
-                    <span>
-                        <i class="fas fa-sign-out-alt" aria-hidden="true"></i>
-                    </span>
-                </button>
-                <button id="btnSaveInactive" type="button" class="drhms-billing-btn drhms-complete-btn" tabindex="-1"
-                    ng-click="saveAndInactive(item)" ng-hide="currentcontext.isTempPatient"
-                    ng-disabled="isPatientDeactivated" ng-if="SaveCompleted" uib-tooltip="Deactivate"
-                    tooltip-placement="bottom">
-                    <span>
-                        <i class="fas fa-close" aria-hidden="true"></i>
-                    </span>
-
-                </button>
-                <button type="button" class="drhms-billing-btn drhms-attachment-btn" tabindex="-1"
-                    uib-tooltip="Attachments" ng-click="openattachments()" ng-if="SaveCompleted "
-                    tooltip-placement="bottom">
-                    <i class="fas fa-paperclip fa-xs" tabindex="-1"
-                        aria-hidden="true">({{currentcontext.attachmentcount}})</i>
-                </button>
-                <button type="button" class="drhms-billing-btn drhms-save-btn" ng-show="true" ng-if="SaveCompleted"
-                    uib-tooltip="{{'Barcode'}}" tooltip-placement="bottom" ng-click="printRegistrationIdlabel()">
-                    <i class="fas fa-barcode" aria-hidden="true"></i>
-                </button>
-                <button class="btn-add" ng-click="addNewQuick()">
-                    <i class="fas fa-plus" aria-hidden="true"></i>
-                </button>
-                <span class="drhms-billing-btn drhms-home-btn">
-                    <i class="fas fa-home" ng-click="backtoList()" uib-tooltip="Dashboard"
-                        tooltip-placement="bottom"></i>
-                </span>
+                <react-component name="RegistrationActionBar" props="{ reactProps: vm.reactPropsActionBar, onAction: handleReactAction }"></react-component>
             </div>
         </div>
     </div>
@@ -335,39 +310,4 @@
     </form>
 </div>
 
-<div class="fooder-bgs">
-    <div class="row">
-        <div class="pull-left footer_reg_align">
-            <button type="button" class="btn deceased-color btn-sm" ng-click="deceased()" tabindex="-1"
-                ng-if="HasPrivilege('QuickRegistration', 'QR-Deceased')&&item.PatientStatusId==2"
-                translate="common.deseased-actions.lbl"></button>
-            <button type="button" class="draftbutton" tabindex="-1"
-                uib-tooltip="Attachments" ng-click="openattachments()"
-                ng-if="HasPrivilege('QuickRegistration', 'Attachment')" tooltip-placement="top">
-                <i class="fa fa-paperclip fa-xs" tabindex="-1"
-                    aria-hidden="true">({{currentcontext.attachmentcount}})</i>
-            </button>
-            <button type="button" class="btn btn-sm btn-warning" ng-click="newvisit()"
-                ng-if="HasPrivilege('QuickRegistration', 'QR-Newvisit')&&item.PatientStatusId==2"
-                ng-disabled="item.PatientStatusId==3" tabindex="-1"
-                translate="registration.quickregistration.newvisit-action.lbl"></button>
-            <button type="button" class="btn btn-sm bt-color2" ng-click="OPDBill()"
-                ng-disabled="item.PatientStatusId==3" tabindex="-1"
-                translate="registration.fullregistration.opdbill.lbl"
-                ng-if="HasPrivilege('QuickRegistration', 'QR-OPDBill')&&EnableOPD"></button>
-            <button type="button" class="text-white btn prv-color btn-sm" ng-click="vitals()"
-                ng-disabled="item.PatientStatusId==3" tabindex="-1" ng-hide="currentcontext.isTempPatient"
-                ng-if="Vitals" translate="patientemr.patientvital-list.pagetitle.lbl"></button>
-            <button type="button" class="text-white btn prvprint-color btn-sm" ng-click="visitprint()"
-                ng-if="Visitprint" ng-disabled="item.PatientStatusId==3" tabindex="-1"
-                ng-hide="currentcontext.isTempPatient"
-                translate="registration.fullregistration.visitprint.lbl"></button>
-
-        </div>
-        <div class="pull-right footer_reg_align">
-            <button id="btnSaveApprove" type="button" ng-disabled="currentcontext.canDisableApprove" class="draftbutton"
-                translate="common.saveactivate-action.lbl" hotkey="{'alt+s': saveAndApprove}"
-                ng-click="saveAndApprove()"></button>
-        </div>
-    </div>
-</div>
+<react-component name="RegistrationFooter" props="{ reactProps: vm.reactPropsFooter, onAction: handleReactAction }"></react-component>

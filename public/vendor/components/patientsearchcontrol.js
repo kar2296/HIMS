@@ -1,4 +1,4 @@
-﻿(function () {
+(function () {
     'use strict';
 
     angular
@@ -6,7 +6,6 @@
         .controller('patientSearchCtrl', ['utl', '$scope', '$timeout', '$http', function (utl, $scope, $timeout, $http) {
             var cvm = this;
             cvm.patients = [];
-            console.log(cvm);
             cvm.patientdisplay = {};
             cvm.searchByPatientId = false;
             cvm.IsMRN = false;
