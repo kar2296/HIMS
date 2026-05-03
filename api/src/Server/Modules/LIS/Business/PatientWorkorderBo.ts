@@ -60,7 +60,7 @@ export class PatientWorkorderBo extends BaseBo<PatientWorkorderInstance, Patient
         let apiReq = {
             Id: 0,
             PageContext: { PageSize: -1, PageNumber: 1 },
-            Params: [{ Key: PatientWorkorderdetailsFilters.WorkOrderdid, Value: req.Data.Id },
+            Params: [{ Key: PatientWorkorderdetailsFilters.WorkOrderId, Value: req.Data.Id },
             { Key: PatientWorkorderdetailsFilters.TestIds, Value: req.Data.selectedTestList }]
         };
         let wodetdata = await woDetailBO.GetPatientWorkorderdetailss(apiReq);
@@ -90,7 +90,7 @@ export class PatientWorkorderBo extends BaseBo<PatientWorkorderInstance, Patient
         let apiReq = {
             Id: 0,
             PageContext: { PageSize: -1, PageNumber: 1 },
-            Params: [{ Key: PatientWorkorderdetailsFilters.WorkOrderdid, Value: req.Data.Id }]
+            Params: [{ Key: PatientWorkorderdetailsFilters.WorkOrderId, Value: req.Data.Id }]
         };
         let wodetdata = await patientwODetBO.GetPatientWorkorderdetailss(apiReq);
         if (wodetdata.Data.length > 0) {
@@ -1851,7 +1851,7 @@ export class PatientWorkorderBo extends BaseBo<PatientWorkorderInstance, Patient
             let Req = {
                 Id: 0,
                 PageContext: { PageSize: -1, PageNumber: 1 },
-                Params: [{ Key: PatientWorkorderdetailsFilters.WorkOrderdid, Value: req.Id },
+                Params: [{ Key: PatientWorkorderdetailsFilters.WorkOrderId, Value: req.Id },
                 { Key: PatientWorkorderdetailsFilters.WorkOrderDetailStatusId, Value: 4 },
                 { Key: PatientWorkorderdetailsFilters.IncludeObservations, Value: true }]
             };
@@ -1899,7 +1899,7 @@ export class PatientWorkorderBo extends BaseBo<PatientWorkorderInstance, Patient
                 let Req = {
                     Id: 0,
                     PageContext: { PageSize: -1, PageNumber: 1 },
-                    Params: [{ Key: PatientWorkorderdetailsFilters.WorkOrderdid, Value: workorder.Id },
+                    Params: [{ Key: PatientWorkorderdetailsFilters.WorkOrderId, Value: workorder.Id },
                     { Key: PatientWorkorderdetailsFilters.WorkOrderDetailStatusId, Value: 4 },
                     { Key: PatientWorkorderdetailsFilters.IncludeObservations, Value: true }]
                 };
@@ -2169,7 +2169,7 @@ export class PatientWorkorderBo extends BaseBo<PatientWorkorderInstance, Patient
             let Req = {
                 Id: 0,
                 PageContext: { PageSize: -1, PageNumber: 1 },
-                Params: [{ Key: PatientWorkorderdetailsFilters.WorkOrderdid, Value: req.Id },
+                Params: [{ Key: PatientWorkorderdetailsFilters.WorkOrderId, Value: req.Id },
                 { Key: PatientWorkorderdetailsFilters.WorkOrderDetailStatusId, Value: 4 },
                 { Key: PatientWorkorderdetailsFilters.IncludeObservations, Value: true }]
             };
@@ -2181,7 +2181,7 @@ export class PatientWorkorderBo extends BaseBo<PatientWorkorderInstance, Patient
             let Req = {
                 Id: 0,
                 PageContext: { PageSize: -1, PageNumber: 1 },
-                Params: [{ Key: PatientWorkorderdetailsFilters.WorkOrderdid, Value: req.Id },
+                Params: [{ Key: PatientWorkorderdetailsFilters.WorkOrderId, Value: req.Id },
                 { Key: PatientWorkorderdetailsFilters.WorkOrderDetailStatusId, Value: 4 },
                 { Key: PatientWorkorderdetailsFilters.IncludeObservations, Value: true }]
             };
@@ -2453,7 +2453,7 @@ export class PatientWorkorderBo extends BaseBo<PatientWorkorderInstance, Patient
         let Req = {
             Id: 0,
             PageContext: { PageSize: -1, PageNumber: 1 },
-            Params: [{ Key: PatientWorkorderdetailsFilters.WorkOrderdid, Value: req.Id },
+            Params: [{ Key: PatientWorkorderdetailsFilters.WorkOrderId, Value: req.Id },
             { Key: PatientWorkorderdetailsFilters.WorkOrderDetailStatusId, Value: 4 },
             { Key: PatientWorkorderdetailsFilters.IncludeObservations, Value: true }
             ]
@@ -2597,7 +2597,7 @@ export class PatientWorkorderBo extends BaseBo<PatientWorkorderInstance, Patient
             let Req = {
                 Id: 0,
                 PageContext: { PageSize: -1, PageNumber: 1 },
-                Params: [{ Key: PatientWorkorderdetailsFilters.WorkOrderdid, Value: req.Id },
+                Params: [{ Key: PatientWorkorderdetailsFilters.WorkOrderId, Value: req.Id },
                 { Key: PatientWorkorderdetailsFilters.WorkOrderDetailStatusId, Value: 4 },
                 { Key: PatientWorkorderdetailsFilters.IncludeObservations, Value: true }]
             };
@@ -2610,7 +2610,7 @@ export class PatientWorkorderBo extends BaseBo<PatientWorkorderInstance, Patient
             let Req = {
                 Id: 0,
                 PageContext: { PageSize: -1, PageNumber: 1 },
-                Params: [{ Key: PatientWorkorderdetailsFilters.WorkOrderdid, Value: req.Id },
+                Params: [{ Key: PatientWorkorderdetailsFilters.WorkOrderId, Value: req.Id },
                 { Key: PatientWorkorderdetailsFilters.WorkOrderDetailStatusId, Value: 4 },
                 { Key: PatientWorkorderdetailsFilters.IncludeObservations, Value: true }]
             };
@@ -2972,7 +2972,7 @@ export class PatientWorkorderBo extends BaseBo<PatientWorkorderInstance, Patient
         let woSampleReq = {
             Id: 0,
             PageContext: { PageSize: -1, PageNumber: 1 },
-            Params: [{ Key: WorkOrderSampleFilters.WorkOrderdid, Value: req.Id }]
+            Params: [{ Key: WorkOrderSampleFilters.WorkOrderId, Value: req.Id }]
         };
         let wSampleBO = BoFactory.GetBo(lisbo.WorkOrderSampleBo, this.Request);
         let WSampleData = await wSampleBO.GetWorkOrderSamples(woSampleReq);
@@ -2999,7 +2999,7 @@ export class PatientWorkorderBo extends BaseBo<PatientWorkorderInstance, Patient
         let Req = {
             Id: 0,
             PageContext: { PageSize: -1, PageNumber: 1 },
-            Params: [{ Key: PatientWorkorderdetailsFilters.WorkOrderdid, Value: req.Id },
+            Params: [{ Key: PatientWorkorderdetailsFilters.WorkOrderId, Value: req.Id },
             { Key: PatientWorkorderdetailsFilters.WorkOrderDetailStatusId, Value: 4 },
             { Key: PatientWorkorderdetailsFilters.IncludeObservations, Value: true }]
         };
@@ -3192,7 +3192,7 @@ export class PatientWorkorderBo extends BaseBo<PatientWorkorderInstance, Patient
         let Req = {
             Id: 0,
             PageContext: { PageSize: -1, PageNumber: 1 },
-            Params: [{ Key: PatientWorkorderdetailsFilters.WorkOrderdid, Value: req.Id },
+            Params: [{ Key: PatientWorkorderdetailsFilters.WorkOrderId, Value: req.Id },
             { Key: PatientWorkorderdetailsFilters.WorkOrderDetailStatusId, Value: 4 },
             { Key: PatientWorkorderdetailsFilters.IncludeObservations, Value: true }]
         };
@@ -3344,7 +3344,7 @@ export class PatientWorkorderBo extends BaseBo<PatientWorkorderInstance, Patient
         let Req = {
             Id: 0,
             PageContext: { PageSize: -1, PageNumber: 1 },
-            Params: [{ Key: PatientWorkorderdetailsFilters.WorkOrderdid, Value: req.Id },
+            Params: [{ Key: PatientWorkorderdetailsFilters.WorkOrderId, Value: req.Id },
             { Key: PatientWorkorderdetailsFilters.WorkOrderDetailStatusId, Value: 4 },
             { Key: PatientWorkorderdetailsFilters.IncludeObservations, Value: true }
             ]
@@ -3530,7 +3530,7 @@ export class PatientWorkorderBo extends BaseBo<PatientWorkorderInstance, Patient
         let Req = {
             Id: 0,
             PageContext: { PageSize: -1, PageNumber: 1 },
-            Params: [{ Key: PatientWorkorderdetailsFilters.WorkOrderdid, Value: req.Id },
+            Params: [{ Key: PatientWorkorderdetailsFilters.WorkOrderId, Value: req.Id },
             { Key: PatientWorkorderdetailsFilters.WorkOrderDetailStatusId, Value: 4 },
             { Key: PatientWorkorderdetailsFilters.IncludeObservations, Value: true }
             ]
@@ -3663,7 +3663,7 @@ export class PatientWorkorderBo extends BaseBo<PatientWorkorderInstance, Patient
         let Req = {
             Id: 0,
             PageContext: { PageSize: -1, PageNumber: 1 },
-            Params: [{ Key: PatientWorkorderdetailsFilters.WorkOrderdid, Value: req.Id },
+            Params: [{ Key: PatientWorkorderdetailsFilters.WorkOrderId, Value: req.Id },
             //{ Key: PatientWorkorderdetailsFilters.WorkOrderDetailStatusId, Value: 4 },
             { Key: PatientWorkorderdetailsFilters.IncludeObservations, Value: true }]
         };
@@ -3802,7 +3802,7 @@ export class PatientWorkorderBo extends BaseBo<PatientWorkorderInstance, Patient
         let Req = {
             Id: 0,
             PageContext: { PageSize: -1, PageNumber: 1 },
-            Params: [{ Key: PatientWorkorderdetailsFilters.WorkOrderdid, Value: req.Id },
+            Params: [{ Key: PatientWorkorderdetailsFilters.WorkOrderId, Value: req.Id },
             { Key: PatientWorkorderdetailsFilters.WorkOrderDetailStatusId, Value: 4 },
             { Key: PatientWorkorderdetailsFilters.IncludeObservations, Value: true }
             ]
@@ -3894,7 +3894,7 @@ export class PatientWorkorderBo extends BaseBo<PatientWorkorderInstance, Patient
             let Req = {
                 Id: 0,
                 PageContext: { PageSize: -1, PageNumber: 1 },
-                Params: [{ Key: PatientWorkorderdetailsFilters.WorkOrderdid, Value: req.Id },
+                Params: [{ Key: PatientWorkorderdetailsFilters.WorkOrderId, Value: req.Id },
                 { Key: PatientWorkorderdetailsFilters.WorkOrderDetailStatusId, Value: 4 },
                 { Key: PatientWorkorderdetailsFilters.IncludeObservations, Value: true }]
             };
@@ -3906,7 +3906,7 @@ export class PatientWorkorderBo extends BaseBo<PatientWorkorderInstance, Patient
             let Req = {
                 Id: 0,
                 PageContext: { PageSize: -1, PageNumber: 1 },
-                Params: [{ Key: PatientWorkorderdetailsFilters.WorkOrderdid, Value: req.Id },
+                Params: [{ Key: PatientWorkorderdetailsFilters.WorkOrderId, Value: req.Id },
                 { Key: PatientWorkorderdetailsFilters.WorkOrderDetailStatusId, Value: 4 },
                 { Key: PatientWorkorderdetailsFilters.IncludeObservations, Value: true }]
             };
@@ -4020,7 +4020,7 @@ export class PatientWorkorderBo extends BaseBo<PatientWorkorderInstance, Patient
         let Req = {
             Id: 0,
             PageContext: { PageSize: -1, PageNumber: 1 },
-            Params: [{ Key: PatientWorkorderdetailsFilters.WorkOrderdid, Value: req.Id },
+            Params: [{ Key: PatientWorkorderdetailsFilters.WorkOrderId, Value: req.Id },
             { Key: PatientWorkorderdetailsFilters.WorkOrderDetailStatusId, Value: 4 },
             { Key: PatientWorkorderdetailsFilters.IncludeObservations, Value: true }
             ]
