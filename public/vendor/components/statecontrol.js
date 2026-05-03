@@ -1,71 +1,60 @@
-﻿(function () {
+(function () {
 	'use strict';
 
 	angular
 		.module('common.utils')
 		.controller('statecontrolCtrl', ['utl', '$scope', '$timeout', function (utl, $scope, $timeout) {
 			var cvm = this;
-			cvm.states = [];
 
-			$scope.$watch('cvm.countryid',
-				function (newValue) {
-					if (newValue) {
-						console.log(newValue);
-						cvm.searchState();
-					}
+			$scope.apiFetch = function(action, payload) {
+				return new Promise(function(resolve, reject) {
+					var options = {
+						action: action,
+						data: payload,
+						type: 'post',
+						onComplete: function(scope, res) {
+							resolve(res);
+						},
+						onError: function(err) {
+							reject(err);
+						}
+					};
+					utl.Http.doAction(options);
 				});
+			};
 
-			cvm.resetAddress = function () {
-				cvm.pincodeid = -1;
-				cvm.pincode = '';
-				cvm.cityid = -1;
-				cvm.city = '';
-				cvm.area = '';
-				cvm.areaid = -1;
-				cvm.districtid = -1;
-				cvm.district = '';
-			}
+			$scope.onUpdate = function(updates) {
+				$timeout(function() {
+					if (updates.hasOwnProperty('stateid')) cvm.stateid = updates.stateid;
+					if (updates.hasOwnProperty('state')) cvm.state = updates.state;
+					if (updates.hasOwnProperty('districtid') && cvm.hasOwnProperty('districtid')) cvm.districtid = updates.districtid;
+					if (updates.hasOwnProperty('district') && cvm.hasOwnProperty('district')) cvm.district = updates.district;
+					if (updates.hasOwnProperty('cityid') && cvm.hasOwnProperty('cityid')) cvm.cityid = updates.cityid;
+					if (updates.hasOwnProperty('city') && cvm.hasOwnProperty('city')) cvm.city = updates.city;
+					if (updates.hasOwnProperty('area') && cvm.hasOwnProperty('area')) cvm.area = updates.area;
+					if (updates.hasOwnProperty('areaid') && cvm.hasOwnProperty('areaid')) cvm.areaid = updates.areaid;
+					if (updates.hasOwnProperty('pincodeid') && cvm.hasOwnProperty('pincodeid')) cvm.pincodeid = updates.pincodeid;
+					if (updates.hasOwnProperty('pincode') && cvm.hasOwnProperty('pincode')) cvm.pincode = updates.pincode;
+				});
+			};
 
-			cvm.setStateInfo = function (stateinfo) {
-				cvm.state = stateinfo.StateName;
-				cvm.resetAddress();
-			}
+			cvm.reactProps = {
+				stateid: cvm.stateid,
+				countryid: cvm.countryid,
+				candisable: cvm.candisable,
+				apiFetch: $scope.apiFetch,
+				onUpdate: $scope.onUpdate
+			};
 
-			cvm.searchStateCallback = function (scope, res, options, hasError) {
-				var statelist = [];
-				for (var idx in res.Data) {
-					var item = res.Data[idx];
-					var newitem = { Id: item.Id, Text: item.StateName, StateName: item.StateName };
-					statelist.push(newitem);
-				}
-				cvm.states = statelist;
-			}
-			cvm.searchState = function () {
-
-				var inputData = {
-					Params: [{ Key: 2, Value: cvm.countryid }],
-					PageContext: {
-						PageSize: 1000,
-						PageNumber: 1
-					}
+			$scope.$watchGroup(['cvm.stateid', 'cvm.countryid', 'cvm.candisable'], function() {
+				cvm.reactProps = {
+					stateid: cvm.stateid,
+					countryid: cvm.countryid,
+					candisable: cvm.candisable,
+					apiFetch: $scope.apiFetch,
+					onUpdate: $scope.onUpdate
 				};
-
-				var options = {
-					action: 'generalmaster/StateMaster/GetStateMasters',
-					data: inputData,
-					type: 'post',
-					onComplete: cvm.searchStateCallback
-				};
-				utl.Http.doAction(options);
-			}
-
-			cvm.init = function () {
-			}
-
-			//caution : base method, please don't modifiy
-			cvm.$onInit = function () {
-				$timeout(cvm.init, 100);
-			}
+			});
 		}])
 		.component('statecontrol', {
 			bindings: {
@@ -77,15 +66,13 @@
 				state: "=",
 				stateid: "=",
 				country: "=",
-				countryid: "=",
+				countryid: "<",
 				district: "=",
 				districtid: "=",
 				candisable: "<"
-
 			},
 			controller: 'statecontrolCtrl',
 			controllerAs: 'cvm',
 			templateUrl: 'vendor/components/statecontrol.html'
-		})
-
+		});
 })();

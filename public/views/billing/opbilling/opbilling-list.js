@@ -342,19 +342,15 @@
         
         $scope.refreshReactProps();
 
-        $scope.$watch(function() {
-            return {
-                itemId: $scope.item ? $scope.item.Id : 0,
-                canShowSaveBtn: $scope.canShowSaveBtn,
-                canShowSaveapproveBtn: $scope.canShowSaveapproveBtn,
-                isShow: $scope.IsShow,
-                receiptNo: $scope.item ? $scope.item.ReceiptNo : ''
-            };
-        }, function(newVal, oldVal) {
-            if (newVal !== oldVal) {
-                $scope.refreshReactProps();
-            }
-        }, true);
+        $scope.$watchGroup([
+            'item.Id',
+            'canShowSaveBtn',
+            'canShowSaveapproveBtn',
+            'IsShow',
+            'item.ReceiptNo'
+        ], function() {
+            $scope.refreshReactProps();
+        });
         // --------------------
         $scope.EnableBillWithComeReceipt = function () {
             var flag = !$scope.item.BillWithComeReceipt;

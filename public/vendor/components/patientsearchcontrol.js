@@ -277,7 +277,49 @@
                 return null;
             }
 
+            cvm.getPatientDisplayString = function() {
+                if (!cvm.patientdisplay) return '';
+                if (typeof cvm.patientdisplay === 'string') return cvm.patientdisplay;
+                if (cvm.displayoption) return cvm.patientdisplay.Mobile || '';
+                return cvm.patientdisplay.FirstName || '';
+            };
+
+            // Fix the searchPatient wrapper
+            cvm.reactSearchPatient = function(query) {
+                var promise = cvm.searchPatient(query);
+                if (promise && promise.then) {
+                    return promise; // searchPatientCallback returns the array
+                }
+                return Promise.resolve([]);
+            };
+
+            cvm.refreshReactProps = function() {
+                cvm.reactPropsContainer = {
+                    onSearch: cvm.reactSearchPatient,
+                    onSelect: function(patient) {
+                        cvm.OnSelectPatient(patient, patient, patient.PatientName, null);
+                        cvm.patientdisplay = patient;
+                        $scope.$applyAsync();
+                    },
+                    reactProps: {
+                        controlId: cvm.controlid,
+                        canDisable: !!cvm.candisable,
+                        tabIndex: cvm.tabindex || 0,
+                        patientDisplay: cvm.getPatientDisplayString(),
+                        placeholder: cvm.mrnshortcode ? 'Search Name/Phone/UHID....' : 'Patient Name/Phone/UHID search'
+                    }
+                };
+            };
+
+            $scope.$watchGroup([
+                function() { return cvm.candisable; },
+                function() { return cvm.patientdisplay; }
+            ], function() {
+                cvm.refreshReactProps();
+            });
+
             cvm.init = function () {
+                cvm.refreshReactProps();
                 //Init logic
             }
 

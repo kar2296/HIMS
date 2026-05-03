@@ -41,6 +41,16 @@ import { OPBillingSaveBar } from './react-components/OPBillingSaveBar';
 
 // Import Shared Components
 import { PrintControl } from './react-components/PrintControl';
+import { PatientSearchControl } from './react-components/PatientSearchControl';
+import { AgeDisplay } from './react-components/AgeDisplay';
+import { CityControl } from './react-components/CityControl';
+import { PincodeControl } from './react-components/PincodeControl';
+import { CountryControl } from './react-components/CountryControl';
+import { StateControl } from './react-components/StateControl';
+import { DistrictControl } from './react-components/DistrictControl';
+import { AreaControl } from './react-components/AreaControl';
+import { BillingDashboardComponent } from './react-components/BillingDashboardComponent';
+import { PharmacyDashboardComponent } from './react-components/PharmacyDashboardComponent';
 
 // Register components globally so the AngularJS bridge can find them
 (window as any).ReactComponents = {
@@ -50,6 +60,7 @@ import { PrintControl } from './react-components/PrintControl';
   SidebarComponent,
   TopNavbarComponent,
   FrontOfficeDashboardComponent,
+  BillingDashboardComponent,
   DoctorDashboardTopSection,
   AdminDashboardComponent,
   LabDashboardComponent,
@@ -58,7 +69,16 @@ import { PrintControl } from './react-components/PrintControl';
   RegistrationFooter,
   OPBillingActionBar,
   OPBillingSaveBar,
-  PrintControl
+  PrintControl,
+  PatientSearchControl,
+  AgeDisplay,
+  CityControl,
+  PincodeControl,
+  CountryControl,
+  StateControl,
+  DistrictControl,
+  AreaControl,
+  PharmacyDashboardComponent
 };
 
 console.log('React runtime and components loaded. ReactBridge initialized.');

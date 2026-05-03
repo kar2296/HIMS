@@ -44,41 +44,34 @@ export const OPBillingSaveBar: React.FC<OPBillingSaveBarProps> = ({
       onAction(action);
     }
   };
-  console.log("OPBillingSaveBar rendering! Props received:", { reactProps, isFromIPBill: reactProps.isFromIPBill, canSave: reactProps.privileges?.canSave, canShowSaveBtn: reactProps.canShowSaveBtn });
 
-  const btnStyle: React.CSSProperties = {
-    padding: '8px 16px',
-    borderRadius: '6px',
-    border: 'none',
-    fontWeight: 600,
-    cursor: 'pointer',
-    marginRight: '12px',
-    fontSize: '14px',
-    transition: 'opacity 0.2s',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
-  };
-
-  const defaultBtnStyle = { ...btnStyle, backgroundColor: '#e2e6ea', color: '#333' };
-  const primaryBtnStyle = { ...btnStyle, backgroundColor: '#0056b3', color: '#fff' };
-  const successBtnStyle = { ...btnStyle, backgroundColor: '#28a745', color: '#fff' };
-
+  // We use a React Fragment (<></>) instead of a wrapping <div>
+  // so that these buttons naturally flow into the legacy parent container (e.g. `d-flex-buttons`)
+  // without breaking the horizontal alignment.
   return (
-    <div style={{ display: 'flex', alignItems: 'center' }}>
-      
+    <>
       {/* Attachments */}
       {reactProps.privileges?.canAttachment && (
-        <button style={defaultBtnStyle} onClick={() => handleAction('openattachments')} title="Attachments">
+        <button 
+          type="button" 
+          className="drhms-common-btn" 
+          style={{ backgroundColor: '#6c757d', borderColor: '#6c757d' }} 
+          onClick={() => handleAction('openattachments')} 
+          title="Attachments"
+        >
           <i className="fa fa-paperclip" style={{ marginRight: '6px' }}></i>
-          ({reactProps.attachmentCount})
+          Attachments ({reactProps.attachmentCount})
         </button>
       )}
 
       {/* Print Receipt */}
       {reactProps.receiptNo && (
-        <button style={{...primaryBtnStyle, backgroundColor: '#17a2b8'}} onClick={() => handleAction('printReceipt')}>
+        <button 
+          type="button" 
+          className="drhms-common-btn" 
+          style={{ backgroundColor: '#17a2b8', borderColor: '#17a2b8' }} 
+          onClick={() => handleAction('printReceipt')}
+        >
           <i className="fa fa-print" style={{ marginRight: '6px' }}></i>
           Print Receipt
         </button>
@@ -86,18 +79,25 @@ export const OPBillingSaveBar: React.FC<OPBillingSaveBarProps> = ({
 
       {/* Save Draft */}
       {reactProps.privileges?.canSave && reactProps.canShowSaveBtn && reactProps.isFromIPBill === 0 && (
-        <button style={defaultBtnStyle} onClick={() => handleAction('saveAndDraft')}>
+        <button 
+          type="button" 
+          className="draftbutton" 
+          onClick={() => handleAction('saveAndDraft')}
+        >
           Save Draft (Alt+S)
         </button>
       )}
 
       {/* Save & Collect */}
       {reactProps.privileges?.canSaveApprove && reactProps.canShowSaveapproveBtn && (
-        <button style={successBtnStyle} onClick={() => handleAction('saveAndApprove')}>
+        <button 
+          type="button" 
+          className="drhms-common-btn" 
+          onClick={() => handleAction('saveAndApprove')}
+        >
           Save & Collect (Alt+A)
         </button>
       )}
-
-    </div>
+    </>
   );
 };

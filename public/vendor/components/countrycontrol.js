@@ -1,76 +1,71 @@
-﻿(function () {
+(function () {
 	'use strict';
 
 	angular
 		.module('common.utils')
 		.controller('countrycontrolCtrl', ['utl', '$scope', '$timeout', function (utl, $scope, $timeout) {
 			var cvm = this;
-			cvm.countrys = [];
 
-			cvm.resetAddress = function () {
-				cvm.pincodeid = -1;
-				cvm.pincode = '';
-				cvm.stateid = -1;
-				cvm.state = '';
-				cvm.districtid = -1;
-				cvm.district = '';
-				cvm.cityid = -1;
-				cvm.city = '';
-				cvm.area = '';
-				cvm.areaid = -1;
-			}
+			// Proxy fetch calls through AngularJS utl.Http
+			$scope.apiFetch = function(action, payload) {
+				return new Promise(function(resolve, reject) {
+					var options = {
+						action: action,
+						data: payload,
+						type: 'post',
+						onComplete: function(scope, res) {
+							resolve(res);
+						},
+						onError: function(err) {
+							reject(err);
+						}
+					};
+					utl.Http.doAction(options);
+				});
+			};
 
-			cvm.setCountryInfo = function (countryinfo) {
-				cvm.country = countryinfo.CountryName;
-				cvm.resetAddress();
-			}
+			$scope.onUpdate = function(updates) {
+				$timeout(function() {
+					if (updates.hasOwnProperty('countryid')) cvm.countryid = updates.countryid;
+					if (updates.hasOwnProperty('country')) cvm.country = updates.country;
+					// reset downstream fields if requested by React
+					if (updates.hasOwnProperty('stateid') && cvm.hasOwnProperty('stateid')) cvm.stateid = updates.stateid;
+					if (updates.hasOwnProperty('state') && cvm.hasOwnProperty('state')) cvm.state = updates.state;
+					if (updates.hasOwnProperty('districtid') && cvm.hasOwnProperty('districtid')) cvm.districtid = updates.districtid;
+					if (updates.hasOwnProperty('district') && cvm.hasOwnProperty('district')) cvm.district = updates.district;
+					if (updates.hasOwnProperty('cityid') && cvm.hasOwnProperty('cityid')) cvm.cityid = updates.cityid;
+					if (updates.hasOwnProperty('city') && cvm.hasOwnProperty('city')) cvm.city = updates.city;
+					if (updates.hasOwnProperty('area') && cvm.hasOwnProperty('area')) cvm.area = updates.area;
+					if (updates.hasOwnProperty('areaid') && cvm.hasOwnProperty('areaid')) cvm.areaid = updates.areaid;
+					if (updates.hasOwnProperty('pincodeid') && cvm.hasOwnProperty('pincodeid')) cvm.pincodeid = updates.pincodeid;
+					if (updates.hasOwnProperty('pincode') && cvm.hasOwnProperty('pincode')) cvm.pincode = updates.pincode;
+				});
+			};
 
-			cvm.searchCountryCallback = function (scope, res, options, hasError) {
-				var countryslist = [];
-				for (var idx in res.Data) {
-					var item = res.Data[idx];
-					var newitem = { Id: item.Id, Text: item.CountryName, CountryName: item.CountryName };
-					countryslist.push(newitem);
-				}
-				cvm.countrys = countryslist;
-			}
-			cvm.searchCountry = function () {
-				var inputData = {
-					Params: [],
-					PageContext: {
-						PageSize: 25,
-						PageNumber: 1
-					}
+			cvm.reactProps = {
+				countryid: cvm.countryid,
+				candisable: cvm.candisable,
+				apiFetch: $scope.apiFetch,
+				onUpdate: $scope.onUpdate
+			};
+
+			$scope.$watchGroup(['cvm.countryid', 'cvm.candisable'], function() {
+				cvm.reactProps = {
+					countryid: cvm.countryid,
+					candisable: cvm.candisable,
+					apiFetch: $scope.apiFetch,
+					onUpdate: $scope.onUpdate
 				};
-
-				var options = {
-					action: 'generalmaster/CountryMaster/GetCountryMasters',
-					data: inputData,
-					type: 'post',
-					onComplete: cvm.searchCountryCallback
-				};
-				utl.Http.doAction(options);
-			}
-
-			cvm.init = function () {
-				cvm.searchCountry();
-			}
-
-			//caution : base method, please don't modifiy
-			cvm.$onInit = function () {
-				$timeout(cvm.init, 100);
-			}
+			});
 		}])
 		.component('countrycontrol', {
 			bindings: {
 				countryid: "=",
 				country: "=",
 				candisable: "<"
-
 			},
 			controller: 'countrycontrolCtrl',
 			controllerAs: 'cvm',
 			templateUrl: 'vendor/components/countrycontrol.html'
-		})
-
+		});
 })();

@@ -1,68 +1,62 @@
-﻿(function () {
+(function () {
 	'use strict';
 
 	angular
 		.module('common.utils')
 		.controller('areacontrolCtrl', ['utl', '$scope', '$timeout', function (utl, $scope, $timeout) {
 			var cvm = this;
-			cvm.areas = [];
-			console.log(cvm);
-			$scope.$watch('cvm.cityid',
-			function(newValue, oldValue) {
-					if (newValue) {
-						cvm.searchArea();
-					}
+
+			$scope.apiFetch = function(action, payload) {
+				return new Promise(function(resolve, reject) {
+					var options = {
+						action: action,
+						data: payload,
+						type: 'post',
+						onComplete: function(scope, res) {
+							resolve(res);
+						},
+						onError: function(err) {
+							reject(err);
+						}
+					};
+					utl.Http.doAction(options);
 				});
+			};
 
+			$scope.onUpdate = function(updates) {
+				$timeout(function() {
+					if (updates.hasOwnProperty('areaid')) cvm.areaid = updates.areaid;
+					if (updates.hasOwnProperty('area')) cvm.area = updates.area;
+					if (updates.hasOwnProperty('pincodeid') && cvm.hasOwnProperty('pincodeid')) cvm.pincodeid = updates.pincodeid;
+					if (updates.hasOwnProperty('pincode') && cvm.hasOwnProperty('pincode')) cvm.pincode = updates.pincode;
+				});
+			};
 
-			cvm.setAreaInfo = function (areainfo) {
-				console.log(areainfo);
-				cvm.area = areainfo.AreaName;
-				cvm.resetAddress();
-			}
+			cvm.reactProps = {
+				areaid: cvm.areaid,
+				cityid: cvm.cityid,
+				stateid: cvm.stateid,
+				districtid: cvm.districtid,
+				countryid: cvm.countryid,
+				pincode: cvm.pincode,
+				candisable: cvm.candisable,
+				apiFetch: $scope.apiFetch,
+				onUpdate: $scope.onUpdate
+			};
 
-			cvm.resetAddress = function () {
-				cvm.pincodeid = -1;
-				cvm.pincode = '';
-			}
-
-			cvm.searchAreaCallback = function (scope, res, options, hasError) {
-				var arealist = [];
-				for (var idx in res.Data) {
-					var item = res.Data[idx];
-					var newitem = { Id: item.Id, Text: item.Area, AreaName: item.Area };
-					arealist.push(newitem);
-				}
-				cvm.areas = arealist;
-			}
-			cvm.searchArea = function () {
-				if(cvm.pincode != 'freetext') {
-				var inputData = {
-					Params: [{ Key: 2, Value: cvm.countryid },
-					{ Key: 3, Value: cvm.stateid },
-					{ Key: 9, Value: cvm.districtid }, { Key: 4, Value: cvm.cityid }],
-					PageContext: {
-						PageSize: 1000,
-						PageNumber: 1
-					}
+			$scope.$watchGroup(['cvm.areaid', 'cvm.cityid', 'cvm.stateid', 'cvm.districtid', 'cvm.countryid', 'cvm.pincode', 'cvm.candisable'], function() {
+				cvm.reactProps = {
+					areaid: cvm.areaid,
+					cityid: cvm.cityid,
+					stateid: cvm.stateid,
+					districtid: cvm.districtid,
+					countryid: cvm.countryid,
+					pincode: cvm.pincode,
+					candisable: cvm.candisable,
+					apiFetch: $scope.apiFetch,
+					onUpdate: $scope.onUpdate
 				};
-
-				var options = {
-					action: 'generalmaster/PincodeMaster/GetPincodeMasters',
-					data: inputData,
-					type: 'post',
-					onComplete: cvm.searchAreaCallback
-				};
-				utl.Http.doAction(options);
-			}}
-
-			cvm.init = function () {
-			}
-
-			//caution : base method, please don't modifiy
-			cvm.$onInit = function () {
-				$timeout(cvm.init, 100);
-			}
+			});
 		}])
 		.component('areacontrol', {
 			bindings: {
@@ -71,18 +65,17 @@
 				area: "=",
 				areaid: "=",
 				city: "=",
-				cityid: "=",
-				stateid: "=",
+				cityid: "<",
+				stateid: "<",
 				state: "=",
-				districtid: "=",
+				districtid: "<",
 				district: "=",
-				countryid: "=",
+				countryid: "<",
 				country: "=",
 				candisable: "<"
 			},
 			controller: 'areacontrolCtrl',
 			controllerAs: 'cvm',
 			templateUrl: 'vendor/components/areacontrol.html'
-		})
-
+		});
 })();

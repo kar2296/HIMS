@@ -1,83 +1,77 @@
-﻿(function () {
+(function () {
 	'use strict';
 
 	angular
 		.module('common.utils')
 		.controller('citycontrolCtrl', ['utl', '$scope', '$timeout', function (utl, $scope, $timeout) {
 			var cvm = this;
-			cvm.citys = [];
 
-			$scope.$watch('cvm.districtid',
-			function(newValue, oldValue) {
-				if (newValue) {
-						cvm.searchCity();
-					}
+			// Proxy fetch calls through AngularJS utl.Http
+			$scope.apiFetch = function(action, payload) {
+				return new Promise(function(resolve, reject) {
+					var options = {
+						action: action,
+						data: payload,
+						type: 'post',
+						onComplete: function(scope, res) {
+							resolve(res);
+						},
+						onError: function(err) {
+							reject(err);
+						}
+					};
+					utl.Http.doAction(options);
 				});
+			};
 
+			$scope.onUpdate = function(updates) {
+				$timeout(function() {
+					if (updates.hasOwnProperty('cityid')) cvm.cityid = updates.cityid;
+					if (updates.hasOwnProperty('city')) cvm.city = updates.city;
+					if (updates.hasOwnProperty('pincodeid')) cvm.pincodeid = updates.pincodeid;
+					if (updates.hasOwnProperty('pincode')) cvm.pincode = updates.pincode;
+					if (updates.hasOwnProperty('area')) cvm.area = updates.area;
+					if (updates.hasOwnProperty('areaid')) cvm.areaid = updates.areaid;
+				});
+			};
 
-			cvm.setCityInfo = function (cityinfo) {
-				cvm.city = cityinfo.CityName;
-				cvm.resetAddress();
-			}
+			cvm.reactProps = {
+				cityid: cvm.cityid,
+				countryid: cvm.countryid, // We need to add this binding below
+				stateid: cvm.stateid,
+				districtid: cvm.districtid,
+				candisable: cvm.candisable,
+				apiFetch: $scope.apiFetch,
+				onUpdate: $scope.onUpdate
+			};
 
-			cvm.resetAddress = function () {
-				cvm.pincodeid = -1;
-				cvm.pincode = '';
-				cvm.area = '';
-				cvm.areaid = -1;
-			}
-
-			cvm.searchCityCallback = function (scope, res, options, hasError) {
-				var citylist = [];
-				for (var idx in res.Data) {
-					var item = res.Data[idx];
-					var newitem = { Id: item.Id, Text: item.CityName, CityName: item.CityName };
-					citylist.push(newitem);
-				}
-				cvm.citys = citylist;
-			}
-			cvm.searchCity = function () {
-
-				var inputData = {
-					Params: [{ Key: 5, Value: cvm.countryid },
-					{ Key: 2, Value: cvm.stateid },
-					{ Key: 3, Value: cvm.districtid }],
-					PageContext: {
-						PageSize: 1000,
-						PageNumber: 1
-					}
+			$scope.$watchGroup(['cvm.cityid', 'cvm.countryid', 'cvm.stateid', 'cvm.districtid', 'cvm.candisable'], function() {
+				cvm.reactProps = {
+					cityid: cvm.cityid,
+					countryid: cvm.countryid,
+					stateid: cvm.stateid,
+					districtid: cvm.districtid,
+					candisable: cvm.candisable,
+					apiFetch: $scope.apiFetch,
+					onUpdate: $scope.onUpdate
 				};
-
-				var options = {
-					action: 'generalmaster/CityMaster/GetCityMasters',
-					data: inputData,
-					type: 'post',
-					onComplete: cvm.searchCityCallback
-				};
-				utl.Http.doAction(options);
-			}
-
-			cvm.init = function () {
-			}
-
-			//caution : base method, please don't modifiy
-			cvm.$onInit = function () {
-				$timeout(cvm.init, 100);
-			}
+			});
 		}])
 		.component('citycontrol', {
 			bindings: {
 				pincode: "=",
 				pincodeid: "=",
+				area: "=", // added to match resetAddress behavior
+				areaid: "=", // added
 				city: "=",
 				cityid: "=",
-				stateid: "=",
-				districtid: "=",
+				countryid: "<", // added for proper filtering
+				stateid: "<",
+				districtid: "<",
 				candisable: "<"
 			},
 			controller: 'citycontrolCtrl',
 			controllerAs: 'cvm',
 			templateUrl: 'vendor/components/citycontrol.html'
-		})
-
+		});
 })();
