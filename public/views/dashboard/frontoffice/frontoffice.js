@@ -58,8 +58,7 @@
         $scope.reactProps = {
             currentcontext: $scope.currentcontext,
             permissions: $scope.permissions,
-            onNavigate: $scope.handleNavigation,
-            apiFetch: $scope.apiFetch
+            onNavigate: $scope.handleNavigation
         };
 
         /* Side Menu close*/

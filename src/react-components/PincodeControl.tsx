@@ -23,7 +23,6 @@ interface PincodeControlProps {
   districtid?: number | null;
   countryid?: number | null;
   candisable?: boolean;
-  apiFetch?: (action: string, payload: any) => Promise<any>;
   onUpdate?: (updates: Record<string, any>) => void;
 }
 
@@ -35,14 +34,13 @@ export const PincodeControl: React.FC<PincodeControlProps> = ({
   districtid,
   countryid,
   candisable = false,
-  apiFetch,
   onUpdate
 }) => {
   const [pincodes, setPincodes] = useState<PincodeItem[]>([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (!apiFetch || !cityid) {
+    if (!cityid) {
       setPincodes([]);
       return;
     }
@@ -92,7 +90,7 @@ export const PincodeControl: React.FC<PincodeControlProps> = ({
     fetchPincodes();
 
     return () => { isMounted = false; };
-  }, [apiFetch, cityid, countryid, stateid, districtid, pincode]);
+  }, [cityid, countryid, stateid, districtid, pincode]);
 
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     if (!onUpdate) return;

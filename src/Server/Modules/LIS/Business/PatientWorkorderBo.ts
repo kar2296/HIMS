@@ -2692,25 +2692,20 @@ export class PatientWorkorderBo extends BaseBo<PatientWorkorderInstance, Patient
             for (let i = 0; i < PatientWorkorderDetailData.Data.length; i++) {
                 let item: any;
                 item = PatientWorkorderDetailData.Data[i];
-                item.IsPrint = 'no';
                 let analayteItems = [];
-                console.log('*********Analy********');
-                console.log(selectedItems);
-                // console.log(item);
-                console.log(item.Testid);
-                console.log(selectedItems[item.Testid]);
-                if (selectedItems && selectedItems[item.Testid]) {
-                    analayteItems = selectedItems[item.Testid];
+                let hasSelectedItems = Object.keys(selectedItems).length > 0;
+                
+                if (!hasSelectedItems) {
+                    item.IsPrint = 'yes';
+                } else {
+                    item.IsPrint = 'no';
+                    if (selectedItems && selectedItems[item.Testid]) {
+                        analayteItems = selectedItems[item.Testid];
 
-                    console.log(item.Analyteid);
-                    console.log(analayteItems.indexOf(item.Analyteid));
-                    if (analayteItems.indexOf(item.Analyteid) > -1) {
-                        console.log('*********Analyteitens********');
-                        console.log(analayteItems);
-
-                        item.IsPrint = 'yes';
+                        if (analayteItems.indexOf(item.Analyteid) > -1) {
+                            item.IsPrint = 'yes';
+                        }
                     }
-                    // console.log(item);
                 }
 
                 if (item.PatientOrderDetail.Testmaster) {

@@ -28,12 +28,13 @@ interface ReactProps {
 }
 
 interface PharmacyDashboardProps {
-    apiFetch: (options: any) => Promise<any>;
     navigateTo: (state: string, params?: any) => void;
     reactProps: ReactProps;
 }
 
-export const PharmacyDashboardComponent: React.FC<PharmacyDashboardProps> = ({ apiFetch, navigateTo, reactProps }) => {
+import { apiFetch } from './utils/api';
+
+export const PharmacyDashboardComponent: React.FC<PharmacyDashboardProps> = ({ navigateTo, reactProps }) => {
     const { privileges, context } = reactProps;
     
     // In legacy, Items.checkedincount was used as a fallback for almost all cards
@@ -73,7 +74,7 @@ export const PharmacyDashboardComponent: React.FC<PharmacyDashboardProps> = ({ a
         };
 
         fetchDashboardData();
-    }, [apiFetch, context]);
+    }, [context]);
 
     return (
         <div id="cemr_dashboard" style={{ marginTop: '20px' }}>

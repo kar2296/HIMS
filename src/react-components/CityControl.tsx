@@ -11,7 +11,6 @@ interface CityControlProps {
   stateid?: number | null;
   districtid?: number | null;
   candisable?: boolean;
-  apiFetch?: (action: string, payload: any) => Promise<any>;
   onUpdate?: (updates: Record<string, any>) => void;
 }
 
@@ -21,14 +20,13 @@ export const CityControl: React.FC<CityControlProps> = ({
   stateid,
   districtid,
   candisable = false,
-  apiFetch,
   onUpdate
 }) => {
   const [cities, setCities] = useState<CityItem[]>([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (!apiFetch || !districtid) {
+    if (!districtid) {
       setCities([]);
       return;
     }
@@ -61,7 +59,7 @@ export const CityControl: React.FC<CityControlProps> = ({
     fetchCities();
 
     return () => { isMounted = false; };
-  }, [apiFetch, countryid, stateid, districtid]);
+  }, [countryid, stateid, districtid]);
 
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     if (!onUpdate) return;

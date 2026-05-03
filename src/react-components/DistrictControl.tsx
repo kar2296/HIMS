@@ -10,7 +10,6 @@ interface DistrictControlProps {
   countryid?: number | null;
   stateid?: number | null;
   candisable?: boolean;
-  apiFetch?: (action: string, payload: any) => Promise<any>;
   onUpdate?: (updates: Record<string, any>) => void;
 }
 
@@ -19,14 +18,13 @@ export const DistrictControl: React.FC<DistrictControlProps> = ({
   countryid,
   stateid,
   candisable = false,
-  apiFetch,
   onUpdate
 }) => {
   const [districts, setDistricts] = useState<DistrictItem[]>([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (!apiFetch || !stateid) {
+    if (!stateid) {
       setDistricts([]);
       return;
     }
@@ -58,7 +56,7 @@ export const DistrictControl: React.FC<DistrictControlProps> = ({
     fetchDistricts();
 
     return () => { isMounted = false; };
-  }, [apiFetch, countryid, stateid]);
+  }, [countryid, stateid]);
 
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     if (!onUpdate) return;

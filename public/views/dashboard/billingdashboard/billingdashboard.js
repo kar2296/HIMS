@@ -52,7 +52,6 @@
         $scope.reactProps = {
             context: currentcontext,
             privileges: privileges,
-            apiFetch: $scope.apiFetch,
             navigateTo: $scope.navigateTo
         };
 

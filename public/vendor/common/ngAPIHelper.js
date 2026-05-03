@@ -18,7 +18,10 @@
                                 })
                                 .success(function (data) {
                                     $("#divgifLoading").hide();
-                                    options['onComplete'](null, data, options, false); })
+                                    if (typeof options['onComplete'] === 'function') {
+                                        options['onComplete'](null, data, options, false); 
+                                    }
+                                })
                                 .error(function (data) {
                                     $("#divgifLoading").hide();
                                     console.log('post api - error');
@@ -52,7 +55,11 @@
                                 params: options.params ? options.params : {}
                                 //headers: options.headers
                             })
-                                .success(function (data) { options['onComplete'](scope, data, options, false); })
+                                .success(function (data) { 
+                                    if (typeof options['onComplete'] === 'function') {
+                                        options['onComplete'](null, data, options, false); 
+                                    }
+                                })
                                 .error(function (data) {
                                     console.log('get api - error');
                                     console.log(data);

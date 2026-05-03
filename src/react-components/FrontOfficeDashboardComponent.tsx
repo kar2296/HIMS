@@ -43,20 +43,20 @@ interface FrontOfficeDashboardProps {
   permissions?: DashboardPermissions;
   currentcontext?: CurrentContext;
   onNavigate?: (stateName: string, params?: any) => void;
-  apiFetch?: (action: string, payload: any) => Promise<any>;
 }
+
+import { apiFetch } from './utils/api';
 
 export const FrontOfficeDashboardComponent: React.FC<FrontOfficeDashboardProps> = ({
   permissions = {},
   currentcontext,
-  onNavigate,
-  apiFetch
+  onNavigate
 }) => {
   const [items, setItems] = useState<DashboardItems>({});
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
-    if (!currentcontext || !apiFetch) return;
+    if (!currentcontext) return;
 
     let isMounted = true;
 
@@ -153,7 +153,7 @@ export const FrontOfficeDashboardComponent: React.FC<FrontOfficeDashboardProps> 
     fetchDashboardData();
 
     return () => { isMounted = false; };
-  }, [currentcontext, apiFetch]);
+  }, [currentcontext]);
 
   const handleCardClick = (stateName: string, params?: any) => {
     if (onNavigate) {

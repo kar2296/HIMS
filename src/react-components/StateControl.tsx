@@ -9,7 +9,6 @@ interface StateControlProps {
   stateid?: number | null;
   countryid?: number | null;
   candisable?: boolean;
-  apiFetch?: (action: string, payload: any) => Promise<any>;
   onUpdate?: (updates: Record<string, any>) => void;
 }
 
@@ -17,14 +16,13 @@ export const StateControl: React.FC<StateControlProps> = ({
   stateid,
   countryid,
   candisable = false,
-  apiFetch,
   onUpdate
 }) => {
   const [states, setStates] = useState<StateItem[]>([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (!apiFetch || !countryid) {
+    if (!countryid) {
       setStates([]);
       return;
     }
@@ -53,7 +51,7 @@ export const StateControl: React.FC<StateControlProps> = ({
     fetchStates();
 
     return () => { isMounted = false; };
-  }, [apiFetch, countryid]);
+  }, [countryid]);
 
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     if (!onUpdate) return;

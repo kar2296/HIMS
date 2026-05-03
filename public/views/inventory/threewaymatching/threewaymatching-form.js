@@ -82,7 +82,7 @@
             var options = {
                 action: 'pharmacy/threewaymatching/Deletethreewaymatching',
                 type: 'post',
-                oncomplete: $scope.deleteItemCallback
+                onComplete: $scope.deleteItemCallback
             };
             utl.Http.doAction(options);
         }

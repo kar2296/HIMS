@@ -13,7 +13,6 @@ interface AreaControlProps {
   countryid?: number | null;
   pincode?: string;
   candisable?: boolean;
-  apiFetch?: (action: string, payload: any) => Promise<any>;
   onUpdate?: (updates: Record<string, any>) => void;
 }
 
@@ -25,14 +24,13 @@ export const AreaControl: React.FC<AreaControlProps> = ({
   countryid,
   pincode,
   candisable = false,
-  apiFetch,
   onUpdate
 }) => {
   const [areas, setAreas] = useState<AreaItem[]>([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (!apiFetch || !cityid) {
+    if (!cityid) {
       setAreas([]);
       return;
     }
@@ -72,7 +70,7 @@ export const AreaControl: React.FC<AreaControlProps> = ({
     fetchAreas();
 
     return () => { isMounted = false; };
-  }, [apiFetch, cityid, countryid, stateid, districtid, pincode]);
+  }, [cityid, countryid, stateid, districtid, pincode]);
 
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     if (!onUpdate) return;

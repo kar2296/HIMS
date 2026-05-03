@@ -8,25 +8,18 @@ interface CountryItem {
 interface CountryControlProps {
   countryid?: number | null;
   candisable?: boolean;
-  apiFetch?: (action: string, payload: any) => Promise<any>;
   onUpdate?: (updates: Record<string, any>) => void;
 }
 
 export const CountryControl: React.FC<CountryControlProps> = ({
   countryid,
   candisable = false,
-  apiFetch,
   onUpdate
 }) => {
   const [countries, setCountries] = useState<CountryItem[]>([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (!apiFetch) {
-      setCountries([]);
-      return;
-    }
-
     let isMounted = true;
 
     const fetchCountries = async () => {
@@ -51,7 +44,7 @@ export const CountryControl: React.FC<CountryControlProps> = ({
     fetchCountries();
 
     return () => { isMounted = false; };
-  }, [apiFetch]);
+  }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     if (!onUpdate) return;

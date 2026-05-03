@@ -7,14 +7,14 @@ interface PrivilegeMap {
 interface BillingDashboardProps {
   privileges?: PrivilegeMap;
   context?: any;
-  apiFetch?: (action: string, payload: any) => Promise<any>;
   navigateTo?: (state: string, params?: any) => void;
 }
+
+import { apiFetch } from './utils/api';
 
 export const BillingDashboardComponent: React.FC<BillingDashboardProps> = ({
   privileges = {},
   context = {},
-  apiFetch,
   navigateTo
 }) => {
   const [counts, setCounts] = useState({
@@ -51,7 +51,7 @@ export const BillingDashboardComponent: React.FC<BillingDashboardProps> = ({
   };
 
   useEffect(() => {
-    if (!apiFetch || !context.FacilityId) return;
+    if (!context.FacilityId) return;
 
     let isMounted = true;
     setLoading(true);
@@ -256,7 +256,7 @@ export const BillingDashboardComponent: React.FC<BillingDashboardProps> = ({
     fetchData();
 
     return () => { isMounted = false; };
-  }, [apiFetch, context]);
+  }, [context]);
 
   if (loading) {
     return (
