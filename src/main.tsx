@@ -39,6 +39,9 @@ import { RegistrationFooter } from './react-components/RegistrationFooter';
 import { OPBillingActionBar } from './react-components/OPBillingActionBar';
 import { OPBillingSaveBar } from './react-components/OPBillingSaveBar';
 
+// Import Shared Components
+import { PrintControl } from './react-components/PrintControl';
+
 // Register components globally so the AngularJS bridge can find them
 (window as any).ReactComponents = {
   ...(window as any).ReactComponents,
@@ -54,7 +57,8 @@ import { OPBillingSaveBar } from './react-components/OPBillingSaveBar';
   RegistrationActionBar,
   RegistrationFooter,
   OPBillingActionBar,
-  OPBillingSaveBar
+  OPBillingSaveBar,
+  PrintControl
 };
 
 console.log('React runtime and components loaded. ReactBridge initialized.');

@@ -1118,6 +1118,9 @@
 
             function sidebarReady(items) {
                 $scope.menuItems = items;
+                if ($scope.reactProps) {
+                    $scope.reactProps.menuItems = items;
+                }
             }
 
             // Handle sidebar and collapse items
@@ -1132,14 +1135,10 @@
                 }
             };
 
-            Object.defineProperty($scope, 'reactProps', {
-                get: function() {
-                    return {
-                        menuItems: $scope.menuItems,
-                        onNavigate: $scope.handleNavigation
-                    };
-                }
-            });
+            $scope.reactProps = {
+                menuItems: [],
+                onNavigate: $scope.handleNavigation
+            };
 
             $scope.getMenuItemPropClasses = function(item) {
                 return (item.heading ? 'nav-heading' : '') +

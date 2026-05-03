@@ -31,7 +31,9 @@ export const OPBillingSaveBar: React.FC<OPBillingSaveBarProps> = ({
     receiptNo: '',
     attachmentCount: 0,
     privileges: {
-      canAttachment: false
+      canAttachment: false,
+      canSave: false,
+      canSaveApprove: false
     }
   },
   onAction
@@ -42,6 +44,7 @@ export const OPBillingSaveBar: React.FC<OPBillingSaveBarProps> = ({
       onAction(action);
     }
   };
+  console.log("OPBillingSaveBar rendering! Props received:", { reactProps, isFromIPBill: reactProps.isFromIPBill, canSave: reactProps.privileges?.canSave, canShowSaveBtn: reactProps.canShowSaveBtn });
 
   const btnStyle: React.CSSProperties = {
     padding: '8px 16px',
@@ -66,7 +69,7 @@ export const OPBillingSaveBar: React.FC<OPBillingSaveBarProps> = ({
     <div style={{ display: 'flex', alignItems: 'center' }}>
       
       {/* Attachments */}
-      {reactProps.privileges.canAttachment && (
+      {reactProps.privileges?.canAttachment && (
         <button style={defaultBtnStyle} onClick={() => handleAction('openattachments')} title="Attachments">
           <i className="fa fa-paperclip" style={{ marginRight: '6px' }}></i>
           ({reactProps.attachmentCount})
@@ -82,14 +85,14 @@ export const OPBillingSaveBar: React.FC<OPBillingSaveBarProps> = ({
       )}
 
       {/* Save Draft */}
-      {reactProps.privileges.canSave && reactProps.canShowSaveBtn && reactProps.isFromIPBill === 0 && (
+      {reactProps.privileges?.canSave && reactProps.canShowSaveBtn && reactProps.isFromIPBill === 0 && (
         <button style={defaultBtnStyle} onClick={() => handleAction('saveAndDraft')}>
           Save Draft (Alt+S)
         </button>
       )}
 
       {/* Save & Collect */}
-      {reactProps.privileges.canSaveApprove && reactProps.canShowSaveapproveBtn && (
+      {reactProps.privileges?.canSaveApprove && reactProps.canShowSaveapproveBtn && (
         <button style={successBtnStyle} onClick={() => handleAction('saveAndApprove')}>
           Save & Collect (Alt+A)
         </button>

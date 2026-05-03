@@ -106,3 +106,36 @@ Reply "Option 2" if you want a complete physical merge (High risk of breaking th
 * **File Modified:** `public/vendor/common/ngPrivilegeHelper.js`
 * **Change:** Refactored the `hasAccess` function to use `typeof func === 'function'` instead of executing `func()` directly and handling `TypeError` via `catch`. Also modified the failure branch to return a `false` boolean instead of returning an empty function.
 * **Reason:** When checking for an unmapped privilege key (like `CanOP_TheramlPrint`), the system threw a `TypeError` because `func` was undefined. The catch block then erroneously returned `function () { return false; }` which evaluating contexts interpreted as `true` (since a function object is truthy), and it also caused `TypeError: func is not a function` in the browser console.
+
+### 11. OP Billing Save Buttons React Bridge Fix
+* **Date:** May 3, 2026, 11:15 AM (IST)
+* **File Modified:** `public/views/billing/opbilling/opbilling-list.js`
+* **Change:** Resolved an infinite `$digest` loop that was crashing the page by converting the dynamic `reactPropsSaveBarContainer` object getters (using `Object.defineProperty`) to a static object. Implemented an explicit `refreshReactProps()` method and tied it to an efficient `$watchGroup` that explicitly monitors primitive scope variable changes.
+* **Reason:** The legacy AngularJS controller was re-evaluating the object reference on every digest cycle, causing the React bridge deep-watcher to constantly re-render and trigger an endless digest loop.
+
+### 12. OP Billing `IsFromIPBill` String Coercion Fix
+* **Date:** May 3, 2026, 11:20 AM (IST)
+* **File Modified:** `public/views/billing/opbilling/opbilling-list.js`
+* **Change:** Enforced strict numeric coercion on the `isFromIPBill` property using `Number($scope.item.IsFromIPBill) || 0` before passing it down the React Bridge.
+* **Reason:** The backend API sporadically returns `"0"` (a string) instead of `0` (a number). In Javascript, the string `"0"` is truthy, so the legacy ternary `($scope.item.IsFromIPBill ? 1 : 0)` evaluated to `1`. The React component strictly checked `reactProps.isFromIPBill === 0`, which failed (`1 === 0`), inadvertently hiding the Save buttons from the UI.
+
+### 13. `printcontrol` AngularJS Component to React Migration
+* **Date:** May 3, 2026, 11:30 AM (IST)
+* **Files Modified:** 
+  - `src/react-components/PrintControl.tsx` (New File)
+  - `src/main.tsx`
+  - `public/vendor/components/printcontrol.html`
+  - `public/vendor/components/printcontrol.js`
+* **Change:** Migrated the core `printcontrol` directive to a modern `PrintControl.tsx` React component. Replaced the clunky AngularJS `$uibModal` with a fast React state modal. The legacy AngularJS `.component` definition was kept but "hollowed out" to act purely as an invisible bridge (rendering `<react-component name="PrintControl">`) that proxies data to React.
+* **Reason:** This progressive-enhancement strategy allowed the Print UI to be completely modernized across 44 legacy files instantly, without requiring any modifications to the legacy HTML templates that depend on the `<printcontrol>` tag.
+
+### 14. Started Backend API Service
+* **Date:** May 3, 2026, 12:00 PM (IST)
+* **Action:** Booted the backend API server (`gulp serve.dev`) running on port `2012`.
+* **Reason:** The React frontend was receiving `ECONNREFUSED` errors because the backend API wasn't running, causing all dependent dynamic data (including button visibility settings) to fail to load.
+
+### 15. OP Billing React Bridge Privilege Scope Fix
+* **Date:** May 3, 2026, 12:15 PM (IST)
+* **File Modified:** `public/views/billing/opbilling/opbilling-list.js`
+* **Change:** Replaced the incorrect `utl.Privilege.hasAccess(...)` implementation inside `refreshReactProps` with the correct `$scope.HasAccess(...)` method.
+* **Reason:** The `utl.Privilege.hasAccess` method only accepts a single string parameter (e.g., `'OPBilling'`), while the older system uses a two-parameter tuple (e.g., `'OPBilling', 'OPBilling_Save_Button'`). Because the second parameter was ignored, the system looked for the root key `OPBilling` in the privilege map (which does not exist), and erroneously returned `false`. This effectively hid all Save buttons for logged-in users like `sdh`. Using `$scope.HasAccess` correctly evaluates the dual-parameter privilege, restoring the buttons.

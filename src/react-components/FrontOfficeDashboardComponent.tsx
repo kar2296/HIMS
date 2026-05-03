@@ -55,7 +55,7 @@ export const FrontOfficeDashboardComponent: React.FC<FrontOfficeDashboardProps> 
       id: 'Registration',
       title: 'Registration',
       icon: 'fa-registered',
-      count: items.TodayCheckInCount || 0,
+      count: items.TodayCheckInCount || 0, // Registration count is provided by API
       show: permissions.Registration,
       color: '#4a90e2', // blue
       action: () => handleCardClick('app.regcumvisitwithbill', { context: 'frontoffice' })
@@ -64,7 +64,7 @@ export const FrontOfficeDashboardComponent: React.FC<FrontOfficeDashboardProps> 
       id: 'Appointments',
       title: 'Appointments',
       icon: 'fa-user',
-      count: items.TodayScheduledCount || 0,
+      count: items.TodayScheduledCount || 0, // Appointments count is provided by API
       show: permissions.Appointments,
       color: '#50e3c2', // teal
       action: () => handleCardClick('app.appointmentstab.details')
@@ -73,7 +73,7 @@ export const FrontOfficeDashboardComponent: React.FC<FrontOfficeDashboardProps> 
       id: 'OPbilling',
       title: 'OP Billings',
       icon: 'fa-file-text-o',
-      count: items.opbillings || 0,
+      count: items.opbillings, // Undefined in legacy
       show: permissions.OPbilling,
       color: '#f5a623', // orange
       action: () => handleCardClick('app.opbilling-list', { tp: 'OP', context: 'frontoffice' })
@@ -82,7 +82,7 @@ export const FrontOfficeDashboardComponent: React.FC<FrontOfficeDashboardProps> 
       id: 'DirectBilling',
       title: 'Direct Billing',
       icon: 'fa-usd',
-      count: items.directbilling || 0,
+      count: items.directbilling, // Undefined in legacy
       show: permissions.DirectBilling,
       color: '#7ed321', // green
       action: () => handleCardClick('app.directbilling', { tp: 'DG', context: 'frontoffice' })
@@ -91,7 +91,7 @@ export const FrontOfficeDashboardComponent: React.FC<FrontOfficeDashboardProps> 
       id: 'LabBilling',
       title: 'Lab Billing',
       icon: 'fa-list',
-      count: items.labbilling || 0,
+      count: items.labbilling, // Undefined in legacy
       show: permissions.LabBilling,
       color: '#bd10e0', // purple
       action: () => handleCardClick('app.opbilling-list', { tp: 'DG', context: 'frontoffice' })
@@ -100,7 +100,7 @@ export const FrontOfficeDashboardComponent: React.FC<FrontOfficeDashboardProps> 
       id: 'Admissions',
       title: 'Admissions',
       icon: 'fa-inr',
-      count: items.admissions || 0,
+      count: items.admissions, // Undefined in legacy
       show: permissions.Admissions,
       color: '#d0021b', // red
       action: () => handleCardClick('app.admissions', { context: 'frontoffice' })
@@ -109,7 +109,7 @@ export const FrontOfficeDashboardComponent: React.FC<FrontOfficeDashboardProps> 
       id: 'BedTransfer',
       title: 'Bed Transfer',
       icon: 'fa-percent',
-      count: items.bedtransfer || 0,
+      count: items.bedtransfer, // Undefined in legacy
       show: permissions.BedTransfer,
       color: '#9013fe', // deep purple
       action: () => handleCardClick('app.bedtransfer-list', { context: 'frontoffice' })
@@ -118,7 +118,7 @@ export const FrontOfficeDashboardComponent: React.FC<FrontOfficeDashboardProps> 
       id: 'CurrentIpPatients',
       title: 'Current IP Patients',
       icon: 'fa-briefcase',
-      count: items.ippatient || 0,
+      count: items.ippatient, // Undefined in legacy
       show: permissions.CurrentIpPatients,
       color: '#ff5a5f', // coral
       action: () => handleCardClick('app.currentinpatients', { context: 'frontoffice' })
@@ -127,7 +127,7 @@ export const FrontOfficeDashboardComponent: React.FC<FrontOfficeDashboardProps> 
       id: 'FrontOfficeReports',
       title: 'Reports',
       icon: 'fa-file-text-o',
-      count: items.reports || 0,
+      count: items.reports, // Undefined in legacy
       show: permissions.FrontOfficeReports,
       color: '#8b572a', // brown
       action: () => handleCardClick('app.ipopreportstab.inpatientreport', { context: 'frontoffice' })
@@ -183,9 +183,11 @@ export const FrontOfficeDashboardComponent: React.FC<FrontOfficeDashboardProps> 
               <div style={{ color: '#888', fontSize: '13px', fontWeight: 500, marginBottom: '8px' }}>
                 {card.title.toUpperCase()}
               </div>
-              <div style={{ color: '#333', fontSize: '28px', fontWeight: 700 }}>
-                {card.count}
-              </div>
+              {card.count !== undefined && (
+                <div style={{ color: '#333', fontSize: '28px', fontWeight: 700 }}>
+                  {card.count}
+                </div>
+              )}
             </div>
             <div style={{
               width: '50px',

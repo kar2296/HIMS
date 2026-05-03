@@ -47,20 +47,23 @@
             });
         };
 
-        // --- React Bridge ---
-        Object.defineProperty(vm, 'reactProps', {
-            get: function() {
-                return {
-                    items: $scope.Items,
-                    permissions: $scope.permissions,
-                    onNavigate: $scope.handleNavigation
-                };
-            }
-        });
+        $scope.Items = {};
+
+        $scope.reactProps = {
+            items: $scope.Items,
+            permissions: $scope.permissions,
+            onNavigate: $scope.handleNavigation
+        };
+        
+        $scope.refreshReactProps = function() {
+            $scope.reactProps = {
+                items: angular.copy($scope.Items),
+                permissions: $scope.permissions,
+                onNavigate: $scope.handleNavigation
+            };
+        };
         // --------------------
 
-
-        $scope.Items = {};
         $scope.Items.TodayCheckInCount = '0';
         $scope.Items.TodayScheduledCount = '0';
         $scope.Items.appoinmentCount = '0';
@@ -87,6 +90,7 @@
 
         $scope.getDashboardCallback = function (scope, data, options, hasError) {
             $scope.Items.todayDischarge = data.Data.length;
+            $scope.refreshReactProps();
         };
 
         $scope.getDashboard = function (val) {
@@ -136,6 +140,7 @@
                 $scope.Items.TotalOccupancyCount = '0';
             }
             $scope.prOccCount();
+            $scope.refreshReactProps();
         };
 
         $scope.getoccupancyCount = function () {
@@ -224,6 +229,8 @@
                 $scope.Items.physiotheraphycount = '0';
             if (!$scope.Items.doctormedicalauditcount)
                 $scope.Items.doctormedicalauditcount = '0';
+                
+            $scope.refreshReactProps();
         };
         $scope.getddCount = function () {
             var inputData = {
@@ -370,6 +377,7 @@
 
         $scope.getOutPatientListCallBack = function (scope, res, options, hasError) {
             $scope.outpatientlist = res.Data;
+            $scope.refreshReactProps();
         }
 
 
@@ -408,6 +416,7 @@
                 }
             }
             $scope.prOccCount();
+            $scope.refreshReactProps();
         }
         $scope.GetFacilityDashboardOptions = function () {
             var inputData = {

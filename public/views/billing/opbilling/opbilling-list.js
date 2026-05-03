@@ -304,23 +304,23 @@
             }
         };
 
-        Object.defineProperty(vm, 'reactPropsActionBar', {
-            get: function() {
-                return {
+        $scope.refreshReactProps = function() {
+            $scope.reactPropsActionBarContainer = {
+                onAction: $scope.handleReactAction,
+                reactProps: {
                     context: vm.Context,
                     ipIsBillLock: $scope.IPIsBillLock,
                     ipBillListEnabled: !!$scope.IpBillList,
                     privileges: {
-                        canViewPreviousBills: utl.Privilege.hasAccess('OPBilling','OP_PreviousBills'),
-                        canViewOutstandingBills: utl.Privilege.hasAccess('OPBilling','OP_OutStandingBills')
+                        canViewPreviousBills: $scope.HasAccess ? $scope.HasAccess('OPBilling','OP_PreviousBills') : true,
+                        canViewOutstandingBills: $scope.HasAccess ? $scope.HasAccess('OPBilling','OP_OutStandingBills') : true
                     }
-                };
-            }
-        });
+                }
+            };
 
-        Object.defineProperty(vm, 'reactPropsSaveBar', {
-            get: function() {
-                return {
+            $scope.reactPropsSaveBarContainer = {
+                onAction: $scope.handleReactAction,
+                reactProps: {
                     itemId: $scope.item ? $scope.item.Id : 0,
                     patientBillStatusId: $scope.item ? $scope.item.PatientBillStatusId : 0,
                     patientStatusId: $scope.item ? $scope.item.PatientStatusId : 0,
@@ -328,17 +328,33 @@
                     isShow: $scope.IsShow,
                     canShowSaveBtn: $scope.canShowSaveBtn,
                     canShowSaveapproveBtn: $scope.canShowSaveapproveBtn,
-                    isFromIPBill: $scope.item ? $scope.item.IsFromIPBill : 0,
+                    isFromIPBill: $scope.item ? (Number($scope.item.IsFromIPBill) || 0) : 0,
                     receiptNo: $scope.item ? $scope.item.ReceiptNo : '',
                     attachmentCount: $scope.currentcontext ? $scope.currentcontext.attachmentcount : 0,
                     privileges: {
-                        canAttachment: utl.Privilege.hasAccess('OPBilling','Attachment'),
-                        canSave: utl.Privilege.hasAccess('OPBilling', 'OPBilling_Save_Button'),
-                        canSaveApprove: utl.Privilege.hasAccess('OPBilling', 'OPBilling_Saveapprove')
+                        canAttachment: $scope.HasAccess ? $scope.HasAccess('OPBilling','Attachment') : true,
+                        canSave: $scope.HasAccess ? $scope.HasAccess('OPBilling', 'Save') : true,
+                        canSaveApprove: $scope.HasAccess ? $scope.HasAccess('OPBilling', 'Save_Approve') : true
                     }
-                };
+                }
+            };
+        };
+        
+        $scope.refreshReactProps();
+
+        $scope.$watch(function() {
+            return {
+                itemId: $scope.item ? $scope.item.Id : 0,
+                canShowSaveBtn: $scope.canShowSaveBtn,
+                canShowSaveapproveBtn: $scope.canShowSaveapproveBtn,
+                isShow: $scope.IsShow,
+                receiptNo: $scope.item ? $scope.item.ReceiptNo : ''
+            };
+        }, function(newVal, oldVal) {
+            if (newVal !== oldVal) {
+                $scope.refreshReactProps();
             }
-        });
+        }, true);
         // --------------------
         $scope.EnableBillWithComeReceipt = function () {
             var flag = !$scope.item.BillWithComeReceipt;
