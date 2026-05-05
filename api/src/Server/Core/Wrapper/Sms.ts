@@ -508,7 +508,7 @@ export class HosmatProvider implements SmsProvider {
             };
             let queryString = this.getQueryString(qs);
             let url = this.url + queryString;
-            const req = request.get(url, { timeout: 60000, strictSSL: false },
+            const req = request.get(url, { timeout: 60000 },
                 (error: any, response: request.RequestResponse, body: any) => {
                     if (error) {
                         console.log('*****SMS Error******');
@@ -573,7 +573,7 @@ export class JssProvider implements SmsProvider {
             };
             let queryString = this.getQueryString(qs);
             let url = this.url + queryString;
-            const req = request.get(url, { timeout: 60000, strictSSL: false },
+            const req = request.get(url, { timeout: 60000 },
                 (error: any, response: request.RequestResponse, body: any) => {
                     if (error) {
                         console.log('*****SMS Error******');
@@ -633,7 +633,7 @@ export class CauveryProvider implements SmsProvider {
                     'X-Authentication-Key': this.apiKey,
                     'X-Api-Method': 'MT',
                 },
-                strictSSL: false,
+                strictSSL: true,
                 form: this.getParams(sms)
                 // body: this.getParams(sms),
                 // json: true
@@ -691,7 +691,7 @@ export class ShuvadharshiniProvider implements SmsProvider {
             };
             let queryString = this.getQueryString(qs);
             let url = this.url + queryString;
-            const req = request.get(url, { timeout: 60000, strictSSL: false },
+            const req = request.get(url, { timeout: 60000 },
                 (error: any, response: request.RequestResponse, body: any) => {
                     if (error) {
                         console.log('*****SMS Error******');

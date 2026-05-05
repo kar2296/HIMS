@@ -63,13 +63,12 @@ export class PosMomentLogBo extends BaseBo<PosMomentLogInstance, PosMomentLogAtt
     public async MomentTransactionStatus(req: BaseRequest): Promise<number> {
         const payData = {
             processing_id: req.Data.processing_id,
-            mid: 'KkZma9ph',
-            auth_user: 'hosmat_hospital',
-            auth_key: 'cozQP6vmJNbcraqWlnLpzNJIiiIC5H4EIlHNkYcm0vBy0WNbs8'
+            mid: process.env.MOMENTPAY_MID,
+            auth_user: process.env.MOMENTPAY_AUTH_USER,
+            auth_key: process.env.MOMENTPAY_AUTH_KEY
         };
         const httpOptions = {
             timeout: 60000,
-            strictSSL: false,
             body: payData,
             json: true
         };

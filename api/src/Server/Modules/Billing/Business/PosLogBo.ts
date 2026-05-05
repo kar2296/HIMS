@@ -31,7 +31,6 @@ export class PosLogBo extends BaseBo<PosLogInstance, PosLogAttributes> {
                 'Content-Type': 'application/json',
                 'User-Agent': 'Custom App'
             },
-            strictSSL: false,
             body: payData,
             json: true
         };
@@ -64,7 +63,6 @@ export class PosLogBo extends BaseBo<PosLogInstance, PosLogAttributes> {
                 'Content-Type': 'application/json',
                 'User-Agent': 'Custom App'
             },
-            strictSSL: false,
             body: payData,
             json: true
         };

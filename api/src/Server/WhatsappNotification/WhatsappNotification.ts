@@ -11,7 +11,7 @@ export class WhatsappNotificationService {
 
         const headers = {
             'Content-Type': 'application/json; charset=utf-8',
-            'x-access-token': 'ophgPEouReOHcltT9V0bV4bZrvNtbnGm'
+            'x-access-token': process.env.WHATSAPP_ACCESS_TOKEN
         };
 
         const options = {
@@ -19,7 +19,6 @@ export class WhatsappNotificationService {
             path: '/message/send',
             method: 'POST',
             headers: headers,
-            rejectUnauthorized: false,
         };
         const https = require('https');
 
@@ -67,7 +66,6 @@ export class WhatsappNotificationService {
                     method: 'POST',
                     headers: headers,
                     body: inputData,
-                    rejectUnauthorized: false,
                     json: true
                 };
                 const req = http.post(finalurl, httpOptions,
@@ -100,7 +98,6 @@ export class WhatsappNotificationService {
                     method: 'POST',
                     headers: headers,
                     body: inputData,
-                    rejectUnauthorized: false,
                     json: true
                 };
                 const req = http.post(finalurl, httpOptions,
@@ -136,7 +133,6 @@ export class WhatsappNotificationService {
                     method: 'POST',
                     headers: headers,
                     body: inputData,
-                    rejectUnauthorized: false,
                     json: true
                 };
                 const req = http.post(finalurl, httpOptions,
@@ -161,7 +157,7 @@ export class WhatsappNotificationService {
                 finalurl = 'https://app.smartgrowthai.com/sendmessage';
                 headers = {
                     'Content-Type': 'application/json; charset=UTF-8',
-                    'Token': 'SGVhbHRoQ2FyZV5DQVVWRVJZIEhFQVJUICYgTVVMVEktU1BFQ0lBTElUWSBIT1NQSVRBTA=='
+                    'Token': process.env.WHATSAPP_CAUVERY_TOKEN
                 };
                 let qs = {
                     TemplateName: inputData.TemplateName,
@@ -173,7 +169,6 @@ export class WhatsappNotificationService {
                 const req = http.post(finalurl, {
                     headers: headers,
                     body: qs,
-                    rejectUnauthorized: false,
                     json: true
                 }, (error: any, response: http.RequestResponse, body: any) => {
                     if (error) {
@@ -195,7 +190,7 @@ export class WhatsappNotificationService {
                 finalurl = 'https://3g8zx1.api-in.infobip.com/whatsapp/1/message/template';
                 headers = {
                     'Content-Type': 'application/json',
-                    'Authorization': 'App 80a6c1a6a90ffbb3beb3db7abccc60e7-17f71584-e03a-4ec6-9549-f142b6ca1d87'
+                    'Authorization': 'App ' + process.env.WHATSAPP_INFOBIP_TOKEN
                 };
                 let requestBody: any;
                 if (inputData.template === 'registration') {
@@ -458,7 +453,6 @@ export class WhatsappNotificationService {
                 const req = http.post(finalurl, {
                     headers: headers,
                     body: requestBody,
-                    rejectUnauthorized: false,
                     json: true
                 }, (error: any, response: http.RequestResponse, body: any) => {
                     if (error) {
@@ -477,8 +471,8 @@ export class WhatsappNotificationService {
             } else if (WhatsAppConfig['PROVIDER'] === 'JSS') {
                 try {
                     finalurl = 'https://bhashsms.com/api/sendmsg.php';
-                    let user = 'jsshospitalsBWA';
-                    let pass = 'jHsRn4725';
+                    let user = WhatsAppConfig['USER'] || process.env.WHATSAPP_JSS_USER;
+                    let pass = WhatsAppConfig['PASS'] || process.env.WHATSAPP_JSS_PASS;
                     let sender = 'BUZWAP';
                     let priority = 'wa';
                     let stype = 'normal';
@@ -500,7 +494,7 @@ export class WhatsappNotificationService {
                     }
                     let queryString = this.getQueryString(qs);
                     let url = finalurl +'?'+ queryString;
-                    const req = http.get(url, { timeout: 60000, strictSSL: false },
+                    const req = http.get(url, { timeout: 60000 },
                         (error: any, response: http.RequestResponse, body: any) => {
                             if (error) {
                                 console.log('*****Whatsapp Error******');

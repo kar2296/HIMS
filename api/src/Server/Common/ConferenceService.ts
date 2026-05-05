@@ -17,7 +17,6 @@ export class ConferenceService {
                 headers: {
                     'Content-Type': 'application/xml; charset=UTF-8'
                 },
-                strictSSL: false,
                 body: this.getConferenceHomeXML()
             };
 
@@ -78,7 +77,7 @@ export class ConferenceService {
             queryString += '&checksum=' + checksum;
 
             let url = meetConfig.meetBaseUri + 'getMeetingInfo?' + queryString;
-            http.get(url, { timeout: 60000, strictSSL: false },
+            http.get(url, { timeout: 60000 },
                 (error: any, response: http.RequestResponse, body: any) => {
                     if (error) {
                         reject(error);
