@@ -28,10 +28,13 @@ export class WebServer {
         self.App.set('port', self.Config.ApiPort);
         self.App.use(logger('dev'));
         self.App.use(cookieParser());
-        self.App.use(bodyParser.json({ limit: '50mb' }));
-        // self.App.use(cors());
-        //self.App.use(bodyParser.urlencoded({ extended: false }));
-        self.App.use(bodyParser.urlencoded({ extended: true }));
+        // S5693: JSON body limit set to 2MB (safe default for API requests).
+        // NOTE: File uploads in this app are sent as base64 inside JSON.
+        // If uploads exceed 2MB, the preferred fix is to switch to multipart/form-data
+        // with multer (limit: 8MB) rather than raising this JSON limit.
+        self.App.use(bodyParser.json({ limit: '2mb' }));
+        // S5693: urlencoded limit explicitly set to 2MB (matches JSON parser).
+        self.App.use(bodyParser.urlencoded({ extended: true, limit: '2mb' }));
         return self;
     }
     public AddStaticFileRouting(route: string, path: string, config: IStaticFileConfig): void {
