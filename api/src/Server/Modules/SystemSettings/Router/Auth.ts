@@ -18,9 +18,10 @@ const secret = process.env.JWT_SECRET;
 const AUTO_LOG_SECRET = process.env.AUTO_LOG_SECRET;
 const ACCEPT_AUTO_LOGIN_KEY = process.env.ACCEPT_AUTO_LOGIN_KEY;
 
-if (!secret || !AUTO_LOG_SECRET || !ACCEPT_AUTO_LOGIN_KEY) {
+if (!secret || !AUTO_LOG_SECRET || !ACCEPT_AUTO_LOGIN_KEY || !process.env.AES_PASSWORD_KEY) {
     throw new Error(
-        'Missing required environment variables: JWT_SECRET, AUTO_LOG_SECRET, ACCEPT_AUTO_LOGIN_KEY. ' +
+        'Missing required environment variables: JWT_SECRET, AUTO_LOG_SECRET, ' +
+        'ACCEPT_AUTO_LOGIN_KEY, AES_PASSWORD_KEY. ' +
         'Copy .env.example to .env and fill in the values.'
     );
 }
@@ -292,8 +293,8 @@ passport.use(new local.Strategy({ usernameField: 'UserName', passwordField: 'Pas
                     ciphertext: CryptoJS.enc.Base64.parse(password)
                 });
 
-                const strIV = CryptoJS.enc.Base64.parse('3ad77bb40d7a3660a89ecaf32466ef97');
-                const base64Key = CryptoJS.enc.Base64.parse('3ad77bb40d7a3660a89ecaf32466ef97');
+                const strIV = CryptoJS.enc.Base64.parse(process.env.AES_PASSWORD_KEY!);
+                const base64Key = CryptoJS.enc.Base64.parse(process.env.AES_PASSWORD_KEY!);
 
                 const decrypted = CryptoJS.AES.decrypt(
                     cipherParams,
