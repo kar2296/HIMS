@@ -350,17 +350,16 @@ export abstract class BaseBo<TModel extends Instance<IAttributes>, TAttributes e
         let password = EmailConfig['PASSWORD'];
         let from = EmailConfig['From'];
         if (!userName) {
-            userName = 'hh@gmail.com';
+            userName = process.env.MAIL_USER || '';
         }
         if (!password) {
-            password = 'hwitzqirqohivdxj';
+            password = process.env.MAIL_PASSWORD || '';
         }
         if (!from) {
             EmailConfig['From'] = 'From DrHMS <report@drhms.com>';
         }
         let mailProvider = MailFactory.GetMailProvider('gmail', {
             userName: userName,
-            // password: 'qcpopuxogousyvpj'
             password: password
         });
         return mailProvider;

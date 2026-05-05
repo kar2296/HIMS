@@ -13,10 +13,17 @@ const CustomStrategy = passportCustom.Strategy;
 let router: Router = GetRouter();
 const userBo = BoFactory.GetBo(UserBo);
 let Models: Models = models;
-const secret = 'gloomsoft secret key goes here';
-const AUTO_LOG_SECRET = '442A472D4B6150645367566B59703373367639792442264529482B4D62516554';
-const ACCEPT_AUTO_LOGIN_KEY = 'D(G+KbPeShVmYq3s';
-//const EInvoice = '';
+// Secrets must be set in environment variables — never hardcode them here
+const secret = process.env.JWT_SECRET;
+const AUTO_LOG_SECRET = process.env.AUTO_LOG_SECRET;
+const ACCEPT_AUTO_LOGIN_KEY = process.env.ACCEPT_AUTO_LOGIN_KEY;
+
+if (!secret || !AUTO_LOG_SECRET || !ACCEPT_AUTO_LOGIN_KEY) {
+    throw new Error(
+        'Missing required environment variables: JWT_SECRET, AUTO_LOG_SECRET, ACCEPT_AUTO_LOGIN_KEY. ' +
+        'Copy .env.example to .env and fill in the values.'
+    );
+}
 
 // Helper functions for safe property access
 function getSessionContext(req: Request): any | null {
@@ -611,8 +618,8 @@ router.post('/encryptJSON', (req: Request, res: Response, next: NextFunction): v
         headers: {
             //'x-api-key': 'Api-Key ' + fac.SwosthaKey,
             'Content-Type': 'application/json',
-            'client_id': 'f7KWT4e0-iQUb-bpf2-G1lY-uUGDebdP',
-            'client_secret': 'f7KWT4e0iQUbbpf2',
+            'client_id': process.env.EINVOICE_CLIENT_ID,
+            'client_secret': process.env.EINVOICE_CLIENT_SECRET,
             //'Gstin': '27AAFCP0535R012'
         },
         strictSSL: false,
