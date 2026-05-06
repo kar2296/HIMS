@@ -1,4 +1,4 @@
-import { DatabaseConfig } from './BaseConfig';
+import type { DatabaseConfig } from './BaseConfig';
 
 export const DbConfig: DatabaseConfig = {
     UserName: process.env.DATABASE_USER_NAME,

@@ -1,5 +1,5 @@
-import { ICachingProvider } from './ICacheProvider';
-import { ICachingPolicy } from '../../../config/index';
+import type { ICachingProvider } from './ICacheProvider';
+import type { ICachingPolicy } from '../../../config/index';
 
 export class CacheManager {
     private db: ICachingProvider;

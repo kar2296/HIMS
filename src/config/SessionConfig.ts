@@ -1,4 +1,4 @@
-import { SessionOptions } from './BaseConfig';
+import type { SessionOptions } from './BaseConfig';
 import { AppConfig } from './AppConfig';
 
 export const SessionConfig: SessionOptions = {

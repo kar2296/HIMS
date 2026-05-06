@@ -1,5 +1,5 @@
-import { IAttributes } from '../../../Base/Index';
-import { Instance } from '../../../../Core/Index';
+import type { IAttributes } from '../../../Base/Index';
+import type { Instance } from '../../../../Core/Index';
 
 export interface AERegistrationAttributes extends IAttributes {
     Id: number;

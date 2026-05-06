@@ -40,7 +40,7 @@ export interface SqlLoggingConfig {
 /****************************************************************************************
 ************************ Web Server Config Interface ************************************
 ****************************************************************************************/
-import { Response } from 'express-serve-static-core';
+import type { Response } from 'express-serve-static-core';
 
 export interface IStaticFileConfig {
     dotfiles: string;
@@ -110,7 +110,7 @@ export interface ICachingPolicyDict {
 ************************************* Session Config ************************************
 ****************************************************************************************/
 
-import { Request, CookieOptions } from 'express-serve-static-core';
+import type { Request, CookieOptions } from 'express-serve-static-core';
 export interface SessionOptions {
     secret: string;
     name?: string;

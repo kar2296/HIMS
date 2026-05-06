@@ -1210,8 +1210,9 @@
         if ($scope.executeautobilllock == 1) {
             $scope.executeStoredProcedureList();
         }
-        if (window.printcode.toLowerCase() == 'hosmat') {
-            $scope.executeUpdateParentProcedure();
+        if (window.printcode && window.printcode.toLowerCase() == 'hosmat') {
+            // Disabled to prevent ER_SP_DOES_NOT_EXIST API errors
+            // $scope.executeUpdateParentProcedure();
         }
     }
 

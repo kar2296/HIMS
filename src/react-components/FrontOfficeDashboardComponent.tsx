@@ -46,6 +46,7 @@ interface FrontOfficeDashboardProps {
 }
 
 import { apiFetch } from './utils/api';
+import { RegCumVisitWithBillScreen } from './RegCumVisitWithBillScreen';
 
 export const FrontOfficeDashboardComponent: React.FC<FrontOfficeDashboardProps> = ({
   permissions = {},
@@ -54,6 +55,7 @@ export const FrontOfficeDashboardComponent: React.FC<FrontOfficeDashboardProps> 
 }) => {
   const [items, setItems] = useState<DashboardItems>({});
   const [loading, setLoading] = useState<boolean>(true);
+  const [showRegCumVisitWithBill, setShowRegCumVisitWithBill] = useState<boolean>(false);
 
   useEffect(() => {
     if (!currentcontext) return;
@@ -169,7 +171,7 @@ export const FrontOfficeDashboardComponent: React.FC<FrontOfficeDashboardProps> 
       count: items.TodayCheckInCount || 0,
       show: permissions.Registration,
       color: '#4a90e2', // blue
-      action: () => handleCardClick('app.regcumvisitwithbill', { context: 'frontoffice' })
+      action: () => setShowRegCumVisitWithBill(true)
     },
     {
       id: 'Appointments',
@@ -362,6 +364,12 @@ export const FrontOfficeDashboardComponent: React.FC<FrontOfficeDashboardProps> 
         </div>
       </div>
       
-    </div>
+            {showRegCumVisitWithBill && (
+          <RegCumVisitWithBillScreen
+            context={currentcontext}
+            onClose={() => setShowRegCumVisitWithBill(false)}
+          />
+        )}
+        </div>
   );
 };

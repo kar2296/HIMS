@@ -1,4 +1,4 @@
-import {SqlLoggingConfig} from './BaseConfig';
+import type {SqlLoggingConfig} from './BaseConfig';
 
 export const SqlErrorLog: SqlLoggingConfig = {
     file: {

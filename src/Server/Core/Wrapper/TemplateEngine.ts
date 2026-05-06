@@ -156,7 +156,7 @@ Template.Register('_', (...param: string[]): any => {
     let method: string = param[0];
     let last = param.length - 2;
     let input = _.chain(param).drop(1).take(last > 0 ? last : 0).value();
-    return (<any>_)[method](input);
+    return (_ as any)[method](input);
 });
 
 Template.Register('barcode', (...param: any[]): any => {
@@ -175,7 +175,7 @@ Template.Register('barcode', (...param: any[]): any => {
             textfont: 'Inconsolata', // Use your custom font
             textsize: 13             // Font size, in points
         });
-        let buffer = (<Buffer>img).toString('base64');
+        let buffer = (img as Buffer).toString('base64');
         return 'data:image/png;base64,' + buffer;
     } catch (e) {
         console.log(e);
@@ -222,7 +222,7 @@ Template.Register('date', (...params: any[]): any => {
     let method: string = params[1];
     let last = params.length - 3;
     let input = _.chain(params).drop(2).take(last > 0 ? last : 0).value();
-    let result = (<any>moment(date))[method](input);
+    let result = (moment(date) as any)[method](input);
     return result;
 });
 

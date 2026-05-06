@@ -1,5 +1,5 @@
 import * as express from 'express';
-import { Router, Request, Response, NextFunction } from 'express-serve-static-core';
+import type { Router, Request, Response, NextFunction } from 'express-serve-static-core';
 import { Dal } from '../Repository';
 import { Sequence } from '../../Modules/General/Common/Sequence.s';
 

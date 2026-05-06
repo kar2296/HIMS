@@ -18,7 +18,9 @@ export interface MailProvider {
 
 export class GmailProvider implements MailProvider {
     private transporter: nodemailer.Transporter;
-    constructor(private opts: any) {
+    private opts: any;
+    constructor(opts: any) {
+        this.opts = opts;
         this.transporter = nodemailer.createTransport({
             service: 'gmail',
             auth: {

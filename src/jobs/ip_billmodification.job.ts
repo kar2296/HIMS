@@ -1,4 +1,4 @@
-import { Job, DoneCallback } from 'bull';
+import type { Job, DoneCallback } from 'bull';
 import { BoFactory } from '../Server/Modules/Base/Index';
 import { EncounterBo } from '../Server/Modules/Visit/Business/Index';
 import { EncounterFilters } from '../Server/Modules/Visit/Common/Filters.e';

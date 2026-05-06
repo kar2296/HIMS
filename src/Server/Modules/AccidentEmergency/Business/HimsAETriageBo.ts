@@ -1,8 +1,8 @@
 import * as SStatic from 'sequelize';
 import { BaseBo } from '../../Base/Index';
-import { WhereOptions, IncludeOptions } from '../../../Core/Index';
-import { BaseRequest, ApiRequest, ApiResponse } from '../../../Common/Index';
-import { AETriageInstance, AETriageAttributes } from '../Model/Interface/Index';
+import type { WhereOptions, IncludeOptions } from '../../../Core/Index';
+import type { BaseRequest, ApiRequest, ApiResponse } from '../../../Common/Index';
+import type { AETriageInstance, AETriageAttributes } from '../Model/Interface/Index';
 import { AETriageFilters } from '../Common/Filters.e';
 
 export class AETriageBo extends BaseBo<AETriageInstance, AETriageAttributes>  {

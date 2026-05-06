@@ -1,8 +1,8 @@
 import * as SStatic from 'sequelize';
 import { BaseBo } from '../../Base/Index';
-import { WhereOptions, IncludeOptions } from '../../../Core/Index';
-import { BaseRequest, ApiRequest, ApiResponse } from '../../../Common/Index';
-import { AERegistrationInstance, AERegistrationAttributes } from '../Model/Interface/Index';
+import type { WhereOptions, IncludeOptions } from '../../../Core/Index';
+import type { BaseRequest, ApiRequest, ApiResponse } from '../../../Common/Index';
+import type { AERegistrationInstance, AERegistrationAttributes } from '../Model/Interface/Index';
 import { BoFactory } from '../../Base/Business/Index';
 import * as encounterBo from '../../Visit/Business/Index';
 import { AERegistrationFilters } from '../Common/Filters.e';

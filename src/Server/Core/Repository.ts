@@ -1,6 +1,6 @@
 import { basename, join } from 'path';
 import * as SequelizeStatic from 'sequelize';
-import { Sequelize } from './Vendor';
+import type { Sequelize } from './Vendor';
 import { DbConfig } from '../../config/index';
 import * as glob from 'glob';
 

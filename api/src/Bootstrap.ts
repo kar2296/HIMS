@@ -1,4 +1,6 @@
-import { WebServer, Request, Response, NextFunction } from './Server/Core/Index';
+import './EnvBootstrap';
+import { WebServer } from './Server/Core/WebServer';
+import { Request, Response, NextFunction } from 'express-serve-static-core';
 import { AppConfig } from './config/index';
 import * as route from './Server/Router';
 import { ApiResponse, IBaseDto } from './Server/Common/Index';
@@ -8,8 +10,9 @@ export class Bootstrap {
     public Init(): WebServer {
         let server = new WebServer(AppConfig);
         server.ErrorHandler = (err: Error, req: Request, res: Response, next: NextFunction): void => {
-            if (req.transaction) {
-                req.transaction.rollback();
+            const r = req as any;
+            if (r.transaction) {
+                r.transaction.rollback();
             }
             let e = err as any;
             let code = err && e.original ? e.original.code : '';

@@ -1,4 +1,4 @@
-import { PageContext } from './Contexts';
+import type { PageContext } from './Contexts';
 //import {IBaseDto} from './Misc';
 
 export interface IResponse { }

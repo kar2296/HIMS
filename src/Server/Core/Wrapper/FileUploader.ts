@@ -1,5 +1,5 @@
 import * as multer from 'multer';
-import { Request, Response, NextFunction } from '../Index';
+import type { Request, Response, NextFunction } from '../Index';
 
 type Option = { basePath: string, field?: string, storage?: 'disk' | 'memory' };
 
@@ -62,7 +62,10 @@ export class FileUploader {
 }
 
 export class LocalDiskStorage implements multer.DiskStorageOptions {
-    constructor(private path: string) { }
+    private path: string;
+    constructor(path: string) {
+        this.path = path;
+    }
     public get destination(): string {
         return this.path;
     }
@@ -74,7 +77,10 @@ export class LocalDiskStorage implements multer.DiskStorageOptions {
 }
 
 export class FacilityLogoDiskStorage implements multer.DiskStorageOptions {
-    constructor(private path: string) { }
+    private path: string;
+    constructor(path: string) {
+        this.path = path;
+    }
     public get destination(): string {
         return this.path;
     }

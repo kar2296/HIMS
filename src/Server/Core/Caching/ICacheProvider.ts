@@ -1,4 +1,4 @@
-import { ICachingPolicy } from '../../../config/index';
+import type { ICachingPolicy } from '../../../config/index';
 
 export interface ICachingProvider {
     AddItem<TValue>(key: string, value: TValue, regionName?: string, cachePolicy?: ICachingPolicy): Promise<number>;

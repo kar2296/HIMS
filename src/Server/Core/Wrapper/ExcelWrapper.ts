@@ -10,10 +10,12 @@ export class Excel {
     public static Write(data: any, opts?: XLSX.WritingOptions): any {
         return XLSX.write(data, opts);
     }
-    constructor(private workbook: XLSX.WorkBook) {
+    private workbook: XLSX.WorkBook;
+    constructor(workbook: XLSX.WorkBook) {
         if (!workbook) {
             throw 'workbook is empty';
         }
+        this.workbook = workbook;
     }
     public get Sheets(): { [sheet: string]: XLSX.WorkSheet } {
         return this.workbook.Sheets;
@@ -43,7 +45,7 @@ export class Excel {
         return XLSX.utils.encode_range(frm, to);
     }
     private _getWorksheet(worksheet: string | XLSX.WorkSheet) {
-        let sheet: XLSX.WorkSheet = <XLSX.WorkSheet>worksheet;
+        let sheet: XLSX.WorkSheet = worksheet as XLSX.WorkSheet;
         if (typeof worksheet === 'string') {
             sheet = this.GetWorksheetByName(worksheet);
         }

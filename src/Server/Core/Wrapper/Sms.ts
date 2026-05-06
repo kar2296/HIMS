@@ -1,10 +1,11 @@
 import * as request from 'request';
 
-export enum SmsType {
-    plain = 0,
-    flash = 1,
-    unicode = 2
-}
+export const SmsType = {
+    plain: 0,
+    flash: 1,
+    unicode: 2
+} as const;
+export type SmsType = (typeof SmsType)[keyof typeof SmsType];
 
 export interface SmsModel {
     numbers: string[];
@@ -68,7 +69,12 @@ export class SmsIntegraProvider implements SmsProvider {
     public get url() {
         return 'http://www.smsintegra.com/api/smsapi.aspx';
     }
-    constructor(private userName: string, private password: string) { }
+    private userName: string;
+    private password: string;
+    constructor(userName: string, password: string) {
+        this.userName = userName;
+        this.password = password;
+    }
     getParams(sms: IntegraSmsModel): any {
         return {
             uid: this.userName,
@@ -109,7 +115,12 @@ export class SmsCannyInfoProvider implements SmsProvider {
     public get url() {
         return 'http://cannyinfotech.in/api/mt/SendSMS?';
     }
-    constructor(private userName: string, private password: string) { }
+    private userName: string;
+    private password: string;
+    constructor(userName: string, password: string) {
+        this.userName = userName;
+        this.password = password;
+    }
     getParams(sms: CannySmsModel) {
         return {
             user: this.userName,
@@ -152,7 +163,12 @@ export class SmsBoneInfoProvider implements SmsProvider {
     public get url() {
         return 'http://boancomm.net/boansms/boansmsinterface.aspx?';
     }
-    constructor(private userName: string, private password: string) { }
+    private userName: string;
+    private password: string;
+    constructor(userName: string, password: string) {
+        this.userName = userName;
+        this.password = password;
+    }
     getParams(sms: BoneCommSmsModel) {
         return {
             mobileno: '91' + (sms.numbers && sms.numbers.join()),
@@ -190,7 +206,12 @@ export class SmsInWayProvider implements SmsProvider {
     public get url() {
         return 'http://hapi.smsapi.org/SendSMS.aspx?';
     }
-    constructor(private userName: string, private password: string) { }
+    private userName: string;
+    private password: string;
+    constructor(userName: string, password: string) {
+        this.userName = userName;
+        this.password = password;
+    }
     getParams(sms: InWaySmsModel) {
         return {
             UserName: this.userName,
@@ -234,7 +255,12 @@ export class SmsHorizonProvider implements SmsProvider {
         //&apikey=xlCB7ntnBIzAR3imTbjT&mobile=919600118985
         //&message=TestMsg&senderid=LotusH&type=txt
     }
-    constructor(private userName: string, private password: string) { }
+    private userName: string;
+    private password: string;
+    constructor(userName: string, password: string) {
+        this.userName = userName;
+        this.password = password;
+    }
     getParams(sms: SmsHorizonProviderModel) {
         return {
             user: this.userName,
@@ -274,7 +300,12 @@ export class SmsDreamSoftProvider implements SmsProvider {
     public get url() {
         return 'http://bulksms.teamdreamsoft.com/api/api.php?';
     }
-    constructor(private userName: string, private password: string) { }
+    private userName: string;
+    private password: string;
+    constructor(userName: string, password: string) {
+        this.userName = userName;
+        this.password = password;
+    }
     getParams(sms: DreamSoftSmsModel) {
         return {
             ver: 1,
@@ -318,7 +349,12 @@ export class SmsAmruthaProvider implements SmsProvider {
     public get url() {
         return 'http://37.48.104.204/api/mt/SendSMS?';
     }
-    constructor(private userName: string, private password: string) { }
+    private userName: string;
+    private password: string;
+    constructor(userName: string, password: string) {
+        this.userName = userName;
+        this.password = password;
+    }
     getParams(sms: AmruthaSmsModel) {
         return {
             user: this.userName,
@@ -357,7 +393,10 @@ export class SmsSolluProvider implements SmsProvider {
     public get url() {
         return 'https://app.sollu.in/api/transactional_sms?';
     }
-    constructor(private apiKey: string) { }
+    private apiKey: string;
+    constructor(apiKey: string) {
+        this.apiKey = apiKey;
+    }
     getParams(sms: SolluSmsModel) {
         return {
             apikey: this.apiKey,
@@ -394,7 +433,12 @@ export class SmsNsiteProvider implements SmsProvider {
     public get url() {
         return 'http://164.52.202.248:6005/api/v2/SendSMS?';
     }
-    constructor(private apiKey: string, private clientId: string) { }
+    private apiKey: string;
+    private clientId: string;
+    constructor(apiKey: string, clientId: string) {
+        this.apiKey = apiKey;
+        this.clientId = clientId;
+    }
     getParams(sms: NsiteSmsModel) {
         return {
             ApiKey: this.apiKey,
@@ -433,7 +477,10 @@ export class VScanProvider implements SmsProvider {
     public get url() {
         return 'https://fastsms.expressad.in/api/v1/send_sms?';
     }
-    constructor(private apiKey: any) { }
+    private apiKey: any;
+    constructor(apiKey: any) {
+        this.apiKey = apiKey;
+    }
     getParams(sms: VScanSmsModel) {
         return {
             'api-key': this.apiKey,
@@ -474,7 +521,12 @@ export class HosmatProvider implements SmsProvider {
     public get url() {
         return 'https://sms.sendmsg.in/smpp?';
     }
-    constructor(private userName: string, private password: string) { }
+    private userName: string;
+    private password: string;
+    constructor(userName: string, password: string) {
+        this.userName = userName;
+        this.password = password;
+    }
     getParams(sms: HosmatSmsModel) {
         return {
             'username': SmsConfig['USER_NAME'],
@@ -545,7 +597,12 @@ export class JssProvider implements SmsProvider {
     public get url() {
         return 'https://www.smsstriker.com/API/sms.php?';
     }
-    constructor(private userName: string, private password: string) { }
+    private userName: string;
+    private password: string;
+    constructor(userName: string, password: string) {
+        this.userName = userName;
+        this.password = password;
+    }
     getParams(sms: JssSmsModel) {
         return {
             'username': SmsConfig['USER_NAME'],
@@ -610,7 +667,10 @@ export class CauveryProvider implements SmsProvider {
     public get url() {
         return 'http://reseller.smschub.com/api/sms/';
     }
-    constructor(private apiKey: any) { }
+    private apiKey: any;
+    constructor(apiKey: any) {
+        this.apiKey = apiKey;
+    }
     getParams(sms: CauverySmsModel) {
         return {
             'sender': SmsConfig['SENDER_ID'],
@@ -663,7 +723,12 @@ export class ShuvadharshiniProvider implements SmsProvider {
     public get url() {
         return 'https://enterprise.cloudsvas.com/api/sendsms?';
     }
-    constructor(private userName: string, private password: string) { }
+    private userName: string;
+    private password: string;
+    constructor(userName: string, password: string) {
+        this.userName = userName;
+        this.password = password;
+    }
     getParams(sms: ShuvadharshiniSmsModel) {
         return {
             'route': 'Transactional',

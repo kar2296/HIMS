@@ -1,4 +1,4 @@
-import { IApplicationConfig } from './BaseConfig';
+import type { IApplicationConfig } from './BaseConfig';
 import { join } from 'path';
 
 export const AppConfig: IApplicationConfig = {
@@ -17,7 +17,7 @@ export const AppConfig: IApplicationConfig = {
         index: ['index.html', 'index.htm'],
         maxAge: '1d',
         redirect: false,
-        setHeaders: function (res: any, path: string, stat: string) {
+        setHeaders: function (res: import('express-serve-static-core').Response) {
             res.set('x-timestamp', Date.now().toString());
         }
     },

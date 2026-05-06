@@ -1,5 +1,5 @@
 import * as http from 'request';
-import { BaseRequest } from '../Common/Index';
+import type { BaseRequest } from '../Common/Index';
 // import { getSession } from '@cloudedu-api/common';
 
 export class IntegrationService {

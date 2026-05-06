@@ -156,6 +156,55 @@ export const formatter = {
   },
 
   getNumbertoWord: (inputData: number | string) => {
+    let str = inputData.toString();
+    str = str.replace(/[,\s]/g, "");
+    if (!str || parseInt(str, 10) === 0) return "zero";
+
+    const units = ["", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen", "seventeen", "eighteen", "nineteen"];
+    const tens = ["", "", "twenty", "thirty", "forty", "fifty", "sixty", "seventy", "eighty", "ninety"];
+    const scales = ["", "thousand", "million", "billion", "trillion", "quadrillion", "quintillion", "sextillion", "septillion", "octillion", "nonillion", "decillion", "undecillion", "duodecillion", "tredecillion", "quattuordecillion", "quindecillion", "sexdecillion", "septendecillion", "octodecillion", "novemdecillion", "vigintillion", "centillion"];
+
+    // Split number into groups of three digits from the right
+    const chunks = [];
+    let start = str.length;
+    while (start > 0) {
+      const end = start;
+      chunks.push(str.slice(Math.max(0, start - 3), end));
+      start = Math.max(0, start - 3);
+    }
+
+    const words = [];
+    for (let i = 0; i < chunks.length; i++) {
+      const chunk = parseInt(chunks[i], 10);
+      if (!chunk) continue;
+
+      const hundreds = Math.floor(chunk / 100);
+      const remainder = chunk % 100;
+      const chunkWords = [];
+
+      if (hundreds) {
+        chunkWords.push(units[hundreds] + " hundred");
+        if (remainder) chunkWords.push("and");
+      }
+
+      if (remainder) {
+        if (remainder < 20) {
+          chunkWords.push(units[remainder]);
+        } else {
+          const ten = Math.floor(remainder / 10);
+          const unit = remainder % 10;
+          chunkWords.push(tens[ten]);
+          if (unit) chunkWords.push(units[unit]);
+        }
+      }
+
+      const scale = scales[i];
+      if (scale) chunkWords.push(scale);
+
+      words.unshift(chunkWords.join(" "));
+    }
+    return words.join(" ");
+  }
     let string = inputData.toString();
     string = string.replace(/[, ]/g,"");
     if (parseInt(string) === 0) return 'zero';

@@ -1,4 +1,4 @@
-import { Job, DoneCallback } from 'bull';
+import type { Job, DoneCallback } from 'bull';
 import { BoFactory } from '../Server/Modules/Base/Index';
 import { SequenceMastersBo } from '../Server/Modules/General/Business/Index';
 import { CronStatusBo } from '../Server/Modules/SystemSettings/Business/Index';

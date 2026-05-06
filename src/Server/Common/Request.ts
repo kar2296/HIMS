@@ -1,14 +1,16 @@
-import {PageContext, UserContext} from './Contexts';
+import type {PageContext, UserContext} from './Contexts';
 
-export enum SearchType {
-    Contains = 1,
-    StartsWith = 2
-}
+export const SearchType = {
+    Contains: 1,
+    StartsWith: 2
+} as const;
+export type SearchType = (typeof SearchType)[keyof typeof SearchType];
 
-export enum OrderBy {
-    ASC = 1,
-    DESC = 2
-}
+export const OrderBy = {
+    ASC: 1,
+    DESC: 2
+} as const;
+export type OrderBy = (typeof OrderBy)[keyof typeof OrderBy];
 
 export interface Param<Tk> {
     Key: Tk;

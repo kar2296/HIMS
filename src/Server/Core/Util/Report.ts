@@ -1,4 +1,4 @@
-import { HtmlToPdf, Template, PdfOptions, FileInfo } from '../Wrapper/Index';
+import { HtmlToPdf, Template, type PdfOptions, type FileInfo } from '../Wrapper/Index';
 import { readFileSync, existsSync } from 'fs';
 import { join } from 'path';
 // import { AppConfig } from '../../../config/index';

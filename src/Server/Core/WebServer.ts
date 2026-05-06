@@ -1,5 +1,5 @@
 import * as express from 'express';
-import { Router, Express, Request, Response, NextFunction, ErrorRequestHandler, RequestHandler } from 'express-serve-static-core';
+import type { Router, Express, Request, Response, NextFunction, ErrorRequestHandler, RequestHandler } from 'express-serve-static-core';
 import * as http from 'http';
 import * as https from 'https';
 import * as bodyParser from 'body-parser';
@@ -7,9 +7,9 @@ import * as cookieParser from 'cookie-parser';
 import * as logger from 'morgan';
 import * as fs from 'fs';
 import { Server } from 'net';
-import { IWebServerConfig, IStaticFileConfig } from '../../config/index';
+import type { IWebServerConfig, IStaticFileConfig } from '../../config/index';
 // var cors = require('cors');
-export { Router, Express, Request, Response, NextFunction, ErrorRequestHandler, RequestHandler } from 'express-serve-static-core';
+export type { Router, Express, Request, Response, NextFunction, ErrorRequestHandler, RequestHandler } from 'express-serve-static-core';
 export const GetRouter = express.Router;
 
 export class WebServer {

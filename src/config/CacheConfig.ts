@@ -1,4 +1,4 @@
-import { IRedisConfig, ICachingPolicyDict, ICachingPolicy } from './BaseConfig';
+import type { IRedisConfig, ICachingPolicyDict, ICachingPolicy } from './BaseConfig';
 
 export const CacheConfig: IRedisConfig = {
     host: process.env.REDIS_HOST_NAME,
@@ -8,7 +8,7 @@ export const CacheConfig: IRedisConfig = {
 };
 
 export const CachePolicy: ICachingPolicyDict = {
-    Default: <ICachingPolicy>{
+    Default: {
         Expire: 0
     },
     ShortTime: {

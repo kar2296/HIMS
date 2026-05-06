@@ -1,10 +1,10 @@
 import * as express from 'express';
-import { Router, Request, Response, NextFunction } from 'express-serve-static-core';
+import type { Router, Request, Response, NextFunction } from 'express-serve-static-core';
 
 const router: Router = express.Router();
 
 router.use((req: Request, res: Response, next: NextFunction): any => {
-    (<any>req).isAuthenticated()
+    (req as any).isAuthenticated()
         ? next()
         : next(new Error('Authentication failed.'));
 });

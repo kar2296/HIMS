@@ -1,6 +1,6 @@
-import { ICachingProvider } from './ICacheProvider';
+import type { ICachingProvider } from './ICacheProvider';
 import { Redis } from '../Wrapper/Index';
-import { CacheConfig, ICachingPolicy } from '../../../config/index';
+import { CacheConfig, type ICachingPolicy } from '../../../config/index';
 
 export class RedisCacheProvider implements ICachingProvider {
     private Redis: Redis;

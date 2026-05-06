@@ -11,11 +11,11 @@ describe('Redis Client', () => {
         // beforeEach(() => {  });
         it('It should be set a key into cache', async (done) => {
             let setRes = await redis.Set('key1', 'value1').catch(logger);
-            expect(true).toEqual(setRes);
+            expect(setRes).toEqual(true);
             let getRes = await redis.Get('key1').catch(logger);
-            expect('value1').toEqual(getRes);
+            expect(getRes).toEqual('value1');
             let delRes = await redis.Del('key1').catch(logger);
-            expect(1).toEqual(delRes);
+            expect(delRes).toEqual(1);
             done();
         });
         // it('It should be retrive the value from cache', async (done) => {
