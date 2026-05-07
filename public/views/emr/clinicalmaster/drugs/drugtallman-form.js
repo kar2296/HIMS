@@ -6,6 +6,19 @@
         .controller('drugTallManFormController', drugTallManFormController);
 
 function drugTallManFormController($scope, $stateParams, $state, $translate, utl) {
+        $scope.onRteChange = function(html) {
+            $scope.$evalAsync(function() {
+                var parts = "item.TallmanContent".split('.');
+                var current = parts[0] === 'vm' ? (typeof vm !== 'undefined' ? vm : $scope.vm) : (parts[0] === 'cvm' ? (typeof cvm !== 'undefined' ? cvm : $scope.cvm) : $scope);
+                var startIndex = (parts[0] === 'vm' || parts[0] === 'cvm') ? 1 : 0;
+                for (var i = startIndex; i < parts.length - 1; i++) {
+                    if (!current[parts[i]]) current[parts[i]] = {};
+                    current = current[parts[i]];
+                }
+                current[parts[parts.length - 1]] = html;
+            });
+        };
+
     $scope.currentcontext =  {};
     $scope.currentcontext.id = parseInt($stateParams.id); 
 //  13-02-17

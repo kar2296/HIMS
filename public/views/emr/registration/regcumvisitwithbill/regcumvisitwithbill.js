@@ -48,6 +48,60 @@
 
         $scope.searchDoctorbydept = 0;
         $scope.searchDoctorbydept = utl.FacilitySetting.getFacilitySettingValue('billing', 'doctorsearchbydept');
+        
+        // --- React Bridge ---
+        $scope.handleReactAction = function(actionName) {
+            if (actionName === 'addNewQuick' || actionName === 'addNew') {
+                $scope.addNew();
+            } else if (actionName === 'saveAndInactive') {
+                $scope.saveAndInactive($scope.item);
+            } else if (actionName === 'opdBill') {
+                $scope.OPDBill();
+            } else if (actionName === 'printRegistrationIdlabel') {
+                $scope.patientidcard();
+            } else if (typeof $scope[actionName] === 'function') {
+                $scope[actionName]();
+            }
+        };
+
+        Object.defineProperty(vm, 'reactPropsActionBar', {
+            get: function() {
+                return {
+                    saveCompleted: $scope.SaveCompleted || false,
+                    billCompleted: $scope.BillCompleted || false,
+                    isPatientDeactivated: $scope.isPatientDeactivated || false,
+                    isTempPatient: $scope.currentcontext ? $scope.currentcontext.isTempPatient : false,
+                    patientStatusId: $scope.item ? $scope.item.PatientStatusId : 0,
+                    referredNewVisit: $scope.item ? $scope.item.ReferredNewVisit : false,
+                    attachmentCount: $scope.currentcontext ? $scope.currentcontext.attachmentcount : 0
+                };
+            }
+        });
+
+        Object.defineProperty(vm, 'reactPropsFooter', {
+            get: function() {
+                return {
+                    patientStatusId: $scope.item ? $scope.item.PatientStatusId : 0,
+                    attachmentCount: $scope.currentcontext ? $scope.currentcontext.attachmentcount : 0,
+                    enableOPD: $scope.EnableOPD || false,
+                    isTempPatient: $scope.currentcontext ? $scope.currentcontext.isTempPatient : false,
+                    vitalsEnabled: $scope.Vitals || false,
+                    visitPrintEnabled: $scope.Visitprint || false,
+                    canDisableApprove: $scope.currentcontext ? $scope.currentcontext.canDisableApprove : false,
+                    showPrintDropdown: true,
+                    swosthaPatient: $scope.swosthapatient || 0,
+                    privileges: {
+                        canDeceased: utl.Privilege.hasPrivilege('QuickRegistration', 'QR-Deceased'),
+                        canAttachment: utl.Privilege.hasPrivilege('QuickRegistration', 'Attachment'),
+                        canNewVisit: utl.Privilege.hasPrivilege('QuickRegistration', 'QR-Newvisit'),
+                        canOPDBill: utl.Privilege.hasPrivilege('QuickRegistration', 'QR-OPDBill'),
+                        canCrossConsult: true
+                    }
+                };
+            }
+        });
+        // --------------------
+        
         $scope.ScheduledAppointment = {};
         $scope.IsMRDFileCreation = 0;
         $scope.IsMRDFileRequest = 0;

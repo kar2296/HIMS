@@ -1,5 +1,4 @@
 import React from 'react';
-import './PharmacyDashboardComponent.css'; // Import the modern CSS
 
 interface PrivilegeMap {
     canMedicineSales: boolean;
@@ -35,183 +34,171 @@ interface PharmacyDashboardProps {
 
 export const PharmacyDashboardComponent: React.FC<PharmacyDashboardProps> = ({ navigateTo, reactProps }) => {
     const { privileges } = reactProps;
-    
+
+    const cards = [
+        {
+            title: 'Medicine Sales',
+            icon: 'fa-registered',
+            show: privileges.canMedicineSales,
+            color: '#4a90e2',
+            action: () => navigateTo('app.pharmacy-sales', { id: 0, context: 'pharmacy' })
+        },
+        {
+            title: 'Medicine Return',
+            icon: 'fa-user',
+            show: privileges.canMedicineReturns,
+            color: '#50e3c2',
+            action: () => navigateTo('app.pharmacy-return', { id: 0, context: 'pharmacy' })
+        },
+        {
+            title: 'Stock Indent',
+            icon: 'fa-file-text-o',
+            show: privileges.canStockIndent,
+            color: '#f5a623',
+            action: () => navigateTo('app.stockrequests', { context: 'pharmacy' })
+        },
+        {
+            title: 'Stock Receives',
+            icon: 'fa-usd',
+            show: privileges.canStockReceives,
+            color: '#7ed321',
+            action: () => navigateTo('app.stocktacceptencelist', { context: 'pharmacy' })
+        },
+        {
+            title: 'Stock Status',
+            icon: 'fa-list',
+            show: privileges.canStockStatus,
+            color: '#bd10e0',
+            action: () => navigateTo('app.stockstatus', { context: 'pharmacy' })
+        },
+        {
+            title: 'Stock Movement',
+            icon: 'fa-inr',
+            show: privileges.canStockMovement,
+            color: '#ff5a5f',
+            action: () => navigateTo('app.stockmovement', { context: 'pharmacy' })
+        },
+        {
+            title: 'IP Pharmacy Sale',
+            icon: 'fa-percent',
+            show: privileges.canMedicineCreditBills,
+            color: '#8b572a',
+            action: () => navigateTo('app.ip-pharmacy-sales', { context: 'pharmacy' })
+        },
+        {
+            title: 'IP Pharmacy Return',
+            icon: 'fa-briefcase',
+            show: privileges.canMedicineCreditReturns,
+            color: '#e46a76',
+            action: () => navigateTo('app.ip-pharmacy-returns', { context: 'pharmacy' })
+        },
+        {
+            title: 'Reports',
+            icon: 'fa-file-text-o',
+            show: privileges.canPharmacyReports,
+            color: '#00c292',
+            action: () => navigateTo('app.pharmacytabreport.invoicecollectionreport', { context: 'pharmacy' })
+        },
+        {
+            title: 'Direct Patient Pharmacy Sales',
+            icon: 'fa-file-text-o',
+            show: privileges.canDirectPharmacySales,
+            color: '#4a90e2',
+            action: () => navigateTo('app.pharmacy-directpatient-sales')
+        },
+        {
+            title: 'Direct Medicine Return',
+            icon: 'fa-usd',
+            show: privileges.canDirectMedicineReturns,
+            color: '#f5a623',
+            action: () => navigateTo('app.direct-pharmacy-returns')
+        },
+        {
+            title: 'Staff Credit',
+            icon: 'fa-usd',
+            show: privileges.canStaffCredits,
+            color: '#bd10e0',
+            action: () => navigateTo('app.staffcreditbilllist')
+        },
+        {
+            title: 'Staff Credit Payment',
+            icon: 'fa-list',
+            show: privileges.canStaffCreditPayment,
+            color: '#50e3c2',
+            action: () => navigateTo('app.staffcreditpaymentlist')
+        },
+        {
+            title: 'Staff Credit Returns',
+            icon: 'fa-inr',
+            show: privileges.canStaffCreditReturns,
+            color: '#e46a76',
+            action: () => navigateTo('app.staffcreditreturns')
+        }
+    ];
+
     return (
-        <div className="pharmacy-dashboard-container">
-            <h2 style={{ marginBottom: '24px', fontWeight: 600, color: '#333' }}>
-                <i className="fa fa-medkit" style={{ marginRight: '12px', color: '#11998e' }}></i>
-                Pharmacy Dashboard
-            </h2>
-
-            <div className="pharmacy-grid">
-                {privileges.canMedicineSales && (
-                    <div className="pharmacy-card gradient-sales" onClick={() => navigateTo('app.pharmacy-sales', { id: 0, context: 'pharmacy' })}>
-                        <div className="pharmacy-card-header">
-                            <div className="pharmacy-card-icon">
-                                <i className="fa fa-registered" aria-hidden="true"></i>
-                            </div>
-                            <div className="pharmacy-card-title">Medicine Sales</div>
-                        </div>
-                        <i className="fa fa-arrow-right pharmacy-card-arrow"></i>
-                    </div>
-                )}
-                
-                {privileges.canMedicineReturns && (
-                    <div className="pharmacy-card gradient-returns" onClick={() => navigateTo('app.pharmacy-return', { id: 0, context: 'pharmacy' })}>
-                        <div className="pharmacy-card-header">
-                            <div className="pharmacy-card-icon">
-                                <i className="fa fa-user" aria-hidden="true"></i>
-                            </div>
-                            <div className="pharmacy-card-title">Medicine Return</div>
-                        </div>
-                        <i className="fa fa-arrow-right pharmacy-card-arrow"></i>
-                    </div>
-                )}
-
-                {privileges.canStockIndent && (
-                    <div className="pharmacy-card gradient-indent" onClick={() => navigateTo('app.stockrequests', { context: 'pharmacy' })}>
-                        <div className="pharmacy-card-header">
-                            <div className="pharmacy-card-icon">
-                                <i className="fa fa-file-text-o" aria-hidden="true"></i>
-                            </div>
-                            <div className="pharmacy-card-title">Stock Indent</div>
-                        </div>
-                        <i className="fa fa-arrow-right pharmacy-card-arrow"></i>
-                    </div>
-                )}
-
-                {privileges.canStockReceives && (
-                    <div className="pharmacy-card gradient-receives" onClick={() => navigateTo('app.stocktacceptencelist', { context: 'pharmacy' })}>
-                        <div className="pharmacy-card-header">
-                            <div className="pharmacy-card-icon">
-                                <i className="fa fa-usd" aria-hidden="true"></i>
-                            </div>
-                            <div className="pharmacy-card-title">Stock Receives</div>
-                        </div>
-                        <i className="fa fa-arrow-right pharmacy-card-arrow"></i>
-                    </div>
-                )}
-
-                {privileges.canStockStatus && (
-                    <div className="pharmacy-card gradient-status" onClick={() => navigateTo('app.stockstatus', { context: 'pharmacy' })}>
-                        <div className="pharmacy-card-header">
-                            <div className="pharmacy-card-icon">
-                                <i className="fa fa-list" aria-hidden="true"></i>
-                            </div>
-                            <div className="pharmacy-card-title">Stock Status</div>
-                        </div>
-                        <i className="fa fa-arrow-right pharmacy-card-arrow"></i>
-                    </div>
-                )}
-
-                {privileges.canStockMovement && (
-                    <div className="pharmacy-card gradient-movement" onClick={() => navigateTo('app.stockmovement', { context: 'pharmacy' })}>
-                        <div className="pharmacy-card-header">
-                            <div className="pharmacy-card-icon">
-                                <i className="fa fa-inr" aria-hidden="true"></i>
-                            </div>
-                            <div className="pharmacy-card-title">Stock Movement</div>
-                        </div>
-                        <i className="fa fa-arrow-right pharmacy-card-arrow"></i>
-                    </div>
-                )}
-
-                {privileges.canMedicineCreditBills && (
-                    <div className="pharmacy-card gradient-credit-sales" onClick={() => navigateTo('app.ip-pharmacy-sales', { context: 'pharmacy' })}>
-                        <div className="pharmacy-card-header">
-                            <div className="pharmacy-card-icon">
-                                <i className="fa fa-percent" aria-hidden="true"></i>
-                            </div>
-                            <div className="pharmacy-card-title">IP Pharmacy Sale</div>
-                        </div>
-                        <i className="fa fa-arrow-right pharmacy-card-arrow"></i>
-                    </div>
-                )}
-
-                {privileges.canMedicineCreditReturns && (
-                    <div className="pharmacy-card gradient-credit-returns" onClick={() => navigateTo('app.ip-pharmacy-returns', { context: 'pharmacy' })}>
-                        <div className="pharmacy-card-header">
-                            <div className="pharmacy-card-icon">
-                                <i className="fa fa-briefcase" aria-hidden="true"></i>
-                            </div>
-                            <div className="pharmacy-card-title">IP Pharmacy Return</div>
-                        </div>
-                        <i className="fa fa-arrow-right pharmacy-card-arrow"></i>
-                    </div>
-                )}
-
-                {privileges.canPharmacyReports && (
-                    <div className="pharmacy-card gradient-reports" onClick={() => navigateTo('app.pharmacytabreport.invoicecollectionreport', { context: 'pharmacy' })}>
-                        <div className="pharmacy-card-header">
-                            <div className="pharmacy-card-icon">
-                                <i className="fa fa-file-text-o" aria-hidden="true"></i>
-                            </div>
-                            <div className="pharmacy-card-title">Reports</div>
-                        </div>
-                        <i className="fa fa-arrow-right pharmacy-card-arrow"></i>
-                    </div>
-                )}
-
-                {privileges.canDirectPharmacySales && (
-                    <div className="pharmacy-card gradient-direct-sales" onClick={() => navigateTo('app.pharmacy-directpatient-sales')}>
-                        <div className="pharmacy-card-header">
-                            <div className="pharmacy-card-icon">
-                                <i className="fa fa-file-text-o" aria-hidden="true"></i>
-                            </div>
-                            <div className="pharmacy-card-title">Direct Patient Pharmacy Sales</div>
-                        </div>
-                        <i className="fa fa-arrow-right pharmacy-card-arrow"></i>
-                    </div>
-                )}
-
-                {privileges.canDirectMedicineReturns && (
-                    <div className="pharmacy-card gradient-direct-returns" onClick={() => navigateTo('app.direct-pharmacy-returns')}>
-                        <div className="pharmacy-card-header">
-                            <div className="pharmacy-card-icon">
-                                <i className="fa fa-usd" aria-hidden="true"></i>
-                            </div>
-                            <div className="pharmacy-card-title">Direct Medicine Return</div>
-                        </div>
-                        <i className="fa fa-arrow-right pharmacy-card-arrow"></i>
-                    </div>
-                )}
-
-                {privileges.canStaffCredits && (
-                    <div className="pharmacy-card gradient-staff" onClick={() => navigateTo('app.staffcreditbilllist')}>
-                        <div className="pharmacy-card-header">
-                            <div className="pharmacy-card-icon">
-                                <i className="fa fa-usd" aria-hidden="true"></i>
-                            </div>
-                            <div className="pharmacy-card-title">Staff Credit</div>
-                        </div>
-                        <i className="fa fa-arrow-right pharmacy-card-arrow"></i>
-                    </div>
-                )}
-
-                {privileges.canStaffCreditPayment && (
-                    <div className="pharmacy-card gradient-staff-payment" onClick={() => navigateTo('app.staffcreditpaymentlist')}>
-                        <div className="pharmacy-card-header">
-                            <div className="pharmacy-card-icon">
-                                <i className="fa fa-list" aria-hidden="true"></i>
-                            </div>
-                            <div className="pharmacy-card-title">Staff Credit Payment</div>
-                        </div>
-                        <i className="fa fa-arrow-right pharmacy-card-arrow"></i>
-                    </div>
-                )}
-
-                {privileges.canStaffCreditReturns && (
-                    <div className="pharmacy-card gradient-staff-return" onClick={() => navigateTo('app.staffcreditreturns')}>
-                        <div className="pharmacy-card-header">
-                            <div className="pharmacy-card-icon">
-                                <i className="fa fa-inr" aria-hidden="true"></i>
-                            </div>
-                            <div className="pharmacy-card-title">Staff Credit Returns</div>
-                        </div>
-                        <i className="fa fa-arrow-right pharmacy-card-arrow"></i>
-                    </div>
-                )}
+        <div style={{ padding: '24px', fontFamily: 'var(--font-modern)', backgroundColor: 'var(--premium-bg-light)', minHeight: '100vh' }}>
+            
+            {/* Header */}
+            <div style={{ marginBottom: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div>
+                    <h4 style={{ margin: 0, color: 'var(--premium-text-main)', fontSize: '24px', fontWeight: 600 }}>
+                        Pharmacy Dashboard
+                    </h4>
+                </div>
             </div>
+
+            {/* Cards Grid */}
+            <div style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
+                gap: '20px'
+            }}>
+                {cards.filter(c => c.show).map((card, idx) => (
+                    <div 
+                        key={idx}
+                        onClick={card.action}
+                        className="premium-glass-panel"
+                        style={{
+                            padding: '20px',
+                            cursor: 'pointer',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            justifyContent: 'space-between',
+                            transition: 'transform 0.2s',
+                            borderTop: `4px solid ${card.color}`,
+                            height: '140px'
+                        }}
+                        onMouseEnter={(e) => {
+                            e.currentTarget.style.transform = 'translateY(-4px)';
+                        }}
+                        onMouseLeave={(e) => {
+                            e.currentTarget.style.transform = 'translateY(0)';
+                        }}
+                    >
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                            <div style={{
+                                width: '45px',
+                                height: '45px',
+                                borderRadius: '8px',
+                                backgroundColor: `${card.color}15`,
+                                color: card.color,
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                fontSize: '20px'
+                            }}>
+                                <i className={`fas ${card.icon}`}></i>
+                            </div>
+                        </div>
+                        
+                        <div style={{ color: 'var(--premium-text-muted)', fontSize: '14px', fontWeight: 600, marginTop: 'auto' }}>
+                            {card.title}
+                        </div>
+                    </div>
+                ))}
+            </div>
+
         </div>
     );
 };

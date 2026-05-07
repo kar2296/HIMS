@@ -54,8 +54,8 @@ export const OPBillingSaveBar: React.FC<OPBillingSaveBarProps> = ({
       {reactProps.privileges?.canAttachment && (
         <button 
           type="button" 
-          className="drhms-common-btn" 
-          style={{ backgroundColor: '#6c757d', borderColor: '#6c757d' }} 
+          className="premium-btn-primary" 
+          style={{ backgroundColor: 'var(--premium-text-muted)', borderColor: 'var(--premium-text-muted)' }} 
           onClick={() => handleAction('openattachments')} 
           title="Attachments"
         >
@@ -68,8 +68,8 @@ export const OPBillingSaveBar: React.FC<OPBillingSaveBarProps> = ({
       {reactProps.receiptNo && (
         <button 
           type="button" 
-          className="drhms-common-btn" 
-          style={{ backgroundColor: '#17a2b8', borderColor: '#17a2b8' }} 
+          className="premium-btn-primary" 
+          style={{ backgroundColor: 'var(--premium-blue)', borderColor: 'var(--premium-blue)' }} 
           onClick={() => handleAction('printReceipt')}
         >
           <i className="fa fa-print" style={{ marginRight: '6px' }}></i>
@@ -81,7 +81,8 @@ export const OPBillingSaveBar: React.FC<OPBillingSaveBarProps> = ({
       {reactProps.privileges?.canSave && reactProps.canShowSaveBtn && reactProps.isFromIPBill === 0 && (
         <button 
           type="button" 
-          className="draftbutton" 
+          className="premium-btn-primary" 
+          style={{ backgroundColor: 'var(--premium-gold)', color: '#fff' }}
           onClick={() => handleAction('saveAndDraft')}
         >
           Save Draft (Alt+S)
@@ -92,7 +93,7 @@ export const OPBillingSaveBar: React.FC<OPBillingSaveBarProps> = ({
       {reactProps.privileges?.canSaveApprove && reactProps.canShowSaveapproveBtn && (
         <button 
           type="button" 
-          className="drhms-common-btn" 
+          className="premium-btn-primary" 
           onClick={() => handleAction('saveAndApprove')}
         >
           Save & Collect (Alt+A)

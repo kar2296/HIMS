@@ -1,0 +1,51 @@
+--- public/views/emr/registration/regcumvisitwithbill/regcumvisitwithbill.js
++++ public/views/emr/registration/regcumvisitwithbill/regcumvisitwithbill.js
+@@ -37,6 +37,47 @@
+         var searchDoctorbydept = utl.AppConfigService.getSystemParameterValue('Search_Doctor_By_Department');
+         $scope.searchDoctorbydept = searchDoctorbydept;
+ 
++        // --- React Bridge ---
++        $scope.handleReactAction = function(actionName) {
++            if (actionName === 'addNewQuick' || actionName === 'addNew') {
++                $scope.addNew();
++            } else if (actionName === 'saveAndInactive') {
++                $scope.saveAndInactive($scope.item);
++            } else if (actionName === 'opdBill') {
++                $scope.OPDBill();
++            } else if (actionName === 'printRegistrationIdlabel') {
++                $scope.patientidcard();
++            } else if (typeof $scope[actionName] === 'function') {
++                $scope[actionName]();
++            }
++        };
++
++        Object.defineProperty(vm, 'reactPropsActionBar', {
++            get: function() {
++                return {
++                    saveCompleted: $scope.SaveCompleted || false,
++                    billCompleted: $scope.BillCompleted || false,
++                    isPatientDeactivated: $scope.isPatientDeactivated || false,
++                    isTempPatient: $scope.currentcontext ? $scope.currentcontext.isTempPatient : false,
++                    patientStatusId: $scope.item ? $scope.item.PatientStatusId : 0,
++                    referredNewVisit: $scope.item ? $scope.item.ReferredNewVisit : false,
++                    attachmentCount: $scope.currentcontext ? $scope.currentcontext.attachmentcount : 0
++                };
++            }
++        });
++
++        Object.defineProperty(vm, 'reactPropsFooter', {
++            get: function() {
++                return {
++                    saveCompleted: $scope.SaveCompleted || false,
++                    billCompleted: $scope.BillCompleted || false,
++                    isPatientDeactivated: $scope.isPatientDeactivated || false,
++                    isTempPatient: $scope.currentcontext ? $scope.currentcontext.isTempPatient : false,
++                    patientStatusId: $scope.item ? $scope.item.PatientStatusId : 0,
++                };
++            }
++        });
++        // --------------------
++
+         var SaveCompleted = false;
+         $scope.Context = $stateParams.Context;
+         $scope.SaveCompleted = SaveCompleted;

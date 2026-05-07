@@ -6,6 +6,25 @@
         .controller('richTextEditorModalController', richTextEditorModalController);
 
     function richTextEditorModalController($scope, $stateParams, $state, $translate, utl, $uibModalInstance, modalConfig) {
+        $scope.onRteChange = function(html) {
+            $scope.$evalAsync(function() {
+                var parts = "vm.editortext".split('.');
+                var current = parts[0] === 'vm' ? (typeof vm !== 'undefined' ? vm : $scope.vm) : (parts[0] === 'cvm' ? (typeof cvm !== 'undefined' ? cvm : $scope.cvm) : $scope);
+                var startIndex = (parts[0] === 'vm' || parts[0] === 'cvm') ? 1 : 0;
+                for (var i = startIndex; i < parts.length - 1; i++) {
+                    if (!current[parts[i]]) current[parts[i]] = {};
+                    current = current[parts[i]];
+                }
+                current[parts[parts.length - 1]] = html;
+            });
+        };
+
+        $scope.onInsertHtmlDone = function() {
+            $scope.$evalAsync(function() {
+                $scope.addondata = '';
+            });
+        };
+
         var vm = this;
         $scope.ImpressionId = -1;
         $scope.ClinicalFindingId = -1;

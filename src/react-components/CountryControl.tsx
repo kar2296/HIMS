@@ -90,18 +90,7 @@ export const CountryControl: React.FC<CountryControlProps> = ({
       disabled={candisable || loading}
       value={countryid || ''}
       onChange={handleChange}
-      style={{
-        width: '100%',
-        padding: '6px 12px',
-        fontSize: '14px',
-        lineHeight: '1.42857143',
-        color: '#555',
-        backgroundColor: candisable ? '#eee' : '#fff',
-        border: '1px solid #ccc',
-        borderRadius: '4px',
-        boxShadow: 'inset 0 1px 1px rgba(0,0,0,.075)',
-        transition: 'border-color ease-in-out .15s,box-shadow ease-in-out .15s'
-      }}
+      className="premium-input"
     >
       <option value="">{loading ? "Loading countries..." : "Select Country"}</option>
       {countries.map(c => (

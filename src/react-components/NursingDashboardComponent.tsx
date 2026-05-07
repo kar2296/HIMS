@@ -114,10 +114,7 @@ export const NursingDashboardComponent: React.FC<NursingDashboardProps> = ({
   ];
 
   const renderTableCard = (title: string, children: React.ReactNode) => (
-    <div style={{
-      backgroundColor: '#fff',
-      borderRadius: '12px',
-      boxShadow: '0 4px 10px rgba(0,0,0,0.05)',
+    <div className="premium-glass-panel" style={{
       overflow: 'hidden',
       display: 'flex',
       flexDirection: 'column',
@@ -125,10 +122,10 @@ export const NursingDashboardComponent: React.FC<NursingDashboardProps> = ({
     }}>
       <div style={{
         padding: '16px 20px',
-        borderBottom: '1px solid #f0f0f0',
-        backgroundColor: '#fafbfc'
+        borderBottom: '1px solid rgba(0,0,0,0.05)',
+        backgroundColor: 'var(--glass-bg)'
       }}>
-        <h3 style={{ margin: 0, color: '#333', fontSize: '18px', fontWeight: 600 }}>{title}</h3>
+        <h3 style={{ margin: 0, color: 'var(--premium-text-main)', fontSize: '18px', fontWeight: 600 }}>{title}</h3>
       </div>
       <div style={{ overflow: 'auto', flex: 1, padding: '0' }}>
         {children}
@@ -137,13 +134,13 @@ export const NursingDashboardComponent: React.FC<NursingDashboardProps> = ({
   );
 
   const tableHeaderStyle: React.CSSProperties = {
-    backgroundColor: '#f8f9fa',
-    color: '#444',
+    backgroundColor: 'var(--glass-bg)',
+    color: 'var(--premium-text-muted)',
     fontSize: '13px',
     fontWeight: 600,
     padding: '12px 16px',
     textAlign: 'left',
-    borderBottom: '2px solid #eaeaea',
+    borderBottom: '2px solid rgba(0,0,0,0.05)',
     position: 'sticky',
     top: 0,
     zIndex: 1
@@ -151,18 +148,18 @@ export const NursingDashboardComponent: React.FC<NursingDashboardProps> = ({
 
   const tableCellStyle: React.CSSProperties = {
     padding: '12px 16px',
-    borderBottom: '1px solid #f0f0f0',
+    borderBottom: '1px solid rgba(0,0,0,0.05)',
     fontSize: '14px',
-    color: '#555'
+    color: 'var(--premium-text-muted)'
   };
 
   return (
-    <div style={{ padding: '24px', fontFamily: '"Poppins", sans-serif', backgroundColor: '#f5f6ff', minHeight: '100vh' }}>
+    <div style={{ padding: '24px', fontFamily: 'var(--font-modern)', backgroundColor: 'var(--premium-bg-light)', minHeight: '100vh' }}>
       
       {/* Header */}
       <div style={{ marginBottom: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div>
-          <h4 style={{ margin: 0, color: '#333', fontSize: '24px', fontWeight: 600 }}>
+          <h4 style={{ margin: 0, color: 'var(--premium-text-main)', fontSize: '24px', fontWeight: 600 }}>
             Nursing Dashboard
           </h4>
         </div>
@@ -179,26 +176,22 @@ export const NursingDashboardComponent: React.FC<NursingDashboardProps> = ({
           <div 
             key={card.id}
             onClick={card.action}
+            className="premium-glass-panel"
             style={{
-              backgroundColor: '#fff',
-              borderRadius: '12px',
               padding: '20px',
-              boxShadow: '0 4px 10px rgba(0,0,0,0.05)',
               cursor: 'pointer',
               display: 'flex',
               flexDirection: 'column',
               justifyContent: 'space-between',
-              transition: 'transform 0.2s, box-shadow 0.2s',
+              transition: 'transform 0.2s',
               borderTop: `4px solid ${card.color}`,
               height: '140px'
             }}
             onMouseEnter={(e) => {
               e.currentTarget.style.transform = 'translateY(-4px)';
-              e.currentTarget.style.boxShadow = '0 8px 20px rgba(0,0,0,0.1)';
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.transform = 'translateY(0)';
-              e.currentTarget.style.boxShadow = '0 4px 10px rgba(0,0,0,0.05)';
             }}
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
@@ -217,7 +210,7 @@ export const NursingDashboardComponent: React.FC<NursingDashboardProps> = ({
               </div>
             </div>
             
-            <div style={{ color: '#555', fontSize: '15px', fontWeight: 600, marginTop: 'auto' }}>
+            <div style={{ color: 'var(--premium-text-main)', fontSize: '15px', fontWeight: 600, marginTop: 'auto' }}>
               {card.title}
             </div>
           </div>
@@ -241,7 +234,7 @@ export const NursingDashboardComponent: React.FC<NursingDashboardProps> = ({
               {data.admissions.length > 0 ? data.admissions.map((item, idx) => (
                 <tr key={idx}>
                   <td style={tableCellStyle}>
-                    <strong>{item.patientname} | ({item.Patient?.MRN})</strong> | {item.Patient?.Age} Years | {item.VisitIdentifier} - {item.doctorname} | {item.warddetails}
+                    <strong style={{color: 'var(--premium-text-main)'}}>{item.patientname} | ({item.Patient?.MRN})</strong> | {item.Patient?.Age} Years | {item.VisitIdentifier} - {item.doctorname} | {item.warddetails}
                   </td>
                 </tr>
               )) : (
@@ -261,7 +254,7 @@ export const NursingDashboardComponent: React.FC<NursingDashboardProps> = ({
               {data.discharges.length > 0 ? data.discharges.map((item, idx) => (
                 <tr key={idx}>
                   <td style={tableCellStyle}>
-                    <strong>{item.patientname} | ({item.Patient?.MRN})</strong> | {item.Patient?.Age} Years | {item.VisitIdentifier} - {item.doctorname} | {item.warddetails}
+                    <strong style={{color: 'var(--premium-text-main)'}}>{item.patientname} | ({item.Patient?.MRN})</strong> | {item.Patient?.Age} Years | {item.VisitIdentifier} - {item.doctorname} | {item.warddetails}
                   </td>
                 </tr>
               )) : (
@@ -301,7 +294,7 @@ export const NursingDashboardComponent: React.FC<NursingDashboardProps> = ({
               {data.dischargeClearance.length > 0 ? data.dischargeClearance.map((item, idx) => (
                 <tr key={idx}>
                   <td style={tableCellStyle}>
-                    <strong>{item.patientname} | ({item.Patient?.MRN})</strong> | {item.Patient?.Age} Years | {item.VisitIdentifier} - {item.doctorname} | {item.warddetails}
+                    <strong style={{color: 'var(--premium-text-main)'}}>{item.patientname} | ({item.Patient?.MRN})</strong> | {item.Patient?.Age} Years | {item.VisitIdentifier} - {item.doctorname} | {item.warddetails}
                   </td>
                 </tr>
               )) : (
@@ -328,19 +321,19 @@ export const NursingDashboardComponent: React.FC<NursingDashboardProps> = ({
                 <>
                   {data.wards.map((ward, idx) => (
                     <tr key={idx}>
-                      <td style={{...tableCellStyle, fontWeight: 600, color: '#333'}}>{ward.WardName}</td>
+                      <td style={{...tableCellStyle, fontWeight: 600, color: 'var(--premium-text-main)'}}>{ward.WardName}</td>
                       <td style={tableCellStyle}>{ward.AvailableBeds}</td>
                       <td style={tableCellStyle}>{ward.OccupiedBeds}</td>
                       <td style={tableCellStyle}>{ward.OtherBeds}</td>
                       <td style={tableCellStyle}>{ward.BedsCount}</td>
                     </tr>
                   ))}
-                  <tr style={{ backgroundColor: '#fdfdfd' }}>
-                    <td style={{...tableCellStyle, fontWeight: 700, color: '#222'}}>Total</td>
-                    <td style={{...tableCellStyle, fontWeight: 700}}>{data.wardtotal.AvailableBeds}</td>
-                    <td style={{...tableCellStyle, fontWeight: 700}}>{data.wardtotal.OccupiedBeds}</td>
-                    <td style={{...tableCellStyle, fontWeight: 700}}>{data.wardtotal.OtherBeds}</td>
-                    <td style={{...tableCellStyle, fontWeight: 700}}>{data.wardtotal.BedsCount}</td>
+                  <tr style={{ backgroundColor: 'rgba(235, 178, 0, 0.1)' }}>
+                    <td style={{...tableCellStyle, fontWeight: 700, color: 'var(--premium-blue)'}}>Total</td>
+                    <td style={{...tableCellStyle, fontWeight: 700, color: 'var(--premium-blue)'}}>{data.wardtotal.AvailableBeds}</td>
+                    <td style={{...tableCellStyle, fontWeight: 700, color: 'var(--premium-blue)'}}>{data.wardtotal.OccupiedBeds}</td>
+                    <td style={{...tableCellStyle, fontWeight: 700, color: 'var(--premium-blue)'}}>{data.wardtotal.OtherBeds}</td>
+                    <td style={{...tableCellStyle, fontWeight: 700, color: 'var(--premium-blue)'}}>{data.wardtotal.BedsCount}</td>
                   </tr>
                 </>
               ) : (
@@ -370,7 +363,7 @@ export const NursingDashboardComponent: React.FC<NursingDashboardProps> = ({
                     {lab.PatientOrder?.OrderNumber}
                   </td>
                   <td style={tableCellStyle}>
-                    <strong>{lab.AnalyteName}</strong> - {lab.Resultvalue} {lab.PatientWorkorderdetail?.AnalyteUOM}
+                    <strong style={{color: 'var(--premium-text-main)'}}>{lab.AnalyteName}</strong> - {lab.Resultvalue} {lab.PatientWorkorderdetail?.AnalyteUOM}
                   </td>
                 </tr>
               )) : (
@@ -400,7 +393,7 @@ export const NursingDashboardComponent: React.FC<NursingDashboardProps> = ({
                     {rad.PatientOrder?.OrderNumber}
                   </td>
                   <td style={tableCellStyle}>
-                    <strong>{rad.AnalyteName}</strong> - {rad.Resultvalue}
+                    <strong style={{color: 'var(--premium-text-main)'}}>{rad.AnalyteName}</strong> - {rad.Resultvalue}
                   </td>
                 </tr>
               )) : (

@@ -77,16 +77,16 @@ export const AdminDashboardComponent: React.FC<AdminDashboardProps> = ({
   };
 
   return (
-    <div style={{ padding: '24px', fontFamily: '"Poppins", sans-serif', backgroundColor: '#f5f6ff', minHeight: '100vh' }}>
+    <div style={{ padding: '24px', fontFamily: 'var(--font-modern)', backgroundColor: 'var(--premium-bg-light)', minHeight: '100vh' }}>
       
       {/* Header */}
       <div style={{ marginBottom: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div>
-          <h4 style={{ margin: 0, color: '#333', fontSize: '24px', fontWeight: 600 }}>
+          <h4 style={{ margin: 0, color: 'var(--premium-text-main)', fontSize: '24px', fontWeight: 600 }}>
             Admin Dashboard
           </h4>
         </div>
-        <div style={{ color: '#666', fontSize: '14px' }}>
+        <div style={{ color: 'var(--premium-text-muted)', fontSize: '14px' }}>
           Home &gt; Dashboard
         </div>
       </div>
@@ -99,14 +99,18 @@ export const AdminDashboardComponent: React.FC<AdminDashboardProps> = ({
         marginBottom: '32px'
       }}>
         {cards.map((card, idx) => (
-          <div key={idx} style={{
-            backgroundColor: '#fff',
-            borderRadius: '12px',
+          <div key={idx} className="premium-glass-panel" style={{
             padding: '20px',
-            boxShadow: '0 4px 15px rgba(0,0,0,0.05)',
             display: 'flex',
             alignItems: 'center',
-            transition: 'transform 0.2s, box-shadow 0.2s'
+            transition: 'transform 0.2s',
+            cursor: 'pointer'
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.transform = 'translateY(-4px)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.transform = 'translateY(0)';
           }}>
             <div style={{
               width: '50px',
@@ -123,10 +127,12 @@ export const AdminDashboardComponent: React.FC<AdminDashboardProps> = ({
               <i className={`fas ${card.icon}`}></i>
             </div>
             <div>
-              <div style={{ color: '#333', fontSize: '28px', fontWeight: 700, lineHeight: 1.2 }}>
-                {card.count}
-              </div>
-              <div style={{ color: '#888', fontSize: '14px', fontWeight: 500 }}>
+              {card.count !== undefined && (
+                <div style={{ color: 'var(--premium-text-main)', fontSize: '28px', fontWeight: 700, lineHeight: 1.2 }}>
+                  {card.count}
+                </div>
+              )}
+              <div style={{ color: 'var(--premium-text-muted)', fontSize: '14px', fontWeight: 500 }}>
                 {card.title}
               </div>
             </div>
@@ -138,22 +144,22 @@ export const AdminDashboardComponent: React.FC<AdminDashboardProps> = ({
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px', marginBottom: '24px' }}>
         
         {/* Collection Table */}
-        <div style={{ backgroundColor: '#fff', borderRadius: '12px', padding: '20px', boxShadow: '0 4px 15px rgba(0,0,0,0.05)' }}>
-          <h5 style={{ margin: '0 0 16px 0', color: '#184e77', fontSize: '18px', fontWeight: 600 }}>Collection</h5>
+        <div className="premium-glass-panel" style={{ padding: '20px' }}>
+          <h5 style={{ margin: '0 0 16px 0', color: 'var(--premium-blue)', fontSize: '18px', fontWeight: 600 }}>Collection</h5>
           <div style={{ overflowX: 'auto' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'right' }}>
               <thead>
                 <tr>
-                  <th style={{ textAlign: 'left', padding: '10px', borderBottom: '2px solid #eee', color: '#555' }}>Particulars</th>
-                  <th style={{ padding: '10px', borderBottom: '2px solid #eee', color: '#555' }}>Cash</th>
-                  <th style={{ padding: '10px', borderBottom: '2px solid #eee', color: '#555' }}>Card</th>
-                  <th style={{ padding: '10px', borderBottom: '2px solid #eee', color: '#555' }}>Others</th>
-                  <th style={{ padding: '10px', borderBottom: '2px solid #eee', color: '#555' }}>Total</th>
+                  <th style={{ textAlign: 'left', padding: '10px', borderBottom: '2px solid rgba(0,0,0,0.05)', color: 'var(--premium-text-muted)' }}>Particulars</th>
+                  <th style={{ padding: '10px', borderBottom: '2px solid rgba(0,0,0,0.05)', color: 'var(--premium-text-muted)' }}>Cash</th>
+                  <th style={{ padding: '10px', borderBottom: '2px solid rgba(0,0,0,0.05)', color: 'var(--premium-text-muted)' }}>Card</th>
+                  <th style={{ padding: '10px', borderBottom: '2px solid rgba(0,0,0,0.05)', color: 'var(--premium-text-muted)' }}>Others</th>
+                  <th style={{ padding: '10px', borderBottom: '2px solid rgba(0,0,0,0.05)', color: 'var(--premium-text-muted)' }}>Total</th>
                 </tr>
               </thead>
               <tbody>
                 {receipt.map((item: any, idx: number) => (
-                  <tr key={idx} style={{ borderBottom: '1px solid #eee' }}>
+                  <tr key={idx} style={{ borderBottom: '1px solid rgba(0,0,0,0.05)' }}>
                     <td style={{ textAlign: 'left', padding: '10px', fontWeight: 500 }}>{item.Key}</td>
                     <td style={{ padding: '10px' }}>{formatCurrency(item.Value.CashAmount)}</td>
                     <td style={{ padding: '10px' }}>{formatCurrency(item.Value.CardAmount)}</td>
@@ -161,12 +167,12 @@ export const AdminDashboardComponent: React.FC<AdminDashboardProps> = ({
                     <td style={{ padding: '10px', fontWeight: 600 }}>{formatCurrency(item.Value.BillAmount)}</td>
                   </tr>
                 ))}
-                <tr style={{ backgroundColor: '#f6abd3', fontWeight: 'bold' }}>
-                  <td style={{ textAlign: 'left', padding: '12px' }}>Total</td>
-                  <td style={{ padding: '12px' }}>{formatCurrency(totals.cash)}</td>
-                  <td style={{ padding: '12px' }}>{formatCurrency(totals.card)}</td>
-                  <td style={{ padding: '12px' }}>{formatCurrency(totals.other)}</td>
-                  <td style={{ padding: '12px' }}>{formatCurrency(totals.total)}</td>
+                <tr style={{ backgroundColor: 'rgba(235, 178, 0, 0.1)', fontWeight: 'bold' }}>
+                  <td style={{ textAlign: 'left', padding: '12px', color: 'var(--premium-blue)' }}>Total</td>
+                  <td style={{ padding: '12px', color: 'var(--premium-blue)' }}>{formatCurrency(totals.cash)}</td>
+                  <td style={{ padding: '12px', color: 'var(--premium-blue)' }}>{formatCurrency(totals.card)}</td>
+                  <td style={{ padding: '12px', color: 'var(--premium-blue)' }}>{formatCurrency(totals.other)}</td>
+                  <td style={{ padding: '12px', color: 'var(--premium-blue)' }}>{formatCurrency(totals.total)}</td>
                 </tr>
               </tbody>
             </table>
@@ -174,16 +180,16 @@ export const AdminDashboardComponent: React.FC<AdminDashboardProps> = ({
         </div>
 
         {/* Revenue By Category */}
-        <div style={{ backgroundColor: '#fff', borderRadius: '12px', padding: '20px', boxShadow: '0 4px 15px rgba(0,0,0,0.05)' }}>
-          <h5 style={{ margin: '0 0 16px 0', color: '#184e77', fontSize: '18px', fontWeight: 600 }}>Revenue By Category</h5>
+        <div className="premium-glass-panel" style={{ padding: '20px' }}>
+          <h5 style={{ margin: '0 0 16px 0', color: 'var(--premium-blue)', fontSize: '18px', fontWeight: 600 }}>Revenue By Category</h5>
           <div style={{ overflowX: 'auto', maxHeight: '400px' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'right' }}>
               <thead>
                 <tr>
-                  <th style={{ textAlign: 'left', padding: '10px', borderBottom: '2px solid #eee', color: '#555', position: 'sticky', top: 0, backgroundColor: '#fff' }}>Revenue</th>
-                  <th style={{ padding: '10px', borderBottom: '2px solid #eee', color: '#555', position: 'sticky', top: 0, backgroundColor: '#fff' }}>OP</th>
-                  <th style={{ padding: '10px', borderBottom: '2px solid #eee', color: '#555', position: 'sticky', top: 0, backgroundColor: '#fff' }}>IP</th>
-                  <th style={{ padding: '10px', borderBottom: '2px solid #eee', color: '#555', position: 'sticky', top: 0, backgroundColor: '#fff' }}>Total</th>
+                  <th style={{ textAlign: 'left', padding: '10px', borderBottom: '2px solid rgba(0,0,0,0.05)', color: 'var(--premium-text-muted)', position: 'sticky', top: 0, backgroundColor: 'var(--glass-bg)' }}>Revenue</th>
+                  <th style={{ padding: '10px', borderBottom: '2px solid rgba(0,0,0,0.05)', color: 'var(--premium-text-muted)', position: 'sticky', top: 0, backgroundColor: 'var(--glass-bg)' }}>OP</th>
+                  <th style={{ padding: '10px', borderBottom: '2px solid rgba(0,0,0,0.05)', color: 'var(--premium-text-muted)', position: 'sticky', top: 0, backgroundColor: 'var(--glass-bg)' }}>IP</th>
+                  <th style={{ padding: '10px', borderBottom: '2px solid rgba(0,0,0,0.05)', color: 'var(--premium-text-muted)', position: 'sticky', top: 0, backgroundColor: 'var(--glass-bg)' }}>Total</th>
                 </tr>
               </thead>
               <tbody>
@@ -191,9 +197,10 @@ export const AdminDashboardComponent: React.FC<AdminDashboardProps> = ({
                   const isTotal = item.Key === 'Total';
                   return (
                     <tr key={idx} style={{ 
-                      borderBottom: '1px solid #eee',
-                      backgroundColor: isTotal ? '#f6abd3' : 'transparent',
-                      fontWeight: isTotal ? 'bold' : 'normal'
+                      borderBottom: '1px solid rgba(0,0,0,0.05)',
+                      backgroundColor: isTotal ? 'rgba(235, 178, 0, 0.1)' : 'transparent',
+                      fontWeight: isTotal ? 'bold' : 'normal',
+                      color: isTotal ? 'var(--premium-blue)' : 'inherit'
                     }}>
                       <td style={{ textAlign: 'left', padding: '10px' }}>{item.Key}</td>
                       <td style={{ padding: '10px' }}>{formatCurrency(item.Value.OP)}</td>
@@ -210,24 +217,24 @@ export const AdminDashboardComponent: React.FC<AdminDashboardProps> = ({
       </div>
 
       {/* Bed Occupancy Table */}
-      <div style={{ backgroundColor: '#fff', borderRadius: '12px', padding: '20px', boxShadow: '0 4px 15px rgba(0,0,0,0.05)' }}>
-        <h5 style={{ margin: '0 0 16px 0', color: '#184e77', fontSize: '18px', fontWeight: 600 }}>Bed Occupancy</h5>
+      <div className="premium-glass-panel" style={{ padding: '20px' }}>
+        <h5 style={{ margin: '0 0 16px 0', color: 'var(--premium-blue)', fontSize: '18px', fontWeight: 600 }}>Bed Occupancy</h5>
         <div style={{ overflowX: 'auto', maxHeight: '400px' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'center' }}>
             <thead>
               <tr>
-                <th style={{ textAlign: 'left', padding: '10px', borderBottom: '2px solid #eee', color: '#555', position: 'sticky', top: 0, backgroundColor: '#fff' }}>Ward Name</th>
-                <th style={{ padding: '10px', borderBottom: '2px solid #eee', color: '#555', position: 'sticky', top: 0, backgroundColor: '#fff' }}>Available</th>
-                <th style={{ padding: '10px', borderBottom: '2px solid #eee', color: '#555', position: 'sticky', top: 0, backgroundColor: '#fff' }}>Occupied</th>
-                <th style={{ padding: '10px', borderBottom: '2px solid #eee', color: '#555', position: 'sticky', top: 0, backgroundColor: '#fff' }}>Other</th>
-                <th style={{ padding: '10px', borderBottom: '2px solid #eee', color: '#555', position: 'sticky', top: 0, backgroundColor: '#fff' }}>Total</th>
+                <th style={{ textAlign: 'left', padding: '10px', borderBottom: '2px solid rgba(0,0,0,0.05)', color: 'var(--premium-text-muted)', position: 'sticky', top: 0, backgroundColor: 'var(--glass-bg)' }}>Ward Name</th>
+                <th style={{ padding: '10px', borderBottom: '2px solid rgba(0,0,0,0.05)', color: 'var(--premium-text-muted)', position: 'sticky', top: 0, backgroundColor: 'var(--glass-bg)' }}>Available</th>
+                <th style={{ padding: '10px', borderBottom: '2px solid rgba(0,0,0,0.05)', color: 'var(--premium-text-muted)', position: 'sticky', top: 0, backgroundColor: 'var(--glass-bg)' }}>Occupied</th>
+                <th style={{ padding: '10px', borderBottom: '2px solid rgba(0,0,0,0.05)', color: 'var(--premium-text-muted)', position: 'sticky', top: 0, backgroundColor: 'var(--glass-bg)' }}>Other</th>
+                <th style={{ padding: '10px', borderBottom: '2px solid rgba(0,0,0,0.05)', color: 'var(--premium-text-muted)', position: 'sticky', top: 0, backgroundColor: 'var(--glass-bg)' }}>Total</th>
               </tr>
             </thead>
             <tbody>
               {wards.length > 0 ? (
                 <>
                   {wards.map((ward: any, idx: number) => (
-                    <tr key={idx} style={{ borderBottom: '1px solid #eee' }}>
+                    <tr key={idx} style={{ borderBottom: '1px solid rgba(0,0,0,0.05)' }}>
                       <td style={{ textAlign: 'left', padding: '10px', fontWeight: 500 }}>{ward.WardName}</td>
                       <td style={{ padding: '10px' }}>{ward.AvailableBeds}</td>
                       <td style={{ padding: '10px' }}>{ward.OccupiedBeds}</td>
@@ -235,17 +242,17 @@ export const AdminDashboardComponent: React.FC<AdminDashboardProps> = ({
                       <td style={{ padding: '10px', fontWeight: 600 }}>{ward.BedsCount}</td>
                     </tr>
                   ))}
-                  <tr style={{ backgroundColor: '#f6abd3', fontWeight: 'bold' }}>
-                    <td style={{ textAlign: 'left', padding: '12px' }}>Total</td>
-                    <td style={{ padding: '12px' }}>{wardtotal.AvailableBeds}</td>
-                    <td style={{ padding: '12px' }}>{wardtotal.OccupiedBeds}</td>
-                    <td style={{ padding: '12px' }}>{wardtotal.OtherBeds}</td>
-                    <td style={{ padding: '12px' }}>{wardtotal.BedsCount}</td>
+                  <tr style={{ backgroundColor: 'rgba(235, 178, 0, 0.1)', fontWeight: 'bold' }}>
+                    <td style={{ textAlign: 'left', padding: '12px', color: 'var(--premium-blue)' }}>Total</td>
+                    <td style={{ padding: '12px', color: 'var(--premium-blue)' }}>{wardtotal.AvailableBeds}</td>
+                    <td style={{ padding: '12px', color: 'var(--premium-blue)' }}>{wardtotal.OccupiedBeds}</td>
+                    <td style={{ padding: '12px', color: 'var(--premium-blue)' }}>{wardtotal.OtherBeds}</td>
+                    <td style={{ padding: '12px', color: 'var(--premium-blue)' }}>{wardtotal.BedsCount}</td>
                   </tr>
                 </>
               ) : (
                 <tr>
-                  <td colSpan={5} style={{ padding: '20px', color: '#999', fontStyle: 'italic' }}>No Data Available</td>
+                  <td colSpan={5} style={{ padding: '20px', color: 'var(--premium-text-muted)', fontStyle: 'italic' }}>No Data Available</td>
                 </tr>
               )}
             </tbody>

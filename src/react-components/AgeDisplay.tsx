@@ -70,5 +70,5 @@ export const AgeDisplay: React.FC<AgeDisplayProps> = ({ dob }) => {
     }
   }, [dob]);
 
-  return <span style={{ fontWeight: 500, color: '#333' }}>{ageString}</span>;
+  return <span style={{ fontWeight: 600, color: 'var(--premium-text-main)' }}>{ageString}</span>;
 };

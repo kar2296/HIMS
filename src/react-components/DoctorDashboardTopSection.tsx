@@ -79,7 +79,7 @@ export const DoctorDashboardTopSection: React.FC<DoctorDashboardProps> = ({
       id: 'TaskAssignment',
       title: 'Task Assignment',
       icon: 'fa-tasks',
-      count: 0,
+      count: undefined,
       show: true,
       color: '#8b572a', // brown
       action: () => handleCardClick('app.taskmanagementlist')
@@ -87,23 +87,20 @@ export const DoctorDashboardTopSection: React.FC<DoctorDashboardProps> = ({
   ];
 
   const stats = [
-    { label: 'Today', count: items.TodayCount, color: '#333' },
+    { label: 'Today', count: items.TodayCount, color: 'var(--premium-text-main)' },
     { label: 'Pending', count: items.PendingCount, color: '#f5a623' },
     { label: 'Completed', count: items.CompletedCount, color: '#50e3c2' },
     { label: 'Cancelled', count: items.CancelledCount, color: '#e46a76' }
   ];
 
   const renderTable = (title: string, data: any[], columns: any[]) => (
-    <div style={{
-      backgroundColor: '#fff',
-      borderRadius: '12px',
+    <div className="premium-glass-panel" style={{
       padding: '20px',
-      boxShadow: '0 4px 15px rgba(0,0,0,0.05)',
       height: '350px',
       display: 'flex',
       flexDirection: 'column'
     }}>
-      <h3 style={{ margin: '0 0 16px 0', color: '#184e77', fontSize: '18px', fontWeight: 600 }}>
+      <h3 style={{ margin: '0 0 16px 0', color: 'var(--premium-blue)', fontSize: '18px', fontWeight: 600 }}>
         {title}
       </h3>
       <div style={{ overflowY: 'auto', flex: 1 }}>
@@ -114,13 +111,13 @@ export const DoctorDashboardTopSection: React.FC<DoctorDashboardProps> = ({
                 <th key={i} style={{
                   position: 'sticky',
                   top: 0,
-                  backgroundColor: '#cdcdcd',
-                  color: '#184e77',
+                  backgroundColor: 'var(--glass-bg)',
+                  color: 'var(--premium-text-muted)',
                   padding: '10px 12px',
                   textAlign: 'left',
                   fontSize: '13px',
                   fontWeight: 600,
-                  borderBottom: '2px solid #bbb',
+                  borderBottom: '2px solid rgba(0,0,0,0.05)',
                   zIndex: 1,
                   borderRadius: i === 0 ? '8px 0 0 8px' : i === columns.length - 1 ? '0 8px 8px 0' : '0'
                 }}>
@@ -132,9 +129,9 @@ export const DoctorDashboardTopSection: React.FC<DoctorDashboardProps> = ({
           <tbody>
             {data && data.length > 0 ? (
               data.map((row, i) => (
-                <tr key={i} style={{ borderBottom: '1px solid #eee', backgroundColor: i % 2 === 0 ? '#fff' : '#f9f9f9' }}>
+                <tr key={i} style={{ borderBottom: '1px solid rgba(0,0,0,0.05)' }}>
                   {columns.map((col, j) => (
-                    <td key={j} style={{ padding: '10px 12px', fontSize: '13px', color: '#444' }}>
+                    <td key={j} style={{ padding: '10px 12px', fontSize: '13px', color: 'var(--premium-text-main)' }}>
                       {col.render ? col.render(row) : row[col.key]}
                     </td>
                   ))}
@@ -142,7 +139,7 @@ export const DoctorDashboardTopSection: React.FC<DoctorDashboardProps> = ({
               ))
             ) : (
               <tr>
-                <td colSpan={columns.length} style={{ padding: '20px', textAlign: 'center', color: '#999', fontStyle: 'italic' }}>
+                <td colSpan={columns.length} style={{ padding: '20px', textAlign: 'center', color: 'var(--premium-text-muted)', fontStyle: 'italic' }}>
                   No records found
                 </td>
               </tr>
@@ -154,11 +151,11 @@ export const DoctorDashboardTopSection: React.FC<DoctorDashboardProps> = ({
   );
 
   return (
-    <div style={{ padding: '24px', fontFamily: '"Poppins", sans-serif', backgroundColor: '#f5f6ff' }}>
+    <div style={{ padding: '24px', fontFamily: 'var(--font-modern)', backgroundColor: 'var(--premium-bg-light)', minHeight: '100vh' }}>
       
       {/* Header */}
       <div style={{ marginBottom: '24px' }}>
-        <h4 style={{ margin: 0, color: '#333', fontSize: '24px', fontWeight: 600 }}>
+        <h4 style={{ margin: 0, color: 'var(--premium-text-main)', fontSize: '24px', fontWeight: 600 }}>
           Doctor Dashboard
         </h4>
       </div>
@@ -175,34 +172,32 @@ export const DoctorDashboardTopSection: React.FC<DoctorDashboardProps> = ({
               <div 
                 key={card.id}
                 onClick={card.action}
+                className="premium-glass-panel"
                 style={{
-                  backgroundColor: '#fff',
-                  borderRadius: '12px',
                   padding: '16px',
-                  boxShadow: '0 4px 10px rgba(0,0,0,0.05)',
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'space-between',
-                  transition: 'transform 0.2s, box-shadow 0.2s',
+                  transition: 'transform 0.2s',
                   borderLeft: `5px solid ${card.color}`
                 }}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.transform = 'translateY(-3px)';
-                  e.currentTarget.style.boxShadow = '0 6px 15px rgba(0,0,0,0.1)';
                 }}
                 onMouseLeave={(e) => {
                   e.currentTarget.style.transform = 'translateY(0)';
-                  e.currentTarget.style.boxShadow = '0 4px 10px rgba(0,0,0,0.05)';
                 }}
               >
                 <div>
-                  <div style={{ color: '#888', fontSize: '12px', fontWeight: 500, marginBottom: '4px' }}>
+                  <div style={{ color: 'var(--premium-text-muted)', fontSize: '12px', fontWeight: 500, marginBottom: '4px' }}>
                     {card.title}
                   </div>
-                  <div style={{ color: '#333', fontSize: '24px', fontWeight: 700 }}>
-                    {card.count}
-                  </div>
+                  {card.count !== undefined && (
+                    <div style={{ color: 'var(--premium-text-main)', fontSize: '24px', fontWeight: 700 }}>
+                      {card.count}
+                    </div>
+                  )}
                 </div>
                 <div style={{
                   width: '40px',
@@ -224,11 +219,8 @@ export const DoctorDashboardTopSection: React.FC<DoctorDashboardProps> = ({
 
         {/* Right Side: Stats Panel */}
         <div style={{ flex: '1', minWidth: '250px' }}>
-          <div style={{
-            backgroundColor: '#fff',
-            borderRadius: '12px',
+          <div className="premium-glass-panel" style={{
             padding: '20px',
-            boxShadow: '0 4px 10px rgba(0,0,0,0.05)',
             display: 'grid',
             gridTemplateColumns: '1fr 1fr',
             gap: '16px',
@@ -241,11 +233,11 @@ export const DoctorDashboardTopSection: React.FC<DoctorDashboardProps> = ({
                 alignItems: 'center',
                 justifyContent: 'center',
                 padding: '16px',
-                backgroundColor: '#f9f9f9',
+                backgroundColor: 'rgba(255, 255, 255, 0.4)',
                 borderRadius: '8px',
                 borderTop: `4px solid ${stat.color}`
               }}>
-                <div style={{ fontSize: '12px', color: '#666', fontWeight: 600, textTransform: 'uppercase', marginBottom: '8px' }}>
+                <div style={{ fontSize: '12px', color: 'var(--premium-text-muted)', fontWeight: 600, textTransform: 'uppercase', marginBottom: '8px' }}>
                   {stat.label}
                 </div>
                 <div style={{ fontSize: '32px', fontWeight: 700, color: stat.color }}>

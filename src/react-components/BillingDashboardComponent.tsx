@@ -128,6 +128,13 @@ export const BillingDashboardComponent: React.FC<BillingDashboardProps> = ({
         };
         const occupancyReq = apiFetch('IPManagement/BedOccupancyHistory/GetBedOccupancyHistorys', occupancyPayload);
 
+        // 8. OP/DG Bill counts
+        const opdPayload = {
+          Data: { Keys: [{ Key: 'opbillbo' }] },
+          Attributes: context
+        };
+        const opdReq = apiFetch('Registration/opddashboard/GetOPDDashboardOptions', opdPayload);
+
         // Run all requests concurrently
         const [
           countsRes,
@@ -136,15 +143,17 @@ export const BillingDashboardComponent: React.FC<BillingDashboardProps> = ({
           discrgRes,
           bedsRes,
           disclrRes,
-          occupancyRes
+          occupancyRes,
+          opdRes
         ] = await Promise.all([
           countsReq,
           facilityReq,
           admsnReq,
-          discrgReq,
-          bedsReq,
-          disclrReq,
-          occupancyReq
+          discrgRes,
+          bedsRes,
+          disclrRes,
+          occupancyReq,
+          opdReq
         ]);
 
         if (!isMounted) return;
@@ -157,14 +166,26 @@ export const BillingDashboardComponent: React.FC<BillingDashboardProps> = ({
           newCounts.TotalAdmissionCount = enc.TotalAdmissionCount || '0';
           newCounts.DischargeCount = enc.DischargeCount || '0';
           newCounts.AdmittedCount = enc.AdmissionCount || '0';
+          newCounts.admission = enc.AdmissionCount || '0';
           newCounts.FitforDischargeCount = enc.FitfordischargeCount || '0';
           newCounts.ClinicalDischargeCount = enc.ClinicaldischargeCount || '0';
           newCounts.FinancialDischargeCount = enc.FinancedischargeCount || '0';
         }
 
+        if (facilityRes && facilityRes.patient) {
+          newCounts.registration = facilityRes.patient.RegistrationCount || '0';
+        }
+
+        // Process OP/DG Bill Counts
+        if (opdRes && opdRes.opbillbo) {
+          newCounts.opbilling = String(opdRes.opbillbo.OPBillCount || 0);
+          newCounts.labbilling = String(opdRes.opbillbo.DGBillCount || 0);
+        }
+
         // Process Occupancy
         if (occupancyRes && occupancyRes.Data) {
           newCounts.TotalOccupancyCount = String(occupancyRes.Data.length || 0);
+          newCounts.ippatients = String(occupancyRes.Data.length || 0);
         }
 
         setCounts(newCounts);
@@ -260,220 +281,283 @@ export const BillingDashboardComponent: React.FC<BillingDashboardProps> = ({
 
   if (loading) {
     return (
-      <div style={{ padding: '20px', textAlign: 'center' }}>
-        <i className="fa fa-spinner fa-spin fa-3x fa-fw" style={{ color: '#5d9cec' }}></i>
-        <h4 style={{ color: '#666', marginTop: '15px' }}>Loading Dashboard Data...</h4>
+      <div style={{ padding: '40px', textAlign: 'center', fontFamily: 'var(--font-modern)' }}>
+        <i className="fa fa-spinner fa-spin fa-3x fa-fw" style={{ color: 'var(--premium-blue)' }}></i>
+        <h4 style={{ color: 'var(--premium-text-main)', marginTop: '15px' }}>Loading Dashboard Data...</h4>
       </div>
     );
   }
 
-  return (
-    <div>
-      <div className="row page-header" style={{ margin: '0', padding: '15px', borderBottom: '1px solid #eee' }}>
-        <h4 style={{ margin: 0, color: '#333' }}>Billing Dashboard</h4>
+  const cards = [
+    {
+      id: 'Registration',
+      title: 'Registrations',
+      icon: 'fa-registered',
+      count: counts.registration,
+      show: hasAccess('QuickRegistration'),
+      color: '#4a90e2',
+      action: () => nav('app.quickregistration', { context: 'billing' })
+    },
+    {
+      id: 'OPbilling',
+      title: 'OP Billings',
+      icon: 'fa-user',
+      count: counts.opbilling,
+      show: hasAccess('Billing_OPPatients'),
+      color: '#f5a623',
+      action: () => nav('app.opbilling-list', { tp: 'OP', context: 'billing' })
+    },
+    {
+      id: 'DirectBilling',
+      title: 'Direct Billing',
+      icon: 'fa-file-text-o',
+      count: undefined,
+      show: hasAccess('Billing_DirectBilling'),
+      color: '#7ed321',
+      action: () => nav('app.directbilling', { tp: 'DG', context: 'billing' })
+    },
+    {
+      id: 'LabBilling',
+      title: 'LAB/Radiology/Others',
+      icon: 'fa-usd',
+      count: counts.labbilling,
+      show: hasAccess('Billing_LabBilling'),
+      color: '#bd10e0',
+      action: () => nav('app.opbilling-list', { tp: 'DG', context: 'billing' })
+    },
+    {
+      id: 'IPBilling',
+      title: 'IP Billing',
+      icon: 'fa-list',
+      count: undefined,
+      show: hasAccess('billing_CurrentIpBilling'),
+      color: '#50e3c2',
+      action: () => nav('app.inpatient-billing', { context: 'billing' })
+    },
+    {
+      id: 'DischargedIPBilling',
+      title: 'Discharged IP Billing',
+      icon: 'fa-inr',
+      count: undefined,
+      show: hasAccess('Discharged_IP_Billing'),
+      color: '#e46a76',
+      action: () => nav('app.discharged-patients', { context: 'billing' })
+    },
+    {
+      id: 'Admissions',
+      title: 'Admissions',
+      icon: 'fa-percent',
+      count: counts.admission,
+      show: hasAccess('Billing_Admissions'),
+      color: '#d0021b',
+      action: () => nav('app.admissions', { context: 'billing' })
+    },
+    {
+      id: 'CurrentIpPatients',
+      title: 'Current IP Patients',
+      icon: 'fa-briefcase',
+      count: counts.ippatients,
+      show: hasAccess('Billing_CurrentIPPatients'),
+      color: '#ff5a5f',
+      action: () => nav('app.currentinpatients', { context: 'billing' })
+    },
+    {
+      id: 'Reports',
+      title: 'Reports',
+      icon: 'fa-file-text-o',
+      count: undefined,
+      show: hasAccess('BillingReports'),
+      color: '#8b572a',
+      action: () => nav('app.billingreportstab.opinvoicebillingreport', { context: 'billing' })
+    }
+  ];
+
+  const renderTableCard = (title: string, children: React.ReactNode) => (
+    <div className="premium-glass-panel" style={{
+      padding: '20px',
+      height: '350px', // fixed height for uniformity
+      display: 'flex',
+      flexDirection: 'column'
+    }}>
+      <h3 style={{ margin: '0 0 16px 0', color: 'var(--premium-blue)', fontSize: '18px', fontWeight: 600 }}>
+        {title}
+      </h3>
+      <div style={{ overflowY: 'auto', flex: 1 }}>
+        {children}
       </div>
-      <div className="col-sm-12" style={{ marginTop: '20px' }}>
-        <div className="card-flex-box-billing">
-          {hasAccess('QuickRegistration') && (
-            <div className="card-box-item box-bg-color1" onClick={() => nav('app.quickregistration', { context: 'billing' })}>
-              <div className="card-box-header">
-                <i className="fa fa-registered" aria-hidden="true"></i>
-                <div>Registrations</div>
-              </div>
-              <div>{counts.registration}</div>
-            </div>
-          )}
-          {hasAccess('Billing_OPPatients') && (
-            <div className="card-box-item box-bg-color2" onClick={() => nav('app.opbilling-list', { tp: 'OP', context: 'billing' })}>
-              <div className="card-box-header">
-                <div><i className="fa fa-user" aria-hidden="true"></i></div>
-                <div>OP Billings</div>
-              </div>
-              <div>{counts.opbilling}</div>
-            </div>
-          )}
-          {hasAccess('Billing_DirectBilling') && (
-            <div className="card-box-item box-bg-color3" onClick={() => nav('app.directbilling', { tp: 'DG', context: 'billing' })}>
-              <div className="card-box-header">
-                <div><i className="fa fa-file-text-o" aria-hidden="true"></i></div>
-                <div>Direct Billing</div>
-              </div>
-              <div>{counts.directbilling}</div>
-            </div>
-          )}
-          {hasAccess('Billing_LabBilling') && (
-            <div className="card-box-item box-bg-color4" onClick={() => nav('app.opbilling-list', { tp: 'DG', context: 'billing' })}>
-              <div className="card-box-header">
-                <div><i className="fa fa-usd" aria-hidden="true"></i></div>
-                <div>LAB/Radiology/Others</div>
-              </div>
-              <div>{counts.labbilling}</div>
-            </div>
-          )}
-          {hasAccess('billing_CurrentIpBilling') && (
-            <div className="card-box-item box-bg-color5" onClick={() => nav('app.inpatient-billing', { context: 'billing' })}>
-              <div className="card-box-header">
-                <div><i className="fa fa-list" aria-hidden="true"></i></div>
-                <div>IP Billing</div>
-              </div>
-              <div>{counts.ipbilling}</div>
-            </div>
-          )}
-          {hasAccess('Discharged_IP_Billing') && (
-            <div className="card-box-item box-bg-color6" onClick={() => nav('app.discharged-patients', { context: 'billing' })}>
-              <div className="card-box-header">
-                <div><i className="fa fa-inr" aria-hidden="true"></i></div>
-                <div>Discharged IP Billing</div>
-              </div>
-              <div>{counts.dischargesipbilling}</div>
-            </div>
-          )}
-          {hasAccess('Billing_Admissions') && (
-            <div className="card-box-item box-bg-color7" onClick={() => nav('app.admissions', { context: 'billing' })}>
-              <div className="card-box-header">
-                <div><i className="fa fa-percent" aria-hidden="true"></i></div>
-                <div>Admissions</div>
-              </div>
-              <div>{counts.admission}</div>
-            </div>
-          )}
-          {hasAccess('Billing_CurrentIPPatients') && (
-            <div className="card-box-item box-bg-color8" onClick={() => nav('app.currentinpatients', { context: 'billing' })}>
-              <div className="card-box-header">
-                <div><i className="fa fa-briefcase" aria-hidden="true"></i></div>
-                <div>Current IP Patients</div>
-              </div>
-              <div>{counts.ippatients}</div>
-            </div>
-          )}
-          {hasAccess('BillingReports') && (
-            <div className="card-box-item box-bg-color9" onClick={() => nav('app.billingreportstab.opinvoicebillingreport', { context: 'billing' })}>
-              <div className="card-box-header">
-                <div><i className="fa fa-file-text-o" aria-hidden="true"></i></div>
-                <div>Reports</div>
-              </div>
-              <div>{counts.reports}</div>
-            </div>
-          )}
+    </div>
+  );
+
+  const tableCellStyle: React.CSSProperties = {
+    padding: '12px 16px',
+    borderBottom: '1px solid rgba(0,0,0,0.05)',
+    fontSize: '14px',
+    color: 'var(--premium-text-muted)'
+  };
+
+  return (
+    <div style={{ padding: '24px', fontFamily: 'var(--font-modern)', backgroundColor: 'var(--premium-bg-light)', minHeight: '100vh' }}>
+      
+      {/* Header */}
+      <div style={{ marginBottom: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div>
+          <h4 style={{ margin: 0, color: 'var(--premium-text-main)', fontSize: '24px', fontWeight: 600 }}>
+            Billing Dashboard
+          </h4>
         </div>
       </div>
 
-      <div className="col-sm-12" style={{ marginTop: '20px' }}>
-        <div className="col-sm-6">
-          <table id="bannerdetails" style={{ marginTop: '20px', background: '#5d9cec', color: '#fff', width: '100%', marginBottom: 0 }}>
-            <tbody>
-              <tr>
-                <td style={{ padding: '8px' }}>Admission</td>
-              </tr>
-            </tbody>
-          </table>
-          <table id="bannerdetails" style={{ width: '100%', border: '1px solid #ddd' }}>
+      {/* Cards Grid */}
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
+        gap: '20px',
+        marginBottom: '32px'
+      }}>
+        {cards.filter(c => c.show).map(card => (
+          <div 
+            key={card.id}
+            onClick={card.action}
+            className="premium-glass-panel"
+            style={{
+              padding: '20px',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              transition: 'transform 0.2s',
+              borderLeft: `5px solid ${card.color}`
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = 'translateY(-5px)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'translateY(0)';
+            }}
+          >
+            <div>
+              <div style={{ color: 'var(--premium-text-muted)', fontSize: '13px', fontWeight: 500, marginBottom: '8px' }}>
+                {card.title.toUpperCase()}
+              </div>
+              {card.count !== undefined && (
+                <div style={{ color: 'var(--premium-text-main)', fontSize: '28px', fontWeight: 700 }}>
+                  {card.count}
+                </div>
+              )}
+            </div>
+            <div style={{
+              width: '50px',
+              height: '50px',
+              borderRadius: '50%',
+              backgroundColor: `${card.color}15`,
+              color: card.color,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: '20px'
+            }}>
+              <i className={`fa ${card.icon}`}></i>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Tables Grid */}
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(500px, 1fr))',
+        gap: '24px'
+      }}>
+        
+        {/* Today Admissions */}
+        {renderTableCard("Admission", 
+          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <tbody>
               {latAdmsnData.map((item, idx) => (
-                <tr key={idx} style={{ borderBottom: '1px solid #ddd' }}>
-                  <td style={{ padding: '8px' }}>
-                    <strong>{item.patientname} | ( {item.Patient?.MRN} )</strong> | {item.Patient?.Age} Years | {item.VisitIdentifier} - {item.doctorname} | {item.warddetails}
+                <tr key={idx}>
+                  <td style={tableCellStyle}>
+                    <strong style={{color: 'var(--premium-text-main)'}}>{item.patientname} | ({item.Patient?.MRN})</strong> | {item.Patient?.Age} Years | {item.VisitIdentifier} - {item.doctorname} | {item.warddetails}
                   </td>
                 </tr>
               ))}
               {latAdmsnData.length === 0 && (
-                <tr><td style={{ padding: '8px', textAlign: 'center', color: '#777' }}>No Admissions</td></tr>
+                <tr><td style={{...tableCellStyle, textAlign: 'center'}}>No Admissions</td></tr>
               )}
             </tbody>
           </table>
-        </div>
-        <div className="col-sm-6">
-          <table id="bannerdetails" style={{ marginTop: '20px', background: '#5d9cec', color: '#fff', width: '100%', marginBottom: 0 }}>
-            <tbody>
-              <tr>
-                <td style={{ padding: '8px' }}>Discharge</td>
-              </tr>
-            </tbody>
-          </table>
-          <table id="bannerdetails" style={{ width: '100%', border: '1px solid #ddd' }}>
+        )}
+
+        {/* Today Discharges */}
+        {renderTableCard("Discharge", 
+          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <tbody>
               {latDiscrgData.map((item, idx) => (
-                <tr key={idx} style={{ borderBottom: '1px solid #ddd' }}>
-                  <td style={{ padding: '8px' }}>
-                    <strong>{item.patientname} | ( {item.Patient?.MRN} )</strong> | {item.Patient?.Age} Years | {item.VisitIdentifier} - {item.doctorname} | {item.warddetails}
+                <tr key={idx}>
+                  <td style={tableCellStyle}>
+                    <strong style={{color: 'var(--premium-text-main)'}}>{item.patientname} | ({item.Patient?.MRN})</strong> | {item.Patient?.Age} Years | {item.VisitIdentifier} - {item.doctorname} | {item.warddetails}
                   </td>
                 </tr>
               ))}
               {latDiscrgData.length === 0 && (
-                <tr><td style={{ padding: '8px', textAlign: 'center', color: '#777' }}>No Discharges</td></tr>
+                <tr><td style={{...tableCellStyle, textAlign: 'center'}}>No Discharges</td></tr>
               )}
             </tbody>
           </table>
-        </div>
-      </div>
+        )}
 
-      <div className="col-sm-12">
-        <div className="col-sm-6">
-          <table id="bannerdetails" style={{ marginTop: '20px', background: '#5d9cec', color: '#fff', width: '100%', marginBottom: 0 }}>
-            <tbody>
-              <tr>
-                <td style={{ padding: '8px' }}>Beds</td>
-              </tr>
-            </tbody>
-          </table>
-          <table id="bannerdetails" style={{ width: '100%', border: '1px solid #ddd' }}>
+        {/* Available Beds */}
+        {renderTableCard("Beds", 
+          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <tbody>
               {latAvailbedData.map((item, idx) => (
-                <tr key={idx} style={{ borderBottom: '1px solid #ddd' }}>
-                  <td style={{ padding: '8px' }}>{item.availablebedinfo}</td>
+                <tr key={idx}>
+                  <td style={tableCellStyle}>{item.availablebedinfo}</td>
                 </tr>
               ))}
               {latAvailbedData.length === 0 && (
-                <tr><td style={{ padding: '8px', textAlign: 'center', color: '#777' }}>No Beds Available</td></tr>
+                <tr><td style={{...tableCellStyle, textAlign: 'center'}}>No Beds Available</td></tr>
               )}
             </tbody>
           </table>
-        </div>
-        <div className="col-sm-6">
-          <table id="bannerdetails" style={{ marginTop: '20px', background: '#5d9cec', color: '#fff', width: '100%', marginBottom: 0 }}>
-            <tbody>
-              <tr>
-                <td style={{ padding: '8px' }}>Discharge Clearance</td>
-              </tr>
-            </tbody>
-          </table>
-          <table id="bannerdetails" style={{ width: '100%', border: '1px solid #ddd' }}>
+        )}
+
+        {/* Discharge Clearance */}
+        {renderTableCard("Discharge Clearance", 
+          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <tbody>
               {latDisclrData.map((item, idx) => (
-                <tr key={idx} style={{ borderBottom: '1px solid #ddd' }}>
-                  <td style={{ padding: '8px' }}>
-                    <strong>{item.patientname} | ( {item.Patient?.MRN} )</strong> | {item.Patient?.Age} Years | {item.VisitIdentifier} - {item.doctorname} | {item.warddetails}
+                <tr key={idx}>
+                  <td style={tableCellStyle}>
+                    <strong style={{color: 'var(--premium-text-main)'}}>{item.patientname} | ({item.Patient?.MRN})</strong> | {item.Patient?.Age} Years | {item.VisitIdentifier} - {item.doctorname} | {item.warddetails}
                   </td>
                 </tr>
               ))}
               {latDisclrData.length === 0 && (
-                <tr><td style={{ padding: '8px', textAlign: 'center', color: '#777' }}>No Clearances</td></tr>
+                <tr><td style={{...tableCellStyle, textAlign: 'center'}}>No Clearances</td></tr>
               )}
             </tbody>
           </table>
-        </div>
-        <div className="col-sm-6">
-          <table id="bannerdetails" style={{ marginTop: '20px', background: '#5d9cec', color: '#fff', width: '100%', marginBottom: 0 }}>
+        )}
+
+        {/* Occupancy Summary */}
+        {renderTableCard("Occupancy Summary", 
+          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <tbody>
-              <tr>
-                <td style={{ padding: '8px' }}>Occupancy Summary</td>
+              <tr><td style={tableCellStyle}>Total Admissions</td><td style={{...tableCellStyle, fontWeight: 600, color: 'var(--premium-text-main)'}}>{counts.TotalAdmissionCount}</td></tr>
+              <tr><td style={tableCellStyle}>Today Admitted</td><td style={{...tableCellStyle, fontWeight: 600, color: 'var(--premium-text-main)'}}>{counts.AdmittedCount}</td></tr>
+              <tr><td style={tableCellStyle}>Total Fit for Discharges</td><td style={{...tableCellStyle, fontWeight: 600, color: 'var(--premium-text-main)'}}>{counts.FitforDischargeCount}</td></tr>
+              <tr><td style={tableCellStyle}>Total Clinical Discharges</td><td style={{...tableCellStyle, fontWeight: 600, color: 'var(--premium-text-main)'}}>{counts.ClinicalDischargeCount}</td></tr>
+              <tr><td style={tableCellStyle}>Total Financial Discharges</td><td style={{...tableCellStyle, fontWeight: 600, color: 'var(--premium-text-main)'}}>{counts.FinancialDischargeCount}</td></tr>
+              <tr><td style={tableCellStyle}>Today Discharges</td><td style={{...tableCellStyle, fontWeight: 600, color: 'var(--premium-text-main)'}}>{counts.DischargeCount}</td></tr>
+              <tr style={{ backgroundColor: 'rgba(235, 178, 0, 0.1)' }}>
+                <td style={{...tableCellStyle, fontWeight: 700, color: 'var(--premium-blue)'}}>Total Occupancy</td>
+                <td style={{...tableCellStyle, fontWeight: 700, color: 'var(--premium-blue)'}}>{counts.TotalOccupancyCount}</td>
               </tr>
             </tbody>
           </table>
-          <table id="bannerdetails" style={{ width: '100%', border: '1px solid #ddd' }}>
-            <tbody>
-              <tr style={{ borderBottom: '1px solid #eee' }}><td style={{ padding: '8px' }}>Total Admissions</td><td style={{ padding: '8px' }}>{counts.TotalAdmissionCount}</td></tr>
-              <tr style={{ borderBottom: '1px solid #eee' }}><td style={{ padding: '8px' }}>Today Admitted</td><td style={{ padding: '8px' }}>{counts.AdmittedCount}</td></tr>
-              <tr style={{ borderBottom: '1px solid #eee' }}><td style={{ padding: '8px' }}>Total FitforDischarges</td><td style={{ padding: '8px' }}>{counts.FitforDischargeCount}</td></tr>
-              <tr style={{ borderBottom: '1px solid #eee' }}><td style={{ padding: '8px' }}>Total ClinicalDischarges</td><td style={{ padding: '8px' }}>{counts.ClinicalDischargeCount}</td></tr>
-              <tr style={{ borderBottom: '1px solid #eee' }}><td style={{ padding: '8px' }}>Total FinancialDischarges</td><td style={{ padding: '8px' }}>{counts.FinancialDischargeCount}</td></tr>
-              <tr style={{ borderBottom: '1px solid #eee' }}><td style={{ padding: '8px' }}>Today Discharges</td><td style={{ padding: '8px' }}>{counts.DischargeCount}</td></tr>
-              <tr><td style={{ padding: '8px' }}>Total Occupancy</td><td style={{ padding: '8px' }}>{counts.TotalOccupancyCount}</td></tr>
-            </tbody>
-          </table>
-        </div>
+        )}
+
       </div>
-      <div className="fooder-bgs"></div>
     </div>
   );
 };

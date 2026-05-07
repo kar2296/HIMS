@@ -493,7 +493,8 @@
                     "CanReversebutton": CanReversebutton,
                     "CanPrescriptionP1": CanPrescriptionP1,
                     "CanDeletedBillButton":CanDeletedBillButton,
-                    "CanDeletereceiptsButton":CanDeletereceiptsButton
+                    "CanDeletereceiptsButton":CanDeletereceiptsButton,
+                    "CanABGMaster": CanABGMaster
 
                     /*Emr controls*/
 
@@ -505,6 +506,12 @@
                     return false;
                 }
                 function CanDeletereceiptsButton() {
+                    ngSessionHelper.getClinicalRoleId();
+                    ngSessionHelper.getUserTypeId();
+                    ngSessionHelper.getUserGroupId();
+                    return false;
+                }
+                function CanABGMaster() {
                     ngSessionHelper.getClinicalRoleId();
                     ngSessionHelper.getUserTypeId();
                     ngSessionHelper.getUserGroupId();

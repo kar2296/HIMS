@@ -60,10 +60,9 @@ export const PrintControl: React.FC<PrintControlProps> = ({
     }
   };
 
-  // Styles matching the modern layout and the legacy drhms-common-btn
   const btnStyle: React.CSSProperties = {
     padding: '8px 16px',
-    borderRadius: '6px',
+    borderRadius: 'var(--radius-md)',
     border: 'none',
     fontWeight: 600,
     cursor: 'pointer',
@@ -71,10 +70,10 @@ export const PrintControl: React.FC<PrintControlProps> = ({
     fontSize: '14px',
     display: 'flex',
     alignItems: 'center',
-    background: 'linear-gradient(270deg, #698700 0%, #c61f1f 100%)',
+    background: 'var(--premium-gold)',
     color: '#fff',
-    boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-    transition: 'opacity 0.2s'
+    boxShadow: 'var(--shadow-sm)',
+    transition: 'all 0.2s ease'
   };
 
   const modalOverlayStyle: React.CSSProperties = {
@@ -131,7 +130,7 @@ export const PrintControl: React.FC<PrintControlProps> = ({
       {isModalOpen && (
         <div style={modalOverlayStyle}>
           <div style={modalStyle}>
-            <div style={{ background: '#f8f9fa', padding: '16px', borderBottom: '1px solid #e0e4f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div style={{ background: 'var(--premium-bg-light)', padding: '16px', borderBottom: '1px solid var(--glass-border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <h4 style={{ margin: 0, fontSize: '16px', fontWeight: 600, color: '#444' }}>Original Print Request</h4>
               <button 
                 type="button"

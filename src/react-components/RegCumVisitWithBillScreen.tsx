@@ -94,9 +94,9 @@ export const RegCumVisitWithBillScreen: React.FC<{
     >
       <div
         style={{
-          background: "rgba(255,255,255,0.85)",
-          backdropFilter: "blur(12px)",
-          borderRadius: "16px",
+          background: "var(--glass-bg)",
+          backdropFilter: "var(--glass-blur)",
+          borderRadius: "var(--radius-lg)",
           maxWidth: "1200px",
           width: "100%",
           padding: "32px",
@@ -115,7 +115,7 @@ export const RegCumVisitWithBillScreen: React.FC<{
           <h2
             style={{
               margin: 0,
-              color: "#21008d",
+              color: "var(--premium-blue)",
               fontWeight: 700,
               fontSize: "24px",
             }}
@@ -158,7 +158,7 @@ export const RegCumVisitWithBillScreen: React.FC<{
                 fontSize: "14px",
               }}
             >
-              <thead style={{ backgroundColor: "#21008d", color: "#fff" }}>
+              <thead style={{ backgroundColor: "var(--premium-blue)", color: "#fff" }}>
                 <tr>
                   <th style={thStyle}>#</th>
                   <th style={thStyle}>Reg. No.</th>
@@ -179,9 +179,9 @@ export const RegCumVisitWithBillScreen: React.FC<{
                       backgroundColor: idx % 2 ? "#f9fafc" : "#fff",
                       transition: "background 0.2s",
                     }}
-                    onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#e6f0ff")}
+                    onMouseEnter={e => (e.currentTarget.style.backgroundColor = "var(--premium-bg-light)")}
                     onMouseLeave={e =>
-                      (e.currentTarget.style.backgroundColor = idx % 2 ? "#f9fafc" : "#fff")
+                      (e.currentTarget.style.backgroundColor = idx % 2 ? "var(--premium-bg-light)" : "#fff")
                     }
                   >
                     <td style={tdStyle}>{idx + 1}</td>

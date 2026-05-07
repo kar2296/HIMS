@@ -24,9 +24,9 @@ export const TopNavbarComponent: React.FC<TopNavbarComponentProps> = ({
       justifyContent: 'space-between',
       height: '60px',
       backgroundColor: '#ffffff',
-      boxShadow: '0 2px 10px rgba(0,0,0,0.05)',
+      boxShadow: 'var(--shadow-sm)',
       padding: '0 20px',
-      fontFamily: '"Poppins", sans-serif',
+      fontFamily: 'var(--font-modern)',
       position: 'relative',
       zIndex: 1000
     }}>
@@ -38,7 +38,7 @@ export const TopNavbarComponent: React.FC<TopNavbarComponentProps> = ({
             background: 'transparent',
             border: 'none',
             fontSize: '18px',
-            color: '#21008d',
+            color: 'var(--premium-blue)',
             cursor: 'pointer',
             padding: '8px',
             borderRadius: '4px',
@@ -56,7 +56,7 @@ export const TopNavbarComponent: React.FC<TopNavbarComponentProps> = ({
         <div style={{ 
           fontWeight: 600, 
           fontSize: '18px', 
-          color: '#333',
+          color: 'var(--premium-text-main)',
           borderLeft: '1px solid #eee',
           paddingLeft: '20px'
         }}>
@@ -70,7 +70,7 @@ export const TopNavbarComponent: React.FC<TopNavbarComponentProps> = ({
         {/* Language Selector (Placeholder for future extension) */}
         <div style={{ 
           fontSize: '13px', 
-          color: '#666', 
+          color: 'var(--premium-text-muted)', 
           cursor: 'pointer',
           display: 'flex',
           alignItems: 'center',
@@ -92,14 +92,14 @@ export const TopNavbarComponent: React.FC<TopNavbarComponentProps> = ({
             gap: '12px',
             padding: '4px 8px',
             borderRadius: '8px',
-            backgroundColor: isDropdownOpen ? '#f5f6ff' : 'transparent',
+            backgroundColor: isDropdownOpen ? 'var(--premium-bg-light)' : 'transparent',
             transition: 'background 0.2s'
           }}>
             <div style={{
               width: '36px',
               height: '36px',
               borderRadius: '50%',
-              backgroundColor: '#ebb200',
+              backgroundColor: 'var(--premium-gold)',
               backgroundImage: userPhoto ? `url(data:image/png;base64,${userPhoto})` : 'none',
               backgroundSize: 'cover',
               backgroundPosition: 'center',
@@ -115,7 +115,7 @@ export const TopNavbarComponent: React.FC<TopNavbarComponentProps> = ({
             </div>
             
             <div style={{ display: 'flex', flexDirection: 'column' }}>
-              <span style={{ fontSize: '14px', fontWeight: 500, color: '#333', lineHeight: '1' }}>
+              <span style={{ fontSize: '14px', fontWeight: 500, color: 'var(--premium-text-main)', lineHeight: '1' }}>
                 {userName}
               </span>
               <span style={{ fontSize: '11px', color: '#888', marginTop: '4px' }}>
@@ -129,16 +129,14 @@ export const TopNavbarComponent: React.FC<TopNavbarComponentProps> = ({
 
           {/* Dropdown Menu */}
           {isDropdownOpen && (
-            <div style={{
+            <div className="premium-glass-panel" style={{
               position: 'absolute',
               top: 'calc(100% + 10px)',
               right: 0,
               width: '200px',
-              backgroundColor: '#fff',
-              borderRadius: '8px',
-              boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
               padding: '8px 0',
-              animation: 'fadeIn 0.2s ease-out'
+              animation: 'fadeIn 0.2s ease-out',
+              zIndex: 1001
             }}>
               <style>
                 {`
@@ -151,13 +149,13 @@ export const TopNavbarComponent: React.FC<TopNavbarComponentProps> = ({
                     display: flex;
                     alignItems: center;
                     gap: 10px;
-                    color: #444;
+                    color: var(--premium-text-muted);
                     fontSize: 13px;
                     transition: background 0.2s;
                   }
                   .dropdown-item:hover {
-                    background-color: #f5f6ff;
-                    color: #21008d;
+                    background-color: var(--premium-bg-light);
+                    color: var(--premium-blue);
                   }
                 `}
               </style>
@@ -175,7 +173,7 @@ export const TopNavbarComponent: React.FC<TopNavbarComponentProps> = ({
                   e.stopPropagation();
                   if (onLogout) onLogout();
                 }}
-                style={{ color: '#d32f2f' }}
+                style={{ color: 'var(--premium-danger)' }}
               >
                 <i className="fa-solid fa-sign-out-alt" style={{ width: '16px' }}></i> Logout
               </div>

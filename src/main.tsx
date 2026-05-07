@@ -51,6 +51,7 @@ import { DistrictControl } from './react-components/DistrictControl';
 import { AreaControl } from './react-components/AreaControl';
 import { BillingDashboardComponent } from './react-components/BillingDashboardComponent';
 import { PharmacyDashboardComponent } from './react-components/PharmacyDashboardComponent';
+import { RichTextEditor } from './react-components/RichTextEditor';
 
 // Register components globally so the AngularJS bridge can find them
 (window as any).ReactComponents = {
@@ -78,7 +79,8 @@ import { PharmacyDashboardComponent } from './react-components/PharmacyDashboard
   StateControl,
   DistrictControl,
   AreaControl,
-  PharmacyDashboardComponent
+  PharmacyDashboardComponent,
+  RichTextEditor
 };
 
 console.log('React runtime and components loaded. ReactBridge initialized.');

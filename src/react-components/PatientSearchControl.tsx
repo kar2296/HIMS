@@ -104,7 +104,7 @@ export const PatientSearchControl: React.FC<PatientSearchControlProps> = ({
           <input
             id={reactProps.controlId || 'pid'}
             type="text"
-            className="form-control pid"
+            className="premium-input pid"
             placeholder={reactProps.placeholder}
             value={inputValue}
             onChange={handleInputChange}
@@ -119,7 +119,7 @@ export const PatientSearchControl: React.FC<PatientSearchControlProps> = ({
 
       {isOpen && (results.length > 0 || isLoading) && (
         <div 
-          className="custom-popup-wrapper" 
+          className="premium-glass-panel" 
           style={{
             display: 'block',
             position: 'absolute',
@@ -129,18 +129,14 @@ export const PatientSearchControl: React.FC<PatientSearchControlProps> = ({
             maxHeight: '250px',
             overflow: 'auto',
             maxWidth: '600px',
-            backgroundColor: '#fff',
-            boxShadow: '0 6px 12px rgba(0,0,0,.175)',
-            border: '1px solid rgba(0,0,0,.15)',
-            borderRadius: '4px',
             marginTop: '2px'
           }}
         >
           {isLoading && results.length === 0 ? (
             <div style={{ padding: '10px', textAlign: 'center', color: '#666' }}>Loading...</div>
           ) : (
-            <table className="table table-bordered table-condensed" style={{ margin: 0, background: '#fff' }} role="listbox">
-              <thead style={{ backgroundColor: '#0073bc', color: '#ffffff' }}>
+            <table className="table table-bordered table-condensed" style={{ margin: 0, background: 'transparent' }} role="listbox">
+              <thead style={{ backgroundColor: 'var(--premium-blue)', color: '#ffffff' }}>
                 <tr>
                   <th style={{ width: '120px', color: '#ffffff' }}>Title</th>
                   <th style={{ minWidth: '100px', color: '#ffffff' }}>Name</th>

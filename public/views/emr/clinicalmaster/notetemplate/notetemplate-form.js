@@ -85,6 +85,19 @@
         $scope.onDeptSelected = function (selectedItem) {
             $scope.item.SubDepartmentId = selectedItem.Id;
         };
+
+        // React RichTextEditor callback — keeps item.DataTemplate in sync
+        $scope.onRteChange = function (html) {
+            $scope.$evalAsync(function () {
+                $scope.item.DataTemplate = html;
+            });
+        };
+
+        // Save & Approve shortcut (used by footer button)
+        $scope.saveAndApprove = function () {
+            $scope.saveItem();
+        };
+
         $scope.deptChange = function () {
             var deptObj = utl.Lookup.getObject($scope.lookup.Department, $scope.item.SubDepartmentId);
             $scope.item.DepartmentId = deptObj.DepartmentId;

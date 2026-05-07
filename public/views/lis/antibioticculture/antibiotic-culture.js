@@ -6,6 +6,23 @@
         .controller('AntibioticCultureController', AntibioticCultureController);
 
     function AntibioticCultureController($scope, $stateParams, $state, $translate, utl, $uibModalInstance, modalConfig) {
+        
+        $scope.onGramStainChange = function(html) {
+            $scope.$evalAsync(function() {
+                if ($scope.item) $scope.item.GramStain = html;
+            });
+        };
+        $scope.onRemarksChange = function(html) {
+            $scope.$evalAsync(function() {
+                if ($scope.item) $scope.item.Remarks = html;
+            });
+        };
+                    current = current[parts[i]];
+                }
+                current[parts[parts.length - 1]] = html;
+            });
+        };
+
         var vm = this;
 
         $scope.SpecimenName = '';

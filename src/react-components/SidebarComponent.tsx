@@ -86,14 +86,14 @@ const SidebarMenuItem: React.FC<{
               style={{ 
                 width: '20px', 
                 textAlign: 'center',
-                color: isOpen ? '#ebb200' : 'inherit'
+                color: isOpen ? 'var(--premium-gold)' : 'inherit'
               }}
             ></i>
           )}
           <span style={{ 
             fontSize: depth === 0 ? '14px' : '13px',
             fontWeight: depth === 0 ? 500 : 400,
-            fontFamily: '"Poppins", sans-serif'
+            fontFamily: 'var(--font-modern)'
           }}>
             {item.text}
           </span>
@@ -103,7 +103,7 @@ const SidebarMenuItem: React.FC<{
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           {item.alert && (
             <span style={{
-              backgroundColor: '#ebb200',
+              backgroundColor: 'var(--premium-gold)',
               color: '#fff',
               fontSize: '10px',
               padding: '2px 6px',
@@ -162,12 +162,12 @@ export const SidebarComponent: React.FC<SidebarComponentProps> = ({
     <div style={{
       width: '250px',
       height: '100%',
-      backgroundColor: '#21008d', // matching the sleek theme from login
-      backgroundImage: 'linear-gradient(180deg, #21008d 0%, #1a0070 100%)',
+      backgroundColor: 'var(--premium-blue)', 
+      backgroundImage: 'linear-gradient(180deg, var(--premium-blue) 0%, var(--premium-blue-hover) 100%)',
       color: '#fff',
       overflowY: 'auto',
       overflowX: 'hidden',
-      boxShadow: '4px 0 15px rgba(0,0,0,0.1)',
+      boxShadow: 'var(--shadow-md)',
       display: 'flex',
       flexDirection: 'column'
     }}>
@@ -184,7 +184,7 @@ export const SidebarComponent: React.FC<SidebarComponentProps> = ({
           width: '36px',
           height: '36px',
           borderRadius: '8px',
-          backgroundColor: '#ebb200',
+          backgroundColor: 'var(--premium-gold)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
@@ -195,7 +195,7 @@ export const SidebarComponent: React.FC<SidebarComponentProps> = ({
           H
         </div>
         <div style={{
-          fontFamily: '"Poppins", sans-serif',
+          fontFamily: 'var(--font-modern)',
           fontWeight: 700,
           fontSize: '18px',
           letterSpacing: '0.5px'

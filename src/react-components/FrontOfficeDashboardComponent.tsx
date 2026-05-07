@@ -210,6 +210,7 @@ export const FrontOfficeDashboardComponent: React.FC<FrontOfficeDashboardProps> 
       id: 'Admissions',
       title: 'Admissions',
       icon: 'fa-inr',
+      count: items.AdmittedCount || 0,
       show: permissions.Admissions,
       color: '#d0021b', // red
       action: () => handleCardClick('app.admissions', { context: 'frontoffice' })
@@ -226,6 +227,7 @@ export const FrontOfficeDashboardComponent: React.FC<FrontOfficeDashboardProps> 
       id: 'CurrentIpPatients',
       title: 'Current IP Patients',
       icon: 'fa-briefcase',
+      count: items.TotalOccupancyCount || 0,
       show: permissions.CurrentIpPatients,
       color: '#ff5a5f', // coral
       action: () => handleCardClick('app.currentinpatients', { context: 'frontoffice' })
@@ -241,20 +243,20 @@ export const FrontOfficeDashboardComponent: React.FC<FrontOfficeDashboardProps> 
   ];
 
   return (
-    <div style={{ padding: '24px', fontFamily: '"Poppins", sans-serif', opacity: loading ? 0.6 : 1, transition: 'opacity 0.3s' }}>
+    <div style={{ padding: '24px', fontFamily: 'var(--font-modern)', backgroundColor: 'var(--premium-bg-light)', minHeight: '100vh', opacity: loading ? 0.6 : 1, transition: 'opacity 0.3s' }}>
       
       {/* Header */}
       <div style={{ marginBottom: '24px', display: 'flex', alignItems: 'center' }}>
         <div>
-          <h4 style={{ margin: 0, color: '#333', fontSize: '24px', fontWeight: 600 }}>
+          <h4 style={{ margin: 0, color: 'var(--premium-text-main)', fontSize: '24px', fontWeight: 600 }}>
             Front Office Dashboard
           </h4>
-          <p style={{ margin: '4px 0 0', color: '#666', fontSize: '14px' }}>
+          <p style={{ margin: '4px 0 0', color: 'var(--premium-text-muted)', fontSize: '14px' }}>
             Overview of today's hospital operations
           </p>
         </div>
         {loading && (
-          <div style={{ marginLeft: '20px', color: '#0073bc', fontSize: '14px' }}>
+          <div style={{ marginLeft: '20px', color: 'var(--premium-blue)', fontSize: '14px' }}>
             <i className="fa fa-spinner fa-spin" style={{ marginRight: '8px' }}></i> Loading metrics...
           </div>
         )}
@@ -271,33 +273,29 @@ export const FrontOfficeDashboardComponent: React.FC<FrontOfficeDashboardProps> 
           <div 
             key={card.id}
             onClick={card.action}
+            className="premium-glass-panel"
             style={{
-              backgroundColor: '#fff',
-              borderRadius: '12px',
               padding: '20px',
-              boxShadow: '0 4px 15px rgba(0,0,0,0.05)',
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between',
-              transition: 'transform 0.2s, box-shadow 0.2s',
+              transition: 'transform 0.2s',
               borderLeft: `5px solid ${card.color}`
             }}
             onMouseEnter={(e) => {
               e.currentTarget.style.transform = 'translateY(-5px)';
-              e.currentTarget.style.boxShadow = '0 8px 25px rgba(0,0,0,0.1)';
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.transform = 'translateY(0)';
-              e.currentTarget.style.boxShadow = '0 4px 15px rgba(0,0,0,0.05)';
             }}
           >
             <div>
-              <div style={{ color: '#888', fontSize: '13px', fontWeight: 500, marginBottom: '8px' }}>
+              <div style={{ color: 'var(--premium-text-muted)', fontSize: '13px', fontWeight: 500, marginBottom: '8px' }}>
                 {card.title.toUpperCase()}
               </div>
               {card.count !== undefined && (
-                <div style={{ color: '#333', fontSize: '28px', fontWeight: 700 }}>
+                <div style={{ color: 'var(--premium-text-main)', fontSize: '28px', fontWeight: 700 }}>
                   {card.count}
                 </div>
               )}
@@ -320,15 +318,12 @@ export const FrontOfficeDashboardComponent: React.FC<FrontOfficeDashboardProps> 
       </div>
 
       {/* Summary Section */}
-      <div style={{
-        backgroundColor: '#fff',
-        borderRadius: '12px',
-        boxShadow: '0 4px 15px rgba(0,0,0,0.05)',
+      <div className="premium-glass-panel" style={{
         overflow: 'hidden',
         maxWidth: '600px'
       }}>
         <div style={{
-          backgroundColor: '#21008d',
+          backgroundColor: 'var(--premium-blue)',
           color: '#fff',
           padding: '16px 20px',
           fontSize: '16px',
@@ -351,12 +346,12 @@ export const FrontOfficeDashboardComponent: React.FC<FrontOfficeDashboardProps> 
               display: 'flex',
               justifyContent: 'space-between',
               padding: '16px 0',
-              borderBottom: index === arr.length - 1 ? 'none' : '1px solid #eee'
+              borderBottom: index === arr.length - 1 ? 'none' : '1px solid rgba(0,0,0,0.05)'
             }}>
-              <span style={{ color: '#555', fontSize: '14px', fontWeight: 500 }}>
+              <span style={{ color: 'var(--premium-text-muted)', fontSize: '14px', fontWeight: 500 }}>
                 {row.label}
               </span>
-              <span style={{ color: '#222', fontSize: '15px', fontWeight: 600 }}>
+              <span style={{ color: 'var(--premium-text-main)', fontSize: '15px', fontWeight: 600 }}>
                 {row.value || 0}
               </span>
             </div>
@@ -364,12 +359,12 @@ export const FrontOfficeDashboardComponent: React.FC<FrontOfficeDashboardProps> 
         </div>
       </div>
       
-            {showRegCumVisitWithBill && (
-          <RegCumVisitWithBillScreen
-            context={currentcontext}
-            onClose={() => setShowRegCumVisitWithBill(false)}
-          />
-        )}
-        </div>
+      {showRegCumVisitWithBill && (
+        <RegCumVisitWithBillScreen
+          context={currentcontext}
+          onClose={() => setShowRegCumVisitWithBill(false)}
+        />
+      )}
+    </div>
   );
 };

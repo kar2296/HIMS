@@ -6,6 +6,28 @@
         .controller('testTemplateMastersFormController', testTemplateMastersFormController);
 
     function testTemplateMastersFormController($scope, $stateParams, $state, $translate, utl) {
+        
+        $scope.onMaleDataChange = function(html) {
+            $scope.$evalAsync(function() {
+                if ($scope.item) $scope.item.MaleDataTemplate = html;
+            });
+        };
+        $scope.onFemaleDataChange = function(html) {
+            $scope.$evalAsync(function() {
+                if ($scope.item) $scope.item.FemaleDataTemplate = html;
+            });
+        };
+        $scope.onChildDataChange = function(html) {
+            $scope.$evalAsync(function() {
+                if ($scope.item) $scope.item.ChildDataTemplate = html;
+            });
+        };
+                    current = current[parts[i]];
+                }
+                current[parts[parts.length - 1]] = html;
+            });
+        };
+
         var vm = this;
         angular.extend(this, utl.Ctrl.getBaseCtrl({ $scope: $scope }));
 
