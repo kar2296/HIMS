@@ -53,7 +53,6 @@ export default function (sequelize: Sequelize, DataTypes: DataTypes):
         ProcedureSideId: { type: DataTypes.BIGINT, field: 'ProcedureSideId' },
         ScheduleBy: { type: DataTypes.BIGINT, field: 'ScheduleBy' },
         ScheduleDate: { type: DataTypes.DATE, field: 'ScheduleDate' },
-        SurgeryStartDate: { type: DataTypes.DATE, field: 'SurgeryStartDate' },
         SurgeryEndDate: { type: DataTypes.DATE, field: 'SurgeryEndDate' },
         ConfirmedBy: { type: DataTypes.BIGINT, field: 'ConfirmedBy' },
         ConfirmedDate: { type: DataTypes.DATE, field: 'ConfirmedDate' },

@@ -14,6 +14,7 @@ export default function (sequelize: Sequelize, DataTypes: DataTypes):
         MaxPwdLength: { type: DataTypes.INTEGER, field: 'MaxPwdLength' },
         IsSpecialCharacterAllowedinPwd: { type: DataTypes.BOOLEAN, field: 'IsSpecialCharacterAllowedinPwd' },
         DefaultPwd: { type: DataTypes.STRING, field: 'DefaultPwd' },
+        MaxFailedLoginAttempts: { type: DataTypes.INTEGER, field: 'MaxFailedLoginAttempts' },
         Status: { type: DataTypes.INTEGER, field: 'Status' },
         Rev: { type: DataTypes.INTEGER, field: 'Rev' },
         CreatedBy: { type: DataTypes.INTEGER, field: 'CreatedBy' },

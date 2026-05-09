@@ -11,6 +11,7 @@ export interface FacilitySettingAttributes extends IAttributes {
     MaxPwdLength: number;
     IsSpecialCharacterAllowedinPwd: boolean;
     DefaultPwd: string;
+    MaxFailedLoginAttempts: number;
     Status: number;
     Rev: number;
     CreatedBy: number;

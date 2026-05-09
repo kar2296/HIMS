@@ -93,21 +93,21 @@
 
 
         $scope.getdoctDashboardCountCallBack = function (scope, res, options, hasError) {
-            $scope.Items.appoinmentCount = res.appointment.appoinmentCount;
-            $scope.Items.checkedincount = res.mycheckedin.checkedincount;
-            $scope.Items.inpatientcount = res.myinpatient.inpatientcount;
-            $scope.Items.dischargedcount = res.myinpatient.dischargedcount;
-            $scope.Items.otschedulecount = res.otschedule.otschedulecount;
-            $scope.Items.otnotescount = res.reviewnotes.otnotescount;
-            $scope.Items.pendingdischargescount = res.pendingdischarge.pendingdischargescount;
-            $scope.Items.labresultcount = res.resultreview.labresultcount;
-            $scope.Items.imagingradiologycount = res.radiologyresult.imagingradiologycount;
-            $scope.Items.endoscopycount = res.endoscopyresults.endoscopycount;
-            $scope.Items.abnormalcount = res.abnormalresults.abnormalcount;
-            $scope.Items.prescriptioncount = res.prescription.prescriptioncount;
-            $scope.Items.surgeryrequestcount = res.surgeryrequest.surgeryrequestcount;
-            $scope.Items.admissionrequestcount = res.admissionrequest.admissionrequestcount;
-            $scope.Items.physiotheraphycount = res.physiotheraphy.physiotheraphycount;
+            $scope.Items.appoinmentCount = res.appointment ? res.appointment.appoinmentCount : '0';
+            $scope.Items.checkedincount = res.mycheckedin ? res.mycheckedin.checkedincount : '0';
+            $scope.Items.inpatientcount = res.myinpatient ? res.myinpatient.inpatientcount : '0';
+            $scope.Items.dischargedcount = res.myinpatient ? res.myinpatient.dischargedcount : '0';
+            $scope.Items.otschedulecount = res.otschedule ? res.otschedule.otschedulecount : '0';
+            $scope.Items.otnotescount = res.reviewnotes ? res.reviewnotes.otnotescount : '0';
+            $scope.Items.pendingdischargescount = res.pendingdischarge ? res.pendingdischarge.pendingdischargescount : '0';
+            $scope.Items.labresultcount = res.resultreview ? res.resultreview.labresultcount : '0';
+            $scope.Items.imagingradiologycount = res.radiologyresult ? res.radiologyresult.imagingradiologycount : '0';
+            $scope.Items.endoscopycount = res.endoscopyresults ? res.endoscopyresults.endoscopycount : '0';
+            $scope.Items.abnormalcount = res.abnormalresults ? res.abnormalresults.abnormalcount : '0';
+            $scope.Items.prescriptioncount = res.prescription ? res.prescription.prescriptioncount : '0';
+            $scope.Items.surgeryrequestcount = res.surgeryrequest ? res.surgeryrequest.surgeryrequestcount : '0';
+            $scope.Items.admissionrequestcount = res.admissionrequest ? res.admissionrequest.admissionrequestcount : '0';
+            $scope.Items.physiotheraphycount = res.physiotheraphy ? res.physiotheraphy.physiotheraphycount : '0';
 
 
             if (!$scope.Items.appoinmentCount)

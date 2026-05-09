@@ -1,6 +1,6 @@
 import { BoFactory } from '../../Base/Business/Index';
 import { Router, Request, Response, NextFunction, GetRouter, IncludeOptions, models } from '../../../Core/Index';
-import { UserBo, LoginSessionBo } from '../Business/Index';
+import { UserBo, LoginSessionBo, FacilitySettingBo } from '../Business/Index';
 import { Redis } from '../../../Core/Wrapper/Index';
 import * as passport from 'passport';
 import * as bearer from 'passport-http-bearer';
@@ -12,6 +12,7 @@ const CustomStrategy = passportCustom.Strategy;
 
 let router: Router = GetRouter();
 const userBo = BoFactory.GetBo(UserBo);
+const facilitySettingBo = BoFactory.GetBo(FacilitySettingBo);
 let Models: Models = models;
 // Secrets must be set in environment variables — never hardcode them here
 const secret = process.env.JWT_SECRET;
@@ -43,47 +44,62 @@ return;
     next();
 }
 
-router.post('/login',
-    passport.authenticate('local'),
-    (req: Request, res: Response, next: NextFunction) => {
-        let loginSessionBo = BoFactory.GetBo(LoginSessionBo, req);
-        // Add proper null checks
-        if (!req.session || !req.session.passport || !req.session.passport.user) {
-            return res.status(401).send({ error: 'Invalid session' });
+router.post('/login', (req: Request, res: Response, next: NextFunction) => {
+    console.log('LOGIN ROUTE ACCESSED');
+
+    passport.authenticate('local', (err: any, user: any, info: any) => {
+        if (err) {
+            return next(err);
         }
-        let sessionCtxt: any = req.session.passport.user.SessionContext;
-        let forceLogin: any = (req as any).body.ForceLogin;
-        let userexist: any = (req as any).body.CHKUserExist;
-        if (!sessionCtxt) {
-            return res.status(401).send({ error: 'Invalid session context' });
+        if (!user) {
+            if (info && info.message === 'ACCOUNT_LOCKED') {
+                return res.status(403).send({ error: 'ACCOUNT_LOCKED' });
+            }
+            return res.status(401).send({ error: 'INVALID_CREDENTIALS' });
         }
-        if (!userexist) {
-            if (forceLogin) {
-                console.log('Force login...');
-                let logindetails: any = {};
-                logindetails = {
+        req.logIn(user, (err) => {
+            if (err) {
+                return next(err);
+            }
+            let loginSessionBo = BoFactory.GetBo(LoginSessionBo, req);
+            // Add proper null checks
+            if (!req.session || !req.session.passport || !req.session.passport.user) {
+                return res.status(401).send({ error: 'Invalid session' });
+            }
+            let sessionCtxt: any = req.session.passport.user.SessionContext;
+            let forceLogin: any = (req as any).body.ForceLogin;
+            let userexist: any = (req as any).body.CHKUserExist;
+            if (!sessionCtxt) {
+                return res.status(401).send({ error: 'Invalid session context' });
+            }
+            if (!userexist) {
+                if (forceLogin) {
+                    console.log('Force login...');
+                    let logindetails: any = {};
+                    logindetails = {
+                        Id: 0,
+                        Data: {
+                            UserId: sessionCtxt.UserId
+                        }
+                    };
+                    loginSessionBo.updateLoginSession(logindetails);
+                }
+                let logindata = {
                     Id: 0,
                     Data: {
-                        UserId: sessionCtxt.UserId
+                        UserId: sessionCtxt.UserId,
+                        UserName: sessionCtxt.UserName,
+                        LoginTime: new Date(),
+                        SessionId: (req as any).sessionID
                     }
                 };
-                loginSessionBo.updateLoginSession(logindetails);
+                loginSessionBo.AddLoginSession(logindata);
             }
-            let logindata = {
-                Id: 0,
-                Data: {
-                    UserId: sessionCtxt.UserId,
-                    UserName: sessionCtxt.UserName,
-                    LoginTime: new Date(),
-                    SessionId: (req as any).sessionID
-                }
-            };
-            loginSessionBo.AddLoginSession(logindata);
-        }
 
-        return res.status(200).send({ Data: sessionCtxt });
-    }
-);
+            return res.status(200).send({ Data: sessionCtxt });
+        });
+    })(req, res, next);
+});
 router.post('/checkExistingLoginSession',
     (req: Request, res: Response, next: NextFunction) => {
         let loginSessionBo = BoFactory.GetBo(LoginSessionBo, req);
@@ -306,9 +322,41 @@ passport.use(new local.Strategy({ usernameField: 'UserName', passwordField: 'Pas
                 //console.log('decrypted pwd=' + pwd);
 
                 if (!user || !user.dataValues || user.dataValues.Password !== pwd) {
-                    return done(null, false);
+                    if (user && user.dataValues) {
+                        let attempts = (user.dataValues.FailedLoginAttempts || 0) + 1;
+                        let isLocked = user.dataValues.IsLocked;
+
+                        facilitySettingBo.Find({ where: { FacilityId: user.dataValues.FacilityId || 1 } }).then((facilitySetting: any) => {
+                            let fsData = facilitySetting && facilitySetting.dataValues;
+                            let maxAttempts = (fsData && fsData.MaxFailedLoginAttempts) ? fsData.MaxFailedLoginAttempts : 10;
+                            if (attempts >= maxAttempts) {
+                                isLocked = true;
+                            }
+
+                            let updateData: any = { Id: user.dataValues.Id, FailedLoginAttempts: attempts, IsLocked: isLocked };
+                            userBo.UpdatewithoutSession(updateData).then(() => {
+                                if (isLocked) {
+                                    return done(null, false, { message: 'ACCOUNT_LOCKED' });
+                                }
+                                return done(null, false, { message: 'INVALID_CREDENTIALS' });
+                            });
+                        }).catch((err: any) => {
+                            console.error(err);
+                            return done(null, false, { message: 'INVALID_CREDENTIALS' });
+                        });
+                        return;
+                    }
+                    return done(null, false, { message: 'INVALID_CREDENTIALS' });
                 }
+
                 let value = user.dataValues;
+                if (value.IsLocked) {
+                    return done(null, false, { message: 'ACCOUNT_LOCKED' });
+                }
+                if (value.FailedLoginAttempts > 0) {
+                    let updateData: any = { Id: value.Id, FailedLoginAttempts: 0 };
+                    userBo.UpdatewithoutSession(updateData).catch((err: any) => console.error('Failed to reset FailedLoginAttempts', err));
+                }
                 let name = value.FirstName;
                 let departmentName = '';
                 if (value.MiddleName) {
@@ -359,6 +407,7 @@ passport.use(new local.Strategy({ usernameField: 'UserName', passwordField: 'Pas
                         ActiveStatusId: value.ActiveStatusId,
                         EmployeeId: value.EmployeeId,
                         SubDepartmentId: value.SubDepartmentId,
+                        RequiresPasswordChange: value.RequiresPasswordChange,
                         LicenseInfo: {
                             ExpiresOn: process.env.LICENSE_END_DATE
                         }
@@ -642,5 +691,76 @@ router.post('/encryptJSON', (req: Request, res: Response, next: NextFunction): v
 });
 
 //res.status(200).send({ token: tokenInfo.toString() });
+
+router.post('/reset-locked-password', (req: Request, res: Response, next: NextFunction): void => {
+    const reqData = req.body;
+    if (!reqData || !reqData.userName) {
+        res.status(400).send({ error: 'Username is required' });
+        return;
+    }
+    userBo.Find({ where: { UserName: reqData.userName } })
+        .then((user: any) => {
+            if (!user || !user.dataValues || !user.dataValues.IsLocked) {
+                res.status(400).send({ error: 'Account is not locked or does not exist.' });
+                return;
+            }
+
+            facilitySettingBo.Find({ where: { FacilityId: user.dataValues.FacilityId || 1 } }).then((facilitySetting: any) => {
+                let fsData = facilitySetting && facilitySetting.dataValues;
+                let defaultPwd = (fsData && fsData.DefaultPwd) ? fsData.DefaultPwd : 'Default@123';
+
+                const updateData: any = {
+                    Id: user.dataValues.Id,
+                    Password: defaultPwd,
+                    IsLocked: false,
+                    FailedLoginAttempts: 0,
+                    RequiresPasswordChange: true
+                };
+
+                userBo.UpdatewithoutSession(updateData).then(() => {
+                    res.status(200).send({ message: 'Password reset successfully', tempPassword: defaultPwd });
+                }).catch(next);
+            }).catch(next);
+        }).catch(next);
+});
+
+router.post('/force-change-password', (req: Request, res: Response, next: NextFunction): void => {
+    const reqData = req.body;
+    let userId = reqData.UserId;
+    if (!userId) {
+        let userContext = getUserSessionContext(req);
+        if (userContext) {
+            userId = userContext.UserId;
+        }
+    }
+
+    if (!userId || !reqData.newPassword) {
+        res.status(400).send({ error: 'Missing required parameters.' });
+        return;
+    }
+
+    const CryptoJS = require('crypto-js');
+    const cipherParams = CryptoJS.lib.CipherParams.create({
+        ciphertext: CryptoJS.enc.Base64.parse(reqData.newPassword)
+    });
+    const strIV = CryptoJS.enc.Base64.parse(process.env.AES_PASSWORD_KEY!);
+    const base64Key = CryptoJS.enc.Base64.parse(process.env.AES_PASSWORD_KEY!);
+    const decrypted = CryptoJS.AES.decrypt(cipherParams, base64Key, { iv: strIV });
+    const pwd = decrypted.toString(CryptoJS.enc.Utf8);
+
+    const updateData: any = {
+        Id: userId,
+        Password: pwd,
+        RequiresPasswordChange: false
+    };
+
+    userBo.UpdatewithoutSession(updateData).then(() => {
+        // Also update SessionContext if we are logged in so they don't get forced again
+        if (req.session && req.session.passport && req.session.passport.user && req.session.passport.user.SessionContext) {
+            req.session.passport.user.SessionContext.RequiresPasswordChange = false;
+        }
+        res.status(200).send({ message: 'Password updated successfully' });
+    }).catch(next);
+});
 
 export default router;

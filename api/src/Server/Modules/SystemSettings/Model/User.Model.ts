@@ -109,6 +109,9 @@ export default function (sequelize: Sequelize, DataTypes: DataTypes):
         TeamId: { type: DataTypes.BIGINT, field: 'TeamId' },
         AadharNumber: { type: DataTypes.BIGINT, field: 'AadharNumber' },
         IsExcelUpload: { type: DataTypes.BOOLEAN, field: 'IsExcelUpload' },
+        FailedLoginAttempts: { type: DataTypes.INTEGER, field: 'FailedLoginAttempts' },
+        IsLocked: { type: DataTypes.BOOLEAN, field: 'IsLocked' },
+        RequiresPasswordChange: { type: DataTypes.BOOLEAN, field: 'RequiresPasswordChange' },
     },
         {
             indexes: [],

@@ -2,12 +2,14 @@ import React, { useState } from 'react';
 
 interface LoginPageProps {
   onLogin?: (username: string, password: string) => void;
+  onResetPassword?: () => void;
   isLoading?: boolean;
   errorMessage?: string;
 }
 
 export const LoginPage: React.FC<LoginPageProps> = ({
   onLogin,
+  onResetPassword,
   isLoading = false,
   errorMessage = ''
 }) => {
@@ -101,7 +103,27 @@ export const LoginPage: React.FC<LoginPageProps> = ({
             border: '1px solid rgba(255, 205, 210, 0.5)'
           }}>
             <i className="fa-solid fa-circle-exclamation" style={{ marginRight: '8px' }}></i>
-            {errorMessage}
+            {errorMessage === 'ACCOUNT_LOCKED' ? 'Your account has been locked due to too many failed login attempts.' : errorMessage}
+            
+            {errorMessage === 'ACCOUNT_LOCKED' && (
+               <div style={{ marginTop: '12px', textAlign: 'center' }}>
+                  <button 
+                    type="button" 
+                    onClick={onResetPassword}
+                    style={{
+                      backgroundColor: '#d32f2f',
+                      color: 'white',
+                      border: 'none',
+                      padding: '8px 16px',
+                      borderRadius: '4px',
+                      cursor: 'pointer',
+                      fontWeight: 'bold'
+                    }}
+                  >
+                    Reset Password
+                  </button>
+               </div>
+            )}
           </div>
         )}
 

@@ -106,6 +106,9 @@ export interface UserAttributes extends IAttributes {
     TeamId: number;
     AadharNumber: string;
     IsExcelUpload: boolean;
+    FailedLoginAttempts: number;
+    IsLocked: boolean;
+    RequiresPasswordChange: boolean;
 }
 
 export interface UserInstance extends Instance<UserAttributes> {

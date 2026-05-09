@@ -4,6 +4,8 @@ interface TopNavbarComponentProps {
   facilityName?: string;
   userName?: string;
   userPhoto?: string; // base64
+  requiresPasswordChange?: boolean;
+  onPasswordChanged?: () => void;
   onLogout?: () => void;
   onToggleSidebar?: () => void;
 }
@@ -12,10 +14,69 @@ export const TopNavbarComponent: React.FC<TopNavbarComponentProps> = ({
   facilityName = 'Hospital System',
   userName = 'User',
   userPhoto,
+  requiresPasswordChange = false,
+  onPasswordChanged,
   onLogout,
   onToggleSidebar
 }) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [passwordError, setPasswordError] = useState('');
+  const [isChangingPassword, setIsChangingPassword] = useState(false);
+
+  const handleForcePasswordChange = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (newPassword !== confirmPassword) {
+      setPasswordError("Passwords do not match");
+      return;
+    }
+    if (newPassword.length < 6) {
+      setPasswordError("Password must be at least 6 characters");
+      return;
+    }
+    setIsChangingPassword(true);
+    setPasswordError('');
+    try {
+      const CryptoJS = (window as any).CryptoJS;
+      let pwdToSend = newPassword;
+      if (CryptoJS) {
+          const strIV = CryptoJS.enc.Base64.parse("3ad77bb40d7a3660a89ecaf32466ef97");
+          const base64Key = CryptoJS.enc.Base64.parse("3ad77bb40d7a3660a89ecaf32466ef97");
+          const encrypted = CryptoJS.AES.encrypt(newPassword, base64Key, { iv: strIV });
+          pwdToSend = encrypted.ciphertext.toString(CryptoJS.enc.Base64);
+      }
+      
+      const response = await fetch('/api/auth/force-change-password', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `bearer ${localStorage.getItem('token')}`
+        },
+        body: JSON.stringify({ newPassword: pwdToSend })
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to update password');
+      }
+
+      const toastr = (window as any).toastr;
+      if (toastr) {
+        toastr.success('Password updated successfully. Please log in with your new password next time.', 'Success');
+      } else {
+        alert('Password updated successfully. Please log in with your new password next time.');
+      }
+      
+      if (onPasswordChanged) onPasswordChanged();
+      setNewPassword('');
+      setConfirmPassword('');
+      
+    } catch (err: any) {
+      setPasswordError(err.message || 'An error occurred while updating the password');
+    } finally {
+      setIsChangingPassword(false);
+    }
+  };
 
   return (
     <div style={{
@@ -181,6 +242,104 @@ export const TopNavbarComponent: React.FC<TopNavbarComponentProps> = ({
           )}
         </div>
       </div>
+      
+      {/* Forced Password Change Modal */}
+      {requiresPasswordChange && (
+        <div style={{
+          position: 'fixed',
+          top: 0, left: 0, right: 0, bottom: 0,
+          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+          backdropFilter: 'blur(5px)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 9999
+        }}>
+          <div style={{
+            backgroundColor: '#fff',
+            padding: '30px',
+            borderRadius: '12px',
+            width: '100%',
+            maxWidth: '400px',
+            boxShadow: '0 10px 30px rgba(0,0,0,0.2)'
+          }}>
+            <h3 style={{ color: '#dc3545', marginTop: 0, marginBottom: '15px' }}>
+              <i className="fa-solid fa-lock" style={{ marginRight: '10px' }}></i>
+              Mandatory Password Change
+            </h3>
+            <p style={{ color: '#6c757d', fontSize: '14px', marginBottom: '20px' }}>
+              For security reasons, you are required to change your password before continuing.
+            </p>
+            
+            {passwordError && (
+              <div style={{
+                padding: '10px',
+                backgroundColor: 'rgba(211, 47, 47, 0.1)',
+                color: '#d32f2f',
+                borderRadius: '6px',
+                marginBottom: '15px',
+                fontSize: '13px'
+              }}>
+                {passwordError}
+              </div>
+            )}
+            
+            <form onSubmit={handleForcePasswordChange}>
+              <div style={{ marginBottom: '15px' }}>
+                <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, marginBottom: '5px' }}>New Password</label>
+                <input 
+                  type="password" 
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '10px',
+                    borderRadius: '6px',
+                    border: '1px solid #ccc',
+                    boxSizing: 'border-box'
+                  }}
+                  required
+                />
+              </div>
+              
+              <div style={{ marginBottom: '25px' }}>
+                <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, marginBottom: '5px' }}>Confirm New Password</label>
+                <input 
+                  type="password" 
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '10px',
+                    borderRadius: '6px',
+                    border: '1px solid #ccc',
+                    boxSizing: 'border-box'
+                  }}
+                  required
+                />
+              </div>
+              
+              <button 
+                type="submit"
+                disabled={isChangingPassword || !newPassword || !confirmPassword}
+                style={{
+                  width: '100%',
+                  backgroundColor: '#007bff',
+                  color: 'white',
+                  border: 'none',
+                  padding: '12px',
+                  borderRadius: '6px',
+                  fontWeight: 'bold',
+                  cursor: (isChangingPassword || !newPassword || !confirmPassword) ? 'not-allowed' : 'pointer',
+                  opacity: (isChangingPassword || !newPassword || !confirmPassword) ? 0.7 : 1
+                }}
+              >
+                {isChangingPassword ? 'Updating...' : 'Update Password'}
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -2597,6 +2597,17 @@
             currentlang: $translate.use(),
             licenseExpiryDays: ''
         };
+        $scope.requiresPasswordChange = utl.Session.get('RequiresPasswordChange') === 'true' || utl.Session.get('RequiresPasswordChange') === true;
+        
+        $scope.onPasswordChanged = function() {
+            $scope.requiresPasswordChange = false;
+            utl.Session.set('RequiresPasswordChange', false);
+            if (utl && utl.Alert) {
+                utl.Alert.showSuccessMsg('Password updated successfully. Please log in with your new password next time.');
+            }
+            $scope.$applyAsync();
+        };
+
         getMenu();
         var licenseInfo = utl.Session.getObject('LicenseInfo');
         if (licenseInfo) {

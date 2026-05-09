@@ -50,7 +50,6 @@ export interface OtScheduleAttributes extends IAttributes {
     ProcedureSideId: number;              // BIGINT
     ScheduleBy: number;                   // BIGINT
     ScheduleDate: Date;                   // DATE
-    SurgeryStartDate: Date;               // DATE
     SurgeryEndDate: Date;                 // DATE
     ConfirmedBy: number;                  // BIGINT
     ConfirmedDate: Date;                  // DATE

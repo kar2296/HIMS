@@ -57,13 +57,42 @@
                 vm.checkUserExist();
             };
 
+            vm.handleResetPassword = function() {
+                if (!vm.account.username) return;
+                vm.isLoading = true;
+                $scope.$applyAsync();
+                var options = {
+                    action: 'auth/reset-locked-password',
+                    data: {
+                        userName: vm.account.username
+                    },
+                    type: 'post',
+                    onComplete: function(scope, res, options, hasError) {
+                        vm.isLoading = false;
+                        if (hasError) {
+                            vm.authMsg = res.error || 'Failed to reset password';
+                        } else {
+                            vm.authMsg = 'Password Reset! Your temporary password is: ' + res.tempPassword;
+                        }
+                        $scope.$applyAsync();
+                    }
+                };
+                utl.Http.doAction(options);
+            }
+
 
             vm.checkUserExistCallback = function (scope, res, options, hasError) {
                 if (hasError == true) {
-                    vm.authMsg = 'Incorrect credentials.';
+                    if (res && res.error === 'ACCOUNT_LOCKED') {
+                        vm.authMsg = 'ACCOUNT_LOCKED';
+                    } else {
+                        vm.authMsg = 'Incorrect credentials.';
+                    }
                     vm.isLoading = false;
                     $scope.$applyAsync();
-                    utl.Alert.showErrorMsg(vm.authMsg);
+                    if (vm.authMsg !== 'ACCOUNT_LOCKED') {
+                        utl.Alert.showErrorMsg(vm.authMsg);
+                    }
                     return;
                 }
                 if (res.Data.LoginPermission == false || res.Data.IsActive == false || (res.Data.ActiveStatusId == 1 || res.Data.ActiveStatusId == 3)) {
@@ -107,12 +136,16 @@
                 utl.Http.doAction(options);
             }
 
-            vm.incorrectData = function (scope, res, options, hasError) {
+            vm.incorrectData = function (data, options) {
                 $("#divgifLoading").hide();
-                vm.authMsg = 'Incorrect credentials.';
                 vm.isLoading = false;
+                if (data && data.error === 'ACCOUNT_LOCKED') {
+                    vm.authMsg = 'ACCOUNT_LOCKED';
+                } else {
+                    vm.authMsg = 'Incorrect credentials.';
+                    utl.Alert.showErrorMsg(vm.authMsg);
+                }
                 $scope.$applyAsync();
-                utl.Alert.showErrorMsg(vm.authMsg);
                 return;
             }
 
@@ -225,6 +258,7 @@
                             utl.Session.set('Session-UserFullName', res.Data.UserFullName);
 
                             utl.Session.set('Session-DepartmentName', res.Data.DepartmentName);
+                            utl.Session.set('RequiresPasswordChange', res.Data.RequiresPasswordChange);
 
 
                             var userGroupId = res.Data.UserGroupId || -1;
@@ -383,10 +417,16 @@
             vm.loginCallback = function (scope, res, options, hasError) {
                 $("#divgifLoading").hide();
                 if (hasError == true) {
-                    vm.authMsg = 'Incorrect credentials.';
+                    if (res && res.error === 'ACCOUNT_LOCKED') {
+                        vm.authMsg = 'ACCOUNT_LOCKED';
+                    } else {
+                        vm.authMsg = 'Incorrect credentials.';
+                    }
                     vm.isLoading = false;
                     $scope.$applyAsync();
-                    utl.Alert.showErrorMsg(vm.authMsg);
+                    if (vm.authMsg !== 'ACCOUNT_LOCKED') {
+                        utl.Alert.showErrorMsg(vm.authMsg);
+                    }
                     return;
                 }
                 if (res.Data.LoginPermission == false || res.Data.IsActive == false || (res.Data.ActiveStatusId == 1 || res.Data.ActiveStatusId == 3)) {
@@ -423,6 +463,7 @@
                     utl.Session.setCurrentSubDepartmentId(res.Data.SubDepartmentId);
                     utl.Session.set('Session-UserFullName', res.Data.UserFullName);
                     utl.Session.set('Session-DepartmentName', res.Data.DepartmentName);
+                    utl.Session.set('RequiresPasswordChange', res.Data.RequiresPasswordChange);
                     utl.Session.setIsPharmacyDueAllowed(res.Data.IsPharmacyDueAllowed);
                     utl.Session.setIsDueCheck(res.Data.IsDueCheck);
                     utl.Session.setObject('LicenseInfo', res.Data.LicenseInfo);
