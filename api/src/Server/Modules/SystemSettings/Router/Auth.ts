@@ -1,6 +1,6 @@
 import { BoFactory } from '../../Base/Business/Index';
 import { Router, Request, Response, NextFunction, GetRouter, IncludeOptions, models } from '../../../Core/Index';
-import { UserBo, LoginSessionBo, FacilitySettingBo } from '../Business/Index';
+import { UserBo, LoginSessionBo, FacilitySettingBo, FacilityBo } from '../Business/Index';
 import { Redis } from '../../../Core/Wrapper/Index';
 import * as passport from 'passport';
 import * as bearer from 'passport-http-bearer';
@@ -13,6 +13,7 @@ const CustomStrategy = passportCustom.Strategy;
 let router: Router = GetRouter();
 const userBo = BoFactory.GetBo(UserBo);
 const facilitySettingBo = BoFactory.GetBo(FacilitySettingBo);
+const facilityBo = BoFactory.GetBo(FacilityBo);
 let Models: Models = models;
 // Secrets must be set in environment variables — never hardcode them here
 const secret = process.env.JWT_SECRET;
@@ -326,9 +327,9 @@ passport.use(new local.Strategy({ usernameField: 'UserName', passwordField: 'Pas
                         let attempts = (user.dataValues.FailedLoginAttempts || 0) + 1;
                         let isLocked = user.dataValues.IsLocked;
 
-                        facilitySettingBo.Find({ where: { FacilityId: user.dataValues.FacilityId || 1 } }).then((facilitySetting: any) => {
-                            let fsData = facilitySetting && facilitySetting.dataValues;
-                            let maxAttempts = (fsData && fsData.MaxFailedLoginAttempts) ? fsData.MaxFailedLoginAttempts : 10;
+                        facilityBo.Find({ where: { Id: user.dataValues.FacilityId || 1 } }).then((facility: any) => {
+                            let fData = facility && facility.dataValues;
+                            let maxAttempts = (fData && fData.MaxFailedLoginAttempts) ? fData.MaxFailedLoginAttempts : 10;
                             if (attempts >= maxAttempts) {
                                 isLocked = true;
                             }
@@ -705,9 +706,9 @@ router.post('/reset-locked-password', (req: Request, res: Response, next: NextFu
                 return;
             }
 
-            facilitySettingBo.Find({ where: { FacilityId: user.dataValues.FacilityId || 1 } }).then((facilitySetting: any) => {
-                let fsData = facilitySetting && facilitySetting.dataValues;
-                let defaultPwd = (fsData && fsData.DefaultPwd) ? fsData.DefaultPwd : 'Default@123';
+            facilityBo.Find({ where: { Id: user.dataValues.FacilityId || 1 } }).then((facility: any) => {
+                let fData = facility && facility.dataValues;
+                let defaultPwd = (fData && fData.DefaultPwd) ? fData.DefaultPwd : 'Default@123';
 
                 const updateData: any = {
                     Id: user.dataValues.Id,

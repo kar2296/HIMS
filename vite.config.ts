@@ -16,7 +16,8 @@ export default defineConfig({
             req.url = req.url.replace(/^\/app/, '');
           }
 
-          if (req.url && req.url.endsWith('.html') && req.url !== '/index.html' && req.url !== '/') {
+          const pathname = req.url ? req.url.split('?')[0] : '';
+          if (pathname.endsWith('.html') && pathname !== '/index.html' && pathname !== '/') {
             // Prevent connect-history-api-fallback from rewriting template requests
             req.headers.accept = 'text/plain'; 
           }

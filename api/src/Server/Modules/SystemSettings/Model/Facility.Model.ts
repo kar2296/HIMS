@@ -84,7 +84,9 @@ export default function (sequelize: Sequelize, DataTypes: DataTypes):
         UpdatedBy: { type: DataTypes.INTEGER, field: 'UpdatedBy' },
         UpdatedAt: { type: DataTypes.DATE, field: 'UpdatedAt' },
         HouseKeepingNumber: { type: DataTypes.STRING, field: 'HouseKeepingNumber' },
-        IsCashPatientEmrIndent: { type: DataTypes.BOOLEAN, field: 'IsCashPatientEmrIndent' }
+        IsCashPatientEmrIndent: { type: DataTypes.BOOLEAN, field: 'IsCashPatientEmrIndent' },
+        DefaultPwd: { type: DataTypes.STRING, field: 'DefaultPwd' },
+        MaxFailedLoginAttempts: { type: DataTypes.INTEGER, field: 'MaxFailedLoginAttempts' }
     },
         {
             indexes: [],

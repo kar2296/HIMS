@@ -82,6 +82,8 @@ export interface FacilityAttributes extends IAttributes {
     ShowMrp: boolean;
     MrpPercent: string;
     HouseKeepingNumber: string;
+    DefaultPwd: string;
+    MaxFailedLoginAttempts: number;
 }
 
 export interface FacilityInstance extends Instance<FacilityAttributes> {
