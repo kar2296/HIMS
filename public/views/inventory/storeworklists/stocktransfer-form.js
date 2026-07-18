@@ -903,8 +903,8 @@
                                                     BatchQuantity: stockserialitems[batid].Quantity,
                                                     RequestedQuantity: sritem.RequestedQuantity,
                                                     IssuedQuantity: sritem.TransferedQuantity,
-                                                    // TransferedQuantity: 0,//for jss hospital vidya change
-                                                    TransferedQuantity: ReqQty, //for jss hospital vidya change
+                                                    // TransferedQuantity: 0,
+                                                    TransferedQuantity: ReqQty,
                                                     // TransitQuantity: ReqQty - sritem.TransferedQuantity,
                                                     TransitQuantity: ReqQty,
                                                     BatchId: stockserialitems[batid].BatchId,

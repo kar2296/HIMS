@@ -98,7 +98,7 @@
                 { field: "ActiveStatus.Description", displayName: $translate.instant('inventory.productsubtypes.status.lbl') },
                 {
                     field: "Id", displayName: $translate.instant('common.actions_col.lbl'),
-                    cellTemplate:/*  vidya 17/2/2017 */
+                    cellTemplate:
                     '<div class="ui-grid-cell-contents">\
                                                       <span class="grid-action" ng-click="handleEvents(\'view\',entity)" ng-show="entity.ActiveStatusId==2||entity.ActiveStatusId==3||entity.ActiveStatusId==4||entity.ActiveStatusId==5"><img class="drhms-edit-button" src="assets/svg/edit.svg" aria-hidden="true"></span>\
                                                     <span class="grid-action" ng-click="handleEvents(\'edit\',entity)"ng-show="entity.ActiveStatusId==1"><img class="drhms-edit-button" src="assets/svg/edit.svg" alt=""></span>\
@@ -106,7 +106,7 @@
                                                     \
                                                 </div>',
                                                 handleEvent: $scope.handleEvents,
-                    /*  vidya 17/2/2017 */
+                    
                     actions: [
                         // { actiontype: 'edit', display: 'common.editaction.lbl' },
                         // { actiontype: 'delete', display: 'common.deleteaction.lbl' }

@@ -73,14 +73,8 @@ export class GrnBo extends BaseBo<GrnInstance, GrnAttributes> {
                 //         _.forEach(stockmovResult, (item: any) => { errorMessages.push(item.error.name); });
                 //         throw { message: 'Something went Wrong in ' + errorMessages.join(',') };
                 //     }
-                // /**End New*/
-
-                // vidya edit this code
                 // let itemmasterBO = BoFactory.GetBo(bo.ItemMasterBo, this.Request);
                 // await itemmasterBO.ManageMasterItemInternalPrice(req.Data);
-                // vidya edit this code
-
-                /*
                 let itemstoreBO = BoFactory.GetBo(bo.ItemStoreMapBo, this.Request);
                 await itemstoreBO.ManageItemStoreMapsAfterGrn(req.Data.Header.StoreMasterId, req.Data);
                 */

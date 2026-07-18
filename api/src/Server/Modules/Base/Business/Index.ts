@@ -332,8 +332,6 @@ export abstract class BaseBo<TModel extends Instance<IAttributes>, TAttributes e
     //         password: 'gloomsoft@123'
     //     });
     //     return mailProvider;
-    //userName: 'hh@gmail.com',
-    //password: 'Vidya@123'
     // }
 
     // protected GetMailProvider(): MailProvider {

@@ -1743,7 +1743,7 @@
                 utl.Http.doAction(options);
             }
         }
-        // For Displaying Created User - Start Vidya
+        // For Displaying Created User - Start
         $scope.getEncounterCallback = function (scope, res, options, hasError) {
             $scope.Encounter = res.Data[0];
             $scope.items = $scope.Encounter;

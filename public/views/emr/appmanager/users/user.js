@@ -103,6 +103,27 @@
                 }
                 ];
                 $scope.getLookUp(inputData);
+                if ($scope.item.UseDefaultPassword) {
+                    $scope.applyDefaultPassword();
+                }
+            }
+        };
+
+        $scope.applyDefaultPassword = function () {
+            if ($scope.item.UseDefaultPassword) {
+                var selectedFacId = $scope.item.FacilityId;
+                var defaultPwd = 'Default@123';
+                if ($scope.lookup.Facility && selectedFacId > 0) {
+                    var fac = $scope.lookup.Facility.find(function(f) { return f.Id === selectedFacId; });
+                    if (fac && fac.DefaultPwd) {
+                        defaultPwd = fac.DefaultPwd;
+                    }
+                }
+                $scope.item.Password = defaultPwd;
+                $scope.item.ConfirmPassword = defaultPwd;
+            } else {
+                $scope.item.Password = '';
+                $scope.item.ConfirmPassword = '';
             }
         };
         $scope.canShowPatientArea = function () {

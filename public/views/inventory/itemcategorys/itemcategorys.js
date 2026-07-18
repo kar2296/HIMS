@@ -91,14 +91,14 @@
                 {
                     field: "Id", displayName: $translate.instant('common.actions_col.lbl'),
                     cellTemplate: 
- /*  vidya 17/2/2017 */  
+   
                     '<div class="ui-grid-cell-contents">\
                                                       <span class="grid-action" ng-click="grid.appScope.handleEvents(\'view\',row)" ng-show="row.entity.ActiveStatusId==2||row.entity.ActiveStatusId==3||row.entity.ActiveStatusId==4||row.entity.ActiveStatusId==5"><i class="fas fa-eye" aria-hidden="true"></i></span>\
                                                     <span class="grid-action" ng-click="grid.appScope.handleEvents(\'edit\',row)"ng-show="row.entity.ActiveStatusId==1"><img class="drhms-edit-button" src="assets/svg/edit.svg" alt=""></span>\
                                                     <span class="grid-action" ng-click="grid.appScope.handleEvents(\'delete\',row)" ng-show="row.entity.ActiveStatusId==1"><img class="drhms-edit-button" src="assets/svg/delete.svg" alt=""></span>\
                                                     \
                                                 </div>',
-                                                 /*  vidya 17/2/2017 */ 
+                                                  
                     actions: [
                         { actiontype: 'edit', display: 'common.editaction.lbl' },
                         { actiontype: 'delete', display: 'common.deleteaction.lbl' }

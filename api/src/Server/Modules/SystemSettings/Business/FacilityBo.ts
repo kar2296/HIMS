@@ -333,7 +333,7 @@ export class FacilityBo extends BaseBo<FacilityInstance, FacilityAttributes> imp
         apiReq.Attributes = apiReq.Attributes || ['Id', ['FacilityName', 'Text'], 'FacilityCode', 'AddressLine1',
             'OrganizationId', 'PinCodeId', 'CityId', 'StateId', 'DistrictId', 'WardId',
             'CountryId', 'Country', 'ActiveStatusId', 'FacilityTypeId', 'Email', 'IsSwosthaIntegration', 'Lat', 'Lng',
-        'SeniorCitizenDiscount'];
+        'SeniorCitizenDiscount', 'DefaultPwd'];
         let val = await this.GetFacilitys(apiReq);
         return { [key]: val.Data };
     }

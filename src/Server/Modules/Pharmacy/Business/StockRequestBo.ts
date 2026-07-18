@@ -456,8 +456,8 @@ export class StockRequestBo extends BaseBo<StockRequestInstance, StockRequestAtt
                                             BatchQuantity: stockserialitems[batid].Quantity,
                                             RequestedQuantity: sritem.RequestedQuantity,
                                             IssuedQuantity: sritem.TransferedQuantity,
-                                            // TransferedQuantity: 0,//for jss hospital vidya change
-                                            TransferedQuantity: ReqQty, //for jss hospital vidya change
+                                            // TransferedQuantity: 0,
+                                            TransferedQuantity: ReqQty,
                                             TransitQuantity: ReqQty - sritem.TransferedQuantity,
                                             BatchId: stockserialitems[batid].BatchId,
                                             ExpiryDate: null,
