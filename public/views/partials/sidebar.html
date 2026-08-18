@@ -1,7 +1,354 @@
-<!-- START Sidebar (left) - Migrated to React -->
-<div class="aside-inner" style="height: 100vh; overflow: hidden; background-color: #21008d;">
-    <react-component 
-        name="SidebarComponent" 
-        props="reactProps">
-    </react-component>
+<!-- Inline template with sidebar items markup and ng-directives-->
+<link href="//db.onlinewebfonts.com/c/1e7e97d0da36ea1b00a66348a43dfb26?family=Proxima+Nova+Th" rel="stylesheet"
+    type="text/css" />
+<script type="text/ng-template" id="sidebar-renderer.html">
+    <span ng-if="item.heading" style="font-weight: bold; letter-spacing: 0.5px; opacity: 0.7;">{{(item.translate | translate) || item.text}}</span>
+    <a ng-if="!item.heading" ng-href="{{$state.href(item.sref, item.params)}}" title="{{item.text}}">
+        <div class="selected-opt">
+            <div ng-if="item.alert" ng-class="item.label || 'label label-success'" class="pull-right">{{item.alert}}</div>
+            <em class="{{item.icon || 'fa fa-folder-o fa-lg'}}"></em>
+            <span style="margin-left: 14px;">{{(item.translate | translate) || item.text}}</span>
+            <i ng-if="item.sref && item.sref !== '#'" 
+               class="fa fa-star pull-right fav-star-btn" 
+               ng-class="{'text-warning': isFavorite(item), 'text-muted': !isFavorite(item)}" 
+               ng-click="toggleFavorite($event, item)" 
+               style="cursor: pointer; font-size: 13px; margin-top: 3px; z-index: 10; position: relative;" 
+               title="{{isFavorite(item) ? 'Remove from Favorites' : 'Add to Favorites'}}"></i>
+        </div>
+     </a>
+     <ul ng-if="item.submenu" uib-collapse="isCollapse(pIndex)" ng-init="addCollapse(pIndex, item)" class="nav sidebar-subnav">
+         <li ng-repeat="item in item.submenu" ng-include="'sidebar-renderer.html'" ng-class="getMenuItemPropClasses(item)" ng-init="pIndex=(pIndex+'-'+$index); inSubmenu = true" ng-click="toggleCollapse(pIndex)"></li>
+     </ul>
+</script>
+<!-- START Sidebar (left)-->
+<div class="aside-inner">
+    <nav sidebar="" sidebar-anyclick-close="" ng-class="{'show-scrollbar': app.layout.asideScrollbar}" class="sidebar">
+        <!-- START sidebar nav-->
+        <ul class="nav">
+            <!-- Iterates over all sidebar items-->
+            <li ng-class="getMenuItemPropClasses(item)" ng-repeat="item in menuItems" ng-init="pIndex = $index"
+                ng-include="'sidebar-renderer.html'" ng-click="toggleCollapse(pIndex, true)">
+                <span class="caret">x</span>
+            </li>
+
+        </ul>
+
+    </nav>
 </div>
+
+<style>
+    .fav-star-btn:hover {
+        transform: scale(1.2);
+        transition: transform 0.15s ease-in-out;
+    }
+
+    .sidebar {
+        padding-bottom: 0px;
+        background-color: #f1f5f7 !important;
+    }
+
+    .sidebar>.nav>li {
+        border-left: 0px;
+    }
+
+    .sidebar-subnav>li>a,
+    .sidebar-subnav>li>.nav-item {
+        color: #000;
+        font-size: 12px;
+    }
+
+    .sidebar>.nav>li.active,
+    .sidebar>.nav>li.open,
+    .sidebar>.nav>li.active>a,
+    .sidebar>.nav>li.open>a,
+    .sidebar>.nav>li.active>.nav-item,
+    .sidebar>.nav>li.open>.nav-item,
+    .sidebar>.nav>li.active .nav,
+    .sidebar>.nav>li.open .nav {
+        background-color: none;
+    }
+
+    .sidebar-subnav>li a {
+        padding: 7px 21px;
+    }
+
+    span.caret.custom_caret {
+        position: absolute;
+        right: 3%;
+        top: 47%;
+    }
+
+    .sidebar-subnav>.sidebar-subnav-header {
+        color: red;
+    }
+
+    .sidebar>.nav>li.active>a {
+        background-color: #dce512 !important;
+        font-size: 14px !important;
+        font-family: 'Poppins', sans-serif;
+        color: #000000 !important;
+        position: relative;
+        border-radius: 8px !important;
+    }
+
+    .sidebar-subnav>li a {
+        padding: 11px 21px;
+    }
+
+    .sidebar-subnav>li a .caret {
+        display: none;
+    }
+
+    .sidebar>.nav>li>a:focus,
+    .sidebar>.nav>li>.nav-item:focus,
+    .sidebar>.nav>li>a:hover,
+    .sidebar>.nav>li>.nav-item:hover {
+        color: #34abdc;
+    }
+
+    a.visible-xs.sidebar-toggle em {
+        color: #006064 !important;
+    }
+
+    .sidebar {
+        padding-bottom: 25px;
+        background-color: transparent
+    }
+
+    .sidebar>.nav>li>a,
+    .sidebar>.nav>li>.nav-item {
+        padding: 4px 10px !important;
+        color: #ffffff;
+        position: relative;
+        margin-top: 10px;
+    }
+
+    .sidebar-subnav>li a {
+        padding: 0px 0px 0px 10px;
+        color: #ffffff;
+        background: transparent;
+    }
+
+    .sidebar-subnav>li>a:focus,
+    .sidebar-subnav>li>.nav-item:focus,
+    .sidebar-subnav>li>a:hover,
+    .sidebar-subnav>li>.nav-item:hover {
+        color: #000000 !important;
+        background-color: #dce512 !important;
+        border-radius: 0px;
+    }
+
+    .sidebar-subnav>li.active>a,
+    .sidebar-subnav>li.active>.nav-item {
+        background: transparent;
+    }
+
+    .sidebar-subnav>.sidebar-subnav-header {
+        color: #54667a;
+        background: #eff1f2;
+    }
+
+    body.layout-fixed.aside-collapsed autosearch.ng-isolate-scope {
+        border: none !important;
+        width: 100%;
+        box-sizing: unset !important;
+    }
+
+    .autosearch-div input.autosearch-input.ng-pristine.ng-untouched.ng-empty.ng-valid.ng-valid-required {
+        box-shadow: unset;
+    }
+
+    @media only screen and (max-width: 768px) {
+        .content-wrapper {
+            padding: 0px 0px 0px 10px !important;
+        }
+    }
+
+    nav.sidebar ul.nav.ng-scope li a span.caret.custom_caret {
+        width: 9px;
+        height: 9px;
+        border-right: 2px solid #ffffff;
+        border-top: 2px solid #ffffff;
+        transform: rotate(135deg);
+        margin-right: 0.5em;
+        margin-left: 1.0em;
+    }
+
+    flatdoc .button .badge {
+        color: #23b7e5;
+        background-color: #ffffff;
+    }
+
+    @media only screen and (min-width: 768px) {
+        .wrapper>section,
+        .wrapper>footer {
+            margin-left: 230px !important;
+        }
+
+        .wrapper>section div#scheduler {
+            width: 737px !IMPORTANT;
+        }
+    }
+
+    .sidebar>.nav>li.active,
+    .sidebar>.nav>li.open,
+    .sidebar>.nav>li.active>a,
+    .sidebar>.nav>li.open>a,
+    .sidebar>.nav>li.active>.nav-item,
+    .sidebar>.nav>li.open>.nav-item,
+    .sidebar>.nav>li.active .nav,
+    .sidebar>.nav>li.open .nav {
+        background-color: transparent;
+    }
+
+    .sidebar:not(.show-scrollbar) {
+        margin-right: -17px;
+        overflow-y: scroll;
+        margin-top: 45px;
+    }
+
+    .sidebar {
+        padding-bottom: 0px;
+        background: #0598f6 !important;
+        opacity: 1;
+    }
+
+    .sidebar-subnav>li.active>a,
+    .sidebar-subnav>li.active>.nav-item {
+        color: #fff;
+        background-color: #dce512 !important;
+    }
+
+    ul.nav.sidebar-subnav.ng-scope.in.collapse {
+        position: relative;
+        left: 0px;
+        padding-bottom: 0px;
+    }
+
+    .sidebar ul.nav li>a {
+        font-size: 13px;
+        font-weight: 300;
+        font-family: 'Poppins', sans-serif;
+        position: relative;
+        bottom: 0px;
+    }
+
+    img.imgsrcmain {
+        width: 24px;
+        margin-top: -2px;
+    }
+
+    .sidebar-subnav {
+        background-color: transparent !important;
+    }
+
+    .aside-collapsed .wrapper>.aside>.nav-floating {
+        position: fixed;
+        left: 4px;
+        z-index: 999999999999999999;
+        background: #0598f6 !important;
+    }
+
+    .aside-collapsed .wrapper>.aside>.nav-floating {
+        position: fixed !important;
+        left: 0px;
+        z-index: 999999999999999999;
+        background: #0598f6 !important;
+        height: 100% !important;
+        top: 0 !important;
+        padding-top: 67px;
+        width: auto;
+        overflow: unset;
+    }
+
+    .aside-collapsed .wrapper>.aside>.nav-floating {
+        border-right: 2px solid #00125a;
+    }
+
+    nav.sidebar ul.nav.ng-scope li.open>a>.selected-opt::before,
+    nav.sidebar ul.nav.ng-scope li.open>a>.selected-opt::after {
+        content: "";
+        width: 0;
+        height: 0;
+        right: 0;
+        position: absolute;
+    }
+
+    nav.sidebar ul.nav.ng-scope li.open>a>.selected-opt::before {
+        border-right: 10px solid #00659a;
+        border-top: 10px solid #00659a;
+        border-left: 10px solid transparent;
+        border-bottom: 10px solid transparent;
+        bottom: -20px;
+        left: 98%;
+    }
+
+    nav.sidebar ul.nav.ng-scope li.open>a>.selected-opt::after {
+        border-right: 10px solid #00659a;
+        border-top: 10px solid transparent;
+        border-left: 10px solid transparent;
+        border-bottom: 10px solid #00659a;
+        position: absolute;
+        top: -20px;
+        left: 98%;
+    }
+
+    nav.sidebar ul.nav.ng-scope li.open>a>.selected-opt span.caret.custom_caret {
+        position: absolute;
+        right: 3%;
+        top: 29%;
+    }
+
+    .sidebar-subnav>li.active>a {
+        color: #fff;
+        background-color: #dce512 !important;
+    }
+
+    .sidebar-subnav>li.active>a,
+    .sidebar-subnav>li.active>a:hover {
+        background: transparent;
+    }
+
+    .sidebar .nav>li>a:hover {
+        color: #000000 !important;
+        background-color: #dce512 !important;
+        border-radius: 8px !important;
+    }
+
+    ul.nav.sidebar-subnav.ng-scope.in.collapse .selected-opt {
+        line-height: 2;
+    }
+
+    button.dropbtns:before {
+        content: "\f011 ";
+        font-family: 'FontAwesome';
+        font-size: 18px;
+    }
+
+    .aside-collapsed .selected-opt em {
+        font-size: 18px;
+        margin-left: 8px;
+    }
+
+    .aside-collapsed .selected-opt:hover {
+        color: white;
+    }
+
+    .aside-inner .sidebar>.nav>li.active>a {
+        font-family: 'Poppins', sans-serif;
+    }
+
+    .selected-opt em {
+        width: 20px;
+    }
+
+    .layout-fixed .wrapper .topnavbar-wrapper {
+        margin-top: 0px !important;
+        position: fixed;
+        height: 47px;
+    }
+
+    nav.sidebar>ul.nav.ng-scope {
+        margin-bottom: 61px !important;
+    }
+</style>

@@ -54,9 +54,9 @@ export const BillingDashboardComponent: React.FC<BillingDashboardProps> = ({
     if (!context.FacilityId) return;
 
     let isMounted = true;
-    setLoading(true);
 
     const fetchData = async () => {
+      if (isMounted) setLoading(true);
       try {
         // 1. Dashboard counts (appointment, mycheckedin)
         const countsPayload = {
@@ -137,7 +137,7 @@ export const BillingDashboardComponent: React.FC<BillingDashboardProps> = ({
 
         // Run all requests concurrently
         const [
-          countsRes,
+          _countsRes,
           facilityRes,
           admsnRes,
           discrgRes,
@@ -149,46 +149,48 @@ export const BillingDashboardComponent: React.FC<BillingDashboardProps> = ({
           countsReq,
           facilityReq,
           admsnReq,
-          discrgRes,
-          bedsRes,
-          disclrRes,
+          discrgReq,
+          bedsReq,
+          disclrReq,
           occupancyReq,
           opdReq
         ]);
 
         if (!isMounted) return;
 
-        let newCounts = { ...counts };
+        setCounts(prevCounts => {
+          const newCounts = { ...prevCounts };
 
-        // Process Facility Options for IP Counts
-        if (facilityRes && facilityRes.encounter) {
-          const enc = facilityRes.encounter;
-          newCounts.TotalAdmissionCount = enc.TotalAdmissionCount || '0';
-          newCounts.DischargeCount = enc.DischargeCount || '0';
-          newCounts.AdmittedCount = enc.AdmissionCount || '0';
-          newCounts.admission = enc.AdmissionCount || '0';
-          newCounts.FitforDischargeCount = enc.FitfordischargeCount || '0';
-          newCounts.ClinicalDischargeCount = enc.ClinicaldischargeCount || '0';
-          newCounts.FinancialDischargeCount = enc.FinancedischargeCount || '0';
-        }
+          // Process Facility Options for IP Counts
+          if (facilityRes && facilityRes.encounter) {
+            const enc = facilityRes.encounter;
+            newCounts.TotalAdmissionCount = enc.TotalAdmissionCount || '0';
+            newCounts.DischargeCount = enc.DischargeCount || '0';
+            newCounts.AdmittedCount = enc.AdmissionCount || '0';
+            newCounts.admission = enc.AdmissionCount || '0';
+            newCounts.FitforDischargeCount = enc.FitfordischargeCount || '0';
+            newCounts.ClinicalDischargeCount = enc.ClinicaldischargeCount || '0';
+            newCounts.FinancialDischargeCount = enc.FinancedischargeCount || '0';
+          }
 
-        if (facilityRes && facilityRes.patient) {
-          newCounts.registration = facilityRes.patient.RegistrationCount || '0';
-        }
+          if (facilityRes && facilityRes.patient) {
+            newCounts.registration = facilityRes.patient.RegistrationCount || '0';
+          }
 
-        // Process OP/DG Bill Counts
-        if (opdRes && opdRes.opbillbo) {
-          newCounts.opbilling = String(opdRes.opbillbo.OPBillCount || 0);
-          newCounts.labbilling = String(opdRes.opbillbo.DGBillCount || 0);
-        }
+          // Process OP/DG Bill Counts
+          if (opdRes && opdRes.opbillbo) {
+            newCounts.opbilling = String(opdRes.opbillbo.OPBillCount || 0);
+            newCounts.labbilling = String(opdRes.opbillbo.DGBillCount || 0);
+          }
 
-        // Process Occupancy
-        if (occupancyRes && occupancyRes.Data) {
-          newCounts.TotalOccupancyCount = String(occupancyRes.Data.length || 0);
-          newCounts.ippatients = String(occupancyRes.Data.length || 0);
-        }
+          // Process Occupancy
+          if (occupancyRes && occupancyRes.Data) {
+            newCounts.TotalOccupancyCount = String(occupancyRes.Data.length || 0);
+            newCounts.ippatients = String(occupancyRes.Data.length || 0);
+          }
 
-        setCounts(newCounts);
+          return newCounts;
+        });
 
         // Helper to format patient/doctor/ward details from encounters
         const formatEncounter = (item: any) => {
@@ -209,41 +211,44 @@ export const BillingDashboardComponent: React.FC<BillingDashboardProps> = ({
           let warddetails = '';
           if (item.WardMaster) warddetails = item.WardMaster.WardName + ' - ';
           if (item.WardRoomMaster) warddetails += item.WardRoomMaster.RoomNo + ' - ';
-          if (item.WardRoomBedMaster) warddetails += item.WardRoomBedMaster.BedNo;
+          if (item.BedNo) warddetails += item.BedNo;
 
-          return { ...item, patientname, doctorname, warddetails };
+          return {
+            ...item,
+            patientname,
+            doctorname,
+            warddetails,
+            encounterid: item.EncounterId,
+            mrno: item.MRNo
+          };
         };
 
-        // Admissions
+        // Admissions list
         if (admsnRes && admsnRes.Data) {
           setLatAdmsnData(admsnRes.Data.map(formatEncounter));
         }
 
-        // Discharges
+        // Discharges list
         if (discrgRes && discrgRes.Data) {
-          let sorted = [...discrgRes.Data].sort((a: any, b: any) => {
+          const sorted = [...discrgRes.Data].sort((a: any, b: any) => {
             return new Date(b.DischargeDate).getTime() - new Date(a.DischargeDate).getTime();
           });
           setLatDiscrgData(sorted.map(formatEncounter));
         }
 
-        // Available beds
+        // Available Beds formatting
         if (bedsRes && bedsRes.Data) {
-          // Emulate the group-by WardId logic
-          const bedsData = bedsRes.Data;
-          const grouped: { [key: string]: any[] } = {};
-          bedsData.forEach((bed: any) => {
-            const wardId = bed.WardId;
-            if (!grouped[wardId]) grouped[wardId] = [];
-            grouped[wardId].push(bed);
+          const grouped: Record<string, any[]> = {};
+          bedsRes.Data.forEach((bed: any) => {
+            const wId = bed.WardMasterId || 'unknown';
+            if (!grouped[wId]) grouped[wId] = [];
+            grouped[wId].push(bed);
           });
 
           const formattedBeds: any[] = [];
           Object.keys(grouped).forEach(wardId => {
             const wardBeds = grouped[wardId];
             if (wardBeds.length > 0) {
-              // Group them into a string
-              let fullWardDetails = '';
               let wardName = '';
               let roomNo = '';
               let bedsString = '';
@@ -255,7 +260,7 @@ export const BillingDashboardComponent: React.FC<BillingDashboardProps> = ({
                 if (idx !== wardBeds.length - 1) bedsString += ',';
               });
 
-              fullWardDetails = wardName + roomNo + bedsString;
+              const fullWardDetails = wardName + roomNo + bedsString;
               formattedBeds.push({ availablebedinfo: fullWardDetails });
             }
           });

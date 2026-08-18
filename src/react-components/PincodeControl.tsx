@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { apiFetch } from './utils/api';
 
 interface PincodeItem {
   Id: number;
@@ -40,14 +41,13 @@ export const PincodeControl: React.FC<PincodeControlProps> = ({
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (!cityid) {
-      setPincodes([]);
-      return;
-    }
-
     let isMounted = true;
 
     const fetchPincodes = async () => {
+      if (!cityid) {
+        if (isMounted) setPincodes([]);
+        return;
+      }
       if (pincode === 'freetext') return; // Preserved legacy behavior
 
       setLoading(true);

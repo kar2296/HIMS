@@ -77,7 +77,6 @@ export class GrnBo extends BaseBo<GrnInstance, GrnAttributes> {
                 // await itemmasterBO.ManageMasterItemInternalPrice(req.Data);
                 let itemstoreBO = BoFactory.GetBo(bo.ItemStoreMapBo, this.Request);
                 await itemstoreBO.ManageItemStoreMapsAfterGrn(req.Data.Header.StoreMasterId, req.Data);
-                */
 
                 let itemvendorBO = BoFactory.GetBo(bo.ItemVendorMapBo, this.Request);
                 await itemvendorBO.ManageItemVendorMapsAfterGrn(req.Data.Header.VendorMasterId, req.Data);

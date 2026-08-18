@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { apiFetch } from './utils/api';
 
 interface StateItem {
   Id: number;
@@ -22,14 +23,14 @@ export const StateControl: React.FC<StateControlProps> = ({
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (!countryid) {
-      setStates([]);
-      return;
-    }
-
     let isMounted = true;
 
     const fetchStates = async () => {
+      if (!countryid) {
+        if (isMounted) setStates([]);
+        return;
+      }
+
       setLoading(true);
       try {
         const payload = {

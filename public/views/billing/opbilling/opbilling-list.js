@@ -110,6 +110,8 @@
         vm.Context = $stateParams.tp;
         $scope.SelectedIndex = -1;
         $scope.isSaveandApprove = true;
+        $scope.canShowSaveBtn = true;
+        $scope.canShowSaveapproveBtn = true;
         $scope.PatientBillInfo = [];
         $scope.PatientBillInfoDetails = [];
         $scope.PackageInfoDetails = [];
@@ -343,11 +345,10 @@
         $scope.refreshReactProps();
 
         $scope.$watchGroup([
-            'item.Id',
+            'item',
             'canShowSaveBtn',
             'canShowSaveapproveBtn',
-            'IsShow',
-            'item.ReceiptNo'
+            'IsShow'
         ], function() {
             $scope.refreshReactProps();
         });

@@ -862,6 +862,28 @@
                     }]
                 }
             })
+            .state('app.barcodesetting', {
+                url: '/barcodesetting',
+                title: 'Barcode Master Configuration',
+                templateUrl: helper.basepath('emr/appmanager/facilitys/barcodesetting.html'),
+                controller: 'barcodeSettingController as vm',
+                resolve: {
+                    loadCtrl: ['$ocLazyLoad', function ($ocLazyLoad) {
+                        return $ocLazyLoad.load(helper.basepath('emr/appmanager/facilitys/barcodesetting.js'));
+                    }]
+                }
+            })
+            .state('app.facilitytab.barcodesetting', {
+                url: '/barcodesetting',
+                title: 'Barcode Master Configuration',
+                templateUrl: helper.basepath('emr/appmanager/facilitys/barcodesetting.html'),
+                controller: 'barcodeSettingController as vm',
+                resolve: {
+                    loadCtrl: ['$ocLazyLoad', function ($ocLazyLoad) {
+                        return $ocLazyLoad.load(helper.basepath('emr/appmanager/facilitys/barcodesetting.js'));
+                    }]
+                }
+            })
             .state('app.facilitytab.holidaysetting', {
                 url: '/holidaysetting',
                 title: 'holidaysetting',
@@ -19377,6 +19399,12 @@
             controller: 'facilitySettingController',
             controllerUrl: helper.basepath('emr/appmanager/facilitys/facilitysetting.js'),
             size: 'lg'
+        });
+        modalConfigProvider.add('app.barcodesetting', {
+            templateUrl: helper.basepath('emr/appmanager/facilitys/barcodesetting.html'),
+            controller: 'barcodeSettingController',
+            controllerUrl: helper.basepath('emr/appmanager/facilitys/barcodesetting.js'),
+            size: 'full'
         });
         modalConfigProvider.add('app.changepassword', {
             templateUrl: helper.basepath('emr/appmanager/users/changepassword.html'),

@@ -1,26 +1,18 @@
-import React, { useState, useEffect } from 'react';
+import React, { useMemo } from 'react';
 
 interface AgeDisplayProps {
   dob?: string | Date | null;
 }
 
 export const AgeDisplay: React.FC<AgeDisplayProps> = ({ dob }) => {
-  const [ageString, setAgeString] = useState<string>('');
-
-  useEffect(() => {
-    if (!dob) {
-      setAgeString('');
-      return;
-    }
+  const ageString = useMemo(() => {
+    if (!dob) return '';
 
     try {
       const now = new Date();
       const birthDate = new Date(dob);
 
-      if (isNaN(birthDate.getTime())) {
-        setAgeString('');
-        return;
-      }
+      if (isNaN(birthDate.getTime())) return '';
 
       const yearNow = now.getFullYear();
       const monthNow = now.getMonth();
@@ -55,18 +47,17 @@ export const AgeDisplay: React.FC<AgeDisplayProps> = ({ dob }) => {
         }
       }
 
-      let finalString = "";
-      if (yearAge > 0 && monthAge > 0 && dateAge > 0) finalString = `${yearAge}Y ${monthAge}M ${dateAge}D`;
-      else if (yearAge === 0 && monthAge === 0 && dateAge > 0) finalString = `${dateAge}D`;
-      else if (yearAge > 0 && monthAge === 0 && dateAge === 0) finalString = `${yearAge}Y`;
-      else if (yearAge > 0 && monthAge > 0 && dateAge === 0) finalString = `${yearAge}Y ${monthAge}M`;
-      else if (yearAge === 0 && monthAge > 0 && dateAge > 0) finalString = `${monthAge}M ${dateAge}D`;
-      else if (yearAge > 0 && monthAge === 0 && dateAge > 0) finalString = `${yearAge}Y ${dateAge}D`;
-      else if (yearAge === 0 && monthAge > 0 && dateAge === 0) finalString = `${monthAge}M`;
+      if (yearAge > 0 && monthAge > 0 && dateAge > 0) return `${yearAge}Y ${monthAge}M ${dateAge}D`;
+      if (yearAge === 0 && monthAge === 0 && dateAge > 0) return `${dateAge}D`;
+      if (yearAge > 0 && monthAge === 0 && dateAge === 0) return `${yearAge}Y`;
+      if (yearAge > 0 && monthAge > 0 && dateAge === 0) return `${yearAge}Y ${monthAge}M`;
+      if (yearAge === 0 && monthAge > 0 && dateAge > 0) return `${monthAge}M ${dateAge}D`;
+      if (yearAge > 0 && monthAge === 0 && dateAge > 0) return `${yearAge}Y ${dateAge}D`;
+      if (yearAge === 0 && monthAge > 0 && dateAge === 0) return `${monthAge}M`;
 
-      setAgeString(finalString);
-    } catch (e) {
-      setAgeString('');
+      return '';
+    } catch {
+      return '';
     }
   }, [dob]);
 

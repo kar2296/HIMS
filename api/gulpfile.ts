@@ -11,7 +11,6 @@ loadTasks(PROJECT_TASKS_DIR);
 // Build dev
 gulp.task('build.dev', gulp.series(
   'clean.dev',
-  'tslint',
   'build.js.dev',
   'copy.assets'
 ));

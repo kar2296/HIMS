@@ -15,20 +15,31 @@
         }
 
         // For React Bridge
-        Object.defineProperty($scope, 'reactProps', {
-            get: function() {
-                return {
-                    facilityInfo: $scope.FacilityInfo || {},
-                    totals: {
-                        cash: $scope.TotCashAmt || 0,
-                        card: $scope.TotCardAmt || 0,
-                        other: $scope.TotOtherAmt || 0,
-                        total: $scope.TotAmt || 0
-                    },
-                    wards: $scope.Wards || [],
-                    wardtotal: $scope.wardtotal || {}
-                };
-            }
+        $scope.refreshReactProps = function() {
+            $scope.reactProps = {
+                facilityInfo: $scope.FacilityInfo || {},
+                totals: {
+                    cash: $scope.TotCashAmt || 0,
+                    card: $scope.TotCardAmt || 0,
+                    other: $scope.TotOtherAmt || 0,
+                    total: $scope.TotAmt || 0
+                },
+                wards: $scope.Wards || [],
+                wardtotal: $scope.wardtotal || {}
+            };
+        };
+        $scope.refreshReactProps();
+
+        $scope.$watchGroup([
+            'FacilityInfo',
+            'TotCashAmt',
+            'TotCardAmt',
+            'TotOtherAmt',
+            'TotAmt',
+            'Wards',
+            'wardtotal'
+        ], function() {
+            $scope.refreshReactProps();
         });
 
         $scope.toggleCanShowDetails = function (clickedItem) {

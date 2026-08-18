@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { apiFetch } from './utils/api';
 
 interface CityItem {
   Id: number;
@@ -26,14 +27,14 @@ export const CityControl: React.FC<CityControlProps> = ({
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (!districtid) {
-      setCities([]);
-      return;
-    }
-
     let isMounted = true;
 
     const fetchCities = async () => {
+      if (!districtid) {
+        if (isMounted) setCities([]);
+        return;
+      }
+
       setLoading(true);
       try {
         const payload = {

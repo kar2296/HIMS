@@ -1,243 +1,427 @@
-<div class="modal-header custom-modal-header">
-    <div class="col-sm-10">
-        <h4 class="modal-title custom-modal-title" translate="billing.opbilling-list.itemwisecancelbill.lbl"></h4>
-    </div>
-    <div class="col-sm-2">
-        <div class="filters">
-            <img src="../../../../../assets/svg/close.svg" ng-click="cancelCallback()">
-        </div>
-    </div>
-</div>
+<style>
+    /* Modern React Design for Partial Cancel Modal */
+    .partial-cancel-modal-container {
+        font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        color: #0f172a;
+        background: #ffffff;
+        border-radius: 14px;
+        overflow: hidden;
+    }
 
-<div class="row">
-    <div class="doublepage-editor">
-        <form id="item_form" name="item_form" class="form-horizontal" role="form">
-            <div class="">
-                <div class="col-sm-12">
-                    <table class="table table-responsive table-bordered">
-                        <thead class="bg-subhead">
+    .modal-header.custom-modal-header {
+        background: linear-gradient(135deg, #1e1b4b 0%, #1e293b 100%) !important;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+        padding: 14px 20px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        color: #ffffff !important;
+    }
+
+    .custom-modal-title {
+        color: #ffffff !important;
+        font-size: 16px !important;
+        font-weight: 700 !important;
+        letter-spacing: -0.01em !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 8px !important;
+        margin: 0 !important;
+    }
+
+    .custom-modal-close-btn {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.15);
+        border: none;
+        color: #ffffff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        font-size: 16px;
+        line-height: 1;
+        transition: all 0.2s ease;
+    }
+    .custom-modal-close-btn:hover {
+        background: rgba(255, 255, 255, 0.3);
+        transform: scale(1.08);
+    }
+
+    .partial-cancel-body {
+        padding: 20px;
+        background: #f8fafc;
+    }
+
+    .partial-cancel-table-card {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+        overflow: hidden;
+        margin-bottom: 16px;
+    }
+
+    .partial-cancel-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 13px;
+    }
+
+    .partial-cancel-table thead tr {
+        background-color: #f8fafc;
+        border-bottom: 2px solid #e2e8f0;
+    }
+
+    .partial-cancel-table th {
+        padding: 12px 14px;
+        font-size: 11px;
+        font-weight: 700;
+        color: #475569;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        border: none;
+        white-space: nowrap;
+    }
+
+    .partial-cancel-table td {
+        padding: 10px 14px;
+        border-bottom: 1px solid #f1f5f9;
+        vertical-align: middle;
+        font-size: 13px;
+        color: #1e293b;
+    }
+
+    .partial-cancel-table tbody tr:hover {
+        background-color: #f8fafc;
+    }
+
+    .partial-cancel-table tbody tr.canceleditem {
+        background-color: #fef2f2;
+        color: #94a3b8;
+    }
+
+    .partial-cancel-table input[type="checkbox"] {
+        width: 17px;
+        height: 17px;
+        accent-color: #2563eb;
+        cursor: pointer;
+    }
+
+    .partial-cancel-table input.form-control {
+        height: 32px;
+        border-radius: 6px;
+        border: 1px solid #cbd5e1;
+        padding: 4px 8px;
+        font-size: 12.5px;
+        background: #ffffff;
+        transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .partial-cancel-table input.form-control:focus {
+        border-color: #2563eb;
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+        outline: none;
+    }
+
+    .partial-status-badge {
+        display: inline-block;
+        padding: 3px 8px;
+        border-radius: 6px;
+        font-size: 11px;
+        font-weight: 600;
+        background: #ecfdf5;
+        color: #059669;
+        border: 1px solid #a7f3d0;
+    }
+
+    .partial-payment-card {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 16px 20px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+        margin-bottom: 16px;
+    }
+
+    .partial-payment-card label {
+        font-size: 12px;
+        font-weight: 600;
+        color: #475569;
+        margin-bottom: 6px;
+        display: block;
+    }
+
+    .partial-payment-card input.form-control,
+    .partial-payment-card select.form-control {
+        height: 36px !important;
+        border-radius: 8px !important;
+        border: 1px solid #cbd5e1 !important;
+        padding: 6px 12px !important;
+        font-size: 13px !important;
+        background: #ffffff !important;
+    }
+
+    .partial-payment-card .ui-select-bootstrap .ui-select-toggle {
+        height: 36px !important;
+        border-radius: 8px !important;
+        border: 1px solid #cbd5e1 !important;
+        padding: 6px 12px !important;
+        font-size: 13px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+    }
+
+    .partial-cancel-footer {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 10px;
+        padding: 14px 20px;
+        background: #ffffff;
+        border-top: 1px solid #e2e8f0;
+    }
+
+    .btn-react-cancel-req {
+        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important;
+        color: #ffffff !important;
+        font-weight: 600 !important;
+        font-size: 13px !important;
+        height: 36px !important;
+        border-radius: 8px !important;
+        border: none !important;
+        padding: 0 20px !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 6px !important;
+        box-shadow: 0 2px 6px rgba(239, 68, 68, 0.25) !important;
+        cursor: pointer !important;
+        transition: all 0.2s ease !important;
+    }
+    .btn-react-cancel-req:hover {
+        background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%) !important;
+        box-shadow: 0 4px 12px rgba(239, 68, 68, 0.35) !important;
+        transform: translateY(-1px) !important;
+    }
+
+    .btn-react-refund {
+        background: linear-gradient(135deg, #d97706 0%, #b45309 100%) !important;
+        color: #ffffff !important;
+        font-weight: 600 !important;
+        font-size: 13px !important;
+        height: 36px !important;
+        border-radius: 8px !important;
+        border: none !important;
+        padding: 0 20px !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 6px !important;
+        box-shadow: 0 2px 6px rgba(217, 119, 6, 0.25) !important;
+        cursor: pointer !important;
+        transition: all 0.2s ease !important;
+    }
+    .btn-react-refund:hover {
+        background: linear-gradient(135deg, #b45309 0%, #92400e 100%) !important;
+        box-shadow: 0 4px 12px rgba(217, 119, 6, 0.35) !important;
+        transform: translateY(-1px) !important;
+    }
+
+    .btn-react-close {
+        background: #ffffff !important;
+        color: #475569 !important;
+        font-weight: 600 !important;
+        font-size: 13px !important;
+        height: 36px !important;
+        border-radius: 8px !important;
+        border: 1px solid #cbd5e1 !important;
+        padding: 0 16px !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        cursor: pointer !important;
+        transition: all 0.2s ease !important;
+    }
+    .btn-react-close:hover {
+        background: #f1f5f9 !important;
+        color: #1e293b !important;
+    }
+</style>
+
+<div class="partial-cancel-modal-container">
+    <!-- Header -->
+    <div class="modal-header custom-modal-header">
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <div style="width: 30px; height: 30px; border-radius: 8px; background: rgba(255,255,255,0.15); display: flex; align-items: center; justify-content: center; font-size: 14px;">
+                <i class="fas fa-hand-holding-usd"></i>
+            </div>
+            <h4 class="custom-modal-title" translate="billing.opbilling-list.itemwisecancelbill.lbl">Partial Cancel</h4>
+        </div>
+        <button type="button" class="custom-modal-close-btn" ng-click="cancelCallback()" title="Close">
+            &times;
+        </button>
+    </div>
+
+    <!-- Form Content -->
+    <form id="item_form" name="item_form" role="form" style="margin: 0;">
+        <div class="partial-cancel-body">
+            
+            <!-- Table Card -->
+            <div class="partial-cancel-table-card">
+                <div style="overflow-x: auto; max-height: 350px;">
+                    <table class="partial-cancel-table">
+                        <thead>
                             <tr>
-                                <th>
-                                    <span translate="">
-                                        <input type="checkbox" class="custom-checkbox"
-                                            ng-model="currentcontext.selectallchk"
-                                            ng-click="SelectAll(currentcontext.selectallchk)" />
-                                    </span>
+                                <th style="width: 40px; text-align: center;">
+                                    <input type="checkbox"
+                                        ng-model="currentcontext.selectallchk"
+                                        ng-click="SelectAll(currentcontext.selectallchk)"
+                                        title="Select All" />
                                 </th>
-                                <th><span translate="Service Name"></span></th>
-                                <th><span translate="Dept. Name"></span></th>
-                                <th><span translate="Qty"></span></th>
-                                <th><span translate="Rate"></span></th>
-                                <th><span translate="Disc"></span></th>
-                                <th><span translate="Sales Amt(total-return)"></span></th>
-                                <th><span translate="Rec.Amt"></span></th>
-                                <th><span translate="Status"></span></th>
-                                <!-- <th><span translate="Order#"></span></th> -->
-                                <th><span translate="Reason"></span></th>
+                                <th style="min-width: 160px;"><span translate="Service Name">Service Name</span></th>
+                                <th style="min-width: 140px;"><span translate="Dept. Name">Dept. Name</span></th>
+                                <th style="width: 60px; text-align: center;"><span translate="Qty">Qty</span></th>
+                                <th style="width: 90px; text-align: right;"><span translate="Rate">Rate</span></th>
+                                <th style="width: 80px; text-align: right;"><span translate="Disc">Disc</span></th>
+                                <th style="width: 120px; text-align: right;"><span translate="Sales Amt(total-return)">Sales Amt</span></th>
+                                <th style="width: 100px; text-align: right;"><span translate="Rec.Amt">Rec.Amt</span></th>
+                                <th style="width: 100px; text-align: center;"><span translate="Status">Status</span></th>
+                                <th style="min-width: 180px;"><span translate="Reason">Reason</span></th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr ng-repeat="item in billinfo | filter: billingFilter"
                                 ng-class="{canceleditem: item.PatientBillStatusId == 2 || item.OrderStatusId == 10}">
-                                <td>
-                                    <input type="checkbox" class="custom-checkbox" id="select{{$index}}"
+                                <td style="text-align: center;">
+                                    <input type="checkbox" id="select{{$index}}"
                                         ng-disabled="item.PatientBillStatusId == 2 || item.OrderStatusId == 10"
                                         ng-model="item.select" ng-change="selectionChangedCal()" />
                                 </td>
-                                <td>
+                                <td style="font-weight: 600; color: #0f172a;">
                                     {{item.ServiceName}}
                                 </td>
-                                <td>
+                                <td style="color: #64748b;">
                                     {{item.Department.DepartmentName}}
                                 </td>
-                                <td>
+                                <td style="text-align: center; font-weight: 600;">
                                     {{item.Quantity}}
                                 </td>
-                                <td>
+                                <td style="text-align: right;">
                                     {{item.Rate | displaycurrency}}
                                 </td>
-                                <td>
+                                <td style="text-align: right; color: #64748b;">
                                     {{item.totDiscount | displaycurrency}}
                                 </td>
-                                <td>
+                                <td style="text-align: right; font-weight: 600; color: #0f172a;">
                                     {{item.NetAmount | displaycurrency}}
                                 </td>
-                                <td>
+                                <td style="text-align: right; font-weight: 600; color: #059669;">
                                     {{item.ReceivedAmount | displaycurrency}}
                                 </td>
-                                <td>
-                                    {{item.PatientBillStatus.Description}}
+                                <td style="text-align: center;">
+                                    <span class="partial-status-badge">
+                                        {{item.PatientBillStatus.Description}}
+                                    </span>
                                 </td>
-                                <!-- <td>
-                                    {{item.OrderStatus.DisplayName}}
-                                </td> -->
                                 <td>
                                     <input type="text" class="form-control"
                                         ng-disabled="item.PatientBillStatusId == 2 || item.OrderStatusId == 10"
-                                        ng-model="item.CancelReason" placeholder="" ng-required="item.select">
+                                        ng-model="item.CancelReason" placeholder="Enter cancellation reason..."
+                                        ng-required="item.select">
                                 </td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
+            </div>
 
-                <div class="col-sm-12" style="margin-top: 16px;">
-                    <!-- leftpanel -->
+            <!-- Payment & Dynamic Info Card -->
+            <div class="partial-payment-card">
+                <div class="row">
+                    <!-- Left: Payment Mode -->
+                    <div class="col-sm-6" style="margin-bottom: 10px;">
+                        <label for="payments">
+                            <span translate="billing.refund-form.paymentmode.lbl">Payment Mode</span>
+                            <span style="color: #ef4444;">*</span>
+                        </label>
+                        <ui-select ng-model="currentcontext.PaymentTypeId" name="payments" ng-disabled="IsCompleted" required>
+                            <ui-select-match placeholder="Select Payment Mode">
+                                {{$select.selected.Text}}
+                            </ui-select-match>
+                            <ui-select-choices
+                                repeat="lookupitem.Id as lookupitem in lookup.PaymentType | filter: { Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+
+                    <!-- Right: Dynamic Payment Details -->
                     <div class="col-sm-6">
-                        <div class="form-group paddingtop">
-                            <label class="col-sm-4 control-label" for="payments"
-                                translate="billing.refund-form.paymentmode.lbl"></label>
-                            <div class="col-sm-8">
-                                <ui-select ng-model="currentcontext.PaymentTypeId" name="payments"
-                                    ng-disabled="IsCompleted" required>
-                                    <ui-select-match>
-                                        {{$select.selected.Text | limitTo : 20 : 0}}
-                                        <span ng-if="$select.selected.Text.length>20">...</span>
-                                    </ui-select-match>
-                                    <ui-select-choices
-                                        repeat="lookupitem.Id as lookupitem in lookup.PaymentType | filter: { Text: $select.search }">
-                                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
-                                    </ui-select-choices>
-                                </ui-select>
-                            </div>
+                        <div ng-if="currentcontext.PaymentTypeId != 1 && currentcontext.PaymentTypeId != 12" style="margin-bottom: 10px;">
+                            <label translate="billing.refund-form.bankname.lbl">Bank Name</label>
+                            <ui-select ng-model="currentcontext.BankId" name="bankname" ng-disabled="IsCompleted">
+                                <ui-select-match placeholder="Select Bank">
+                                    {{$select.selected.Text}}
+                                </ui-select-match>
+                                <ui-select-choices
+                                    repeat="lookupitem.Id as lookupitem in lookup.Bank | filter: { Text: $select.search }">
+                                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                                </ui-select-choices>
+                            </ui-select>
+                        </div>
+
+                        <div ng-if="currentcontext.PaymentTypeId == 2" style="margin-bottom: 10px;">
+                            <label translate="billing.refund-form.chequeno.lbl">Cheque No</label>
+                            <input type="text" class="form-control" name="chequeno"
+                                ng-model="currentcontext.ChequeNo" ng-disabled="IsCompleted" placeholder="Cheque #" required>
+                        </div>
+
+                        <div ng-if="currentcontext.PaymentTypeId == 11" style="margin-bottom: 10px;">
+                            <label translate="Ref Number">UPI Ref Number</label>
+                            <input type="text" class="form-control" name="upirefno"
+                                ng-model="item.UPIRefNumber" ng-disabled="IsCompleted" placeholder="UPI Ref #">
+                        </div>
+
+                        <div ng-if="currentcontext.PaymentTypeId == 3" style="margin-bottom: 10px;">
+                            <label translate="billing.refund-form.ddno.lbl">DD Number</label>
+                            <input type="text" class="form-control" name="ddno"
+                                ng-model="currentcontext.DDNumber" ng-disabled="IsCompleted" placeholder="DD #" required>
+                        </div>
+
+                        <div ng-if="currentcontext.PaymentTypeId == 4" style="margin-bottom: 10px;">
+                            <label translate="billing.refund-form.transationno.lbl">Transaction No</label>
+                            <input type="text" class="form-control" name="transationno"
+                                ng-model="currentcontext.WireTransferId" placeholder="Txn #" ng-disabled="IsCompleted" required>
+                        </div>
+
+                        <div ng-if="currentcontext.PaymentTypeId == 5 || currentcontext.PaymentTypeId == 6" style="margin-bottom: 10px;">
+                            <label translate="billing.refund-form.authorisedcode.lbl">Card / Auth Code</label>
+                            <input type="text" class="form-control" name="cardno"
+                                ng-model="currentcontext.AuthorizeNumber" maxlength="8" ng-disabled="IsCompleted" placeholder="Auth Code">
                         </div>
                     </div>
-                    <!-- rightpanel -->
-                    <div class="col-sm-6 paddingtop">
-                        <table id="bannerdetails">
-                            <tr ng-if="currentcontext.PaymentTypeId != 1 && currentcontext.PaymentTypeId != 12">
-                                <td translate="billing.refund-form.bankname.lbl"></td>
-                                <td>
-                                    <ui-select ng-model="currentcontext.BankId" name="bankname"
-                                        ng-disabled="IsCompleted">
-                                        <ui-select-match>
-                                            {{$select.selected.Text | limitTo : 20 : 0}}
-                                            <span ng-if="$select.selected.Text.length>20">...</span>
-                                        </ui-select-match>
-                                        <ui-select-choices
-                                            repeat="lookupitem.Id as lookupitem in lookup.Bank | filter: { Text: $select.search }">
-                                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
-                                        </ui-select-choices>
-                                    </ui-select>
-                                </td>
-                            </tr>
-                            <tr ng-if="currentcontext.PaymentTypeId==2">
-                                <td translate="billing.refund-form.chequeno.lbl"></td>
-                                <td><input type="text" class="form-control" name="chequeno"
-                                        ng-model="currentcontext.ChequeNo" ng-disabled="IsCompleted" placeholder=""
-                                        required></td>
-                            </tr>
-                            <tr ng-if="currentcontext.PaymentTypeId==11">
-                                <td translate="Ref Number"></td>
-                                <td>
-                                    <input type="text" class="form-control" name="upirefno" ng-model="item.UPIRefNumber"
-                                        ng-disabled="IsCompleted" placeholder="">
-                                </td>
-                            </tr>
-                            <tr ng-if="currentcontext.PaymentTypeId==3">
-                                <td translate="billing.refund-form.ddno.lbl"></td>
-                                <td> <input type="text" class="form-control" name="ddno"
-                                        ng-model="currentcontext.DDNumber" ng-disabled="IsCompleted" placeholder=""
-                                        ng-minlength="" ng-pattern="/^\d+$/" required></td>
-                            </tr>
-                            <tr ng-if="currentcontext.PaymentTypeId==4">
-                                <td translate="billing.refund-form.transationno.lbl"></td>
-                                <td><input type="text" class="form-control" name="transationno"
-                                        ng-model="currentcontext.WireTransferId" placeholder=""
-                                        ng-disabled="IsCompleted" required></td>
-                            </tr>
-                            <tr ng-if="currentcontext.PaymentTypeId==5||currentcontext.PaymentTypeId == 6">
-                                <td translate="billing.refund-form.authorisedcode.lbl"></td>
-                                <td><input type="text" class="form-control" name="cardno"
-                                        ng-model="currentcontext.AuthorizeNumber" maxlength="8"
-                                        ng-disabled="IsCompleted" placeholder=""></td>
-                            </tr>
-                            <tr
-                                ng-if="currentcontext.PaymentTypeId == 4||currentcontext.PaymentTypeId == 3||currentcontext.PaymentTypeId == 2">
-                                <td translate="billing.refund-form.Collected On.lbl"></td>
-                                <td id="datepick"> <input type="text" class="form-control" name="Collected On"
-                                        ng-date-object datepicker-options="datePickerOptions"
-                                        show-button-bar="{{datePickerOptions.showButtonBar}}"
-                                        uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
-                                        placeholder="{{datePickerOptions.placeholder}}"
-                                        ng-click="activefromPopup = { opened: true }" is-open="activefromPopup.opened"
-                                        ng-model="currentcontext.CollectedOn" ng-disabled="IsCompleted"></td>
-                            </tr>
-                            <tr ng-if="currentcontext.PaymentTypeId==2">
-                                <td translate="billing.refund-form.Chequedate.lbl"></td>
-                                <td id="datepick"> <input type="text" class="form-control" name="Chequedate"
-                                        ng-date-object datepicker-options="datePickerOptions"
-                                        show-button-bar="{{datePickerOptions.showButtonBar}}"
-                                        uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
-                                        placeholder="{{datePickerOptions.placeholder}}"
-                                        ng-click="activefromPopup = { opened: true }" is-open="activefromPopup.opened"
-                                        ng-model="currentcontext.ChequeDate" ng-disabled="IsCompleted"></td>
-                            </tr>
-                            <tr ng-if="currentcontext.PaymentTypeId==3">
-                                <td translate="billing.refund-form.dddate.lbl"></td>
-                                <td id="datepick"> <input type="text" class="form-control" name="dddate" ng-date-object
-                                        datepicker-options="datePickerOptions"
-                                        show-button-bar="{{datePickerOptions.showButtonBar}}"
-                                        uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
-                                        placeholder="{{datePickerOptions.placeholder}}"
-                                        ng-click="activetoPopup = { opened: true }" is-open="activetoPopup.opened"
-                                        ng-model="currentcontext.DDDate" ng-disabled="IsCompleted"></td>
-                            </tr>
-                            <tr ng-if="currentcontext.PaymentTypeId==4">
-                                <td translate="billing.refund-form.transferredon.lbl"></td>
-                                <td id="datepick"> <input type="text" class="form-control" name="transferredon"
-                                        ng-date-object datepicker-options="datePickerOptions"
-                                        show-button-bar="{{datePickerOptions.showButtonBar}}"
-                                        uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
-                                        placeholder="{{datePickerOptions.placeholder}}"
-                                        ng-click="transationfromPopup = { opened: true }"
-                                        is-open="transationfromPopup.opened" ng-model="currentcontext.WireTransferDate"
-                                        ng-disabled="IsCompleted"></td>
-                            </tr>
-                            <tr ng-if="currentcontext.PaymentTypeId==5||currentcontext.PaymentTypeId == 6">
-                                <td translate="billing.refund-form.cardtype.lbl"></td>
-                                <td>
-                                    <ui-select ng-model="currentcontext.CardTypeId" name="cardtype"
-                                        ng-disabled="IsCompleted">
-                                        <ui-select-match>
-                                            {{$select.selected.Text | limitTo : 20 : 0}}
-                                            <span ng-if="$select.selected.Text.length>20">...</span>
-                                        </ui-select-match>
-                                        <ui-select-choices
-                                            repeat="lookupitem.Id as lookupitem in lookup.CardType | filter: { Text: $select.search }">
-                                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
-                                        </ui-select-choices>
-                                    </ui-select>
-                                </td>
-                            </tr>
-                            <tr ng-if="currentcontext.PaymentTypeId==5||currentcontext.PaymentTypeId == 6">
-                                <td translate="billing.receipt-form.terminalno.lbl"></td>
-                                <td>
-                                    <ui-select ng-model="item.TerminalNoId" name="terminal" ng-disabled="IsCompleted">
-                                        <ui-select-match>
-                                            {{$select.selected.Text | limitTo : 20 : 0}}
-                                            <span ng-if="$select.selected.Text.length>20">...</span>
-                                        </ui-select-match>
-                                        <ui-select-choices
-                                            repeat="lookupitem.Id as lookupitem in lookup.Terminal | filter: { Text: $select.search }">
-                                            <div ng-bind-html="lookupitem.Text | highlight: $select.search">
-                                            </div>
-                                        </ui-select-choices>
-                                    </ui-select>
-                                </td>
-                            </tr>
-                        </table>
-                    </div>
                 </div>
             </div>
-            <div class="fooder-bgs">
-                <div class="pull-right">
-                    <button type="button" class="draftbutton" ng-click="CancelRequest()" ng-show="CanShowCancelReqbtn"
-                        translate="Cancel Request" tabindex="-1"></button>
-                    <button type="button" class="draftbutton" ng-click="cancel()" ng-show="CanShowCancelbtn"
-                        translate="Refund" tabindex="-1"></button>
-                </div>
-            </div>
-        </form>
-    </div>
+
+        </div>
+
+        <!-- Footer Actions -->
+        <div class="partial-cancel-footer">
+            <button type="button" class="btn-react-close" ng-click="cancelCallback()">
+                Close
+            </button>
+            <button type="button" class="btn-react-cancel-req" ng-click="CancelRequest()" ng-show="CanShowCancelReqbtn"
+                tabindex="-1">
+                <i class="fas fa-ban"></i>
+                <span translate="Cancel Request">Cancel Request</span>
+            </button>
+            <button type="button" class="btn-react-refund" ng-click="cancel()" ng-show="CanShowCancelbtn"
+                tabindex="-1">
+                <i class="fas fa-hand-holding-usd"></i>
+                <span translate="Refund">Refund</span>
+            </button>
+        </div>
+    </form>
 </div>

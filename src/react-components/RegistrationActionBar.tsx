@@ -1,30 +1,40 @@
 import React from 'react';
+import { Button } from './Button';
 
 interface RegistrationActionBarProps {
   reactProps?: {
-    saveCompleted: boolean;
-    billCompleted: boolean;
-    isPatientDeactivated: boolean;
-    isTempPatient: boolean;
-    patientStatusId: number;
-    referredNewVisit: boolean;
-    attachmentCount: number;
+    saveCompleted?: boolean;
+    billCompleted?: boolean;
+    isPatientDeactivated?: boolean;
+    isTempPatient?: boolean;
+    patientStatusId?: number;
+    referredNewVisit?: boolean;
+    attachmentCount?: number;
   };
   onAction?: (actionName: string) => void;
 }
 
-export const RegistrationActionBar: React.FC<RegistrationActionBarProps> = ({
-  reactProps = {
-    saveCompleted: false,
-    billCompleted: false,
-    isPatientDeactivated: false,
-    isTempPatient: false,
-    patientStatusId: 0,
-    referredNewVisit: false,
-    attachmentCount: 0
-  },
-  onAction
-}) => {
+const extractActualProps = (p: any) => {
+  let curr = p;
+  while (curr && curr.reactProps) {
+    curr = curr.reactProps;
+  }
+  return curr || p;
+};
+
+export const RegistrationActionBar: React.FC<RegistrationActionBarProps> = (props: any) => {
+  const actualProps = extractActualProps(props);
+  const onAction = props.onAction || actualProps.onAction || props.reactProps?.onAction;
+
+  const {
+    saveCompleted = false,
+    billCompleted = false,
+    isPatientDeactivated = false,
+    isTempPatient = false,
+    patientStatusId = 0,
+    referredNewVisit = false,
+    attachmentCount = 0
+  } = actualProps;
 
   const handleAction = (action: string) => {
     if (onAction) {
@@ -32,25 +42,7 @@ export const RegistrationActionBar: React.FC<RegistrationActionBarProps> = ({
     }
   };
 
-  const buttonStyle: React.CSSProperties = {
-    width: '40px',
-    height: '40px',
-    borderRadius: 'var(--radius-md)',
-    border: '1px solid var(--glass-border)',
-    backgroundColor: 'var(--glass-bg)',
-    color: 'var(--premium-blue)',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    cursor: 'pointer',
-    boxShadow: 'var(--shadow-sm)',
-    backdropFilter: 'var(--glass-blur)',
-    transition: 'all 0.2s ease',
-    marginLeft: '8px',
-    fontSize: '16px'
-  };
-
-  const renderButton = (
+  const renderActionButton = (
     icon: string, 
     tooltip: string, 
     onClick: () => void, 
@@ -61,59 +53,37 @@ export const RegistrationActionBar: React.FC<RegistrationActionBarProps> = ({
     if (!visible) return null;
     
     return (
-      <button 
-        style={{
-          ...buttonStyle,
-          opacity: disabled ? 0.5 : 1,
-          cursor: disabled ? 'not-allowed' : 'pointer',
-          position: 'relative'
-        }}
-        onClick={disabled ? undefined : onClick}
+      <Button
+        variant="icon"
+        icon={icon}
         title={tooltip}
-      >
-        <i className={`fas ${icon}`}></i>
-        {badgeCount !== undefined && (
-          <span style={{
-            position: 'absolute',
-            top: '-5px',
-            right: '-5px',
-            backgroundColor: '#ff5a5f',
-            color: 'white',
-            borderRadius: '50%',
-            width: '18px',
-            height: '18px',
-            fontSize: '10px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontWeight: 'bold'
-          }}>
-            {badgeCount}
-          </span>
-        )}
-      </button>
+        disabled={disabled}
+        onClick={onClick}
+        badgeCount={badgeCount}
+      />
     );
   };
 
   return (
-    <div style={{ display: 'flex', alignItems: 'center' }}>
-      {renderButton('fa-bed', 'Admission', () => handleAction('admission'), true)}
-      {renderButton('fa-exclamation-triangle', 'Clinical Alert', () => handleAction('clinicalalertview'), 
-        reactProps.referredNewVisit && reactProps.patientStatusId !== 3)}
-      {renderButton('fa-hospital-o', 'Consultation Charges', () => handleAction('consultationcharges'), 
-        reactProps.billCompleted, reactProps.isPatientDeactivated)}
-      {renderButton('fa-calculator', 'Billing', () => handleAction('opdBill'), 
-        reactProps.saveCompleted && reactProps.patientStatusId !== 3)}
-      {renderButton('fa-sign-out-alt', 'Checkout', () => handleAction('checkout'), 
-        reactProps.saveCompleted && reactProps.patientStatusId !== 3)}
-      {renderButton('fa-times', 'Deactivate', () => handleAction('saveAndInactive'), 
-        reactProps.saveCompleted && !reactProps.isTempPatient, reactProps.isPatientDeactivated)}
-      {renderButton('fa-paperclip', 'Attachments', () => handleAction('openattachments'), 
-        reactProps.saveCompleted, false, reactProps.attachmentCount)}
-      {renderButton('fa-barcode', 'Barcode', () => handleAction('printRegistrationIdlabel'), 
-        reactProps.saveCompleted)}
-      {renderButton('fa-plus', 'Add New', () => handleAction('addNewQuick'), true)}
-      {renderButton('fa-home', 'Dashboard', () => handleAction('backtoList'), true)}
+    <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+      {renderActionButton('fa-bed', 'Admission', () => handleAction('admission'), true)}
+      {renderActionButton('fa-exclamation-triangle', 'Clinical Alert', () => handleAction('clinicalalertview'), 
+        referredNewVisit && Number(patientStatusId) !== 3)}
+      {renderActionButton('fa-hospital-o', 'Consultation Charges', () => handleAction('consultationcharges'), 
+        billCompleted, isPatientDeactivated)}
+      {renderActionButton('fa-calculator', 'Billing', () => handleAction('opdBill'), 
+        saveCompleted && Number(patientStatusId) !== 3)}
+      {renderActionButton('fa-sign-out-alt', 'Checkout', () => handleAction('checkout'), 
+        saveCompleted && Number(patientStatusId) !== 3)}
+      {renderActionButton('fa-times', 'Deactivate', () => handleAction('saveAndInactive'), 
+        saveCompleted && !isTempPatient, isPatientDeactivated)}
+      {renderActionButton('fa-paperclip', 'Attachments', () => handleAction('openattachments'), 
+        saveCompleted, false, attachmentCount)}
+      {renderActionButton('fa-barcode', 'Barcode', () => handleAction('printRegistrationIdlabel'), 
+        saveCompleted)}
+      {renderActionButton('fa-plus', 'Add New', () => handleAction('addNewQuick'), true)}
+      {renderActionButton('fa-home', 'Dashboard', () => handleAction('backtoList'), true)}
     </div>
   );
 };
+

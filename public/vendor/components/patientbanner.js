@@ -1,4 +1,4 @@
-﻿(function () {
+(function () {
 	'use strict';
 
 	angular
@@ -83,14 +83,13 @@
 				if (cvm.encounterinfo.LastName) {
 					cvm.encounterinfo.DoctorName = cvm.encounterinfo.DoctorName + ' ' + cvm.encounterinfo.LastName;
 				}
-				if (data.Encounters.length > 0) {
-					cvm.encounterinfo.Id = data.Encounters[0].Id;
-					cvm.encounterinfo.IsMLC = data.Encounters[0].IsMLC;	
-					if (cvm.encounterinfo.IsMLC == true) {
-						cvm.encounterinfo.IsMLC = "MLC";
-					} else {
-						cvm.encounterinfo.IsMLC = "";
-					}
+				cvm.patientinfo.Mobile = data.Mobile || (data.PrimaryContact && data.PrimaryContact.Phone1) || '';
+				if (data.Encounters && data.Encounters.length > 0) {
+					var enc = data.Encounters[0];
+					cvm.encounterinfo.Id = enc.Id;
+					cvm.encounterinfo.VisitDate = enc.VisitDate ? utl.Formatter.formatDate(enc.VisitDate, 'dd/MM/yyyy') : '';
+					cvm.encounterinfo.DepartmentName = (enc.Department && enc.Department.DepartmentName) ? enc.Department.DepartmentName : (enc.Speciality ? enc.Speciality.Description : '');
+					cvm.encounterinfo.IsMLC = enc.IsMLC ? "MLC" : "";
 				}
 			}
 

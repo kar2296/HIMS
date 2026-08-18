@@ -1,59 +1,111 @@
-﻿<!-- <style>
-    .modal-full {
-        width: 800px;
-        margin: 30px auto;
-    }
-</style> -->
-<div class="row">
-    <form id="item_form" name="item_form" class="form-horizontal" role="form">
-        <div class="form-group col-sm-4">
-            <label class="col-sm-12 control-label" for="attachmenttype"
-                translate="registration.attachmentcontrol.attachmenttype.lbl"></label>
-            <div class="col-sm-12">
-                <ui-select ng-model="cvm.item.AttachmentTypeId" name="attachmenttype"
-                    ng-change="cvm.attachmentTypeChange($select.selected)">
-                    <ui-select-match>
-                        {{$select.selected.Text | limitTo : 20 : 0}}
-                        <span ng-if="$select.selected.Text.length>20">...</span>
-                    </ui-select-match>
-                    <ui-select-choices
-                        repeat="lookupitem.Id as lookupitem in cvm.lookup.AttachmentType | filter: { Text: $select.search }">
-                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
-                    </ui-select-choices>
-                </ui-select>
+<div class="attachment-control-container" style="padding: 16px 20px; font-family: 'Poppins', 'Montserrat', sans-serif;">
+    <!-- Upload Form Card -->
+    <div class="panel panel-default" style="border-radius: 10px; border: 1px solid #e2e8f0; box-shadow: 0 4px 16px rgba(0,0,0,0.03); background: #ffffff; margin-bottom: 20px; padding: 18px 22px;">
+        <div style="font-size: 15px; font-weight: 700; color: #1e293b; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1.5px solid #f1f5f9; padding-bottom: 10px;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <i class="fa fa-cloud-upload-alt" style="color: #21008d;"></i>
+                <span>Upload New Attachment</span>
             </div>
+            <span style="font-size: 11px; font-weight: 500; color: #64748b; background: #f1f5f9; padding: 3px 10px; border-radius: 12px;">Max file size: 200MB</span>
         </div>
-        <div class="form-group col-sm-4">
-            <label class="col-sm-12 control-label" translate="registration.attachmentcontrol.selectfile.lbl"></label>
-            <div class="col-sm-12">
-                <input type="file" style="border: 0px !important;border-radius: 0px;background: none !important;"
-                    ngf-select ng-model="cvm.currentcontext.file" name="file" ngf-max-size="200MB"
-                    ngf-change="cvm.fileSelected()" />
+
+        <form id="item_form" name="item_form" role="form">
+            <div class="row">
+                <!-- Attachment Type -->
+                <div class="col-sm-4" style="margin-bottom: 14px;">
+                    <label class="control-label" style="font-size: 13px; font-weight: 600; color: #334155; margin-bottom: 6px; display: block;">
+                        <i class="fa fa-folder-open" style="color: #64748b; margin-right: 4px;"></i>
+                        <span translate="registration.attachmentcontrol.attachmenttype.lbl">Attachment Type</span>
+                    </label>
+                    <ui-select ng-model="cvm.item.AttachmentTypeId" name="attachmenttype"
+                        ng-change="cvm.attachmentTypeChange($select.selected)">
+                        <ui-select-match placeholder="Select Attachment Type...">
+                            {{$select.selected.Text | limitTo : 25 : 0}}
+                            <span ng-if="$select.selected.Text.length > 25">...</span>
+                        </ui-select-match>
+                        <ui-select-choices
+                            repeat="lookupitem.Id as lookupitem in cvm.lookup.AttachmentType | filter: { Text: $select.search }">
+                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+
+                <!-- Select File Dropzone / Button -->
+                <div class="col-sm-4" style="margin-bottom: 14px;">
+                    <label class="control-label" style="font-size: 13px; font-weight: 600; color: #334155; margin-bottom: 6px; display: block;">
+                        <i class="fa fa-file-upload" style="color: #64748b; margin-right: 4px;"></i>
+                        <span translate="registration.attachmentcontrol.selectfile.lbl">Select File</span> <span style="color: #ef4444;">*</span>
+                    </label>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <button type="button" class="btn btn-default btn-sm"
+                            ngf-select ng-model="cvm.currentcontext.file" name="file" ngf-max-size="200MB"
+                            ngf-change="cvm.fileSelected()"
+                            style="border: 1.5px dashed #21008d; background-color: #f8faff; color: #21008d; font-weight: 600; padding: 7px 14px; border-radius: 6px; flex-shrink: 0; cursor: pointer; transition: all 0.2s;">
+                            <i class="fa fa-folder-open" style="margin-right: 6px;"></i> Browse File...
+                        </button>
+                        <div style="flex-grow: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12px; color: #64748b; background: #f8fafc; padding: 7px 10px; border-radius: 6px; border: 1px solid #e2e8f0;">
+                            <span ng-if="!cvm.currentcontext.file" style="color: #94a3b8; font-style: italic;">No file chosen</span>
+                            <span ng-if="cvm.currentcontext.file" style="color: #10b981; font-weight: 600;">
+                                <i class="fa fa-check-circle"></i> {{cvm.currentcontext.file.name}}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Attachment Name -->
+                <div class="col-sm-4" style="margin-bottom: 14px;">
+                    <label class="control-label" for="name" style="font-size: 13px; font-weight: 600; color: #334155; margin-bottom: 6px; display: block;">
+                        <i class="fa fa-tag" style="color: #64748b; margin-right: 4px;"></i>
+                        <span translate="registration.attachmentcontrol.attachmentname.lbl">Attachment Name</span>
+                    </label>
+                    <input type="text" class="form-control" name="name" ng-model="cvm.item.AttachmentName" placeholder="Enter attachment title...">
+                </div>
             </div>
-        </div>
-        <div class="form-group col-sm-4">
-            <label class="col-sm-12 control-label" for="name"
-                translate="registration.attachmentcontrol.attachmentname.lbl"></label>
-            <div class="col-sm-12">
-                <input type="text" class="form-control" name="name" ng-model="cvm.item.AttachmentName" placeholder="">
+
+            <div class="row" style="margin-top: 4px; display: flex; align-items: flex-end; flex-wrap: wrap;">
+                <!-- Comments -->
+                <div class="col-sm-8" style="margin-bottom: 8px;">
+                    <label class="control-label" style="font-size: 13px; font-weight: 600; color: #334155; margin-bottom: 6px; display: block;">
+                        <i class="fa fa-comment-dots" style="color: #64748b; margin-right: 4px;"></i>
+                        <span translate="registration.attachmentcontrol.comments.lbl">Comments / Notes</span>
+                    </label>
+                    <commentscontrol comments="cvm.item.Comments"></commentscontrol>
+                </div>
+
+                <!-- Upload / Save Action Button -->
+                <div class="col-sm-4 text-right" style="margin-bottom: 8px; margin-left: auto;">
+                    <button type="button" class="btn btn-primary" ng-click="cvm.saveItem()"
+                        style="padding: 9px 24px; font-size: 14px; font-weight: 600; border-radius: 6px; width: 100%; box-shadow: 0 4px 14px rgba(33, 0, 141, 0.25);">
+                        <i class="fa fa-cloud-upload-alt" style="margin-right: 8px;"></i>
+                        <span translate="common.saveaction.lbl">Upload &amp; Save</span>
+                    </button>
+                </div>
             </div>
-        </div>
-        <div class="form-group col-sm-4">
-            <label class="col-sm-12 control-label" translate="registration.attachmentcontrol.comments.lbl"></label>
-            <div class="col-sm-12">
-                <commentscontrol comments="cvm.item.Comments"></commentscontrol>
+        </form>
+    </div>
+
+    <!-- Attached Documents Table Card -->
+    <div class="panel panel-default" style="border-radius: 10px; border: 1px solid #e2e8f0; box-shadow: 0 4px 16px rgba(0,0,0,0.03); background: #ffffff; padding: 18px 22px; margin-bottom: 0;">
+        <div style="font-size: 15px; font-weight: 700; color: #1e293b; margin-bottom: 14px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1.5px solid #f1f5f9; padding-bottom: 10px;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <i class="fa fa-list-alt" style="color: #21008d;"></i>
+                <span>Attached Documents</span>
             </div>
+            <span style="font-size: 12px; font-weight: 600; color: #21008d; background: rgba(33, 0, 141, 0.08); padding: 3px 12px; border-radius: 12px;">
+                {{cvm.gridConfig.data.length || 0}} Attached
+            </span>
         </div>
-    </form>
-</div>
-<div class="row">
-    <custom-table config="cvm.gridConfig"></custom-table>
-</div>
-<div class="fooder-bgs">
-    <div class="row">
-        <div class="pull-right">
-            <button type="button" class="draftbutton" translate="common.saveaction.lbl"
-                ng-click="cvm.saveItem()"></button>
+
+        <div style="overflow-x: auto;">
+            <custom-table config="cvm.gridConfig"></custom-table>
+        </div>
+
+        <!-- Empty State -->
+        <div ng-if="!cvm.gridConfig.data || cvm.gridConfig.data.length === 0"
+            style="text-align: center; padding: 30px 20px; color: #94a3b8;">
+            <i class="fa fa-folder-open" style="font-size: 38px; color: #cbd5e1; margin-bottom: 10px; display: block;"></i>
+            <div style="font-weight: 600; font-size: 14px; color: #64748b;">No attachments uploaded yet</div>
+            <div style="font-size: 12px; color: #94a3b8; margin-top: 4px;">Choose a file and click "Upload &amp; Save" to attach documents to this record.</div>
         </div>
     </div>
 </div>

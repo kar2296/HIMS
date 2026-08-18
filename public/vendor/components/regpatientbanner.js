@@ -1,4 +1,4 @@
-﻿(function () {
+(function () {
 	'use strict';
 
 	angular 
@@ -495,6 +495,39 @@
 	};
 
 	$scope.printRegistrationIdlabel = function () {
+		if (window.renderReactBarcodeModal && $scope.item) {
+			var genderStr = typeof $scope.item.Gender === 'object' ? ($scope.item.Gender.Description || $scope.item.Gender.Text || '') : ($scope.item.Gender || '');
+			var titleStr = typeof $scope.item.Title === 'object' ? ($scope.item.Title.Description || $scope.item.Title.Text || '') : ($scope.item.Title || '');
+			window.renderReactBarcodeModal({
+				data: {
+					mrn: $scope.item.MRN || '',
+					title: titleStr,
+					firstName: $scope.item.FirstName || '',
+					lastName: $scope.item.LastName || '',
+					gender: genderStr,
+					age: $scope.item.Age ? String($scope.item.Age) : '',
+					dob: $scope.item.DOB || '',
+					mobile: $scope.item.Mobile || '',
+					visitDate: $scope.item.RegisteredDate ? utl.Formatter.getDateTimeString($scope.item.RegisteredDate) : '',
+					facilityName: ($rootScope.currentFacility && $rootScope.currentFacility.FacilityName) || 'SHUVADARSINI HOSPITAL',
+					address: $scope.item.AddressLine1 || ''
+				},
+				onRawPrint: function() {
+					var inputData = {
+						Id: $scope.item.PatientId,
+						Data: true
+					};
+					var options = {
+						action: 'registration/Patient/PrintPatientLabel',
+						data: inputData,
+						type: 'post'
+					};
+					utl.Http.doDownload(options);
+				}
+			});
+			return;
+		}
+
 		var inputData = {
 			Id: $scope.item.PatientId,
 			Data: true

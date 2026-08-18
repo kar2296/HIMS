@@ -1,16 +1,18 @@
 import { defineConfig } from 'vite'
-import react, { reactCompilerPreset } from '@vitejs/plugin-react'
+import { reactCompilerPreset } from '@vitejs/plugin-react'
 import babel from '@rolldown/plugin-babel'
 
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [
-    react(),
-    babel({ presets: [reactCompilerPreset()] }),
+    babel({
+      presets: [reactCompilerPreset()],
+      include: ['src/**/*.{ts,tsx}']
+    }),
     {
       name: 'disable-html-fallback',
       configureServer(server) {
-        server.middlewares.use((req, res, next) => {
+        server.middlewares.use((req, _res, next) => {
           // Rewrite /app/ to / so Vite can find legacy assets in the public folder
           if (req.url && req.url.startsWith('/app/')) {
             req.url = req.url.replace(/^\/app/, '');
@@ -35,7 +37,7 @@ export default defineConfig({
       }
     },
     watch: {
-      ignored: ['**/api/**']
+      ignored: ['**/api/**', '**/.scannerwork/**', '**/dist/**', '**/.git/**']
     }
   }
 })

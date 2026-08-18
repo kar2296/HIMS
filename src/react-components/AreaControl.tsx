@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { apiFetch } from './utils/api';
 
 interface AreaItem {
   Id: number;
@@ -30,14 +31,13 @@ export const AreaControl: React.FC<AreaControlProps> = ({
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (!cityid) {
-      setAreas([]);
-      return;
-    }
-
     let isMounted = true;
 
     const fetchAreas = async () => {
+      if (!cityid) {
+        if (isMounted) setAreas([]);
+        return;
+      }
       if (pincode === 'freetext') return;
 
       setLoading(true);

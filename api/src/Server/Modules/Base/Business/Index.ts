@@ -6,7 +6,6 @@ import { ApiRequest, ApiResponse, ISearchEnums, Paginator } from '../../../Commo
 import { IAttributes } from '../Model/Index';
 import * as _ from 'lodash';
 import { MailProvider, MailFactory, SmsProvider, SmsFactory } from '../../../../Server/Core/Index';
-import { isBoolean } from 'util';
 
 export interface IBaseBo { }
 
@@ -389,7 +388,7 @@ export abstract class BaseBo<TModel extends Instance<IAttributes>, TAttributes e
 
     protected IsValidParam(param: any): Boolean {
         let result: Boolean = false;
-        if (isBoolean(param.Value)) {
+        if (typeof param.Value === 'boolean') {
             result = true;
         } else {
             if (param.Value && param.Value !== -1 && param.Value !== '') {

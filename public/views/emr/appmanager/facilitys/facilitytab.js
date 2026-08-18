@@ -38,9 +38,14 @@
         },
         {
             title: $translate.instant('Auto Generation Code'),
-            state: 'app.facilitytab.autogeneratecodesetting', canDisable: canDisableTab
+            state: 'app.facilitytab.autogeneratecodesetting',
+            canDisable: canDisableTab
         },
-
+        {
+            title: $translate.instant('Barcode Master Setting'),
+            state: 'app.facilitytab.barcodesetting',
+            canDisable: canDisableTab
+        },
         ];
         $timeout(function () {
             removeFloatingNav();

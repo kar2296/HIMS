@@ -220,20 +220,34 @@
         };
 
         // Bridge data to React
-        Object.defineProperty(vm, 'reactProps', {
-            get: function() {
-                return {
-                    permissions: $scope.currentcontext,
-                    admissions: $scope.LatAdmsnData || [],
-                    discharges: $scope.LatDiscrgData || [],
-                    availableBeds: $scope.LatavailbedData || [],
-                    dischargeClearance: $scope.LatDisclrData || [],
-                    wards: $scope.Wards || [],
-                    wardtotal: $scope.wardtotal || { BedsCount: 0, OccupiedBeds: 0, AvailableBeds: 0, OtherBeds: 0 },
-                    labCriticals: $scope.LabCriticals || [],
-                    radCriticals: $scope.RadCriticals || []
-                };
-            }
+        $scope.refreshReactProps = function() {
+            vm.reactProps = {
+                permissions: $scope.currentcontext,
+                admissions: $scope.LatAdmsnData || [],
+                discharges: $scope.LatDiscrgData || [],
+                availableBeds: $scope.LatavailbedData || [],
+                dischargeClearance: $scope.LatDisclrData || [],
+                wards: $scope.Wards || [],
+                wardtotal: $scope.wardtotal || { BedsCount: 0, OccupiedBeds: 0, AvailableBeds: 0, OtherBeds: 0 },
+                labCriticals: $scope.LabCriticals || [],
+                radCriticals: $scope.RadCriticals || []
+            };
+            $scope.reactProps = vm.reactProps;
+        };
+        $scope.refreshReactProps();
+
+        $scope.$watchGroup([
+            'currentcontext',
+            'LatAdmsnData',
+            'LatDiscrgData',
+            'LatavailbedData',
+            'LatDisclrData',
+            'Wards',
+            'wardtotal',
+            'LabCriticals',
+            'RadCriticals'
+        ], function() {
+            $scope.refreshReactProps();
         });
 
         $scope.getOutPatientList = function() {

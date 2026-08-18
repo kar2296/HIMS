@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 
 // Interfaces for our Sidebar
 interface MenuItem {
@@ -80,7 +80,7 @@ const SidebarMenuItem: React.FC<{
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          {item.icon && (
+          {item.icon && depth === 0 && (
             <i 
               className={item.icon} 
               style={{ 

@@ -205,49 +205,5 @@ export const formatter = {
     }
     return words.join(" ");
   }
-    let string = inputData.toString();
-    string = string.replace(/[, ]/g,"");
-    if (parseInt(string) === 0) return 'zero';
-
-    const units = [ '', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen', 'eighteen', 'nineteen' ];
-    const tens = [ '', '', 'twenty', 'thirty', 'forty', 'fifty', 'sixty', 'seventy', 'eighty', 'ninety' ];
-    const scales = [ '', 'thousand', 'million', 'billion', 'trillion', 'quadrillion', 'quintillion', 'sextillion', 'septillion', 'octillion', 'nonillion', 'decillion', 'undecillion', 'duodecillion', 'tredecillion', 'quatttuor-decillion', 'quindecillion', 'sexdecillion', 'septen-decillion', 'octodecillion', 'novemdecillion', 'vigintillion', 'centillion' ];
-
-    let start = string.length;
-    const chunks = [];
-    while (start > 0) {
-      const end = start;
-      chunks.push(string.slice((start = Math.max(0, start - 3)), end));
-    }
-
-    const chunksLen = chunks.length;
-    if (chunksLen > scales.length) return '';
-
-    const words = [];
-    for (let i = 0; i < chunksLen; i++) {
-      const chunk = parseInt(chunks[i]);
-      if (chunk) {
-        const ints = chunks[i].split('').reverse().map(parseFloat);
-        if (ints[1] === 1) ints[0] += 10;
-        
-        let word = scales[i];
-        if (word) words.push(word);
-        
-        word = units[ints[0]];
-        if (word) words.push(word);
-        
-        word = tens[ints[1]];
-        if (word) words.push(word);
-        
-        if (ints[0] || ints[1]) {
-          if (ints[2] || (!i && chunksLen)) words.push('and');
-        }
-        
-        word = units[ints[2]];
-        if (word) words.push(word + ' hundred');
-      }
-    }
-
-    return words.reverse().join(' ');
-  }
 };
+

@@ -1,4 +1,4 @@
-declare var toastr: any;
+declare const toastr: any;
 
 export const alert = {
   showSuccessMsg: (msg: string) => {

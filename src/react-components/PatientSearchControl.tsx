@@ -23,6 +23,7 @@ export const PatientSearchControl: React.FC<PatientSearchControlProps> = ({
   onSearch,
   onSelect
 }) => {
+  const [prevDisplay, setPrevDisplay] = useState(reactProps.patientDisplay);
   const [inputValue, setInputValue] = useState(reactProps.patientDisplay || '');
   const [results, setResults] = useState<any[]>([]);
   const [isOpen, setIsOpen] = useState(false);
@@ -30,12 +31,11 @@ export const PatientSearchControl: React.FC<PatientSearchControlProps> = ({
   const [activeIndex, setActiveIndex] = useState(-1);
   const wrapperRef = useRef<HTMLDivElement>(null);
 
-  // Sync input value if external patientDisplay changes (e.g. initial load)
-  useEffect(() => {
-    if (reactProps.patientDisplay !== undefined) {
-      setInputValue(reactProps.patientDisplay);
-    }
-  }, [reactProps.patientDisplay]);
+  // Sync input value if external patientDisplay changes
+  if (reactProps.patientDisplay !== prevDisplay) {
+    setPrevDisplay(reactProps.patientDisplay);
+    setInputValue(reactProps.patientDisplay || '');
+  }
 
   // Handle click outside to close dropdown
   useEffect(() => {

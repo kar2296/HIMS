@@ -1,20 +1,21 @@
 import React from 'react';
+import ReactDOM from 'react-dom';
 import { Button } from './Button';
 
 interface RegistrationFooterProps {
   reactProps?: {
-    patientStatusId: number;
-    attachmentCount: number;
-    enableOPD: boolean;
-    isTempPatient: boolean;
-    vitalsEnabled: boolean;
-    visitPrintEnabled: boolean;
-    canDisableApprove: boolean;
-    privileges: {
-      canDeceased: boolean;
-      canAttachment: boolean;
-      canNewVisit: boolean;
-      canOPDBill: boolean;
+    patientStatusId?: number;
+    attachmentCount?: number;
+    enableOPD?: boolean;
+    isTempPatient?: boolean;
+    vitalsEnabled?: boolean;
+    visitPrintEnabled?: boolean;
+    canDisableApprove?: boolean;
+    privileges?: {
+      canDeceased?: boolean;
+      canAttachment?: boolean;
+      canNewVisit?: boolean;
+      canOPDBill?: boolean;
       canCrossConsult?: boolean;
     };
     showPrintDropdown?: boolean;
@@ -23,28 +24,32 @@ interface RegistrationFooterProps {
   onAction?: (actionName: string) => void;
 }
 
-export const RegistrationFooter: React.FC<RegistrationFooterProps> = ({
-  reactProps = {
-    patientStatusId: 0,
-    attachmentCount: 0,
-    enableOPD: false,
-    isTempPatient: false,
-    vitalsEnabled: false,
-    visitPrintEnabled: false,
-    canDisableApprove: false,
-    privileges: {
-      canDeceased: false,
-      canAttachment: false,
-      canNewVisit: false,
-      canOPDBill: false,
-      canCrossConsult: false
-    },
-    showPrintDropdown: false,
-    swosthaPatient: 0
-  },
-  onAction
-}) => {
+const extractActualProps = (p: any) => {
+  let curr = p;
+  while (curr && curr.reactProps) {
+    curr = curr.reactProps;
+  }
+  return curr || p;
+};
+
+export const RegistrationFooter: React.FC<RegistrationFooterProps> = (props: any) => {
+  const actualProps = extractActualProps(props);
+  const onAction = props.onAction || actualProps.onAction || props.reactProps?.onAction;
+
   const [showPrintMenu, setShowPrintMenu] = React.useState(false);
+
+  const {
+    patientStatusId = 0,
+    attachmentCount = 0,
+    enableOPD = false,
+    isTempPatient = false,
+    vitalsEnabled = false,
+    visitPrintEnabled = false,
+    canDisableApprove = false,
+    privileges = {},
+    showPrintDropdown = true,
+    swosthaPatient = 0
+  } = actualProps;
 
   const handleAction = (action: string) => {
     if (onAction) {
@@ -52,114 +57,99 @@ export const RegistrationFooter: React.FC<RegistrationFooterProps> = ({
     }
   };
 
-  const btnStyle: React.CSSProperties = {
-    padding: '8px 16px',
-    borderRadius: 'var(--radius-md)',
-    border: 'none',
-    fontWeight: 600,
-    cursor: 'pointer',
-    marginRight: '12px',
-    fontSize: '14px',
-    transition: 'all 0.2s ease',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    boxShadow: 'var(--shadow-sm)'
-  };
-
-  const defaultBtnStyle = { ...btnStyle, backgroundColor: 'var(--premium-bg-light)', color: 'var(--premium-text-main)' };
-  const warningBtnStyle = { ...btnStyle, backgroundColor: 'var(--premium-gold)', color: '#fff' };
-  const dangerBtnStyle = { ...btnStyle, backgroundColor: 'var(--premium-danger)', color: '#fff' };
-  const successBtnStyle = { ...btnStyle, backgroundColor: 'var(--premium-blue)', color: '#fff' };
-  const primaryBtnStyle = { ...btnStyle, backgroundColor: 'var(--premium-blue)', color: '#fff' };
+  const isDisabled = canDisableApprove === true || canDisableApprove === 'true' || Number(canDisableApprove) === 1;
 
   return (
-    <div className="premium-glass-panel" style={{
+    <div style={{
       display: 'flex',
       justifyContent: 'space-between',
       alignItems: 'center',
-      padding: '16px 24px',
-      borderTop: '1px solid var(--glass-border)',
-      borderBottom: 'none',
-      borderLeft: 'none',
-      borderRight: 'none',
-      borderBottomLeftRadius: 0,
-      borderBottomRightRadius: 0,
+      padding: '12px 24px',
+      backgroundColor: '#ffffff',
+      borderTop: '2px solid var(--premium-blue, #21008d)',
+      boxShadow: '0 -4px 20px rgba(0, 0, 0, 0.18)',
       position: 'fixed',
-      bottom: 0,
+      bottom: '48px',
       left: 0,
       right: 0,
-      zIndex: 100
+      zIndex: 99999,
+      minHeight: '60px',
+      boxSizing: 'border-box'
     }}>
-      <div style={{ display: 'flex', alignItems: 'center' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
         
-        {reactProps.privileges.canCrossConsult && reactProps.patientStatusId === 2 && (
-          <button style={defaultBtnStyle} onClick={() => handleAction('crossconsult')}>
+        {privileges.canCrossConsult !== false && (
+          <Button variant="secondary" onClick={() => handleAction('crossconsult')}>
             Multiple Consultation
-          </button>
+          </Button>
         )}
 
-        {reactProps.privileges.canDeceased && reactProps.patientStatusId === 2 && (
-          <button style={dangerBtnStyle} onClick={() => handleAction('deceased')}>
+        {privileges.canDeceased !== false && Number(patientStatusId) === 2 && (
+          <Button variant="danger" onClick={() => handleAction('deceased')}>
             Deceased
-          </button>
+          </Button>
         )}
 
-        {reactProps.privileges.canAttachment && (
-          <button style={defaultBtnStyle} onClick={() => handleAction('openattachments')} title="Attachments">
-            <i className="fa fa-paperclip" style={{ marginRight: '6px' }}></i>
-            ({reactProps.attachmentCount})
-          </button>
+        {privileges.canAttachment !== false && (
+          <Button 
+            variant="secondary" 
+            icon="fa-paperclip" 
+            onClick={() => handleAction('openattachments')} 
+            title="Attachments"
+          >
+            ({attachmentCount})
+          </Button>
         )}
 
-        {reactProps.privileges.canNewVisit && reactProps.patientStatusId === 2 && (
-          <button 
-            style={{...warningBtnStyle, opacity: reactProps.patientStatusId === 3 ? 0.5 : 1}} 
-            disabled={reactProps.patientStatusId === 3}
+        {privileges.canNewVisit !== false && (
+          <Button 
+            variant="warning" 
+            disabled={Number(patientStatusId) === 3}
             onClick={() => handleAction('newvisit')}
           >
             New Visit
-          </button>
+          </Button>
         )}
 
-        {reactProps.privileges.canOPDBill && reactProps.enableOPD && (
-          <button 
-            style={{...primaryBtnStyle, backgroundColor: '#17a2b8', opacity: reactProps.patientStatusId === 3 ? 0.5 : 1}} 
-            disabled={reactProps.patientStatusId === 3}
+        {privileges.canOPDBill !== false && (
+          <Button 
+            variant="info" 
+            disabled={Number(patientStatusId) === 3}
             onClick={() => handleAction('opdBill')}
           >
             OPD Bill
-          </button>
+          </Button>
         )}
 
-        {reactProps.vitalsEnabled && !reactProps.isTempPatient && (
-          <button 
-            style={{...primaryBtnStyle, backgroundColor: '#6f42c1', opacity: reactProps.patientStatusId === 3 ? 0.5 : 1}} 
-            disabled={reactProps.patientStatusId === 3}
+        {vitalsEnabled !== false && !isTempPatient && (
+          <Button 
+            variant="primary" 
+            disabled={Number(patientStatusId) === 3}
             onClick={() => handleAction('vitals')}
+            style={{ backgroundColor: '#6f42c1' }}
           >
             Vitals
-          </button>
+          </Button>
         )}
 
-        {reactProps.visitPrintEnabled && !reactProps.isTempPatient && !reactProps.showPrintDropdown && (
-          <button 
-            style={{...primaryBtnStyle, backgroundColor: '#20c997', opacity: reactProps.patientStatusId === 3 ? 0.5 : 1}} 
-            disabled={reactProps.patientStatusId === 3}
+        {visitPrintEnabled !== false && !isTempPatient && !showPrintDropdown && (
+          <Button 
+            variant="success" 
+            disabled={Number(patientStatusId) === 3}
             onClick={() => handleAction('visitprint')}
           >
             Visit Print
-          </button>
+          </Button>
         )}
 
-        {reactProps.showPrintDropdown && (
-          <div style={{ position: 'relative' }}>
-            <button 
-              style={{...defaultBtnStyle, backgroundColor: '#f8f9fa'}} 
+        {showPrintDropdown !== false && (
+          <div style={{ position: 'relative', display: 'inline-block' }}>
+            <Button 
+              variant="light" 
               onClick={() => setShowPrintMenu(!showPrintMenu)}
             >
               Print <i className="fa fa-caret-down" style={{ marginLeft: '6px' }}></i>
-            </button>
+            </Button>
             {showPrintMenu && (
               <div style={{
                 position: 'absolute', bottom: '100%', left: 0, marginBottom: '8px',
@@ -178,33 +168,55 @@ export const RegistrationFooter: React.FC<RegistrationFooterProps> = ({
 
       </div>
 
-      <div>
-        {reactProps.swosthaPatient === 1 ? (
-          <button 
-            style={{
-              ...successBtnStyle,
-              opacity: reactProps.canDisableApprove ? 0.5 : 1,
-              cursor: reactProps.canDisableApprove ? 'not-allowed' : 'pointer'
-            }}
-            disabled={reactProps.canDisableApprove}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginLeft: 'auto', flexShrink: 0 }}>
+        {actualProps.canShowSaveBtn && (
+          <Button 
+            variant="warning"
+            size="lg"
+            onClick={() => handleAction('save')}
+            style={{ fontWeight: 700, padding: '10px 20px', fontSize: '14px' }}
+          >
+            Save Draft
+          </Button>
+        )}
+
+        {Number(swosthaPatient) === 1 ? (
+          <Button 
+            variant="success"
+            size="lg"
+            disabled={isDisabled}
             onClick={() => handleAction('saveSwosthaPatient')}
+            style={{
+              backgroundColor: '#28a745',
+              color: '#ffffff',
+              fontWeight: 700,
+              padding: '10px 24px',
+              fontSize: '15px',
+              boxShadow: '0 4px 14px rgba(40, 167, 69, 0.3)'
+            }}
           >
             Save Swostha Patient
-          </button>
+          </Button>
         ) : (
-          <button 
-            style={{
-              ...successBtnStyle,
-              opacity: reactProps.canDisableApprove ? 0.5 : 1,
-              cursor: reactProps.canDisableApprove ? 'not-allowed' : 'pointer'
-            }}
-            disabled={reactProps.canDisableApprove}
+          <Button 
+            variant="success"
+            size="lg"
+            disabled={isDisabled}
             onClick={() => handleAction('saveAndApprove')}
+            style={{
+              backgroundColor: '#28a745',
+              color: '#ffffff',
+              fontWeight: 700,
+              padding: '10px 24px',
+              fontSize: '15px',
+              boxShadow: '0 4px 14px rgba(40, 167, 69, 0.3)'
+            }}
           >
-            Save & Activate
-          </button>
+            Save &amp; Activate
+          </Button>
         )}
       </div>
     </div>
   );
 };
+

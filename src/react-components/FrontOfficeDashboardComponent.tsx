@@ -111,7 +111,7 @@ export const FrontOfficeDashboardComponent: React.FC<FrontOfficeDashboardProps> 
         });
 
         // Execute all requests concurrently
-        const [res1, res2, res3, res4, res5] = await Promise.all([p1, p2, p3, p4, p5]);
+        const [res1, res2, res3, _res4, res5] = await Promise.all([p1, p2, p3, p4, p5]);
 
         if (!isMounted) return;
 

@@ -1114,13 +1114,100 @@
             // Load menu from json file
             // -----------------------------------
 
+            // Favorites Manager
+            // ----------------------------------
+            function getSavedFavorites() {
+                try {
+                    return JSON.parse(localStorage.getItem('drhms_user_favorites') || '[]');
+                } catch(e) {
+                    return [];
+                }
+            }
+
+            function saveFavorites(favs) {
+                try {
+                    localStorage.setItem('drhms_user_favorites', JSON.stringify(favs));
+                } catch(e) {}
+            }
+
+            $scope.favoritesList = getSavedFavorites();
+
+            $scope.isFavorite = function(item) {
+                if (!item || !item.sref || item.sref === '#') return false;
+                return $scope.favoritesList.some(function(f) { return f.sref === item.sref; });
+            };
+
+            $scope.toggleFavorite = function($event, item) {
+                if ($event) {
+                    $event.preventDefault();
+                    $event.stopPropagation();
+                }
+                if (!item || !item.sref || item.sref === '#') return;
+
+                var displayName = item.text || item.sref;
+                if (item.translate && typeof item.translate === 'string' && item.translate.startsWith('sidebar.nav.')) {
+                    displayName = item.translate.replace('sidebar.nav.', '').replace(/_/g, ' ');
+                }
+
+                var targetSref = item.sref;
+                var index = -1;
+                for (var i = 0; i < $scope.favoritesList.length; i++) {
+                    if ($scope.favoritesList[i].sref === targetSref) {
+                        index = i;
+                        break;
+                    }
+                }
+                if (index !== -1) {
+                    $scope.favoritesList.splice(index, 1);
+                } else {
+                    $scope.favoritesList.push({
+                        text: displayName,
+                        sref: targetSref,
+                        params: item.params || {},
+                        icon: item.icon || 'fa fa-star text-warning'
+                    });
+                }
+                saveFavorites($scope.favoritesList);
+                rebuildMenuWithFavorites();
+            };
+
+            function rebuildMenuWithFavorites(items) {
+                if (items) {
+                    $scope.rawMenuItems = items;
+                }
+                var baseItems = $scope.rawMenuItems || [];
+                var fullList = [];
+
+                if ($scope.favoritesList && $scope.favoritesList.length > 0) {
+                    var favSubmenu = $scope.favoritesList.map(function(fav) {
+                        return {
+                            text: fav.text,
+                            sref: fav.sref,
+                            params: fav.params || {},
+                            icon: fav.icon || 'fa fa-star text-warning'
+                        };
+                    });
+
+                    fullList.push({
+                        text: 'Favorites (' + $scope.favoritesList.length + ')',
+                        icon: 'fa fa-star text-warning',
+                        sref: '#',
+                        alert: '' + $scope.favoritesList.length,
+                        label: 'label label-warning pull-right',
+                        submenu: favSubmenu
+                    });
+                }
+
+                $scope.menuItems = fullList.concat(baseItems);
+                if ($scope.reactProps) {
+                    $scope.reactProps.menuItems = $scope.menuItems;
+                }
+            }
+
             SidebarLoader.getMenu(sidebarReady);
 
             function sidebarReady(items) {
-                $scope.menuItems = items;
-                if ($scope.reactProps) {
-                    $scope.reactProps.menuItems = items;
-                }
+                rebuildMenuWithFavorites(items);
             }
 
             // Handle sidebar and collapse items
@@ -3376,23 +3463,54 @@
     function SidebarLoader($http, $rootScope) {
         this.getMenu = getMenu;
 
-        ////////////////
+        function resolveIcon(item, controlCode) {
+            if (item.icon && item.icon.trim().length > 0) {
+                return item.icon;
+            }
+            var code = ((controlCode || '') + ' ' + (item.text || '') + ' ' + (item.translate || '') + ' ' + (item.sref || '')).toLowerCase();
+            if (code.indexOf('dashboard') !== -1) return 'fa fa-dashboard fa-lg';
+            if (code.indexOf('patient') !== -1 || code.indexOf('registration') !== -1) return 'fa fa-user-plus fa-lg';
+            if (code.indexOf('billing') !== -1 || code.indexOf('receipt') !== -1 || code.indexOf('charge') !== -1 || code.indexOf('tariff') !== -1) return 'fa fa-calculator fa-lg';
+            if (code.indexOf('pharmacy') !== -1 || code.indexOf('dispense') !== -1 || code.indexOf('drug') !== -1) return 'fa fa-medkit fa-lg';
+            if (code.indexOf('lab') !== -1 || code.indexOf('lis') !== -1 || code.indexOf('investigation') !== -1) return 'fa fa-flask fa-lg';
+            if (code.indexOf('radiology') !== -1 || code.indexOf('ris') !== -1) return 'fa fa-x-ray fa-lg';
+            if (code.indexOf('emr') !== -1 || code.indexOf('clinical') !== -1 || code.indexOf('doctor') !== -1 || code.indexOf('consultation') !== -1) return 'fa fa-user-md fa-lg';
+            if (code.indexOf('appointment') !== -1 || code.indexOf('schedule') !== -1) return 'fa fa-calendar fa-lg';
+            if (code.indexOf('inventory') !== -1 || code.indexOf('stock') !== -1 || code.indexOf('store') !== -1) return 'fa fa-archive fa-lg';
+            if (code.indexOf('report') !== -1 || code.indexOf('analytics') !== -1) return 'fa fa-bar-chart fa-lg';
+            if (code.indexOf('master') !== -1 || code.indexOf('setting') !== -1 || code.indexOf('manager') !== -1 || code.indexOf('control') !== -1) return 'fa fa-cogs fa-lg';
+            if (code.indexOf('app') !== -1) return 'fa fa-th-large fa-lg';
+            return 'fa fa-folder-o fa-lg';
+        }
 
         function getMenu(onReady, onError, menuFileName) {
             if (!menuFileName) {
-                menuFileName = 'main';
+                menuFileName = 'sidebar-menu-emr.json';
             }
-            var menuJson = 'server/' + menuFileName,
-                menuURL = menuJson + '?v=' + (new Date().getTime()); // jumps cache
+            var staticMenuURL = 'server/' + menuFileName;
 
-            onError = onError || function() {
-                alert('Failure loading menu');
-            };
+            function processMenuItems(rawItems) {
+                if (!rawItems) return [];
+                return rawItems.map(function(item) {
+                    var newItem = angular.copy(item);
+                    newItem.icon = resolveIcon(newItem, newItem.controlCode || newItem.text);
+                    if (newItem.submenu && newItem.submenu.length > 0) {
+                        newItem.submenu = processMenuItems(newItem.submenu);
+                    }
+                    return newItem;
+                });
+            }
 
-            // $http
-            //   .get(menuURL)
-            //   .success(onReady)
-            //   .error(onError);
+            function loadStaticMenu() {
+                $http.get(staticMenuURL)
+                    .then(function(res) {
+                        var items = processMenuItems(res.data);
+                        if (onReady) onReady(items);
+                    })
+                    .catch(function(err) {
+                        if (onError) onError(err);
+                    });
+            }
 
             var headers = {
                 'Authorization': `bearer ${localStorage.getItem('token')}`,
@@ -3400,57 +3518,80 @@
                 'Accept': 'application/json'
             };
             var dataMenuURL = window.appPath.apiroot + 'SystemSettings/Control/GetControls';
-            //TODO: cleanup
             var hasAdminRights = sessionStorage.getItem('Session-UserName') == 'superadmin';
-            $http
-                .post(dataMenuURL, {
-                    Params: [{
-                            Key: 2,
-                            Value: menuFileName
-                        },
-                        {
-                            Key: 3,
-                            Value: !hasAdminRights
-                        } //ApplyRoles
-                    ]
-                }, {
-                    params: {},
-                    headers: headers
-                })
-                .success(function(result) {
-                    var parentMenuMap = {};
-                    var menu = [];
-                    var controls = result.Data;
-                    if (controls) {
-                        controls.forEach(function(control) {
-                            var item = {
-                                text: control.Display,
-                                sref: control.SRef || "#",
-                                icon: control.IconRef || "",
-                                translate: control.TranslateRef || "",
-                                displayorder: control.DisplayOrder || 0,
-                                submenu: []
-                            };
-                            if (control.Params) {
-                                var jsonParam = '' + control.Params.substring(0) + '';
-                                item.params = JSON.parse(jsonParam);
-                                //console.log(item);
-                            }
-                            if (control.ParentControlCode === null) {
-                                menu.push(item);
-                                parentMenuMap[control.ControlCode] = item;
-                            } else if (parentMenuMap[control.ParentControlCode] && parentMenuMap[control.ParentControlCode].submenu) {
-                                //console.log(control.ParentControlCode);
-                                parentMenuMap[control.ParentControlCode].submenu.splice(item.displayorder - 1, 0, item);
-                            }
+
+            $http.post(dataMenuURL, {
+                Params: [
+                    { Key: 2, Value: 'main' },
+                    { Key: 3, Value: !hasAdminRights }
+                ]
+            }, { headers: headers })
+            .then(function(response) {
+                var controls = response.data && response.data.Data;
+                if (!controls || !Array.isArray(controls) || controls.length === 0) {
+                    loadStaticMenu();
+                    return;
+                }
+                var parentMenuMap = {};
+                var menu = [];
+                controls.forEach(function(control) {
+                    var codeKey = (control.ControlCode || '').toUpperCase();
+                    var item = {
+                        text: control.Display,
+                        sref: control.SRef || "#",
+                        icon: control.IconRef || "",
+                        translate: control.TranslateRef || "",
+                        displayorder: control.DisplayOrder || 0,
+                        submenu: []
+                    };
+                    item.icon = resolveIcon(item, control.ControlCode);
+                    if (control.Params) {
+                        try {
+                            item.params = JSON.parse(control.Params);
+                        } catch(e) {}
+                    }
+                    parentMenuMap[codeKey] = item;
+                });
+
+                controls.forEach(function(control) {
+                    var codeKey = (control.ControlCode || '').toUpperCase();
+                    var item = parentMenuMap[codeKey];
+                    var parentKey = control.ParentControlCode ? control.ParentControlCode.toUpperCase() : null;
+                    if (!parentKey || !parentMenuMap[parentKey]) {
+                        menu.push(item);
+                    } else {
+                        parentMenuMap[parentKey].submenu.push(item);
+                    }
+                });
+
+                menu.sort(function(a, b) { return (a.displayorder || 0) - (b.displayorder || 0); });
+
+                // Ensure Barcode Setting is included under System Setting / App Manager group
+                var systemSettingGroup = menu.find(function(m) {
+                    var title = (m.text || '').toLowerCase();
+                    return title.indexOf('system') !== -1 || title.indexOf('app manager') !== -1;
+                });
+                if (systemSettingGroup && systemSettingGroup.submenu) {
+                    var hasBarcode = systemSettingGroup.submenu.some(function(sub) {
+                        return (sub.sref === 'app.barcodesetting' || (sub.text && sub.text.toLowerCase().indexOf('barcode') !== -1));
+                    });
+                    if (!hasBarcode) {
+                        systemSettingGroup.submenu.push({
+                            text: 'Barcode Setting',
+                            sref: 'app.barcodesetting',
+                            icon: 'fa fa-barcode fa-lg',
+                            translate: 'sidebar.nav.BARCODE_SETTING',
+                            displayorder: 999,
+                            submenu: []
                         });
                     }
-                    if (onReady) {
-                        onReady(menu);
-                    }
-                    console.log(menu);
-                })
-                .error(onError);
+                }
+
+                if (onReady) onReady(menu);
+            })
+            .catch(function() {
+                loadStaticMenu();
+            });
         }
     }
 })();

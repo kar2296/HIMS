@@ -282,6 +282,74 @@
             }
         };
 
+        $scope.handleReactAction = function (actionName) {
+            if (actionName === 'addNewBill') {
+                $scope.addNewBill();
+            } else if (actionName === 'findBill') {
+                $scope.findBill();
+            } else if (actionName === 'backtoList') {
+                $scope.backtoList();
+            } else if (actionName === 'saveAndDraft') {
+                $scope.completeBill($scope.saveDraft);
+            } else if (actionName === 'saveAndApprove') {
+                $scope.completeBill($scope.saveAndApprove);
+            } else if (actionName === 'printReceipt') {
+                $scope.print(true);
+            }
+        };
+
+        $scope.canShowSaveBtn = true;
+        $scope.canShowSaveapproveBtn = true;
+
+        $scope.refreshReactProps = function () {
+            $scope.reactPropsActionBarContainer = {
+                onAction: $scope.handleReactAction,
+                reactProps: {
+                    context: vm.Context,
+                    ipIsBillLock: $scope.IPIsBillLock,
+                    ipBillListEnabled: !!$scope.IpBillList,
+                    privileges: {
+                        canViewPreviousBills: true,
+                        canViewOutstandingBills: true
+                    }
+                }
+            };
+
+            $scope.reactPropsSaveBarContainer = {
+                onAction: $scope.handleReactAction,
+                reactProps: {
+                    itemId: $scope.item ? $scope.item.Id : 0,
+                    patientBillStatusId: $scope.item ? $scope.item.PatientBillStatusId : 0,
+                    patientStatusId: $scope.item ? $scope.item.PatientStatusId : 0,
+                    advanceReceiptAmount: $scope.item ? $scope.item.AdvanceReceptAmount : 0,
+                    isShow: $scope.IsShow !== false,
+                    canShowSaveBtn: $scope.canShowSaveBtn !== false,
+                    canShowSaveapproveBtn: $scope.canShowSaveapproveBtn !== false,
+                    isFromIPBill: $scope.item ? (Number($scope.item.IsFromIPBill) || 0) : 0,
+                    receiptNo: $scope.item ? $scope.item.ReceiptNo : '',
+                    attachmentCount: $scope.currentcontext ? $scope.currentcontext.attachmentcount : 0,
+                    privileges: {
+                        canAttachment: false,
+                        canSave: true,
+                        canSaveApprove: true
+                    }
+                }
+            };
+        };
+
+        $scope.refreshReactProps();
+
+        $scope.$watchGroup([
+            'item.Id',
+            'item.PatientBillStatusId',
+            'item.ReceiptNo',
+            'canShowSaveBtn',
+            'canShowSaveapproveBtn',
+            'currentcontext.attachmentcount'
+        ], function () {
+            $scope.refreshReactProps();
+        });
+
         $scope.getPatientInfo = function (scope, data, options, hasError) {
             $scope.item.IsFromIPBill = 0;
             $scope.IpBillList = 0;
@@ -1322,14 +1390,12 @@
                 $scope.PaymentAdjustmentDetails = [];
                 $scope.currentcontext.IsAdjustAgainstAdvance = false;
             }
-            var itemwiseGrossAmt = 0
+            var itemwiseGrossAmt = 0;
             var itemwiseNetAmt = 0;
             var itemwiseDiscountAmt = 0;
             var itemwiseTaxAmt = 0;
-            $scope.PatientBillDetails = getLinesForSave();
             for (var i = 0, len = $scope.PatientBillDetails.length; i < len; i++) {
-                if (($scope.PatientBillDetails[i].Quantity > 0 && $scope.PatientBillDetails[i].Amount > 0 && $scope.PatientBillDetails[i].Status == 1) || $scope.PatientBillDetails[i].PackageMasterServiceId > 0) {
-                    // if (($scope.PatientBillDetails[i-1].Id != $scope.PatientBillDetails[i].Id)) {
+                if ($scope.PatientBillDetails[i].Status == 1) {
                     var itemnetAmount = 0;
                     var itemGrossAmount = 0;
                     var itemDiscountAmount = 0;

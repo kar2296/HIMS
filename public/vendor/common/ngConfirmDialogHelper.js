@@ -8,14 +8,33 @@
             var confirmDelete = function (onSuccessMethod, deleteId, itemDisplayName) {
                 var message = $translate.instant('common.deletemsg.lbl', { displayname: itemDisplayName });
 
+                if (window.renderReactConfirmModal) {
+                    window.renderReactConfirmModal({
+                        title: 'Delete Confirmation',
+                        message: message,
+                        yesLabel: 'Yes, Delete',
+                        noLabel: 'No, Keep',
+                        variant: 'danger',
+                        icon: 'fa fa-trash-alt',
+                        onConfirm: function () {
+                            if (onSuccessMethod) {
+                                onSuccessMethod(deleteId);
+                            }
+                        }
+                    });
+                    return;
+                }
+
                 ngDialog.openConfirm({
                     template:
-                        '<span class="col-sm-12 alert-back">' + 'Delete' + '</span>' +
-                        '<div style="text-align:center;margin-bottom:15px;font-size: 12px;">' + message + '</div>' +
-                        '<div style="text-align:center;padding-bottom:15px;">' +
-                        '<button type="button" tabindex="1" class="draftbutton" ng-click="closeThisDialog(0)">No' +
-                        '<button type="button" tabindex="2" class="draftbutton" style="margin-left:10px" ng-click="confirm(1)">Yes' +
-                        '</button></div>',
+                        '<div class="modal-header" style="background: linear-gradient(135deg, #b91c1c 0%, #dc2626 100%); color: #fff; padding: 12px 18px; border-radius: 8px 8px 0 0; font-weight: 700; font-size: 16px;">' +
+                        '<i class="fa fa-trash-alt" style="margin-right: 8px;"></i> Delete' +
+                        '</div>' +
+                        '<div style="text-align:center; padding: 24px 20px; font-size: 14px; color: #1e293b; font-weight: 500;">' + message + '</div>' +
+                        '<div style="text-align:center; padding: 12px 20px 18px; background: #f8fafc; border-top: 1px solid #f1f5f9; display: flex; justify-content: center; gap: 12px;">' +
+                        '<button type="button" class="btn btn-secondary" style="min-width: 90px;" ng-click="closeThisDialog(0)">No</button>' +
+                        '<button type="button" class="btn btn-danger" style="min-width: 90px;" ng-click="confirm(1)">Yes</button>' +
+                        '</div>',
                     plain: true,
                     className: 'ngdialog-theme-default'
                 }).then(function (value) {
@@ -23,20 +42,39 @@
                         onSuccessMethod(deleteId);
                     }
                 });
-            }
+            };
 
             // Cancel Requests from List Screen Function - Start
             var confirmCancel = function (onSuccessMethod, cancelId, itemDisplayName) {
                 var message = $translate.instant('common.cancelmsg.lbl', { displayname: itemDisplayName });
 
+                if (window.renderReactConfirmModal) {
+                    window.renderReactConfirmModal({
+                        title: 'Cancel Confirmation',
+                        message: message,
+                        yesLabel: 'Yes, Cancel',
+                        noLabel: 'No',
+                        variant: 'warning',
+                        icon: 'fa fa-times-circle',
+                        onConfirm: function () {
+                            if (onSuccessMethod) {
+                                onSuccessMethod(cancelId);
+                            }
+                        }
+                    });
+                    return;
+                }
+
                 ngDialog.openConfirm({
                     template:
-                        '<span class="col-sm-12 alert-back">' + 'Cancel' + '</span>' +
-                        '<div style="text-align:center;margin-bottom:15px;font-size: 12px;">' + message + '</div>' +
-                        '<div style="text-align:center;padding-bottom:15px;">' +
-                        '<button type="button" tabindex="1" class="draftbutton" ng-click="closeThisDialog(0)">No' +
-                        '<button type="button" tabindex="2" class="draftbutton" style="margin-left:10px" ng-click="confirm(1)">Yes' +
-                        '</button></div>',
+                        '<div class="modal-header" style="background: linear-gradient(135deg, #d97706 0%, #f59e0b 100%); color: #fff; padding: 12px 18px; border-radius: 8px 8px 0 0; font-weight: 700; font-size: 16px;">' +
+                        '<i class="fa fa-times-circle" style="margin-right: 8px;"></i> Cancel' +
+                        '</div>' +
+                        '<div style="text-align:center; padding: 24px 20px; font-size: 14px; color: #1e293b; font-weight: 500;">' + message + '</div>' +
+                        '<div style="text-align:center; padding: 12px 20px 18px; background: #f8fafc; border-top: 1px solid #f1f5f9; display: flex; justify-content: center; gap: 12px;">' +
+                        '<button type="button" class="btn btn-secondary" style="min-width: 90px;" ng-click="closeThisDialog(0)">No</button>' +
+                        '<button type="button" class="btn btn-warning" style="min-width: 90px;" ng-click="confirm(1)">Yes</button>' +
+                        '</div>',
                     plain: true,
                     className: 'ngdialog-theme-default'
                 }).then(function (value) {
@@ -44,7 +82,7 @@
                         onSuccessMethod(cancelId);
                     }
                 });
-            }
+            };
             // Cancel Requests from List Screen Function - End
 
             var confirmMessage = function (options) {
@@ -58,20 +96,33 @@
                     message = $translate.instant(options.messageKey, options.placeholder);
                 }
 
-                var confirmTemplate = "";
-                if (options.headingKey) {
-                    var headingStr = $translate.instant(options.headingKey);
-                    confirmTemplate =
-                        '<span class="col-sm-12 alert-back">' + headingStr + '</span>';
+                var headingStr = options.headingKey ? $translate.instant(options.headingKey) : 'Confirm';
+
+                if (window.renderReactConfirmModal) {
+                    window.renderReactConfirmModal({
+                        title: headingStr,
+                        message: message,
+                        yesLabel: yesStr,
+                        noLabel: noStr,
+                        variant: options.variant || 'primary',
+                        onConfirm: function () {
+                            if (options.onSuccessMethod) {
+                                options.onSuccessMethod(options.itemId);
+                            }
+                        }
+                    });
+                    return;
                 }
 
-                confirmTemplate +=
-
-                    '<div style="text-align:center;margin-bottom:15px;font-size: 12px;">' + message + '</div>' +
-                    '<div style="text-align:center;padding-bottom:15px;">' +
-                    '<button type="button" tabindex="1" class="draftbutton" ng-click="closeThisDialog(0)">' + noStr +
-                    '<button type="button" tabindex="2" class="draftbutton" style="margin-left:10px" autofocus ng-click="confirm(1)">' + yesStr +
-                    '</button></div>';
+                var confirmTemplate =
+                    '<div class="modal-header" style="background: linear-gradient(135deg, #00005c 0%, #1a0070 100%); color: #fff; padding: 12px 18px; border-radius: 8px 8px 0 0; font-weight: 700; font-size: 16px;">' +
+                    headingStr +
+                    '</div>' +
+                    '<div style="text-align:center; padding: 24px 20px; font-size: 14px; color: #1e293b; font-weight: 500;">' + message + '</div>' +
+                    '<div style="text-align:center; padding: 12px 20px 18px; background: #f8fafc; border-top: 1px solid #f1f5f9; display: flex; justify-content: center; gap: 12px;">' +
+                    '<button type="button" class="btn btn-secondary" style="min-width: 90px;" ng-click="closeThisDialog(0)">' + noStr + '</button>' +
+                    '<button type="button" class="btn btn-primary" style="min-width: 90px;" autofocus ng-click="confirm(1)">' + yesStr + '</button>' +
+                    '</div>';
 
                 ngDialog.openConfirm({
                     template: confirmTemplate,
@@ -82,19 +133,38 @@
                         options.onSuccessMethod(options.itemId);
                     }
                 });
-            }
+            };
 
             var confirmDeactivate = function (onSuccessMethod, itemDisplayName) {
                 var message = $translate.instant('common.deactivatemsg.lbl', { displayname: itemDisplayName });
 
+                if (window.renderReactConfirmModal) {
+                    window.renderReactConfirmModal({
+                        title: 'Deactivate Confirmation',
+                        message: message,
+                        yesLabel: 'Yes, Deactivate',
+                        noLabel: 'No',
+                        variant: 'danger',
+                        icon: 'fa fa-user-slash',
+                        onConfirm: function () {
+                            if (onSuccessMethod) {
+                                onSuccessMethod();
+                            }
+                        }
+                    });
+                    return;
+                }
+
                 ngDialog.openConfirm({
                     template:
-                        '<span class="col-sm-12 alert-back">' + 'Deactivate' + '</span>' +
-                        '<div style="text-align:center; margin-bottom:15px;">' + message + '</div>' +
-                        '<div style="text-align:center; padding-bottom:15px;">' +
-                        '<button type="button" tabindex="1" class="draftbutton" ng-click="closeThisDialog(0)">No' +
-                        '<button type="button" tabindex="2" class="draftbutton" style="margin-left:10px" ng-click="confirm(1)">Yes' +
-                        '</button></div>',
+                        '<div class="modal-header" style="background: linear-gradient(135deg, #b91c1c 0%, #dc2626 100%); color: #fff; padding: 12px 18px; border-radius: 8px 8px 0 0; font-weight: 700; font-size: 16px;">' +
+                        '<i class="fa fa-user-slash" style="margin-right: 8px;"></i> Deactivate' +
+                        '</div>' +
+                        '<div style="text-align:center; padding: 24px 20px; font-size: 14px; color: #1e293b; font-weight: 500;">' + message + '</div>' +
+                        '<div style="text-align:center; padding: 12px 20px 18px; background: #f8fafc; border-top: 1px solid #f1f5f9; display: flex; justify-content: center; gap: 12px;">' +
+                        '<button type="button" class="btn btn-secondary" style="min-width: 90px;" ng-click="closeThisDialog(0)">No</button>' +
+                        '<button type="button" class="btn btn-danger" style="min-width: 90px;" ng-click="confirm(1)">Yes</button>' +
+                        '</div>',
                     plain: true,
                     className: 'ngdialog-theme-default'
                 }).then(function (value) {
@@ -102,24 +172,42 @@
                         onSuccessMethod();
                     }
                 });
-            }
+            };
 
             var patientConfirmMessage = function (options) {
                 var okkey = options.okkey || 'common.okkey.lbl';
                 var okStr = $translate.instant(okkey);
 
                 var message = $translate.instant(options.messageKey);
-                var patientInfo = $translate.instant(options.patientInfo);
+                var patientInfo = options.patientInfo ? $translate.instant(options.patientInfo) : '';
+                var fullMessage = message + (patientInfo ? ' (' + patientInfo + ')' : '');
+
+                if (window.renderReactConfirmModal) {
+                    window.renderReactConfirmModal({
+                        title: 'Success',
+                        message: fullMessage,
+                        yesLabel: okStr,
+                        variant: 'success',
+                        icon: 'fa fa-check-circle',
+                        onConfirm: function () {
+                            if (options.onSuccessMethod) {
+                                options.onSuccessMethod(options.pid);
+                            }
+                        }
+                    });
+                    return;
+                }
 
                 var alertConfirmTemplate =
-                    '<span class="col-sm-12 alert-back">' + 'Success' + '</span>' +
-                    '<div style="text-align:center; margin-bottom:15px;">' + message + '</div>' +
-                    '<div style="text-align:center; margin-bottom:15px;">' + patientInfo + '</div>' +
-                    '<div style="text-align:center; padding-bottom:15px;">' +
-                    '<button type="button" tabindex="1" class="draftbutton" style="margin-left:10px" ng-click="confirm(1)">' + okStr +
-                    '</button></div>';
+                    '<div class="modal-header" style="background: linear-gradient(135deg, #059669 0%, #10b981 100%); color: #fff; padding: 12px 18px; border-radius: 8px 8px 0 0; font-weight: 700; font-size: 16px;">' +
+                    '<i class="fa fa-check-circle" style="margin-right: 8px;"></i> Success' +
+                    '</div>' +
+                    '<div style="text-align:center; padding: 24px 20px; font-size: 14px; color: #1e293b; font-weight: 500;">' + fullMessage + '</div>' +
+                    '<div style="text-align:center; padding: 12px 20px 18px; background: #f8fafc; border-top: 1px solid #f1f5f9;">' +
+                    '<button type="button" class="btn btn-success" style="min-width: 100px;" ng-click="confirm(1)">' + okStr + '</button>' +
+                    '</div>';
 
-                var dialog = ngDialog.openConfirm({
+                ngDialog.openConfirm({
                     template: alertConfirmTemplate,
                     plain: true,
                     className: 'ngdialog-theme-default'
@@ -133,23 +221,40 @@
                             options.onDismissMethod(options.pid);
                         }
                     });
-            }
+            };
 
             var OKConfirmMessage = function (options) {
                 var okkey = options.okkey || 'common.okkey.lbl';
                 var okStr = $translate.instant(okkey);
 
                 var message = $translate.instant(options.messageKey);
-                // var patientInfo = $translate.instant(options.patientInfo);
+
+                if (window.renderReactConfirmModal) {
+                    window.renderReactConfirmModal({
+                        title: 'Success',
+                        message: message,
+                        yesLabel: okStr,
+                        variant: 'success',
+                        icon: 'fa fa-check-circle',
+                        onConfirm: function () {
+                            if (options.onSuccessMethod) {
+                                options.onSuccessMethod(options.pid);
+                            }
+                        }
+                    });
+                    return;
+                }
 
                 var alertConfirmTemplate =
-                    '<span class="col-sm-12 alert-back">' + 'Success' + '</span>' +
-                    '<div style="text-align:center; margin-bottom:15px;">' + message + '</div>' +
-                    '<div style="text-align:center; padding-bottom:15px;">' +
-                    '<button type="button" tabindex="1" class="draftbutton" style="margin-left:10px" ng-click="confirm(1)">' + okStr +
-                    '</button></div>';
+                    '<div class="modal-header" style="background: linear-gradient(135deg, #059669 0%, #10b981 100%); color: #fff; padding: 12px 18px; border-radius: 8px 8px 0 0; font-weight: 700; font-size: 16px;">' +
+                    '<i class="fa fa-check-circle" style="margin-right: 8px;"></i> Success' +
+                    '</div>' +
+                    '<div style="text-align:center; padding: 24px 20px; font-size: 14px; color: #1e293b; font-weight: 500;">' + message + '</div>' +
+                    '<div style="text-align:center; padding: 12px 20px 18px; background: #f8fafc; border-top: 1px solid #f1f5f9;">' +
+                    '<button type="button" class="btn btn-success" style="min-width: 100px;" ng-click="confirm(1)">' + okStr + '</button>' +
+                    '</div>';
 
-                var dialog = ngDialog.openConfirm({
+                ngDialog.openConfirm({
                     template: alertConfirmTemplate,
                     plain: true,
                     className: 'ngdialog-theme-default'
@@ -163,35 +268,43 @@
                             options.onDismissMethod(options.pid);
                         }
                     });
-            }
+            };
 
             var SuccessMessage = function (options) {
                 var okkey = options.okkey || 'common.okkey.lbl';
                 var okStr = $translate.instant(okkey);
 
                 var message = $translate.instant(options.messageKey);
-                // var patientInfo = $translate.instant(options.patientInfo);
+
+                if (window.renderReactConfirmModal) {
+                    window.renderReactConfirmModal({
+                        title: 'Success',
+                        message: message,
+                        yesLabel: okStr,
+                        variant: 'success',
+                        icon: 'fa fa-check-circle',
+                        onConfirm: function () {
+                            if (options.onSuccessMethod) {
+                                options.onSuccessMethod(options.pid);
+                            }
+                        }
+                    });
+                    return;
+                }
 
                 var alertConfirmTemplate =
-                    '<div class="sucess-content">'  +
-                    '<h1>' + 'Sucess !' + '</h1>' +
-                    '<div class="msg">' + message + '</div>' +
-                    '<div class="svg">' +
-                    '<svg viewBox="0 0 26 26" xmlns="http://www.w3.org/2000/svg">'+
-                    '<g stroke="currentColor" stroke-width="2" fill="none" fill-rule="evenodd" stroke-linecap="round" stroke-linejoin="round">'+
-                    '<path class="circle" d="M13 1C6.372583 1 1 6.372583 1 13s5.372583 12 12 12 12-5.372583 12-12S19.627417 1 13 1z"/>'+
-                    '<path class="tick" d="M6.5 13.5L10 17 l8.808621-8.308621"/>'+
-                    '</g>'+
-                    '</svg>' +
+                    '<div class="modal-header" style="background: linear-gradient(135deg, #059669 0%, #10b981 100%); color: #fff; padding: 12px 18px; border-radius: 8px 8px 0 0; font-weight: 700; font-size: 16px;">' +
+                    '<i class="fa fa-check-circle" style="margin-right: 8px;"></i> Success' +
                     '</div>' +
-                    '<div style="text-align:center; padding-bottom:15px;">' +
-                    '<button type="button" tabindex="1" class="draftbutton" style="margin-left:10px" ng-click="confirm(1)">' + okStr +
-                    '</button></div>'+ '</div>';
+                    '<div style="text-align:center; padding: 24px 20px; font-size: 14px; color: #1e293b; font-weight: 500;">' + message + '</div>' +
+                    '<div style="text-align:center; padding: 12px 20px 18px; background: #f8fafc; border-top: 1px solid #f1f5f9;">' +
+                    '<button type="button" class="btn btn-success" style="min-width: 100px;" ng-click="confirm(1)">' + okStr + '</button>' +
+                    '</div>';
 
-                var dialog = ngDialog.openConfirm({
+                ngDialog.openConfirm({
                     template: alertConfirmTemplate,
                     plain: true,
-                    className: 'ngdialog-theme-default success'
+                    className: 'ngdialog-theme-default'
                 }).then(function (value) {
                     if (options.onSuccessMethod) {
                         options.onSuccessMethod(options.pid);
@@ -202,7 +315,7 @@
                             options.onDismissMethod(options.pid);
                         }
                     });
-            }
+            };
 
             var visitConfirmMessage = function (options) {
                 var yesKey = options.yesKey || 'common.yeskey.lbl';
@@ -215,20 +328,34 @@
                     message = $translate.instant(options.messageKey, options.placeholder);
                 }
 
-                var confirmTemplate = "";
-                if (options.headingKey) {
-                    var headingStr = $translate.instant(options.headingKey);
-                    confirmTemplate =
-                        '<span class="col-sm-12 alert-back">' + headingStr + '</span>';
+                var headingStr = options.headingKey ? $translate.instant(options.headingKey) : 'Confirm';
+
+                if (window.renderReactConfirmModal) {
+                    window.renderReactConfirmModal({
+                        title: headingStr,
+                        message: message,
+                        yesLabel: yesStr,
+                        noLabel: noStr,
+                        variant: 'primary',
+                        icon: 'fa fa-calendar-check',
+                        onConfirm: function () {
+                            if (options.onSuccessMethod) {
+                                options.onSuccessMethod(options.pid);
+                            }
+                        }
+                    });
+                    return;
                 }
 
-                confirmTemplate +=
-
-                    '<div style="text-align:center;margin-bottom:15px;font-size: 12px;">' + message + '</div>' +
-                    '<div style="text-align:center;padding-bottom:15px;">' +
-                    '<button type="button" tabindex="1" class="draftbutton" ng-click="closeThisDialog(0)">' + noStr +
-                    '<button type="button" tabindex="2" class="draftbutton" style="margin-left:10px" autofocus ng-click="confirm(1)">' + yesStr +
-                    '</button></div>';
+                var confirmTemplate =
+                    '<div class="modal-header" style="background: linear-gradient(135deg, #00005c 0%, #1a0070 100%); color: #fff; padding: 12px 18px; border-radius: 8px 8px 0 0; font-weight: 700; font-size: 16px;">' +
+                    headingStr +
+                    '</div>' +
+                    '<div style="text-align:center; padding: 24px 20px; font-size: 14px; color: #1e293b; font-weight: 500;">' + message + '</div>' +
+                    '<div style="text-align:center; padding: 12px 20px 18px; background: #f8fafc; border-top: 1px solid #f1f5f9; display: flex; justify-content: center; gap: 12px;">' +
+                    '<button type="button" class="btn btn-secondary" style="min-width: 90px;" ng-click="closeThisDialog(0)">' + noStr + '</button>' +
+                    '<button type="button" class="btn btn-primary" style="min-width: 90px;" autofocus ng-click="confirm(1)">' + yesStr + '</button>' +
+                    '</div>';
 
                 ngDialog.openConfirm({
                     template: confirmTemplate,
@@ -244,7 +371,7 @@
                             options.onDismissMethod(options.pid);
                         }
                     });
-            }
+            };
 
             return {
                 confirmDelete: confirmDelete,
@@ -254,7 +381,7 @@
                 patientConfirmMessage: patientConfirmMessage,
                 OKConfirmMessage: OKConfirmMessage,
                 SuccessMessage: SuccessMessage,
-                confirmCancel: confirmCancel   // When Cancel Confirmed -
+                confirmCancel: confirmCancel
             };
         }]);
 })();

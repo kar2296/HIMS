@@ -1,8 +1,9 @@
 // Import React and standard Vite entry stuff
 import React from 'react';
 
-// Import our custom bridge for AngularJS
+// Import our custom bridge & API Service for AngularJS & React
 import './reactBridge';
+import './services/apiService';
 
 // Import Pilot Component
 import { PilotComponent } from './react-components/PilotComponent';
@@ -53,9 +54,104 @@ import { BillingDashboardComponent } from './react-components/BillingDashboardCo
 import { PharmacyDashboardComponent } from './react-components/PharmacyDashboardComponent';
 import { RichTextEditor } from './react-components/RichTextEditor';
 
+// Import Button and ConfirmModal Components
+import { Button } from './react-components/Button';
+import { ConfirmModal } from './react-components/ConfirmModal';
+import { createRoot } from 'react-dom/client';
+
+(window as any).renderReactConfirmModal = function(options: {
+  title?: string;
+  message?: string;
+  yesLabel?: string;
+  noLabel?: string;
+  variant?: 'danger' | 'warning' | 'primary' | 'success' | 'info';
+  icon?: string;
+  onConfirm?: () => void;
+  onCancel?: () => void;
+}) {
+  const container = document.createElement('div');
+  document.body.appendChild(container);
+  const root = createRoot(container);
+
+  const cleanup = () => {
+    root.unmount();
+    if (container.parentNode) {
+      container.parentNode.removeChild(container);
+    }
+  };
+
+  root.render(
+    <ConfirmModal
+      isOpen={true}
+      title={options.title || 'Confirm'}
+      message={options.message || ''}
+      yesLabel={options.yesLabel || 'Yes'}
+      noLabel={options.noLabel}
+      variant={options.variant}
+      icon={options.icon}
+      onConfirm={() => {
+        cleanup();
+        if (options.onConfirm) options.onConfirm();
+      }}
+      onCancel={() => {
+        cleanup();
+        if (options.onCancel) options.onCancel();
+      }}
+      onClose={() => {
+        cleanup();
+        if (options.onCancel) options.onCancel();
+      }}
+    />
+  );
+};
+
+import { BarcodeModal } from './react-components/BarcodeModal';
+import type { PatientBarcodeData } from './react-components/BarcodeModal';
+
+(window as any).renderReactBarcodeModal = function(options: {
+  data: PatientBarcodeData;
+  onClose?: () => void;
+  onRawPrint?: () => void;
+}) {
+  const container = document.createElement('div');
+  document.body.appendChild(container);
+  const root = createRoot(container);
+
+  const cleanup = () => {
+    root.unmount();
+    if (container.parentNode) {
+      container.parentNode.removeChild(container);
+    }
+  };
+
+  root.render(
+    <BarcodeModal
+      isOpen={true}
+      data={options.data || {}}
+      onClose={() => {
+        cleanup();
+        if (options.onClose) options.onClose();
+      }}
+      onRawPrint={options.onRawPrint ? () => {
+        options.onRawPrint!();
+      } : undefined}
+    />
+  );
+};
+
+import { BarcodeMasterSettingsComponent } from './react-components/BarcodeMasterSettingsComponent';
+import { RegistrationFormComponent } from './react-components/RegistrationFormComponent';
+import { FindBillModalComponent } from './react-components/FindBillModalComponent';
+
 // Register components globally so the AngularJS bridge can find them
 (window as any).ReactComponents = {
   ...(window as any).ReactComponents,
+  Button,
+  ConfirmModal,
+  BarcodeModal,
+  BarcodeMasterSettingsComponent,
+  RegistrationFormComponent,
+  FindBillModalComponent,
   PilotComponent,
   LoginPage,
   SidebarComponent,
@@ -84,3 +180,4 @@ import { RichTextEditor } from './react-components/RichTextEditor';
 };
 
 console.log('React runtime and components loaded. ReactBridge initialized.');
+

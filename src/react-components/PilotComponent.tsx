@@ -1,4 +1,5 @@
 import React from 'react';
+import { Button } from './Button';
 
 interface PilotComponentProps {
   title?: string;
@@ -26,21 +27,18 @@ export const PilotComponent: React.FC<PilotComponentProps> = ({
       </h3>
       <p style={{ color: '#555', fontSize: '14px' }}>{message}</p>
       
-      <button 
+      <Button 
         onClick={onAction}
+        variant="info"
         style={{
           backgroundColor: '#61dafb',
           color: '#282c34',
-          border: 'none',
-          padding: '8px 16px',
-          borderRadius: '4px',
-          cursor: 'pointer',
-          fontWeight: 'bold',
           marginTop: '10px'
         }}
       >
         Trigger AngularJS Callback
-      </button>
+      </Button>
     </div>
   );
 };
+

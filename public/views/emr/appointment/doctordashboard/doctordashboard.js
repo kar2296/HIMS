@@ -49,22 +49,33 @@
             }
         };
 
-        // Bundle tables for React Bridge
-        // We use a getter so the React component can read the live $scope values
-        Object.defineProperty($scope, 'tablesData', {
-            get: function() {
-                return {
-                    TodayPendingList: $scope.TodayPendingList || [],
-                    TodayCompletedList: $scope.TodayCompletedList || [],
-                    outpatientlist: $scope.outpatientlist || [],
-                    admissionlist: $scope.admissionlist || [],
-                    dischargedlist: $scope.dischargedlist || [],
-                    ScheduleList: $scope.ScheduleList || [],
-                    ApnmntList: $scope.ApnmntList || [],
-                    LabCriticals: $scope.LabCriticals || [],
-                    RadCriticals: $scope.RadCriticals || []
-                };
-            }
+        $scope.refreshTablesData = function() {
+            $scope.tablesData = {
+                TodayPendingList: $scope.TodayPendingList || [],
+                TodayCompletedList: $scope.TodayCompletedList || [],
+                outpatientlist: $scope.outpatientlist || [],
+                admissionlist: $scope.admissionlist || [],
+                dischargedlist: $scope.dischargedlist || [],
+                ScheduleList: $scope.ScheduleList || [],
+                ApnmntList: $scope.ApnmntList || [],
+                LabCriticals: $scope.LabCriticals || [],
+                RadCriticals: $scope.RadCriticals || []
+            };
+        };
+        $scope.refreshTablesData();
+
+        $scope.$watchGroup([
+            'TodayPendingList',
+            'TodayCompletedList',
+            'outpatientlist',
+            'admissionlist',
+            'dischargedlist',
+            'ScheduleList',
+            'ApnmntList',
+            'LabCriticals',
+            'RadCriticals'
+        ], function() {
+            $scope.refreshTablesData();
         });
 
         $scope.Items = [];

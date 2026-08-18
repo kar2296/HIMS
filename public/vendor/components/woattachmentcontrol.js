@@ -1,4 +1,4 @@
-﻿(function () {
+(function () {
 	'use strict';
 
 	angular
@@ -173,9 +173,9 @@
 						{
 							field: "Id",
 							displayName: $translate.instant('common.actions_col.lbl'),
-							cellTemplate: '<div class="ui-grid-cell-contents">\
-							   <span class="grid-action" ng-click="handleEvents(\'download\',entity)" ><button class="btn-gr-round"><i class="feather icon-eye" aria-hidden="true"></i></button></span>\
-                               <span class="grid-action" ng-click="handleEvents(\'delete\',entity)"  ><img class="drhms-edit-button" src="assets/svg/delete.svg" alt=""></span>\
+							cellTemplate: '<div class="ui-grid-cell-contents text-center" style="display: flex; align-items: center; justify-content: center; gap: 6px; padding: 4px;">\
+                                       <button type="button" class="btn btn-xs btn-default" ng-click="handleEvents(\'download\',entity)" title="View / Download" style="padding: 4px 8px; border-radius: 5px; border: 1px solid #cbd5e1; background: #ffffff; color: #21008d; font-weight: 600; cursor: pointer; box-shadow: 0 1px 3px rgba(0,0,0,0.05);"><i class="fa fa-download" style="margin-right: 4px;"></i> View</button>\
+                                       <button type="button" class="btn btn-xs btn-danger" ng-click="handleEvents(\'delete\',entity)" title="Delete" style="padding: 4px 8px; border-radius: 5px; border: 1px solid #ef4444; background: #ef4444; color: #ffffff; font-weight: 600; cursor: pointer; box-shadow: 0 1px 3px rgba(239,68,68,0.2);"><i class="fa fa-trash"></i></button>\
 							</div>',
 							handleEvent: $scope.handleEvents,
 							actions: []

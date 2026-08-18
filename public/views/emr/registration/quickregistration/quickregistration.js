@@ -52,38 +52,49 @@
             }
         };
 
-        Object.defineProperty(vm, 'reactPropsActionBar', {
-            get: function() {
-                return {
-                    saveCompleted: $scope.SaveCompleted || false,
-                    billCompleted: $scope.BillCompleted || false,
-                    isPatientDeactivated: $scope.isPatientDeactivated || false,
-                    isTempPatient: $scope.currentcontext ? $scope.currentcontext.isTempPatient : false,
-                    patientStatusId: $scope.item ? $scope.item.PatientStatusId : 0,
-                    referredNewVisit: $scope.item ? $scope.item.ReferredNewVisit : false,
-                    attachmentCount: $scope.currentcontext ? $scope.currentcontext.attachmentcount : 0
-                };
-            }
-        });
+        $scope.refreshReactProps = function() {
+            vm.reactPropsActionBar = {
+                saveCompleted: $scope.SaveCompleted || false,
+                billCompleted: $scope.BillCompleted || false,
+                isPatientDeactivated: $scope.isPatientDeactivated || false,
+                isTempPatient: $scope.currentcontext ? $scope.currentcontext.isTempPatient : false,
+                patientStatusId: $scope.item ? $scope.item.PatientStatusId : 0,
+                referredNewVisit: $scope.item ? $scope.item.ReferredNewVisit : false,
+                attachmentCount: $scope.currentcontext ? $scope.currentcontext.attachmentcount : 0
+            };
+            $scope.reactPropsActionBar = vm.reactPropsActionBar;
 
-        Object.defineProperty(vm, 'reactPropsFooter', {
-            get: function() {
-                return {
-                    patientStatusId: $scope.item ? $scope.item.PatientStatusId : 0,
-                    attachmentCount: $scope.currentcontext ? $scope.currentcontext.attachmentcount : 0,
-                    enableOPD: $scope.EnableOPD || false,
-                    isTempPatient: $scope.currentcontext ? $scope.currentcontext.isTempPatient : false,
-                    vitalsEnabled: $scope.Vitals || false,
-                    visitPrintEnabled: $scope.Visitprint || false,
-                    canDisableApprove: $scope.currentcontext ? $scope.currentcontext.canDisableApprove : false,
-                    privileges: {
-                        canDeceased: utl.Privilege.hasPrivilege('QuickRegistration', 'QR-Deceased'),
-                        canAttachment: utl.Privilege.hasPrivilege('QuickRegistration', 'Attachment'),
-                        canNewVisit: utl.Privilege.hasPrivilege('QuickRegistration', 'QR-Newvisit'),
-                        canOPDBill: utl.Privilege.hasPrivilege('QuickRegistration', 'QR-OPDBill')
-                    }
-                };
-            }
+            vm.reactPropsFooter = {
+                patientStatusId: $scope.item ? $scope.item.PatientStatusId : 0,
+                attachmentCount: $scope.currentcontext ? $scope.currentcontext.attachmentcount : 0,
+                enableOPD: $scope.EnableOPD || false,
+                isTempPatient: $scope.currentcontext ? $scope.currentcontext.isTempPatient : false,
+                vitalsEnabled: $scope.Vitals || false,
+                visitPrintEnabled: $scope.Visitprint || false,
+                canDisableApprove: $scope.currentcontext ? $scope.currentcontext.canDisableApprove : false,
+                privileges: {
+                    canDeceased: (utl.Privilege && typeof utl.Privilege.hasPrivilege === 'function') ? utl.Privilege.hasPrivilege('QuickRegistration', 'QR-Deceased') : ((utl.Privilege && typeof utl.Privilege.hasAccess === 'function') ? utl.Privilege.hasAccess('QR-Deceased') : true),
+                    canAttachment: (utl.Privilege && typeof utl.Privilege.hasPrivilege === 'function') ? utl.Privilege.hasPrivilege('QuickRegistration', 'Attachment') : ((utl.Privilege && typeof utl.Privilege.hasAccess === 'function') ? utl.Privilege.hasAccess('Attachment') : true),
+                    canNewVisit: (utl.Privilege && typeof utl.Privilege.hasPrivilege === 'function') ? utl.Privilege.hasPrivilege('QuickRegistration', 'QR-Newvisit') : ((utl.Privilege && typeof utl.Privilege.hasAccess === 'function') ? utl.Privilege.hasAccess('QR-Newvisit') : true),
+                    canOPDBill: (utl.Privilege && typeof utl.Privilege.hasPrivilege === 'function') ? utl.Privilege.hasPrivilege('QuickRegistration', 'QR-OPDBill') : ((utl.Privilege && typeof utl.Privilege.hasAccess === 'function') ? utl.Privilege.hasAccess('QR-OPDBill') : true)
+                }
+            };
+            $scope.reactPropsFooter = vm.reactPropsFooter;
+        };
+        $scope.refreshReactProps();
+
+        $scope.$watchGroup([
+            'SaveCompleted',
+            'BillCompleted',
+            'isPatientDeactivated',
+            'currentcontext',
+            'item.PatientStatusId',
+            'item.ReferredNewVisit',
+            'EnableOPD',
+            'Vitals',
+            'Visitprint'
+        ], function() {
+            $scope.refreshReactProps();
         });
         // --------------------
 

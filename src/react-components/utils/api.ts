@@ -1,6 +1,6 @@
 export const apiFetch = async (action: string | { action: string, data: any }, payload?: any) => {
-  let urlAction = '';
-  let requestData = {};
+  let urlAction: string;
+  let requestData: any;
 
   // Support both overloaded signatures:
   // 1. apiFetch('Action/Path', { ...payload })

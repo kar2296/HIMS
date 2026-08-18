@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Button } from './Button';
 
 interface TopNavbarComponentProps {
   facilityName?: string;
@@ -93,26 +94,20 @@ export const TopNavbarComponent: React.FC<TopNavbarComponentProps> = ({
     }}>
       {/* Left side: Brand / Facility / Sidebar Toggle */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-        <button 
+        <Button 
+          variant="icon"
+          icon="fa-solid fa-bars"
           onClick={onToggleSidebar}
+          title="Toggle Navigation"
+          size="sm"
           style={{
-            background: 'transparent',
+            fontSize: '16px',
+            color: 'var(--premium-blue, #00005c)',
+            backgroundColor: 'transparent',
             border: 'none',
-            fontSize: '18px',
-            color: 'var(--premium-blue)',
-            cursor: 'pointer',
-            padding: '8px',
-            borderRadius: '4px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            transition: 'background 0.2s'
+            boxShadow: 'none'
           }}
-          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(33, 0, 141, 0.05)'}
-          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
-        >
-          <i className="fa-solid fa-bars"></i>
-        </button>
+        />
 
         <div style={{ 
           fontWeight: 600, 
@@ -190,12 +185,16 @@ export const TopNavbarComponent: React.FC<TopNavbarComponentProps> = ({
 
           {/* Dropdown Menu */}
           {isDropdownOpen && (
-            <div className="premium-glass-panel" style={{
+            <div style={{
               position: 'absolute',
               top: 'calc(100% + 10px)',
               right: 0,
               width: '200px',
               padding: '8px 0',
+              backgroundColor: '#ffffff',
+              borderRadius: '8px',
+              border: '1px solid #e2e8f0',
+              boxShadow: '0 10px 30px rgba(0, 0, 0, 0.18)',
               animation: 'fadeIn 0.2s ease-out',
               zIndex: 1001
             }}>
@@ -319,23 +318,16 @@ export const TopNavbarComponent: React.FC<TopNavbarComponentProps> = ({
                 />
               </div>
               
-              <button 
+              <Button 
                 type="submit"
-                disabled={isChangingPassword || !newPassword || !confirmPassword}
-                style={{
-                  width: '100%',
-                  backgroundColor: '#007bff',
-                  color: 'white',
-                  border: 'none',
-                  padding: '12px',
-                  borderRadius: '6px',
-                  fontWeight: 'bold',
-                  cursor: (isChangingPassword || !newPassword || !confirmPassword) ? 'not-allowed' : 'pointer',
-                  opacity: (isChangingPassword || !newPassword || !confirmPassword) ? 0.7 : 1
-                }}
+                variant="primary"
+                fullWidth
+                size="lg"
+                loading={isChangingPassword}
+                disabled={!newPassword || !confirmPassword}
               >
-                {isChangingPassword ? 'Updating...' : 'Update Password'}
-              </button>
+                Update Password
+              </Button>
             </form>
           </div>
         </div>
