@@ -9,7 +9,7 @@ export const DbConfig: DatabaseConfig = {
         port: Number(process.env.DATABASE_PORT),
         dialect: process.env.DATABASE_DIALECT,
         logging: Boolean(Number(process.env.DATABASE_LOGGING)),
-        force: true,
+        force: false, // hardened 2026-08-21: never let this reach a sync() call; table creation stays fully manual/migration-controlled
         timezone: process.env.DATABASE_TIME_ZONE,
         benchmark: Boolean(Number(process.env.DATABASE_LOGGING)),
         dialectOptions: { decimalNumbers: true },

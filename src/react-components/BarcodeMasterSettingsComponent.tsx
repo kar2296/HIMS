@@ -1,5 +1,14 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Button } from './Button';
+import { Input } from '../components/ui/Input';
+import { Select, type SelectOption } from '../components/ui/Select';
+import { Checkbox } from '../components/ui/Checkbox';
+import { Card } from '../components/ui/Card';
+import { PageHeader } from '../components/ui/Breadcrumb';
+import { Tabs, type TabItem } from '../components/ui/Tabs';
+import { Alert } from '../components/ui/Alert';
+import { Badge } from '../components/ui/Badge';
+import { colors, spacing, radii, typography } from '../components/ui/tokens';
 
 // Configuration interface for each module
 export interface ModuleBarcodeConfig {
@@ -36,6 +45,40 @@ const COMMON_PRINTER_LIST = [
   'Dymo LabelWriter 450',
   'Bixolon SLP-TX400',
   'Generic / System Default Printer',
+];
+
+// Presentational option lists for the design-system Select controls below --
+// same option data/values the legacy <option> elements rendered, just moved
+// out of JSX. No new values were introduced.
+const PRINTER_OPTIONS: SelectOption[] = [
+  ...COMMON_PRINTER_LIST.map((p) => ({ value: p, label: p })),
+  { value: 'CUSTOM', label: '-- Custom Printer Name --' },
+];
+
+const PRESET_OPTIONS: SelectOption[] = [
+  { value: '50x30', label: '50mm × 30mm (Standard Thermal)' },
+  { value: '38x25', label: '38mm × 25mm (Compact Vial / Tube)' },
+  { value: '74x38', label: '74mm × 38mm (Medium Card / Tag)' },
+  { value: '100x50', label: '100mm × 50mm (Large IP Folder Tag)' },
+  { value: 'custom', label: 'Custom Dimensions' },
+];
+
+const FONT_SIZE_OPTIONS: SelectOption[] = [
+  { value: 'small', label: 'Small (Compact)' },
+  { value: 'medium', label: 'Medium (Standard)' },
+  { value: 'large', label: 'Large (High-Visibility)' },
+];
+
+const BORDER_STYLE_OPTIONS: SelectOption[] = [
+  { value: 'solid', label: 'Solid Line' },
+  { value: 'dashed', label: 'Dashed Line' },
+  { value: 'none', label: 'No Border' },
+];
+
+const MODULE_TAB_ITEMS: TabItem[] = [
+  { key: 'registration', label: '1. Registration & Patient ID Label' },
+  { key: 'labSample', label: '2. Lab Sample Collection Label' },
+  { key: 'inventory', label: '3. Inventory & Pharmacy Batch Label' },
 ];
 
 export const DEFAULT_MASTER_SETTINGS: MasterBarcodeSettings = {
@@ -279,345 +322,174 @@ export const BarcodeMasterSettingsComponent: React.FC = () => {
   };
 
   return (
-    <div style={{ padding: '24px', backgroundColor: '#f1f5f9', minHeight: '100vh', fontFamily: "'Poppins', 'Montserrat', sans-serif" }}>
-      {/* Top Header Card */}
-      <div
-        style={{
-          background: 'linear-gradient(135deg, #00005c 0%, #1a0070 100%)',
-          color: '#ffffff',
-          borderRadius: '12px',
-          padding: '20px 26px',
-          marginBottom: '20px',
-          boxShadow: '0 4px 20px rgba(0, 0, 92, 0.15)',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-        }}
-      >
-        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-          <div
-            style={{
-              width: '46px',
-              height: '46px',
-              borderRadius: '10px',
-              backgroundColor: 'rgba(255, 255, 255, 0.15)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: '22px',
-            }}
-          >
-            <i className="fa fa-barcode"></i>
-          </div>
-          <div>
-            <h2 style={{ margin: 0, fontSize: '20px', fontWeight: 700, letterSpacing: '0.3px', color: '#ffffff' }}>
-              Barcode &amp; Label Master Configuration
-            </h2>
-            <p style={{ margin: '4px 0 0', fontSize: '13px', color: '#cbd5e1' }}>
-              System-wide master setup for Registration, Lab Sample Collection, and Inventory Barcode Labels &amp; Target Printers
-            </p>
-          </div>
-        </div>
-
-        <div style={{ display: 'flex', gap: '12px' }}>
-          <Button variant="secondary" size="md" onClick={handleReset}>
-            <i className="fa fa-undo" style={{ marginRight: '6px' }}></i> Reset Defaults
-          </Button>
-          <Button
-            variant="primary"
-            size="md"
-            onClick={handleSaveAll}
-            style={{ fontWeight: 600, boxShadow: '0 4px 14px rgba(33, 0, 141, 0.35)' }}
-          >
-            <i className="fa fa-save" style={{ marginRight: '8px' }}></i> Save All Configurations
-          </Button>
-        </div>
-      </div>
+    <div style={{ padding: spacing.xl, backgroundColor: colors.surfaceSunken, minHeight: '100vh', fontFamily: typography.fontFamily }}>
+      {/* Top Header */}
+      <PageHeader
+        title="Barcode & Label Master Configuration"
+        subtitle="System-wide master setup for Registration, Lab Sample Collection, and Inventory Barcode Labels & Target Printers"
+        actions={
+          <>
+            <Button variant="secondary" size="md" onClick={handleReset}>
+              <i className="fa fa-undo" style={{ marginRight: '6px' }}></i> Reset Defaults
+            </Button>
+            <Button
+              variant="primary"
+              size="md"
+              onClick={handleSaveAll}
+              style={{ fontWeight: 600, boxShadow: '0 4px 14px rgba(33, 0, 141, 0.35)' }}
+            >
+              <i className="fa fa-save" style={{ marginRight: '8px' }}></i> Save All Configurations
+            </Button>
+          </>
+        }
+      />
 
       {/* Success Banner */}
       {savedSuccess && (
-        <div
-          style={{
-            backgroundColor: '#10b981',
-            color: '#ffffff',
-            padding: '12px 20px',
-            borderRadius: '8px',
-            marginBottom: '20px',
-            fontWeight: 600,
-            fontSize: '14px',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '10px',
-            boxShadow: '0 4px 12px rgba(16, 185, 129, 0.25)',
-          }}
-        >
-          <i className="fa fa-check-circle" style={{ fontSize: '18px' }}></i>
-          <span>Master Barcode settings saved successfully! All registration, lab, and inventory prints will now target their assigned printers automatically.</span>
+        <div style={{ marginBottom: spacing.xl }}>
+          <Alert tone="success">
+            Master Barcode settings saved successfully! All registration, lab, and inventory prints will now target their assigned printers automatically.
+          </Alert>
         </div>
       )}
 
       {/* Module Tabs */}
-      <div
-        style={{
-          display: 'flex',
-          gap: '8px',
-          marginBottom: '20px',
-          backgroundColor: '#ffffff',
-          padding: '6px',
-          borderRadius: '10px',
-          boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
-          border: '1px solid #e2e8f0',
-        }}
-      >
-        {[
-          { id: 'registration', label: '1. Registration & Patient ID Label', icon: 'fa fa-user-tag', badge: 'Active' },
-          { id: 'labSample', label: '2. Lab Sample Collection Label', icon: 'fa fa-vial', badge: 'Active' },
-          { id: 'inventory', label: '3. Inventory & Pharmacy Batch Label', icon: 'fa fa-boxes', badge: 'Active' },
-        ].map((tab) => (
-          <button
-            key={tab.id}
-            type="button"
-            onClick={() => setActiveModule(tab.id as any)}
-            style={{
-              flex: 1,
-              padding: '12px 18px',
-              borderRadius: '8px',
-              border: 'none',
-              background: activeModule === tab.id ? 'linear-gradient(135deg, #00005c 0%, #1a0070 100%)' : 'transparent',
-              color: activeModule === tab.id ? '#ffffff' : '#475569',
-              fontWeight: 700,
-              fontSize: '14px',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '10px',
-              transition: 'all 0.2s',
-              boxShadow: activeModule === tab.id ? '0 4px 12px rgba(0, 0, 92, 0.2)' : 'none',
-            }}
-          >
-            <i className={tab.icon}></i>
-            <span>{tab.label}</span>
-          </button>
-        ))}
-      </div>
+      <Tabs
+        items={MODULE_TAB_ITEMS}
+        activeKey={activeModule}
+        onChange={(key) => setActiveModule(key as 'registration' | 'labSample' | 'inventory')}
+      />
 
       {/* Main Grid Content: Settings Column + Live Preview Column */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 0.8fr', gap: '20px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 0.8fr', gap: spacing.xl, marginTop: spacing.lg }}>
         {/* LEFT: Configuration Controls */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: spacing.lg }}>
           {/* Card 1: Printer Assignment */}
-          <div
-            style={{
-              backgroundColor: '#ffffff',
-              borderRadius: '10px',
-              padding: '18px 22px',
-              border: '1px solid #e2e8f0',
-              boxShadow: '0 2px 10px rgba(0,0,0,0.03)',
-            }}
-          >
-            <h4 style={{ margin: '0 0 14px', fontSize: '15px', fontWeight: 700, color: '#1e293b', display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <i className="fa fa-print" style={{ color: '#21008d' }}></i>
-              Target Barcode Printer Assignment
-            </h4>
+          <Card title="Target Barcode Printer Assignment">
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: spacing.md, marginBottom: spacing.md }}>
+              <Select
+                label="Select Barcode / Thermal Printer"
+                options={PRINTER_OPTIONS}
+                value={currentConfig.printerName}
+                onChange={(value) => updateCurrentConfig({ printerName: String(value) })}
+              />
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px', marginBottom: '14px' }}>
-              <div>
-                <label style={{ fontSize: '12px', fontWeight: 600, color: '#334155', display: 'block', marginBottom: '6px' }}>
-                  Select Barcode / Thermal Printer
-                </label>
-                <select
-                  value={currentConfig.printerName}
-                  onChange={(e) => updateCurrentConfig({ printerName: e.target.value })}
-                  style={{ width: '100%', padding: '8px 10px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '13px', backgroundColor: '#f8fafc', fontWeight: 500 }}
-                >
-                  {COMMON_PRINTER_LIST.map((p) => (
-                    <option key={p} value={p}>{p}</option>
-                  ))}
-                  <option value="CUSTOM">-- Custom Printer Name --</option>
-                </select>
-              </div>
-
-              <div>
-                <label style={{ fontSize: '12px', fontWeight: 600, color: '#334155', display: 'block', marginBottom: '6px' }}>
-                  Custom Printer Hardware Name
-                </label>
-                <input
-                  type="text"
-                  placeholder="e.g. Zebra_ZD220_Registration"
-                  value={currentConfig.printerName === 'CUSTOM' ? customPrinterInput : currentConfig.printerName}
-                  onChange={(e) => {
-                    setCustomPrinterInput(e.target.value);
-                    updateCurrentConfig({ printerName: e.target.value });
-                  }}
-                  style={{ width: '100%', padding: '8px 10px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '13px' }}
-                />
-              </div>
+              <Input
+                label="Custom Printer Hardware Name"
+                type="text"
+                placeholder="e.g. Zebra_ZD220_Registration"
+                value={currentConfig.printerName === 'CUSTOM' ? customPrinterInput : currentConfig.printerName}
+                onChange={(e) => {
+                  setCustomPrinterInput(e.target.value);
+                  updateCurrentConfig({ printerName: e.target.value });
+                }}
+              />
             </div>
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: '16px', backgroundColor: '#f8fafc', padding: '10px 14px', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
-              <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', fontWeight: 600, color: '#1e293b', cursor: 'pointer', margin: 0 }}>
-                <input
-                  type="checkbox"
-                  checked={currentConfig.autoPrintOnAction}
-                  onChange={(e) => updateCurrentConfig({ autoPrintOnAction: e.target.checked })}
-                />
-                <span>Auto-Trigger Print (Send to printer automatically on Save/Complete)</span>
-              </label>
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: spacing.lg,
+                backgroundColor: colors.surfaceMuted,
+                padding: `${spacing.sm} ${spacing.md}`,
+                borderRadius: radii.md,
+                border: `1px solid ${colors.border}`,
+              }}
+            >
+              <Checkbox
+                checked={currentConfig.autoPrintOnAction}
+                onChange={(checked) => updateCurrentConfig({ autoPrintOnAction: checked })}
+                label="Auto-Trigger Print (Send to printer automatically on Save/Complete)"
+              />
             </div>
-          </div>
+          </Card>
 
           {/* Card 2: Dimensions & Size Presets */}
-          <div
-            style={{
-              backgroundColor: '#ffffff',
-              borderRadius: '10px',
-              padding: '18px 22px',
-              border: '1px solid #e2e8f0',
-              boxShadow: '0 2px 10px rgba(0,0,0,0.03)',
-            }}
-          >
-            <h4 style={{ margin: '0 0 14px', fontSize: '15px', fontWeight: 700, color: '#1e293b', display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <i className="fa fa-ruler-combined" style={{ color: '#21008d' }}></i>
-              Label Size &amp; Dimension Specifications
-            </h4>
+          <Card title="Label Size & Dimension Specifications">
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: spacing.md, marginBottom: spacing.md }}>
+              <Select
+                label="Size Preset"
+                options={PRESET_OPTIONS}
+                value={currentConfig.preset}
+                onChange={(value) => {
+                  const preset = value as any;
+                  const dimMap: any = {
+                    '50x30': { widthMm: 50, heightMm: 30, font: 'medium', bHeight: 36 },
+                    '38x25': { widthMm: 38, heightMm: 25, font: 'small', bHeight: 28 },
+                    '74x38': { widthMm: 74, heightMm: 38, font: 'medium', bHeight: 44 },
+                    '100x50': { widthMm: 100, heightMm: 50, font: 'large', bHeight: 52 },
+                  };
+                  if (dimMap[preset]) {
+                    updateCurrentConfig({
+                      preset,
+                      widthMm: dimMap[preset].widthMm,
+                      heightMm: dimMap[preset].heightMm,
+                      fontSize: dimMap[preset].font,
+                      barcodeHeight: dimMap[preset].bHeight,
+                    });
+                  } else {
+                    updateCurrentConfig({ preset: 'custom' });
+                  }
+                }}
+              />
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px', marginBottom: '14px' }}>
-              <div>
-                <label style={{ fontSize: '12px', fontWeight: 600, color: '#334155', display: 'block', marginBottom: '6px' }}>
-                  Size Preset
-                </label>
-                <select
-                  value={currentConfig.preset}
-                  onChange={(e) => {
-                    const preset = e.target.value as any;
-                    const dimMap: any = {
-                      '50x30': { widthMm: 50, heightMm: 30, font: 'medium', bHeight: 36 },
-                      '38x25': { widthMm: 38, heightMm: 25, font: 'small', bHeight: 28 },
-                      '74x38': { widthMm: 74, heightMm: 38, font: 'medium', bHeight: 44 },
-                      '100x50': { widthMm: 100, heightMm: 50, font: 'large', bHeight: 52 },
-                    };
-                    if (dimMap[preset]) {
-                      updateCurrentConfig({
-                        preset,
-                        widthMm: dimMap[preset].widthMm,
-                        heightMm: dimMap[preset].heightMm,
-                        fontSize: dimMap[preset].font,
-                        barcodeHeight: dimMap[preset].bHeight,
-                      });
-                    } else {
-                      updateCurrentConfig({ preset: 'custom' });
-                    }
-                  }}
-                  style={{ width: '100%', padding: '8px 10px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '13px' }}
-                >
-                  <option value="50x30">50mm × 30mm (Standard Thermal)</option>
-                  <option value="38x25">38mm × 25mm (Compact Vial / Tube)</option>
-                  <option value="74x38">74mm × 38mm (Medium Card / Tag)</option>
-                  <option value="100x50">100mm × 50mm (Large IP Folder Tag)</option>
-                  <option value="custom">Custom Dimensions</option>
-                </select>
-              </div>
+              <Input
+                label="Width (mm)"
+                type="number"
+                value={currentConfig.widthMm}
+                onChange={(e) => updateCurrentConfig({ preset: 'custom', widthMm: Number(e.target.value) || 50 })}
+              />
 
-              <div>
-                <label style={{ fontSize: '12px', fontWeight: 600, color: '#334155', display: 'block', marginBottom: '6px' }}>
-                  Width (mm)
-                </label>
-                <input
-                  type="number"
-                  value={currentConfig.widthMm}
-                  onChange={(e) => updateCurrentConfig({ preset: 'custom', widthMm: Number(e.target.value) || 50 })}
-                  style={{ width: '100%', padding: '8px 10px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '13px' }}
-                />
-              </div>
-
-              <div>
-                <label style={{ fontSize: '12px', fontWeight: 600, color: '#334155', display: 'block', marginBottom: '6px' }}>
-                  Height (mm)
-                </label>
-                <input
-                  type="number"
-                  value={currentConfig.heightMm}
-                  onChange={(e) => updateCurrentConfig({ preset: 'custom', heightMm: Number(e.target.value) || 30 })}
-                  style={{ width: '100%', padding: '8px 10px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '13px' }}
-                />
-              </div>
+              <Input
+                label="Height (mm)"
+                type="number"
+                value={currentConfig.heightMm}
+                onChange={(e) => updateCurrentConfig({ preset: 'custom', heightMm: Number(e.target.value) || 30 })}
+              />
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px' }}>
-              <div>
-                <label style={{ fontSize: '12px', fontWeight: 600, color: '#334155', display: 'block', marginBottom: '6px' }}>
-                  Font Size
-                </label>
-                <select
-                  value={currentConfig.fontSize}
-                  onChange={(e) => updateCurrentConfig({ fontSize: e.target.value as any })}
-                  style={{ width: '100%', padding: '8px 10px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '13px' }}
-                >
-                  <option value="small">Small (Compact)</option>
-                  <option value="medium">Medium (Standard)</option>
-                  <option value="large">Large (High-Visibility)</option>
-                </select>
-              </div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: spacing.md }}>
+              <Select
+                label="Font Size"
+                options={FONT_SIZE_OPTIONS}
+                value={currentConfig.fontSize}
+                onChange={(value) => updateCurrentConfig({ fontSize: value as any })}
+              />
 
-              <div>
-                <label style={{ fontSize: '12px', fontWeight: 600, color: '#334155', display: 'block', marginBottom: '6px' }}>
-                  Barcode Height (px)
-                </label>
-                <input
-                  type="number"
-                  value={currentConfig.barcodeHeight}
-                  onChange={(e) => updateCurrentConfig({ barcodeHeight: Number(e.target.value) || 32 })}
-                  style={{ width: '100%', padding: '8px 10px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '13px' }}
-                />
-              </div>
+              <Input
+                label="Barcode Height (px)"
+                type="number"
+                value={currentConfig.barcodeHeight}
+                onChange={(e) => updateCurrentConfig({ barcodeHeight: Number(e.target.value) || 32 })}
+              />
 
-              <div>
-                <label style={{ fontSize: '12px', fontWeight: 600, color: '#334155', display: 'block', marginBottom: '6px' }}>
-                  Border Style
-                </label>
-                <select
-                  value={currentConfig.borderStyle}
-                  onChange={(e) => updateCurrentConfig({ borderStyle: e.target.value as any })}
-                  style={{ width: '100%', padding: '8px 10px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '13px' }}
-                >
-                  <option value="solid">Solid Line</option>
-                  <option value="dashed">Dashed Line</option>
-                  <option value="none">No Border</option>
-                </select>
-              </div>
+              <Select
+                label="Border Style"
+                options={BORDER_STYLE_OPTIONS}
+                value={currentConfig.borderStyle}
+                onChange={(value) => updateCurrentConfig({ borderStyle: value as any })}
+              />
             </div>
-          </div>
+          </Card>
 
           {/* Card 3: Inside Content Toggles */}
-          <div
-            style={{
-              backgroundColor: '#ffffff',
-              borderRadius: '10px',
-              padding: '18px 22px',
-              border: '1px solid #e2e8f0',
-              boxShadow: '0 2px 10px rgba(0,0,0,0.03)',
-            }}
+          <Card
+            title={`Inside Content Fields Configuration (${
+              activeModule === 'registration' ? 'Registration' : activeModule === 'labSample' ? 'Lab Sample' : 'Inventory'
+            })`}
           >
-            <h4 style={{ margin: '0 0 14px', fontSize: '15px', fontWeight: 700, color: '#1e293b', display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <i className="fa fa-list-check" style={{ color: '#21008d' }}></i>
-              Inside Content Fields Configuration ({activeModule === 'registration' ? 'Registration' : activeModule === 'labSample' ? 'Lab Sample' : 'Inventory'})
-            </h4>
-
-            <div style={{ marginBottom: '14px' }}>
-              <label style={{ fontSize: '12px', fontWeight: 600, color: '#334155', display: 'block', marginBottom: '4px' }}>
-                Header / Title Override (e.g. Hospital or Department Name)
-              </label>
-              <input
+            <div style={{ marginBottom: spacing.md }}>
+              <Input
+                label="Header / Title Override (e.g. Hospital or Department Name)"
                 type="text"
                 value={currentConfig.customHeader}
                 onChange={(e) => updateCurrentConfig({ customHeader: e.target.value })}
                 placeholder="Leave blank to use default facility name..."
-                style={{ width: '100%', padding: '8px 10px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '13px' }}
               />
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: spacing.sm }}>
               {Object.keys(currentConfig.fields).map((fieldKey) => {
                 const labelMap: Record<string, string> = {
                   showHospitalName: 'Hospital / Facility Name',
@@ -647,75 +519,60 @@ export const BarcodeMasterSettingsComponent: React.FC = () => {
                   showPrice: 'MRP / Unit Price (Rs.)',
                 };
 
+                const isChecked = Boolean(currentConfig.fields[fieldKey]);
+
                 return (
-                  <label
+                  <div
                     key={fieldKey}
                     style={{
                       display: 'flex',
                       alignItems: 'center',
-                      gap: '8px',
-                      fontSize: '13px',
-                      color: '#334155',
-                      cursor: 'pointer',
-                      padding: '6px 8px',
-                      borderRadius: '6px',
-                      background: currentConfig.fields[fieldKey] ? 'rgba(33, 0, 141, 0.04)' : '#f8fafc',
-                      border: '1px solid #e2e8f0',
+                      padding: `${spacing.xs} ${spacing.sm}`,
+                      borderRadius: radii.sm,
+                      background: isChecked ? colors.primaryLight : colors.surfaceMuted,
+                      border: `1px solid ${colors.border}`,
                     }}
                   >
-                    <input
-                      type="checkbox"
-                      checked={Boolean(currentConfig.fields[fieldKey])}
-                      onChange={(e) => toggleField(fieldKey, e.target.checked)}
-                      style={{ cursor: 'pointer' }}
+                    <Checkbox
+                      checked={isChecked}
+                      onChange={(checked) => toggleField(fieldKey, checked)}
+                      label={labelMap[fieldKey] || fieldKey}
                     />
-                    <span>{labelMap[fieldKey] || fieldKey}</span>
-                  </label>
+                  </div>
                 );
               })}
             </div>
-          </div>
+          </Card>
         </div>
 
         {/* RIGHT: Live Realistic Preview & Test Print */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
-          <div
-            style={{
-              backgroundColor: '#ffffff',
-              borderRadius: '10px',
-              padding: '20px 22px',
-              border: '1px solid #e2e8f0',
-              boxShadow: '0 2px 10px rgba(0,0,0,0.03)',
-              position: 'sticky',
-              top: '20px',
-            }}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: spacing.lg }}>
+          <Card
+            title="Live Master Label Preview"
+            actions={<Badge tone="info">{activeModule.toUpperCase()}</Badge>}
+            style={{ position: 'sticky', top: spacing.xl }}
           >
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px', borderBottom: '1.5px solid #f1f5f9', paddingBottom: '10px' }}>
-              <div>
-                <h4 style={{ margin: 0, fontSize: '15px', fontWeight: 700, color: '#1e293b' }}>
-                  Live Master Label Preview
-                </h4>
-                <span style={{ fontSize: '11px', color: '#64748b' }}>
-                  {currentConfig.widthMm}mm &times; {currentConfig.heightMm}mm &bull; {currentConfig.printerName}
-                </span>
-              </div>
-              <span style={{ fontSize: '11px', fontWeight: 700, color: '#21008d', background: 'rgba(33, 0, 141, 0.08)', padding: '3px 8px', borderRadius: '10px' }}>
-                {activeModule.toUpperCase()}
+            <div style={{ marginBottom: spacing.md }}>
+              <span style={{ ...typography.caption, color: colors.textMuted }}>
+                {currentConfig.widthMm}mm &times; {currentConfig.heightMm}mm &bull; {currentConfig.printerName}
               </span>
             </div>
 
-            {/* Label Card Box */}
+            {/* Label Card Box (chrome/wrapper around the live preview -- restyled with tokens) */}
             <div
               style={{
                 display: 'flex',
                 justifyContent: 'center',
-                backgroundColor: '#f8fafc',
-                padding: '24px 16px',
-                borderRadius: '8px',
-                border: '1px dashed #cbd5e1',
-                marginBottom: '16px',
+                backgroundColor: colors.surfaceMuted,
+                padding: `${spacing.xl} ${spacing.lg}`,
+                borderRadius: radii.md,
+                border: `1px dashed ${colors.borderStrong}`,
+                marginBottom: spacing.lg,
               }}
             >
+              {/* Live label render -- intentionally left untouched (structure, styles,
+                  and generateCode128Svg calls) since this mirrors the actual print
+                  output used by handleTestPrint via previewRef.current.innerHTML. */}
               <div
                 ref={previewRef}
                 style={{
@@ -827,7 +684,7 @@ export const BarcodeMasterSettingsComponent: React.FC = () => {
             </div>
 
             {/* Test Actions */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: spacing.sm }}>
               <Button
                 variant="primary"
                 size="md"
@@ -836,11 +693,11 @@ export const BarcodeMasterSettingsComponent: React.FC = () => {
               >
                 <i className="fa fa-print" style={{ marginRight: '6px' }}></i> Test Print to {currentConfig.printerName.split(' ')[0]}
               </Button>
-              <span style={{ fontSize: '11px', color: '#64748b', textAlign: 'center' }}>
+              <span style={{ ...typography.caption, color: colors.textMuted, textAlign: 'center' }}>
                 Sends test job with current master dimensions &amp; fields to test formatting.
               </span>
             </div>
-          </div>
+          </Card>
         </div>
       </div>
     </div>

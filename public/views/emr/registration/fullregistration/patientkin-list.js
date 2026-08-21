@@ -21,6 +21,8 @@
         }
         $scope.getListCallback = function (scope, data, options, hasError) {
             vm.gridConfig.data = data;
+            $scope.refreshReactProps();
+            $scope.$applyAsync();
         };
 
         $scope.getList = function () {
@@ -133,6 +135,38 @@
             };
             utl.Http.doAction(options);
         }
+
+        /* React bridge code starts */
+        $scope.reactProps = {};
+
+        $scope.refreshReactProps = function () {
+            $scope.reactProps = {
+                items: vm.gridConfig.data || [],
+                currentcontext: $scope.currentcontext,
+                flags: {
+                    canUpdatePatientInfo: $scope.canUpdatePatientInfo()
+                }
+            };
+        };
+
+        $scope.handleReactAction = function (actionName, payload) {
+            switch (actionName) {
+                case 'edit':
+                    // Mirrors the real ng-click="handleEvents('edit',entity)" cell action.
+                    $scope.handleEvents('edit', payload.entity);
+                    return;
+                case 'delete':
+                    // Mirrors the real ng-click="handleEvents('delete',entity)" cell action.
+                    $scope.handleEvents('delete', payload.entity);
+                    return;
+            }
+            if (typeof $scope[actionName] === 'function') {
+                $scope[actionName]();
+            }
+        };
+
+        $scope.refreshReactProps();
+        /* React bridge code ends */
 
         $scope.initLookup();
     }

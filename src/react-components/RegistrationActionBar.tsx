@@ -1,5 +1,6 @@
 import React from 'react';
 import { Button } from './Button';
+import { spacing } from '../components/ui/tokens';
 
 interface RegistrationActionBarProps {
   reactProps?: {
@@ -43,15 +44,15 @@ export const RegistrationActionBar: React.FC<RegistrationActionBarProps> = (prop
   };
 
   const renderActionButton = (
-    icon: string, 
-    tooltip: string, 
-    onClick: () => void, 
-    visible: boolean, 
+    icon: string,
+    tooltip: string,
+    onClick: () => void,
+    visible: boolean,
     disabled: boolean = false,
     badgeCount?: number
   ) => {
     if (!visible) return null;
-    
+
     return (
       <Button
         variant="icon"
@@ -65,25 +66,24 @@ export const RegistrationActionBar: React.FC<RegistrationActionBarProps> = (prop
   };
 
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+    <div style={{ display: 'flex', alignItems: 'center', gap: spacing.xs }}>
       {renderActionButton('fa-bed', 'Admission', () => handleAction('admission'), true)}
-      {renderActionButton('fa-exclamation-triangle', 'Clinical Alert', () => handleAction('clinicalalertview'), 
+      {renderActionButton('fa-exclamation-triangle', 'Clinical Alert', () => handleAction('clinicalalertview'),
         referredNewVisit && Number(patientStatusId) !== 3)}
-      {renderActionButton('fa-hospital-o', 'Consultation Charges', () => handleAction('consultationcharges'), 
+      {renderActionButton('fa-hospital-o', 'Consultation Charges', () => handleAction('consultationcharges'),
         billCompleted, isPatientDeactivated)}
-      {renderActionButton('fa-calculator', 'Billing', () => handleAction('opdBill'), 
+      {renderActionButton('fa-calculator', 'Billing', () => handleAction('opdBill'),
         saveCompleted && Number(patientStatusId) !== 3)}
-      {renderActionButton('fa-sign-out-alt', 'Checkout', () => handleAction('checkout'), 
+      {renderActionButton('fa-sign-out-alt', 'Checkout', () => handleAction('checkout'),
         saveCompleted && Number(patientStatusId) !== 3)}
-      {renderActionButton('fa-times', 'Deactivate', () => handleAction('saveAndInactive'), 
+      {renderActionButton('fa-times', 'Deactivate', () => handleAction('saveAndInactive'),
         saveCompleted && !isTempPatient, isPatientDeactivated)}
-      {renderActionButton('fa-paperclip', 'Attachments', () => handleAction('openattachments'), 
+      {renderActionButton('fa-paperclip', 'Attachments', () => handleAction('openattachments'),
         saveCompleted, false, attachmentCount)}
-      {renderActionButton('fa-barcode', 'Barcode', () => handleAction('printRegistrationIdlabel'), 
+      {renderActionButton('fa-barcode', 'Barcode', () => handleAction('printRegistrationIdlabel'),
         saveCompleted)}
       {renderActionButton('fa-plus', 'Add New', () => handleAction('addNewQuick'), true)}
       {renderActionButton('fa-home', 'Dashboard', () => handleAction('backtoList'), true)}
     </div>
   );
 };
-

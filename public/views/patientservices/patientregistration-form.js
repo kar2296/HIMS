@@ -178,6 +178,7 @@
         $scope.getPatientProfilePicCallback = function (scope, data, options, hasError) {
             //console.log(data);
             $scope.currentcontext.Photo = data.Photo;
+            $scope.refreshReactProps();
         };
 
         $scope.getPatientProfilePic = function () {
@@ -195,7 +196,7 @@
 
         $scope.getItemCallback = function (scope, data, options, hasError) {
             $scope.item = data;
-            $scope.getEncounters(); // 
+            $scope.getEncounters(); //
             if (data.MRNTypeId == 2 && data.PatientStatusId == 2) {
                 $scope.item.IsMRNTypeDisable = true;
             }
@@ -212,6 +213,7 @@
             $scope.item.Age = ageObj.y;
 
             $scope.setFocusTitle();
+            $scope.refreshReactProps();
         };
 
 
@@ -355,7 +357,7 @@
             utl.Modal.open('app.registrarion', {
                 params: { pid: $scope.currentcontext.id },
                 // confirmCallback: $scope.getList
-                confirmCallback: $scope.getItem // 
+                confirmCallback: $scope.getItem //
             });
         }
         $scope.vitals = function () {
@@ -414,7 +416,7 @@
             utl.Modal.open('app.appointment', {
                 params: { id: 0, pid: $scope.currentcontext.id, apptstatusid: 6 },
                 // confirmCallback: $scope.getList
-                confirmCallback: vistCreated // 
+                confirmCallback: vistCreated //
             });
         }
 
@@ -594,6 +596,7 @@
             $scope.item.iswebcamphoto = true;
             $scope.item.webcamphoto = base64String;
             $scope.currentcontext.file = null;
+            $scope.refreshReactProps();
         }
 
         $scope.openWebCam = function () {
@@ -664,6 +667,7 @@
         };
         $scope.lookupCallback = function (scope, data, options, hasError) {
             $scope.lookup = hasError ? {} : data;
+            $scope.refreshReactProps();
             $scope.getItem();
         }
 
@@ -717,6 +721,77 @@
             };
             utl.Http.doAction(options);
         }
+
+        // ---- React bridge (added for React migration) ----
+        // Builds the props object handed to <react-component name="PatientRegistrationFormScreen">.
+        // Keeps only the fields the React presentational layer actually needs; all real
+        // business logic/API calls above are untouched and still own $scope.item.
+        $scope.refreshReactProps = function () {
+            $scope.reactProps = {
+                item: $scope.item,
+                lookup: {
+                    Title: ($scope.lookup && $scope.lookup.Title) || [],
+                    Gender: ($scope.lookup && $scope.lookup.Gender) || [],
+                    MaritalStatus: ($scope.lookup && $scope.lookup.MaritalStatus) || [],
+                    Religion: ($scope.lookup && $scope.lookup.Religion) || [],
+                    Nationality: ($scope.lookup && $scope.lookup.Nationality) || [],
+                    Language: ($scope.lookup && $scope.lookup.Language) || [],
+                    PatientType: ($scope.lookup && $scope.lookup.PatientType) || []
+                },
+                currentcontext: {
+                    id: $scope.currentcontext.id,
+                    Photo: $scope.currentcontext.Photo
+                }
+            };
+        };
+        $scope.refreshReactProps();
+
+        $scope.handleReactAction = function (actionName, payload) {
+            if (actionName === 'saveAndApprove') {
+                angular.extend($scope.item, payload);
+                $scope.saveAndApprove();
+            } else if (actionName === 'backToList') {
+                $scope.backToList();
+            } else if (actionName === 'openWebCam') {
+                $scope.openWebCam();
+            } else if (actionName === 'clearimage') {
+                $scope.clearimage();
+                $scope.refreshReactProps();
+            } else if (actionName === 'fileSelected') {
+                $scope.currentcontext.file = (payload && payload.file) || null;
+            } else if (actionName === 'titleChange') {
+                $scope.item.TitleId = payload && payload.value;
+                $scope.fillGenderInfo();
+                $scope.refreshReactProps();
+                $scope.$applyAsync();
+            } else if (actionName === 'genderChange') {
+                $scope.item.GenderId = payload && payload.value;
+                $scope.refreshReactProps();
+                $scope.$applyAsync();
+            } else if (actionName === 'ageChange') {
+                $scope.item.Age = payload && payload.value;
+                $scope.calculateDOB($scope.item.Age, 'years');
+                $scope.refreshReactProps();
+                $scope.$applyAsync();
+            } else if (actionName === 'approxDaysChange') {
+                $scope.item.ApproxAgeDays = payload && payload.value;
+                $scope.calculateDOB($scope.item.ApproxAgeDays, 'days');
+                $scope.refreshReactProps();
+                $scope.$applyAsync();
+            } else if (actionName === 'approxMonthsChange') {
+                $scope.item.ApproxAgeMonths = payload && payload.value;
+                $scope.calculateDOB($scope.item.ApproxAgeMonths, 'months');
+                $scope.refreshReactProps();
+                $scope.$applyAsync();
+            } else if (actionName === 'dobChange') {
+                $scope.item.DOB = payload && payload.value;
+                $scope.calculateAge();
+                $scope.refreshReactProps();
+                $scope.$applyAsync();
+            } else if (typeof $scope[actionName] === 'function') {
+                $scope[actionName]();
+            }
+        };
 
         $scope.initLookup();
     }

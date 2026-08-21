@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { Button } from './Button';
+import { colors, spacing, radii, shadows } from '../components/ui/tokens';
 
 interface RegistrationFooterProps {
   reactProps?: {
@@ -64,8 +65,8 @@ export const RegistrationFooter: React.FC<RegistrationFooterProps> = (props: any
       display: 'flex',
       justifyContent: 'space-between',
       alignItems: 'center',
-      padding: '12px 24px',
-      backgroundColor: '#ffffff',
+      padding: `${spacing.md} ${spacing.xl}`,
+      backgroundColor: colors.surface,
       borderTop: '2px solid var(--premium-blue, #21008d)',
       boxShadow: '0 -4px 20px rgba(0, 0, 0, 0.18)',
       position: 'fixed',
@@ -76,8 +77,8 @@ export const RegistrationFooter: React.FC<RegistrationFooterProps> = (props: any
       minHeight: '60px',
       boxSizing: 'border-box'
     }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-        
+      <div style={{ display: 'flex', alignItems: 'center', gap: spacing.sm, flexWrap: 'wrap' }}>
+
         {privileges.canCrossConsult !== false && (
           <Button variant="secondary" onClick={() => handleAction('crossconsult')}>
             Multiple Consultation
@@ -91,10 +92,10 @@ export const RegistrationFooter: React.FC<RegistrationFooterProps> = (props: any
         )}
 
         {privileges.canAttachment !== false && (
-          <Button 
-            variant="secondary" 
-            icon="fa-paperclip" 
-            onClick={() => handleAction('openattachments')} 
+          <Button
+            variant="secondary"
+            icon="fa-paperclip"
+            onClick={() => handleAction('openattachments')}
             title="Attachments"
           >
             ({attachmentCount})
@@ -102,8 +103,8 @@ export const RegistrationFooter: React.FC<RegistrationFooterProps> = (props: any
         )}
 
         {privileges.canNewVisit !== false && (
-          <Button 
-            variant="warning" 
+          <Button
+            variant="warning"
             disabled={Number(patientStatusId) === 3}
             onClick={() => handleAction('newvisit')}
           >
@@ -112,8 +113,8 @@ export const RegistrationFooter: React.FC<RegistrationFooterProps> = (props: any
         )}
 
         {privileges.canOPDBill !== false && (
-          <Button 
-            variant="info" 
+          <Button
+            variant="info"
             disabled={Number(patientStatusId) === 3}
             onClick={() => handleAction('opdBill')}
           >
@@ -122,8 +123,8 @@ export const RegistrationFooter: React.FC<RegistrationFooterProps> = (props: any
         )}
 
         {vitalsEnabled !== false && !isTempPatient && (
-          <Button 
-            variant="primary" 
+          <Button
+            variant="primary"
             disabled={Number(patientStatusId) === 3}
             onClick={() => handleAction('vitals')}
             style={{ backgroundColor: '#6f42c1' }}
@@ -133,8 +134,8 @@ export const RegistrationFooter: React.FC<RegistrationFooterProps> = (props: any
         )}
 
         {visitPrintEnabled !== false && !isTempPatient && !showPrintDropdown && (
-          <Button 
-            variant="success" 
+          <Button
+            variant="success"
             disabled={Number(patientStatusId) === 3}
             onClick={() => handleAction('visitprint')}
           >
@@ -144,23 +145,23 @@ export const RegistrationFooter: React.FC<RegistrationFooterProps> = (props: any
 
         {showPrintDropdown !== false && (
           <div style={{ position: 'relative', display: 'inline-block' }}>
-            <Button 
-              variant="light" 
+            <Button
+              variant="light"
               onClick={() => setShowPrintMenu(!showPrintMenu)}
             >
-              Print <i className="fa fa-caret-down" style={{ marginLeft: '6px' }}></i>
+              Print <i className="fa fa-caret-down" style={{ marginLeft: spacing.xs }}></i>
             </Button>
             {showPrintMenu && (
               <div style={{
-                position: 'absolute', bottom: '100%', left: 0, marginBottom: '8px',
-                backgroundColor: '#fff', borderRadius: '4px', boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                position: 'absolute', bottom: '100%', left: 0, marginBottom: spacing.sm,
+                backgroundColor: colors.surface, borderRadius: radii.sm, boxShadow: shadows.md,
                 minWidth: '200px', overflow: 'hidden', display: 'flex', flexDirection: 'column', zIndex: 1000
               }}>
-                <div style={{padding: '8px 16px', cursor: 'pointer', borderBottom: '1px solid #eee'}} onClick={() => { handleAction('printRegistration'); setShowPrintMenu(false); }}>Registration Print</div>
-                <div style={{padding: '8px 16px', cursor: 'pointer', borderBottom: '1px solid #eee'}} onClick={() => { handleAction('printRegistrationIdlabel'); setShowPrintMenu(false); }}>Registration ID Label</div>
-                <div style={{padding: '8px 16px', cursor: 'pointer', borderBottom: '1px solid #eee'}} onClick={() => { handleAction('print5'); setShowPrintMenu(false); }}>Registration Label (A4)</div>
-                <div style={{padding: '8px 16px', cursor: 'pointer', borderBottom: '1px solid #eee'}} onClick={() => { handleAction('printVisitSlip'); setShowPrintMenu(false); }}>Visit Print</div>
-                <div style={{padding: '8px 16px', cursor: 'pointer'}} onClick={() => { handleAction('printOPBill'); setShowPrintMenu(false); }}>OP Bill Print</div>
+                <div style={{padding: `${spacing.sm} ${spacing.lg}`, cursor: 'pointer', borderBottom: `1px solid ${colors.border}`, color: colors.textMain}} onClick={() => { handleAction('printRegistration'); setShowPrintMenu(false); }}>Registration Print</div>
+                <div style={{padding: `${spacing.sm} ${spacing.lg}`, cursor: 'pointer', borderBottom: `1px solid ${colors.border}`, color: colors.textMain}} onClick={() => { handleAction('printRegistrationIdlabel'); setShowPrintMenu(false); }}>Registration ID Label</div>
+                <div style={{padding: `${spacing.sm} ${spacing.lg}`, cursor: 'pointer', borderBottom: `1px solid ${colors.border}`, color: colors.textMain}} onClick={() => { handleAction('print5'); setShowPrintMenu(false); }}>Registration Label (A4)</div>
+                <div style={{padding: `${spacing.sm} ${spacing.lg}`, cursor: 'pointer', borderBottom: `1px solid ${colors.border}`, color: colors.textMain}} onClick={() => { handleAction('printVisitSlip'); setShowPrintMenu(false); }}>Visit Print</div>
+                <div style={{padding: `${spacing.sm} ${spacing.lg}`, cursor: 'pointer', color: colors.textMain}} onClick={() => { handleAction('printOPBill'); setShowPrintMenu(false); }}>OP Bill Print</div>
               </div>
             )}
           </div>
@@ -168,9 +169,9 @@ export const RegistrationFooter: React.FC<RegistrationFooterProps> = (props: any
 
       </div>
 
-      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginLeft: 'auto', flexShrink: 0 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: spacing.md, marginLeft: 'auto', flexShrink: 0 }}>
         {actualProps.canShowSaveBtn && (
-          <Button 
+          <Button
             variant="warning"
             size="lg"
             onClick={() => handleAction('save')}
@@ -181,7 +182,7 @@ export const RegistrationFooter: React.FC<RegistrationFooterProps> = (props: any
         )}
 
         {Number(swosthaPatient) === 1 ? (
-          <Button 
+          <Button
             variant="success"
             size="lg"
             disabled={isDisabled}
@@ -198,7 +199,7 @@ export const RegistrationFooter: React.FC<RegistrationFooterProps> = (props: any
             Save Swostha Patient
           </Button>
         ) : (
-          <Button 
+          <Button
             variant="success"
             size="lg"
             disabled={isDisabled}
@@ -219,4 +220,3 @@ export const RegistrationFooter: React.FC<RegistrationFooterProps> = (props: any
     </div>
   );
 };
-

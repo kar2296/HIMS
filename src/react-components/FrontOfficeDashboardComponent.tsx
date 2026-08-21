@@ -10,7 +10,7 @@ interface DashboardItems {
   bedtransfer?: string | number;
   ippatient?: string | number;
   reports?: string | number;
-  
+
   RegistrationCount?: string | number;
   OPVisitCount?: string | number;
   AdmittedCount?: string | number;
@@ -47,6 +47,10 @@ interface FrontOfficeDashboardProps {
 
 import { apiFetch } from './utils/api';
 import { RegCumVisitWithBillScreen } from './RegCumVisitWithBillScreen';
+import { Card } from '../components/ui/Card';
+import { PageHeader } from '../components/ui/Breadcrumb';
+import { Loading } from '../components/ui/Loading';
+import { colors, spacing, typography, radii, transitions } from '../components/ui/tokens';
 
 export const FrontOfficeDashboardComponent: React.FC<FrontOfficeDashboardProps> = ({
   permissions = {},
@@ -243,45 +247,39 @@ export const FrontOfficeDashboardComponent: React.FC<FrontOfficeDashboardProps> 
   ];
 
   return (
-    <div style={{ padding: '24px', fontFamily: 'var(--font-modern)', backgroundColor: 'var(--premium-bg-light)', minHeight: '100vh', opacity: loading ? 0.6 : 1, transition: 'opacity 0.3s' }}>
-      
+    <div
+      style={{
+        padding: spacing.xl,
+        fontFamily: typography.fontFamily,
+        backgroundColor: colors.surfaceMuted,
+        minHeight: '100vh',
+        opacity: loading ? 0.6 : 1,
+        transition: transitions.base
+      }}
+    >
+
       {/* Header */}
-      <div style={{ marginBottom: '24px', display: 'flex', alignItems: 'center' }}>
-        <div>
-          <h4 style={{ margin: 0, color: 'var(--premium-text-main)', fontSize: '24px', fontWeight: 600 }}>
-            Front Office Dashboard
-          </h4>
-          <p style={{ margin: '4px 0 0', color: 'var(--premium-text-muted)', fontSize: '14px' }}>
-            Overview of today's hospital operations
-          </p>
-        </div>
-        {loading && (
-          <div style={{ marginLeft: '20px', color: 'var(--premium-blue)', fontSize: '14px' }}>
-            <i className="fa fa-spinner fa-spin" style={{ marginRight: '8px' }}></i> Loading metrics...
-          </div>
-        )}
-      </div>
+      <PageHeader
+        title="Front Office Dashboard"
+        subtitle="Overview of today's hospital operations"
+        actions={loading && <Loading text="Loading metrics..." size="sm" />}
+      />
 
       {/* Cards Grid */}
       <div style={{
         display: 'grid',
         gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))',
-        gap: '20px',
-        marginBottom: '40px'
+        gap: spacing.lg,
+        marginTop: spacing.xl,
+        marginBottom: spacing.xxl
       }}>
         {cards.filter(c => c.show !== false).map(card => (
-          <div 
+          <div
             key={card.id}
             onClick={card.action}
-            className="premium-glass-panel"
             style={{
-              padding: '20px',
               cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              transition: 'transform 0.2s',
-              borderLeft: `5px solid ${card.color}`
+              transition: transitions.base
             }}
             onMouseEnter={(e) => {
               e.currentTarget.style.transform = 'translateY(-5px)';
@@ -290,75 +288,64 @@ export const FrontOfficeDashboardComponent: React.FC<FrontOfficeDashboardProps> 
               e.currentTarget.style.transform = 'translateY(0)';
             }}
           >
-            <div>
-              <div style={{ color: 'var(--premium-text-muted)', fontSize: '13px', fontWeight: 500, marginBottom: '8px' }}>
-                {card.title.toUpperCase()}
-              </div>
-              {card.count !== undefined && (
-                <div style={{ color: 'var(--premium-text-main)', fontSize: '28px', fontWeight: 700 }}>
-                  {card.count}
+            <Card style={{ borderLeft: `5px solid ${card.color}` }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <div>
+                  <div style={{ ...typography.label, color: colors.textMuted, marginBottom: spacing.sm }}>
+                    {card.title.toUpperCase()}
+                  </div>
+                  {card.count !== undefined && (
+                    <div style={{ color: colors.textMain, fontSize: '28px', fontWeight: 700 }}>
+                      {card.count}
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>
-            <div style={{
-              width: '50px',
-              height: '50px',
-              borderRadius: '50%',
-              backgroundColor: `${card.color}15`,
-              color: card.color,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: '20px'
-            }}>
-              <i className={`fa ${card.icon}`}></i>
-            </div>
+                <div style={{
+                  width: '50px',
+                  height: '50px',
+                  borderRadius: radii.full,
+                  backgroundColor: `${card.color}15`,
+                  color: card.color,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '20px'
+                }}>
+                  <i className={`fa ${card.icon}`}></i>
+                </div>
+              </div>
+            </Card>
           </div>
         ))}
       </div>
 
       {/* Summary Section */}
-      <div className="premium-glass-panel" style={{
-        overflow: 'hidden',
-        maxWidth: '600px'
-      }}>
-        <div style={{
-          backgroundColor: 'var(--premium-blue)',
-          color: '#fff',
-          padding: '16px 20px',
-          fontSize: '16px',
-          fontWeight: 600
-        }}>
-          Summary
-        </div>
-        
-        <div style={{ padding: '0 20px' }}>
-          {[
-            { label: 'Today Registrations', value: items.RegistrationCount },
-            { label: 'Total Consultations', value: items.OPVisitCount },
-            { label: 'Today Admitted', value: items.AdmittedCount },
-            { label: 'Today Discharges', value: items.DischargeCount },
-            { label: 'Total Occupancy (ER & IP)', value: items.TotalOccupancyCount },
-            { label: 'Pending Discharges', value: items.PendingdischargeCount },
-            { label: 'Present Occupancy', value: items.PresentOccupancyCount }
-          ].map((row, index, arr) => (
-            <div key={index} style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              padding: '16px 0',
-              borderBottom: index === arr.length - 1 ? 'none' : '1px solid rgba(0,0,0,0.05)'
-            }}>
-              <span style={{ color: 'var(--premium-text-muted)', fontSize: '14px', fontWeight: 500 }}>
-                {row.label}
-              </span>
-              <span style={{ color: 'var(--premium-text-main)', fontSize: '15px', fontWeight: 600 }}>
-                {row.value || 0}
-              </span>
-            </div>
-          ))}
-        </div>
-      </div>
-      
+      <Card title="Summary" style={{ maxWidth: '600px' }}>
+        {[
+          { label: 'Today Registrations', value: items.RegistrationCount },
+          { label: 'Total Consultations', value: items.OPVisitCount },
+          { label: 'Today Admitted', value: items.AdmittedCount },
+          { label: 'Today Discharges', value: items.DischargeCount },
+          { label: 'Total Occupancy (ER & IP)', value: items.TotalOccupancyCount },
+          { label: 'Pending Discharges', value: items.PendingdischargeCount },
+          { label: 'Present Occupancy', value: items.PresentOccupancyCount }
+        ].map((row, index, arr) => (
+          <div key={index} style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            padding: `${spacing.lg} 0`,
+            borderBottom: index === arr.length - 1 ? 'none' : `1px solid ${colors.border}`
+          }}>
+            <span style={{ ...typography.body, color: colors.textMuted }}>
+              {row.label}
+            </span>
+            <span style={{ ...typography.body, fontWeight: 600, color: colors.textMain }}>
+              {row.value || 0}
+            </span>
+          </div>
+        ))}
+      </Card>
+
       {showRegCumVisitWithBill && (
         <RegCumVisitWithBillScreen
           context={currentcontext}

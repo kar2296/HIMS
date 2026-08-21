@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { Button } from './Button';
+import { colors, spacing, radii, shadows, typography } from '../components/ui/tokens';
 
 export interface PatientBarcodeData {
   mrn?: string;
@@ -246,6 +247,14 @@ export const BarcodeModal: React.FC<BarcodeModalProps> = ({
     large: { title: '12px', text: '10.5px', bold: '11.5px' },
   }[masterConfig.fontSize as 'small' | 'medium' | 'large'] || { title: '11px', text: '9.5px', bold: '10.5px' };
 
+  // NOTE: This is a genuinely React-owned dialog (isOpen/onClose props, no
+  // utl.Modal.open native call) but its outer chrome is intentionally kept as
+  // hand-rolled markup rather than the design-system `Modal`: the shared
+  // `Modal` shell hard-codes a string-only `title`, spacing.lg body padding,
+  // and zIndex.modal (1030) -- all of which would break this component's
+  // deliberately "ultra-compact" label-preview layout and its very high
+  // z-index (needed to stack above legacy AngularJS-rendered chrome). Only
+  // tokens + Button are applied to the existing header/body/footer structure.
   return (
     <div
       style={{
@@ -260,30 +269,30 @@ export const BarcodeModal: React.FC<BarcodeModalProps> = ({
         alignItems: 'center',
         justifyContent: 'center',
         zIndex: 999999,
-        fontFamily: "'Poppins', 'Montserrat', -apple-system, sans-serif",
+        fontFamily: typography.fontFamily,
       }}
       onClick={onClose}
     >
       <div
         style={{
-          backgroundColor: '#ffffff',
-          borderRadius: '8px',
+          backgroundColor: colors.surface,
+          borderRadius: radii.md,
           width: '350px',
           maxWidth: '92%',
-          boxShadow: '0 16px 36px -8px rgba(0, 0, 0, 0.25)',
+          boxShadow: shadows.lg,
           overflow: 'hidden',
           display: 'flex',
           flexDirection: 'column',
-          border: '1px solid #e2e8f0',
+          border: `1px solid ${colors.border}`,
         }}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Ultra-Compact Header */}
         <div
           style={{
-            background: 'linear-gradient(135deg, #00005c 0%, #1a0070 100%)',
+            background: `linear-gradient(135deg, ${colors.primary} 0%, ${colors.primaryHover} 100%)`,
             color: '#ffffff',
-            padding: '7px 12px',
+            padding: `${spacing.sm} ${spacing.md}`,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
@@ -294,7 +303,7 @@ export const BarcodeModal: React.FC<BarcodeModalProps> = ({
             <span style={{ fontSize: '13px', fontWeight: 700, color: '#ffffff' }}>
               Barcode Label
             </span>
-            <span style={{ fontSize: '9.5px', color: '#cbd5e1', marginLeft: '4px' }}>
+            <span style={{ fontSize: '9.5px', color: colors.borderStrong, marginLeft: '4px' }}>
               ({masterConfig.widthMm}&times;{masterConfig.heightMm}mm &bull; <strong style={{ color: '#86efac' }}>{masterConfig.printerName.split(' ')[0]}</strong>)
             </span>
           </div>
@@ -307,7 +316,7 @@ export const BarcodeModal: React.FC<BarcodeModalProps> = ({
             style={{
               background: 'transparent',
               border: 'none',
-              color: '#cbd5e1',
+              color: colors.borderStrong,
               fontSize: '15px',
               cursor: 'pointer',
               lineHeight: 1,
@@ -322,13 +331,21 @@ export const BarcodeModal: React.FC<BarcodeModalProps> = ({
         {/* Ultra-Compact Body */}
         <div
           style={{
-            padding: '8px 12px',
-            backgroundColor: '#f8fafc',
+            padding: `${spacing.sm} ${spacing.md}`,
+            backgroundColor: colors.surfaceMuted,
             display: 'flex',
             flexDirection: 'column',
           }}
         >
           {/* Label Preview Card */}
+          {/*
+            The div below (ref=printRef) is mirrored verbatim via
+            `printContent.innerHTML` into the physical print window in
+            handlePrint() -- its structure, inline styles and colors drive
+            the actual printed barcode label, so it is intentionally left
+            completely untouched (no design-system components/tokens) to
+            avoid any risk to print output fidelity.
+          */}
           <div
             style={{
               display: 'flex',
@@ -495,44 +512,49 @@ export const BarcodeModal: React.FC<BarcodeModalProps> = ({
         {/* Integrated Footer: Copies on Left + Close & Print on Right */}
         <div
           style={{
-            padding: '7px 12px',
+            padding: `${spacing.sm} ${spacing.md}`,
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center',
-            backgroundColor: '#ffffff',
-            borderTop: '1px solid #f1f5f9',
+            backgroundColor: colors.surface,
+            borderTop: `1px solid ${colors.surfaceSunken}`,
           }}
         >
           {/* Inline Copies Counter */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <span style={{ fontSize: '11px', fontWeight: 600, color: '#475569' }}>
+            <span style={{ fontSize: '11px', fontWeight: 600, color: colors.textMuted }}>
               Copies:
             </span>
             <div
               style={{
                 display: 'flex',
                 alignItems: 'center',
-                border: '1px solid #cbd5e1',
-                borderRadius: '4px',
+                border: `1px solid ${colors.borderStrong}`,
+                borderRadius: radii.sm,
                 overflow: 'hidden',
-                background: '#ffffff',
+                background: colors.surface,
               }}
             >
-              <button
-                type="button"
+              <Button
+                variant="icon"
+                size="xs"
                 onClick={() => setCopies(Math.max(1, copies - 1))}
+                title="Decrease copies"
                 style={{
                   border: 'none',
+                  borderRadius: 0,
                   background: 'transparent',
+                  width: 'auto',
+                  minHeight: 'auto',
                   padding: '2px 7px',
-                  cursor: 'pointer',
                   fontWeight: 700,
-                  color: '#475569',
+                  color: colors.textMuted,
                   fontSize: '11px',
+                  boxShadow: 'none',
                 }}
               >
                 -
-              </button>
+              </Button>
               <span
                 style={{
                   padding: '2px 6px',
@@ -544,26 +566,31 @@ export const BarcodeModal: React.FC<BarcodeModalProps> = ({
               >
                 {copies}
               </span>
-              <button
-                type="button"
+              <Button
+                variant="icon"
+                size="xs"
                 onClick={() => setCopies(copies + 1)}
+                title="Increase copies"
                 style={{
                   border: 'none',
+                  borderRadius: 0,
                   background: 'transparent',
+                  width: 'auto',
+                  minHeight: 'auto',
                   padding: '2px 7px',
-                  cursor: 'pointer',
                   fontWeight: 700,
-                  color: '#475569',
+                  color: colors.textMuted,
                   fontSize: '11px',
+                  boxShadow: 'none',
                 }}
               >
                 +
-              </button>
+              </Button>
             </div>
           </div>
 
-          <div style={{ display: 'flex', gap: '8px' }}>
-            <Button variant="secondary" size="xs" onClick={onClose} style={{ minWidth: '60px', padding: '4px 10px', fontSize: '12px' }}>
+          <div style={{ display: 'flex', gap: spacing.sm }}>
+            <Button variant="secondary" size="xs" onClick={onClose} style={{ minWidth: '60px', padding: '4px 10px', fontSize: typography.helper.fontSize }}>
               Close
             </Button>
 
@@ -572,7 +599,7 @@ export const BarcodeModal: React.FC<BarcodeModalProps> = ({
               size="xs"
               onClick={handlePrint}
               autoFocus
-              style={{ minWidth: '90px', padding: '4px 12px', fontSize: '12px', fontWeight: 600 }}
+              style={{ minWidth: '90px', padding: '4px 12px', fontSize: typography.helper.fontSize, fontWeight: 600 }}
             >
               <i className="fa fa-print" style={{ marginRight: '4px' }}></i> Print ({copies})
             </Button>

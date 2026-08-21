@@ -1,5 +1,10 @@
 import React, { useState } from 'react';
 import { Button } from './Button';
+import { Input } from '../components/ui/Input';
+import { Alert } from '../components/ui/Alert';
+import { Card } from '../components/ui/Card';
+import { Checkbox } from '../components/ui/Checkbox';
+import { colors, spacing, typography, radii } from '../components/ui/tokens';
 
 interface LoginPageProps {
   onLogin?: (username: string, password: string) => void;
@@ -34,13 +39,13 @@ export const LoginPage: React.FC<LoginPageProps> = ({
         justifyContent: 'center',
         minHeight: '100vh',
         width: '100%',
-        padding: '24px 16px',
+        padding: `${spacing.xl} ${spacing.lg}`,
         boxSizing: 'border-box',
         backgroundImage:
           'url("https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80")',
         backgroundSize: 'cover',
         backgroundPosition: 'center',
-        fontFamily: "'Poppins', 'Montserrat', -apple-system, sans-serif",
+        fontFamily: typography.fontFamily,
         position: 'relative',
         overflowY: 'auto',
       }}
@@ -60,28 +65,27 @@ export const LoginPage: React.FC<LoginPageProps> = ({
       ></div>
 
       {/* Login Card */}
-      <div
+      <Card
+        padding={spacing.xxl}
         style={{
-          background: 'rgba(255, 255, 255, 0.88)',
+          backgroundColor: 'rgba(255, 255, 255, 0.88)',
           backdropFilter: 'blur(24px)',
           WebkitBackdropFilter: 'blur(24px)',
-          padding: '32px 36px',
-          borderRadius: '16px',
+          borderRadius: radii.xl,
+          border: 'none',
           boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(255, 255, 255, 0.8)',
           width: '100%',
           maxWidth: '430px',
           zIndex: 1,
-          boxSizing: 'border-box',
-          margin: 'auto',
         }}
       >
         {/* Logo Area */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: spacing.md, marginBottom: spacing.lg }}>
           <div
             style={{
               width: '42px',
               height: '42px',
-              borderRadius: '10px',
+              borderRadius: radii.md,
               background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
               display: 'flex',
               alignItems: 'center',
@@ -94,196 +98,98 @@ export const LoginPage: React.FC<LoginPageProps> = ({
             <i className="fa-solid fa-house-medical"></i>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column' }}>
-            <span style={{ color: '#00005c', fontWeight: 800, fontSize: '22px', lineHeight: '1.2', letterSpacing: '-0.3px' }}>
+            <span style={{ color: colors.primary, fontWeight: 800, fontSize: '22px', lineHeight: '1.2', letterSpacing: '-0.3px' }}>
               MediCare
             </span>
-            <span style={{ color: '#64748b', fontSize: '11px', fontWeight: 500, letterSpacing: '0.4px' }}>
+            <span style={{ ...typography.caption, color: colors.textMuted, letterSpacing: '0.4px', fontFamily: typography.fontFamily }}>
               Securing Global Health
             </span>
           </div>
         </div>
 
         {/* Title Area */}
-        <div style={{ marginBottom: '22px' }}>
+        <div style={{ marginBottom: spacing.xl }}>
           <h2
             style={{
-              color: '#0f172a',
-              fontWeight: 700,
+              ...typography.sectionHeading,
+              color: colors.textMain,
               fontSize: '20px',
               margin: '0 0 4px 0',
               letterSpacing: '-0.2px',
+              fontFamily: typography.fontFamily,
             }}
           >
             Welcome Back to MediCare
           </h2>
-          <p style={{ color: '#475569', fontSize: '13px', margin: 0, fontWeight: 400 }}>
+          <p style={{ ...typography.body, color: colors.textMuted, margin: 0, fontFamily: typography.fontFamily }}>
             Securely sign in to your enterprise account.
           </p>
         </div>
 
         {/* Error Message */}
         {errorMessage && (
-          <div
-            style={{
-              backgroundColor: '#fef2f2',
-              color: '#991b1b',
-              padding: '10px 14px',
-              borderRadius: '8px',
-              marginBottom: '16px',
-              fontSize: '12.5px',
-              fontWeight: 500,
-              border: '1px solid #fecaca',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-            }}
-          >
-            <i className="fa-solid fa-circle-exclamation" style={{ color: '#dc2626' }}></i>
-            <div style={{ flex: 1 }}>
-              {errorMessage === 'ACCOUNT_LOCKED'
-                ? 'Your account has been locked due to too many failed login attempts.'
-                : errorMessage}
-            </div>
+          <div style={{ marginBottom: spacing.lg }}>
+            <Alert tone="danger">
+              <div style={{ display: 'flex', alignItems: 'center', gap: spacing.sm }}>
+                <div style={{ flex: 1 }}>
+                  {errorMessage === 'ACCOUNT_LOCKED'
+                    ? 'Your account has been locked due to too many failed login attempts.'
+                    : errorMessage}
+                </div>
 
-            {errorMessage === 'ACCOUNT_LOCKED' && (
-              <Button variant="danger" size="xs" onClick={onResetPassword}>
-                Reset
-              </Button>
-            )}
+                {errorMessage === 'ACCOUNT_LOCKED' && (
+                  <Button variant="danger" size="xs" onClick={onResetPassword}>
+                    Reset
+                  </Button>
+                )}
+              </div>
+            </Alert>
           </div>
         )}
 
         {/* Login Form */}
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: spacing.lg }}>
           {/* Username Input Group */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-            <label style={{ fontSize: '13px', fontWeight: 600, color: '#1e293b' }}>
-              User Name
-            </label>
-            <div
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                backgroundColor: '#ffffff',
-                border: '1.5px solid #cbd5e1',
-                borderRadius: '8px',
-                overflow: 'hidden',
-                transition: 'all 0.2s ease',
-                boxShadow: '0 1px 2px rgba(0, 0, 0, 0.04)',
-              }}
-              onFocus={(e) => {
-                e.currentTarget.style.borderColor = '#00005c';
-                e.currentTarget.style.boxShadow = '0 0 0 3px rgba(0, 0, 92, 0.12)';
-              }}
-              onBlur={(e) => {
-                e.currentTarget.style.borderColor = '#cbd5e1';
-                e.currentTarget.style.boxShadow = '0 1px 2px rgba(0, 0, 0, 0.04)';
-              }}
-            >
-              <div
-                style={{
-                  width: '42px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  color: '#64748b',
-                  fontSize: '15px',
-                  flexShrink: 0,
-                }}
-              >
-                <i className="fa-regular fa-envelope"></i>
-              </div>
-              <input
-                type="text"
-                placeholder="user@hospital.com"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                required
-                disabled={isLoading}
-                style={{
-                  flex: 1,
-                  border: 'none',
-                  outline: 'none',
-                  padding: '11px 12px 11px 0',
-                  fontSize: '14px',
-                  color: '#0f172a',
-                  backgroundColor: 'transparent',
-                  width: '100%',
-                  boxSizing: 'border-box',
-                }}
-              />
-            </div>
-          </div>
+          <Input
+            label="User Name"
+            required
+            type="text"
+            placeholder="user@hospital.com"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            disabled={isLoading}
+            leftIcon="fa-regular fa-envelope"
+          />
 
           {/* Password Input Group */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-            <label style={{ fontSize: '13px', fontWeight: 600, color: '#1e293b' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: spacing.xs }}>
+            <label style={{ ...typography.label, color: colors.textMain, fontFamily: typography.fontFamily }}>
               Password
             </label>
-            <div
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                backgroundColor: '#ffffff',
-                border: '1.5px solid #cbd5e1',
-                borderRadius: '8px',
-                overflow: 'hidden',
-                transition: 'all 0.2s ease',
-                boxShadow: '0 1px 2px rgba(0, 0, 0, 0.04)',
-              }}
-              onFocus={(e) => {
-                e.currentTarget.style.borderColor = '#00005c';
-                e.currentTarget.style.boxShadow = '0 0 0 3px rgba(0, 0, 92, 0.12)';
-              }}
-              onBlur={(e) => {
-                e.currentTarget.style.borderColor = '#cbd5e1';
-                e.currentTarget.style.boxShadow = '0 1px 2px rgba(0, 0, 0, 0.04)';
-              }}
-            >
-              <div
-                style={{
-                  width: '42px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  color: '#64748b',
-                  fontSize: '15px',
-                  flexShrink: 0,
-                }}
-              >
-                <i className="fa-solid fa-lock"></i>
-              </div>
-              <input
+            {/* Input doesn't expose a trailing/right-icon slot, so the show/hide
+                toggle is layered on top of it in a position:relative wrapper --
+                same toggle element and click behavior as before, just restyled. */}
+            <div style={{ position: 'relative' }}>
+              <Input
                 type={showPassword ? 'text' : 'password'}
                 placeholder="••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 disabled={isLoading}
-                style={{
-                  flex: 1,
-                  border: 'none',
-                  outline: 'none',
-                  padding: '11px 8px 11px 0',
-                  fontSize: '14px',
-                  color: '#0f172a',
-                  backgroundColor: 'transparent',
-                  width: '100%',
-                  boxSizing: 'border-box',
-                }}
+                leftIcon="fa-solid fa-lock"
+                style={{ paddingRight: '38px' }}
               />
               <div
                 onClick={() => setShowPassword(!showPassword)}
                 style={{
-                  width: '38px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  color: '#64748b',
+                  position: 'absolute',
+                  right: spacing.sm,
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  color: colors.textMuted,
                   cursor: 'pointer',
                   fontSize: '14px',
-                  flexShrink: 0,
-                  transition: 'color 0.2s',
                 }}
                 title={showPassword ? 'Hide password' : 'Show password'}
               >
@@ -298,36 +204,15 @@ export const LoginPage: React.FC<LoginPageProps> = ({
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between',
-              marginTop: '2px',
+              marginTop: spacing.xs,
             }}
           >
-            <label
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px',
-                fontSize: '13px',
-                color: '#475569',
-                cursor: 'pointer',
-                userSelect: 'none',
-                margin: 0,
-              }}
-            >
-              <input
-                type="checkbox"
-                id="keepSignedIn"
-                checked={keepSignedIn}
-                onChange={(e) => setKeepSignedIn(e.target.checked)}
-                style={{
-                  cursor: 'pointer',
-                  width: '15px',
-                  height: '15px',
-                  accentColor: '#00005c',
-                  margin: 0,
-                }}
-              />
-              <span>Keep me signed in</span>
-            </label>
+            <Checkbox
+              id="keepSignedIn"
+              label="Keep me signed in"
+              checked={keepSignedIn}
+              onChange={(checked) => setKeepSignedIn(checked)}
+            />
 
             <a
               href="#"
@@ -337,7 +222,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({
               }}
               style={{
                 color: '#d97706',
-                fontSize: '12.5px',
+                fontSize: typography.helper.fontSize,
                 fontWeight: 600,
                 textDecoration: 'none',
               }}
@@ -346,34 +231,21 @@ export const LoginPage: React.FC<LoginPageProps> = ({
             </a>
           </div>
 
-          {/* Sign In Button */}
+          {/* Sign In Button -- Button's own loading/loadingText affordance
+              drives the in-progress spinner, replacing the hand-rolled
+              <i class="fa-spin"/> markup; isLoading still governs it exactly
+              as before. */}
           <Button
             type="submit"
             disabled={isLoading || !username || !password}
+            loading={isLoading}
+            loadingText="Signing In..."
             fullWidth
             size="md"
             variant="primary"
-            style={{
-              background: 'linear-gradient(135deg, #00005c 0%, #1a0070 100%)',
-              border: 'none',
-              color: '#ffffff',
-              fontWeight: 600,
-              padding: '12px 16px',
-              fontSize: '14px',
-              borderRadius: '8px',
-              boxShadow: '0 4px 14px rgba(0, 0, 92, 0.3)',
-              cursor: isLoading || !username || !password ? 'not-allowed' : 'pointer',
-              marginTop: '4px',
-            }}
+            style={{ marginTop: spacing.xs }}
           >
-            {isLoading ? (
-              <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
-                <i className="fa-solid fa-circle-notch fa-spin"></i>
-                Signing In...
-              </span>
-            ) : (
-              'Sign In'
-            )}
+            Sign In
           </Button>
         </form>
 
@@ -382,41 +254,38 @@ export const LoginPage: React.FC<LoginPageProps> = ({
           style={{
             display: 'flex',
             alignItems: 'center',
-            margin: '18px 0',
+            margin: `${spacing.lg} 0`,
           }}
         >
-          <div style={{ flex: 1, height: '1px', backgroundColor: '#e2e8f0' }}></div>
-          <span style={{ padding: '0 12px', color: '#94a3b8', fontSize: '12px', fontWeight: 500 }}>or</span>
-          <div style={{ flex: 1, height: '1px', backgroundColor: '#e2e8f0' }}></div>
+          <div style={{ flex: 1, height: '1px', backgroundColor: colors.border }}></div>
+          <span style={{ padding: `0 ${spacing.md}`, color: colors.textSubtle, fontSize: '12px', fontWeight: 500 }}>or</span>
+          <div style={{ flex: 1, height: '1px', backgroundColor: colors.border }}></div>
         </div>
 
         {/* S.S.O Button */}
         <Button
           type="button"
           variant="outline"
+          icon="fa-solid fa-key"
           fullWidth
           size="md"
           style={{
             color: '#b45309',
             borderColor: '#f59e0b',
             backgroundColor: 'rgba(254, 243, 199, 0.4)',
-            fontWeight: 600,
-            fontSize: '13.5px',
-            padding: '10px 16px',
-            borderRadius: '8px',
-            marginBottom: '18px',
+            marginBottom: spacing.lg,
           }}
         >
-          <i className="fa-solid fa-key" style={{ marginRight: '6px' }}></i> Sign in with S.S.O.
+          Sign in with S.S.O.
         </Button>
 
         {/* Footer Admin Link */}
-        <div style={{ textAlign: 'center', color: '#64748b', fontSize: '13px' }}>
+        <div style={{ textAlign: 'center', color: colors.textMuted, fontSize: typography.body.fontSize }}>
           Don't have an account?{' '}
           <a
             href="#"
             style={{
-              color: '#00005c',
+              color: colors.primary,
               fontWeight: 600,
               textDecoration: 'none',
             }}
@@ -424,7 +293,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({
             Contact Admin.
           </a>
         </div>
-      </div>
+      </Card>
     </div>
   );
 };

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { apiFetch } from './utils/api';
+import { Select } from '../components/ui/Select';
 
 interface AreaItem {
   Id: number;
@@ -72,9 +73,9 @@ export const AreaControl: React.FC<AreaControlProps> = ({
     return () => { isMounted = false; };
   }, [cityid, countryid, stateid, districtid, pincode]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+  const handleChange = (value: string | number) => {
     if (!onUpdate) return;
-    const selectedId = parseInt(e.target.value, 10);
+    const selectedId = parseInt(String(value), 10);
     const selectedArea = areas.find(a => a.Id === selectedId);
 
     if (selectedArea) {
@@ -95,18 +96,13 @@ export const AreaControl: React.FC<AreaControlProps> = ({
   };
 
   return (
-    <select
-      disabled={candisable || loading}
+    <Select
+      disabled={candisable}
+      loading={loading}
       value={areaid || ''}
       onChange={handleChange}
-      className="premium-input"
-    >
-      <option value="">{loading ? "Loading areas..." : "Select Area"}</option>
-      {areas.map(a => (
-        <option key={a.Id} value={a.Id}>
-          {a.Area}
-        </option>
-      ))}
-    </select>
+      placeholder={loading ? "Loading areas..." : "Select Area"}
+      options={areas.map(a => ({ value: a.Id, label: a.Area }))}
+    />
   );
 };

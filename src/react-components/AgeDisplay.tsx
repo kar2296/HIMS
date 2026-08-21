@@ -1,4 +1,5 @@
 import React, { useMemo } from 'react';
+import { colors } from '../components/ui/tokens';
 
 interface AgeDisplayProps {
   dob?: string | Date | null;
@@ -61,5 +62,5 @@ export const AgeDisplay: React.FC<AgeDisplayProps> = ({ dob }) => {
     }
   }, [dob]);
 
-  return <span style={{ fontWeight: 600, color: 'var(--premium-text-main)' }}>{ageString}</span>;
+  return <span style={{ fontWeight: 600, color: colors.textMain }}>{ageString}</span>;
 };

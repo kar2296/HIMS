@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { apiFetch } from './utils/api';
+import { Select } from '../components/ui/Select';
 
 interface DistrictItem {
   Id: number;
@@ -59,9 +60,9 @@ export const DistrictControl: React.FC<DistrictControlProps> = ({
     return () => { isMounted = false; };
   }, [countryid, stateid]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+  const handleChange = (value: string | number) => {
     if (!onUpdate) return;
-    const selectedId = parseInt(e.target.value, 10);
+    const selectedId = parseInt(String(value), 10);
     const selectedDistrict = districts.find(d => d.Id === selectedId);
 
     if (selectedDistrict) {
@@ -90,18 +91,13 @@ export const DistrictControl: React.FC<DistrictControlProps> = ({
   };
 
   return (
-    <select
-      disabled={candisable || loading}
+    <Select
+      disabled={candisable}
+      loading={loading}
       value={districtid || ''}
       onChange={handleChange}
-      className="premium-input"
-    >
-      <option value="">{loading ? "Loading districts..." : "Select District"}</option>
-      {districts.map(d => (
-        <option key={d.Id} value={d.Id}>
-          {d.DistrictName}
-        </option>
-      ))}
-    </select>
+      placeholder={loading ? "Loading districts..." : "Select District"}
+      options={districts.map(d => ({ value: d.Id, label: d.DistrictName }))}
+    />
   );
 };

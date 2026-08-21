@@ -1,5 +1,9 @@
 import React, { useState } from 'react';
 import { Button } from './Button';
+import { Checkbox } from '../components/ui/Checkbox';
+import { Modal } from '../components/ui/Modal';
+import { Textarea } from '../components/ui/Input';
+import { colors, spacing, typography } from '../components/ui/tokens';
 
 interface PrintControlProps {
   reactProps?: {
@@ -18,8 +22,6 @@ export const PrintControl: React.FC<PrintControlProps> = (props: any) => {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [reason, setReason] = useState('');
-  const [isPreviewHovered, setIsPreviewHovered] = useState(false);
-  const [isOriginalHovered, setIsOriginalHovered] = useState(false);
 
   const privileges = actualProps.privileges || { canOriginalPrint: true };
   const isWithHeader = !!actualProps.withHeader;
@@ -42,8 +44,10 @@ export const PrintControl: React.FC<PrintControlProps> = (props: any) => {
     if (onAction) onAction('originalPrint', { reason });
   };
 
-  const handleHeaderToggle = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const isChecked = e.target.checked;
+  // Checkbox's onChange hands back the checked boolean directly (rather than
+  // the raw ChangeEvent the old <input type="checkbox"> handler read from) --
+  // same setHeader action name/payload shape as before.
+  const handleHeaderToggle = (isChecked: boolean) => {
     if (onAction) {
       onAction('setHeader', {
         withHeader: isChecked,
@@ -52,285 +56,83 @@ export const PrintControl: React.FC<PrintControlProps> = (props: any) => {
     }
   };
 
-  const modalOverlayStyle: React.CSSProperties = {
-    position: 'fixed',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: 'rgba(15, 23, 42, 0.6)',
-    backdropFilter: 'blur(4px)',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    zIndex: 9999,
-  };
-
-  const modalStyle: React.CSSProperties = {
-    background: '#ffffff',
-    borderRadius: '16px',
-    width: '480px',
-    maxWidth: '92%',
-    boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
-    overflow: 'hidden',
-    fontFamily: "'Inter', system-ui, -apple-system, sans-serif",
-  };
-
   return (
     <div
       style={{
         display: 'inline-flex',
         alignItems: 'center',
         flexWrap: 'wrap',
-        gap: '8px',
-        fontFamily: "'Inter', system-ui, -apple-system, sans-serif",
+        gap: spacing.sm,
+        fontFamily: typography.fontFamily,
       }}
     >
       {/* Preview Print Button */}
-      <button
+      <Button
         type="button"
+        variant="info"
+        icon="fas fa-print"
         onClick={handlePreviewPrint}
-        onMouseEnter={() => setIsPreviewHovered(true)}
-        onMouseLeave={() => setIsPreviewHovered(false)}
-        style={{
-          display: 'inline-flex',
-          alignItems: 'center',
-          gap: '8px',
-          padding: '8px 16px',
-          fontSize: '13px',
-          fontWeight: 600,
-          letterSpacing: '-0.01em',
-          color: '#ffffff',
-          background: isPreviewHovered
-            ? 'linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%)'
-            : 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)',
-          border: 'none',
-          borderRadius: '8px',
-          cursor: 'pointer',
-          boxShadow: isPreviewHovered
-            ? '0 4px 12px rgba(37, 99, 235, 0.35)'
-            : '0 2px 6px rgba(37, 99, 235, 0.2)',
-          transform: isPreviewHovered ? 'translateY(-1px)' : 'none',
-          transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
-        }}
         title="Preview Print"
       >
-        <i className="fas fa-print" style={{ fontSize: '13px' }}></i>
-        <span>Preview Print</span>
-      </button>
+        Preview Print
+      </Button>
 
       {/* Original Print Button */}
       {privileges.canOriginalPrint !== false && (
-        <button
+        <Button
           type="button"
+          variant="warning"
+          icon="fas fa-file-invoice"
           onClick={handleOriginalPrintClick}
-          onMouseEnter={() => setIsOriginalHovered(true)}
-          onMouseLeave={() => setIsOriginalHovered(false)}
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '8px',
-            padding: '8px 16px',
-            fontSize: '13px',
-            fontWeight: 600,
-            letterSpacing: '-0.01em',
-            color: '#ffffff',
-            background: isOriginalHovered
-              ? 'linear-gradient(135deg, #b45309 0%, #92400e 100%)'
-              : 'linear-gradient(135deg, #d97706 0%, #b45309 100%)',
-            border: 'none',
-            borderRadius: '8px',
-            cursor: 'pointer',
-            boxShadow: isOriginalHovered
-              ? '0 4px 12px rgba(217, 119, 6, 0.35)'
-              : '0 2px 6px rgba(217, 119, 6, 0.2)',
-            transform: isOriginalHovered ? 'translateY(-1px)' : 'none',
-            transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
-          }}
           title="Original Print"
         >
-          <i className="fas fa-file-invoice" style={{ fontSize: '13px' }}></i>
-          <span>Original Print</span>
-        </button>
+          Original Print
+        </Button>
       )}
 
       {/* Single With Header Checkbox */}
-      <label
-        style={{
-          display: 'inline-flex',
-          alignItems: 'center',
-          gap: '8px',
-          margin: '0 0 0 4px',
-          padding: '6px 12px',
-          fontSize: '13px',
-          fontWeight: 600,
-          letterSpacing: '-0.01em',
-          color: isWithHeader ? '#1d4ed8' : '#475569',
-          backgroundColor: isWithHeader ? '#eff6ff' : '#f8fafc',
-          border: `1px solid ${isWithHeader ? '#93c5fd' : '#e2e8f0'}`,
-          borderRadius: '8px',
-          cursor: 'pointer',
-          userSelect: 'none',
-          transition: 'all 0.2s ease',
-          boxShadow: isWithHeader ? '0 1px 3px rgba(37, 99, 235, 0.12)' : 'none',
-        }}
-      >
-        <input
-          type="checkbox"
-          checked={isWithHeader}
-          onChange={handleHeaderToggle}
-          style={{
-            cursor: 'pointer',
-            width: '16px',
-            height: '16px',
-            accentColor: '#2563eb',
-            margin: 0,
-          }}
-        />
-        <span>With Header</span>
-      </label>
+      <div style={{ marginLeft: spacing.xs, padding: `6px ${spacing.md}` }}>
+        <Checkbox label="With Header" checked={isWithHeader} onChange={handleHeaderToggle} />
+      </div>
 
-      {/* Original Print Request Modal */}
-      {isModalOpen && (
-        <div style={modalOverlayStyle} onClick={() => setIsModalOpen(false)}>
-          <div style={modalStyle} onClick={(e) => e.stopPropagation()}>
-            <div
-              style={{
-                background: 'linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%)',
-                padding: '16px 20px',
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
-              }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <div
-                  style={{
-                    width: '32px',
-                    height: '32px',
-                    borderRadius: '8px',
-                    backgroundColor: 'rgba(255, 255, 255, 0.15)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    color: '#fbbf24',
-                    fontSize: '14px',
-                  }}
-                >
-                  <i className="fas fa-file-invoice"></i>
-                </div>
-                <h4 style={{ margin: 0, fontSize: '16px', fontWeight: 700, color: '#ffffff' }}>
-                  Original Print Request
-                </h4>
-              </div>
-              <button
-                type="button"
-                onClick={() => setIsModalOpen(false)}
-                style={{
-                  background: 'rgba(255, 255, 255, 0.1)',
-                  border: 'none',
-                  borderRadius: '6px',
-                  width: '28px',
-                  height: '28px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  color: '#ffffff',
-                  cursor: 'pointer',
-                  fontSize: '14px',
-                  transition: 'background 0.2s',
-                }}
-                onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(255, 255, 255, 0.2)')}
-                onMouseLeave={(e) => (e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)')}
-              >
-                &times;
-              </button>
-            </div>
-            <form onSubmit={handleModalSubmit} style={{ padding: '20px' }}>
-              <div style={{ marginBottom: '20px' }}>
-                <label
-                  style={{
-                    display: 'block',
-                    marginBottom: '8px',
-                    fontWeight: 600,
-                    fontSize: '13px',
-                    color: '#334155',
-                  }}
-                >
-                  Reason for Original Print
-                </label>
-                <textarea
-                  rows={3}
-                  value={reason}
-                  onChange={(e) => setReason(e.target.value)}
-                  style={{
-                    width: '100%',
-                    padding: '10px 12px',
-                    borderRadius: '8px',
-                    border: '1px solid #cbd5e1',
-                    fontSize: '13px',
-                    fontFamily: 'inherit',
-                    outline: 'none',
-                    boxSizing: 'border-box',
-                    transition: 'border-color 0.2s',
-                  }}
-                  onFocus={(e) => (e.currentTarget.style.borderColor = '#2563eb')}
-                  onBlur={(e) => (e.currentTarget.style.borderColor = '#cbd5e1')}
-                  placeholder="Please provide a reason..."
-                  required
-                />
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
-                <button
-                  type="button"
-                  onClick={() => setIsModalOpen(false)}
-                  style={{
-                    padding: '8px 16px',
-                    backgroundColor: '#ffffff',
-                    color: '#64748b',
-                    fontWeight: 600,
-                    fontSize: '13px',
-                    borderRadius: '8px',
-                    border: '1px solid #cbd5e1',
-                    cursor: 'pointer',
-                    transition: 'all 0.2s',
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = '#f1f5f9';
-                    e.currentTarget.style.color = '#334155';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = '#ffffff';
-                    e.currentTarget.style.color = '#64748b';
-                  }}
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  style={{
-                    padding: '8px 18px',
-                    backgroundColor: '#2563eb',
-                    color: '#ffffff',
-                    fontWeight: 600,
-                    fontSize: '13px',
-                    borderRadius: '8px',
-                    border: 'none',
-                    cursor: 'pointer',
-                    boxShadow: '0 2px 6px rgba(37, 99, 235, 0.25)',
-                    transition: 'all 0.2s',
-                  }}
-                  onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#1d4ed8')}
-                  onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#2563eb')}
-                >
-                  Submit &amp; Print
-                </button>
-              </div>
-            </form>
+      {/* Original Print Request Modal
+          NOTE: this is a genuinely React-owned dialog (a plain reason-entry
+          form) -- there is no iframe/print-preview DOM here and the actual
+          print mechanism is dispatched upstream via onAction, so the design
+          system's Modal shell is safe to use in place of the hand-rolled
+          overlay. The reason <form>, its onSubmit handler, the native
+          `required` textarea validation, and the reason.trim() guard + alert
+          are all left completely untouched -- only the chrome around them
+          changed. */}
+      <Modal isOpen={isModalOpen} title="Original Print Request" onClose={() => setIsModalOpen(false)}>
+        <form onSubmit={handleModalSubmit}>
+          <Textarea
+            label="Reason for Original Print"
+            rows={3}
+            value={reason}
+            onChange={(e) => setReason(e.target.value)}
+            placeholder="Please provide a reason..."
+            required
+          />
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'flex-end',
+              gap: spacing.sm,
+              marginTop: spacing.lg,
+              paddingTop: spacing.lg,
+              borderTop: `1px solid ${colors.border}`,
+            }}
+          >
+            <Button type="button" variant="secondary" onClick={() => setIsModalOpen(false)}>
+              Cancel
+            </Button>
+            <Button type="submit" variant="primary">
+              Submit &amp; Print
+            </Button>
           </div>
-        </div>
-      )}
+        </form>
+      </Modal>
     </div>
   );
 };

@@ -5,7 +5,7 @@
         .module('app.pages')
         .controller('PatientRegisterListReportController', PatientRegisterListReportController);
 
-    function PatientRegisterListReportController($scope, $stateParams, $state, $translate, $filter, utl) {
+    function PatientRegisterListReportController($scope, $stateParams, $state, $translate, $filter, utl, $http) {
         var vm = this;
 
         $scope.Items = [];
@@ -143,6 +143,7 @@
             }
 
             vm.gridConfig.pagerObj.totalItems = res.PageContext.TotalRecords;
+            $scope.refreshReactProps();
         };
 
         $scope.getList = function () {
@@ -426,6 +427,9 @@
         $scope.lookupCallback = function (scope, data, options, hasError) {
             $scope.lookup = hasError ? {} : data;
             // $scope.getList();
+            if ($scope.refreshReactProps) {
+                $scope.refreshReactProps();
+            }
         }
 
         $scope.initLookup = function () {
@@ -454,8 +458,165 @@
 
         $scope.initLookup();
 
+        // --- React Bridge ---
+        // Hollowed per REACT_MIGRATION_GUIDE.md: the template now mounts
+        // <react-component name="PatientRegistrationSelfScreen">. All business logic above
+        // (getList's real 'registration/patient/GetPatients' call, excelDownload, print,
+        // backtoReport, handleEvents/edit-navigation, referralcontrolconfig, gridConfig,
+        // initLookup) is completely untouched -- React only renders the filters/grid/
+        // pagination/toolbar from reactProps and forwards interactions back here.
+        //
+        // The patient-search and referral-search boxes are typeahead widgets backed by
+        // real search APIs. Rather than guess new search logic, their real behavior is
+        // reused verbatim from the existing, already-working Angular widgets that back
+        // the <patientsearch> and <autosearch> directives elsewhere in this app
+        // (public/vendor/components/patientsearchcontrol.js and autosearch.js), adapted
+        // only to this screen's actual bindings (no controlid/displayoption/IsMRN are
+        // used here, matching the plain patientsearch usage this screen already had).
+
+        // Faithful copy of patientSearchCtrl.searchPatient()/searchPatientCallback(),
+        // scoped to this screen's real usage (no controlid/displayoption/IsMRN/facility
+        // restriction toggle were used by the original <patientsearch ... filterconfig=
+        // "patientfilterconfig"> binding here -- patientfilterconfig was never defined
+        // in this controller, so filterconfig-driven branches were always inert).
+        function searchPatientCallback(res) {
+            var result = res.data.Data;
+            for (var idx in result) {
+                var item = result[idx];
+                item.PatientName = "";
+                if (item.Title && item.Title.Description) {
+                    item.TitleDesc = item.Title.Description;
+                }
+                if (item.FirstName) {
+                    item.PatientName = item.PatientName + item.FirstName;
+                }
+                if (item.LastName) {
+                    item.PatientName = item.PatientName + ' ' + item.LastName;
+                }
+                if (item.GenderId == 1) {
+                    item.GenderCode = 'M';
+                } else if (item.GenderId == 2) {
+                    item.GenderCode = 'F';
+                } else if (item.GenderId == 3) {
+                    item.GenderCode = 'U';
+                }
+                if (item.Encounters && item.Encounters.length > 0) {
+                    var encounter = item.Encounters[0];
+                    if (encounter.EncounterStatusId != 2) {
+                        item.VisitIdentifier = encounter.VisitIdentifier;
+                        item.EncounterId = encounter.EncounterId;
+                    }
+                }
+            }
+            return result;
+        }
+
+        $scope.searchPatientForRegList = function (query) {
+            if (!(query && query.length > 2)) {
+                return Promise.resolve([]);
+            }
+            var inputData = {
+                Params: [
+                    { Key: 7, Value: 2 },
+                    { Key: 37, Value: 2 },
+                    { Key: 29, Value: utl.Session.getCurrentFacilityId() },
+                    { Key: 1, Value: query }
+                ],
+                PageContext: { PageSize: 20, PageNumber: 1 }
+            };
+            return $http.post(window.appPath.apiroot + 'registration/Patient/GetMinPatientSearch', inputData)
+                .then(searchPatientCallback);
+        };
+
+        $scope.selectPatientForRegList = function (patient) {
+            $scope.selectedPatient = patient;
+            $scope.currentfilter.PatientId = patient ? patient.Id : null;
+            $scope.getList();
+        };
+
+        // Faithful copy of autoSearchCtrl.searchItem()/searchItemCallback(), wired to
+        // vm.referralcontrolconfig (presearch/postsearch/api) already defined above --
+        // identical to how the real <autosearch> widget calls its config.
+        function searchReferralCallback(res) {
+            vm.referralcontrolconfig.result = res.data.Data;
+            vm.referralcontrolconfig.postsearch();
+            return vm.referralcontrolconfig.result;
+        }
+
+        $scope.searchReferralForRegList = function (query) {
+            vm.referralcontrolconfig.field = 'ReferralId';
+            vm.referralcontrolconfig.query = query;
+            vm.referralcontrolconfig.searchbyid = false;
+            vm.referralcontrolconfig.presearch();
+
+            if (!(query && query.length > 2)) {
+                return Promise.resolve([]);
+            }
+            return $http.post(window.appPath.apiroot + vm.referralcontrolconfig.api, vm.referralcontrolconfig.searchparams)
+                .then(searchReferralCallback);
+        };
+
+        $scope.selectReferralForRegList = function (referral) {
+            vm.referralcontrolconfig.selected = referral;
+            $scope.currentfilter.ReferrerId = referral ? referral.Id : null;
+            $scope.ReferralDisplay = referral ? formatselectedreferral() : '';
+            $scope.getList();
+        };
+
+        $scope.refreshReactProps = function () {
+            $scope.reactProps = {
+                currentfilter: {
+                    FromDate: $scope.currentfilter.FromDate,
+                    ToDate: $scope.currentfilter.ToDate,
+                    MRNTypeId: $scope.currentfilter.MRNTypeId
+                },
+                patientDisplay: $scope.selectedPatient ? $scope.selectedPatient.PatientName : '',
+                referralDisplay: $scope.ReferralDisplay || '',
+                mrnTypeOptions: ($scope.lookup && $scope.lookup.MRNType) || [],
+                columnDefs: vm.gridConfig.columnDefs.map(function (c) {
+                    return { field: c.field, displayName: c.displayName };
+                }),
+                gridData: vm.gridConfig.data || [],
+                pagerObj: vm.gridConfig.pagerObj,
+                canShowPrint: $scope.CanShowPrint,
+                context: $scope.Context || ''
+            };
+        };
+        $scope.refreshReactProps();
+
+        $scope.handleReactAction = function (actionName, payload) {
+            if (actionName === 'dateChange') {
+                var field = payload && payload.field;
+                var value = payload && payload.value ? new Date(payload.value) : '';
+                if (field === 'FromDate' || field === 'ToDate') {
+                    $scope.currentfilter[field] = value;
+                    $scope.getList();
+                }
+            } else if (actionName === 'mrnTypeChange') {
+                $scope.currentfilter.MRNTypeId = payload && payload.value;
+                $scope.getList();
+            } else if (actionName === 'pageChange') {
+                vm.gridConfig.pagerObj.currentPage = (payload && payload.page) || 1;
+                $scope.getList();
+            } else if (actionName === 'editRow') {
+                $scope.handleEvents('edit', payload);
+            } else if (actionName === 'excelDownload') {
+                $scope.excelDownload();
+            } else if (actionName === 'print') {
+                $scope.print();
+            } else if (actionName === 'backtoReport') {
+                $scope.backtoReport();
+            } else if (actionName === 'sort') {
+                // Presentational only: sorting order/state is owned by React (matches
+                // customTable's own reOrder(), which only ever re-sorts vm.gridConfig.data
+                // client-side -- no server round trip either in the original).
+                return;
+            } else if (typeof $scope[actionName] === 'function') {
+                $scope[actionName]();
+            }
+        };
     }
 
-    PatientRegisterListReportController.$inject = ['$scope', '$stateParams', '$state', '$translate', '$filter', 'utl'];
+    PatientRegisterListReportController.$inject = ['$scope', '$stateParams', '$state', '$translate', '$filter', 'utl', '$http'];
 
 })();

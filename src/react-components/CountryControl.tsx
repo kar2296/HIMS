@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { apiFetch } from './utils/api';
+import { Select } from '../components/ui/Select';
 
 interface CountryItem {
   Id: number;
@@ -47,9 +48,9 @@ export const CountryControl: React.FC<CountryControlProps> = ({
     return () => { isMounted = false; };
   }, []);
 
-  const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+  const handleChange = (value: string | number) => {
     if (!onUpdate) return;
-    const selectedId = parseInt(e.target.value, 10);
+    const selectedId = parseInt(String(value), 10);
     const selectedCountry = countries.find(c => c.Id === selectedId);
 
     if (selectedCountry) {
@@ -87,18 +88,13 @@ export const CountryControl: React.FC<CountryControlProps> = ({
   };
 
   return (
-    <select
+    <Select
       disabled={candisable || loading}
+      loading={loading}
       value={countryid || ''}
       onChange={handleChange}
-      className="premium-input"
-    >
-      <option value="">{loading ? "Loading countries..." : "Select Country"}</option>
-      {countries.map(c => (
-        <option key={c.Id} value={c.Id}>
-          {c.CountryName}
-        </option>
-      ))}
-    </select>
+      placeholder={loading ? "Loading countries..." : "Select Country"}
+      options={countries.map(c => ({ value: c.Id, label: c.CountryName }))}
+    />
   );
 };

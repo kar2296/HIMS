@@ -1,5 +1,7 @@
 import React from 'react';
 import { Button } from './Button';
+import { Card } from '../components/ui/Card';
+import { colors, spacing, typography } from '../components/ui/tokens';
 
 interface PilotComponentProps {
   title?: string;
@@ -7,38 +9,26 @@ interface PilotComponentProps {
   onAction?: () => void;
 }
 
-export const PilotComponent: React.FC<PilotComponentProps> = ({ 
-  title = "React Integration Pilot", 
+export const PilotComponent: React.FC<PilotComponentProps> = ({
+  title = "React Integration Pilot",
   message = "This component is running in React 19!",
   onAction
 }) => {
   return (
-    <div style={{
-      padding: '20px',
-      margin: '20px 0',
-      border: '2px solid #61dafb',
-      borderRadius: '8px',
-      backgroundColor: '#f0f8ff',
-      fontFamily: 'Montserrat, sans-serif'
-    }}>
-      <h3 style={{ color: '#282c34', marginTop: 0 }}>
-        <i className="fa-brands fa-react" style={{ color: '#61dafb', marginRight: '10px' }}></i>
+    <Card style={{ margin: `${spacing.lg} 0` }}>
+      <h3 style={{ ...typography.sectionHeading, color: colors.textMain, marginTop: 0 }}>
+        <i className="fa-brands fa-react" style={{ color: colors.primary, marginRight: spacing.sm }}></i>
         {title}
       </h3>
-      <p style={{ color: '#555', fontSize: '14px' }}>{message}</p>
-      
-      <Button 
+      <p style={{ ...typography.body, color: colors.textMuted }}>{message}</p>
+
+      <Button
         onClick={onAction}
         variant="info"
-        style={{
-          backgroundColor: '#61dafb',
-          color: '#282c34',
-          marginTop: '10px'
-        }}
+        style={{ marginTop: spacing.sm }}
       >
         Trigger AngularJS Callback
       </Button>
-    </div>
+    </Card>
   );
 };
-

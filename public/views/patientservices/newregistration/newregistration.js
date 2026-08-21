@@ -175,6 +175,7 @@
         $scope.getPatientProfilePicCallback = function (scope, data, options, hasError) {
             //console.log(data);
             $scope.currentcontext.Photo = data.Photo;
+            $scope.refreshReactProps();
         };
 
         $scope.getPatientProfilePic = function () {
@@ -192,7 +193,7 @@
 
         $scope.getItemCallback = function (scope, data, options, hasError) {
             $scope.item = data;
-            $scope.getEncounters(); // 
+            $scope.getEncounters(); //
             if (data.MRNTypeId == 2 && data.PatientStatusId == 2) {
                 $scope.item.IsMRNTypeDisable = true;
             }
@@ -209,6 +210,7 @@
             $scope.item.Age = ageObj.y;
 
             $scope.setFocusTitle();
+            $scope.refreshReactProps();
         };
 
 
@@ -352,7 +354,7 @@
             utl.Modal.open('app.registrarion', {
                 params: { pid: $scope.currentcontext.id },
                 // confirmCallback: $scope.getList
-                confirmCallback: $scope.getItem // 
+                confirmCallback: $scope.getItem //
             });
         }
         $scope.vitals = function () {
@@ -411,7 +413,7 @@
             utl.Modal.open('app.appointment', {
                 params: { id: 0, pid: $scope.currentcontext.id, apptstatusid: 6 },
                 // confirmCallback: $scope.getList
-                confirmCallback: vistCreated // 
+                confirmCallback: vistCreated //
             });
         }
 
@@ -591,6 +593,7 @@
             $scope.item.iswebcamphoto = true;
             $scope.item.webcamphoto = base64String;
             $scope.currentcontext.file = null;
+            $scope.refreshReactProps();
         }
 
         $scope.openWebCam = function () {
@@ -662,6 +665,7 @@
         $scope.lookupCallback = function (scope, data, options, hasError) {
             $scope.lookup = hasError ? {} : data;
             $scope.getItem();
+            $scope.refreshReactProps();
         }
 
         function handlePatientExists(data) {
@@ -714,6 +718,94 @@
             };
             utl.Http.doAction(options);
         }
+
+        // --- React Bridge ---
+        // Hollowed per REACT_MIGRATION_GUIDE.md: the template now mounts
+        // <react-component name="NewRegistrationScreen">. All real business logic above
+        // (initLookup/getItem/getPatientProfilePic/getEncounters real API calls,
+        // save()/saveItem()'s real validation + AddPatient/UpdatePatient calls incl. the
+        // Upload.upload() file-upload branch, fillGenderInfo/calculateAge/calculateDOB
+        // real business rules, openWebCam's real utl.Modal.open('webcam-modal', ...),
+        // Google-Places address-selection handler) is completely untouched. React owns
+        // presentational rendering, local field state for plain inputs, and forwards
+        // interactions back here by action name via handleReactAction. Fields with real
+        // derived side effects (Title->Gender, Age/DOB interplay) round-trip through the
+        // real Angular functions below (with $applyAsync, since the generic
+        // <react-component> bridge doesn't wrap onAction in $apply) so the computed
+        // result (e.g. auto-set Gender, recalculated DOB) flows back into reactProps.
+        // Every other button/function in this controller (deceased/openattachments/
+        // print*/newvisit/OPDBill/vitals/visitprint/saveAndApprove/clear/backToList/
+        // pickPatient/addNewFull/addNewQuick/saveAndInactive/showprocessflow) is already
+        // commented out of the live template today and stays that way here -- no UI is
+        // added for currently-inert functionality, and none of it was touched.
+        $scope.refreshReactProps = function () {
+            $scope.reactProps = {
+                item: $scope.item,
+                lookup: {
+                    Title: ($scope.lookup && $scope.lookup.Title) || [],
+                    Gender: ($scope.lookup && $scope.lookup.Gender) || [],
+                    MaritalStatus: ($scope.lookup && $scope.lookup.MaritalStatus) || [],
+                    Religion: ($scope.lookup && $scope.lookup.Religion) || [],
+                    Nationality: ($scope.lookup && $scope.lookup.Nationality) || [],
+                    Language: ($scope.lookup && $scope.lookup.Language) || [],
+                    PatientType: ($scope.lookup && $scope.lookup.PatientType) || []
+                },
+                currentcontext: {
+                    id: $scope.currentcontext.id,
+                    Photo: $scope.currentcontext.Photo
+                }
+            };
+        };
+        $scope.refreshReactProps();
+
+        $scope.handleReactAction = function (actionName, payload) {
+            if (actionName === 'save') {
+                angular.extend($scope.item, payload);
+                $scope.save();
+            } else if (actionName === 'logout') {
+                $scope.logout();
+            } else if (actionName === 'openWebCam') {
+                $scope.openWebCam();
+            } else if (actionName === 'clearimage') {
+                $scope.clearimage();
+                $scope.refreshReactProps();
+            } else if (actionName === 'fileSelected') {
+                $scope.currentcontext.file = (payload && payload.file) || null;
+            } else if (actionName === 'titleChange') {
+                $scope.item.TitleId = payload && payload.value;
+                $scope.fillGenderInfo();
+                $scope.refreshReactProps();
+                $scope.$applyAsync();
+            } else if (actionName === 'genderChange') {
+                // Plain field set -- ng-model="item.GenderId" has no ng-change of its
+                // own in the original template; fillGenderInfo() only runs off Title.
+                $scope.item.GenderId = payload && payload.value;
+                $scope.refreshReactProps();
+                $scope.$applyAsync();
+            } else if (actionName === 'ageChange') {
+                $scope.item.Age = payload && payload.value;
+                $scope.calculateDOB($scope.item.Age, 'years');
+                $scope.refreshReactProps();
+                $scope.$applyAsync();
+            } else if (actionName === 'approxDaysChange') {
+                $scope.item.ApproxAgeDays = payload && payload.value;
+                $scope.calculateDOB($scope.item.ApproxAgeDays, 'days');
+                $scope.refreshReactProps();
+                $scope.$applyAsync();
+            } else if (actionName === 'approxMonthsChange') {
+                $scope.item.ApproxAgeMonths = payload && payload.value;
+                $scope.calculateDOB($scope.item.ApproxAgeMonths, 'months');
+                $scope.refreshReactProps();
+                $scope.$applyAsync();
+            } else if (actionName === 'dobChange') {
+                $scope.item.DOB = payload && payload.value;
+                $scope.calculateAge();
+                $scope.refreshReactProps();
+                $scope.$applyAsync();
+            } else if (typeof $scope[actionName] === 'function') {
+                $scope[actionName]();
+            }
+        };
 
         $scope.initLookup();
     }

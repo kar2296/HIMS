@@ -1,4 +1,7 @@
 import React from 'react';
+import { PageHeader } from '../components/ui/Breadcrumb';
+import { Card } from '../components/ui/Card';
+import { colors, radii, spacing, typography } from '../components/ui/tokens';
 
 interface PrivilegeMap {
     canMedicineSales: boolean;
@@ -137,36 +140,24 @@ export const PharmacyDashboardComponent: React.FC<PharmacyDashboardProps> = ({ n
     ];
 
     return (
-        <div style={{ padding: '24px', fontFamily: 'var(--font-modern)', backgroundColor: 'var(--premium-bg-light)', minHeight: '100vh' }}>
-            
+        <div style={{ padding: spacing.xl, fontFamily: typography.fontFamily, backgroundColor: colors.surfaceMuted, minHeight: '100vh' }}>
+
             {/* Header */}
-            <div style={{ marginBottom: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <div>
-                    <h4 style={{ margin: 0, color: 'var(--premium-text-main)', fontSize: '24px', fontWeight: 600 }}>
-                        Pharmacy Dashboard
-                    </h4>
-                </div>
-            </div>
+            <PageHeader title="Pharmacy Dashboard" />
 
             {/* Cards Grid */}
             <div style={{
                 display: 'grid',
                 gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
-                gap: '20px'
+                gap: spacing.lg
             }}>
                 {cards.filter(c => c.show).map((card, idx) => (
-                    <div 
+                    <div
                         key={idx}
                         onClick={card.action}
-                        className="premium-glass-panel"
                         style={{
-                            padding: '20px',
                             cursor: 'pointer',
-                            display: 'flex',
-                            flexDirection: 'column',
-                            justifyContent: 'space-between',
                             transition: 'transform 0.2s',
-                            borderTop: `4px solid ${card.color}`,
                             height: '140px'
                         }}
                         onMouseEnter={(e) => {
@@ -176,25 +167,36 @@ export const PharmacyDashboardComponent: React.FC<PharmacyDashboardProps> = ({ n
                             e.currentTarget.style.transform = 'translateY(0)';
                         }}
                     >
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                            <div style={{
-                                width: '45px',
-                                height: '45px',
-                                borderRadius: '8px',
-                                backgroundColor: `${card.color}15`,
-                                color: card.color,
+                        <Card
+                            style={{
+                                height: '100%',
                                 display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                fontSize: '20px'
-                            }}>
-                                <i className={`fas ${card.icon}`}></i>
+                                flexDirection: 'column',
+                                borderTop: `4px solid ${card.color}`
+                            }}
+                        >
+                            <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', height: '100%' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                                    <div style={{
+                                        width: '45px',
+                                        height: '45px',
+                                        borderRadius: radii.md,
+                                        backgroundColor: `${card.color}15`,
+                                        color: card.color,
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        fontSize: '20px'
+                                    }}>
+                                        <i className={`fas ${card.icon}`}></i>
+                                    </div>
+                                </div>
+
+                                <div style={{ ...typography.label, color: colors.textMuted, fontFamily: typography.fontFamily, marginTop: 'auto' }}>
+                                    {card.title}
+                                </div>
                             </div>
-                        </div>
-                        
-                        <div style={{ color: 'var(--premium-text-muted)', fontSize: '14px', fontWeight: 600, marginTop: 'auto' }}>
-                            {card.title}
-                        </div>
+                        </Card>
                     </div>
                 ))}
             </div>

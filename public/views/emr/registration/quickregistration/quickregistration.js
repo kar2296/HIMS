@@ -42,8 +42,57 @@
         }
 
         // --- React Bridge ---
-        $scope.handleReactAction = function(actionName) {
-            if (typeof $scope[actionName] === 'function') {
+        $scope.handleReactAction = function(actionName, payload) {
+            if (actionName === 'itemFieldChange') {
+                var field = payload && payload.field;
+                if (field) {
+                    $scope.item[field] = payload.value;
+                    $scope.refreshFormReactProps();
+                    $scope.$applyAsync();
+                }
+            } else if (actionName === 'itemFieldsMerge') {
+                if (payload && payload.fields) {
+                    angular.extend($scope.item, payload.fields);
+                    $scope.refreshFormReactProps();
+                    $scope.$applyAsync();
+                }
+            } else if (actionName === 'titleChange') {
+                $scope.item.TitleId = payload && payload.value;
+                $scope.fillGenderInfo();
+                $scope.refreshFormReactProps();
+                $scope.$applyAsync();
+            } else if (actionName === 'genderChange') {
+                $scope.item.GenderId = payload && payload.value;
+                $scope.refreshFormReactProps();
+                $scope.$applyAsync();
+            } else if (actionName === 'ageChange') {
+                $scope.item.Age = payload && payload.value;
+                $scope.calculateDOB($scope.item.Age, 'years');
+                $scope.refreshFormReactProps();
+                $scope.$applyAsync();
+            } else if (actionName === 'approxDaysChange') {
+                $scope.item.ApproxAgeDays = payload && payload.value;
+                $scope.calculateDOB($scope.item.ApproxAgeDays, 'days');
+                $scope.refreshFormReactProps();
+                $scope.$applyAsync();
+            } else if (actionName === 'approxMonthsChange') {
+                $scope.item.ApproxAgeMonths = payload && payload.value;
+                $scope.calculateDOB($scope.item.ApproxAgeMonths, 'months');
+                $scope.refreshFormReactProps();
+                $scope.$applyAsync();
+            } else if (actionName === 'dobChange') {
+                $scope.item.DOB = payload && payload.value;
+                $scope.calculateAge();
+                $scope.refreshFormReactProps();
+                $scope.$applyAsync();
+            } else if (actionName === 'openWebCam') {
+                $scope.openWebCam();
+            } else if (actionName === 'clearimage') {
+                $scope.clearimage();
+                $scope.refreshFormReactProps();
+            } else if (actionName === 'fileSelected') {
+                $scope.currentcontext.file = (payload && payload.file) || null;
+            } else if (typeof $scope[actionName] === 'function') {
                 $scope[actionName]();
             } else if (actionName === 'saveAndInactive') {
                 $scope.saveAndInactive($scope.item);
@@ -82,6 +131,30 @@
             $scope.reactPropsFooter = vm.reactPropsFooter;
         };
         $scope.refreshReactProps();
+
+        // Builds the props for the new QuickRegistrationFormScreen mount (the
+        // patient-details + photo form). Kept as its own function/watch group,
+        // separate from the pre-existing refreshReactProps above (which only ever
+        // fed RegistrationActionBar/RegistrationFooter and must not be disturbed).
+        $scope.refreshFormReactProps = function() {
+            vm.reactPropsForm = {
+                item: $scope.item,
+                lookup: {
+                    Title: ($scope.lookup && $scope.lookup.Title) || [],
+                    Gender: ($scope.lookup && $scope.lookup.Gender) || [],
+                    MaritalStatus: ($scope.lookup && $scope.lookup.MaritalStatus) || [],
+                    VipType: ($scope.lookup && $scope.lookup.VipType) || [],
+                    MRNType: ($scope.lookup && $scope.lookup.MRNType) || []
+                },
+                currentcontext: {
+                    id: $scope.currentcontext ? $scope.currentcontext.id : undefined,
+                    Photo: $scope.currentcontext ? $scope.currentcontext.Photo : undefined,
+                    triedSubmit: $scope.currentcontext ? $scope.currentcontext.triedSubmit : false
+                }
+            };
+            $scope.reactPropsForm = vm.reactPropsForm;
+        };
+        $scope.refreshFormReactProps();
 
         $scope.$watchGroup([
             'SaveCompleted',
@@ -264,6 +337,7 @@
         $scope.getPatientProfilePicCallback = function(scope, data, options, hasError) {
             //console.log(data);
             $scope.currentcontext.Photo = data.Photo;
+            $scope.refreshFormReactProps();
         };
 
         $scope.getPatientProfilePic = function() {
@@ -303,6 +377,7 @@
             $scope.item.Age = ageObj.y;
 
             $scope.setFocusTitle();
+            $scope.refreshFormReactProps();
         };
 
 
@@ -628,9 +703,28 @@
             }
         };
 
+        // Faithful replacement for utl.Validator.validate($scope) (which internally
+        // checked $scope.item_form.$valid). The real Angular <form id="item_form"> this
+        // depended on no longer exists now that the field section is a React component,
+        // so this reimplements the exact same required-field set the original form
+        // markup declared: Title/FirstName/DOB/Gender required (ui-select/input
+        // `required` attributes), Mobile required with exactly 10 digits (the original's
+        // MINLENGTH=10/MAXLENGTH=10 on #contactnr). No other field in the original form
+        // carried a required/minlength/maxlength/pattern constraint.
+        $scope.isQuickRegFormValid = function() {
+            if (!$scope.item.TitleId) return false;
+            if (!$scope.item.FirstName) return false;
+            if (!$scope.item.DOB) return false;
+            if (!$scope.item.GenderId) return false;
+            if (!$scope.item.Mobile || String($scope.item.Mobile).length !== 10) return false;
+            return true;
+        };
+
         $scope.saveItem = function() {
 
-            if (!utl.Validator.validate($scope)) {
+            if (!$scope.isQuickRegFormValid()) {
+                $scope.currentcontext.triedSubmit = true;
+                $scope.refreshFormReactProps();
                 return;
             }
 
@@ -720,6 +814,7 @@
             $scope.item.iswebcamphoto = true;
             $scope.item.webcamphoto = base64String;
             $scope.currentcontext.file = null;
+            $scope.refreshFormReactProps();
         }
 
         $scope.openWebCam = function() {
@@ -757,6 +852,7 @@
             $scope.item.ApproxAgeDays = ageObj.d;
             $scope.item.ApproxAgeMonths = ageObj.m;
             $scope.item.Age = ageObj.y;
+            $scope.refreshFormReactProps();
         };
 
 
@@ -814,6 +910,7 @@
 
         $scope.lookupCallback = function(scope, data, options, hasError) {
             $scope.lookup = hasError ? {} : data;
+            $scope.refreshFormReactProps();
             // $scope.getViewData();
             $scope.getItem();
         }

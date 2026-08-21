@@ -26,6 +26,8 @@
                 canShowUpload: $scope.currentcontext.canShowUpload
             };
             vm.items.push(lineItem);
+            $scope.refreshReactProps();
+            $scope.$applyAsync();
         }
 
         $scope.getListCallback = function (scope, data, options, hasError) {
@@ -95,6 +97,8 @@
                         $scope.currentcontext.id = options.data.Data[idx].Id;
                 }
             }
+            $scope.refreshReactProps();
+            $scope.$applyAsync();
         };
 
         $scope.saveItem = function () {
@@ -162,6 +166,49 @@
             };
             utl.Http.doAction(options);
         };
+
+        /* React bridge code starts */
+        $scope.reactProps = {};
+
+        $scope.refreshReactProps = function () {
+            $scope.reactProps = {
+                items: vm.items,
+                lookup: $scope.lookup || {},
+                currentcontext: $scope.currentcontext,
+                flags: {
+                    canUpdatePatientInfo: $scope.canUpdatePatientInfo()
+                }
+            };
+        };
+
+        $scope.handleReactAction = function (actionName, payload) {
+            switch (actionName) {
+                case 'rowFieldChange':
+                    if (payload && vm.items[payload.index]) {
+                        vm.items[payload.index][payload.field] = payload.value;
+                    }
+                    $scope.refreshReactProps();
+                    $scope.$applyAsync();
+                    return;
+                case 'deleteItem':
+                    // Mirrors the real ng-click="deleteItem($index,item)" -- confirmed by
+                    // reading $scope.deleteItem below that its idx parameter is received but
+                    // never actually used (only the item object reference matters, via
+                    // utl.Dialog.confirmDelete's closure), so payload.index is passed through
+                    // purely for signature fidelity and has no real effect either way.
+                    $scope.deleteItem(payload.index, payload.item);
+                    return;
+                case 'upload':
+                    $scope.upload(payload.item);
+                    return;
+            }
+            if (typeof $scope[actionName] === 'function') {
+                $scope[actionName]();
+            }
+        };
+
+        $scope.refreshReactProps();
+        /* React bridge code ends */
 
         $scope.initLookup();
     }

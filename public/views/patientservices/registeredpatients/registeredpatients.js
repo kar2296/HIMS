@@ -18,8 +18,9 @@
             $scope.gridData = res.Data;
             vm.gridConfig.data = $scope.gridData;
             vm.gridConfig.pagerObj.totalItems = res.Data.length;
+            $scope.refreshReactProps();
         };
-        
+
 
 
         $scope.getList = function (pageNo) {
@@ -95,6 +96,42 @@
         $scope.home = function () {
             $state.go('app.patientservices');
         }
+
+        // --- React Bridge ---
+        // Hollowed per REACT_MIGRATION_GUIDE.md: the template now mounts
+        // <react-component name="RegisteredPatientsScreen">. React only renders the
+        // search box, results table and pagination from reactProps and forwards every
+        // interaction back here by action name via handleReactAction -- getList(),
+        // the real 'registration/patient/GetPatients' API call, and all other logic
+        // above are untouched.
+        $scope.refreshReactProps = function () {
+            vm.reactProps = {
+                patientname: $scope.currentfilter.patientname,
+                canShowGrid: $scope.canShowGrid,
+                gridData: $scope.gridData || [],
+                pagerObj: vm.gridConfig.pagerObj
+            };
+            $scope.reactProps = vm.reactProps;
+        };
+        $scope.refreshReactProps();
+
+        $scope.handleReactAction = function (actionName, payload) {
+            if (actionName === 'search') {
+                // React owns the input's live typing state; only hand the value to
+                // Angular at search time (Enter key or the search button), same as the
+                // original ng-model value was only ever read by getList(). Setting it
+                // here and calling getList() (which is async/digest-aware) avoids
+                // needing a manual $scope.$apply for a case the bridge doesn't cover.
+                $scope.currentfilter.patientname = payload && payload.value !== undefined ? payload.value : '';
+                $scope.getList();
+            } else if (actionName === 'pageChange') {
+                vm.gridConfig.pagerObj.currentPage = payload && payload.page ? payload.page : 1;
+                $scope.getList();
+            } else if (typeof $scope[actionName] === 'function') {
+                $scope[actionName]();
+            }
+        };
+
         if ($scope.currentfilter.patientname != '') {
             $scope.getList();
         }

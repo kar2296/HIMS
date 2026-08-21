@@ -1,5 +1,11 @@
 import React, { useState, useEffect } from 'react';
 
+import { Card } from '../components/ui/Card';
+import { DataTable } from '../components/ui/DataTable';
+import { Loading } from '../components/ui/Loading';
+import { PageHeader } from '../components/ui/Breadcrumb';
+import { colors, spacing, typography, radii, transitions } from '../components/ui/tokens';
+
 interface PrivilegeMap {
   [key: string]: boolean;
 }
@@ -286,9 +292,8 @@ export const BillingDashboardComponent: React.FC<BillingDashboardProps> = ({
 
   if (loading) {
     return (
-      <div style={{ padding: '40px', textAlign: 'center', fontFamily: 'var(--font-modern)' }}>
-        <i className="fa fa-spinner fa-spin fa-3x fa-fw" style={{ color: 'var(--premium-blue)' }}></i>
-        <h4 style={{ color: 'var(--premium-text-main)', marginTop: '15px' }}>Loading Dashboard Data...</h4>
+      <div style={{ padding: spacing.xxxl, textAlign: 'center', fontFamily: typography.fontFamily }}>
+        <Loading text="Loading Dashboard Data..." size="lg" />
       </div>
     );
   }
@@ -377,62 +382,65 @@ export const BillingDashboardComponent: React.FC<BillingDashboardProps> = ({
     }
   ];
 
-  const renderTableCard = (title: string, children: React.ReactNode) => (
-    <div className="premium-glass-panel" style={{
-      padding: '20px',
-      height: '350px', // fixed height for uniformity
-      display: 'flex',
-      flexDirection: 'column'
-    }}>
-      <h3 style={{ margin: '0 0 16px 0', color: 'var(--premium-blue)', fontSize: '18px', fontWeight: 600 }}>
-        {title}
-      </h3>
-      <div style={{ overflowY: 'auto', flex: 1 }}>
-        {children}
-      </div>
-    </div>
-  );
+  // Single-column "read details" cell shared by the Admission / Discharge /
+  // Discharge Clearance summary tables -- each row is one free-text encounter
+  // summary line rather than discrete per-column fields, so a single render
+  // column reproduces the original layout through DataTable's render API.
+  const encounterColumns = [
+    {
+      key: 'details',
+      header: 'Patient Details',
+      render: (item: any) => (
+        <span>
+          <strong style={{ color: colors.textMain }}>{item.patientname} | ({item.Patient?.MRN})</strong>
+          {' '}| {item.Patient?.Age} Years | {item.VisitIdentifier} - {item.doctorname} | {item.warddetails}
+        </span>
+      )
+    }
+  ];
 
-  const tableCellStyle: React.CSSProperties = {
-    padding: '12px 16px',
-    borderBottom: '1px solid rgba(0,0,0,0.05)',
-    fontSize: '14px',
-    color: 'var(--premium-text-muted)'
+  const bedColumns = [
+    {
+      key: 'bed',
+      header: 'Available Beds',
+      render: (item: any) => <span>{item.availablebedinfo}</span>
+    }
+  ];
+
+  // Fixed height keeps the summary panels visually uniform across the grid row.
+  const summaryCardStyle: React.CSSProperties = { height: '350px', display: 'flex', flexDirection: 'column' };
+  const summaryBodyStyle: React.CSSProperties = { overflowY: 'auto', flex: 1 };
+
+  const occupancyCellStyle: React.CSSProperties = {
+    padding: `${spacing.md} ${spacing.lg}`,
+    borderBottom: `1px solid ${colors.border}`,
+    ...typography.body,
+    color: colors.textMuted,
+    fontFamily: typography.fontFamily
+  };
+  const occupancyValueStyle: React.CSSProperties = {
+    ...occupancyCellStyle,
+    fontWeight: 600,
+    color: colors.textMain
   };
 
   return (
-    <div style={{ padding: '24px', fontFamily: 'var(--font-modern)', backgroundColor: 'var(--premium-bg-light)', minHeight: '100vh' }}>
-      
-      {/* Header */}
-      <div style={{ marginBottom: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div>
-          <h4 style={{ margin: 0, color: 'var(--premium-text-main)', fontSize: '24px', fontWeight: 600 }}>
-            Billing Dashboard
-          </h4>
-        </div>
-      </div>
+    <div style={{ padding: spacing.xl, fontFamily: typography.fontFamily, backgroundColor: colors.surfaceMuted, minHeight: '100vh' }}>
+
+      <PageHeader title="Billing Dashboard" />
 
       {/* Cards Grid */}
       <div style={{
         display: 'grid',
         gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
-        gap: '20px',
-        marginBottom: '32px'
+        gap: spacing.xl,
+        marginBottom: spacing.xxl
       }}>
         {cards.filter(c => c.show).map(card => (
-          <div 
+          <div
             key={card.id}
             onClick={card.action}
-            className="premium-glass-panel"
-            style={{
-              padding: '20px',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              transition: 'transform 0.2s',
-              borderLeft: `5px solid ${card.color}`
-            }}
+            style={{ cursor: 'pointer', transition: transitions.base }}
             onMouseEnter={(e) => {
               e.currentTarget.style.transform = 'translateY(-5px)';
             }}
@@ -440,29 +448,36 @@ export const BillingDashboardComponent: React.FC<BillingDashboardProps> = ({
               e.currentTarget.style.transform = 'translateY(0)';
             }}
           >
-            <div>
-              <div style={{ color: 'var(--premium-text-muted)', fontSize: '13px', fontWeight: 500, marginBottom: '8px' }}>
-                {card.title.toUpperCase()}
-              </div>
-              {card.count !== undefined && (
-                <div style={{ color: 'var(--premium-text-main)', fontSize: '28px', fontWeight: 700 }}>
-                  {card.count}
-                </div>
-              )}
-            </div>
-            <div style={{
-              width: '50px',
-              height: '50px',
-              borderRadius: '50%',
-              backgroundColor: `${card.color}15`,
-              color: card.color,
+            <Card style={{
               display: 'flex',
               alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: '20px'
+              justifyContent: 'space-between',
+              borderLeft: `5px solid ${card.color}`
             }}>
-              <i className={`fa ${card.icon}`}></i>
-            </div>
+              <div>
+                <div style={{ ...typography.label, color: colors.textMuted, marginBottom: spacing.sm, fontFamily: typography.fontFamily }}>
+                  {card.title.toUpperCase()}
+                </div>
+                {card.count !== undefined && (
+                  <div style={{ color: colors.textMain, fontSize: '28px', fontWeight: 700 }}>
+                    {card.count}
+                  </div>
+                )}
+              </div>
+              <div style={{
+                width: '50px',
+                height: '50px',
+                borderRadius: radii.full,
+                backgroundColor: `${card.color}15`,
+                color: card.color,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '20px'
+              }}>
+                <i className={`fa ${card.icon}`}></i>
+              </div>
+            </Card>
           </div>
         ))}
       </div>
@@ -471,96 +486,78 @@ export const BillingDashboardComponent: React.FC<BillingDashboardProps> = ({
       <div style={{
         display: 'grid',
         gridTemplateColumns: 'repeat(auto-fit, minmax(500px, 1fr))',
-        gap: '24px'
+        gap: spacing.xl
       }}>
-        
+
         {/* Today Admissions */}
-        {renderTableCard("Admission", 
-          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-            <tbody>
-              {latAdmsnData.map((item, idx) => (
-                <tr key={idx}>
-                  <td style={tableCellStyle}>
-                    <strong style={{color: 'var(--premium-text-main)'}}>{item.patientname} | ({item.Patient?.MRN})</strong> | {item.Patient?.Age} Years | {item.VisitIdentifier} - {item.doctorname} | {item.warddetails}
-                  </td>
-                </tr>
-              ))}
-              {latAdmsnData.length === 0 && (
-                <tr><td style={{...tableCellStyle, textAlign: 'center'}}>No Admissions</td></tr>
-              )}
-            </tbody>
-          </table>
-        )}
+        <Card title="Admission" style={summaryCardStyle}>
+          <div style={summaryBodyStyle}>
+            <DataTable<any>
+              columns={encounterColumns}
+              rows={latAdmsnData}
+              rowKey={(row) => latAdmsnData.indexOf(row)}
+              emptyText="No Admissions"
+            />
+          </div>
+        </Card>
 
         {/* Today Discharges */}
-        {renderTableCard("Discharge", 
-          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-            <tbody>
-              {latDiscrgData.map((item, idx) => (
-                <tr key={idx}>
-                  <td style={tableCellStyle}>
-                    <strong style={{color: 'var(--premium-text-main)'}}>{item.patientname} | ({item.Patient?.MRN})</strong> | {item.Patient?.Age} Years | {item.VisitIdentifier} - {item.doctorname} | {item.warddetails}
-                  </td>
-                </tr>
-              ))}
-              {latDiscrgData.length === 0 && (
-                <tr><td style={{...tableCellStyle, textAlign: 'center'}}>No Discharges</td></tr>
-              )}
-            </tbody>
-          </table>
-        )}
+        <Card title="Discharge" style={summaryCardStyle}>
+          <div style={summaryBodyStyle}>
+            <DataTable<any>
+              columns={encounterColumns}
+              rows={latDiscrgData}
+              rowKey={(row) => latDiscrgData.indexOf(row)}
+              emptyText="No Discharges"
+            />
+          </div>
+        </Card>
 
         {/* Available Beds */}
-        {renderTableCard("Beds", 
-          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-            <tbody>
-              {latAvailbedData.map((item, idx) => (
-                <tr key={idx}>
-                  <td style={tableCellStyle}>{item.availablebedinfo}</td>
-                </tr>
-              ))}
-              {latAvailbedData.length === 0 && (
-                <tr><td style={{...tableCellStyle, textAlign: 'center'}}>No Beds Available</td></tr>
-              )}
-            </tbody>
-          </table>
-        )}
+        <Card title="Beds" style={summaryCardStyle}>
+          <div style={summaryBodyStyle}>
+            <DataTable<any>
+              columns={bedColumns}
+              rows={latAvailbedData}
+              rowKey={(row) => latAvailbedData.indexOf(row)}
+              emptyText="No Beds Available"
+            />
+          </div>
+        </Card>
 
         {/* Discharge Clearance */}
-        {renderTableCard("Discharge Clearance", 
-          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-            <tbody>
-              {latDisclrData.map((item, idx) => (
-                <tr key={idx}>
-                  <td style={tableCellStyle}>
-                    <strong style={{color: 'var(--premium-text-main)'}}>{item.patientname} | ({item.Patient?.MRN})</strong> | {item.Patient?.Age} Years | {item.VisitIdentifier} - {item.doctorname} | {item.warddetails}
-                  </td>
-                </tr>
-              ))}
-              {latDisclrData.length === 0 && (
-                <tr><td style={{...tableCellStyle, textAlign: 'center'}}>No Clearances</td></tr>
-              )}
-            </tbody>
-          </table>
-        )}
+        <Card title="Discharge Clearance" style={summaryCardStyle}>
+          <div style={summaryBodyStyle}>
+            <DataTable<any>
+              columns={encounterColumns}
+              rows={latDisclrData}
+              rowKey={(row) => latDisclrData.indexOf(row)}
+              emptyText="No Clearances"
+            />
+          </div>
+        </Card>
 
-        {/* Occupancy Summary */}
-        {renderTableCard("Occupancy Summary", 
-          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-            <tbody>
-              <tr><td style={tableCellStyle}>Total Admissions</td><td style={{...tableCellStyle, fontWeight: 600, color: 'var(--premium-text-main)'}}>{counts.TotalAdmissionCount}</td></tr>
-              <tr><td style={tableCellStyle}>Today Admitted</td><td style={{...tableCellStyle, fontWeight: 600, color: 'var(--premium-text-main)'}}>{counts.AdmittedCount}</td></tr>
-              <tr><td style={tableCellStyle}>Total Fit for Discharges</td><td style={{...tableCellStyle, fontWeight: 600, color: 'var(--premium-text-main)'}}>{counts.FitforDischargeCount}</td></tr>
-              <tr><td style={tableCellStyle}>Total Clinical Discharges</td><td style={{...tableCellStyle, fontWeight: 600, color: 'var(--premium-text-main)'}}>{counts.ClinicalDischargeCount}</td></tr>
-              <tr><td style={tableCellStyle}>Total Financial Discharges</td><td style={{...tableCellStyle, fontWeight: 600, color: 'var(--premium-text-main)'}}>{counts.FinancialDischargeCount}</td></tr>
-              <tr><td style={tableCellStyle}>Today Discharges</td><td style={{...tableCellStyle, fontWeight: 600, color: 'var(--premium-text-main)'}}>{counts.DischargeCount}</td></tr>
-              <tr style={{ backgroundColor: 'rgba(235, 178, 0, 0.1)' }}>
-                <td style={{...tableCellStyle, fontWeight: 700, color: 'var(--premium-blue)'}}>Total Occupancy</td>
-                <td style={{...tableCellStyle, fontWeight: 700, color: 'var(--premium-blue)'}}>{counts.TotalOccupancyCount}</td>
-              </tr>
-            </tbody>
-          </table>
-        )}
+        {/* Occupancy Summary -- a fixed key/value metrics grid rather than a
+            row-per-record list, so it stays a plain table (token-restyled)
+            instead of being forced into DataTable's row/column model. */}
+        <Card title="Occupancy Summary" style={summaryCardStyle}>
+          <div style={summaryBodyStyle}>
+            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+              <tbody>
+                <tr><td style={occupancyCellStyle}>Total Admissions</td><td style={occupancyValueStyle}>{counts.TotalAdmissionCount}</td></tr>
+                <tr><td style={occupancyCellStyle}>Today Admitted</td><td style={occupancyValueStyle}>{counts.AdmittedCount}</td></tr>
+                <tr><td style={occupancyCellStyle}>Total Fit for Discharges</td><td style={occupancyValueStyle}>{counts.FitforDischargeCount}</td></tr>
+                <tr><td style={occupancyCellStyle}>Total Clinical Discharges</td><td style={occupancyValueStyle}>{counts.ClinicalDischargeCount}</td></tr>
+                <tr><td style={occupancyCellStyle}>Total Financial Discharges</td><td style={occupancyValueStyle}>{counts.FinancialDischargeCount}</td></tr>
+                <tr><td style={occupancyCellStyle}>Today Discharges</td><td style={occupancyValueStyle}>{counts.DischargeCount}</td></tr>
+                <tr style={{ backgroundColor: colors.primaryLight }}>
+                  <td style={{ ...occupancyCellStyle, fontWeight: 700, color: colors.primary }}>Total Occupancy</td>
+                  <td style={{ ...occupancyValueStyle, fontWeight: 700, color: colors.primary }}>{counts.TotalOccupancyCount}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </Card>
 
       </div>
     </div>

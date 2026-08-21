@@ -85,6 +85,8 @@
             $scope.item = data;
             $scope.currentcontext.id = $scope.item.Id;
             $scope.getPatientProfilePic();
+            $scope.refreshReactProps();
+            $scope.$applyAsync();
         };
 
         $scope.patientChange = function(pageNo) {
@@ -180,6 +182,8 @@
                     $scope.item.DistrictId = res.Data[0].DistrictId;
                 }
             }
+            $scope.refreshReactProps();
+            $scope.$applyAsync();
         }
 
         $scope.getPincodeData = function(pincode) {
@@ -210,6 +214,8 @@
                         $scope.clearpreviousaddress();
                     }
                     $('#googleaddopt').focus();
+                    $scope.refreshReactProps();
+                    $scope.$applyAsync();
                 }, 100);
             }
             /* Google Address code ends */
@@ -355,6 +361,8 @@
                 }
 
             }
+            $scope.refreshReactProps();
+            $scope.$applyAsync();
         };
 
         $scope.getEncounters = function() {
@@ -474,6 +482,8 @@
             $scope.setFocusTitle();
             $scope.getPatients();
 
+            $scope.refreshReactProps();
+            $scope.$applyAsync();
         };
 
         $scope.setFocusTitle = function() {
@@ -486,11 +496,20 @@
 
         $scope.callTitleFocus = function() {
             if ($scope.currentcontext.id <= 0) {
-                console.log("test print by ");
+                // NOTE (React migration): the Title field's DOM (id="title", a ui-select) no
+                // longer exists in Angular's DOM -- it is now rendered by the
+                // FullRegistrationScreen React component, which implements the equivalent
+                // "auto-focus Title on a new registration" behavior itself. This guarded
+                // fallback is kept so this function stays harmless if ever invoked from
+                // elsewhere; it intentionally does not query the (now React-owned) DOM.
                 var uiSelect = angular.element(document.getElementById('title'));
-                var uichild = uiSelect.controller('uiSelect');
-                uichild.focusser[0].focus();
-                uichild.activate();
+                if (uiSelect && uiSelect.length) {
+                    var uichild = uiSelect.controller('uiSelect');
+                    if (uichild) {
+                        uichild.focusser[0].focus();
+                        uichild.activate();
+                    }
+                }
             }
         }
 
@@ -579,6 +598,8 @@
 
         $scope.getPatientAttachmentsCallback = function(scope, res, options, hasError) {
             $scope.currentcontext.attachmentcount = res.PageContext.TotalRecords;
+            $scope.refreshReactProps();
+            $scope.$applyAsync();
         }
 
         $scope.getPatientAttachments = function() {
@@ -790,7 +811,10 @@
             //     return;
             // }
 
-            if (!utl.Validator.validate($scope)) {
+            if (!$scope.isFullRegFormValid()) {
+                $scope.currentcontext.triedSubmit = true;
+                $scope.refreshReactProps();
+                $scope.$applyAsync();
                 return;
             }
 
@@ -830,6 +854,7 @@
 
             if ($scope.isSaveAndApprove) {
                 $scope.currentcontext.canDisableApprove = true;
+                $scope.refreshReactProps();
             }
 
             if ($scope.currentcontext.file) {
@@ -876,6 +901,8 @@
             $scope.item = {};
             $scope.fillDefaultValues();
             $scope.setFocusTitle();
+            $scope.refreshReactProps();
+            $scope.$applyAsync();
         }
 
         $scope.save = function() {
@@ -2066,6 +2093,8 @@
                 }
             }
             $scope.getItem();
+            $scope.refreshReactProps();
+            $scope.$applyAsync();
         }
 
         $scope.initLookup = function() {
@@ -2156,6 +2185,112 @@
             };
             utl.Http.doAction(options);
         }
+
+        /* React bridge code starts */
+        $scope.reactProps = {};
+
+        $scope.refreshReactProps = function() {
+            $scope.reactProps = {
+                item: $scope.item,
+                lookup: $scope.lookup || {},
+                currentcontext: $scope.currentcontext,
+                flags: {
+                    CanShowDeceased: $scope.CanShowDeceased,
+                    isPatientDeactivated: $scope.isPatientDeactivated,
+                    EnableOPD: $scope.EnableOPD,
+                    Visitprint: $scope.Visitprint,
+                    Vitals: $scope.Vitals,
+                    canShowPatientBanner: $scope.canShowPatientBanner,
+                    adrsmandatory: $scope.adrsmandatory
+                }
+            };
+        };
+
+        // FORM-VALIDATION-WITHOUT-A-FORM: mirrors the real required/minlength/maxlength/pattern
+        // constraints that used to live on <form id="item_form"> (including the constraints
+        // contributed by the freetext Pincode input inside the <address> component, which is
+        // nested inside item_form and genuinely participates in item_form.$valid today).
+        $scope.isFullRegFormValid = function() {
+            var it = $scope.item || {};
+            if (!it.TitleId) return false;
+            if (!it.FirstName) return false;
+            if (!it.LastName) return false;
+            if (!it.GenderId) return false;
+            if (!it.Mobile || String(it.Mobile).length !== 10) return false;
+            if (!it.DOB) return false;
+            if (!it.MaritalStatusId) return false;
+            if (!it.NationalityId) return false;
+            // Freetext Pincode input (address.html, pincode=='freetext' branch): required, MINLENGTH/MAXLENGTH=6
+            if (!it.Pincode || String(it.Pincode).length !== 6) return false;
+            // LandLine: optional, but if present must be exactly 10 chars (MINLENGTH/MAXLENGTH=10)
+            if (it.LandLine && String(it.LandLine).length !== 10) return false;
+            // Email: optional, but type="email" applies Angular's built-in e-mail format validator
+            if (it.Email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(it.Email)) return false;
+            // Income: optional, but ng-pattern="/^\d+$/" when present
+            if (it.Income && !/^\d+$/.test(String(it.Income))) return false;
+            return true;
+        };
+
+        $scope.handleReactAction = function(actionName, payload) {
+            switch (actionName) {
+                case 'itemFieldChange':
+                    $scope.item[payload.field] = payload.value;
+                    $scope.refreshReactProps();
+                    $scope.$applyAsync();
+                    return;
+                case 'itemFieldsMerge':
+                    angular.extend($scope.item, payload.fields);
+                    $scope.refreshReactProps();
+                    $scope.$applyAsync();
+                    return;
+                case 'titleChange':
+                    $scope.item.TitleId = payload.value;
+                    $scope.fillGenderInfo();
+                    $scope.refreshReactProps();
+                    $scope.$applyAsync();
+                    return;
+                case 'dobChange':
+                    $scope.item.DOB = payload.value;
+                    $scope.calculateAge();
+                    $scope.refreshReactProps();
+                    $scope.$applyAsync();
+                    return;
+                case 'approxAgeDaysChange':
+                    $scope.item.ApproxAgeDays = payload.value;
+                    $scope.calculateDOB(payload.value, 'days');
+                    $scope.refreshReactProps();
+                    $scope.$applyAsync();
+                    return;
+                case 'approxAgeMonthsChange':
+                    $scope.item.ApproxAgeMonths = payload.value;
+                    $scope.calculateDOB(payload.value, 'months');
+                    $scope.refreshReactProps();
+                    $scope.$applyAsync();
+                    return;
+                case 'ageYearsChange':
+                    $scope.item.Age = payload.value;
+                    $scope.calculateDOB(payload.value, 'years');
+                    $scope.refreshReactProps();
+                    $scope.$applyAsync();
+                    return;
+                case 'referTypeChange':
+                    $scope.item.ReferTypeId = payload.value;
+                    $scope.referralTypeChange();
+                    $scope.refreshReactProps();
+                    $scope.$applyAsync();
+                    return;
+                case 'referrerChange':
+                    $scope.item.ReferrerId = payload.value;
+                    $scope.referralChange();
+                    $scope.refreshReactProps();
+                    $scope.$applyAsync();
+                    return;
+            }
+            if (typeof $scope[actionName] === 'function') {
+                $scope[actionName]();
+            }
+        };
+        /* React bridge code ends */
 
         $scope.initLookup();
     }

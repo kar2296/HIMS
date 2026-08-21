@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { Button } from './Button';
+import { spacing, typography } from '../components/ui/tokens';
 
 interface OPBillingSaveBarProps {
   props?: any;
@@ -35,11 +36,6 @@ export const OPBillingSaveBar: React.FC<OPBillingSaveBarProps> = (props: any) =>
   const actualProps = extractActualProps(props);
   const onAction = props.onAction || actualProps.onAction || props.reactProps?.onAction;
 
-  const [isDraftHovered, setIsDraftHovered] = useState(false);
-  const [isApproveHovered, setIsApproveHovered] = useState(false);
-  const [isAttachHovered, setIsAttachHovered] = useState(false);
-  const [isPrintReceiptHovered, setIsPrintReceiptHovered] = useState(false);
-
   const {
     receiptNo = '',
     attachmentCount = 0,
@@ -56,7 +52,7 @@ export const OPBillingSaveBar: React.FC<OPBillingSaveBarProps> = (props: any) =>
   };
 
   const showAttachment = privileges?.canAttachment === true;
-  
+
   const isSaveAllowed = canShowSaveBtn !== false && canShowSaveBtn !== 0 && canShowSaveBtn !== 'false';
   const isSaveApproveAllowed = canShowSaveapproveBtn !== false && canShowSaveapproveBtn !== 0 && canShowSaveapproveBtn !== 'false';
 
@@ -86,137 +82,60 @@ export const OPBillingSaveBar: React.FC<OPBillingSaveBarProps> = (props: any) =>
         display: 'inline-flex',
         alignItems: 'center',
         flexWrap: 'wrap',
-        gap: '8px',
-        fontFamily: "'Inter', system-ui, -apple-system, sans-serif",
+        gap: spacing.sm,
+        fontFamily: typography.fontFamily,
       }}
     >
       {/* Attachments */}
       {showAttachment && (
-        <button
+        <Button
           type="button"
+          variant="secondary"
+          icon="fa-paperclip"
           onClick={() => handleAction('openattachments')}
-          onMouseEnter={() => setIsAttachHovered(true)}
-          onMouseLeave={() => setIsAttachHovered(false)}
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '6px',
-            padding: '8px 14px',
-            fontSize: '13px',
-            fontWeight: 600,
-            color: '#334155',
-            backgroundColor: isAttachHovered ? '#f1f5f9' : '#ffffff',
-            border: '1px solid #cbd5e1',
-            borderRadius: '8px',
-            cursor: 'pointer',
-            transition: 'all 0.2s ease',
-          }}
           title="Attachments"
         >
-          <i className="fas fa-paperclip" style={{ fontSize: '13px', color: '#64748b' }}></i>
-          <span>Attachments ({attachmentCount})</span>
-        </button>
+          Attachments ({attachmentCount})
+        </Button>
       )}
 
       {/* Print Receipt */}
       {!!receiptNo && (
-        <button
+        <Button
           type="button"
+          variant="info"
+          icon="fa-receipt"
           onClick={() => handleAction('printReceipt')}
-          onMouseEnter={() => setIsPrintReceiptHovered(true)}
-          onMouseLeave={() => setIsPrintReceiptHovered(false)}
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '6px',
-            padding: '8px 16px',
-            fontSize: '13px',
-            fontWeight: 600,
-            color: '#ffffff',
-            background: isPrintReceiptHovered
-              ? 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)'
-              : 'linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%)',
-            border: 'none',
-            borderRadius: '8px',
-            cursor: 'pointer',
-            boxShadow: '0 2px 6px rgba(14, 165, 233, 0.25)',
-            transition: 'all 0.2s ease',
-          }}
           title="Print Receipt"
         >
-          <i className="fas fa-receipt" style={{ fontSize: '13px' }}></i>
-          <span>Print Receipt</span>
-        </button>
+          Print Receipt
+        </Button>
       )}
 
       {/* Save Draft */}
       {showSave && (
-        <button
+        <Button
           type="button"
+          variant="warning"
+          icon="fa-save"
           onClick={() => handleAction('saveAndDraft')}
-          onMouseEnter={() => setIsDraftHovered(true)}
-          onMouseLeave={() => setIsDraftHovered(false)}
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '6px',
-            padding: '8px 16px',
-            fontSize: '13px',
-            fontWeight: 600,
-            letterSpacing: '-0.01em',
-            color: '#ffffff',
-            background: isDraftHovered
-              ? 'linear-gradient(135deg, #b45309 0%, #92400e 100%)'
-              : 'linear-gradient(135deg, #d97706 0%, #b45309 100%)',
-            border: 'none',
-            borderRadius: '8px',
-            cursor: 'pointer',
-            boxShadow: isDraftHovered
-              ? '0 4px 12px rgba(217, 119, 6, 0.35)'
-              : '0 2px 6px rgba(217, 119, 6, 0.2)',
-            transform: isDraftHovered ? 'translateY(-1px)' : 'none',
-            transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
-          }}
           title="Save Draft (Alt+S / F2)"
         >
-          <i className="fas fa-save" style={{ fontSize: '13px' }}></i>
-          <span>Save Draft (Alt+S)</span>
-        </button>
+          Save Draft (Alt+S)
+        </Button>
       )}
 
       {/* Save & Collect / Approve */}
       {showSaveApprove && (
-        <button
+        <Button
           type="button"
+          variant="success"
+          icon="fa-check-circle"
           onClick={() => handleAction('saveAndApprove')}
-          onMouseEnter={() => setIsApproveHovered(true)}
-          onMouseLeave={() => setIsApproveHovered(false)}
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '6px',
-            padding: '8px 18px',
-            fontSize: '13px',
-            fontWeight: 600,
-            letterSpacing: '-0.01em',
-            color: '#ffffff',
-            background: isApproveHovered
-              ? 'linear-gradient(135deg, #059669 0%, #047857 100%)'
-              : 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-            border: 'none',
-            borderRadius: '8px',
-            cursor: 'pointer',
-            boxShadow: isApproveHovered
-              ? '0 4px 12px rgba(16, 185, 129, 0.35)'
-              : '0 2px 6px rgba(16, 185, 129, 0.2)',
-            transform: isApproveHovered ? 'translateY(-1px)' : 'none',
-            transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
-          }}
           title="Save & Collect / Approve (Alt+A / F4)"
         >
-          <i className="fas fa-check-circle" style={{ fontSize: '13px' }}></i>
-          <span>Save &amp; Collect (Alt+A)</span>
-        </button>
+          Save &amp; Collect (Alt+A)
+        </Button>
       )}
     </div>
   );

@@ -1,4 +1,7 @@
 import React from 'react';
+import { PageHeader } from '../components/ui/Breadcrumb';
+import { Card } from '../components/ui/Card';
+import { colors, radii, spacing, transitions, typography } from '../components/ui/tokens';
 
 interface LabDashboardProps {
   permissions?: any;
@@ -119,16 +122,10 @@ export const LabDashboardComponent: React.FC<LabDashboardProps> = ({
   ];
 
   return (
-    <div style={{ padding: '24px', fontFamily: 'var(--font-modern)', backgroundColor: 'var(--premium-bg-light)', minHeight: '100vh' }}>
-      
+    <div style={{ padding: spacing.xl, fontFamily: typography.fontFamily, backgroundColor: colors.surfaceMuted, minHeight: '100vh' }}>
+
       {/* Header */}
-      <div style={{ marginBottom: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div>
-          <h4 style={{ margin: 0, color: 'var(--premium-text-main)', fontSize: '24px', fontWeight: 600 }}>
-            Lab Dashboard
-          </h4>
-        </div>
-      </div>
+      <PageHeader title="Lab Dashboard" />
 
       {/* Cards Grid */}
       <div style={{
@@ -137,19 +134,12 @@ export const LabDashboardComponent: React.FC<LabDashboardProps> = ({
         gap: '20px'
       }}>
         {cards.filter(c => c.show).map(card => (
-          <div 
+          <div
             key={card.id}
             onClick={card.action}
-            className="premium-glass-panel"
             style={{
-              padding: '20px',
               cursor: 'pointer',
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'space-between',
-              transition: 'transform 0.2s',
-              borderTop: `4px solid ${card.color}`,
-              height: '140px'
+              transition: transitions.base
             }}
             onMouseEnter={(e) => {
               e.currentTarget.style.transform = 'translateY(-4px)';
@@ -158,30 +148,41 @@ export const LabDashboardComponent: React.FC<LabDashboardProps> = ({
               e.currentTarget.style.transform = 'translateY(0)';
             }}
           >
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-              <div style={{
-                width: '45px',
-                height: '45px',
-                borderRadius: '8px',
-                backgroundColor: `${card.color}15`,
-                color: card.color,
+            <Card
+              padding={spacing.lg}
+              style={{
                 display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: '20px'
-              }}>
-                <i className={`fas ${card.icon}`}></i>
-              </div>
-              {card.count !== undefined && (
-                <div style={{ color: 'var(--premium-text-main)', fontSize: '24px', fontWeight: 700 }}>
-                  {card.count}
+                flexDirection: 'column',
+                justifyContent: 'space-between',
+                borderTop: `4px solid ${card.color}`,
+                height: '140px'
+              }}
+            >
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                <div style={{
+                  width: '45px',
+                  height: '45px',
+                  borderRadius: radii.md,
+                  backgroundColor: `${card.color}15`,
+                  color: card.color,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '20px'
+                }}>
+                  <i className={`fas ${card.icon}`}></i>
                 </div>
-              )}
-            </div>
-            
-            <div style={{ color: 'var(--premium-text-muted)', fontSize: '14px', fontWeight: 600, marginTop: 'auto' }}>
-              {card.title}
-            </div>
+                {card.count !== undefined && (
+                  <div style={{ color: colors.textMain, fontSize: '24px', fontWeight: 700 }}>
+                    {card.count}
+                  </div>
+                )}
+              </div>
+
+              <div style={{ color: colors.textMuted, fontSize: '14px', fontWeight: 600, marginTop: 'auto' }}>
+                {card.title}
+              </div>
+            </Card>
           </div>
         ))}
       </div>

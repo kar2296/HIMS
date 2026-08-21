@@ -44,6 +44,8 @@
             }
             vm.gridConfig.data = res.Data;
             vm.gridConfig.pagerObj.totalItems = res.PageContext.TotalRecords;
+            $scope.refreshReactProps();
+            $scope.$applyAsync();
         };
 
         $scope.getList = function () {
@@ -246,6 +248,77 @@
             };
             utl.Http.doAction(options);
         }
+
+        /* React bridge code starts */
+        // NOTE: <patientbanner> (modal-mode only) is left native -- a shared, real
+        // async-fetching directive, same REUSABLE SUB-WIDGET treatment as the Doctor
+        // <autosearch> on registrationcumvisit.html. It is NOT nested inside a repeat,
+        // so it stays a plain sibling tag outside the react-component mount.
+        //
+        // Real, disclosed pre-existing quirks preserved as-is (not fixed):
+        // - "Add" is dead today: addNew() is a real function, but its trigger button is
+        //   commented out of the live template, AND its target modal state
+        //   'app.patientguarantorform' does not exist anywhere in hims-states.js. Not
+        //   rendered in the React port either -- matches what's actually live today.
+        // - The footer Back/Cancel button (backToForm()) is likewise commented out of
+        //   the live template -- not rendered.
+        // - Row-selection "picker" mode (enableRowSelection/onRegisterApi/gridApi,
+        //   gated by currentcontext.canselectrow) targets ui-grid's selection API, but
+        //   the live template renders <custom-table>, which has no such API
+        //   (customTableController only implements reOrder). This code path is
+        //   unreachable today -- not reproduced in React.
+        // - When currentcontext.isFinalized is true, handleEvents' error branch passes
+        //   the raw i18n KEY string straight to showErrorMsg (missing the
+        //   $translate.instant() wrapper every other call site here uses) -- so the
+        //   literal untranslated key is what actually displays. Preserved verbatim.
+        $scope.reactProps = {};
+
+        $scope.refreshReactProps = function () {
+            $scope.reactProps = {
+                items: vm.gridConfig.data || [],
+                lookup: $scope.lookup || {},
+                currentfilter: $scope.currentfilter,
+                currentcontext: $scope.currentcontext,
+                pager: {
+                    totalItems: vm.gridConfig.pagerObj.totalItems,
+                    currentPage: vm.gridConfig.pagerObj.currentPage,
+                    pageSize: vm.gridConfig.pagerObj.pageSize
+                }
+            };
+        };
+
+        $scope.handleReactAction = function (actionName, payload) {
+            switch (actionName) {
+                case 'edit':
+                    $scope.handleEvents('edit', payload.entity);
+                    return;
+                case 'gl':
+                    $scope.handleEvents('gl', payload.entity);
+                    return;
+                case 'delete':
+                    $scope.handleEvents('delete', payload.entity);
+                    return;
+                case 'filterChange':
+                    $scope.currentfilter[payload.field] = payload.value;
+                    $scope.getList();
+                    return;
+                case 'pageChange':
+                    vm.gridConfig.pagerObj.currentPage = payload.page;
+                    $scope.getList();
+                    return;
+                case 'cancelModal':
+                    if ($scope.currentcontext.ismodal) {
+                        $scope.cancelCallback();
+                    }
+                    return;
+            }
+            if (typeof $scope[actionName] === 'function') {
+                $scope[actionName]();
+            }
+        };
+
+        $scope.refreshReactProps();
+        /* React bridge code ends */
 
         $scope.initLookup();
     }

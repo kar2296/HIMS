@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { Button } from './Button';
+import { Input } from '../components/ui/Input';
+import { colors, typography, spacing, radii, shadows, zIndex } from '../components/ui/tokens';
 
 interface TopNavbarComponentProps {
   facilityName?: string;
@@ -47,7 +49,7 @@ export const TopNavbarComponent: React.FC<TopNavbarComponentProps> = ({
           const encrypted = CryptoJS.AES.encrypt(newPassword, base64Key, { iv: strIV });
           pwdToSend = encrypted.ciphertext.toString(CryptoJS.enc.Base64);
       }
-      
+
       const response = await fetch('/api/auth/force-change-password', {
         method: 'POST',
         headers: {
@@ -56,7 +58,7 @@ export const TopNavbarComponent: React.FC<TopNavbarComponentProps> = ({
         },
         body: JSON.stringify({ newPassword: pwdToSend })
       });
-      
+
       if (!response.ok) {
         throw new Error('Failed to update password');
       }
@@ -67,11 +69,11 @@ export const TopNavbarComponent: React.FC<TopNavbarComponentProps> = ({
       } else {
         alert('Password updated successfully. Please log in with your new password next time.');
       }
-      
+
       if (onPasswordChanged) onPasswordChanged();
       setNewPassword('');
       setConfirmPassword('');
-      
+
     } catch (err: any) {
       setPasswordError(err.message || 'An error occurred while updating the password');
     } finally {
@@ -85,16 +87,16 @@ export const TopNavbarComponent: React.FC<TopNavbarComponentProps> = ({
       alignItems: 'center',
       justifyContent: 'space-between',
       height: '60px',
-      backgroundColor: '#ffffff',
-      boxShadow: 'var(--shadow-sm)',
-      padding: '0 20px',
-      fontFamily: 'var(--font-modern)',
+      backgroundColor: colors.surface,
+      boxShadow: shadows.sm,
+      padding: `0 ${spacing.xl}`,
+      fontFamily: typography.fontFamily,
       position: 'relative',
-      zIndex: 1000
+      zIndex: zIndex.dropdown
     }}>
       {/* Left side: Brand / Facility / Sidebar Toggle */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-        <Button 
+      <div style={{ display: 'flex', alignItems: 'center', gap: spacing.xl }}>
+        <Button
           variant="icon"
           icon="fa-solid fa-bars"
           onClick={onToggleSidebar}
@@ -102,31 +104,31 @@ export const TopNavbarComponent: React.FC<TopNavbarComponentProps> = ({
           size="sm"
           style={{
             fontSize: '16px',
-            color: 'var(--premium-blue, #00005c)',
+            color: colors.primary,
             backgroundColor: 'transparent',
             border: 'none',
             boxShadow: 'none'
           }}
         />
 
-        <div style={{ 
-          fontWeight: 600, 
-          fontSize: '18px', 
-          color: 'var(--premium-text-main)',
-          borderLeft: '1px solid #eee',
-          paddingLeft: '20px'
+        <div style={{
+          fontWeight: 600,
+          fontSize: '18px',
+          color: colors.textMain,
+          borderLeft: `1px solid ${colors.border}`,
+          paddingLeft: spacing.xl
         }}>
           {facilityName}
         </div>
       </div>
 
       {/* Right side: User Profile & Actions */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-        
+      <div style={{ display: 'flex', alignItems: 'center', gap: spacing.xl }}>
+
         {/* Language Selector (Placeholder for future extension) */}
-        <div style={{ 
-          fontSize: '13px', 
-          color: 'var(--premium-text-muted)', 
+        <div style={{
+          fontSize: '13px',
+          color: colors.textMuted,
           cursor: 'pointer',
           display: 'flex',
           alignItems: 'center',
@@ -135,27 +137,27 @@ export const TopNavbarComponent: React.FC<TopNavbarComponentProps> = ({
           English <i className="fa-solid fa-chevron-down" style={{ fontSize: '10px' }}></i>
         </div>
 
-        <div style={{ height: '30px', width: '1px', backgroundColor: '#eee' }}></div>
+        <div style={{ height: '30px', width: '1px', backgroundColor: colors.border }}></div>
 
         {/* User Dropdown */}
-        <div 
+        <div
           style={{ position: 'relative', cursor: 'pointer' }}
           onClick={() => setIsDropdownOpen(!isDropdownOpen)}
         >
-          <div style={{ 
-            display: 'flex', 
-            alignItems: 'center', 
-            gap: '12px',
-            padding: '4px 8px',
-            borderRadius: '8px',
-            backgroundColor: isDropdownOpen ? 'var(--premium-bg-light)' : 'transparent',
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: spacing.md,
+            padding: `4px ${spacing.sm}`,
+            borderRadius: radii.sm,
+            backgroundColor: isDropdownOpen ? colors.primaryLight : 'transparent',
             transition: 'background 0.2s'
           }}>
             <div style={{
               width: '36px',
               height: '36px',
-              borderRadius: '50%',
-              backgroundColor: 'var(--premium-gold)',
+              borderRadius: radii.full,
+              backgroundColor: colors.gold,
               backgroundImage: userPhoto ? `url(data:image/png;base64,${userPhoto})` : 'none',
               backgroundSize: 'cover',
               backgroundPosition: 'center',
@@ -169,18 +171,18 @@ export const TopNavbarComponent: React.FC<TopNavbarComponentProps> = ({
             }}>
               {!userPhoto && userName.charAt(0).toUpperCase()}
             </div>
-            
+
             <div style={{ display: 'flex', flexDirection: 'column' }}>
-              <span style={{ fontSize: '14px', fontWeight: 500, color: 'var(--premium-text-main)', lineHeight: '1' }}>
+              <span style={{ fontSize: '14px', fontWeight: 500, color: colors.textMain, lineHeight: '1' }}>
                 {userName}
               </span>
-              <span style={{ fontSize: '11px', color: '#888', marginTop: '4px' }}>
+              <span style={{ fontSize: '11px', color: colors.textMuted, marginTop: spacing.xs }}>
                 Online
               </span>
             </div>
-            
-            <i className={`fa-solid fa-chevron-${isDropdownOpen ? 'up' : 'down'}`} 
-               style={{ fontSize: '10px', color: '#888', marginLeft: '4px' }}></i>
+
+            <i className={`fa-solid fa-chevron-${isDropdownOpen ? 'up' : 'down'}`}
+               style={{ fontSize: '10px', color: colors.textMuted, marginLeft: spacing.xs }}></i>
           </div>
 
           {/* Dropdown Menu */}
@@ -190,13 +192,13 @@ export const TopNavbarComponent: React.FC<TopNavbarComponentProps> = ({
               top: 'calc(100% + 10px)',
               right: 0,
               width: '200px',
-              padding: '8px 0',
-              backgroundColor: '#ffffff',
-              borderRadius: '8px',
-              border: '1px solid #e2e8f0',
-              boxShadow: '0 10px 30px rgba(0, 0, 0, 0.18)',
+              padding: `${spacing.sm} 0`,
+              backgroundColor: colors.surface,
+              borderRadius: radii.sm,
+              border: `1px solid ${colors.border}`,
+              boxShadow: shadows.lg,
               animation: 'fadeIn 0.2s ease-out',
-              zIndex: 1001
+              zIndex: zIndex.dropdown
             }}>
               <style>
                 {`
@@ -209,31 +211,31 @@ export const TopNavbarComponent: React.FC<TopNavbarComponentProps> = ({
                     display: flex;
                     alignItems: center;
                     gap: 10px;
-                    color: var(--premium-text-muted);
+                    color: ${colors.textMuted};
                     fontSize: 13px;
                     transition: background 0.2s;
                   }
                   .dropdown-item:hover {
-                    background-color: var(--premium-bg-light);
-                    color: var(--premium-blue);
+                    background-color: ${colors.primaryLight};
+                    color: ${colors.primary};
                   }
                 `}
               </style>
-              
+
               <div className="dropdown-item">
                 <i className="fa-solid fa-user" style={{ width: '16px' }}></i> My Profile
               </div>
               <div className="dropdown-item">
                 <i className="fa-solid fa-lock" style={{ width: '16px' }}></i> Change Password
               </div>
-              <div style={{ height: '1px', backgroundColor: '#eee', margin: '8px 0' }}></div>
-              <div 
-                className="dropdown-item" 
+              <div style={{ height: '1px', backgroundColor: colors.border, margin: `${spacing.sm} 0` }}></div>
+              <div
+                className="dropdown-item"
                 onClick={(e) => {
                   e.stopPropagation();
                   if (onLogout) onLogout();
                 }}
-                style={{ color: 'var(--premium-danger)' }}
+                style={{ color: colors.danger }}
               >
                 <i className="fa-solid fa-sign-out-alt" style={{ width: '16px' }}></i> Logout
               </div>
@@ -241,8 +243,18 @@ export const TopNavbarComponent: React.FC<TopNavbarComponentProps> = ({
           )}
         </div>
       </div>
-      
+
       {/* Forced Password Change Modal */}
+      {/*
+        NOTE: intentionally NOT using the design-system `Modal` component here.
+        `Modal` always renders a close (X) button and a backdrop-click-to-close
+        handler, and this dialog is a mandatory, non-dismissable forced
+        password change -- there is no supported way to suppress Modal's close
+        affordances, and adding a no-op onClose would visually offer a way out
+        of a MANDATORY step (a real behavior regression). So this stays a
+        hand-rolled, non-dismissable overlay -- only its colors/spacing are
+        retokenized below.
+      */}
       {requiresPasswordChange && (
         <div style={{
           position: 'fixed',
@@ -255,70 +267,56 @@ export const TopNavbarComponent: React.FC<TopNavbarComponentProps> = ({
           zIndex: 9999
         }}>
           <div style={{
-            backgroundColor: '#fff',
-            padding: '30px',
-            borderRadius: '12px',
+            backgroundColor: colors.surface,
+            padding: spacing.xxl,
+            borderRadius: radii.lg,
             width: '100%',
             maxWidth: '400px',
-            boxShadow: '0 10px 30px rgba(0,0,0,0.2)'
+            boxShadow: shadows.lg
           }}>
-            <h3 style={{ color: '#dc3545', marginTop: 0, marginBottom: '15px' }}>
-              <i className="fa-solid fa-lock" style={{ marginRight: '10px' }}></i>
+            <h3 style={{ color: colors.danger, marginTop: 0, marginBottom: spacing.lg }}>
+              <i className="fa-solid fa-lock" style={{ marginRight: spacing.md }}></i>
               Mandatory Password Change
             </h3>
-            <p style={{ color: '#6c757d', fontSize: '14px', marginBottom: '20px' }}>
+            <p style={{ color: colors.textMuted, fontSize: typography.body.fontSize, marginBottom: spacing.xl }}>
               For security reasons, you are required to change your password before continuing.
             </p>
-            
+
             {passwordError && (
               <div style={{
-                padding: '10px',
-                backgroundColor: 'rgba(211, 47, 47, 0.1)',
-                color: '#d32f2f',
-                borderRadius: '6px',
-                marginBottom: '15px',
+                padding: spacing.md,
+                backgroundColor: colors.dangerBg,
+                color: colors.danger,
+                borderRadius: radii.sm,
+                marginBottom: spacing.lg,
                 fontSize: '13px'
               }}>
                 {passwordError}
               </div>
             )}
-            
+
             <form onSubmit={handleForcePasswordChange}>
-              <div style={{ marginBottom: '15px' }}>
-                <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, marginBottom: '5px' }}>New Password</label>
-                <input 
-                  type="password" 
+              <div style={{ marginBottom: spacing.lg }}>
+                <Input
+                  label="New Password"
+                  type="password"
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
-                  style={{
-                    width: '100%',
-                    padding: '10px',
-                    borderRadius: '6px',
-                    border: '1px solid #ccc',
-                    boxSizing: 'border-box'
-                  }}
                   required
                 />
               </div>
-              
-              <div style={{ marginBottom: '25px' }}>
-                <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, marginBottom: '5px' }}>Confirm New Password</label>
-                <input 
-                  type="password" 
+
+              <div style={{ marginBottom: spacing.xl }}>
+                <Input
+                  label="Confirm New Password"
+                  type="password"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
-                  style={{
-                    width: '100%',
-                    padding: '10px',
-                    borderRadius: '6px',
-                    border: '1px solid #ccc',
-                    boxSizing: 'border-box'
-                  }}
                   required
                 />
               </div>
-              
-              <Button 
+
+              <Button
                 type="submit"
                 variant="primary"
                 fullWidth

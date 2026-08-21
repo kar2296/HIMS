@@ -4,6 +4,8 @@ import Quill from 'quill';
 // Import Quill CSS (will be included in the Vite bundle)
 import 'quill/dist/quill.snow.css';
 
+import { colors, radii, shadows } from '../components/ui/tokens';
+
 interface RichTextEditorProps {
   /** The current HTML content (two-way bound via AngularJS) */
   richtext?: string;
@@ -40,14 +42,14 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
   const containerRef = useRef<HTMLDivElement>(null);
   const quillRef = useRef<Quill | null>(null);
   const recognitionRef = useRef<any>(null);
-  
+
   // Track last value sent out to avoid infinite loops
   const lastEmittedRef = useRef<string>('');
   // Flag to block the watch effect while the user is typing
   const isUserEditing = useRef<boolean>(false);
-  
+
   const [isRecording, setIsRecording] = useState(false);
-  
+
   // HTML Source Mode State
   const [isSourceMode, setIsSourceMode] = useState(false);
   const sourceTextRef = useRef<string>('');
@@ -58,7 +60,7 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
       alert('Speech Recognition is not supported in this browser. Please use Google Chrome, Edge, or Safari.');
       return;
     }
-    
+
     setIsRecording((prev) => {
       if (prev) {
         recognitionRef.current.stop();
@@ -117,18 +119,18 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
             finalTranscript += event.results[i][0].transcript + ' ';
           }
         }
-        
+
         if (finalTranscript && quillRef.current) {
            isUserEditing.current = true;
            const quill = quillRef.current;
            const selection = quill.getSelection(true); // get current cursor position
-           
+
            // Capitalize first letter of transcript if needed
            const formattedTranscript = finalTranscript.charAt(0).toUpperCase() + finalTranscript.slice(1);
-           
+
            quill.insertText(selection.index, formattedTranscript);
            quill.setSelection(selection.index + formattedTranscript.length, 0); // move cursor
-           
+
            // Emit change manually since insertText might not always trigger semantic change optimally
            setTimeout(() => { isUserEditing.current = false; }, 0);
         }
@@ -149,7 +151,7 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
       <line x1="12" y1="19" x2="12" y2="23"></line>
       <line x1="8" y1="23" x2="16" y2="23"></line>
     </svg>`;
-    
+
     // 2. Register custom html icon
     icons['html'] = `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
       <polyline points="16 18 22 12 16 6"></polyline>
@@ -261,7 +263,7 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
          onContentChange?.(newHtml);
       }, 0);
     }
-    
+
     if (onInsertHtmlDone) {
       // Clear the trigger after processing
       setTimeout(() => onInsertHtmlDone(), 10);
@@ -277,13 +279,13 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
   const editorHeight = typeof height === 'number' ? `${height}px` : height;
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', width: '100%', border: '1px solid #d1d5db', borderRadius: '8px', overflow: 'hidden', boxShadow: '0 1px 4px rgba(0,0,0,0.06)', background: '#fff' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', width: '100%', border: `1px solid ${colors.border}`, borderRadius: radii.lg, overflow: 'hidden', boxShadow: shadows.sm, background: colors.surface }}>
       <div
         ref={containerRef}
         style={{ flex: 1 }}
         className={`rte-quill-host ${isRecording ? 'is-recording' : ''}`}
       />
-      
+
       {/* HTML Source Mode Textarea */}
       {isSourceMode && (
         <textarea
@@ -291,7 +293,7 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
             width: '100%',
             height: editorHeight,
             border: 'none',
-            borderTop: '1px solid #e5e7eb',
+            borderTop: `1px solid ${colors.border}`,
             padding: '16px 20px',
             fontFamily: 'Consolas, Monaco, "Courier New", monospace',
             fontSize: '14px',
@@ -313,7 +315,7 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
           }}
         />
       )}
-      
+
       {/* Inline style overrides to set editor body height & animations */}
       <style>{`
         .rte-quill-host .ql-container {
@@ -353,7 +355,7 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
         .rte-quill-host .ql-snow .ql-toolbar button:focus .ql-stroke {
           stroke: #2563eb;
         }
-        
+
         /* HTML Toggle Active State */
         ${isSourceMode ? `
         .rte-quill-host .ql-container {
@@ -376,7 +378,7 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
           pointer-events: none;
         }
         ` : ''}
-        
+
         /* Voice Button Customizations */
         .rte-quill-host .ql-toolbar button.ql-voice,
         .rte-quill-host .ql-toolbar button.ql-html {

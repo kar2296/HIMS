@@ -8,6 +8,42 @@ import './services/apiService';
 // Import Pilot Component
 import { PilotComponent } from './react-components/PilotComponent';
 
+// Import DefaultRegistrationScreen Component
+import { DefaultRegistrationScreen } from './react-components/DefaultRegistrationScreen';
+
+// Import RegisteredPatientsScreen Component
+import { RegisteredPatientsScreen } from './react-components/RegisteredPatientsScreen';
+
+// Import PatientRegistrationSelfScreen Component
+import { PatientRegistrationSelfScreen } from './react-components/PatientRegistrationSelfScreen';
+
+// Import NewRegistrationScreen Component
+import { NewRegistrationScreen } from './react-components/NewRegistrationScreen';
+
+// Import PatientRegistrationFormScreen Component
+import { PatientRegistrationFormScreen } from './react-components/PatientRegistrationFormScreen';
+
+// Import QuickRegistrationFormScreen Component
+import { QuickRegistrationFormScreen } from './react-components/QuickRegistrationFormScreen';
+
+// Import FullRegistration Components
+import { FullRegistrationPatientOptions, FullRegistrationScreen, FullRegistrationFooter } from './react-components/FullRegistrationScreen';
+
+// Import RegistrationCumVisit Components
+import { RegistrationCumVisitScreen, RegistrationCumVisitFooter } from './react-components/RegistrationCumVisitScreen';
+
+// Import PatientIdentityList Component
+import { PatientIdentityListScreen } from './react-components/PatientIdentityListScreen';
+
+// Import PatientKinList Component
+import { PatientKinListScreen } from './react-components/PatientKinListScreen';
+
+// Import FamilyLink Components
+import { FamilyLinkActionBar, FamilyLinkFooter } from './react-components/FamilyLinkScreen';
+
+// Import PatientGuarantorList Component
+import { PatientGuarantorListScreen } from './react-components/PatientGuarantorListScreen';
+
 // Import LoginPage Component
 import { LoginPage } from './react-components/LoginPage';
 
@@ -153,6 +189,22 @@ import { FindBillModalComponent } from './react-components/FindBillModalComponen
   RegistrationFormComponent,
   FindBillModalComponent,
   PilotComponent,
+  DefaultRegistrationScreen,
+  RegisteredPatientsScreen,
+  PatientRegistrationSelfScreen,
+  NewRegistrationScreen,
+  PatientRegistrationFormScreen,
+  QuickRegistrationFormScreen,
+  FullRegistrationPatientOptions,
+  FullRegistrationScreen,
+  FullRegistrationFooter,
+  RegistrationCumVisitScreen,
+  RegistrationCumVisitFooter,
+  PatientIdentityListScreen,
+  PatientKinListScreen,
+  FamilyLinkActionBar,
+  FamilyLinkFooter,
+  PatientGuarantorListScreen,
   LoginPage,
   SidebarComponent,
   TopNavbarComponent,

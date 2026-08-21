@@ -1,5 +1,16 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { apiFetch } from './utils/api';
+import { Button } from './Button';
+import { Input } from '../components/ui/Input';
+import { Select } from '../components/ui/Select';
+import { Checkbox } from '../components/ui/Checkbox';
+import { DatePicker } from '../components/ui/DatePicker';
+import { DataTable, type DataTableColumn } from '../components/ui/DataTable';
+import { Pagination } from '../components/ui/Pagination';
+import { FilterBar } from '../components/ui/Card';
+import { Badge, StatusBadge } from '../components/ui/Badge';
+import { Alert } from '../components/ui/Alert';
+import { colors, radii, shadows, spacing, transitions, typography } from '../components/ui/tokens';
 
 export interface FindBillItem {
   Id: number;
@@ -79,7 +90,6 @@ export const FindBillModalComponent: React.FC<FindBillModalProps> = (rawProps: a
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [pageSize, setPageSize] = useState<number>(25);
   const [totalItems, setTotalItems] = useState<number>(0);
-  const [hoveredRowId, setHoveredRowId] = useState<number | null>(null);
 
   // Load Lookups
   useEffect(() => {
@@ -220,71 +230,151 @@ export const FindBillModalComponent: React.FC<FindBillModalProps> = (rawProps: a
     return `₹${num.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   };
 
-  const getStatusBadgeStyle = (statusDesc?: string) => {
-    const desc = (statusDesc || '').toLowerCase();
-    if (desc.includes('complete')) {
-      return {
-        bg: '#ecfdf5',
-        color: '#065f46',
-        border: '#a7f3d0',
-      };
-    }
-    if (desc.includes('draft') || desc.includes('open')) {
-      return {
-        bg: '#fffbeb',
-        color: '#92400e',
-        border: '#fde68a',
-      };
-    }
-    if (desc.includes('cancel')) {
-      return {
-        bg: '#fef2f2',
-        color: '#991b1b',
-        border: '#fecaca',
-      };
-    }
-    return {
-      bg: '#f1f5f9',
-      color: '#334155',
-      border: '#cbd5e1',
-    };
+  // Same name-composition logic the legacy table used inline per-row; only relocated
+  // into a named helper so DataTable's per-row `render` callbacks can share it.
+  const getPatientFullName = (bill: FindBillItem) => {
+    const title = bill.Patient?.Title?.Description ? `${bill.Patient.Title.Description} ` : '';
+    const firstName = bill.Patient?.FirstName || '';
+    const lastName = bill.Patient?.LastName ? ` ${bill.Patient.LastName}` : '';
+    return `${title}${firstName}${lastName}`.trim() || '-';
   };
 
-  const totalPages = Math.ceil(totalItems / pageSize) || 1;
   const startItemIndex = totalItems === 0 ? 0 : (currentPage - 1) * pageSize + 1;
   const endItemIndex = Math.min(currentPage * pageSize, totalItems);
+
+  const columns: DataTableColumn<FindBillItem>[] = [
+    {
+      key: 'select',
+      header: 'Select',
+      align: 'center',
+      width: '80px',
+      render: (bill) => (
+        <Button
+          type="button"
+          variant="success"
+          size="sm"
+          rounded="full"
+          icon="fas fa-check"
+          title="Select Bill"
+          onClick={(e) => {
+            e.stopPropagation();
+            handleSelectRow(bill);
+          }}
+        />
+      ),
+    },
+    {
+      key: 'billNo',
+      header: 'Bill No',
+      render: (bill) => (
+        <span style={{ display: 'inline-flex', alignItems: 'center', gap: spacing.xs, fontWeight: 600, color: colors.textMain }}>
+          <i className="fas fa-receipt" style={{ color: colors.textMuted, fontSize: '12px' }}></i>
+          <span>{bill.BillNumber}</span>
+        </span>
+      ),
+    },
+    {
+      key: 'uhid',
+      header: 'UHID',
+      render: (bill) => <Badge tone="neutral">{bill.Patient?.MRN || '-'}</Badge>,
+    },
+    {
+      key: 'patientName',
+      header: 'Patient Name',
+      render: (bill) => (
+        <Button
+          type="button"
+          variant="link"
+          icon="fas fa-user-circle"
+          title="Click to view patient profile"
+          onClick={(e) => handlePatientClick(e, bill.PatientId)}
+        >
+          {getPatientFullName(bill)}
+        </Button>
+      ),
+    },
+    {
+      key: 'date',
+      header: 'Date',
+      render: (bill) => <span style={{ whiteSpace: 'nowrap' }}>{formatDateTime(bill.BillDateTime)}</span>,
+    },
+    {
+      key: 'billAmt',
+      header: 'Bill Amt',
+      align: 'right',
+      render: (bill) => <span style={{ fontWeight: 600, color: colors.textMain }}>{formatCurrency(bill.BillAmount)}</span>,
+    },
+    {
+      key: 'disAmt',
+      header: 'Dis Amt',
+      align: 'right',
+      render: (bill) => formatCurrency(bill.BillDiscount),
+    },
+    {
+      key: 'paidAmt',
+      header: 'Paid Amt',
+      align: 'right',
+      render: (bill) => <span style={{ fontWeight: 600, color: colors.success }}>{formatCurrency(bill.PaidAmount)}</span>,
+    },
+    {
+      key: 'dueAmt',
+      header: 'Due Amt',
+      align: 'right',
+      render: (bill) => (
+        <span style={{ fontWeight: 600, color: Number(bill.OutStandingAmount) > 0 ? colors.danger : colors.textMuted }}>
+          {formatCurrency(bill.OutStandingAmount)}
+        </span>
+      ),
+    },
+    {
+      key: 'status',
+      header: 'Status',
+      align: 'center',
+      render: (bill) => <StatusBadge status={bill.PatientBillStatus?.Description || 'Completed'} />,
+    },
+  ];
 
   return (
     <div
       style={{
-        backgroundColor: '#ffffff',
-        borderRadius: '16px',
-        boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+        backgroundColor: colors.surface,
+        borderRadius: radii.xl,
+        boxShadow: shadows.lg,
         overflow: 'hidden',
-        fontFamily: "'Inter', system-ui, -apple-system, sans-serif",
+        fontFamily: typography.fontFamily,
         display: 'flex',
         flexDirection: 'column',
         maxHeight: '90vh',
         width: '100%',
       }}
     >
-      {/* 1. Header */}
+      {/* 1. Header
+          This component renders its own complete dialog chrome (header, body, footer) --
+          it never calls utl.Modal.open, and it has no isOpen prop, so its mounting/
+          unmounting is fully owned by whatever host places it in the DOM. The
+          design-system Modal owns its own fixed-position backdrop + click-outside-to-close
+          behavior, which this component's markup never had; wrapping it in Modal would
+          silently add a new backdrop/close interaction that isn't part of the existing
+          contract, so the bespoke shell is kept and only re-tokenized here. The dark
+          gradient header is intentionally left bespoke (design-system color tokens are
+          all light-surface values, not dark-chrome ones) -- only spacing/radii/transition
+          tokens are applied to it. */}
       <div
         style={{
           background: 'linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%)',
-          padding: '16px 24px',
+          padding: `${spacing.lg} ${spacing.xl}`,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
           borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
         }}
       >
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: spacing.md }}>
           <div
             style={{
               width: '36px',
               height: '36px',
-              borderRadius: '10px',
+              borderRadius: radii.md,
               backgroundColor: 'rgba(255, 255, 255, 0.12)',
               display: 'flex',
               alignItems: 'center',
@@ -305,13 +395,17 @@ export const FindBillModalComponent: React.FC<FindBillModalProps> = (rawProps: a
           </div>
         </div>
 
+        {/* Kept as a raw button (not the shared Button component): every Button variant
+            is styled for a light surface, and none reproduce the translucent-white-on-dark
+            "ghost" chip this gradient header needs to stay legible -- so this one control
+            is left bespoke-but-tokenized rather than forced into a mismatched variant. */}
         <button
           type="button"
           onClick={onClose}
           style={{
             background: 'rgba(255, 255, 255, 0.1)',
             border: 'none',
-            borderRadius: '8px',
+            borderRadius: radii.md,
             width: '32px',
             height: '32px',
             display: 'flex',
@@ -319,7 +413,7 @@ export const FindBillModalComponent: React.FC<FindBillModalProps> = (rawProps: a
             justifyContent: 'center',
             color: '#ffffff',
             cursor: 'pointer',
-            transition: 'all 0.2s ease',
+            transition: transitions.fast,
           }}
           onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(255, 255, 255, 0.2)')}
           onMouseLeave={(e) => (e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)')}
@@ -332,9 +426,9 @@ export const FindBillModalComponent: React.FC<FindBillModalProps> = (rawProps: a
       {/* 2. Filter Bar */}
       <div
         style={{
-          padding: '16px 24px',
-          backgroundColor: '#f8fafc',
-          borderBottom: '1px solid #e2e8f0',
+          padding: `${spacing.lg} ${spacing.xl}`,
+          backgroundColor: colors.surfaceMuted,
+          borderBottom: `1px solid ${colors.border}`,
         }}
       >
         <form
@@ -342,615 +436,114 @@ export const FindBillModalComponent: React.FC<FindBillModalProps> = (rawProps: a
             e.preventDefault();
             fetchBills(1);
           }}
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
-            gap: '12px',
-            alignItems: 'end',
-          }}
         >
-          {/* Name / UHID / Bill# */}
-          <div>
-            <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#475569', marginBottom: '4px' }}>
-              Name / UHID / Bill#
-            </label>
-            <div style={{ position: 'relative' }}>
-              <i
-                className="fas fa-search"
-                style={{
-                  position: 'absolute',
-                  left: '10px',
-                  top: '50%',
-                  transform: 'translateY(-50%)',
-                  color: '#94a3b8',
-                  fontSize: '12px',
-                }}
-              ></i>
-              <input
-                type="text"
+          <FilterBar>
+            {/* Name / UHID / Bill# */}
+            <div style={{ flex: '1 1 180px', minWidth: '180px' }}>
+              <Input
+                label="Name / UHID / Bill#"
                 value={patBillNum}
                 onChange={(e) => setPatBillNum(e.target.value)}
                 placeholder="Search Name/UHID/Bill#..."
-                style={{
-                  width: '100%',
-                  padding: '7px 10px 7px 30px',
-                  fontSize: '13px',
-                  borderRadius: '8px',
-                  border: '1px solid #cbd5e1',
-                  backgroundColor: '#ffffff',
-                  outline: 'none',
-                  boxSizing: 'border-box',
-                  color: '#0f172a',
-                  transition: 'border-color 0.2s',
-                }}
-                onFocus={(e) => (e.currentTarget.style.borderColor = '#3b82f6')}
-                onBlur={(e) => (e.currentTarget.style.borderColor = '#cbd5e1')}
+                leftIcon="fas fa-search"
               />
             </div>
-          </div>
 
-          {/* From Date */}
-          <div>
-            <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#475569', marginBottom: '4px' }}>
-              From Date
-            </label>
-            <input
-              type="date"
-              value={fromDate}
-              onChange={(e) => setFromDate(e.target.value)}
-              style={{
-                width: '100%',
-                padding: '7px 10px',
-                fontSize: '13px',
-                borderRadius: '8px',
-                border: '1px solid #cbd5e1',
-                backgroundColor: '#ffffff',
-                outline: 'none',
-                boxSizing: 'border-box',
-                color: '#0f172a',
-              }}
-            />
-          </div>
+            {/* From Date */}
+            <div style={{ flex: '1 1 180px', minWidth: '180px' }}>
+              <DatePicker label="From Date" value={fromDate} onChange={setFromDate} />
+            </div>
 
-          {/* To Date */}
-          <div>
-            <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#475569', marginBottom: '4px' }}>
-              To Date
-            </label>
-            <input
-              type="date"
-              value={toDate}
-              onChange={(e) => setToDate(e.target.value)}
-              style={{
-                width: '100%',
-                padding: '7px 10px',
-                fontSize: '13px',
-                borderRadius: '8px',
-                border: '1px solid #cbd5e1',
-                backgroundColor: '#ffffff',
-                outline: 'none',
-                boxSizing: 'border-box',
-                color: '#0f172a',
-              }}
-            />
-          </div>
+            {/* To Date */}
+            <div style={{ flex: '1 1 180px', minWidth: '180px' }}>
+              <DatePicker label="To Date" value={toDate} onChange={setToDate} />
+            </div>
 
-          {/* Status */}
-          <div>
-            <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#475569', marginBottom: '4px' }}>
-              Status
-            </label>
-            <select
-              value={statusId}
-              onChange={(e) => setStatusId(Number(e.target.value))}
-              style={{
-                width: '100%',
-                padding: '7px 10px',
-                fontSize: '13px',
-                borderRadius: '8px',
-                border: '1px solid #cbd5e1',
-                backgroundColor: '#ffffff',
-                outline: 'none',
-                boxSizing: 'border-box',
-                color: '#0f172a',
-                cursor: 'pointer',
-              }}
-            >
-              <option value={-1}>All Statuses</option>
-              {statusOptions.map((opt) => (
-                <option key={opt.Id} value={opt.Id}>
-                  {opt.Description}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* Referred By */}
-          <div>
-            <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#475569', marginBottom: '4px' }}>
-              Referred By
-            </label>
-            <select
-              value={referralId}
-              onChange={(e) => setReferralId(Number(e.target.value))}
-              style={{
-                width: '100%',
-                padding: '7px 10px',
-                fontSize: '13px',
-                borderRadius: '8px',
-                border: '1px solid #cbd5e1',
-                backgroundColor: '#ffffff',
-                outline: 'none',
-                boxSizing: 'border-box',
-                color: '#0f172a',
-                cursor: 'pointer',
-              }}
-            >
-              <option value={-1}>All Referrals</option>
-              {referralOptions.map((opt) => (
-                <option key={opt.Id} value={opt.Id}>
-                  {opt.Description}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* Outstanding Checkbox & Actions */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
-            <label
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '6px',
-                cursor: 'pointer',
-                fontSize: '13px',
-                fontWeight: 600,
-                color: '#334155',
-                userSelect: 'none',
-                padding: '6px 10px',
-                borderRadius: '6px',
-                backgroundColor: isOutStanding ? '#eff6ff' : 'transparent',
-                border: `1px solid ${isOutStanding ? '#bfdbfe' : '#e2e8f0'}`,
-                transition: 'all 0.2s',
-              }}
-            >
-              <input
-                type="checkbox"
-                checked={isOutStanding}
-                onChange={(e) => setIsOutStanding(e.target.checked)}
-                style={{ cursor: 'pointer', width: '15px', height: '15px', accentColor: '#2563eb' }}
+            {/* Status */}
+            <div style={{ flex: '1 1 180px', minWidth: '180px' }}>
+              <Select
+                label="Status"
+                value={statusId}
+                onChange={(value) => setStatusId(Number(value))}
+                options={[
+                  { value: -1, label: 'All Statuses' },
+                  ...statusOptions.map((opt) => ({ value: opt.Id, label: opt.Description })),
+                ]}
               />
-              Outstanding
-            </label>
+            </div>
 
-            {/* Fetch Button */}
-            <button
-              type="submit"
-              disabled={isLoading}
-              style={{
-                padding: '8px 16px',
-                backgroundColor: '#2563eb',
-                color: '#ffffff',
-                fontWeight: 600,
-                fontSize: '13px',
-                borderRadius: '8px',
-                border: 'none',
-                cursor: 'pointer',
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '6px',
-                boxShadow: '0 1px 3px rgba(37, 99, 235, 0.3)',
-                transition: 'all 0.2s',
-              }}
-              onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#1d4ed8')}
-              onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#2563eb')}
-            >
-              {isLoading ? (
-                <>
-                  <i className="fas fa-spinner fa-spin"></i>
-                  <span>Fetching...</span>
-                </>
-              ) : (
-                <>
-                  <i className="fas fa-filter"></i>
-                  <span>Fetch</span>
-                </>
-              )}
-            </button>
+            {/* Referred By */}
+            <div style={{ flex: '1 1 180px', minWidth: '180px' }}>
+              <Select
+                label="Referred By"
+                value={referralId}
+                onChange={(value) => setReferralId(Number(value))}
+                options={[
+                  { value: -1, label: 'All Referrals' },
+                  ...referralOptions.map((opt) => ({ value: opt.Id, label: opt.Description })),
+                ]}
+              />
+            </div>
 
-            {/* Reset Button */}
-            <button
-              type="button"
-              onClick={handleReset}
-              style={{
-                padding: '8px 12px',
-                backgroundColor: '#ffffff',
-                color: '#64748b',
-                fontWeight: 600,
-                fontSize: '13px',
-                borderRadius: '8px',
-                border: '1px solid #cbd5e1',
-                cursor: 'pointer',
-                transition: 'all 0.2s',
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = '#f1f5f9';
-                e.currentTarget.style.color = '#334155';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = '#ffffff';
-                e.currentTarget.style.color = '#64748b';
-              }}
-              title="Reset Filters"
-            >
-              <i className="fas fa-undo-alt"></i>
-            </button>
-          </div>
+            {/* Outstanding Checkbox & Actions */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: spacing.md, flexWrap: 'wrap' }}>
+              <Checkbox label="Outstanding" checked={isOutStanding} onChange={setIsOutStanding} />
+
+              <Button type="submit" variant="primary" icon="fas fa-filter" loading={isLoading} loadingText="Fetching...">
+                Fetch
+              </Button>
+
+              <Button
+                type="button"
+                variant="secondary"
+                icon="fas fa-undo-alt"
+                onClick={handleReset}
+                title="Reset Filters"
+              />
+            </div>
+          </FilterBar>
         </form>
       </div>
 
       {/* 3. Main Data Table */}
-      <div style={{ flex: 1, overflowY: 'auto', padding: '0' }}>
+      <div style={{ flex: 1, overflowY: 'auto', padding: spacing.lg }}>
         {error && (
-          <div style={{ padding: '16px 24px', backgroundColor: '#fef2f2', color: '#991b1b', fontSize: '13px', borderBottom: '1px solid #fecaca' }}>
-            <i className="fas fa-exclamation-circle" style={{ marginRight: '8px' }}></i>
-            {error}
+          <div style={{ marginBottom: spacing.md }}>
+            <Alert tone="danger">{error}</Alert>
           </div>
         )}
 
-        <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '13px' }}>
-          <thead>
-            <tr
-              style={{
-                backgroundColor: '#f8fafc',
-                borderBottom: '2px solid #e2e8f0',
-                color: '#475569',
-                fontSize: '11px',
-                fontWeight: 700,
-                textTransform: 'uppercase',
-                letterSpacing: '0.05em',
-                position: 'sticky',
-                top: 0,
-                zIndex: 10,
-              }}
-            >
-              <th style={{ padding: '12px 16px', width: '80px', textAlign: 'center' }}>Select</th>
-              <th style={{ padding: '12px 16px', minWidth: '120px' }}>Bill No</th>
-              <th style={{ padding: '12px 16px', width: '100px' }}>UHID</th>
-              <th style={{ padding: '12px 16px', minWidth: '160px' }}>Patient Name</th>
-              <th style={{ padding: '12px 16px', minWidth: '150px' }}>Date</th>
-              <th style={{ padding: '12px 16px', textAlign: 'right' }}>Bill Amt</th>
-              <th style={{ padding: '12px 16px', textAlign: 'right' }}>Dis Amt</th>
-              <th style={{ padding: '12px 16px', textAlign: 'right' }}>Paid Amt</th>
-              <th style={{ padding: '12px 16px', textAlign: 'right' }}>Due Amt</th>
-              <th style={{ padding: '12px 16px', width: '110px', textAlign: 'center' }}>Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            {isLoading ? (
-              <tr>
-                <td colSpan={10} style={{ padding: '48px 16px', textAlign: 'center', color: '#64748b' }}>
-                  <i className="fas fa-circle-notch fa-spin" style={{ fontSize: '24px', color: '#2563eb', marginBottom: '12px', display: 'block' }}></i>
-                  <span>Loading previous bills...</span>
-                </td>
-              </tr>
-            ) : bills.length === 0 ? (
-              <tr>
-                <td colSpan={10} style={{ padding: '48px 16px', textAlign: 'center', color: '#94a3b8' }}>
-                  <i className="fas fa-folder-open" style={{ fontSize: '32px', color: '#cbd5e1', marginBottom: '12px', display: 'block' }}></i>
-                  <span style={{ fontSize: '14px', fontWeight: 500, color: '#475569', display: 'block' }}>
-                    No bills found
-                  </span>
-                  <span style={{ fontSize: '12px' }}>Try adjusting your search criteria or date range</span>
-                </td>
-              </tr>
-            ) : (
-              bills.map((bill, index) => {
-                const isHovered = hoveredRowId === bill.Id;
-                const statusStyle = getStatusBadgeStyle(bill.PatientBillStatus?.Description);
-                const title = bill.Patient?.Title?.Description ? `${bill.Patient.Title.Description} ` : '';
-                const firstName = bill.Patient?.FirstName || '';
-                const lastName = bill.Patient?.LastName ? ` ${bill.Patient.LastName}` : '';
-                const fullName = `${title}${firstName}${lastName}`.trim() || '-';
-                const hasDue = Number(bill.OutStandingAmount) > 0;
-
-                return (
-                  <tr
-                    key={bill.Id || index}
-                    onMouseEnter={() => setHoveredRowId(bill.Id)}
-                    onMouseLeave={() => setHoveredRowId(null)}
-                    style={{
-                      borderBottom: '1px solid #f1f5f9',
-                      backgroundColor: isHovered ? '#f0fdf4' : index % 2 === 0 ? '#ffffff' : '#fafafa',
-                      transition: 'background-color 0.15s ease',
-                      cursor: 'pointer',
-                    }}
-                    onClick={() => handleSelectRow(bill)}
-                  >
-                    {/* Select Action */}
-                    <td style={{ padding: '10px 16px', textAlign: 'center' }}>
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleSelectRow(bill);
-                        }}
-                        style={{
-                          width: '32px',
-                          height: '32px',
-                          borderRadius: '50%',
-                          backgroundColor: '#10b981',
-                          border: 'none',
-                          color: '#ffffff',
-                          display: 'inline-flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          cursor: 'pointer',
-                          boxShadow: '0 2px 4px rgba(16, 185, 129, 0.25)',
-                          transition: 'transform 0.15s, background-color 0.15s',
-                        }}
-                        onMouseEnter={(e) => {
-                          e.currentTarget.style.backgroundColor = '#059669';
-                          e.currentTarget.style.transform = 'scale(1.1)';
-                        }}
-                        onMouseLeave={(e) => {
-                          e.currentTarget.style.backgroundColor = '#10b981';
-                          e.currentTarget.style.transform = 'scale(1)';
-                        }}
-                        title="Select Bill"
-                      >
-                        <i className="fas fa-check" style={{ fontSize: '13px' }}></i>
-                      </button>
-                    </td>
-
-                    {/* Bill No */}
-                    <td style={{ padding: '10px 16px', fontWeight: 600, color: '#1e293b' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                        <i className="fas fa-receipt" style={{ color: '#64748b', fontSize: '12px' }}></i>
-                        <span>{bill.BillNumber}</span>
-                      </div>
-                    </td>
-
-                    {/* UHID */}
-                    <td style={{ padding: '10px 16px' }}>
-                      <span
-                        style={{
-                          display: 'inline-block',
-                          padding: '2px 8px',
-                          borderRadius: '6px',
-                          backgroundColor: '#f1f5f9',
-                          color: '#334155',
-                          fontSize: '12px',
-                          fontWeight: 600,
-                        }}
-                      >
-                        {bill.Patient?.MRN || '-'}
-                      </span>
-                    </td>
-
-                    {/* Patient Name */}
-                    <td style={{ padding: '10px 16px' }}>
-                      <button
-                        type="button"
-                        onClick={(e) => handlePatientClick(e, bill.PatientId)}
-                        style={{
-                          background: 'none',
-                          border: 'none',
-                          padding: 0,
-                          color: '#2563eb',
-                          fontWeight: 600,
-                          cursor: 'pointer',
-                          textAlign: 'left',
-                          fontSize: '13px',
-                          textDecoration: 'none',
-                          display: 'inline-flex',
-                          alignItems: 'center',
-                          gap: '6px',
-                        }}
-                        onMouseEnter={(e) => (e.currentTarget.style.textDecoration = 'underline')}
-                        onMouseLeave={(e) => (e.currentTarget.style.textDecoration = 'none')}
-                        title="Click to view patient profile"
-                      >
-                        <i className="fas fa-user-circle" style={{ color: '#93c5fd', fontSize: '14px' }}></i>
-                        <span>{fullName}</span>
-                      </button>
-                    </td>
-
-                    {/* Date */}
-                    <td style={{ padding: '10px 16px', color: '#475569', whiteSpace: 'nowrap' }}>
-                      {formatDateTime(bill.BillDateTime)}
-                    </td>
-
-                    {/* Bill Amount */}
-                    <td style={{ padding: '10px 16px', textAlign: 'right', fontWeight: 600, color: '#0f172a' }}>
-                      {formatCurrency(bill.BillAmount)}
-                    </td>
-
-                    {/* Discount Amount */}
-                    <td style={{ padding: '10px 16px', textAlign: 'right', color: '#64748b' }}>
-                      {formatCurrency(bill.BillDiscount)}
-                    </td>
-
-                    {/* Paid Amount */}
-                    <td style={{ padding: '10px 16px', textAlign: 'right', fontWeight: 600, color: '#059669' }}>
-                      {formatCurrency(bill.PaidAmount)}
-                    </td>
-
-                    {/* Due Amount */}
-                    <td
-                      style={{
-                        padding: '10px 16px',
-                        textAlign: 'right',
-                        fontWeight: 600,
-                        color: hasDue ? '#dc2626' : '#64748b',
-                      }}
-                    >
-                      {formatCurrency(bill.OutStandingAmount)}
-                    </td>
-
-                    {/* Status */}
-                    <td style={{ padding: '10px 16px', textAlign: 'center' }}>
-                      <span
-                        style={{
-                          display: 'inline-block',
-                          padding: '3px 10px',
-                          borderRadius: '9999px',
-                          fontSize: '11px',
-                          fontWeight: 600,
-                          backgroundColor: statusStyle.bg,
-                          color: statusStyle.color,
-                          border: `1px solid ${statusStyle.border}`,
-                          textTransform: 'capitalize',
-                        }}
-                      >
-                        {bill.PatientBillStatus?.Description || 'Completed'}
-                      </span>
-                    </td>
-                  </tr>
-                );
-              })
-            )}
-          </tbody>
-        </table>
+        <DataTable<FindBillItem>
+          columns={columns}
+          rows={bills}
+          rowKey={(row) => row.Id}
+          onRowClick={handleSelectRow}
+          loading={isLoading}
+          emptyText="No bills found"
+          emptyIcon="fas fa-folder-open"
+        />
       </div>
 
       {/* 4. Footer & Pagination */}
       <div
         style={{
-          padding: '12px 24px',
-          backgroundColor: '#f8fafc',
-          borderTop: '1px solid #e2e8f0',
+          padding: `${spacing.md} ${spacing.xl}`,
+          backgroundColor: colors.surfaceMuted,
+          borderTop: `1px solid ${colors.border}`,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
           flexWrap: 'wrap',
-          gap: '12px',
+          gap: spacing.md,
         }}
       >
-        <div style={{ fontSize: '13px', color: '#64748b' }}>
-          Showing <span style={{ fontWeight: 600, color: '#0f172a' }}>{startItemIndex}</span>–
-          <span style={{ fontWeight: 600, color: '#0f172a' }}>{endItemIndex}</span> of{' '}
-          <span style={{ fontWeight: 600, color: '#0f172a' }}>{totalItems}</span> bills
+        <div style={{ fontSize: '13px', color: colors.textMuted }}>
+          Showing <span style={{ fontWeight: 600, color: colors.textMain }}>{startItemIndex}</span>–
+          <span style={{ fontWeight: 600, color: colors.textMain }}>{endItemIndex}</span> of{' '}
+          <span style={{ fontWeight: 600, color: colors.textMain }}>{totalItems}</span> bills
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-          {/* First Page */}
-          <button
-            type="button"
-            disabled={currentPage <= 1 || isLoading}
-            onClick={() => fetchBills(1)}
-            style={{
-              width: '32px',
-              height: '32px',
-              borderRadius: '6px',
-              border: '1px solid #cbd5e1',
-              backgroundColor: '#ffffff',
-              color: '#334155',
-              cursor: currentPage <= 1 ? 'not-allowed' : 'pointer',
-              opacity: currentPage <= 1 ? 0.5 : 1,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: '11px',
-            }}
-            title="First Page"
-          >
-            <i className="fas fa-angle-double-left"></i>
-          </button>
-
-          {/* Prev Page */}
-          <button
-            type="button"
-            disabled={currentPage <= 1 || isLoading}
-            onClick={() => fetchBills(currentPage - 1)}
-            style={{
-              width: '32px',
-              height: '32px',
-              borderRadius: '6px',
-              border: '1px solid #cbd5e1',
-              backgroundColor: '#ffffff',
-              color: '#334155',
-              cursor: currentPage <= 1 ? 'not-allowed' : 'pointer',
-              opacity: currentPage <= 1 ? 0.5 : 1,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: '11px',
-            }}
-            title="Previous Page"
-          >
-            <i className="fas fa-angle-left"></i>
-          </button>
-
-          {/* Current Page Badge */}
-          <div
-            style={{
-              minWidth: '32px',
-              height: '32px',
-              padding: '0 8px',
-              borderRadius: '6px',
-              backgroundColor: '#2563eb',
-              color: '#ffffff',
-              fontWeight: 700,
-              fontSize: '13px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            {currentPage}
-          </div>
-
-          <span style={{ fontSize: '12px', color: '#64748b', margin: '0 4px' }}>of {totalPages}</span>
-
-          {/* Next Page */}
-          <button
-            type="button"
-            disabled={currentPage >= totalPages || isLoading}
-            onClick={() => fetchBills(currentPage + 1)}
-            style={{
-              width: '32px',
-              height: '32px',
-              borderRadius: '6px',
-              border: '1px solid #cbd5e1',
-              backgroundColor: '#ffffff',
-              color: '#334155',
-              cursor: currentPage >= totalPages ? 'not-allowed' : 'pointer',
-              opacity: currentPage >= totalPages ? 0.5 : 1,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: '11px',
-            }}
-            title="Next Page"
-          >
-            <i className="fas fa-angle-right"></i>
-          </button>
-
-          {/* Last Page */}
-          <button
-            type="button"
-            disabled={currentPage >= totalPages || isLoading}
-            onClick={() => fetchBills(totalPages)}
-            style={{
-              width: '32px',
-              height: '32px',
-              borderRadius: '6px',
-              border: '1px solid #cbd5e1',
-              backgroundColor: '#ffffff',
-              color: '#334155',
-              cursor: currentPage >= totalPages ? 'not-allowed' : 'pointer',
-              opacity: currentPage >= totalPages ? 0.5 : 1,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: '11px',
-            }}
-            title="Last Page"
-          >
-            <i className="fas fa-angle-double-right"></i>
-          </button>
-        </div>
+        <Pagination currentPage={currentPage} totalItems={totalItems} pageSize={pageSize} onPageChange={fetchBills} />
       </div>
     </div>
   );

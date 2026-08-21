@@ -45,6 +45,17 @@
             $state.go('app.patientservices');
         }
 
+        // --- React Bridge ---
+        // Hollowed per REACT_MIGRATION_GUIDE.md: the template now mounts
+        // <react-component name="DefaultRegistrationScreen">, which forwards every
+        // click here by action name. All the actual logic (session/state/navigation)
+        // stays exactly as it was above -- nothing here is new business logic.
+        $scope.handleReactAction = function (actionName) {
+            if (typeof $scope[actionName] === 'function') {
+                $scope[actionName]();
+            }
+        };
+
     }
 
     PatientServicesDefaultController.$inject = ['$rootScope', '$scope', '$stateParams', '$state', '$translate', '$filter','$cookies', 'utl', 'Upload', '$timeout'];

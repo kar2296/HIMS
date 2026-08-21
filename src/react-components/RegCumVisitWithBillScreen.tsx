@@ -1,6 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { apiFetch } from "./utils/api";
 import { Button } from "./Button";
+import { Modal } from "../components/ui/Modal";
+import { DataTable, type DataTableColumn } from "../components/ui/DataTable";
+import { Loading } from "../components/ui/Loading";
+import { Alert } from "../components/ui/Alert";
+import { StatusBadge } from "../components/ui/Badge";
 
 /**
  * Types for the data returned by the backend endpoint.
@@ -20,6 +25,20 @@ interface RegistrationInfo {
   // Add any additional fields that exist in your backend response
 }
 
+// ---------------------------------------------------------------------------
+// UI-MODERNIZATION RETROFIT: this is a standalone React overlay that fetches
+// its own data via apiFetch("Registration/RegCumVisitWithBill/GetData") -- it
+// is NOT a wrapper dispatching to the (still-deferred, ~304KB) Angular
+// regcumvisitwithbill controller, and no dispatch/onAction contract exists
+// here to preserve. Only the visual chrome changed: the hand-rolled
+// backdrop+panel+header (title bar with its own Close button) now renders
+// through the shared Modal shell, the raw <table> now renders through
+// DataTable, the spinner/error blocks now render through Loading/Alert, and
+// the plain-text Status cell now renders through StatusBadge (same real
+// Status string from the API, just tone-colored per the shared convention).
+// Data fetching, field names, formatDate/formatCurrency logic, the Print
+// (window.print()) and Cancel/Close (onClose) actions are all unchanged.
+// ---------------------------------------------------------------------------
 export const RegCumVisitWithBillScreen: React.FC<{
   /** Context passed from the dashboard (facility, dates, etc.) */
   context?: any;
@@ -76,167 +95,51 @@ export const RegCumVisitWithBillScreen: React.FC<{
       currency: "USD",
     }).format(val);
 
+  // Column order/labels mirror the original <table> header exactly; only the
+  // "#" and "Status" cells changed in presentation (index lookup / StatusBadge
+  // instead of plain text) -- same values, same source fields throughout.
+  const columns: DataTableColumn<RegistrationInfo>[] = [
+    { key: "idx", header: "#", render: (row) => data.indexOf(row) + 1 },
+    { key: "regno", header: "Reg. No.", field: "RegistrationNumber" },
+    { key: "patient", header: "Patient", field: "PatientName" },
+    { key: "agegender", header: "Age / Gender", render: (row) => `${row.Age} / ${row.Gender}` },
+    { key: "visitdate", header: "Visit Date", render: (row) => formatDate(row.VisitDate) },
+    { key: "bill", header: "Bill", render: (row) => formatCurrency(row.BillAmount) },
+    { key: "paid", header: "Paid", render: (row) => formatCurrency(row.PaidAmount) },
+    { key: "due", header: "Due", render: (row) => formatCurrency(row.DueAmount) },
+    { key: "status", header: "Status", render: (row) => <StatusBadge status={row.Status} /> },
+  ];
+
   return (
-    <div
-      style={{
-        position: "fixed",
-        inset: 0,
-        background:
-          "linear-gradient(135deg, rgba(255,255,255,0.6) 0%, rgba(225,235,255,0.6) 100%)",
-        backdropFilter: "blur(8px)",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        padding: "24px",
-        zIndex: 200,
-        overflowY: "auto",
-      }}
-    >
-      <div
-        style={{
-          background: "var(--glass-bg)",
-          backdropFilter: "var(--glass-blur)",
-          borderRadius: "var(--radius-lg)",
-          maxWidth: "1200px",
-          width: "100%",
-          padding: "32px",
-          boxShadow: "0 12px 30px rgba(0,0,0,0.1)",
-        }}
-      >
-        {/* Header */}
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            marginBottom: "24px",
-          }}
-        >
-          <h2
-            style={{
-              margin: 0,
-              color: "var(--premium-blue)",
-              fontWeight: 700,
-              fontSize: "24px",
-            }}
-          >
-            Registration • Cumulative Visits • Bill
-          </h2>
-          <Button variant="secondary" onClick={onClose} style={{ minWidth: "80px" }}>
-            Close
-          </Button>
-        </div>
-
-        {/* Loading / Error handling */}
-        {loading && (
-          <div style={{ display: "flex", justifyContent: "center", padding: "40px 0" }}>
-            <i className="fa-solid fa-spinner fa-spin" style={{ fontSize: "2rem", color: "#21008d" }} />
-          </div>
-        )}
-        {error && (
-          <div
-            style={{
-              backgroundColor: "#ffebee",
-              color: "#c62828",
-              padding: "16px",
-              borderRadius: "8px",
-              marginBottom: "20px",
-            }}
-          >
-            <i className="fa-solid fa-circle-exclamation" style={{ marginRight: 8 }} />
-            {error}
-          </div>
-        )}
-
-        {/* Data table */}
-        {!loading && !error && (
-          <div style={{ overflowX: "auto" }}>
-            <table
-              style={{
-                width: "100%",
-                borderCollapse: "collapse",
-                fontSize: "14px",
-              }}
-            >
-              <thead style={{ backgroundColor: "var(--premium-blue)", color: "#fff" }}>
-                <tr>
-                  <th style={thStyle}>#</th>
-                  <th style={thStyle}>Reg. No.</th>
-                  <th style={thStyle}>Patient</th>
-                  <th style={thStyle}>Age / Gender</th>
-                  <th style={thStyle}>Visit Date</th>
-                  <th style={thStyle}>Bill</th>
-                  <th style={thStyle}>Paid</th>
-                  <th style={thStyle}>Due</th>
-                  <th style={thStyle}>Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {data.map((row, idx) => (
-                  <tr
-                    key={row.RegistrationId}
-                    style={{
-                      backgroundColor: idx % 2 ? "#f9fafc" : "#fff",
-                      transition: "background 0.2s",
-                    }}
-                    onMouseEnter={e => (e.currentTarget.style.backgroundColor = "var(--premium-bg-light)")}
-                    onMouseLeave={e =>
-                      (e.currentTarget.style.backgroundColor = idx % 2 ? "var(--premium-bg-light)" : "#fff")
-                    }
-                  >
-                    <td style={tdStyle}>{idx + 1}</td>
-                    <td style={tdStyle}>{row.RegistrationNumber}</td>
-                    <td style={tdStyle}>{row.PatientName}</td>
-                    <td style={tdStyle}>
-                      {row.Age} / {row.Gender}
-                    </td>
-                    <td style={tdStyle}>{formatDate(row.VisitDate)}</td>
-                    <td style={tdStyle}>{formatCurrency(row.BillAmount)}</td>
-                    <td style={tdStyle}>{formatCurrency(row.PaidAmount)}</td>
-                    <td style={tdStyle}>{formatCurrency(row.DueAmount)}</td>
-                    <td style={tdStyle}>{row.Status}</td>
-                  </tr>
-                ))}
-
-                {data.length === 0 && (
-                  <tr>
-                    <td colSpan={9} style={{ padding: "24px", textAlign: "center", color: "#666" }}>
-                      No records found for the selected period.
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-        )}
-
-        {/* Bottom action bar */}
-        <div style={{ display: "flex", justifyContent: "flex-end", marginTop: "32px" }}>
-          <Button
-            variant="primary"
-            style={{ backgroundColor: "#0056b3", marginRight: "12px" }}
-            onClick={() => window.print()}
-          >
+    <Modal
+      isOpen
+      title="Registration • Cumulative Visits • Bill"
+      onClose={() => onClose?.()}
+      width="1200px"
+      footer={
+        <>
+          <Button variant="primary" onClick={() => window.print()}>
             Print
           </Button>
           <Button variant="secondary" onClick={onClose}>
             Cancel
           </Button>
-        </div>
-      </div>
-    </div>
+        </>
+      }
+    >
+      {/* Loading / Error handling */}
+      {loading && <Loading text="Loading..." />}
+      {error && <Alert tone="danger">{error}</Alert>}
+
+      {/* Data table */}
+      {!loading && !error && (
+        <DataTable<RegistrationInfo>
+          columns={columns}
+          rows={data}
+          rowKey={(row) => row.RegistrationId}
+          emptyText="No records found for the selected period."
+        />
+      )}
+    </Modal>
   );
-};
-
-/* Table cell styles – shared across the component */
-const thStyle: React.CSSProperties = {
-  padding: "12px 8px",
-  textAlign: "left",
-  fontWeight: 600,
-};
-
-const tdStyle: React.CSSProperties = {
-  padding: "12px 8px",
-  textAlign: "left",
-  borderBottom: "1px solid #eaeaea",
 };

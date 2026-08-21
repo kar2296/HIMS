@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { apiFetch } from './utils/api';
+import { Select } from '../components/ui/Select';
 
 interface PincodeItem {
   Id: number;
@@ -92,9 +93,12 @@ export const PincodeControl: React.FC<PincodeControlProps> = ({
     return () => { isMounted = false; };
   }, [cityid, countryid, stateid, districtid, pincode]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+  // NOTE: signature adapted from the raw <select> ChangeEvent handler to the
+  // design-system Select's `onChange(value)` contract -- the selection logic
+  // below (parseInt + lookup + onUpdate payload) is byte-for-byte unchanged.
+  const handleChange = (rawValue: string | number) => {
     if (!onUpdate) return;
-    const selectedId = parseInt(e.target.value, 10);
+    const selectedId = parseInt(String(rawValue), 10);
     const selectedPincode = pincodes.find(p => p.Id === selectedId);
 
     if (selectedPincode) {
@@ -123,18 +127,16 @@ export const PincodeControl: React.FC<PincodeControlProps> = ({
   };
 
   return (
-    <select
-      disabled={candisable || loading}
+    <Select
+      disabled={candisable}
+      loading={loading}
       value={pincodeid || ''}
       onChange={handleChange}
-      className="premium-input"
-    >
-      <option value="">{loading ? "Loading areas..." : "Select Area/Pincode"}</option>
-      {pincodes.map(p => (
-        <option key={p.Id} value={p.Id}>
-          {p.Pincode} - {p.Area}
-        </option>
-      ))}
-    </select>
+      placeholder={loading ? "Loading areas..." : "Select Area/Pincode"}
+      options={pincodes.map(p => ({
+        value: p.Id,
+        label: `${p.Pincode} - ${p.Area}`
+      }))}
+    />
   );
 };

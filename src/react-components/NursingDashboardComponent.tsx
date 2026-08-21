@@ -1,4 +1,8 @@
 import React from 'react';
+import { colors, radii, spacing, transitions, typography } from '../components/ui/tokens';
+import { PageHeader } from '../components/ui/Breadcrumb';
+import { Card } from '../components/ui/Card';
+import { DataTable, type DataTableColumn } from '../components/ui/DataTable';
 
 interface NursingDashboardProps {
   reactProps?: {
@@ -14,6 +18,153 @@ interface NursingDashboardProps {
   };
   onNavigate?: (stateName: string, params?: any) => void;
 }
+
+// ---------------------------------------------------------------------------
+// UI-MODERNIZATION RETROFIT: this screen's markup now renders through the
+// global design-system components (PageHeader, Card, DataTable, shared
+// tokens) instead of hand-rolled `premium-glass-panel` divs and raw <table>
+// markup. NOTHING behavioral changed: same `reactProps` shape, same
+// `handleCardClick`/`onNavigate` dispatch, same permission-gated quick-nav
+// card list (same ids/titles/icons/colors/target states/params), same seven
+// data sections sourced from the exact same `data.*` arrays/fields, same
+// empty-state copy per section, and no column-header sorting was ever wired
+// up here (the original tables had plain, non-interactive <th> headers) --
+// DataTable is used with no `sortable` columns so it never introduces sort
+// behavior that didn't exist before.
+//
+// Every list-backed table below (Admissions, Discharges, Available Beds,
+// Discharge Clearance, Lab Criticals, Radiology Criticals) is a genuinely
+// simple read-only summary grid, so those move to DataTable, with each
+// section's original per-cell string composition (the "Name | (MRN) | Age
+// Years | VisitId - Doctor | Ward" line, the Lab/Rad "Name / MRN", "Ref #",
+// "Analyte - Result UOM" cells) reproduced exactly via DataTable's `render`.
+// Rows carry no server id, so (matching the original `key={idx}`) each row
+// is wrapped with its array index via `withIndex()` purely for React keys --
+// this adds no visible field and invents no data.
+//
+// The "Bed Details (Occupancy)" table is intentionally LEFT AS A HAND-ROLLED
+// <table>, only restyled onto design tokens (no more `var(--premium-*)` /
+// ad-hoc rgba values). Reason: its last row is a real but structurally
+// different "Total" row (sourced from `data.wardtotal`, not `data.wards`)
+// rendered with distinct bold/gold-highlight styling. DataTable's per-row
+// rendering assumes uniform rows and has no prop for conditional row-level
+// styling -- forcing the totals row through it would either lose that
+// highlight or require a synthetic marker row hack. Per the retrofit
+// guidance, a table this bespoke stays structurally as-is and is only
+// token-restyled rather than force-fit into DataTable.
+//
+// No genuine "status" field is displayed anywhere on this screen (no
+// ActiveStatus/discharge-status/bed-status string is rendered as text), so
+// no Badge/StatusBadge was introduced -- there is nothing real to badge, and
+// none should be invented.
+// ---------------------------------------------------------------------------
+
+interface IndexedRow<T> {
+  item: T;
+  idx: number;
+}
+
+function withIndex<T>(arr: T[]): IndexedRow<T>[] {
+  return arr.map((item, idx) => ({ item, idx }));
+}
+
+interface PatientVisitRow {
+  patientname?: string;
+  Patient?: { MRN?: string; Age?: number };
+  VisitIdentifier?: string;
+  doctorname?: string;
+  warddetails?: string;
+  [key: string]: any;
+}
+
+interface AvailableBedRow {
+  availablebedinfo?: string;
+  [key: string]: any;
+}
+
+interface CriticalResultRow {
+  PatientName?: string;
+  PatientMrn?: string;
+  PatientOrder?: { OrderNumber?: string };
+  AnalyteName?: string;
+  Resultvalue?: string | number;
+  PatientWorkorderdetail?: { AnalyteUOM?: string };
+  [key: string]: any;
+}
+
+interface WardRow {
+  WardName?: string;
+  AvailableBeds?: number;
+  OccupiedBeds?: number;
+  OtherBeds?: number;
+  BedsCount?: number;
+  [key: string]: any;
+}
+
+// Shared by Today Admissions / Today Discharges / Discharge Clearance --
+// same cell composition as the original, only the column header text differs.
+function makePatientVisitColumns(header: string): DataTableColumn<IndexedRow<PatientVisitRow>>[] {
+  return [
+    {
+      key: 'summary',
+      header,
+      render: (r) => (
+        <>
+          <strong style={{ color: colors.textMain }}>{r.item.patientname} | ({r.item.Patient?.MRN})</strong> | {r.item.Patient?.Age} Years | {r.item.VisitIdentifier} - {r.item.doctorname} | {r.item.warddetails}
+        </>
+      ),
+    },
+  ];
+}
+
+const availableBedsColumns: DataTableColumn<IndexedRow<AvailableBedRow>>[] = [
+  { key: 'info', header: 'Available Beds Information', field: 'item.availablebedinfo' },
+];
+
+// Shared by Lab Criticals / Radiology Criticals -- identical Patient Name /
+// Ref # columns, distinct "Test Name" cell (radiology never showed a UOM,
+// preserved exactly as-is).
+function criticalResultColumns(
+  testNameRender: (r: IndexedRow<CriticalResultRow>) => React.ReactNode
+): DataTableColumn<IndexedRow<CriticalResultRow>>[] {
+  return [
+    { key: 'patient', header: 'Patient Name', render: (r) => <>{r.item.PatientName} / {r.item.PatientMrn}</> },
+    { key: 'ref', header: 'Ref #', render: (r) => <>{r.item.PatientOrder?.OrderNumber}</> },
+    { key: 'test', header: 'Test Name', render: testNameRender },
+  ];
+}
+
+const labColumns = criticalResultColumns((r) => (
+  <><strong style={{ color: colors.textMain }}>{r.item.AnalyteName}</strong> - {r.item.Resultvalue} {r.item.PatientWorkorderdetail?.AnalyteUOM}</>
+));
+
+const radColumns = criticalResultColumns((r) => (
+  <><strong style={{ color: colors.textMain }}>{r.item.AnalyteName}</strong> - {r.item.Resultvalue}</>
+));
+
+// Token-based restyle of the hand-rolled Bed Details (Occupancy) table --
+// left as a raw <table>, see the block comment above for why.
+const wardHeaderStyle: React.CSSProperties = {
+  backgroundColor: colors.surfaceMuted,
+  color: colors.textMuted,
+  fontSize: typography.label.fontSize,
+  fontWeight: typography.label.fontWeight,
+  padding: `${spacing.md} ${spacing.lg}`,
+  textAlign: 'left',
+  borderBottom: `2px solid ${colors.border}`,
+  position: 'sticky',
+  top: 0,
+  zIndex: 1,
+  fontFamily: typography.fontFamily,
+};
+
+const wardCellStyle: React.CSSProperties = {
+  padding: `${spacing.md} ${spacing.lg}`,
+  borderBottom: `1px solid ${colors.border}`,
+  fontSize: '14px',
+  color: colors.textMuted,
+  fontFamily: typography.fontFamily,
+};
 
 export const NursingDashboardComponent: React.FC<NursingDashboardProps> = ({
   reactProps,
@@ -113,80 +264,33 @@ export const NursingDashboardComponent: React.FC<NursingDashboardProps> = ({
     }
   ];
 
-  const renderTableCard = (title: string, children: React.ReactNode) => (
-    <div className="premium-glass-panel" style={{
-      overflow: 'hidden',
-      display: 'flex',
-      flexDirection: 'column',
-      height: '350px' // fixed height for uniformity
-    }}>
-      <div style={{
-        padding: '16px 20px',
-        borderBottom: '1px solid rgba(0,0,0,0.05)',
-        backgroundColor: 'var(--glass-bg)'
-      }}>
-        <h3 style={{ margin: 0, color: 'var(--premium-text-main)', fontSize: '18px', fontWeight: 600 }}>{title}</h3>
-      </div>
-      <div style={{ overflow: 'auto', flex: 1, padding: '0' }}>
-        {children}
-      </div>
-    </div>
-  );
+  const admissionsColumns = makePatientVisitColumns('Admissions');
+  const dischargesColumns = makePatientVisitColumns('Discharges');
+  const dischargeClearanceColumns = makePatientVisitColumns('Patients');
 
-  const tableHeaderStyle: React.CSSProperties = {
-    backgroundColor: 'var(--glass-bg)',
-    color: 'var(--premium-text-muted)',
-    fontSize: '13px',
-    fontWeight: 600,
-    padding: '12px 16px',
-    textAlign: 'left',
-    borderBottom: '2px solid rgba(0,0,0,0.05)',
-    position: 'sticky',
-    top: 0,
-    zIndex: 1
-  };
-
-  const tableCellStyle: React.CSSProperties = {
-    padding: '12px 16px',
-    borderBottom: '1px solid rgba(0,0,0,0.05)',
-    fontSize: '14px',
-    color: 'var(--premium-text-muted)'
-  };
+  // Same "wards + a distinct Total row" shape as the original -- the Total
+  // row is only appended when there IS ward data, exactly mirroring the
+  // original's `data.wards.length > 0 ? (...rows, totalRow) : (empty row)`.
+  const wardRows: WardRow[] = data.wards;
+  const wardTotal = data.wardtotal;
 
   return (
-    <div style={{ padding: '24px', fontFamily: 'var(--font-modern)', backgroundColor: 'var(--premium-bg-light)', minHeight: '100vh' }}>
-      
-      {/* Header */}
-      <div style={{ marginBottom: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div>
-          <h4 style={{ margin: 0, color: 'var(--premium-text-main)', fontSize: '24px', fontWeight: 600 }}>
-            Nursing Dashboard
-          </h4>
-        </div>
-      </div>
+    <div style={{ padding: spacing.xl, fontFamily: typography.fontFamily, backgroundColor: colors.surfaceMuted, minHeight: '100vh' }}>
+
+      <PageHeader title="Nursing Dashboard" />
 
       {/* Cards Grid */}
       <div style={{
         display: 'grid',
         gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
-        gap: '20px',
-        marginBottom: '32px'
+        gap: spacing.lg,
+        marginBottom: spacing.xxl
       }}>
         {cards.filter(c => c.show).map(card => (
-          <div 
+          <div
             key={card.id}
             onClick={card.action}
-            className="premium-glass-panel"
-            style={{
-              padding: '20px',
-              cursor: 'pointer',
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'space-between',
-              transition: 'transform 0.2s',
-              borderTop: `4px solid ${card.color}`,
-              height: '140px'
-            }}
+            style={{ cursor: 'pointer' }}
             onMouseEnter={(e) => {
               e.currentTarget.style.transform = 'translateY(-4px)';
             }}
@@ -194,11 +298,11 @@ export const NursingDashboardComponent: React.FC<NursingDashboardProps> = ({
               e.currentTarget.style.transform = 'translateY(0)';
             }}
           >
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+            <Card style={{ borderTop: `4px solid ${card.color}`, transition: transitions.base }}>
               <div style={{
                 width: '45px',
                 height: '45px',
-                borderRadius: '8px',
+                borderRadius: radii.md,
                 backgroundColor: `${card.color}15`,
                 color: card.color,
                 display: 'flex',
@@ -208,11 +312,11 @@ export const NursingDashboardComponent: React.FC<NursingDashboardProps> = ({
               }}>
                 <i className={`fas ${card.icon}`}></i>
               </div>
-            </div>
-            
-            <div style={{ color: 'var(--premium-text-main)', fontSize: '15px', fontWeight: 600, marginTop: 'auto' }}>
-              {card.title}
-            </div>
+
+              <div style={{ color: colors.textMain, fontSize: '15px', fontWeight: 600, marginTop: spacing.lg, fontFamily: typography.fontFamily }}>
+                {card.title}
+              </div>
+            </Card>
           </div>
         ))}
       </div>
@@ -221,187 +325,127 @@ export const NursingDashboardComponent: React.FC<NursingDashboardProps> = ({
       <div style={{
         display: 'grid',
         gridTemplateColumns: 'repeat(auto-fit, minmax(500px, 1fr))',
-        gap: '24px'
+        gap: spacing.xl
       }}>
-        
+
         {/* Today Admissions */}
-        {renderTableCard("Today Admissions", 
-          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-            <thead>
-              <tr><th style={tableHeaderStyle}>Admissions</th></tr>
-            </thead>
-            <tbody>
-              {data.admissions.length > 0 ? data.admissions.map((item, idx) => (
-                <tr key={idx}>
-                  <td style={tableCellStyle}>
-                    <strong style={{color: 'var(--premium-text-main)'}}>{item.patientname} | ({item.Patient?.MRN})</strong> | {item.Patient?.Age} Years | {item.VisitIdentifier} - {item.doctorname} | {item.warddetails}
-                  </td>
-                </tr>
-              )) : (
-                <tr><td style={{...tableCellStyle, textAlign: 'center'}}>No admissions today</td></tr>
-              )}
-            </tbody>
-          </table>
-        )}
+        <Card title="Today Admissions">
+          <div style={{ maxHeight: '280px', overflowY: 'auto' }}>
+            <DataTable<IndexedRow<PatientVisitRow>>
+              columns={admissionsColumns}
+              rows={withIndex(data.admissions)}
+              rowKey={(r) => r.idx}
+              emptyText="No admissions today"
+              clientSort={false}
+            />
+          </div>
+        </Card>
 
         {/* Today Discharges */}
-        {renderTableCard("Today Discharges", 
-          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-            <thead>
-              <tr><th style={tableHeaderStyle}>Discharges</th></tr>
-            </thead>
-            <tbody>
-              {data.discharges.length > 0 ? data.discharges.map((item, idx) => (
-                <tr key={idx}>
-                  <td style={tableCellStyle}>
-                    <strong style={{color: 'var(--premium-text-main)'}}>{item.patientname} | ({item.Patient?.MRN})</strong> | {item.Patient?.Age} Years | {item.VisitIdentifier} - {item.doctorname} | {item.warddetails}
-                  </td>
-                </tr>
-              )) : (
-                <tr><td style={{...tableCellStyle, textAlign: 'center'}}>No discharges today</td></tr>
-              )}
-            </tbody>
-          </table>
-        )}
+        <Card title="Today Discharges">
+          <div style={{ maxHeight: '280px', overflowY: 'auto' }}>
+            <DataTable<IndexedRow<PatientVisitRow>>
+              columns={dischargesColumns}
+              rows={withIndex(data.discharges)}
+              rowKey={(r) => r.idx}
+              emptyText="No discharges today"
+              clientSort={false}
+            />
+          </div>
+        </Card>
 
         {/* Available Beds */}
-        {renderTableCard("Available Beds", 
-          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-            <thead>
-              <tr><th style={tableHeaderStyle}>Available Beds Information</th></tr>
-            </thead>
-            <tbody>
-              {data.availableBeds.length > 0 ? data.availableBeds.map((item, idx) => (
-                <tr key={idx}>
-                  <td style={tableCellStyle}>
-                    {item.availablebedinfo}
-                  </td>
-                </tr>
-              )) : (
-                <tr><td style={{...tableCellStyle, textAlign: 'center'}}>No beds available</td></tr>
-              )}
-            </tbody>
-          </table>
-        )}
+        <Card title="Available Beds">
+          <div style={{ maxHeight: '280px', overflowY: 'auto' }}>
+            <DataTable<IndexedRow<AvailableBedRow>>
+              columns={availableBedsColumns}
+              rows={withIndex(data.availableBeds)}
+              rowKey={(r) => r.idx}
+              emptyText="No beds available"
+              clientSort={false}
+            />
+          </div>
+        </Card>
 
         {/* Discharge Clearance Patients */}
-        {renderTableCard("Discharge Clearance Patients", 
-          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-            <thead>
-              <tr><th style={tableHeaderStyle}>Patients</th></tr>
-            </thead>
-            <tbody>
-              {data.dischargeClearance.length > 0 ? data.dischargeClearance.map((item, idx) => (
-                <tr key={idx}>
-                  <td style={tableCellStyle}>
-                    <strong style={{color: 'var(--premium-text-main)'}}>{item.patientname} | ({item.Patient?.MRN})</strong> | {item.Patient?.Age} Years | {item.VisitIdentifier} - {item.doctorname} | {item.warddetails}
-                  </td>
-                </tr>
-              )) : (
-                <tr><td style={{...tableCellStyle, textAlign: 'center'}}>No patients pending clearance</td></tr>
-              )}
-            </tbody>
-          </table>
-        )}
+        <Card title="Discharge Clearance Patients">
+          <div style={{ maxHeight: '280px', overflowY: 'auto' }}>
+            <DataTable<IndexedRow<PatientVisitRow>>
+              columns={dischargeClearanceColumns}
+              rows={withIndex(data.dischargeClearance)}
+              rowKey={(r) => r.idx}
+              emptyText="No patients pending clearance"
+              clientSort={false}
+            />
+          </div>
+        </Card>
 
-        {/* Bed Details / Occupancy */}
-        {renderTableCard("Bed Details (Occupancy)", 
-          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-            <thead>
-              <tr>
-                <th style={tableHeaderStyle}>Ward</th>
-                <th style={tableHeaderStyle}>Available</th>
-                <th style={tableHeaderStyle}>Occupied</th>
-                <th style={tableHeaderStyle}>Other</th>
-                <th style={tableHeaderStyle}>Total</th>
-              </tr>
-            </thead>
-            <tbody>
-              {data.wards.length > 0 ? (
-                <>
-                  {data.wards.map((ward, idx) => (
-                    <tr key={idx}>
-                      <td style={{...tableCellStyle, fontWeight: 600, color: 'var(--premium-text-main)'}}>{ward.WardName}</td>
-                      <td style={tableCellStyle}>{ward.AvailableBeds}</td>
-                      <td style={tableCellStyle}>{ward.OccupiedBeds}</td>
-                      <td style={tableCellStyle}>{ward.OtherBeds}</td>
-                      <td style={tableCellStyle}>{ward.BedsCount}</td>
+        {/* Bed Details / Occupancy -- kept as a hand-rolled table, token-restyled only (see block comment above) */}
+        <Card title="Bed Details (Occupancy)">
+          <div style={{ maxHeight: '280px', overflowY: 'auto' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+              <thead>
+                <tr>
+                  <th style={wardHeaderStyle}>Ward</th>
+                  <th style={wardHeaderStyle}>Available</th>
+                  <th style={wardHeaderStyle}>Occupied</th>
+                  <th style={wardHeaderStyle}>Other</th>
+                  <th style={wardHeaderStyle}>Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                {wardRows.length > 0 ? (
+                  <>
+                    {wardRows.map((ward, idx) => (
+                      <tr key={idx}>
+                        <td style={{ ...wardCellStyle, fontWeight: 600, color: colors.textMain }}>{ward.WardName}</td>
+                        <td style={wardCellStyle}>{ward.AvailableBeds}</td>
+                        <td style={wardCellStyle}>{ward.OccupiedBeds}</td>
+                        <td style={wardCellStyle}>{ward.OtherBeds}</td>
+                        <td style={wardCellStyle}>{ward.BedsCount}</td>
+                      </tr>
+                    ))}
+                    <tr style={{ backgroundColor: `${colors.gold}1a` }}>
+                      <td style={{ ...wardCellStyle, fontWeight: 700, color: colors.primary }}>Total</td>
+                      <td style={{ ...wardCellStyle, fontWeight: 700, color: colors.primary }}>{wardTotal.AvailableBeds}</td>
+                      <td style={{ ...wardCellStyle, fontWeight: 700, color: colors.primary }}>{wardTotal.OccupiedBeds}</td>
+                      <td style={{ ...wardCellStyle, fontWeight: 700, color: colors.primary }}>{wardTotal.OtherBeds}</td>
+                      <td style={{ ...wardCellStyle, fontWeight: 700, color: colors.primary }}>{wardTotal.BedsCount}</td>
                     </tr>
-                  ))}
-                  <tr style={{ backgroundColor: 'rgba(235, 178, 0, 0.1)' }}>
-                    <td style={{...tableCellStyle, fontWeight: 700, color: 'var(--premium-blue)'}}>Total</td>
-                    <td style={{...tableCellStyle, fontWeight: 700, color: 'var(--premium-blue)'}}>{data.wardtotal.AvailableBeds}</td>
-                    <td style={{...tableCellStyle, fontWeight: 700, color: 'var(--premium-blue)'}}>{data.wardtotal.OccupiedBeds}</td>
-                    <td style={{...tableCellStyle, fontWeight: 700, color: 'var(--premium-blue)'}}>{data.wardtotal.OtherBeds}</td>
-                    <td style={{...tableCellStyle, fontWeight: 700, color: 'var(--premium-blue)'}}>{data.wardtotal.BedsCount}</td>
-                  </tr>
-                </>
-              ) : (
-                <tr><td colSpan={5} style={{...tableCellStyle, textAlign: 'center'}}>No ward data available</td></tr>
-              )}
-            </tbody>
-          </table>
-        )}
+                  </>
+                ) : (
+                  <tr><td colSpan={5} style={{ ...wardCellStyle, textAlign: 'center' }}>No ward data available</td></tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </Card>
 
         {/* Lab Criticals */}
-        {renderTableCard("Lab Critical Value Patients", 
-          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-            <thead>
-              <tr>
-                <th style={tableHeaderStyle}>Patient Name</th>
-                <th style={tableHeaderStyle}>Ref #</th>
-                <th style={tableHeaderStyle}>Test Name</th>
-              </tr>
-            </thead>
-            <tbody>
-              {data.labCriticals.length > 0 ? data.labCriticals.map((lab, idx) => (
-                <tr key={idx}>
-                  <td style={tableCellStyle}>
-                    {lab.PatientName} / {lab.PatientMrn}
-                  </td>
-                  <td style={tableCellStyle}>
-                    {lab.PatientOrder?.OrderNumber}
-                  </td>
-                  <td style={tableCellStyle}>
-                    <strong style={{color: 'var(--premium-text-main)'}}>{lab.AnalyteName}</strong> - {lab.Resultvalue} {lab.PatientWorkorderdetail?.AnalyteUOM}
-                  </td>
-                </tr>
-              )) : (
-                <tr><td colSpan={3} style={{...tableCellStyle, textAlign: 'center'}}>No critical lab results</td></tr>
-              )}
-            </tbody>
-          </table>
-        )}
+        <Card title="Lab Critical Value Patients">
+          <div style={{ maxHeight: '280px', overflowY: 'auto' }}>
+            <DataTable<IndexedRow<CriticalResultRow>>
+              columns={labColumns}
+              rows={withIndex(data.labCriticals)}
+              rowKey={(r) => r.idx}
+              emptyText="No critical lab results"
+              clientSort={false}
+            />
+          </div>
+        </Card>
 
         {/* Radiology Criticals */}
-        {renderTableCard("Radiology Critical Value Patients", 
-          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-            <thead>
-              <tr>
-                <th style={tableHeaderStyle}>Patient Name</th>
-                <th style={tableHeaderStyle}>Ref #</th>
-                <th style={tableHeaderStyle}>Test Name</th>
-              </tr>
-            </thead>
-            <tbody>
-              {data.radCriticals.length > 0 ? data.radCriticals.map((rad, idx) => (
-                <tr key={idx}>
-                  <td style={tableCellStyle}>
-                    {rad.PatientName} / {rad.PatientMrn}
-                  </td>
-                  <td style={tableCellStyle}>
-                    {rad.PatientOrder?.OrderNumber}
-                  </td>
-                  <td style={tableCellStyle}>
-                    <strong style={{color: 'var(--premium-text-main)'}}>{rad.AnalyteName}</strong> - {rad.Resultvalue}
-                  </td>
-                </tr>
-              )) : (
-                <tr><td colSpan={3} style={{...tableCellStyle, textAlign: 'center'}}>No critical radiology results</td></tr>
-              )}
-            </tbody>
-          </table>
-        )}
+        <Card title="Radiology Critical Value Patients">
+          <div style={{ maxHeight: '280px', overflowY: 'auto' }}>
+            <DataTable<IndexedRow<CriticalResultRow>>
+              columns={radColumns}
+              rows={withIndex(data.radCriticals)}
+              rowKey={(r) => r.idx}
+              emptyText="No critical radiology results"
+              clientSort={false}
+            />
+          </div>
+        </Card>
 
       </div>
 

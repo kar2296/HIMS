@@ -3,84 +3,21 @@
         margin-left: -300px;
     }
 </style>
-<div class="row">
-    <div class="col-sm-9">
-        <h4 translate="Patient Registered"></h4>
-    </div>
-    <div class="col-sm-3 search">
-        <patientsearch id="drhms-patinet-search-box" ng-keyup="moveHeaderFocus('pid')"
-            patientid="currentfilter.PatientId" class="logo" name="txtpatientsearch" patientinfo="selectedPatient"
-            patientchange="getList()" on-enter="getList()" aria-placeholder="Patient Search"
-            tabindex="tabindexmap.patienttabindex" isdisabled="{{SaveCompleted}}" filterconfig="patientfilterconfig">
-        </patientsearch>
-        <!-- <div class="drhms-search-icon">
-            <i class="fas fa-search" aria-hidden="true"></i>
-        </div> -->
-    </div>
-</div>
-
-<div class="row">
-    <div class="drhms-list-filters">
-        <div class="col-sm-3">
-            <label class="col-sm-3" translate="reports.referraldoctor.lbl"></label>
-            <div class="col-sm-9">
-                <autosearch itemid="currentfilter.ReferrerId" iteminfo="" name="'referredby'" rowdata=""
-                    config="vm.referralcontrolconfig" itemchange="getList()" onenter="getList()">
-                </autosearch>
-            </div>
-        </div>
-        <div class="col-sm-3">
-            <label class="col-sm-3" translate="reports.fromdate.lbl"></label>
-            <div class="col-sm-9">
-                <div class="datepicker">
-                    <input type="text" class="form-control" name="from" datepicker-options="datePickerOptions"
-                        show-button-bar="{{datePickerOptions.showButtonBar}}"
-                        uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
-                        placeholder="{{datePickerOptions.placeholder}}" ng-click="fromdatePopup = { opened: true }"
-                        is-open="fromdatePopup.opened" ng-model="currentfilter.FromDate" ng-change="getList()">
-                    <i class="fa fa-calendar" aria-hidden="true"></i>
-                </div>
-            </div>
-        </div>
-        <div class="col-sm-3">
-            <label class="col-sm-3" translate="reports.todate.lbl"></label>
-            <div class="col-sm-9">
-                <div class="datepicker">
-                    <input type="text" class="form-control" name="from" datepicker-options="datePickerOptions"
-                        show-button-bar="{{datePickerOptions.showButtonBar}}"
-                        uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
-                        placeholder="{{datePickerOptions.placeholder}}" ng-click="todatePopup = { opened: true }"
-                        is-open="todatePopup.opened" ng-model="currentfilter.ToDate" ng-change="getList()">
-                    <i class="fa fa-calendar" aria-hidden="true"></i>
-                </div>
-            </div>
-        </div>
-        <div class="col-sm-3">
-            <label class="col-sm-3" for="MRNTypeId"
-                translate="Type"></label>
-            <div class="col-sm-9">
-                <ui-select id="title" ng-model="currentfilter.MRNTypeId" name="MRNTypeId" ng-change="getList()"
-                    tabindex="tabindexmap.patienttabindex" required>
-                    <ui-select-match>
-                        {{$select.selected.Text | limitTo : 20 : 0}}
-                        <span ng-if="$select.selected.Text.length>20">...</span>
-                    </ui-select-match>
-                    <ui-select-choices
-                        repeat="lookupitem.Id as lookupitem in lookup.MRNType | filter: { Text: $select.search }">
-                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
-                    </ui-select-choices>
-                </ui-select>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row">
-    <custom-table config="vm.gridConfig"></custom-table>
-</div>
-<div class="fooder-bgs">
-    <div class="row">
-        <ul uib-pagination total-items="vm.gridConfig.pagerObj.totalItems"
-            items-per-page="vm.gridConfig.pagerObj.pageSize" start-index="vm.gridConfig.pagerObj.startIndex"
-            ng-model="vm.gridConfig.pagerObj.currentPage" ng-change="getList()"></ul>
-    </div>
-</div>
+<!--
+  Migrated to React 2026-08-21: this whole screen is now
+  <react-component name="PatientRegistrationSelfScreen">, a full presentational port of
+  the markup that used to live here (patient search, referral search, date range,
+  MRN type filter, results grid, pagination, print/excel/back toolbar). All logic --
+  getList()'s real 'registration/patient/GetPatients' call, excelDownload, print,
+  backtoReport, handleEvents()'s edit-row navigation to app.patientregistration-form,
+  referralcontrolconfig, gridConfig, initLookup -- stays in
+  patientregistration-self.js's (hollowed) PatientRegisterListReportController, reached
+  via handleReactAction. The patient-search and referral-search boxes reuse the real
+  search endpoints ('registration/Patient/GetMinPatientSearch',
+  'generalmaster/referral/GetReferrals') copied verbatim from the already-working
+  <patientsearch>/<autosearch> widgets. See REACT_MIGRATION_GUIDE.md. Original markup
+  preserved above this comment in git history for reference. NOTE: per
+  docs/ANGULAR_REACT_MIGRATION_AUDIT.md this state (app.patientregistration-list) is not
+  currently linked from any reachable ui-router state in this codebase.
+-->
+<react-component name="PatientRegistrationSelfScreen" props="{ reactProps: reactProps, onAction: handleReactAction, onPatientSearch: searchPatientForRegList, onPatientSelect: selectPatientForRegList, onReferralSearch: searchReferralForRegList, onReferralSelect: selectReferralForRegList }"></react-component>

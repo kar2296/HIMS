@@ -282,6 +282,36 @@
             utl.Http.doAction(options);
         };
 
+        /* React bridge code starts */
+        // NOTE: the grid body (autosearch-per-row, Relationship ui-select, delete button)
+        // stays native Angular -- the real <autosearch> directive is a shared, config/
+        // callback-driven widget (debounce, searchbyid toggle, formatdisplay/presearch/
+        // postsearch hooks) instantiated once per ng-repeat row here; React cannot compile
+        // an Angular directive inside a React-rendered row, and reimplementing it risks a
+        // subtle behavioral regression for no functional gain. Consistent with the Doctor
+        // <autosearch> in registrationcumvisit.html, it is left untouched. Only the two
+        // static, non-repeating chrome pieces (the top Add-member action and the bottom
+        // Back/Save/Clear/Cancel footer) are converted to React mounts.
+        $scope.reactProps = {};
+
+        $scope.refreshReactProps = function () {
+            $scope.reactProps = {
+                currentcontext: $scope.currentcontext,
+                flags: {
+                    canUpdatePatientInfo: $scope.canUpdatePatientInfo()
+                }
+            };
+        };
+
+        $scope.handleReactAction = function (actionName, payload) {
+            if (typeof $scope[actionName] === 'function') {
+                $scope[actionName]();
+            }
+        };
+
+        $scope.refreshReactProps();
+        /* React bridge code ends */
+
         $scope.initLookup();
     }
 

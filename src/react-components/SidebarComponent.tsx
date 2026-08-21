@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { colors, typography, radii, spacing, shadows, transitions } from '../components/ui/tokens';
 
 // Interfaces for our Sidebar
 interface MenuItem {
@@ -38,13 +39,13 @@ const SidebarMenuItem: React.FC<{
   if (item.heading) {
     return (
       <div style={{
-        padding: '12px 20px',
+        padding: `${spacing.md} ${spacing.xl}`,
         fontSize: '11px',
         fontWeight: 700,
         color: 'rgba(255,255,255,0.4)',
         letterSpacing: '1px',
         textTransform: 'uppercase',
-        marginTop: '10px'
+        marginTop: spacing.sm
       }}>
         {item.text}
       </div>
@@ -52,19 +53,19 @@ const SidebarMenuItem: React.FC<{
   }
 
   return (
-    <div style={{ padding: '2px 10px' }}>
-      <div 
+    <div style={{ padding: `2px ${spacing.sm}` }}>
+      <div
         onClick={handleClick}
         style={{
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          padding: `12px 16px 12px ${16 + depth * 16}px`,
+          padding: `${spacing.md} ${spacing.lg} ${spacing.md} ${16 + depth * 16}px`,
           cursor: 'pointer',
-          borderRadius: '8px',
+          borderRadius: radii.sm,
           backgroundColor: isOpen ? 'rgba(255,255,255,0.1)' : 'transparent',
           color: isOpen ? '#fff' : 'rgba(255,255,255,0.7)',
-          transition: 'all 0.2s ease',
+          transition: transitions.base,
         }}
         onMouseEnter={(e) => {
           if (!isOpen) {
@@ -79,46 +80,46 @@ const SidebarMenuItem: React.FC<{
           }
         }}
       >
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: spacing.md }}>
           {item.icon && depth === 0 && (
-            <i 
-              className={item.icon} 
-              style={{ 
-                width: '20px', 
+            <i
+              className={item.icon}
+              style={{
+                width: '20px',
                 textAlign: 'center',
-                color: isOpen ? 'var(--premium-gold)' : 'inherit'
+                color: isOpen ? colors.gold : 'inherit'
               }}
             ></i>
           )}
-          <span style={{ 
+          <span style={{
             fontSize: depth === 0 ? '14px' : '13px',
             fontWeight: depth === 0 ? 500 : 400,
-            fontFamily: 'var(--font-modern)'
+            fontFamily: typography.fontFamily
           }}>
             {item.text}
           </span>
         </div>
 
         {/* Submenu Indicator or Alert */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: spacing.sm }}>
           {item.alert && (
             <span style={{
-              backgroundColor: 'var(--premium-gold)',
+              backgroundColor: colors.gold,
               color: '#fff',
               fontSize: '10px',
               padding: '2px 6px',
-              borderRadius: '10px',
+              borderRadius: radii.full,
               fontWeight: 600
             }}>
               {item.alert}
             </span>
           )}
           {hasSubmenu && (
-            <i 
+            <i
               className={`fa-solid fa-chevron-${isOpen ? 'down' : 'right'}`}
-              style={{ 
+              style={{
                 fontSize: '10px',
-                transition: 'transform 0.2s ease',
+                transition: transitions.base,
                 opacity: 0.5
               }}
             ></i>
@@ -134,16 +135,16 @@ const SidebarMenuItem: React.FC<{
           opacity: isOpen ? 1 : 0,
           transition: 'all 0.3s ease-in-out',
         }}>
-          <div style={{ 
-            marginTop: '4px',
+          <div style={{
+            marginTop: spacing.xs,
             borderLeft: '1px solid rgba(255,255,255,0.1)',
             marginLeft: `${24 + depth * 16}px`
           }}>
             {item.submenu!.map((subItem, index) => (
-              <SidebarMenuItem 
-                key={index} 
-                item={subItem} 
-                depth={depth + 1} 
+              <SidebarMenuItem
+                key={index}
+                item={subItem}
+                depth={depth + 1}
                 onNavigate={onNavigate}
               />
             ))}
@@ -154,37 +155,37 @@ const SidebarMenuItem: React.FC<{
   );
 };
 
-export const SidebarComponent: React.FC<SidebarComponentProps> = ({ 
-  menuItems = [], 
-  onNavigate 
+export const SidebarComponent: React.FC<SidebarComponentProps> = ({
+  menuItems = [],
+  onNavigate
 }) => {
   return (
     <div style={{
       width: '250px',
       height: '100%',
-      backgroundColor: 'var(--premium-blue)', 
-      backgroundImage: 'linear-gradient(180deg, var(--premium-blue) 0%, var(--premium-blue-hover) 100%)',
+      backgroundColor: colors.primary,
+      backgroundImage: `linear-gradient(180deg, ${colors.primary} 0%, ${colors.primaryHover} 100%)`,
       color: '#fff',
       overflowY: 'auto',
       overflowX: 'hidden',
-      boxShadow: 'var(--shadow-md)',
+      boxShadow: shadows.md,
       display: 'flex',
       flexDirection: 'column'
     }}>
       {/* Optional Branding Area */}
       <div style={{
-        padding: '20px',
+        padding: spacing.xl,
         borderBottom: '1px solid rgba(255,255,255,0.1)',
-        marginBottom: '10px',
+        marginBottom: spacing.sm,
         display: 'flex',
         alignItems: 'center',
-        gap: '12px'
+        gap: spacing.md
       }}>
         <div style={{
           width: '36px',
           height: '36px',
-          borderRadius: '8px',
-          backgroundColor: 'var(--premium-gold)',
+          borderRadius: radii.sm,
+          backgroundColor: colors.gold,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
@@ -195,7 +196,7 @@ export const SidebarComponent: React.FC<SidebarComponentProps> = ({
           H
         </div>
         <div style={{
-          fontFamily: 'var(--font-modern)',
+          fontFamily: typography.fontFamily,
           fontWeight: 700,
           fontSize: '18px',
           letterSpacing: '0.5px'
@@ -207,16 +208,16 @@ export const SidebarComponent: React.FC<SidebarComponentProps> = ({
       {/* Menu Items */}
       <div style={{ flex: 1 }}>
         {menuItems && menuItems.map((item, index) => (
-          <SidebarMenuItem 
-            key={index} 
-            item={item} 
-            depth={0} 
+          <SidebarMenuItem
+            key={index}
+            item={item}
+            depth={0}
             onNavigate={onNavigate}
           />
         ))}
         {(!menuItems || menuItems.length === 0) && (
-          <div style={{ padding: '20px', color: 'rgba(255,255,255,0.5)', textAlign: 'center', fontSize: '13px' }}>
-            <i className="fa-solid fa-circle-notch fa-spin" style={{ marginRight: '8px' }}></i>
+          <div style={{ padding: spacing.xl, color: 'rgba(255,255,255,0.5)', textAlign: 'center', fontSize: '13px' }}>
+            <i className="fa-solid fa-circle-notch fa-spin" style={{ marginRight: spacing.sm }}></i>
             Loading menu...
           </div>
         )}

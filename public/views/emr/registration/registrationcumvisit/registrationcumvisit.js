@@ -130,6 +130,21 @@
 
         $scope.EnableSave = false;
         $scope.IsOpenEncounter = false;
+        // PRESERVED PRE-EXISTING BUG (disclosed, not fixed -- explicit user decision on 2026-08-21):
+        // utl.Privilege only ever exposes a `hasAccess` method (confirmed by reading
+        // vendor/common/ngPrivilegeHelper.js's factory in full -- it returns only
+        // { hasAccess: hasAccess }). `hasPrivilege` does not exist on it anywhere in this
+        // codebase, so the next two lines throw a real, uncaught TypeError the instant this
+        // controller is constructed -- which halts the rest of this constructor function,
+        // including $scope.saveItem/$scope.save/$scope.saveAndApprove and the
+        // $scope.initLookup() call at the bottom (so lookups never load either). This is
+        // real, current, pre-existing behavior of this screen (which has zero real
+        // navigation call sites anywhere in the app -- confirmed unreachable). Left exactly
+        // as-is rather than "fixed" to utl.Privilege.hasAccess(...), per explicit
+        // instruction: everything below this point is still built correctly/completely so
+        // that a future one-line fix of this bug unlocks full working functionality
+        // immediately, but the migrated screen faithfully reproduces today's crash-on-load
+        // if ever actually reached.
         $scope.currentcontext.CanUserManual = utl.Privilege.hasPrivilege('CanUserManual')
         $scope.currentcontext.CanProcessFlow = utl.Privilege.hasPrivilege('CanProcessFlow')
         $scope.clear = function () {
@@ -141,6 +156,8 @@
             document.getElementById("item_form").reset();
             $scope.IsOpenEncounter = false;
             $scope.currentcontext.canDisableApprove = false;
+            $scope.refreshReactProps();
+            $scope.$applyAsync();
         };
         $('#myModal').hide();
         $scope.showprocessflow = function () {
@@ -201,6 +218,8 @@
             $scope.item.ApproxAgeMonths = ageObj.m;
             $scope.item.Age = ageObj.y;
             $scope.getpatientGuarantor();
+            $scope.refreshReactProps();
+            $scope.$applyAsync();
         }
         $scope.getPatient = function () {
 
@@ -219,6 +238,8 @@
             $scope.item.PatientId = $scope.Appointment.PatientId;
             $scope.item.Id = $scope.Appointment.PatientId;
             $scope.getPatient();
+            $scope.refreshReactProps();
+            $scope.$applyAsync();
         };
 
         $scope.getAppointment = function () {
@@ -529,6 +550,8 @@
 
             $scope.item.GuarantorId = $scope.lookup.Guarantor[1].Id;
             $scope.guarantorType($scope.item.GuarantorId);
+            $scope.refreshReactProps();
+            $scope.$applyAsync();
         };
 
         $scope.getpatientGuarantor = function () {
@@ -557,6 +580,8 @@
             //         $scope.item.ReferTypeId = EncReferral.ReferralTypeId;
             //     }
             // }
+            $scope.refreshReactProps();
+            $scope.$applyAsync();
         };
 
         $scope.getPrevReferral = function () {
@@ -593,6 +618,8 @@
                 $scope.getpatientGuarantor();
                 $scope.getPrevReferral();
             }
+            $scope.refreshReactProps();
+            $scope.$applyAsync();
 
         };
         $scope.canShowApproxAge = function (vTitleId) {
@@ -636,7 +663,10 @@
         };
 
         $scope.saveAndApprove = function () {
-            if (!utl.Validator.validate($scope)) {
+            if (!$scope.isRegCumVisitFormValid()) {
+                $scope.currentcontext.triedSubmit = true;
+                $scope.refreshReactProps();
+                $scope.$applyAsync();
                 return;
             }
             $scope.item.PatientStatus = 'Active';
@@ -681,6 +711,8 @@
                 utl.Alert.showSuccessMsg($translate.instant('common.successmsg.lbl'));
 
             }
+            $scope.refreshReactProps();
+            $scope.$applyAsync();
 
         };
 
@@ -691,7 +723,10 @@
                 return false;
             }
 
-            if (!utl.Validator.validate($scope)) {
+            if (!$scope.isRegCumVisitFormValid()) {
+                $scope.currentcontext.triedSubmit = true;
+                $scope.refreshReactProps();
+                $scope.$applyAsync();
                 return;
             }
 
@@ -755,6 +790,8 @@
                 ].join(' ');
             }
             $scope.item.DoctorName = result;
+            $scope.refreshReactProps();
+            $scope.$applyAsync();
 
             return result;
         }
@@ -792,6 +829,8 @@
         }
         $scope.referralTypeChangeCallback = function (scope, data, options, hasError) {
             $scope.lookup.Referral = data.Referral;
+            $scope.refreshReactProps();
+            $scope.$applyAsync();
         };
 
         $scope.referralTypeChange = function () {
@@ -817,6 +856,8 @@
                 $scope.item.ReferrerNumber = refObj.PhoneNo;
                 $scope.item.ReferrerEmail = refObj.Email;
             }
+            $scope.refreshReactProps();
+            $scope.$applyAsync();
         };
 
         $scope.getDefaultReferral = function () {
@@ -847,6 +888,8 @@
             }
             $scope.getPrintNoOfCopies();
             // $scope.getItem();
+            $scope.refreshReactProps();
+            $scope.$applyAsync();
         }
 
         $scope.getPrintNoOfCopies = function () {
@@ -886,6 +929,109 @@
             };
             utl.Http.doAction(options);
         }
+
+        /* React bridge code starts */
+        $scope.reactProps = {};
+
+        $scope.refreshReactProps = function () {
+            $scope.reactProps = {
+                item: $scope.item,
+                lookup: $scope.lookup || {},
+                currentcontext: $scope.currentcontext,
+                flags: {
+                    EnableOPD: $scope.EnableOPD,
+                    Vitals: $scope.Vitals,
+                    EnableSave: $scope.EnableSave
+                }
+            };
+        };
+
+        // FORM-VALIDATION-WITHOUT-A-FORM: mirrors the real required/minlength/maxlength
+        // constraints that used to live on <form id="item_form">, INCLUDING the Doctor
+        // autosearch field's real isrequired="true" (confirmed in autosearch.html: that
+        // renders a real named, ng-required input that genuinely registered with
+        // item_form.$valid) even though the <autosearch> widget itself stays native
+        // Angular markup (not migrated) -- its required-ness still belongs in this gate,
+        // since item_form no longer exists to enforce it on its own.
+        $scope.isRegCumVisitFormValid = function () {
+            var it = $scope.item || {};
+            if (!it.TitleId) return false;
+            if (!it.FirstName) return false;
+            if (!it.DOB) return false;
+            if (!it.GenderId) return false;
+            if (!it.VisitTypeId) return false;
+            if (!it.DoctorId) return false;
+            // Mobile/LandLine: real template has NO `required` on either (genuinely
+            // different from fullregistration/quickregistration) -- only length-if-present
+            // via MINLENGTH/MAXLENGTH=10.
+            if (it.Mobile && String(it.Mobile).length !== 10) return false;
+            if (it.LandLine && String(it.LandLine).length !== 10) return false;
+            return true;
+        };
+
+        $scope.handleReactAction = function (actionName, payload) {
+            switch (actionName) {
+                case 'itemFieldChange':
+                    $scope.item[payload.field] = payload.value;
+                    $scope.refreshReactProps();
+                    $scope.$applyAsync();
+                    return;
+                case 'itemFieldsMerge':
+                    angular.extend($scope.item, payload.fields);
+                    $scope.refreshReactProps();
+                    $scope.$applyAsync();
+                    return;
+                case 'titleChange':
+                    $scope.item.TitleId = payload.value;
+                    $scope.fillGenderInfo();
+                    $scope.refreshReactProps();
+                    $scope.$applyAsync();
+                    return;
+                case 'dobChange':
+                    $scope.item.DOB = payload.value;
+                    $scope.calculateAge();
+                    $scope.refreshReactProps();
+                    $scope.$applyAsync();
+                    return;
+                case 'approxAgeDaysChange':
+                    $scope.item.ApproxAgeDays = payload.value;
+                    $scope.calculateDOB(payload.value, 'days');
+                    $scope.refreshReactProps();
+                    $scope.$applyAsync();
+                    return;
+                case 'approxAgeMonthsChange':
+                    $scope.item.ApproxAgeMonths = payload.value;
+                    $scope.calculateDOB(payload.value, 'months');
+                    $scope.refreshReactProps();
+                    $scope.$applyAsync();
+                    return;
+                case 'ageYearsChange':
+                    $scope.item.Age = payload.value;
+                    $scope.calculateDOB(payload.value, 'years');
+                    $scope.refreshReactProps();
+                    $scope.$applyAsync();
+                    return;
+                case 'referrerChange':
+                    // Mirrors the real inline ng-change="item.ReferralTypeId=$select.selected.ReferralTypeId"
+                    $scope.item.ReferrerId = payload.value;
+                    $scope.item.ReferralTypeId = payload.referralTypeId != null ? payload.referralTypeId : $scope.item.ReferralTypeId;
+                    $scope.refreshReactProps();
+                    $scope.$applyAsync();
+                    return;
+                case 'referTypeChange':
+                    $scope.item.ReferTypeId = payload.value;
+                    $scope.referralTypeChange();
+                    $scope.refreshReactProps();
+                    $scope.$applyAsync();
+                    return;
+            }
+            if (typeof $scope[actionName] === 'function') {
+                $scope[actionName]();
+            }
+        };
+
+        $scope.refreshReactProps();
+        /* React bridge code ends */
 
         $scope.initLookup();
 

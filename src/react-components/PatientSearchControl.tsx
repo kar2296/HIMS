@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { colors, spacing, radii, shadows, typography, controlHeight } from '../components/ui/tokens';
+import { Loading } from '../components/ui/Loading';
 
 export interface PatientSearchControlProps {
   reactProps: {
@@ -100,7 +102,34 @@ export const PatientSearchControl: React.FC<PatientSearchControlProps> = ({
   return (
     <div className="typeahead-demo" style={{ position: 'relative' }} ref={wrapperRef}>
       <div className="form-group" style={{ marginBottom: 0 }}>
-        <div className="col-sm-12" style={{ padding: 0 }}>
+        <div className="col-sm-12" style={{ padding: 0, position: 'relative' }}>
+          {/*
+            NOTE ON DESIGN-SYSTEM USAGE: the design system's <SearchBox> only
+            accepts {value, onChange, onSubmit, placeholder, onClear, autoFocus} --
+            it has no passthrough for `id`, `disabled`, `tabIndex`, `onKeyDown`, or
+            `onFocus`. This control genuinely needs all of those (id is a real
+            legacy hook -- see `.typeahead-demo>input` in registrationcumvisit.html
+            and `.drhms-filters .search .typeahead-demo` in regcumvisitwithbill.html
+            -- disabled/tabIndex come straight from reactProps, onKeyDown drives the
+            real Up/Down/Enter/Escape result navigation, and onFocus reopens the
+            dropdown). Swapping in <SearchBox> as-is would silently drop that
+            wiring, so per the "don't distort real behavior to fit a component
+            that doesn't match" rule this keeps the real <input> and simply
+            reskins it to match SearchBox's exact visual language (icon inset,
+            tokens-based border/radius/height/type) instead.
+          */}
+          <i
+            className={isLoading ? 'fa-solid fa-circle-notch fa-spin' : 'fa-solid fa-magnifying-glass'}
+            style={{
+              position: 'absolute',
+              left: spacing.sm,
+              top: '50%',
+              transform: 'translateY(-50%)',
+              fontSize: '13px',
+              color: colors.textSubtle,
+              pointerEvents: 'none',
+            }}
+          />
           <input
             id={reactProps.controlId || 'pid'}
             type="text"
@@ -113,37 +142,58 @@ export const PatientSearchControl: React.FC<PatientSearchControlProps> = ({
             tabIndex={reactProps.tabIndex}
             onFocus={() => { if (results.length > 0) setIsOpen(true); }}
             autoComplete="off"
+            style={{
+              width: '100%',
+              height: controlHeight,
+              padding: `0 ${spacing.sm} 0 30px`,
+              borderRadius: radii.md,
+              border: `1px solid ${colors.border}`,
+              backgroundColor: reactProps.canDisable ? colors.surfaceMuted : colors.surface,
+              color: reactProps.canDisable ? colors.textSubtle : colors.textMain,
+              fontFamily: typography.fontFamily,
+              fontSize: typography.body.fontSize,
+              boxSizing: 'border-box',
+              cursor: reactProps.canDisable ? 'not-allowed' : 'text',
+            }}
           />
         </div>
       </div>
 
       {isOpen && (results.length > 0 || isLoading) && (
-        <div 
-          className="premium-glass-panel" 
+        <div
           style={{
             display: 'block',
             position: 'absolute',
             top: '100%',
             left: 0,
+            // Kept at the original literal 9999 (rather than the tokens.zIndex.dropdown
+            // value of 1000) deliberately: this overlay must stay above any host-page
+            // chrome it renders inside across the whole app, exactly as before --
+            // adopting the lower shared token here is a real stacking-behavior change,
+            // not a visual-only one, so it's out of scope for this pass.
             zIndex: 9999,
             maxHeight: '250px',
             overflow: 'auto',
             maxWidth: '600px',
-            marginTop: '2px'
+            marginTop: '2px',
+            backgroundColor: colors.surface,
+            border: `1px solid ${colors.border}`,
+            borderRadius: radii.md,
+            boxShadow: shadows.lg,
           }}
         >
           {isLoading && results.length === 0 ? (
-            <div style={{ padding: '10px', textAlign: 'center', color: '#666' }}>Loading...</div>
+            <Loading text="Loading..." size="sm" />
           ) : (
-            <table className="table table-bordered table-condensed" style={{ margin: 0, background: 'transparent' }} role="listbox">
-              <thead style={{ backgroundColor: 'var(--premium-blue)', color: '#ffffff' }}>
-                <tr>
-                  <th style={{ width: '120px', color: '#ffffff' }}>Title</th>
-                  <th style={{ minWidth: '100px', color: '#ffffff' }}>Name</th>
-                  <th style={{ width: '110px', color: '#ffffff' }}>DOB</th>
-                  <th style={{ width: '70px', color: '#ffffff' }}>Age/Gender</th>
-                  <th style={{ width: '100px', color: '#ffffff' }}>MRN</th>
-                  <th style={{ width: '100px', color: '#ffffff' }}>Mobile #</th>
+            <table className="table table-bordered table-condensed" style={{ margin: 0, background: 'transparent', borderCollapse: 'collapse' }} role="listbox">
+              <thead>
+                <tr style={{ backgroundColor: colors.primary }}>
+                  <th style={{ width: '120px', color: '#ffffff', ...typography.label, fontFamily: typography.fontFamily, padding: `${spacing.xs} ${spacing.sm}` }}>Title</th>
+                  <th style={{ minWidth: '100px', color: '#ffffff', ...typography.label, fontFamily: typography.fontFamily, padding: `${spacing.xs} ${spacing.sm}` }}>Name</th>
+                  <th style={{ width: '110px', color: '#ffffff', ...typography.label, fontFamily: typography.fontFamily, padding: `${spacing.xs} ${spacing.sm}` }}>DOB</th>
+                  <th style={{ width: '70px', color: '#ffffff', ...typography.label, fontFamily: typography.fontFamily, padding: `${spacing.xs} ${spacing.sm}` }}>Age/Gender</th>
+                  <th style={{ width: '100px', color: '#ffffff', ...typography.label, fontFamily: typography.fontFamily, padding: `${spacing.xs} ${spacing.sm}` }}>MRN</th>
+                  <th style={{ width: '100px', color: '#ffffff', ...typography.label, fontFamily: typography.fontFamily, padding: `${spacing.xs} ${spacing.sm}` }}>Mobile #</th>
                 </tr>
               </thead>
               <tbody>
@@ -162,20 +212,23 @@ export const PatientSearchControl: React.FC<PatientSearchControlProps> = ({
                   }
 
                   return (
-                    <tr 
+                    <tr
                       key={patient.Id || index}
                       className={`uib-typeahead-match ${index === activeIndex ? 'active' : ''}`}
-                      style={{ cursor: 'pointer', backgroundColor: index === activeIndex ? '#f5f5f5' : 'transparent' }}
+                      style={{
+                        cursor: 'pointer',
+                        backgroundColor: index === activeIndex ? colors.primaryLight : 'transparent',
+                      }}
                       onMouseEnter={() => setActiveIndex(index)}
                       onClick={() => handleSelect(patient)}
                       role="option"
                     >
-                      <td className="td-title">{patient.TitleDesc}</td>
-                      <td className="td-name">{patient.PatientName}</td>
-                      <td className="td-dob" style={{ whiteSpace: 'nowrap' }}>{dobDisplay}</td>
-                      <td className="td-age">{patient.Age}/{patient.GenderCode}</td>
-                      <td className="td-mrn">{patient.MRN}</td>
-                      <td className="td-mrn">{patient.Mobile}</td>
+                      <td className="td-title" style={{ ...typography.body, fontFamily: typography.fontFamily, color: colors.textMain, padding: `${spacing.xs} ${spacing.sm}`, borderColor: colors.border }}>{patient.TitleDesc}</td>
+                      <td className="td-name" style={{ ...typography.body, fontFamily: typography.fontFamily, color: colors.textMain, padding: `${spacing.xs} ${spacing.sm}`, borderColor: colors.border }}>{patient.PatientName}</td>
+                      <td className="td-dob" style={{ ...typography.body, fontFamily: typography.fontFamily, color: colors.textMain, padding: `${spacing.xs} ${spacing.sm}`, borderColor: colors.border, whiteSpace: 'nowrap' }}>{dobDisplay}</td>
+                      <td className="td-age" style={{ ...typography.body, fontFamily: typography.fontFamily, color: colors.textMain, padding: `${spacing.xs} ${spacing.sm}`, borderColor: colors.border }}>{patient.Age}/{patient.GenderCode}</td>
+                      <td className="td-mrn" style={{ ...typography.body, fontFamily: typography.fontFamily, color: colors.textMain, padding: `${spacing.xs} ${spacing.sm}`, borderColor: colors.border }}>{patient.MRN}</td>
+                      <td className="td-mrn" style={{ ...typography.body, fontFamily: typography.fontFamily, color: colors.textMain, padding: `${spacing.xs} ${spacing.sm}`, borderColor: colors.border }}>{patient.Mobile}</td>
                     </tr>
                   );
                 })}
