@@ -11,10 +11,17 @@
 // ─────────────────────────────────────────────────────────────
 export const colors = {
   // Brand — Primary Blue
-  primary:       '#2563eb',
-  primaryHover:  '#1d4ed8',
-  primaryActive: '#1e40af',
-  primaryLight:  '#eff6ff',
+  // NOTE: these resolve through the same --hims-primary* CSS custom
+  // properties react-design-system.css already defines at :root (fallback
+  // values below match the previous literal hex exactly, so every screen's
+  // rendering is unchanged by default). The Front Office -> Registration
+  // screens wrap themselves in a `.hims-theme-registration` class
+  // (registration-5174-theme.css) that overrides just these variables to
+  // the 5174 design-reference palette -- no other module is affected.
+  primary:       'var(--hims-primary, #2563eb)',
+  primaryHover:  'var(--hims-primary-hover, #1d4ed8)',
+  primaryActive: 'var(--hims-primary-active, #1e40af)',
+  primaryLight:  'var(--hims-primary-light, #eff6ff)',
   primaryMid:    '#bfdbfe',
 
   // Brand — Accent Indigo
@@ -47,7 +54,7 @@ export const colors = {
 
   border:        '#e2e8f0',   // slate-200
   borderStrong:  '#cbd5e1',   // slate-300
-  borderFocus:   '#2563eb',
+  borderFocus:   'var(--hims-primary, #2563eb)',
 
   surface:       '#ffffff',
   surfaceMuted:  '#f8fafc',   // slate-50
