@@ -443,6 +443,77 @@
         }
 
         $scope.initLookup();
+
+        // ---------------------------------------------------------------
+        // REACT BRIDGE WIRING (migrated to PatientDemographicUpdateScreen.tsx).
+        // All API calls/business logic above are untouched; this only maps
+        // $scope state into reactProps and dispatches UI actions back into
+        // the existing functions above -- no new business logic here.
+        // ---------------------------------------------------------------
+        function refreshDerivedFlags() {
+            $scope.reactProps.canShowApproxAge = $scope.canShowApproxAge();
+        }
+
+        $scope.reactProps = {
+            item: $scope.item,
+            lookup: $scope.lookup,
+            canShowApproxAge: false
+        };
+        refreshDerivedFlags();
+
+        var origLookupCallback = $scope.lookupCallback;
+        $scope.lookupCallback = function(scope, data, options, hasError) {
+            origLookupCallback(scope, data, options, hasError);
+            $scope.reactProps.lookup = $scope.lookup;
+            $scope.reactProps.item = $scope.item;
+            refreshDerivedFlags();
+        };
+
+        var origGetItemCallback = $scope.getItemCallback;
+        $scope.getItemCallback = function(scope, data, options, hasError) {
+            origGetItemCallback(scope, data, options, hasError);
+            $scope.reactProps.item = $scope.item;
+            refreshDerivedFlags();
+        };
+
+        var origGetpatientsCallback = $scope.getpatientsCallback;
+        $scope.getpatientsCallback = function(scope, data, options, hasError) {
+            origGetpatientsCallback(scope, data, options, hasError);
+            $scope.reactProps.item = $scope.item;
+            refreshDerivedFlags();
+        };
+
+        $scope.handleReactAction = function(actionName, payload) {
+            switch (actionName) {
+                case 'itemFieldChange':
+                    $scope.item[payload.field] = payload.value;
+                    refreshDerivedFlags();
+                    break;
+                case 'approxAgeChange':
+                    $scope.calculateDOB(payload.value, payload.part);
+                    $scope.reactProps.item = $scope.item;
+                    refreshDerivedFlags();
+                    break;
+                case 'dobChange':
+                    $scope.item.DOB = payload.value ? new Date(payload.value) : null;
+                    $scope.calculateAge();
+                    $scope.reactProps.item = $scope.item;
+                    refreshDerivedFlags();
+                    break;
+                case 'patientprofiledetails':
+                    $scope.patientprofiledetails();
+                    break;
+                case 'saveAndApprove':
+                    $scope.saveAndApprove();
+                    break;
+                case 'cancelCallback':
+                    $scope.cancelCallback();
+                    break;
+                default:
+                    break;
+            }
+            $scope.$applyAsync();
+        };
     }
 
     patientdemographicupdateFormController.$inject = ['$scope', '$stateParams', '$state', '$translate', 'utl', 'Upload', '$uibModalInstance', 'modalConfig'];

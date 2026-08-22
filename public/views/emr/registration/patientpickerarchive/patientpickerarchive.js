@@ -255,6 +255,114 @@
         }
 
         $scope.initLookup();
+
+        // ---------------------------------------------------------------
+        // REACT BRIDGE (migrated to PatientPickerArchiveScreen.tsx). All
+        // logic above is untouched, including the real (disclosed, not
+        // fixed) bugs: getList()'s duplicate/conflicting Key 9/Key 10
+        // date-range Params whenever modeldata.From is set, the
+        // "GuardianName" schema field being wired to nothing in getList(),
+        // the "DOB/Age" column header promising an age that is never
+        // computed/shown, the "Contact" columnDef field not existing on any
+        // row (Mobile/LandLine are the real properties), LatestAppointment
+        // being computed on every row by getListCallback but never
+        // rendered anywhere, search never resetting pagination back to page
+        // 1, and getList(pageNo)'s pageNo parameter never being read.
+        // ---------------------------------------------------------------
+        function toIsoDateString(d) {
+            if (!d) return '';
+            var dt = new Date(d);
+            if (isNaN(dt.getTime())) return '';
+            var mm = ('0' + (dt.getMonth() + 1)).slice(-2);
+            var dd = ('0' + dt.getDate()).slice(-2);
+            return dt.getFullYear() + '-' + mm + '-' + dd;
+        }
+        function fromIsoDateString(s) {
+            if (!s) return '';
+            var parts = String(s).split('-');
+            if (parts.length !== 3) return '';
+            return new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
+        }
+        var DATE_FIELDS = { dateofbirth: true, From: true, To: true };
+
+        // --- React bridge: wrap the ORIGINAL callbacks unchanged, then refresh reactProps ---
+        var _origGetListCallback = $scope.getListCallback;
+        $scope.getListCallback = function (scope, res, options, hasError) {
+            _origGetListCallback(scope, res, options, hasError);
+            updateReactProps();
+        };
+
+        var _origLookupCallback = $scope.lookupCallback;
+        $scope.lookupCallback = function (scope, data, options, hasError) {
+            _origLookupCallback(scope, data, options, hasError);
+            updateReactProps();
+        };
+
+        function updateReactProps() {
+            var md = $scope.modeldata || {};
+            $scope.reactProps = {
+                items: (vm.gridConfig && vm.gridConfig.data) || [],
+                modeldata: {
+                    mrn: md.mrn,
+                    patientname: md.patientname,
+                    dateofbirth: toIsoDateString(md.dateofbirth),
+                    status: md.status,
+                    phoneno: md.phoneno,
+                    From: toIsoDateString(md.From),
+                    To: toIsoDateString(md.To),
+                    PinCode: md.PinCode,
+                    GuardianName: md.GuardianName
+                },
+                lookup: {
+                    PatientStatus: ($scope.lookup && $scope.lookup.PatientStatus) || []
+                },
+                pager: {
+                    totalItems: vm.gridConfig.pagerObj.totalItems,
+                    currentPage: vm.gridConfig.pagerObj.currentPage,
+                    pageSize: vm.gridConfig.pagerObj.pageSize
+                }
+            };
+        }
+
+        $scope.handleReactAction = function (actionName, payload) {
+            payload = payload || {};
+            switch (actionName) {
+                case 'filterChange':
+                    if ($scope.modeldata) {
+                        if (DATE_FIELDS[payload.field]) {
+                            $scope.modeldata[payload.field] = fromIsoDateString(payload.value);
+                        } else {
+                            $scope.modeldata[payload.field] = payload.value;
+                        }
+                    }
+                    updateReactProps();
+                    break;
+                case 'apply':
+                case 'reset':
+                    $scope.actionClick(actionName);
+                    updateReactProps();
+                    break;
+                case 'pageChange':
+                    vm.gridConfig.pagerObj.currentPage = payload.page;
+                    $scope.getList();
+                    break;
+                case 'selectPatient':
+                    if ($scope.confirmCallback && payload.entity) {
+                        $scope.confirmCallback({ pid: payload.entity.Id, patient: payload.entity });
+                    }
+                    break;
+                case 'cancel':
+                    if ($scope.cancelCallback) {
+                        $scope.cancelCallback();
+                    }
+                    break;
+                default:
+                    break;
+            }
+            $scope.$applyAsync();
+        };
+
+        updateReactProps();
     }
 
     PatPickArchiveController.$inject = ['$scope', '$filter', '$stateParams', '$state', '$translate', 'utl', '$uibModalInstance', 'modalConfig'];

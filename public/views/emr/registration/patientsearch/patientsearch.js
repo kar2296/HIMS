@@ -514,7 +514,145 @@
             utl.Http.doAction(options);
         }
 
+        // ---------------------------------------------------------------------
+        // React bridge (hollow-controller pattern). All real logic above is
+        // UNCHANGED -- getList/getListCallback/lookupCallback/
+        // getPatientProfilePicCallback/handleEvents/openAdvancedFilter/
+        // opd_dashboard/addNewFull/addNewQuick still own every API call and
+        // business rule. This block only wraps the existing callbacks (save
+        // original ref, call it, then refresh reactProps) and dispatches
+        // React's clicks back into those SAME unchanged functions. Nothing
+        // here alters what the real functions do.
+        //
+        // NOT exposed via reactProps because the real template never
+        // rendered them, or rendered them permanently hidden -- see the
+        // disclosure comment at the top of PatientSearchScreen.tsx for the
+        // full list and reasoning: the MRN filter box (ng-model=
+        // "currentfilter.mrn", commented out in the real markup),
+        // $scope.advancedfilter/advancedFilterSchema (opened by the
+        // untouched native utl.Modal.openDynamicForm, not reimplemented in
+        // React), showprocessflow()/hideprocessflow()/#myModal (trigger
+        // button already commented out in the real markup), and the entire
+        // per-row action-button column (edit/newvisit/appointments/
+        // admissionlink/opbillinglist/ipbillinglink/outstandingbillsview/
+        // payer/emr/preappoinments/portalaccess/checkout/vitals/
+        // patientprint/delete) -- all gated by grid.appScope.HasPrivilege(...),
+        // a function that does not exist anywhere in this codebase (confirmed
+        // by exhaustive grep across public/), so every one of them is ALWAYS
+        // hidden in the real, currently-running app today.
+
+        function toIsoDateString(d) {
+            if (!d) return '';
+            var dt = new Date(d);
+            if (isNaN(dt.getTime())) return '';
+            var mm = ('0' + (dt.getMonth() + 1)).slice(-2);
+            var dd = ('0' + dt.getDate()).slice(-2);
+            return dt.getFullYear() + '-' + mm + '-' + dd;
+        }
+        function fromIsoDateString(s) {
+            if (!s) return null;
+            var parts = String(s).split('-');
+            if (parts.length !== 3) return null;
+            return new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
+        }
+
+        // --- React bridge: wrap the ORIGINAL lookupCallback unchanged, then refresh reactProps ---
+        var _origLookupCallback = $scope.lookupCallback;
+        $scope.lookupCallback = function (scope, data, options, hasError) {
+            _origLookupCallback(scope, data, options, hasError);
+            updateReactProps();
+        };
+
+        // --- React bridge: wrap the ORIGINAL getListCallback unchanged, then refresh reactProps ---
+        var _origGetListCallback = $scope.getListCallback;
+        $scope.getListCallback = function (scope, res, options, hasError) {
+            _origGetListCallback(scope, res, options, hasError);
+            updateReactProps();
+        };
+
+        // --- React bridge: wrap the ORIGINAL getPatientProfilePicCallback unchanged, then
+        // refresh reactProps -- otherwise a patient's photo would still load into the real
+        // $scope.gridData item exactly as before, but React would never re-render to show it.
+        var _origGetPatientProfilePicCallback = $scope.getPatientProfilePicCallback;
+        $scope.getPatientProfilePicCallback = function (scope, data, options, hasError) {
+            _origGetPatientProfilePicCallback(scope, data, options, hasError);
+            updateReactProps();
+        };
+
+        function updateReactProps() {
+            $scope.reactProps = {
+                items: vm.gridConfig.data || [],
+                lookup: {
+                    PatientStatus: ($scope.lookup && $scope.lookup.PatientStatus) || []
+                },
+                currentfilter: {
+                    patientname: $scope.currentfilter.patientname,
+                    dateofbirth: toIsoDateString($scope.currentfilter.dateofbirth),
+                    status: $scope.currentfilter.status,
+                    phoneno: $scope.currentfilter.phoneno,
+                    visitid: $scope.currentfilter.visitid,
+                    registereddate: toIsoDateString($scope.currentfilter.registereddate),
+                    isOtherFacility: $scope.currentfilter.isOtherFacility,
+                    istemp: $scope.currentfilter.istemp
+                },
+                pager: {
+                    totalItems: vm.gridConfig.pagerObj.totalItems,
+                    currentPage: vm.gridConfig.pagerObj.currentPage,
+                    pageSize: vm.gridConfig.pagerObj.pageSize
+                }
+            };
+        }
+
+        $scope.handleReactAction = function (actionName, payload) {
+            payload = payload || {};
+            switch (actionName) {
+                case 'opd_dashboard':
+                    $scope.opd_dashboard();
+                    break;
+                case 'openAdvancedFilter':
+                    $scope.openAdvancedFilter();
+                    break;
+                case 'addNewFull':
+                    $scope.addNewFull();
+                    break;
+                case 'addNewQuick':
+                    $scope.addNewQuick();
+                    break;
+                case 'filterChange':
+                    if (payload.field === 'dateofbirth' || payload.field === 'registereddate') {
+                        $scope.currentfilter[payload.field] = fromIsoDateString(payload.value);
+                    } else {
+                        $scope.currentfilter[payload.field] = payload.value;
+                    }
+                    updateReactProps();
+                    break;
+                case 'filterChangeAndSearch':
+                    if (payload.field === 'dateofbirth' || payload.field === 'registereddate') {
+                        $scope.currentfilter[payload.field] = fromIsoDateString(payload.value);
+                    } else {
+                        $scope.currentfilter[payload.field] = payload.value;
+                    }
+                    updateReactProps();
+                    // Matches the real template: DOB/Status/RegisteredDate/IsTemp/
+                    // IsOtherFacility all have ng-change="getList()" and refetch immediately.
+                    $scope.getList();
+                    break;
+                case 'search':
+                    // Mirrors the real on-enter="getList()" on Patient Name / Phone No / Visit Id.
+                    $scope.getList();
+                    break;
+                case 'pageChange':
+                    vm.gridConfig.pagerObj.currentPage = payload.page;
+                    $scope.getList();
+                    break;
+                case 'update':
+                    $scope.handleEvents('update', { entity: payload.entity });
+                    break;
+            }
+        };
+
         $scope.initLookup();
+        updateReactProps();
     }
 
     patientSearchListController.$inject = ['$scope', '$stateParams', '$state', '$translate', '$filter', 'utl'];

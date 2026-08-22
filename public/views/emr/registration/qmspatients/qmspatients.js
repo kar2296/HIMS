@@ -140,6 +140,109 @@
         }
 
         $scope.initLookup();
+
+        // ---------------------------------------------------------------
+        // REACT BRIDGE WIRING (migrated to QMSPatientsScreen.tsx).
+        // All API calls/business logic above (getList/getListCallback/
+        // initLookup/lookupCallback/sendPatientData/
+        // openNewPatientDetailsTab/openOldPatientDetailsTab) are UNCHANGED.
+        // This block only wraps the existing callbacks (save the original
+        // function reference, call it, then refresh reactProps) and
+        // dispatches React's actions back into those SAME unchanged
+        // functions.
+        // ---------------------------------------------------------------
+
+        // item.From/item.To are real plain Date objects (seeded via
+        // utl.Formatter.getCurrentDate() and read directly by getList()'s
+        // $filter('date') calls) -- normalize to/from an ISO yyyy-MM-dd
+        // string only at this bridge boundary so the native DatePicker gets
+        // the string shape it expects, without changing what getList()
+        // itself receives/sends.
+        function toIsoDateString(d) {
+            if (!d) return '';
+            var dt = new Date(d);
+            if (isNaN(dt.getTime())) return '';
+            var mm = ('0' + (dt.getMonth() + 1)).slice(-2);
+            var dd = ('0' + dt.getDate()).slice(-2);
+            return dt.getFullYear() + '-' + mm + '-' + dd;
+        }
+        function fromIsoDateString(s) {
+            if (!s) return null;
+            var parts = String(s).split('-');
+            if (parts.length !== 3) return null;
+            return new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
+        }
+
+        // --- React bridge: wrap the ORIGINAL getListCallback unchanged, then refresh reactProps ---
+        var _origGetListCallback = $scope.getListCallback;
+        $scope.getListCallback = function (scope, res, options, hasError) {
+            _origGetListCallback(scope, res, options, hasError);
+            updateReactProps();
+        };
+
+        // --- React bridge: wrap the ORIGINAL lookupCallback unchanged, then refresh reactProps ---
+        var _origLookupCallback = $scope.lookupCallback;
+        $scope.lookupCallback = function (scope, data, options, hasError) {
+            _origLookupCallback(scope, data, options, hasError);
+            updateReactProps();
+        };
+
+        function updateReactProps() {
+            $scope.reactProps = {
+                item: {
+                    MRN: $scope.item.MRN,
+                    PatientName: $scope.item.PatientName,
+                    Mobile: $scope.item.Mobile,
+                    TokenNumber: $scope.item.TokenNumber,
+                    From: toIsoDateString($scope.item.From),
+                    To: toIsoDateString($scope.item.To)
+                },
+                patientData: $scope.PatientData || [],
+                showNewPatientDetails: $scope.showNewPatientDetails,
+                showOldPatientDetails: $scope.showOldPatientDetails,
+                isModal: $scope.currentcontext.ismodal
+            };
+        }
+
+        $scope.handleReactAction = function (actionName, payload) {
+            payload = payload || {};
+            switch (actionName) {
+                case 'filterChange':
+                    if (payload.field === 'From' || payload.field === 'To') {
+                        $scope.item[payload.field] = fromIsoDateString(payload.value);
+                    } else {
+                        $scope.item[payload.field] = payload.value;
+                    }
+                    updateReactProps();
+                    // Matches the real template: MRN/PatientName/Mobile/TokenNumber
+                    // have no ng-change (only on-enter="getList()"); From/To both
+                    // have a real ng-change="getList()" and refetch immediately.
+                    if (payload.field === 'From' || payload.field === 'To') {
+                        $scope.getList();
+                    }
+                    break;
+                case 'search':
+                    // Mirrors the real on-enter="getList()" on the MRN/Name/Mobile/Token boxes.
+                    $scope.getList();
+                    break;
+                case 'openNewPatientDetailsTab':
+                    $scope.openNewPatientDetailsTab();
+                    updateReactProps();
+                    break;
+                case 'openOldPatientDetailsTab':
+                    $scope.openOldPatientDetailsTab();
+                    updateReactProps();
+                    break;
+                case 'sendPatientData':
+                    $scope.sendPatientData(payload.qmsId, payload.patientId, payload.patient);
+                    break;
+                default:
+                    break;
+            }
+            $scope.$applyAsync();
+        };
+
+        updateReactProps();
     }
 
     QMSPatientController.$inject = ['$scope', '$filter', '$stateParams', '$state', '$translate', 'utl', '$uibModalInstance', 'modalConfig'];

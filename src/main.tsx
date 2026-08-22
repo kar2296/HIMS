@@ -53,6 +53,9 @@ import { PatientGuarantorGLFormScreen } from './react-components/PatientGuaranto
 // Import PatientIdDocumentsScreen Component
 import { PatientIdDocumentsScreen } from './react-components/PatientIdDocumentsScreen';
 
+// Import PatientDemographicUpdateScreen Component
+import { PatientDemographicUpdateScreen } from './react-components/PatientDemographicUpdateScreen';
+
 // Import DeathRecordFormScreen Components (patientdeathrecord-form + quickregistration's deceased-form)
 import { PatientDeathRecordFormScreen, DeceasedFormScreen } from './react-components/DeathRecordFormScreen';
 
@@ -109,6 +112,18 @@ import { AllOPPatientListScreen } from './react-components/AllOPPatientListScree
 
 // Import PreviousOPPatientListScreen Component (three mounts: Name filter, Date filter, Grid)
 import { PreviousOPPatientNameFilterScreen, PreviousOPPatientDateFilterScreen, PreviousOPPatientGridScreen } from './react-components/PreviousOPPatientListScreen';
+
+// Import PatientSearchScreen Component
+import { PatientSearchScreen } from './react-components/PatientSearchScreen';
+
+// Import QMSPatientsScreen Component
+import { QMSPatientsScreen } from './react-components/QMSPatientsScreen';
+
+// Import PayoutAttachmentListScreen Component
+import { PayoutAttachmentListScreen } from './react-components/PayoutAttachmentListScreen';
+
+// Import PatientPickerArchiveScreen Component
+import { PatientPickerArchiveScreen } from './react-components/PatientPickerArchiveScreen';
 
 // Import PatientFeedbackScreen Component
 import { PatientFeedbackScreen } from './react-components/PatientFeedbackScreen';
@@ -277,6 +292,7 @@ import { FindBillModalComponent } from './react-components/FindBillModalComponen
   PatientKinFormScreen,
   PatientGuarantorGLFormScreen,
   PatientIdDocumentsScreen,
+  PatientDemographicUpdateScreen,
   PatientDeathRecordFormScreen,
   DeceasedFormScreen,
   DeactivateRemarksScreen,
@@ -301,6 +317,10 @@ import { FindBillModalComponent } from './react-components/FindBillModalComponen
   PreviousOPPatientNameFilterScreen,
   PreviousOPPatientDateFilterScreen,
   PreviousOPPatientGridScreen,
+  PatientSearchScreen,
+  QMSPatientsScreen,
+  PayoutAttachmentListScreen,
+  PatientPickerArchiveScreen,
   PatientFeedbackScreen,
   LoginPage,
   SidebarComponent,

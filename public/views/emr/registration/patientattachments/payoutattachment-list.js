@@ -161,6 +161,75 @@ function payoutAttachmentListController($scope, $stateParams, $state, $translate
         }
     }
     $scope.getDocumentList();
+
+    // ---------------------------------------------------------------------
+    // React bridge (hollow-controller pattern). All real logic above is
+    // UNCHANGED -- getDocumentList/getDocumentListCallback/downloadFile/
+    // downloadFileCallback/handleEvents/backToList still own every API call
+    // and business rule. This block only wraps the existing callback (save
+    // original ref, call it, then refresh reactProps) and dispatches
+    // React's clicks back into those SAME unchanged functions. Nothing here
+    // alters what the real functions do.
+    //
+    // Real, disclosed pre-existing bugs/dead-code preserved as-is, NOT
+    // fixed here -- see the top-of-file comment block in
+    // PayoutAttachmentListScreen.tsx for the full writeup:
+    // - handleEvents('view', ...) and handleEvents('delete', ...) are dead:
+    //   no element in the real template ever dispatches 'view' or 'delete'
+    //   (the grid's only action icon dispatches 'edit', which actually
+    //   triggers a file download, not an edit). Not rendered/dispatched
+    //   here either, matching the real page exactly.
+    // - handleEvents('delete', ...) calls utl.Dialog.confirmDelete with
+    //   $scope.onDeleteConfirmed, a function this controller never defines
+    //   anywhere -- dead code that would throw a ReferenceError if it were
+    //   ever actually reached.
+    // - $scope.backToList is defined but has zero call sites anywhere in
+    //   the real template (the close "X" icon calls cancelCallback()
+    //   directly) -- dead code, not wired to anything here either.
+    // - The real pager's ng-change="getList()" calls a function this
+    //   controller never defines (only getDocumentList() exists), so
+    //   AngularJS silently no-ops every page click today. And even if
+    //   getList() existed, getDocumentList() hardcodes
+    //   PageContext.PageNumber: 1 on every call, so a second page could
+    //   never actually be fetched anyway. Reproduced faithfully below:
+    //   'pageChange' only updates the displayed page number and does NOT
+    //   re-fetch, matching the real, broken, do-nothing pagination.
+    // ---------------------------------------------------------------------
+
+    var _origGetDocumentListCallback = $scope.getDocumentListCallback;
+    $scope.getDocumentListCallback = function (scope, res, options, hasError) {
+        _origGetDocumentListCallback(scope, res, options, hasError);
+        updateReactProps();
+    };
+
+    function updateReactProps() {
+        $scope.reactProps = {
+            items: vm.gridConfig.data || [],
+            pager: {
+                totalItems: vm.gridConfig.pagerObj.totalItems,
+                currentPage: vm.gridConfig.pagerObj.currentPage,
+                pageSize: vm.gridConfig.pagerObj.pageSize
+            }
+        };
+    }
+
+    $scope.handleReactAction = function (actionName, payload) {
+        payload = payload || {};
+        switch (actionName) {
+            case 'edit':
+                $scope.handleEvents('edit', payload.entity);
+                break;
+            case 'pageChange':
+                vm.gridConfig.pagerObj.currentPage = payload.page;
+                updateReactProps();
+                break;
+            case 'cancel':
+                $scope.cancelCallback();
+                break;
+        }
+    };
+
+    updateReactProps();
 }
 
 payoutAttachmentListController.$inject = ['$scope', '$stateParams', '$state', '$translate', 'utl', '$uibModalInstance', 'modalConfig'];
