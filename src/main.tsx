@@ -59,6 +59,21 @@ import { PatientDeathRecordFormScreen, DeceasedFormScreen } from './react-compon
 // Import DeactivateRemarksScreen Component
 import { DeactivateRemarksScreen } from './react-components/DeactivateRemarksScreen';
 
+// Import InpatientTabScreen Component
+import { InpatientTabScreen } from './react-components/InpatientTabScreen';
+
+// Import OpdBillScreen Component
+import { OpdBillScreen } from './react-components/OpdBillScreen';
+
+// Import EncounterGuarantorListScreen Component
+import { EncounterGuarantorListScreen } from './react-components/EncounterGuarantorListScreen';
+
+// Import EncounterGuarantorUpdateFormScreen Component
+import { EncounterGuarantorUpdateFormScreen } from './react-components/EncounterGuarantorUpdateFormScreen';
+
+// Import EncounterGuarantorGLFormScreen Component
+import { EncounterGuarantorGLFormScreen } from './react-components/EncounterGuarantorGLFormScreen';
+
 // Import PatientFeedbackScreen Component
 import { PatientFeedbackScreen } from './react-components/PatientFeedbackScreen';
 
@@ -229,6 +244,11 @@ import { FindBillModalComponent } from './react-components/FindBillModalComponen
   PatientDeathRecordFormScreen,
   DeceasedFormScreen,
   DeactivateRemarksScreen,
+  InpatientTabScreen,
+  OpdBillScreen,
+  EncounterGuarantorListScreen,
+  EncounterGuarantorUpdateFormScreen,
+  EncounterGuarantorGLFormScreen,
   PatientFeedbackScreen,
   LoginPage,
   SidebarComponent,

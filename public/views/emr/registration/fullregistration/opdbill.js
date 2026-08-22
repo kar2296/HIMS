@@ -470,6 +470,196 @@
             utl.Http.doAction(options);
         }
 
+        // ---------------------------------------------------------------
+        // REACT BRIDGE WIRING (migrated to OpdBillScreen.tsx).
+        // All API calls/business logic above are untouched.
+        //
+        // KNOWN PRE-EXISTING BUGS PRESERVED, NOT FIXED (verified against the
+        // original opdbill.js / opdbill.html, not guessed):
+        //
+        // 1. saveItemCallback (above) calls `$scope.getItem()`, which is never
+        //    defined anywhere in this controller (there is no getItem here,
+        //    only getServiceItem/getServiceItemCallback). In the original
+        //    AngularJS app this throws inside the $apply of the async HTTP
+        //    callback; Angular's default $exceptionHandler logs it to the
+        //    console and swallows it (no user-visible crash), so a save shows
+        //    the success toast but the modal is never confirmed/closed via
+        //    $scope.confirmCallback(). saveItemCallback is intentionally left
+        //    byte-for-byte identical below.
+        // 2. ng-click="patientprofiledetails()" (the info icon next to the
+        //    patient banner) and ng-click="print()" (the footer "Print"
+        //    button) both call functions never defined on this $scope --
+        //    silent no-ops in the original AngularJS (Angular logs a
+        //    TypeError; nothing happens visibly). handleReactAction below has
+        //    NO case for 'patientProfile' or 'print', so both fall through to
+        //    `default: break` -- same observable (non-)behavior.
+        // 3. ng-change="getServiceItem($index)" on each row's Service Item
+        //    picker passes $index, but $scope.getServiceItem() takes no
+        //    parameters and only ever (re)pulls the facility's *default*
+        //    services list via GetFacilityDefaultServices -- it never fetches
+        //    or applies data for the specific row the user just changed.
+        //    Preserved exactly: picking a different service on an existing
+        //    row updates that row's ServiceId only; its Rate/GrossAmount are
+        //    not refreshed from the new selection.
+        // 4. lookup.User is never requested by initLookup() (only Doctor,
+        //    Guarantor, ServiceRateCategory, Department, ServiceItem,
+        //    PaymentType, CardType, Bank, CurrencyType, DiscountMode are). The
+        //    "Approved By" picker (item.ApprovedById) therefore always has an
+        //    empty option list.
+        // 5. item.TotRndoffAmt is displayed in the original footer
+        //    ({{item.TotRndoffAmt}}) but is never assigned anywhere in this
+        //    controller -- "Round Off" is always blank.
+        // 6. The CurrencyTypeId <ui-select> in the payments panel is commented
+        //    out of the original template, even though saveItem()/
+        //    AddPaymentDetails() still reads/sends $scope.item.CurrencyTypeId
+        //    -- it is always undefined when a bill is saved.
+        // 7. saveItem()'s form-validity guard
+        //    (`if (!$scope.item_form.isValid())`) was already commented out
+        //    in the original, and every `required`/`ng-pattern` attribute in
+        //    the template was purely decorative even before this migration --
+        //    nothing actually blocks Save & Approve on empty/invalid payment
+        //    fields. No new client-side validation is introduced here.
+        // 8. $scope.saveDraft() is a fully defined function that no element in
+        //    the original template ever calls (there is no "Save Draft"
+        //    button in opdbill.html, only "Print" and "Save & Approve") --
+        //    dead code left untouched; no Save Draft action is added in React.
+        // ---------------------------------------------------------------
+        $scope.reactProps = {
+            item: $scope.item,
+            billDetails: $scope.PatientBillDetails,
+            encounter: $scope.Encounter,
+            selectedPatient: $scope.selectedPatient,
+            lookup: $scope.lookup,
+            headerDiscount: $scope.HeaderDiscount,
+            currentcontext: $scope.currentcontext
+        };
+
+        var origGetPatientInfo = $scope.getPatientInfo;
+        $scope.getPatientInfo = function(scope, data, options, hasError) {
+            origGetPatientInfo(scope, data, options, hasError);
+            $scope.reactProps.selectedPatient = $scope.selectedPatient;
+        };
+
+        var origGetEncounterCallback = $scope.getEncounterCallback;
+        $scope.getEncounterCallback = function(scope, res, options, hasError) {
+            origGetEncounterCallback(scope, res, options, hasError);
+            $scope.reactProps.encounter = $scope.Encounter;
+        };
+
+        var origGetServiceItemCallback = $scope.getServiceItemCallback;
+        $scope.getServiceItemCallback = function(scope, data, options, hasError) {
+            origGetServiceItemCallback(scope, data, options, hasError);
+            $scope.reactProps.billDetails = $scope.PatientBillDetails;
+            $scope.reactProps.item = $scope.item;
+        };
+
+        var origCalcAmt = $scope.calcAmt;
+        $scope.calcAmt = function() {
+            origCalcAmt();
+            $scope.reactProps.item = $scope.item;
+            $scope.reactProps.billDetails = $scope.PatientBillDetails;
+        };
+
+        var origHeaderCalc = $scope.HeaderCalc;
+        $scope.HeaderCalc = function() {
+            origHeaderCalc();
+            $scope.reactProps.item = $scope.item;
+            $scope.reactProps.billDetails = $scope.PatientBillDetails;
+        };
+
+        var origOnDeleteConfirmed = $scope.onDeleteConfirmed;
+        $scope.onDeleteConfirmed = function(item) {
+            origOnDeleteConfirmed(item);
+            $scope.reactProps.billDetails = $scope.PatientBillDetails;
+        };
+
+        var origLookupCallback = $scope.lookupCallback;
+        $scope.lookupCallback = function(scope, data, options, hasError) {
+            origLookupCallback(scope, data, options, hasError);
+            $scope.reactProps.lookup = $scope.lookup;
+        };
+
+        $scope.handleReactAction = function(actionName, payload) {
+            switch (actionName) {
+                case 'encounterFieldChange':
+                    // Doctor / Department / Guarantor / ServiceRateCategory pickers --
+                    // plain ng-model in the original with no ng-change handler.
+                    $scope.Encounter = $scope.Encounter || {};
+                    $scope.Encounter[payload.field] = payload.value;
+                    $scope.reactProps.encounter = $scope.Encounter;
+                    break;
+                case 'itemFieldChange':
+                    // Fields that were plain ng-model with no ng-change in the
+                    // original: ApprovedById, Remarks, PaymentTypeId, BankId,
+                    // ChequeNo, DDNumber, WireTransferId, CardTypeId, CardNumber.
+                    $scope.item[payload.field] = payload.value;
+                    $scope.reactProps.item = $scope.item;
+                    break;
+                case 'itemDateFieldChange':
+                    // CollectedOn / ChequeDate / DDDate / WireTransferDate --
+                    // originally bound via ng-date-object + uib-datepicker-popup,
+                    // which stores a real JS Date object on $scope.item.
+                    $scope.item[payload.field] = payload.value ? new Date(payload.value) : null;
+                    $scope.reactProps.item = $scope.item;
+                    break;
+                case 'headerDiscountChange':
+                    // ng-model="HeaderDiscount" ng-change="HeaderCalc()"
+                    $scope.HeaderDiscount = payload.value;
+                    $scope.HeaderCalc(); // wrapped above: refreshes reactProps.item/billDetails
+                    $scope.reactProps.headerDiscount = $scope.HeaderDiscount;
+                    break;
+                case 'paidAmountChange':
+                    // item.PaidAmount ng-change="calcAmt()"
+                    $scope.item.PaidAmount = payload.value;
+                    $scope.calcAmt(); // wrapped above: refreshes reactProps.item/billDetails
+                    break;
+                case 'rowServiceItemChange':
+                    // item.ServiceId ng-change="getServiceItem($index)" --
+                    // see KNOWN BUG #3 above: getServiceItem() ignores which row
+                    // changed, so this is preserved exactly, warts and all.
+                    if ($scope.PatientBillDetails[payload.index]) {
+                        $scope.PatientBillDetails[payload.index].ServiceId = payload.value;
+                    }
+                    $scope.getServiceItem();
+                    $scope.reactProps.billDetails = $scope.PatientBillDetails;
+                    break;
+                case 'rowQuantityChange':
+                    // item.Quantity ng-change="calcAmt($index)" (calcAmt takes no
+                    // params in the original; the index argument was always ignored)
+                    if ($scope.PatientBillDetails[payload.index]) {
+                        $scope.PatientBillDetails[payload.index].Quantity = payload.value;
+                    }
+                    $scope.calcAmt(); // wrapped above: refreshes reactProps.item/billDetails
+                    break;
+                case 'rowDoctorShareChange':
+                    // item.DoctorShare -- plain ng-model, no ng-change in the original.
+                    if ($scope.PatientBillDetails[payload.index]) {
+                        $scope.PatientBillDetails[payload.index].DoctorShare = payload.value;
+                    }
+                    $scope.reactProps.billDetails = $scope.PatientBillDetails;
+                    break;
+                case 'rowDiscountChange':
+                    // item.DiscountAmount ng-change="RestictAmount($index)"
+                    if ($scope.PatientBillDetails[payload.index]) {
+                        $scope.PatientBillDetails[payload.index].DiscountAmount = payload.value;
+                    }
+                    $scope.RestictAmount(payload.index); // calls calcAmt() internally (wrapped above)
+                    break;
+                case 'deleteDetail':
+                    // ng-click="deleteDetail($index,item)"
+                    $scope.deleteDetail(payload.index, $scope.PatientBillDetails[payload.index]);
+                    break;
+                case 'saveAndApprove':
+                    $scope.saveAndApprove();
+                    break;
+                // NOTE: no cases for 'print' or 'patientProfile' -- see KNOWN BUG #2
+                // above. Both fall through to default, matching the original's
+                // silent no-op exactly.
+                default:
+                    break;
+            }
+            $scope.$applyAsync();
+        };
 
         $scope.initLookup();
     }

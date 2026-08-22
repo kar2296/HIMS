@@ -29,6 +29,8 @@ function encounterGuarantorListController($scope, $translate, utl,$uibModalInsta
     $scope.getListCallback = function (scope, res, options, hasError) {
         vm.gridConfig.data = res.Data;
         vm.gridConfig.pagerObj.totalItems = res.PageContext.TotalRecords;
+        $scope.refreshReactProps();
+        $scope.$applyAsync();
     };
 
     $scope.getList = function () {
@@ -160,6 +162,80 @@ function encounterGuarantorListController($scope, $translate, utl,$uibModalInsta
         utl.Http.doAction(options);
     }
     
+    /* React bridge code starts */
+    // NOTE: this controller is ONLY ever instantiated as a $uibModalInstance modal
+    // (opened via utl.Modal.open('app.encounterguarantors', ...) -- the one real
+    // caller is patientsearch.js) -- there is no non-modal / $stateParams branch to
+    // account for, unlike patientguarantor-list.js's dual modal/full-page controller.
+    // The modal header in the real template has no close/X button at all (just a
+    // title) -- not fabricated here either; the real dismissal path is whatever
+    // utl.Modal.open's own chrome provides outside this template.
+    //
+    // Real, disclosed pre-existing quirks preserved as-is (NOT fixed):
+    // - Both "Add" (addNew(), live/clickable button here -- unlike patientguarantor-
+    //   list.js where the equivalent button is commented out of the template) AND
+    //   "Edit" (handleEvents('edit', ...)) call utl.Modal.open('app.patientguarantorform', ...).
+    //   That modal state is NOT registered anywhere in hims-states.js (verified) --
+    //   so clicking either one is a real, live no-op/broken-target bug today. Only
+    //   "GL" (app.encounterguarantorgl, registered) and "Delete" genuinely work.
+    // - addNew() also passes isrankexst: $scope.IsRankExist, but this controller
+    //   never sets $scope.IsRankExist anywhere -- it's passed through as undefined.
+    //   Preserved verbatim (not invented/fixed).
+    // - The template's "btn-filter" funnel-icon button has no ng-click at all --
+    //   a dead decorative button. Rendered as inert (no dispatch) to match.
+    // - The grid's action column references cellTemplate 'actionTemplate.html',
+    //   which does not exist as a file anywhere in the repo (verified via search);
+    //   the shared $$gridService factory's built-in 'actions' cellTemplate expects
+    //   {iconCls/text/hideFn} on each action entry, but this columnDef's actions
+    //   array only has {actiontype, display} -- so what (if anything) actually
+    //   renders per-row in production is uncertain. The three declared actions
+    //   (edit/delete/gl) are reproduced unconditionally per row (no ActiveStatusId
+    //   gating exists anywhere in this controller, unlike patientguarantor-list's
+    //   custom-table cellTemplate which did have such conditions) -- dispatching
+    //   into the same unchanged handleEvents().
+    $scope.reactProps = {};
+
+    $scope.refreshReactProps = function () {
+        $scope.reactProps = {
+            items: vm.gridConfig.data || [],
+            lookup: $scope.lookup || {},
+            currentfilter: $scope.currentfilter,
+            pager: {
+                totalItems: vm.gridConfig.pagerObj.totalItems,
+                currentPage: vm.gridConfig.pagerObj.currentPage,
+                pageSize: vm.gridConfig.pagerObj.pageSize
+            }
+        };
+    };
+
+    $scope.handleReactAction = function (actionName, payload) {
+        switch (actionName) {
+            case 'edit':
+                $scope.handleEvents('edit', { entity: payload.entity });
+                return;
+            case 'gl':
+                $scope.handleEvents('gl', { entity: payload.entity });
+                return;
+            case 'delete':
+                $scope.handleEvents('delete', { entity: payload.entity });
+                return;
+            case 'filterChange':
+                $scope.currentfilter[payload.field] = payload.value;
+                $scope.getList();
+                return;
+            case 'pageChange':
+                vm.gridConfig.pagerObj.currentPage = payload.page;
+                $scope.getList();
+                return;
+        }
+        if (typeof $scope[actionName] === 'function') {
+            $scope[actionName]();
+        }
+    };
+
+    $scope.refreshReactProps();
+    /* React bridge code ends */
+
     $scope.initLookup();
 }
 

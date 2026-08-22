@@ -97,6 +97,32 @@
                 $state.go(tab.state);
             }
         }
+
+        // ---------------------------------------------------------------
+        // REACT BRIDGE WIRING (migrated to InpatientTabScreen.tsx). All
+        // logic above is untouched -- including the real (disclosed, not
+        // fixed) quirk that switchTab() gates on the outer canDisableTab
+        // (fixed from $stateParams.id at load) rather than the clicked
+        // tab's own canDisable, so on a "new" (id=0) shell, clicking even
+        // the always-enabled "My InPatients" tab silently does nothing.
+        // ---------------------------------------------------------------
+        $scope.reactProps = {
+            tabs: $scope.tabs
+        };
+
+        $scope.handleReactAction = function (actionName, payload) {
+            switch (actionName) {
+                case 'switchTab':
+                    $scope.switchTab({ state: payload.state });
+                    break;
+                case 'doctorDashboard':
+                    $scope.doctor_dashboard();
+                    break;
+                default:
+                    break;
+            }
+            $scope.$applyAsync();
+        };
     }
 
     inpatientTabController.$inject = ['$rootScope', '$scope', '$stateParams', '$state', '$translate', '$timeout','utl'];

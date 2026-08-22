@@ -8,7 +8,7 @@
 function encounterGuarantorGLFormController($scope, $translate, utl, $uibModalInstance, modalConfig) {
     var vm = this;
     angular.extend(this, utl.Ctrl.getBaseCtrl({$scope: $scope}));
-    
+
     $scope.item = {
         ActiveFrom:utl.Formatter.getCurrentDate()
     };
@@ -27,8 +27,8 @@ function encounterGuarantorGLFormController($scope, $translate, utl, $uibModalIn
 
         $scope.confirmCallback = $uibModalInstance.close;
         $scope.cancelCallback = $uibModalInstance.dismiss;
-    }    
-    
+    }
+
     $scope.getItemCallback = function (scope, data, options, hasError) {
         $scope.item = data;
     };
@@ -72,16 +72,16 @@ function encounterGuarantorGLFormController($scope, $translate, utl, $uibModalIn
     $scope.item.GuarantorLetterNo = $scope.currentcontext.gltrno;
     $scope.item.GuarantorLetterDate = $scope.currentcontext.gltrdate;
     $scope.saveItem = function () {
-        
+
         if(!utl.Validator.validate($scope)) {
             return;
         }
-            
+
         var actionName = 'registration/encounterguarantorgl/AddEncounterGuarantorGL';
         if ($scope.currentcontext.id && $scope.currentcontext.id > 0) {
             actionName = 'registration/encounterguarantorgl/UpdateEncounterGuarantorGL';
         }
-      
+
         var options = {
             action: actionName,
             data: {Data : $scope.item },
@@ -92,12 +92,12 @@ function encounterGuarantorGLFormController($scope, $translate, utl, $uibModalIn
     };
 
     $scope.getListCallback = function (scope, res, options, hasError) {
-        vm.gridConfig.data = res.Data;        
+        vm.gridConfig.data = res.Data;
     };
 
     $scope.getList = function () {
 
-        var inputData = { 
+        var inputData = {
             Params :[
               { Key: 1, Value: $scope.currentcontext.encounterguarantorid },
               { Key: 2, Value: $scope.currentcontext.patientid }
@@ -126,24 +126,24 @@ function encounterGuarantorGLFormController($scope, $translate, utl, $uibModalIn
                 type: 'post',
                 onComplete: $scope.deleteItemCallback
             };
-        utl.Http.doAction(options);  
+        utl.Http.doAction(options);
     }
 
-     $scope.handleEvents = function(actionType, row) {        
+     $scope.handleEvents = function(actionType, row) {
         if(actionType == 'edit') {
             $scope.currentcontext.id = parseInt(row.entity.Id);
             $scope.getItem();
         }
         else if(actionType == 'delete') {
-            utl.Dialog.confirmDelete($scope.onDeleteConfirmed, row.entity.Id, row.entity.GLReferenceNumber);                   
+            utl.Dialog.confirmDelete($scope.onDeleteConfirmed, row.entity.Id, row.entity.GLReferenceNumber);
         }
-    }    
+    }
 
     vm.gridConfig = {
         columnDefs: [
                         { field: "GuarantorLetterNo", displayName: $translate.instant('registration.encounterguarantorgl-list.glrefno.lbl') },
                         { field: "GuarantorLetterDate", displayName: $translate.instant('registration.encounterguarantorgl-list.gldate.lbl'),
-                            cellTemplate : "<ngformatdate date-val='row.entity.GuarantorLetterDate'></ngformatdate>" 
+                            cellTemplate : "<ngformatdate date-val='row.entity.GuarantorLetterDate'></ngformatdate>"
                         },
                         { field: "GLLimit", displayName: $translate.instant('registration.encounterguarantorgl-list.limit.lbl') },
                         { field: "ConsumedLimit", displayName: $translate.instant('registration.encounterguarantorgl-list.consumed.lbl') },
@@ -152,19 +152,78 @@ function encounterGuarantorGLFormController($scope, $translate, utl, $uibModalIn
                             cellTemplate : "<ngformatdate date-val='row.entity.ActiveFrom'></ngformatdate>"
                         },
                         { field: "ActiveTo", displayName: $translate.instant('registration.encounterguarantorgl-list.activeto.lbl'),
-                            cellTemplate : "<ngformatdate date-val='row.entity.ActiveTo'></ngformatdate>" 
+                            cellTemplate : "<ngformatdate date-val='row.entity.ActiveTo'></ngformatdate>"
                         },
-                        { field : "Id", displayName : $translate.instant('common.actions_col.lbl'), 
+                        { field : "Id", displayName : $translate.instant('common.actions_col.lbl'),
                                 cellTemplate : 'actionTemplate.html',
-                                actions : [ 
+                                actions : [
                                             {actiontype: 'edit', display : 'common.editaction.lbl'},
-                                            {actiontype: 'delete', display : 'common.deleteaction.lbl'} 
+                                            {actiontype: 'delete', display : 'common.deleteaction.lbl'}
                                          ]
                         }
                     ]
-    };    
+    };
 
     $scope.getList();
+
+    // ---------------------------------------------------------------
+    // REACT BRIDGE WIRING (migrated to EncounterGuarantorGLFormScreen.tsx).
+    // All API calls/business logic above are untouched.
+    // ---------------------------------------------------------------
+    $scope.reactProps = {
+        item: $scope.item,
+        glRecords: vm.gridConfig.data || []
+    };
+
+    var origGetListCallback = $scope.getListCallback;
+    $scope.getListCallback = function (scope, res, options, hasError) {
+        origGetListCallback(scope, res, options, hasError);
+        $scope.reactProps.glRecords = vm.gridConfig.data || [];
+    };
+
+    var origGetItemCallback = $scope.getItemCallback;
+    $scope.getItemCallback = function (scope, data, options, hasError) {
+        origGetItemCallback(scope, data, options, hasError);
+        $scope.reactProps.item = $scope.item;
+    };
+
+    // NOTE: matching the established pattern from the already-migrated
+    // patientguarantorgl-form sibling, saveItemCallback (which reassigns
+    // $scope.item to a fresh object) is intentionally NOT wrapped to
+    // re-sync reactProps.item -- same inherited quirk, not introduced here.
+
+    $scope.handleReactAction = function (actionName, payload) {
+        switch (actionName) {
+            case 'itemFieldChange':
+                $scope.item[payload.field] = payload.value;
+                break;
+            case 'glDateChange':
+                $scope.item.GuarantorLetterDate = payload.value ? new Date(payload.value) : null;
+                break;
+            case 'activeFromChange':
+                $scope.item.ActiveFrom = payload.value ? new Date(payload.value) : null;
+                break;
+            case 'activeToChange':
+                $scope.item.ActiveTo = payload.value ? new Date(payload.value) : null;
+                break;
+            case 'saveItem':
+                $scope.saveItem();
+                break;
+            case 'edit':
+                $scope.currentcontext.id = parseInt(payload.entity.Id);
+                $scope.getItem();
+                break;
+            case 'delete':
+                utl.Dialog.confirmDelete($scope.onDeleteConfirmed, payload.entity.Id, payload.entity.GLReferenceNumber);
+                break;
+            case 'backToList':
+                $scope.backToList();
+                break;
+            default:
+                break;
+        }
+        $scope.$applyAsync();
+    };
 }
 
 encounterGuarantorGLFormController.$inject = ['$scope', '$translate', 'utl', '$uibModalInstance', 'modalConfig'];

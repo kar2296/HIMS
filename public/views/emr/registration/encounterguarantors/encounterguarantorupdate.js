@@ -271,6 +271,86 @@
         };
 
         $scope.initLookup();
+
+        // ---------------------------------------------------------------
+        // REACT BRIDGE WIRING (migrated to
+        // EncounterGuarantorUpdateFormScreen.tsx). All API calls/business
+        // logic above are untouched.
+        // ---------------------------------------------------------------
+        $scope.reactProps = {
+            item: $scope.item,
+            lookup: $scope.lookup,
+            currentcontext: $scope.currentcontext
+        };
+
+        var origLookupCallback = $scope.lookupCallback;
+        $scope.lookupCallback = function (scope, data, options, hasError) {
+            origLookupCallback(scope, data, options, hasError);
+            $scope.reactProps.lookup = $scope.lookup;
+        };
+
+        var origGetinfoCallback = $scope.getinfoCallback;
+        $scope.getinfoCallback = function (scope, data, options, hasError) {
+            origGetinfoCallback(scope, data, options, hasError);
+            $scope.reactProps.item = $scope.item;
+        };
+
+        var origGetGuarantorCallback = $scope.GetGuarantorCallback;
+        $scope.GetGuarantorCallback = function (scope, data, options, hasError) {
+            origGetGuarantorCallback(scope, data, options, hasError);
+            $scope.reactProps.lookup = $scope.lookup;
+            $scope.reactProps.item = $scope.item;
+        };
+
+        $scope.handleReactAction = function (actionName, payload) {
+            switch (actionName) {
+                case 'itemFieldChange':
+                    $scope.item[payload.field] = payload.value;
+                    break;
+                case 'guarantorTypeIdChange':
+                    // Mirrors the original ui-select's ng-model bind
+                    // (item.GuarantorTypeId) landing before its
+                    // ng-change="GetGuarantor(true)" fires.
+                    $scope.item.GuarantorTypeId = payload.value;
+                    $scope.GetGuarantor(true);
+                    $scope.reactProps.item = $scope.item;
+                    break;
+                case 'guarantorSelect': {
+                    // The original ui-select's on-select handed
+                    // guarantorChange() the whole lookup record directly;
+                    // reconstruct it here from lookup.Guarantor by Id since
+                    // the React <Select> only reports the chosen id.
+                    var match = null;
+                    var guarantorOptions = ($scope.lookup && $scope.lookup.Guarantor) || [];
+                    for (var i = 0; i < guarantorOptions.length; i++) {
+                        if (guarantorOptions[i].Id === payload.value) {
+                            match = guarantorOptions[i];
+                            break;
+                        }
+                    }
+                    if (match) {
+                        $scope.guarantorChange(match);
+                        $scope.reactProps.item = $scope.item;
+                    }
+                    break;
+                }
+                case 'effectiveFromChange':
+                    $scope.item.EffectiveFrom = payload.value ? new Date(payload.value) : null;
+                    break;
+                case 'effectiveToChange':
+                    $scope.item.EffectiveTo = payload.value ? new Date(payload.value) : null;
+                    break;
+                case 'glDateChange':
+                    $scope.item.GuarantorLetterDate = payload.value ? new Date(payload.value) : null;
+                    break;
+                case 'saveItem':
+                    $scope.saveItem();
+                    break;
+                default:
+                    break;
+            }
+            $scope.$applyAsync();
+        };
     }
 
     GuarantorUpdateFormController.$inject = ['$scope', '$stateParams', '$state', '$translate', 'utl', '$uibModalInstance', 'modalConfig'];
