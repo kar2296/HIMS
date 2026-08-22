@@ -734,6 +734,101 @@
             utl.Http.doAction(options);
         };
 
+        // ---------------------------------------------------------------
+        // REACT BRIDGE WIRING (migrated to MyOPPatientListScreen.tsx). All
+        // logic above is untouched -- reactProps is a read-through mirror of
+        // vm.gridConfig.data / $scope.lookup / $scope.currentfilter /
+        // vm.gridConfig.pagerObj, refreshed after the same real callbacks
+        // that already populated them. handleReactAction only ever calls
+        // back into the existing unchanged getList()/handleEvents()
+        // functions above -- no new business logic.
+        //
+        // NOTE ON DEAD CODE (not migrated, matches real live behavior which
+        // never calls these either): $scope.backToList, $scope.changeConsultantStatus,
+        // $scope.onConfirmation/attendPatientAfterConfirm, $scope.getSecPin/
+        // $scope.gotoEMR/$scope.getattendPatConf, $scope.changeFollwUpVisit,
+        // handleCheckout/updateCheckoutStatus, updateEncounterDoctorStatus,
+        // updateEncounterStatus, updateAppointmentStatus, getPatientBills(Callback)/
+        // updatePatientBills(Callback), and $scope.canShowAction are all real,
+        // still-defined functions in this controller, but NONE of them are
+        // wired to anything in the real myoppatientlist.html template or to
+        // vm.gridConfig.columnDefs' handleEvent/ng-click targets (only
+        // handleEvents('attend'|'emr'|'call'|'patientinfo', entity) and
+        // getList()/lookupCallback()/initLookup() are actually reachable from
+        // the live UI). This looks like leftover copy-paste from a
+        // patient-tracker/doctor-dashboard controller. Left untouched and not
+        // dispatched from the bridge, matching production behavior exactly.
+        // ---------------------------------------------------------------
+        function refreshReactProps() {
+            $scope.reactProps = {
+                items: vm.gridConfig.data,
+                lookup: {
+                    ConsultationStatus: ($scope.lookup && $scope.lookup.ConsultationStatus) || []
+                },
+                currentfilter: $scope.currentfilter,
+                pager: {
+                    totalItems: vm.gridConfig.pagerObj.totalItems,
+                    currentPage: vm.gridConfig.pagerObj.currentPage,
+                    pageSize: vm.gridConfig.pagerObj.pageSize
+                }
+            };
+        }
+
+        var _origGetListCallback = $scope.getListCallback;
+        $scope.getListCallback = function (scope, res, options, hasError) {
+            _origGetListCallback(scope, res, options, hasError);
+            refreshReactProps();
+        };
+
+        var _origLookupCallback = $scope.lookupCallback;
+        $scope.lookupCallback = function (scope, data, options, hasError) {
+            _origLookupCallback(scope, data, options, hasError);
+            refreshReactProps();
+        };
+
+        $scope.handleReactAction = function (actionName, payload) {
+            payload = payload || {};
+            switch (actionName) {
+                case 'filterChange':
+                    // Field-only update (e.g. typing in the Name box) -- no
+                    // refetch, mirrors the real on-enter directive not firing
+                    // on keystrokes.
+                    $scope.currentfilter[payload.field] = payload.value;
+                    refreshReactProps();
+                    break;
+                case 'filterChangeAndSearch':
+                    // Mirrors the real ng-change="getList()" on the Date and
+                    // Status filters.
+                    $scope.currentfilter[payload.field] = payload.value;
+                    refreshReactProps();
+                    $scope.getList();
+                    break;
+                case 'search':
+                    // Mirrors the real on-enter="getList()" on the Name box.
+                    $scope.getList();
+                    break;
+                case 'pageChange':
+                    vm.gridConfig.pagerObj.currentPage = payload.page;
+                    $scope.getList();
+                    break;
+                case 'attend':
+                    $scope.handleEvents('attend', payload.entity);
+                    break;
+                case 'emr':
+                    $scope.handleEvents('emr', payload.entity);
+                    break;
+                case 'call':
+                    $scope.handleEvents('call', payload.entity);
+                    break;
+                case 'patientinfo':
+                    $scope.handleEvents('patientinfo', payload.entity);
+                    break;
+                default:
+                    break;
+            }
+        };
+
+        refreshReactProps();
         $scope.initLookup();
 
     }

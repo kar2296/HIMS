@@ -86,6 +86,15 @@ import { PatientDischargeListScreen } from './react-components/PatientDischargeL
 // Import CurrentInpatientListScreen Component
 import { CurrentInpatientListScreen } from './react-components/CurrentInpatientListScreen';
 
+// Import OppatientTabScreen Component
+import { OppatientTabScreen } from './react-components/OppatientTabScreen';
+
+// Import MyOPPatientListScreen Component
+import { MyOPPatientListScreen } from './react-components/MyOPPatientListScreen';
+
+// Import AllOPPatientListScreen Component
+import { AllOPPatientListScreen } from './react-components/AllOPPatientListScreen';
+
 // Import PatientFeedbackScreen Component
 import { PatientFeedbackScreen } from './react-components/PatientFeedbackScreen';
 
@@ -265,6 +274,9 @@ import { FindBillModalComponent } from './react-components/FindBillModalComponen
   MyInpatientListScreen,
   PatientDischargeListScreen,
   CurrentInpatientListScreen,
+  OppatientTabScreen,
+  MyOPPatientListScreen,
+  AllOPPatientListScreen,
   PatientFeedbackScreen,
   LoginPage,
   SidebarComponent,

@@ -64,6 +64,28 @@
         if ($scope.CanAllOutPatients) {
             $scope.switchTab($scope.tabs[0]);
         }
+
+        // ---------------------------------------------------------------
+        // REACT BRIDGE WIRING (migrated to OppatientTabScreen.tsx). All
+        // logic above is untouched.
+        // ---------------------------------------------------------------
+        $scope.reactProps = {
+            tabs: $scope.tabs
+        };
+
+        $scope.handleReactAction = function (actionName, payload) {
+            switch (actionName) {
+                case 'switchTab':
+                    $scope.switchTab({ state: payload.state });
+                    break;
+                case 'doctorDashboard':
+                    $scope.doctor_dashboard();
+                    break;
+                default:
+                    break;
+            }
+            $scope.$applyAsync();
+        };
     }
 
 

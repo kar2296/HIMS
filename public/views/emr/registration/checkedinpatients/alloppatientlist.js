@@ -682,7 +682,121 @@
             utl.Http.doAction(options);
         };
 
+        // ---------------------------------------------------------------------
+        // React bridge (hollow-controller pattern). All real logic above is
+        // UNCHANGED -- getList/getListCallback/lookupCallback/handleEvents still
+        // own every API call and business rule. This block only wraps the
+        // existing callbacks (save original ref, call it, then refresh
+        // reactProps) and dispatches React's clicks back into those SAME
+        // unchanged functions. Nothing here alters what the real functions do.
+        //
+        // Not exposed via reactProps because the real template
+        // (alloppatientlist.html) never rendered them either (no fabricated UI
+        // for unused controller state) -- see the disclosure comment at the top
+        // of AllOPPatientListScreen.tsx for the full list and reasoning:
+        // backToList(), changeConsultantStatus(), onConfirmation()/
+        // attendPatientAfterConfirm(), getSecPin()/getattendPatConf()/gotoEMR(),
+        // changeFollwUpVisit(), canShowAction(), handleCheckout()/
+        // patientTrackerCallback(), updateAppointmentStatus()/
+        // updateEncounterStatus()/updateEncounterDoctorStatus()/
+        // updatePatientBills()/getPatientBills()/updateCheckoutStatus(), and
+        // currentcontext.DoctorId.
+        // ---------------------------------------------------------------------
+
+        // currentfilter.visitdate is seeded via utl.Formatter.getCurrentDate()
+        // (a plain Date) and is read directly by getList()'s $filter('date')
+        // calls -- normalize to/from an ISO yyyy-MM-dd string only at this
+        // bridge boundary so the native DatePicker gets the string shape it
+        // expects, without changing what getList() itself receives/sends.
+        function toIsoDateString(d) {
+            if (!d) return '';
+            var dt = new Date(d);
+            if (isNaN(dt.getTime())) return '';
+            var mm = ('0' + (dt.getMonth() + 1)).slice(-2);
+            var dd = ('0' + dt.getDate()).slice(-2);
+            return dt.getFullYear() + '-' + mm + '-' + dd;
+        }
+        function fromIsoDateString(s) {
+            if (!s) return null;
+            var parts = String(s).split('-');
+            if (parts.length !== 3) return null;
+            return new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
+        }
+
+        // --- React bridge: wrap the ORIGINAL getListCallback unchanged, then refresh reactProps ---
+        var _origGetListCallback = $scope.getListCallback;
+        $scope.getListCallback = function (scope, res, options, hasError) {
+            _origGetListCallback(scope, res, options, hasError);
+            updateReactProps();
+        };
+
+        // --- React bridge: wrap the ORIGINAL lookupCallback unchanged, then refresh reactProps ---
+        var _origLookupCallback = $scope.lookupCallback;
+        $scope.lookupCallback = function (scope, data, options, hasError) {
+            _origLookupCallback(scope, data, options, hasError);
+            updateReactProps();
+        };
+
+        function updateReactProps() {
+            $scope.reactProps = {
+                // Real bug, preserved: getListCallback populates vm.gridConfig.data
+                // (what the grid actually renders), NOT $scope.gridData -- the
+                // latter stays permanently [] (see loadPhotos() disclosure note
+                // in AllOPPatientListScreen.tsx). Sourcing items from
+                // vm.gridConfig.data matches what's really on screen today.
+                items: vm.gridConfig.data || [],
+                lookup: {
+                    ConsultationStatus: ($scope.lookup && $scope.lookup.ConsultationStatus) || []
+                },
+                currentfilter: {
+                    patientname: $scope.currentfilter.patientname,
+                    visitdate: toIsoDateString($scope.currentfilter.visitdate),
+                    consultationstatusid: $scope.currentfilter.consultationstatusid
+                },
+                pager: {
+                    totalItems: vm.gridConfig.pagerObj.totalItems,
+                    currentPage: vm.gridConfig.pagerObj.currentPage,
+                    pageSize: vm.gridConfig.pagerObj.pageSize
+                }
+            };
+        }
+
+        $scope.handleReactAction = function (actionName, payload) {
+            payload = payload || {};
+            switch (actionName) {
+                case 'filterChange':
+                    if (payload.field === 'visitdate') {
+                        $scope.currentfilter.visitdate = fromIsoDateString(payload.value);
+                    } else {
+                        $scope.currentfilter[payload.field] = payload.value;
+                    }
+                    updateReactProps();
+                    // Matches the real template: Name/MRN has no ng-change (only
+                    // on-enter); Date and Consultation Status both have
+                    // ng-change="getList()" and refetch immediately.
+                    if (payload.field !== 'patientname') {
+                        $scope.getList();
+                    }
+                    break;
+                case 'search':
+                    // Mirrors the real on-enter="getList()" on the Name/MRN box.
+                    $scope.getList();
+                    break;
+                case 'pageChange':
+                    vm.gridConfig.pagerObj.currentPage = payload.page;
+                    $scope.getList();
+                    break;
+                case 'attend':
+                case 'emr':
+                case 'call':
+                case 'patientinfo':
+                    $scope.handleEvents(actionName, payload.entity);
+                    break;
+            }
+        };
+
         $scope.initLookup();
+        updateReactProps();
 
     }
 
