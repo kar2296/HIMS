@@ -143,6 +143,9 @@ import { PatientFollowupTabScreen } from './react-components/PatientFollowupTabS
 // Import PendingFollowup screens (Name filter, Filters, Grid)
 import { PendingFollowupNameFilterScreen, PendingFollowupFiltersScreen, PendingFollowupGridScreen } from './react-components/PendingFollowupListScreen';
 
+// Import PrescriptionsListScreen Component
+import { PrescriptionsListScreen } from './react-components/PrescriptionsListScreen';
+
 // Import LoginPage Component
 import { LoginPage } from './react-components/LoginPage';
 
@@ -344,6 +347,7 @@ import { FindBillModalComponent } from './react-components/FindBillModalComponen
   PendingFollowupNameFilterScreen,
   PendingFollowupFiltersScreen,
   PendingFollowupGridScreen,
+  PrescriptionsListScreen,
   LoginPage,
   SidebarComponent,
   TopNavbarComponent,

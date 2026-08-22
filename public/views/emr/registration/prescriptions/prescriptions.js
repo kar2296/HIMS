@@ -104,6 +104,110 @@
             utl.Http.doAction(options);
         };
         $scope.initLookup();
+
+        // ---------------------------------------------------------------
+        // REACT BRIDGE WIRING (migrated to PrescriptionsListScreen.tsx).
+        // All logic above is untouched, including the real (disclosed, not
+        // fixed) bugs: $scope.options is never defined despite the real
+        // template's ng-repeat over it (so that radio-tab row silently
+        // renders nothing today, not reproduced here either); getList()'s
+        // pageNo parameter is dead (body reads pagerObj.currentPage
+        // instead); deleteItemCallback has zero callers; item/DepartmentId
+        // are dead state never surfaced in the UI.
+        // ---------------------------------------------------------------
+        function toIsoDateString(d) {
+            if (!d) return '';
+            var dt = new Date(d);
+            if (isNaN(dt.getTime())) return '';
+            var mm = ('0' + (dt.getMonth() + 1)).slice(-2);
+            var dd = ('0' + dt.getDate()).slice(-2);
+            return dt.getFullYear() + '-' + mm + '-' + dd;
+        }
+        function fromIsoDateString(s) {
+            if (!s) return null;
+            var parts = String(s).split('-');
+            if (parts.length !== 3) return null;
+            return new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
+        }
+
+        // --- React bridge: wrap the ORIGINAL getListCallback unchanged, then refresh reactProps ---
+        var _origGetListCallback = $scope.getListCallback;
+        $scope.getListCallback = function (scope, res, options, hasError) {
+            _origGetListCallback(scope, res, options, hasError);
+            updateReactProps();
+        };
+
+        // --- React bridge: wrap the ORIGINAL lookupCallback unchanged, then refresh reactProps ---
+        var _origLookupCallback = $scope.lookupCallback;
+        $scope.lookupCallback = function (scope, data, options, hasError) {
+            _origLookupCallback(scope, data, options, hasError);
+            updateReactProps();
+        };
+
+        function updateReactProps() {
+            $scope.reactProps = {
+                items: vm.gridConfig.data || [],
+                lookup: {
+                    PrecriptionStatus: ($scope.lookup && $scope.lookup.PrecriptionStatus) || []
+                },
+                currentfilter: {
+                    patient: $scope.currentfilter.patient,
+                    PrescriptionDate: toIsoDateString($scope.currentfilter.PrescriptionDate),
+                    PrecriptionStatusId: $scope.currentfilter.PrecriptionStatusId
+                },
+                pager: {
+                    totalItems: vm.gridConfig.pagerObj.totalItems,
+                    currentPage: vm.gridConfig.pagerObj.currentPage,
+                    pageSize: vm.gridConfig.pagerObj.pageSize
+                }
+            };
+        }
+
+        $scope.handleReactAction = function (actionName, payload) {
+            payload = payload || {};
+            switch (actionName) {
+                case 'filterChange':
+                    $scope.currentfilter[payload.field] = payload.value;
+                    updateReactProps();
+                    break;
+                case 'filterChangeAndSearch':
+                    if (payload.field === 'PrescriptionDate') {
+                        $scope.currentfilter.PrescriptionDate = fromIsoDateString(payload.value);
+                    } else {
+                        $scope.currentfilter[payload.field] = payload.value;
+                    }
+                    updateReactProps();
+                    $scope.getList();
+                    break;
+                case 'search':
+                    $scope.getList();
+                    break;
+                case 'pageChange':
+                    vm.gridConfig.pagerObj.currentPage = payload.page;
+                    $scope.getList();
+                    break;
+                case 'doctor_dashboard':
+                    $scope.doctor_dashboard();
+                    break;
+                case 'bed_management':
+                    $scope.bed_management();
+                    break;
+                case 'addNew':
+                    $scope.addNew();
+                    break;
+                case 'edit':
+                    // Real handleEvents(actionType, row) expects a ui-grid-shaped
+                    // { entity: ... } object -- payload.row here IS the entity
+                    // (the React card receives the flat row directly, not wrapped).
+                    $scope.handleEvents('edit', { entity: payload.row });
+                    break;
+                default:
+                    break;
+            }
+            $scope.$applyAsync();
+        };
+
+        updateReactProps();
     }
     prescriptionsController.$inject = ['$scope', '$filter', '$stateParams', '$state', '$translate', 'utl'];
 
