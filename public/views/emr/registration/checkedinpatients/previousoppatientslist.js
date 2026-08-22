@@ -734,6 +734,95 @@
 
         $scope.initLookup();
 
+        // ---------------------------------------------------------------
+        // REACT BRIDGE (migrated to PreviousOPPatientListScreen.tsx --
+        // PreviousOPPatientNameFilterScreen/PreviousOPPatientDateFilterScreen/
+        // PreviousOPPatientGridScreen). All logic above is untouched,
+        // including the real (disclosed, not fixed) bugs: the "Please Select
+        // Date..." guard in getList() being permanently unreachable
+        // (!DoctorId is always false when DoctorId===-1, its default), the
+        // pager's totalItems being set from the unfiltered res.Data.length
+        // rather than the filtered row count, loadPhotos() always iterating
+        // the dead $scope.gridData (never reassigned), the "DoctorName"
+        // column never being populated on any row, and attendPatient()'s
+        // VisitTypeId===2 branch calling utl.Modal.open('app.patientvisit-
+        // details', ...) -- a state the project's own earlier reachability
+        // audit classified as dead, which this call site appears to
+        // contradict (not resolved here, only disclosed).
+        // ---------------------------------------------------------------
+        function toIsoDateString(d) {
+            if (!d) return '';
+            var dt = new Date(d);
+            if (isNaN(dt.getTime())) return '';
+            var mm = ('0' + (dt.getMonth() + 1)).slice(-2);
+            var dd = ('0' + dt.getDate()).slice(-2);
+            return dt.getFullYear() + '-' + mm + '-' + dd;
+        }
+        function fromIsoDateString(s) {
+            if (!s) return null;
+            var parts = String(s).split('-');
+            if (parts.length !== 3) return null;
+            return new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
+        }
+
+        // --- React bridge: wrap the ORIGINAL getListCallback unchanged, then refresh reactProps ---
+        var _origGetListCallback = $scope.getListCallback;
+        $scope.getListCallback = function (scope, res, options, hasError) {
+            _origGetListCallback(scope, res, options, hasError);
+            updateReactProps();
+        };
+
+        function updateReactProps() {
+            $scope.reactProps = {
+                items: vm.gridConfig.data || [],
+                currentfilter: {
+                    patientname: $scope.currentfilter.patientname,
+                    visitdate: toIsoDateString($scope.currentfilter.visitdate)
+                },
+                pager: {
+                    totalItems: vm.gridConfig.pagerObj.totalItems,
+                    currentPage: vm.gridConfig.pagerObj.currentPage,
+                    pageSize: vm.gridConfig.pagerObj.pageSize
+                }
+            };
+        }
+
+        $scope.handleReactAction = function (actionName, payload) {
+            payload = payload || {};
+            switch (actionName) {
+                case 'filterChange':
+                    $scope.currentfilter[payload.field] = payload.value;
+                    updateReactProps();
+                    break;
+                case 'filterChangeAndSearch':
+                    if (payload.field === 'visitdate') {
+                        $scope.currentfilter.visitdate = fromIsoDateString(payload.value);
+                    } else {
+                        $scope.currentfilter[payload.field] = payload.value;
+                    }
+                    updateReactProps();
+                    $scope.getList();
+                    break;
+                case 'search':
+                    $scope.getList();
+                    break;
+                case 'pageChange':
+                    vm.gridConfig.pagerObj.currentPage = payload.page;
+                    $scope.getList();
+                    break;
+                case 'attend':
+                case 'emr':
+                case 'patientinfo':
+                    $scope.handleEvents(actionName, payload.entity);
+                    break;
+                default:
+                    break;
+            }
+            $scope.$applyAsync();
+        };
+
+        updateReactProps();
+
     }
 
     PreviousOPPatientsController.$inject = ['$scope', '$stateParams', '$state', '$translate', '$filter', 'utl', 'uibButtonConfig', '$timeout'];

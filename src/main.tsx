@@ -95,6 +95,9 @@ import { MyOPPatientListScreen } from './react-components/MyOPPatientListScreen'
 // Import AllOPPatientListScreen Component
 import { AllOPPatientListScreen } from './react-components/AllOPPatientListScreen';
 
+// Import PreviousOPPatientListScreen Component (three mounts: Name filter, Date filter, Grid)
+import { PreviousOPPatientNameFilterScreen, PreviousOPPatientDateFilterScreen, PreviousOPPatientGridScreen } from './react-components/PreviousOPPatientListScreen';
+
 // Import PatientFeedbackScreen Component
 import { PatientFeedbackScreen } from './react-components/PatientFeedbackScreen';
 
@@ -277,6 +280,9 @@ import { FindBillModalComponent } from './react-components/FindBillModalComponen
   OppatientTabScreen,
   MyOPPatientListScreen,
   AllOPPatientListScreen,
+  PreviousOPPatientNameFilterScreen,
+  PreviousOPPatientDateFilterScreen,
+  PreviousOPPatientGridScreen,
   PatientFeedbackScreen,
   LoginPage,
   SidebarComponent,
