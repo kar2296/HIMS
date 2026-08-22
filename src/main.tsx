@@ -44,6 +44,9 @@ import { FamilyLinkActionBar, FamilyLinkFooter } from './react-components/Family
 // Import PatientGuarantorList Component
 import { PatientGuarantorListScreen } from './react-components/PatientGuarantorListScreen';
 
+// Import PatientFeedbackScreen Component
+import { PatientFeedbackScreen } from './react-components/PatientFeedbackScreen';
+
 // Import LoginPage Component
 import { LoginPage } from './react-components/LoginPage';
 
@@ -205,6 +208,7 @@ import { FindBillModalComponent } from './react-components/FindBillModalComponen
   FamilyLinkActionBar,
   FamilyLinkFooter,
   PatientGuarantorListScreen,
+  PatientFeedbackScreen,
   LoginPage,
   SidebarComponent,
   TopNavbarComponent,

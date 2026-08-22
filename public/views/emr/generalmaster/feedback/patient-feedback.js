@@ -5,7 +5,7 @@
         .module('app.pages')
         .controller('patientfeedbacksListController', patientfeedbacksListController);
 
-    function patientfeedbacksListController($scope, $stateParams, $state, $translate, utl, $filter) {
+    function patientfeedbacksListController($scope, $stateParams, $state, $translate, utl, $filter, $http) {
         var vm = this;
         $scope.currentuser = {
             username: sessionStorage.getItem('Session-UserFullName'),
@@ -21,6 +21,11 @@
             ActiveStatusId: 2
         };
         $scope.currentcontext = {};
+        // The live template (see patient-feedback.html) never renders a grid element,
+        // so $scope.item was previously auto-vivified to {} only by AngularJS's
+        // two-way binding on <autosearch itemid="item.EncounterId" ...> -- explicit
+        // now that the native directive is gone. Same effective starting state.
+        $scope.item = {};
 
         $scope.getListCallback = function (scope, res, options, hasError) {
             vm.gridConfig.data = res.Data;
@@ -55,6 +60,8 @@
         $scope.getPatientProfilePicCallback = function (scope, data, options, hasError) {
             //console.log(data);
             $scope.currentcontext.Photo = data.Photo;
+            $scope.refreshReactProps();
+            $scope.$applyAsync();
         };
 
         $scope.getPatientProfilePic = function () {
@@ -100,6 +107,8 @@
             }
             $scope.getPatientProfilePic();
         };
+        // Dead code, not called by the live template (no ui-sref/ng-click reaches it)
+        // -- preserved verbatim, unused, same as before this retrofit.
         $scope.patientChange = function (pageNo) {
             if ($scope.item.PatientId && $scope.item.PatientId > 0) {
                 var options = {
@@ -174,6 +183,11 @@
             postsearch: postsearchEncounter
         };
 
+        // Kept in place, unused directly by the React bridge below (it mixed
+        // display-string formatting for the native <autosearch> input with the
+        // real IsBillLock/IsBillFinalized validation) -- the validation branch is
+        // faithfully reimplemented in $scope.selectEncounter below instead, since
+        // there's no native input to format a display string for anymore.
         function formatselectedEncounter() {
             var selectedItem = vm.patientcontrolconfig.selected;
             if (selectedItem) {
@@ -327,7 +341,7 @@
         }
         //Grid Actions
         // $scope.addNew = function() {
-        //    $state.go('app.remark', { id:0 });  
+        //    $state.go('app.remark', { id:0 });
 
 
         $scope.deleteItemCallback = function (scope, data, options, hasError) {
@@ -442,10 +456,96 @@
             };
             utl.Http.doAction(options);
         }
+
+        /* React bridge code starts --------------------------------------------
+         * The live template never actually renders vm.gridConfig (no ui-grid /
+         * <custom-table> element in patient-feedback.html) -- the Feedbacks
+         * Master CRUD machinery above (getList/handleEvents/onDeleteConfirmed/
+         * openModal/addNew) is dead code in THIS screen and is left untouched,
+         * unused, exactly as it was. What the template actually renders is:
+         * search for a patient's encounter, show a profile card, and a button
+         * that navigates to app.patient-feedback-form. That's what's ported.
+         *
+         * The real search behind the native <autosearch itemid="item.EncounterId"
+         * iteminfo="item.SelectedItem" rowdata="item" config="vm.patientcontrolconfig"
+         * itemchange="patientChanged()"> is reused verbatim (same api/presearch/
+         * postsearch, same $http.post(window.appPath.apiroot + ...) mechanism the
+         * shared autosearch directive itself uses -- see
+         * public/vendor/components/autosearch.js's cvm.searchItem/searchItemCallback),
+         * just exposed to React as a Promise-returning prop instead of being driven
+         * by the directive's own ui-select binding.
+         */
+        $scope.searchEncounters = function (query) {
+            vm.patientcontrolconfig.query = query;
+            vm.patientcontrolconfig.searchbyid = false;
+            presearchEncounter();
+            if (!(query && query.length > 2)) {
+                return Promise.resolve([]);
+            }
+            return $http.post(window.appPath.apiroot + vm.patientcontrolconfig.api, vm.patientcontrolconfig.searchparams)
+                .then(function (res) {
+                    vm.patientcontrolconfig.result = res.data.Data;
+                    postsearchEncounter();
+                    return vm.patientcontrolconfig.result;
+                });
+        };
+
+        // Faithful re-implementation of autoSearchCtrl.OnSelectItem (sets
+        // itemid/iteminfo, i.e. item.EncounterId/item.SelectedItem) followed by
+        // formatselectedEncounter's real IsBillLock/IsBillFinalized validation
+        // (same message keys, same error alert, same item reset on failure) and
+        // patientChanged() (same field population + profile-pic fetch). The
+        // original's "if (!$scope.currentcontext.ismodal)" guard around
+        // patientChanged() is always true here -- currentcontext.ismodal is never
+        // set anywhere in this controller -- so it's called unconditionally,
+        // which is behaviorally identical for this screen's real usage.
+        $scope.selectEncounter = function (encounter) {
+            if (encounter) {
+                if (encounter.IsBillLock) {
+                    utl.Alert.showErrorMsg($translate.instant('otregister-form.billlockalert.lbl'));
+                    $scope.item = {};
+                    $scope.refreshReactProps();
+                    return;
+                } else if (encounter.IsBillFinalized) {
+                    utl.Alert.showErrorMsg($translate.instant('otregister-form.billfinalizealert.lbl'));
+                    $scope.item = {};
+                    $scope.refreshReactProps();
+                    return;
+                }
+            }
+            $scope.item.EncounterId = encounter ? encounter.Id : null;
+            $scope.item.SelectedItem = encounter;
+            $scope.patientChanged();
+            $scope.refreshReactProps();
+        };
+
+        $scope.reactProps = {};
+
+        $scope.refreshReactProps = function () {
+            $scope.reactProps = {
+                item: $scope.item || {},
+                photo: $scope.currentcontext.Photo
+            };
+        };
+
+        $scope.handleReactAction = function (actionName, payload) {
+            switch (actionName) {
+                case 'select':
+                    $scope.selectEncounter(payload && payload.encounter);
+                    return;
+            }
+            if (typeof $scope[actionName] === 'function') {
+                $scope[actionName]();
+            }
+        };
+
+        $scope.refreshReactProps();
+        /* React bridge code ends */
+
         $scope.getVirtualCategory();
         $scope.initLookup();
     }
 
-    patientfeedbacksListController.$inject = ['$scope', '$stateParams', '$state', '$translate', 'utl', '$filter'];
+    patientfeedbacksListController.$inject = ['$scope', '$stateParams', '$state', '$translate', 'utl', '$filter', '$http'];
 
 })();
