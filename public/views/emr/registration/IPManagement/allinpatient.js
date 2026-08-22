@@ -80,6 +80,7 @@
             vm.gridConfig.data = items;
             vm.gridConfig.pagerObj.totalItems = res.PageContext.TotalRecords;
             // loadPhotos();
+            $scope.refreshReactProps();
         };
 
         $scope.getList = function() {
@@ -378,6 +379,7 @@
             var clinicalid = utl.Lookup.getDefault($scope.lookup.AdmissionStatus, 'Clinical Discharge');
             var financialid = utl.Lookup.getDefault($scope.lookup.AdmissionStatus, 'Financial Discharge');
             $scope.currentfilter.admissionstatusid = admitid + ',' + fitforid + ',' + clinicalid + ',' + financialid;
+            $scope.refreshReactProps();
             $scope.getList();
         }
 
@@ -409,6 +411,67 @@
             };
             utl.Http.doAction(options);
         }
+
+        // ---------------------------------------------------------------
+        // React bridge (hollow-controller pattern). All real logic above is
+        // UNCHANGED -- getList/getListCallback/lookupCallback/handleEvents
+        // still own every API call and business rule. This block only
+        // mirrors their state into reactProps for the read-only
+        // AllInpatientListScreen React component and dispatches its click
+        // events back into the SAME unchanged functions.
+        //
+        // Not exposed via reactProps because the real template
+        // (allinpatient.html) never rendered them either (no fabricated
+        // UI for unused controller state):
+        // - doctor_dashboard(), bed_management(), print(), openModal(),
+        //   patientprofiledetails() -- real functions, but zero call sites
+        //   in this screen's template (dead here; possibly wired from the
+        //   already-migrated inpatienttab shell instead).
+        // - getPatientProfilePic()/loadPhotos() -- loadPhotos() is never
+        //   invoked (its only call site, inside getListCallback, is
+        //   commented out: "// loadPhotos();"), so Patient.Photo is never
+        //   populated. No photo column is rendered here, matching the
+        //   real (dead) currentinPatientsTemplate.html photo markup that
+        //   was never wired to any live cellTemplate in this file either.
+        // ---------------------------------------------------------------
+        $scope.reactProps = {};
+
+        $scope.refreshReactProps = function() {
+            $scope.reactProps = {
+                items: vm.gridConfig.data || [],
+                lookup: $scope.lookup || {},
+                currentfilter: $scope.currentfilter,
+                pager: {
+                    totalItems: vm.gridConfig.pagerObj.totalItems,
+                    currentPage: vm.gridConfig.pagerObj.currentPage,
+                    pageSize: vm.gridConfig.pagerObj.pageSize
+                }
+            };
+        };
+
+        $scope.handleReactAction = function(actionName, payload) {
+            switch (actionName) {
+                case 'patientinfo':
+                    $scope.handleEvents('patientinfo', payload.entity);
+                    return;
+                case 'emr':
+                    $scope.handleEvents('emr', payload.entity);
+                    return;
+                case 'filterChange':
+                    $scope.currentfilter[payload.field] = payload.value;
+                    $scope.getList();
+                    return;
+                case 'pageChange':
+                    vm.gridConfig.pagerObj.currentPage = payload.page;
+                    $scope.getList();
+                    return;
+            }
+            if (typeof $scope[actionName] === 'function') {
+                $scope[actionName]();
+            }
+        };
+
+        $scope.refreshReactProps();
 
         $scope.initLookup();
     }

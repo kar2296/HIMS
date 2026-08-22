@@ -159,7 +159,7 @@
             $state.go('app.bedmanagement');
         }
 
-        // Patient Info popup  Start  
+        // Patient Info popup  Start
 
         $scope.patientprofiledetails = function (patientId) {
             utl.Modal.open('registration.patientprofile', {
@@ -358,6 +358,78 @@
             utl.Http.doAction(options);
         }
 
+        // ---------------------------------------------------------------
+        // REACT BRIDGE WIRING (migrated to MyInpatientListScreen.tsx). All
+        // logic above is untouched -- reactProps is a read-through mirror
+        // of $scope.gridData / $scope.lookup / $scope.currentfilter /
+        // vm.gridConfig.pagerObj, refreshed after the same real callbacks
+        // that already populated them. handleReactAction only ever calls
+        // back into the existing unchanged getList()/handleEvents()
+        // functions above -- no new business logic.
+        // ---------------------------------------------------------------
+        function refreshReactProps() {
+            $scope.reactProps = {
+                items: $scope.gridData,
+                lookup: {
+                    Ward: ($scope.lookup && $scope.lookup.Ward) || [],
+                    AdmissionStatus: ($scope.lookup && $scope.lookup.AdmissionStatus) || []
+                },
+                currentfilter: $scope.currentfilter,
+                pager: {
+                    totalItems: vm.gridConfig.pagerObj.totalItems,
+                    currentPage: vm.gridConfig.pagerObj.currentPage,
+                    pageSize: vm.gridConfig.pagerObj.pageSize
+                }
+            };
+        }
+
+        var _origGetListCallback = $scope.getListCallback;
+        $scope.getListCallback = function (scope, res, options, hasError) {
+            _origGetListCallback(scope, res, options, hasError);
+            refreshReactProps();
+        };
+
+        var _origLookupCallback = $scope.lookupCallback;
+        $scope.lookupCallback = function (scope, data, options, hasError) {
+            _origLookupCallback(scope, data, options, hasError);
+            refreshReactProps();
+        };
+
+        $scope.handleReactAction = function (actionName, payload) {
+            payload = payload || {};
+            switch (actionName) {
+                case 'filterChange':
+                    // Field-only update (e.g. typing in Name/MRN) -- no refetch,
+                    // mirrors the real on-enter directive not firing on keystrokes.
+                    $scope.currentfilter[payload.field] = payload.value;
+                    refreshReactProps();
+                    break;
+                case 'filterChangeAndSearch':
+                    // Mirrors the real ng-change="getList()" on DOA/Ward/Status filters.
+                    $scope.currentfilter[payload.field] = payload.value;
+                    refreshReactProps();
+                    $scope.getList();
+                    break;
+                case 'search':
+                    // Mirrors the real on-enter="getList()" on the Name/MRN box.
+                    $scope.getList();
+                    break;
+                case 'pageChange':
+                    vm.gridConfig.pagerObj.currentPage = payload.page;
+                    $scope.getList();
+                    break;
+                case 'emr':
+                    $scope.handleEvents('emr', payload.entity);
+                    break;
+                case 'patientinfo':
+                    $scope.handleEvents('patientinfo', payload.entity);
+                    break;
+                default:
+                    break;
+            }
+        };
+
+        refreshReactProps();
         $scope.initLookup();
     }
     myinpatientsController.$inject = ['$scope', '$filter', '$stateParams', '$state', '$translate', 'utl', 'uibButtonConfig'];

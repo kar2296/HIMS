@@ -111,6 +111,9 @@
             }
             vm.gridConfig.pagerObj.totalItems = data.PageContext.TotalRecords;
             //$scope.getDischarges();
+            // React bridge: refresh reactProps after the real grid data/pager update above.
+            $scope.refreshReactProps();
+            $scope.$applyAsync();
         };
 
         $scope.getList = function() {
@@ -505,6 +508,66 @@
             };
             utl.Http.doAction(options);
         }
+
+        /* React bridge code starts -- added for React UI migration. Does not
+           change any existing business logic/API calls above; only mirrors
+           state into $scope.reactProps and dispatches back into the same,
+           unchanged $scope functions. See CurrentInpatientListScreen.tsx for
+           full disclosure of pre-existing quirks preserved as-is. */
+        $scope.reactProps = {};
+
+        $scope.refreshReactProps = function() {
+            $scope.reactProps = {
+                items: (vm.gridConfig && vm.gridConfig.data) || [],
+                lookup: $scope.lookup || {},
+                currentfilter: $scope.currentfilter,
+                context: $scope.Context,
+                pager: {
+                    totalItems: vm.gridConfig.pagerObj.totalItems,
+                    currentPage: vm.gridConfig.pagerObj.currentPage,
+                    pageSize: vm.gridConfig.pagerObj.pageSize
+                }
+            };
+        };
+
+        $scope.handleReactAction = function(actionName, payload) {
+            payload = payload || {};
+            switch (actionName) {
+                case 'filterChange':
+                    $scope.currentfilter[payload.field] = payload.value;
+                    if (payload.field !== 'PatientNameMRN') {
+                        // Mirrors the real ui-select ng-change="getList()" on the
+                        // Ward/Guarantor filters -- immediate refetch.
+                        $scope.getList();
+                    }
+                    // PatientNameMRN mirrors the real on-enter="getList()" search box:
+                    // typing only updates the model, refetch happens on 'search' below.
+                    $scope.refreshReactProps();
+                    $scope.$applyAsync();
+                    return;
+                case 'search':
+                    $scope.getList();
+                    return;
+                case 'pageChange':
+                    vm.gridConfig.pagerObj.currentPage = payload.page;
+                    $scope.getList();
+                    return;
+                case 'patientinfo':
+                    // Mirrors the real ng-click="handleEvents('patientinfo',entity)"
+                    // wired on BOTH the Patient Name and Doctor Name grid cells.
+                    $scope.handleEvents('patientinfo', payload.entity);
+                    return;
+                case 'backtoList':
+                    $scope.backtoList();
+                    return;
+            }
+            if (typeof $scope[actionName] === 'function') {
+                $scope[actionName]();
+            }
+        };
+
+        $scope.refreshReactProps();
+        /* React bridge code ends */
 
         $scope.initLookup();
     }

@@ -70,6 +70,13 @@
             loadPhotos();
         };
 
+        // --- React bridge: wrap the ORIGINAL getListCallback unchanged, then refresh reactProps ---
+        var _origGetListCallback = $scope.getListCallback;
+        $scope.getListCallback = function (scope, res, options, hasError) {
+            _origGetListCallback(scope, res, options, hasError);
+            updateReactProps();
+        };
+
         $scope.getList = function () {
             // if ($scope.currentfilter.admissiondate)
             //     var From = $filter('date')($scope.currentfilter.admissiondate, 'yyyy-MM-dd 00:00:00') || null;
@@ -137,7 +144,7 @@
             $state.go('app.bedmanagement');
         }
 
-        // Patient Info popup  Start  
+        // Patient Info popup  Start
 
         $scope.patientprofiledetails = function (patientId) {
             utl.Modal.open('registration.patientprofile', {
@@ -301,6 +308,13 @@
             $scope.getList();
         }
 
+        // --- React bridge: wrap the ORIGINAL lookupCallback unchanged, then refresh reactProps ---
+        var _origLookupCallback = $scope.lookupCallback;
+        $scope.lookupCallback = function (scope, data, options, hasError) {
+            _origLookupCallback(scope, data, options, hasError);
+            updateReactProps();
+        };
+
         $scope.initLookup = function () {
             var inputData = [
                 // { "Key": "Facility" },
@@ -330,7 +344,94 @@
             utl.Http.doAction(options);
         }
 
+        // ---------------------------------------------------------------------
+        // React bridge helpers (patientdischarge-list "hollow controller" wiring).
+        // Every function above is UNCHANGED; this section only exposes state to
+        // and dispatches actions back into the existing functions.
+        // ---------------------------------------------------------------------
+
+        // currentfilter.From/To may be either a moment object (From is seeded via
+        // utl.Formatter.addDays(), which returns a moment) or a plain Date (To is
+        // seeded via utl.Formatter.getCurrentDate()) -- a real pre-existing
+        // inconsistency in this controller. Normalize either shape to an ISO
+        // yyyy-MM-dd string for the DatePicker.
+        function toIsoDateString(d) {
+            if (!d) return '';
+            if (typeof d.format === 'function') {
+                // moment-like
+                return d.format('YYYY-MM-DD');
+            }
+            var dt = new Date(d);
+            if (isNaN(dt.getTime())) return '';
+            var mm = ('0' + (dt.getMonth() + 1)).slice(-2);
+            var dd = ('0' + dt.getDate()).slice(-2);
+            return dt.getFullYear() + '-' + mm + '-' + dd;
+        }
+
+        // Reconstructs a local (not UTC-shifted) Date from an ISO yyyy-MM-dd
+        // string, matching what the native <input type=date> in the React
+        // component produces, for storage back onto currentfilter.From/To --
+        // exactly what getList()'s $filter('date') already expects to consume.
+        function fromIsoDateString(s) {
+            if (!s) return '';
+            var parts = String(s).split('-');
+            if (parts.length !== 3) return '';
+            return new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
+        }
+
+        function updateReactProps() {
+            $scope.reactProps = {
+                items: $scope.gridData || [],
+                lookup: {
+                    Ward: ($scope.lookup && $scope.lookup.Ward) || []
+                },
+                currentfilter: {
+                    patientnamemrn: $scope.currentfilter.patientnamemrn,
+                    From: toIsoDateString($scope.currentfilter.From),
+                    To: toIsoDateString($scope.currentfilter.To),
+                    WardId: $scope.currentfilter.WardId
+                },
+                pager: {
+                    totalItems: vm.gridConfig.pagerObj.totalItems,
+                    currentPage: vm.gridConfig.pagerObj.currentPage,
+                    pageSize: vm.gridConfig.pagerObj.pageSize
+                }
+            };
+        }
+
+        $scope.handleReactAction = function (actionName, payload) {
+            payload = payload || {};
+            switch (actionName) {
+                case 'filterChange':
+                    if (payload.field === 'From' || payload.field === 'To') {
+                        $scope.currentfilter[payload.field] = fromIsoDateString(payload.value);
+                    } else {
+                        $scope.currentfilter[payload.field] = payload.value;
+                    }
+                    updateReactProps();
+                    // Matches the real template: Name/MRN has no ng-change (only
+                    // on-enter), From/To/Ward all have ng-change="getList()".
+                    if (payload.field !== 'patientnamemrn') {
+                        $scope.getList();
+                    }
+                    break;
+                case 'search':
+                    // Mirrors the real on-enter="getList()" on the Name/MRN box.
+                    $scope.getList();
+                    break;
+                case 'pageChange':
+                    vm.gridConfig.pagerObj.currentPage = payload.page;
+                    $scope.getList();
+                    break;
+                case 'emr':
+                case 'patientinfo':
+                    $scope.handleEvents(actionName, payload.entity);
+                    break;
+            }
+        };
+
         $scope.initLookup();
+        updateReactProps();
     }
     patientdischargeListController.$inject = ['$scope', '$filter', '$stateParams', '$state', '$translate', 'utl', 'uibButtonConfig'];
 

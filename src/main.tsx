@@ -74,6 +74,18 @@ import { EncounterGuarantorUpdateFormScreen } from './react-components/Encounter
 // Import EncounterGuarantorGLFormScreen Component
 import { EncounterGuarantorGLFormScreen } from './react-components/EncounterGuarantorGLFormScreen';
 
+// Import AllInpatientListScreen Component
+import { AllInpatientListScreen } from './react-components/AllInpatientListScreen';
+
+// Import MyInpatientListScreen Component
+import { MyInpatientListScreen } from './react-components/MyInpatientListScreen';
+
+// Import PatientDischargeListScreen Component
+import { PatientDischargeListScreen } from './react-components/PatientDischargeListScreen';
+
+// Import CurrentInpatientListScreen Component
+import { CurrentInpatientListScreen } from './react-components/CurrentInpatientListScreen';
+
 // Import PatientFeedbackScreen Component
 import { PatientFeedbackScreen } from './react-components/PatientFeedbackScreen';
 
@@ -249,6 +261,10 @@ import { FindBillModalComponent } from './react-components/FindBillModalComponen
   EncounterGuarantorListScreen,
   EncounterGuarantorUpdateFormScreen,
   EncounterGuarantorGLFormScreen,
+  AllInpatientListScreen,
+  MyInpatientListScreen,
+  PatientDischargeListScreen,
+  CurrentInpatientListScreen,
   PatientFeedbackScreen,
   LoginPage,
   SidebarComponent,
