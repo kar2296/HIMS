@@ -2244,6 +2244,215 @@
             };
             utl.Http.doAction(options);
         };
+
+        // -----------------------------------------------------------------
+        // REACT BRIDGE WIRING (migrated to VisitCreateFormScreen.tsx).
+        // All API calls/business logic above are untouched. See the
+        // disclosure comment block at the top of VisitCreateFormScreen.tsx
+        // for the full list of pre-existing defects (undefined handlers,
+        // dead ng-disabled bindings, mislabeled columns, etc.) preserved
+        // here exactly, NOT fixed.
+        // -----------------------------------------------------------------
+        $scope.reactProps = {
+            item: $scope.item,
+            currentcontext: $scope.currentcontext,
+            lookup: $scope.lookup,
+            defaultServiceInfo: $scope.DefaultServiceInfo,
+            defaultServiceGrossAmt: $scope.DefaultServiceGrossAmt,
+            defaultServiceTotalAmt: $scope.DefaultServiceTotalAmt,
+            saveCompleted: $scope.SaveCompleted,
+            disableReferral: $scope.DisableReferral
+        };
+
+        function refreshReactProps() {
+            $scope.reactProps.item = $scope.item;
+            $scope.reactProps.currentcontext = $scope.currentcontext;
+            $scope.reactProps.lookup = $scope.lookup;
+            $scope.reactProps.defaultServiceInfo = $scope.DefaultServiceInfo;
+            $scope.reactProps.defaultServiceGrossAmt = $scope.DefaultServiceGrossAmt;
+            $scope.reactProps.defaultServiceTotalAmt = $scope.DefaultServiceTotalAmt;
+            $scope.reactProps.saveCompleted = $scope.SaveCompleted;
+            $scope.reactProps.disableReferral = $scope.DisableReferral;
+        }
+
+        var origCalculateNetAmt = $scope.CalculateNetAmt;
+        $scope.CalculateNetAmt = function () {
+            origCalculateNetAmt();
+            refreshReactProps();
+        };
+
+        var origLookupCallback = $scope.lookupCallback;
+        $scope.lookupCallback = function (scope, data, options, hasError) {
+            origLookupCallback(scope, data, options, hasError);
+            refreshReactProps();
+        };
+
+        var origGetGuarantorCallback = $scope.GetGuarantorCallback;
+        $scope.GetGuarantorCallback = function (scope, data, options, hasError) {
+            origGetGuarantorCallback(scope, data, options, hasError);
+            refreshReactProps();
+        };
+
+        var origSetDefaultServiceCallback = $scope.setDefaultServiceCallback;
+        $scope.setDefaultServiceCallback = function (scope, data, options, hasError) {
+            origSetDefaultServiceCallback(scope, data, options, hasError);
+            refreshReactProps();
+        };
+
+        var origGetDoctorDefaultServiceCallback = $scope.getDoctorDefaultServiceCallback;
+        $scope.getDoctorDefaultServiceCallback = function (scope, data, options, hasError) {
+            origGetDoctorDefaultServiceCallback(scope, data, options, hasError);
+            refreshReactProps();
+        };
+
+        var origEligibleDaysforPaidVisit = $scope.EligibleDaysforPaidVisit;
+        $scope.EligibleDaysforPaidVisit = function () {
+            origEligibleDaysforPaidVisit();
+            refreshReactProps();
+        };
+
+        var origPatInfoCallback = $scope.PatInfoCallback;
+        $scope.PatInfoCallback = function (scope, data, options, hasError) {
+            origPatInfoCallback(scope, data, options, hasError);
+            refreshReactProps();
+        };
+
+        var origGetPastVisitInfoCallback = $scope.getPastVisitInfoCallback;
+        $scope.getPastVisitInfoCallback = function (scope, res, options, hasError) {
+            origGetPastVisitInfoCallback(scope, res, options, hasError);
+            refreshReactProps();
+        };
+
+        var origGetFollowupDeptwiseCallback = $scope.getFollowupDeptwiseCallback;
+        $scope.getFollowupDeptwiseCallback = function (scope, res, options, hasError) {
+            origGetFollowupDeptwiseCallback(scope, res, options, hasError);
+            refreshReactProps();
+        };
+
+        var origGetDefaultReferralCallback = $scope.getDefaultReferralCallback;
+        $scope.getDefaultReferralCallback = function (scope, res, options, hasError) {
+            origGetDefaultReferralCallback(scope, res, options, hasError);
+            refreshReactProps();
+        };
+
+        var origSaveItemCallback = $scope.saveItemCallback;
+        $scope.saveItemCallback = function (scope, data, options, hasError) {
+            origSaveItemCallback(scope, data, options, hasError);
+            refreshReactProps();
+        };
+
+        $scope.handleReactAction = function (actionName, payload) {
+            switch (actionName) {
+                case 'itemFieldChange':
+                    // Plain ng-model, no ng-change in the original: VisitTypeId,
+                    // IsMLC, InsuranceNumber, Comments, PrivateDueId, BankId,
+                    // ChequeNo, UPIRefNumber, DDNumber, WireTransferId,
+                    // AuthorizeNumber, CardTypeId, CardNumber.
+                    $scope.item[payload.field] = payload.value;
+                    refreshReactProps();
+                    break;
+                case 'itemDateFieldChange':
+                    // ChequeDate/DDDate/WireTransferDate/CollectedOn -- originally
+                    // bound via ng-date-object + uib-datepicker-popup, which stores
+                    // a real JS Date object on $scope.item.
+                    $scope.item[payload.field] = payload.value ? new Date(payload.value) : null;
+                    refreshReactProps();
+                    break;
+                case 'currentContextFieldChange':
+                    // PaymentTypeId -- plain ng-model, no ng-change in the original.
+                    $scope.currentcontext[payload.field] = payload.value;
+                    refreshReactProps();
+                    break;
+                case 'guarantorTypeChange':
+                    // currentcontext.GuarantorTypeId, ng-change="GetGuarantor()"
+                    $scope.currentcontext.GuarantorTypeId = payload.value;
+                    $scope.GetGuarantor();
+                    refreshReactProps();
+                    break;
+                case 'guarantorChange':
+                    // item.GuarantorId, ng-change="setDefaultService()"
+                    $scope.item.GuarantorId = payload.value;
+                    $scope.setDefaultService();
+                    refreshReactProps();
+                    break;
+                case 'referTypeChange':
+                    // item.ReferTypeId, ng-change="referralTypeChange()"
+                    $scope.item.ReferTypeId = payload.value;
+                    $scope.referralTypeChange();
+                    refreshReactProps();
+                    break;
+                case 'promotionalSchemeChange':
+                    // item.PromotionalSchemeId, ng-change="getSelectedSchemeInfo(item)" --
+                    // getSelectedSchemeInfo is never defined on this controller (see
+                    // disclosure comment in VisitCreateFormScreen.tsx); only the
+                    // field itself is updated, matching the original's silent no-op.
+                    $scope.item.PromotionalSchemeId = payload.value;
+                    refreshReactProps();
+                    break;
+                case 'discountModeChange':
+                    // currentcontext.DiscountModeId, ng-change="BillDiscountModechange($select.selected)" --
+                    // undefined on this controller; field-only update, no recompute.
+                    $scope.currentcontext.DiscountModeId = payload.value;
+                    refreshReactProps();
+                    break;
+                case 'billDiscountChange':
+                    // currentcontext.BillDiscount, ng-change="HeaderDiscountValueChange()" --
+                    // undefined on this controller; field-only update, no recompute.
+                    $scope.currentcontext.BillDiscount = payload.value;
+                    refreshReactProps();
+                    break;
+                case 'discountApprovedByChange':
+                    // currentcontext.DiscountApprovedBy, ng-change="setDiscountLimit($select.selected)" --
+                    // undefined on this controller; field-only update, DiscountLimit
+                    // is never set (see disclosure comment).
+                    $scope.currentcontext.DiscountApprovedBy = payload.value;
+                    refreshReactProps();
+                    break;
+                case 'emergencyChargeToggle':
+                    // item.IsEmergency, ng-click="EmergencyCharge()"
+                    $scope.item.IsEmergency = payload.value;
+                    $scope.EmergencyCharge();
+                    refreshReactProps();
+                    break;
+                case 'noBillToggle':
+                    // item.IsNoBill, ng-click="NoBill()"
+                    $scope.item.IsNoBill = payload.value;
+                    $scope.NoBill();
+                    refreshReactProps();
+                    break;
+                case 'isOpdToggle':
+                    // item.IsOPD, ng-click="IsOPD()" -- see disclosure comment: the
+                    // true-branch calls the undefined setDefaultServiceIsOPD().
+                    $scope.item.IsOPD = payload.value;
+                    $scope.IsOPD();
+                    refreshReactProps();
+                    break;
+                case 'receiptAmtChange':
+                    // currentcontext.ReceiptAmt, ng-change="CalculateNetAmt()" -- kept
+                    // for bridge fidelity, though the field is rendered permanently
+                    // disabled (see disclosure comment: the original had a literal
+                    // `disabled` HTML attribute alongside its ng-disabled binding).
+                    $scope.currentcontext.ReceiptAmt = payload.value;
+                    $scope.CalculateNetAmt();
+                    break;
+                case 'updateReceiptAmt':
+                    // ng-focus="updateReceiptAmt()" -- see note above, unreachable
+                    // through the UI in the original too.
+                    $scope.updateReceiptAmt();
+                    refreshReactProps();
+                    break;
+                case 'save':
+                    $scope.saveItem();
+                    break;
+                case 'checkout':
+                    $scope.checkout();
+                    break;
+                default:
+                    break;
+            }
+            $scope.$applyAsync();
+        };
+
         $scope.initLookup();
     }
 

@@ -65,6 +65,18 @@ import { InpatientTabScreen } from './react-components/InpatientTabScreen';
 // Import OpdBillScreen Component
 import { OpdBillScreen } from './react-components/OpdBillScreen';
 
+// Import VisitCreateFormScreen Components (visitcreateform.js/.html --
+// six mounts sharing one reactProps/handleReactAction; see the disclosure
+// comment at the top of VisitCreateFormScreen.tsx)
+import {
+  VisitCreateFormPatientHeader,
+  VisitCreateFormTopFields,
+  VisitCreateFormMidFields,
+  VisitCreateFormLowerFields,
+  VisitCreateFormBillingSection,
+  VisitCreateFormFooter,
+} from './react-components/VisitCreateFormScreen';
+
 // Import EncounterGuarantorListScreen Component
 import { EncounterGuarantorListScreen } from './react-components/EncounterGuarantorListScreen';
 
@@ -270,6 +282,12 @@ import { FindBillModalComponent } from './react-components/FindBillModalComponen
   DeactivateRemarksScreen,
   InpatientTabScreen,
   OpdBillScreen,
+  VisitCreateFormPatientHeader,
+  VisitCreateFormTopFields,
+  VisitCreateFormMidFields,
+  VisitCreateFormLowerFields,
+  VisitCreateFormBillingSection,
+  VisitCreateFormFooter,
   EncounterGuarantorListScreen,
   EncounterGuarantorUpdateFormScreen,
   EncounterGuarantorGLFormScreen,
