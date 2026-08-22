@@ -461,6 +461,14 @@
                 }*/
                 { field: "Id", name: 'Patient Details', cellTemplate: 'patientListTemplate.html' }
             ],
+            // UI-MODERNIZATION RETROFIT (presentation-only): this is a single-column
+            // card-list grid (see the commented-out real columnDefs above -- only
+            // 'Patient Details' is actually active), so ui-grid's default column
+            // header ('Patient Details' label with no working sort/filter/menu, since
+            // none of enableSorting/enableColumnMenus/enableFiltering are set) is a
+            // redundant legacy header row -- hidden via the standard ui-grid
+            // showHeader option. Does not affect pagerObj/getList/data/API behavior.
+            showHeader: false,
             pagerObj: { totalItems: 0, currentPage: 1, startIndex: 0, pageSize: 25 }
         };
 

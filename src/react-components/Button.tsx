@@ -128,14 +128,14 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(({
     switch (variant) {
       case 'primary':
         return {
-          backgroundColor: isHovered && !isActuallyDisabled ? '#1a0070' : 'var(--premium-blue, #00005c)',
+          backgroundColor: isHovered && !isActuallyDisabled ? 'var(--premium-blue-hover, #1a0070)' : 'var(--premium-blue, #00005c)',
           color: '#ffffff',
           border: '1px solid transparent',
           boxShadow: isActuallyDisabled
             ? 'none'
             : isHovered
-            ? '0 6px 16px rgba(0, 0, 92, 0.28)'
-            : '0 2px 6px rgba(0, 0, 92, 0.16)',
+            ? 'var(--premium-blue-shadow-hover, 0 6px 16px rgba(0, 0, 92, 0.28))'
+            : 'var(--premium-blue-shadow, 0 2px 6px rgba(0, 0, 92, 0.16))',
         };
       case 'secondary':
         return {
@@ -217,7 +217,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(({
       case 'outline':
       case 'outline-primary':
         return {
-          backgroundColor: isHovered && !isActuallyDisabled ? 'rgba(0, 0, 92, 0.06)' : 'transparent',
+          backgroundColor: isHovered && !isActuallyDisabled ? 'var(--premium-blue-outline-hover-bg, rgba(0, 0, 92, 0.06))' : 'transparent',
           color: 'var(--premium-blue, #00005c)',
           border: '1.5px solid var(--premium-blue, #00005c)',
           boxShadow: 'none',

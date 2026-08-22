@@ -58,7 +58,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(({
             border: `1px solid ${error ? colors.danger : focused ? colors.primary : colors.border}`,
             borderRadius: radii.sm,
             outline: 'none',
-            boxShadow: focused && !error ? '0 0 0 3px rgba(0,0,92,0.1)' : error && focused ? '0 0 0 3px rgba(239,68,68,0.12)' : 'none',
+            boxShadow: focused && !error ? 'var(--reg-input-focus-shadow, 0 0 0 3px rgba(0,0,92,0.1))' : error && focused ? '0 0 0 3px rgba(239,68,68,0.12)' : 'none',
             transition: transitions.fast,
             boxSizing: 'border-box',
             cursor: disabled ? 'not-allowed' : readOnly ? 'default' : 'text',
@@ -135,5 +135,5 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(({
 Textarea.displayName = 'Textarea';
 
 function shadowFor(error?: string) {
-  return error ? '0 0 0 3px rgba(239,68,68,0.12)' : '0 0 0 3px rgba(0,0,92,0.1)';
+  return error ? '0 0 0 3px rgba(239,68,68,0.12)' : 'var(--reg-input-focus-shadow, 0 0 0 3px rgba(0,0,92,0.1))';
 }
