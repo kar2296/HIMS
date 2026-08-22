@@ -4,7 +4,7 @@ import {
   ResponsiveContainer, PieChart, Pie, Cell
 } from 'recharts';
 import { colors, spacing, radii, shadows, typography } from '../components/ui/tokens';
-import { StatCard, ActionCard, DashboardSection, DashboardPageWrapper } from '../components/ui/DashboardComponents';
+import { StatCard, DashboardSection, DashboardPageWrapper } from '../components/ui/DashboardComponents';
 import { Card } from '../components/ui/Card';
 import { DataTable, type DataTableColumn } from '../components/ui/DataTable';
 
@@ -37,7 +37,7 @@ const CustomTooltip: React.FC<any> = ({ active, payload, label }) => {
 const fmt = (v: number) => new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(v || 0);
 
 export const AdminDashboardComponent: React.FC<AdminDashboardProps> = ({ reactProps = {} }) => {
-  const { facilityInfo = {}, totals = {}, wards = [], wardtotal = {} } = reactProps;
+  const { facilityInfo = {}, wards = [], wardtotal = {} } = reactProps;
   const encounter = facilityInfo.encounter || {};
   const appointment = facilityInfo.appointment || {};
   const patient = facilityInfo.patient || {};
@@ -130,13 +130,13 @@ export const AdminDashboardComponent: React.FC<AdminDashboardProps> = ({ reactPr
               <ResponsiveContainer width="100%" height={140}>
                 <PieChart>
                   <Pie data={catData} cx="50%" cy="50%" innerRadius={30} outerRadius={60} paddingAngle={2} dataKey="value">
-                    {catData.map((d, i) => <Cell key={i} fill={d.color} />)}
+                    {catData.map((d: any, i: number) => <Cell key={i} fill={d.color} />)}
                   </Pie>
                   <RechartsTooltip content={<CustomTooltip />} />
                 </PieChart>
               </ResponsiveContainer>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '5px', marginTop: '8px' }}>
-                {catData.map((d, i) => (
+                {catData.map((d: any, i: number) => (
                   <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '7px' }}>
                     <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: d.color, flexShrink: 0 }} />
                     <span style={{ fontSize: '10px', color: colors.textMuted, flex: 1, fontFamily: typography.fontFamily, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{d.name}</span>
@@ -163,7 +163,7 @@ export const AdminDashboardComponent: React.FC<AdminDashboardProps> = ({ reactPr
 
         <DataTable<any>
           columns={wardCols}
-          rows={wardRows}
+          rows={wards}
           rowKey={(row: any) => row.WardName || JSON.stringify(row)}
           emptyText="No ward data available"
           emptyIcon="fa-bed"

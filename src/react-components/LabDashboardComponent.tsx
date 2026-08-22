@@ -1,5 +1,5 @@
 import React from 'react';
-import { colors, spacing, typography } from '../components/ui/tokens';
+import { spacing } from '../components/ui/tokens';
 import { StatCard, ActionCard, DashboardSection, DashboardPageWrapper } from '../components/ui/DashboardComponents';
 
 interface LabDashboardProps {

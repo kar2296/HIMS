@@ -27,7 +27,7 @@ export const SearchBox: React.FC<SearchBoxProps> = ({ value, onChange, onSubmit,
       onChange={(e) => onChange(e.target.value)}
       onKeyDown={(e) => { if (e.key === 'Enter' && onSubmit) onSubmit(); }}
       style={{
-        width: '100%', height: controlHeight, padding: `0 ${spacing.xl} 0 30px`, borderRadius: radii.md,
+        width: '100%', height: controlHeight.md, padding: `0 ${spacing.xl} 0 30px`, borderRadius: radii.md,
         border: `1px solid ${colors.border}`, backgroundColor: colors.surface, color: colors.textMain,
         fontFamily: typography.fontFamily, fontSize: typography.body.fontSize,
       }}

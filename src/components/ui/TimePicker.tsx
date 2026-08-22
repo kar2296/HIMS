@@ -30,7 +30,7 @@ export const TimePicker: React.FC<TimePickerProps> = ({ label, value, onChange, 
       disabled={disabled}
       onChange={(e) => onChange(e.target.value)}
       style={{
-        height: controlHeight, padding: `0 ${spacing.sm}`, borderRadius: radii.md,
+        height: controlHeight.md, padding: `0 ${spacing.sm}`, borderRadius: radii.md,
         border: `1px solid ${error ? colors.danger : colors.border}`,
         backgroundColor: disabled ? colors.surfaceMuted : colors.surface,
         color: colors.textMain, fontFamily: typography.fontFamily, fontSize: typography.body.fontSize,

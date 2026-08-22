@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { colors, radii, spacing, shadows, transitions, typography } from '../components/ui/tokens';
+import { colors, radii, shadows, transitions, typography } from '../components/ui/tokens';
 
 // ─────────────────────────────────────────────────────────────
 // Types (original props shape preserved)
@@ -101,11 +101,15 @@ export const LoginPage: React.FC<LoginPageProps> = ({
           <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '8px' }}>
             <div style={{
               width: '48px', height: '48px', borderRadius: radii.lg,
-              background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
+              background: logoUrl ? 'transparent' : 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              boxShadow: '0 8px 24px rgba(37,99,235,0.4)', flexShrink: 0,
+              boxShadow: logoUrl ? 'none' : '0 8px 24px rgba(37,99,235,0.4)', flexShrink: 0, overflow: 'hidden',
             }}>
-              <i className="fa-solid fa-house-medical" style={{ fontSize: '22px', color: '#fff' }} />
+              {logoUrl ? (
+                <img src={logoUrl} alt={facilityName} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              ) : (
+                <i className="fa-solid fa-house-medical" style={{ fontSize: '22px', color: '#fff' }} />
+              )}
             </div>
             <div>
               <div style={{ fontSize: '24px', fontWeight: 800, color: '#fff', letterSpacing: '-0.5px' }}>

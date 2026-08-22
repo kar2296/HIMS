@@ -144,7 +144,7 @@ export const PatientSearchControl: React.FC<PatientSearchControlProps> = ({
             autoComplete="off"
             style={{
               width: '100%',
-              height: controlHeight,
+              height: controlHeight.md,
               padding: `0 ${spacing.sm} 0 30px`,
               borderRadius: radii.md,
               border: `1px solid ${colors.border}`,

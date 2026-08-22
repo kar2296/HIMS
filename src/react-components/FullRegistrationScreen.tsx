@@ -392,7 +392,7 @@ export const FullRegistrationScreen: React.FC<ScreenProps> = ({ reactProps, onAc
               value={item.TitleId ?? ''}
               onChange={(e) => dispatch('titleChange', { value: e.target.value ? parseInt(e.target.value, 10) : null })}
               style={{
-                width: '100%', height: controlHeight, fontSize: '13px', padding: '0 30px 0 12px',
+                width: '100%', height: controlHeight.md, fontSize: '13px', padding: '0 30px 0 12px',
                 fontFamily: typography.fontFamily, color: colors.textMain, backgroundColor: colors.surface,
                 border: `1px solid ${showErrors && errors.TitleId ? colors.danger : colors.border}`,
                 borderRadius: radii.sm, boxSizing: 'border-box', cursor: 'pointer',
@@ -552,7 +552,7 @@ export const FullRegistrationScreen: React.FC<ScreenProps> = ({ reactProps, onAc
                 placeholder="Start typing an address..."
               />
             </div>
-            <div style={{ height: controlHeight, display: 'flex', alignItems: 'center' }}>
+            <div style={{ height: controlHeight.md, display: 'flex', alignItems: 'center' }}>
               <Checkbox label="Use" checked={googleEnabled} onChange={toggleGoogleAddress} />
             </div>
           </div>

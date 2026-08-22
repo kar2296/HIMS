@@ -14,7 +14,7 @@ export interface InputProps extends Omit<React.InputHTMLAttributes<HTMLInputElem
 
 const sizeMap = {
   sm: { height: '30px', fontSize: '12px', padding: '0 10px' },
-  md: { height: controlHeight, fontSize: '13px', padding: '0 12px' },
+  md: { height: controlHeight.md, fontSize: '13px', padding: '0 12px' },
   lg: { height: '44px', fontSize: '14px', padding: '0 14px' },
 };
 

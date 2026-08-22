@@ -1,5 +1,5 @@
 import React from 'react';
-import { colors, spacing, radii, shadows, typography } from '../components/ui/tokens';
+import { colors, spacing, radii, typography } from '../components/ui/tokens';
 import { StatCard, ActionCard, DashboardSection, DashboardPageWrapper } from '../components/ui/DashboardComponents';
 import { Card } from '../components/ui/Card';
 import { DataTable, type DataTableColumn } from '../components/ui/DataTable';

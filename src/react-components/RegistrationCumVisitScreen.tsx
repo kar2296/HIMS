@@ -308,7 +308,7 @@ export const RegistrationCumVisitScreen: React.FC<ScreenProps> = ({ reactProps, 
   const referralOptions = lookup.Referral || [];
 
   return (
-    <div style={{ maxWidth: breakpoints.desktop, margin: '0 auto', padding: `${spacing.sm} ${spacing.xs} ${spacing.xl}` }}>
+    <div style={{ maxWidth: breakpoints.lg, margin: '0 auto', padding: `${spacing.sm} ${spacing.xs} ${spacing.xl}` }}>
       {showErrors && (Object.keys(errors).length > 0) && (
         <Alert tone="danger">
           Please complete all required fields (Title, Patient Name, DOB, Gender, Visit Type, Doctor,

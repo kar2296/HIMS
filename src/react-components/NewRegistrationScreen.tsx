@@ -491,7 +491,7 @@ export const NewRegistrationScreen: React.FC<NewRegistrationScreenProps> = ({ re
                 placeholder="Start typing an address..."
               />
             </div>
-            <div style={{ height: controlHeight, display: 'flex', alignItems: 'center' }}>
+            <div style={{ height: controlHeight.md, display: 'flex', alignItems: 'center' }}>
               <Checkbox label="Use Google Address" checked={googleEnabled} onChange={toggleGoogleAddress} />
             </div>
           </div>

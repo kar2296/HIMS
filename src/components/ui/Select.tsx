@@ -49,7 +49,7 @@ export const Select: React.FC<SelectProps> = ({
           onBlur={() => setFocused(false)}
           style={{
             width: '100%',
-            height: controlHeight,
+            height: controlHeight.md,
             fontSize: '13px',
             padding: '0 30px 0 12px',
             fontFamily: typography.fontFamily,
@@ -125,7 +125,7 @@ export const SearchSelect: React.FC<SearchSelectProps> = ({
         onClick={() => !disabled && setOpen((v) => !v)}
         style={{
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-          height: controlHeight, padding: '0 12px', fontSize: '13px', fontFamily: typography.fontFamily,
+          height: controlHeight.md, padding: '0 12px', fontSize: '13px', fontFamily: typography.fontFamily,
           color: selected ? colors.textMain : colors.textSubtle,
           backgroundColor: disabled ? colors.surfaceMuted : colors.surface,
           border: `1px solid ${error ? colors.danger : open ? colors.primary : colors.border}`,

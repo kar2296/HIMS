@@ -121,7 +121,7 @@ const groupLabelStyle: React.CSSProperties = {
 // instead of hardcoded hex/px for its chrome.
 const titleSelectStyle: React.CSSProperties = {
   width: '100%',
-  height: controlHeight,
+  height: controlHeight.md,
   fontSize: '13px',
   padding: '0 12px',
   fontFamily: typography.fontFamily,
@@ -498,7 +498,7 @@ export const PatientRegistrationFormScreen: React.FC<PatientRegistrationFormScre
                 placeholder="Start typing an address..."
               />
             </div>
-            <div style={{ height: controlHeight, display: 'flex', alignItems: 'center' }}>
+            <div style={{ height: controlHeight.md, display: 'flex', alignItems: 'center' }}>
               <Checkbox label="Use Google Address" checked={googleEnabled} onChange={toggleGoogleAddress} />
             </div>
           </div>

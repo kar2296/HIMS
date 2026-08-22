@@ -44,10 +44,8 @@ const QUICK_ACTIONS = [
 // Main TopNavbarComponent
 // ─────────────────────────────────────────────────────────────
 export const TopNavbarComponent: React.FC<TopNavbarComponentProps> = ({
-  facilityName = 'HIMS',
   username = 'User',
   userRole = '',
-  userInitials,
   breadcrumb = [],
   notificationCount = 0,
   onToggleSidebar,

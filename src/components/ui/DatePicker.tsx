@@ -46,7 +46,7 @@ export const DatePicker: React.FC<DatePickerProps> = ({
         onBlur={() => setFocused(false)}
         onChange={(e) => onChange?.(e.target.value)}
         style={{
-          width: '100%', height: controlHeight, fontSize: '13px', padding: '0 12px',
+          width: '100%', height: controlHeight.md, fontSize: '13px', padding: '0 12px',
           fontFamily: typography.fontFamily, color: disabled ? colors.textSubtle : colors.textMain,
           backgroundColor: disabled ? colors.surfaceMuted : colors.surface,
           border: `1px solid ${error ? colors.danger : focused ? colors.primary : colors.border}`,
