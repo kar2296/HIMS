@@ -29,7 +29,16 @@ export * from './Loading';
 export * from './EmptyState';
 export * from './Breadcrumb';
 export * from './Card';
+export * from './SectionCard';
+export * from './SummaryPanel';
+export * from './FilterPanel';
 export * from './Alert';
+export * from './Avatar';
+export * from './Toast';
+export * from './DashboardComponents';
+// NOTE: SkeletonLoader.tsx is intentionally not re-exported here -- its
+// `Skeleton` export collides with Loading.tsx's own `Skeleton`. Import it
+// directly from './SkeletonLoader' where needed (as existing consumers do).
 export * from './Tooltip';
 export * from './Modal';
 export * from './Drawer';
