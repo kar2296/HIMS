@@ -1,192 +1,50 @@
 import React from 'react';
-import { PageHeader } from '../components/ui/Breadcrumb';
-import { Card } from '../components/ui/Card';
-import { colors, radii, spacing, transitions, typography } from '../components/ui/tokens';
+import { colors, spacing, typography } from '../components/ui/tokens';
+import { StatCard, ActionCard, DashboardSection, DashboardPageWrapper } from '../components/ui/DashboardComponents';
 
 interface LabDashboardProps {
   permissions?: any;
   onNavigate?: (stateName: string, params?: any) => void;
 }
 
-export const LabDashboardComponent: React.FC<LabDashboardProps> = ({
-  permissions = {},
-  onNavigate
-}) => {
-
-  const handleCardClick = (stateName: string, params?: any) => {
-    if (onNavigate) {
-      onNavigate(stateName, params);
-    }
+export const LabDashboardComponent: React.FC<LabDashboardProps> = ({ permissions = {}, onNavigate }) => {
+  const handleCardClick = (state: string, params?: any) => {
+    if (onNavigate) onNavigate(state, params);
   };
 
-  const cards = [
-    {
-      id: 'OrderAcceptances',
-      title: 'Order Acceptances',
-      icon: 'fa-file-text-o',
-      count: undefined,
-      show: permissions.CanOrderAcceptances !== false,
-      color: '#4a90e2', // blue
-      action: () => handleCardClick('app.orderacknowledgements', { tp: 1, context: 'lab' })
-    },
-    {
-      id: 'SpecimenCollection',
-      title: 'Specimen Collection',
-      icon: 'fa-user',
-      count: undefined,
-      show: permissions.CanSpecimenCollection !== false,
-      color: '#50e3c2', // teal
-      action: () => handleCardClick('app.samplecollectionlist')
-    },
-    {
-      id: 'ResultEntries',
-      title: 'Result Entries',
-      icon: 'fa-file-text-o',
-      count: undefined,
-      show: permissions.CanResultEntries !== false,
-      color: '#f5a623', // orange
-      action: () => handleCardClick('app.processallorders', { tp: 1, context: 'lab' })
-    },
-    {
-      id: 'ResultApprovals',
-      title: 'Result Approvals',
-      icon: 'fa-usd',
-      count: undefined,
-      show: permissions.CanResultApprovals !== false,
-      color: '#7ed321', // green
-      action: () => handleCardClick('app.approvalallorders', { tp: 1 })
-    },
-    {
-      id: 'ResultReleases',
-      title: 'Result Releases',
-      icon: 'fa-list',
-      count: undefined, // Legacy logic uses 0 here
-      show: permissions.CanResultReleases !== false,
-      color: '#bd10e0', // purple
-      action: () => handleCardClick('app.resultdispatches', { tp: 1 })
-    },
-    {
-      id: 'ResultTemplates',
-      title: 'Result Templates',
-      icon: 'fa-inr',
-      count: undefined,
-      show: permissions.CanResultTemplates !== false,
-      color: '#ff5a5f', // coral
-      action: () => handleCardClick('app.notetemplates', { context: 'lab' })
-    },
-    {
-      id: 'ManageTests',
-      title: 'Manage Tests',
-      icon: 'fa-percent',
-      count: undefined,
-      show: permissions.CanManageTests !== false,
-      color: '#8b572a', // brown
-      action: () => handleCardClick('app.testmasters', { context: 'lab' })
-    },
-    {
-      id: 'ManageParameter',
-      title: 'Manage Parameter',
-      icon: 'fa-briefcase',
-      count: undefined,
-      show: permissions.CanManageParameter !== false,
-      color: '#e46a76', // pink
-      action: () => handleCardClick('app.analytemasters', { context: 'lab' })
-    },
-    {
-      id: 'Reports',
-      title: 'Reports',
-      icon: 'fa-chevron-circle-right',
-      count: undefined,
-      show: permissions.CanReports !== false,
-      color: '#00c292', // mint
-      action: () => handleCardClick('app.labreports', { context: 'lab' })
-    },
-    {
-      id: 'AntibioticMaster',
-      title: 'Antibiotic Master',
-      icon: 'fa-shield-virus', // Use modern fas icon matching legacy
-      count: undefined, // Legacy shows empty, we default to undefined
-      show: true, // Legacy has no privilege check
-      color: '#f5a623', // orange (matches box-bg-color3 in legacy)
-      action: () => handleCardClick('app.antibioticmasters', { context: 'lab' })
-    },
-    {
-      id: 'OrganismIsolation',
-      title: 'Organism Isolation',
-      icon: 'fa-bacterium', // Use modern fas icon matching legacy
-      count: undefined, // Legacy shows empty, we default to undefined
-      show: true, // Legacy has no privilege check
-      color: '#4a90e2', // blue (matches box-bg-color1 in legacy)
-      action: () => handleCardClick('app.organismsisolations', { context: 'lab' })
-    }
-  ];
+  const metricCards = [
+    { title: 'Order Acceptances', icon: 'fa-file-medical', color: '#2563eb', show: permissions.CanOrderAcceptances !== false, action: () => handleCardClick('app.orderacknowledgements', { tp: 1, context: 'lab' }) },
+    { title: 'Specimen Collection', icon: 'fa-vial', color: '#0ea5e9', show: permissions.CanSpecimenCollection !== false, action: () => handleCardClick('app.samplecollectionlist') },
+    { title: 'Result Entries', icon: 'fa-flask', color: '#f59e0b', show: permissions.CanResultEntries !== false, action: () => handleCardClick('app.processallorders', { tp: 1, context: 'lab' }) },
+    { title: 'Result Approvals', icon: 'fa-circle-check', color: '#10b981', show: permissions.CanResultApprovals !== false, action: () => handleCardClick('app.approvalallorders', { tp: 1 }) },
+    { title: 'Result Releases', icon: 'fa-paper-plane', color: '#8b5cf6', show: permissions.CanResultReleases !== false, action: () => handleCardClick('app.resultdispatches', { tp: 1 }) },
+    { title: 'Result Templates', icon: 'fa-file-pen', color: '#f43f5e', show: permissions.CanResultTemplates !== false, action: () => handleCardClick('app.notetemplates', { context: 'lab' }) },
+  ].filter((c) => c.show !== false);
+
+  const actionCards = [
+    { title: 'Manage Tests', icon: 'fa-list-check', color: '#64748b', show: permissions.CanManageTests !== false, action: () => handleCardClick('app.testmasters', { context: 'lab' }) },
+    { title: 'Manage Parameters', icon: 'fa-sliders', color: '#06b6d4', show: permissions.CanManageParameter !== false, action: () => handleCardClick('app.analytemasters', { context: 'lab' }) },
+    { title: 'Reports', icon: 'fa-chart-bar', color: '#84cc16', show: permissions.CanReports !== false, action: () => handleCardClick('app.labreports', { context: 'lab' }) },
+    { title: 'Antibiotic Master', icon: 'fa-shield-virus', color: '#f59e0b', show: true, action: () => handleCardClick('app.antibioticmasters', { context: 'lab' }) },
+    { title: 'Organism Isolation', icon: 'fa-bacterium', color: '#2563eb', show: true, action: () => handleCardClick('app.organismsisolations', { context: 'lab' }) },
+  ].filter((c) => c.show !== false);
 
   return (
-    <div style={{ padding: spacing.xl, fontFamily: typography.fontFamily, backgroundColor: colors.surfaceMuted, minHeight: '100vh' }}>
-
-      {/* Header */}
-      <PageHeader title="Lab Dashboard" />
-
-      {/* Cards Grid */}
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
-        gap: '20px'
-      }}>
-        {cards.filter(c => c.show).map(card => (
-          <div
-            key={card.id}
-            onClick={card.action}
-            style={{
-              cursor: 'pointer',
-              transition: transitions.base
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.transform = 'translateY(-4px)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.transform = 'translateY(0)';
-            }}
-          >
-            <Card
-              padding={spacing.lg}
-              style={{
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'space-between',
-                borderTop: `4px solid ${card.color}`,
-                height: '140px'
-              }}
-            >
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                <div style={{
-                  width: '45px',
-                  height: '45px',
-                  borderRadius: radii.md,
-                  backgroundColor: `${card.color}15`,
-                  color: card.color,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: '20px'
-                }}>
-                  <i className={`fas ${card.icon}`}></i>
-                </div>
-                {card.count !== undefined && (
-                  <div style={{ color: colors.textMain, fontSize: '24px', fontWeight: 700 }}>
-                    {card.count}
-                  </div>
-                )}
-              </div>
-
-              <div style={{ color: colors.textMuted, fontSize: '14px', fontWeight: 600, marginTop: 'auto' }}>
-                {card.title}
-              </div>
-            </Card>
-          </div>
-        ))}
-      </div>
-
-    </div>
+    <DashboardPageWrapper title="Lab Dashboard" subtitle="Laboratory information and workflow management">
+      <DashboardSection title="Workflow">
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: spacing.lg }}>
+          {metricCards.map((card, i) => (
+            <StatCard key={i} title={card.title} icon={card.icon} color={card.color} onClick={card.action} />
+          ))}
+        </div>
+      </DashboardSection>
+      <DashboardSection title="Masters & Reports">
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: spacing.md }}>
+          {actionCards.map((card, i) => (
+            <ActionCard key={i} title={card.title} icon={card.icon} color={card.color} onClick={card.action} />
+          ))}
+        </div>
+      </DashboardSection>
+    </DashboardPageWrapper>
   );
 };

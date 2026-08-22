@@ -1,206 +1,91 @@
 import React from 'react';
-import { PageHeader } from '../components/ui/Breadcrumb';
-import { Card } from '../components/ui/Card';
-import { colors, radii, spacing, typography } from '../components/ui/tokens';
+import { colors, spacing, typography } from '../components/ui/tokens';
+import { StatCard, ActionCard, DashboardSection, DashboardPageWrapper } from '../components/ui/DashboardComponents';
 
 interface PrivilegeMap {
-    canMedicineSales: boolean;
-    canMedicineReturns: boolean;
-    canStockIndent: boolean;
-    canStockReceives: boolean;
-    canStockStatus: boolean;
-    canStockMovement: boolean;
-    canMedicineCreditBills: boolean;
-    canMedicineCreditReturns: boolean;
-    canPharmacyReports: boolean;
-    canDirectPharmacySales: boolean;
-    canDirectMedicineReturns: boolean;
-    canStaffCredits: boolean;
-    canStaffCreditPayment: boolean;
-    canStaffCreditReturns: boolean;
+  canMedicineSales: boolean;
+  canMedicineReturns: boolean;
+  canStockIndent: boolean;
+  canStockReceives: boolean;
+  canStockStatus: boolean;
+  canStockMovement: boolean;
+  canMedicineCreditBills: boolean;
+  canMedicineCreditReturns: boolean;
+  canPharmacyReports: boolean;
+  canDirectPharmacySales: boolean;
+  canDirectMedicineReturns: boolean;
+  canStaffCredits: boolean;
+  canStaffCreditPayment: boolean;
+  canStaffCreditReturns: boolean;
 }
 
 interface ReactProps {
-    privileges: PrivilegeMap;
-    context: {
-        FacilityId: number;
-        DoctorId: number;
-        FromDate: string;
-        ToDate: string;
-    };
+  privileges: PrivilegeMap;
+  context: { FacilityId: number; DoctorId: number; FromDate: string; ToDate: string };
 }
 
 interface PharmacyDashboardProps {
-    navigateTo: (state: string, params?: any) => void;
-    reactProps: ReactProps;
+  navigateTo: (state: string, params?: any) => void;
+  reactProps: ReactProps;
 }
 
 export const PharmacyDashboardComponent: React.FC<PharmacyDashboardProps> = ({ navigateTo, reactProps }) => {
-    const { privileges } = reactProps;
+  const { privileges } = reactProps;
 
-    const cards = [
-        {
-            title: 'Medicine Sales',
-            icon: 'fa-registered',
-            show: privileges.canMedicineSales,
-            color: '#4a90e2',
-            action: () => navigateTo('app.pharmacy-sales', { id: 0, context: 'pharmacy' })
-        },
-        {
-            title: 'Medicine Return',
-            icon: 'fa-user',
-            show: privileges.canMedicineReturns,
-            color: '#50e3c2',
-            action: () => navigateTo('app.pharmacy-return', { id: 0, context: 'pharmacy' })
-        },
-        {
-            title: 'Stock Indent',
-            icon: 'fa-file-text-o',
-            show: privileges.canStockIndent,
-            color: '#f5a623',
-            action: () => navigateTo('app.stockrequests', { context: 'pharmacy' })
-        },
-        {
-            title: 'Stock Receives',
-            icon: 'fa-usd',
-            show: privileges.canStockReceives,
-            color: '#7ed321',
-            action: () => navigateTo('app.stocktacceptencelist', { context: 'pharmacy' })
-        },
-        {
-            title: 'Stock Status',
-            icon: 'fa-list',
-            show: privileges.canStockStatus,
-            color: '#bd10e0',
-            action: () => navigateTo('app.stockstatus', { context: 'pharmacy' })
-        },
-        {
-            title: 'Stock Movement',
-            icon: 'fa-inr',
-            show: privileges.canStockMovement,
-            color: '#ff5a5f',
-            action: () => navigateTo('app.stockmovement', { context: 'pharmacy' })
-        },
-        {
-            title: 'IP Pharmacy Sale',
-            icon: 'fa-percent',
-            show: privileges.canMedicineCreditBills,
-            color: '#8b572a',
-            action: () => navigateTo('app.ip-pharmacy-sales', { context: 'pharmacy' })
-        },
-        {
-            title: 'IP Pharmacy Return',
-            icon: 'fa-briefcase',
-            show: privileges.canMedicineCreditReturns,
-            color: '#e46a76',
-            action: () => navigateTo('app.ip-pharmacy-returns', { context: 'pharmacy' })
-        },
-        {
-            title: 'Reports',
-            icon: 'fa-file-text-o',
-            show: privileges.canPharmacyReports,
-            color: '#00c292',
-            action: () => navigateTo('app.pharmacytabreport.invoicecollectionreport', { context: 'pharmacy' })
-        },
-        {
-            title: 'Direct Patient Pharmacy Sales',
-            icon: 'fa-file-text-o',
-            show: privileges.canDirectPharmacySales,
-            color: '#4a90e2',
-            action: () => navigateTo('app.pharmacy-directpatient-sales')
-        },
-        {
-            title: 'Direct Medicine Return',
-            icon: 'fa-usd',
-            show: privileges.canDirectMedicineReturns,
-            color: '#f5a623',
-            action: () => navigateTo('app.direct-pharmacy-returns')
-        },
-        {
-            title: 'Staff Credit',
-            icon: 'fa-usd',
-            show: privileges.canStaffCredits,
-            color: '#bd10e0',
-            action: () => navigateTo('app.staffcreditbilllist')
-        },
-        {
-            title: 'Staff Credit Payment',
-            icon: 'fa-list',
-            show: privileges.canStaffCreditPayment,
-            color: '#50e3c2',
-            action: () => navigateTo('app.staffcreditpaymentlist')
-        },
-        {
-            title: 'Staff Credit Returns',
-            icon: 'fa-inr',
-            show: privileges.canStaffCreditReturns,
-            color: '#e46a76',
-            action: () => navigateTo('app.staffcreditreturns')
-        }
-    ];
+  const salesCards = [
+    { title: 'Medicine Sales', icon: 'fa-pills', color: '#2563eb', show: privileges.canMedicineSales, action: () => navigateTo('app.pharmacy-sales', { id: 0, context: 'pharmacy' }) },
+    { title: 'Medicine Return', icon: 'fa-rotate-left', color: '#0ea5e9', show: privileges.canMedicineReturns, action: () => navigateTo('app.pharmacy-return', { id: 0, context: 'pharmacy' }) },
+    { title: 'IP Pharmacy Sale', icon: 'fa-hospital', color: '#8b5cf6', show: privileges.canMedicineCreditBills, action: () => navigateTo('app.ip-pharmacy-sales', { context: 'pharmacy' }) },
+    { title: 'IP Pharmacy Return', icon: 'fa-arrow-rotate-left', color: '#ec4899', show: privileges.canMedicineCreditReturns, action: () => navigateTo('app.ip-pharmacy-returns', { context: 'pharmacy' }) },
+    { title: 'Direct Sales', icon: 'fa-cash-register', color: '#10b981', show: privileges.canDirectPharmacySales, action: () => navigateTo('app.pharmacy-directpatient-sales') },
+    { title: 'Direct Returns', icon: 'fa-undo', color: '#f97316', show: privileges.canDirectMedicineReturns, action: () => navigateTo('app.direct-pharmacy-returns') },
+  ].filter((c) => c.show);
 
-    return (
-        <div style={{ padding: spacing.xl, fontFamily: typography.fontFamily, backgroundColor: colors.surfaceMuted, minHeight: '100vh' }}>
+  const stockCards = [
+    { title: 'Stock Indent', icon: 'fa-file-arrow-down', color: '#f59e0b', show: privileges.canStockIndent, action: () => navigateTo('app.stockrequests', { context: 'pharmacy' }) },
+    { title: 'Stock Receives', icon: 'fa-boxes-stacked', color: '#06b6d4', show: privileges.canStockReceives, action: () => navigateTo('app.stocktacceptencelist', { context: 'pharmacy' }) },
+    { title: 'Stock Status', icon: 'fa-chart-bar', color: '#6366f1', show: privileges.canStockStatus, action: () => navigateTo('app.stockstatus', { context: 'pharmacy' }) },
+    { title: 'Stock Movement', icon: 'fa-arrows-rotate', color: '#14b8a6', show: privileges.canStockMovement, action: () => navigateTo('app.stockmovement', { context: 'pharmacy' }) },
+  ].filter((c) => c.show);
 
-            {/* Header */}
-            <PageHeader title="Pharmacy Dashboard" />
+  const creditCards = [
+    { title: 'Staff Credit', icon: 'fa-user-tie', color: '#8b5cf6', show: privileges.canStaffCredits, action: () => navigateTo('app.staffcreditbilllist') },
+    { title: 'Credit Payment', icon: 'fa-money-check', color: '#10b981', show: privileges.canStaffCreditPayment, action: () => navigateTo('app.staffcreditpaymentlist') },
+    { title: 'Credit Returns', icon: 'fa-rotate-right', color: '#ec4899', show: privileges.canStaffCreditReturns, action: () => navigateTo('app.staffcreditreturns') },
+    { title: 'Reports', icon: 'fa-chart-column', color: '#84cc16', show: privileges.canPharmacyReports, action: () => navigateTo('app.pharmacytabreport.invoicecollectionreport', { context: 'pharmacy' }) },
+  ].filter((c) => c.show);
 
-            {/* Cards Grid */}
-            <div style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
-                gap: spacing.lg
-            }}>
-                {cards.filter(c => c.show).map((card, idx) => (
-                    <div
-                        key={idx}
-                        onClick={card.action}
-                        style={{
-                            cursor: 'pointer',
-                            transition: 'transform 0.2s',
-                            height: '140px'
-                        }}
-                        onMouseEnter={(e) => {
-                            e.currentTarget.style.transform = 'translateY(-4px)';
-                        }}
-                        onMouseLeave={(e) => {
-                            e.currentTarget.style.transform = 'translateY(0)';
-                        }}
-                    >
-                        <Card
-                            style={{
-                                height: '100%',
-                                display: 'flex',
-                                flexDirection: 'column',
-                                borderTop: `4px solid ${card.color}`
-                            }}
-                        >
-                            <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', height: '100%' }}>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                                    <div style={{
-                                        width: '45px',
-                                        height: '45px',
-                                        borderRadius: radii.md,
-                                        backgroundColor: `${card.color}15`,
-                                        color: card.color,
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'center',
-                                        fontSize: '20px'
-                                    }}>
-                                        <i className={`fas ${card.icon}`}></i>
-                                    </div>
-                                </div>
+  return (
+    <DashboardPageWrapper title="Pharmacy Dashboard" subtitle="Medicine sales, stock management & staff credits">
+      {salesCards.length > 0 && (
+        <DashboardSection title="Sales & Returns">
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: spacing.lg }}>
+            {salesCards.map((card, i) => (
+              <StatCard key={i} title={card.title} icon={card.icon} color={card.color} onClick={card.action} />
+            ))}
+          </div>
+        </DashboardSection>
+      )}
 
-                                <div style={{ ...typography.label, color: colors.textMuted, fontFamily: typography.fontFamily, marginTop: 'auto' }}>
-                                    {card.title}
-                                </div>
-                            </div>
-                        </Card>
-                    </div>
-                ))}
-            </div>
+      {stockCards.length > 0 && (
+        <DashboardSection title="Inventory & Stock">
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: spacing.md }}>
+            {stockCards.map((card, i) => (
+              <ActionCard key={i} title={card.title} icon={card.icon} color={card.color} onClick={card.action} />
+            ))}
+          </div>
+        </DashboardSection>
+      )}
 
-        </div>
-    );
+      {creditCards.length > 0 && (
+        <DashboardSection title="Staff Credit & Reports">
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: spacing.md }}>
+            {creditCards.map((card, i) => (
+              <ActionCard key={i} title={card.title} icon={card.icon} color={card.color} onClick={card.action} />
+            ))}
+          </div>
+        </DashboardSection>
+      )}
+    </DashboardPageWrapper>
+  );
 };

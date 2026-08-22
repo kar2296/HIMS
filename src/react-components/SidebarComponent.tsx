@@ -1,246 +1,449 @@
-import React, { useState } from 'react';
-import { colors, typography, radii, spacing, shadows, transitions } from '../components/ui/tokens';
+import React, { useState, useCallback } from 'react';
+import { colors, sidebar, radii, transitions, typography } from '../components/ui/tokens';
 
-// Interfaces for our Sidebar
+// ─────────────────────────────────────────────────────────────
+// Types
+// ─────────────────────────────────────────────────────────────
 interface MenuItem {
-  text: string;
-  sref?: string;
-  params?: any;
+  id?: string;
+  label: string;
   icon?: string;
-  translate?: string;
-  heading?: boolean;
-  submenu?: MenuItem[];
-  alert?: string;
+  href?: string;
+  state?: string;
+  children?: MenuItem[];
+  isActive?: boolean;
 }
 
-interface SidebarComponentProps {
+export interface SidebarComponentProps {
   menuItems?: MenuItem[];
-  onNavigate?: (sref: string, params?: any) => void;
+  facilityName?: string;
+  facilityShort?: string;
+  currentState?: string;
+  username?: string;
+  userRole?: string;
+  userInitials?: string;
+  isCollapsed?: boolean;
+  onToggleCollapse?: () => void;
+  onNavigate?: (stateName: string) => void;
+  onLogout?: () => void;
 }
 
-const SidebarMenuItem: React.FC<{
+// ─────────────────────────────────────────────────────────────
+// Sub-components
+// ─────────────────────────────────────────────────────────────
+
+/** Single sidebar item — leaf node */
+const SidebarItem: React.FC<{
   item: MenuItem;
-  depth: number;
-  onNavigate?: (sref: string, params?: any) => void;
-}> = ({ item, depth, onNavigate }) => {
-  const [isOpen, setIsOpen] = useState(false);
-  const hasSubmenu = item.submenu && item.submenu.length > 0;
-
-  const handleClick = (e: React.MouseEvent) => {
-    e.preventDefault();
-    if (hasSubmenu) {
-      setIsOpen(!isOpen);
-    } else if (onNavigate && item.sref && item.sref !== '#') {
-      onNavigate(item.sref, item.params);
-    }
-  };
-
-  // Heading styles (like 'MAIN NAVIGATION')
-  if (item.heading) {
-    return (
-      <div style={{
-        padding: `${spacing.md} ${spacing.xl}`,
-        fontSize: '11px',
-        fontWeight: 700,
-        color: 'rgba(255,255,255,0.4)',
-        letterSpacing: '1px',
-        textTransform: 'uppercase',
-        marginTop: spacing.sm
-      }}>
-        {item.text}
-      </div>
-    );
-  }
+  depth?: number;
+  isActive: boolean;
+  collapsed: boolean;
+  onClick: (item: MenuItem) => void;
+}> = ({ item, depth = 0, isActive, collapsed, onClick }) => {
+  const [hovered, setHovered] = useState(false);
+  const paddingLeft = collapsed ? 0 : 16 + depth * 14;
 
   return (
-    <div style={{ padding: `2px ${spacing.sm}` }}>
+    <div
+      role="menuitem"
+      tabIndex={0}
+      onClick={() => onClick(item)}
+      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') onClick(item); }}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: collapsed ? 0 : '10px',
+        justifyContent: collapsed ? 'center' : 'flex-start',
+        padding: collapsed ? '10px 0' : `9px ${paddingLeft}px 9px ${paddingLeft}px`,
+        marginRight: '8px',
+        marginLeft: '8px',
+        marginBottom: '1px',
+        borderRadius: radii.md,
+        cursor: 'pointer',
+        transition: transitions.fast,
+        backgroundColor: isActive
+          ? colors.sidebarActive
+          : hovered
+          ? 'rgba(255,255,255,0.07)'
+          : 'transparent',
+        position: 'relative',
+        outline: 'none',
+      }}
+    >
+      {/* Active indicator bar */}
+      {isActive && (
+        <div style={{
+          position: 'absolute', left: 0, top: '6px', bottom: '6px',
+          width: '3px', borderRadius: '0 3px 3px 0',
+          backgroundColor: colors.sidebarActiveBar,
+        }} />
+      )}
+
+      {/* Icon */}
+      {item.icon && (
+        <i
+          className={`fa-solid ${item.icon}`}
+          style={{
+            fontSize: depth > 0 ? '13px' : '15px',
+            color: isActive ? colors.sidebarActiveBar : (hovered ? '#fff' : colors.sidebarText),
+            width: '18px', textAlign: 'center', flexShrink: 0,
+            transition: transitions.fast,
+          }}
+        />
+      )}
+
+      {/* Label */}
+      {!collapsed && (
+        <span style={{
+          fontSize: '13px', fontWeight: isActive ? 600 : 400,
+          color: isActive ? '#fff' : (hovered ? '#fff' : colors.sidebarText),
+          fontFamily: typography.fontFamily, overflow: 'hidden',
+          textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1,
+          transition: transitions.fast,
+        }}>
+          {item.label}
+        </span>
+      )}
+    </div>
+  );
+};
+
+/** Sidebar group with collapsible children */
+const SidebarGroup: React.FC<{
+  item: MenuItem;
+  depth: number;
+  currentState: string;
+  collapsed: boolean;
+  onLeafClick: (item: MenuItem) => void;
+}> = ({ item, depth, currentState, collapsed, onLeafClick }) => {
+  const isChildActive = item.children?.some(
+    (c) => c.state === currentState || c.children?.some((cc) => cc.state === currentState)
+  );
+  const [open, setOpen] = useState(isChildActive ?? false);
+  const [hovered, setHovered] = useState(false);
+
+  const paddingLeft = collapsed ? 0 : 16 + depth * 14;
+
+  return (
+    <div>
+      {/* Group header */}
       <div
-        onClick={handleClick}
+        role="button"
+        tabIndex={0}
+        onClick={() => !collapsed && setOpen((v) => !v)}
+        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') !collapsed && setOpen((v) => !v); }}
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => setHovered(false)}
         style={{
           display: 'flex',
           alignItems: 'center',
-          justifyContent: 'space-between',
-          padding: `${spacing.md} ${spacing.lg} ${spacing.md} ${16 + depth * 16}px`,
+          gap: collapsed ? 0 : '10px',
+          justifyContent: collapsed ? 'center' : 'flex-start',
+          padding: collapsed ? '10px 0' : `9px ${paddingLeft}px 9px ${paddingLeft}px`,
+          margin: '0 8px 1px 8px',
+          borderRadius: radii.md,
           cursor: 'pointer',
-          borderRadius: radii.sm,
-          backgroundColor: isOpen ? 'rgba(255,255,255,0.1)' : 'transparent',
-          color: isOpen ? '#fff' : 'rgba(255,255,255,0.7)',
-          transition: transitions.base,
-        }}
-        onMouseEnter={(e) => {
-          if (!isOpen) {
-            e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.05)';
-            e.currentTarget.style.color = '#fff';
-          }
-        }}
-        onMouseLeave={(e) => {
-          if (!isOpen) {
-            e.currentTarget.style.backgroundColor = 'transparent';
-            e.currentTarget.style.color = 'rgba(255,255,255,0.7)';
-          }
+          transition: transitions.fast,
+          backgroundColor: isChildActive && !open
+            ? colors.sidebarActive
+            : hovered ? 'rgba(255,255,255,0.07)' : 'transparent',
+          outline: 'none',
         }}
       >
-        <div style={{ display: 'flex', alignItems: 'center', gap: spacing.md }}>
-          {item.icon && depth === 0 && (
-            <i
-              className={item.icon}
-              style={{
-                width: '20px',
-                textAlign: 'center',
-                color: isOpen ? colors.gold : 'inherit'
-              }}
-            ></i>
-          )}
-          <span style={{
-            fontSize: depth === 0 ? '14px' : '13px',
-            fontWeight: depth === 0 ? 500 : 400,
-            fontFamily: typography.fontFamily
-          }}>
-            {item.text}
-          </span>
-        </div>
-
-        {/* Submenu Indicator or Alert */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: spacing.sm }}>
-          {item.alert && (
+        {item.icon && (
+          <i
+            className={`fa-solid ${item.icon}`}
+            style={{
+              fontSize: depth > 0 ? '13px' : '15px',
+              color: isChildActive ? colors.sidebarActiveBar : (hovered ? '#fff' : colors.sidebarText),
+              width: '18px', textAlign: 'center', flexShrink: 0,
+            }}
+          />
+        )}
+        {!collapsed && (
+          <>
             <span style={{
-              backgroundColor: colors.gold,
-              color: '#fff',
-              fontSize: '10px',
-              padding: '2px 6px',
-              borderRadius: radii.full,
-              fontWeight: 600
+              flex: 1, fontSize: '13px', fontWeight: isChildActive ? 600 : 400,
+              color: isChildActive ? '#fff' : (hovered ? '#fff' : colors.sidebarText),
+              fontFamily: typography.fontFamily, overflow: 'hidden',
+              textOverflow: 'ellipsis', whiteSpace: 'nowrap',
             }}>
-              {item.alert}
+              {item.label}
             </span>
-          )}
-          {hasSubmenu && (
             <i
-              className={`fa-solid fa-chevron-${isOpen ? 'down' : 'right'}`}
+              className={`fa-solid fa-chevron-${open ? 'up' : 'down'}`}
               style={{
-                fontSize: '10px',
-                transition: transitions.base,
-                opacity: 0.5
+                fontSize: '10px', color: colors.sidebarMuted,
+                transition: 'transform 0.2s ease',
+                transform: open ? 'rotate(0deg)' : 'rotate(-90deg)',
+                flexShrink: 0,
               }}
-            ></i>
-          )}
-        </div>
+            />
+          </>
+        )}
       </div>
 
-      {/* Render Submenu */}
-      {hasSubmenu && (
+      {/* Children */}
+      {!collapsed && open && item.children && (
         <div style={{
-          overflow: 'hidden',
-          maxHeight: isOpen ? '1000px' : '0',
-          opacity: isOpen ? 1 : 0,
-          transition: 'all 0.3s ease-in-out',
+          borderLeft: `1px solid ${colors.sidebarBorder}`,
+          marginLeft: '24px',
+          paddingLeft: '4px',
+          marginBottom: '4px',
         }}>
-          <div style={{
-            marginTop: spacing.xs,
-            borderLeft: '1px solid rgba(255,255,255,0.1)',
-            marginLeft: `${24 + depth * 16}px`
-          }}>
-            {item.submenu!.map((subItem, index) => (
-              <SidebarMenuItem
-                key={index}
-                item={subItem}
+          {item.children.map((child, i) =>
+            child.children?.length ? (
+              <SidebarGroup
+                key={i}
+                item={child}
                 depth={depth + 1}
-                onNavigate={onNavigate}
+                currentState={currentState}
+                collapsed={false}
+                onLeafClick={onLeafClick}
               />
-            ))}
-          </div>
+            ) : (
+              <SidebarItem
+                key={i}
+                item={child}
+                depth={depth + 1}
+                isActive={child.state === currentState}
+                collapsed={false}
+                onClick={onLeafClick}
+              />
+            )
+          )}
         </div>
       )}
     </div>
   );
 };
 
+// ─────────────────────────────────────────────────────────────
+// Main SidebarComponent
+// ─────────────────────────────────────────────────────────────
 export const SidebarComponent: React.FC<SidebarComponentProps> = ({
   menuItems = [],
-  onNavigate
+  facilityName = 'HIMS',
+  facilityShort = 'H',
+  currentState = '',
+  username = 'User',
+  userRole = '',
+  userInitials,
+  isCollapsed = false,
+  onToggleCollapse,
+  onNavigate,
+  onLogout,
 }) => {
+  const [localCollapsed, setLocalCollapsed] = useState(isCollapsed);
+  const collapsed = isCollapsed ?? localCollapsed;
+
+  const handleToggle = useCallback(() => {
+    setLocalCollapsed((v) => !v);
+    if (onToggleCollapse) onToggleCollapse();
+  }, [onToggleCollapse]);
+
+  const handleLeafClick = useCallback((item: MenuItem) => {
+    if (item.state && onNavigate) {
+      onNavigate(item.state);
+    } else if (item.href) {
+      window.location.href = item.href;
+    }
+  }, [onNavigate]);
+
+  const sidebarWidth = collapsed ? sidebar.collapsedWidth : sidebar.width;
+
   return (
-    <div style={{
-      width: '250px',
-      height: '100%',
-      backgroundColor: colors.primary,
-      backgroundImage: `linear-gradient(180deg, ${colors.primary} 0%, ${colors.primaryHover} 100%)`,
-      color: '#fff',
-      overflowY: 'auto',
-      overflowX: 'hidden',
-      boxShadow: shadows.md,
-      display: 'flex',
-      flexDirection: 'column'
-    }}>
-      {/* Optional Branding Area */}
+    <div
+      role="navigation"
+      aria-label="Main navigation"
+      style={{
+        width: sidebarWidth,
+        minWidth: sidebarWidth,
+        maxWidth: sidebarWidth,
+        height: '100%',
+        backgroundColor: colors.sidebarBg,
+        backgroundImage: `linear-gradient(180deg, ${colors.sidebarTop} 0%, ${colors.sidebarBottom} 100%)`,
+        display: 'flex',
+        flexDirection: 'column',
+        overflow: 'hidden',
+        transition: 'width 0.22s cubic-bezier(0.4,0,0.2,1), min-width 0.22s cubic-bezier(0.4,0,0.2,1)',
+        boxShadow: '4px 0 20px rgba(0,0,0,0.25)',
+        flexShrink: 0,
+        position: 'relative',
+        zIndex: 100,
+      }}
+    >
+      {/* ── Brand / Logo ── */}
       <div style={{
-        padding: spacing.xl,
-        borderBottom: '1px solid rgba(255,255,255,0.1)',
-        marginBottom: spacing.sm,
         display: 'flex',
         alignItems: 'center',
-        gap: spacing.md
+        justifyContent: collapsed ? 'center' : 'space-between',
+        padding: collapsed ? '18px 0' : '18px 16px',
+        borderBottom: `1px solid ${colors.sidebarBorder}`,
+        flexShrink: 0,
+        minHeight: sidebar.topbarHeight,
       }}>
-        <div style={{
-          width: '36px',
-          height: '36px',
-          borderRadius: radii.sm,
-          backgroundColor: colors.gold,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          color: '#fff',
-          fontWeight: 'bold',
-          fontSize: '18px'
-        }}>
-          H
-        </div>
-        <div style={{
-          fontFamily: typography.fontFamily,
-          fontWeight: 700,
-          fontSize: '18px',
-          letterSpacing: '0.5px'
-        }}>
-          HIMS
-        </div>
-      </div>
-
-      {/* Menu Items */}
-      <div style={{ flex: 1 }}>
-        {menuItems && menuItems.map((item, index) => (
-          <SidebarMenuItem
-            key={index}
-            item={item}
-            depth={0}
-            onNavigate={onNavigate}
-          />
-        ))}
-        {(!menuItems || menuItems.length === 0) && (
-          <div style={{ padding: spacing.xl, color: 'rgba(255,255,255,0.5)', textAlign: 'center', fontSize: '13px' }}>
-            <i className="fa-solid fa-circle-notch fa-spin" style={{ marginRight: spacing.sm }}></i>
-            Loading menu...
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', overflow: 'hidden' }}>
+          {/* Logo badge */}
+          <div style={{
+            width: '32px', height: '32px', borderRadius: radii.md, flexShrink: 0,
+            background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            fontSize: '16px', color: '#fff', fontWeight: 800,
+            boxShadow: '0 4px 12px rgba(37,99,235,0.4)',
+          }}>
+            {facilityShort?.[0] ?? <i className="fa-solid fa-house-medical" />}
           </div>
+
+          {!collapsed && (
+            <div style={{ overflow: 'hidden' }}>
+              <div style={{
+                fontSize: '14px', fontWeight: 700, color: '#fff',
+                fontFamily: typography.fontFamily, whiteSpace: 'nowrap',
+                overflow: 'hidden', textOverflow: 'ellipsis',
+              }}>
+                {facilityName}
+              </div>
+              <div style={{
+                fontSize: '10px', color: colors.sidebarMuted,
+                fontFamily: typography.fontFamily, whiteSpace: 'nowrap',
+                letterSpacing: '0.5px', textTransform: 'uppercase',
+              }}>
+                Hospital Management
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Collapse toggle */}
+        {!collapsed && onToggleCollapse && (
+          <button
+            onClick={handleToggle}
+            title="Collapse sidebar"
+            style={{
+              background: 'none', border: 'none', cursor: 'pointer',
+              color: colors.sidebarMuted, fontSize: '14px', padding: '4px',
+              borderRadius: radii.sm, transition: transitions.fast,
+              flexShrink: 0,
+            }}
+            onMouseEnter={(e) => (e.currentTarget.style.color = '#fff')}
+            onMouseLeave={(e) => (e.currentTarget.style.color = colors.sidebarMuted)}
+          >
+            <i className="fa-solid fa-chevron-left" />
+          </button>
+        )}
+
+        {collapsed && onToggleCollapse && (
+          <button
+            onClick={handleToggle}
+            title="Expand sidebar"
+            style={{
+              background: 'none', border: 'none', cursor: 'pointer',
+              color: colors.sidebarMuted, fontSize: '14px', padding: '4px',
+              borderRadius: radii.sm, transition: transitions.fast,
+            }}
+            onMouseEnter={(e) => (e.currentTarget.style.color = '#fff')}
+            onMouseLeave={(e) => (e.currentTarget.style.color = colors.sidebarMuted)}
+          >
+            <i className="fa-solid fa-chevron-right" />
+          </button>
         )}
       </div>
 
-      {/* Custom Scrollbar Styles injected globally just for this container */}
-      <style>
-        {`
-          ::-webkit-scrollbar {
-            width: 6px;
-          }
-          ::-webkit-scrollbar-track {
-            background: rgba(0,0,0,0.1);
-          }
-          ::-webkit-scrollbar-thumb {
-            background: rgba(255,255,255,0.2);
-            border-radius: 10px;
-          }
-          ::-webkit-scrollbar-thumb:hover {
-            background: rgba(255,255,255,0.3);
-          }
-        `}
-      </style>
+      {/* ── Menu items ── */}
+      <div
+        style={{
+          flex: 1, overflowY: 'auto', overflowX: 'hidden',
+          paddingTop: '8px', paddingBottom: '8px',
+          scrollbarWidth: 'thin',
+        }}
+        role="menu"
+      >
+        {menuItems.map((item, i) =>
+          item.children?.length ? (
+            <SidebarGroup
+              key={i}
+              item={item}
+              depth={0}
+              currentState={currentState}
+              collapsed={collapsed}
+              onLeafClick={handleLeafClick}
+            />
+          ) : (
+            <SidebarItem
+              key={i}
+              item={item}
+              depth={0}
+              isActive={item.state === currentState}
+              collapsed={collapsed}
+              onClick={handleLeafClick}
+            />
+          )
+        )}
+      </div>
+
+      {/* ── User profile footer ── */}
+      <div style={{
+        padding: collapsed ? '12px 0' : '12px 12px',
+        borderTop: `1px solid ${colors.sidebarBorder}`,
+        display: 'flex',
+        alignItems: 'center',
+        gap: '10px',
+        justifyContent: collapsed ? 'center' : 'flex-start',
+        flexShrink: 0,
+      }}>
+        {/* Avatar */}
+        <div style={{
+          width: '32px', height: '32px', borderRadius: radii.full, flexShrink: 0,
+          background: 'linear-gradient(135deg, #2563eb, #4f46e5)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          fontSize: '12px', fontWeight: 700, color: '#fff',
+          fontFamily: typography.fontFamily,
+        }}>
+          {userInitials || username.slice(0, 2).toUpperCase()}
+        </div>
+
+        {!collapsed && (
+          <>
+            <div style={{ flex: 1, overflow: 'hidden' }}>
+              <div style={{
+                fontSize: '13px', fontWeight: 600, color: '#fff',
+                fontFamily: typography.fontFamily,
+                overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+              }}>
+                {username}
+              </div>
+              {userRole && (
+                <div style={{
+                  fontSize: '11px', color: colors.sidebarMuted,
+                  fontFamily: typography.fontFamily,
+                  overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+                }}>
+                  {userRole}
+                </div>
+              )}
+            </div>
+
+            {onLogout && (
+              <button
+                onClick={onLogout}
+                title="Logout"
+                style={{
+                  background: 'none', border: 'none', cursor: 'pointer',
+                  color: colors.sidebarMuted, fontSize: '14px', padding: '4px',
+                  borderRadius: radii.sm, transition: transitions.fast, flexShrink: 0,
+                }}
+                onMouseEnter={(e) => (e.currentTarget.style.color = colors.danger)}
+                onMouseLeave={(e) => (e.currentTarget.style.color = colors.sidebarMuted)}
+              >
+                <i className="fa-solid fa-arrow-right-from-bracket" />
+              </button>
+            )}
+          </>
+        )}
+      </div>
     </div>
   );
 };

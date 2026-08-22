@@ -1,299 +1,426 @@
-import React, { useState } from 'react';
-import { Button } from './Button';
-import { Input } from '../components/ui/Input';
-import { Alert } from '../components/ui/Alert';
-import { Card } from '../components/ui/Card';
-import { Checkbox } from '../components/ui/Checkbox';
-import { colors, spacing, typography, radii } from '../components/ui/tokens';
+import React, { useState, useRef } from 'react';
+import { colors, radii, spacing, shadows, transitions, typography } from '../components/ui/tokens';
 
-interface LoginPageProps {
-  onLogin?: (username: string, password: string) => void;
-  onResetPassword?: () => void;
+// ─────────────────────────────────────────────────────────────
+// Types (original props shape preserved)
+// ─────────────────────────────────────────────────────────────
+export interface LoginPageProps {
   isLoading?: boolean;
   errorMessage?: string;
+  isAccountLocked?: boolean;
+  onLogin?: (username: string, password: string, rememberMe: boolean) => void;
+  onResetPassword?: () => void;
+  onSSOLogin?: () => void;
+  facilityName?: string;
+  logoUrl?: string;
 }
 
+// ─────────────────────────────────────────────────────────────
+// Feature highlights shown on the left panel
+// ─────────────────────────────────────────────────────────────
+const FEATURES = [
+  { icon: 'fa-user-plus', label: 'Patient Registration', desc: 'OP & IP registration with complete demographic capture' },
+  { icon: 'fa-file-invoice', label: 'Integrated Billing', desc: 'OP, IP, pharmacy & lab billing in one unified system' },
+  { icon: 'fa-chart-line', label: 'Live Analytics', desc: 'Real-time dashboards for all departments' },
+  { icon: 'fa-shield-halved', label: 'Role-Based Access', desc: 'Granular permissions for every clinical and admin role' },
+];
+
 export const LoginPage: React.FC<LoginPageProps> = ({
+  isLoading = false,
+  errorMessage,
+  isAccountLocked = false,
   onLogin,
   onResetPassword,
-  isLoading = false,
-  errorMessage = ''
+  onSSOLogin,
+  facilityName = 'HIMS',
+  logoUrl,
 }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [keepSignedIn, setKeepSignedIn] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
+  const [userFocused, setUserFocused] = useState(false);
+  const [passFocused, setPassFocused] = useState(false);
+  const [touched, setTouched] = useState({ username: false, password: false });
+
+  const usernameRef = useRef<HTMLInputElement>(null);
+  const passwordRef = useRef<HTMLInputElement>(null);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (onLogin && username && password) {
-      onLogin(username, password);
-    }
+    setTouched({ username: true, password: true });
+    if (!username.trim() || !password.trim()) return;
+    if (onLogin) onLogin(username.trim(), password, rememberMe);
   };
 
+  const usernameError = touched.username && !username.trim() ? 'Username is required' : '';
+  const passwordError = touched.password && !password.trim() ? 'Password is required' : '';
+
+  const inputStyle = (focused: boolean, hasError: boolean): React.CSSProperties => ({
+    width: '100%',
+    height: '44px',
+    border: `1.5px solid ${hasError ? colors.danger : focused ? colors.primary : colors.border}`,
+    borderRadius: radii.md,
+    backgroundColor: colors.surface,
+    fontSize: '14px',
+    fontFamily: typography.fontFamily,
+    color: colors.textMain,
+    paddingLeft: '42px',
+    paddingRight: '16px',
+    boxSizing: 'border-box',
+    outline: 'none',
+    transition: transitions.fast,
+    boxShadow: focused ? (hasError ? `0 0 0 3px rgba(239,68,68,0.15)` : `0 0 0 3px rgba(37,99,235,0.15)`) : shadows.xs,
+  });
+
   return (
-    <div
-      style={{
+    <div style={{
+      display: 'flex',
+      minHeight: '100vh',
+      fontFamily: typography.fontFamily,
+      backgroundColor: colors.surfaceMuted,
+    }}>
+      {/* ── Left panel (brand / features) ── */}
+      <div style={{
+        flex: '0 0 45%',
+        background: `linear-gradient(145deg, #0a0f1d 0%, #1e2d5a 60%, #1e293b 100%)`,
         display: 'flex',
-        alignItems: 'center',
+        flexDirection: 'column',
         justifyContent: 'center',
-        minHeight: '100vh',
-        width: '100%',
-        padding: `${spacing.xl} ${spacing.lg}`,
-        boxSizing: 'border-box',
-        backgroundImage:
-          'url("https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80")',
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        fontFamily: typography.fontFamily,
+        padding: '48px 56px',
         position: 'relative',
-        overflowY: 'auto',
-      }}
-    >
-      {/* Subtle Dark Overlay */}
-      <div
-        style={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          backgroundColor: 'rgba(15, 23, 42, 0.35)',
-          backdropFilter: 'blur(4px)',
-          WebkitBackdropFilter: 'blur(4px)',
-        }}
-      ></div>
+        overflow: 'hidden',
+      }}>
+        {/* Decorative circles */}
+        <div style={{ position: 'absolute', top: '-80px', right: '-80px', width: '300px', height: '300px', borderRadius: '50%', background: 'rgba(37,99,235,0.12)', pointerEvents: 'none' }} />
+        <div style={{ position: 'absolute', bottom: '-60px', left: '-60px', width: '200px', height: '200px', borderRadius: '50%', background: 'rgba(79,70,229,0.10)', pointerEvents: 'none' }} />
+        <div style={{ position: 'absolute', top: '40%', right: '10%', width: '120px', height: '120px', borderRadius: '50%', background: 'rgba(14,165,233,0.06)', pointerEvents: 'none' }} />
 
-      {/* Login Card */}
-      <Card
-        padding={spacing.xxl}
-        style={{
-          backgroundColor: 'rgba(255, 255, 255, 0.88)',
-          backdropFilter: 'blur(24px)',
-          WebkitBackdropFilter: 'blur(24px)',
-          borderRadius: radii.xl,
-          border: 'none',
-          boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(255, 255, 255, 0.8)',
-          width: '100%',
-          maxWidth: '430px',
-          zIndex: 1,
-        }}
-      >
-        {/* Logo Area */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: spacing.md, marginBottom: spacing.lg }}>
-          <div
-            style={{
-              width: '42px',
-              height: '42px',
-              borderRadius: radii.md,
-              background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: '#ffffff',
-              fontSize: '22px',
-              boxShadow: '0 4px 12px rgba(245, 158, 11, 0.3)',
-            }}
-          >
-            <i className="fa-solid fa-house-medical"></i>
-          </div>
-          <div style={{ display: 'flex', flexDirection: 'column' }}>
-            <span style={{ color: colors.primary, fontWeight: 800, fontSize: '22px', lineHeight: '1.2', letterSpacing: '-0.3px' }}>
-              MediCare
-            </span>
-            <span style={{ ...typography.caption, color: colors.textMuted, letterSpacing: '0.4px', fontFamily: typography.fontFamily }}>
-              Securing Global Health
-            </span>
-          </div>
-        </div>
-
-        {/* Title Area */}
-        <div style={{ marginBottom: spacing.xl }}>
-          <h2
-            style={{
-              ...typography.sectionHeading,
-              color: colors.textMain,
-              fontSize: '20px',
-              margin: '0 0 4px 0',
-              letterSpacing: '-0.2px',
-              fontFamily: typography.fontFamily,
-            }}
-          >
-            Welcome Back to MediCare
-          </h2>
-          <p style={{ ...typography.body, color: colors.textMuted, margin: 0, fontFamily: typography.fontFamily }}>
-            Securely sign in to your enterprise account.
-          </p>
-        </div>
-
-        {/* Error Message */}
-        {errorMessage && (
-          <div style={{ marginBottom: spacing.lg }}>
-            <Alert tone="danger">
-              <div style={{ display: 'flex', alignItems: 'center', gap: spacing.sm }}>
-                <div style={{ flex: 1 }}>
-                  {errorMessage === 'ACCOUNT_LOCKED'
-                    ? 'Your account has been locked due to too many failed login attempts.'
-                    : errorMessage}
-                </div>
-
-                {errorMessage === 'ACCOUNT_LOCKED' && (
-                  <Button variant="danger" size="xs" onClick={onResetPassword}>
-                    Reset
-                  </Button>
-                )}
+        {/* Logo + Brand */}
+        <div style={{ marginBottom: '48px', position: 'relative' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '8px' }}>
+            <div style={{
+              width: '48px', height: '48px', borderRadius: radii.lg,
+              background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              boxShadow: '0 8px 24px rgba(37,99,235,0.4)', flexShrink: 0,
+            }}>
+              <i className="fa-solid fa-house-medical" style={{ fontSize: '22px', color: '#fff' }} />
+            </div>
+            <div>
+              <div style={{ fontSize: '24px', fontWeight: 800, color: '#fff', letterSpacing: '-0.5px' }}>
+                {facilityName}
               </div>
-            </Alert>
-          </div>
-        )}
-
-        {/* Login Form */}
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: spacing.lg }}>
-          {/* Username Input Group */}
-          <Input
-            label="User Name"
-            required
-            type="text"
-            placeholder="user@hospital.com"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            disabled={isLoading}
-            leftIcon="fa-regular fa-envelope"
-          />
-
-          {/* Password Input Group */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: spacing.xs }}>
-            <label style={{ ...typography.label, color: colors.textMain, fontFamily: typography.fontFamily }}>
-              Password
-            </label>
-            {/* Input doesn't expose a trailing/right-icon slot, so the show/hide
-                toggle is layered on top of it in a position:relative wrapper --
-                same toggle element and click behavior as before, just restyled. */}
-            <div style={{ position: 'relative' }}>
-              <Input
-                type={showPassword ? 'text' : 'password'}
-                placeholder="••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                disabled={isLoading}
-                leftIcon="fa-solid fa-lock"
-                style={{ paddingRight: '38px' }}
-              />
-              <div
-                onClick={() => setShowPassword(!showPassword)}
-                style={{
-                  position: 'absolute',
-                  right: spacing.sm,
-                  top: '50%',
-                  transform: 'translateY(-50%)',
-                  color: colors.textMuted,
-                  cursor: 'pointer',
-                  fontSize: '14px',
-                }}
-                title={showPassword ? 'Hide password' : 'Show password'}
-              >
-                <i className={showPassword ? 'fa-regular fa-eye' : 'fa-regular fa-eye-slash'}></i>
+              <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.5)', letterSpacing: '1px', textTransform: 'uppercase' }}>
+                Hospital Management System
               </div>
             </div>
           </div>
+        </div>
 
-          {/* Remember Me & Forgot Password Row */}
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              marginTop: spacing.xs,
-            }}
-          >
-            <Checkbox
-              id="keepSignedIn"
-              label="Keep me signed in"
-              checked={keepSignedIn}
-              onChange={(checked) => setKeepSignedIn(checked)}
-            />
+        {/* Tagline */}
+        <h2 style={{
+          margin: '0 0 12px 0', fontSize: '28px', fontWeight: 800, color: '#fff',
+          lineHeight: 1.2, letterSpacing: '-0.5px',
+        }}>
+          Modern Healthcare,<br />
+          <span style={{ color: '#60a5fa' }}>Simplified.</span>
+        </h2>
+        <p style={{ margin: '0 0 40px 0', fontSize: '14px', color: 'rgba(255,255,255,0.55)', lineHeight: 1.6 }}>
+          An enterprise-grade platform for hospitals to manage patients, billing, pharmacy, lab, and more — all in one integrated system.
+        </p>
 
-            <a
-              href="#"
-              onClick={(e) => {
-                e.preventDefault();
-                if (onResetPassword) onResetPassword();
-              }}
-              style={{
-                color: '#d97706',
-                fontSize: typography.helper.fontSize,
-                fontWeight: 600,
-                textDecoration: 'none',
-              }}
-            >
-              Forgot Password?
-            </a>
+        {/* Feature highlights */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+          {FEATURES.map((f, i) => (
+            <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '14px' }}>
+              <div style={{
+                width: '38px', height: '38px', borderRadius: radii.md, flexShrink: 0,
+                background: 'rgba(37,99,235,0.25)', border: '1px solid rgba(37,99,235,0.4)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                color: '#60a5fa', fontSize: '15px',
+              }}>
+                <i className={`fa-solid ${f.icon}`} />
+              </div>
+              <div>
+                <div style={{ fontSize: '13px', fontWeight: 700, color: '#fff', marginBottom: '2px' }}>{f.label}</div>
+                <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.45)', lineHeight: 1.4 }}>{f.desc}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Bottom version note */}
+        <div style={{ marginTop: '48px', fontSize: '11px', color: 'rgba(255,255,255,0.25)', letterSpacing: '0.5px' }}>
+          HIMS v2.0 · Enterprise Edition
+        </div>
+      </div>
+
+      {/* ── Right panel (login form) ── */}
+      <div style={{
+        flex: 1,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '32px 24px',
+        backgroundColor: colors.surfaceMuted,
+      }}>
+        <div style={{
+          width: '100%',
+          maxWidth: '420px',
+        }}>
+          {/* Form card */}
+          <div style={{
+            backgroundColor: colors.surface,
+            borderRadius: radii.xl,
+            border: `1px solid ${colors.border}`,
+            boxShadow: shadows['2xl'],
+            padding: '40px',
+          }}>
+            {/* Form header */}
+            <div style={{ marginBottom: '32px' }}>
+              <h1 style={{ margin: '0 0 6px 0', fontSize: '22px', fontWeight: 800, color: colors.textMain, letterSpacing: '-0.3px' }}>
+                Sign in
+              </h1>
+              <p style={{ margin: 0, fontSize: '13px', color: colors.textSubtle }}>
+                Enter your credentials to access {facilityName}
+              </p>
+            </div>
+
+            {/* Error / Locked state */}
+            {(errorMessage || isAccountLocked) && (
+              <div style={{
+                display: 'flex', alignItems: 'flex-start', gap: '10px',
+                padding: '12px 14px',
+                backgroundColor: isAccountLocked ? colors.warningBg : colors.dangerBg,
+                border: `1px solid ${isAccountLocked ? colors.warningBorder : colors.dangerBorder}`,
+                borderRadius: radii.md, marginBottom: '20px',
+              }}>
+                <i
+                  className={`fa-solid ${isAccountLocked ? 'fa-lock' : 'fa-circle-exclamation'}`}
+                  style={{ fontSize: '15px', color: isAccountLocked ? colors.warning : colors.danger, flexShrink: 0, marginTop: '1px' }}
+                />
+                <div>
+                  {isAccountLocked && (
+                    <div style={{ fontSize: '13px', fontWeight: 700, color: colors.warningText, marginBottom: '2px' }}>Account Locked</div>
+                  )}
+                  <div style={{ fontSize: '13px', color: isAccountLocked ? colors.warningText : colors.dangerText }}>
+                    {errorMessage || 'Your account has been temporarily locked. Please contact an administrator.'}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Form */}
+            <form onSubmit={handleSubmit} noValidate>
+              {/* Username */}
+              <div style={{ marginBottom: '18px' }}>
+                <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: colors.textMuted, marginBottom: '6px', letterSpacing: '0.1px' }}>
+                  Username
+                </label>
+                <div style={{ position: 'relative' }}>
+                  <i
+                    className="fa-solid fa-user"
+                    style={{
+                      position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)',
+                      fontSize: '13px', color: userFocused ? colors.primary : colors.textSubtle,
+                      transition: transitions.fast, pointerEvents: 'none',
+                    }}
+                  />
+                  <input
+                    ref={usernameRef}
+                    id="login-username"
+                    type="text"
+                    autoComplete="username"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    onFocus={() => setUserFocused(true)}
+                    onBlur={() => { setUserFocused(false); setTouched((p) => ({ ...p, username: true })); }}
+                    placeholder="Enter your username"
+                    style={inputStyle(userFocused, !!usernameError)}
+                    disabled={isLoading || isAccountLocked}
+                  />
+                </div>
+                {usernameError && (
+                  <div style={{ fontSize: '11px', color: colors.danger, marginTop: '4px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    <i className="fa-solid fa-circle-exclamation" style={{ fontSize: '10px' }} />
+                    {usernameError}
+                  </div>
+                )}
+              </div>
+
+              {/* Password */}
+              <div style={{ marginBottom: '20px' }}>
+                <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: colors.textMuted, marginBottom: '6px', letterSpacing: '0.1px' }}>
+                  Password
+                </label>
+                <div style={{ position: 'relative' }}>
+                  <i
+                    className="fa-solid fa-lock"
+                    style={{
+                      position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)',
+                      fontSize: '13px', color: passFocused ? colors.primary : colors.textSubtle,
+                      transition: transitions.fast, pointerEvents: 'none',
+                    }}
+                  />
+                  <input
+                    ref={passwordRef}
+                    id="login-password"
+                    type={showPassword ? 'text' : 'password'}
+                    autoComplete="current-password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    onFocus={() => setPassFocused(true)}
+                    onBlur={() => { setPassFocused(false); setTouched((p) => ({ ...p, password: true })); }}
+                    placeholder="Enter your password"
+                    style={{ ...inputStyle(passFocused, !!passwordError), paddingRight: '44px' }}
+                    disabled={isLoading || isAccountLocked}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((v) => !v)}
+                    style={{
+                      position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)',
+                      background: 'none', border: 'none', cursor: 'pointer', padding: '4px',
+                      color: colors.textSubtle, fontSize: '14px', transition: transitions.fast,
+                    }}
+                    onMouseEnter={(e) => (e.currentTarget.style.color = colors.primary)}
+                    onMouseLeave={(e) => (e.currentTarget.style.color = colors.textSubtle)}
+                    tabIndex={-1}
+                    aria-label={showPassword ? 'Hide password' : 'Show password'}
+                  >
+                    <i className={`fa-regular ${showPassword ? 'fa-eye-slash' : 'fa-eye'}`} />
+                  </button>
+                </div>
+                {passwordError && (
+                  <div style={{ fontSize: '11px', color: colors.danger, marginTop: '4px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    <i className="fa-solid fa-circle-exclamation" style={{ fontSize: '10px' }} />
+                    {passwordError}
+                  </div>
+                )}
+              </div>
+
+              {/* Remember + Forgot */}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', userSelect: 'none' }}>
+                  <input
+                    type="checkbox"
+                    id="login-remember"
+                    checked={rememberMe}
+                    onChange={(e) => setRememberMe(e.target.checked)}
+                    style={{ accentColor: colors.primary, width: '14px', height: '14px', cursor: 'pointer' }}
+                  />
+                  <span style={{ fontSize: '13px', color: colors.textMuted, fontFamily: typography.fontFamily }}>
+                    Keep me signed in
+                  </span>
+                </label>
+                {onResetPassword && (
+                  <button
+                    type="button"
+                    onClick={onResetPassword}
+                    style={{
+                      background: 'none', border: 'none', cursor: 'pointer', padding: 0,
+                      fontSize: '13px', color: colors.primary, fontWeight: 600,
+                      fontFamily: typography.fontFamily, transition: transitions.fast,
+                    }}
+                    onMouseEnter={(e) => (e.currentTarget.style.color = colors.primaryHover)}
+                    onMouseLeave={(e) => (e.currentTarget.style.color = colors.primary)}
+                  >
+                    Forgot password?
+                  </button>
+                )}
+              </div>
+
+              {/* Sign In button */}
+              <button
+                id="login-submit-btn"
+                type="submit"
+                disabled={isLoading || isAccountLocked}
+                style={{
+                  width: '100%', height: '44px',
+                  backgroundColor: isLoading || isAccountLocked ? colors.textDisabled : colors.primary,
+                  color: '#fff', border: 'none', borderRadius: radii.md,
+                  fontSize: '14px', fontWeight: 700, fontFamily: typography.fontFamily,
+                  cursor: isLoading || isAccountLocked ? 'not-allowed' : 'pointer',
+                  transition: transitions.base,
+                  boxShadow: isLoading || isAccountLocked ? 'none' : '0 4px 14px rgba(37,99,235,0.35)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
+                  letterSpacing: '0.3px',
+                }}
+                onMouseEnter={(e) => {
+                  if (!isLoading && !isAccountLocked) {
+                    (e.currentTarget as HTMLButtonElement).style.backgroundColor = colors.primaryHover;
+                    (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 6px 20px rgba(37,99,235,0.45)';
+                    (e.currentTarget as HTMLButtonElement).style.transform = 'translateY(-1px)';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (!isLoading && !isAccountLocked) {
+                    (e.currentTarget as HTMLButtonElement).style.backgroundColor = colors.primary;
+                    (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 4px 14px rgba(37,99,235,0.35)';
+                    (e.currentTarget as HTMLButtonElement).style.transform = 'translateY(0)';
+                  }
+                }}
+              >
+                {isLoading ? (
+                  <>
+                    <i className="fa-solid fa-circle-notch fa-spin" style={{ fontSize: '14px' }} />
+                    Signing in…
+                  </>
+                ) : (
+                  <>
+                    <i className="fa-solid fa-right-to-bracket" style={{ fontSize: '14px' }} />
+                    Sign in
+                  </>
+                )}
+              </button>
+            </form>
+
+            {/* SSO divider */}
+            {onSSOLogin && (
+              <>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', margin: '20px 0' }}>
+                  <div style={{ flex: 1, height: '1px', backgroundColor: colors.border }} />
+                  <span style={{ fontSize: '12px', color: colors.textSubtle, fontWeight: 500 }}>or</span>
+                  <div style={{ flex: 1, height: '1px', backgroundColor: colors.border }} />
+                </div>
+
+                <button
+                  type="button"
+                  onClick={onSSOLogin}
+                  disabled={isLoading}
+                  style={{
+                    width: '100%', height: '44px',
+                    backgroundColor: colors.surface, color: colors.textBody,
+                    border: `1.5px solid ${colors.border}`, borderRadius: radii.md,
+                    fontSize: '13px', fontWeight: 600, fontFamily: typography.fontFamily,
+                    cursor: isLoading ? 'not-allowed' : 'pointer',
+                    transition: transitions.base,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
+                    boxShadow: shadows.xs,
+                  }}
+                  onMouseEnter={(e) => {
+                    if (!isLoading) { (e.currentTarget as HTMLButtonElement).style.backgroundColor = colors.surfaceMuted; (e.currentTarget as HTMLButtonElement).style.borderColor = colors.borderStrong; }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!isLoading) { (e.currentTarget as HTMLButtonElement).style.backgroundColor = colors.surface; (e.currentTarget as HTMLButtonElement).style.borderColor = colors.border; }
+                  }}
+                >
+                  <i className="fa-solid fa-key" style={{ color: colors.primary }} />
+                  Continue with SSO
+                </button>
+              </>
+            )}
           </div>
 
-          {/* Sign In Button -- Button's own loading/loadingText affordance
-              drives the in-progress spinner, replacing the hand-rolled
-              <i class="fa-spin"/> markup; isLoading still governs it exactly
-              as before. */}
-          <Button
-            type="submit"
-            disabled={isLoading || !username || !password}
-            loading={isLoading}
-            loadingText="Signing In..."
-            fullWidth
-            size="md"
-            variant="primary"
-            style={{ marginTop: spacing.xs }}
-          >
-            Sign In
-          </Button>
-        </form>
-
-        {/* Divider */}
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            margin: `${spacing.lg} 0`,
-          }}
-        >
-          <div style={{ flex: 1, height: '1px', backgroundColor: colors.border }}></div>
-          <span style={{ padding: `0 ${spacing.md}`, color: colors.textSubtle, fontSize: '12px', fontWeight: 500 }}>or</span>
-          <div style={{ flex: 1, height: '1px', backgroundColor: colors.border }}></div>
+          {/* Footer */}
+          <div style={{ textAlign: 'center', marginTop: '24px' }}>
+            <p style={{ fontSize: '12px', color: colors.textSubtle, margin: 0 }}>
+              © {new Date().getFullYear()} {facilityName}. All rights reserved.
+            </p>
+          </div>
         </div>
-
-        {/* S.S.O Button */}
-        <Button
-          type="button"
-          variant="outline"
-          icon="fa-solid fa-key"
-          fullWidth
-          size="md"
-          style={{
-            color: '#b45309',
-            borderColor: '#f59e0b',
-            backgroundColor: 'rgba(254, 243, 199, 0.4)',
-            marginBottom: spacing.lg,
-          }}
-        >
-          Sign in with S.S.O.
-        </Button>
-
-        {/* Footer Admin Link */}
-        <div style={{ textAlign: 'center', color: colors.textMuted, fontSize: typography.body.fontSize }}>
-          Don't have an account?{' '}
-          <a
-            href="#"
-            style={{
-              color: colors.primary,
-              fontWeight: 600,
-              textDecoration: 'none',
-            }}
-          >
-            Contact Admin.
-          </a>
-        </div>
-      </Card>
+      </div>
     </div>
   );
 };

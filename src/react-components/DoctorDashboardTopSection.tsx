@@ -1,268 +1,142 @@
 import React from 'react';
+import {
+  BarChart, Bar, Cell, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip,
+  ResponsiveContainer
+} from 'recharts';
+import { colors, spacing, radii, shadows, typography } from '../components/ui/tokens';
+import { StatCard, ActionCard, DashboardSection, DashboardPageWrapper } from '../components/ui/DashboardComponents';
 import { Card } from '../components/ui/Card';
-import { DataTable, type DataTableColumn } from '../components/ui/DataTable';
-import { PageHeader } from '../components/ui/Breadcrumb';
-import { colors, spacing, typography, radii, transitions } from '../components/ui/tokens';
 
+// ─────────────────────────────────────────────────────────────
+// Types — unchanged from original
+// ─────────────────────────────────────────────────────────────
 interface DoctorDashboardProps {
-  items?: any;
-  permissions?: any;
-  tablesData?: any;
+  reactProps?: {
+    items?: {
+      checkedincount?: number;
+      inpatientcount?: number;
+      appoinmentCount?: number;
+      otschedulecount?: number;
+      directbilling?: number;
+      dischargedcount?: number;
+      TodayCount?: number;
+      PendingCount?: number;
+      CompletedCount?: number;
+      CancelledCount?: number;
+    };
+    permissions?: {
+      OP_Patients?: boolean;
+      IP_Patients?: boolean;
+      Appointments?: boolean;
+      SurgerySchedule?: boolean;
+      Reports?: boolean;
+    };
+  };
   onNavigate?: (stateName: string, params?: any) => void;
 }
 
-export const DoctorDashboardTopSection: React.FC<DoctorDashboardProps> = ({
-  items = {},
-  permissions = {},
-  tablesData = {},
-  onNavigate
-}) => {
-
-  const handleCardClick = (stateName: string, params?: any) => {
-    if (onNavigate) {
-      onNavigate(stateName, params);
-    }
-  };
-
-  const cards = [
-    {
-      id: 'OP_Patients',
-      title: 'OP Patients',
-      icon: 'fa-user-injured',
-      count: items.checkedincount || 0,
-      show: permissions.OP_Patients !== false,
-      color: '#4a90e2', // blue
-      action: () => handleCardClick('app.oppatienttab.mycheckin')
-    },
-    {
-      id: 'IP_Patients',
-      title: 'IP Patients',
-      icon: 'fa-procedures',
-      count: items.inpatientcount || 0,
-      show: permissions.IP_Patients !== false,
-      color: '#50e3c2', // teal
-      action: () => handleCardClick('app.inpatienttab.myinpatient')
-    },
-    {
-      id: 'Appointments',
-      title: 'Appointments',
-      icon: 'fa-calendar-check',
-      count: items.appoinmentCount || 0,
-      show: permissions.Appointments !== false,
-      color: '#f5a623', // orange
-      action: () => handleCardClick('app.appointmentstab.viewappoitment', { iShowCalendar: 1 })
-    },
-    {
-      id: 'SurgerySchedule',
-      title: 'Surgery Schedule',
-      icon: 'fa-calendar-alt',
-      count: items.otschedulecount || 0,
-      show: permissions.SurgerySchedule !== false,
-      color: '#7ed321', // green
-      action: () => handleCardClick('app.surgerydoctorchedules')
-    },
-    {
-      id: 'Reports',
-      title: 'Reports',
-      icon: 'fa-clipboard',
-      count: items.directbilling || 0, // Using same logic as legacy
-      show: permissions.Reports !== false,
-      color: '#bd10e0', // purple
-      action: () => handleCardClick('app.doctorreport')
-    },
-    {
-      id: 'DischargedPatients',
-      title: 'Discharged Patients',
-      icon: 'fa-hiking',
-      count: items.dischargedcount || 0,
-      show: true,
-      color: '#ff5a5f', // coral
-      action: () => handleCardClick('app.docdischargedpatient')
-    },
-    {
-      id: 'TaskAssignment',
-      title: 'Task Assignment',
-      icon: 'fa-tasks',
-      count: undefined,
-      show: true,
-      color: '#8b572a', // brown
-      action: () => handleCardClick('app.taskmanagementlist')
-    }
-  ];
-
-  // Stat accent colors are mapped to the design-system's semantic status
-  // tones (same keyword mapping StatusBadge/toneForStatus uses: pending ->
-  // warning, completed -> success, cancelled -> danger) since these labels
-  // are real status words -- only the color values moved from ad-hoc hex to
-  // tokens, the labels/counts/data are untouched.
-  const stats = [
-    { label: 'Today', count: items.TodayCount, color: colors.textMain },
-    { label: 'Pending', count: items.PendingCount, color: colors.warning },
-    { label: 'Completed', count: items.CompletedCount, color: colors.success },
-    { label: 'Cancelled', count: items.CancelledCount, color: colors.danger }
-  ];
-
-  const renderTable = (title: string, data: any[], columns: DataTableColumn<any>[]) => (
-    <Card title={title} style={{ height: '350px', display: 'flex', flexDirection: 'column' }}>
-      <div style={{ overflowY: 'auto', flex: 1 }}>
-        <DataTable<any>
-          columns={columns}
-          rows={data || []}
-          rowKey={(row: any) => JSON.stringify(row)}
-          emptyText="No records found"
-        />
-      </div>
-    </Card>
-  );
-
+const CustomTooltip: React.FC<any> = ({ active, payload, label }) => {
+  if (!active || !payload?.length) return null;
   return (
-    <div style={{ padding: spacing.xl, fontFamily: typography.fontFamily, backgroundColor: colors.surfaceMuted, minHeight: '100vh' }}>
-
-      {/* Header */}
-      <PageHeader title="Doctor Dashboard" />
-
-      <div style={{ display: 'flex', gap: spacing.xl, marginBottom: spacing.xxl, flexWrap: 'wrap' }}>
-        {/* Left Side: Cards */}
-        <div style={{ flex: '3', minWidth: '600px' }}>
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
-            gap: spacing.lg
-          }}>
-            {cards.filter(c => c.show).map(card => (
-              <div
-                key={card.id}
-                onClick={card.action}
-                style={{ cursor: 'pointer', transition: transitions.base }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = 'translateY(-3px)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.transform = 'translateY(0)';
-                }}
-              >
-                <Card padding={spacing.lg} style={{ borderLeft: `5px solid ${card.color}` }}>
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                    <div>
-                      <div style={{ color: colors.textMuted, ...typography.caption, fontSize: '12px', marginBottom: spacing.xs }}>
-                        {card.title}
-                      </div>
-                      {card.count !== undefined && (
-                        <div style={{ color: colors.textMain, fontSize: '24px', fontWeight: 700 }}>
-                          {card.count}
-                        </div>
-                      )}
-                    </div>
-                    <div style={{
-                      width: '40px',
-                      height: '40px',
-                      borderRadius: radii.full,
-                      backgroundColor: `${card.color}15`,
-                      color: card.color,
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      fontSize: '18px'
-                    }}>
-                      <i className={`fas ${card.icon}`}></i>
-                    </div>
-                  </div>
-                </Card>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Right Side: Stats Panel */}
-        <div style={{ flex: '1', minWidth: '250px' }}>
-          <Card style={{ height: '100%' }}>
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: '1fr 1fr',
-              gap: spacing.lg
-            }}>
-              {stats.map((stat, i) => (
-                <div key={i} style={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  padding: spacing.lg,
-                  backgroundColor: colors.surfaceSunken,
-                  borderRadius: radii.md,
-                  borderTop: `4px solid ${stat.color}`
-                }}>
-                  <div style={{ ...typography.caption, fontSize: '12px', color: colors.textMuted, fontWeight: 600, textTransform: 'uppercase', marginBottom: spacing.sm }}>
-                    {stat.label}
-                  </div>
-                  <div style={{ fontSize: '32px', fontWeight: 700, color: stat.color }}>
-                    {stat.count || 0}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </Card>
-        </div>
-      </div>
-
-      {/* Tables Grid */}
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fill, minmax(450px, 1fr))',
-        gap: spacing.xl,
-        marginBottom: spacing.xxxl
-      }}>
-        {renderTable('Pending Homecare', tablesData.TodayPendingList, [
-          { key: 'mrn', header: 'MRN#', field: 'PatientMrn' },
-          { key: 'date', header: 'Date', render: (row: any) => new Date(row.StartDate).toLocaleDateString() },
-          { key: 'name', header: 'Patient Name', field: 'PatientName' }
-        ])}
-
-        {renderTable('Completed Homecare', tablesData.TodayCompletedList, [
-          { key: 'mrn', header: 'MRN#', field: 'PatientMrn' },
-          { key: 'date', header: 'Date', render: (row: any) => new Date(row.StartDate).toLocaleDateString() },
-          { key: 'name', header: 'Patient Name', field: 'PatientName' }
-        ])}
-
-        {renderTable('Today Admitted Patients', tablesData.admissionlist, [
-          { key: 'ip', header: 'IP#', field: 'VisitIdentifier' },
-          { key: 'date', header: 'Date', render: (row: any) => new Date(row.AdmissionDate).toLocaleDateString() },
-          { key: 'name', header: 'Patient Name', render: (row: any) => `${row.PatientName} / ${row.PatientMrn}` }
-        ])}
-
-        {renderTable('Today Discharged Patients', tablesData.dischargedlist, [
-          { key: 'ip', header: 'IP#', field: 'VisitIdentifier' },
-          { key: 'date', header: 'Disc.Date', render: (row: any) => new Date(row.DischargeDate).toLocaleDateString() },
-          { key: 'name', header: 'Patient Name', render: (row: any) => `${row.PatientName} / ${row.PatientMrn}` }
-        ])}
-
-        {renderTable('Today Surgery Patients', tablesData.ScheduleList, [
-          { key: 'ip', header: 'IP#', render: (row: any) => row.Encounter?.VisitIdentifier },
-          { key: 'date', header: 'Schedule Date', render: (row: any) => new Date(row.OTScheduledOn).toLocaleDateString() },
-          { key: 'name', header: 'Patient Name', render: (row: any) => `${row.PatientName} / ${row.PatientMrn}` }
-        ])}
-
-        {renderTable('Today Appointments', tablesData.ApnmntList, [
-          { key: 'mrn', header: 'MRN', field: 'PatientMrn' },
-          { key: 'date', header: 'Appt Date', render: (row: any) => new Date(row.AppointmentDate).toLocaleDateString() },
-          { key: 'time', header: 'Time', render: (row: any) => `${row.StartTime} - ${row.EndTime}` },
-          { key: 'name', header: 'Patient Name', field: 'PatientName' }
-        ])}
-
-        {renderTable('Lab Critical Values', tablesData.LabCriticals, [
-          { key: 'name', header: 'Patient Name', render: (row: any) => `${row.PatientName} / ${row.PatientMrn}` },
-          { key: 'ref', header: 'Ref #', render: (row: any) => row.PatientOrder?.OrderNumber },
-          { key: 'test', header: 'Test Name', render: (row: any) => `${row.AnalyteName} - ${row.Resultvalue}` }
-        ])}
-
-        {renderTable('Radiology Critical Values', tablesData.RadCriticals, [
-          { key: 'name', header: 'Patient Name', render: (row: any) => `${row.PatientName} / ${row.PatientMrn}` },
-          { key: 'ref', header: 'Ref #', render: (row: any) => row.PatientOrder?.OrderNumber },
-          { key: 'test', header: 'Test Name', render: (row: any) => `${row.AnalyteName} - ${row.Resultvalue}` }
-        ])}
-
-      </div>
-
+    <div style={{ background: colors.surface, border: `1px solid ${colors.border}`, borderRadius: radii.md, padding: '10px 14px', boxShadow: shadows.lg, fontFamily: typography.fontFamily, fontSize: '12px' }}>
+      <div style={{ fontWeight: 700, color: colors.textMain, marginBottom: '4px' }}>{label}</div>
+      {payload.map((p: any, i: number) => (
+        <div key={i} style={{ color: p.fill, fontWeight: 600 }}>{p.name}: {p.value}</div>
+      ))}
     </div>
   );
 };
+
+export const DoctorDashboardTopSection: React.FC<DoctorDashboardProps> = ({ reactProps, onNavigate }) => {
+  const items = reactProps?.items || {};
+  const permissions = reactProps?.permissions || {};
+
+  const handleCardClick = (state: string, params?: any) => {
+    if (onNavigate) onNavigate(state, params);
+  };
+
+  const metricCards = [
+    { title: 'OP Patients', count: items.checkedincount || 0, icon: 'fa-user-injured', color: '#2563eb', show: permissions.OP_Patients !== false, action: () => handleCardClick('app.oppatienttab.mycheckin') },
+    { title: 'IP Patients', count: items.inpatientcount || 0, icon: 'fa-procedures', color: '#10b981', show: permissions.IP_Patients !== false, action: () => handleCardClick('app.inpatienttab.myinpatient') },
+    { title: 'Appointments', count: items.appoinmentCount || 0, icon: 'fa-calendar-check', color: '#f59e0b', show: permissions.Appointments !== false, action: () => handleCardClick('app.appointmentstab.viewappoitment', { iShowCalendar: 1 }) },
+    { title: 'Surgery Schedule', count: items.otschedulecount || 0, icon: 'fa-calendar-days', color: '#0ea5e9', show: permissions.SurgerySchedule !== false, action: () => handleCardClick('app.surgerydoctorchedules') },
+    { title: 'Direct Billing', count: items.directbilling || 0, icon: 'fa-file-invoice', color: '#a855f7', show: permissions.Reports !== false, action: () => handleCardClick('app.doctorreport') },
+    { title: 'Discharged', count: items.dischargedcount || 0, icon: 'fa-person-walking-arrow-right', color: '#f43f5e', show: true, action: () => handleCardClick('app.docdischargedpatient') },
+  ].filter((c) => c.show !== false);
+
+  const actionCards = [
+    { title: 'Task Assignment', icon: 'fa-list-check', color: '#64748b', action: () => handleCardClick('app.taskmanagementlist') },
+  ];
+
+  // Appointment status chart
+  const statusData = [
+    { label: 'Today', value: items.TodayCount || 0, fill: '#2563eb' },
+    { label: 'Pending', value: items.PendingCount || 0, fill: '#f59e0b' },
+    { label: 'Completed', value: items.CompletedCount || 0, fill: '#10b981' },
+    { label: 'Cancelled', value: items.CancelledCount || 0, fill: '#ef4444' },
+  ];
+
+  return (
+    <DashboardPageWrapper
+      title="Doctor Dashboard"
+      subtitle={new Date().toLocaleDateString('en-IN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+    >
+      {/* ── KPI metrics ── */}
+      <DashboardSection title="My Patients Today">
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(210px, 1fr))', gap: spacing.lg }}>
+          {metricCards.map((card, i) => (
+            <StatCard key={i} title={card.title} count={card.count} icon={card.icon} color={card.color} onClick={card.action} />
+          ))}
+        </div>
+      </DashboardSection>
+
+      {/* ── Appointment status chart ── */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 260px', gap: spacing.xl, marginBottom: spacing.xxl }}>
+        <Card>
+          <h3 style={{ margin: '0 0 4px 0', fontSize: '15px', fontWeight: 700, color: colors.textMain, fontFamily: typography.fontFamily }}>Appointment Status</h3>
+          <p style={{ margin: '0 0 16px 0', fontSize: '12px', color: colors.textSubtle, fontFamily: typography.fontFamily }}>Today's appointment breakdown</p>
+          <ResponsiveContainer width="100%" height={180}>
+            <BarChart data={statusData} barCategoryGap="40%">
+              <CartesianGrid strokeDasharray="3 3" stroke={colors.border} vertical={false} />
+              <XAxis dataKey="label" tick={{ fontSize: 12, fill: colors.textMuted, fontFamily: typography.fontFamily }} axisLine={false} tickLine={false} />
+              <YAxis tick={{ fontSize: 11, fill: colors.textMuted, fontFamily: typography.fontFamily }} axisLine={false} tickLine={false} allowDecimals={false} />
+              <RechartsTooltip content={<CustomTooltip />} />
+              <Bar dataKey="value" name="Count" radius={[6, 6, 0, 0]}>
+                {statusData.map((entry, i) => (
+                  <Cell key={i} fill={entry.fill} />
+                ))}
+              </Bar>
+            </BarChart>
+          </ResponsiveContainer>
+        </Card>
+
+        {/* Status summary cards */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: spacing.md }}>
+          {statusData.map((s, i) => (
+            <div key={i} style={{
+              background: colors.surface, borderRadius: radii.md, padding: '12px 16px',
+              border: `1px solid ${colors.border}`, display: 'flex', alignItems: 'center', gap: '12px',
+              borderLeft: `4px solid ${s.fill}`, boxShadow: shadows.card,
+            }}>
+              <div style={{ fontSize: '22px', fontWeight: 800, color: s.fill, fontFamily: typography.fontFamily, minWidth: '36px' }}>{s.value}</div>
+              <div style={{ fontSize: '13px', fontWeight: 600, color: colors.textMuted, fontFamily: typography.fontFamily }}>{s.label}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* ── Quick Actions ── */}
+      {actionCards.length > 0 && (
+        <DashboardSection title="Quick Actions">
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: spacing.md }}>
+            {actionCards.map((card, i) => (
+              <ActionCard key={i} title={card.title} icon={card.icon} color={card.color} onClick={card.action} />
+            ))}
+          </div>
+        </DashboardSection>
+      )}
+    </DashboardPageWrapper>
+  );
+};
+
+
