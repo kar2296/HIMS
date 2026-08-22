@@ -69,6 +69,7 @@ import { PatientDeathRecordFormScreen, DeceasedFormScreen } from './react-compon
 
 // Import DeactivateRemarksScreen Component
 import { DeactivateRemarksScreen } from './react-components/DeactivateRemarksScreen';
+import { BillingRemarksScreen } from './react-components/BillingRemarksScreen';
 
 // Import InpatientTabScreen Component
 import { InpatientTabScreen } from './react-components/InpatientTabScreen';
@@ -346,6 +347,7 @@ import { FindBillModalComponent } from './react-components/FindBillModalComponen
   PatientDeathRecordFormScreen,
   DeceasedFormScreen,
   DeactivateRemarksScreen,
+  BillingRemarksScreen,
   InpatientTabScreen,
   OpdBillScreen,
   VisitCreateFormPatientHeader,

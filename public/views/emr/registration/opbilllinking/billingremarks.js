@@ -43,6 +43,8 @@
         }
         $scope.getItemCallback = function (scope, data, options, hasError) {
             $scope.item = data;
+            $scope.reactProps.item = $scope.item;
+            $scope.$applyAsync();
         };
 
         $scope.getItem = function (pageNo) {
@@ -75,6 +77,32 @@
             utl.Http.doAction(options);
         }
         $scope.initLookup();
+
+        // ---------------------------------------------------------------
+        // REACT BRIDGE WIRING (migrated to BillingRemarksScreen.tsx).
+        // All API calls/business logic above are untouched.
+        // ---------------------------------------------------------------
+        $scope.reactProps = {
+            item: $scope.item,
+            isModal: $scope.currentcontext.ismodal
+        };
+
+        $scope.handleReactAction = function (actionName, payload) {
+            switch (actionName) {
+                case 'itemFieldChange':
+                    $scope.item[payload.field] = payload.value;
+                    break;
+                case 'saveItem':
+                    $scope.saveItem();
+                    break;
+                case 'cancel':
+                    $scope.cancelCallback();
+                    break;
+                default:
+                    break;
+            }
+            $scope.$applyAsync();
+        };
     }
 
     BillingRemarksController.$inject = ['$scope', '$stateParams', '$state', '$translate', 'utl', '$uibModalInstance', 'modalConfig'];
