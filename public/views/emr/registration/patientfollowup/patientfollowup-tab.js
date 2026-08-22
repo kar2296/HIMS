@@ -22,6 +22,25 @@
                 $state.go(tab.state);
 
         };
+
+        // ---------------------------------------------------------------
+        // REACT BRIDGE WIRING (migrated to PatientFollowupTabScreen.tsx).
+        // All logic above is untouched.
+        // ---------------------------------------------------------------
+        $scope.reactProps = {
+            tabs: $scope.tabs
+        };
+
+        $scope.handleReactAction = function (actionName, payload) {
+            switch (actionName) {
+                case 'switchTab':
+                    $scope.switchTab({ state: payload.state });
+                    break;
+                default:
+                    break;
+            }
+            $scope.$applyAsync();
+        };
     }
 
     PatientFollowupTabController.$inject = ['$scope', '$stateParams', '$state', '$translate'];

@@ -98,6 +98,9 @@ import { MyInpatientListScreen } from './react-components/MyInpatientListScreen'
 // Import PatientDischargeListScreen Component
 import { PatientDischargeListScreen } from './react-components/PatientDischargeListScreen';
 
+// Import PendingDischargesScreen Component
+import { PendingDischargesScreen } from './react-components/PendingDischargesScreen';
+
 // Import CurrentInpatientListScreen Component
 import { CurrentInpatientListScreen } from './react-components/CurrentInpatientListScreen';
 
@@ -122,11 +125,23 @@ import { QMSPatientsScreen } from './react-components/QMSPatientsScreen';
 // Import PayoutAttachmentListScreen Component
 import { PayoutAttachmentListScreen } from './react-components/PayoutAttachmentListScreen';
 
+// Import OrderTrackerScreen Component
+import { OrderTrackerScreen } from './react-components/OrderTrackerScreen';
+
 // Import PatientPickerArchiveScreen Component
 import { PatientPickerArchiveScreen } from './react-components/PatientPickerArchiveScreen';
 
 // Import PatientFeedbackScreen Component
 import { PatientFeedbackScreen } from './react-components/PatientFeedbackScreen';
+
+// Import PatientTrackerScreen Component
+import { PatientTrackerScreen } from './react-components/PatientTrackerScreen';
+
+// Import PatientFollowupTabScreen Component
+import { PatientFollowupTabScreen } from './react-components/PatientFollowupTabScreen';
+
+// Import PendingFollowup screens (Name filter, Filters, Grid)
+import { PendingFollowupNameFilterScreen, PendingFollowupFiltersScreen, PendingFollowupGridScreen } from './react-components/PendingFollowupListScreen';
 
 // Import LoginPage Component
 import { LoginPage } from './react-components/LoginPage';
@@ -310,6 +325,7 @@ import { FindBillModalComponent } from './react-components/FindBillModalComponen
   AllInpatientListScreen,
   MyInpatientListScreen,
   PatientDischargeListScreen,
+  PendingDischargesScreen,
   CurrentInpatientListScreen,
   OppatientTabScreen,
   MyOPPatientListScreen,
@@ -320,8 +336,14 @@ import { FindBillModalComponent } from './react-components/FindBillModalComponen
   PatientSearchScreen,
   QMSPatientsScreen,
   PayoutAttachmentListScreen,
+  OrderTrackerScreen,
   PatientPickerArchiveScreen,
   PatientFeedbackScreen,
+  PatientTrackerScreen,
+  PatientFollowupTabScreen,
+  PendingFollowupNameFilterScreen,
+  PendingFollowupFiltersScreen,
+  PendingFollowupGridScreen,
   LoginPage,
   SidebarComponent,
   TopNavbarComponent,

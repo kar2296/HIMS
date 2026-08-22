@@ -252,6 +252,101 @@
         };
 
         $scope.initLookup();
+
+        // ---------------------------------------------------------------
+        // REACT BRIDGE WIRING (migrated to PendingFollowupListScreen.tsx --
+        // 3 mounts: PendingFollowupNameFilterScreen, PendingFollowupFiltersScreen,
+        // PendingFollowupGridScreen, sharing this one reactProps/handleReactAction).
+        // All API calls/business logic above are untouched -- wrapped, not
+        // rewritten. See the disclosure comment block at the top of
+        // PendingFollowupListScreen.tsx for real, preserved bugs/dead code
+        // found while migrating (dead AdmissionDate filter param, broken
+        // doctor-autosearch itemchange wiring, silent 'patientinfo' no-op,
+        // edit-opens-as-add behavior, unreachable addNew(), dead
+        // backToList()/setDefaults(), and the unrelated dangling
+        // 'app.patientfollowuptab.followup' modal config).
+        // ---------------------------------------------------------------
+        function toIsoDateString(d) {
+            if (!d) return '';
+            var dt = new Date(d);
+            if (isNaN(dt.getTime())) return '';
+            var mm = ('0' + (dt.getMonth() + 1)).slice(-2);
+            var dd = ('0' + dt.getDate()).slice(-2);
+            return dt.getFullYear() + '-' + mm + '-' + dd;
+        }
+        function fromIsoDateString(s) {
+            if (!s) return null;
+            var parts = String(s).split('-');
+            if (parts.length !== 3) return null;
+            return new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
+        }
+
+        var _origGetListCallback = $scope.getListCallback;
+        $scope.getListCallback = function (scope, res, options, hasError) {
+            _origGetListCallback(scope, res, options, hasError);
+            updateReactProps();
+        };
+
+        function updateReactProps() {
+            $scope.reactProps = {
+                items: vm.gridConfig.data || [],
+                lookup: $scope.lookup || {},
+                currentfilter: {
+                    PatientName: $scope.currentfilter.PatientName,
+                    DepartmentId: $scope.currentfilter.DepartmentId,
+                    TeamId: $scope.currentfilter.TeamId,
+                    AdmissionDate: toIsoDateString($scope.currentfilter.AdmissionDate),
+                    MobileNo: $scope.currentfilter.MobileNo,
+                    EncounterTypeId: $scope.currentfilter.EncounterTypeId,
+                    EncounterStatusId: $scope.currentfilter.EncounterStatusId
+                },
+                pager: {
+                    totalItems: vm.gridConfig.pagerObj.totalItems,
+                    currentPage: vm.gridConfig.pagerObj.currentPage,
+                    pageSize: vm.gridConfig.pagerObj.pageSize
+                }
+            };
+        }
+
+        $scope.handleReactAction = function (actionName, payload) {
+            payload = payload || {};
+            switch (actionName) {
+                case 'filterChange':
+                    $scope.currentfilter[payload.field] = payload.value;
+                    updateReactProps();
+                    break;
+                case 'filterChangeAndSearch':
+                    if (payload.field === 'AdmissionDate') {
+                        $scope.currentfilter.AdmissionDate = fromIsoDateString(payload.value);
+                    } else {
+                        $scope.currentfilter[payload.field] = payload.value;
+                    }
+                    updateReactProps();
+                    $scope.getList();
+                    break;
+                case 'search':
+                    $scope.getList();
+                    break;
+                case 'pageChange':
+                    vm.gridConfig.pagerObj.currentPage = payload.page;
+                    $scope.getList();
+                    break;
+                case 'edit':
+                    $scope.handleEvents('edit', { entity: payload.entity });
+                    break;
+                case 'delete':
+                    $scope.handleEvents('delete', { entity: payload.entity });
+                    break;
+                // 'patientinfo' intentionally NOT handled here -- the real
+                // handleEvents() has no case for it either, so this remains
+                // the same silent no-op as production. See disclosure above.
+                default:
+                    break;
+            }
+            $scope.$applyAsync();
+        };
+
+        updateReactProps();
     }
 
     PendingListController.$inject = ['$scope', '$stateParams', '$state', '$translate', 'utl', '$filter', 'modalConfig'];

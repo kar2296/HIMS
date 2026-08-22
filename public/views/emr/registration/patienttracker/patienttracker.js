@@ -391,7 +391,80 @@
 
         $scope.initLookup();
         $scope.getPatientById();
+
+        // ---------------------------------------------------------------
+        // REACT BRIDGE WIRING (migrated to PatientTrackerScreen.tsx). All
+        // API calls/business logic above are 100% untouched; this only
+        // keeps $scope.reactProps in sync (by wrapping the existing
+        // callbacks) and dispatches UI events from the React component back
+        // into the real, unchanged $scope functions. See
+        // PatientTrackerScreen.tsx's header comment for every real
+        // bug/dead-code path disclosed during this migration (none of it is
+        // fixed here).
+        // ---------------------------------------------------------------
+        $scope.reactProps = {
+            item: $scope.item,
+            lookup: $scope.lookup,
+            assignToOptions: vm.AssignToOptions,
+            from: $scope.from
+        };
+
+        var origLookupCallback = $scope.lookupCallback;
+        $scope.lookupCallback = function (scope, data, options, hasError) {
+            origLookupCallback(scope, data, options, hasError);
+            $scope.reactProps.lookup = $scope.lookup;
+            $scope.reactProps.item = $scope.item;
+        };
+
+        $scope.handleReactAction = function (actionName, payload) {
+            switch (actionName) {
+                case 'itemFieldChange':
+                    $scope.item[payload.field] = payload.value;
+                    break;
+                case 'assignToChange':
+                    // Mirrors the original radiogroupcontrol's direct
+                    // ng-model="item.AssignTo" two-way binding -- there is
+                    // no existing onAssignToChange() function to call back
+                    // into, the real controller never had one.
+                    $scope.item.AssignTo = payload.value;
+                    break;
+                case 'groupChange':
+                    // Mirrors ng-model="item.AssignedGroupId" +
+                    // ng-change="onGroupChange($select.selected)" on the
+                    // real ui-select: set the id directly, then call the
+                    // real onGroupChange() with the matching lookup object
+                    // (same shape ui-select's $select.selected provided).
+                    $scope.item.AssignedGroupId = payload.value;
+                    var groupItem = utl.Lookup.getObject($scope.lookup.Group, payload.value);
+                    if (groupItem) {
+                        $scope.onGroupChange(groupItem);
+                    }
+                    break;
+                case 'durationPeriodChange':
+                    // Mirrors ng-model="item.DurationPeriodId" +
+                    // ng-change="onDurationPeriodChange($select.selected)".
+                    $scope.item.DurationPeriodId = payload.value;
+                    var periodItem = utl.Lookup.getObject($scope.lookup.DurationPeriod, payload.value);
+                    if (periodItem) {
+                        $scope.onDurationPeriodChange(periodItem);
+                    }
+                    break;
+                case 'followupDateChange':
+                    // Mirrors ng-model="item.FollowupAppointmentOn" on the
+                    // real uib-datepicker-popup input (a plain two-way
+                    // binding, no existing change handler to call).
+                    $scope.item.FollowupAppointmentOn = payload.value ? new Date(payload.value) : null;
+                    break;
+                case 'saveItem':
+                    $scope.saveItem();
+                    break;
+                default:
+                    break;
+            }
+            $scope.$applyAsync();
+        };
     }
+
 
 
     patientTrackerController.$inject = ['$scope', '$stateParams', '$state', '$translate', 'utl', '$uibModalInstance', 'modalConfig'];

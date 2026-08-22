@@ -1,13 +1,23 @@
+<!-- Fully reimplemented in React (OrderTrackerScreen), except <patientbanner>
+     which stays native (real, shared, async-fetching directive -- REUSABLE
+     SUB-WIDGET PATTERN, same treatment as on patientguarantor-list.html /
+     encounterguarantor-list.html and the Doctor <autosearch> on
+     registrationcumvisit.html).
+
+     See ordertracker.js for the full list of disclosed pre-existing bugs/
+     dead-code preserved as-is (the undefined $scope.print() referenced by
+     the real ng-click="print()", the broken totalseconds/totalMinutes TAT
+     math, dead backToList/cancelCallback, the unguarded
+     modalConfig.params.pid access, the never-filled oid/odid/TestId
+     Params, the dead initLookup/lookup round-trip, etc.) and
+     src/react-components/OrderTrackerScreen.tsx for the full write-up and
+     fidelity notes. -->
 <style>
     .modal-content {
         width: 120%;
         margin-left: -16px;
     }
 </style>
-<!-- <div class="row page-header">
-    <h4 class="modal-title custom-modal-title" translate="registration.patienttracker.pagetitle.lbl"></h4>
-</div>
-<patientbanner patientid="currentcontext.pid"></patientbanner> -->
 <div class="modal-header custom-modal-header 2">
     <h4 class="modal-title custom-modal-title" translate="Order Tracker"></h4>
     <div class="">
@@ -15,118 +25,4 @@
     </div>
 </div>
 
-<div id="patientlabresult" class="emr_prevoiusorders">
-    <div id="mainresponsivetablecontrol" class="lisdrpctrl">
-        <table class="table table-hover table-responsive table-bordered custom-table">
-            <thead class="bg-subhead">
-                <tr>
-                    <th>
-                        <span>Department</span>
-                    </th>
-                    <th>
-                        <span>Sub Department</span>
-                    </th>
-                    <th>
-                        <span>Test Name</span>
-                    </th>
-                    <th class="col-sm-3">
-                        <span>Order Date </span>
-                    </th>
-                    <th class="">
-                        <span>Accepted Date</span>
-                    </th>
-                    <th class="">
-                        <span>Sample Collection Date</span>
-                    </th>
-                    <th class="col-sm-2">
-                        <span>Sample Receive Date</span>
-                    </th>
-                    <th class="">
-                        <span>Assigned Date</span>
-                    </th>
-                    <th class="">
-                        <span>Process Date</span>
-                    </th>
-                    <th class="">
-                        <span>Approved Date</span>
-                    </th>
-                    <th class="col-sm-2">
-                        <span>Released Date</span>
-                    </th>
-                    <th class="col-sm-1">
-                        <span>TAT</span>
-                    </th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr row-span="12" ng-repeat="item in ordertracker">
-
-                    <td ng-if="item.PatientOrder.TestTypeId==1">Clinical Laboratory</td>
-                    <td ng-if="item.PatientOrder.TestTypeId==2">Radiology</td>
-                    <td ng-if="item.PatientOrder.TestTypeId==4">Endoscopy</td>
-                    <td>
-                        <span>{{item.PatientOrder.SubDeparement.DepartmentName}}</span>
-                    </td>
-                    <td>
-                        <span>{{item.TestName}}</span>
-                    </td>
-                    <td>
-                        <span>
-                            <displaydate datetime-val="item.OrderedOn"></displaydate>
-                        </span>
-                    </td>
-                    <td>
-                        <span>
-                            <displaydate datetime-val="item.AcceptedOn"></displaydate>
-                        </span>
-                    </td>
-                    <td>
-                        <span>
-                            <displaydate datetime-val="item.SampleCollectedOn"></displaydate>
-                        </span>
-                    </td>
-                    <td>
-                        <span>
-                            <displaydate datetime-val="item.SampleReceivedOn"></displaydate>
-                        </span>
-                    </td>
-                    <td>
-                        <span>
-                            <displaydate datetime-val="item.AssignedOn"></displaydate>
-                        </span>
-                    </td>
-                    <td>
-                        <span>
-                            <displaydate datetime-val="item.TechValidationOn"></displaydate>
-                        </span>
-                    </td>
-                    <td>
-                        <span>
-                            <displaydate datetime-val="item.MedValidationOn"></displaydate>
-                        </span>
-                    </td>
-                    <td>
-                        <span>
-                            <displaydate datetime-val="item.ReleasedOn"></displaydate>
-                        </span>
-                    </td>
-                    <td style="text-align:center;">
-                        <span style="font-weight: 500color: orangered;">{{item.TAT}}</span>
-                    </td>
-                </tr>
-
-            </tbody>
-        </table>
-    </div>
-</div>
-
-<div class="col-sm-12 panel-footer formactionbar">
-    <div class="row">
-        <div class="col-sm-12">
-            <div class="pull-right">
-                <button type="button"  class="draftbutton" ng-click="print()" translate="common.printaction.lbl"></button>
-                <!--<button id="btnCancelForm" type="button" class="draftbutton" ng-click="cancelCallback()" translate="common.cancelaction.lbl"></button>-->
-            </div>
-        </div>
-    </div>
-</div>
+<react-component name="OrderTrackerScreen" props="{ reactProps: reactProps, onAction: handleReactAction }"></react-component>
