@@ -148,6 +148,32 @@
             }
         }
         //Reload banner code ends
+
+        // ---------------------------------------------------------------
+        // REACT BRIDGE WIRING (migrated to FullRegistrationTabScreen.tsx).
+        // All API calls/business logic above are untouched -- this only
+        // exposes the (static, already-final) tabs array and dispatches the
+        // header actions back into the existing functions above. The native
+        // <patientsearch> widget and the nested <div ui-view> both stay
+        // native siblings in the .html template.
+        // ---------------------------------------------------------------
+        $scope.reactProps = {
+            tabs: $scope.tabs
+        };
+
+        $scope.handleReactAction = function (actionName, payload) {
+            switch (actionName) {
+                case 'switchTab':
+                    $scope.switchTab({ state: payload.state });
+                    break;
+                case 'addNewFull':
+                    $scope.addNewFull();
+                    break;
+                default:
+                    break;
+            }
+            $scope.$applyAsync();
+        };
     }
 
     fullRegistrationTabController.$inject = ['$rootScope','$scope', '$stateParams', '$state', '$translate', 'utl','$timeout'];

@@ -83,6 +83,54 @@ function patientidentityFormController($scope, $stateParams, $state, $translate,
     }
     
     $scope.initLookup();
+
+    // ---------------------------------------------------------------
+    // REACT BRIDGE WIRING (migrated to PatientIdentityFormScreen.tsx). All
+    // API calls/business logic above are untouched -- this only maps $scope
+    // state into reactProps and dispatches UI actions back into the
+    // existing functions above.
+    // ---------------------------------------------------------------
+    function refreshDerivedFlags() {
+        $scope.reactProps.canUpdatePatientInfo = typeof $scope.canUpdatePatientInfo === 'function' ? $scope.canUpdatePatientInfo() : true;
+    }
+
+    $scope.reactProps = {
+        item: $scope.item,
+        lookup: $scope.lookup,
+        canUpdatePatientInfo: true
+    };
+    refreshDerivedFlags();
+
+    var origLookupCallback = $scope.lookupCallback;
+    $scope.lookupCallback = function (scope, data, options, hasError) {
+        origLookupCallback(scope, data, options, hasError);
+        $scope.reactProps.lookup = $scope.lookup;
+        refreshDerivedFlags();
+    };
+
+    var origGetItemCallback = $scope.getItemCallback;
+    $scope.getItemCallback = function (scope, data, options, hasError) {
+        origGetItemCallback(scope, data, options, hasError);
+        $scope.reactProps.item = $scope.item;
+        refreshDerivedFlags();
+    };
+
+    $scope.handleReactAction = function (actionName, payload) {
+        switch (actionName) {
+            case 'itemFieldChange':
+                $scope.item[payload.field] = payload.value;
+                break;
+            case 'saveItem':
+                $scope.saveItem();
+                break;
+            case 'backToList':
+                $scope.backToList();
+                break;
+            default:
+                break;
+        }
+        $scope.$applyAsync();
+    };
 }
 
 patientidentityFormController.$inject = ['$scope', '$stateParams', '$state', '$translate', 'utl'];

@@ -266,6 +266,60 @@
             utl.Http.doDownload(options);
         };
         $scope.getPatients();
+
+        // ---------------------------------------------------------------
+        // REACT BRIDGE WIRING (migrated to PatientPrintsScreen.tsx). All API
+        // calls/business logic above are untouched -- getPatients() still
+        // fetches $scope.Patientdata (consumed internally by mrdlabel/
+        // patientlabel/visitprint), and every print/download function below
+        // is called exactly as before, just dispatched via actionName
+        // instead of ng-click. <patientbanner> stays native in the template
+        // (REUSABLE SUB-WIDGET PATTERN).
+        //
+        // Real pre-existing bug preserved faithfully, NOT fixed: the
+        // original template's footer "Print" button has no ng-click at all
+        // (a dead control) -- reproduced in the React component as a button
+        // with no dispatch, so 'print' is intentionally never sent here.
+        // ---------------------------------------------------------------
+        $scope.reactProps = {
+            pid: $scope.currentcontext.pid
+        };
+
+        $scope.handleReactAction = function (actionName, payload) {
+            switch (actionName) {
+                case 'registrationprint':
+                    $scope.registrationprint();
+                    break;
+                case 'registrationlabel':
+                    $scope.registrationlabel();
+                    break;
+                case 'patientidcard':
+                    $scope.patientidcard();
+                    break;
+                case 'mrdlabel':
+                    $scope.mrdlabel();
+                    break;
+                case 'patientlabel':
+                    $scope.patientlabel();
+                    break;
+                case 'visitprint':
+                    $scope.visitprint();
+                    break;
+                case 'opbill':
+                    $scope.opbill();
+                    break;
+                case 'cancelCallback':
+                    if ($scope.cancelCallback) {
+                        $scope.cancelCallback();
+                    }
+                    break;
+                default:
+                    // 'print' (the dead footer button) intentionally not
+                    // handled here -- see comment above.
+                    break;
+            }
+            $scope.$applyAsync();
+        };
     }
     patientprintController.$inject = ['$scope', '$stateParams', '$state', '$translate', 'utl', '$uibModalInstance', 'modalConfig'];
 

@@ -451,6 +451,93 @@
         }
 
         $scope.initLookup();
+
+        // ---------------------------------------------------------------------
+        // React bridge (currentinpatients "hollow controller" wiring). Every
+        // function above is UNCHANGED; this section only exposes state to,
+        // and dispatches actions back into, the existing functions.
+        // ---------------------------------------------------------------------
+        function updateReactProps() {
+            $scope.reactProps = {
+                items: $scope.gridData || [],
+                lookup: {
+                    Ward: ($scope.lookup && $scope.lookup.Ward) || [],
+                    AdmissionStatus: ($scope.lookup && $scope.lookup.AdmissionStatus) || []
+                },
+                currentfilter: {
+                    patientnamemrn: $scope.currentfilter.patientnamemrn,
+                    WardId: $scope.currentfilter.WardId,
+                    admissionstatusid: $scope.currentfilter.admissionstatusid
+                },
+                currentcontext: {
+                    option: $scope.currentcontext.option
+                },
+                pager: {
+                    totalItems: vm.gridConfig.pagerObj.totalItems,
+                    currentPage: vm.gridConfig.pagerObj.currentPage,
+                    pageSize: vm.gridConfig.pagerObj.pageSize
+                }
+            };
+        }
+
+        var _origGetListCallback = $scope.getListCallback;
+        $scope.getListCallback = function (scope, res, options, hasError) {
+            _origGetListCallback(scope, res, options, hasError);
+            updateReactProps();
+        };
+
+        var _origLookupCallback = $scope.lookupCallback;
+        $scope.lookupCallback = function (scope, data, options, hasError) {
+            _origLookupCallback(scope, data, options, hasError);
+            updateReactProps();
+        };
+
+        $scope.handleReactAction = function (actionName, payload) {
+            payload = payload || {};
+            switch (actionName) {
+                case 'filterChange':
+                    // Mirrors the real on-enter box (Name/MRN): no refetch on keystroke.
+                    $scope.currentfilter[payload.field] = payload.value;
+                    updateReactProps();
+                    break;
+                case 'filterChangeAndSearch':
+                    // Mirrors the real ng-change="getList()" on WardId/admissionstatusid.
+                    $scope.currentfilter[payload.field] = payload.value;
+                    updateReactProps();
+                    $scope.getList();
+                    break;
+                case 'search':
+                    // Mirrors the real on-enter="getList()" on the Name/MRN box.
+                    $scope.getList();
+                    break;
+                case 'toggleOption':
+                    // Mirrors uib-btn-radio + ng-click="getList()" on the option buttons.
+                    $scope.currentcontext.option = payload.option;
+                    updateReactProps();
+                    $scope.getList();
+                    break;
+                case 'pageChange':
+                    vm.gridConfig.pagerObj.currentPage = payload.page;
+                    $scope.getList();
+                    break;
+                case 'emr':
+                    $scope.handleEvents('emr', payload.entity);
+                    break;
+                case 'patientinfo':
+                    $scope.handleEvents('patientinfo', payload.entity);
+                    break;
+                case 'discharge':
+                    $scope.handleEvents('discharge', payload.entity);
+                    break;
+                case 'doctorDashboard':
+                    $scope.doctor_dashboard();
+                    break;
+                default:
+                    break;
+            }
+        };
+
+        updateReactProps();
     }
     currentinpatientsController.$inject = ['$scope', '$filter', '$stateParams', '$state', '$translate', 'utl', 'uibButtonConfig'];
 

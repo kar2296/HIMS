@@ -46,6 +46,14 @@ import { PatientGuarantorListScreen } from './react-components/PatientGuarantorL
 
 // Import PatientKinFormScreen Component
 import { PatientKinFormScreen } from './react-components/PatientKinFormScreen';
+// Import PatientPrintsScreen Component
+import { PatientPrintsScreen } from './react-components/PatientPrintsScreen';
+// Import PatientIdentityFormScreen Component
+import { PatientIdentityFormScreen } from './react-components/PatientIdentityFormScreen';
+// Import FullRegistrationTabScreen Component
+import { FullRegistrationTabScreen } from './react-components/FullRegistrationTabScreen';
+// Import CurrentInpatientScreen Component
+import { CurrentInpatientScreen } from './react-components/CurrentInpatientScreen';
 
 // Import PatientGuarantorGLFormScreen Component
 import { PatientGuarantorGLFormScreen } from './react-components/PatientGuarantorGLFormScreen';
@@ -328,6 +336,10 @@ import { FindBillModalComponent } from './react-components/FindBillModalComponen
   FamilyLinkFooter,
   PatientGuarantorListScreen,
   PatientKinFormScreen,
+  PatientPrintsScreen,
+  PatientIdentityFormScreen,
+  FullRegistrationTabScreen,
+  CurrentInpatientScreen,
   PatientGuarantorGLFormScreen,
   PatientIdDocumentsScreen,
   PatientDemographicUpdateScreen,
