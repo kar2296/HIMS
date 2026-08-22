@@ -33,6 +33,7 @@
                 }
                 vm.gridConfig.data = res.Data;
             }
+            updateReactProps();
         };
 
 
@@ -171,6 +172,33 @@
 
         $scope.getList();
 
+        // ---------------------------------------------------------------
+        // REACT BRIDGE WIRING (migrated to PreviousAppointmentModal.tsx).
+        // All API calls/business logic above are untouched.
+        // ---------------------------------------------------------------
+        function updateReactProps() {
+            $scope.reactProps = {
+                pid: $scope.currentcontext.pid,
+                rows: vm.gridConfig.data || []
+            };
+        }
+
+        $scope.handleReactAction = function (actionName, payload) {
+            payload = payload || {};
+            switch (actionName) {
+                case 'print':
+                    $scope.handleEvents('print', payload.entity);
+                    break;
+                case 'cancel':
+                    $scope.cancelCallback();
+                    break;
+                default:
+                    break;
+            }
+            $scope.$applyAsync();
+        };
+
+        updateReactProps();
     }
     previousappointmentController.$inject = ['$scope', '$stateParams', '$state', '$translate', 'utl', '$uibModalInstance', 'modalConfig'];
 })();

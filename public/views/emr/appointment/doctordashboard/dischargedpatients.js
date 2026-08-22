@@ -26,12 +26,14 @@
         $scope.getListCallback = function (scope, data, options, hasError) {
             vm.gridConfig.data = data.Data;
             vm.gridConfig.pagerObj.totalItems = data.PageContext.TotalRecords;
+            updateReactProps();
         };
 
         $scope.getList = function () {
             if ($scope.currentfilter.FromDate == null) {
                 utl.Alert.showErrorMsg('Please Select any From date');
                 vm.gridConfig.data = [];
+                updateReactProps();
                 return true;
             }
             var From = $filter('date')($scope.currentfilter.FromDate, 'yyyy-MM-dd 00:00:00') || null;
@@ -201,6 +203,7 @@
         }
         $scope.lookupCallback = function (scope, data, options, hasError) {
             $scope.lookup = hasError ? {} : data;
+            updateReactProps();
             $scope.getList();
         }
 
@@ -240,6 +243,87 @@
         }
 
         $scope.initLookup();
+
+        // ---------------------------------------------------------------
+        // REACT BRIDGE WIRING (migrated to DischargedPatientsScreen.tsx).
+        // All API calls/business logic above are untouched.
+        //
+        // Real dead code disclosed, NOT reproduced: $scope.onEnter is never
+        // referenced by the real template (no `on-enter` attribute anywhere
+        // in dischargedpatients.html) -- unreachable in production, so no
+        // dispatch path is wired to it here either.
+        // ---------------------------------------------------------------
+        function updateReactProps() {
+            $scope.reactProps = {
+                items: vm.gridConfig.data || [],
+                lookup: {
+                    Doctor: ($scope.lookup && $scope.lookup.Doctor) || []
+                },
+                currentfilter: {
+                    FromDate: toIsoDateString($scope.currentfilter.FromDate),
+                    patientnamemrn: $scope.currentfilter.patientnamemrn,
+                    DoctorId: $scope.currentfilter.DoctorId
+                },
+                pager: {
+                    totalItems: vm.gridConfig.pagerObj.totalItems,
+                    currentPage: vm.gridConfig.pagerObj.currentPage,
+                    pageSize: vm.gridConfig.pagerObj.pageSize
+                }
+            };
+        }
+
+        function toIsoDateString(d) {
+            if (!d) return '';
+            var dt = new Date(d);
+            if (isNaN(dt.getTime())) return '';
+            var mm = ('0' + (dt.getMonth() + 1)).slice(-2);
+            var dd = ('0' + dt.getDate()).slice(-2);
+            return dt.getFullYear() + '-' + mm + '-' + dd;
+        }
+        function fromIsoDateString(s) {
+            if (!s) return null;
+            var parts = String(s).split('-');
+            if (parts.length !== 3) return null;
+            return new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
+        }
+
+        $scope.handleReactAction = function (actionName, payload) {
+            payload = payload || {};
+            switch (actionName) {
+                case 'filterChange':
+                    $scope.currentfilter[payload.field] = payload.value;
+                    updateReactProps();
+                    break;
+                case 'filterChangeAndSearch':
+                    if (payload.field === 'FromDate') {
+                        $scope.currentfilter.FromDate = fromIsoDateString(payload.value);
+                    } else {
+                        $scope.currentfilter[payload.field] = payload.value;
+                    }
+                    updateReactProps();
+                    $scope.getList();
+                    break;
+                case 'search':
+                    $scope.getList();
+                    break;
+                case 'pageChange':
+                    vm.gridConfig.pagerObj.currentPage = payload.page;
+                    $scope.getList();
+                    break;
+                case 'emr':
+                case 'patientinfo':
+                    $scope.handleEvents(actionName, payload.entity);
+                    break;
+                case 'doctordashboard':
+                    $scope.doctordashboard();
+                    break;
+                default:
+                    break;
+            }
+            $scope.$applyAsync();
+        };
+
+        updateReactProps();
     }
     DischargedPatientsController.$inject = ['$scope', '$stateParams', '$state', '$translate', 'utl', '$filter'];
 

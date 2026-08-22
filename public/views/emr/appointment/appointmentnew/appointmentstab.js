@@ -55,6 +55,34 @@
                 $state.go(tab.state);
             }
         }
+
+        // ---------------------------------------------------------------
+        // REACT BRIDGE WIRING (migrated to AppointmentsTabScreen.tsx).
+        // All API calls/business logic above are untouched -- this only
+        // exposes the (static, already-final) tabs array and dispatches the
+        // header actions back into the existing functions above. The nested
+        // <div ui-view> stays a native sibling in the .html template.
+        // ---------------------------------------------------------------
+        $scope.reactProps = {
+            tabs: $scope.tabs
+        };
+
+        $scope.handleReactAction = function(actionName, payload) {
+            switch (actionName) {
+                case 'switchTab':
+                    $scope.switchTab({ state: payload.state });
+                    break;
+                case 'addNew':
+                    $scope.addNew();
+                    break;
+                case 'backtodashboard':
+                    $scope.backtodashboard();
+                    break;
+                default:
+                    break;
+            }
+            $scope.$applyAsync();
+        };
     }
 
     appointmentsTabController.$inject = ['$rootScope', '$scope', '$stateParams', '$state', '$translate', '$timeout'];

@@ -70,6 +70,14 @@ import { PatientDeathRecordFormScreen, DeceasedFormScreen } from './react-compon
 // Import DeactivateRemarksScreen Component
 import { DeactivateRemarksScreen } from './react-components/DeactivateRemarksScreen';
 import { BillingRemarksScreen } from './react-components/BillingRemarksScreen';
+// Import AppointmentsTabScreen Component
+import { AppointmentsTabScreen } from './react-components/AppointmentsTabScreen';
+// Import AppointmentHistoryModal Component (shared by appointment-history.js and view-history.js)
+import { AppointmentHistoryModal } from './react-components/AppointmentHistoryModal';
+// Import PreviousAppointmentModal Component
+import { PreviousAppointmentModal } from './react-components/PreviousAppointmentModal';
+// Import DischargedPatientsScreen Component
+import { DischargedPatientsScreen } from './react-components/DischargedPatientsScreen';
 
 // Import InpatientTabScreen Component
 import { InpatientTabScreen } from './react-components/InpatientTabScreen';
@@ -348,6 +356,10 @@ import { FindBillModalComponent } from './react-components/FindBillModalComponen
   DeceasedFormScreen,
   DeactivateRemarksScreen,
   BillingRemarksScreen,
+  AppointmentsTabScreen,
+  AppointmentHistoryModal,
+  PreviousAppointmentModal,
+  DischargedPatientsScreen,
   InpatientTabScreen,
   OpdBillScreen,
   VisitCreateFormPatientHeader,
