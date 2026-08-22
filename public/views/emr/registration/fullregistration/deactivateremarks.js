@@ -68,6 +68,32 @@
         }
         $scope.initLookup();
         // loadData();
+
+        // ---------------------------------------------------------------
+        // REACT BRIDGE WIRING (migrated to DeactivateRemarksScreen.tsx).
+        // All API calls/business logic above are untouched.
+        // ---------------------------------------------------------------
+        $scope.reactProps = {
+            item: $scope.item,
+            isModal: $scope.currentcontext.ismodal
+        };
+
+        $scope.handleReactAction = function (actionName, payload) {
+            switch (actionName) {
+                case 'itemFieldChange':
+                    $scope.item[payload.field] = payload.value;
+                    break;
+                case 'saveremarks':
+                    $scope.saveremarks();
+                    break;
+                case 'cancel':
+                    $scope.cancelCallback();
+                    break;
+                default:
+                    break;
+            }
+            $scope.$applyAsync();
+        };
     }
 
     DeactivateRemarksController.$inject = ['$scope', '$stateParams', '$state', '$translate', 'utl', '$uibModalInstance', 'modalConfig'];

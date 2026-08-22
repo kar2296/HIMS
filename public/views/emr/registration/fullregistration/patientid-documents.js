@@ -127,6 +127,46 @@
             utl.Http.doAction(options);
         }
         $scope.initLookup();
+
+        // ---------------------------------------------------------------
+        // REACT BRIDGE WIRING (migrated to PatientIdDocumentsScreen.tsx).
+        // All API calls/business logic above are untouched. Note: the real
+        // Save button in this screen has always dispatched to an undefined
+        // `save()` function (only `saveItem` exists) -- that bug is
+        // preserved faithfully by NOT wiring a 'save' case below, matching
+        // the original's silent no-op.
+        // ---------------------------------------------------------------
+        $scope.reactProps = {
+            item: $scope.item,
+            photo: null
+        };
+
+        var origGetItemCallback = $scope.getItemCallback;
+        $scope.getItemCallback = function (scope, data, options, hasError) {
+            origGetItemCallback(scope, data, options, hasError);
+            $scope.reactProps.item = $scope.item;
+        };
+
+        var origGetPatientIdCallback = $scope.getPatientIdCallback;
+        $scope.getPatientIdCallback = function (scope, data, options, hasError) {
+            origGetPatientIdCallback(scope, data, options, hasError);
+            $scope.reactProps.photo = $scope.currentcontext.Photo;
+        };
+
+        $scope.handleReactAction = function (actionName, payload) {
+            switch (actionName) {
+                case 'fileSelected':
+                    $scope.currentcontext.file = payload.file;
+                    break;
+                case 'backToList':
+                    $scope.backToList();
+                    break;
+                default:
+                    // 'save' intentionally not handled here -- see comment above.
+                    break;
+            }
+            $scope.$applyAsync();
+        };
     }
 
     patientidentityDocumentController.$inject = ['$scope', '$stateParams', '$state', '$translate', 'utl', '$uibModalInstance', 'modalConfig', 'Upload'];

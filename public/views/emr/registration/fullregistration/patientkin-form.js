@@ -176,6 +176,77 @@
         }
 
         $scope.initLookup();
+
+        // ---------------------------------------------------------------
+        // REACT BRIDGE WIRING (migrated to PatientKinFormScreen.tsx). All
+        // API calls/business logic above are untouched; this only maps
+        // $scope state into reactProps and dispatches UI actions back into
+        // the existing functions above -- no new business logic here.
+        // ---------------------------------------------------------------
+        // canShowPatientBanner is never set true anywhere in this controller
+        // (dead condition in the original template too) -- preserved as-is.
+        $scope.canShowPatientBanner = false;
+
+        function refreshDerivedFlags() {
+            $scope.reactProps.canShowApproxAge = $scope.canShowApproxAge();
+            $scope.reactProps.canUpdatePatientInfo = typeof $scope.canUpdatePatientInfo === 'function' ? $scope.canUpdatePatientInfo() : true;
+        }
+
+        $scope.reactProps = {
+            item: $scope.item,
+            lookup: $scope.lookup,
+            canShowPatientBanner: $scope.canShowPatientBanner,
+            canShowApproxAge: false,
+            canUpdatePatientInfo: true
+        };
+        refreshDerivedFlags();
+
+        var origLookupCallback = $scope.lookupCallback;
+        $scope.lookupCallback = function (scope, data, options, hasError) {
+            origLookupCallback(scope, data, options, hasError);
+            $scope.reactProps.lookup = $scope.lookup;
+            refreshDerivedFlags();
+        };
+
+        var origGetItemCallback = $scope.getItemCallback;
+        $scope.getItemCallback = function (scope, data, options, hasError) {
+            origGetItemCallback(scope, data, options, hasError);
+            $scope.reactProps.item = $scope.item;
+            refreshDerivedFlags();
+        };
+
+        $scope.handleReactAction = function (actionName, payload) {
+            switch (actionName) {
+                case 'itemFieldChange':
+                    $scope.item[payload.field] = payload.value;
+                    break;
+                case 'titleChange':
+                    $scope.item.TitleId = payload.value;
+                    $scope.fillGenderInfo();
+                    refreshDerivedFlags();
+                    break;
+                case 'approxAgeChange':
+                    $scope.calculateDOB(payload.value, payload.part);
+                    break;
+                case 'dobChange':
+                    $scope.item.DOB = payload.value ? new Date(payload.value) : null;
+                    $scope.calculateAge();
+                    break;
+                case 'sameAddressChange':
+                    $scope.item.SameAddress = payload.value;
+                    $scope.sameaddress();
+                    break;
+                case 'saveItem':
+                    $scope.saveItem();
+                    break;
+                case 'backToList':
+                    $scope.backToList();
+                    break;
+                default:
+                    break;
+            }
+            $scope.$applyAsync();
+        };
     }
 
     patientkinFormController.$inject = ['$scope', '$stateParams', '$state', '$translate', 'utl', '$uibModalInstance', 'modalConfig'];

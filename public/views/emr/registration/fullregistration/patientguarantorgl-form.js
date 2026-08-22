@@ -183,6 +183,65 @@ function patientGuarantorGLFormController($scope, $stateParams, $state, $transla
     
     //$scope.initLookup();
     $scope.getList();
+
+    // ---------------------------------------------------------------
+    // REACT BRIDGE WIRING (migrated to PatientGuarantorGLFormScreen.tsx).
+    // All API calls/business logic above are untouched.
+    // ---------------------------------------------------------------
+    $scope.reactProps = {
+        item: $scope.item,
+        glRecords: vm.gridConfig.data || [],
+        selectedPatient: $scope.SelectedPatient || {},
+        currentcontext: $scope.currentcontext
+    };
+
+    var origGetListCallback = $scope.getListCallback;
+    $scope.getListCallback = function (scope, res, options, hasError) {
+        origGetListCallback(scope, res, options, hasError);
+        $scope.reactProps.glRecords = vm.gridConfig.data || [];
+    };
+
+    var origGetItemCallback = $scope.getItemCallback;
+    $scope.getItemCallback = function (scope, data, options, hasError) {
+        origGetItemCallback(scope, data, options, hasError);
+        $scope.reactProps.item = $scope.item;
+    };
+
+    $scope.handleReactAction = function (actionName, payload) {
+        switch (actionName) {
+            case 'itemFieldChange':
+                $scope.item[payload.field] = payload.value;
+                break;
+            case 'glDateChange':
+                $scope.item.GuarantorLetterDate = payload.value ? new Date(payload.value) : null;
+                break;
+            case 'activeFromChange':
+                $scope.item.ActiveFrom = payload.value ? new Date(payload.value) : null;
+                break;
+            case 'activeToChange':
+                $scope.item.ActiveTo = payload.value ? new Date(payload.value) : null;
+                break;
+            case 'saveItem':
+                $scope.saveItem();
+                break;
+            case 'edit':
+                $scope.currentcontext.id = parseInt(payload.entity.Id);
+                $scope.getItem();
+                break;
+            case 'delete':
+                utl.Dialog.confirmDelete($scope.onDeleteConfirmed, payload.entity.Id, payload.entity.GLReferenceNumber);
+                break;
+            case 'patientProfile':
+                $scope.patientprofiledetails();
+                break;
+            case 'backToList':
+                $scope.backToList();
+                break;
+            default:
+                break;
+        }
+        $scope.$applyAsync();
+    };
 }
 
 patientGuarantorGLFormController.$inject = ['$scope', '$stateParams', '$state', '$translate', 'utl', '$uibModalInstance', 'modalConfig'];

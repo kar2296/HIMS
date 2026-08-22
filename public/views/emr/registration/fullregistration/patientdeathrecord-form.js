@@ -125,6 +125,51 @@
         }
 
         $scope.initLookup();
+
+        // ---------------------------------------------------------------
+        // REACT BRIDGE WIRING (migrated to DeathRecordFormScreen.tsx's
+        // PatientDeathRecordFormScreen export). All API calls/business
+        // logic above are untouched. The real Save button in this screen
+        // has always dispatched to an undefined `save()` function -- that
+        // bug is preserved faithfully (no 'save' case below).
+        // ---------------------------------------------------------------
+        $scope.reactProps = {
+            item: $scope.item,
+            lookup: $scope.lookup
+        };
+
+        var origGetItemCallback = $scope.getItemCallback;
+        $scope.getItemCallback = function (scope, data, options, hasError) {
+            origGetItemCallback(scope, data, options, hasError);
+            $scope.reactProps.item = $scope.item;
+        };
+
+        var origLookupCallback = $scope.lookupCallback;
+        $scope.lookupCallback = function (scope, data, options, hasError) {
+            origLookupCallback(scope, data, options, hasError);
+            $scope.reactProps.lookup = $scope.lookup;
+        };
+
+        $scope.handleReactAction = function (actionName, payload) {
+            switch (actionName) {
+                case 'itemFieldChange':
+                    $scope.item[payload.field] = payload.value;
+                    break;
+                case 'deathDateChange':
+                    $scope.item.DeathDate = payload.value ? new Date(payload.value) : null;
+                    break;
+                case 'approveItem':
+                    $scope.approveItem();
+                    break;
+                case 'reverseItem':
+                    $scope.reverseItem();
+                    break;
+                default:
+                    // 'save' intentionally not handled here -- see comment above.
+                    break;
+            }
+            $scope.$applyAsync();
+        };
     }
 
     patientDeathRecordFormController.$inject = ['$scope', '$stateParams', '$state', '$translate', 'utl', '$uibModalInstance', 'modalConfig'];

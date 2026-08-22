@@ -44,6 +44,21 @@ import { FamilyLinkActionBar, FamilyLinkFooter } from './react-components/Family
 // Import PatientGuarantorList Component
 import { PatientGuarantorListScreen } from './react-components/PatientGuarantorListScreen';
 
+// Import PatientKinFormScreen Component
+import { PatientKinFormScreen } from './react-components/PatientKinFormScreen';
+
+// Import PatientGuarantorGLFormScreen Component
+import { PatientGuarantorGLFormScreen } from './react-components/PatientGuarantorGLFormScreen';
+
+// Import PatientIdDocumentsScreen Component
+import { PatientIdDocumentsScreen } from './react-components/PatientIdDocumentsScreen';
+
+// Import DeathRecordFormScreen Components (patientdeathrecord-form + quickregistration's deceased-form)
+import { PatientDeathRecordFormScreen, DeceasedFormScreen } from './react-components/DeathRecordFormScreen';
+
+// Import DeactivateRemarksScreen Component
+import { DeactivateRemarksScreen } from './react-components/DeactivateRemarksScreen';
+
 // Import PatientFeedbackScreen Component
 import { PatientFeedbackScreen } from './react-components/PatientFeedbackScreen';
 
@@ -208,6 +223,12 @@ import { FindBillModalComponent } from './react-components/FindBillModalComponen
   FamilyLinkActionBar,
   FamilyLinkFooter,
   PatientGuarantorListScreen,
+  PatientKinFormScreen,
+  PatientGuarantorGLFormScreen,
+  PatientIdDocumentsScreen,
+  PatientDeathRecordFormScreen,
+  DeceasedFormScreen,
+  DeactivateRemarksScreen,
   PatientFeedbackScreen,
   LoginPage,
   SidebarComponent,
