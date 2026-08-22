@@ -1145,6 +1145,175 @@
             utl.Http.doAction(options);
         };
 
+
+        // -----------------------------------------------------------------
+        // REACT BRIDGE WIRING (migrated to DoctorPrescribeFormScreen.tsx).
+        // All API calls/business logic above are untouched. See the
+        // disclosure comment block at the top of DoctorPrescribeFormScreen.tsx
+        // for the full list of pre-existing defects (undefined handlers,
+        // always-false visibility flags, a missing translate key, etc.)
+        // preserved here exactly, NOT fixed.
+        // -----------------------------------------------------------------
+        $scope.reactProps = {
+            item: $scope.item,
+            currentcontext: $scope.currentcontext,
+            lookup: $scope.lookup,
+            options: $scope.options,
+            isDisabled: $scope.IsDisabled,
+            canShowSaveBtn: $scope.canShowSaveBtn,
+            canShowPrescribeBtn: $scope.canShowPrescribeBtn,
+            canShowPrescribeOrderBtn: $scope.canShowPrescribeOrderBtn,
+            canShowClearBtn: $scope.canShowClearBtn
+        };
+
+        function refreshReactProps() {
+            $scope.reactProps.item = $scope.item;
+            $scope.reactProps.currentcontext = $scope.currentcontext;
+            $scope.reactProps.lookup = $scope.lookup;
+            $scope.reactProps.options = $scope.options;
+            $scope.reactProps.isDisabled = $scope.IsDisabled;
+            $scope.reactProps.canShowSaveBtn = $scope.canShowSaveBtn;
+            $scope.reactProps.canShowPrescribeBtn = $scope.canShowPrescribeBtn;
+            $scope.reactProps.canShowPrescribeOrderBtn = $scope.canShowPrescribeOrderBtn;
+            $scope.reactProps.canShowClearBtn = $scope.canShowClearBtn;
+        }
+
+        var origLookupCallback = $scope.lookupCallback;
+        $scope.lookupCallback = function (scope, data, options, hasError) {
+            origLookupCallback(scope, data, options, hasError);
+            refreshReactProps();
+        };
+
+        var origGetItemCallback = $scope.getItemCallback;
+        $scope.getItemCallback = function (scope, data, options, hasError) {
+            origGetItemCallback(scope, data, options, hasError);
+            refreshReactProps();
+        };
+
+        var origCopyItemCallback = $scope.copyItemCallback;
+        $scope.copyItemCallback = function (scope, data, options, hasError) {
+            origCopyItemCallback(scope, data, options, hasError);
+            refreshReactProps();
+        };
+
+        var origGetPatientInfo = $scope.getPatientInfo;
+        $scope.getPatientInfo = function (scope, data, options, hasError) {
+            origGetPatientInfo(scope, data, options, hasError);
+            refreshReactProps();
+        };
+
+        var origGetVisitIndentifier = $scope.getVisitIndentifier;
+        $scope.getVisitIndentifier = function (scope, data, options, hasError) {
+            origGetVisitIndentifier(scope, data, options, hasError);
+            refreshReactProps();
+        };
+
+        var origGetAdviceInstrCallback = $scope.getAdviceInstrCallback;
+        $scope.getAdviceInstrCallback = function (scope, data, options, hasError) {
+            origGetAdviceInstrCallback(scope, data, options, hasError);
+            refreshReactProps();
+        };
+
+        var origGetPatientAttachmentsCallback = $scope.getPatientAttachmentsCallback;
+        $scope.getPatientAttachmentsCallback = function (scope, res, options, hasError) {
+            origGetPatientAttachmentsCallback(scope, res, options, hasError);
+            refreshReactProps();
+        };
+
+        var origSaveItemCallback = $scope.saveItemCallback;
+        $scope.saveItemCallback = function (scope, data, options, hasError) {
+            origSaveItemCallback(scope, data, options, hasError);
+            refreshReactProps();
+        };
+
+        $scope.handleReactAction = function (actionName, payload) {
+            switch (actionName) {
+                case 'doctorDashboard':
+                    $scope.doctor_dashboard();
+                    break;
+                case 'patientDashboard':
+                    $scope.patient_dashboard();
+                    break;
+                case 'addNew':
+                    $scope.addNew();
+                    break;
+                case 'vital':
+                    $scope.vital();
+                    break;
+                case 'patientAllergy':
+                    $scope.patientallergy();
+                    break;
+                case 'previousMedication':
+                    $scope.previousmedication();
+                    break;
+                case 'optionChange':
+                    // currentcontext.option, originally set directly by uib-btn-radio's ng-model (no ng-change).
+                    $scope.currentcontext.option = payload.value;
+                    refreshReactProps();
+                    break;
+                case 'itemFieldChange':
+                    // Plain ng-model, no ng-change in the original (except DepartmentId, see BUG 2):
+                    // DepartmentId, PrescriptionPriorityId, PharmacyId, Diagnosis, Comments, Physiotheraphy.
+                    $scope.item[payload.field] = payload.value;
+                    refreshReactProps();
+                    break;
+                case 'itemDateFieldChange':
+                    // PrescriptionDate/ReviewDate -- originally bound via ng-date-object, which stores a real JS Date object on $scope.item.
+                    $scope.item[payload.field] = payload.value ? new Date(payload.value) : null;
+                    refreshReactProps();
+                    break;
+                case 'adviceListChange':
+                    // item.AdviceListId, ng-change="getAdviceInstr()"
+                    $scope.item.AdviceListId = payload.value;
+                    $scope.getAdviceInstr();
+                    refreshReactProps();
+                    break;
+                case 'addClinicalRemark':
+                    $scope.addclinicalremark();
+                    break;
+                case 'backToList':
+                    $scope.backToList();
+                    break;
+                case 'saveAsRxPanel':
+                    $scope.saveasRxPanel();
+                    break;
+                case 'openAttachments':
+                    $scope.openattachments();
+                    break;
+                case 'previousPrescription':
+                    $scope.previousprescription();
+                    break;
+                case 'saveCancelled':
+                    $scope.saveCancelled();
+                    break;
+                case 'print':
+                    $scope.print();
+                    break;
+                case 'saveDraft':
+                    // Unreachable through the UI today (see BUG 1); wired for fidelity/forward-compat.
+                    $scope.saveDraft();
+                    refreshReactProps();
+                    break;
+                case 'prescribe':
+                    // Unreachable through the UI today (see BUG 1); wired for fidelity/forward-compat.
+                    $scope.prescribe();
+                    refreshReactProps();
+                    break;
+                case 'prescribeAndOrder':
+                    // Unreachable through the UI today (see BUG 1); wired for fidelity/forward-compat.
+                    $scope.prescribeAndOrder();
+                    refreshReactProps();
+                    break;
+                case 'clear':
+                    // Unreachable through the UI today (see BUG 1); wired for fidelity/forward-compat.
+                    $scope.clear();
+                    refreshReactProps();
+                    break;
+                default:
+                    break;
+            }
+        };
+
         $scope.initLookup();
     }
 

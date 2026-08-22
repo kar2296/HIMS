@@ -125,6 +125,9 @@ import { QMSPatientsScreen } from './react-components/QMSPatientsScreen';
 // Import PayoutAttachmentListScreen Component
 import { PayoutAttachmentListScreen } from './react-components/PayoutAttachmentListScreen';
 
+// Import PatientAttachmentsScreen Component
+import { PatientAttachmentsScreen } from './react-components/PatientAttachmentsScreen';
+
 // Import OrderTrackerScreen Component
 import { OrderTrackerScreen } from './react-components/OrderTrackerScreen';
 
@@ -143,8 +146,25 @@ import { PatientFollowupTabScreen } from './react-components/PatientFollowupTabS
 // Import PendingFollowup screens (Name filter, Filters, Grid)
 import { PendingFollowupNameFilterScreen, PendingFollowupFiltersScreen, PendingFollowupGridScreen } from './react-components/PendingFollowupListScreen';
 
+// Import Followup screens (Name filter, Filters, Grid) -- sibling of PendingFollowup
+import { FollowupNameFilterScreen, FollowupFiltersScreen, FollowupGridScreen } from './react-components/FollowupListScreen';
+
+// Import PatientFollowupFormScreen Component
+import { PatientFollowupFormScreen } from './react-components/PatientFollowupFormScreen';
+
 // Import PrescriptionsListScreen Component
 import { PrescriptionsListScreen } from './react-components/PrescriptionsListScreen';
+
+// Import DoctorPrescribeFormScreen Components (doctorprescribe-form.js/.html --
+// see the disclosure comment at the top of DoctorPrescribeFormScreen.tsx)
+import {
+  DoctorPrescribeFormHeader,
+  DoctorPrescribeFormTabs,
+  DoctorPrescribeFormFieldsRow1,
+  DoctorPrescribeFormFieldsRow2,
+  DoctorPrescribeFormNotesSection,
+  DoctorPrescribeFormFooter,
+} from './react-components/DoctorPrescribeFormScreen';
 
 // Import LoginPage Component
 import { LoginPage } from './react-components/LoginPage';
@@ -339,6 +359,7 @@ import { FindBillModalComponent } from './react-components/FindBillModalComponen
   PatientSearchScreen,
   QMSPatientsScreen,
   PayoutAttachmentListScreen,
+  PatientAttachmentsScreen,
   OrderTrackerScreen,
   PatientPickerArchiveScreen,
   PatientFeedbackScreen,
@@ -347,7 +368,17 @@ import { FindBillModalComponent } from './react-components/FindBillModalComponen
   PendingFollowupNameFilterScreen,
   PendingFollowupFiltersScreen,
   PendingFollowupGridScreen,
+  FollowupNameFilterScreen,
+  FollowupFiltersScreen,
+  FollowupGridScreen,
+  PatientFollowupFormScreen,
   PrescriptionsListScreen,
+  DoctorPrescribeFormHeader,
+  DoctorPrescribeFormTabs,
+  DoctorPrescribeFormFieldsRow1,
+  DoctorPrescribeFormFieldsRow2,
+  DoctorPrescribeFormNotesSection,
+  DoctorPrescribeFormFooter,
   LoginPage,
   SidebarComponent,
   TopNavbarComponent,

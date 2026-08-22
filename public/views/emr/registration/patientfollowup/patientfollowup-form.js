@@ -150,6 +150,102 @@
         }
 
         $scope.initLookup();
+
+        // ---------------------------------------------------------------
+        // REACT BRIDGE WIRING (migrated to PatientFollowupFormScreen.tsx).
+        // All API calls/business logic above are untouched -- wrapped, not
+        // rewritten. See the disclosure comment block at the top of
+        // PatientFollowupFormScreen.tsx for real, preserved bugs found while
+        // migrating: the "Save & Approve" button's real ng-click calls
+        // saveAndApprove() (capital A) but the controller only ever defines
+        // saveandApprove() (lowercase a) -- a pre-existing typo that makes
+        // that whole button permanently dead in production, reproduced here
+        // by deliberately NOT giving 'saveAndApprove' a case below, plus the
+        // dead item.IsActive field, the mismatched translate="..." literal
+        // strings on the summary line, the missing null guard on
+        // $scope.Encounter when modalConfig.params.encounter is absent, and
+        // the unguarded $scope.item.Team.Description read in
+        // getItemCallback().
+        // ---------------------------------------------------------------
+        var DATE_FIELDS = ['FirstFollowupDate', 'FirstAdmitedDate', 'SecondFollowupDate', 'SecondAdmitedDate', 'ThirdFollowupDate', 'ThirdAdmitedDate'];
+
+        function toIsoDateString(d) {
+            if (!d) return '';
+            var dt = new Date(d);
+            if (isNaN(dt.getTime())) return '';
+            var mm = ('0' + (dt.getMonth() + 1)).slice(-2);
+            var dd = ('0' + dt.getDate()).slice(-2);
+            return dt.getFullYear() + '-' + mm + '-' + dd;
+        }
+        function fromIsoDateString(s) {
+            if (!s) return null;
+            var parts = String(s).split('-');
+            if (parts.length !== 3) return null;
+            return new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
+        }
+
+        function buildReactItem() {
+            var it = $scope.item || {};
+            var out = angular.extend({}, it);
+            for (var i = 0; i < DATE_FIELDS.length; i++) {
+                out[DATE_FIELDS[i]] = toIsoDateString(it[DATE_FIELDS[i]]);
+            }
+            return out;
+        }
+
+        function updateReactProps() {
+            $scope.reactProps = {
+                item: buildReactItem(),
+                lookup: $scope.lookup || {}
+            };
+        }
+
+        var _origGetItemCallback = $scope.getItemCallback;
+        $scope.getItemCallback = function (scope, data, options, hasError) {
+            _origGetItemCallback(scope, data, options, hasError);
+            updateReactProps();
+        };
+
+        var _origLookupCallback = $scope.lookupCallback;
+        $scope.lookupCallback = function (scope, data, options, hasError) {
+            _origLookupCallback(scope, data, options, hasError);
+            updateReactProps();
+        };
+
+        $scope.handleReactAction = function (actionName, payload) {
+            payload = payload || {};
+            switch (actionName) {
+                case 'itemFieldChange':
+                    var value = payload.value;
+                    if (DATE_FIELDS.indexOf(payload.field) !== -1) {
+                        value = fromIsoDateString(value);
+                    }
+                    $scope.item[payload.field] = value;
+                    updateReactProps();
+                    break;
+                case 'save':
+                    $scope.save();
+                    updateReactProps();
+                    break;
+                case 'clear':
+                    $scope.clear();
+                    updateReactProps();
+                    break;
+                case 'backToList':
+                    $scope.backToList();
+                    break;
+                // 'saveAndApprove' intentionally NOT handled here -- the real
+                // button's ng-click="saveAndApprove()" does not match this
+                // controller's actual $scope.saveandApprove (lowercase
+                // "and"), so clicking it is a pre-existing no-op in
+                // production. See disclosure above.
+                default:
+                    break;
+            }
+            $scope.$applyAsync();
+        };
+
+        updateReactProps();
     }
 
     PatientFollowUpFormController.$inject = ['$scope', '$stateParams', '$state', '$translate', 'utl', '$filter', '$uibModalInstance', 'modalConfig'];
