@@ -315,7 +315,6 @@ import type { PatientBarcodeData } from './react-components/BarcodeModal';
 };
 
 import { BarcodeMasterSettingsComponent } from './react-components/BarcodeMasterSettingsComponent';
-import { RegistrationFormComponent } from './react-components/RegistrationFormComponent';
 import { FindBillModalComponent } from './react-components/FindBillModalComponent';
 
 // Register components globally so the AngularJS bridge can find them
@@ -325,7 +324,6 @@ import { FindBillModalComponent } from './react-components/FindBillModalComponen
   ConfirmModal,
   BarcodeModal,
   BarcodeMasterSettingsComponent,
-  RegistrationFormComponent,
   FindBillModalComponent,
   PilotComponent,
   DefaultRegistrationScreen,
