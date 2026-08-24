@@ -94,6 +94,55 @@
             utl.Http.doAction(options);
         }
 
+        // REACT BRIDGE (GeneralMaster / Occupation Master add-edit modal):
+        // hollow-controller pattern -- real logic above (getItem/getItemCallback's
+        // real GetOccupationById call, saveItem's real utl.Validator.validate +
+        // AddOccupation/UpdateOccupation calls, backToList's real
+        // $uibModalInstance.close via confirmCallback, and
+        // $scope.cancelCallback = $uibModalInstance.dismiss set above) is
+        // completely untouched. Only getItemCallback needs wrapping --
+        // lookupCallback just calls getItem() and its OccupationType/
+        // ActiveStatus lookup is exposed to React unwrapped, same shape either
+        // way.
+        $scope.refreshReactProps = function () {
+            $scope.reactProps = {
+                item: $scope.item,
+                lookup: {
+                    OccupationType: ($scope.lookup && $scope.lookup.OccupationType) || []
+                }
+            };
+        };
+
+        var _origGetItemCallback = $scope.getItemCallback;
+        $scope.getItemCallback = function (scope, data, options, hasError) {
+            _origGetItemCallback(scope, data, options, hasError);
+            $scope.refreshReactProps();
+            $scope.$applyAsync();
+        };
+
+        var _origLookupCallback = $scope.lookupCallback;
+        $scope.lookupCallback = function (scope, data, options, hasError) {
+            _origLookupCallback(scope, data, options, hasError);
+            $scope.refreshReactProps();
+            $scope.$applyAsync();
+        };
+
+        $scope.refreshReactProps();
+
+        $scope.handleReactAction = function (actionName, payload) {
+            if (actionName === 'fieldChange') {
+                angular.extend($scope.item, payload);
+                $scope.refreshReactProps();
+                $scope.$applyAsync();
+                return;
+            }
+            if (typeof $scope[actionName] === 'function') {
+                $scope[actionName]();
+            }
+            $scope.refreshReactProps();
+            $scope.$applyAsync();
+        };
+
         $scope.initLookup();
     }
 

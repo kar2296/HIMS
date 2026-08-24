@@ -1,86 +1,26 @@
-<!-- <style>
-    .modal-dialog {
-        width: 500px;
-        margin: 30px auto;
-    }
-</style> -->
-<div class="modal-header custom-modal-header">
-    <div class="col-sm-6">
-        <h4 class="modal-title custom-modal-title" translate="generalmaster.occupation.formtitle.lbl"></h4>
-    </div>
-    <div class="col-sm-6">
-        <div class="filters">
-            <img src="../../../../../assets/svg/close.svg" ng-click="cancelCallback()">
-        </div>
-    </div>
-</div>
-<div class="row">
-    <div class="col-sm-12">
-        <form id="item_form" name="item_form" class="form-horizontal" role="form">
-            <div class="col-sm-12">
-                <div class="form-group col-sm-6">
-                    <label class="col-sm-12 control-label" for="facility"
-                        translate="generalmaster.occupation.type.lbl"></label>
-                    <div class="col-sm-12">
-                        <ui-select ng-model="item.OccupationTypeId" name="facility" required>
-                            <ui-select-match>
-                                {{$select.selected.Text | limitTo : 20 : 0}}
-                                <span ng-if="$select.selected.Text.length>20">...</span>
-                            </ui-select-match>
-                            <ui-select-choices
-                                repeat="lookupitem.Id as lookupitem in lookup.OccupationType | filter: { Text: $select.search }">
-                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
-                            </ui-select-choices>
-                        </ui-select>
-                    </div>
-                </div>
+<!--
+  Migrated to React 2026-08-24: this whole partial is now
+  <react-component name="OccupationMasterFormScreen">, a presentational port
+  of the Occupation Master add/edit modal (GeneralMaster module). All logic --
+  getItem's real GetOccupationById load, saveItem's real
+  utl.Validator.validate + AddOccupation/UpdateOccupation calls,
+  cancelCallback's real $uibModalInstance.dismiss -- stays in
+  occupation-form.js's (hollowed) occupationFormController, reached via
+  handleReactAction. See REACT_MIGRATION_GUIDE.md. Original markup preserved
+  above this comment in git history for reference. Confirmed reachable:
+  occupation-list.js's addNew()/handleEvents('edit') ->
+  utl.Modal.open('app.occupations', ...) -> this screen.
 
-
-                <div class="form-group col-sm-6">
-                    <label class="col-sm-12 control-label" for="code"
-                        translate="generalmaster.remark-form.code.lbl"></label>
-                    <div class="col-sm-12">
-                        <input type="text" class="form-control" name="code" ng-model="item.Code" placeholder=""
-                            required>
-                    </div>
-                </div>
-                <div class="form-group col-sm-6">
-                    <label class="col-sm-12 control-label" translate="generalmaster.occupation.shortcode.lbl"></label>
-                    <div class="col-sm-12">
-                        <input type="text" class="form-control" ng-model="item.ShortCode" placeholder="">
-                    </div>
-                </div>
-                <div class="form-group col-sm-6">
-                    <label class="col-sm-12 control-label" for="occupations"
-                        translate="generalmaster.occupation.occupations.lbl"></label>
-                    <div class="col-sm-12">
-                        <input type="text" class="form-control" name="occupations" ng-model="item.Occupations"
-                            placeholder="" required uppercase>
-                    </div>
-                </div>
-                <div class="form-group col-sm-6">
-                    <label class="col-sm-12 control-label" translate="generalmaster.remark-form.isactive.lbl"></label>
-                    <div class="col-sm-12">
-                        <input type="checkbox" name="isactive" class="custom-checkbox" ng-model="item.IsActive">
-                    </div>
-                </div>
-                <!--<div class="form-group col-sm-6">
-                                    <label class="col-sm-12 control-label" translate="generalmaster.remark-form.facility.lbl"></label>
-                                    <div class="col-sm-12">
-                                        <radiogroupcontrol itemid="item.FacilityId" items="lookup.Facility"></radiogroupcontrol>
-                                    </div>
-                                </div>-->
-
-
-            </div>
-        </form>
-    </div>
-    <div class="">
-        <div class="pull-right">
-            <!-- <button type="button" id="btnsubmit" class="draftbutton" translate="common.saveaction.lbl" ng-click="save()"></button> -->
-            <button type="button" class="draftbutton" translate="common.saveapprove-action.lbl"
-                ng-click="saveAndApprove()"></button>
-            <!-- <button id="btnCancelForm" type="button" class="draftbutton" ng-click="backToList()" translate="common.cancelaction.lbl"></button> -->
-        </div>
-    </div>
+  IMPORTANT, confirmed pre-existing issue, NOT introduced or fixed here: this
+  live template's only visible action button called ng-click="saveAndApprove()",
+  but occupation-form.js defines NEITHER saveAndApprove NOR saveandApprove --
+  only a plain saveItem() nothing in the UI ever called (the real "Save"
+  button was already commented out). So this modal's primary action button
+  has always been a complete no-op in production -- confirmed by reading both
+  files directly. Reproduced exactly: dispatches 'saveAndApprove', matching
+  no real controller function, same as the live behavior today. See
+  OccupationMasterFormScreen.tsx's disclosure comment.
+-->
+<div class="hims-theme-generalmaster">
+<react-component name="OccupationMasterFormScreen" props="{ reactProps: reactProps, onAction: handleReactAction }"></react-component>
 </div>
