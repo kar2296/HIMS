@@ -318,6 +318,8 @@ import { BarcodeMasterSettingsComponent } from './react-components/BarcodeMaster
 import { FindBillModalComponent } from './react-components/FindBillModalComponent';
 import { CityMasterListScreen } from './react-components/CityMasterListScreen';
 import { CityMasterFormScreen } from './react-components/CityMasterFormScreen';
+import { StateMasterListScreen } from './react-components/StateMasterListScreen';
+import { StateMasterFormScreen } from './react-components/StateMasterFormScreen';
 
 // Register components globally so the AngularJS bridge can find them
 (window as any).ReactComponents = {
@@ -430,7 +432,9 @@ import { CityMasterFormScreen } from './react-components/CityMasterFormScreen';
   PharmacyDashboardComponent,
   RichTextEditor,
   CityMasterListScreen,
-  CityMasterFormScreen
+  CityMasterFormScreen,
+  StateMasterListScreen,
+  StateMasterFormScreen
 };
 
 console.log('React runtime and components loaded. ReactBridge initialized.');

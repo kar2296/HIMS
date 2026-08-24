@@ -267,6 +267,65 @@
             utl.Http.doAction(options);
         }
 
+
+        // UI-MODERNIZATION RETROFIT: hollowed bridge for the React port of this
+        // list screen (<react-component name="StateMasterListScreen">). All real logic
+        // above (getList/getListCallback's real paginated GetStateMasters call,
+        // openModal/addNew/handleEvents' real utl.Modal.open('app.statemasters', ...)
+        // add/edit flow, and onDeleteConfirmed's real DeleteStateMaster call) is
+        // completely untouched. React owns presentational rendering only and forwards
+        // interactions back here by action name via handleReactAction.
+        $scope.refreshReactProps = function () {
+            $scope.reactProps = {
+                items: vm.gridConfig.data || [],
+                pagerObj: vm.gridConfig.pagerObj,
+                currentfilter: $scope.currentfilter,
+                lookup: {
+                    ActiveStatus: ($scope.lookup && $scope.lookup.ActiveStatus) || []
+                }
+            };
+        };
+
+        var _origGetListCallback = $scope.getListCallback;
+        $scope.getListCallback = function (scope, res, options, hasError) {
+            _origGetListCallback(scope, res, options, hasError);
+            $scope.refreshReactProps();
+            $scope.$applyAsync();
+        };
+
+        var _origLookupCallback = $scope.lookupCallback;
+        $scope.lookupCallback = function (scope, data, options, hasError) {
+            _origLookupCallback(scope, data, options, hasError);
+            $scope.refreshReactProps();
+            $scope.$applyAsync();
+        };
+
+        $scope.refreshReactProps();
+
+        $scope.handleReactAction = function (actionName, payload) {
+            if (actionName === 'locationFilterChange') {
+                angular.extend($scope.currentfilter, payload);
+                $scope.getList();
+            } else if (actionName === 'statusFilterChange') {
+                $scope.currentfilter.ActiveStatusId = payload && payload.value;
+                $scope.getList();
+            } else if (actionName === 'pageChange') {
+                vm.gridConfig.pagerObj.currentPage = payload && payload.page;
+                $scope.getList();
+            } else if (actionName === 'addNew') {
+                $scope.addNew();
+            } else if (actionName === 'edit') {
+                $scope.handleEvents('edit', payload);
+            } else if (actionName === 'delete') {
+                $scope.handleEvents('delete', payload);
+            } else if (actionName === 'backToList') {
+                $scope.backtoList();
+            } else if (typeof $scope[actionName] === 'function') {
+                $scope[actionName]();
+            }
+            $scope.refreshReactProps();
+            $scope.$applyAsync();
+        };
         $scope.initLookup();
     }
 
