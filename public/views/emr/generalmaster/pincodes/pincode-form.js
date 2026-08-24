@@ -348,6 +348,47 @@
             utl.Http.doAction(options);
         }
 
+        // REACT BRIDGE (GeneralMaster / Pincode Master add-edit modal):
+        // hollow-controller pattern -- real logic above (getItem/getItemCallback's
+        // real GetPincodeMasterById call, saveandApprove()/saveItem()'s real
+        // utl.Validator.validate + AddPincodeMaster/UpdatePincodeMaster calls,
+        // backToList's real $uibModalInstance.close via confirmCallback, and
+        // $scope.cancelCallback = $uibModalInstance.dismiss set above) is
+        // completely untouched. Only getItemCallback needs wrapping -- unlike
+        // City/State/District Master's forms, this screen's City/District/
+        // State/Country fields are independent AutosearchSelect widgets that
+        // resolve their own display name directly from their own real master
+        // APIs, not from this controller's $scope.lookup (which only ever
+        // fetches ActiveStatus, unused by this form's UI).
+        $scope.refreshReactProps = function () {
+            $scope.reactProps = {
+                item: $scope.item
+            };
+        };
+
+        var _origGetItemCallback = $scope.getItemCallback;
+        $scope.getItemCallback = function (scope, data, options, hasError) {
+            _origGetItemCallback(scope, data, options, hasError);
+            $scope.refreshReactProps();
+            $scope.$applyAsync();
+        };
+
+        $scope.refreshReactProps();
+
+        $scope.handleReactAction = function (actionName, payload) {
+            if (actionName === 'fieldChange') {
+                angular.extend($scope.item, payload);
+                $scope.refreshReactProps();
+                $scope.$applyAsync();
+                return;
+            }
+            if (typeof $scope[actionName] === 'function') {
+                $scope[actionName]();
+            }
+            $scope.refreshReactProps();
+            $scope.$applyAsync();
+        };
+
         $scope.initLookup();
     }
 
