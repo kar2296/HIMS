@@ -201,6 +201,54 @@
             utl.Http.doAction(options);
         }
 
+        // ---------------------------------------------------------------
+        // REACT BRIDGE (UI-modernization retrofit, Billing / Pending
+        // Procedures picker modal). AngularJS still owns all real state and
+        // logic below -- this block only mirrors it into $scope.reactProps
+        // and routes UI interactions back here by action name via
+        // handleReactAction. No business logic was changed.
+        $scope.refreshReactProps = function () {
+            $scope.reactProps = {
+                items: $scope.items || []
+            };
+        };
+
+        var _origGetListCallback = $scope.getListCallback;
+        $scope.getListCallback = function (scope, res, options, hasError) {
+            _origGetListCallback(scope, res, options, hasError);
+            $scope.refreshReactProps();
+            $scope.$applyAsync();
+        };
+
+        var _origLookupCallback = $scope.lookupCallback;
+        $scope.lookupCallback = function (scope, data, options, hasError) {
+            _origLookupCallback(scope, data, options, hasError);
+            $scope.refreshReactProps();
+            $scope.$applyAsync();
+        };
+
+        $scope.refreshReactProps();
+
+        $scope.handleReactAction = function (actionName, payload) {
+            if (actionName === 'toggleSelect') {
+                var selItem = null;
+                for (var si in $scope.items) {
+                    if ($scope.items[si].Id === (payload && payload.id)) { selItem = $scope.items[si]; break; }
+                }
+                if (selItem) $scope.IsOrderSelected(selItem);
+            } else if (actionName === 'toggleDetails') {
+                var detItem = null;
+                for (var di in $scope.items) {
+                    if ($scope.items[di].Id === (payload && payload.id)) { detItem = $scope.items[di]; break; }
+                }
+                if (detItem) $scope.toggleCanShowDetails(detItem);
+            } else if (typeof $scope[actionName] === 'function') {
+                $scope[actionName]();
+            }
+            $scope.refreshReactProps();
+            $scope.$applyAsync();
+        };
+
         $scope.initLookup();
     }
 

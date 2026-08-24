@@ -328,6 +328,7 @@ import { PincodeMasterListScreen } from './react-components/PincodeMasterListScr
 import { PincodeMasterFormScreen } from './react-components/PincodeMasterFormScreen';
 import { OccupationMasterListScreen } from './react-components/OccupationMasterListScreen';
 import { OccupationMasterFormScreen } from './react-components/OccupationMasterFormScreen';
+import { PendingProceduresPickerScreen } from './react-components/PendingProceduresPickerScreen';
 
 // Register components globally so the AngularJS bridge can find them
 (window as any).ReactComponents = {
@@ -450,7 +451,8 @@ import { OccupationMasterFormScreen } from './react-components/OccupationMasterF
   PincodeMasterListScreen,
   PincodeMasterFormScreen,
   OccupationMasterListScreen,
-  OccupationMasterFormScreen
+  OccupationMasterFormScreen,
+  PendingProceduresPickerScreen
 };
 
 console.log('React runtime and components loaded. ReactBridge initialized.');
