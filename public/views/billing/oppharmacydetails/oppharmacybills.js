@@ -160,6 +160,96 @@
             utl.Http.doAction(options);
         };
 
+        // ---------------------------------------------------------------
+        // REACT BRIDGE (UI-modernization retrofit, Billing / OP Pharmacy
+        // Bills detail-summary modal). AngularJS still owns all real state
+        // and logic below -- this block only mirrors it into
+        // $scope.reactProps and routes UI interactions back here by
+        // action name via handleReactAction. No business logic was
+        // changed.
+        //
+        // The embedded <patientbanner> directive (see
+        // vendor/components/patientbanner.js) independently fetches
+        // registration/patient/GetPatientById and renders rich
+        // patient/encounter/guarantor info that cannot render inside a
+        // React tree. Following the precedent established for
+        // PatientKinFormScreen, this bridge issues the SAME real
+        // GetPatientById call itself and exposes a simplified
+        // Name/MRN/Age/Gender summary via reactProps.patient instead of
+        // porting the full directive. setBannerDelegate is intentionally
+        // not defined here -- confirmed via a 21-screen codebase-wide
+        // comparison that 19 of 21 controllers using
+        // <patientbanner delegatefn="setBannerDelegate(cmp)"> omit this
+        // function with no ill effect (AngularJS & bindings tolerate a
+        // missing reference).
+        $scope.getPatientByIdCallback = function (scope, data, options, hasError) {
+            if (hasError) return;
+            $scope.patient = {
+                MRN: data.MRN,
+                Title: data.Title ? data.Title.Description : null,
+                FirstName: data.FirstName,
+                LastName: data.LastName,
+                Age: data.Age,
+                Gender: data.Gender ? data.Gender.Description : null
+            };
+            $scope.refreshReactProps();
+            $scope.$applyAsync();
+        };
+
+        $scope.getPatientById = function () {
+            if ($scope.currentcontext.pid > 0) {
+                var patOptions = {
+                    action: 'registration/patient/GetPatientById',
+                    data: { Id: $scope.currentcontext.pid },
+                    type: 'post',
+                    onComplete: $scope.getPatientByIdCallback
+                };
+                utl.Http.doAction(patOptions);
+            }
+        };
+
+        $scope.refreshReactProps = function () {
+            $scope.reactProps = {
+                pharmacyBillDetails: $scope.PharmacyBillDetails || [],
+                pharmacyRetBillDetails: $scope.PharmacyRetBillDetails || [],
+                totalAmount: $scope.TotalAmount,
+                summaryview: $scope.currentcontext.summaryview,
+                patient: $scope.patient || null
+            };
+        };
+
+        var _origGetListCallback = $scope.getListCallback;
+        $scope.getListCallback = function (scope, res, options, hasError) {
+            _origGetListCallback(scope, res, options, hasError);
+            $scope.refreshReactProps();
+            $scope.$applyAsync();
+        };
+
+        var _origGetReturnListCallback = $scope.getReturnListCallback;
+        $scope.getReturnListCallback = function (scope, res, options, hasError) {
+            _origGetReturnListCallback(scope, res, options, hasError);
+            $scope.refreshReactProps();
+            $scope.$applyAsync();
+        };
+
+        var _origLookupCallback = $scope.lookupCallback;
+        $scope.lookupCallback = function (scope, data, options, hasError) {
+            _origLookupCallback(scope, data, options, hasError);
+            $scope.refreshReactProps();
+            $scope.$applyAsync();
+        };
+
+        $scope.refreshReactProps();
+        $scope.getPatientById();
+
+        $scope.handleReactAction = function (actionName, payload) {
+            if (typeof $scope[actionName] === 'function') {
+                $scope[actionName]();
+            }
+            $scope.refreshReactProps();
+            $scope.$applyAsync();
+        };
+
         $scope.initLookup();
     }
 

@@ -331,6 +331,7 @@ import { OccupationMasterFormScreen } from './react-components/OccupationMasterF
 import { PendingProceduresPickerScreen } from './react-components/PendingProceduresPickerScreen';
 import { ReceiptPickerScreen } from './react-components/ReceiptPickerScreen';
 import { PendingOrderPickerScreen } from './react-components/PendingOrderPickerScreen';
+import { OpPharmacyBillsScreen } from './react-components/OpPharmacyBillsScreen';
 
 // Register components globally so the AngularJS bridge can find them
 (window as any).ReactComponents = {
@@ -456,7 +457,8 @@ import { PendingOrderPickerScreen } from './react-components/PendingOrderPickerS
   OccupationMasterFormScreen,
   PendingProceduresPickerScreen,
   ReceiptPickerScreen,
-  PendingOrderPickerScreen
+  PendingOrderPickerScreen,
+  OpPharmacyBillsScreen
 };
 
 console.log('React runtime and components loaded. ReactBridge initialized.');
