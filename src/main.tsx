@@ -320,6 +320,8 @@ import { CityMasterListScreen } from './react-components/CityMasterListScreen';
 import { CityMasterFormScreen } from './react-components/CityMasterFormScreen';
 import { StateMasterListScreen } from './react-components/StateMasterListScreen';
 import { StateMasterFormScreen } from './react-components/StateMasterFormScreen';
+import { CountryMasterListScreen } from './react-components/CountryMasterListScreen';
+import { CountryMasterFormScreen } from './react-components/CountryMasterFormScreen';
 
 // Register components globally so the AngularJS bridge can find them
 (window as any).ReactComponents = {
@@ -434,7 +436,9 @@ import { StateMasterFormScreen } from './react-components/StateMasterFormScreen'
   CityMasterListScreen,
   CityMasterFormScreen,
   StateMasterListScreen,
-  StateMasterFormScreen
+  StateMasterFormScreen,
+  CountryMasterListScreen,
+  CountryMasterFormScreen
 };
 
 console.log('React runtime and components loaded. ReactBridge initialized.');

@@ -140,6 +140,66 @@
             utl.Http.doAction(options);
         }
 
+
+        // UI-MODERNIZATION RETROFIT: hollowed bridge for the React port of this
+        // list screen (<react-component name="CountryMasterListScreen">). All real
+        // logic above (getList/getListCallback's real paginated GetCountryMasters
+        // call, openModal/addNew/handleEvents' real utl.Modal.open('app.countrymasters',
+        // ...) add/edit flow, and onDeleteConfirmed's real DeleteCountryMaster call) is
+        // completely untouched. React owns presentational rendering only and forwards
+        // interactions back here by action name via handleReactAction.
+        //
+        // Note: this controller has no backtoList() function -- unlike City/State
+        // Master there is no Dashboard/Home action to wire up here.
+        $scope.refreshReactProps = function () {
+            $scope.reactProps = {
+                items: vm.gridConfig.data || [],
+                pagerObj: vm.gridConfig.pagerObj,
+                currentfilter: $scope.currentfilter,
+                lookup: {
+                    ActiveStatus: ($scope.lookup && $scope.lookup.ActiveStatus) || []
+                }
+            };
+        };
+
+        var _origGetListCallback = $scope.getListCallback;
+        $scope.getListCallback = function (scope, res, options, hasError) {
+            _origGetListCallback(scope, res, options, hasError);
+            $scope.refreshReactProps();
+            $scope.$applyAsync();
+        };
+
+        var _origLookupCallback = $scope.lookupCallback;
+        $scope.lookupCallback = function (scope, data, options, hasError) {
+            _origLookupCallback(scope, data, options, hasError);
+            $scope.refreshReactProps();
+            $scope.$applyAsync();
+        };
+
+        $scope.refreshReactProps();
+
+        $scope.handleReactAction = function (actionName, payload) {
+            if (actionName === 'search') {
+                $scope.currentfilter.CountryCode = payload && payload.value;
+                $scope.getList();
+            } else if (actionName === 'statusFilterChange') {
+                $scope.currentfilter.ActiveStatusId = payload && payload.value;
+                $scope.getList();
+            } else if (actionName === 'pageChange') {
+                vm.gridConfig.pagerObj.currentPage = payload && payload.page;
+                $scope.getList();
+            } else if (actionName === 'addNew') {
+                $scope.addNew();
+            } else if (actionName === 'edit') {
+                $scope.handleEvents('edit', payload);
+            } else if (actionName === 'delete') {
+                $scope.handleEvents('delete', payload);
+            } else if (typeof $scope[actionName] === 'function') {
+                $scope[actionName]();
+            }
+            $scope.refreshReactProps();
+            $scope.$applyAsync();
+        };
         $scope.initLookup();
     }
 
