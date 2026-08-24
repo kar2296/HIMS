@@ -212,6 +212,51 @@
             utl.Http.doAction(options);
         }
 
+        // ---------------------------------------------------------------
+        // REACT BRIDGE (UI-modernization retrofit, Billing / Find Receipt
+        // picker modal). AngularJS still owns all real state and logic
+        // below -- this block only mirrors it into $scope.reactProps and
+        // routes UI interactions back here by action name via
+        // handleReactAction. No business logic was changed.
+        $scope.refreshReactProps = function () {
+            $scope.reactProps = {
+                modeldata: $scope.modeldata,
+                lookup: $scope.lookup,
+                gridData: $scope.gridData
+            };
+        };
+
+        var _origGetListCallback = $scope.getListCallback;
+        $scope.getListCallback = function (scope, res, options, hasError) {
+            _origGetListCallback(scope, res, options, hasError);
+            $scope.refreshReactProps();
+            $scope.$applyAsync();
+        };
+
+        var _origLookupCallback = $scope.lookupCallback;
+        $scope.lookupCallback = function (scope, data, options, hasError) {
+            _origLookupCallback(scope, data, options, hasError);
+            $scope.refreshReactProps();
+            $scope.$applyAsync();
+        };
+
+        $scope.refreshReactProps();
+
+        $scope.handleReactAction = function (actionName, payload) {
+            if (actionName === 'apply') {
+                angular.extend($scope.modeldata, (payload && payload.modeldata) || {});
+                $scope.actionClick('apply');
+            } else if (actionName === 'reset') {
+                $scope.actionClick('reset');
+            } else if (actionName === 'pageChange') {
+                $scope.getList();
+            } else if (typeof $scope[actionName] === 'function') {
+                $scope[actionName]();
+            }
+            $scope.refreshReactProps();
+            $scope.$applyAsync();
+        };
+
         $scope.initLookup();
     }
 
