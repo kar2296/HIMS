@@ -108,6 +108,61 @@
             utl.Http.doAction(options);
         }
 
+        // REACT BRIDGE (GeneralMaster / District Master add-edit modal):
+        // hollow-controller pattern -- real logic above (getItem/getItemCallback's
+        // real GetDistrictMasterById call, save()/saveandApprove()/saveItem()'s real
+        // utl.Validator.validate + AddDistrictMaster/UpdateDistrictMaster calls,
+        // backToList's real $uibModalInstance.close via confirmCallback, and
+        // $scope.cancelCallback = $uibModalInstance.dismiss set above) is completely
+        // untouched. This form needs both getItemCallback AND lookupCallback wrapped
+        // since lookupCallback populates lookup.State/lookup.Country before getItem()
+        // runs.
+        //
+        // NOTE (pre-existing bug, not introduced or fixed here): same as City/State/
+        // Country Master, the live template's "Save & Approve" button calls
+        // ng-click="saveAndApprove()", but this controller only ever defined
+        // $scope.saveandApprove (lowercase 'and') -- so that button has always
+        // silently no-op'd in production. Preserved exactly as-is.
+        $scope.refreshReactProps = function () {
+            $scope.reactProps = {
+                item: $scope.item,
+                lookup: {
+                    State: ($scope.lookup && $scope.lookup.State) || [],
+                    Country: ($scope.lookup && $scope.lookup.Country) || []
+                }
+            };
+        };
+
+        var _origGetItemCallback = $scope.getItemCallback;
+        $scope.getItemCallback = function (scope, data, options, hasError) {
+            _origGetItemCallback(scope, data, options, hasError);
+            $scope.refreshReactProps();
+            $scope.$applyAsync();
+        };
+
+        var _origLookupCallback = $scope.lookupCallback;
+        $scope.lookupCallback = function (scope, data, options, hasError) {
+            _origLookupCallback(scope, data, options, hasError);
+            $scope.refreshReactProps();
+            $scope.$applyAsync();
+        };
+
+        $scope.refreshReactProps();
+
+        $scope.handleReactAction = function (actionName, payload) {
+            if (actionName === 'fieldChange') {
+                angular.extend($scope.item, payload);
+                $scope.refreshReactProps();
+                $scope.$applyAsync();
+                return;
+            }
+            if (typeof $scope[actionName] === 'function') {
+                $scope[actionName]();
+            }
+            $scope.refreshReactProps();
+            $scope.$applyAsync();
+        };
+
         $scope.initLookup();
     }
 
