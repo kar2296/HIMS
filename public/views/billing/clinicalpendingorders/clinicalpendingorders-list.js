@@ -226,6 +226,81 @@
             utl.Http.doAction(options);
         }
 
+        // ---------------------------------------------------------------
+        // REACT BRIDGE (UI-modernization retrofit, Billing / Clinical
+        // Orders "Pending Orders" list, app.pendingorders). AngularJS
+        // still owns all real state and logic below -- this block only
+        // mirrors it into $scope.reactProps and routes UI interactions
+        // back here by action name via handleReactAction. No business
+        // logic was changed. currentfilter.OrderDate is a real JS Date
+        // object (ng-date-object/uib-datepicker-popup) -- converted to/
+        // from an ISO yyyy-mm-dd string only at this boundary, exactly
+        // like every other DatePicker-backed bridge in this codebase.
+        $scope.refreshReactProps = function () {
+            var d = $scope.currentfilter.OrderDate;
+            var isoDate = '';
+            if (d) {
+                var dateObj = (d instanceof Date) ? d : new Date(d);
+                if (!isNaN(dateObj.getTime())) {
+                    var mm = ('0' + (dateObj.getMonth() + 1)).slice(-2);
+                    var dd = ('0' + dateObj.getDate()).slice(-2);
+                    isoDate = dateObj.getFullYear() + '-' + mm + '-' + dd;
+                }
+            }
+            $scope.reactProps = {
+                items: (vm.gridConfig && vm.gridConfig.data) || [],
+                pagerObj: (vm.gridConfig && vm.gridConfig.pagerObj) || {},
+                currentfilter: {
+                    patient: $scope.currentfilter.patient,
+                    orderstatusid: $scope.currentfilter.orderstatusid,
+                    OrderDate: isoDate
+                },
+                lookup: $scope.lookup || {}
+            };
+        };
+
+        var _origGetListCallback = $scope.getListCallback;
+        $scope.getListCallback = function (scope, res, options, hasError) {
+            _origGetListCallback(scope, res, options, hasError);
+            $scope.refreshReactProps();
+            $scope.$applyAsync();
+        };
+
+        var _origLookupCallback = $scope.lookupCallback;
+        $scope.lookupCallback = function (scope, data, options, hasError) {
+            _origLookupCallback(scope, data, options, hasError);
+            $scope.refreshReactProps();
+            $scope.$applyAsync();
+        };
+
+        $scope.refreshReactProps();
+
+        $scope.handleReactAction = function (actionName, payload) {
+            if (actionName === 'search') {
+                $scope.currentfilter.patient = payload && payload.patient;
+                vm.gridConfig.pagerObj.currentPage = 1;
+                $scope.getList();
+            } else if (actionName === 'dateChange') {
+                var newDate = (payload && payload.value) ? new Date(payload.value) : '';
+                $scope.currentfilter.OrderDate = newDate;
+                vm.gridConfig.pagerObj.currentPage = 1;
+                $scope.getList();
+            } else if (actionName === 'statusFilterChange') {
+                $scope.currentfilter.orderstatusid = payload ? payload.value : undefined;
+                vm.gridConfig.pagerObj.currentPage = 1;
+                $scope.getList();
+            } else if (actionName === 'pageChange') {
+                vm.gridConfig.pagerObj.currentPage = payload && payload.page;
+                $scope.getList();
+            } else if (actionName === 'b2bbillinglist' || actionName === 'opbillinglist' || actionName === 'dgbillinglist') {
+                $scope.handleEvents(actionName, { entity: payload });
+            } else if (typeof $scope[actionName] === 'function') {
+                $scope[actionName]();
+            }
+            $scope.refreshReactProps();
+            $scope.$applyAsync();
+        };
+
         $scope.initLookup();
     }
 

@@ -1,110 +1,28 @@
-<style>
-    .priority {
-        background-color: rgba(241, 208, 63, 0.34);
-    }
+<!--
+  UI-MODERNIZATION RETROFIT (Billing / Clinical Orders "Pending Orders"
+  list, app.pendingorders). This fragment mounts the real screen's UI as
+  a React component (ClinicalPendingOrdersListScreen). AngularJS
+  (clinicalpendingorders-list.js) is hollowed to a thin dispatcher: it
+  still owns vm.gridConfig, the real emr/patientorder/GetPatientOrders
+  call, PageContext-based pagination, and the real $state.go navigation
+  for the B2B/OPB/DGB actions -- React only renders $scope.reactProps
+  and dispatches action names back via handleReactAction. See
+  clinicalpendingorders-list.js for the full disclosure of confirmed
+  dead code (the commented-out Filter/Add New Orders buttons and the
+  functions only reachable from them) and confirmed pre-existing quirks
+  preserved as-is (the "Referred By" column duplicating the "Patient"
+  column's data, and two column headers whose translate keys are missing
+  from i18n and so literally render as raw key strings on the real
+  screen today).
 
-    .icon_emrboard {
-        width: 5%;
-        float: right;
-        margin-right: 1%;
-    }
-
-    .icon_home {
-        width: 5%;
-        float: right;
-    }
-
-    @media (min-height: 637px) and (min-width: 1200px) {
-        #patientsearchheight .ui-grid-viewport {
-            height: 388px !important;
-            min-height: 420px;
-        }
-    }
-
-    @media (min-height: 675px) and (min-width: 1360px) {
-        #patientsearchheight .ui-grid-viewport {
-            height: 440px;
-            min-height: 447px;
-        }
-    }
-
-    @media (device-height:100vh) and (device-width:100vw) {
-        #patientsearchheight .ui-grid-viewport {
-            min-height: 520px;
-        }
-    }
-
-    .opb-color8 {
-        background-color: #4de8178c !important;
-        border-color: #85e40f;
-        color: #fff;
-    }
-</style>
-<div id="prescriptionpagecontrol">
-    <div class="row page-header">
-        <div class="col-sm-12">
-            <div class="col-sm-6">
-                <h4 class="page-header mt0" translate="patientemr.patientorder-list.pendingorders.lbl"></h4>
-            </div>
-            <div class="col-sm-6">
-                <!-- <button class="btn bt-color3 btn-xs pull-right btn-filter" ng-click="openAdvancedFilter()" uib-tooltip="{{'clinicalmaster.serviceitem-list.filter-tooltip.lbl' | translate }}"
-                    tooltip-placement="bottom">
-                    <i class="fas fa-search" aria-hidden="true"></i>&nbsp;&nbsp;
-                    <span translate="clinicalmaster.serviceitem-list.filter.lbl"></span>
-                </button>
-                <button class="btn-add" ng-click="addNewOrder()" uib-tooltip="{{ 'patientemr.patientorder-list.pagetitle.lbl' | translate }}"
-                    tooltip-placement="bottom">
-                    <i class="fa fa-plus" aria-hidden="true"></i>
-                    
-                </button> -->
-
-            </div>
-        </div>
-    </div>
-    <div class="row filter-area">
-        <div class="col-sm-12">
-            <div class="col-sm-4">
-                <label class="col-sm-4 control-label filter-lbl" translate="patientemr.patientorder-list.filter_patient.lbl"></label>
-                <div class="col-sm-8">
-                    <input type="text" class="form-control" name="filter_patient" on-enter="getList()" ng-model="currentfilter.patient"
-                        translate translate-attr-placeholder="patientemr.patientorder-list.filter_patient.lbl">
-                </div>
-            </div>
-            <div class="col-sm-4">
-                <label class="col-sm-4 control-label filter-lbl" translate="patientemr.patientorder-form.orderdateandtime.lbl"></label>
-                <div class="col-sm-8">
-                    <input type="text" class="form-control" ng-disabled="item.isAdmitted" name="admissiondate"
-                        ng-change="getList()" ng-date-object datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}"
-                        uib-datepicker-popup="{{datePickerOptions.dateFormat}}" placeholder="{{datePickerOptions.placeholder}}"
-                        ng-click="OrderDateDatePopup = { opened: true }" is-open="OrderDateDatePopup.opened" ng-model="currentfilter.OrderDate"
-                        tabindex="-1">
-                </div>
-            </div>
-            <div class="col-sm-4">
-                <label class="col-sm-4 control-label filter-lbl" translate="patientemr.patientorder-list.filter_status.lbl"></label>
-                <div class="col-sm-8">
-                    <ui-select ng-model="currentfilter.orderstatusid" ng-change="getList()" class="filter-combo">
-                        <ui-select-match>
-                            {{$select.selected.Text | limitTo : 8 : 0}}
-                            <span ng-if="$select.selected.Text.length>8">...</span>
-                        </ui-select-match>
-                        <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.OrderStatus | filter: { Text: $select.search }">
-                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
-                        </ui-select-choices>
-                    </ui-select>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="container-fluid" id="patientsearchheight">
-        <div ui-grid="vm.gridConfig" class="table-uigrid"></div>
-        <div class="fooderctrl">
-            <div class="fooder-bgs">
-                <ul uib-pagination total-items="vm.gridConfig.pagerObj.totalItems" items-per-page="vm.gridConfig.pagerObj.pageSize"
-                    start-index="vm.gridConfig.pagerObj.startIndex" ng-model="vm.gridConfig.pagerObj.currentPage"
-                    ng-change="getList()"></ul>
-            </div>
-        </div>
-    </div>
+  The original inline <style> block (ui-grid viewport height media
+  queries, .priority/.icon_emrboard/.icon_home/.opb-color8 helper
+  classes) belonged to the ui-grid markup this replaces. Confirmed dead
+  even in the original: none of these four class selectors were applied
+  to any element in this file's own body (verified by reading the full
+  original template) -- only defined, never used on this screen.
+  Dropped here with no visible effect.
+-->
+<div style="width: 100%;">
+    <react-component name="ClinicalPendingOrdersListScreen" props="{ reactProps: reactProps, onAction: handleReactAction }"></react-component>
 </div>
