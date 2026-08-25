@@ -351,6 +351,10 @@ import { BillingLhrcVoucherFormScreen } from './react-components/BillingLhrcVouc
 import { BillingLhrcVoucherFormDetailsScreen } from './react-components/BillingLhrcVoucherFormDetailsScreen';
 import { BillingBillingCollectionsScreen } from './react-components/BillingBillingCollectionsScreen';
 import { BillingIpBillingCollectionsScreen } from './react-components/BillingIpBillingCollectionsScreen';
+import { BillingConsolidatePaymentFilterScreen } from './react-components/BillingConsolidatePaymentFilterScreen';
+import { BillingConsolidatePaymentGridScreen } from './react-components/BillingConsolidatePaymentGridScreen';
+import { BillingConsolidatePaymentFooterScreen } from './react-components/BillingConsolidatePaymentFooterScreen';
+import { BillingConsolidatePaymentActionsScreen } from './react-components/BillingConsolidatePaymentActionsScreen';
 
 // Register components globally so the AngularJS bridge can find them
 (window as any).ReactComponents = {
@@ -497,7 +501,11 @@ import { BillingIpBillingCollectionsScreen } from './react-components/BillingIpB
   BillingLhrcVoucherFormScreen,
   BillingLhrcVoucherFormDetailsScreen,
   BillingBillingCollectionsScreen,
-  BillingIpBillingCollectionsScreen
+  BillingIpBillingCollectionsScreen,
+  BillingConsolidatePaymentFilterScreen,
+  BillingConsolidatePaymentGridScreen,
+  BillingConsolidatePaymentFooterScreen,
+  BillingConsolidatePaymentActionsScreen
 };
 
 console.log('React runtime and components loaded. ReactBridge initialized.');

@@ -454,6 +454,59 @@
     margin-bottom: 16px;
 }
 </style>
+<!--
+UI-MODERNIZATION RETROFIT (Billing / Consolidate Payment, app.consolidatepayment,
+consolidatepaymentController). Uses the LHRC-Voucher-style hybrid bridge pattern:
+the real <form id="item_form" name="item_form"> and the real, unmodified
+<patientsearch> widget stay native (confirmed via a full read of both the
+531-line controller and this 716-line template: this screen
+calls utl.Validator.validate($scope) in saveAndApprove(), so its item_form must
+stay real). Three <react-component> mounts replace the BillType/Load/Find/Clear
+bar, the custom-table grid, and the payment-detail footer + totals table + action
+bar -- with hidden native mirror inputs (below) preserving every required/pattern
+validator that used to live on the now-React-rendered payment fields, so
+item_form.$valid keeps computing exactly as before. AngularJS
+(consolidatepayment.js) remains authoritative for every real API call
+(billing/PatientBills/GetPatientBills, billing/PatientBills/ConsolidatePayment),
+Security PIN modal (utl.Modal.open('app.securitypincheck', ...)), and dot-matrix
+print data preparation; React only renders reactProps and dispatches action names
+via handleReactAction.
+
+CONFIRMED MAJOR PRE-EXISTING DEFECT, reproduced exactly, NOT fixed (out of scope
+per this migration's standing rule against fixing unrelated pre-existing issues):
+the real grid was switched from ui-grid (now commented out below the surviving
+<custom-table> mount) to the shared <custom-table> component, but <custom-table>
+(public/js/custom-table.html, customTableController in public/js/app.js) has NO
+row-selection/checkbox support at all -- it never calls the vm.gridConfig.onRegisterApi
+callback, so $scope.gridApi is permanently undefined. saveAndApprove()'s
+getSelectionRows() (-> $scope.gridApi.selection.getSelectedRows()) therefore
+throws an uncaught TypeError EVERY time it runs, immediately after
+utl.Validator.validate($scope) passes -- meaning the entire "select bills and
+consolidate payment" save workflow is non-functional in production today,
+independent of this migration. selectionChangedCal() (the function that would
+accumulate item.Discount/BillAmount/OutStandingAmt/Received as rows are
+checked/unchecked) is consequently unreachable dead code, since there is no
+checkbox column anywhere in vm.gridConfig.columnDefs or the custom-table
+template to ever trigger it. The footer totals (Discount/Total/Round Off/Due
+Amount/Grand Amount/Received) therefore always display their static ₹0.00
+defaults and can never change via the UI. This is reproduced faithfully below:
+no selection checkboxes are rendered, and saveAndApprove dispatches straight
+to the real, unmodified $scope.saveAndApprove(), which will throw the same way
+it does today.
+
+Also confirmed dead: the "Print" button's ng-click="print()" has no matching
+$scope.print anywhere in this controller (throws silently, same class of bug as
+the selection issue above); the "DM Print" button and $scope.dmPrint()/
+preparePrintData() are entirely unreachable (their button is HTML-commented
+out); and the facility-setting-driven jQuery button-hide in
+getPharmacyPrintPreference() is a proven no-op for the visible Print button
+because $scope.printpreferences is hardcoded to 1 at controller init and never
+reassigned by that function (only $scope.dmprintpreferences is, via a further
+copy-paste bug where its first assignment is immediately overwritten by a
+second, unrelated facility-setting read) -- so the Print button is always shown
+regardless of facility settings, which is reproduced by mirroring the same
+`printpreferences <= 0` gate rather than assuming a fixed visible/hidden state.
+-->
 <div id="opbillingcontrol">
     <div class="row page-header mt1">
         <h4 class="page-header pdl15" translate="billing.consolidate.pagetitle.lbl"></h4>
@@ -469,233 +522,34 @@
                                 tabindex="tabindexmap.patienttabindex" filterconfig="patientfilterconfig" required></patientsearch>
                         </div>
                     </div>
-                    <div class="col-sm-4">
-                        <label class="col-sm-4 control-label" for="" translate="billing.consolidate.billtype.lbl"></label>
-                        <div class="col-sm-8 doct_invoice_ifield">
-                            <ui-select ng-model="currentfilter.BillTypeId" name="" class="filter-combo">
-                                <ui-select-match>
-                                    {{$select.selected.Text | limitTo : 20 : 0}}
-                                    <span ng-if="$select.selected.Text.length>20">...</span>
-                                </ui-select-match>
-                                <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.BillType | filter: { Text: $select.search }">
-                                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
-                                </ui-select-choices>
-                            </ui-select>
-                        </div>
-                    </div>
-                    <div class="col-sm-4 doct_invoice_btn">
-                        <button id="btnSearch" type="button" class="draftbutton" translate="doctorinvoice-form.loadbills.lbl"
-                            ng-click="getList()"></button>
-                        <button id="btnSearch"  type="button" class="text-white btn prv-color12 btn-sm" translate="Find"
-                            ng-click="findConsolidatePayBills()"> <i class="fa fa-search-plus" aria-hidden="true"></i> </button>
-                        <button id="btnSearch"  type="button" class="btn btn-warning btn-sm text-white  btn-sm" translate="Clear"
-                            ng-click="Clear()"> <i class="fa fa-search-plus" aria-hidden="true"></i> </button>
-                    </div>
+                    <react-component name="BillingConsolidatePaymentFilterScreen" props="{ reactProps: reactProps, onAction: handleReactAction }"></react-component>
                 </div>
                 <div class=" table-control bill_consolidate">
-                    <!-- <div ui-grid="vm.gridConfig" class="table-uigrid" ui-grid-selection></div> -->
-                    <custom-table config="vm.gridConfig"></custom-table>
-                    
-                <div class="footerbars">
-                    <div class="sub-footer">
-                        <div class=" bgfoot " style="overflow: unset !important;">
-                            <div class="col-sm-12">
-                                <div class="col-sm-9">
-                                    <div class="col-sm-6">
-                                        <div class="form-group">
-                                            <label class="col-sm-5 " for="paymenttype" translate="billing.opbilling-list.paymenttype.lbl"></label>
-                                            <div class="col-sm-7 toprighttext">
-                                                <ui-select ng-model="item.PaymentTypeId" name="paymenttype" required>
-                                                    <ui-select-match>
-                                                        {{$select.selected.Text | limitTo : 20 : 0}}
-                                                        <span ng-if="$select.selected.Text.length>20">...</span>
-                                                    </ui-select-match>
-                                                    <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.PaymentType | filter: { Text: $select.search }">
-                                                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
-                                                    </ui-select-choices>
-                                                </ui-select>
-                                            </div>
-                                        </div>
+                    <react-component name="BillingConsolidatePaymentGridScreen" props="{ reactProps: reactProps, onAction: handleReactAction }"></react-component>
 
-                                        <div class="form-group">
-                                            <label class="col-sm-5 ng-scope" for="receivedamt" translate="billing.opbilling-list.receiptamount.lbl"></label>
-                                            <div class="col-sm-7">
-                                                <input type="text" class="form-control ng-valid ng-dirty ng-valid-parse ng-empty ng-touched" name="receivedamt"
-                                                    ng-model="item.OutStandingAmt" placeholder="" disabled>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-sm-6">
-                                        
-                                        <div class="form-group" ng-if="item.PaymentTypeId != 1">
-                                            <label class="col-sm-5 control-label" for="bankname" translate="billing.receipt-form.bankname.lbl"></label>
-                                            <div class="col-sm-7 toprightbankname">
-                                                <ui-select ng-model="item.BankId" name="bankname" required>
-                                                    <ui-select-match>
-                                                        {{$select.selected.Text | limitTo : 20 : 0}}
-                                                        <span ng-if="$select.selected.Text.length>20">...</span>
-                                                    </ui-select-match>
-                                                    <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.Bank | filter: { Text: $select.search }">
-                                                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
-                                                    </ui-select-choices>
-                                                </ui-select>
-                                            </div>
-                                        </div>
-                                        <div class="form-group" ng-if="item.PaymentTypeId==2">
-                                            <label class="col-sm-5 control-label" for="chequeno" translate="billing.receipt-form.chequeno.lbl"></label>
-                                            <div class="col-sm-7">
-                                                <input type="text" class="form-control" name="chequeno" ng-model="item.ChequeNo" placeholder=""
-                                                    required>
-                                            </div>
-                                        </div>
-                                        <div class="form-group" ng-if="item.PaymentTypeId==3">
-                                            <label class="col-sm-5 control-label" for="ddno" translate="billing.receipt-form.ddno.lbl"></label>
-                                            <div class="col-sm-7">
-                                                <input type="text" class="form-control" name="ddno" ng-model="item.DDNumber" placeholder=""
-                                                    ng-minlength="" ng-pattern="/^\d+$/" required>
-                                            </div>
-                                        </div>
-                                        <div class="form-group" ng-if="item.PaymentTypeId==4">
-                                            <label class="col-sm-5 control-label" for="transationno" translate="billing.receipt-form.transationno.lbl"></label>
-                                            <div class="col-sm-7">
-                                                <input type="text" class="form-control" name="transationno" ng-model="item.WireTransferId" placeholder=""
-                                                    required>
-                                            </div>
-                                        </div>
+                    <!-- Hidden native validation mirrors for the payment-detail fields now
+                         rendered by BillingConsolidatePaymentFooterScreen -- preserves the
+                         real required/ng-pattern validators inside item_form exactly as
+                         they existed before this migration, bound to the same item.* model
+                         paths the bridge already writes to. -->
+                    <div style="display:none" aria-hidden="true">
+                        <input type="text" name="paymenttype" ng-model="item.PaymentTypeId" required>
+                        <input type="text" name="bankname" ng-model="item.BankId" required ng-if="item.PaymentTypeId != 1">
+                        <input type="text" name="chequeno" ng-model="item.ChequeNo" required ng-if="item.PaymentTypeId==2">
+                        <input type="text" name="ddno" ng-model="item.DDNumber" required ng-pattern="/^\d+$/" ng-if="item.PaymentTypeId==3">
+                        <input type="text" name="transationno" ng-model="item.WireTransferId" required ng-if="item.PaymentTypeId==4">
+                        <input type="text" name="cardno" ng-model="item.AuthorizedCode" maxlength="8" required ng-if="item.PaymentTypeId==5||item.PaymentTypeId==6">
+                        <input type="text" name="terminalno" ng-model="item.TerminalNoId" required ng-if="item.PaymentTypeId==5||item.PaymentTypeId==6">
+                        <input type="text" name="cardtype" ng-model="item.CardTypeId" required ng-if="item.PaymentTypeId==5||item.PaymentTypeId==6">
+                    </div>
 
-                                        <div class="form-group" ng-if="item.PaymentTypeId==5||item.PaymentTypeId==6">
-                                            <label class="col-sm-5 control-label" for="cardno" translate="billing.receipt-form.authorisedcode.lbl"></label>
-                                            <div class="col-sm-7">
-                                                <input type="text" class="form-control" name="cardno" ng-model="item.AuthorizedCode" maxlength="8"
-                                                    placeholder="" required>
-                                            </div>
-                                        </div>
-
-                                        <div class="form-group" ng-if="item.PaymentTypeId == 4||item.PaymentTypeId == 3||item.PaymentTypeId == 2">
-                                            <label class="col-sm-5 control-label" translate="billing.receipt-form.Collected On.lbl"></label>
-                                            <div class="col-sm-7 toprightcollectedon">
-                                                <input type="text" class="form-control" name="Collected On" ng-date-object datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}"
-                                                    uib-datepicker-popup="{{datePickerOptions.dateFormat}}" placeholder="{{datePickerOptions.placeholder}}"
-                                                    ng-click="activefromPopup = { opened: true }" is-open="activefromPopup.opened"
-                                                    ng-model="item.CollectedOn">
-                                            </div>
-                                        </div>
-                                        <div class="form-group" ng-if="item.PaymentTypeId == 5||item.PaymentTypeId==6">
-                                            <label class="col-sm-5 control-label" translate="billing.receipt-form.terminalno.lbl" for="terminalno"></label>
-                                            <div class="col-sm-7 toprightterminateno">
-                                                <!--<input type="text" class="form-control" name="terminalno" ng-model="item.TerminalNoId" maxlength="8" ng-disabled="item.isCompleted"
-                                                    placeholder="" required>-->
-                                                <ui-select ng-model="item.TerminalNoId" name="terminalno" required>
-                                                    <ui-select-match>
-                                                        {{$select.selected.Text | limitTo : 20 : 0}}
-                                                        <span ng-if="$select.selected.Text.length>20">...</span>
-                                                    </ui-select-match>
-                                                    <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.Terminal | filter: { Text: $select.search }">
-                                                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
-                                                    </ui-select-choices>
-                                                </ui-select>
-                                            </div>
-                                        </div>
-                                        <div class="form-group" ng-if="item.PaymentTypeId==2">
-                                            <label class="col-sm-5 control-label" translate="billing.receipt-form.Chequedate.lbl"></label>
-                                            <div class="col-sm-7 toprightchequedate">
-                                                <input type="text" class="form-control" name="Chequedate" ng-date-object datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}"
-                                                    uib-datepicker-popup="{{datePickerOptions.dateFormat}}" placeholder="{{datePickerOptions.placeholder}}"
-                                                    ng-click="activefromPopup = { opened: true }" is-open="activefromPopup.opened"
-                                                    ng-model="item.ChequeDate">
-                                            </div>
-                                        </div>
-                                        <div class="form-group" ng-if="item.PaymentTypeId==3">
-                                            <label class="col-sm-5 control-label" translate="billing.receipt-form.dddate.lbl"></label>
-                                            <div class="col-sm-7 toprightchequedate">
-                                                <input type="text" class="form-control" name="dddate" ng-date-object datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}"
-                                                    uib-datepicker-popup="{{datePickerOptions.dateFormat}}" placeholder="{{datePickerOptions.placeholder}}"
-                                                    ng-click="activetoPopup = { opened: true }" is-open="activetoPopup.opened"
-                                                    ng-model="item.DDDate">
-                                            </div>
-                                        </div>
-
-                                        <div class="form-group" ng-if="item.PaymentTypeId==4">
-                                            <label class="col-sm-5 control-label" translate="billing.receipt-form.transferredon.lbl"></label>
-                                            <div class="col-sm-7  toprightchequedate">
-                                                <input type="text" class="form-control" name="transferredon" ng-date-object datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}"
-                                                    uib-datepicker-popup="{{datePickerOptions.dateFormat}}" placeholder="{{datePickerOptions.placeholder}}"
-                                                    ng-click="transationfromPopup = { opened: true }" is-open="transationfromPopup.opened"
-                                                    ng-model="item.WireTransferDate">
-                                            </div>
-                                        </div>
-                                        <div class="form-group" ng-if="item.PaymentTypeId==5||item.PaymentTypeId==6">
-                                            <label class="col-sm-5 control-label" for="cardtype" translate="billing.receipt-form.cardtype.lbl"></label>
-                                            <div class="col-sm-7 toprightchequedate">
-                                                <ui-select ng-model="item.CardTypeId" name="cardtype" required>
-                                                    <ui-select-match>
-                                                        {{$select.selected.Text | limitTo : 20 : 0}}
-                                                        <span ng-if="$select.selected.Text.length>20">...</span>
-                                                    </ui-select-match>
-                                                    <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.CardType | filter: { Text: $select.search }">
-                                                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
-                                                    </ui-select-choices>
-                                                </ui-select>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                                                <div class="col-sm-3">
-                                    <table id="opbillingfooter">
-                                        <tr>
-                                            <td
-                                                style="background: #a0bfd44f !important ; color: black !important; font-weight: 600;">
-                                                Discount :</td>
-                                            <td class=" fontbold" ng-model="item.TotDiscAmount">
-                                                {{item.Discount | displaycurrency}}
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td
-                                                style="background: #a0bfd44f !important ; color: black !important; font-weight: 600;">
-                                                Total :</td>
-                                            <td class=" fontbold" ng-model="item.TotDiscAmount">
-                                                {{item.BillAmount | displaycurrency}}
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td
-                                                style="background: #a0bfd44f !important ; color: black !important; font-weight: 600;">
-                                                Round Off :</td>
-                                            <td class=" fontbold" ng-model="item.TotDiscAmount">
-                                                {{item.TotRndoffAmt | displaycurrency}}
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td
-                                                style="background: #a0bfd44f !important ; color: black !important; font-weight: 600;">
-                                                Due Amount :</td>
-                                            <td class=" fontbold" ng-model="item.TotDiscAmount">
-                                                {{item.OutStandingAmt | displaycurrency}}
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td
-                                                style="background: #a0bfd44f !important ; color: black !important; font-weight: 600;">
-                                                Grand Amount</td>
-                                            <td class=" fontbold" ng-model="item.GrossAmount">
-                                                {{item.OutStandingAmt | displaycurrency}}</td>
-                                        </tr>
-                                        <tr>
-                                            <td
-                                                style="background: #a0bfd44f !important ; color: black !important; font-weight: 600;">
-                                                Received :</td>
-                                            <td class=" fontbold" ng-model="item.TotDiscAmount">
-                                                 {{item.Received | displaycurrency}}
-                                            </td>
-                                        </tr>
-
-                                    </table>
-                                </div>
+                    <div class="footerbars">
+                        <div class="sub-footer">
+                            <div class=" bgfoot " style="overflow: unset !important;">
+                                <react-component name="BillingConsolidatePaymentFooterScreen" props="{ reactProps: reactProps, onAction: handleReactAction }"></react-component>
                             </div>
                         </div>
                     </div>
-                </div>
                 </div>
             </form>
         </div>
@@ -708,10 +562,7 @@
             <!--<button class="btn btn-sm pyr-color10" ng-click="backToForm()"><i class="fa fa-angle-left"></i>&nbsp;&nbsp;<span translate="common.backaction.lbl"></span></button>-->
         </div>
         <div class="pull-right ">
-            <button type="button" id="btnprint" ng-click="print()"  class="draftbutton" tabindex="-1" translate="common.printaction.lbl"></button>
-            <!-- <button type="button" id="btndmprint" class="draftbutton" ng-click="dmPrint()">DM Print</button> -->
-            <button type="button" ng-show="canSaveAndApprove" id="saveAndApproveid" ng-keyup="FooterFocus('saveAndApproveid')" class="saveapprove btn btn-info btn-sm"
-                translate="billing.opbilling-list.saveandapprove.lbl" ng-click="saveAndApprove()"></button>
+            <react-component name="BillingConsolidatePaymentActionsScreen" props="{ reactProps: reactProps, onAction: handleReactAction }"></react-component>
         </div>
     </div>
 </div>

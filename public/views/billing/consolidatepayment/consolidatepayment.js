@@ -523,6 +523,147 @@
                     $('#btnprint').hide();
         };
 
+        function toIsoDate(d) {
+            if (!d) return null;
+            var dt = (d instanceof Date) ? d : new Date(d);
+            if (isNaN(dt.getTime())) return null;
+            var mm = ('0' + (dt.getMonth() + 1)).slice(-2);
+            var dd = ('0' + dt.getDate()).slice(-2);
+            return dt.getFullYear() + '-' + mm + '-' + dd;
+        }
+
+        $scope.refreshReactProps = function () {
+            $scope.reactProps = {
+                currentfilter: {
+                    PatientId: $scope.currentfilter.PatientId,
+                    BillTypeId: $scope.currentfilter.BillTypeId
+                },
+                lookup: $scope.lookup,
+                item: angular.extend({}, $scope.item, {
+                    CollectedOn: toIsoDate($scope.item.CollectedOn),
+                    ChequeDate: toIsoDate($scope.item.ChequeDate),
+                    DDDate: toIsoDate($scope.item.DDDate),
+                    WireTransferDate: toIsoDate($scope.item.WireTransferDate)
+                }),
+                canSaveAndApprove: $scope.canSaveAndApprove,
+                printpreferences: $scope.printpreferences,
+                bills: vm.gridConfig.data
+            };
+            $scope.$applyAsync();
+        };
+
+        var _origGetListCallback = $scope.getListCallback;
+        $scope.getListCallback = function (scope, res, options, hasError) {
+            _origGetListCallback(scope, res, options, hasError);
+            $scope.refreshReactProps();
+        };
+
+        var _origSaveItemCallback = $scope.saveItemCallback;
+        $scope.saveItemCallback = function (scope, data, options, hasError) {
+            _origSaveItemCallback(scope, data, options, hasError);
+            $scope.refreshReactProps();
+        };
+
+        $scope.handleReactAction = function (actionName, payload) {
+            payload = payload || {};
+            if (actionName === 'billTypeChange') {
+                $scope.currentfilter.BillTypeId = payload.value;
+                $scope.refreshReactProps();
+            } else if (actionName === 'loadBills') {
+                $scope.getList();
+            } else if (actionName === 'find') {
+                $scope.findConsolidatePayBills();
+            } else if (actionName === 'clear') {
+                $scope.Clear();
+            } else if (actionName === 'sortBills') {
+                // Mirrors the real customTableController.reOrder(column) exactly --
+                // same dotted-path field lookup, same case-insensitive string
+                // compare, same in-place mutation of vm.gridConfig.data (which is
+                // what genuinely drives the AngularJS-owned totals/print/save
+                // logic downstream). See BillingConsolidatePaymentGridScreen.tsx
+                // for the full disclosure of the column/field mismatches this
+                // reproduces verbatim (e.g. the "Bill Amount" header sorts by the
+                // unrelated "Amount" field, not BillAmount).
+                var columnDef = null;
+                for (var ci = 0; ci < vm.gridConfig.columnDefs.length; ci++) {
+                    if (vm.gridConfig.columnDefs[ci].field === payload.field) {
+                        columnDef = vm.gridConfig.columnDefs[ci];
+                        break;
+                    }
+                }
+                if (columnDef) {
+                    if (!columnDef['order']) {
+                        columnDef['order'] = 1;
+                    } else {
+                        columnDef['order'] = -columnDef['order'];
+                    }
+                    var field = columnDef['field'];
+                    var order = columnDef['order'];
+                    vm.gridConfig.data = vm.gridConfig.data.sort(function (a, b) {
+                        var breaq = false;
+                        a = field.split('.').reduce(function (o, i) {
+                            if (!breaq && o[i]) { return o[i]; } else { breaq = true; }
+                        }, a);
+                        breaq = false;
+                        b = field.split('.').reduce(function (o, i) {
+                            if (!breaq && o[i]) { return o[i]; } else { breaq = true; }
+                        }, b);
+                        var x = a ? a.toLowerCase() : '';
+                        var y = b ? b.toLowerCase() : '';
+                        if (x < y) { return -order; }
+                        if (x > y) { return order; }
+                        return 0;
+                    });
+                    $scope.refreshReactProps();
+                }
+            } else if (actionName === 'paymentTypeChange') {
+                $scope.item.PaymentTypeId = payload.value;
+                $scope.refreshReactProps();
+            } else if (actionName === 'bankChange') {
+                $scope.item.BankId = payload.value;
+                $scope.refreshReactProps();
+            } else if (actionName === 'chequeNoChange') {
+                $scope.item.ChequeNo = payload.value;
+                $scope.refreshReactProps();
+            } else if (actionName === 'ddNumberChange') {
+                $scope.item.DDNumber = payload.value;
+                $scope.refreshReactProps();
+            } else if (actionName === 'wireTransferIdChange') {
+                $scope.item.WireTransferId = payload.value;
+                $scope.refreshReactProps();
+            } else if (actionName === 'authorizedCodeChange') {
+                $scope.item.AuthorizedCode = payload.value;
+                $scope.refreshReactProps();
+            } else if (actionName === 'collectedOnChange') {
+                $scope.item.CollectedOn = payload.value ? new Date(payload.value) : null;
+                $scope.refreshReactProps();
+            } else if (actionName === 'terminalChange') {
+                $scope.item.TerminalNoId = payload.value;
+                $scope.refreshReactProps();
+            } else if (actionName === 'chequeDateChange') {
+                $scope.item.ChequeDate = payload.value ? new Date(payload.value) : null;
+                $scope.refreshReactProps();
+            } else if (actionName === 'ddDateChange') {
+                $scope.item.DDDate = payload.value ? new Date(payload.value) : null;
+                $scope.refreshReactProps();
+            } else if (actionName === 'wireTransferDateChange') {
+                $scope.item.WireTransferDate = payload.value ? new Date(payload.value) : null;
+                $scope.refreshReactProps();
+            } else if (actionName === 'cardTypeChange') {
+                $scope.item.CardTypeId = payload.value;
+                $scope.refreshReactProps();
+            } else if (actionName === 'saveAndApprove') {
+                $scope.saveAndApprove();
+            } else if (actionName === 'print') {
+                // Confirmed dead in the real template too: ng-click="print()" has
+                // no matching $scope.print definition anywhere in this controller
+                // (unlike many sibling screens, which each define their own
+                // $scope.print). Clicking it today throws inside Angular's
+                // expression evaluator, silently caught, no visible effect.
+                // Reproduced as a no-op.
+            }
+        };
+
         $scope.getPharmacyPrintPreference();
         $scope.initLookup();
     }
