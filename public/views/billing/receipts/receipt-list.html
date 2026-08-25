@@ -1,108 +1,22 @@
-<link rel="stylesheet" href="app/css/drhms.css">
-<style>
-    .pull-right-table-count {
-        display: flex;
-        float: right;
-        align-items: baseline;
-    }
-
-    .form-group.col-sm-4 {
-        margin-bottom: 10px;
-    }
-</style>
-<div class="row">
-    <div class="drhms-filters">
-        <div class="col-sm-10">
-            <h4 translate="billing.receipt-list.pagetitle.lbl"></h4>
-        </div>
-        <div class="col-sm-3">
-            <div class="search"><i class="fas fa-search" aria-hidden="true"></i>
-                <input type="text" id="pid" class="form-control" on-enter="getList()" ng-model="currentfilter.receipt"
-                    translate translate-attr-placeholder="billing.receipt-list.filter_receiptno.lbl">
-            </div>
-        </div>
-        <div class="col-sm-3">
-            <div class="search"> <i class="fas fa-search" aria-hidden="true"></i>
-                <input type="text" id="pid" class="form-control" on-enter="getList()" ng-model="currentfilter.namemrn"
-                    placeholder="NAME/MRN">
-            </div>
-        </div>
-        <div class="col-sm-2">
-            <button type="button" tabindex="-1" class="drhms-billing-btn drhms-add-btn" ng-click="addNew()"
-                uib-tooltip="Receipts" tooltip-placement="bottom">
-                <i class="fa fa-plus" aria-hidden="true"></i>
-            </button>
-            <button type="button" class="drhms-billing-btn drhms-previousbill-btn" uib-tooltip="Previous Bills"
-                tooltip-placement="bottom" ng-click="pickPatient()">
-                <i class="fa fa-search-plus" aria-hidden="true"></i>
-            </button>
-        </div>
-    </div>
-</div>
-<div class="row">
-    <div class="form-group col-sm-4">
-        <label class="col-sm-4" translate="appmanager.specialitys.filter_type.lbl"></label>
-        <div class="col-sm-8">
-            <ui-select ng-model="currentfilter.ReceiptTypeId" ng-change="getList()" class="filter-combo">
-                <ui-select-match>
-                    {{$select.selected.Text | limitTo : 25 : 0}}
-                    <span ng-if="$select.selected.Text.length>25">...</span>
-                </ui-select-match>
-                <ui-select-choices
-                    repeat="lookupitem.Id as lookupitem in lookup.ReceiptType | filter: { Text: $select.search }">
-                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
-                </ui-select-choices>
-            </ui-select>
-        </div>
-    </div>
-    <div class="form-group col-sm-4">
-        <label class="col-sm-4" translate="billing.receipt-list.date.lbl"></label>
-        <div class="col-sm-8">
-            <input type="text" class="form-control" name="fromdate" ng-change="getList()"
-                datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}"
-                uib-datepicker-popup="{{datePickerOptions.dateFormat}}" placeholder="{{datePickerOptions.placeholder}}"
-                ng-click="fromdatePopup = { opened: true }" is-open="fromdatePopup.opened"
-                ng-model="currentfilter.Fromreceiptdate">
-        </div>
-    </div>
-    <div class="form-group col-sm-4">
-        <label class="col-sm-4" translate="billing.receipt-list.date.lbl"></label>
-        <div class="col-sm-8">
-            <input type="text" class="form-control" name="todate" ng-change="getList()"
-                datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}"
-                uib-datepicker-popup="{{datePickerOptions.dateFormat}}" placeholder="{{datePickerOptions.placeholder}}"
-                ng-click="todatePopup = { opened: true }" is-open="todatePopup.opened" ng-model="currentfilter.Toreceiptdate">
-        </div>
-    </div>
-    <div class="form-group col-sm-4">
-        <label class="col-sm-4" translate="appmanager.specialitys.filter_status.lbl"></label>
-        <div class="col-sm-8">
-            <ui-select ng-model="currentfilter.ReceiptStatusId" ng-change="getList()" class="filter-combo">
-                <ui-select-match>
-                    {{$select.selected.Text | limitTo : 25 : 0}}
-                    <span ng-if="$select.selected.Text.length>25">...</span>
-                </ui-select-match>
-                <ui-select-choices
-                    repeat="lookupitem.Id as lookupitem in lookup.ReceiptStatus | filter: { Text: $select.search }">
-                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
-                </ui-select-choices>
-            </ui-select>
-        </div>
-    </div>
-</div>
-<div class="row">
-    <custom-table config="vm.gridConfig"></custom-table>
-</div>
-<div class="row">
-    <div class="col-sm-3 pull-right-table-count">
-        <label class="control-label" for="totalamount"><span class="text-white">Total: &nbsp;&nbsp;</span></label>
-        <input type="text" class="form-control" value="{{TotalAmount}}" disabled>
-    </div>
-</div>
-<div class="fooder-bgs">
-    <div class="row">
-        <ul uib-pagination total-items="vm.gridConfig.pagerObj.totalItems"
-            items-per-page="vm.gridConfig.pagerObj.pageSize" start-index="vm.gridConfig.pagerObj.startIndex"
-            ng-model="vm.gridConfig.pagerObj.currentPage" ng-change="getList()"></ul>
-    </div>
+<!--
+  UI-MODERNIZATION RETROFIT (Billing / Receipts list, app.receipt-list).
+  This fragment mounts the real screen's UI as a React component
+  (BillingReceiptListScreen). AngularJS (receipt-list.js) is hollowed to
+  a thin dispatcher: it still owns vm.gridConfig, the real
+  Billing/PatientPaymentDetails/GetPatientPaymentDetails call, the real
+  add/edit/view navigation to app.receipt-form, the real "Previous
+  Bills" flow that opens the already-migrated ReceiptPickerScreen modal
+  (utl.Modal.open('app.receiptpicker', ...)), the real refund modal
+  flow (utl.Modal.open('app.refund-form', ...)), and the real delete
+  flow (security-PIN check / confirm dialog, then
+  Billing/PatientPaymentDetails/DeletePatientPaymentDetails) -- React
+  only renders $scope.reactProps and dispatches action names back via
+  handleReactAction. See receipt-list.js and BillingReceiptListScreen
+  for the full disclosure of confirmed pre-existing quirks preserved
+  as-is: both date filters sharing the identical "Date" label, the
+  duplicate view/edit icons shown together for ReceiptStatusId===2 rows,
+  and the literal (non-translated) "NAME/MRN" placeholder.
+-->
+<div style="width: 100%;">
+    <react-component name="BillingReceiptListScreen" props="{ reactProps: reactProps, onAction: handleReactAction }"></react-component>
 </div>

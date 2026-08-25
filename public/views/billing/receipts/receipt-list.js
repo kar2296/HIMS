@@ -368,6 +368,93 @@
             utl.Http.doAction(options);
         }
 
+        // ---------------------------------------------------------------
+        // REACT BRIDGE (UI-modernization retrofit, Billing / Receipts
+        // list, app.receipt-list). AngularJS still owns all real state
+        // and logic below -- this block only mirrors it into
+        // $scope.reactProps and routes UI interactions back here by
+        // action name via handleReactAction. No business logic was
+        // changed. Fromreceiptdate/Toreceiptdate are real JS Date
+        // objects (uib-datepicker-popup) -- converted to/from an ISO
+        // yyyy-mm-dd string only at this boundary, exactly like every
+        // other DatePicker-backed bridge in this codebase.
+        function toIsoDate(d) {
+            if (!d) return '';
+            var dateObj = (d instanceof Date) ? d : new Date(d);
+            if (isNaN(dateObj.getTime())) return '';
+            var mm = ('0' + (dateObj.getMonth() + 1)).slice(-2);
+            var dd = ('0' + dateObj.getDate()).slice(-2);
+            return dateObj.getFullYear() + '-' + mm + '-' + dd;
+        }
+
+        $scope.refreshReactProps = function () {
+            $scope.reactProps = {
+                items: (vm.gridConfig && vm.gridConfig.data) || [],
+                pagerObj: (vm.gridConfig && vm.gridConfig.pagerObj) || {},
+                currentfilter: {
+                    receipt: $scope.currentfilter.receipt,
+                    namemrn: $scope.currentfilter.namemrn,
+                    ReceiptTypeId: $scope.currentfilter.ReceiptTypeId,
+                    ReceiptStatusId: $scope.currentfilter.ReceiptStatusId,
+                    Fromreceiptdate: toIsoDate($scope.currentfilter.Fromreceiptdate),
+                    Toreceiptdate: toIsoDate($scope.currentfilter.Toreceiptdate)
+                },
+                lookup: $scope.lookup || {},
+                totalAmount: $scope.TotalAmount
+            };
+        };
+
+        var _origGetListCallback = $scope.getListCallback;
+        $scope.getListCallback = function (scope, data, options, hasError) {
+            _origGetListCallback(scope, data, options, hasError);
+            $scope.refreshReactProps();
+            $scope.$applyAsync();
+        };
+
+        var _origLookupCallback = $scope.lookupCallback;
+        $scope.lookupCallback = function (scope, data, options, hasError) {
+            _origLookupCallback(scope, data, options, hasError);
+            $scope.refreshReactProps();
+            $scope.$applyAsync();
+        };
+
+        $scope.refreshReactProps();
+
+        $scope.handleReactAction = function (actionName, payload) {
+            if (actionName === 'search') {
+                $scope.currentfilter.receipt = payload && payload.receipt;
+                $scope.currentfilter.namemrn = payload && payload.namemrn;
+                vm.gridConfig.pagerObj.currentPage = 1;
+                $scope.getList();
+            } else if (actionName === 'typeFilterChange') {
+                $scope.currentfilter.ReceiptTypeId = payload ? payload.value : undefined;
+                vm.gridConfig.pagerObj.currentPage = 1;
+                $scope.getList();
+            } else if (actionName === 'statusFilterChange') {
+                $scope.currentfilter.ReceiptStatusId = payload ? payload.value : undefined;
+                vm.gridConfig.pagerObj.currentPage = 1;
+                $scope.getList();
+            } else if (actionName === 'fromDateChange') {
+                $scope.currentfilter.Fromreceiptdate = (payload && payload.value) ? new Date(payload.value) : '';
+                vm.gridConfig.pagerObj.currentPage = 1;
+                $scope.getList();
+            } else if (actionName === 'toDateChange') {
+                $scope.currentfilter.Toreceiptdate = (payload && payload.value) ? new Date(payload.value) : '';
+                vm.gridConfig.pagerObj.currentPage = 1;
+                $scope.getList();
+            } else if (actionName === 'pageChange') {
+                vm.gridConfig.pagerObj.currentPage = payload && payload.page;
+                $scope.getList();
+            } else if (actionName === 'view' || actionName === 'edit' || actionName === 'refund' ||
+                actionName === 'refundview' || actionName === 'delete') {
+                $scope.handleEvents(actionName, payload);
+            } else if (typeof $scope[actionName] === 'function') {
+                $scope[actionName]();
+            }
+            $scope.refreshReactProps();
+            $scope.$applyAsync();
+        };
+
         $scope.initLookup();
     }
 
