@@ -209,6 +209,60 @@
             utl.Http.doAction(options);
         }
 
+
+        // ---- React bridge (UI-MODERNIZATION RETROFIT) ----
+        // AngularJS remains authoritative for all data/business logic in this
+        // controller; this section only mirrors state into reactProps and
+        // dispatches UI actions from BillingCnPickerScreen back onto the real,
+        // unchanged $scope/vm functions and fields. The dynamicform-driven
+        // filter area, its Apply/Reset buttons, and the modal header are left
+        // as native AngularJS markup in cnpicker.html and are NOT covered by
+        // this bridge -- see the disclosure comment in
+        // BillingCnPickerScreen.tsx for the full rationale.
+        $scope.refreshReactProps = function () {
+            $scope.reactProps = {
+                gridData: vm.gridConfig.data,
+                pagerObj: vm.gridConfig.pagerObj
+            };
+        };
+
+        var _origGetListCallback = $scope.getListCallback;
+        $scope.getListCallback = function (scope, res, options, hasError) {
+            _origGetListCallback(scope, res, options, hasError);
+            $scope.refreshReactProps();
+            $scope.$applyAsync();
+        };
+
+        var _origLookupCallback = $scope.lookupCallback;
+        $scope.lookupCallback = function (scope, data, options, hasError) {
+            _origLookupCallback(scope, data, options, hasError);
+            $scope.refreshReactProps();
+            $scope.$applyAsync();
+        };
+
+        $scope.handleReactAction = function (actionName, payload) {
+            switch (actionName) {
+                case 'selectRow':
+                    $scope.confirmCallback(payload);
+                    break;
+                case 'pageChange':
+                    vm.gridConfig.pagerObj.currentPage = payload.page;
+                    $scope.getList();
+                    break;
+                default:
+                    // covers cancelCallback (real, working dismiss), and the confirmed
+                    // pre-existing dead 'patientinfo' handler (grid.appScope.handleEvents
+                    // is never defined on this controller's scope, so this safely
+                    // no-ops, matching the real app's behavior today)
+                    if (typeof $scope[actionName] === 'function') {
+                        $scope[actionName]();
+                    }
+                    break;
+            }
+            $scope.refreshReactProps();
+            $scope.$applyAsync();
+        };
+
         $scope.initLookup();
     }
 
