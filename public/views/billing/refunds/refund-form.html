@@ -18,7 +18,35 @@
   pre-existing quirks preserved as-is (the literal "Transcation No"
   translate-key typo, and the "Collected On" date field rendering
   alongside each payment type's own specific date field).
+
+  VALIDATION FIDELITY FIX (verified migration defect): utl.Validator.
+  validate($scope), called by saveItem(), reads $scope.item_form.$valid,
+  which AngularJS only populates for a real, present <form
+  name="item_form"> with real ng-model-bound validated controls. This
+  fragment previously had NO <form> element at all after being fully
+  replaced by BillingRefundFormScreen, leaving $scope.item_form
+  undefined -- meaning validateForm's `$scope.item_form.$triedSubmit =
+  true` throws a TypeError on every Save/Approve click, silently
+  breaking the button. Fixed by restoring the real <form
+  name="item_form"> wrapper plus a hidden (display:none), non-visual
+  block of the ORIGINAL native ng-model/required/ng-pattern controls for
+  the real validated fields (Payment Mode, Refund Amount, Bank Name,
+  Cheque No, DD No, Transaction No, Authorized Code), so
+  item_form.$valid keeps being computed by AngularJS's own unmodified
+  validators, not reimplemented in JS -- same approach used for the
+  LHRC Voucher form.
 -->
 <div style="width: 100%;">
-    <react-component name="BillingRefundFormScreen" props="{ reactProps: reactProps, onAction: handleReactAction }"></react-component>
+    <form id="item_form" name="item_form" class="form-horizontal" role="form">
+        <react-component name="BillingRefundFormScreen" props="{ reactProps: reactProps, onAction: handleReactAction }"></react-component>
+        <div style="display:none" aria-hidden="true">
+            <input type="text" ng-model="item.PaymentTypeId" required>
+            <input type="text" ng-model="item.RefundAmount" required>
+            <input type="text" ng-model="item.BankId" required ng-if="item.PaymentTypeId==5||item.PaymentTypeId == 6">
+            <input type="text" ng-model="item.ChequeNo" required ng-if="item.PaymentTypeId==2">
+            <input type="text" ng-model="item.DDNumber" required ng-pattern="/^\d+$/" ng-if="item.PaymentTypeId==3">
+            <input type="text" ng-model="item.WireTransferId" required ng-if="item.PaymentTypeId==4">
+            <input type="text" ng-model="item.AuthorizeNumber" required ng-if="item.PaymentTypeId==5||item.PaymentTypeId == 6">
+        </div>
+    </form>
 </div>
