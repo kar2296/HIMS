@@ -252,6 +252,33 @@
             // }
         }
 
+        // ---- React bridge (UI-MODERNIZATION RETROFIT) ----
+        // No async data here -- visibility of each of the five real report
+        // rows is privilege-gated via the real HasAccess()
+        // (utl.Ctrl.getPrivilegeCtrl), called here and passed through as
+        // booleans rather than reimplemented. The ~60 other $state.go
+        // functions on this controller have no UI trigger in the real
+        // template and are intentionally not covered by this bridge -- see
+        // the disclosure comment in BillingRevenueReportScreen.tsx.
+        $scope.refreshReactProps = function () {
+            $scope.reactProps = {
+                canItemWiseOp: $scope.HasAccess('Revenuereports', 'itemwisecollectionsummaryopreport'),
+                canItemWiseIp: $scope.HasAccess('Revenuereports', 'itemwisecollectionsummaryipreport'),
+                canItemWiseOpAndIp: $scope.HasAccess('Revenuereports', 'itemwisecollectionsummaryopandipreport'),
+                canRevenueByServiceItem: $scope.HasAccess('Revenuereports', 'revenuesummarybyserviceitem'),
+                canReferralDoctorRevenueDetails: $scope.HasAccess('Revenuereports', 'referraldoctorrevenuedetailsreport')
+            };
+        };
+        $scope.refreshReactProps();
+
+        $scope.handleReactAction = function (actionName) {
+            if (typeof $scope[actionName] === 'function') {
+                $scope[actionName]();
+            }
+            $scope.refreshReactProps();
+            $scope.$applyAsync();
+        };
+
     }
     RevenueReportController.$inject = ['$scope', '$filter', '$stateParams', '$state', '$translate', 'utl'];
 
