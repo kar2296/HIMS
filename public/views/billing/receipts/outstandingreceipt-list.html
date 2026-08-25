@@ -39,16 +39,22 @@ ul.uib-datepicker-popup.dropdown-menu.ng-scope {
             </div>
         </div>
     </div>
-    <div class="col-sm-12 grid-div">
-        <div ui-grid="vm.gridConfig" class="table-uigrid" set-grid-height reduce-height="200" ui-grid-selection></div>
-    </div>
-    <div class="col-sm-12 panel-footer formactionbar">
-        <div class="col-sm-11">
-            <ul uib-pagination total-items="vm.gridConfig.pagerObj.totalItems" items-per-page="vm.gridConfig.pagerObj.pageSize" start-index="vm.gridConfig.pagerObj.startIndex"
-                ng-model="vm.gridConfig.pagerObj.currentPage" ng-change="getList()"></ul>
-        </div>
-        <div class=" col-sm-1">
-            <button type="button" class="btn btn-danger btn-sm pull-right" ng-click="cancelCallback()" translate="common.cancelaction.lbl"></button>
-        </div>
-    </div>
+    <!-- UI-MODERNIZATION RETROFIT (Billing / Receipts "Outstanding Bills"
+     picker modal, app.outstandingreceipt-list,
+     outstandingreceiptListController). The results grid, pagination, and
+     Cancel button below are now rendered by the
+     BillingOutstandingBillPickerScreen React component via the existing
+     AngularJS<->React bridge directive. AngularJS remains authoritative
+     for all data/business logic -- see
+     outstandingreceipt-list.js's refreshReactProps/handleReactAction
+     bridge and the disclosure comment at the top of
+     BillingOutstandingBillPickerScreen.tsx for the full rationale.
+
+     DELIBERATE PARTIAL MIGRATION: the filter area above (<dynamicform>
+     plus its Apply/Reset action buttons) and the modal header are left
+     completely untouched as native AngularJS markup, matching the same
+     hybrid-migration precedent already used for creditnote-list.js's
+     "Fetch" popover and the cnpicker modal. -->
+    <react-component name="BillingOutstandingBillPickerScreen" props="{ reactProps: reactProps, onAction: handleReactAction }"></react-component>
+
 </div>
