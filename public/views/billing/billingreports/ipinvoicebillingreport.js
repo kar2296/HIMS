@@ -232,6 +232,41 @@
             // }
         }
 
+        // ---- React bridge (UI-MODERNIZATION RETROFIT) ----
+        // No async data here -- visibility of each of the 12 real report
+        // rows is privilege-gated via the real HasAccess()
+        // (utl.Ctrl.getPrivilegeCtrl), called here and passed through as
+        // booleans rather than reimplemented. The ~48 other $state.go
+        // functions on this controller have no UI trigger in the real
+        // template and are intentionally not covered by this bridge -- see
+        // the disclosure comment in BillingIpInvoiceReportScreen.tsx.
+        $scope.refreshReactProps = function () {
+            $scope.reactProps = {
+                canIpBillReport: $scope.HasAccess('CollectionReportsForIP', 'ipbillreport'),
+                canIpCollectionDetailByCashier: $scope.HasAccess('CollectionReportsForIP', 'ipcollectiondetailbycashierreport'),
+                canIpCollectionSummaryByCashier: $scope.HasAccess('CollectionReportsForIP', 'ipcollectionsummarybycashier'),
+                canIpRefundReport: $scope.HasAccess('CollectionReportsForIP', 'iprefundreport'),
+                canIpDueCollectReport: $scope.HasAccess('CollectionReportsForIP', 'ipduecollectreport'),
+                canCurrentOccupancyReport: $scope.HasAccess('CollectionReportsForIP', 'currentoccupancyreport'),
+                canIpCancelReport: $scope.HasAccess('CollectionReportsForIP', 'ipcancelreport'),
+                canIpDiscountReport: $scope.HasAccess('CollectionReportsForIP', 'ipdiscountreport'),
+                canIpInsuranceReport: $scope.HasAccess('CollectionReportsForIP', 'ipinsurancereport'),
+                canIpDue: $scope.HasAccess('CollectionReportsForIP', 'ipdue'),
+                canIpAdmissionReport: $scope.HasAccess('CollectionReportsForIP', 'ipadmissionreport'),
+                canIpDischargeReport: $scope.HasAccess('CollectionReportsForIP', 'ipdischargereport'),
+                canIpOccupancyReportWithAdvance: $scope.HasAccess('CollectionReportsForIP', 'ipoccupancyreportwithadvance')
+            };
+        };
+        $scope.refreshReactProps();
+
+        $scope.handleReactAction = function (actionName) {
+            if (typeof $scope[actionName] === 'function') {
+                $scope[actionName]();
+            }
+            $scope.refreshReactProps();
+            $scope.$applyAsync();
+        };
+
     }
     IPBillingReportController.$inject = ['$scope', '$filter', '$stateParams', '$state', '$translate', 'utl'];
 
