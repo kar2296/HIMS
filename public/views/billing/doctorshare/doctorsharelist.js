@@ -14,9 +14,19 @@
             ActiveStatusId : 2,
         };
 
+        $scope.refreshReactProps = function () {
+            $scope.reactProps = {
+                currentfilter: $scope.currentfilter,
+                lookup: $scope.lookup,
+                gridData: vm.gridConfig.data,
+                pagerObj: vm.gridConfig.pagerObj
+            };
+        };
+
         $scope.getListCallback = function (scope, res, options, hasError) {
             vm.gridConfig.data = res.Data;
             vm.gridConfig.pagerObj.totalItems = res.PageContext.TotalRecords;
+            $scope.refreshReactProps();
         };
 
         $scope.getList = function () {
@@ -83,6 +93,7 @@
 
         $scope.lookupCallback = function (scope, data, options, hasError) {
             $scope.lookup = hasError ? {} : data;
+            $scope.refreshReactProps();
             $scope.getList();
         }
 
@@ -101,6 +112,34 @@
             };
             utl.Http.doAction(options);
         }
+
+        $scope.handleReactAction = function (actionName, payload) {
+            payload = payload || {};
+            if (actionName === 'doctorClassChange') {
+                $scope.currentfilter.DoctorClassId = payload.value;
+                $scope.refreshReactProps();
+                $scope.getList();
+            } else if (actionName === 'shareTypeChange') {
+                $scope.currentfilter.ShareTypeId = payload.value;
+                $scope.refreshReactProps();
+                $scope.getList();
+            } else if (actionName === 'activeStatusChange') {
+                $scope.currentfilter.ActiveStatusId = payload.value;
+                $scope.refreshReactProps();
+                $scope.getList();
+            } else if (actionName === 'pageChange') {
+                vm.gridConfig.pagerObj.currentPage = payload.page;
+                $scope.refreshReactProps();
+                $scope.getList();
+            } else if (actionName === 'addNew') {
+                $scope.addNew();
+            } else if (actionName === 'edit') {
+                $scope.handleEvents('edit', payload);
+            }
+            $scope.$applyAsync();
+        };
+
+        $scope.refreshReactProps();
 
         $scope.initLookup();
 

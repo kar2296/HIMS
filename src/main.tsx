@@ -373,6 +373,7 @@ import { DrPaymentModifyListNepalScreen } from './react-components/DrPaymentModi
 import { DrPaymentModifyNepalFormScreen } from './react-components/DrPaymentModifyNepalFormScreen';
 import { DrPaymentModifyNepalFilterFieldScreen } from './react-components/DrPaymentModifyNepalFilterFieldScreen';
 import { DrPaymentModifyNepalListScreen } from './react-components/DrPaymentModifyNepalListScreen';
+import { DrShareListScreen } from './react-components/DrShareListScreen';
 
 // Register components globally so the AngularJS bridge can find them
 (window as any).ReactComponents = {
@@ -541,7 +542,8 @@ import { DrPaymentModifyNepalListScreen } from './react-components/DrPaymentModi
   DrPaymentModifyListNepalScreen,
   DrPaymentModifyNepalFormScreen,
   DrPaymentModifyNepalFilterFieldScreen,
-  DrPaymentModifyNepalListScreen
+  DrPaymentModifyNepalListScreen,
+  DrShareListScreen
 };
 
 console.log('React runtime and components loaded. ReactBridge initialized.');
