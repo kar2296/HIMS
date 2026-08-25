@@ -198,6 +198,57 @@
             utl.Http.doAction(options);
         }
 
+
+        // ---- React bridge (UI-MODERNIZATION RETROFIT) ----
+        // AngularJS remains authoritative for all data/business logic in this
+        // controller; this section only mirrors state into reactProps and
+        // dispatches UI actions from BillingLhrcVoucherListScreen (header /
+        // Add New) and BillingLhrcVoucherGridScreen (grid + pagination + row
+        // actions) back onto the real, unchanged $scope/vm functions and
+        // fields. The entire real filter row (Voucher No, Voucher Date,
+        // "Created By" <autosearch>, Status) is left as native, untouched
+        // AngularJS markup in lhrcvoucher-list.html and is NOT covered by this
+        // bridge -- splitting one visual filter row's fields across React and
+        // native AngularJS (in particular the generic, not-yet-migrated
+        // <autosearch> component) would be awkward/fragile -- see the
+        // disclosure comment in BillingLhrcVoucherListScreen.tsx. The native
+        // filter fields' own existing ng-change/on-enter bindings already call
+        // $scope.getList() directly and need no bridge dispatch.
+        $scope.refreshReactProps = function () {
+            $scope.reactProps = {
+                items: vm.gridConfig.data,
+                pagerObj: vm.gridConfig.pagerObj
+            };
+        };
+
+        var _origGetListCallback = $scope.getListCallback;
+        $scope.getListCallback = function (scope, res, options, hasError) {
+            _origGetListCallback(scope, res, options, hasError);
+            $scope.refreshReactProps();
+            $scope.$applyAsync();
+        };
+
+        $scope.handleReactAction = function (actionName, payload) {
+            switch (actionName) {
+                case 'pageChange':
+                    vm.gridConfig.pagerObj.currentPage = payload.page;
+                    $scope.getList();
+                    break;
+                case 'view':
+                case 'edit':
+                case 'delete':
+                    $scope.handleEvents(actionName, { entity: payload });
+                    break;
+                default:
+                    if (typeof $scope[actionName] === 'function') {
+                        $scope[actionName]();
+                    }
+                    break;
+            }
+            $scope.refreshReactProps();
+            $scope.$applyAsync();
+        };
+
         $scope.initLookup();
     }
 
