@@ -74,274 +74,66 @@
     } */
 </style>
 
-<div class="row">
-    <form id="item_form" name="item_form" class="form-horizontal" role="form">
-        <div class="row">
-            <h4 class="mt0" translate="billing.bankstatementform.managebankstatementform.lbl"></h4>
-        </div>
-        <div class="row">
-            <div class="col-sm-2">
-                <label class="col-sm-12" for="category" translate="billing.bankstatementform.fromdate.lbl"></label>
-                <div class="col-sm-12">
-                    <input type="text" class="form-control" name="FromBillDate" ng-date-object
-                        datetime-picker="{{datePickerOptions.dateTimeFormat}}" datepicker-append-to-body="true"
-                        placeholder="{{datePickerOptions.placeholder}}" ng-disabled="currentfilter.DisableFromBillDate"
-                        ng-click="FromBillDatePopup = { opened: true }" is-open="FromBillDatePopup.opened"
-                        ng-model="currentfilter.FromBillDate" ng-disabled="currentcontext.id">
-                </div>
-            </div>
-            <div class="col-sm-2">
-                <label class="col-sm-12" for="subcategory" translate="billing.bankstatementform.todate.lbl"></label>
-                <div class="col-sm-12">
-                    <input type="text" class="form-control" name="ToBillDate" ng-date-object
-                        datetime-picker="{{datePickerOptions.dateTimeFormat}}" datepicker-append-to-body="true"
-                        placeholder="{{datePickerOptions.placeholder}}" ng-disabled="currentfilter.DisableToBillDate"
-                        ng-click="ToBillDatePopup = { opened: true }" is-open="ToBillDatePopup.opened"
-                        ng-model="currentfilter.ToBillDate" ng-disabled="currentcontext.id">
-                </div>
-            </div>
-            <div class="col-sm-2">
-                <label class="col-sm-12" for="department" translate="billing.bankstatementform.department.lbl"></label>
-                <div class="col-sm-12">
-                    <ui-select ng-model="item.FilterDepartmentId" ng-change="getDepartmentUsers()"
-                        ng-disabled="currentcontext.id" name="department">
-                        <ui-select-match>
-                            {{$select.selected.Text | limitTo : 20 : 0}}
-                            <span ng-if="$select.selected.Text.length>20">...</span>
-                        </ui-select-match>
-                        <ui-select-choices
-                            repeat="lookupitem.Id as lookupitem in lookup.Department | filter: { Text: $select.search }">
-                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
-                        </ui-select-choices>
-                    </ui-select>
-                </div>
-            </div>
-            <div class="col-sm-2">
-                <label class="col-sm-12" for="user" translate="billing.bankstatementform.user.lbl"></label>
-                <div class="col-sm-12">
-                    <ui-select ng-model="item.FilterUserId" ng-change="getList()" name="user"
-                        ng-disabled="currentcontext.id">
-                        <ui-select-match>
-                            {{$select.selected.Text | limitTo : 20 : 0}}
-                            <span ng-if="$select.selected.Text.length>20">...</span>
-                        </ui-select-match>
-                        <ui-select-choices
-                            repeat="lookupitem.Id as lookupitem in lookup.User | filter: { Text: $select.search }">
-                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
-                        </ui-select-choices>
-                    </ui-select>
-                </div>
-            </div>
-            <div class="col-sm-2" style="margin-top: 20px;">
-                <button ng-if="!currentcontext.id" style="float: right;margin-top: 10px;" type="button" class="draftbutton"
-                    ng-click="getList()" translate="common.applyaction.lbl">
-                </button>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-sm-7">
-                <!--left-second-starts-->
-                <div class="panel panel-default">
-                    <div class="form-panel bg-pattern">
-                        <div class="custom_padtop inner_content0">
-                            <fieldset class="fsStyle  col6control" style="height: auto;" id="textboxctrlmaster">
-                                <div class="legendStyle">
-                                    <span translate="billing.bankstatementform.closing.lbl"></span>
-                                </div>
-                                <table class="table table-bordered">
-                                    <thead>
-                                        <tr>
-                                            <th class="col-sm-4">
-                                                <span translate="billing.bankstatementform.users.lbl"></span>
-                                            </th>
-                                            <th>
-                                                <span translate="billing.bankstatementform.cash.lbl"></span>
-                                            </th>
-                                            <th>
-                                                <span translate="billing.bankstatementform.card.lbl"></span>
-                                            </th>
-                                            <th>
-                                                <span translate="billing.bankstatementform.others.lbl"></span>
-                                            </th>
-                                            <th>
-                                                <span translate="billing.bankstatementform.lhrc.lbl"></span>
-                                            </th>
-                                            <th>
-                                                <span translate="billing.bankstatementform.voucher.lbl"></span>
-                                            </th>
-                                            <th>
-                                                <span translate="billing.bankstatementform.netcash.lbl"></span>
-                                            </th>
-                                            <!-- <th>
-                                                    <span translate="billing.bankstatementform.excessshort.lbl"></span>
-                                                </th> -->
-                                        </tr>
-                                    </thead>
+<!--
+UI-MODERNIZATION RETROFIT (Billing / Bank Statement Form, app.bankstatementform,
+bankstatementFormController). Single-mount React replacement: full investigation
+of this 906-line controller and this 346-line template confirmed no native-only
+widgets (<patientsearch>, <autosearch>, etc.) and no utl.Validator.validate($scope)
+call anywhere -- the real <form id="item_form"> name is never referenced for
+validation ($scope.item_form is never read) -- so per the established
+single-mount criterion this screen is rebuilt as ONE <react-component>, not a
+hybrid split. AngularJS remains authoritative for every real API call
+(billing/patientpaymentdetails/GetPatientPaymentDetails,
+billing/patientrefund/GetPatientRefund, billing/GeneralExpenses/GetGeneralExpensess,
+billing/LHRCVoucher/GetLHRCVouchers, billing/bankstatements/DatesAlreadyExist,
+billing/bankstatements/AddBankStatements|UpdateBankStatements,
+billing/bankstatements/GetBankStatements,
+billing/bankstatements/PrintUpdateBankStatements via utl.Http.doDownload,
+General/Options/getoptions, SystemSettings/User/GetUsers), the real
+Submit() -> checkDatesAlreadyExist() -> utl.Dialog.confirmMessage() ->
+onSubmitConfirmed() -> saveItem() confirmation-and-save chain, and every
+totals/aggregation calculation (StatementAmt, CalculateTotal,
+CalculateNetTotal, CalculateLoadedData). React only renders reactProps and
+dispatches action names via handleReactAction; no business logic is
+reimplemented in React.
 
-                                    <tbody class="stmtdata">
-                                        <tr ng-repeat="stmt in StatementData">
-                                            <td> {{ stmt.Name }}</td>
-                                            <td> {{ stmt.Cash }} </td>
-                                            <td> {{ stmt.Card }} </td>
-                                            <td> {{ stmt.Others }} </td>
-                                            <td> {{ stmt.LHRC }} </td>
-                                            <td> {{ stmt.Voucher }} </td>
-                                            <td> {{ stmt.NetCash }} </td>
-                                            <!-- <td> {{ stmt.ExcessShort }} </td> -->
-                                        </tr>
-                                        <tr>
-                                            <td> <span translate="billing.bankstatementform.total.lbl"></span>
-                                            </td>
-                                            <td> </td>
-                                            <td> </td>
-                                            <td> </td>
-                                            <td> </td>
-                                            <td> </td>
-                                            <td> {{NetCashAmt}} </td>
-                                            <!-- <td> </td> -->
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </fieldset>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-sm-5">
-                <!--right-first-starts-->
-                <fieldset class="fsStyle bdrnone">
-                    <div class="legendStyle">
-                        <span translate="billing.bankstatementform.denominations.lbl"></span>
-                    </div>
-                    <table class="table table-bordered">
-                        <thead>
-                            <tr>
-                                <th colspan="3" translate="billing.bankstatementform.denomination.lbl"></th>
-                                <th colspan="1" translate="billing.bankstatementform.number.lbl"></th>
-                                <th colspan="1" translate="billing.bankstatementform.amount.lbl"></th>
-                            </tr>
-                        </thead>
-                        <tbody class="amount_value">
-                            <tr ng-repeat="denomination in DefinedDenominations">
-                                <td colspan="3">{{ denomination.DenominationName }}</td>
-                                <td colspan="1">
-                                    <input type="text" min="0" ng-keypress="numberonly($event)" ng-pattern="/^\d+$/"
-                                        class="form-control" ng-model="denomination.DenominationCount" placeholder=""
-                                        ng-change="CalculateTotal(denomination)" ng-disabled="item.SubmittedStatus">
-                                </td>
-                                <td colspan="1">
-                                    <input type="text" min="0" class="form-control"
-                                        ng-model="denomination.DenominationTotal" placeholder="0.00" ng-disabled="true">
-                                </td>
-                            </tr>
-                            <tr>
-                                <td colspan="3" translate="billing.bankstatementform.amount.lbl" class="cash_amount">
-                                </td>
-                                <td colspan="1">
-                                    <input type="text" min="0" class="form-control"
-                                        ng-model="item.DenominationsNetCount" placeholder="0.00" ng-disabled="true">
-                                </td>
-                                <td colspan="1">
-                                    <input type="text" min="0" class="form-control"
-                                        ng-model="item.DenominationsNetTotal" placeholder="0.00" ng-disabled="true">
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </fieldset>
-                <!--right-first-ends-->
-            </div>
-        </div>
-        <div class="row">
-            <fieldset class="fsStyle bdrnone">
-                <div class="col-sm-6" style="padding-top: 10px;">
-                    <div class="col-sm-12">
-                        <div class="form-group">
-                            <label class="col-sm-4 control-label"
-                                translate="billing.bankstatementform.totalcashfetalamt.lbl"></label>
-                            <div class="col-sm-8">
-                                <input type="text" class="form-control" ng-model="item.FetalAmount"
-                                    ng-disabled="(item.Id > 0)" ng-keypress="numberonly($event)"
-                                    ng-keyup="StatementAmt()" ng-pattern="/^\d+$/" placeholder="">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-sm-12">
-                        <div class="form-group">
-                            <label class="col-sm-4 control-label"
-                                translate="billing.bankstatementform.totalcashinhand.lbl"></label>
-                            <div class="col-sm-8">
-                                <input type="text" class="form-control" ng-model="TotalCashInHand" ng-disabled="true"
-                                    ng-keypress="numberonly($event)" ng-pattern="/^\d+$/" placeholder="">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-sm-12">
-                        <div class="form-group">
-                            <label class="col-sm-4 control-label"
-                                translate="billing.bankstatementform.overallnetcash.lbl"></label>
-                            <div class="col-sm-8">
-                                <input type="text" class="form-control" ng-model="OverAllNetCash" ng-disabled="true"
-                                    ng-keypress="numberonly($event)" ng-pattern="/^\d+$/" placeholder="">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-sm-12">
-                        <div class="form-group">
-                            <label class="col-sm-4 control-label"
-                                translate="billing.bankstatementform.totalcashamt.lbl"></label>
-                            <div class="col-sm-8">
-                                <input type="text" class="form-control" ng-model="TotalCashAmount" ng-disabled="true"
-                                    ng-keypress="numberonly($event)" ng-pattern="/^\d+$/" placeholder="">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-sm-12">
-                        <div class="form-group">
-                            <label class="col-sm-4 control-label"
-                                translate="billing.bankstatementform.totalcardamt.lbl"></label>
-                            <div class="col-sm-8">
-                                <input type="text" class="form-control" ng-model="TotalCardAmount" ng-disabled="true"
-                                    ng-keypress="numberonly($event)" ng-pattern="/^\d+$/" placeholder="">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-sm-6" style="padding-top: 10px;">
-                    <div class="form-group">
-                        <label class="col-sm-4 control-label"
-                            translate="billing.bankstatementform.denominations.lbl"></label>
-                        <div class="col-sm-6">
-                            <input type="text" min="0" ng-keypress="numberonly($event)" ng-pattern="/^\d+$/"
-                                class="form-control" ng-model="item.DenominationsNetTotal" placeholder="0.00"
-                                ng-disabled="true">
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="col-sm-4 control-label"
-                            translate="billing.bankstatementform.totalamountdiff.lbl"></label>
-                        <div class="col-sm-6">
-                            <input type="text" min="0" ng-keypress="numberonly($event)" ng-pattern="/^\d+$/"
-                                class="form-control" ng-model="item.DifferenceAmount" placeholder="0.00"
-                                ng-disabled="true">
-                        </div>
-                    </div>
-                </div>
-            </fieldset>
-        </div>
-        <div class="fooder-bgs">
-            <div class="row">
-                <div class="pull-left">
-                    <button id="btnSubmit" type="button" class="btn pyr-color10 btn-sm"
-                        translate="common.backaction.lbl" ng-click="backtoList()"></button>
-                </div>
-                <div class="pull-right">
-                    <button ng-if="!currentcontext.id" type="button" class="draftbutton" translate="common.submit.lbl"
-                        ng-click="Submit()"></button>
-                    <button ng-if="currentcontext.id" id="btnPrintForm" type="button" class="draftbutton"
-                        translate="Print" ng-click="print()"></button>
-                </div>
-            </div>
-        </div>
-    </form>
-</div>
+Confirmed pre-existing quirks, preserved exactly (not "fixed"):
+- The Print button uses translate="Print" -- a literal English string used
+  directly as the translate key, not a dotted i18n key -- and no "Print" key
+  exists anywhere in public/i18n. angular-translate's missing-key fallback
+  displays the key itself, so the button coincidentally still reads "Print".
+  Reproduced verbatim as a hardcoded literal, not looked up via i18n.
+- The From/To Bill Date inputs each carry TWO ng-disabled attributes in the
+  original markup (ng-disabled="currentfilter.DisableFromBillDate" followed
+  later by a duplicate ng-disabled="currentcontext.id" on the same element).
+  Per HTML's duplicate-attribute parsing rule the first attribute wins, so
+  the real disable condition is currentfilter.DisableFromBillDate /
+  DisableToBillDate, not currentcontext.id -- those two flags are only ever
+  set true together when loading an existing statement (LoadOldData), so in
+  practice they agree for the view case, but after a fresh Submit() succeeds
+  (currentcontext.id becomes truthy from the save response while
+  DisableFromBillDate/DisableToBillDate remain false) the date fields stay
+  enabled even though the screen has moved to its "submitted" state. This
+  latent quirk is reproduced verbatim: date-field disabled state below is
+  bound to currentfilter.DisableFromBillDate / DisableToBillDate, exactly as
+  the original DOM (post duplicate-attribute resolution) actually behaves.
+- $scope.canShowStartBtn / canShowCloseBtn / canShowRevertBtn /
+  canShowSaveBtn / canShowSubmitBtn / canShowPrintBtn / CounterRunning are
+  declared in the controller but never read anywhere (controller or
+  template) -- confirmed dead flags, not wired to any button. Not
+  reproduced in React since nothing in the live UI ever consumed them.
+- getListCallback's cancelled-receipt branch (ReceiptStatusId == 3)
+  references an undefined variable `usercounterreceipt` (almost certainly
+  meant to be `patientpaymentdetail`) and pushes onto
+  $scope.UserCounterCancelledReceipts, which is never initialized for a NEW
+  statement (only ever assigned when loading an existing one via
+  getLoadOldDataCallback) -- a genuine pre-existing ReferenceError/
+  TypeError class of bug on that rarely-hit code path. Left untouched, not
+  fixed, per the migration's rule against correcting unverified business
+  logic; this bug is independent of the migration and reproduces exactly
+  as before since that function is not reimplemented in React.
+- common.applyaction.lbl (the "Fetch" button shown only when creating a new
+  statement) resolves to "Fetch", not "Apply" -- reproduced verbatim, not
+  renamed.
+-->
+<react-component name="BillingBankStatementFormScreen" props="{ reactProps: reactProps, onAction: handleReactAction }"></react-component>

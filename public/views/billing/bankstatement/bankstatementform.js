@@ -899,6 +899,105 @@
             utl.Http.doAction(options);
         };
 
+        $scope.refreshReactProps = function () {
+            $scope.reactProps = {
+                currentfilter: $scope.currentfilter,
+                lookup: $scope.lookup,
+                item: $scope.item,
+                currentcontext: $scope.currentcontext,
+                StatementData: $scope.StatementData,
+                DefinedDenominations: $scope.DefinedDenominations,
+                NetCashAmt: $scope.NetCashAmt,
+                TotalCashInHand: $scope.TotalCashInHand,
+                TotalCashAmount: $scope.TotalCashAmount,
+                TotalCardAmount: $scope.TotalCardAmount,
+                OverAllNetCash: $scope.OverAllNetCash
+            };
+            $scope.$applyAsync();
+        };
+
+        var _origLookupCallback = $scope.lookupCallback;
+        $scope.lookupCallback = function (scope, data, options, hasError) {
+            _origLookupCallback(scope, data, options, hasError);
+            $scope.refreshReactProps();
+        };
+
+        var _origCalculateLoadedData = $scope.CalculateLoadedData;
+        $scope.CalculateLoadedData = function () {
+            _origCalculateLoadedData();
+            $scope.refreshReactProps();
+        };
+
+        var _origStatementAmt = $scope.StatementAmt;
+        $scope.StatementAmt = function () {
+            _origStatementAmt();
+            $scope.refreshReactProps();
+        };
+
+        var _origCalculateTotal = $scope.CalculateTotal;
+        $scope.CalculateTotal = function (item) {
+            _origCalculateTotal(item);
+            $scope.refreshReactProps();
+        };
+
+        var _origCalculateNetTotal = $scope.CalculateNetTotal;
+        $scope.CalculateNetTotal = function () {
+            _origCalculateNetTotal();
+            $scope.refreshReactProps();
+        };
+
+        var _origSubmit = $scope.Submit;
+        $scope.Submit = function () {
+            var result = _origSubmit();
+            $scope.refreshReactProps();
+            return result;
+        };
+
+        var _origSaveItemCallback = $scope.saveItemCallback;
+        $scope.saveItemCallback = function (scope, data, options, hasError) {
+            _origSaveItemCallback(scope, data, options, hasError);
+            $scope.refreshReactProps();
+        };
+
+        $scope.handleReactAction = function (actionName, payload) {
+            payload = payload || {};
+            if (actionName === 'fromDateChange') {
+                // FromBillDate is bound via ng-date-object (real JS Date object), same
+                // confirmed convention as PrescriptionDate/ReviewDate elsewhere in this
+                // migration -- not a formatted string despite the $filter('date') seed value.
+                $scope.currentfilter.FromBillDate = payload.value ? new Date(payload.value) : null;
+                $scope.refreshReactProps();
+            } else if (actionName === 'toDateChange') {
+                $scope.currentfilter.ToBillDate = payload.value ? new Date(payload.value) : null;
+                $scope.refreshReactProps();
+            } else if (actionName === 'departmentChange') {
+                $scope.item.FilterDepartmentId = payload.value;
+                $scope.refreshReactProps();
+                $scope.getDepartmentUsers();
+            } else if (actionName === 'userChange') {
+                $scope.item.FilterUserId = payload.value;
+                $scope.refreshReactProps();
+                $scope.getList();
+            } else if (actionName === 'fetch') {
+                $scope.getList();
+            } else if (actionName === 'fetalAmountChange') {
+                $scope.item.FetalAmount = payload.value;
+                $scope.StatementAmt();
+            } else if (actionName === 'denominationCountChange') {
+                var denomitem = $scope.DefinedDenominations[payload.index];
+                if (denomitem) {
+                    denomitem.DenominationCount = payload.value;
+                    $scope.CalculateTotal(denomitem);
+                }
+            } else if (actionName === 'submit') {
+                $scope.Submit();
+            } else if (actionName === 'print') {
+                $scope.print();
+            } else if (actionName === 'back') {
+                $scope.backtoList();
+            }
+        };
+
         $scope.initLookup();
     }
 
