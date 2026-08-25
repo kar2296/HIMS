@@ -238,6 +238,47 @@
             // }
         }
 
+        // ---- React bridge (UI-MODERNIZATION RETROFIT) ----
+        // No async data here -- visibility of each of the 20 real report
+        // rows is privilege-gated via the real HasAccess()
+        // (utl.Ctrl.getPrivilegeCtrl), called here and passed through as
+        // booleans rather than reimplemented. The ~50 other $state.go
+        // functions on this controller have no UI trigger in the real
+        // template and are intentionally not covered by this bridge -- see
+        // the disclosure comment in BillingOpInvoiceReportScreen.tsx.
+        $scope.refreshReactProps = function () {
+            $scope.reactProps = {
+                canOpBillReport: $scope.HasAccess('CollectionReportsForOP/IP', 'OpbiillsReports'),
+                canCollectionDetailByCashier: $scope.HasAccess('CollectionReportsForOP/IP', 'collectiondetailbycashierreport'),
+                canCollectionDetailByAllCashier: $scope.HasAccess('CollectionReportsForOP/IP', 'collectiondetailbyallcashierreport'),
+                canOpIpCollectionSummaryByCashier: $scope.HasAccess('CollectionReportsForOP/IP', 'opipcollectionsummarybycashier'),
+                canOpCollectionSummaryByCashier: $scope.HasAccess('CollectionReportsForOP/IP', 'opcollectionsummarybycashier'),
+                canOverallCollectionSummary: $scope.HasAccess('CollectionReportsForOP/IP', 'overallcollectionsummary'),
+                canOverallCollectionSummaryByCashier: $scope.HasAccess('CollectionReportsForOP/IP', 'overallcollectioncashier'),
+                canInsuranceCreditSummary: $scope.HasAccess('CollectionReportsForOP/IP', 'insurancecreditsummary'),
+                canInsuranceOutstandingSummary: $scope.HasAccess('CollectionReportsForOP/IP', 'insuranceoutstandingsummary'),
+                canOutstandingReports: $scope.HasAccess('CollectionReportsForOP/IP', 'outstandingreports'),
+                canOpDueCollectReport: $scope.HasAccess('CollectionReportsForOP/IP', 'opduecollectreport'),
+                canDiscount: $scope.HasAccess('CollectionReportsForOP/IP', 'discount'),
+                canCancelReport: $scope.HasAccess('CollectionReportsForOP/IP', 'cancelreport'),
+                canRefundReport: $scope.HasAccess('CollectionReportsForOP/IP', 'refundreport'),
+                canDirectBillReport: $scope.HasAccess('CollectionReportsForOP/IP', 'directbillreport'),
+                canCollectionSummaryOpIp: $scope.HasAccess('CollectionReportsForOP/IP', 'collectionsummaryopip'),
+                canGeneralExpenseReport: $scope.HasAccess('CollectionReportsForOP/IP', 'generalexpensereport'),
+                canAdvanceFundDetailsReport: $scope.HasAccess('CollectionReportsForOP/IP', 'advancefunddetailsreport'),
+                canPatientFundAdjustmentReport: $scope.HasAccess('CollectionReportsForOP/IP', 'patientfundadjustmentreport')
+            };
+        };
+        $scope.refreshReactProps();
+
+        $scope.handleReactAction = function (actionName) {
+            if (typeof $scope[actionName] === 'function') {
+                $scope[actionName]();
+            }
+            $scope.refreshReactProps();
+            $scope.$applyAsync();
+        };
+
     }
     OPBillingReportController.$inject = ['$scope', '$filter', '$stateParams', '$state', '$translate', 'utl'];
 
