@@ -239,598 +239,101 @@
     }
 </style>
 
-<div id="cashcounter">
-    <form id="item_form" name="item_form" class="form-horizontal" role="form">
-        <div class="row page-header">
-            <div class="col-sm-12">
-                <div class="col-sm-4 col-md-6 col-lg-4">
-                    <h4 class=" mt0 qr_font" translate="billing.cashsubmission.managecashsubmission.lbl"></h4>
-                </div>
-                <div class="col-sm-8 col-md-6 col-lg-8">
-                    <h4 class="details mt0" style="color: #f02f25 !important;">
-                        {{item.UserName}}
-                        | {{item.CounterName}} | {{item.CounterStatus}}
-                    </h4>
-                </div>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-sm-12 " id="cash_counter">
-                <div class="formRoot">
-                    <div class="col-sm-5 pd0">
-                        <!--left-first-starts-->
-                        <div class="panel panel-default">
-                            <div class="form-panel bg-pattern">
-                                <div class="well custom_padtop inner_content0">
-                                    <fieldset class="fsStyle  col6control" style="height: auto;" id="textboxctrlmaster">
-                                        <div class="legendStyle">
-                                            <div class="col-sm-9">
-                                                <span translate="billing.cashsubmission.opening.lbl"></span>
-                                            </div>
-                                            <div class="col-sm-2">
-                                                <div class="form-group cash_actionbtn">
-                                                    <button type="button" id="startbtnsubmit" class="btn btn-primary"
-                                                        ng-show="canShowStartBtn" ng-click="Start()">Start</button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="col-sm-10 pd0">
-                                            <div class="col-sm-12">
-                                                <div class="form-group">
-                                                    <label class="col-sm-6 control-label"
-                                                        translate="billing.cashsubmission.startdateandtime.lbl"></label>
-                                                    <div class="col-sm-6 topright">
-                                                        <input type="text" class="form-control" name="openingdate"
-                                                            ng-date-object
-                                                            datetime-picker="{{datePickerOptions.dateTimeFormat}}"
-                                                            datepicker-append-to-body="true"
-                                                            placeholder="{{datePickerOptions.placeholder}}"
-                                                            ng-click="openingdatePopup = { opened: true }"
-                                                            is-open="openingdatePopup.opened"
-                                                            ng-model="item.OpeningDate" ng-disabled="true">
-                                                    </div>
-                                                </div>
-                                                <div class="form-group">
-                                                    <label class="col-sm-6 control-label"
-                                                        translate="billing.cashsubmission.department.lbl"></label>
-                                                    <div class="col-sm-6">
-                                                        <ui-select ng-model="item.DepartmentId" name="department"
-                                                            ng-disabled="true">
-                                                            <ui-select-match>
-                                                                {{$select.selected.Text | limitTo : 20 : 0}}
-                                                                <span ng-if="$select.selected.Text.length>20">...</span>
-                                                            </ui-select-match>
-                                                            <ui-select-choices
-                                                                repeat="lookupitem.Id as lookupitem in lookup.Department | filter: { Text: $select.search }">
-                                                                <div
-                                                                    ng-bind-html="lookupitem.Text | highlight: $select.search">
-                                                                </div>
-                                                            </ui-select-choices>
-                                                        </ui-select>
-                                                    </div>
-                                                </div>
-                                                <div class="form-group">
-                                                    <label class="col-sm-6 control-label"
-                                                        translate="billing.cashsubmission.counter.lbl"></label>
-                                                    <div class="col-sm-6">
-                                                        <ui-select ng-model="item.BillingCounterId"
-                                                            name="billingcounter" ng-disabled="item.OpenedStatus">
-                                                            <ui-select-match>
-                                                                {{$select.selected.Text | limitTo : 20 : 0}}
-                                                                <span ng-if="$select.selected.Text.length>20">...</span>
-                                                            </ui-select-match>
-                                                            <ui-select-choices
-                                                                repeat="lookupitem.Id as lookupitem in lookup.BillingCounter | filter: { Text: $select.search }">
-                                                                <div
-                                                                    ng-bind-html="lookupitem.Text | highlight: $select.search">
-                                                                </div>
-                                                            </ui-select-choices>
-                                                        </ui-select>
-                                                    </div>
-                                                </div>
-                                                <div class="form-group">
-                                                    <label class="col-sm-6 control-label" for="OpeningBalance"
-                                                        translate="billing.cashsubmission.openingbalance.lbl"></label>
-                                                    <div class="col-sm-6">
-                                                        <input type="text" min="0" ng-keypress="numberonly($event)"
-                                                            ng-pattern="/^\d+$/" class="form-control"
-                                                            name="OpeningBalance" ng-model="item.OpeningBalance"
-                                                            placeholder="" ng-disabled="item.OpenedStatus">
-                                                    </div>
-                                                </div>
-                                                <div class="form-group">
-                                                    <label class="col-sm-6 control-label" for="OpeningRemarks"
-                                                        translate="billing.cashsubmission.remarks.lbl"></label>
-                                                    <div class="col-sm-6">
-                                                        <textarea rows="3" name="OpeningRemarks"
-                                                            ng-model="item.OpeningRemarks" maxlength="4000"
-                                                            style="width:100%;" class="notes-textarea"
-                                                            ng-disabled="item.OpenedStatus"></textarea>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
+<!--
+    UI-MODERNIZATION RETROFIT (Billing / Cash Submissions Form,
+    app.cashsubmission-form, CashSubmissionFormController) -- single
+    <react-component> mount replacing the entire AngularJS template body
+    below (everything after the shared <style> block). This screen has no
+    native-only widgets (patientsearch/autosearch/etc.) and never calls
+    utl.Validator.validate($scope), so it qualifies for a single-mount
+    bridge like billingcounter-form and bankstatementform. AngularJS
+    ui-router remains authoritative for routing/session/privilege; every
+    real API call below is preserved exactly as-is via
+    utl.Http.doAction/doDownload (billing/userbillingcounters/
+    GetUserBillingCounters, AddUserBillingCounters,
+    UpdateUserBillingCounters, PrintUpdateUserBillingCounters;
+    Billing/PatientPaymentDetails/GetPatientPaymentDetails [used by BOTH
+    getOPDGSalesList AND getOPDGAdvanceAdjustmentList, distinguished only
+    by their Params]; Billing/PatientRefund/GetPatientRefund;
+    billing/patientbills/GetPatientBills; billing/GeneralExpenses/
+    GetGeneralExpensess; General/Options/getoptions).
 
-                                    </fieldset>
-                                </div>
-                            </div>
-                        </div>
-                        <!--left-first-ends-->
-
-                        <!--left-second-starts-->
-                        <div class="panel panel-default">
-                            <div class="form-panel bg-pattern">
-                                <div class="well custom_padtop inner_content0">
-                                    <fieldset class="fsStyle  col6control" style="height: auto;" id="textboxctrlmaster">
-                                        <div class="legendStyle">
-                                            <span translate="billing.cashsubmission.closing.lbl"></span>
-                                        </div>
-                                        <div class="col-sm-10 pd0">
-                                            <div class="col-sm-12">
-                                                <div class="form-group">
-                                                    <label class="col-sm-6 control-label"
-                                                        translate="billing.cashsubmission.enddateandtime.lbl"></label>
-                                                    <div class="col-sm-6 topright">
-                                                        <input type="text" class="form-control" name="closingdate"
-                                                            ng-date-object
-                                                            datetime-picker="{{datePickerOptions.dateTimeFormat}}"
-                                                            datepicker-append-to-body="true"
-                                                            placeholder="{{datePickerOptions.placeholder}}"
-                                                            ng-click="closingdatePopup = { opened: true }"
-                                                            is-open="closingdatePopup.opened"
-                                                            ng-model="item.ClosingDate" ng-disabled="true">
-                                                    </div>
-                                                </div>
-                                                <div class="form-group">
-                                                    <label class="col-sm-6 control-label"
-                                                        translate="billing.cashsubmission.closingbalance.lbl"></label>
-                                                    <div class="col-sm-6">
-                                                        <input type="text" min="0" ng-keypress="numberonly($event)"
-                                                            ng-pattern="/^\d+$/" class="form-control"
-                                                            name="ClosingBalance" ng-model="item.ClosingBalance"
-                                                            placeholder="" ng-disabled="true">
-                                                    </div>
-                                                </div>
-                                                <div class="form-group">
-                                                    <label class="col-sm-6 control-label"
-                                                        translate="billing.cashsubmission.creditdebitcard.lbl"></label>
-                                                    <div class="col-sm-6">
-                                                        <input type="text" min="0" ng-keypress="numberonly($event)"
-                                                            ng-pattern="/^\d+$/" class="form-control" name="ClosingCard"
-                                                            ng-model="item.ClosingCard" placeholder=""
-                                                            ng-disabled="true">
-                                                    </div>
-                                                </div>
-                                                <div class="form-group">
-                                                    <label class="col-sm-6 control-label"
-                                                        translate="billing.cashsubmission.chequedd.lbl"></label>
-                                                    <div class="col-sm-6">
-                                                        <input type="text" min="0" ng-keypress="numberonly($event)"
-                                                            ng-pattern="/^\d+$/" class="form-control"
-                                                            name="ClosingCheque" ng-model="item.ClosingCheque"
-                                                            placeholder="" ng-disabled="true">
-                                                    </div>
-                                                </div>
-                                                <div class="form-group">
-                                                    <label class="col-sm-6 control-label" for="ClosingRemarks"
-                                                        translate="billing.cashsubmission.remarks.lbl"></label>
-                                                    <div class="col-sm-6">
-                                                        <textarea rows="3" name="ClosingRemarks"
-                                                            ng-model="item.ClosingRemarks" maxlength="4000"
-                                                            style="width:100%;" class="notes-textarea"
-                                                            ng-disabled="item.ClosedStatus"></textarea>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="col-sm-1">
-                                            <div class="form-group cash_actionbtn_close">
-                                                <button type="button" id="closebtnsubmit" class="btn btn-primary"
-                                                    ng-show="canShowCloseBtn" ng-click="Close()">Close</button>
-                                                <button type="button" id="revertbtnsubmit" class="btn btn-danger"
-                                                    ng-show="canShowRevertBtn" ng-click="Revert()">Revert</button>
-                                            </div>
-                                        </div>
-                                    </fieldset>
-                                </div>
-                            </div>
-                        </div>
-                        <!--left-second-ends-->
-
-                        <!--left-third-starts-->
-                        <div class="panel panel-default">
-                            <div class="form-panel bg-pattern">
-                                <div class="well custom_padtop inner_content0">
-                                    <fieldset class="fsStyle bdrnone" style="margin-top: 2px;">
-                                        <div class="legendStyle">
-                                            <span translate="billing.billingcounter.cancelbills.lbl"></span>
-                                        </div>
-                                        <table class="table table-bordered">
-                                            <thead>
-                                                <tr>
-                                                    <th colspan="3"
-                                                        translate="billing.billingcounter.billreceiptno.lbl"></th>
-                                                    <th colspan="1" translate="billing.billingcounter.cancelamount.lbl">
-                                                    </th>
-                                                    <th colspan="1" translate="billing.billingcounter.reason.lbl"></th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                <tr ng-repeat="cancel in UserCounterCancelledReceipts">
-                                                    <td colspan="3" ng-if="cancel.BillNumber">{{ cancel.BillNumber }} /
-                                                        {{ cancel.ReceiptNumber }}</td>
-                                                    <td colspan="3" ng-if="!cancel.BillNumber">{{ cancel.ReceiptNumber
-                                                        }}</td>
-                                                    <td colspan="1">
-                                                        {{ (cancel.CancelledAmount | displaycurrency) }}
-                                                    </td>
-                                                    <td colspan="1">
-                                                        {{ cancel.CancelledReason }}
-                                                    </td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
-                                    </fieldset>
-                                </div>
-                            </div>
-                        </div>
-                        <!--left-third-ends-->
-                    </div>
-                    <div class="col-sm-7 pdr0">
-                        <!--right-first-starts-->
-                        <fieldset class="fsStyle bdrnone" style="margin-top: 2px;">
-                            <div class="legendStyle mb0">
-                                <span translate="billing.cashsubmission.denominations.lbl"></span>
-                            </div>
-                            <table class="table table-bordered">
-                                <thead>
-                                    <tr>
-                                        <th colspan="3" translate="billing.cashsubmission.denomination.lbl"></th>
-                                        <th colspan="1" translate="billing.cashsubmission.number.lbl"></th>
-                                        <th colspan="1" translate="billing.cashsubmission.amount.lbl"></th>
-                                    </tr>
-                                </thead>
-                                <tbody class="amount_value">
-                                    <tr ng-repeat="denomination in DefinedDenominations">
-                                        <td colspan="3">{{ denomination.DenominationName }}</td>
-                                        <td colspan="1">
-                                            <input type="text" min="0" ng-keypress="numberonly($event)"
-                                                ng-pattern="/^\d+$/" class="form-control"
-                                                ng-model="denomination.DenominationCount" placeholder=""
-                                                ng-change="CalculateTotal(denomination)" ng-disabled="true">
-                                        </td>
-                                        <td colspan="1">
-                                            <input type="text" min="0" class="form-control"
-                                                ng-model="denomination.DenominationTotal" placeholder="0.00"
-                                                ng-disabled="true">
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td colspan="3" translate="billing.cashsubmission.amount.lbl"
-                                            class="cash_amount"></td>
-                                        <td colspan="1">
-                                            <input type="text" min="0" class="form-control"
-                                                ng-model="item.DenominationsNetCount" placeholder="0.00"
-                                                ng-disabled="true">
-                                        </td>
-                                        <td colspan="1">
-                                            <input type="text" min="0" class="form-control"
-                                                ng-model="item.DenominationsNetTotal" placeholder="0.00"
-                                                ng-disabled="true">
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </fieldset>
-                        <!--right-first-ends-->
-
-                        <!--right-second-starts-->
-                        <!--
-                        <fieldset class="fsStyle bdrnone" style="margin-top: 2px;">
-                            <legend class="legendStyle">
-                                <span translate="billing.cashsubmission.denominationssothercurrency.lbl"></span>
-                            </legend>
-                            <table class="table table-bordered">
-                                <thead>
-                                    <tr>
-                                        <th colspan="3" translate="billing.cashsubmission.denomination.lbl"></th>
-                                        <th colspan="1" translate="billing.cashsubmission.number.lbl"></th>
-                                        <th colspan="1" translate="billing.cashsubmission.amount.lbl"></th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td colspan="3">Test</td>
-                                        <td>
-                                            <input type="text" name="fname">
-                                        </td>
-                                        <td>
-                                            <input type="text" name="fname">
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td colspan="3">Test2</td>
-                                        <td>
-                                            <input type="text" name="fname">
-                                        </td>
-                                        <td>
-                                            <input type="text" name="fname">
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td colspan="3">Test3</td>
-                                        <td>
-                                            <input type="text" name="fname">
-                                        </td>
-                                        <td>
-                                            <input type="text" name="fname">
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </fieldset>
-                        -->
-                        <!--right-second-ends-->
-
-                        <!--right-third-starts-->
-                        <fieldset class="fsStyle bdrnone" style="padding-top: 10px;">
-                            <div class="col-sm-6">
-                                <div class="form-group">
-                                    <label class="col-sm-6" translate="billing.cashsubmission.opening.lbl"></label>
-                                    <div class="col-sm-6">
-                                        <input type="text" min="0" ng-keypress="numberonly($event)" ng-pattern="/^\d+$/"
-                                            class="form-control" ng-model="item.OpeningBalance" placeholder="0.00"
-                                            ng-disabled="true">
-                                    </div>
-                                </div>
-                                <div class="form-group">
-                                    <label class="col-sm-6" translate="billing.cashsubmission.closingcash.lbl"></label>
-                                    <div class="col-sm-6">
-                                        <input type="text" min="0" ng-keypress="numberonly($event)" ng-pattern="/^\d+$/"
-                                            class="form-control" ng-model="item.ClosingBalance" placeholder="0.00"
-                                            ng-disabled="true">
-                                    </div>
-                                </div>
-                                <div class="form-group">
-                                    <label class="col-sm-6" translate="billing.cashsubmission.difference.lbl"></label>
-                                    <div class="col-sm-6">
-                                        <input type="text" min="0" ng-keypress="numberonly($event)" ng-pattern="/^\d+$/"
-                                            class="form-control" ng-model="item.DifferenceAmount" placeholder="0.00"
-                                            ng-disabled="true">
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-sm-6">
-                                <div class="form-group">
-                                    <label class="col-sm-6"
-                                        translate="billing.cashsubmission.denominations.lbl"></label>
-                                    <div class="col-sm-6">
-                                        <input type="text" min="0" ng-keypress="numberonly($event)" ng-pattern="/^\d+$/"
-                                            class="form-control" ng-model="item.DenominationsNetTotal"
-                                            placeholder="0.00" ng-disabled="true">
-                                    </div>
-                                </div>
-                                <div class="form-group">
-                                    <label class="col-sm-6"
-                                        translate="billing.cashsubmission.denominationother.lbl"></label>
-                                    <div class="col-sm-6">
-                                        <input type="text" min="0" ng-keypress="numberonly($event)" ng-pattern="/^\d+$/"
-                                            class="form-control" ng-model="item.OtherDenominationsTotal"
-                                            placeholder="0.00" ng-disabled="true">
-                                    </div>
-                                </div>
-                            </div>
-                        </fieldset>
-                        <!--right-third-ends-->
-                    </div>
-                </div>
-
-            </div>
-        </div>
-    </form>
-</div>
-
-<div class="row" style="float: right;">
-    <!-- Sales -->
-    <table id="bannerdetails">
-        <tr>
-            <td translate="billing.billingcollections.totalcash.lbl"></td>
-            <td class="currency-align">
-                <span>{{TotalCashSales|displaycurrency}}</span>
-            </td>
-            <td translate="billing.billingcollections.totalcard.lbl"></td>
-            <td class="currency-align">
-                <span>{{TotalCardSales|displaycurrency}}</span>
-            </td>
-            <td translate="billing.billingcollections.totalcheque.lbl"></td>
-            <td class="currency-align">
-                <span>{{TotalChequeOtherSales|displaycurrency}}</span>
-            </td>
-            <td translate="NetBanking Sales"></td>
-            <td class="currency-align">
-                <span>{{TotalNetBankingSales|displaycurrency}}</span>
-            </td>
-            <td translate="UPI Sales"></td>
-            <td class="currency-align">
-                <span>{{TotalUPISales|displaycurrency}}</span>
-            </td>
-            <td translate="Afford Sales"></td>
-            <td class="currency-align">
-                <span>{{TotalAffordSales|displaycurrency}}</span>
-            </td>
-        </tr>
-        <tr>
-            <td translate="Advance Adj Cash"></td>
-            <td class="currency-align">
-                <span>{{TotalCashAdvanceAdj|displaycurrency}}</span>
-            </td>
-            <td translate="Advance Adj Card"></td>
-            <td class="currency-align">
-                <span>{{TotalCardAdvanceAdj|displaycurrency}}</span>
-            </td>
-            <td translate="Advance Adj Cheque"></td>
-            <td class="currency-align"> <span>{{TotalChequeOtherAdvanceAdj|displaycurrency}}</span>
-            </td>
-            <td translate="Advance Adj NetBanking"></td>
-            <td class="currency-align">
-                <span>{{TotalNetBankingAdvanceAdj|displaycurrency}}</span>
-            </td>
-            <td translate="Advance Adj UPI"></td>
-            <td class="currency-align">
-                <span>{{TotalUPIAdvanceAdj|displaycurrency}}</span>
-            </td>
-            <td translate="Advance Adj Afford"></td>
-            <td class="currency-align">
-                <span>{{TotalAffordAdvanceAdj|displaycurrency}}</span>
-            </td>
-        </tr>
-        <tr class="negative">
-            <td translate="billing.billingcollections.refundcash.lbl"></td>
-            <td class="currency-align">
-                <span class="minusamt currency-align"><span>-</span>{{TotalCashRefunds|displaycurrency}}</span>
-            </td>
-            <td translate="billing.billingcollections.refundcard.lbl"></td>
-            <td class="currency-align">
-                <span class="minusamt currency-align"><span>-</span>{{TotalCardRefunds|displaycurrency}}</span>
-            </td>
-            <td translate="billing.billingcollections.refundcheque.lbl"></td>
-            <td class="currency-align">
-                <span class="minusamt currency-align"><span>-</span>{{TotalChequeOtherRefunds|displaycurrency}}</span>
-            </td>
-            <td translate="Refunds NetBanking"></td>
-            <td class="currency-align">
-                <span class="minusamt currency-align"><span>-</span>{{TotalNetBankingRefunds|displaycurrency}}</span>
-            </td>
-            <td translate="Refunds UPI"></td>
-            <td class="currency-align">
-                <span class="minusamt currency-align"><span>-</span>{{TotalUPIRefunds|displaycurrency}}</span>
-            </td>
-            <td translate="Refunds Afford"></td>
-            <td class="currency-align">
-                <span class="minusamt currency-align"><span>-</span>{{TotalAffordRefunds|displaycurrency}}</span>
-            </td>
-        </tr>
-        <tr>
-            <td translate="billing.billingcollections.cashcancelled.lbl"></td>
-            <td class="currency-align">
-                <span class="minusamt currency-align">{{TotalCashCancels|displaycurrency}}</span>
-            </td>
-            <td translate="billing.billingcollections.cardcancelled.lbl"></td>
-            <td class="currency-align">
-                <span class="minusamt currency-align">{{TotalCardCancels|displaycurrency}}</span>
-            </td>
-            <td translate="billing.billingcollections.othercancelled.lbl"></td>
-            <td class="currency-align">
-                <span class="minusamt currency-align">{{TotalChequeOtherCancels|displaycurrency}}</span>
-            </td>
-            <td translate="NetBanking Cancels"></td>
-            <td class="currency-align">
-                <span class="minusamt currency-align">{{TotalNetBankingCancels|displaycurrency}}</span>
-            </td>
-            <td translate="UPI Cancels"></td>
-            <td class="currency-align">
-                <span class="minusamt currency-align">{{TotalUPICancels|displaycurrency}}</span>
-            </td>
-            <td translate="Afford Cancels"></td>
-            <td class="currency-align">
-                <span class="minusamt currency-align">{{TotalAffordCancels|displaycurrency}}</span>
-            </td>
-        </tr>
-        <tr class="negative">
-            <td translate="Expense Cash"></td>
-            <td class="currency-align">
-                <span class="minusamt currency-align"><span>-</span>{{TotalExpCashSales|displaycurrency}}</span>
-            </td>
-            <td translate="Expense Card"></td>
-            <td class="currency-align">
-                <span class="minusamt currency-align"><span>-</span>{{TotalExpCardSales|displaycurrency}}</span>
-            </td>
-            <td translate="Expense Others"></td>
-            <td class="currency-align">
-                <span class="minusamt currency-align"><span>-</span>{{TotalExpChequeOtherSales|displaycurrency}}</span>
-            </td>
-            <td translate="Expense NetBanking"></td>
-            <td class="currency-align">
-                <span class="minusamt currency-align"><span>-</span>{{TotalExpNetBankingSales|displaycurrency}}</span>
-            </td>
-            <td translate="Expense UPI"></td>
-            <td class="currency-align">
-                <span class="minusamt currency-align"><span>-</span>{{TotalExpUPISales|displaycurrency}}</span>
-            </td>
-            <td translate="Expense Afford"></td>
-            <td class="currency-align">
-                <span class="minusamt currency-align"><span>-</span>{{TotalExpAffordSales|displaycurrency}}</span>
-            </td>
-        </tr>
-        <!-- <tr>
-            <td translate="Doctor Cash-Pay"></td>
-            <td>
-                <span class="minusamt currency-align"><span>-</span>{{TotalCashInvPay|displaycurrency}}</span>
-            </td>
-            <td translate="Doctor Card-Pay"></td>
-            <td>
-                <span class="minusamt currency-align"><span>-</span>{{TotalCardInvPay|displaycurrency}}</span>
-            </td>
-            <td translate="Doctor Other-Pay"></td>
-            <td>
-                <span class="minusamt currency-align"><span>-</span>{{TotChequeOtherInvPay|displaycurrency}}</span>
-            </td>
-        </tr> -->
-        <tr>
-            <td translate="billing.billingcollections.netcash.lbl"></td>
-            <td class="currency-align"> {{NetCash | displaycurrency }} </td>
-            <td translate="billing.billingcollections.netcard.lbl"></td>
-            <td class="currency-align"> {{NetCard | displaycurrency }}</td>
-            <td translate="billing.billingcollections.netothers.lbl"></td>
-            <td class="currency-align"> {{NetChequeOther | displaycurrency }} </td>
-            <td translate="Net NetBanking"></td>
-            <td class="currency-align"> {{NetNetBanking | displaycurrency }} </td>
-            <td translate="Net UPI"></td>
-            <td class="currency-align"> {{NetUPI | displaycurrency }} </td>
-            <td translate="Net Afford"></td>
-            <td class="currency-align"> {{NetAfford | displaycurrency }} </td>
-        </tr>
-        <tr>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td> </td>
-            <td style="background: #E91E63 !important;
-            color: white !important;" translate="billing.billingcollections.netsubmission.lbl"></td>
-            <td class="currency-align" style="background: #E91E63 !important;
-            color: white !important;"> {{NetSubmission |
-                displaycurrency }}
-            </td>
-            <td style="background: #E91E63 !important;
-            color: white !important;" translate="Shortage Amount"></td>
-            <td class="currency-align" style="background: #E91E63 !important;
-            color: white !important;"> {{item.DifferenceAmount |
-                displaycurrency }}
-            </td>
-        </tr>
-
-    </table>
-</div>
-<div class="fooder-bgs">
-    <div class="row">
-        <div class="pull-left">
-            <button type="button" class="btn pyr-color10 btn-sm" ng-click="backToList()" tabindex="-1"
-                hotkey="{'alt+b': backToList}">
-                <i class="fa fa-angle-left" aria-hidden="true"></i>&nbsp;&nbsp;
-                <span class="btn-fontsize" translate="common.backaction.lbl"></span>
-            </button>
-        </div>
-        <div class="pull-right">
-            <button type="button" class="draftbutton" ng-show="canShowApproveBtn" translate="common.approve-action.lbl"
-                ng-click="Approve()"></button>
-            <button type="button" class="draftbutton" ng-show="canShowAuthorizeBtn"
-                translate="common.authorize-action.lbl" ng-click="Authorize()"></button>
-            <button type="button" class="draftbutton" ng-show="canShowPrintBtn" translate="Print"
-                ng-click="print()"></button>
-        </div>
-    </div>
-</div>
+    Confirmed pre-existing quirks/bugs, preserved exactly (documented, not
+    fixed):
+    - Dead vestigial Start/Close/Revert buttons: the original markup has
+      #startbtnsubmit (ng-show="canShowStartBtn" ng-click="Start()"),
+      #closebtnsubmit (ng-show="canShowCloseBtn" ng-click="Close()") and
+      #revertbtnsubmit (ng-show="canShowRevertBtn" ng-click="Revert()"),
+      copy-pasted from the genuine, fully-wired billingcounter-form.js --
+      but canShowStartBtn/canShowCloseBtn/canShowRevertBtn/Start/Close/
+      Revert are never declared anywhere in this controller, so these
+      buttons can never render (ng-show of an undefined expression is
+      always falsy) and are permanently unreachable dead UI. Omitted from
+      the React markup below (they would never have been visible), noted
+      here for the record.
+    - Print button always visible regardless of status: canShowPrintBtn is
+      hardcoded to true at controller init and is never reassigned
+      anywhere in the 1663-line controller (unlike canShowApproveBtn/
+      canShowAuthorizeBtn, which are genuinely status-driven in
+      getCounterInfoCallback) -- so the Print button shows unconditionally,
+      even before a counter record has ever loaded. Reproduced faithfully
+      (always rendered, not gated on any computed condition).
+    - Duplicate-fetch-on-load: loadData() calls getCounterInfoById() (when
+      id>0) AND unconditionally, immediately, ALSO calls all 6 detail-list
+      fetches (getOPDGSalesList/getOPDGAdvanceAdjustmentList/
+      getOPDGCancelsList/getOPDGRefundsList/getOPDGOutstandingList/
+      getExpenseList) using default/stale filter values from controller
+      init; getCounterInfoCallback (the async response handler for
+      getCounterInfoById) ALSO calls the same 6 functions again once the
+      correct item.* values have loaded -- so each of the 6 lists fetches
+      twice on every load. Preserved as-is (both call sites still call the
+      real, unmodified fetch functions).
+    - Expenses list fetched but never rendered as rows: getExpenseListCallback
+      computes all TotalExp* running totals correctly, but the code that
+      would push individual expense rows into $scope.Expenses is entirely
+      commented out in the original, so $scope.Expenses stays [] forever.
+      This is moot for the UI itself: none of PaymentOPDGSales/
+      PaymentOPDGAdvance/PaymentOPDGOutstanding/PaymentOPDGCancels/
+      PaymentOPDGRefunds/Expenses/DoctorPayments (the raw per-row arrays
+      populated by the 6 list callbacks) are bound to any table anywhere in
+      this template -- only the aggregate Total*/Net* figures they compute
+      are ever displayed, in the #bannerdetails summary below. DoctorPayments
+      is declared at controller init but has no fetch function at all and
+      is likewise never referenced here -- a fully dead, unpopulated array.
+    - Literal-English-as-translate-key quirk (angular-translate falls back
+      to displaying the key text itself for a non-existent key): in the
+      summary table below, NetBanking/UPI/Afford columns for Sales, all six
+      Advance Adj columns, NetBanking/UPI/Afford for Refunds and Cancels,
+      all six Expense columns, NetBanking/UPI/Afford for the Net row, and
+      the "Shortage Amount" cell all use literal English text as their
+      translate attribute instead of a real i18n key. The Cash/Card/
+      Cheque-Other columns for Sales/Refunds/Cancels and the Net
+      Cash/Card/Others/Submission cells correctly use real
+      billing.billingcollections.* keys. Both are reproduced verbatim,
+      unreconciled.
+    - Borrowed-namespace quirk: the Cancelled Bills table's column headers
+      use billing.billingcounter.* (singular, borrowed from the sibling
+      billingcounter-form/-list screens) rather than any
+      billing.cashsubmission.* equivalent -- reproduced verbatim.
+    - Hardcoded literal status text: item.CounterStatus is set to the bare
+      strings 'Running'/'Closed'/'Submitted'/'Approved'/'Authorized' in
+      getCounterInfoCallback (not translated) -- reproduced verbatim.
+    - Denominations are read-only here (every field, including the count
+      input, is ng-disabled="true"), unlike the editable version on
+      billingcounter-form -- this screen is a review/closing screen, not an
+      entry screen. CalculateTotal()'s ng-change on the denomination count
+      input is consequently unreachable in practice; CalculateNetTotal()
+      (which drives item.DifferenceAmount) only ever runs once, right after
+      denominations are populated from the loaded record.
+    - OpeningBalance/OpeningRemarks/the Counter select are conditionally
+      disabled via item.OpenedStatus, and ClosingRemarks via
+      item.ClosedStatus -- both become true once an existing counter record
+      loads (this form has no "add new" entry point; the list screen's grid
+      only offers "edit"), so in practice these end up disabled after data
+      loads, matching original behavior faithfully (not hardcoded disabled).
+    - A separate, never-rendered $scope.UserName (distinct from
+      item.UserName, which the header actually shows) is repeatedly
+      reassigned inside the Sales/AdvanceAdj list-callback loops for no
+      referenced purpose -- write-only dead state, not reproduced.
+-->
+<react-component name="BillingCashSubmissionFormScreen" props="{ reactProps: reactProps, onAction: handleReactAction }"></react-component>

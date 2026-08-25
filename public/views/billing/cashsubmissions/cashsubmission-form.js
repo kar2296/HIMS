@@ -1656,6 +1656,137 @@
             utl.Http.doAction(options);
         };
 
+        $scope.refreshReactProps = function () {
+            $scope.reactProps = {
+                item: $scope.item,
+                lookup: $scope.lookup,
+                DefinedDenominations: $scope.DefinedDenominations,
+                UserCounterCancelledReceipts: $scope.UserCounterCancelledReceipts,
+                canShowApproveBtn: $scope.canShowApproveBtn,
+                canShowAuthorizeBtn: $scope.canShowAuthorizeBtn,
+                canShowPrintBtn: $scope.canShowPrintBtn,
+                totals: {
+                    CashSales: $scope.TotalCashSales,
+                    CardSales: $scope.TotalCardSales,
+                    ChequeOtherSales: $scope.TotalChequeOtherSales,
+                    NetBankingSales: $scope.TotalNetBankingSales,
+                    UPISales: $scope.TotalUPISales,
+                    AffordSales: $scope.TotalAffordSales,
+                    CashAdvanceAdj: $scope.TotalCashAdvanceAdj,
+                    CardAdvanceAdj: $scope.TotalCardAdvanceAdj,
+                    ChequeOtherAdvanceAdj: $scope.TotalChequeOtherAdvanceAdj,
+                    NetBankingAdvanceAdj: $scope.TotalNetBankingAdvanceAdj,
+                    UPIAdvanceAdj: $scope.TotalUPIAdvanceAdj,
+                    AffordAdvanceAdj: $scope.TotalAffordAdvanceAdj,
+                    CashRefunds: $scope.TotalCashRefunds,
+                    CardRefunds: $scope.TotalCardRefunds,
+                    ChequeOtherRefunds: $scope.TotalChequeOtherRefunds,
+                    NetBankingRefunds: $scope.TotalNetBankingRefunds,
+                    UPIRefunds: $scope.TotalUPIRefunds,
+                    AffordRefunds: $scope.TotalAffordRefunds,
+                    CashCancels: $scope.TotalCashCancels,
+                    CardCancels: $scope.TotalCardCancels,
+                    ChequeOtherCancels: $scope.TotalChequeOtherCancels,
+                    NetBankingCancels: $scope.TotalNetBankingCancels,
+                    UPICancels: $scope.TotalUPICancels,
+                    AffordCancels: $scope.TotalAffordCancels,
+                    ExpCashSales: $scope.TotalExpCashSales,
+                    ExpCardSales: $scope.TotalExpCardSales,
+                    ExpChequeOtherSales: $scope.TotalExpChequeOtherSales,
+                    ExpNetBankingSales: $scope.TotalExpNetBankingSales,
+                    ExpUPISales: $scope.TotalExpUPISales,
+                    ExpAffordSales: $scope.TotalExpAffordSales,
+                    NetCash: $scope.NetCash,
+                    NetCard: $scope.NetCard,
+                    NetChequeOther: $scope.NetChequeOther,
+                    NetNetBanking: $scope.NetNetBanking,
+                    NetUPI: $scope.NetUPI,
+                    NetAfford: $scope.NetAfford,
+                    NetSubmission: $scope.NetSubmission
+                }
+            };
+            $scope.$applyAsync();
+        };
+
+        var _origGetCounterInfoCallback = $scope.getCounterInfoCallback;
+        $scope.getCounterInfoCallback = function (scope, res, options, hasError) {
+            _origGetCounterInfoCallback(scope, res, options, hasError);
+            $scope.refreshReactProps();
+        };
+
+        var _origGetOPDGSalesListCallback = $scope.getOPDGSalesListCallback;
+        $scope.getOPDGSalesListCallback = function (scope, res, options, hasError) {
+            _origGetOPDGSalesListCallback(scope, res, options, hasError);
+            $scope.refreshReactProps();
+        };
+
+        var _origGetOPDGAdvanceAdjustmentListCallback = $scope.getOPDGAdvanceAdjustmentListCallback;
+        $scope.getOPDGAdvanceAdjustmentListCallback = function (scope, res, options, hasError) {
+            _origGetOPDGAdvanceAdjustmentListCallback(scope, res, options, hasError);
+            $scope.refreshReactProps();
+        };
+
+        var _origGetOPDGCancelsListCallback = $scope.getOPDGCancelsListCallback;
+        $scope.getOPDGCancelsListCallback = function (scope, res, options, hasError) {
+            _origGetOPDGCancelsListCallback(scope, res, options, hasError);
+            $scope.refreshReactProps();
+        };
+
+        var _origGetOPDGRefundsListCallback = $scope.getOPDGRefundsListCallback;
+        $scope.getOPDGRefundsListCallback = function (scope, res, options, hasError) {
+            _origGetOPDGRefundsListCallback(scope, res, options, hasError);
+            $scope.refreshReactProps();
+        };
+
+        var _origGetOPDGOutstandingListCallback = $scope.getOPDGOutstandingListCallback;
+        $scope.getOPDGOutstandingListCallback = function (scope, res, options, hasError) {
+            _origGetOPDGOutstandingListCallback(scope, res, options, hasError);
+            $scope.refreshReactProps();
+        };
+
+        var _origGetExpenseListCallback = $scope.getExpenseListCallback;
+        $scope.getExpenseListCallback = function (scope, res, options, hasError) {
+            _origGetExpenseListCallback(scope, res, options, hasError);
+            $scope.refreshReactProps();
+        };
+
+        var _origLookupCallback = $scope.lookupCallback;
+        $scope.lookupCallback = function (scope, data, options, hasError) {
+            _origLookupCallback(scope, data, options, hasError);
+            $scope.refreshReactProps();
+        };
+
+        var _origSaveItemCallback = $scope.saveItemCallback;
+        $scope.saveItemCallback = function (scope, data, options, hasError) {
+            _origSaveItemCallback(scope, data, options, hasError);
+            $scope.refreshReactProps();
+        };
+
+        $scope.handleReactAction = function (actionName, payload) {
+            payload = payload || {};
+            if (actionName === 'openingBalanceChange') {
+                $scope.item.OpeningBalance = payload.value;
+                $scope.refreshReactProps();
+            } else if (actionName === 'openingRemarksChange') {
+                $scope.item.OpeningRemarks = payload.value;
+                $scope.refreshReactProps();
+            } else if (actionName === 'billingCounterChange') {
+                $scope.item.BillingCounterId = payload.value;
+                $scope.refreshReactProps();
+            } else if (actionName === 'closingRemarksChange') {
+                $scope.item.ClosingRemarks = payload.value;
+                $scope.refreshReactProps();
+            } else if (actionName === 'approve') {
+                $scope.Approve();
+            } else if (actionName === 'authorize') {
+                $scope.Authorize();
+            } else if (actionName === 'print') {
+                $scope.print();
+            } else if (actionName === 'back') {
+                $scope.backToList();
+            }
+        };
+
         $scope.initLookup();
     }
 
