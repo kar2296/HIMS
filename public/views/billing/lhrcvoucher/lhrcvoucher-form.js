@@ -246,6 +246,123 @@
             utl.Http.doAction(options);
         }
 
+        // ---------------------------------------------------------------
+        // REACT BRIDGE (UI-MODERNIZATION RETROFIT, Billing / LHRC Voucher
+        // form, app.lhrcvoucherform). AngularJS still owns all real state
+        // and logic below -- GetLHRCVoucherById/AddLHRCVoucher/
+        // UpdateLHRCVoucher/PrintLHRCVoucher calls, applyVisibilityRules,
+        // and the modal open/confirm lifecycle. This block only mirrors
+        // state into $scope.reactProps and routes UI interactions back
+        // here by action name via handleReactAction. VoucherDate/
+        // CollectedOn/ChequeDate/DDDate/WireTransferDate are real JS Date
+        // objects -- converted to/from an ISO yyyy-mm-dd string only at
+        // this boundary, exactly like every other DatePicker-backed
+        // bridge in this codebase.
+        //
+        // VALIDATION FIDELITY: utl.Validator.validate($scope) (called by
+        // saveItem) reads $scope.item_form.$valid, which AngularJS only
+        // populates for a real, still-present <form name="item_form">
+        // with real ng-model-bound validated controls. The visible UI for
+        // every validated field (Voucher Date, Bank Name, Cheque No, DD
+        // No, Wire Transfer No, Authorized Code, Terminal No, Card Type,
+        // Amount, Mobile) is rebuilt in React below, so lhrcvoucher-form.html
+        // keeps the real <form name="item_form"> element plus a hidden
+        // (display:none), non-visual block of the ORIGINAL native
+        // ng-model/required/ng-pattern/ng-minlength controls for those
+        // same fields, so item_form.$valid keeps being computed by the
+        // real, unmodified Angular validators -- not reimplemented here.
+        function toIsoDate(d) {
+            if (!d) return '';
+            var dateObj = (d instanceof Date) ? d : new Date(d);
+            if (isNaN(dateObj.getTime())) return '';
+            var mm = ('0' + (dateObj.getMonth() + 1)).slice(-2);
+            var dd = ('0' + dateObj.getDate()).slice(-2);
+            return dateObj.getFullYear() + '-' + mm + '-' + dd;
+        }
+
+        $scope.refreshReactProps = function () {
+            $scope.reactProps = {
+                item: angular.extend({}, $scope.item, {
+                    VoucherDate: toIsoDate($scope.item.VoucherDate),
+                    CollectedOn: toIsoDate($scope.item.CollectedOn),
+                    ChequeDate: toIsoDate($scope.item.ChequeDate),
+                    DDDate: toIsoDate($scope.item.DDDate),
+                    WireTransferDate: toIsoDate($scope.item.WireTransferDate)
+                }),
+                lookup: $scope.lookup || {},
+                canShowSave: $scope.CanShowSave,
+                canShowSaveAndApprove: $scope.CanShowSaveandApprove,
+                canShowCancel: $scope.CanShowCancel
+            };
+        };
+
+        var _origGetItemCallback = $scope.getItemCallback;
+        $scope.getItemCallback = function (scope, data, options, hasError) {
+            _origGetItemCallback(scope, data, options, hasError);
+            $scope.refreshReactProps();
+            $scope.$applyAsync();
+        };
+
+        var _origLookupCallback = $scope.lookupCallback;
+        $scope.lookupCallback = function (scope, data, options, hasError) {
+            _origLookupCallback(scope, data, options, hasError);
+            $scope.refreshReactProps();
+            $scope.$applyAsync();
+        };
+
+        $scope.handleReactAction = function (actionName, payload) {
+            var v = payload && payload.value;
+            if (actionName === 'voucherDateChange') {
+                $scope.item.VoucherDate = v ? new Date(v) : null;
+            } else if (actionName === 'voucherTypeChange') {
+                $scope.item.VoucherTypeId = v;
+            } else if (actionName === 'paymentTypeChange') {
+                $scope.item.PaymentTypeId = v;
+            } else if (actionName === 'bankChange') {
+                $scope.item.BankId = v;
+            } else if (actionName === 'chequeNoChange') {
+                $scope.item.ChequeNo = v;
+            } else if (actionName === 'ddNumberChange') {
+                $scope.item.DDNumber = v;
+            } else if (actionName === 'wireTransferIdChange') {
+                $scope.item.WireTransferId = v;
+            } else if (actionName === 'authorizeNumberChange') {
+                $scope.item.AuthorizeNumber = v;
+            } else if (actionName === 'collectedOnChange') {
+                $scope.item.CollectedOn = v ? new Date(v) : '';
+            } else if (actionName === 'terminalChange') {
+                $scope.item.TerminalNoId = v;
+            } else if (actionName === 'chequeDateChange') {
+                $scope.item.ChequeDate = v ? new Date(v) : '';
+            } else if (actionName === 'ddDateChange') {
+                $scope.item.DDDate = v ? new Date(v) : '';
+            } else if (actionName === 'wireTransferDateChange') {
+                $scope.item.WireTransferDate = v ? new Date(v) : '';
+            } else if (actionName === 'cardTypeChange') {
+                $scope.item.CardTypeId = v;
+            } else if (actionName === 'ambulanceNameChange') {
+                $scope.item.AmbulanceName = v;
+            } else if (actionName === 'driverNameChange') {
+                $scope.item.DriverName = v;
+            } else if (actionName === 'vehicleNameChange') {
+                $scope.item.VehicleName = v;
+            } else if (actionName === 'payToChange') {
+                $scope.item.PayTo = v;
+            } else if (actionName === 'amountChange') {
+                $scope.item.VoucherAmount = v;
+            } else if (actionName === 'remarksChange') {
+                $scope.item.Remarks = v;
+            } else if (actionName === 'mobileChange') {
+                $scope.item.Mobile = v;
+            } else if (actionName === 'createdByChange') {
+                $scope.item.CreatedBy = v;
+            } else if (typeof $scope[actionName] === 'function') {
+                $scope[actionName]();
+            }
+            $scope.refreshReactProps();
+            $scope.$applyAsync();
+        };
+
         $scope.initLookup();
     }
 
