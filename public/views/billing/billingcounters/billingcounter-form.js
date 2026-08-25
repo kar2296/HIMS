@@ -942,6 +942,96 @@
             utl.Http.doAction(options);
         };
 
+        $scope.refreshReactProps = function () {
+            $scope.reactProps = {
+                item: $scope.item,
+                currentcontext: $scope.currentcontext,
+                lookup: $scope.lookup,
+                DefinedDenominations: $scope.DefinedDenominations,
+                CounterRunning: $scope.CounterRunning,
+                canShowStartBtn: $scope.canShowStartBtn,
+                canShowCloseBtn: $scope.canShowCloseBtn,
+                canShowRevertBtn: $scope.canShowRevertBtn,
+                canShowSaveBtn: $scope.canShowSaveBtn,
+                canShowSubmitBtn: $scope.canShowSubmitBtn,
+                canShowPrintBtn: $scope.canShowPrintBtn
+            };
+            $scope.$applyAsync();
+        };
+
+        var _origLookupCallback = $scope.lookupCallback;
+        $scope.lookupCallback = function (scope, data, options, hasError) {
+            _origLookupCallback(scope, data, options, hasError);
+            $scope.refreshReactProps();
+        };
+
+        var _origCheckCounterStatusCallback = $scope.checkCounterStatusCallback;
+        $scope.checkCounterStatusCallback = function (scope, res, options, hasError) {
+            _origCheckCounterStatusCallback(scope, res, options, hasError);
+            $scope.refreshReactProps();
+        };
+
+        var _origGetCounterInfoCallback = $scope.getCounterInfoCallback;
+        $scope.getCounterInfoCallback = function (scope, res, options, hasError) {
+            _origGetCounterInfoCallback(scope, res, options, hasError);
+            $scope.refreshReactProps();
+        };
+
+        var _origCalculateTotal = $scope.CalculateTotal;
+        $scope.CalculateTotal = function (item) {
+            _origCalculateTotal(item);
+            $scope.refreshReactProps();
+        };
+
+        var _origCalculateNetTotal = $scope.CalculateNetTotal;
+        $scope.CalculateNetTotal = function () {
+            _origCalculateNetTotal();
+            $scope.refreshReactProps();
+        };
+
+        var _origSaveItemCallback = $scope.saveItemCallback;
+        $scope.saveItemCallback = function (scope, data, options, hasError) {
+            _origSaveItemCallback(scope, data, options, hasError);
+            $scope.refreshReactProps();
+        };
+
+        $scope.handleReactAction = function (actionName, payload) {
+            payload = payload || {};
+            if (actionName === 'counterChange') {
+                $scope.item.BillingCounterId = payload.value;
+                $scope.refreshReactProps();
+            } else if (actionName === 'openingBalanceChange') {
+                $scope.item.OpeningBalance = payload.value;
+                $scope.refreshReactProps();
+            } else if (actionName === 'openingRemarksChange') {
+                $scope.item.OpeningRemarks = payload.value;
+                $scope.refreshReactProps();
+            } else if (actionName === 'closingRemarksChange') {
+                $scope.item.ClosingRemarks = payload.value;
+                $scope.refreshReactProps();
+            } else if (actionName === 'denominationCountChange') {
+                var denomitem = $scope.DefinedDenominations[payload.index];
+                if (denomitem) {
+                    denomitem.DenominationCount = payload.value;
+                    $scope.CalculateTotal(denomitem);
+                }
+            } else if (actionName === 'start') {
+                $scope.Start();
+            } else if (actionName === 'close') {
+                $scope.Close();
+            } else if (actionName === 'revert') {
+                $scope.Revert();
+            } else if (actionName === 'save') {
+                $scope.Save();
+            } else if (actionName === 'submit') {
+                $scope.Submit();
+            } else if (actionName === 'print') {
+                $scope.print();
+            } else if (actionName === 'back') {
+                $scope.backToList();
+            }
+        };
+
         $scope.initLookup();
     }
 
