@@ -231,6 +231,74 @@
             utl.Http.doAction(options);
         }
 
+        // ---------------------------------------------------------------
+        // REACT BRIDGE (UI-modernization retrofit, Billing / Credit Note
+        // list, app.creditnotes). AngularJS still owns all real state
+        // and logic below -- this block only mirrors it into
+        // $scope.reactProps and routes UI interactions back here by
+        // action name via handleReactAction. No business logic was
+        // changed. The real "Fetch" advanced-filter popover
+        // (utl.Modal.openDynamicForm) is NOT ported to React -- it
+        // stays a native AngularJS-rendered popover, opened by falling
+        // through to the real $scope.openAdvancedFilter() unchanged.
+        $scope.refreshReactProps = function () {
+            $scope.reactProps = {
+                items: (vm.gridConfig && vm.gridConfig.data) || [],
+                pagerObj: (vm.gridConfig && vm.gridConfig.pagerObj) || {},
+                currentfilter: {
+                    CreditNoteIdentifier: $scope.currentfilter.CreditNoteIdentifier,
+                    name: $scope.currentfilter.name,
+                    CreditNoteTypeId: $scope.currentfilter.CreditNoteTypeId,
+                    CreditNoteStatusId: $scope.currentfilter.CreditNoteStatusId
+                },
+                lookup: $scope.lookup || {}
+            };
+        };
+
+        var _origGetListCallback = $scope.getListCallback;
+        $scope.getListCallback = function (scope, res, options, hasError) {
+            _origGetListCallback(scope, res, options, hasError);
+            $scope.refreshReactProps();
+            $scope.$applyAsync();
+        };
+
+        var _origLookupCallback = $scope.lookupCallback;
+        $scope.lookupCallback = function (scope, data, options, hasError) {
+            _origLookupCallback(scope, data, options, hasError);
+            $scope.refreshReactProps();
+            $scope.$applyAsync();
+        };
+
+        $scope.refreshReactProps();
+
+        $scope.handleReactAction = function (actionName, payload) {
+            if (actionName === 'search') {
+                $scope.currentfilter.CreditNoteIdentifier = payload && payload.CreditNoteIdentifier;
+                $scope.currentfilter.name = payload && payload.name;
+                vm.gridConfig.pagerObj.currentPage = 1;
+                $scope.getList();
+            } else if (actionName === 'typeFilterChange') {
+                $scope.currentfilter.CreditNoteTypeId = payload ? payload.value : undefined;
+                vm.gridConfig.pagerObj.currentPage = 1;
+                $scope.getList();
+            } else if (actionName === 'statusFilterChange') {
+                $scope.currentfilter.CreditNoteStatusId = payload ? payload.value : undefined;
+                vm.gridConfig.pagerObj.currentPage = 1;
+                $scope.getList();
+            } else if (actionName === 'pageChange') {
+                vm.gridConfig.pagerObj.currentPage = payload && payload.page;
+                $scope.getList();
+            } else if (actionName === 'view' || actionName === 'edit' || actionName === 'delete') {
+                $scope.handleEvents(actionName, { entity: payload });
+            } else if (actionName === 'patientinfo') {
+                $scope.patientprofiledetails(payload);
+            } else if (typeof $scope[actionName] === 'function') {
+                $scope[actionName]();
+            }
+            $scope.refreshReactProps();
+            $scope.$applyAsync();
+        };
+
         $scope.initLookup();
     }
 
