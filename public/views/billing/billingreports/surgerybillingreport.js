@@ -50,6 +50,27 @@
             // }
         }
 
+        // ---- React bridge (UI-MODERNIZATION RETROFIT) ----
+        // No async data here -- visibility of each report row is privilege-
+        // gated via the real HasAccess() (utl.Ctrl.getPrivilegeCtrl), called
+        // here and passed through as booleans rather than reimplemented.
+        $scope.refreshReactProps = function () {
+            $scope.reactProps = {
+                canOtScheduleReport: $scope.HasAccess('Surgeryreports', 'otschedulereport'),
+                canSurgeryEntry: $scope.HasAccess('Surgeryreports', 'surgeryentry'),
+                canSurgerySummaryByProcedure: $scope.HasAccess('Surgeryreports', 'surgerysummarybyprocedure')
+            };
+        };
+        $scope.refreshReactProps();
+
+        $scope.handleReactAction = function (actionName) {
+            if (typeof $scope[actionName] === 'function') {
+                $scope[actionName]();
+            }
+            $scope.refreshReactProps();
+            $scope.$applyAsync();
+        };
+
     }
     SurgeryBillingReportController.$inject = ['$scope', '$filter', '$stateParams', '$state', '$translate', 'utl'];
 
