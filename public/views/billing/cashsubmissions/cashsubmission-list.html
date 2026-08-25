@@ -3,20 +3,58 @@
         height: 40px;
     }
 </style>
-<div class="row">
-    <h4 class="col-sm-5 mt0" translate="billing.cashsubmissions.pagetitle.lbl"></h4>
-    <div class="col-sm-7">
-        <div class="filters">
-            <button class="drhms-billing-btn drhms-previousbill-btn" ng-click="openAdvancedFilter()"
-                uib-tooltip="{{ '  clinicalmaster.serviceitem-list.filter-tooltip.lbl' | translate }}"
-                tooltip-placement="bottom">
-                <i class="fas fa-search" aria-hidden="true"></i>
-                <!-- <span translate="clinicalmaster.serviceitem-list.filter.lbl"></span> -->
-            </button>
-        </div>
-    </div>
-</div>
 
+<!--
+UI-MODERNIZATION RETROFIT (Billing / Cash Submissions List,
+app.cashsubmission-list, CashSubmissionListController). HYBRID bridge:
+full investigation of this 262-line controller and 100-line template
+confirmed no utl.Validator.validate($scope) call, but the User filter
+field uses the real, native <autosearch> directive (a native-only
+shared widget backed by vm.usercontrolconfig's live
+SystemSettings/User/GetUsers search) which cannot run inside a React
+subtree -- so per the established single-mount criterion this screen
+does NOT qualify for a single mount. The <autosearch> element and its
+wrapping markup are kept exactly as-is, native AngularJS; TWO
+<react-component> mounts replace everything else: the page header +
+advance-filter button (BillingCashSubmissionHeaderScreen), and the
+remaining filter fields + results table + pagination
+(BillingCashSubmissionListScreen). AngularJS remains authoritative for
+the real billing/userbillingcounters/GetBillingCounters list API call,
+General/Options/getoptions lookup call, the genuinely-live
+openAdvancedFilter() modal (utl.Modal.openDynamicForm, untouched --
+not reimplemented here), and handleEvents() state transitions to
+app.cashsubmission-form. The native <autosearch itemid="currentfilter.UserId">
+continues to two-way-bind $scope.currentfilter.UserId and call the
+real itemchange="getList()" exactly as before; React never touches
+UserId. React only renders reactProps and dispatches action names via
+handleReactAction; no business logic is reimplemented in React.
+
+Confirmed pre-existing quirks/dead-code, preserved exactly (not
+"fixed"):
+- The advance-filter button's tooltip binds
+  "{{ '  clinicalmaster.serviceitem-list.filter-tooltip.lbl' | translate }}"
+  -- note the two leading spaces INSIDE the string literal, making
+  this an already-malformed translation key that cannot match any
+  real i18n entry (unlike the same borrowed-key quirk seen elsewhere,
+  which at least matched a real, if wrong, key). Reproduced verbatim
+  as a literal tooltip string, including the leading spaces. The
+  button's label <span translate="clinicalmaster.serviceitem-list.filter.lbl">
+  was already HTML-commented out in the original -- the button has
+  never shown visible text, icon only.
+- <autosearch>'s onenter="onEnter(data)" references an $scope.onEnter
+  that does not exist anywhere in this controller -- dead/broken
+  wiring, left exactly as-is since the native element is untouched.
+- The grid's only action is "edit" (pencil icon, unconditional --
+  unlike the sibling billingcounter-list, there is no status-based
+  show/hide gating here); there is no view or delete affordance.
+- vm.usercontrolconfig's formatselecteduser() references
+  $scope.item.UserTypeId, but this controller has no $scope.item
+  anywhere -- a latent dead-code path inside the (genuinely used)
+  autosearch config, reachable only if a result is ever selected via
+  that specific branch; left untouched since it lives entirely inside
+  the native autosearch directive's own config object.
+-->
+<react-component name="BillingCashSubmissionHeaderScreen" props="{ reactProps: reactProps, onAction: handleReactAction }"></react-component>
 <div class="row">
     <div class="col-sm-4 form-group">
         <label class="col-sm-4" for="username" translate="billing.cashsubmissions.username.lbl"></label>
@@ -25,77 +63,5 @@
                 onenter="onEnter(data)" itemchange="getList()"></autosearch>
         </div>
     </div>
-    <div class="col-sm-4 form-group">
-        <label class="col-sm-4" for="billingcounter" translate="billing.cashsubmissions.billingcounters.lbl"></label>
-        <div class="col-sm-8">
-            <ui-select ng-model="currentfilter.BillingCounterId" name="billingcounter" ng-change="getList()">
-                <ui-select-match>
-                    {{$select.selected.Text | limitTo : 20 : 0}}
-                    <span ng-if="$select.selected.Text.length>20">...</span>
-                </ui-select-match>
-                <ui-select-choices
-                    repeat="lookupitem.Id as lookupitem in lookup.BillingCounter | filter: { Text: $select.search }">
-                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
-                </ui-select-choices>
-            </ui-select>
-        </div>
-    </div>
-    <div class="col-sm-4 form-group">
-        <label class="col-sm-4" translate="billing.cashsubmissions.documentnumber.lbl"></label>
-        <div class="col-sm-8">
-            <input type="text" class="form-control" on-enter="getList()" ng-model="currentfilter.DocumentNumber"
-                placeholder="Document No#">
-        </div>
-    </div>
-    <div class="col-sm-4 form-group">
-        <label class="col-sm-4" for="documentdate" translate="billing.cashsubmissions.documentdate.lbl"></label>
-        <div class="col-sm-8">
-            <input type="text" class="form-control" name="documentdate" ng-change="getList()"
-                datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}"
-                uib-datepicker-popup="{{datePickerOptions.dateFormat}}" placeholder="{{datePickerOptions.placeholder}}"
-                ng-click="documentdatePopup = { opened: true }" is-open="documentdatePopup.opened"
-                ng-model="currentfilter.DocumentDate">
-        </div>
-    </div>
-    <div class="col-sm-4 form-group">
-        <label class="col-sm-4" for="department" translate="billing.cashsubmissions.departments.lbl"></label>
-        <div class="col-sm-8">
-            <ui-select ng-model="currentfilter.DepartmentId" ng-change="getList()" name="department" required>
-                <ui-select-match>
-                    {{$select.selected.Text | limitTo : 20 : 0}}
-                    <span ng-if="$select.selected.Text.length>20">...</span>
-                </ui-select-match>
-                <ui-select-choices
-                    repeat="lookupitem.Id as lookupitem in lookup.Department | filter: { Text: $select.search }">
-                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
-                </ui-select-choices>
-            </ui-select>
-        </div>
-    </div>
-    <div class="col-sm-4 form-group">
-        <label class="col-sm-4" for="billingcounterstatus"
-            translate="billing.cashsubmissions.documentstatus.lbl"></label>
-        <div class="col-sm-8">
-            <ui-select ng-model="currentfilter.BillingCounterStatusId" ng-change="getList()" class="filter-combo">
-                <ui-select-match>
-                    {{$select.selected.Text | limitTo : 8 : 0}}
-                    <span ng-if="$select.selected.Text.length>8">...</span>
-                </ui-select-match>
-                <ui-select-choices
-                    repeat="lookupitem.Id as lookupitem in lookup.BillingCounterStatus | filter: { Text: $select.search }">
-                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
-                </ui-select-choices>
-            </ui-select>
-        </div>
-    </div>
-</div>
-<div class="row">
-    <custom-table config="vm.gridConfig"></custom-table>
-</div>
-<div class="fooder-bgs">
-    <div class="row">
-        <ul uib-pagination total-items="vm.gridConfig.pagerObj.totalItems"
-            items-per-page="vm.gridConfig.pagerObj.pageSize" start-index="vm.gridConfig.pagerObj.startIndex"
-            ng-model="vm.gridConfig.pagerObj.currentPage" ng-change="getList()"></ul>
-    </div>
+<react-component name="BillingCashSubmissionListScreen" props="{ reactProps: reactProps, onAction: handleReactAction }"></react-component>
 </div>

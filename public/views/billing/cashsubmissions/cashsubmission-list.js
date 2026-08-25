@@ -255,6 +255,57 @@
             utl.Http.doAction(options);
         };
 
+        $scope.refreshReactProps = function () {
+            $scope.reactProps = {
+                currentfilter: $scope.currentfilter,
+                lookup: $scope.lookup,
+                submissions: vm.gridConfig.data,
+                pager: vm.gridConfig.pagerObj
+            };
+            $scope.$applyAsync();
+        };
+
+        var _origGetListCallback = $scope.getListCallback;
+        $scope.getListCallback = function (scope, data, options, hasError) {
+            _origGetListCallback(scope, data, options, hasError);
+            $scope.refreshReactProps();
+        };
+
+        var _origLookupCallback = $scope.lookupCallback;
+        $scope.lookupCallback = function (scope, data, options, hasError) {
+            _origLookupCallback(scope, data, options, hasError);
+            $scope.refreshReactProps();
+        };
+
+        $scope.handleReactAction = function (actionName, payload) {
+            payload = payload || {};
+            if (actionName === 'billingCounterChange') {
+                $scope.currentfilter.BillingCounterId = payload.value;
+                $scope.getList();
+            } else if (actionName === 'documentNumberChange') {
+                $scope.currentfilter.DocumentNumber = payload.value;
+                $scope.refreshReactProps();
+            } else if (actionName === 'search') {
+                $scope.getList();
+            } else if (actionName === 'documentDateChange') {
+                $scope.currentfilter.DocumentDate = payload.value ? new Date(payload.value) : null;
+                $scope.getList();
+            } else if (actionName === 'departmentChange') {
+                $scope.currentfilter.DepartmentId = payload.value;
+                $scope.getList();
+            } else if (actionName === 'statusChange') {
+                $scope.currentfilter.BillingCounterStatusId = payload.value;
+                $scope.getList();
+            } else if (actionName === 'openAdvancedFilter') {
+                $scope.openAdvancedFilter();
+            } else if (actionName === 'edit') {
+                $scope.handleEvents('edit', payload.entity);
+            } else if (actionName === 'pageChange') {
+                vm.gridConfig.pagerObj.currentPage = payload.page;
+                $scope.getList();
+            }
+        };
+
         $scope.initLookup();
     }
 
