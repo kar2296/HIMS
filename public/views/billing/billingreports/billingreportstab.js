@@ -58,6 +58,34 @@
                 $state.go(tab.state);
             }
         }
+
+        // ---- React bridge (UI-MODERNIZATION RETROFIT) ----
+        // This controller has no async data -- $scope.tabs is a static list
+        // computed once above. AngularJS ui-router remains authoritative for
+        // routing/nested-view rendering (the real <div ui-view> is untouched
+        // native markup in billingreportstab.html); this bridge only mirrors
+        // the tab bar into reactProps and dispatches back onto the real,
+        // unchanged $scope.switchTab/addNew (including switchTab's existing
+        // real behavior of ignoring the click entirely whenever canDisableTab
+        // is true, even for the nominally-enabled first tab -- reproduced
+        // automatically since this dispatches straight through to the real
+        // function rather than reimplementing its logic).
+        $scope.refreshReactProps = function () {
+            $scope.reactProps = {
+                tabs: $scope.tabs,
+                currentState: $state.current.name
+            };
+        };
+        $scope.refreshReactProps();
+
+        $scope.handleReactAction = function (actionName, payload) {
+            if (typeof $scope[actionName] === 'function') {
+                $scope[actionName](payload);
+            }
+            $scope.refreshReactProps();
+            $scope.$applyAsync();
+        };
+
     }
 
     BillingReportTabController.$inject = ['$rootScope','$scope', '$stateParams', '$state', '$translate', '$timeout'];

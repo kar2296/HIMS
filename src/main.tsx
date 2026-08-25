@@ -340,6 +340,7 @@ import { BillingCreditNoteListScreen } from './react-components/BillingCreditNot
 import { BillingCreditNoteFormScreen } from './react-components/BillingCreditNoteFormScreen';
 import { BillingCnPickerScreen } from './react-components/BillingCnPickerScreen';
 import { BillingOutstandingBillPickerScreen } from './react-components/BillingOutstandingBillPickerScreen';
+import { BillingReportsTabScreen } from './react-components/BillingReportsTabScreen';
 
 // Register components globally so the AngularJS bridge can find them
 (window as any).ReactComponents = {
@@ -474,7 +475,8 @@ import { BillingOutstandingBillPickerScreen } from './react-components/BillingOu
   BillingCreditNoteListScreen,
   BillingCreditNoteFormScreen,
   BillingCnPickerScreen,
-  BillingOutstandingBillPickerScreen
+  BillingOutstandingBillPickerScreen,
+  BillingReportsTabScreen
 };
 
 console.log('React runtime and components loaded. ReactBridge initialized.');
