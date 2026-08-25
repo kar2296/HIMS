@@ -52,96 +52,54 @@
     font-size: 18px !important;
     }
 </style>
-<div class="row page-header">
-    <div class="col-sm-12">
-        <div class="col-sm-5">
-            <h4 class="page-header mt0" translate="billing.billingcounters.pagetitle.lbl"></h4>
-        </div>
-        <div class="col-sm-7">
-            <div class="filters">
-                <button class="btn-add" ng-click="addNew()"
-                    uib-tooltip="{{ 'billing.billingcounters.addnew-tooltip.lbl' | translate }}"
-                    tooltip-placement="bottom">
-                    <i class="fa fa-plus" aria-hidden="true"></i>
-                </button>
-                <button class="btn-add" ng-click="openAdvancedFilter()"
-                    uib-tooltip="{{ 'clinicalmaster.serviceitem-list.filter-tooltip.lbl' | translate }}"
-                    tooltip-placement="bottom">
-                    <i class="fas fa-search" aria-hidden="true"></i>&nbsp;&nbsp;
-                    <span translate="clinicalmaster.serviceitem-list.filter.lbl"></span>
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row">
-    <div class="col-sm-12">
-        <table id="bannerdetails">
-            <tr>
-                <td>
-                    <label class="control-label" for="billingcounter"
-                        translate="billing.billingcounters.billingcounters.lbl"></label>
-                </td>
-                <td>
-                    <ui-select ng-model="currentfilter.BillingCounterId" name="billingcounter" ng-change="getList()">
-                        <ui-select-match>
-                            {{$select.selected.Text | limitTo : 8 : 0}}
-                            <span ng-if="$select.selected.Text.length>8">...</span>
-                        </ui-select-match>
-                        <ui-select-choices
-                            repeat="lookupitem.Id as lookupitem in lookup.BillingCounter | filter: { Text: $select.search }">
-                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
-                        </ui-select-choices>
-                    </ui-select>
-                </td>
-                <td><label class="control-label" for="billingcounterstatus"
-                        translate="billing.billingcounters.documentstatus.lbl"></label>
-                </td>
-                <td>
-                    <ui-select ng-model="currentfilter.BillingCounterStatusId" ng-change="getList()"
-                        class="filter-combo">
-                        <ui-select-match>
-                            {{$select.selected.Text | limitTo : 8 : 0}}
-                            <span ng-if="$select.selected.Text.length>8">...</span>
-                        </ui-select-match>
-                        <ui-select-choices
-                            repeat="lookupitem.Id as lookupitem in lookup.BillingCounterStatus | filter: { Text: $select.search }">
-                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
-                        </ui-select-choices>
-                    </ui-select>
-                </td>
-                <td><label class="control-label" for="documentdate"
-                        translate="billing.billingcounters.documentdate.lbl"></label>
-                </td>
-                <td>
-                    <input type="text" class="form-control" name="documentdate" ng-change="getList()"
-                        datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}"
-                        uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
-                        placeholder="{{datePickerOptions.placeholder}}" ng-click="documentdatePopup = { opened: true }"
-                        is-open="documentdatePopup.opened" ng-model="currentfilter.DocumentDate">
-                </td>
-                <td> <label class="control-label filter-lbl"
-                        translate="billing.billingcounters.documentnumber.lbl"></label></td>
-                <td>
-                    <input type="text" class="form-control" on-enter="getList()" ng-model="currentfilter.DocumentNumber"
-                        placeholder="Document No#">
+<!--
+UI-MODERNIZATION RETROFIT (Billing / Billing Counters List,
+app.billingcounter-list, BillingCounterListController). Single-mount
+React replacement: full investigation of this 274-line controller and
+146-line template confirmed no native-only widgets and no
+utl.Validator.validate($scope) call, and the grid is already rendered
+via <custom-table config="vm.gridConfig"> (not native ui-grid) with row
+selection never enabled -- so per the established single-mount
+criterion this is ONE <react-component>, not a hybrid split (same
+design as the sibling billing/bankstatement/bankstatementlist.js,
+which this controller is structurally near-identical to).
 
-                </td>
+AngularJS remains authoritative for the real
+billing/userbillingcounters/GetUserBillingCounterWithoutDenominations
+list API call, General/Options/getoptions lookup call, the
+genuinely-live openAdvancedFilter() modal (utl.Modal.openDynamicForm,
+untouched -- not reimplemented here), and addNew()/handleEvents()
+state transitions to app.billingcounter-form (id/userbillingcounterid
+both set to entity.Id for both 'view' and 'edit'). React only renders
+reactProps and dispatches action names via handleReactAction; no
+business logic is reimplemented in React.
 
-            </tr>
-        </table>
-    </div>
-</div>
-
-
-
-<custom-table config="vm.gridConfig"></custom-table>
-<div class="container-fluid single-filter">
-    <div class="fooder-bgs">
-        <div class="row">
-            <ul uib-pagination total-items="vm.gridConfig.pagerObj.totalItems"
-                items-per-page="vm.gridConfig.pagerObj.pageSize" start-index="vm.gridConfig.pagerObj.startIndex"
-                ng-model="vm.gridConfig.pagerObj.currentPage" ng-change="getList()"></ul>
-        </div>
-    </div>
-</div>
+Confirmed pre-existing quirks/dead-code, preserved exactly (not
+"fixed"):
+- The advanced-filter button borrows clinicalmaster's
+  serviceitem-list.filter-tooltip.lbl/filter.lbl ("Advance
+  Search"/"Fetch") instead of this module's own, correctly-named
+  billing.billingcounters.advancefilter-tooltip.lbl ("Advance
+  Filter") -- a real, pre-existing translate-key mismatch. Reproduced
+  verbatim.
+- The Document No# input's placeholder is the literal string
+  "Document No#", not translated via the i18n key. Reproduced
+  verbatim.
+- The grid's actions column shows a "view" (eye) icon only when
+  BillingCounterStatusId is 3, 4, or 5, and an "edit" (pencil) icon
+  only when it is 1 or 2 -- both navigate to the identical
+  app.billingcounter-form state. There is no delete affordance
+  anywhere in this template.
+- $scope.deleteItemCallback/$scope.onDeleteConfirmed are declared in
+  the controller but never wired to any UI control (no delete action
+  exists in the grid's cellTemplate) -- dead code. onDeleteConfirmed
+  additionally calls the wrong domain's API action
+  ("pharmacy/purchaseorder/DeletePurchaseOrder", not a billing-counter
+  endpoint), confirming this is unreachable copy-paste residue, not a
+  real capability. Not reproduced in React.
+- vm.usercontrolconfig and its formatselecteduser/presearchuser/
+  postsearchuser helpers are declared but never referenced by any
+  element in this template (no <user-control> tag present) -- dead
+  code, not reproduced in React.
+-->
+<react-component name="BillingCounterListScreen" props="{ reactProps: reactProps, onAction: handleReactAction }"></react-component>
