@@ -229,6 +229,31 @@
             // }
         }
 
+        // ---- React bridge (UI-MODERNIZATION RETROFIT) ----
+        // No async data here -- visibility of each of the three real report
+        // rows is privilege-gated via the real HasAccess()
+        // (utl.Ctrl.getPrivilegeCtrl), called here and passed through as
+        // booleans rather than reimplemented. The ~52 other $state.go
+        // functions on this controller have no UI trigger in the real
+        // template and are intentionally not covered by this bridge -- see
+        // the disclosure comment in BillingMasterReportScreen.tsx.
+        $scope.refreshReactProps = function () {
+            $scope.reactProps = {
+                canBillingService: $scope.HasAccess('Masterreports', 'billingservice'),
+                canBillingGroup: $scope.HasAccess('Masterreports', 'billingGroup'),
+                canBillingPackage: $scope.HasAccess('Masterreports', 'billingpackage')
+            };
+        };
+        $scope.refreshReactProps();
+
+        $scope.handleReactAction = function (actionName) {
+            if (typeof $scope[actionName] === 'function') {
+                $scope[actionName]();
+            }
+            $scope.refreshReactProps();
+            $scope.$applyAsync();
+        };
+
     }
     MasterBillingReportController.$inject = ['$scope', '$filter', '$stateParams', '$state', '$translate', 'utl'];
 
