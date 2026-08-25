@@ -391,6 +391,95 @@
             utl.Http.doAction(options);
         }
 
+
+        // ---- React bridge (UI-MODERNIZATION RETROFIT) ----
+        // AngularJS remains authoritative for all data/business logic in this
+        // controller; this section only mirrors state into reactProps and
+        // dispatches UI actions from BillingCreditNoteFormScreen back onto the
+        // real, unchanged $scope functions/fields. The bottom action bar
+        // (Back/CN Status/Refund/printcontrol/Save & Approve/Clear) is left as
+        // native AngularJS markup in creditnote-form.html and is NOT covered
+        // by this bridge -- see the disclosure comment in
+        // BillingCreditNoteFormScreen.tsx for the full rationale.
+        function toIsoDate(d) {
+            if (!d) return '';
+            var dt = (d instanceof Date) ? d : new Date(d);
+            if (isNaN(dt.getTime())) return '';
+            var mm = ('0' + (dt.getMonth() + 1)).slice(-2);
+            var dd = ('0' + dt.getDate()).slice(-2);
+            return dt.getFullYear() + '-' + mm + '-' + dd;
+        }
+
+        $scope.refreshReactProps = function () {
+            $scope.reactProps = {
+                item: angular.extend({}, $scope.item, { CreditNoteDateTime: toIsoDate($scope.item.CreditNoteDateTime) }),
+                patientAge: ($scope.PatientBillInfo && $scope.PatientBillInfo[0] && $scope.PatientBillInfo[0].Patient) ? $scope.PatientBillInfo[0].Patient.Age : undefined,
+                patientAlertsCount: $scope.currentcontext.patientAlertsCount,
+                creditNoteDetails: $scope.CreditNoteDetails,
+                lookup: $scope.lookup
+            };
+        };
+
+        var _origGetItemCallback = $scope.getItemCallback;
+        $scope.getItemCallback = function (scope, data, options, hasError) {
+            _origGetItemCallback(scope, data, options, hasError);
+            $scope.refreshReactProps();
+            $scope.$applyAsync();
+        };
+
+        var _origGetBillInfoCallback = $scope.getBillInfoCallback;
+        $scope.getBillInfoCallback = function (scope, res, options, hasError) {
+            _origGetBillInfoCallback(scope, res, options, hasError);
+            $scope.refreshReactProps();
+            $scope.$applyAsync();
+        };
+
+        var _origLookupCallback = $scope.lookupCallback;
+        $scope.lookupCallback = function (scope, data, options, hasError) {
+            _origLookupCallback(scope, data, options, hasError);
+            $scope.refreshReactProps();
+            $scope.$applyAsync();
+        };
+
+        $scope.handleReactAction = function (actionName, payload) {
+            switch (actionName) {
+                case 'rowEditableChange':
+                    $scope.CreditNoteDetails[payload.index].IsEditable = payload.value;
+                    break;
+                case 'rowTypeChange':
+                    $scope.CreditNoteDetails[payload.index].CreditNoteTypeId = payload.value;
+                    $scope.getCreditNoteType($scope.CreditNoteDetails[payload.index]);
+                    break;
+                case 'rowAmountChange':
+                    $scope.CreditNoteDetails[payload.index].CreditNoteAmount = payload.value;
+                    $scope.calCreditAmount(payload.index);
+                    break;
+                case 'rowCommentsChange':
+                    $scope.CreditNoteDetails[payload.index].Comments = payload.value;
+                    break;
+                case 'cnTypeChange':
+                    $scope.item.CreditNoteTypeId = payload.value;
+                    break;
+                case 'approvedByChange':
+                    $scope.item.CreditNoteApprovedById = payload.value;
+                    break;
+                case 'commentsChange':
+                    $scope.item.Comments = payload.value;
+                    break;
+                default:
+                    // covers patientprofiledetails/cnPicker/findBill/addNew, and the
+                    // confirmed pre-existing dead 'alertviewclick' handler (no matching
+                    // $scope function exists, so this safely no-ops, matching the real
+                    // app's behavior today)
+                    if (typeof $scope[actionName] === 'function') {
+                        $scope[actionName]();
+                    }
+                    break;
+            }
+            $scope.refreshReactProps();
+            $scope.$applyAsync();
+        };
+
         $scope.initLookup();
     }
 
