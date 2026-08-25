@@ -4,56 +4,28 @@
         font-size: 12px;
     }
 </style>
-<div class="modal-header custom-modal-header">
-    <div class="col-sm-10">
-        <h4 class="modal-title custom-modal-title" translate="Bill Info"></h4>
-    </div>
-    <div class="col-sm-2">
-        <div class="filters">
-            <img src="../../../../../assets/svg/close.svg" ng-click="cancelCallback()">
-        </div>
-    </div>
-</div>
-<div class="col-sm-12">
-    <div class="drhms-refund-table">
-        <table>
-            <tr>
-                <td>
-                    <span translate="billing.opbilling-list.billnumber.lbl"></span> :
-                </td>
-                <td>{{item.BillNumber}}</td>
-                <td>Bill Date</td>
-                <td>
-                    <span>{{item.BillDateTime | date : 'dd-MMM-yyyy'}}&nbsp;
-                        {{item.BillDateTime | date : 'HH:mm'}}</span>
-                </td>
-                <td>
-                    <span translate="Bill Amount"></span>:
-                </td>
-                <td>{{item.BillAmount}}</td>
-                <td>
-                    <span translate="Bill Discount"></span>:
-                </td>
-                <td>{{item.BillDiscount}}</td>
-                <td>
-                    <span translate="Comments"></span>:
-                </td>
-                <td><input type="text" ng-model="item.DiscountApprovalComments"></td>
-            </tr>
-        </table>
-    </div>
-</div>
-<div class="row">
-    <div class="pull-right">
-        <span>
-            <button type="button" class="draftbutton" ng-click="DiscountApproved()" translate="Approved">
-                <!-- <span><i class="fa fa-print" aria-hidden="true"></i></span> -->
-            </button>
-        </span>
-        <span>
-            <button type="button" class="draftbutton" ng-click="DiscountRejected()" translate="Rejected">
-                <!-- <span><i class="fa fa-print" aria-hidden="true"></i></span> -->
-            </button>
-        </span>
-    </div>
-</div>
+<!--
+    UI-MODERNIZATION RETROFIT (Billing / Discount Approval -- edit modal,
+    app.editdiscountapproval, editdiscountController) -- single
+    <react-component> mount replacing the entire modal body below
+    (everything after the shared <style> block). No native-only widgets and
+    no utl.Validator.validate($scope) call anywhere in this controller, so
+    it qualifies for a single-mount bridge (no hidden-form validation
+    workaround needed, unlike refund-form). AngularJS still owns
+    modalConfig/$uibModalInstance and the real
+    Billing/PatientBills/UpdatePatientBillsforDiscount API call via
+    utl.Http.doAction, unchanged.
+
+    Confirmed dead code, NOT reproduced: getBillInfoByBillId() and
+    patientChange() are both fully defined in editdiscount.js but never
+    invoked anywhere (the only two call sites,
+    "$scope.getBillInfoByBillId();" and "$scope.patientChange();", are
+    commented out at the very end of the controller) -- item is populated
+    entirely, synchronously, from modalConfig.params.item plus
+    billnumber/patientbillid/pid passed in from the parent list screen's row
+    data. Because there is no async load, refreshReactProps() is called
+    once directly after that synchronous setup (see editdiscount.js)
+    instead of from a wrapped HTTP callback, the one deviation from this
+    migration's usual bridge-callback pattern.
+-->
+<react-component name="BillingEditDiscountScreen" props="{ reactProps: reactProps, onAction: handleReactAction }"></react-component>

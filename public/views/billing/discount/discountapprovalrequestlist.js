@@ -201,6 +201,58 @@
             utl.Http.doAction(options);
         };
 
+        $scope.refreshReactProps = function () {
+            $scope.reactProps = {
+                currentfilter: $scope.currentfilter,
+                lookup: $scope.lookup,
+                PatientBills: $scope.PatientBills
+            };
+            $scope.$applyAsync();
+        };
+
+        var _origGetPatientBillListCallback = $scope.getPatientBillListCallback;
+        $scope.getPatientBillListCallback = function (scope, res, options, hasError) {
+            _origGetPatientBillListCallback(scope, res, options, hasError);
+            $scope.refreshReactProps();
+        };
+
+        var _origLookupCallback = $scope.lookupCallback;
+        $scope.lookupCallback = function (scope, data, options, hasError) {
+            _origLookupCallback(scope, data, options, hasError);
+            $scope.refreshReactProps();
+        };
+
+        $scope.handleReactAction = function (actionName, payload) {
+            payload = payload || {};
+            if (actionName === 'fromDateChange') {
+                // FromBillDate is bound via ng-date-object (real JS Date object), same
+                // confirmed convention used elsewhere in this migration -- not a
+                // formatted string despite the $filter('date') seed value.
+                $scope.currentfilter.FromBillDate = payload.value ? new Date(payload.value) : null;
+                $scope.refreshReactProps();
+            } else if (actionName === 'toDateChange') {
+                $scope.currentfilter.ToBillDate = payload.value ? new Date(payload.value) : null;
+                $scope.refreshReactProps();
+            } else if (actionName === 'billNoChange') {
+                // Pre-existing dead/no-op filter field (see disclosure comment in the
+                // HTML) -- updates state only, never affects the fetched list.
+                $scope.currentfilter.BillNo = payload.value;
+                $scope.refreshReactProps();
+            } else if (actionName === 'billTypeChange') {
+                $scope.currentfilter.BillTypeId = payload.value;
+                $scope.refreshReactProps();
+                $scope.getPatientBillList();
+            } else if (actionName === 'statusChange') {
+                $scope.currentfilter.DiscountApprovalStatusId = payload.value;
+                $scope.refreshReactProps();
+                $scope.getPatientBillList();
+            } else if (actionName === 'fetch') {
+                $scope.getList();
+            } else if (actionName === 'editBillingRequest') {
+                $scope.EditBillingRequest(payload.entity);
+            }
+        };
+
         $scope.initLookup();
 
 

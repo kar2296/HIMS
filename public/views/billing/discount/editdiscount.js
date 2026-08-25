@@ -32,6 +32,14 @@
         $scope.currentfilter.PatientId = modalConfig.params.pid;
         $scope.item.PatientId = $scope.currentfilter.PatientId;
 
+        $scope.refreshReactProps = function () {
+            $scope.reactProps = {
+                item: $scope.item
+            };
+            $scope.$applyAsync();
+        };
+        $scope.refreshReactProps();
+
 
         $scope.getPatientInfo = function (scope, data, options, hasError) {
             $scope.selectedPatient = data;
@@ -225,6 +233,20 @@
         // };
         // $scope.getBillInfoByBillId();
         // $scope.patientChange();
+
+        $scope.handleReactAction = function (actionName, payload) {
+            payload = payload || {};
+            if (actionName === 'commentsChange') {
+                $scope.item.DiscountApprovalComments = payload.value;
+                $scope.refreshReactProps();
+            } else if (actionName === 'approve') {
+                $scope.DiscountApproved();
+            } else if (actionName === 'reject') {
+                $scope.DiscountRejected();
+            } else if (actionName === 'cancel') {
+                $scope.cancelCallback();
+            }
+        };
     }
     editdiscountController.$inject = ['$scope', '$filter', '$stateParams', '$state', '$translate', 'utl', '$uibModalInstance', 'modalConfig'];
 

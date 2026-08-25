@@ -8,201 +8,50 @@
         overflow: auto !important;
     }
 </style>
-<div class="row">
-    <div class="drhms-filters">
-        <div class="col-sm-12">
-            <h4 translate="Discount Approval"></h4>
-        </div>
-    </div>
-</div>
-<div class="row">
-    <form id="item_form" name="item_form" class="form-horizontal" role="form">
-        <div class="form-group col-sm-4">
-            <label class="col-sm-12" translate="billing.pharmacy-billdetails.fromdate.lbl"></label>
-            <div class="col-sm-12">
-                <input type="text" class="form-control" name="FromBillDate" ng-date-object
-                    datetime-picker="{{datePickerOptions.dateTimeFormat}}" datepicker-append-to-body="true"
-                    placeholder="{{datePickerOptions.placeholder}}" ng-click="FromBillDatePopup = { opened: true }"
-                    is-open="FromBillDatePopup.opened" ng-model="currentfilter.FromBillDate">
-            </div>
-        </div>
-        <div class="form-group col-sm-4">
-            <label class="col-sm-12" translate="billing.pharmacy-billdetails.todate.lbl"></label>
-            <div class="col-sm-12">
-                <input type="text" class="form-control" name="ToBillDate" ng-date-object
-                    datetime-picker="{{datePickerOptions.dateTimeFormat}}" datepicker-append-to-body="true"
-                    placeholder="{{datePickerOptions.placeholder}}" ng-click="ToBillDatePopup = { opened: true }"
-                    is-open="ToBillDatePopup.opened" ng-model="currentfilter.ToBillDate">
-            </div>
-        </div>
-        <!-- <div class="form-group col-sm-3">
-            <label class="col-sm-12" translate="billing.opbilling-list.patientsearch.lbl"></label>
-            <div class="col-sm-12">
-                <patientsearch controlid="'pid'" patientid="currentfilter.PatientId" name="txtpatientsearch"
-                    patientinfo="selectedPatient" isdisabled="" filterconfig="patientfilterconfig"></patientsearch>
-            </div>
-        </div> -->
-        <div class="form-group col-sm-4">
-            <label class="col-sm-12" translate="Bill Number"></label>
-            <div class="col-sm-12">
-                <input type="text" tabindex="-1" class="form-control" ng-model="currentfilter.BillNo" placeholder="">
-            </div>
-        </div>
-        <div class="form-group col-sm-4">
-            <label class="col-sm-12" translate="Bill Type"></label>
-            <div class="col-sm-12">
-                <ui-select id='billtype' ng-change="getPatientBillList()"
-                    ng-model="currentfilter.BillTypeId" tabindex="-1" name="BillType">
-                    <ui-select-match>
-                        {{$select.selected.Text | limitTo : 20 : 0}}
-                        <span ng-if="$select.selected.Text.length>20">...</span>
-                    </ui-select-match>
-                    <ui-select-choices
-                        repeat="lookupitem.Id as lookupitem in lookup.BillType | filter: { Text: $select.search }">
-                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
-                    </ui-select-choices>
-                </ui-select>
-            </div>
-        </div>
-        <div class="form-group col-sm-3">
-            <label class="col-sm-12" translate="Status"></label>
-            <div class="col-sm-12">
-                <ui-select id='doctorid' ng-change="getPatientBillList()"
-                    ng-model="currentfilter.DiscountApprovalStatusId" tabindex="-1" name="DiscountApprovalStatus">
-                    <ui-select-match>
-                        {{$select.selected.Text | limitTo : 20 : 0}}
-                        <span ng-if="$select.selected.Text.length>20">...</span>
-                    </ui-select-match>
-                    <ui-select-choices
-                        repeat="lookupitem.Id as lookupitem in lookup.DiscountApprovalStatus | filter: { Text: $select.search }">
-                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
-                    </ui-select-choices>
-                </ui-select>
-            </div>
-        </div>
-        <div class="form-group col-sm-3">
-            <button class="draftbutton" ng-click="getList()">
-                <!-- <i class="fas fa-search" aria-hidden="true"></i> -->
-                <span translate="Fetch"></span>
-            </button>
-        </div>
-    </form>
-</div>
-<div class="row">
-    <form id="item_form" name="item_form" class="form-horizontal" role="form">
-        <div class="table-control">
-            <div class="bg-pattern">
-                <div class="formRoot pharmacycollections" id="mainresponsivetablecontrol">
-                    <table class="table table-hover table-responsive table-bordered">
-                        <thead class="bg-subhead" ng-if="PatientBills">
-                            <tr>
-                                <th>
-                                    <span translate="billing.paymodechange.billdate.lbl"></span>
-                                </th>
-                                <th>
-                                    <span translate="billing.paymodechange.billno.lbl"></span>
-                                </th>
-                                <!-- <th>
-                                            <span translate="billing.paymodechange.receiptno.lbl"></span>
-                                        </th> -->
-                                <th>
-                                    <span translate="billing.paymodechange.patientname.lbl"></span>
-                                </th>
-                                <th>
-                                    <span translate="billing.paymodechange.doctor.lbl"></span>
-                                </th>
-                                <th>
-                                    <span translate="Bill Amount"></span>
-                                </th>
-                                <th>
-                                    <span translate="Paid Amount"></span>
-                                </th>
-                                <th>
-                                    <span translate="Discount"></span>
-                                </th>
-                                <th>
-                                    <span translate="Discount Comments"></span>
-                                </th>
-                                <th>
-                                    <span translate="Discount Approver"></span>
-                                </th>
-                                <th>
-                                    <span translate="Status"></span>
-                                </th>
-                                <!-- <th>
-                                    <span translate="Requested At"></span>
-                                </th>
-                                <th>
-                                    <span translate="Cancel Reason"></span>
-                                </th>
-                                <th>
-                                    <span translate="billing.paymodechange.status.lbl"></span>
-                                </th> -->
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr ng-repeat="PatientBill in PatientBills">
-                                <td class="text-left">
-                                    <span>
-                                        {{PatientBill.BillDateTime | date : 'dd/MMM/yyyy' }}&nbsp;
-                                        {{PatientBill.BillDateTime | date:'HH:mm'}}
-                                    </span>
-                                </td>
-                                <td class="text-left">
-                                    <span> {{ PatientBill.BillNumber }}</span>
-                                </td>
-                                <!-- <td class="text-left">
-                                            <span> {{ PatientBill.ReceiptNumber }}</span>
-                                        </td> -->
-                                <td class="text-left">
-                                    <span> {{ PatientBill.Patient.MRN }}
-                                        {{ PatientBill.Patient.FirstName }}</span>
-                                    <span ng-if="PatientBill.EncounterTypeId == 2"> IP </span>
-                                    <span ng-if="PatientBill.EncounterTypeId != 2"> OP </span>
-                                </td>
-                                <td class="text-left">
-                                    <span> {{ PatientBill.UserDoctor.FirstName }}</span>
-                                </td>
-                                <td class="text-right">
-                                    <span>{{ PatientBill.BillAmount
-                                        | displaycurrency }}</span>
-                                </td>
-                                <td class="text-right">
-                                    <span>{{ PatientBill.PaidAmount
-                                        | displaycurrency }}</span>
-                                </td>
-                                <td class="text-right">
-                                    <span>{{ PatientBill.BillDiscount
-                                        | displaycurrency }}</span>
-                                </td>
-                                <td class="text-left">
-                                    <span> {{ PatientBill.DiscountApprovalComments }}</span>
-                                </td>
-                                <td class="text-left">
-                                    <span> {{ PatientBill.DiscountApprovedUser.FirstName||
-                                        PatientBill.DiscountApprovedUser.LastName }}</span>
-                                </td>
-                                <td class="text-left">
-                                    <span> {{ PatientBill.DiscountApprovalStatus.Description }}</span>
-                                </td>
-                                <!-- <td class="text-left">
-                                    <span>
-                                        {{PatientBill.BillDateTime | date : 'dd/MMM/yyyy' }}&nbsp;
-                                        {{PatientBill.BillDateTime | date:'HH:mm'}}
-                                    </span>
-                                </td> -->
+<!--
+    UI-MODERNIZATION RETROFIT (Billing / Discount Approval Request List,
+    app.discountapproval, discountapprequestlistController) -- single
+    <react-component> mount replacing the entire AngularJS template body
+    below (everything after the shared <style> block). No native-only
+    widgets are active (the <patientsearch> block is commented out in the
+    original) and the controller never calls utl.Validator.validate($scope),
+    so this qualifies for a single-mount bridge like the other list screens
+    in this migration. AngularJS ui-router remains authoritative; every real
+    API call is preserved exactly via utl.Http.doAction
+    (billing/PatientBills/GetPatientBillswithoutdetails,
+    billing/patientpaymentdetails/GetSystemDatetime,
+    General/Options/getoptions), and EditBillingRequest(PatientBill) still
+    opens the real app.editdiscountapproval modal via utl.Modal.open exactly
+    as before.
 
-                                <td>
-                                    <span ng-click="EditBillingRequest(PatientBill)"><img class="drhms-edit-button"
-                                            src="assets/svg/edit.svg" alt=""></span>
-                                    <!-- <button type="button" class="btn btn-sm pyr-color10"></button> -->
-                                </td>
-                            </tr>
-                        </tbody>
-
-                    </table>
-                </div>
-            </div>
-        </div>
-    </form>
-</div>
+    Confirmed pre-existing quirks, preserved exactly (documented, not
+    fixed):
+    - currentfilter.BillNo is bound to a real input in the original markup
+      but is never referenced by getPatientBillList()'s filter Params (Key
+      75/33/17/18/8/55 only) or anywhere else in the controller -- a
+      pre-existing dead/no-op filter field. Reproduced as a controlled input
+      that updates state but never affects the fetched list.
+    - The Bill Type and Status <ui-select> controls both call
+      getPatientBillList() directly on ng-change, bypassing the 15-day
+      date-range validation that getList() (bound to the Fetch button)
+      performs before every fetch -- an inconsistency between the two entry
+      points, reproduced verbatim (billTypeChange/statusChange call
+      getPatientBillList() directly; only the Fetch button dispatches
+      'fetch' -> getList()).
+    - The Status <ui-select> in the original carries id="doctorid" (a
+      copy-paste leftover, presumably borrowed from a doctor-related
+      screen) despite being bound to currentfilter.DiscountApprovalStatusId
+      -- the id is not referenced anywhere else in the file, so this is
+      cosmetic-only and not reproduced (React renders its own ids).
+    - The IP/OP encounter-type tag next to the patient name is literal,
+      untranslated text (no translate key), reproduced verbatim.
+    - PatientBill.DiscountApprovedUser.FirstName || ...LastName: shows
+      LastName only when FirstName is falsy, never both together --
+      pre-existing quirk, reproduced verbatim (not "FirstName + LastName").
+    - getList()'s date-range validation error uses
+      utl.Alert.showSuccessMsg(...) to display a validation failure message
+      (not an error-styled alert) -- left entirely in the unmodified
+      AngularJS getList()/getSystemDBDate()/getPatientBillList() chain,
+      which the 'fetch' action dispatches to unchanged.
+-->
+<react-component name="BillingDiscountApprovalListScreen" props="{ reactProps: reactProps, onAction: handleReactAction }"></react-component>
