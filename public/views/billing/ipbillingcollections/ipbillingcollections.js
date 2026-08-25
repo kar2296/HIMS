@@ -635,6 +635,105 @@
             $scope.getList();
         };
 
+        function toIsoDate(d) {
+            if (!d) return null;
+            var dt = (d instanceof Date) ? d : new Date(d);
+            if (isNaN(dt.getTime())) return null;
+            var mm = ('0' + (dt.getMonth() + 1)).slice(-2);
+            var dd = ('0' + dt.getDate()).slice(-2);
+            return dt.getFullYear() + '-' + mm + '-' + dd;
+        }
+
+        $scope.refreshReactProps = function () {
+            $scope.reactProps = {
+                currentfilter: angular.extend({}, $scope.currentfilter, {
+                    FromBillDate: toIsoDate($scope.currentfilter.FromBillDate),
+                    ToBillDate: toIsoDate($scope.currentfilter.ToBillDate)
+                }),
+                lookup: $scope.lookup,
+                flags: {
+                    PatientAdvances: $scope.PatientAdvances,
+                    PatientReceipts: $scope.PatientReceipts,
+                    PatientRefunds: $scope.PatientRefunds
+                },
+                totals: {
+                    TotalCashAdvances: $scope.TotalCashAdvances,
+                    TotalCardAdvances: $scope.TotalCardAdvances,
+                    TotalChequeOtherAdvances: $scope.TotalChequeOtherAdvances,
+                    TotalAdvances: $scope.TotalAdvances,
+                    TotalCashReceipts: $scope.TotalCashReceipts,
+                    TotalCardReceipts: $scope.TotalCardReceipts,
+                    TotalChequeOtherReceipts: $scope.TotalChequeOtherReceipts,
+                    TotalReceipts: $scope.TotalReceipts,
+                    TotalCashRefunds: $scope.TotalCashRefunds,
+                    TotalCardRefunds: $scope.TotalCardRefunds,
+                    TotalChequeOtherRefunds: $scope.TotalChequeOtherRefunds,
+                    TotalRefunds: $scope.TotalRefunds
+                },
+                advances: $scope.PaymentIPAdvances,
+                receipts: $scope.PaymentIPReceipts,
+                refunds: $scope.PaymentIPRefunds
+            };
+            $scope.$applyAsync();
+        };
+
+        var _origGetIPAdvancesListCallback = $scope.getIPAdvancesListCallback;
+        $scope.getIPAdvancesListCallback = function (scope, res, options, hasError) {
+            _origGetIPAdvancesListCallback(scope, res, options, hasError);
+            $scope.refreshReactProps();
+        };
+
+        var _origGetIPReceiptsListCallback = $scope.getIPReceiptsListCallback;
+        $scope.getIPReceiptsListCallback = function (scope, res, options, hasError) {
+            _origGetIPReceiptsListCallback(scope, res, options, hasError);
+            $scope.refreshReactProps();
+        };
+
+        var _origGetIPRefundsListCallback = $scope.getIPRefundsListCallback;
+        $scope.getIPRefundsListCallback = function (scope, res, options, hasError) {
+            _origGetIPRefundsListCallback(scope, res, options, hasError);
+            $scope.refreshReactProps();
+        };
+
+        // getIPFundListCallback intentionally NOT wrapped/mirrored into
+        // reactProps: the real ipbillingcollections.html never renders
+        // PaymentIPFunds (no ng-repeat, no summary row references any
+        // Fund* total anywhere in the 364-line template) even though
+        // getIPFundList() is still called on every getList(). This is a
+        // confirmed dead feature (API call + computation with zero live
+        // UI), not something this migration should surface. The real
+        // getIPFundList()/getIPFundListCallback are left completely
+        // unmodified and keep firing exactly as before -- React never
+        // observes their results, matching current (non-)behavior exactly.
+
+        $scope.handleReactAction = function (actionName, payload) {
+            payload = payload || {};
+            if (actionName === 'fromDateChange') {
+                $scope.currentfilter.FromBillDate = payload.value ? new Date(payload.value) : null;
+                $scope.refreshReactProps();
+            } else if (actionName === 'toDateChange') {
+                $scope.currentfilter.ToBillDate = payload.value ? new Date(payload.value) : null;
+                $scope.refreshReactProps();
+            } else if (actionName === 'paymentTypeFilterChange') {
+                // Mirrors the real ui-select bound to currentfilter.PaymentTypeId.
+                // Confirmed dead: no getIPAdvancesList/getIPReceiptsList/
+                // getIPRefundsList/getIPFundList ever reads PaymentTypeId --
+                // preserved as a functional-looking but no-op filter, exactly
+                // like the real screen.
+                $scope.currentfilter.PaymentTypeId = payload.value;
+                $scope.refreshReactProps();
+            } else if (actionName === 'getList') {
+                $scope.getList();
+            } else if (actionName === 'backToList') {
+                // Confirmed dead in the real template too: ng-click="backToList()"
+                // has no matching $scope.backToList definition anywhere in this
+                // controller (unlike OP's billingcollections, which has no Back
+                // button at all). Clicking the real button today throws an
+                // uncaught TypeError swallowed by Angular's $exceptionHandler --
+                // reproduced here as a no-op, not wired to a real navigation.
+            }
+        };
+
         $scope.initLookup();
     }
 
