@@ -1,3 +1,57 @@
+<!--
+  React bridge migration (hybrid): this screen keeps THREE native AngularJS
+  widgets untouched because they cannot be safely reproduced in React --
+  the DoctorId <autosearch> and <patientsearch> in the page-header row, and
+  the ServiceId <autosearch> in the first filter box below. Everything else
+  is mounted as React via <react-component> siblings of those natives:
+    - DrPaymentModifyBillNoScreen: the Bill No input, sibling of the native
+      ServiceId autosearch inside the same .drhms-table-head-border box.
+    - DrPaymentModifyFilterScreen: renders BOTH the Dates box and the
+      Billing Type/Reset/Fetch box (neither has a native dependency),
+      preserving the original 3-box grid layout as two sibling divs.
+    - DrPaymentModifyListScreen: the results table. vm.gridConfig/
+      <custom-table> was confirmed to be plain presentational data (no
+      native ui-grid dependency -- cross-checked against app.js's
+      customTableController and the billingcounter-list.html precedent).
+
+  Preserved real API calls (unchanged): billing/patientbilldetails/
+  GetPatientBillDetails, registration/patient/GetPatientById,
+  SystemSettings/User/GetUsers (native doctor autosearch),
+  ClinicalMaster/ServiceItem/GetServiceItems (native service autosearch),
+  General/Options/getoptions (BillType lookup).
+
+  Confirmed pre-existing quirks/bugs, reproduced as-is (not fixed):
+    - $scope.DrShareTotal is computed in getListCallback but never
+      rendered anywhere -- dead state, left uncomputed-for in React.
+    - The uib-pagination footer was dead: vm.gridConfig.pagerObj is never
+      assigned by this controller or by customTableController, and
+      getList() always requests PageContext.PageSize: -1 (the full
+      result set every time) -- there was never a working pager. Omitted
+      here rather than rendering a non-functional control.
+    - currentfilter.ServiceId/ServiceName (set by formatselectedserviceitem)
+      are dead duplicate state -- the real value flows through
+      item.ServiceId via the native ServiceId autosearch's own binding,
+      which getList() actually reads.
+    - clearfilter() still manipulates the native DoctorId autosearch's DOM
+      input directly via jQuery ($("#DoctorId")) -- untouched, since it
+      targets the native widget that remains in AngularJS.
+    - canDisablePatientSearch() and patientfilterconfig, referenced on the
+      native <patientsearch> tag's attributes, are not defined anywhere in
+      the controller -- pre-existing dead references inside the untouched
+      native widget, left as-is.
+    - The Bill No field and From/To Date fields auto-fetch on change
+      (matching the original's on-enter/ng-change="getList()"), but the
+      Billing Type select does NOT auto-fetch -- it has no ng-change in
+      the original and requires the explicit Fetch button, reproduced
+      verbatim as an inconsistency.
+    - The grid's Doctor Name column borrows the translate key
+      registration.checkedinpatients.drname.lbl instead of its own
+      (commented-out) billing.drpaymentmodify.drname.lbl key -- both
+      happen to resolve to "Doctor Name", reproduced verbatim.
+    - The button labelled "Fetch" uses translate key
+      common.applyaction.lbl (a naming mismatch: "apply" resolves to
+      "Fetch") -- reproduced verbatim.
+-->
 <style>
     .custom-popup-wrapper {
         max-height: 250px;
@@ -46,86 +100,11 @@
                     </autosearch>
                 </div>
             </div>
-            <div class="col-sm-12">
-                <label class="col-sm-4" translate="billing.drpaymentmodify.billno.lbl"></label>
-                <div class="col-sm-8">
-                    <input type="text" class="form-control" name="filter_code" on-enter="getList()"
-                        ng-model="currentfilter.BillNumber" translate
-                        translate-attr-placeholder="billing.drpaymentmodify.billno.lbl">
-                </div>
-            </div>
+            <react-component name="DrPaymentModifyBillNoScreen" props="{ reactProps: reactProps, onAction: handleReactAction }"></react-component>
         </div>
-        <div class="drhms-table-head-border">
-            <div class="col-sm-12">
-                <label class="col-sm-4" translate="billing.claimsubmission-list.fromdate.lbl"></label>
-                <div class="col-sm-8">
-                    <div class="datepicker">
-                        <input type="text" class="form-control" tabindex="-1" name="fromdate" ng-date-object
-                            uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
-                            placeholder="{{datePickerOptions.placeholder}}" ng-click="fromdatePopup = { opened: true }"
-                            is-open="fromdatePopup.opened" ng-model="currentfilter.FromBillDate" ng-change="getList()"
-                            id="disabledInput">
-                        <i class="fa fa-calendar" aria-hidden="true"></i>
-                    </div>
-                    <!-- <input type="text" class="form-control" name="FromBillDate" ng-date-object
-                        date-picker="{{datePickerOptions.dateFormat}}" datepicker-append-to-body="true"
-                        placeholder="{{datePickerOptions.placeholder}}" ng-click="FromBillDatePopup = { opened: true }"
-                        is-open="FromBillDatePopup.opened" ng-model="currentfilter.FromBillDate"> -->
-                </div>
-            </div>
-            <div class="col-sm-12">
-                <label class="col-sm-4" translate="billing.claimsubmission-list.todate.lbl"></label>
-                <div class="col-sm-8">
-                    <div class="datepicker">
-                        <input type="text" class="form-control" tabindex="-1" name="ToDate" ng-date-object
-                            uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
-                            placeholder="{{datePickerOptions.placeholder}}" ng-click="ToDatePopup = { opened: true }"
-                            is-open="ToDatePopup.opened" ng-model="currentfilter.ToBillDate" ng-change="getList()"
-                            id="disabledInput">
-                        <i class="fa fa-calendar" aria-hidden="true"></i>
-                    </div>
-                    <!-- <input type="text" class="form-control" name="ToBillDate" ng-date-object
-                        date-picker="{{datePickerOptions.dateFormat}}" datepicker-append-to-body="true"
-                        placeholder="{{datePickerOptions.placeholder}}" ng-click="ToBillDatePopup = { opened: true }"
-                        is-open="ToBillDatePopup.opened" ng-model="currentfilter.ToBillDate"> -->
-                </div>
-            </div>
-        </div>
-        <div class="drhms-table-head-border">
-            <div class="col-sm-12">
-                <label class="col-sm-4" translate="billing.drpaymentmodify.billingtype.lbl"></label>
-                <div class="col-sm-8">
-                    <ui-select ng-model="currentfilter.BillTypeId" name="BillTypeId">
-                        <ui-select-match>
-                            {{$select.selected.Text | limitTo : 20 : 0}}
-                            <span ng-if="$select.selected.Text.length>20">...</span>
-                        </ui-select-match>
-                        <ui-select-choices
-                            repeat="lookupitem.Id as lookupitem in lookup.BillType | filter: { Text: $select.search }">
-                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
-                        </ui-select-choices>
-                    </ui-select>
-                </div>
-            </div>
-            <div class="col-sm-12">
-                <a ng-click="clearfilter()">
-                    <i class="fa fa-refresh" style="font-size:25px;color:#0066ff;margin: 0px 25px;"
-                        uib-tooltip="{{ 'common.resetaction.lbl' | translate}}" tooltip-placement="bottom"></i>
-                </a>
-                <button id="btnCancelForm" type="button" class="draftbutton" ng-click="getList()"
-                    translate="common.applyaction.lbl">
-                </button>
-            </div>
-        </div>
+        <react-component name="DrPaymentModifyFilterScreen" props="{ reactProps: reactProps, onAction: handleReactAction }"></react-component>
     </div>
 </div>
 <div class="row">
-    <custom-table config="vm.gridConfig"></custom-table>
-</div>
-<div class="fooder-bgs">
-    <div class="row">
-        <ul uib-pagination total-items="vm.gridConfig.pagerObj.totalItems"
-            items-per-page="vm.gridConfig.pagerObj.pageSize" start-index="vm.gridConfig.pagerObj.startIndex"
-            ng-model="vm.gridConfig.pagerObj.currentPage" ng-change="getList()"></ul>
-    </div>
+    <react-component name="DrPaymentModifyListScreen" props="{ reactProps: reactProps, onAction: handleReactAction }"></react-component>
 </div>

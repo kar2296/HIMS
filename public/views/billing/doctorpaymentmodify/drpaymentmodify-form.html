@@ -1,29 +1,43 @@
+<!--
+  React bridge migration (hybrid modal): the native DoctorId <autosearch>
+  stays in AngularJS (unchanged, own SystemSettings/User/GetUsers-backed
+  config) between two React mounts:
+    - DrPaymentModifyFormHeaderScreen: modal header (title + close) and the
+      disabled old-Dr-name field, sibling BEFORE the native autosearch.
+    - DrPaymentModifyFormDetailsScreen: Amount/Dr. Share/Remarks fields +
+      the Approve/Save button, sibling AFTER the native autosearch.
+
+  Preserved real API call (unchanged): billing/patientbilldetails/
+  UpdatePatientBillDetails. saveitem() validates Id, DoctorId, DoctorName
+  (set by the native autosearch's own formatselecteddoctor(), not by
+  React) and DoctorShare >= 0 before saving -- untouched.
+
+  Confirmed pre-existing quirks/bugs, reproduced as-is (not fixed):
+    - DrShareValidation() reverts $scope.item.DoctorShare to the original
+      value when the new value exceeds NetAmount ('Dr. Share Amount
+      should not greater than Amount') or fails to parse as a number
+      ('Dr. Share Amount should not correct format' -- a pre-existing
+      grammatically-broken message, reproduced verbatim, not corrected).
+    - $scope.numberonly (reproduced in React as drShareNumberOnlyKeyDown)
+      uses a DIFFERENT keyCode allow-list than the standard numberonly
+      helper used elsewhere in this migration -- the same distinct
+      variant already confirmed on cashsubmission-form, reproduced as-is.
+    - getSelectionStart(o), a dead IE-era text-selection helper, is
+      defined in the controller but never called anywhere -- left
+      unremoved/unmigrated since it has no call site to preserve.
+-->
 <style>
     .form-horizontal .form-group {
     height: 80px;
 }
 </style>
-<div class="modal-header custom-modal-header">
-    <h4 class="col-sm-11 mt0" translate="billing.drpaymentmodifyform.pagetitle.lbl"></h4>
-    <button id="btnCancelForm" style="width: 33px;" type="button" class="col-sm-1 btn btn-danger btn-sm" ng-click="cancelCallback()"
-    translate="X"></button>
-
-</div>
+<react-component name="DrPaymentModifyFormHeaderScreen" props="{ reactProps: reactProps, onAction: handleReactAction }"></react-component>
 
 <form id="item_form" name="item_form" class="form-horizontal" role="form">
 
     <div class="bg-pattern">
         <div class="row">
             <div class="col-sm-12">
-                <div class="col-sm-4 form-group paddingtop">
-                    <div class="col-sm-12">
-                        <label class="col-sm-12 control-label" translate="billing.drpaymentmodifyform.drname.lbl"></label>
-                        <div class="col-sm-12">
-                            <input type="text" class="form-control" disabled="true" ng-model="item.oldDrName"
-                                placeholder="">
-                        </div>
-                    </div>
-                </div>
 
                 <div class="col-sm-4 form-group">
                     <div class="col-sm-12">
@@ -35,51 +49,11 @@
                     </div>
                 </div>
 
-                <div class="col-sm-4 form-group paddingtop">
-                    <div class="col-sm-12">
-                        <label class="col-sm-12 control-label" translate="billing.drpaymentmodifyform.amount.lbl"></label>
-                        <div class="col-sm-12">
-                            <input type="text" class="form-control" disabled="true" ng-model="item.NetAmount"
-                                placeholder="">
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-sm-4 form-group paddingtop">
-                    <div class="col-sm-12">
-                        <label class="col-sm-12 control-label" translate="billing.drpaymentmodifyform.drshare.lbl"></label>
-                        <div class="col-sm-12">
-                            <input type="text" class="form-control" ng-model="item.DoctorShare"
-                            ng-keypress="numberonly($event)"
-                            ng-keyup="DrShareValidation()"
-                            placeholder="">
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-sm-4 form-group paddingtop">
-                    <div class="col-sm-12">
-                        <label class="col-sm-12 control-label" translate="billing.drpaymentmodifyform.remarks.lbl"></label>
-                        <div class="col-sm-12">
-                            <input type="text" class="form-control" ng-model="item.Remarks" placeholder="">
-                        </div>
-                    </div>
-                </div>
-
+                <react-component name="DrPaymentModifyFormDetailsScreen" props="{ reactProps: reactProps, onAction: handleReactAction }"></react-component>
 
             </div>
 
 
-        </div>
-
-
-        <div class="fooder-bgs">
-            <div class="pull-right">
-                <div class="col-sm-12">
-                    <button id="btnCancelForm" type="button" class="draftbutton" ng-click="saveitem()"
-                        translate="common.saveapprove-action.lbl"></button>
-                   </div>
-            </div>
         </div>
     </div>
 

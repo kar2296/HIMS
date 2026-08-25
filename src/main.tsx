@@ -364,6 +364,11 @@ import { BillingCashSubmissionListScreen } from './react-components/BillingCashS
 import { BillingCashSubmissionFormScreen } from './react-components/BillingCashSubmissionFormScreen';
 import { BillingDiscountApprovalListScreen } from './react-components/BillingDiscountApprovalListScreen';
 import { BillingEditDiscountScreen } from './react-components/BillingEditDiscountScreen';
+import { DrPaymentModifyBillNoScreen } from './react-components/DrPaymentModifyBillNoScreen';
+import { DrPaymentModifyFilterScreen } from './react-components/DrPaymentModifyFilterScreen';
+import { DrPaymentModifyListScreen } from './react-components/DrPaymentModifyListScreen';
+import { DrPaymentModifyFormHeaderScreen } from './react-components/DrPaymentModifyFormHeaderScreen';
+import { DrPaymentModifyFormDetailsScreen } from './react-components/DrPaymentModifyFormDetailsScreen';
 
 // Register components globally so the AngularJS bridge can find them
 (window as any).ReactComponents = {
@@ -523,7 +528,12 @@ import { BillingEditDiscountScreen } from './react-components/BillingEditDiscoun
   BillingCashSubmissionListScreen,
   BillingCashSubmissionFormScreen,
   BillingDiscountApprovalListScreen,
-  BillingEditDiscountScreen
+  BillingEditDiscountScreen,
+  DrPaymentModifyBillNoScreen,
+  DrPaymentModifyFilterScreen,
+  DrPaymentModifyListScreen,
+  DrPaymentModifyFormHeaderScreen,
+  DrPaymentModifyFormDetailsScreen
 };
 
 console.log('React runtime and components loaded. ReactBridge initialized.');

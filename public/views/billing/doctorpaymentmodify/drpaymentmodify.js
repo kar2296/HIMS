@@ -21,6 +21,14 @@
 
         $scope.item = {};
 
+        $scope.refreshReactProps = function () {
+            $scope.reactProps = {
+                currentfilter: $scope.currentfilter,
+                lookup: $scope.lookup,
+                gridData: vm.gridConfig.data
+            };
+        };
+
         $scope.clearfilter = function () {
             $scope.currentfilter = {
                 DoctorId: -1,
@@ -70,6 +78,7 @@
 
             }
             vm.gridConfig.data = res.Data;
+            $scope.refreshReactProps();
         };
 
         $scope.getList = function () {
@@ -459,6 +468,7 @@
                     $scope.lookup.BillType.push(billingtype);
                 }
             }
+            $scope.refreshReactProps();
         }
 
         $scope.initLookup = function () {
@@ -473,6 +483,33 @@
             };
             utl.Http.doAction(options);
         }
+
+        $scope.handleReactAction = function (actionName, payload) {
+            payload = payload || {};
+            if (actionName === 'billNumberChange') {
+                $scope.currentfilter.BillNumber = payload.value;
+                $scope.refreshReactProps();
+            } else if (actionName === 'fetch') {
+                $scope.getList();
+            } else if (actionName === 'fromDateChange') {
+                $scope.currentfilter.FromBillDate = payload.value ? new Date(payload.value) : null;
+                $scope.getList();
+            } else if (actionName === 'toDateChange') {
+                $scope.currentfilter.ToBillDate = payload.value ? new Date(payload.value) : null;
+                $scope.getList();
+            } else if (actionName === 'billTypeChange') {
+                $scope.currentfilter.BillTypeId = payload.value;
+                $scope.refreshReactProps();
+            } else if (actionName === 'reset') {
+                $scope.clearfilter();
+                $scope.refreshReactProps();
+            } else if (actionName === 'edit') {
+                $scope.handleEvents('edit', payload.entity);
+            }
+            $scope.$applyAsync();
+        };
+
+        $scope.refreshReactProps();
 
         $scope.initLookup();
 

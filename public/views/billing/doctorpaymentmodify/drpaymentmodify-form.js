@@ -24,6 +24,31 @@
             $scope.cancelCallback = $uibModalInstance.dismiss;
         }
 
+        $scope.refreshReactProps = function () {
+            $scope.reactProps = {
+                item: $scope.item
+            };
+        };
+
+        $scope.handleReactAction = function (actionName, payload) {
+            payload = payload || {};
+            if (actionName === 'cancel') {
+                $scope.cancelCallback();
+            } else if (actionName === 'doctorShareChange') {
+                $scope.item.DoctorShare = payload.value;
+                $scope.DrShareValidation();
+                $scope.refreshReactProps();
+            } else if (actionName === 'remarksChange') {
+                $scope.item.Remarks = payload.value;
+                $scope.refreshReactProps();
+            } else if (actionName === 'save') {
+                $scope.saveitem();
+            }
+            $scope.$applyAsync();
+        };
+
+        $scope.refreshReactProps();
+
         function getSelectionStart(o) {
             if (o.createTextRange) {
                 var r = document.selection.createRange().duplicate()
