@@ -1,64 +1,37 @@
-<div class="row">
-    <div class="col-sm-8">
-        <h4 class="mt0" translate="billing.bankstatementlist.pagetitle.lbl"></h4>
-    </div>
-    <div class="col-sm-4">
-        <div class="filters">
-            <button type="button" class="drhms-billing-btn drhms-previousbill-btn"
-                uib-tooltip="{{'clinicalmaster.serviceitem-list.filter.lbl' | translate }}" tooltip-placement="bottom"
-                ng-click="openAdvancedFilter()">
-                <i class="fa fa-search-plus" aria-hidden="true"></i>
-            </button>
-            <button type="button" tabindex="-1" class="btn-add" ng-click="addNew()"
-                uib-tooltip="{{ 'billing.bankstatementlist.addnew-tooltip.lbl' | translate }}"
-                tooltip-placement="bottom">
-                <i class="fa fa-plus" aria-hidden="true"></i>
-            </button>
-        </div>
-    </div>
-</div>
-<div class="row">
-    <div class="col-sm-4">
-        <label class="col-sm-4" for="billingcounterstatus"
-            translate="billing.bankstatementlist.documentstatus.lbl"></label>
-        <div class="col-sm-8">
-            <ui-select ng-model="currentfilter.BillingCounterStatusId" ng-change="getList()" class="filter-combo">
-                <ui-select-match>
-                    {{$select.selected.Text | limitTo : 20 : 0}}
-                    <span ng-if="$select.selected.Text.length>20">...</span>
-                </ui-select-match>
-                <ui-select-choices
-                    repeat="lookupitem.Id as lookupitem in lookup.BillingCounterStatus | filter: { Text: $select.search }">
-                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
-                </ui-select-choices>
-            </ui-select>
-        </div>
-    </div>
-    <div class="col-sm-4">
-        <label class="col-sm-4" for="documentdate" translate="billing.bankstatementlist.documentdate.lbl"></label>
-        <div class="col-sm-8">
-            <input type="text" class="form-control" name="documentdate" ng-change="getList()"
-                datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}"
-                uib-datepicker-popup="{{datePickerOptions.dateFormat}}" placeholder="{{datePickerOptions.placeholder}}"
-                ng-click="documentdatePopup = { opened: true }" is-open="documentdatePopup.opened"
-                ng-model="currentfilter.DocumentDate">
-        </div>
-    </div>
-    <div class="col-sm-4">
-        <label class="col-sm-4" translate="billing.bankstatementlist.documentnumber.lbl"></label>
-        <div class="col-sm-8">
-            <input type="text" class="form-control" on-enter="getList()" ng-model="currentfilter.DocumentNumber"
-                placeholder="Document No#">
-        </div>
-    </div>
-</div>
-<div class="row">
-    <custom-table config="vm.gridConfig"></custom-table>
-</div>
-<div class="fooder-bgs">
-    <div class="row">
-        <ul uib-pagination total-items="vm.gridConfig.pagerObj.totalItems"
-            items-per-page="vm.gridConfig.pagerObj.pageSize" start-index="vm.gridConfig.pagerObj.startIndex"
-            ng-model="vm.gridConfig.pagerObj.currentPage" ng-change="getList()"></ul>
-    </div>
-</div>
+<!--
+UI-MODERNIZATION RETROFIT (Billing / Bank Statement List, app.bankstatement,
+bankstatementListController). Single-mount React replacement: full
+investigation confirmed no native-only widgets (<patientsearch>,
+<autosearch>, etc.) and no utl.Validator.validate($scope) call anywhere in
+the controller, so per the established single-mount criterion this screen
+is rebuilt as ONE <react-component>, not a hybrid split. AngularJS remains
+authoritative for the real billing/bankstatements/GetBankStatementWithoutDenominations
+API call, openAdvancedFilter() (a genuinely live utl.Modal.openDynamicForm
+modal, untouched), addNew()/handleEvents() state transitions to
+app.bankstatementform, and onDeleteConfirmed()
+(billing/bankstatements/UpdateBankStatements). React only renders
+reactProps and dispatches action names via handleReactAction.
+
+Confirmed pre-existing quirks, preserved exactly (not "fixed"):
+- The shared <custom-table> component (public/js/app.js
+  customTableController) has no row-selection/checkbox support -- same
+  confirmed bug class as billing/consolidatepayment -- but this screen
+  never enabled row selection in the first place (no
+  enableRowSelection/onRegisterApi on vm.gridConfig here), so this is
+  purely informational, not a functional regression on this specific
+  screen.
+- The "Add New" button's tooltip translate key
+  (billing.bankstatementlist.addnew-tooltip.lbl) resolves to "Assign
+  User", not anything referencing "Bank Statement" -- a real
+  label/purpose mismatch in the live i18n data. Reproduced verbatim.
+- The advanced-filter button's tooltip translate key is borrowed from an
+  unrelated ClinicalMaster i18n namespace
+  (clinicalmaster.serviceitem-list.filter.lbl) and resolves to "Fetch",
+  not "Filter" or "Advanced Filter". Reproduced verbatim.
+- Document Number search uses the real on-enter directive semantics:
+  typing does not re-query; only Enter calls getList(). Reproduced via a
+  keydown check dispatching 'search' on Enter, with every keystroke still
+  updating currentfilter.DocumentNumber via 'documentNumberChange'
+  without triggering a fetch.
+-->
+<react-component name="BillingBankStatementListScreen" props="{ reactProps: reactProps, onAction: handleReactAction }"></react-component>
