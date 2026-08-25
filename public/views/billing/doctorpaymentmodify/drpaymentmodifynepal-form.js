@@ -24,8 +24,16 @@
             $scope.confirmCallback = $uibModalInstance.close;
             $scope.cancelCallback = $uibModalInstance.dismiss;
         }
+
+        $scope.refreshReactProps = function () {
+            $scope.reactProps = {
+                PatientDoctorShareDetails: $scope.PatientDoctorShareDetails,
+                lookup: $scope.lookup
+            };
+        };
         $scope.getItemCallback = function (scope, res, options, hasError) {
             $scope.PatientDoctorShareDetails = res.Data;
+            $scope.refreshReactProps();
             // $scope.item.PatientName = $scope.item.Patient.FirstName;
             // $scope.item.Age = $scope.item.Patient.Age;
             // $scope.item.Gender = $scope.item.Patient.Gender.Description;
@@ -255,6 +263,7 @@
         }
         $scope.lookupCallback = function (scope, data, options, hasError) {
             $scope.lookup = hasError ? {} : data;
+            $scope.refreshReactProps();
             $scope.getItem();
         }
 
@@ -281,6 +290,28 @@
             };
             utl.Http.doAction(options);
         }
+
+        $scope.handleReactAction = function (actionName, payload) {
+            payload = payload || {};
+            if (actionName === 'cancel') {
+                $scope.cancelCallback();
+            } else if (actionName === 'doctorIdChange') {
+                $scope.PatientDoctorShareDetails[payload.index].DoctorId = payload.value;
+                $scope.refreshReactProps();
+            } else if (actionName === 'doctorShareAmountChange') {
+                $scope.PatientDoctorShareDetails[payload.index].DoctorShareAmount = payload.value;
+                $scope.refreshReactProps();
+            } else if (actionName === 'save') {
+                $scope.saveitem();
+            }
+            // 'delete' is intentionally unhandled here: the original template's
+            // ng-click="deleteItem($index,item)" referenced a $scope method that was
+            // never defined anywhere in this controller, so the delete button was
+            // already inert. Not wiring it up here preserves that exact behavior.
+            $scope.$applyAsync();
+        };
+
+        $scope.refreshReactProps();
 
         $scope.initLookup();
 

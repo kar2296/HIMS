@@ -1,162 +1,36 @@
-<!-- <style>
-    .pl-3 {
-        padding-left: 2%;
-    }
+<!--
+  React bridge migration (single mount): the live template has NO active
+  native-only widgets -- the commented-out block above (native DoctorId
+  <autosearch> + <patientsearch>) is dead markup, never rendered, and
+  this controller has no utl.Validator.validate($scope) call. Everything
+  is rendered by DrPaymentModifyListNepalScreen, a single
+  <react-component> mount.
 
-    button.dropdown-toggle.ng-binding.btn.btn-default {
-        text-align: left;
-        width: 100%;
+  Preserved real API calls (unchanged): Visit/Visit/GetEncounters (loads
+  the visit by $stateParams.id), billing/patientbills/GetPatientBills
+  (Key 16 = visit id), Visit/Visit/UpdateEncounter (saveitem),
+  General/Options/getoptions (BillType/Referral/Doctor lookups).
 
-    }
-
-    .multiselect-parent.btn-group.dropdown-multiselect {
-        width: 100%;
-    }
-
-    .claim_sub {
-        padding-right: 0px;
-        padding-left: 0px;
-    }
-
-    ul.dropdown-menu.dropdown-menu-form.ng-scope {
-        height: auto !important;
-    }
-
-    .fooder-bgs {
-        margin-top: 16px !important;
-    }
-
-    .search input[type="text"] {
-        padding-left: 4px;
-        width: 200px !important;
-    }
-
-    .custom-popup-wrapper {
-        margin-left: -252px;
-    }
-
-    .autosearch-div .custom-popup-wrapper {
-        position: absolute;
-        width: 600px;
-        margin-left: -416px;
-    }
-
-    table.table.table-bordered.table-condensed.dropdown-menu {
-        width: 100% !important;
-        overflow: auto;
-        height: 243px !IMPORTANT;
-    }
-
-    table#bannerdetails .autosearch-div table.table.table-bordered.table-condensed.dropdown-menu td:nth-child(odd) {
-        width: 100% !important;
-    }
-
-    td.service .autosearch-div .custom-popup-wrapper {
-        position: absolute;
-        width: 600px;
-        margin-left: 1px;
-    }
-</style> -->
-
-<div class="row page-header">
-    <h4 class="col-sm-6 mt0" translate="billing.drpaymentmodify.pagetitle.lbl"></h4>
-    <!-- <div class="col-sm-6" style="margin-bottom: 11px;">
-        <div class="filters">
-            <div class="search">
-                <autosearch controlid="'DoctorId'" itemid="item.DoctorId" iteminfo="" rowdata="" name="'doctor'"
-                    config="vm.doctorcontrolconfig" placeholder="'Doctor'" candisable="SaveCompleted"
-                    isrequired="false"></autosearch>
-            </div>
-            <div class="search">
-                <patientsearch id="pid" patientid="currentfilter.PatientId" patientinfo="selectedPatient"
-                    filterconfig="patientfilterconfig" tabindex="-1" patientchange="patientChange()"
-                    candisable="canDisablePatientSearch()"></patientsearch>
-            </div>
-
-        </div>
-    </div> -->
-</div>
-<div class="row">
-    <table id="bannerdetails">
-        <tr>
-            <td translate="billing.drpaymentmodify.patientname.lbl"></td>
-            <td class="service">
-                {{item.PatientName}}
-            </td>
-            <td translate="billing.drpaymentmodify.agesex.lbl"></td>
-            <td>
-                {{item.Age}}/ {{item.Gender}}
-            </td>
-            <td translate="billing.drpaymentmodify.patientid.lbl"></td>
-            <td>
-                {{item.PatientMrn}}
-            </td>
-            <td translate="billing.drpaymentmodify.status.lbl"></td>
-            <td>
-                {{item.Age}}/ {{item.Gender}}
-            </td>
-        </tr>
-    </table>
-</div>
-<div class="row">
-    <h4 translate="billing.drpaymentmodify.visitinfo.lbl"></h4>
-    <div class="form-group col-sm-2">
-        <label class="col-sm-12 control-label" translate="billing.drpaymentmodify.visitdoctor.lbl"></label>
-    </div>
-    <div class="form-group col-sm-4">
-        <div class="col-sm-12">
-            <ui-select id='doctorid' ng-keyup="moveHeaderFocus('doctorid')" ng-model="item.DoctorId" tabindex="-1"
-                ng-change="onDoctorSelected($select.selected)" name="doctorid" ng-disabled="RdoDoctorId" required>
-                <ui-select-match>
-                    {{$select.selected.Text | limitTo : 20 : 0}}
-                    <span ng-if="$select.selected.Text.length>20">...</span>
-                </ui-select-match>
-                <ui-select-choices
-                    repeat="lookupitem.Id as lookupitem in lookup.Doctor | filter: { Text: $select.search }">
-                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
-                </ui-select-choices>
-            </ui-select>
-        </div>
-    </div>
-    <div class="form-group col-sm-2">
-        <label class="col-sm-12 control-label" translate="billing.drpaymentmodify.referaldoctor.lbl"></label>
-    </div>
-    <div class="form-group col-sm-4">
-        <div class="col-sm-12">
-            <ui-select id='doctorid' ng-keyup="moveHeaderFocus('doctorid')" ng-model="item.ReferralId" tabindex="-1"
-                ng-change="onReferralDoctorSelected($select.selected)" name="doctorid" ng-disabled="RdoDoctorId"
-                required>
-                <ui-select-match>
-                    {{$select.selected.Text | limitTo : 20 : 0}}
-                    <span ng-if="$select.selected.Text.length>20">...</span>
-                </ui-select-match>
-                <ui-select-choices
-                    repeat="lookupitem.Id as lookupitem in lookup.Referral | filter: { Text: $select.search }">
-                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
-                </ui-select-choices>
-            </ui-select>
-        </div>
-    </div>
-</div>
-<div class="fooder-bgs">
-    <div class="row">
-        <div class="pull-right">
-            <button id="btnCancelForm" type="button" class="draftbutton" ng-click="saveitem()"
-                translate="Update"></button>
-        </div>
-    </div>
-</div>
-<div class="col-sm-12">
-    <h4 translate="billing.drpaymentmodify.services.lbl"></h4>
-</div>
-<div class="row">
-    <custom-table config="vm.gridConfig"></custom-table>
-</div>
-
-<div class="fooder-bgs">
-    <div class="row">
-        <ul uib-pagination total-items="vm.gridConfig.pagerObj.totalItems"
-            items-per-page="vm.gridConfig.pagerObj.pageSize" start-index="vm.gridConfig.pagerObj.startIndex"
-            ng-model="vm.gridConfig.pagerObj.currentPage" ng-change="getList()"></ul>
-    </div>
-</div>
+  Confirmed pre-existing quirks/bugs, reproduced as-is (not fixed):
+    - The banner's "Status/Hospital" column is a copy-paste bug: it
+      re-renders {{item.Age}}/{{item.Gender}} -- identical to the
+      Age/Sex column -- instead of an actual status value.
+    - vm.doctorcontrolconfig/vm.servicecontrolconfig (native autosearch
+      configs) are defined in the controller but never used by any
+      active widget in this template -- dead copy-pasted boilerplate,
+      not migrated since nothing renders them.
+    - $scope.DrShareTotal is computed in getListCallback but never
+      rendered anywhere -- dead state.
+    - The uib-pagination footer was dead: vm.gridConfig.pagerObj is
+      never assigned, and getList() always requests
+      PageContext.PageSize: -1 (the full result set) -- there was never
+      a working pager. Omitted here.
+    - The Visit Doctor / Refer Doctor <ui-select> controls call
+      $scope.onDoctorSelected/$scope.onReferralDoctorSelected, both
+      preserved verbatim (they set item.DoctorId/DoctorName and
+      item.ReferralId/ReferralName from the selected lookup entry).
+    - The Update button's translate key is the literal string "Update"
+      (not a real i18n key), so it always renders as the literal text
+      "Update" regardless of locale -- reproduced verbatim.
+-->
+<react-component name="DrPaymentModifyListNepalScreen" props="{ reactProps: reactProps, onAction: handleReactAction }"></react-component>

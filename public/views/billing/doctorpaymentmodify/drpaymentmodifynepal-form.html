@@ -1,167 +1,43 @@
-<style>
-    .form-horizontal .form-group {
-    height: 80px;
-}
-</style>
-<div class="modal-header custom-modal-header">
-    <h4 class="col-sm-11 mt0" translate="billing.drpaymentmodifyform.pagetitle.lbl"></h4>
-    <button id="btnCancelForm" style="width: 33px;" type="button" class="col-sm-1 btn btn-danger btn-sm" ng-click="cancelCallback()"
-    translate="X"></button>
+<!--
+  React bridge migration (single mount): the only active native widget
+  reference in this file (a native DoctorId <autosearch>) sits inside an
+  HTML-commented-out block (never rendered) along with the rest of a
+  single-record form layout that this modal no longer uses. The LIVE
+  template is the doctor-share-details table below it, which has no
+  native widgets and no utl.Validator.validate($scope) call, so it
+  qualifies for a single <react-component> mount
+  (DrPaymentModifyNepalFormScreen).
 
-</div>
+  Preserved real API calls (unchanged): Billing/PatientDoctorShareDetails/
+  GetPatientDoctorShareDetails (getItem), billing/PatientDoctorShareDetails/
+  ManagePatientDoctorShareDetailsUpdate (saveitem), General/Options/
+  getoptions (BillType/Referral/Doctor lookups feeding $scope.lookup).
 
-<form id="item_form" name="item_form" class="form-horizontal" role="form">
-
-    <!-- <div class="bg-pattern">
-        <div class="row">
-            <div class="col-sm-12">
-                <div class="col-sm-4 form-group paddingtop">
-                    <div class="col-sm-12">
-                        <label class="col-sm-12 control-label" translate="billing.drpaymentmodifyform.drname.lbl"></label>
-                        <div class="col-sm-12">
-                            <input type="text" class="form-control" disabled="true" ng-model="item.oldDrName"
-                                placeholder="">
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-sm-4 form-group">
-                    <div class="col-sm-12">
-                        <label class="col-sm-12 control-label" translate="billing.drpaymentmodifyform.changedrname.lbl"></label>
-                        <div class="col-sm-12">
-                            <autosearch controlid="'DoctorId'" itemid="item.DoctorId" iteminfo="" rowdata="" name="'doctor'"
-                                config="vm.doctorcontrolconfig" candisable="SaveCompleted" isrequired="false"></autosearch>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-sm-4 form-group paddingtop">
-                    <div class="col-sm-12">
-                        <label class="col-sm-12 control-label" translate="billing.drpaymentmodifyform.amount.lbl"></label>
-                        <div class="col-sm-12">
-                            <input type="text" class="form-control" disabled="true" ng-model="item.NetAmount"
-                                placeholder="">
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-sm-4 form-group paddingtop">
-                    <div class="col-sm-12">
-                        <label class="col-sm-12 control-label" translate="billing.drpaymentmodifyform.drshare.lbl"></label>
-                        <div class="col-sm-12">
-                            <input type="text" class="form-control" ng-model="item.DoctorShare"
-                            ng-keypress="numberonly($event)"
-                            ng-keyup="DrShareValidation()"
-                            placeholder="">
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-sm-4 form-group paddingtop">
-                    <div class="col-sm-12">
-                        <label class="col-sm-12 control-label" translate="billing.drpaymentmodifyform.remarks.lbl"></label>
-                        <div class="col-sm-12">
-                            <input type="text" class="form-control" ng-model="item.Remarks" placeholder="">
-                        </div>
-                    </div>
-                </div>
-
-
-            </div>
-
-
-        </div>
-
-
-         <div class="fooder-bgs">
-            <div class="pull-right">
-                <div class="col-sm-12">
-                    <button id="btnCancelForm" type="button" class="draftbutton" ng-click="saveitem()"
-                        translate="common.saveapprove-action.lbl"></button>
-                   </div>
-            </div>
-        </div> 
-    </div> -->
-    <div class="">
-        <div class="" id="">
-            <table class="table table-hover table-responsive table-bordered">
-                <thead class="bg-subhead">
-                    <tr>
-                        <th class="col-sm-4">
-                            <span translate="Bill Number"></span>
-                        </th>
-                        <th class="col-sm-2">
-                            <span translate="Service Name"></span>
-                        </th>
-                        <!-- <th class="col-sm-2">
-                            <span translate="Order"></span>
-                        </th> -->
-                        <th class="col-sm-2">
-                            <span translate="Amt"></span>
-                        </th>
-                        <th class="col-sm-2">
-                            <span translate="Doctor"></span>
-                        </th>
-                        <th class="col-sm-2">
-                            <span translate="Share Amount"></span>
-                        </th>
-                        <!-- <th class="col-sm-2">
-                            <span translate="common.isReqAllFacility.lbl"></span>
-                        </th> -->
-                        <th class="col-sm-1">
-                            <span translate="common.actions_col.lbl"></span>
-                        </th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr ng-repeat="item in PatientDoctorShareDetails | filter:{Status:1}">
-                        <td align="center">
-                            {{item.PatientBill.BillNumber}}
-                            <!-- <input type="text" class="form-control" ng-model="item.PatientBill.BillNumber"> -->
-                        </td>
-                        <td align="center">
-                            {{item.ServiceName}}
-                            <!-- <input type="text" class="form-control" ng-model="item.ServiceName"> -->
-                        </td>
-                       
-                        <td align="center">
-                            {{item.ServiceAmount}}
-                        </td>
-                        <td align="center">
-                            <ui-select id='doctorid' ng-keyup="moveHeaderFocus('doctorid')" ng-model="item.DoctorId" tabindex="-1"
-                            ng-change="onDoctorSelected($index,item)" name="doctorid" ng-disabled="RdoDoctorId" required>
-                            <ui-select-match>
-                                {{$select.selected.Text | limitTo : 20 : 0}}
-                                <span ng-if="$select.selected.Text.length>20">...</span>
-                            </ui-select-match>
-                            <ui-select-choices
-                                repeat="lookupitem.Id as lookupitem in lookup.Doctor | filter: { Text: $select.search }">
-                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
-                            </ui-select-choices>
-                        </ui-select>
-                        </td>
-                        <td align="center">
-                            <input type="text" class="form-control" ng-model="item.DoctorShareAmount"
-                            ng-keyup="DrShareValidation()">
-                        </td>
-    
-                        <td>
-                            <!-- <button class="btn btn-danger btn-xs" ng-click="deleteItem($index,item)"> -->
-                            <img src="/app/img/svg/noun_Delete.svg" ng-click="deleteItem($index,item)" />
-                            <!-- </button> -->
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-            <div class="fooder-bgs">
-                <div class="pull-right">
-                    <div class="col-sm-12">
-                        <button id="btnCancelForm" type="button" class="draftbutton" ng-click="saveitem()"
-                            translate="common.saveapprove-action.lbl"></button>
-                       </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-</form>
+  Confirmed pre-existing quirks/bugs, reproduced as-is (not fixed):
+    - Each row's Doctor <ui-select> used ng-change="onDoctorSelected(
+      $index,item)", but onDoctorSelected was declared as a plain JS
+      function (not $scope.onDoctorSelected) -- AngularJS templates
+      cannot reach it, so only the ng-model binding (DoctorId) ever
+      actually worked; DoctorName was never updated by this control.
+    - The per-row delete icon's ng-click="deleteItem($index,item)"
+      referenced a $scope method that is never defined anywhere in this
+      controller -- the button was already inert; reproduced as a
+      dispatch with no handler wired up.
+    - $scope.getDocLookup()/getDocLookupCallback (fetches
+      ServiceItemPerformingDoctors and groups it into $scope.TeamLookUp)
+      is dead: TeamLookUp is never initialized ($scope.TeamLookUp = [])
+      anywhere, so a non-empty response would throw on .push(), and the
+      result is never rendered by any template regardless -- not
+      migrated since nothing in the UI depends on it.
+    - DrShareValidation() and $scope.numberonly (the distinct keyCode
+      allow-list variant already confirmed on the non-Nepal modal) are
+      defined but not wired to the live Share Amount input in the active
+      template (no ng-keypress/ng-keyup on it) -- dead code, not
+      migrated since the live input never called them.
+    - getSelectionStart(o), a dead IE-era text-selection helper, is
+      defined but never called anywhere.
+    - vm.doctorcontrolconfig (native autosearch config) is defined but
+      unused since the only <autosearch> reference is inside the dead
+      commented-out block.
+-->
+<react-component name="DrPaymentModifyNepalFormScreen" props="{ reactProps: reactProps, onAction: handleReactAction }"></react-component>

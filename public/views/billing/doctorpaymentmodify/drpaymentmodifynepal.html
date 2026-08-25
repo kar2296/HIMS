@@ -1,3 +1,39 @@
+<!--
+  React bridge migration (hybrid): the page-header row's native DoctorId
+  <autosearch> and the banner table's native <patientsearch> (row 1, col 2)
+  remain untouched, live, native AngularJS widgets -- this screen does not
+  qualify for a single-mount migration.
+
+  Table-safe mount technique: a bare <react-component> cannot safely sit as
+  a direct <tr> child (the HTML5 parser's "in table" insertion mode would
+  foster-parent an unrecognized element out of the table structure), so
+  every native <td> wrapper below is kept untouched and a <react-component>
+  is nested INSIDE it, replacing only the input/control content. One shared
+  component (DrPaymentModifyNepalFilterFieldScreen), keyed by a `field`
+  prop, is mounted six times rather than shipping six near-identical files.
+
+  Preserved real API calls (unchanged): Visit/Visit/GetEncounters (getList,
+  Key15=1/Key17=FrmDate/Key18=ToDate/Key5=DoctorId/Key4=PatientId/
+  Key32=BillTypeId), General/Options/getoptions (BillType lookup).
+
+  Confirmed pre-existing quirks, reproduced as-is (not fixed):
+    - PatientMrn and EncounterTypeId are bound in currentfilter but are
+      never sent as params to GetEncounters -- both filters are dead.
+    - lookup.EncounterType is never populated (initLookup only requests
+      the "BillType" key) -- the EncounterType select is always empty.
+    - This screen has no BillType selector in its UI at all; currentfilter
+      .BillTypeId stays at its initial -1 for every request.
+    - Unlike the non-Nepal drpaymentmodify screen, none of FromBillDate /
+      ToBillDate / PatientMrn / EncounterTypeId trigger getList() on
+      change (no ng-change in the original) -- only the Fetch button and
+      the Reset action call getList()/clearfilter().
+    - The uib-pagination footer is dead: vm.gridConfig.pagerObj is never
+      assigned and getList() always requests PageContext.PageSize: -1
+      (the full result set) -- there was never a working pager. Omitted.
+    - Row edit action navigates via $state.go('app.doctorpaymentmodifylistnepal',
+      {id, DoctorName, isViewMode:false}) -- a full state transition, not a
+      modal (unlike the non-Nepal screen's drpaymentmodify-form modal).
+-->
 <!-- <style>
     .pl-3 {
         padding-left: 2%;
@@ -90,60 +126,36 @@
             </td>
             <td translate="billing.claimsubmission-list.fromdate.lbl"></td>
             <td>
-                <input type="text" class="form-control" name="FromBillDate" ng-date-object
-                    datetime-picker="{{datePickerOptions.dateTimeFormat}}" datepicker-append-to-body="true"
-                    placeholder="{{datePickerOptions.placeholder}}" ng-click="FromBillDatePopup = { opened: true }"
-                    is-open="FromBillDatePopup.opened" ng-model="currentfilter.FromBillDate">
+                <react-component name="DrPaymentModifyNepalFilterFieldScreen"
+                    props="{ reactProps: reactProps, onAction: handleReactAction, field: 'fromDate' }"></react-component>
             </td>
             <td translate="billing.claimsubmission-list.todate.lbl"></td>
             <td>
-                <input type="text" class="form-control" name="ToBillDate" ng-date-object
-                    datetime-picker="{{datePickerOptions.dateTimeFormat}}" datepicker-append-to-body="true"
-                    placeholder="{{datePickerOptions.placeholder}}" ng-click="ToBillDatePopup = { opened: true }"
-                    is-open="ToBillDatePopup.opened" ng-model="currentfilter.ToBillDate">
+                <react-component name="DrPaymentModifyNepalFilterFieldScreen"
+                    props="{ reactProps: reactProps, onAction: handleReactAction, field: 'toDate' }"></react-component>
             </td>
         </tr>
         <tr>
             <td translate="billing.drpaymentmodify.mrnno.lbl"></td>
             <td>
-                <input type="text" class="form-control" name="filter_code" on-enter="getList()"
-                    ng-model="currentfilter.PatientMrn" translate
-                    translate-attr-placeholder="billing.drpaymentmodify.mrnno.lbl">
+                <react-component name="DrPaymentModifyNepalFilterFieldScreen"
+                    props="{ reactProps: reactProps, onAction: handleReactAction, field: 'patientMrn' }"></react-component>
             </td>
             <td translate="billing.drpaymentmodify.encountertype.lbl"></td>
             <td>
-                <ui-select ng-model="currentfilter.EncounterTypeId" name="EncounterTypeId">
-                    <ui-select-match>
-                        {{$select.selected.Text | limitTo : 20 : 0}}
-                        <span ng-if="$select.selected.Text.length>20">...</span>
-                    </ui-select-match>
-                    <ui-select-choices
-                        repeat="lookupitem.Id as lookupitem in lookup.EncounterType | filter: { Text: $select.search }">
-                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
-                    </ui-select-choices>
-                </ui-select>
+                <react-component name="DrPaymentModifyNepalFilterFieldScreen"
+                    props="{ reactProps: reactProps, onAction: handleReactAction, field: 'encounterType' }"></react-component>
             </td>
             <td align="center">
-                <a ng-click="clearfilter()">
-                    <i class="fa fa-refresh" style="font-size:25px;color:#0066ff;"
-                        uib-tooltip="{{ 'common.resetaction.lbl' | translate}}" tooltip-placement="bottom"></i>
-                </a>
+                <react-component name="DrPaymentModifyNepalFilterFieldScreen"
+                    props="{ reactProps: reactProps, onAction: handleReactAction, field: 'reset' }"></react-component>
             </td>
             <td>
-                <button id="btnCancelForm" type="button" class="draftbutton" ng-click="getList()"
-                    translate="common.applyaction.lbl">
-                </button>
+                <react-component name="DrPaymentModifyNepalFilterFieldScreen"
+                    props="{ reactProps: reactProps, onAction: handleReactAction, field: 'fetch' }"></react-component>
             </td>
         </tr>
     </table>
 </div>
-<div class="row">
-    <custom-table config="vm.gridConfig"></custom-table>
-</div>
-<div class="fooder-bgs">
-    <div class="row">
-        <ul uib-pagination total-items="vm.gridConfig.pagerObj.totalItems"
-            items-per-page="vm.gridConfig.pagerObj.pageSize" start-index="vm.gridConfig.pagerObj.startIndex"
-            ng-model="vm.gridConfig.pagerObj.currentPage" ng-change="getList()"></ul>
-    </div>
-</div>
+<react-component name="DrPaymentModifyNepalListScreen"
+    props="{ reactProps: reactProps, onAction: handleReactAction }"></react-component>

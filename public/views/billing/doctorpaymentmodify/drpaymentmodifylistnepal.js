@@ -25,6 +25,14 @@
             id: parseInt($stateParams.id),
         };
 
+        $scope.refreshReactProps = function () {
+            $scope.reactProps = {
+                item: $scope.item,
+                lookup: $scope.lookup,
+                gridData: vm.gridConfig.data
+            };
+        };
+
         $scope.clearfilter = function () {
             $scope.currentfilter = {
                 DoctorId: -1,
@@ -44,6 +52,7 @@
             $scope.item.PatientName = $scope.item.Patient.FirstName;
             $scope.item.Age = $scope.item.Patient.Age;
             $scope.item.Gender = $scope.item.Patient.Gender.Description;
+            $scope.refreshReactProps();
             $scope.getList();
         };
 
@@ -97,6 +106,7 @@
 
             }
             vm.gridConfig.data = res.Data;
+            $scope.refreshReactProps();
         };
 
         $scope.getList = function () {
@@ -391,6 +401,24 @@
             };
             utl.Http.doAction(options);
         }
+
+        $scope.handleReactAction = function (actionName, payload) {
+            payload = payload || {};
+            if (actionName === 'doctorChange') {
+                $scope.onDoctorSelected({ Id: payload.id, Text: payload.text });
+                $scope.refreshReactProps();
+            } else if (actionName === 'referralChange') {
+                $scope.onReferralDoctorSelected({ Id: payload.id, Text: payload.text });
+                $scope.refreshReactProps();
+            } else if (actionName === 'save') {
+                $scope.saveitem();
+            } else if (actionName === 'edit') {
+                $scope.handleEvents('edit', payload.entity);
+            }
+            $scope.$applyAsync();
+        };
+
+        $scope.refreshReactProps();
 
         $scope.initLookup();
 
