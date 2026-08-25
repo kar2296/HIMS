@@ -603,6 +603,96 @@
             $scope.getList();
         };
 
+        // ---------------------------------------------------------------
+        // REACT BRIDGE (UI-MODERNIZATION RETROFIT, Billing / OP Billing
+        // Collections, app.opbillingcollections). AngularJS still owns all
+        // real state and logic below -- billing/patientbills/GetPatientBills
+        // and Billing/PatientRefund/GetPatientRefund calls, the 3-day
+        // date-range validation in getList(), and every Sales/Cancels/
+        // Refunds row + total computation. This block only mirrors state
+        // into $scope.reactProps and routes UI interactions back here by
+        // action name via handleReactAction. FromBillDate/ToBillDate are
+        // real Date objects (or, initially, date-like strings from
+        // $filter('date')) -- converted to/from an ISO yyyy-mm-dd string
+        // only at this boundary, exactly like every other DatePicker-backed
+        // bridge in this codebase.
+        function toIsoDate(d) {
+            if (!d) return '';
+            var dateObj = (d instanceof Date) ? d : new Date(d);
+            if (isNaN(dateObj.getTime())) return '';
+            var mm = ('0' + (dateObj.getMonth() + 1)).slice(-2);
+            var dd = ('0' + dateObj.getDate()).slice(-2);
+            return dateObj.getFullYear() + '-' + mm + '-' + dd;
+        }
+
+        $scope.refreshReactProps = function () {
+            $scope.reactProps = {
+                currentfilter: angular.extend({}, $scope.currentfilter, {
+                    FromBillDate: toIsoDate($scope.currentfilter.FromBillDate),
+                    ToBillDate: toIsoDate($scope.currentfilter.ToBillDate)
+                }),
+                lookup: $scope.lookup,
+                flags: {
+                    PatientBills: $scope.PatientBills,
+                    PatientBillCancellations: $scope.PatientBillCancellations,
+                    PatientRefunds: $scope.PatientRefunds
+                },
+                totals: {
+                    TotalCashSales: $scope.TotalCashSales,
+                    TotalCardSales: $scope.TotalCardSales,
+                    TotalChequeOtherSales: $scope.TotalChequeOtherSales,
+                    TotalSales: $scope.TotalSales,
+                    TotalCashRefunds: $scope.TotalCashRefunds,
+                    TotalCardRefunds: $scope.TotalCardRefunds,
+                    TotalChequeOtherRefunds: $scope.TotalChequeOtherRefunds,
+                    TotalRefunds: $scope.TotalRefunds,
+                    TotalCashCancels: $scope.TotalCashCancels,
+                    TotalCardCancels: $scope.TotalCardCancels,
+                    TotalChequeOtherCancels: $scope.TotalChequeOtherCancels,
+                    TotalCancels: $scope.TotalCancels
+                },
+                sales: $scope.PaymentOPDGSales,
+                cancels: $scope.PaymentOPDGCancels,
+                refunds: $scope.PaymentOPDGRefunds
+            };
+        };
+
+        var _origGetOPDGSalesListCallback = $scope.getOPDGSalesListCallback;
+        $scope.getOPDGSalesListCallback = function (scope, res, options, hasError) {
+            _origGetOPDGSalesListCallback(scope, res, options, hasError);
+            $scope.refreshReactProps();
+            $scope.$applyAsync();
+        };
+
+        var _origGetOPDGCancelsListCallback = $scope.getOPDGCancelsListCallback;
+        $scope.getOPDGCancelsListCallback = function (scope, res, options, hasError) {
+            _origGetOPDGCancelsListCallback(scope, res, options, hasError);
+            $scope.refreshReactProps();
+            $scope.$applyAsync();
+        };
+
+        var _origGetOPDGRefundsListCallback = $scope.getOPDGRefundsListCallback;
+        $scope.getOPDGRefundsListCallback = function (scope, res, options, hasError) {
+            _origGetOPDGRefundsListCallback(scope, res, options, hasError);
+            $scope.refreshReactProps();
+            $scope.$applyAsync();
+        };
+
+        $scope.handleReactAction = function (actionName, payload) {
+            var v = payload && payload.value;
+            if (actionName === 'fromDateChange') {
+                $scope.currentfilter.FromBillDate = v ? new Date(v) : null;
+            } else if (actionName === 'toDateChange') {
+                $scope.currentfilter.ToBillDate = v ? new Date(v) : null;
+            } else if (actionName === 'paymentTypeFilterChange') {
+                $scope.currentfilter.PaymentTypeId = v;
+            } else if (typeof $scope[actionName] === 'function') {
+                $scope[actionName]();
+            }
+            $scope.refreshReactProps();
+            $scope.$applyAsync();
+        };
+
         $scope.initLookup();
     }
 
