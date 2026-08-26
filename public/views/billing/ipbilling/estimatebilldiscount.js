@@ -74,6 +74,28 @@
             $('#discountvalue').focus();
         };
 
+        //React bridge: replaces the single <ui-select> for Discount Mode.
+        $scope.handleReactAction = function (actionType, payload) {
+            if (actionType == 'discountModeChange') {
+                $scope.currentcontext.DiscountModeId = payload.id;
+                $scope.DiscountChange();
+            }
+        };
+
+        $scope.refreshReactProps = function () {
+            $scope.reactPropsContainer = {
+                reactProps: {
+                    discountModeOptions: ($scope.lookup && $scope.lookup.DiscountMode) || [],
+                    discountModeId: $scope.currentcontext.DiscountModeId
+                },
+                onAction: $scope.handleReactAction
+            };
+        };
+
+        $scope.$watch('currentcontext.DiscountModeId', function () {
+            $scope.refreshReactProps();
+        });
+
         $scope.initLookup = function () {
             var inputData = [
                 { "Key": "DiscountMode" },
