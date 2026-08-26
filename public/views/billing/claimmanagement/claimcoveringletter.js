@@ -81,6 +81,8 @@
         $scope.addNewLineItem = function () {
             var detail = getNewItem();
             $scope.Details.push(detail);
+            $scope.refreshReactProps();
+            $scope.$applyAsync();
         }
         $scope.IsNewChecklist = true;
 
@@ -88,6 +90,7 @@
 
         $scope.getCoveringletterheaderCallback = function (scope, data, options, hasError) {
             $scope.item = data.Data;
+            $scope.refreshReactProps();
             $scope.getCoveringletter();
         };
 
@@ -134,6 +137,7 @@
         $scope.getCoveringletterCallback = function (scope, data, options, hasError) {
             $scope.Details = data.Data || [];
             $scope.currentcontext.id = $scope.Details[0].ClaimCoveringletterId;
+            $scope.refreshReactProps();
         };
 
         $scope.getCoveringletter = function () {
@@ -245,6 +249,7 @@
         };
         $scope.getItemCallback = function (scope, data, options, hasError) {
             $scope.Details = data.Data || [];
+            $scope.refreshReactProps();
             // if (data.Data.length > 0) {
             //     $scope.IsNewChecklist = false;
             //     $scope.Details = data.Data;
@@ -330,6 +335,31 @@
             $scope.Details = [];
             $scope.addNewLineItem();
         }
+        $scope.refreshReactProps = function () {
+            $scope.reactProps = {
+                currentcontext: $scope.currentcontext,
+                Details: $scope.Details
+            };
+        };
+
+        $scope.handleReactAction = function (actionName, payload) {
+            if (actionName === 'close') {
+                $scope.cancelCallback();
+            } else if (actionName === 'titleChange') {
+                $scope.Details[payload.index].Title = payload.value;
+            } else if (actionName === 'checklistValueChange') {
+                $scope.Details[payload.index].ChecklistValue = payload.value;
+            } else if (actionName === 'deleteDetail') {
+                $scope.deleteDetail($scope.Details[payload.index]);
+            } else if (actionName === 'save') {
+                $scope.saveItem();
+            }
+            $scope.refreshReactProps();
+            $scope.$applyAsync();
+        };
+
+        $scope.refreshReactProps();
+
         if ($scope.currentcontext.IsClaimCoveringLetter) {
             $scope.getCoveringletterheader();
         }

@@ -419,6 +419,8 @@ import { ChecklistFilterScreen } from './react-components/ChecklistFilterScreen'
 import { ChecklistListScreen } from './react-components/ChecklistListScreen';
 import { ChecklistFormScreen } from './react-components/ChecklistFormScreen';
 import { ChecklistFormDetailsScreen } from './react-components/ChecklistFormDetailsScreen';
+import { ClaimCoveringLetterScreen } from './react-components/ClaimCoveringLetterScreen';
+import { ClaimCoveringLetterViewScreen } from './react-components/ClaimCoveringLetterViewScreen';
 
 // Register components globally so the AngularJS bridge can find them
 (window as any).ReactComponents = {
@@ -633,7 +635,9 @@ import { ChecklistFormDetailsScreen } from './react-components/ChecklistFormDeta
   ChecklistFilterScreen,
   ChecklistListScreen,
   ChecklistFormScreen,
-  ChecklistFormDetailsScreen
+  ChecklistFormDetailsScreen,
+  ClaimCoveringLetterScreen,
+  ClaimCoveringLetterViewScreen
 };
 
 console.log('React runtime and components loaded. ReactBridge initialized.');
