@@ -1,3 +1,26 @@
+<!--
+  React bridge migration (hybrid). Native <patientsearch> stays
+  untouched (genuinely feeds patientChange() -> fnencounter() ->
+  getVisitIndentifier() -> getList() chain). No utl.Validator.validate
+  call.
+
+  Migrated via 2 <react-component> mounts:
+    1. PatientFinanceFilterScreen - From/To Date inputs (shared with
+       patientadjustmentinfo.html -- identical markup/behavior).
+    2. PatientRevenueInfoListScreen - results table + Total/Debit
+       banner. This screen's vm.gridConfig (real ui-grid columnDefs)
+       is entirely commented-out dead code in the original -- results
+       actually render via plain ng-repeat over
+       "ServiceCategories | filter:{Status:1}" (confirmed: no ui-grid/
+       custom-table element anywhere in the original template).
+       Reproduced as a plain table, filtering to Status===1
+       client-side to match exactly. No pagination in the original
+       (PageSize:1000 fetched in one shot) -- none added here either.
+
+  Preserved real API calls (unchanged):
+  registration/patient/GetPatientById, Visit/Visit/GetEncounters,
+  Billing/PatientBills/GetPatientBills, General/Options/getoptions.
+-->
 <style>
     .pull-right-table {
         display: flex;
@@ -13,83 +36,6 @@
                 tabindex="tabindexmap.patienttabindex" isdisabled="" filterconfig="patientfilterconfig"></patientsearch>
         </div>
     </div>
-    <div class="col-sm-4">
-        <label class="col-sm-4" for="fromdate" translate="billing.patientadjustmentinfo.fromdate.lbl"></label>
-        <div class="col-sm-8">
-            <input type="text" class="form-control" name="fromdate" ng-change="getList()" ng-date-object
-                uib-datepicker-popup="{{datePickerOptions.dateFormat}}" placeholder="{{datePickerOptions.placeholder}}"
-                ng-click="fromdatePopup = { opened: true }" is-open="fromdatePopup.opened"
-                ng-model="currentfilter.FromDate">
-        </div>
-    </div>
-    <div class="col-sm-4">
-        <label class="col-sm-4" for="todate" translate="billing.patientadjustmentinfo.todate.lbl"></label>
-        <div class="col-sm-8">
-            <input type="text" class="form-control" name="todate" ng-change="getList()" ng-date-object
-                uib-datepicker-popup="{{datePickerOptions.dateFormat}}" placeholder="{{datePickerOptions.placeholder}}"
-                ng-click="todatePopup = { opened: true }" is-open="todatePopup.opened" ng-model="currentfilter.ToDate">
-        </div>
-    </div>
+    <react-component name="PatientFinanceFilterScreen" props="{ reactProps: reactProps, onAction: handleReactAction }"></react-component>
 </div>
-<div class="row">
-    <form id="item_form" name="item_form" class="form-horizontal" role="form">
-        <div class="table-height formRoot bill_patrevenueinfo" id="mainresponsivetablecontrol">
-            <table class="table table-hover table-responsive table-bordered">
-                <thead class="bg-subhead">
-                    <tr>
-                        <th class="col-sm-3">
-                            <span translate="billing.patientrevenueinfo.transactiondate.lbl"></span>
-                        </th>
-                        <th class="col-sm-3">
-                            <span translate="billing.patientrevenueinfo.revenuecategory.lbl"></span>
-                        </th>
-                        <th class="col-sm-3">
-                            <span translate="billing.patientrevenueinfo.credit.lbl"></span>
-                        </th>
-                        <th class="col-sm-3">
-                            <span translate="billing.patientrevenueinfo.debit.lbl"></span>
-                        </th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr ng-repeat="category in ServiceCategories | filter:{Status:1}">
-                        <td>
-                            {{category.TransactionDate}}
-                        </td>
-                        <td>
-                            {{category.ServiceCategoryName}}
-                        </td>
-                        <td>
-                            <label class="pull-right">{{category.CreditAmount | displaycurrency}}</label>
-                        </td>
-                        <td>
-                            <label class="pull-right">{{category.DebitAmount | displaycurrency}}</label>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-    </form>
-</div>
-
-<div class="row">
-    <div class="pull-right-table">
-        <div class="col-sm-4">
-            <table id="bannerdetails">
-                <tr>
-                    <td class="totallabel">Total</td>
-                    <td>
-                        <span>{{currentcontext.TotalCredit | displaycurrency}}</span>
-                    </td>
-                </tr>
-                <tr>
-                    <td class="totallabel">Debit</td>
-                    <td>
-
-                        <span>{{currentcontext.TotalDebit | displaycurrency}}</span>
-                    </td>
-                </tr>
-            </table>
-        </div>
-    </div>
-</div>
+<react-component name="PatientRevenueInfoListScreen" props="{ reactProps: reactProps }"></react-component>

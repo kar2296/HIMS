@@ -117,6 +117,7 @@
                 vm.gridConfig.data.push(item);
             }
             vm.gridConfig.pagerObj.totalItems = vm.gridConfig.data.length;
+            $scope.refreshReactProps();
         };
 
         var rowtpl = '<div ng-class="{\'priority\':entity.IsAdvance==1 }"><div ng-repeat="(colRenderIndex, col) in colContainer.renderedColumns track by col.colDef.name" class="ui-grid-cell" ng-class="{ \'ui-grid-row-header-cell\': col.isRowHeader }" ui-grid-cell></div></div>';
@@ -161,6 +162,32 @@
             ],
             pagerObj: { totalItems: 0, currentPage: 1, startIndex: 0, pageSize: 25 }
         };
+
+        $scope.refreshReactProps = function () {
+            $scope.reactProps = {
+                currentfilter: $scope.currentfilter,
+                currentcontext: $scope.currentcontext,
+                rows: vm.gridConfig.data
+            };
+        };
+
+        $scope.handleReactAction = function (actionName, payload) {
+            switch (actionName) {
+                case 'fromDateChange':
+                    $scope.currentfilter.FromDate = payload.value ? new Date(payload.value) : null;
+                    $scope.refreshReactProps();
+                    $scope.getList();
+                    break;
+                case 'toDateChange':
+                    $scope.currentfilter.ToDate = payload.value ? new Date(payload.value) : null;
+                    $scope.refreshReactProps();
+                    $scope.getList();
+                    break;
+            }
+            $scope.$applyAsync();
+        };
+
+        $scope.refreshReactProps();
 
         $scope.lookupCallback = function (scope, data, options, hasError) {
             forEach(data, function (value, key) {

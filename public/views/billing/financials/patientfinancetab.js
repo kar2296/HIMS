@@ -24,6 +24,31 @@ function patientFinanceTabController($scope, $stateParams, $state, $translate, u
         $state.go(tab.state);
         } 
     }
+
+    $scope.refreshReactProps = function () {
+        $scope.reactProps = {
+            tabs: $scope.tabs,
+            activeState: $state.current.name
+        };
+    };
+
+    $scope.handleReactAction = function (actionName, payload) {
+        switch (actionName) {
+            case 'switchTab':
+                var t = $scope.tabs.filter(function (x) { return x.state === payload.state; })[0];
+                if (t) {
+                    $scope.switchTab(t);
+                }
+                break;
+        }
+        $scope.$applyAsync();
+    };
+
+    $scope.$on('$stateChangeSuccess', function () {
+        $scope.refreshReactProps();
+    });
+
+    $scope.refreshReactProps();
 }
 
 patientFinanceTabController.$inject = ['$scope', '$stateParams', '$state', '$translate', 'utl'];

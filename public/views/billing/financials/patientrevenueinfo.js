@@ -192,6 +192,7 @@
                 $scope.currentcontext.TotalCredit = $scope.currentcontext.TotalCredit + scitem.CreditAmount;
                 $scope.currentcontext.TotalDebit = $scope.currentcontext.TotalDebit + scitem.DebitAmount;
             }
+            $scope.refreshReactProps();
             /*
             var groupedServiceCategorys = groupBy_ServiceCategory(BillDetailedItems, ['ServiceCategoryId']);
             for (var groupedservicecategoryidx in groupedServiceCategorys) {
@@ -279,6 +280,33 @@
             };
             utl.Http.doAction(options);
         };
+
+        $scope.refreshReactProps = function () {
+            $scope.reactProps = {
+                currentfilter: $scope.currentfilter,
+                currentcontext: $scope.currentcontext,
+                rows: $scope.ServiceCategories
+            };
+        };
+
+        $scope.handleReactAction = function (actionName, payload) {
+            switch (actionName) {
+                case 'fromDateChange':
+                    $scope.currentfilter.FromDate = payload.value ? new Date(payload.value) : null;
+                    $scope.refreshReactProps();
+                    $scope.getList();
+                    break;
+                case 'toDateChange':
+                    $scope.currentfilter.ToDate = payload.value ? new Date(payload.value) : null;
+                    $scope.refreshReactProps();
+                    $scope.getList();
+                    break;
+            }
+            $scope.$applyAsync();
+        };
+
+        $scope.refreshReactProps();
+
 
         $scope.initLookup();
     }

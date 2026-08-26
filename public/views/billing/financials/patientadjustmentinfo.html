@@ -1,3 +1,36 @@
+<!--
+  React bridge migration (hybrid). Native <patientsearch> stays
+  untouched (genuinely feeds patientChange() -> fnencounter() ->
+  getVisitIndentifier() -> getList() chain). No utl.Validator.validate
+  call.
+
+  Migrated via 2 <react-component> mounts:
+    1. PatientFinanceFilterScreen - From/To Date inputs (shared with
+       patientrevenueinfo.html -- identical markup/behavior in both
+       originals), mounted AFTER the native <patientsearch> in the
+       same row.
+    2. PatientAdjustmentInfoListScreen - replaces the <custom-table>
+       grid (column-sort emulated client-side) + the Total/
+       PaidAmount/Adjusted/UnAdjusted/Due totals banner. The real
+       native <ul uib-pagination> stays untouched below (its pagerObj
+       is genuinely used by getList()'s PageContext).
+
+  Preserved real API calls (unchanged):
+  registration/patient/GetPatientById, Visit/Visit/GetEncounters,
+  Billing/PatientAccounts/GetPatientAccounts, General/Options/getoptions.
+
+  Confirmed pre-existing quirks, reproduced as-is (not "fixed"):
+  - The "Bill / Receipt No#" column's link dispatches to
+    grid.appScope.handleEvents('transaction', row) in the original --
+    handleEvents is never defined anywhere in this controller, so
+    clicking it has always done nothing. No handler wired up here
+    either (same no-op).
+  - $scope.currentcontext.Total* fields are only reset to 0 once, at
+    controller init -- NOT inside getListCallback -- so every
+    subsequent search ADDS to the previous totals rather than
+    replacing them. This is a genuine pre-existing bug, left unfixed;
+    the banner just displays whatever currentcontext currently holds.
+-->
 <style>
     .pull-right-table {
         display: flex;
@@ -14,66 +47,9 @@
             </patientsearch>
         </div>
     </div>
-    <div class="col-sm-4">
-        <label class="col-sm-4" for="fromdate" translate="billing.patientadjustmentinfo.fromdate.lbl"></label>
-        <div class="col-sm-8">
-            <input type="text" class="form-control" name="fromdate" ng-change="getList()" ng-date-object
-                uib-datepicker-popup="{{datePickerOptions.dateFormat}}" placeholder="{{datePickerOptions.placeholder}}"
-                ng-click="fromdatePopup = { opened: true }" is-open="fromdatePopup.opened"
-                ng-model="currentfilter.FromDate">
-        </div>
-    </div>
-    <div class="col-sm-4">
-        <label class="col-sm-4" for="todate" translate="billing.patientadjustmentinfo.todate.lbl"></label>
-        <div class="col-sm-8">
-            <input type="text" class="form-control" name="todate" ng-change="getList()" ng-date-object
-                uib-datepicker-popup="{{datePickerOptions.dateFormat}}" placeholder="{{datePickerOptions.placeholder}}"
-                ng-click="todatePopup = { opened: true }" is-open="todatePopup.opened" ng-model="currentfilter.ToDate">
-        </div>
-    </div>
+    <react-component name="PatientFinanceFilterScreen" props="{ reactProps: reactProps, onAction: handleReactAction }"></react-component>
 </div>
-<div class="row">
-    <custom-table config="vm.gridConfig"></custom-table>
-</div>
-<div class="row">
-    <div class="pull-right-table">
-        <div class="col-sm-4">
-            <table id="bannerdetails">
-                <tr>
-                    <td class="totallabel">Total</td>
-                    <td>
-                        <span>{{currentcontext.TotalBillAmount | displaycurrency}}</span>
-                    </td>
-                </tr>
-                <tr>
-                    <td class="totallabel">TotalPaidAmount</td>
-                    <td>
-
-                        <span>{{currentcontext.TotalPaidAmount | displaycurrency}}</span>
-                    </td>
-                </tr>
-                <tr>
-                    <td class="totallabel">Amount</td>
-                    <td>
-                        <span>{{currentcontext.TotalAdjustedAmount | displaycurrency}}</span>
-                    </td>
-                </tr>
-                <tr>
-                    <td class="totallabel">Unpaid Amount</td>
-                    <td>
-                        <span>{{currentcontext.TotalUnAdjustedAmount | displaycurrency}}</span>
-                    </td>
-                </tr>
-                <tr>
-                    <td class="totallabel">Due</td>
-                    <td>
-                        <span>{{currentcontext.TotalDueAmount | displaycurrency}}</span>
-                    </td>
-                </tr>
-            </table>
-        </div>
-    </div>
-</div>
+<react-component name="PatientAdjustmentInfoListScreen" props="{ reactProps: reactProps, onAction: handleReactAction }"></react-component>
 <div class="fooder-bgs">
     <div class="row">
         <ul uib-pagination total-items="vm.gridConfig.pagerObj.totalItems"
