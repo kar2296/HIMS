@@ -468,6 +468,8 @@ import { TransferredFileReceiveStatusFilterScreen } from './react-components/Tra
 import { TransferredFileReceiveListScreen } from './react-components/TransferredFileReceiveListScreen';
 import { IpMrdFileTransferStatusFilterScreen } from './react-components/IpMrdFileTransferStatusFilterScreen';
 import { IpMrdFileTransferListScreen } from './react-components/IpMrdFileTransferListScreen';
+import { TransferredFileReturnsStatusFilterScreen } from './react-components/TransferredFileReturnsStatusFilterScreen';
+import { TransferredFileReturnsListScreen } from './react-components/TransferredFileReturnsListScreen';
 import { ClaimReceiptBillsTableScreen } from './react-components/ClaimReceiptBillsTableScreen';
 import { NewReceiptBillsTableScreen } from './react-components/NewReceiptBillsTableScreen';
 import { ItemwiseOpBillCancelSelectScreen } from './react-components/ItemwiseOpBillCancelSelectScreen';
@@ -736,6 +738,8 @@ import { ItemwiseOpBillCancelTableScreen } from './react-components/ItemwiseOpBi
   TransferredFileReceiveListScreen,
   IpMrdFileTransferStatusFilterScreen,
   IpMrdFileTransferListScreen,
+  TransferredFileReturnsStatusFilterScreen,
+  TransferredFileReturnsListScreen,
   ClaimReceiptBillsTableScreen,
   NewReceiptBillsTableScreen,
   ItemwiseOpBillCancelSelectScreen,

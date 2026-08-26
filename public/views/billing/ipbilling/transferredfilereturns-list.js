@@ -18,6 +18,7 @@
         $scope.getListCallback = function (scope, res, options, hasError) {
             vm.gridConfig.data = res.Data;
             vm.gridConfig.pagerObj.totalItems = res.PageContext.TotalRecords;
+            $scope.refreshReactProps();
         };
 
         $scope.getList = function () {
@@ -86,6 +87,69 @@
                 });
             }
         }
+
+        //React bridge: replaces the <ui-select> status filter and the
+        //<custom-table config="vm.gridConfig"> results grid. The initial
+        //call to refreshReactProps() is placed after vm.gridConfig is
+        //defined below (it reads vm.gridConfig.columnDefs).
+        $scope.handleListAction = function (actionType, payload) {
+            if (actionType == 'fileReturn') {
+                var items = vm.gridConfig.data || [];
+                var entity = null;
+                for (var i = 0; i < items.length; i++) {
+                    if (items[i].Id === payload.id) { entity = items[i]; break; }
+                }
+                $scope.handleEvents('filereturn', entity);
+            }
+        };
+
+        $scope.handleFilterAction = function (actionType, payload) {
+            if (actionType == 'statusChange') {
+                $scope.currentfilter.MRDIPFileStatusId = payload.id;
+                $scope.getList();
+            }
+        };
+
+        $scope.refreshReactProps = function () {
+            var items = vm.gridConfig.data || [];
+            var rows = items.map(function (entity) {
+                var requestUser = entity.RequestUser || {};
+                var approveUser = entity.ApproveUser || {};
+                var status = entity.MRDIPFileStatus || {};
+                return {
+                    id: entity.Id,
+                    requestDateDisplay: entity.RequestDate ? $filter('date')(entity.RequestDate, 'dd-MMM-yyyy') : '',
+                    requestTimeDisplay: entity.RequestDate ? $filter('date')(entity.RequestDate, 'HH:mm') : '',
+                    visitNo: entity.VisitNo,
+                    patientName: entity.PatientName,
+                    requestUserTitle: requestUser.Title && requestUser.Title.Description,
+                    requestUserFirstName: requestUser.FirstName,
+                    requestUserLastName: requestUser.LastName,
+                    approveUserTitle: approveUser.Title && approveUser.Title.Description,
+                    approveUserFirstName: approveUser.FirstName,
+                    approveUserLastName: approveUser.LastName,
+                    doctorName: entity.DoctorName,
+                    statusDescription: status.Description,
+                    statusId: entity.MRDIPFileStatusId
+                };
+            });
+
+            $scope.reactPropsListContainer = {
+                reactProps: {
+                    headers: vm.gridConfig.columnDefs.map(function (c) { return c.displayName; }),
+                    rows: rows
+                },
+                onAction: $scope.handleListAction
+            };
+
+            $scope.reactPropsFilterContainer = {
+                reactProps: {
+                    statusOptions: ($scope.lookup && $scope.lookup.MRDIPFileStatus) || [],
+                    statusId: $scope.currentfilter.MRDIPFileStatusId
+                },
+                onAction: $scope.handleFilterAction
+            };
+        };
 
 
         vm.gridConfig = {
@@ -161,6 +225,9 @@
                 pageSize: 25
             }
         };
+
+        $scope.refreshReactProps();
+
         $timeout(function () {
             removeFloatingNav();
         }, 100);
