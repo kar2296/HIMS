@@ -455,6 +455,9 @@ import { DrShareSelectionScreen } from './react-components/DrShareSelectionScree
 import { OpBillingMoreFormScreen } from './react-components/OpBillingMoreFormScreen';
 import { CancelReceiptListScreen } from './react-components/CancelReceiptListScreen';
 import { OpBillingFormSelectScreen } from './react-components/OpBillingFormSelectScreen';
+import { OpBillingHeaderSelectScreen } from './react-components/OpBillingHeaderSelectScreen';
+import { OpBillingDiscountApprovalScreen } from './react-components/OpBillingDiscountApprovalScreen';
+import { OpBillingFooterPaymentScreen } from './react-components/OpBillingFooterPaymentScreen';
 import { DispatchDetailFormScreen } from './react-components/DispatchDetailFormScreen';
 import { ClaimReceiptSelectScreen } from './react-components/ClaimReceiptSelectScreen';
 import { ClaimReceiptBillsTableScreen } from './react-components/ClaimReceiptBillsTableScreen';
@@ -712,6 +715,9 @@ import { ItemwiseOpBillCancelTableScreen } from './react-components/ItemwiseOpBi
   OpBillingMoreFormScreen,
   CancelReceiptListScreen,
   OpBillingFormSelectScreen,
+  OpBillingHeaderSelectScreen,
+  OpBillingDiscountApprovalScreen,
+  OpBillingFooterPaymentScreen,
   DispatchDetailFormScreen,
   ClaimReceiptSelectScreen,
   ClaimReceiptBillsTableScreen,
