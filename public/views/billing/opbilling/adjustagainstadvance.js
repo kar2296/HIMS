@@ -67,6 +67,7 @@
                 }
                 $scope.advanceDetails.push(recdata);
             }
+            $scope.refreshReactProps();
         };
 
         $scope.computeAdvance = function (item) {
@@ -124,6 +125,28 @@
                 onComplete: $scope.lookupCallback
             };
             utl.Http.doAction(options);
+        };
+
+        $scope.refreshReactProps = function () {
+            $scope.reactProps = {
+                rows: $scope.advanceDetails
+                    .map(function (item, idx) { item._idx = idx; return item; })
+                    .filter(function (item) { return item.Status === 1; })
+            };
+            $scope.$applyAsync();
+        };
+
+        $scope.handleReactAction = function (actionName, payload) {
+            switch (actionName) {
+                case 'adjustAmountChange':
+                    var entity = $scope.advanceDetails[payload.idx];
+                    if (entity) {
+                        entity.AdjustAmount = payload.value;
+                        $scope.computeAdvance(entity);
+                        $scope.refreshReactProps();
+                    }
+                    break;
+            }
         };
 
         $scope.initLookup();
