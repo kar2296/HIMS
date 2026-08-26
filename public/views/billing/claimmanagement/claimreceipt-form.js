@@ -52,6 +52,7 @@
                 $scope.item.GuarantorId = -1;
                 $scope.item.GuarantorName = '';
             }
+            $scope.refreshReactProps();
         };
 
 
@@ -81,6 +82,7 @@
                     $scope.ClaimableBills.push(item);
                 });
             }
+            $scope.refreshReactProps();
         };
 
         $scope.loadBills = function () {
@@ -206,6 +208,7 @@
                 }
                 $scope.getAttachments();
             }
+            $scope.refreshReactProps();
         };
 
         $scope.getItem = function () {
@@ -238,12 +241,14 @@
                 rowItem.ClaimStatusId = 2;
             }
             $scope.calculateAmount();
+            $scope.refreshReactProps();
         };
 
         $scope.removePayment = function (rowItem) {
             if (rowItem)
                 rowItem.ClaimStatusId = 1;
             $scope.calculateAmount();
+            $scope.refreshReactProps();
         };
         $scope.backToList = function () {
             $state.go('app.claimmanagement-listtab.receivedreceipts');
@@ -289,6 +294,7 @@
                 claims.Disallowed = 0;
             }
             $scope.calculateAmount();
+            $scope.refreshReactProps();
         };
 
         $scope.patientprofiledetails = function (patientId) {
@@ -484,6 +490,7 @@
             if ($scope.currentcontext.id > 0)
                 $scope.lookup.SelectedGuarantor = $scope.lookup["Guarantor"];
             $scope.getItem();
+            $scope.refreshReactProps();
         };
 
         $scope.initLookup = function () {
@@ -526,6 +533,86 @@
             };
             utl.Http.doAction(options);
         };
+
+        $scope.refreshReactProps = function () {
+            $scope.lookup = $scope.lookup || {};
+            ($scope.ClaimableBills || []).forEach(function (b, idx) { b._idx = idx; });
+            $scope.reactProps = {
+                isDisabled: $scope.IsDisabled,
+                guarantorTypeId: $scope.item.GuarantorTypeId,
+                guarantorTypeOptions: $scope.lookup.GuarantorType || [],
+                guarantorId: $scope.item.GuarantorId,
+                guarantorOptions: $scope.lookup.SelectedGuarantor || [],
+                encounterTypeId: $scope.currentfilter.encountertypeid,
+                encounterTypeOptions: $scope.lookup.EncounterType || [],
+                paymentTypeId: $scope.currentcontext.PaymentTypeId,
+                paymentTypeOptions: $scope.lookup.PaymentType || [],
+                bankId: $scope.item.BankId,
+                bankOptions: $scope.lookup.Bank || [],
+                terminalId: $scope.item.TerminalNoId,
+                terminalOptions: $scope.lookup.Terminal || [],
+                cardTypeId: $scope.item.CardTypeId,
+                cardTypeOptions: $scope.lookup.CardType || [],
+                claimableBills: $scope.ClaimableBills || []
+            };
+        };
+
+        $scope.handleReactAction = function (actionType, payload) {
+            switch (actionType) {
+                case 'guarantorTypeChange':
+                    $scope.item.GuarantorTypeId = payload.id;
+                    var selectedGType = null;
+                    ($scope.lookup.GuarantorType || []).forEach(function (g) {
+                        if (g.Id === payload.id) selectedGType = g;
+                    });
+                    $scope.GuarantorTypeChange(selectedGType || { Id: payload.id });
+                    break;
+                case 'guarantorChange':
+                    $scope.item.GuarantorId = payload.id;
+                    $scope.loadBills();
+                    break;
+                case 'encounterTypeChange':
+                    $scope.currentfilter.encountertypeid = payload.id;
+                    $scope.loadBills();
+                    break;
+                case 'paymentTypeChange':
+                    $scope.currentcontext.PaymentTypeId = payload.id;
+                    break;
+                case 'bankChange':
+                    $scope.item.BankId = payload.id;
+                    break;
+                case 'terminalChange':
+                    $scope.item.TerminalNoId = payload.id;
+                    break;
+                case 'cardTypeChange':
+                    $scope.item.CardTypeId = payload.id;
+                    break;
+                case 'addPayment':
+                    $scope.ClaimableBills.forEach(function (b) {
+                        if (b._idx === payload.idx) $scope.addPayment(b);
+                    });
+                    break;
+                case 'removePayment':
+                    $scope.ClaimableBills.forEach(function (b) {
+                        if (b._idx === payload.idx) $scope.removePayment(b);
+                    });
+                    break;
+                case 'lineFieldChange':
+                    $scope.ClaimableBills.forEach(function (b) {
+                        if (b._idx === payload.idx) {
+                            b[payload.field] = payload.value;
+                            if (payload.recalc) $scope.calculateLineValues(b);
+                        }
+                    });
+                    break;
+                case 'patientInfo':
+                    $scope.patientprofiledetails(payload.patientId);
+                    break;
+            }
+            $scope.refreshReactProps();
+            $scope.$applyAsync();
+        };
+
         $scope.initLookup();
     }
 
