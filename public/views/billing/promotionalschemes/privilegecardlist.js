@@ -21,6 +21,7 @@
         $scope.getListCallback = function(scope, res, options, hasError) {
             vm.gridConfig.data = res.Data;
             vm.gridConfig.pagerObj.totalItems = res.PageContext.TotalRecords;
+            $scope.refreshReactProps();
         };
 
         $scope.getList = function(pageNo) {
@@ -130,6 +131,7 @@
 
         $scope.lookupCallback = function(scope, data, options, hasError) {
             $scope.lookup = hasError ? {} : data;
+            $scope.refreshReactProps();
             $scope.getList();
         };
 
@@ -161,6 +163,52 @@
         function removeFloatingNav() {
             $rootScope.app.layout.isCollapsed = true;
         }
+        $scope.refreshReactProps = function () {
+            $scope.reactProps = {
+                currentfilter: $scope.currentfilter,
+                lookup: $scope.lookup,
+                rows: vm.gridConfig.data
+            };
+        };
+
+        $scope.handleReactAction = function (actionName, payload) {
+            switch (actionName) {
+                case 'membershipNumberChange':
+                    $scope.currentfilter.MembershipNumber = payload.value;
+                    $scope.refreshReactProps();
+                    break;
+                case 'fromDateChange':
+                    $scope.currentfilter.FromDate = payload.value ? new Date(payload.value) : null;
+                    $scope.refreshReactProps();
+                    $scope.getList();
+                    break;
+                case 'toDateChange':
+                    $scope.currentfilter.ToDate = payload.value ? new Date(payload.value) : null;
+                    $scope.refreshReactProps();
+                    $scope.getList();
+                    break;
+                case 'cardTypeChange':
+                    $scope.currentfilter.CardTypeId = payload.value;
+                    $scope.refreshReactProps();
+                    $scope.getList();
+                    break;
+                case 'fetch':
+                    $scope.getList();
+                    break;
+                case 'addNew':
+                    $scope.addNew();
+                    break;
+                case 'view':
+                    $scope.handleEvents('view', payload);
+                    break;
+                case 'delete':
+                    $scope.handleEvents('delete', payload);
+                    break;
+            }
+            $scope.$applyAsync();
+        };
+
+        $scope.refreshReactProps();
         $scope.initLookup();
     }
 

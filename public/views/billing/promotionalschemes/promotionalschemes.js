@@ -17,6 +17,7 @@
         $scope.getListCallback = function (scope, res, options, hasError) {
             vm.gridConfig.data = res.Data;
             vm.gridConfig.pagerObj.totalItems = res.PageContext.TotalRecords;
+            $scope.refreshReactProps();
         };
 
         $scope.getList = function () {
@@ -112,6 +113,7 @@
 
         $scope.lookupCallback = function (scope, data, options, hasError) {
             $scope.lookup = hasError ? {} : data;
+            $scope.refreshReactProps();
             $scope.getList();
         };
 
@@ -130,6 +132,35 @@
             utl.Http.doAction(options);
         };
 
+        $scope.refreshReactProps = function () {
+            $scope.reactProps = {
+                currentfilter: $scope.currentfilter,
+                lookup: $scope.lookup,
+                rows: vm.gridConfig.data
+            };
+        };
+
+        $scope.handleReactAction = function (actionName, payload) {
+            switch (actionName) {
+                case 'statusChange':
+                    $scope.currentfilter.ActiveStatusId = payload.value;
+                    $scope.refreshReactProps();
+                    $scope.getList();
+                    break;
+                case 'addNew':
+                    $scope.addNew();
+                    break;
+                case 'edit':
+                    $scope.handleEvents('edit', payload);
+                    break;
+                case 'delete':
+                    $scope.handleEvents('delete', payload);
+                    break;
+            }
+            $scope.$applyAsync();
+        };
+
+        $scope.refreshReactProps();
         $scope.initLookup();
     }
 

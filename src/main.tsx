@@ -385,6 +385,8 @@ import { UnlockBillingListScreen } from './react-components/UnlockBillingListScr
 import { PaymodeTabScreen } from './react-components/PaymodeTabScreen';
 import { PaymodeChangeFilterScreen } from './react-components/PaymodeChangeFilterScreen';
 import { PaymodeChangeListScreen } from './react-components/PaymodeChangeListScreen';
+import { PromotionalSchemesListScreen } from './react-components/PromotionalSchemesListScreen';
+import { PrivilegeCardListScreen } from './react-components/PrivilegeCardListScreen';
 import { IpBillingRequestFilterScreen } from './react-components/IpBillingRequestFilterScreen';
 import { IpBillingRequestListScreen } from './react-components/IpBillingRequestListScreen';
 import { EditIpBillingRequestScreen } from './react-components/EditIpBillingRequestScreen';
@@ -573,6 +575,8 @@ import { DetailIpBillingRequestListScreen } from './react-components/DetailIpBil
   PaymodeTabScreen,
   PaymodeChangeFilterScreen,
   PaymodeChangeListScreen,
+  PromotionalSchemesListScreen,
+  PrivilegeCardListScreen,
   IpBillingRequestFilterScreen,
   IpBillingRequestListScreen,
   EditIpBillingRequestScreen,
