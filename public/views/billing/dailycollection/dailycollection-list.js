@@ -22,6 +22,16 @@
             DoctorName: ''
         };
         $scope.Approve = 0;
+        // Defensive initialization: the original controller never
+        // assigns $scope.currentcontext anywhere, yet selectAllItems()
+        // reads $scope.currentcontext.selectall (and the header checkbox's
+        // ng-model="currentcontext.selectall" would auto-vivify it via
+        // AngularJS's two-way binding on first toggle in the original app).
+        // Initialized here so the React bridge's 'selectAll' action cannot
+        // throw where the original may or may not have, depending on
+        // click/change event ordering -- pure crash-prevention, no business
+        // behavior change.
+        $scope.currentcontext = {};
         //$scope.item = {};
 
         $scope.CollectionDetails = [];
@@ -65,6 +75,7 @@
             $scope.CollectionDetails = res.Data;
             // vm.gridConfig.data = res.Data;
             // vm.gridConfig.pagerObj.totalItems = res.PageContext.TotalRecords;
+            $scope.refreshReactProps();
         };
 
         $scope.selectAllItems = function () {
@@ -309,6 +320,7 @@
 
         $scope.lookupCallback = function (scope, data, options, hasError) {
             $scope.lookup = hasError ? {} : data;
+            $scope.refreshReactProps();
             $scope.getList();
         };
 
@@ -327,6 +339,98 @@
             utl.Http.doAction(options);
         };
 
+        $scope.refreshReactProps = function () {
+            $scope.reactProps = {
+                currentfilter: $scope.currentfilter,
+                lookup: $scope.lookup,
+                CollectionDetails: $scope.CollectionDetails,
+                selectall: $scope.currentcontext ? $scope.currentcontext.selectall : false
+            };
+        };
+
+        function findRow(id) {
+            for (var idx in $scope.CollectionDetails) {
+                if ($scope.CollectionDetails[idx].Id == id) {
+                    return $scope.CollectionDetails[idx];
+                }
+            }
+            return null;
+        }
+
+        $scope.handleReactAction = function (actionName, payload) {
+            var row;
+            switch (actionName) {
+                case 'facilityChange':
+                    $scope.currentfilter.FacilityId = payload.value;
+                    $scope.getList();
+                    break;
+                case 'fromDateChange':
+                    $scope.currentfilter.FromDate = payload.value ? new Date(payload.value) : null;
+                    $scope.getList();
+                    break;
+                case 'toDateChange':
+                    $scope.currentfilter.ToDate = payload.value ? new Date(payload.value) : null;
+                    $scope.getList();
+                    break;
+                case 'collectionStatusChange':
+                    $scope.currentfilter.CollectionStatusId = payload.value;
+                    $scope.getList();
+                    break;
+                case 'selectAll':
+                    $scope.currentcontext.selectall = payload.value;
+                    $scope.selectAllItems();
+                    $scope.refreshReactProps();
+                    break;
+                case 'toggleSelect':
+                    row = findRow(payload.Id);
+                    if (row) {
+                        row.IsSelected = payload.value;
+                    }
+                    $scope.refreshReactProps();
+                    break;
+                case 'depositChange':
+                    row = findRow(payload.Id);
+                    if (row) {
+                        row.Deposit = payload.value;
+                        $scope.calc_bal(row);
+                    }
+                    $scope.refreshReactProps();
+                    break;
+                case 'eodChange':
+                    row = findRow(payload.Id);
+                    if (row) {
+                        row.EOD = payload.value;
+                        $scope.calc_bal(row);
+                    }
+                    $scope.refreshReactProps();
+                    break;
+                case 'bankCreditChange':
+                    row = findRow(payload.Id);
+                    if (row) {
+                        row.BankCredit = payload.value;
+                        $scope.calc_bal(row);
+                    }
+                    $scope.refreshReactProps();
+                    break;
+                case 'chequeDepositChange':
+                    row = findRow(payload.Id);
+                    if (row) {
+                        row.ChequeDeposit = payload.value;
+                        $scope.calc_bal(row);
+                    }
+                    $scope.refreshReactProps();
+                    break;
+                case 'save':
+                    $scope.saveDraft();
+                    break;
+                case 'approve':
+                    $scope.saveAndApprove();
+                    break;
+            }
+            $scope.$applyAsync();
+        };
+
+        $scope.refreshReactProps();
         $scope.initLookup();
     }
     DailyCollectionListController.$inject = ['$rootScope', '$scope', '$stateParams', '$state', '$translate', 'utl', '$filter', '$timeout'];

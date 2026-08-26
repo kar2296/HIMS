@@ -387,6 +387,7 @@ import { PaymodeChangeFilterScreen } from './react-components/PaymodeChangeFilte
 import { PaymodeChangeListScreen } from './react-components/PaymodeChangeListScreen';
 import { PromotionalSchemesListScreen } from './react-components/PromotionalSchemesListScreen';
 import { PrivilegeCardListScreen } from './react-components/PrivilegeCardListScreen';
+import { DailyCollectionListScreen } from './react-components/DailyCollectionListScreen';
 import { IpBillingRequestFilterScreen } from './react-components/IpBillingRequestFilterScreen';
 import { IpBillingRequestListScreen } from './react-components/IpBillingRequestListScreen';
 import { EditIpBillingRequestScreen } from './react-components/EditIpBillingRequestScreen';
@@ -577,6 +578,7 @@ import { DetailIpBillingRequestListScreen } from './react-components/DetailIpBil
   PaymodeChangeListScreen,
   PromotionalSchemesListScreen,
   PrivilegeCardListScreen,
+  DailyCollectionListScreen,
   IpBillingRequestFilterScreen,
   IpBillingRequestListScreen,
   EditIpBillingRequestScreen,
