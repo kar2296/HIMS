@@ -466,6 +466,8 @@ import { RefundPickerGridScreen } from './react-components/RefundPickerGridScree
 import { EstimateBillDiscountModeScreen } from './react-components/EstimateBillDiscountModeScreen';
 import { TransferredFileReceiveStatusFilterScreen } from './react-components/TransferredFileReceiveStatusFilterScreen';
 import { TransferredFileReceiveListScreen } from './react-components/TransferredFileReceiveListScreen';
+import { IpMrdFileTransferStatusFilterScreen } from './react-components/IpMrdFileTransferStatusFilterScreen';
+import { IpMrdFileTransferListScreen } from './react-components/IpMrdFileTransferListScreen';
 import { ClaimReceiptBillsTableScreen } from './react-components/ClaimReceiptBillsTableScreen';
 import { NewReceiptBillsTableScreen } from './react-components/NewReceiptBillsTableScreen';
 import { ItemwiseOpBillCancelSelectScreen } from './react-components/ItemwiseOpBillCancelSelectScreen';
@@ -732,6 +734,8 @@ import { ItemwiseOpBillCancelTableScreen } from './react-components/ItemwiseOpBi
   EstimateBillDiscountModeScreen,
   TransferredFileReceiveStatusFilterScreen,
   TransferredFileReceiveListScreen,
+  IpMrdFileTransferStatusFilterScreen,
+  IpMrdFileTransferListScreen,
   ClaimReceiptBillsTableScreen,
   NewReceiptBillsTableScreen,
   ItemwiseOpBillCancelSelectScreen,
