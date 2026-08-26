@@ -32,6 +32,27 @@
         function removeFloatingNav() {
             $rootScope.app.layout.isCollapsed = true;
         }
+        $scope.refreshReactProps = function () {
+            $scope.reactProps = {
+                tabs: $scope.tabs,
+                activeState: $state.current.name
+            };
+        };
+
+        $scope.handleReactAction = function (actionName, payload) {
+            switch (actionName) {
+                case 'switchTab':
+                    $state.go(payload.state);
+                    break;
+            }
+            $scope.$applyAsync();
+        };
+
+        $scope.$on('$stateChangeSuccess', function () {
+            $scope.refreshReactProps();
+        });
+
+        $scope.refreshReactProps();
         $scope.switchTab($scope.tabs[0]);
 
     }

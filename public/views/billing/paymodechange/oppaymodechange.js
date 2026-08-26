@@ -24,6 +24,7 @@
             if (res && res.Data && res.Data.length > 0) {
                 $scope.PaymentDetails = res.Data;
             }
+            $scope.refreshReactProps();
         };
 
         $scope.getPaymentDetailList = function () {
@@ -224,6 +225,44 @@
             utl.Http.doAction(options);
         };
 
+        $scope.refreshReactProps = function () {
+            $scope.reactProps = {
+                currentfilter: $scope.currentfilter,
+                PaymentDetails: $scope.PaymentDetails
+            };
+        };
+
+        $scope.handleReactAction = function (actionName, payload) {
+            switch (actionName) {
+                case 'fromBillDateChange':
+                    $scope.currentfilter.FromBillDate = payload.value ? new Date(payload.value) : null;
+                    $scope.refreshReactProps();
+                    break;
+                case 'toBillDateChange':
+                    $scope.currentfilter.ToBillDate = payload.value ? new Date(payload.value) : null;
+                    $scope.refreshReactProps();
+                    break;
+                case 'filterFieldChange':
+                    $scope.currentfilter[payload.key] = payload.value;
+                    $scope.refreshReactProps();
+                    if (payload.autoRefetch) {
+                        $scope.getPaymentDetailList();
+                    }
+                    break;
+                case 'fetch':
+                    $scope.getList();
+                    break;
+                case 'edit':
+                    $scope.paymodechange(payload.item);
+                    break;
+                case 'print':
+                    $scope.paymodechangeprint(payload.item);
+                    break;
+            }
+            $scope.$applyAsync();
+        };
+
+        $scope.refreshReactProps();
         $scope.initLookup();
 
 
