@@ -455,7 +455,7 @@
                 TotalAvailableAmt = TotalAvailableAmt + item.AmountAvailable;
             }
             $scope.currentfilter.TotalAvailableAmount = TotalAvailableAmt;
-
+            $scope.refreshReactProps();
         };
 
         // $scope.getPrevAdvances = function () {
@@ -598,6 +598,7 @@
             //     $scope.item.PaidAmount = parseFloat($scope.currentcontext.TotalReceiptAmount) - parseFloat($scope.currentcontext.TotalRefundAmount);ZZ
             // }
             $scope.currentfilter.TotalAmount = $scope.currentfilter.TotalSalesAmount - $scope.currentfilter.TotalReturnAmount;
+            $scope.refreshReactProps();
         };
         $scope.backToList = function () {
             $state.go('app.pharmacyclearance');
@@ -828,6 +829,7 @@
             //     $scope.item.PaidAmount = parseFloat($scope.currentcontext.TotalReceiptAmount) - parseFloat($scope.currentcontext.TotalRefundAmount);ZZ
             // }
             $scope.currentfilter.TotalAmount = $scope.currentfilter.TotalSalesAmount - $scope.currentfilter.TotalReturnAmount;
+            $scope.refreshReactProps();
             $scope.getPharmacyBills();
             // if($scope.IsPharmacy == true) {
             //     $scope.getPharmacyBills();
@@ -1494,6 +1496,7 @@
                 $scope.currentcontext.EncounterId = $scope.selectedPatient.Encounters[0].Id;
                 $scope.getEncounters();
             }
+            $scope.refreshReactProps();
 
             //console.log($scope.selectedPatient.Encounters);
 
@@ -1529,6 +1532,7 @@
             //     $scope.getPrevAdvances();
             // }
             $scope.getAvailableAmount();
+            $scope.refreshReactProps();
             // vm.gridConfig.pagerObj.totalItems = res.PageContext.TotalRecords;
         };
 
@@ -1560,6 +1564,7 @@
                 Text: "Credit InPatient"
             }
             $scope.lookup["PharmacySaleType"].push(InPatientSaleType);
+            $scope.refreshReactProps();
             //$scope.getPatient();
             //$scope.getEncounters();
         };
@@ -1614,6 +1619,123 @@
 
         };
 
+        $scope.refreshReactProps = function () {
+            $scope.reactProps = {
+                currentfilter: $scope.currentfilter,
+                currentcontext: $scope.currentcontext,
+                item: $scope.item,
+                selectedPatient: $scope.selectedPatient,
+                items: $scope.items,
+                lookup: $scope.lookup || {},
+                patientBills: $scope.PatientBills || [],
+                patientPharmacyBills: $scope.PatientPharmacyBills || [],
+                patientPharmacyReturns: $scope.PatientPharmacyReturns || [],
+                isPharmacy: $scope.IsPharmacy
+            };
+            $scope.$applyAsync();
+        };
+
+        $scope.handleReactAction = function (actionName, payload) {
+            switch (actionName) {
+                case 'includePharmacyChange':
+                    $scope.IsPharmacy = payload.value;
+                    $scope.getopBills();
+                    break;
+                case 'selectBill':
+                    for (var i1 in $scope.PatientBills) {
+                        if ($scope.PatientBills[i1].Id === payload.Id) { $scope.PatientBills[i1].select = payload.value; }
+                    }
+                    break;
+                case 'selectPharmacyBill':
+                    for (var i2 in $scope.PatientPharmacyBills) {
+                        if ($scope.PatientPharmacyBills[i2].Id === payload.Id) { $scope.PatientPharmacyBills[i2].select = payload.value; }
+                    }
+                    break;
+                case 'selectReturn':
+                    for (var i3 in $scope.PatientPharmacyReturns) {
+                        if ($scope.PatientPharmacyReturns[i3].Id === payload.Id) { $scope.PatientPharmacyReturns[i3].select1 = payload.value; }
+                    }
+                    break;
+                case 'selectAllBills':
+                    // Reproduces the original's confirmed cross-wiring bug:
+                    // SelectAll() only ever mutates PatientPharmacyBills, never
+                    // PatientBills, even though this same checkbox/handler is
+                    // shown atop the PatientBills table too.
+                    $scope.currentcontext.selectallchk = payload.value;
+                    $scope.SelectAll(payload.value);
+                    break;
+                case 'selectAllReturns':
+                    $scope.currentcontext.selectallchk1 = payload.value;
+                    $scope.SelectAll1(payload.value);
+                    break;
+                case 'remarksChange':
+                    $scope.item.Comments = payload.value;
+                    break;
+                case 'paymentTypeChange':
+                    $scope.item.PaymentTypeId = payload.value;
+                    break;
+                case 'adjustAgainstAdvance':
+                    $scope.AdjustAgainstAdvance();
+                    break;
+                case 'bankIdChange':
+                    $scope.item.BankId = payload.value;
+                    break;
+                case 'chequeNoChange':
+                    $scope.item.ChequeNo = payload.value;
+                    break;
+                case 'chequeDateChange':
+                    $scope.item.ChequeDate = payload.value;
+                    break;
+                case 'upiRefNumberChange':
+                    $scope.item.UPIRefNumber = payload.value;
+                    break;
+                case 'ddNumberChange':
+                    $scope.item.DDNumber = payload.value;
+                    break;
+                case 'ddDateChange':
+                    $scope.item.DDDate = payload.value;
+                    break;
+                case 'wireTransferIdChange':
+                    $scope.item.WireTransferId = payload.value;
+                    break;
+                case 'wireTransferDateChange':
+                    $scope.item.WireTransferDate = payload.value;
+                    break;
+                case 'authorizeNumberChange':
+                    $scope.item.AuthorizeNumber = payload.value;
+                    break;
+                case 'collectedOnChange':
+                    $scope.item.CollectedOn = payload.value;
+                    break;
+                case 'creditApproverChange':
+                    $scope.item.PrivateDueId = payload.value;
+                    break;
+                case 'payAdvance':
+                    $scope.openAdanace();
+                    break;
+                case 'print':
+                    $scope.print();
+                    break;
+                case 'backToList':
+                    $scope.backToList();
+                    break;
+                case 'payDue':
+                    $scope.pay_pharmacybills();
+                    break;
+                case 'finalize':
+                    $scope.approve_pharmacybills();
+                    break;
+                // 'patientProfileDetails', 'comments', 'bedOccupancy', 'addDoctor',
+                // 'addGuarantor' are intentionally NOT handled here -- in the
+                // original, patientprofiledetails(), patcmnts(), Bedoccupancy(),
+                // addDoctor(), addGuarantor() are all undefined on this
+                // controller, so clicking those icons is already a documented
+                // no-op. Omitting the cases reproduces that exact no-op.
+            }
+            $scope.refreshReactProps();
+        };
+
+        $scope.refreshReactProps();
         $scope.getPharmacyPrintPreference();
         $scope.initLookup();
     }
