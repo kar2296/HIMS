@@ -379,6 +379,13 @@ import { DrShareCategoryTabScreen } from './react-components/DrShareCategoryTabS
 import { DrShareItemsListScreen } from './react-components/DrShareItemsListScreen';
 import { DrShareRangeTabScreen } from './react-components/DrShareRangeTabScreen';
 import { CancelRemarksScreen } from './react-components/CancelRemarksScreen';
+import { IpBillingRequestFilterScreen } from './react-components/IpBillingRequestFilterScreen';
+import { IpBillingRequestListScreen } from './react-components/IpBillingRequestListScreen';
+import { EditIpBillingRequestScreen } from './react-components/EditIpBillingRequestScreen';
+import { EditDetailIpBillingRequestHeaderScreen } from './react-components/EditDetailIpBillingRequestHeaderScreen';
+import { EditDetailIpBillingRequestListScreen } from './react-components/EditDetailIpBillingRequestListScreen';
+import { DetailIpBillingRequestFilterScreen } from './react-components/DetailIpBillingRequestFilterScreen';
+import { DetailIpBillingRequestListScreen } from './react-components/DetailIpBillingRequestListScreen';
 
 // Register components globally so the AngularJS bridge can find them
 (window as any).ReactComponents = {
@@ -553,7 +560,14 @@ import { CancelRemarksScreen } from './react-components/CancelRemarksScreen';
   DrShareCategoryTabScreen,
   DrShareItemsListScreen,
   DrShareRangeTabScreen,
-  CancelRemarksScreen
+  CancelRemarksScreen,
+  IpBillingRequestFilterScreen,
+  IpBillingRequestListScreen,
+  EditIpBillingRequestScreen,
+  EditDetailIpBillingRequestHeaderScreen,
+  EditDetailIpBillingRequestListScreen,
+  DetailIpBillingRequestFilterScreen,
+  DetailIpBillingRequestListScreen
 };
 
 console.log('React runtime and components loaded. ReactBridge initialized.');

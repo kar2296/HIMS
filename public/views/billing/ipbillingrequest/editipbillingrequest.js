@@ -29,6 +29,12 @@
         $scope.currentfilter.PatientId = modalConfig.params.pid;
         $scope.item.PatientId = $scope.currentfilter.PatientId;
 
+        $scope.refreshReactProps = function () {
+            $scope.reactProps = {
+                item: $scope.item
+            };
+        };
+
         $scope.getPatientInfo = function (scope, data, options, hasError) {
             $scope.selectedPatient = data;
             $scope.item.PatientName = $scope.selectedPatient.FirstName;
@@ -116,6 +122,7 @@
                     $scope.isSaveandApprove = true;
                 });
             }
+            $scope.refreshReactProps();
         };
 
         $scope.getBillInfoByBillId = function () {
@@ -220,6 +227,23 @@
         };
         $scope.getBillInfoByBillId();
         $scope.patientChange();
+        $scope.refreshReactProps();
+
+        // React bridge dispatcher for EditIpBillingRequestScreen.
+        $scope.handleReactAction = function (actionName, payload) {
+            switch (actionName) {
+                case 'approve':
+                    $scope.CancelApproved();
+                    break;
+                case 'reject':
+                    $scope.CancelRejected();
+                    break;
+                case 'close':
+                    $scope.cancelCallback();
+                    break;
+            }
+            $scope.$applyAsync();
+        };
     }
     editipbillingrequestController.$inject = ['$scope', '$filter', '$stateParams', '$state', '$translate', 'utl', '$uibModalInstance', 'modalConfig'];
 
