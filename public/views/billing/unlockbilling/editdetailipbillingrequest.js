@@ -30,6 +30,13 @@
         $scope.currentfilter.EncounterId = modalConfig.params.eid;
         $scope.item.PatientId = $scope.currentfilter.PatientId;
 
+        $scope.refreshReactProps = function () {
+            $scope.reactProps = {
+                BillDetails: $scope.BillDetails,
+                IsDisabled: $scope.IsDisabled
+            };
+        };
+
         $scope.getPatientInfo = function (scope, data, options, hasError) {
             $scope.selectedPatient = data;
             $scope.item.PatientName = $scope.selectedPatient.FirstName;
@@ -143,6 +150,7 @@
                     // patientbill.PatientBillDetail = patientbill.PatientBillDetail;
                 });
             }
+            $scope.refreshReactProps();
         };
 
 
@@ -314,7 +322,35 @@
         };
         $scope.patientChange();
         $scope.getRequestBillDetails();
+        $scope.refreshReactProps();
 
+        // React bridge dispatcher: EditDetailIpBillingRequestHeaderScreen
+        // (mounted before the native <ippatientbanner>) and
+        // EditDetailIpBillingRequestListScreen (mounted after it).
+        $scope.handleReactAction = function (actionName, payload) {
+            payload = payload || {};
+            switch (actionName) {
+                case 'toggleSelect':
+                    for (var idx in $scope.BillDetails) {
+                        if ($scope.BillDetails[idx].Id == payload.id) {
+                            $scope.BillDetails[idx].isSelected = payload.value;
+                            break;
+                        }
+                    }
+                    $scope.refreshReactProps();
+                    break;
+                case 'approve':
+                    $scope.CancelApproved();
+                    break;
+                case 'reject':
+                    $scope.CancelRejected();
+                    break;
+                case 'close':
+                    $scope.cancelCallback();
+                    break;
+            }
+            $scope.$applyAsync();
+        };
     }
     editdetipbillingrequestController.$inject = ['$scope', '$filter', '$stateParams', '$state', '$translate', 'utl', '$uibModalInstance', 'modalConfig'];
 

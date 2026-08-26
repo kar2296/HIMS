@@ -22,11 +22,20 @@
         $scope.currentfilter.ReceiptNumber = null;
         $scope.PaymentDetails = null;
 
+        $scope.refreshReactProps = function () {
+            $scope.reactProps = {
+                currentfilter: $scope.currentfilter,
+                lookup: $scope.lookup,
+                PaymentDetails: $scope.PaymentDetails
+            };
+        };
+
         $scope.getPaymentDetailListCallback = function(scope, res, options, hasError) {
             $scope.PaymentDetails = [];
             if (res && res.Data && res.Data.length > 0) {
                 $scope.PaymentDetails = res.Data;
             }
+            $scope.refreshReactProps();
         };
 
         $scope.getPaymentDetailList = function() {
@@ -146,6 +155,7 @@
 
         $scope.lookupCallback = function(scope, data, options, hasError) {
             $scope.lookup = data;
+            $scope.refreshReactProps();
             $scope.getList();
         }
 
@@ -196,6 +206,43 @@
             utl.Http.doAction(options);
         };
 
+        // React bridge dispatcher for the filter fields (except the
+        // still-native <patientsearch> widget) and the results table.
+        $scope.handleReactAction = function (actionName, payload) {
+            payload = payload || {};
+            switch (actionName) {
+                case 'fromBillDateChange':
+                    $scope.currentfilter.FromBillDate = payload.value;
+                    $scope.refreshReactProps();
+                    break;
+                case 'toBillDateChange':
+                    $scope.currentfilter.ToBillDate = payload.value;
+                    $scope.refreshReactProps();
+                    break;
+                case 'requestTypeChange':
+                    $scope.currentfilter.BillingRequestTypeId = payload.value;
+                    $scope.refreshReactProps();
+                    break;
+                case 'requestStatusChange':
+                    $scope.currentfilter.BillingRequestStatusId = payload.value;
+                    $scope.refreshReactProps();
+                    break;
+                case 'fetch':
+                    $scope.getList();
+                    break;
+                case 'edit':
+                    for (var idx in $scope.PaymentDetails) {
+                        if ($scope.PaymentDetails[idx].Id == payload.id) {
+                            $scope.EditBillingRequest($scope.PaymentDetails[idx]);
+                            break;
+                        }
+                    }
+                    break;
+            }
+            $scope.$applyAsync();
+        };
+
+        $scope.refreshReactProps();
         $scope.initLookup();
 
 

@@ -20,6 +20,13 @@
         $scope.confirmCallback = $uibModalInstance.close;
         $scope.cancelCallback = $uibModalInstance.dismiss;
 
+        $scope.refreshReactProps = function () {
+            $scope.reactProps = {
+                item: $scope.item,
+                currentcontext: $scope.currentcontext
+            };
+        };
+
 
 
         // $scope.saveItemCallback = function (scope, data, options, hasError) {
@@ -31,6 +38,26 @@
             if(!$scope.item.CancelReason) return;
             $scope.confirmCallback($scope.item.CancelReason);
         }
+
+        // React bridge dispatcher for CancelRemarksScreen.
+        $scope.handleReactAction = function (actionName, payload) {
+            payload = payload || {};
+            switch (actionName) {
+                case 'cancelReasonChange':
+                    $scope.item.CancelReason = payload.value;
+                    $scope.refreshReactProps();
+                    break;
+                case 'save':
+                    $scope.saveItem();
+                    break;
+                case 'close':
+                    $scope.cancelCallback();
+                    break;
+            }
+            $scope.$applyAsync();
+        };
+
+        $scope.refreshReactProps();
 
         // $scope.lookupCallback = function (scope, data, options, hasError) {
         //     $scope.lookup = hasError ? {} : data;

@@ -8,6 +8,34 @@
         overflow: auto !important;
     }
 </style>
+<!--
+  React bridge migration (hybrid). Same pattern as the sibling
+  ipbillingrequestlist.html: the <patientsearch> field (bound to
+  currentfilter.PatientId / selectedPatient) is live markup but has no
+  effect on getPaymentDetailList()'s Params -- a dead-but-rendered
+  quirk preserved as-is. It stays untouched native between three
+  DetailIpBillingRequestFilterScreen mounts (part="dates" before it;
+  part="requesttype" and part="statusfetch" after it, preserving the
+  original field order and the Status+Fetch nested wrapper div). A
+  fourth mount, DetailIpBillingRequestListScreen, renders the results
+  table (S.No, Patient, MRN, Ward, Insurance, Requested By/At, edit).
+
+  Preserved real API calls: billing/BillingRequest/GetBillingRequestsbygroup,
+  billing/patientpaymentdetails/GetSystemDatetime, General/Options/getoptions.
+  EditBillingRequest still opens the (still-native)
+  app.editdetailipbillingrequest modal via utl.Modal.open, dispatched here
+  by matching PaymentDetails by Id rather than array index.
+
+  Confirmed pre-existing quirk, not fixed: same success-alert-for-a-
+  validation-failure quirk in getList() as the sibling screen. Several
+  columns (BillNumber, ReceiptNumber, Doctor, BillAmount, PaidAmount,
+  CancelReason) are commented out in the original template -- left
+  commented out / omitted here too, not restored.
+
+  Dropped cosmetic-only behavior: ng-keyup="moveHeaderFocus('doctorid')"
+  keyboard-navigation helper, same as the sibling screen -- no business
+  logic or data effect.
+-->
 <div class="row">
     <div class="drhms-filters">
         <div class="col-sm-12">
@@ -17,24 +45,7 @@
 </div>
 <div class="row">
     <form id="item_form" name="item_form" class="form-horizontal" role="form">
-        <div class="form-group col-sm-3">
-            <label class="col-sm-12" translate="billing.pharmacy-billdetails.fromdate.lbl"></label>
-            <div class="col-sm-12">
-                <input type="text" class="form-control" name="FromBillDate" ng-date-object
-                    datetime-picker="{{datePickerOptions.dateTimeFormat}}" datepicker-append-to-body="true"
-                    placeholder="{{datePickerOptions.placeholder}}" ng-click="FromBillDatePopup = { opened: true }"
-                    is-open="FromBillDatePopup.opened" ng-model="currentfilter.FromBillDate">
-            </div>
-        </div>
-        <div class="form-group col-sm-3">
-            <label class="col-sm-12" translate="billing.pharmacy-billdetails.todate.lbl"></label>
-            <div class="col-sm-12">
-                <input type="text" class="form-control" name="ToBillDate" ng-date-object
-                    datetime-picker="{{datePickerOptions.dateTimeFormat}}" datepicker-append-to-body="true"
-                    placeholder="{{datePickerOptions.placeholder}}" ng-click="ToBillDatePopup = { opened: true }"
-                    is-open="ToBillDatePopup.opened" ng-model="currentfilter.ToBillDate">
-            </div>
-        </div>
+        <react-component name="DetailIpBillingRequestFilterScreen" props="{ reactProps: reactProps, onAction: handleReactAction, part: 'dates' }"></react-component>
         <div class="form-group col-sm-3">
             <label class="col-sm-12" translate="billing.opbilling-list.patientsearch.lbl"></label>
             <div class="col-sm-12">
@@ -42,165 +53,9 @@
                     patientinfo="selectedPatient" isdisabled="" filterconfig="patientfilterconfig"></patientsearch>
             </div>
         </div>
-        <!-- <div class="form-group col-sm-3">
-            <label class="col-sm-12" translate="Bill Number"></label>
-            <div class="col-sm-12">
-                <input type="text" tabindex="-1" class="form-control" ng-model="currentfilter.BillNo" placeholder="">
-            </div>
-        </div> -->
-        <div class="form-group col-sm-3">
-            <label class="col-sm-12" translate="Request Type"></label>
-            <div class="col-sm-12">
-                <ui-select id='doctorid' ng-keyup="moveHeaderFocus('doctorid')"
-                    ng-model="currentfilter.BillingRequestTypeId" tabindex="-1" name="BillingRequestType"
-                    ng-disabled="RdoDoctorId">
-                    <ui-select-match>
-                        {{$select.selected.Text | limitTo : 20 : 0}}
-                        <span ng-if="$select.selected.Text.length>20">...</span>
-                    </ui-select-match>
-                    <ui-select-choices
-                        repeat="lookupitem.Id as lookupitem in lookup.BillingRequestType | filter: { Text: $select.search }">
-                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
-                    </ui-select-choices>
-                </ui-select>
-            </div>
-        </div>
-        <div class="form-group col-sm-12">
-            <div class="form-group col-sm-3">
-                <label class="col-sm-12" translate="Status"></label>
-                <div class="col-sm-12">
-                    <ui-select id='doctorid' ng-keyup="moveHeaderFocus('doctorid')"
-                        ng-model="currentfilter.BillingRequestStatusId" tabindex="-1" name="BillingRequestStatus"
-                        ng-disabled="RdoDoctorId">
-                        <ui-select-match>
-                            {{$select.selected.Text | limitTo : 20 : 0}}
-                            <span ng-if="$select.selected.Text.length>20">...</span>
-                        </ui-select-match>
-                        <ui-select-choices
-                            repeat="lookupitem.Id as lookupitem in lookup.BillingRequestStatus | filter: { Text: $select.search }">
-                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
-                        </ui-select-choices>
-                    </ui-select>
-                </div>
-            </div>
-            <div class="form-group col-sm-3">
-                <button class="draftbutton" ng-click="getList()">
-                    <!-- <i class="fas fa-search" aria-hidden="true"></i> -->
-                    <span translate="Fetch"></span>
-                </button>
-            </div>
-        </div>
+        <!-- Bill Number field commented out in the original -- dead, left as-is. -->
+        <react-component name="DetailIpBillingRequestFilterScreen" props="{ reactProps: reactProps, onAction: handleReactAction, part: 'requesttype' }"></react-component>
+        <react-component name="DetailIpBillingRequestFilterScreen" props="{ reactProps: reactProps, onAction: handleReactAction, part: 'statusfetch' }"></react-component>
     </form>
 </div>
-<div class="row">
-    <form id="item_form" name="item_form" class="form-horizontal" role="form">
-        <div class="table-control">
-            <div class="bg-pattern">
-                <div class="formRoot pharmacycollections" id="mainresponsivetablecontrol">
-                    <table class="table table-hover table-responsive table-bordered">
-                        <thead class="bg-subhead" ng-if="PaymentDetails">
-                            <tr>
-                                <th>
-                                    <span translate="billing.paymodechange.sno.lbl"></span>
-                                </th>
-                                <th>
-                                    <span translate="billing.paymodechange.patientname.lbl"></span>
-                                </th>
-                                <!-- <th>
-                                            <span translate="billing.paymodechange.receiptno.lbl"></span>
-                                        </th> -->
-                                <th>
-                                    <span translate="billing.paymodechange.mrn.lbl"></span>
-                                </th>
-                                <th>
-                                    <span translate="billing.paymodechange.ward.lbl"></span>
-                                </th>
-                                <th>
-                                    <span translate="billing.paymodechange.insurance.lbl"></span>
-                                </th>
-                                <!-- <th>
-                                    <span translate="billing.paymodechange.doctor.lbl"></span>
-                                </th>
-                                <th>
-                                    <span translate="Bill Amount"></span>
-                                </th>
-                                <th>
-                                    <span translate="Paid Amount"></span>
-                                </th> -->
-                                <th>
-                                    <span translate="Requested By"></span>
-                                </th>
-                                <th>
-                                    <span translate="Requested At"></span>
-                                </th>
-                                <!-- <th>
-                                    <span translate="Cancel Reason"></span>
-                                </th> -->
-                                <th>
-                                    <span translate="billing.paymodechange.status.lbl"></span>
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr ng-repeat="PaymentDetail in PaymentDetails">
-                                <td class="text-left">
-                                    <span>
-{{$index + 1}}
-                                    </span>
-                                </td>
-                                <!-- <td class="text-left">
-                                    <span> {{ PaymentDetail.BillNumber }}</span>
-                                </td> -->
-                                <!-- <td class="text-left">
-                                            <span> {{ PaymentDetail.ReceiptNumber }}</span>
-                                        </td> -->
-                                <td class="text-left">
-                                    <span>
-                                        {{ PaymentDetail.Patient.FirstName }}</span>
-                                    <!-- <span ng-if="PaymentDetail.EncounterTypeId == 2"> IP </span>
-                                    <span ng-if="PaymentDetail.EncounterTypeId != 2"> OP </span> -->
-                                </td>
-                                <td class="text-left">
-                                    <span> {{ PaymentDetail.Patient.MRN }}</span>
-                                </td>
-                                <td class="text-left">
-                                    <span> {{ PaymentDetail.Encounter.WardMaster.WardName }}</span>
-                                </td>
-                                <td class="text-left">
-                                    <span> {{ PaymentDetail.Encounter.Guarantor.GuarantorName }}</span>
-                                </td>
-                                <!-- <td class="text-right">
-                                    <span>{{ PaymentDetail.BillAmount
-                                        | displaycurrency }}</span>
-                                </td>
-                                <td class="text-right">
-                                    <span>{{ PaymentDetail.PaidAmount
-                                        | displaycurrency }}</span>
-                                </td> -->
-                                <td class="text-left">
-                                    <span> {{ PaymentDetail.BillingRequestUser.FirstName||
-                                        PaymentDetail.BillingRequestUser.LastName }}</span>
-                                </td>
-                                <td class="text-left">
-                                    <span>
-                                        {{PaymentDetail.BillingRequestAt | date : 'dd/MMM/yyyy' }}&nbsp;
-                                        {{PaymentDetail.BillingRequestAt | date:'HH:mm'}}
-                                    </span>
-                                </td>
-                                <!-- <td class="text-left">
-                                    <span> {{ PaymentDetail.BillingRequestStatus.CancelReason }}</span>
-                                </td> -->
-                                <td>
-                                    <span ng-click="EditBillingRequest(PaymentDetail)"><img class="drhms-edit-button"
-                                            src="assets/svg/edit.svg" alt=""></span>
-                                    <!-- <button type="button" class="btn btn-sm pyr-color10"></button> -->
-                                </td>
-                            </tr>
-                        </tbody>
-
-                    </table>
-                </div>
-            </div>
-        </div>
-    </form>
-</div>
+<react-component name="DetailIpBillingRequestListScreen" props="{ reactProps: reactProps, onAction: handleReactAction }"></react-component>
