@@ -8,33 +8,59 @@
         overflow: auto !important;
     }
 </style>
+
+<!--
+  React bridge migration (hybrid). This screen (Billing UnLock Approval
+  Request list, billunlockrequestlistController, state
+  app.billunlockapproval) is classified HYBRID because its filter row
+  contains one genuinely live native widget: <patientsearch> bound to
+  currentfilter.PatientId, whose value IS read by getbillUnlockList()
+  (Params Key 4). That widget is left untouched, live AngularJS markup
+  below, and the filter row is split into two React mounts sandwiching it:
+    1. UnlockBillingFilterScreen (part="dates")   - From/To bill-date pickers,
+       each auto-refetching on change like the original.
+    2. <patientsearch>                             - untouched native widget.
+    3. UnlockBillingFilterScreen (part="actions")  - IP Number input, Request
+       Type select (always disabled, display-only), Status select, Fetch
+       button. None of these auto-refetch; only Fetch/date-change do.
+  Results table (UnlockBillingListScreen) replaces the whole table below,
+  reusing the same Debit/Credit/Balance calculation approach as
+  billing/opclearance's getListCallback (both operate on
+  Visit/Visit/Get*PatientsBills-shaped rows).
+
+  Preserved real API calls (unchanged): Visit/Visit/GetMINIPPatientsBills,
+  billing/patientpaymentdetails/GetSystemDatetime, General/Options/getoptions,
+  Billing/BillingRequest/AddBillingRequest, Billing/BillingRequest/
+  UpdateBillingRequest (the latter two via the edit modal).
+
+  Confirmed pre-existing quirks, reproduced as-is (not "fixed"):
+  - The Request Type select is permanently ng-disabled="true" in the
+    original -- it always shows BillingRequestTypeId's fixed value (3) and
+    can never be changed by the user. Reproduced as a disabled select.
+  - The Status select's ng-disabled="RdoDoctorId" references a $scope
+    variable that is never assigned anywhere in the controller (always
+    undefined/falsy) -- effectively always-enabled dead-code condition,
+    left unreproduced since it never actually disables anything.
+  - moveHeaderFocus('doctorid') on both selects is a copy-pasted shared
+    keyboard-navigation helper not defined in this controller -- dropped,
+    no business/data effect (same pattern documented in the ipbillingrequest
+    migration).
+  - tabindex="-1" on the IP Number input and both selects is cosmetic,
+    dropped.
+  - EditBillingRequest(bill) is only invoked from the edit icon; it passes
+    the whole row as modalConfig.params.data and bill.EncounterId as the
+    modal's id param, reproduced verbatim via the 'edit' action below.
+-->
 <div class="row">
     <div class="drhms-filters">
         <div class="col-sm-12">
-            <h4 translate="Billing UnLock Approval Request"></h4>
+            <h4>Billing UnLock Approval Request</h4>
         </div>
     </div>
 </div>
 <div class="row">
     <form id="item_form" name="item_form" class="form-horizontal" role="form">
-        <div class="form-group col-sm-3">
-            <label class="col-sm-12" translate="billing.pharmacy-billdetails.fromdate.lbl"></label>
-            <div class="col-sm-12">
-                <input type="text" class="form-control" name="FromBillDate" ng-date-object
-                    datetime-picker="{{datePickerOptions.dateTimeFormat}}" datepicker-append-to-body="true"
-                    placeholder="{{datePickerOptions.placeholder}}" ng-click="FromBillDatePopup = { opened: true }"
-                    is-open="FromBillDatePopup.opened" ng-model="currentfilter.FromBillDate" ng-change="getbillUnlockList()">
-            </div>
-        </div>
-        <div class="form-group col-sm-3">
-            <label class="col-sm-12" translate="billing.pharmacy-billdetails.todate.lbl"></label>
-            <div class="col-sm-12">
-                <input type="text" class="form-control" name="ToBillDate" ng-date-object
-                    datetime-picker="{{datePickerOptions.dateTimeFormat}}" datepicker-append-to-body="true"
-                    placeholder="{{datePickerOptions.placeholder}}" ng-click="ToBillDatePopup = { opened: true }"
-                    is-open="ToBillDatePopup.opened" ng-model="currentfilter.ToBillDate" ng-change="getbillUnlockList()">
-            </div>
-        </div>
+        <react-component name="UnlockBillingFilterScreen" props="{ part: 'dates', reactProps: reactProps, onAction: handleReactAction }"></react-component>
         <div class="form-group col-sm-3">
             <label class="col-sm-12" translate="billing.opbilling-list.patientsearch.lbl"></label>
             <div class="col-sm-12">
@@ -42,159 +68,9 @@
                     patientinfo="selectedPatient" isdisabled="" filterconfig="patientfilterconfig"></patientsearch>
             </div>
         </div>
-        <div class="form-group col-sm-3">
-            <label class="col-sm-12" translate="IP Number"></label>
-            <div class="col-sm-12">
-                <input type="text" tabindex="-1" class="form-control" ng-model="currentfilter.VisitIdentifier" placeholder="">
-            </div>
-        </div>
-        <div class="form-group col-sm-3">
-            <label class="col-sm-12" translate="Request Type"></label>
-            <div class="col-sm-12">
-                <ui-select id='doctorid' ng-keyup="moveHeaderFocus('doctorid')"
-                    ng-model="currentfilter.BillingRequestTypeId" tabindex="-1" name="BillingRequestType"
-                    ng-disabled="true">
-                    <ui-select-match>
-                        {{$select.selected.Text | limitTo : 20 : 0}}
-                        <span ng-if="$select.selected.Text.length>20">...</span>
-                    </ui-select-match>
-                    <ui-select-choices
-                        repeat="lookupitem.Id as lookupitem in lookup.BillingRequestType | filter: { Text: $select.search }">
-                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
-                    </ui-select-choices>
-                </ui-select>
-            </div>
-        </div>
-        <div class="form-group col-sm-3">
-            <label class="col-sm-12" translate="Status"></label>
-            <div class="col-sm-12">
-                <ui-select id='doctorid' ng-keyup="moveHeaderFocus('doctorid')"
-                    ng-model="currentfilter.BillUnlockRequestStatusId" tabindex="-1" name="BillingRequestStatus"
-                    ng-disabled="RdoDoctorId">
-                    <ui-select-match>
-                        {{$select.selected.Text | limitTo : 20 : 0}}
-                        <span ng-if="$select.selected.Text.length>20">...</span>
-                    </ui-select-match>
-                    <ui-select-choices
-                        repeat="lookupitem.Id as lookupitem in lookup.BillUnlockRequestStatus | filter: { Text: $select.search }">
-                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
-                    </ui-select-choices>
-                </ui-select>
-            </div>
-        </div>
-        <div class="form-group col-sm-3">
-            <button class="draftbutton" ng-click="getbillUnlockList()">
-                <!-- <i class="fas fa-search" aria-hidden="true"></i> -->
-                <span translate="Fetch"></span>
-            </button>
-        </div>
+        <react-component name="UnlockBillingFilterScreen" props="{ part: 'actions', reactProps: reactProps, onAction: handleReactAction }"></react-component>
     </form>
 </div>
 <div class="row">
-    <form id="item_form" name="item_form" class="form-horizontal" role="form">
-        <div class="table-control">
-            <div class="bg-pattern">
-                <div class="formRoot pharmacycollections" id="mainresponsivetablecontrol">
-                    <table class="table table-hover table-responsive table-bordered">
-                        <thead class="bg-subhead" ng-if="billUnlockDetails">
-                            <tr>
-                                <th>
-                                    <span translate="Admission Date"></span>
-                                </th>
-                                <th>
-                                    <span translate="Visit Identifier"></span>
-                                </th>
-                                <!-- <th>
-                                            <span translate="billing.paymodechange.receiptno.lbl"></span>
-                                        </th> -->
-                                <th>
-                                    <span translate="billing.paymodechange.patientname.lbl"></span>
-                                </th>
-                                <th>
-                                    <span translate="billing.paymodechange.doctor.lbl"></span>
-                                </th>
-                                <th>
-                                    <span translate="Debit"></span>
-                                </th>
-                                <th>
-                                    <span translate="Credit"></span>
-                                </th>
-                                <th>
-                                    <span translate="Balance"></span>
-                                </th>
-                                <th>
-                                    <span translate="Requested By"></span>
-                                </th>
-                                <th>
-                                    <span translate="Requested At"></span>
-                                </th>
-                                <!-- <th>
-                                    <span translate="Cancel Reason"></span>
-                                </th> -->
-                                <th>
-                                    <span translate="billing.paymodechange.status.lbl"></span>
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr ng-repeat="bill in billUnlockDetails">
-                                <td class="text-left">
-                                    <span>
-                                        {{bill.AdmissionDate | date : 'dd/MMM/yyyy' }}&nbsp;
-                                        {{bill.BillDateTime | date:'HH:mm'}}
-                                    </span>
-                                </td>
-                                <td class="text-left">
-                                    <span> {{ bill.VisitIdentifier }}</span>
-                                </td>
-                                <!-- <td class="text-left">
-                                            <span> {{ PaymentDetail.ReceiptNumber }}</span>
-                                        </td> -->
-                                <td class="text-left">
-                                    <span> {{ bill.Patient.MRN }}
-                                        {{ bill.Patient.FirstName }}</span>
-                                    <span ng-if="bill.EncounterTypeId == 2"> IP </span>
-                                    <span ng-if="bill.EncounterTypeId != 2"> OP </span>
-                                </td>
-                                <td class="text-left">
-                                    <span> {{ bill.PatientBill.DoctorName }}</span>
-                                </td>
-                                <td class="text-right">
-                                    <span>{{ bill.Debit
-                                        | displaycurrency }}</span>
-                                </td>
-                                <td class="text-right">
-                                    <span>{{ bill.Credit
-                                        | displaycurrency }}</span>
-                                </td>
-                                <td class="text-right">
-                                    <span>{{ bill.Balance
-                                        | displaycurrency }}</span>
-                                </td>
-                                <td class="text-left">
-                                    <span> {{ bill.BillingRequest.BillingRequestUser.FirstName||
-                                        bill.BillingRequest.BillingRequestUser.LastName }}</span>
-                                </td>
-                                <td class="text-left">
-                                    <span>
-                                        {{bill.BillingRequest.BillingRequestAt | date : 'dd/MMM/yyyy' }}&nbsp;
-                                        {{bill.BillingRequest.BillingRequestAt | date:'HH:mm'}}
-                                    </span>
-                                </td>
-                                <!-- <td class="text-left">
-                                    <span> {{ bill.PatientBill.CancelReason }}</span>
-                                </td> -->
-                                <td>
-                                    <span ng-click="EditBillingRequest(bill)"><img class="drhms-edit-button"
-                                            src="assets/svg/edit.svg" alt=""></span>
-                                    <!-- <button type="button" class="btn btn-sm pyr-color10"></button> -->
-                                </td>
-                            </tr>
-                        </tbody>
-
-                    </table>
-                </div>
-            </div>
-        </div>
-    </form>
+    <react-component name="UnlockBillingListScreen" props="{ reactProps: reactProps, onAction: handleReactAction }"></react-component>
 </div>

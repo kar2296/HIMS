@@ -228,6 +228,29 @@
             };
             utl.Http.doAction(options);
         };
+        $scope.refreshReactProps = function () {
+            $scope.reactProps = {
+                item: $scope.item,
+                currentcontext: $scope.currentcontext
+            };
+        };
+
+        $scope.handleReactAction = function (actionName, payload) {
+            switch (actionName) {
+                case 'approve':
+                    $scope.UnlockApproved();
+                    break;
+                case 'reject':
+                    $scope.UnlockRejected();
+                    break;
+                case 'close':
+                    $scope.cancelCallback();
+                    break;
+            }
+            $scope.$applyAsync();
+        };
+
+        $scope.refreshReactProps();
         // $scope.getBillInfoByBillId();
         // $scope.patientChange();
     }

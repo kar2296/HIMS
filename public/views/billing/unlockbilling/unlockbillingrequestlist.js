@@ -180,7 +180,7 @@
             }
             // // $scope.getPagination();
             // vm.gridConfig.pagerObj.totalItems = data.PageContext.TotalRecords;
-
+            $scope.refreshReactProps();
         };
 
         $scope.getbillUnlockList = function (val) {
@@ -378,6 +378,7 @@
 
         $scope.lookupCallback = function (scope, data, options, hasError) {
             $scope.lookup = data;
+            $scope.refreshReactProps();
             $scope.getList();
         }
 
@@ -425,6 +426,45 @@
             utl.Http.doAction(options);
         };
 
+        $scope.refreshReactProps = function () {
+            $scope.reactProps = {
+                currentfilter: $scope.currentfilter,
+                lookup: $scope.lookup,
+                billUnlockDetails: $scope.billUnlockDetails
+            };
+        };
+
+        $scope.handleReactAction = function (actionName, payload) {
+            switch (actionName) {
+                case 'fromBillDateChange':
+                    $scope.currentfilter.FromBillDate = payload.value ? new Date(payload.value) : null;
+                    $scope.refreshReactProps();
+                    $scope.getbillUnlockList();
+                    break;
+                case 'toBillDateChange':
+                    $scope.currentfilter.ToBillDate = payload.value ? new Date(payload.value) : null;
+                    $scope.refreshReactProps();
+                    $scope.getbillUnlockList();
+                    break;
+                case 'visitIdentifierChange':
+                    $scope.currentfilter.VisitIdentifier = payload.value;
+                    $scope.refreshReactProps();
+                    break;
+                case 'statusChange':
+                    $scope.currentfilter.BillUnlockRequestStatusId = payload.value;
+                    $scope.refreshReactProps();
+                    break;
+                case 'fetch':
+                    $scope.getbillUnlockList();
+                    break;
+                case 'edit':
+                    $scope.EditBillingRequest(payload.bill);
+                    break;
+            }
+            $scope.$applyAsync();
+        };
+
+        $scope.refreshReactProps();
         $scope.initLookup();
 
 
