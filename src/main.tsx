@@ -438,6 +438,8 @@ import { OpClearanceBillsTablesScreen } from './react-components/OpClearanceBill
 import { OpClearancePaymentScreen } from './react-components/OpClearancePaymentScreen';
 import { UaeBillingVisitDetailsScreen } from './react-components/UaeBillingVisitDetailsScreen';
 import { UaeBillingPaymentScreen } from './react-components/UaeBillingPaymentScreen';
+import { PendingBillListTableScreen } from './react-components/PendingBillListTableScreen';
+import { OutstandingBillListTableScreen } from './react-components/OutstandingBillListTableScreen';
 
 // Register components globally so the AngularJS bridge can find them
 (window as any).ReactComponents = {
@@ -671,7 +673,9 @@ import { UaeBillingPaymentScreen } from './react-components/UaeBillingPaymentScr
   OpClearanceBillsTablesScreen,
   OpClearancePaymentScreen,
   UaeBillingVisitDetailsScreen,
-  UaeBillingPaymentScreen
+  UaeBillingPaymentScreen,
+  PendingBillListTableScreen,
+  OutstandingBillListTableScreen
 };
 
 console.log('React runtime and components loaded. ReactBridge initialized.');

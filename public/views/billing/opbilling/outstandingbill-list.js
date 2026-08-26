@@ -100,6 +100,7 @@
             });
             vm.gridConfig.data = res.Data;
             vm.gridConfig.pagerObj.totalItems = res.PageContext.TotalRecords;
+            $scope.refreshReactProps();
         };
 
         $scope.getList = function (pageNo) {
@@ -295,6 +296,7 @@
             $scope.lookup = hasError ? {} : data;
             initDynamicForm();
             $scope.getList();
+            $scope.refreshReactProps();
         }
 
         $scope.initLookup = function () {
@@ -316,6 +318,21 @@
             };
             utl.Http.doAction(options);
         }
+
+        $scope.refreshReactProps = function () {
+            $scope.reactProps = {
+                rows: (vm.gridConfig && vm.gridConfig.data) || []
+            };
+            $scope.$applyAsync();
+        };
+
+        $scope.handleReactAction = function (actionName, payload) {
+            switch (actionName) {
+                case 'select':
+                    $scope.handleEvents('select', payload.entity);
+                    break;
+            }
+        };
 
         $scope.initLookup();
     }
