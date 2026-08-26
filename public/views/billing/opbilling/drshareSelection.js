@@ -59,6 +59,7 @@
             $scope.cancelCallback = $uibModalInstance.dismiss;
         }
         console.log($scope.item);
+        $scope.refreshReactProps();
         $scope.Save = function () {
             //$scope.item.DocShareDetails = $scope.TeamLookUp;
             // $scope.item.DocShareDetails = $filter('filter')($scope.TeamLookUp, {
@@ -89,6 +90,7 @@
 
         $scope.deleteItem = function (item) {
             item.Status = 2;
+            $scope.refreshReactProps();
         };
 
         $scope.getLinesForSave = function (){
@@ -130,6 +132,7 @@
 
             }
             $scope.TeamLookUp.push(DrShare);
+            $scope.refreshReactProps();
         };
 
         $scope.checkTotal = function (item, selectedItem) {
@@ -235,6 +238,7 @@
         $scope.lookupCallback = function (scope, data, options, hasError) {
             $scope.lookup = hasError ? {} : data;
             //$scope.getDocLookup();
+            $scope.refreshReactProps();
         }
 
         $scope.initLookup = function () {
@@ -255,6 +259,45 @@
                 onComplete: $scope.lookupCallback
             };
             utl.Http.doAction(options);
+        };
+
+        $scope.refreshReactProps = function () {
+            $scope.reactProps = {
+                rows: $scope.TeamLookUp
+                    .map(function (item, idx) { item._idx = idx; return item; })
+                    .filter(function (item) { return item.Status === 1; }),
+                doctorOptions: ($scope.lookup && $scope.lookup.Doctor) || []
+            };
+            $scope.$applyAsync();
+        };
+
+        $scope.handleReactAction = function (actionName, payload) {
+            var item = $scope.TeamLookUp[payload.idx];
+            if (!item) { return; }
+            switch (actionName) {
+                case 'doctorChange':
+                    item.DoctorId = payload.value;
+                    var selected = null;
+                    for (var idx in ($scope.lookup.Doctor || [])) {
+                        if ($scope.lookup.Doctor[idx].Id === payload.value) {
+                            selected = $scope.lookup.Doctor[idx];
+                            break;
+                        }
+                    }
+                    if (selected) {
+                        $scope.SelectedDoctor(item, selected);
+                    }
+                    $scope.refreshReactProps();
+                    break;
+                case 'shareChange':
+                    item.PerformDrShare = payload.value;
+                    $scope.checkTotal(item);
+                    $scope.refreshReactProps();
+                    break;
+                case 'deleteItem':
+                    $scope.deleteItem(item);
+                    break;
+            }
         };
 
         $scope.initLookup();
