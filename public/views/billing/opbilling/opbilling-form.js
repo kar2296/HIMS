@@ -146,6 +146,7 @@
         $scope.lookupCallback = function (scope, data, options, hasError) {
             $scope.lookup = hasError ? {} : data;
             $scope.getList();
+            $scope.refreshReactProps();
         }
 
         $scope.initLookup = function () {
@@ -167,6 +168,50 @@
             };
             utl.Http.doAction(options);
         }
+
+        $scope.refreshReactProps = function () {
+            $scope.reactProps = {
+                isDisabled: $scope.item.isDisabled,
+                isCompleted: $scope.item.isCompleted,
+                receiptTypeId: $scope.item.ReceiptTypeId,
+                currencyTypeId: $scope.item.CurrencyTypeId,
+                paymentTypeId: $scope.item.PaymentTypeId,
+                bankId: $scope.item.BankId,
+                cardTypeId: $scope.item.CardTypeId,
+                receiptTypeOptions: ($scope.lookup && $scope.lookup.ReceiptType) || [],
+                currencyTypeOptions: ($scope.lookup && $scope.lookup.CurrencyType) || [],
+                paymentTypeOptions: ($scope.lookup && $scope.lookup.PaymentType) || [],
+                bankOptions: ($scope.lookup && $scope.lookup.Bank) || [],
+                cardTypeOptions: ($scope.lookup && $scope.lookup.CardType) || [],
+                cardHolderOptions: ($scope.lookup && $scope.lookup.CardHolder) || []
+            };
+            $scope.$applyAsync();
+        };
+
+        $scope.handleReactAction = function (actionName, payload) {
+            switch (actionName) {
+                case 'receiptTypeChange':
+                    $scope.item.ReceiptTypeId = payload.value;
+                    $scope.refreshReactProps();
+                    break;
+                case 'currencyTypeChange':
+                    $scope.item.CurrencyTypeId = payload.value;
+                    $scope.refreshReactProps();
+                    break;
+                case 'paymentTypeChange':
+                    $scope.item.PaymentTypeId = payload.value;
+                    $scope.refreshReactProps();
+                    break;
+                case 'bankChange':
+                    $scope.item.BankId = payload.value;
+                    $scope.refreshReactProps();
+                    break;
+                case 'cardTypeChange':
+                    $scope.item.CardTypeId = payload.value;
+                    $scope.refreshReactProps();
+                    break;
+            }
+        };
 
         $scope.initLookup();
 
