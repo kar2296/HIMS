@@ -18,6 +18,7 @@ function billhistoryListController($scope, $stateParams, $state, $translate, utl
 
     $scope.getListCallback = function (scope, data, options, hasError) {
         vm.gridConfig.data = data;
+        $scope.refreshReactProps();
     };
 
     $scope.getList = function () {
@@ -82,6 +83,19 @@ function billhistoryListController($scope, $stateParams, $state, $translate, utl
                         
                     ]
     };
+
+    // --- React Bridge ---
+    $scope.refreshReactProps = function () {
+        $scope.reactPropsContainer = {
+            reactProps: {
+                columns: vm.gridConfig.columnDefs.map(function (c) { return { field: c.field, displayName: c.displayName }; }),
+                rows: vm.gridConfig.data || []
+            }
+        };
+    };
+
+    $scope.refreshReactProps();
+    // --------------------
     
     $scope.lookupCallback = function (scope, data, options, hasError) {
         $scope.lookup = hasError ? {} : data;

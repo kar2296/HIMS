@@ -459,6 +459,7 @@ import { OpBillingHeaderSelectScreen } from './react-components/OpBillingHeaderS
 import { OpBillingDiscountApprovalScreen } from './react-components/OpBillingDiscountApprovalScreen';
 import { OpBillingFooterPaymentScreen } from './react-components/OpBillingFooterPaymentScreen';
 import { ServiceGroupRateMappingSelectScreen } from './react-components/ServiceGroupRateMappingSelectScreen';
+import { BillHistoryListScreen } from './react-components/BillHistoryListScreen';
 import { DispatchDetailFormScreen } from './react-components/DispatchDetailFormScreen';
 import { ClaimReceiptSelectScreen } from './react-components/ClaimReceiptSelectScreen';
 import { ClaimReceiptBillsTableScreen } from './react-components/ClaimReceiptBillsTableScreen';
@@ -720,6 +721,7 @@ import { ItemwiseOpBillCancelTableScreen } from './react-components/ItemwiseOpBi
   OpBillingDiscountApprovalScreen,
   OpBillingFooterPaymentScreen,
   ServiceGroupRateMappingSelectScreen,
+  BillHistoryListScreen,
   DispatchDetailFormScreen,
   ClaimReceiptSelectScreen,
   ClaimReceiptBillsTableScreen,
