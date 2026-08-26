@@ -41,12 +41,14 @@
         $scope.carddetailsmandatory = utl.FacilitySetting.getFacilitySettingValue('billing', 'carddetailsmandatory');
 
         $scope.SelectAll = function (chk) {
+            $scope.currentcontext.selectallchk = chk;
             for (var idx in $scope.billinfo) {
                 if ($scope.billinfo[idx].PatientBillStatusId != 2 && $scope.billinfo[idx].OrderStatusId != 10) {
                     $scope.billinfo[idx].select = chk;
                 }
             }
             $scope.selectionChangedCal();
+            $scope.refreshReactProps();
         }
 
         $scope.refundcn.Header = {
@@ -261,6 +263,7 @@
 
             }
             $scope.getBillHeaderByBillId();
+            $scope.refreshReactProps();
         }
 
         $scope.AddValuetoDetail = function () {
@@ -422,6 +425,7 @@
             }
 
             $scope.CalculateTotal(totalrefund);
+            $scope.refreshReactProps();
         };
 
         $scope.CalculateTotal = function (totalrefund) {
@@ -837,6 +841,7 @@
             $scope.lookup = hasError ? {} : data;
             $scope.getBillInfoByBillId();
             $scope.applyVisibilityRules();
+            $scope.refreshReactProps();
         };
         $scope.initLookup = function () {
             var inputData = [{
@@ -862,6 +867,47 @@
                 onComplete: $scope.lookupCallback
             };
             utl.Http.doAction(options);
+        };
+
+
+        $scope.refreshReactProps = function () {
+            $scope.lookup = $scope.lookup || {};
+            ($scope.billinfo || []).forEach(function (b, idx) { b._idx = idx; });
+            $scope.reactProps = {
+                billinfo: $scope.billinfo || [],
+                selectAllChecked: !!$scope.currentcontext.selectallchk,
+                paymentTypeId: $scope.currentcontext.PaymentTypeId,
+                paymentTypeOptions: $scope.lookup.PaymentType || [],
+                bankId: $scope.currentcontext.BankId,
+                bankOptions: $scope.lookup.Bank || []
+            };
+        };
+
+        $scope.handleReactAction = function (actionType, payload) {
+            switch (actionType) {
+                case 'selectAll':
+                    $scope.SelectAll(payload.checked);
+                    break;
+                case 'rowSelect':
+                    $scope.billinfo.forEach(function (b) {
+                        if (b._idx === payload.idx) b.select = payload.checked;
+                    });
+                    $scope.selectionChangedCal();
+                    break;
+                case 'reasonChange':
+                    $scope.billinfo.forEach(function (b) {
+                        if (b._idx === payload.idx) b.CancelReason = payload.value;
+                    });
+                    break;
+                case 'paymentTypeChange':
+                    $scope.currentcontext.PaymentTypeId = payload.id;
+                    break;
+                case 'bankChange':
+                    $scope.currentcontext.BankId = payload.id;
+                    break;
+            }
+            $scope.refreshReactProps();
+            $scope.$applyAsync();
         };
 
         $scope.initLookup();

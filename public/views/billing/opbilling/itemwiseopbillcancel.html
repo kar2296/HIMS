@@ -270,70 +270,7 @@
             
             <!-- Table Card -->
             <div class="partial-cancel-table-card">
-                <div style="overflow-x: auto; max-height: 350px;">
-                    <table class="partial-cancel-table">
-                        <thead>
-                            <tr>
-                                <th style="width: 40px; text-align: center;">
-                                    <input type="checkbox"
-                                        ng-model="currentcontext.selectallchk"
-                                        ng-click="SelectAll(currentcontext.selectallchk)"
-                                        title="Select All" />
-                                </th>
-                                <th style="min-width: 160px;"><span translate="Service Name">Service Name</span></th>
-                                <th style="min-width: 140px;"><span translate="Dept. Name">Dept. Name</span></th>
-                                <th style="width: 60px; text-align: center;"><span translate="Qty">Qty</span></th>
-                                <th style="width: 90px; text-align: right;"><span translate="Rate">Rate</span></th>
-                                <th style="width: 80px; text-align: right;"><span translate="Disc">Disc</span></th>
-                                <th style="width: 120px; text-align: right;"><span translate="Sales Amt(total-return)">Sales Amt</span></th>
-                                <th style="width: 100px; text-align: right;"><span translate="Rec.Amt">Rec.Amt</span></th>
-                                <th style="width: 100px; text-align: center;"><span translate="Status">Status</span></th>
-                                <th style="min-width: 180px;"><span translate="Reason">Reason</span></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr ng-repeat="item in billinfo | filter: billingFilter"
-                                ng-class="{canceleditem: item.PatientBillStatusId == 2 || item.OrderStatusId == 10}">
-                                <td style="text-align: center;">
-                                    <input type="checkbox" id="select{{$index}}"
-                                        ng-disabled="item.PatientBillStatusId == 2 || item.OrderStatusId == 10"
-                                        ng-model="item.select" ng-change="selectionChangedCal()" />
-                                </td>
-                                <td style="font-weight: 600; color: #0f172a;">
-                                    {{item.ServiceName}}
-                                </td>
-                                <td style="color: #64748b;">
-                                    {{item.Department.DepartmentName}}
-                                </td>
-                                <td style="text-align: center; font-weight: 600;">
-                                    {{item.Quantity}}
-                                </td>
-                                <td style="text-align: right;">
-                                    {{item.Rate | displaycurrency}}
-                                </td>
-                                <td style="text-align: right; color: #64748b;">
-                                    {{item.totDiscount | displaycurrency}}
-                                </td>
-                                <td style="text-align: right; font-weight: 600; color: #0f172a;">
-                                    {{item.NetAmount | displaycurrency}}
-                                </td>
-                                <td style="text-align: right; font-weight: 600; color: #059669;">
-                                    {{item.ReceivedAmount | displaycurrency}}
-                                </td>
-                                <td style="text-align: center;">
-                                    <span class="partial-status-badge">
-                                        {{item.PatientBillStatus.Description}}
-                                    </span>
-                                </td>
-                                <td>
-                                    <input type="text" class="form-control"
-                                        ng-disabled="item.PatientBillStatusId == 2 || item.OrderStatusId == 10"
-                                        ng-model="item.CancelReason" placeholder="Enter cancellation reason..."
-                                        ng-required="item.select">
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
+                <react-component name="ItemwiseOpBillCancelTableScreen" props="{ reactProps: reactProps, onAction: handleReactAction }"></react-component>
                 </div>
             </div>
 
@@ -346,30 +283,14 @@
                             <span translate="billing.refund-form.paymentmode.lbl">Payment Mode</span>
                             <span style="color: #ef4444;">*</span>
                         </label>
-                        <ui-select ng-model="currentcontext.PaymentTypeId" name="payments" ng-disabled="IsCompleted" required>
-                            <ui-select-match placeholder="Select Payment Mode">
-                                {{$select.selected.Text}}
-                            </ui-select-match>
-                            <ui-select-choices
-                                repeat="lookupitem.Id as lookupitem in lookup.PaymentType | filter: { Text: $select.search }">
-                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
-                            </ui-select-choices>
-                        </ui-select>
+                        <react-component name="ItemwiseOpBillCancelSelectScreen" props="{ part: 'paymenttype', reactProps: reactProps, onAction: handleReactAction }"></react-component>
                     </div>
 
                     <!-- Right: Dynamic Payment Details -->
                     <div class="col-sm-6">
                         <div ng-if="currentcontext.PaymentTypeId != 1 && currentcontext.PaymentTypeId != 12" style="margin-bottom: 10px;">
                             <label translate="billing.refund-form.bankname.lbl">Bank Name</label>
-                            <ui-select ng-model="currentcontext.BankId" name="bankname" ng-disabled="IsCompleted">
-                                <ui-select-match placeholder="Select Bank">
-                                    {{$select.selected.Text}}
-                                </ui-select-match>
-                                <ui-select-choices
-                                    repeat="lookupitem.Id as lookupitem in lookup.Bank | filter: { Text: $select.search }">
-                                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
-                                </ui-select-choices>
-                            </ui-select>
+                            <react-component name="ItemwiseOpBillCancelSelectScreen" props="{ part: 'bank', reactProps: reactProps, onAction: handleReactAction }"></react-component>
                         </div>
 
                         <div ng-if="currentcontext.PaymentTypeId == 2" style="margin-bottom: 10px;">
