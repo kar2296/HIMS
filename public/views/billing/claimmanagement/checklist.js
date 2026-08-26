@@ -69,6 +69,7 @@
             vm.gridConfig.data = [];
             vm.gridConfig.data = data.Data;
             vm.gridConfig.pagerObj.totalItems = data.PageContext.TotalRecords;
+            $scope.refreshReactProps();
         };
 
         $scope.getList = function () {
@@ -208,6 +209,7 @@
         $scope.lookupCallback = function (scope, data, options, hasError) {
             $scope.lookup = hasError ? {} : data;
             initDynamicForm();
+            $scope.refreshReactProps();
             $scope.getList();
         }
 
@@ -234,6 +236,47 @@
             };
             utl.Http.doAction(options);
         }
+
+        $scope.refreshReactProps = function () {
+            $scope.reactProps = {
+                currentfilter: $scope.currentfilter,
+                lookup: $scope.lookup,
+                rows: vm.gridConfig.data
+            };
+        };
+
+        $scope.handleReactAction = function (actionName, payload) {
+            if (actionName === 'openAdvancedFilter') {
+                $scope.openAdvancedFilter();
+            } else if (actionName === 'patientMrnChange') {
+                $scope.currentfilter.PatientMRN = payload.value;
+            } else if (actionName === 'fetch') {
+                $scope.getList();
+            } else if (actionName === 'visitTypeChange') {
+                $scope.currentfilter.VisitTypeId = payload.value;
+                $scope.getList();
+            } else if (actionName === 'paymentDateChange') {
+                $scope.currentfilter.PaymentDate = payload.value;
+                $scope.getList();
+            } else if (actionName === 'billNoChange') {
+                $scope.currentfilter.BillNo = payload.value;
+            } else if (actionName === 'guarantorChange') {
+                $scope.currentfilter.GuarantorId = payload.value;
+                $scope.getList();
+            } else if (actionName === 'billdateChange') {
+                $scope.currentfilter.billdate = payload.value;
+                $scope.getList();
+            } else if (actionName === 'checklistStatusChange') {
+                $scope.currentfilter.ChecklistStatusId = payload.value;
+                $scope.getList();
+            } else if (actionName === 'patientinfo') {
+                $scope.patientprofiledetails(payload.PatientId);
+            } else if (actionName === 'claim') {
+                $state.go('app.checklist-form', { id: payload.EncounterId, gmid: payload.GuarantorId, billid: payload.Id });
+            }
+            $scope.refreshReactProps();
+            $scope.$applyAsync();
+        };
 
         $scope.initLookup();
     }

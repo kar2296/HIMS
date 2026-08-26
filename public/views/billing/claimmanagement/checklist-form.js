@@ -23,6 +23,7 @@
                 $scope.selectedPatient = $scope.Encounter.Patient;
             }
 			      $scope.getPatientAttachments();
+            $scope.refreshReactProps();
             $scope.getList();
         };
 
@@ -52,6 +53,7 @@
                 : 2;
                 $scope.Details.push(item);
             }
+            $scope.refreshReactProps();
         }
         $scope.getGuarantorChecklist = function () {
             var inputData = {
@@ -70,8 +72,10 @@
             utl.Http.doAction(options);
         }
         $scope.getListCallback = function (scope, res, options, hasError) {
-            if (res.Data.length > 0)
+            if (res.Data.length > 0) {
                 $scope.Details = res.Data;
+                $scope.refreshReactProps();
+            }
             else
             $scope.getGuarantorChecklist();
         }
@@ -122,6 +126,7 @@
         }
         $scope.getPatientAlertsCallback = function (scope, res, options, hasError) {
             $scope.currentcontext.patientAlertsCount = res.Data.length;
+            $scope.refreshReactProps();
         };
 
         $scope.getPatientAlertsCount = function () {
@@ -160,6 +165,7 @@
         }
         $scope.getPatientAttachmentsCallback = function (scope, res, options, hasError) {
             $scope.currentcontext.attachmentcount = res.PageContext.TotalRecords;
+            $scope.refreshReactProps();
         }
 
         $scope.getPatientAttachments = function () {
@@ -263,6 +269,35 @@
             };
             utl.Http.doAction(options);
         }
+
+        $scope.refreshReactProps = function () {
+            $scope.reactProps = {
+                currentcontext: $scope.currentcontext,
+                selectedPatient: $scope.selectedPatient,
+                Details: $scope.Details,
+                lookup: $scope.lookup
+            };
+        };
+
+        $scope.handleReactAction = function (actionName, payload) {
+            if (actionName === 'patientalerts') {
+                $scope.patientalerts();
+            } else if (actionName === 'patientprofiledetails') {
+                $scope.patientprofiledetails();
+            } else if (actionName === 'backToList') {
+                $scope.backToList();
+            } else if (actionName === 'openattachments') {
+                $scope.openattachments();
+            } else if (actionName === 'print3') {
+                $scope.print3();
+            } else if (actionName === 'saveItem') {
+                $scope.saveItem();
+            } else if (actionName === 'detailStatusChange') {
+                $scope.Details[payload.index].ChecklistStatusId = payload.ChecklistStatusId;
+            }
+            $scope.refreshReactProps();
+            $scope.$applyAsync();
+        };
 
         $scope.initLookup();
 
