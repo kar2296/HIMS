@@ -24,6 +24,7 @@
                     val.isEditable = chk;
                 }
             });
+            $scope.refreshReactProps();
         };
 
         $scope.calcAmt = function () {
@@ -39,6 +40,7 @@
                     $scope.currentcontext.BillDiscount += parseFloat(val.DiscountAmount);
                 }
             });
+            $scope.refreshReactProps();
         };
 
         $scope.load = function () {
@@ -144,6 +146,7 @@
         $scope.lookupCallback = function (scope, data, options, hasError) {
             $scope.lookup = hasError ? {} : data;
             $scope.getEncounters();
+            $scope.refreshReactProps();
         };
 
         $scope.initLookup = function () {
@@ -158,6 +161,42 @@
                 onComplete: $scope.lookupCallback
             };
             utl.Http.doAction(options);
+        };
+
+        $scope.refreshReactProps = function () {
+            var filteredRows = ($scope.PatientBillDetails || [])
+                .map(function (item, idx) { item._idx = idx; return item; })
+                .filter(function (item) { return item.PatientBillStatusId === 3; })
+                .sort(function (a, b) {
+                    return (a.ServiceName || '').localeCompare(b.ServiceName || '');
+                });
+            $scope.reactProps = {
+                rows: filteredRows,
+                isEditableAll: $scope.currentcontext.isEditable,
+                serviceCategoryId: $scope.currentfilter.ServiceCategoryId,
+                serviceCategoryOptions: ($scope.lookup && $scope.lookup.ServiceCategory) || []
+            };
+            $scope.$applyAsync();
+        };
+
+        $scope.handleReactAction = function (actionName, payload) {
+            switch (actionName) {
+                case 'selectAll':
+                    $scope.currentcontext.isEditable = payload.checked;
+                    $scope.SelectAll(payload.checked);
+                    break;
+                case 'canEditable':
+                    var entity = $scope.PatientBillDetails[payload.idx];
+                    if (entity) {
+                        $scope.canEditable(entity, payload.checked);
+                    }
+                    break;
+                case 'serviceCategoryChange':
+                    $scope.currentfilter.ServiceCategoryId = payload.value;
+                    $scope.refreshReactProps();
+                    $scope.getDetails();
+                    break;
+            }
         };
 
         $scope.initLookup();

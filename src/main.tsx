@@ -448,6 +448,8 @@ import { ExecutableProcedureListFilterScreen } from './react-components/Executab
 import { ExecutableProcedureFormScreen } from './react-components/ExecutableProcedureFormScreen';
 import { BillingRequestFilterScreen } from './react-components/BillingRequestFilterScreen';
 import { BillingRequestListScreen } from './react-components/BillingRequestListScreen';
+import { IpBillListServiceCategoryScreen } from './react-components/IpBillListServiceCategoryScreen';
+import { IpBillListTableScreen } from './react-components/IpBillListTableScreen';
 
 // Register components globally so the AngularJS bridge can find them
 (window as any).ReactComponents = {
@@ -691,7 +693,9 @@ import { BillingRequestListScreen } from './react-components/BillingRequestListS
   ExecutableProcedureListFilterScreen,
   ExecutableProcedureFormScreen,
   BillingRequestFilterScreen,
-  BillingRequestListScreen
+  BillingRequestListScreen,
+  IpBillListServiceCategoryScreen,
+  IpBillListTableScreen
 };
 
 console.log('React runtime and components loaded. ReactBridge initialized.');

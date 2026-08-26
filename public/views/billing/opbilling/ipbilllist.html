@@ -33,95 +33,14 @@
             <label class="col-sm-5 control-label filter-lbl"
                 translate="billing.package-assignment.serviceratecategory.lbl"></label>
             <div class="col-sm-7">
-                <ui-select ng-model="currentfilter.ServiceCategoryId" ng-change="getDetails()" tabindex="-1">
-                    <ui-select-match>
-                        {{$select.selected.Text | limitTo : 20 : 0}}
-                        <span ng-if="$select.selected.Text.length>20">...</span>
-                    </ui-select-match>
-                    <ui-select-choices
-                        repeat="lookupitem.Id as lookupitem in lookup.ServiceCategory | filter: { Text: $select.search }">
-                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
-                    </ui-select-choices>
-                </ui-select>
+                <react-component name="IpBillListServiceCategoryScreen" props="{ reactProps: reactProps, onAction: handleReactAction }"></react-component>
             </div>
         </div>
     </div>
 </div>
 
 <div class="row">
-    <table class="table table-responsive table-bordered">
-        <thead class="bg-subhead">
-            <tr>
-                <th style="width:3%;">
-                    <input type="checkbox" class="custom-checkbox popbox" ng-model="currentcontext.isEditable"
-                        ng-click="SelectAll(currentcontext.isEditable)" ng-disabled="IsDisabled">
-                </th>
-                <th class="col-sm-1">
-                    <span translate="billing.opbilling-list.doctor.lbl"></span>
-                </th>
-                <th class="col-sm-1">
-                    <span translate="billing.opbilling-list.billdatetime.lbl"></span>
-                </th>
-                <th class="col-sm-1">
-                    <span translate="billing.opbilling-list.billnumber.lbl"></span>
-                </th>
-                <th class="col-sm-2">
-                    <span translate="billing.creditnote.servicename.lbl"></span>
-                </th>
-                <th class="col-sm-1">
-                    <span translate="billing.opbilling-list.qty.lbl"></span>
-                </th>
-                <th class="col-sm-1">
-                    <span translate="billing.opbilling-list.rate.lbl"></span>
-                </th>
-                <th class="col-sm-1">
-                    <span translate="billing.opbilling-list.discount.lbl"></span>
-                </th>
-                <th class="col-sm-1">
-                    <span translate="billing.opbilling-list.netamount.lbl"></span>
-                </th>
-                <th class="col-sm-1">
-                    <span translate="billing.ipbillingtab.ward.lbl"></span>
-                </th>
-                <th class="col-sm-1">
-                    <span translate="billing.ipbillingtab.status.lbl"></span>
-                </th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr ng-repeat="bill in PatientBillDetails | orderBy:'ServiceName' | filter:{PatientBillStatusId: 3}"
-                ng-class="{ipbilltoopbill: bill.isCompleted}">
-                <td style="padding-left:1% !important;">
-                    <input type="checkbox" class="custom-checkbox" ng-model="bill.isEditable"
-                        ng-change="canEditable(bill, bill.isEditable)" ng-disabled="bill.isCompleted">
-                </td>
-                <td> {{bill.DoctorName}} </td>
-                <td>
-                    {{bill.BillDateTime | date : 'dd-MMM-yyyy HH:mm'}}
-                </td>
-                <td> {{bill.PatientBill.BillNumber}} </td>
-                <td>
-                    {{bill.ServiceName}}
-                </td>
-                <td>
-                    {{bill.Quantity}}
-                </td>
-                <td class="currency-align">
-                    {{bill.Rate | displaycurrency }}
-                </td>
-                <td class="currency-align">
-                    {{bill.DiscountAmount | displaycurrency }}
-                </td>
-                <td class="currency-align">
-                    {{bill.NetAmount | displaycurrency }}
-                </td>
-                <td> {{bill.Encounter.WardRoomMaster.RoomNo}} - {{bill.Encounter.WardRoomBedMaster.BedNo}} </td>
-                <td>
-                    {{bill.PatientBillStatus.Description}}
-                </td>
-            </tr>
-        </tbody>
-    </table>
+    <react-component name="IpBillListTableScreen" props="{ reactProps: reactProps, onAction: handleReactAction }"></react-component>
 </div>
 <div class="fooder-bgs">
     <div class="row">
