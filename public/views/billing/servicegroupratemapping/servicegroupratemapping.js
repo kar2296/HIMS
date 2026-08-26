@@ -87,7 +87,35 @@
         $scope.lookupCallback = function (scope, data, options, hasError) {
             $scope.lookup = hasError ? {} : data;
             $scope.getItem();
+            $scope.refreshReactProps();
         }
+
+        // --- React Bridge ---
+        $scope.handleReactAction = function (actionType, payload) {
+            payload = payload || {};
+            if (actionType === 'bedTypeChange') {
+                $scope.item.BedTypeId = payload.id;
+            }
+            $scope.refreshReactProps();
+            $scope.$applyAsync();
+        };
+
+        $scope.refreshReactProps = function () {
+            $scope.reactPropsContainer = {
+                onAction: $scope.handleReactAction,
+                reactProps: {
+                    bedTypeOptions: ($scope.lookup && $scope.lookup.BedType) || [],
+                    bedTypeId: $scope.item ? $scope.item.BedTypeId : null
+                }
+            };
+        };
+
+        $scope.refreshReactProps();
+
+        $scope.$watchGroup(['item', 'item.BedTypeId'], function () {
+            $scope.refreshReactProps();
+        });
+        // --------------------
 
         $scope.initLookup = function () {
             var inputData = [
