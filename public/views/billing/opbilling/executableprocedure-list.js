@@ -25,6 +25,7 @@
             } else {
                 $scope.currentfilter.DepartmentId = -1;
             }
+            $scope.refreshReactProps();
         };
 
         $scope.getCurrentLogInUserDepartment = function () {
@@ -63,6 +64,7 @@
             vm.gridConfig.data = res.Data;
             vm.patientordergridConfig.data = res.Data;
             vm.gridConfig.pagerObj.totalItems = res.PageContext.TotalRecords;
+            $scope.refreshReactProps();
         };
 
         $scope.getList = function () {
@@ -226,6 +228,7 @@
         $scope.lookupCallback = function (scope, data, options, hasError) {
             $scope.lookup = hasError ? {} : data;
             $scope.getList();
+            $scope.refreshReactProps();
         }
 
         $scope.initLookup = function () {
@@ -252,6 +255,38 @@
             };
             utl.Http.doAction(options);
         }
+
+        $scope.refreshReactProps = function () {
+            $scope.reactProps = {
+                departmentId: $scope.currentfilter.DepartmentId,
+                executableProcedureStatusId: $scope.currentfilter.ExecutableProcedureStatusId,
+                billsRaisedFromId: $scope.currentfilter.BillsRaisedFromId,
+                departmentOptions: ($scope.lookup && $scope.lookup.Department) || [],
+                statusOptions: ($scope.lookup && $scope.lookup.ExecutableProcedureStatus) || [],
+                raisedFromOptions: ($scope.lookup && $scope.lookup.BillsRaisedFrom) || []
+            };
+            $scope.$applyAsync();
+        };
+
+        $scope.handleReactAction = function (actionName, payload) {
+            switch (actionName) {
+                case 'departmentChange':
+                    $scope.currentfilter.DepartmentId = payload.value;
+                    $scope.refreshReactProps();
+                    $scope.getList();
+                    break;
+                case 'statusChange':
+                    $scope.currentfilter.ExecutableProcedureStatusId = payload.value;
+                    $scope.refreshReactProps();
+                    $scope.getList();
+                    break;
+                case 'raisedFromChange':
+                    $scope.currentfilter.BillsRaisedFromId = payload.value;
+                    $scope.refreshReactProps();
+                    $scope.getList();
+                    break;
+            }
+        };
 
         $scope.initLookup();
         if ($scope.CurrentLogInUser && $scope.CurrentLogInUser > 0) {

@@ -71,6 +71,7 @@
                 $scope.currentcontext.TotalBillAmount = $scope.currentcontext.TotalBillAmount + billitem.BillAmount;
             }
             vm.gridConfig.pagerObj.totalItems = data.PageContext.TotalRecords;
+            $scope.refreshReactProps();
         };
 
         $scope.getList = function (PatientId) {
@@ -167,6 +168,13 @@
             };
             utl.Http.doAction(options);
         }
+
+        $scope.refreshReactProps = function () {
+            $scope.reactProps = {
+                rows: (vm.gridConfig && vm.gridConfig.data) || []
+            };
+            $scope.$applyAsync();
+        };
 
         $scope.initLookup();
     }
