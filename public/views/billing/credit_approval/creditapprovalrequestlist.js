@@ -30,6 +30,7 @@
             if (res && res.Data && res.Data.length > 0) {
                 $scope.PatientBills = res.Data;
             }
+            $scope.refreshReactProps();
         };
 
         $scope.getPatientBillList = function() {
@@ -130,6 +131,48 @@
             }
         };
 
+        $scope.refreshReactProps = function () {
+            $scope.reactProps = {
+                currentfilter: $scope.currentfilter,
+                lookup: $scope.lookup,
+                rows: $scope.PatientBills
+            };
+        };
+
+        $scope.handleReactAction = function (actionName, payload) {
+            switch (actionName) {
+                case 'fromDateChange':
+                    $scope.currentfilter.FromBillDate = payload.value || null;
+                    $scope.refreshReactProps();
+                    break;
+                case 'toDateChange':
+                    $scope.currentfilter.ToBillDate = payload.value || null;
+                    $scope.refreshReactProps();
+                    break;
+                case 'billNoChange':
+                    $scope.currentfilter.BillNo = payload.value;
+                    $scope.refreshReactProps();
+                    break;
+                case 'billTypeChange':
+                    $scope.currentfilter.BillTypeId = payload.value;
+                    $scope.refreshReactProps();
+                    $scope.getPatientBillList();
+                    break;
+                case 'statusChange':
+                    $scope.currentfilter.CreditApprovalStatusId = payload.value;
+                    $scope.refreshReactProps();
+                    $scope.getPatientBillList();
+                    break;
+                case 'fetch':
+                    $scope.getList();
+                    break;
+                case 'edit':
+                    $scope.EditBillingRequest(payload.item);
+                    break;
+            }
+            $scope.$applyAsync();
+        };
+
 
 
         $scope.getList = function() {
@@ -151,6 +194,8 @@
             $scope.lookup = data;
             $scope.getList();
         }
+
+        $scope.refreshReactProps();
 
         $scope.initLookup = function() {
             var inputData = [{

@@ -32,6 +32,29 @@
         $scope.currentfilter.PatientId = modalConfig.params.pid;
         $scope.item.PatientId = $scope.currentfilter.PatientId;
 
+        $scope.refreshReactProps = function () {
+            $scope.reactProps = {
+                item: $scope.item
+            };
+        };
+
+        $scope.handleReactAction = function (actionName, payload) {
+            switch (actionName) {
+                case 'approve':
+                    $scope.CreditApproved();
+                    break;
+                case 'reject':
+                    $scope.CreditRejected();
+                    break;
+                case 'close':
+                    $scope.cancelCallback();
+                    break;
+            }
+            $scope.$applyAsync();
+        };
+
+        $scope.refreshReactProps();
+
 
         $scope.getPatientInfo = function (scope, data, options, hasError) {
             $scope.selectedPatient = data;

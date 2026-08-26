@@ -400,6 +400,10 @@ import { GeneralExpensesListScreen } from './react-components/GeneralExpensesLis
 import { BillDiscountTabScreen } from './react-components/BillDiscountTabScreen';
 import { BillDiscountFilterScreen } from './react-components/BillDiscountFilterScreen';
 import { BillDiscountListScreen } from './react-components/BillDiscountListScreen';
+import { CreditApprovalTabScreen } from './react-components/CreditApprovalTabScreen';
+import { CreditApprovalFilterScreen } from './react-components/CreditApprovalFilterScreen';
+import { CreditApprovalListScreen } from './react-components/CreditApprovalListScreen';
+import { EditCreditApprovalScreen } from './react-components/EditCreditApprovalScreen';
 
 // Register components globally so the AngularJS bridge can find them
 (window as any).ReactComponents = {
@@ -595,7 +599,11 @@ import { BillDiscountListScreen } from './react-components/BillDiscountListScree
   GeneralExpensesListScreen,
   BillDiscountTabScreen,
   BillDiscountFilterScreen,
-  BillDiscountListScreen
+  BillDiscountListScreen,
+  CreditApprovalTabScreen,
+  CreditApprovalFilterScreen,
+  CreditApprovalListScreen,
+  EditCreditApprovalScreen
 };
 
 console.log('React runtime and components loaded. ReactBridge initialized.');

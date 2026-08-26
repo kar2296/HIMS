@@ -1,26 +1,19 @@
+<!--
+  React bridge migration (single mount). Replaces the <uib-tabset> tab
+  header only -- see CreditApprovalTabScreen.tsx: all 3 tabs route to
+  the SAME state (app.creditapprovaltab.creditapproval) with a
+  different billtype param, so active-tab highlighting was already
+  purely click-index-driven in the original (no $scope.active wired
+  up) -- reproduced with local component state, not route comparison.
+  Native <div ui-view class="tabview"> stays untouched below.
+-->
 <link rel="stylesheet" href="app/css/drhms.css">
 <div class="row">
     <h3 class="col-sm-9 mt0" translate="Credit Approval"></h3>
-    <!-- <div class="col-sm-3">
-        <span class="drhms-billing-btn drhms-outstandingbill-btn" ng-click="doctor_dashboard()"
-            uib-tooltip="{{'patientemr.mock.emrdashboard.lbl' | translate}}" tooltip-placement="bottom">
-            <i class="fas fa-th-large" aria-hidden="true"></i>
-        </span>
-    </div> -->
 </div>
-<!-- <emrpatientbanner patientid="currentcontext.pid" encounterid="currentcontext.eid">
-</emrpatientbanner> -->
-
-<!-- <div class="page-header-list">
-    <h4 class="header-name-litle" translate="Consolidate Bills"></h4>
-</div> -->
 <div class="row tablebox" id="receipt_tab">
     <div class="col-sm-12">
-        <uib-tabset active="active" id="assettabs">
-            <uib-tab index="$index" ng-repeat="tab in tabs" heading="{{tab.title}}" ng-click="switchTab(tab,'reload')"
-                disable="tab.canDisable">
-            </uib-tab>
-        </uib-tabset>
+        <react-component name="CreditApprovalTabScreen" props="{ reactProps: reactProps, onAction: handleReactAction }"></react-component>
         <div ui-view class="tabview"></div>
     </div>
 </div>

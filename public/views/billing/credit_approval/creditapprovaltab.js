@@ -31,6 +31,21 @@
             //     billtypeid: tab.billtype
             // });
         };
+
+        $scope.refreshReactProps = function () {
+            $scope.reactProps = {
+                tabs: $scope.tabs
+            };
+        };
+
+        $scope.handleReactAction = function (actionName, payload) {
+            switch (actionName) {
+                case 'switchTab':
+                    $scope.switchTab({ state: payload.state, billtype: payload.billtype }, 'reload');
+                    break;
+            }
+            $scope.$applyAsync();
+        };
         $scope.doctor_dashboard = function () {
             if ($scope.From == 'nursing') {
                 $state.go('app.nursingdashboard');
@@ -46,6 +61,8 @@
             $rootScope.app.layout.isCollapsed = true;
         }
         $scope.switchTab($scope.tabs[0]);
+
+        $scope.refreshReactProps();
 
     }
 
