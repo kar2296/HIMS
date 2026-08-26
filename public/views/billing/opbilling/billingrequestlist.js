@@ -27,6 +27,7 @@
             if (res && res.Data && res.Data.length > 0) {
                 $scope.PaymentDetails = res.Data;
             }
+            $scope.refreshReactProps();
         };
 
         $scope.getPaymentDetailList = function() {
@@ -186,6 +187,7 @@
         $scope.lookupCallback = function(scope, data, options, hasError) {
             $scope.lookup = data;
             $scope.getList();
+            $scope.refreshReactProps();
         }
 
         $scope.initLookup = function() {
@@ -233,6 +235,33 @@
             };
 
             utl.Http.doAction(options);
+        };
+
+        $scope.refreshReactProps = function () {
+            $scope.reactProps = {
+                rows: $scope.PaymentDetails || [],
+                billingRequestTypeId: $scope.currentfilter.BillingRequestTypeId,
+                billingRequestStatusId: $scope.currentfilter.BillingRequestStatusId,
+                requestTypeOptions: ($scope.lookup && $scope.lookup.BillingRequestType) || [],
+                statusOptions: ($scope.lookup && $scope.lookup.BillingRequestStatus) || []
+            };
+            $scope.$applyAsync();
+        };
+
+        $scope.handleReactAction = function (actionName, payload) {
+            switch (actionName) {
+                case 'requestTypeChange':
+                    $scope.currentfilter.BillingRequestTypeId = payload.value;
+                    $scope.refreshReactProps();
+                    break;
+                case 'statusChange':
+                    $scope.currentfilter.BillingRequestStatusId = payload.value;
+                    $scope.refreshReactProps();
+                    break;
+                case 'editBillingRequest':
+                    $scope.EditBillingRequest(payload.entity);
+                    break;
+            }
         };
 
         $scope.initLookup();
