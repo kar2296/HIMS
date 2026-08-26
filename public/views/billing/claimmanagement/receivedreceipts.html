@@ -1,70 +1,34 @@
+<!--
+  React bridge migration (HYBRID). 'header' (title + Add button) and
+  'receiptno' (Receipt # search) mounts sandwich the native
+  <autosearch> Guarantor widget (kept native, same business-search
+  directive used untouched throughout this migration); 'dateandstatus'
+  covers Receipt Date + Status. Results grid becomes
+  ReceivedReceiptsListScreen, replacing <custom-table>; native
+  pagination footer untouched. Confirmed dead code, not reproduced:
+  $scope.GuarantorTypeChange is never wired to anything in this
+  template (and references an undefined `SelectedGuarantorType`
+  variable that would throw if it were ever called) -- left untouched
+  in the .js file, simply never invoked.
+-->
 <div class="">
-    <h4 class="col-sm-9" translate="billing.claimmanagement.pagetitle.lbl"></h4>
-    <div class="col-sm-3">
-        <div class="filters">
-            <button type="button" tabindex="-1" class="btn-add"  ng-click="addNew()"
-            uib-tooltip="{{ 'billing.claimsubmission-form.claim_receipt.lbl' | translate }}"
-                tooltip-placement="bottom">
-                <i class="fa fa-plus" aria-hidden="true"></i>
-            </button>
-        </div>
-    </div>
+    <react-component name="ReceivedReceiptsFilterScreen" props="{ part: 'header', reactProps: reactProps, onAction: handleReactAction }"></react-component>
 </div>
 <div class="row">
-    <div class="form-group col-sm-3">
-        <label class="col-sm-12 control-lable" translate="billing.claimmanagement.receiptnos.lbl"></label>
-        <div class="col-sm-12">
-            <input type="text" id="pid" class="form-control" on-enter="getList()"
-                ng-model="currentfilter.PaymentIdentifier" translate translate-attr-placeholder="Receipt Number">
-        </div>
-    </div>
+    <react-component name="ReceivedReceiptsFilterScreen" props="{ part: 'receiptno', reactProps: reactProps, onAction: handleReactAction }"></react-component>
     <div class="form-group col-sm-3">
         <label class="col-sm-12 control-lable" translate="billing.claimmanagement.guarantorname.lbl"></label>
         <div class="col-sm-12">
-            <!-- <ui-select ng-model="currentfilter.GuarantorId" ng-change="getList()" name="Guarantor" class="" required>
-                <ui-select-match>
-                    {{$select.selected.Text | limitTo : 20 : 0}}
-                    <span ng-if="$select.selected.Text.length>20">...</span>
-                </ui-select-match>
-                <ui-select-choices
-                    repeat="lookupitem.Id as lookupitem in lookup.Guarantor | filter: { Text: $select.search }">
-                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
-                </ui-select-choices>
-            </ui-select> -->
             <autosearch itemid="currentfilter.GuarantorId" tabindex="tabindexmap.patienttabindex" iteminfo=""
             on-enter="getList()" rowdata="" config="vm.guarantorcontrolconfig" candisable=""
             itemchange="getList()" isrequired="true">
             </autosearch>
         </div>
     </div>
-    <div class="form-group col-sm-3">
-        <label class="col-sm-12 control-lable" translate="billing.claimmanagement.receiptdate.lbl"></label>
-        <div class="col-sm-12">
-            <input type="text" class="form-control" name="receiptdate" ng-change="getList()"
-                datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}"
-                uib-datepicker-popup="{{datePickerOptions.dateFormat}}" placeholder="{{datePickerOptions.placeholder}}"
-                ng-click="receiptdatePopup = { opened: true }" is-open="receiptdatePopup.opened"
-                ng-model="currentfilter.PaymentDate">
-        </div>
-    </div>
-    <div class="form-group col-sm-3">
-        <label class="col-sm-12 control-lable" translate="billing.claimmanagement.status.lbl"></label>
-        <div class="col-sm-12">
-            <ui-select ng-model="currentfilter.InsurancePaymentStatusId" ng-change="getList()" class="filter-combo">
-                <ui-select-match>
-                    {{$select.selected.Text | limitTo : 20 : 0}}
-                    <span ng-if="$select.selected.Text.length>20">...</span>
-                </ui-select-match>
-                <ui-select-choices
-                    repeat="lookupitem.Id as lookupitem in lookup.InsurancePaymentStatus | filter: { Text: $select.search }">
-                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
-                </ui-select-choices>
-            </ui-select>
-        </div>
-    </div>
+    <react-component name="ReceivedReceiptsFilterScreen" props="{ part: 'dateandstatus', reactProps: reactProps, onAction: handleReactAction }"></react-component>
 </div>
 <div class="fooder-bgs">
-    <custom-table config="vm.gridConfig"></custom-table>
+    <react-component name="ReceivedReceiptsListScreen" props="{ reactProps: reactProps, onAction: handleReactAction }"></react-component>
     <ul uib-pagination total-items="vm.gridConfig.pagerObj.totalItems" items-per-page="vm.gridConfig.pagerObj.pageSize"
         start-index="vm.gridConfig.pagerObj.startIndex" ng-model="vm.gridConfig.pagerObj.currentPage"
         ng-change="getList()"></ul>

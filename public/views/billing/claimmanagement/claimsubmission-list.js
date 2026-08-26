@@ -22,6 +22,7 @@
                 data.Data.sort($scope.custom_sort);
             vm.gridConfig.data = data.Data || [];
             vm.gridConfig.pagerObj.totalItems = data.PageContext.TotalRecords;
+            $scope.refreshReactProps();
         }
         $scope.getList = function () {
             var FrmDate = $filter('date')($scope.currentfilter.FromDate, 'yyyy-MM-dd 00:00:00') || null;
@@ -213,6 +214,7 @@
 
         $scope.lookupCallback = function (scope, data, options, hasError) {
             $scope.lookup = hasError ? {} : data;
+            $scope.refreshReactProps();
             $scope.getList();
         }
 
@@ -247,6 +249,36 @@
         function removeFloatingNav() {
             $rootScope.app.layout.isCollapsed = true;
         }
+        $scope.refreshReactProps = function () {
+            $scope.reactProps = {
+                currentfilter: $scope.currentfilter,
+                lookup: $scope.lookup,
+                rows: vm.gridConfig.data
+            };
+        };
+
+        $scope.handleReactAction = function (actionName, payload) {
+            if (actionName === 'addNew') {
+                $scope.addNew();
+            } else if (actionName === 'batchNoChange') {
+                $scope.currentfilter.BatchNo = payload.value;
+            } else if (actionName === 'fetch') {
+                $scope.getList();
+            } else if (actionName === 'fromDateChange') {
+                $scope.currentfilter.FromDate = payload.value;
+                $scope.getList();
+            } else if (actionName === 'toDateChange') {
+                $scope.currentfilter.ToDate = payload.value;
+                $scope.getList();
+            } else if (actionName === 'billNoChange') {
+                $scope.currentfilter.BillNo = payload.value;
+            } else if (actionName === 'claim') {
+                $scope.handleEvents('claim', payload);
+            }
+            $scope.refreshReactProps();
+            $scope.$applyAsync();
+        };
+
         $scope.initLookup();
     }
     claimsubmissionController.$inject = ['$rootScope', '$timeout', '$scope', '$stateParams', '$state', '$translate', 'utl', '$filter'];

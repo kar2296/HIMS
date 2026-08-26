@@ -421,6 +421,12 @@ import { ChecklistFormScreen } from './react-components/ChecklistFormScreen';
 import { ChecklistFormDetailsScreen } from './react-components/ChecklistFormDetailsScreen';
 import { ClaimCoveringLetterScreen } from './react-components/ClaimCoveringLetterScreen';
 import { ClaimCoveringLetterViewScreen } from './react-components/ClaimCoveringLetterViewScreen';
+import { ReceivedReceiptsFilterScreen } from './react-components/ReceivedReceiptsFilterScreen';
+import { ReceivedReceiptsListScreen } from './react-components/ReceivedReceiptsListScreen';
+import { ClaimSubmissionFilterScreen } from './react-components/ClaimSubmissionFilterScreen';
+import { ClaimSubmissionListScreen } from './react-components/ClaimSubmissionListScreen';
+import { ClaimSubmissionFormScreen } from './react-components/ClaimSubmissionFormScreen';
+import { ClaimSubmissionFormBillsScreen } from './react-components/ClaimSubmissionFormBillsScreen';
 
 // Register components globally so the AngularJS bridge can find them
 (window as any).ReactComponents = {
@@ -637,7 +643,13 @@ import { ClaimCoveringLetterViewScreen } from './react-components/ClaimCoveringL
   ChecklistFormScreen,
   ChecklistFormDetailsScreen,
   ClaimCoveringLetterScreen,
-  ClaimCoveringLetterViewScreen
+  ClaimCoveringLetterViewScreen,
+  ReceivedReceiptsFilterScreen,
+  ReceivedReceiptsListScreen,
+  ClaimSubmissionFilterScreen,
+  ClaimSubmissionListScreen,
+  ClaimSubmissionFormScreen,
+  ClaimSubmissionFormBillsScreen
 };
 
 console.log('React runtime and components loaded. ReactBridge initialized.');

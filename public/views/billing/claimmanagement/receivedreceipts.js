@@ -26,6 +26,7 @@
                 res.Data.sort($scope.custom_sort);
             vm.gridConfig.data = res.Data;
             vm.gridConfig.pagerObj.totalItems = res.Data.length;
+            $scope.refreshReactProps();
         };
 
         $scope.getList = function () {
@@ -250,6 +251,7 @@
 
         $scope.lookupCallback = function (scope, data, options, hasError) {
             $scope.lookup = hasError ? {} : data;
+            $scope.refreshReactProps();
             $scope.getList();
         };
 
@@ -282,6 +284,34 @@
         function removeFloatingNav() {
             $rootScope.app.layout.isCollapsed = true;
         }
+        $scope.refreshReactProps = function () {
+            $scope.reactProps = {
+                currentfilter: $scope.currentfilter,
+                lookup: $scope.lookup,
+                rows: vm.gridConfig.data
+            };
+        };
+
+        $scope.handleReactAction = function (actionName, payload) {
+            if (actionName === 'addNew') {
+                $scope.addNew();
+            } else if (actionName === 'paymentIdentifierChange') {
+                $scope.currentfilter.PaymentIdentifier = payload.value;
+            } else if (actionName === 'fetch') {
+                $scope.getList();
+            } else if (actionName === 'paymentDateChange') {
+                $scope.currentfilter.PaymentDate = payload.value;
+                $scope.getList();
+            } else if (actionName === 'statusChange') {
+                $scope.currentfilter.InsurancePaymentStatusId = payload.value;
+                $scope.getList();
+            } else if (actionName === 'edit') {
+                $scope.NavigateForm(payload.Id);
+            }
+            $scope.refreshReactProps();
+            $scope.$applyAsync();
+        };
+
         $scope.initLookup();
     }
     receivedreceiptsListController.$inject = ['$rootScope','$timeout','$scope', '$stateParams', '$state', '$translate', 'utl', '$filter'];

@@ -27,6 +27,7 @@
                 item.IsSelected = $scope.currentcontext.selectall;
                 item.IsAllOrderSelected = $scope.currentcontext.selectall;
             }
+            $scope.refreshReactProps();
         }
         $scope.IsAllOrderSelectedChange = function (list, item) {
             for (var idx1 in list) {
@@ -37,6 +38,7 @@
                     detail.IsSelected = false;
                 }
             }
+            $scope.refreshReactProps();
         }
         //Guarantor List
         vm.guarantorcontrolconfig = {
@@ -134,6 +136,7 @@
             }
             $scope.getList();
             $scope.actionVisiblity();
+            $scope.refreshReactProps();
         };
 
         $scope.getItem = function () {
@@ -165,7 +168,7 @@
                     // gData.IsSelected = false;
                     $scope.GuarantorBills.push(gData);
             }
-
+            $scope.refreshReactProps();
         };
         $scope.getGuarantorBills = function () {
             // var guarantorId_ = 1000;
@@ -268,6 +271,7 @@
                 $scope.GuarantorBills.push(gData);
             }
             // $scope.GuarantorBills  = data.Data || [];
+            $scope.refreshReactProps();
         };
         $scope.getList = function () {
             var inputData = {
@@ -456,6 +460,7 @@
             } else {
                 $scope.ShowCreate = true;
             }
+            $scope.refreshReactProps();
         };
 
         $scope.saveItemCallback = function (scope, data, options, hasError) {
@@ -671,6 +676,7 @@
 
         $scope.lookupCallback = function (scope, data, options, hasError) {
             $scope.lookup = hasError ? {} : data;
+            $scope.refreshReactProps();
             $scope.getItem();
         };
 
@@ -695,6 +701,57 @@
                 onComplete: $scope.lookupCallback
             };
             utl.Http.doAction(options);
+        };
+
+        $scope.refreshReactProps = function () {
+            $scope.reactProps = {
+                currentcontext: $scope.currentcontext,
+                item: $scope.item,
+                selectedPatient: $scope.selectedPatient,
+                GuarantorBills: $scope.GuarantorBills,
+                CanshowViewbtn: $scope.CanshowViewbtn,
+                ShowCreate: $scope.ShowCreate,
+                ShowSubmission: $scope.ShowSubmission,
+                ShowDispatch: $scope.ShowDispatch,
+                lookup: $scope.lookup
+            };
+        };
+
+        $scope.handleReactAction = function (actionName, payload) {
+            if (actionName === 'fromBillDateChange') {
+                $scope.item.FromBillDate = payload.value;
+            } else if (actionName === 'toBillDateChange') {
+                $scope.item.ToBillDate = payload.value;
+            } else if (actionName === 'selectGridList') {
+                $scope.selectGridList();
+            } else if (actionName === 'backToList') {
+                $scope.backToList();
+            } else if (actionName === 'historyLink') {
+                $scope.historyLink();
+            } else if (actionName === 'printclaim') {
+                $scope.printclaim();
+            } else if (actionName === 'saveAlert') {
+                $scope.saveAlert(payload.status);
+            } else if (actionName === 'dispatchClaim') {
+                $scope.dispatch();
+            } else if (actionName === 'selectAllItems') {
+                $scope.currentcontext.selectall = payload.value;
+                $scope.selectAllItems();
+            } else if (actionName === 'rowSelectChange') {
+                var row = $scope.GuarantorBills[payload.index];
+                row.IsAllOrderSelected = payload.value;
+                $scope.IsAllOrderSelectedChange($scope.GuarantorBills, row);
+            } else if (actionName === 'coveringletter') {
+                $scope.coveringletter($scope.GuarantorBills, $scope.GuarantorBills[payload.index]);
+            } else if (actionName === 'corporatecoverprint') {
+                $scope.corporatecoverprint(payload.Id);
+            } else if (actionName === 'opcoverprint') {
+                $scope.opcoverprint(payload.Id);
+            } else if (actionName === 'tpacoverprint') {
+                $scope.tpacoverprint(payload.Id);
+            }
+            $scope.refreshReactProps();
+            $scope.$applyAsync();
         };
 
         $scope.initLookup();
