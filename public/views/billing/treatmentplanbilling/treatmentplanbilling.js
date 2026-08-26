@@ -29,6 +29,7 @@
                     $scope.TreatmentPlan.push(planData);
                 }
             }
+            $scope.refreshReactProps();
         };
 
         $scope.getList = function() {
@@ -153,6 +154,7 @@
         $scope.viewDetailsCallback = function(scope, data, options, hasError) {
             $scope.TreatmentPlanDetails = [];
             $scope.TreatmentPlanDetails = data.Data;
+            $scope.refreshReactProps();
         };
 
         $scope.viewDetails = function(plan) {
@@ -192,6 +194,48 @@
 
             utl.Http.doAction(options);
         };
+
+
+        $scope.refreshReactProps = function () {
+            $scope.reactProps = {
+                currentfilter: $scope.currentfilter,
+                lookup: $scope.lookup,
+                treatmentPlans: $scope.TreatmentPlan,
+                treatmentPlanDetails: $scope.TreatmentPlanDetails
+            };
+        };
+
+        $scope.handleReactAction = function (actionName, payload) {
+            switch (actionName) {
+                case 'fromDateChange':
+                    $scope.currentfilter.FromBillDate = payload.value ? new Date(payload.value) : null;
+                    $scope.refreshReactProps();
+                    break;
+                case 'toDateChange':
+                    $scope.currentfilter.ToBillDate = payload.value ? new Date(payload.value) : null;
+                    $scope.refreshReactProps();
+                    break;
+                case 'statusChange':
+                    $scope.currentfilter.PlanStatusId = payload.value;
+                    $scope.refreshReactProps();
+                    break;
+                case 'fetch':
+                    $scope.getList();
+                    break;
+                case 'viewDetails':
+                    $scope.viewDetails(payload);
+                    break;
+                case 'updateBills':
+                    $scope.updateBills(payload);
+                    break;
+                case 'detailbills':
+                    $scope.detailbills(payload);
+                    break;
+            }
+            $scope.$applyAsync();
+        };
+
+        $scope.refreshReactProps();
 
         $scope.initLookup();
     }
