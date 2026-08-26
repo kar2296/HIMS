@@ -1,4 +1,4 @@
-type Part = 'discountmodefooter' | 'discountapprover';
+type Part = 'discountmodefooter' | 'discountapprover' | 'discountapproverplain';
 
 interface Props {
   part: Part;
@@ -46,8 +46,33 @@ export function OpBillingDiscountApprovalScreen({ part, reactProps, onAction }: 
     );
   }
 
-  // part === 'discountapprover'
-  const options = reactProps?.discountApproverOptions || [];
+  if (part === 'discountapprover') {
+    const options = reactProps?.discountApproverOptions || [];
+    return (
+      <select
+        className="form-control"
+        disabled={!!reactProps?.rdoApprovedById}
+        value={reactProps?.discountApprovedById ?? ''}
+        onChange={(e) => onAction('discountApproverChange', { id: parseInt(e.target.value, 10) })}
+      >
+        <option value="">&nbsp;</option>
+        {options.map((o: any) => (
+          <option key={o.Id} value={o.Id}>
+            {o.Id === -1 ? o.Text : `${o.Title && o.Title.Description ? o.Title.Description + ' ' : ''}${o.Text}`}
+          </option>
+        ))}
+      </select>
+    );
+  }
+
+  // part === 'discountapproverplain'
+  // editbillingrequest only: this screen's ui-select-choices template for
+  // the discount approver has no Id==-1/Title.Description special case --
+  // it's a plain <div ng-bind-html="lookupitem.Text | ..."> like every
+  // other simple select, unlike opbilling-list's 'discountapprover' above.
+  // Reproduced as plain option text rather than reusing the special-case
+  // rendering.
+  const plainOptions = reactProps?.discountApproverOptions || [];
   return (
     <select
       className="form-control"
@@ -56,10 +81,8 @@ export function OpBillingDiscountApprovalScreen({ part, reactProps, onAction }: 
       onChange={(e) => onAction('discountApproverChange', { id: parseInt(e.target.value, 10) })}
     >
       <option value="">&nbsp;</option>
-      {options.map((o: any) => (
-        <option key={o.Id} value={o.Id}>
-          {o.Id === -1 ? o.Text : `${o.Title && o.Title.Description ? o.Title.Description + ' ' : ''}${o.Text}`}
-        </option>
+      {plainOptions.map((o: any) => (
+        <option key={o.Id} value={o.Id}>{o.Text}</option>
       ))}
     </select>
   );

@@ -1,4 +1,4 @@
-type Part = 'paymenttype' | 'creditapprover' | 'bank' | 'cardtype' | 'terminal';
+type Part = 'paymenttype' | 'creditapprover' | 'creditapproverguarantor' | 'bank' | 'cardtype' | 'terminal';
 
 interface Props {
   part: Part;
@@ -67,15 +67,38 @@ export function OpBillingFooterPaymentScreen({ part, reactProps, onAction }: Pro
   }
 
   if (part === 'bank') {
+    // bankDisabled is optional and defaults to not-disabled: opbilling-list's
+    // BankName <ui-select> has no ng-disabled attribute at all, while
+    // editbillingrequest's does (ng-disabled="RdoPaymentTypeId") -- callers
+    // that never set bankDisabled (opbilling-list, opbillingest-list) keep
+    // their exact original never-disabled behavior unchanged.
     const options = reactProps?.bankOptions || [];
     return (
       <select
         id="BankName"
         className="form-control"
+        disabled={!!reactProps?.bankDisabled}
         value={reactProps?.bankId ?? ''}
         onChange={(e) => onAction('bankChange', { id: parseInt(e.target.value, 10) })}
         onKeyUp={() => onAction('footerKeyUp', { nextId: 'BankName' })}
       >
+        <option value="">&nbsp;</option>
+        {options.map((o: any) => (
+          <option key={o.Id} value={o.Id}>{o.Text}</option>
+        ))}
+      </select>
+    );
+  }
+
+  if (part === 'creditapproverguarantor') {
+    // editbillingrequest only: a second, always-disabled creditapprover
+    // <ui-select> (ng-if="currentfilter.GuarantorTypeId>1", ng-disabled="true",
+    // no ng-keyup) bound to item.GuarantorDueId and lookup.Guarantor --
+    // opbilling-list's equivalent second variant was long ago replaced by
+    // an <autosearch> widget, so there is no existing part to reuse here.
+    const options = reactProps?.guarantorOptions || [];
+    return (
+      <select id="creditapprover" className="form-control" disabled value={reactProps?.guarantorDueId ?? ''} onChange={() => {}}>
         <option value="">&nbsp;</option>
         {options.map((o: any) => (
           <option key={o.Id} value={o.Id}>{o.Text}</option>

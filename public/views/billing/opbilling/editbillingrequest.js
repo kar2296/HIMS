@@ -224,6 +224,208 @@
             $scope.RdoPaymentTypeId = flag;
         };
 
+        // --- React Bridge ---
+        // editbillingrequest has no pre-existing React infrastructure (no
+        // action bar / save bar mounts). Covers all 14 live ui-selects:
+        // header cluster (Doctor, Payer Type, header Discount Type, Patient
+        // Type, Payer/Guarantor, Rate Type), footer discount cluster
+        // (footer Discount Type, Discount Approver), and footer payment
+        // cluster (Payment Type, two Credit Approver variants, Bank, Card
+        // Type, Terminal). Doctor/Guarantor here are still native
+        // ui-selects (opbilling-list upgraded these to the <autosearch>
+        // widget long ago), so this screen needed new header parts
+        // (doctorid, guarantorid, payertype) not required elsewhere.
+        $scope.handleHeaderAction = function (actionType, payload) {
+            payload = payload || {};
+            switch (actionType) {
+                case 'doctorChange':
+                    $scope.item.DoctorId = payload.id;
+                    var selectedDoctor = null;
+                    ($scope.lookup.Doctor || []).forEach(function (o) {
+                        if (o.Id === payload.id) selectedDoctor = o;
+                    });
+                    $scope.onDoctorSelected(selectedDoctor);
+                    break;
+                case 'guarantorChange':
+                    $scope.currentfilter.GuarantorId = payload.id;
+                    var selectedGuarantor = null;
+                    ($scope.lookup.Guarantor || []).forEach(function (o) {
+                        if (o.Id === payload.id) selectedGuarantor = o;
+                    });
+                    if (selectedGuarantor) { $scope.GuarantorChange(selectedGuarantor); }
+                    break;
+                case 'payerTypeChange':
+                    $scope.currentfilter.GuarantorTypeId = payload.id;
+                    $scope.getInsurancelookup();
+                    break;
+                case 'serviceRateCatChange':
+                    $scope.currentfilter.ServiceRateCategoryId = payload.id;
+                    var selectedRateCat = null;
+                    ($scope.lookup.ServiceRateCategory || []).forEach(function (o) {
+                        if (o.Id === payload.id) selectedRateCat = o;
+                    });
+                    $scope.ServiceRateCatChange(selectedRateCat || { Id: payload.id, Text: '' });
+                    break;
+                case 'discountModeHeaderChange':
+                    $scope.currentfilter.DiscountModeId = payload.id;
+                    $scope.DiscountModechange();
+                    break;
+                case 'patientTypeChange':
+                    $scope.item.PatientTypeId = payload.id;
+                    break;
+                case 'headerKeyUp':
+                    $scope.moveHeaderFocus(payload.nextId);
+                    break;
+            }
+            $scope.refreshReactProps();
+            $scope.$applyAsync();
+        };
+
+        $scope.handleDiscountApprovalAction = function (actionType, payload) {
+            payload = payload || {};
+            switch (actionType) {
+                case 'discountModeFooterChange':
+                    $scope.currentfilter.DiscountModeId = payload.id;
+                    var selectedDiscMode = null;
+                    ($scope.lookup.DiscountMode || []).forEach(function (o) {
+                        if (o.Id === payload.id) selectedDiscMode = o;
+                    });
+                    $scope.BillDiscountModechange(selectedDiscMode || { Id: payload.id });
+                    break;
+                case 'discountApproverChange':
+                    $scope.currentcontext.DiscountApprovedBy = payload.id;
+                    var selectedApprover = null;
+                    ($scope.lookup.DiscountApprover || []).forEach(function (o) {
+                        if (o.Id === payload.id) selectedApprover = o;
+                    });
+                    if (selectedApprover) { $scope.setDiscountLimit(selectedApprover); }
+                    break;
+            }
+            $scope.refreshReactProps();
+            $scope.$applyAsync();
+        };
+
+        $scope.handleFooterPaymentAction = function (actionType, payload) {
+            payload = payload || {};
+            switch (actionType) {
+                case 'paymentTypeChange':
+                    $scope.currentcontext.PaymentTypeId = payload.id;
+                    break;
+                case 'creditApproverChange':
+                    $scope.item.PrivateDueId = payload.id;
+                    var selectedDueApprover = null;
+                    ($scope.lookup.PrivateDueApprover || []).forEach(function (o) {
+                        if (o.Id === payload.id) selectedDueApprover = o;
+                    });
+                    if (selectedDueApprover) { $scope.setDueLimit(selectedDueApprover); }
+                    break;
+                case 'bankChange':
+                    $scope.item.BankId = payload.id;
+                    break;
+                case 'cardTypeChange':
+                    $scope.item.CardTypeId = payload.id;
+                    break;
+                case 'terminalChange':
+                    $scope.item.TerminalNoId = payload.id;
+                    break;
+                case 'footerKeyUp':
+                    $scope.FooterFocus(payload.nextId);
+                    break;
+            }
+            $scope.refreshReactProps();
+            $scope.$applyAsync();
+        };
+
+        $scope.refreshReactProps = function () {
+            $scope.reactPropsHeaderContainer = {
+                onAction: $scope.handleHeaderAction,
+                reactProps: {
+                    doctorOptions: $scope.lookup.Doctor || [],
+                    doctorId: $scope.item ? $scope.item.DoctorId : null,
+                    doctorDisabled: $scope.RdoDoctorId,
+                    guarantorOptions: $scope.lookup.Guarantor || [],
+                    guarantorId: $scope.currentfilter ? $scope.currentfilter.GuarantorId : null,
+                    guarantorDisabled: $scope.RdoGuarantorId || vm.Context == 'DG',
+                    guarantorTypeOptions: $scope.lookup.GuarantorType || [],
+                    guarantorTypePayerId: $scope.currentfilter ? $scope.currentfilter.GuarantorTypeId : null,
+                    payerTypeDisabled: $scope.RdoPayScenarioId || vm.Context == 'DG',
+                    serviceRateCategoryOptions: $scope.lookup.ServiceRateCategory || [],
+                    serviceRateCategoryId: $scope.currentfilter ? $scope.currentfilter.ServiceRateCategoryId : null,
+                    disRateType: $scope.RdoServiceRateCategoryId,
+                    discountModeOptions: $scope.lookup.DiscountMode || [],
+                    discountModeHeaderId: $scope.currentfilter ? $scope.currentfilter.DiscountModeId : null,
+                    rdoBillDiscountMode: false,
+                    patientTypeOptions: $scope.lookup.PatientType || [],
+                    patientTypeId: $scope.item ? $scope.item.PatientTypeId : null
+                }
+            };
+
+            $scope.reactPropsDiscountApprovalContainer = {
+                onAction: $scope.handleDiscountApprovalAction,
+                reactProps: {
+                    discountModeOptions: $scope.lookup.DiscountMode || [],
+                    discountModeFooterId: $scope.currentfilter ? $scope.currentfilter.DiscountModeId : null,
+                    rdoBillDiscountMode: $scope.currentcontext ? $scope.currentcontext.RdoBillDiscountMode : false,
+                    discountApproverOptions: $scope.lookup.DiscountApprover || [],
+                    discountApprovedById: $scope.currentcontext ? $scope.currentcontext.DiscountApprovedBy : null,
+                    rdoApprovedById: $scope.RdoApprovedById
+                }
+            };
+
+            $scope.reactPropsFooterPaymentContainer = {
+                onAction: $scope.handleFooterPaymentAction,
+                reactProps: {
+                    paymentTypeOptions: $scope.lookup.PaymentType || [],
+                    paymentTypeId: $scope.currentcontext ? $scope.currentcontext.PaymentTypeId : null,
+                    rdoPaymentTypeId: $scope.RdoPaymentTypeId,
+                    privateDueApproverOptions: $scope.lookup.PrivateDueApprover || [],
+                    privateDueId: $scope.item ? $scope.item.PrivateDueId : null,
+                    rdoGuarantorDue: $scope.currentcontext ? $scope.currentcontext.RdoGuarantorDue : false,
+                    guarantorOptions: $scope.lookup.Guarantor || [],
+                    guarantorDueId: $scope.item ? $scope.item.GuarantorDueId : null,
+                    bankOptions: $scope.lookup.Bank || [],
+                    bankId: $scope.item ? $scope.item.BankId : null,
+                    bankDisabled: $scope.RdoPaymentTypeId,
+                    cardTypeOptions: $scope.lookup.CardType || [],
+                    cardTypeId: $scope.item ? $scope.item.CardTypeId : null,
+                    terminalOptions: $scope.lookup.Terminal || [],
+                    terminalNoId: $scope.item ? $scope.item.TerminalNoId : null,
+                    itemIsCompleted: $scope.item ? $scope.item.isCompleted : false
+                }
+            };
+        };
+
+        $scope.refreshReactProps();
+
+        $scope.$watchGroup([
+            'item',
+            'item.DoctorId',
+            'item.PatientTypeId',
+            'item.PrivateDueId',
+            'item.GuarantorDueId',
+            'item.BankId',
+            'item.CardTypeId',
+            'item.TerminalNoId',
+            'item.isCompleted',
+            'currentfilter.GuarantorId',
+            'currentfilter.GuarantorTypeId',
+            'currentfilter.ServiceRateCategoryId',
+            'currentfilter.DiscountModeId',
+            'currentcontext.DiscountApprovedBy',
+            'currentcontext.PaymentTypeId',
+            'currentcontext.RdoBillDiscountMode',
+            'currentcontext.RdoGuarantorDue',
+            'RdoDoctorId',
+            'RdoGuarantorId',
+            'RdoServiceRateCategoryId',
+            'RdoPayScenarioId',
+            'RdoApprovedById',
+            'RdoPaymentTypeId'
+        ], function () {
+            $scope.refreshReactProps();
+        });
+        // --------------------
+
         $scope.currentcontext.PatientStatusId = 1;
         // $scope.currentcontext.id = 0;
         $scope.currentcontext.IsAdjustAgainstAdvance = false;
@@ -4120,10 +4322,31 @@
         };
 
         $scope.setCmbFocus = function (dom) {
+            // Compatibility adapter: dom may now be either a still-native
+            // AngularJS <ui-select> (an "island" retained for parity
+            // reasons) or a plain React-rendered <select>. Never throws.
             $timeout(function () {
+                if (!dom) {
+                    return;
+                }
                 var uiSelect = angular.element(dom);
-                var uichild = uiSelect.controller('uiSelect');
-                uichild.activate();
+                var uichild = uiSelect.controller ? uiSelect.controller('uiSelect') : null;
+                if (uichild && typeof uichild.activate === 'function') {
+                    uichild.activate();
+                    return;
+                }
+                if (typeof dom.focus === 'function') {
+                    dom.focus();
+                }
+                if (typeof dom.showPicker === 'function') {
+                    try {
+                        dom.showPicker();
+                    } catch (e) {
+                        // best-effort auto-open only; some browsers/contexts
+                        // refuse showPicker() (e.g. not a user gesture) --
+                        // focus() above already landed, so swallow this.
+                    }
+                }
             }, 100);
         };
 
@@ -4334,6 +4557,7 @@
             $scope.getPatientAlertsCount();
             $scope.getFacInfo();
             loadData();
+            $scope.refreshReactProps();
         };
 
         $scope.initLookup = function () {

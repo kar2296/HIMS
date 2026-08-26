@@ -3,7 +3,10 @@ type Part =
   | 'guarantortypepayer'
   | 'discountmodeheader'
   | 'patienttype'
-  | 'guarantortypediscountcategory';
+  | 'guarantortypediscountcategory'
+  | 'doctorid'
+  | 'guarantorid'
+  | 'payertype';
 
 interface Props {
   part: Part;
@@ -101,18 +104,92 @@ export function OpBillingHeaderSelectScreen({ part, reactProps, onAction }: Prop
     );
   }
 
-  // part === 'guarantortypediscountcategory'
-  const options = reactProps?.guarantorTypeOptions || [];
+  if (part === 'guarantortypediscountcategory') {
+    const options = reactProps?.guarantorTypeOptions || [];
+    return (
+      <select
+        id="GuarantorTypeId"
+        className="form-control ui-select-grid"
+        value={reactProps?.guarantorTypeDiscountCategoryId ?? ''}
+        onChange={(e) => onAction('guarantorTypeDiscountCategoryChange', { id: parseInt(e.target.value, 10) })}
+        onKeyUp={() => onAction('headerKeyUp', { nextId: 'GuarantorTypeId' })}
+      >
+        <option value="">&nbsp;</option>
+        {options.map((o: any) => (
+          <option key={o.Id} value={o.Id}>{o.Text}</option>
+        ))}
+      </select>
+    );
+  }
+
+  if (part === 'doctorid') {
+    // editbillingrequest only: a live Doctor <ui-select> (opbilling-list
+    // long ago upgraded this field to the <autosearch> widget instead, so
+    // this is a fresh part, not a reused one). ng-change="onDoctorSelected"
+    // is called with the FULL selected lookup object in the original
+    // (it reads .Title.Description and .Text), so the dispatcher resolves
+    // and passes the whole object, not just the id.
+    const options = reactProps?.doctorOptions || [];
+    return (
+      <select
+        id="doctorid"
+        className="form-control"
+        disabled={!!reactProps?.doctorDisabled}
+        value={reactProps?.doctorId ?? ''}
+        onChange={(e) => onAction('doctorChange', { id: parseInt(e.target.value, 10) })}
+        onKeyUp={() => onAction('headerKeyUp', { nextId: 'doctorid' })}
+      >
+        <option value="">&nbsp;</option>
+        {options.map((o: any) => (
+          <option key={o.Id} value={o.Id}>{o.Text}</option>
+        ))}
+      </select>
+    );
+  }
+
+  if (part === 'guarantorid') {
+    // editbillingrequest only: a live "Payer" ui-select bound to
+    // currentfilter.GuarantorId (opbilling-list's equivalent field is the
+    // <autosearch> widget, not a ui-select). ng-change="GuarantorChange"
+    // reads .Id/.Text/.GuarantorTypeId/.ServiceRateCategoryId off the
+    // selected object, so the dispatcher resolves and passes the full
+    // lookup object.
+    const options = reactProps?.guarantorOptions || [];
+    return (
+      <select
+        id="GuarantorId"
+        className="form-control"
+        disabled={!!reactProps?.guarantorDisabled}
+        value={reactProps?.guarantorId ?? ''}
+        onChange={(e) => onAction('guarantorChange', { id: parseInt(e.target.value, 10) })}
+        onKeyUp={() => onAction('headerKeyUp', { nextId: 'GuarantorId' })}
+      >
+        <option value="">&nbsp;</option>
+        {options.map((o: any) => (
+          <option key={o.Id} value={o.Id}>{o.Text}</option>
+        ))}
+      </select>
+    );
+  }
+
+  // part === 'payertype'
+  // editbillingrequest only: unlike opbilling-list/opbillingest-list where
+  // this "Payer Type" field is permanently ng-disabled="true", here it is
+  // ng-disabled="RdoPayScenarioId||vm.Context=='DG'" -- a real, dynamic
+  // gate -- so (unlike 'guarantortypepayer' above) this variant has a live
+  // onChange calling getInsurancelookup(), matching the original exactly.
+  const payerTypeOptions = reactProps?.guarantorTypeOptions || [];
   return (
     <select
       id="GuarantorTypeId"
-      className="form-control ui-select-grid"
-      value={reactProps?.guarantorTypeDiscountCategoryId ?? ''}
-      onChange={(e) => onAction('guarantorTypeDiscountCategoryChange', { id: parseInt(e.target.value, 10) })}
+      className="form-control"
+      disabled={!!reactProps?.payerTypeDisabled}
+      value={reactProps?.guarantorTypePayerId ?? ''}
+      onChange={(e) => onAction('payerTypeChange', { id: parseInt(e.target.value, 10) })}
       onKeyUp={() => onAction('headerKeyUp', { nextId: 'GuarantorTypeId' })}
     >
       <option value="">&nbsp;</option>
-      {options.map((o: any) => (
+      {payerTypeOptions.map((o: any) => (
         <option key={o.Id} value={o.Id}>{o.Text}</option>
       ))}
     </select>
