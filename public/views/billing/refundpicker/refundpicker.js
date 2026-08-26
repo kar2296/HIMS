@@ -89,6 +89,7 @@
             }
             vm.gridConfig.data = items;
             vm.gridConfig.pagerObj.totalItems = vm.gridConfig.data.length;
+            $scope.refreshReactProps();
         };
 
         $scope.getList = function(pageNo) {
@@ -173,6 +174,50 @@
             });
         };
         //Grid selection related code ends
+
+        //React bridge: replaces the ui-grid="vm.gridConfig" grid above.
+        //The gridApi.selection based onRegisterApi handler above is no
+        //longer invoked (no ui-grid directive remains to call it) -- its
+        //exact behaviour, closing this picker modal with the selected
+        //refund's Id via confirmCallback({ rid: ... }), is reproduced
+        //below in handleReactAction's 'rowSelected' case instead.
+        $scope.handleReactAction = function(actionType, payload) {
+            if (actionType == 'rowSelected') {
+                console.log(payload.id);
+                $scope.confirmCallback({ rid: payload.id });
+            }
+        };
+
+        $scope.refreshReactProps = function() {
+            var items = vm.gridConfig.data || [];
+            var rows = items.map(function(item) {
+                var patient = item.Patient || {};
+                return {
+                    id: item.Id,
+                    refundDateDisplay: item.RefundDateTime ? $filter('date')(item.RefundDateTime, 'dd-MM-yyyy HH:mm:ss') : 'N/A',
+                    mrn: patient.MRN,
+                    refundidentifier: item.Refundidentifier,
+                    patientTitle: patient.Title && patient.Title.Description,
+                    patientFirstName: patient.FirstName,
+                    patientMRN: patient.MRN,
+                    patientAge: patient.Age,
+                    patientGender: patient.Gender && patient.Gender.Description,
+                    paymentType: item.PaymentType && item.PaymentType.Description,
+                    guarantorName: item.GurantorName,
+                    refundAmount: item.RefundAmount
+                };
+            });
+
+            $scope.reactPropsContainer = {
+                reactProps: {
+                    headers: vm.gridConfig.columnDefs.map(function(c) { return c.displayName; }),
+                    rows: rows
+                },
+                onAction: $scope.handleReactAction
+            };
+        };
+
+        $scope.refreshReactProps();
 
         //Lookup
         $scope.lookupCallback = function(scope, data, options, hasError) {

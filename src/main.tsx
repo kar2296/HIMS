@@ -462,6 +462,7 @@ import { ServiceGroupRateMappingSelectScreen } from './react-components/ServiceG
 import { BillHistoryListScreen } from './react-components/BillHistoryListScreen';
 import { DispatchDetailFormScreen } from './react-components/DispatchDetailFormScreen';
 import { ClaimReceiptSelectScreen } from './react-components/ClaimReceiptSelectScreen';
+import { RefundPickerGridScreen } from './react-components/RefundPickerGridScreen';
 import { ClaimReceiptBillsTableScreen } from './react-components/ClaimReceiptBillsTableScreen';
 import { NewReceiptBillsTableScreen } from './react-components/NewReceiptBillsTableScreen';
 import { ItemwiseOpBillCancelSelectScreen } from './react-components/ItemwiseOpBillCancelSelectScreen';
@@ -724,6 +725,7 @@ import { ItemwiseOpBillCancelTableScreen } from './react-components/ItemwiseOpBi
   BillHistoryListScreen,
   DispatchDetailFormScreen,
   ClaimReceiptSelectScreen,
+  RefundPickerGridScreen,
   ClaimReceiptBillsTableScreen,
   NewReceiptBillsTableScreen,
   ItemwiseOpBillCancelSelectScreen,
