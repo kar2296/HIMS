@@ -231,6 +231,85 @@
             $scope.RdoPaymentTypeId = flag;
         };
 
+        // --- React Bridge ---
+        // opbillingest-list has no pre-existing React infrastructure (no
+        // action bar / save bar mounts, unlike opbilling-list). This bridge
+        // covers only the 5 live header ui-selects the template actually
+        // renders (Rate Type, Payer Type, header Discount Type, Patient
+        // Type, Discount Category); the footer payment / discount-approval
+        // UI does not exist on this screen at all (estimates do not collect
+        // payment), so OpBillingFooterPaymentScreen / OpBillingDiscountApprovalScreen
+        // are not used here. Reuses OpBillingHeaderSelectScreen verbatim --
+        // the same presentational component already used for opbilling-list
+        // -- since it takes no scope-specific dependencies, only
+        // reactProps/onAction.
+        $scope.handleHeaderAction = function (actionType, payload) {
+            payload = payload || {};
+            switch (actionType) {
+                case 'serviceRateCatChange':
+                    $scope.currentfilter.ServiceRateCategoryId = payload.id;
+                    var selectedRateCat = null;
+                    ($scope.lookup.ServiceRateCategory || []).forEach(function (o) {
+                        if (o.Id === payload.id) selectedRateCat = o;
+                    });
+                    $scope.ServiceRateCatChange(selectedRateCat || { Id: payload.id, Text: '' });
+                    break;
+                case 'discountModeHeaderChange':
+                    $scope.currentfilter.DiscountModeId = payload.id;
+                    $scope.DiscountModechange();
+                    break;
+                case 'patientTypeChange':
+                    $scope.item.PatientTypeId = payload.id;
+                    break;
+                case 'guarantorTypeDiscountCategoryChange':
+                    $scope.currentfilter.GuarantorTypeId = payload.id;
+                    var selectedGuarantorType = null;
+                    ($scope.lookup.GuarantorType || []).forEach(function (o) {
+                        if (o.Id === payload.id) selectedGuarantorType = o;
+                    });
+                    $scope.GuarantorTypeChange(selectedGuarantorType || { Id: payload.id });
+                    break;
+                case 'headerKeyUp':
+                    $scope.moveHeaderFocus(payload.nextId);
+                    break;
+            }
+            $scope.refreshReactProps();
+            $scope.$applyAsync();
+        };
+
+        $scope.refreshReactProps = function () {
+            $scope.reactPropsHeaderContainer = {
+                onAction: $scope.handleHeaderAction,
+                reactProps: {
+                    serviceRateCategoryOptions: $scope.lookup.ServiceRateCategory || [],
+                    serviceRateCategoryId: $scope.currentfilter ? $scope.currentfilter.ServiceRateCategoryId : null,
+                    disRateType: $scope.DisRateType,
+                    guarantorTypeOptions: $scope.lookup.GuarantorType || [],
+                    guarantorTypePayerId: $scope.currentfilter ? $scope.currentfilter.GuarantorTypeId : null,
+                    discountModeOptions: $scope.lookup.DiscountMode || [],
+                    discountModeHeaderId: $scope.currentfilter ? $scope.currentfilter.DiscountModeId : null,
+                    rdoBillDiscountMode: false,
+                    patientTypeOptions: $scope.lookup.PatientType || [],
+                    patientTypeId: $scope.item ? $scope.item.PatientTypeId : null,
+                    guarantorTypeDiscountCategoryId: $scope.currentfilter ? $scope.currentfilter.GuarantorTypeId : null
+                }
+            };
+        };
+
+        $scope.refreshReactProps();
+
+        $scope.$watchGroup([
+            'item',
+            'currentfilter.ServiceRateCategoryId',
+            'currentfilter.GuarantorTypeId',
+            'currentfilter.DiscountModeId',
+            'item.PatientTypeId',
+            'DisRateType'
+        ], function () {
+            $scope.refreshReactProps();
+        });
+        // --------------------
+
         $scope.currentcontext.PatientStatusId = 1;
         $scope.currentcontext.id = 0;
         $scope.currentcontext.IsAdjustAgainstAdvance = false;
@@ -5466,6 +5545,7 @@
                 $scope.lookup[key] = value;
             });
 
+            $scope.refreshReactProps();
         };
 
         $scope.initLookup = function () {
