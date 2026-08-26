@@ -1,3 +1,15 @@
+<!--
+  React bridge migration (single mount). Read-only $uibModalInstance
+  dialog (claimhistoryController) opened from other claimmanagement
+  screens to show a claim's Created/Submitted/Dispatched by/on
+  history. All fields come from modalConfig.params.history. No API
+  calls, no native widgets, no utl.Validator.validate call. The
+  original's angular.extend(this, utl.Ctrl.getBaseCtrl(...)) mixin is
+  confirmed unused by this read-only template -- not reproduced.
+  There is also no close (X) button in the original modal-header --
+  $scope.cancelCallback is defined but never wired to any element;
+  reproduced as-is (no close button added here either).
+-->
 <style>
     .patientprofile-img {
         width: 70px !important;
@@ -42,71 +54,4 @@
         margin: 4px !important;
     }
 </style>
-
-<div class="modal-header custom-modal-header">
-    <h4 class=" mt0 " translate="billing.claim-history.pagetitle.lbl"></h4>
-</div>
-
-<div class="row">
-    <div class="col-sm-12">
-        <form id="item_form" name="item_form" class="form-horizontal" role="form">
-            <div class="panel panel-default">
-                <div class="panel-body form-panel" style="height: 225px;">
-                    <div class="col-sm-12">
-                        <!-- leftpanel -->
-                        <div class="well">
-                            <div class="form-group">
-                                <label class="col-sm-4 control-label" translate="billing.claim-history.createdby.lbl"></label>
-                                <div class="col-sm-1"> : </div>
-                                <div class="col-sm-7">
-                                    <span>{{item.CreatedUser.Title.Description}}&nbsp;</span>
-                                    <span>{{item.CreatedUser.FirstName}}&nbsp;</span>
-                                    <span>{{item.CreatedUser.LastName}}&nbsp;</span>
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label class="col-sm-4 control-label" translate="billing.claim-history.createdon.lbl"></label>
-                                <div class="col-sm-1"> : </div>
-                                <div class="col-sm-7">
-                                    <ngformatdate datetime-val='item.CreatedAt'></ngformatdate>
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label class="col-sm-4 control-label" translate="billing.claim-history.submittedby.lbl"></label>
-                                <div class="col-sm-1"> : </div>
-                                <div class="col-sm-7">
-                                    <span>{{item.SubmittedUser.Title.Description}}&nbsp;</span>
-                                    <span>{{item.SubmittedUser.FirstName}}&nbsp;</span>
-                                    <span>{{item.SubmittedUser.LastName}}&nbsp;</span>
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label class="col-sm-4 control-label" translate="billing.claim-history.submittedon.lbl"></label>
-                                <div class="col-sm-1"> : </div>
-                                <div class="col-sm-7">
-                                    <ngformatdate datetime-val='item.SubmittedOn'></ngformatdate>
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label class="col-sm-4 control-label" translate="billing.claim-history.dispatchedby.lbl"></label>
-                                <div class="col-sm-1"> : </div>
-                                <div class="col-sm-7">
-                                    <span>{{item.DispatchedUser.Title.Description}}&nbsp;</span>
-                                    <span>{{item.DispatchedUser.FirstName}}&nbsp;</span>
-                                    <span>{{item.DispatchedUser.LastName}}&nbsp;</span>
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label class="col-sm-4 control-label" translate="billing.claim-history.dispatchedon.lbl"></label>
-                                <div class="col-sm-1"> : </div>
-                                <div class="col-sm-7">
-                                    <ngformatdate datetime-val='item.DispatchedOn'></ngformatdate>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </form>
-    </div>
-</div>
+<react-component name="ClaimHistoryScreen" props="{ reactProps: reactProps }"></react-component>

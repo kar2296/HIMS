@@ -412,6 +412,9 @@ import { PhysioTreatmentPlanFilterScreen } from './react-components/PhysioTreatm
 import { PhysioTreatmentPlanListScreen } from './react-components/PhysioTreatmentPlanListScreen';
 import { TreatmentPlanBillingFilterScreen } from './react-components/TreatmentPlanBillingFilterScreen';
 import { TreatmentPlanBillingListScreen } from './react-components/TreatmentPlanBillingListScreen';
+import { ClaimHistoryScreen } from './react-components/ClaimHistoryScreen';
+import { ClaimProcessFilterScreen } from './react-components/ClaimProcessFilterScreen';
+import { ClaimProcessListScreen } from './react-components/ClaimProcessListScreen';
 
 // Register components globally so the AngularJS bridge can find them
 (window as any).ReactComponents = {
@@ -619,7 +622,10 @@ import { TreatmentPlanBillingListScreen } from './react-components/TreatmentPlan
   PhysioTreatmentPlanFilterScreen,
   PhysioTreatmentPlanListScreen,
   TreatmentPlanBillingFilterScreen,
-  TreatmentPlanBillingListScreen
+  TreatmentPlanBillingListScreen,
+  ClaimHistoryScreen,
+  ClaimProcessFilterScreen,
+  ClaimProcessListScreen
 };
 
 console.log('React runtime and components loaded. ReactBridge initialized.');

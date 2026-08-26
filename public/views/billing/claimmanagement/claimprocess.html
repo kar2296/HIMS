@@ -1,3 +1,24 @@
+<!--
+  React bridge migration (HYBRID). Native <h4> title retained. The
+  header search input (Batch No.) and the filter row (Facility/
+  From Date/To Date/Payer Name) are now ClaimProcessFilterScreen
+  mounts (part='search' / part='filters'); the Status filter stays a
+  native, untouched <multiselectchk> -- a generic ng-dropdown-multiselect-
+  based library widget (see public/vendor/components/multiselectchk.js),
+  classified alongside real ui-grid/<dynamicform> as too complex/risky
+  to safely reimplement in React. The results grid is now a
+  ClaimProcessListScreen mount, replacing <custom-table>; the
+  pagination <ul uib-pagination> below it stays native/untouched.
+
+  Confirmed pre-existing column-label mismatches in
+  claimprocessController's vm.gridConfig.columnDefs, reproduced exactly
+  (not corrected, per "document, don't fix"):
+    - "Claim No" header actually renders the SubmittedOn date/time
+    - "UHID" header actually renders ClaimNumber
+    - "Patient Name" header actually renders Guarantor.GuarantorName
+    - "Claim Date" header actually renders ClaimAmount (currency)
+    - "Payer Name" header actually renders the Createdy/CreatedUser name
+-->
 <style>
     .form-group {
         height: 62px;
@@ -7,67 +28,10 @@
     <div class="col-sm-9">
         <h4 translate="billing.claimprocess.pagetitle.lbl"></h4>
     </div>
-    <div class="col-sm-3">
-        <div class="filters">
-            <div class="search">
-                <input type="text" id="pid" class="form-control" on-enter="getList()" ng-model="currentfilter.BatchNo"
-                    placeholder="Batch No.">
-                <div class="drhms-search-icon"><i class="fas fa-search" aria-hidden="true"></i></div>
-            </div>
-        </div>
-    </div>
+    <react-component name="ClaimProcessFilterScreen" props="{ part: 'search', reactProps: reactProps, onAction: handleReactAction }"></react-component>
 </div>
 <div class="row">
-    <div class="form-group col-sm-2">
-        <label class="col-sm-12 control-lable" translate="billing.claimprocess.namemrn.lbl"></label>
-        <div class="col-sm-12">
-            <ui-select ng-model="currentfilter.FacilityId" ng-change="getList()" class="filter-combo"
-                ng-disabled="true">
-                <ui-select-match>
-                    {{$select.selected.Text | limitTo : 25 : 0}}
-                    <span ng-if="$select.selected.Text.length>25">...</span>
-                </ui-select-match>
-                <ui-select-choices
-                    repeat="lookupitem.Id as lookupitem in lookup.Facility | filter: { Text: $select.search }">
-                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
-                </ui-select-choices>
-            </ui-select>
-        </div>
-    </div>
-    <div class="form-group col-sm-2">
-        <label class="col-sm-12 control-lable" translate="billing.claimsubmission-list.fromdate.lbl"></label>
-        <div class="col-sm-12">
-            <input type="text" class="form-control" name="from" ng-change="getList()"
-                datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}"
-                uib-datepicker-popup="{{datePickerOptions.dateFormat}}" placeholder="{{datePickerOptions.placeholder}}"
-                ng-click="fromdatePopup = { opened: true }" is-open="fromdatePopup.opened"
-                ng-model="currentfilter.FromDate">
-        </div>
-    </div>
-    <div class="form-group col-sm-2">
-        <label class="col-sm-12 control-lable" translate="billing.claimsubmission-list.todate.lbl"></label>
-        <div class="col-sm-12">
-            <input type="text" class="form-control" name="to" ng-change="getList()"
-                datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}"
-                uib-datepicker-popup="{{datePickerOptions.dateFormat}}" placeholder="{{datePickerOptions.placeholder}}"
-                ng-click="todatePopup = { opened: true }" is-open="todatePopup.opened" ng-model="currentfilter.ToDate">
-        </div>
-    </div>
-    <div class="form-group col-sm-2">
-        <label class="col-sm-12 control-lable" translate="billing.claimprocess.insurancename.lbl"></label>
-        <div class="col-sm-12">
-            <ui-select ng-model="currentfilter.GuarantorId" ng-change="getList()" class="filter-combo">
-                <ui-select-match>
-                    {{$select.selected.Text | limitTo : 25 : 0}}
-                    <span ng-if="$select.selected.Text.length>25">...</span>
-                </ui-select-match>
-                <ui-select-choices
-                    repeat="lookupitem.Id as lookupitem in lookup.Guarantor | filter: { Text: $select.search }">
-                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
-                </ui-select-choices>
-            </ui-select>
-        </div>
-    </div>
+    <react-component name="ClaimProcessFilterScreen" props="{ part: 'filters', reactProps: reactProps, onAction: handleReactAction }"></react-component>
 
     <div class="form-group col-sm-2">
         <label class="col-sm-12 control-lable" translate="billing.claimsubmission-list.status.lbl"></label>
@@ -78,7 +42,7 @@
     </div>
 </div>
 <div class="row">
-    <custom-table config="vm.gridConfig"></custom-table>
+    <react-component name="ClaimProcessListScreen" props="{ reactProps: reactProps, onAction: handleReactAction }"></react-component>
 </div>
 <div class="fooder-bgs">
     <div class="row">

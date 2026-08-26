@@ -20,6 +20,13 @@
             $scope.cancelCallback = $uibModalInstance.dismiss;
         }
         
+        $scope.refreshReactProps = function () {
+            $scope.reactProps = {
+                item: $scope.item
+            };
+        };
+        $scope.refreshReactProps();
+        
     }
 
     claimhistoryController.$inject = ['$scope', '$stateParams', '$state', '$translate', 'utl', '$uibModalInstance', 'modalConfig'];
