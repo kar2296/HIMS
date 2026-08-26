@@ -1,3 +1,43 @@
+<!--
+  React bridge migration (hybrid). This screen (General Expenses list,
+  GeneralExpensesListController) is classified HYBRID because of one
+  genuinely live native widget: <autosearch itemid="currentfilter.UserId"
+  itemchange="getList()" onenter="getList()" config="vm.usercontrolconfig">
+  which feeds getList()'s API Params (Key 3) -- left untouched, live
+  AngularJS markup below. No utl.Validator.validate call anywhere in this
+  controller.
+
+  Everything else is migrated via 2 <react-component> mounts, both reading/
+  writing the same $scope.reactProps / $scope.handleReactAction bridge
+  added to generalexpenses-list.js:
+    1. GeneralExpensesFilterScreen (part: 'addbutton') - the bare Add New
+       button, mounted as a sibling of the native <autosearch> inside the
+       same native col-sm-6/filters wrapper (preserves original layout;
+       cannot be one mount since autosearch must stay native in between).
+    2. GeneralExpensesFilterScreen (part: 'filters') - From/To date inputs
+       + Payment Mode/Status selects row, each dispatching a *Change action
+       with auto-refetch (matches original ng-change="getList()" on every
+       field).
+    3. GeneralExpensesListScreen - the custom-table results table only.
+       The real native <ul uib-pagination> stays as a literal DOM sibling
+       inside the same .fooder-bgs/.row wrapper (kept native here, not
+       rendered by React, so Bootstrap grid + uib-pagination continue to
+       function exactly as before).
+
+  Preserved real API calls (unchanged): whatever getList()/addNew()/
+  handleEvents() already call (billing/generalexpenses/* endpoints) --
+  untouched, only the DOM/bridge plumbing changed.
+
+  Confirmed pre-existing quirks, reproduced as-is (not "fixed"):
+  - vm.gridConfig.rowTemplate / enableColumnResizing are set in the JS but
+    silently ignored by the shared custom-table directive (confirmed via
+    custom-table.html, which only reads columnDefs/data/background/
+    package/pagerObj) -- not reproduced in React since they never had any
+    effect.
+  - Column-header-click sort emulated client-side in
+    GeneralExpensesListScreen via the same dotGet()/reOrder() semantics
+    used elsewhere (sort is display-only, non-mutating, non-API-calling).
+-->
 <div class="row">
     <div class="col-sm-6">
         <h4 translate="billing.generalexpenses.pagetitle.lbl"></h4>
@@ -12,69 +52,15 @@
                 </div>
             </div>
             <div class="col-sm-2">
-                <button type="button" tabindex="-1" class="btn-add" ng-click="addNew()"
-                    uib-tooltip="{{ 'billing.generalexpenses.pagetitle.lbl' | translate}}" tooltip-placement="bottom">
-                    <i class="fa fa-plus" aria-hidden="true"></i>
-                </button>
+                <react-component name="GeneralExpensesFilterScreen" props="{ part: 'addbutton', reactProps: reactProps, onAction: handleReactAction }"></react-component>
             </div>
         </div>
     </div>
 </div>
-<div class="row">
-    <div class="drhms-list-filters">
-        <div class="col-sm-3">
-            <label class="col-sm-12" translate="From Date"></label>
-            <div class="col-sm-12">
-                <input type="text" class="form-control" name="requestdate" ng-change="getList()" ng-date-object
-                    uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
-                    placeholder="{{datePickerOptions.placeholder}}" ng-click="expensedatePopup = { opened: true }"
-                    is-open="expensedatePopup.opened" ng-model="currentfilter.FromDate">
-            </div>
-        </div>
-        <div class="col-sm-3">
-            <label class="col-sm-12" translate="To Date"></label>
-            <div class="col-sm-12">
-                <input type="text" class="form-control" name="requestdate" ng-change="getList()" ng-date-object
-                    uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
-                    placeholder="{{datePickerOptions.placeholder}}" ng-click="todatePopup = { opened: true }"
-                    is-open="todatePopup.opened" ng-model="currentfilter.ToDate">
-            </div>
-        </div>
-        <div class="col-sm-3">
-            <label class="col-sm-12" translate="Payment Mode"></label>
-            <div class="col-sm-12">
-                <ui-select ng-model="currentfilter.PaymentTypeId" name="paytype" ng-change="getList()">
-                    <ui-select-match>
-                        {{$select.selected.Text | limitTo : 20 : 0}}
-                        <span ng-if="$select.selected.Text.length>20">...</span>
-                    </ui-select-match>
-                    <ui-select-choices
-                        repeat="lookupitem.Id as lookupitem in lookup.PaymentType | filter: { Text: $select.search }">
-                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
-                    </ui-select-choices>
-                </ui-select>
-            </div>
-        </div>
-        <div class="col-sm-3">
-            <label class="col-sm-12" translate="Status"></label>
-            <div class="col-sm-12">
-                <ui-select ng-model="currentfilter.GeneralExpenseStatusId" name="paytype" ng-change="getList()">
-                    <ui-select-match>
-                        {{$select.selected.Text | limitTo : 20 : 0}}
-                        <span ng-if="$select.selected.Text.length>20">...</span>
-                    </ui-select-match>
-                    <ui-select-choices
-                        repeat="lookupitem.Id as lookupitem in lookup.GeneralExpenseStatus | filter: { Text: $select.search }">
-                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
-                    </ui-select-choices>
-                </ui-select>
-            </div>
-        </div>
-    </div>
-</div>
+<react-component name="GeneralExpensesFilterScreen" props="{ part: 'filters', reactProps: reactProps, onAction: handleReactAction }"></react-component>
 <div class="fooder-bgs">
     <div class="row">
-        <custom-table config="vm.gridConfig"></custom-table>
+        <react-component name="GeneralExpensesListScreen" props="{ reactProps: reactProps, onAction: handleReactAction }"></react-component>
         <ul uib-pagination total-items="vm.gridConfig.pagerObj.totalItems"
             items-per-page="vm.gridConfig.pagerObj.pageSize" start-index="vm.gridConfig.pagerObj.startIndex"
             ng-model="vm.gridConfig.pagerObj.currentPage" ng-change="getList()"></ul>

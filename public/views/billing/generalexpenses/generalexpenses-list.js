@@ -36,6 +36,7 @@
             }
             $scope.TotalNetamount = totalamount;
             vm.gridConfig.pagerObj.totalItems = data.PageContext.TotalRecords;
+            $scope.refreshReactProps();
         };
 
         $scope.getList = function() {
@@ -332,6 +333,7 @@
 
         $scope.lookupCallback = function(scope, data, options, hasError) {
             $scope.lookup = hasError ? {} : data;
+            $scope.refreshReactProps();
             $scope.getList();
         };
         $timeout(function() {
@@ -363,6 +365,53 @@
             utl.Http.doAction(options);
         }
 
+        $scope.refreshReactProps = function () {
+            $scope.reactProps = {
+                currentfilter: $scope.currentfilter,
+                lookup: $scope.lookup,
+                rows: vm.gridConfig.data
+            };
+        };
+
+        $scope.handleReactAction = function (actionName, payload) {
+            switch (actionName) {
+                case 'addNew':
+                    $scope.addNew();
+                    break;
+                case 'fromDateChange':
+                    $scope.currentfilter.FromDate = payload.value ? new Date(payload.value) : null;
+                    $scope.refreshReactProps();
+                    $scope.getList();
+                    break;
+                case 'toDateChange':
+                    $scope.currentfilter.ToDate = payload.value ? new Date(payload.value) : null;
+                    $scope.refreshReactProps();
+                    $scope.getList();
+                    break;
+                case 'paymentTypeChange':
+                    $scope.currentfilter.PaymentTypeId = payload.value;
+                    $scope.refreshReactProps();
+                    $scope.getList();
+                    break;
+                case 'statusChange':
+                    $scope.currentfilter.GeneralExpenseStatusId = payload.value;
+                    $scope.refreshReactProps();
+                    $scope.getList();
+                    break;
+                case 'view':
+                    $scope.handleEvents('view', payload);
+                    break;
+                case 'cancel':
+                    $scope.handleEvents('cancel', payload);
+                    break;
+                case 'delete':
+                    $scope.handleEvents('delete', payload);
+                    break;
+            }
+            $scope.$applyAsync();
+        };
+
+        $scope.refreshReactProps();
         $scope.initLookup();
     }
 
