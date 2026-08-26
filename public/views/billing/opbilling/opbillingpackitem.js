@@ -168,6 +168,7 @@
                     }
                 }
             }
+            $scope.refreshReactProps();
         };
 
         $scope.getDocLookup = function (drInfo) {
@@ -210,6 +211,7 @@
                 $scope.items.push(item);
             }
             $scope.getPerformDrlookup();
+            $scope.refreshReactProps();
         };
 
         $scope.getServicePackages = function () {
@@ -266,6 +268,39 @@
             };
             utl.Http.doAction(options);
         }
+        $scope.refreshReactProps = function () {
+            $scope.reactProps = {
+                packageName: $scope.PackageName,
+                items: $scope.items
+                    .map(function (item, idx) { item._idx = idx; return item; })
+                    .filter(function (item) { return item.Status === 1; }),
+                isEditable: $scope.IsEditable
+            };
+            $scope.$applyAsync();
+        };
+
+        $scope.handleReactAction = function (actionName, payload) {
+            switch (actionName) {
+                case 'doctorChange':
+                    var item = $scope.items[payload.idx];
+                    if (item) {
+                        item.ServPerformDoctorId = payload.value;
+                        var selected = null;
+                        for (var idx in (item.DrLookup || [])) {
+                            if (item.DrLookup[idx].Id === payload.value) {
+                                selected = item.DrLookup[idx];
+                                break;
+                            }
+                        }
+                        if (selected) {
+                            $scope.SelectedDoctor(item, selected);
+                        }
+                        $scope.refreshReactProps();
+                    }
+                    break;
+            }
+        };
+
         $scope.getServicePackages();
         // $scope.initLookup();
 
