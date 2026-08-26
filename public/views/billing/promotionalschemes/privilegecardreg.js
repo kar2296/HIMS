@@ -21,6 +21,7 @@
 
         $scope.getPramotionalSchemeCallback = function(scope, res, options, hasError) {
             $scope.item = res.Data[0];
+            $scope.refreshReactProps();
             $scope.getDetails();
         };
 
@@ -48,6 +49,7 @@
                         $scope.PrivilegeCardDetails[idx].FirstName + ' ' + $scope.PrivilegeCardDetails[idx].LastName;
                 }
             }
+            $scope.refreshReactProps();
         };
 
         $scope.getDetails = function() {
@@ -180,7 +182,7 @@
             $scope.item.PromotionSchemeCode = $scope.items[0].PromotionSchemeCode;
             $scope.item.PromotionSchemeName = $scope.items[0].PromotionSchemeName;
             $scope.item.CardTypeId = $scope.items[0].PromotionSchemeTypeId;
-
+            $scope.refreshReactProps();
         };
         $scope.getSchemescardlookup = function() {
             $scope.item.PromotionalSchemeId = -1;
@@ -304,6 +306,90 @@
             utl.Http.doAction(options);
         };
 
+        $scope.refreshReactProps = function() {
+            $scope.reactProps = {
+                item: $scope.item,
+                lookup: $scope.lookup || {},
+                cardDetails: $scope.PrivilegeCardDetails || []
+            };
+            $scope.$applyAsync();
+        };
+
+        $scope.handleReactAction = function(actionName, payload) {
+            switch (actionName) {
+                case 'cardTypeChange':
+                    $scope.item.CardTypeId = payload.value;
+                    $scope.getSchemescardlookup();
+                    break;
+                case 'promotionalSchemeChange':
+                    $scope.item.PromotionalSchemeId = payload.value;
+                    $scope.getPromotionalSchemes();
+                    break;
+                case 'cardNoChange':
+                    $scope.item.CardNo = payload.value;
+                    break;
+                case 'validToChange':
+                    $scope.item.ValidTo = payload.value;
+                    break;
+                case 'titleChange':
+                    $scope.SelectedTitle({ Id: payload.Id, Text: payload.Text });
+                    $scope.fillGenderInfo();
+                    break;
+                case 'firstNameChange':
+                    $scope.item.FirstName = payload.value;
+                    break;
+                case 'lastNameChange':
+                    $scope.item.LastName = payload.value;
+                    break;
+                case 'approxAgeDaysChange':
+                    $scope.item.ApproxAgeDays = payload.value;
+                    $scope.calculateDOB(payload.value, 'days');
+                    break;
+                case 'approxAgeMonthsChange':
+                    $scope.item.ApproxAgeMonths = payload.value;
+                    $scope.calculateDOB(payload.value, 'months');
+                    break;
+                case 'approxAgeYearsChange':
+                    $scope.item.Age = payload.value;
+                    $scope.calculateDOB(payload.value, 'years');
+                    break;
+                case 'ageChange':
+                    $scope.item.Age = payload.value;
+                    $scope.calculateDOB(payload.value, 'years');
+                    break;
+                case 'dobChange':
+                    $scope.item.DOB = payload.value;
+                    $scope.calculateAge();
+                    break;
+                case 'mobileNoChange':
+                    $scope.item.MobileNo = payload.value;
+                    break;
+                case 'genderChange':
+                    $scope.Selectedgender({ Id: payload.Id, Text: payload.Text });
+                    break;
+                case 'addressChange':
+                    $scope.item.Address = payload.value;
+                    break;
+                case 'addCard':
+                    $scope.addcard();
+                    break;
+                case 'backToList':
+                    $scope.backToList();
+                    break;
+                case 'saveAndApprove':
+                    $scope.saveAndApprove();
+                    break;
+                // 'addNew', 'printRegistration', 'printRegistrationIdlabel', 'idcard',
+                // 'printVisitSlip', 'printOPBill' are intentionally NOT handled here --
+                // in the original AngularJS template these buttons call functions
+                // that do not exist on this controller (addNew, printRegistration,
+                // etc.), so clicking them is already a documented no-op. Omitting
+                // the cases reproduces that exact no-op behavior.
+            }
+            $scope.refreshReactProps();
+        };
+
+        $scope.refreshReactProps();
         $scope.initLookup();
         $scope.getPramotionalScheme();
     }

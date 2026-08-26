@@ -48,6 +48,7 @@
 
         $scope.getPramotionalSchemeCallback = function (scope, res, options, hasError) {
             $scope.item = res.Data[0];
+            $scope.refreshReactProps();
         };
 
         $scope.backToList = function () {
@@ -91,6 +92,7 @@
 
         $scope.lookupCallback = function (scope, data, options, hasError) {
             $scope.lookup = hasError ? {} : data;
+            $scope.refreshReactProps();
             if ($scope.currentcontext.Id > 0) {
                 $scope.getPramotionalScheme();
             }
@@ -110,6 +112,33 @@
             utl.Http.doAction(options);
         };
 
+        $scope.refreshReactProps = function () {
+            $scope.reactProps = {
+                item: $scope.item,
+                lookup: $scope.lookup || {}
+            };
+            $scope.$applyAsync();
+        };
+
+        $scope.handleReactAction = function (actionName, payload) {
+            switch (actionName) {
+                case 'cardTypeChange':
+                    $scope.item.CardTypeId = payload.value;
+                    break;
+                case 'validToChange':
+                    $scope.item.ValidTo = payload.value;
+                    break;
+                case 'cardNoChange':
+                    $scope.item.CardNo = payload.value;
+                    break;
+                case 'mobileNoChange':
+                    $scope.item.MobileNo = payload.value;
+                    break;
+            }
+            $scope.refreshReactProps();
+        };
+
+        $scope.refreshReactProps();
         $scope.initLookup();
     }
 

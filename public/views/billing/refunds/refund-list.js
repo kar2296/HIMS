@@ -42,6 +42,7 @@
             $scope.TotalAmount = Amount;
 
             vm.gridConfig.pagerObj.totalItems = res.PageContext.TotalRecords;
+            $scope.refreshReactProps();
         };
 
         $scope.getList = function () {
@@ -161,6 +162,7 @@
         $scope.lookupCallback = function (scope, data, options, hasError) {
             $scope.lookup = hasError ? {} : data;
             $scope.getList();
+            $scope.refreshReactProps();
         }
 
         $scope.initLookup = function () {
@@ -179,6 +181,50 @@
             utl.Http.doAction(options);
         }
 
+        $scope.refreshReactProps = function () {
+            $scope.reactProps = {
+                currentfilter: $scope.currentfilter,
+                lookup: $scope.lookup || {},
+                totalAmount: $scope.TotalAmount || 0
+            };
+            $scope.$applyAsync();
+        };
+
+        $scope.handleReactAction = function (actionName, payload) {
+            switch (actionName) {
+                case 'addNew':
+                    $scope.addNew();
+                    break;
+                case 'refundTypeChange':
+                    $scope.currentfilter.RefundTypeId = payload.value;
+                    $scope.refreshReactProps();
+                    $scope.getList();
+                    break;
+                case 'namemrnChange':
+                    $scope.currentfilter.namemrn = payload.value;
+                    $scope.refreshReactProps();
+                    break;
+                case 'refundDateChange':
+                    $scope.currentfilter.RefundDateTime = payload.value;
+                    $scope.refreshReactProps();
+                    $scope.getList();
+                    break;
+                case 'refundStatusChange':
+                    $scope.currentfilter.RefundStatusId = payload.value;
+                    $scope.refreshReactProps();
+                    $scope.getList();
+                    break;
+                case 'refundIdentifierChange':
+                    $scope.currentfilter.Refundidentifier = payload.value;
+                    $scope.refreshReactProps();
+                    break;
+                case 'fetch':
+                    $scope.getList();
+                    break;
+            }
+        };
+
+        $scope.refreshReactProps();
         $scope.initLookup();
     }
     refundListController.$inject = ['$scope', '$filter', '$stateParams', '$state', '$translate', 'utl'];

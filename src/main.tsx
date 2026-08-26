@@ -427,6 +427,12 @@ import { ClaimSubmissionFilterScreen } from './react-components/ClaimSubmissionF
 import { ClaimSubmissionListScreen } from './react-components/ClaimSubmissionListScreen';
 import { ClaimSubmissionFormScreen } from './react-components/ClaimSubmissionFormScreen';
 import { ClaimSubmissionFormBillsScreen } from './react-components/ClaimSubmissionFormBillsScreen';
+import { EstimationBillingFilterScreen } from './react-components/EstimationBillingFilterScreen';
+import { EstimationBillingListScreen } from './react-components/EstimationBillingListScreen';
+import { ServiceGroupRateMappingListScreen } from './react-components/ServiceGroupRateMappingListScreen';
+import { PrivilegeCardFormScreen } from './react-components/PrivilegeCardFormScreen';
+import { PrivilegeCardRegScreen } from './react-components/PrivilegeCardRegScreen';
+import { RefundListFilterScreen } from './react-components/RefundListFilterScreen';
 
 // Register components globally so the AngularJS bridge can find them
 (window as any).ReactComponents = {
@@ -649,7 +655,13 @@ import { ClaimSubmissionFormBillsScreen } from './react-components/ClaimSubmissi
   ClaimSubmissionFilterScreen,
   ClaimSubmissionListScreen,
   ClaimSubmissionFormScreen,
-  ClaimSubmissionFormBillsScreen
+  ClaimSubmissionFormBillsScreen,
+  EstimationBillingFilterScreen,
+  EstimationBillingListScreen,
+  ServiceGroupRateMappingListScreen,
+  PrivilegeCardFormScreen,
+  PrivilegeCardRegScreen,
+  RefundListFilterScreen
 };
 
 console.log('React runtime and components loaded. ReactBridge initialized.');

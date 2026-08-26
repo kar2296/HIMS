@@ -18,6 +18,7 @@
         $scope.getListCallback = function (scope, res, options, hasError) {
             vm.gridConfig.data = res.Data;
             vm.gridConfig.pagerObj.totalItems = res.PageContext.TotalRecords;
+            $scope.refreshReactProps();
         };
 
         $scope.getList = function () {
@@ -154,6 +155,7 @@
             $scope.lookup = hasError ? {} : data;
             // initDynamicForm();
             $scope.getList();
+            $scope.refreshReactProps();
         }
 
         $scope.initLookup = function () {
@@ -173,6 +175,27 @@
             };
             utl.Http.doAction(options);
         }
+
+        $scope.refreshReactProps = function () {
+            $scope.reactProps = {
+                rows: (vm.gridConfig && vm.gridConfig.data) || []
+            };
+            $scope.$applyAsync();
+        };
+
+        $scope.handleReactAction = function (actionName, payload) {
+            switch (actionName) {
+                case 'addNew':
+                    $scope.addNew();
+                    break;
+                case 'edit':
+                    $scope.handleEvents('edit', { Id: payload.Id });
+                    break;
+                case 'delete':
+                    $scope.handleEvents('delete', { Id: payload.Id, ServiceRateCategory: payload.ServiceRateCategory });
+                    break;
+            }
+        };
 
         $scope.initLookup();
 
