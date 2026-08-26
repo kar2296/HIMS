@@ -122,6 +122,7 @@
             //$scope.onDoctorSelected();
 
             //$scope.fnencounter();
+            $scope.refreshReactProps();
         };
 
         $scope.applyVisibilityRules = function () {
@@ -289,6 +290,7 @@
         $scope.lookupCallback = function (scope, data, options, hasError) {
             $scope.lookup = hasError ? {} : data;
             loadData();
+            $scope.refreshReactProps();
         };
 
         $scope.initLookup = function () {
@@ -324,6 +326,78 @@
             utl.Http.doAction(options);
         };
 
+        $scope.refreshReactProps = function () {
+            $scope.reactProps = {
+                item: $scope.item,
+                currentcontext: $scope.currentcontext,
+                lookup: $scope.lookup || {}
+            };
+            $scope.$applyAsync();
+        };
+
+        $scope.handleReactAction = function (actionName, payload) {
+            switch (actionName) {
+                case 'visitIdentifierChange':
+                    $scope.item.VisitIdentifier = payload.value;
+                    break;
+                case 'visitTypeChange':
+                    $scope.item.VisitType = payload.value;
+                    break;
+                case 'doctorNameChange':
+                    $scope.item.DoctorName = payload.value;
+                    break;
+                case 'specialityChange':
+                    $scope.item.Speciality = payload.value;
+                    break;
+                case 'visitReasonChange':
+                    $scope.item.VisitReason = payload.value;
+                    break;
+                case 'paymentTypeChange':
+                    $scope.currentcontext.PaymentTypeId = payload.value;
+                    break;
+                case 'bankIdChange':
+                    $scope.item.BankId = payload.value;
+                    break;
+                case 'chequeNoChange':
+                    $scope.item.ChequeNo = payload.value;
+                    break;
+                case 'chequeDateChange':
+                    $scope.item.ChequeDate = payload.value;
+                    break;
+                case 'ddNumberChange':
+                    $scope.item.DDNumber = payload.value;
+                    break;
+                case 'ddDateChange':
+                    $scope.item.DDDate = payload.value;
+                    break;
+                case 'wireTransferIdChange':
+                    $scope.item.WireTransferId = payload.value;
+                    break;
+                case 'wireTransferDateChange':
+                    $scope.item.WireTransferDate = payload.value;
+                    break;
+                case 'authorizeNumberChange':
+                    $scope.item.AuthorizeNumber = payload.value;
+                    break;
+                case 'collectedOnChange':
+                    $scope.item.CollectedOn = payload.value;
+                    break;
+                case 'terminalNoIdChange':
+                    $scope.item.TerminalNoId = payload.value;
+                    break;
+                case 'cardTypeIdChange':
+                    $scope.item.CardTypeId = payload.value;
+                    break;
+                // 'backToList' and 'clear' are intentionally NOT handled here --
+                // backToList() and clear() are referenced in the original template
+                // but neither is defined anywhere on this controller; clicking
+                // those buttons is already a documented no-op there. Omitting the
+                // cases reproduces that exact no-op.
+            }
+            $scope.refreshReactProps();
+        };
+
+        $scope.refreshReactProps();
         $scope.initLookup();
     }
 
