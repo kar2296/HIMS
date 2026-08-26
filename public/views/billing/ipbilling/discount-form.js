@@ -13,6 +13,31 @@
         $scope.currentcontext.eid = 0;
         $scope.currentcontext.DiscountModeId = 2;
 
+        //React bridge: replaces the single <ui-select> for Discount
+        //Mode. Neither ng-change="BillDiscountModechange(...)" nor
+        //ng-disabled="currentcontext.RdoBillDiscountMode" resolve to
+        //anything defined in this controller (confirmed via grep) --
+        //not reproduced / always-false, per the component's doc comment.
+        $scope.handleReactAction = function (actionType, payload) {
+            if (actionType == 'discountModeChange') {
+                $scope.currentcontext.DiscountModeId = payload.id;
+                $scope.refreshReactProps();
+            }
+        };
+
+        $scope.refreshReactProps = function () {
+            $scope.reactPropsContainer = {
+                reactProps: {
+                    discountModeOptions: ($scope.lookup && $scope.lookup.DiscountMode) || [],
+                    discountModeId: $scope.currentcontext.DiscountModeId,
+                    rdoBillDiscountMode: $scope.currentcontext.RdoBillDiscountMode
+                },
+                onAction: $scope.handleReactAction
+            };
+        };
+
+        $scope.refreshReactProps();
+
         if (modalConfig && modalConfig.params) {
             $scope.currentcontext.eid = parseInt(modalConfig.params.eid);
             $scope.confirmCallback = $uibModalInstance.close;
@@ -156,6 +181,7 @@
         $scope.lookupCallback = function (scope, data, options, hasError) {
             $scope.lookup = hasError ? {} : data;
             // $scope.getEncounters();
+            $scope.refreshReactProps();
         };
 
         $scope.initLookup = function () {
