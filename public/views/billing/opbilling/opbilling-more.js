@@ -277,6 +277,7 @@
 
         $scope.lookupCallback = function (scope, data, options, hasError) {
             $scope.lookup = hasError ? {} : data;
+            $scope.refreshReactProps();
         }
         $scope.initLookup = function () {
             var inputData = [{
@@ -304,6 +305,40 @@
             };
             utl.Http.doAction(options);
         }
+
+        $scope.refreshReactProps = function () {
+            $scope.reactProps = {
+                isEditable: $scope.IsEditable,
+                discountTypeId: $scope.item.DiscountTypeId,
+                servPerformDoctorId: $scope.item.ServPerformDoctorId,
+                discountTypeOptions: ($scope.lookup && $scope.lookup.DiscountType) || [],
+                performingDoctorOptions: ($scope.lookup && $scope.lookup.PerformingDoctor) || []
+            };
+            $scope.$applyAsync();
+        };
+
+        $scope.handleReactAction = function (actionName, payload) {
+            switch (actionName) {
+                case 'discountTypeChange':
+                    $scope.item.DiscountTypeId = payload.value;
+                    $scope.refreshReactProps();
+                    break;
+                case 'performDoctorChange':
+                    $scope.item.ServPerformDoctorId = payload.value;
+                    var selected = null;
+                    for (var idx in ($scope.lookup.PerformingDoctor || [])) {
+                        if ($scope.lookup.PerformingDoctor[idx].Id === payload.value) {
+                            selected = $scope.lookup.PerformingDoctor[idx];
+                            break;
+                        }
+                    }
+                    if (selected) {
+                        $scope.SelectedDoctor(selected);
+                    }
+                    $scope.refreshReactProps();
+                    break;
+            }
+        };
 
         $scope.initLookup();
 

@@ -452,6 +452,7 @@ import { IpBillListServiceCategoryScreen } from './react-components/IpBillListSe
 import { IpBillListTableScreen } from './react-components/IpBillListTableScreen';
 import { OpBillingPackItemsScreen } from './react-components/OpBillingPackItemsScreen';
 import { DrShareSelectionScreen } from './react-components/DrShareSelectionScreen';
+import { OpBillingMoreFormScreen } from './react-components/OpBillingMoreFormScreen';
 
 // Register components globally so the AngularJS bridge can find them
 (window as any).ReactComponents = {
@@ -699,7 +700,8 @@ import { DrShareSelectionScreen } from './react-components/DrShareSelectionScree
   IpBillListServiceCategoryScreen,
   IpBillListTableScreen,
   OpBillingPackItemsScreen,
-  DrShareSelectionScreen
+  DrShareSelectionScreen,
+  OpBillingMoreFormScreen
 };
 
 console.log('React runtime and components loaded. ReactBridge initialized.');
