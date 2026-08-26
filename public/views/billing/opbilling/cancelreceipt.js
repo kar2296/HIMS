@@ -100,6 +100,7 @@
             vm.gridConfig.data = data.Data;
             $scope.List = data.Data;
             vm.gridConfig.pagerObj.totalItems = data.PageContext.TotalRecords;
+            $scope.refreshReactProps();
         };
 
         $scope.getList = function (BillId) {
@@ -450,6 +451,21 @@
             };
             utl.Http.doAction(options);
         }
+
+        $scope.refreshReactProps = function () {
+            $scope.reactProps = {
+                rows: (vm.gridConfig && vm.gridConfig.data) || []
+            };
+            $scope.$applyAsync();
+        };
+
+        $scope.handleReactAction = function (actionName, payload) {
+            switch (actionName) {
+                case 'patientinfo':
+                    $scope.handleEvents('patientinfo', payload.entity);
+                    break;
+            }
+        };
 
         $scope.initLookup();
     }
