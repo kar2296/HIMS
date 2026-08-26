@@ -378,6 +378,7 @@ import { DrShareHeaderScreen } from './react-components/DrShareHeaderScreen';
 import { DrShareCategoryTabScreen } from './react-components/DrShareCategoryTabScreen';
 import { DrShareItemsListScreen } from './react-components/DrShareItemsListScreen';
 import { DrShareRangeTabScreen } from './react-components/DrShareRangeTabScreen';
+import { CancelRemarksScreen } from './react-components/CancelRemarksScreen';
 
 // Register components globally so the AngularJS bridge can find them
 (window as any).ReactComponents = {
@@ -551,7 +552,8 @@ import { DrShareRangeTabScreen } from './react-components/DrShareRangeTabScreen'
   DrShareHeaderScreen,
   DrShareCategoryTabScreen,
   DrShareItemsListScreen,
-  DrShareRangeTabScreen
+  DrShareRangeTabScreen,
+  CancelRemarksScreen
 };
 
 console.log('React runtime and components loaded. ReactBridge initialized.');
