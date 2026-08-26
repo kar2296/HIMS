@@ -2,237 +2,65 @@
     <h4 class="col-sm-6 mt0" translate="billing.doctorshare.pnltitle.lbl"></h4>
 </div>
 
-<div class="row filter-area">
-    <div class="col-sm-12">
-        <div class="col-sm-4">
-            <label class="col-sm-5 control-label filter-lbl" translate="billing.doctorshare.drclass.lbl"></label>
-            <div class="col-sm-7">
-                <ui-select ng-model="currentfilter.DoctorClassId" class="filter-combo">
-                    <ui-select-match>
-                        {{$select.selected.Text | limitTo : 8 : 0}}
-                        <span ng-if="$select.selected.Text.length>8">...</span>
-                    </ui-select-match>
-                    <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.DoctorClass | filter: { Text: $select.search }">
-                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
-                    </ui-select-choices>
-                </ui-select>
-            </div>
-        </div>
-        <div class="col-sm-4">
-            <label class="col-sm-5 control-label filter-lbl" translate="billing.doctorshare.activefrom.lbl"></label>
-            <div class="col-sm-7">
-                <input type="text" class="form-control" ng-date-object datepicker-options="datePickerOptions"
-                    show-button-bar="{{datePickerOptions.showButtonBar}}" uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
-                    placeholder="{{datePickerOptions.placeholder}}" ng-click="ActiveFromPopup = { opened: true }"
-                    is-open="ActiveFromPopup.opened" ng-model="currentfilter.ActiveFrom" tabindex="-1">
-            </div>
-        </div>
-        <div class="col-sm-4">
-            <label class="col-sm-5 control-label filter-lbl" translate="billing.doctorshare.visittype.lbl"></label>
-            <div class="col-sm-7">
-                <ui-select ng-model="currentfilter.EncounterTypeId" class="filter-combo">
-                    <ui-select-match>
-                        {{$select.selected.Text | limitTo : 8 : 0}}
-                        <span ng-if="$select.selected.Text.length>8">...</span>
-                    </ui-select-match>
-                    <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.EncounterType | filter: { Text: $select.search }">
-                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
-                    </ui-select-choices>
-                </ui-select>
-            </div>
-        </div>
-    </div>
+<!--
+  React bridge migration (hybrid). This screen (Manage Doctor Fee Master,
+  reached from doctorsharelist's Add New / Edit actions) is classified
+  HYBRID because the Items tab contains one genuinely live native widget:
+  <autosearch> bound to vm.serviceitemcontrolconfig, searching
+  ClinicalMaster/ServiceItem/GetServiceItems (confirmed via jQuery DOM
+  manipulation in addItemDetails(): $('#ServiceId').focus()/.val('')).
+  That entry row (autosearch + Eligible%/Share%/Amount inputs + Add
+  button) is left untouched, live AngularJS markup below.
 
-    <div class="col-sm-12">
-        <div class="col-sm-4">
-            <label class="col-sm-5 control-label filter-lbl" translate="billing.doctorshare.feetype.lbl"></label>
-            <div class="col-sm-7">
-                <ui-select ng-model="currentfilter.ShareTypeId" class="filter-combo">
-                    <ui-select-match>
-                        {{$select.selected.Text | limitTo : 8 : 0}}
-                        <span ng-if="$select.selected.Text.length>8">...</span>
-                    </ui-select-match>
-                    <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.ShareType | filter: { Text: $select.search }">
-                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
-                    </ui-select-choices>
-                </ui-select>
-            </div>
-        </div>
-        <div class="col-sm-4">
-            <label class="col-sm-5 control-label filter-lbl" translate="billing.doctorshare.activeto.lbl"></label>
-            <div class="col-sm-7">
-                <input type="text" class="form-control" ng-date-object datepicker-options="datePickerOptions"
-                    show-button-bar="{{datePickerOptions.showButtonBar}}" uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
-                    placeholder="{{datePickerOptions.placeholder}}" ng-click="ActiveToPopup = { opened: true }" is-open="ActiveToPopup.opened"
-                    ng-model="currentfilter.ActiveTo" tabindex="-1">
-            </div>
-        </div>
-        <div class="col-sm-4">
-            <button class="btn bt-color2 btn-xs pull-right btn-filter" ng-click="clearDoctorShare()" uib-tooltip="{{ 'billing.doctorshare.clear.lbl' | translate}}"
-                tooltip-placement="bottom">
-                <i class="fa fa-plus" aria-hidden="true"></i>
-                <span translate="billing.doctorshare.clear.lbl"></span>
-            </button>
-            <button class="btn bt-color2 btn-xs pull-right btn-filter" ng-click="addDoctorShare()" uib-tooltip="{{ 'billing.doctorshare.pagetitle.lbl' | translate}}"
-                tooltip-placement="bottom">
-                <i class="fa fa-plus" aria-hidden="true"></i>
-                <span translate="billing.doctorshare.add.lbl"></span>
-            </button>
-        </div>
-    </div>
-</div>
+  Everything else is migrated via 4 separate <react-component> mounts,
+  all reading/writing the same $scope.reactProps / $scope.handleReactAction
+  bridge added to doctorshareform.js:
+    1. DrShareHeaderScreen   - the two header filter-area rows (editable
+       form + read-only summary) AND the Category/Items/PayoutRange tab
+       switcher buttons. Mounted unconditionally; the component itself
+       conditions the summary+tabswitcher parts on DoctorShareClass==1.
+    2. DrShareCategoryTabScreen - entire Category tab (entry row, table,
+       Save button). No native widgets, no utl.Validator.validate call.
+    3. DrShareItemsListScreen  - ONLY the Items tab's results table +
+       Save button. The entry row above it (native <autosearch> + inputs
+       + Add button) stays untouched native markup in the same
+       ng-if="currentcontext.SelectedOption == 2" wrapper.
+    4. DrShareRangeTabScreen   - entire Payout Range tab (entry row,
+       table, Save button). No native widgets.
 
-<div ng-if="DoctorShareClass == 1" class="row filter-area">
-    <div class="col-sm-12">
-        <div class="col-sm-4">
-            <label class="col-sm-5 control-label filter-lbl" translate="billing.doctorshare.drclass.lbl"></label>
-            <div class="col-sm-7">
-                <span> <strong> {{currentfilter.DoctorClassName}} </strong> </span>
-            </div>
-        </div>
-        <div class="col-sm-4">
-            <label class="col-sm-5 control-label filter-lbl" translate="billing.doctorshare.activefrom.lbl"></label>
-            <div class="col-sm-7">
-                <span> <strong> {{ currentfilter.ActiveFrom | date: 'dd-MMM-yyyy' }} </strong> </span>
-            </div>
-        </div>
-        <div class="col-sm-4">
-            <label class="col-sm-5 control-label filter-lbl" translate="billing.doctorshare.visittype.lbl"></label>
-            <div class="col-sm-7">
-                <span> <strong> {{currentfilter.EncounterTypeName}} </strong> </span>
-            </div>
-        </div>
-    </div>
-    <div class="col-sm-12">
-        <div class="col-sm-4">
-            <label class="col-sm-5 control-label filter-lbl" translate="billing.doctorshare.feetype.lbl"></label>
-            <div class="col-sm-7">
-                <span> <strong> {{currentfilter.ShareTypeName}} </strong> </span>
-            </div>
-        </div>
-        <div class="col-sm-4">
-            <label class="col-sm-5 control-label filter-lbl" translate="billing.doctorshare.activeto.lbl"></label>
-            <div class="col-sm-7">
-                <span> <strong> {{ currentfilter.ActiveTo | date: 'dd-MMM-yyyy' }} </strong> </span>
-            </div>
-        </div>
-        <div class="col-sm-4"></div>
-    </div>
-</div>
+  Preserved real API calls (unchanged): billing/doctorshare/GetDoctorShare,
+  billing/doctorshare/AddDoctorShare, billing/doctorshare/UpdateDoctorShare,
+  ClinicalMaster/ServiceItem/GetServiceItems, General/Options/getoptions.
+
+  Confirmed pre-existing quirks, reproduced as-is (not "fixed"):
+  - The editable header form is NEVER hidden (no ng-if on it in the
+    original). Clicking "Add" sets DoctorShareClass=1 and reveals a
+    SECOND, read-only summary block UNDERNEATH the still-editable form --
+    both are shown at once, not toggled.
+  - The Category tab's ServiceCategory select and its results-table
+    column header both read "Billing Type"
+    (billing.doctorshare.category.lbl), even though the field is
+    ServiceCategoryId -- a mislabeling left uncorrected.
+  - editCategoryReqst/deleteCategoryReqst/editItemDetailReqst/
+    deleteItemDetailReqst/editRangeReqst/deleteRangeReqst in
+    doctorshareform.js all declare an unused "index" parameter and
+    mutate the passed object reference directly. The React->AngularJS
+    dispatch below matches by natural/business key (ServiceCategoryId,
+    ServiceId, or the MinRange/MaxRange pair) instead of array index,
+    mirroring that original semantics rather than "fixing" it.
+  - numberwithdecimal($event)'s keypress validation is reproduced
+    verbatim in the React entry-row inputs via a local
+    numberWithDecimalKeyDown() helper in each component.
+-->
+
+<react-component name="DrShareHeaderScreen" props="{ reactProps: reactProps, onAction: handleReactAction }"></react-component>
 
 <div ng-if="DoctorShareClass == 1" class="row">
-    <div class="col-xs-12 col-sm-12 btn-group cust_btnouter clearfix">
-        <div class="col-xs-3 col-sm-3 col-lg-2 term-opt pd0" ng-class="{Selected: (currentcontext.SelectedOption == 1) }"
-            uib-tooltip="Category" style="background-color: #8dc51fbf;" tooltip-placement="top" ng-model="SelectedOption"
-            uib-btn-radio="'Category'">
-            <button class="btn btn-mini" ng-click="categroySelection()">
-                <strong class="tab-details"> Category </strong></button>
-        </div> &nbsp;&nbsp;&nbsp;
-        <div class="col-xs-3 col-sm-3 col-lg-2 term-opt pd0" ng-class="{Selected: (currentcontext.SelectedOption == 2) }"
-            uib-tooltip="items" style="background-color: #8dc51fbf; " tooltip-placement="top" ng-model="SelectedOption"
-            uib-btn-radio="'Items'">
-            <button class="btn btn-mini" ng-click="itemWiseSelection()">
-                <strong> Items </strong></button>
-        </div> &nbsp;&nbsp;&nbsp;
-        <div class="col-xs-3 col-sm-3 col-lg-2 term-opt pd0" ng-class="{Selected: (currentcontext.SelectedOption == 3) }"
-            uib-tooltip="PayoutRange" style="background-color: #8dc51fbf; " tooltip-placement="top" ng-model="SelectedOption"
-            uib-btn-radio="'PayoutRange'">
-            <button class="btn btn-mini" ng-click="payoutRangeSelection()">
-                <strong> Payout Range</strong></button>
-        </div> &nbsp;&nbsp;&nbsp;
-    </div>
 
     <!-- Category wise  -->
 
     <div ng-if="currentcontext.SelectedOption == 1" class="col-sm-12">
-        <br />
-        <div class="col-sm-12">
-            <div class="col-sm-4">
-                <label class="col-sm-5 control-label filter-lbl" translate="billing.doctorshare.category.lbl"></label>
-                <div class="col-sm-7">
-                    <ui-select ng-model="currentfilter.ServiceCategoryId" class="filter-combo">
-                        <ui-select-match>
-                            {{$select.selected.Text | limitTo : 8 : 0}}
-                            <span ng-if="$select.selected.Text.length>8">...</span>
-                        </ui-select-match>
-                        <ui-select-choices repeat="lookupitem.Id as lookupitem in lookup.ServiceCategory | filter: { Text: $select.search }">
-                            <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
-                        </ui-select-choices>
-                    </ui-select>
-                </div>
-            </div>
-
-            <div class="col-sm-3">
-                <label class="col-sm-7 control-label" translate="billing.doctorshare.eligiblepercentage.lbl"></label>
-                <div class="col-sm-5">
-                    <input type="text" maxlength="3" class="form-control" ng-model="currentfilter.EligiblePercentage"
-                         ng-keypress="numberwithdecimal($event)" />
-                </div>
-            </div>
-
-            <div class="col-sm-3">
-                <label class="col-sm-7 control-label" translate="billing.doctorshare.sharepercentage.lbl"></label>
-                <div class="col-sm-5">
-                    <input type="text" maxlength="3" class="form-control" ng-model="currentfilter.SharePercentage"
-                         ng-keypress="numberwithdecimal($event)" />
-                </div>
-            </div>
-            <div class="col-sm-2">
-                <button class="btn bt-color2 btn-xs pull-right btn-filter" ng-click="addCategory()" tooltip-placement="bottom">
-                    <i class="fa fa-plus" aria-hidden="true"></i>
-                    <span translate="billing.doctorshare.add.lbl"></span>
-                </button>
-            </div>
-        </div>
-
-        <div class="col-sm-12">
-            <table class="col-sm-12 table-bordered table">
-                <thead style="background-color:#ccc;">
-                    <tr>
-                        <th>
-                            <span translate="billing.doctorshare.category.lbl"></span>
-                        </th>
-                        <th>
-                            <span translate="billing.doctorshare.eligiblepercentage.lbl"></span>
-                        </th>
-                        <th>
-                            <span translate="billing.doctorshare.sharepercentage.lbl"></span>
-                        </th>
-                        <th>
-                            <span translate="billing.doctorshare.action.lbl"></span>
-                        </th>
-                    </tr>
-                </thead>
-                <tbody style="color: #000000">
-                    <tr ng-repeat="catitms in CategoryItems | filter:{Status:1}">
-                        <td>
-                            <span> {{ catitms.Name }}</span>
-                        </td>
-                        <td>
-                            <span> {{ catitms.EligiblePer }} %</span>
-                        </td>
-                        <td>
-                            <span> {{ catitms.SharePer }} %</span>
-                        </td>
-                        <td class="sale_button">
-                            <button type="button" class="btn btn-primary btn-xs" tabindex="-1" ng-click="editCategoryReqst($index,catitms)">
-                                <i class="fa fa-plus" aria-hidden="true"></i>
-                            </button>
-                            <button type="button" class="btn btn-danger btn-xs" tabindex="-1" ng-click="deleteCategoryReqst($index,catitms)">
-                                <img class="drhms-edit-button" src="assets/svg/delete.svg" alt="">
-                            </button>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-
-        <div class="col-sm-12 site-footer panel-footer">
-            <div class="footer-right">
-                <button type="button" class="btn dem-color4 text-white btn-sm" translate="common.saveapprove-action.lbl"
-                    ng-click="saveCategoryShare()"></button>
-            </div>
-        </div>
+        <react-component name="DrShareCategoryTabScreen" props="{ reactProps: reactProps, onAction: handleReactAction }"></react-component>
     </div>
 
 
@@ -281,60 +109,7 @@
             </div>
         </div>
 
-        <div class="col-sm-12">
-            <table class="col-sm-12 table-bordered table">
-                <thead style="background-color:#ccc;">
-                    <tr>
-                        <th>
-                            <span translate="billing.doctorshare.itemname.lbl"></span>
-                        </th>
-                        <th>
-                            <span translate="billing.doctorshare.eligiblepercentage.lbl"></span>
-                        </th>
-                        <th>
-                            <span translate="billing.doctorshare.sharepercentage.lbl"></span>
-                        </th>
-                        <th>
-                            <span translate="billing.doctorshare.shareamount.lbl"></span>
-                        </th>
-                        <th>
-                            <span translate="billing.doctorshare.action.lbl"></span>
-                        </th>
-                    </tr>
-                </thead>
-                <tbody style="color: #000000">
-                    <tr ng-repeat="servItem in ItemDetails | filter:{Status:1}">
-                        <td>
-                            <span> {{ servItem.Name }}</span>
-                        </td>
-                        <td>
-                            <span> {{ servItem.EligiblePer }} %</span>
-                        </td>
-                        <td>
-                            <span> {{ servItem.SharePer }} %</span>
-                        </td>
-                        <td>
-                            <span> {{ servItem.ShareAmt }} </span>
-                        </td>
-                        <td class="sale_button">
-                            <button type="button" class="btn btn-primary btn-xs" tabindex="-1" ng-click="editItemDetailReqst($index, servItem)">
-                                <i class="fa fa-plus" aria-hidden="true"></i>
-                            </button>
-                            <button type="button" class="btn btn-danger btn-xs" tabindex="-1" ng-click="deleteItemDetailReqst($index, servItem)">
-                                <img class="drhms-edit-button" src="assets/svg/delete.svg" alt="">
-                            </button>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-
-        <div class="col-sm-12 site-footer panel-footer">
-            <div class="footer-right">
-                <button type="button" class="btn dem-color4 text-white btn-sm" translate="common.saveapprove-action.lbl"
-                    ng-click="saveItemShare()"></button>
-            </div>
-        </div>
+        <react-component name="DrShareItemsListScreen" props="{ reactProps: reactProps, onAction: handleReactAction }"></react-component>
 
 
     </div>
@@ -380,60 +155,7 @@
             </div>
         </div>
 
-        <div class="col-sm-12">
-            <table class="col-sm-12 table-bordered table">
-                <thead style="background-color:#ccc;">
-                    <tr>
-                        <th>
-                            <span translate="billing.doctorshare.description.lbl"></span>
-                        </th>
-                        <th>
-                            <span translate="billing.doctorshare.minrange.lbl"></span>
-                        </th>
-                        <th>
-                            <span translate="billing.doctorshare.maxrange.lbl"></span>
-                        </th>
-                        <th>
-                            <span translate="billing.doctorshare.sharepercentage.lbl"></span>
-                        </th>
-                        <th>
-                            <span translate="billing.doctorshare.action.lbl"></span>
-                        </th>
-                    </tr>
-                </thead>
-                <tbody style="color: #000000">
-                    <tr ng-repeat="rngitms in RangeDetails | filter:{Status:1}">
-                        <td>
-                            <span> {{ rngitms.Name }}</span>
-                        </td>
-                        <td>
-                            <span> {{ rngitms.MinRange }} %</span>
-                        </td>
-                        <td>
-                            <span> {{ rngitms.MaxRange }} %</span>
-                        </td>
-                        <td>
-                            <span> {{ rngitms.SharePerRange }} %</span>
-                        </td>
-                        <td class="sale_button">
-                            <button type="button" class="btn btn-primary btn-xs" tabindex="-1" ng-click="editRangeReqst($index, rngitms)">
-                                <i class="fa fa-plus" aria-hidden="true"></i>
-                            </button>
-                            <button type="button" class="btn btn-danger btn-xs" tabindex="-1" ng-click="deleteRangeReqst($index, rngitms)">
-                                <img class="drhms-edit-button" src="assets/svg/delete.svg" alt="">
-                            </button>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-
-        <div class="col-sm-12 site-footer panel-footer">
-            <div class="footer-right">
-                <button type="button" class="btn dem-color4 text-white btn-sm" translate="common.saveapprove-action.lbl"
-                    ng-click="saveRangeShare()"></button>
-            </div>
-        </div>
+        <react-component name="DrShareRangeTabScreen" props="{ reactProps: reactProps, onAction: handleReactAction }"></react-component>
 
     </div>
 

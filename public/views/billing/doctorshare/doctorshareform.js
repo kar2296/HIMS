@@ -51,6 +51,17 @@
 
         };
 
+        $scope.refreshReactProps = function () {
+            $scope.reactProps = {
+                currentfilter: $scope.currentfilter,
+                lookup: $scope.lookup,
+                DoctorShareClass: $scope.DoctorShareClass,
+                currentcontext: $scope.currentcontext,
+                CategoryItems: $scope.CategoryItems,
+                ItemDetails: $scope.ItemDetails,
+                RangeDetails: $scope.RangeDetails
+            };
+        };
 
         $scope.addDoctorShare = function () {
             var Msg = '';
@@ -76,6 +87,7 @@
                 utl.Lookup.getDesc($scope.lookup.EncounterType, $scope.currentfilter.EncounterTypeId);
             $scope.currentfilter.ShareTypeName =
                 utl.Lookup.getDesc($scope.lookup.ShareType, $scope.currentfilter.ShareTypeId);
+            $scope.refreshReactProps();
         }
 
         $scope.clearDoctorShare = function () {
@@ -101,12 +113,14 @@
             $scope.CategoryItems = [];
             $scope.ItemDetails = [];
             $scope.RangeDetails = [];
+            $scope.refreshReactProps();
         }
 
         // Category wise changes
 
         $scope.categroySelection = function () {
             $scope.currentcontext.SelectedOption = 1;
+            $scope.refreshReactProps();
         };
 
         $scope.addCategory = function () {
@@ -151,16 +165,19 @@
             $scope.currentfilter.ServiceCategoryId = -1;
             $scope.currentfilter.EligiblePercentage = 100;
             $scope.currentfilter.SharePercentage = 0;
+            $scope.refreshReactProps();
         }
 
         $scope.editCategoryReqst = function (index, catitms) {
             $scope.currentfilter.ServiceCategoryId = catitms.ServiceCategoryId;
             $scope.currentfilter.EligiblePercentage = catitms.EligiblePer;
             $scope.currentfilter.SharePercentage = catitms.SharePer;
+            $scope.refreshReactProps();
         }
 
         $scope.deleteCategoryReqst = function (index, catitms) {
             catitms.Status = 2;
+            $scope.refreshReactProps();
         }
         $scope.saveCategoryShare = function () {
             var Msg = '';
@@ -289,10 +306,12 @@
 
         $scope.itemWiseSelection = function () {
             $scope.currentcontext.SelectedOption = 2;
+            $scope.refreshReactProps();
         };
 
         $scope.payoutRangeSelection = function () {
             $scope.currentcontext.SelectedOption = 3;
+            $scope.refreshReactProps();
         };
 
         // item wise changes
@@ -426,15 +445,18 @@
             $scope.currentfilter.EligiblePercentage = 100;
             $scope.currentfilter.SharePercentage = 0;
             $scope.currentfilter.ShareAmount = 0;
+            $scope.refreshReactProps();
         }
         $scope.deleteItemDetailReqst = function (index, servItem) {
             servItem.Status = 2;
+            $scope.refreshReactProps();
         }
         $scope.editItemDetailReqst = function (index, servItem) {
             $scope.currentfilter.ServiceId = servItem.ServiceId;
             $scope.currentfilter.EligiblePercentage = servItem.EligiblePer;
             $scope.currentfilter.SharePercentage = servItem.SharePer;
             $scope.currentfilter.ShareAmount = servItem.ShareAmt;
+            $scope.refreshReactProps();
         }
 
         $scope.saveItemShare = function () {
@@ -590,10 +612,12 @@
             $scope.currentfilter.MinRange = 0;
             $scope.currentfilter.MaxRange = 0;
             $scope.currentfilter.SharePerRange = 0;
+            $scope.refreshReactProps();
         }
 
         $scope.deleteRangeReqst = function (index, rngitms) {
             rngitms.Status = 2;
+            $scope.refreshReactProps();
         }
 
         $scope.editRangeReqst = function (index, rngitms) {
@@ -601,6 +625,7 @@
             $scope.currentfilter.MinRange = rngitms.MinRange;
             $scope.currentfilter.MaxRange = rngitms.MaxRange;
             $scope.currentfilter.SharePerRange = rngitms.SharePerRange;
+            $scope.refreshReactProps();
         }
 
         $scope.saveRangeShare = function () {
@@ -773,6 +798,7 @@
                     }
                 }
             }
+            $scope.refreshReactProps();
         };
 
         $scope.getItem = function () {
@@ -837,6 +863,7 @@
             if ($scope.currentcontext.id > 0) {
                 $scope.getItem();
             }
+            $scope.refreshReactProps();
         }
 
         $scope.initLookup = function () {
@@ -857,6 +884,154 @@
             utl.Http.doAction(options);
         }
 
+        // React bridge dispatcher: routes actions from the 4 React-mounted
+        // pieces of this screen (DrShareHeaderScreen, DrShareCategoryTabScreen,
+        // DrShareItemsListScreen, DrShareRangeTabScreen) to the existing
+        // AngularJS $scope methods. editCategoryReqst/deleteCategoryReqst/
+        // editItemDetailReqst/deleteItemDetailReqst/editRangeReqst/
+        // deleteRangeReqst all ignore their "index" parameter and mutate the
+        // passed object reference directly (a pre-existing quirk), so lookups
+        // below match by natural/business key (ServiceCategoryId, ServiceId,
+        // or the MinRange/MaxRange pair) instead of array index, mirroring
+        // the original semantics and avoiding any filtered-vs-unfiltered
+        // array index mismatch.
+        $scope.handleReactAction = function (actionName, payload) {
+            payload = payload || {};
+            switch (actionName) {
+                case 'doctorClassChange':
+                    $scope.currentfilter.DoctorClassId = payload.value;
+                    $scope.refreshReactProps();
+                    break;
+                case 'activeFromChange':
+                    $scope.currentfilter.ActiveFrom = payload.value ? new Date(payload.value) : null;
+                    $scope.refreshReactProps();
+                    break;
+                case 'encounterTypeChange':
+                    $scope.currentfilter.EncounterTypeId = payload.value;
+                    $scope.refreshReactProps();
+                    break;
+                case 'shareTypeChange':
+                    $scope.currentfilter.ShareTypeId = payload.value;
+                    $scope.refreshReactProps();
+                    break;
+                case 'activeToChange':
+                    $scope.currentfilter.ActiveTo = payload.value ? new Date(payload.value) : null;
+                    $scope.refreshReactProps();
+                    break;
+                case 'clear':
+                    $scope.clearDoctorShare();
+                    break;
+                case 'add':
+                    $scope.addDoctorShare();
+                    break;
+                case 'selectCategory':
+                    $scope.categroySelection();
+                    break;
+                case 'selectItems':
+                    $scope.itemWiseSelection();
+                    break;
+                case 'selectPayoutRange':
+                    $scope.payoutRangeSelection();
+                    break;
+
+                case 'serviceCategoryChange':
+                    $scope.currentfilter.ServiceCategoryId = payload.value;
+                    $scope.refreshReactProps();
+                    break;
+                case 'eligiblePercentageChange':
+                    $scope.currentfilter.EligiblePercentage = payload.value;
+                    $scope.refreshReactProps();
+                    break;
+                case 'sharePercentageChange':
+                    $scope.currentfilter.SharePercentage = payload.value;
+                    $scope.refreshReactProps();
+                    break;
+                case 'addCategory':
+                    $scope.addCategory();
+                    break;
+                case 'editCategory':
+                    for (var cidx in $scope.CategoryItems) {
+                        if ($scope.CategoryItems[cidx].ServiceCategoryId == payload.serviceCategoryId) {
+                            $scope.editCategoryReqst(null, $scope.CategoryItems[cidx]);
+                            break;
+                        }
+                    }
+                    break;
+                case 'deleteCategory':
+                    for (var cdidx in $scope.CategoryItems) {
+                        if ($scope.CategoryItems[cdidx].ServiceCategoryId == payload.serviceCategoryId) {
+                            $scope.deleteCategoryReqst(null, $scope.CategoryItems[cdidx]);
+                            break;
+                        }
+                    }
+                    break;
+                case 'saveCategoryShare':
+                    $scope.saveCategoryShare();
+                    break;
+
+                case 'editItemDetail':
+                    for (var iidx in $scope.ItemDetails) {
+                        if ($scope.ItemDetails[iidx].ServiceId == payload.serviceId) {
+                            $scope.editItemDetailReqst(null, $scope.ItemDetails[iidx]);
+                            break;
+                        }
+                    }
+                    break;
+                case 'deleteItemDetail':
+                    for (var ididx in $scope.ItemDetails) {
+                        if ($scope.ItemDetails[ididx].ServiceId == payload.serviceId) {
+                            $scope.deleteItemDetailReqst(null, $scope.ItemDetails[ididx]);
+                            break;
+                        }
+                    }
+                    break;
+                case 'saveItemShare':
+                    $scope.saveItemShare();
+                    break;
+
+                case 'rangeDescriptionChange':
+                    $scope.currentfilter.RangeDescription = payload.value;
+                    $scope.refreshReactProps();
+                    break;
+                case 'minRangeChange':
+                    $scope.currentfilter.MinRange = payload.value;
+                    $scope.refreshReactProps();
+                    break;
+                case 'maxRangeChange':
+                    $scope.currentfilter.MaxRange = payload.value;
+                    $scope.refreshReactProps();
+                    break;
+                case 'sharePerRangeChange':
+                    $scope.currentfilter.SharePerRange = payload.value;
+                    $scope.refreshReactProps();
+                    break;
+                case 'addRange':
+                    $scope.addRangeDetails();
+                    break;
+                case 'editRange':
+                    for (var ridx in $scope.RangeDetails) {
+                        if ($scope.RangeDetails[ridx].MinRange == payload.minRange && $scope.RangeDetails[ridx].MaxRange == payload.maxRange) {
+                            $scope.editRangeReqst(null, $scope.RangeDetails[ridx]);
+                            break;
+                        }
+                    }
+                    break;
+                case 'deleteRange':
+                    for (var rdidx in $scope.RangeDetails) {
+                        if ($scope.RangeDetails[rdidx].MinRange == payload.minRange && $scope.RangeDetails[rdidx].MaxRange == payload.maxRange) {
+                            $scope.deleteRangeReqst(null, $scope.RangeDetails[rdidx]);
+                            break;
+                        }
+                    }
+                    break;
+                case 'saveRangeShare':
+                    $scope.saveRangeShare();
+                    break;
+            }
+            $scope.$applyAsync();
+        };
+
+        $scope.refreshReactProps();
         $scope.initLookup();
 
         // Initialization changes
