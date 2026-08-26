@@ -16,6 +16,7 @@
             $scope.gridData = res.Data;
             var items = $scope.gridData;
             vm.gridConfig.data = items;
+            $scope.refreshReactProps();
         };
 
         $scope.getList = function (pageNo) {
@@ -168,6 +169,7 @@
         $scope.lookupCallback = function (scope, data, options, hasError) {
             $scope.lookup = hasError ? {} : data;
             $scope.getList()
+            $scope.refreshReactProps();
         }
 
         $scope.initLookup = function () {
@@ -192,6 +194,21 @@
             };
             utl.Http.doAction(options);
         }
+
+        $scope.refreshReactProps = function () {
+            $scope.reactProps = {
+                rows: (vm.gridConfig && vm.gridConfig.data) || []
+            };
+            $scope.$applyAsync();
+        };
+
+        $scope.handleReactAction = function (actionName, payload) {
+            switch (actionName) {
+                case 'view':
+                    $scope.handleEvents('view', { Id: payload.Id });
+                    break;
+            }
+        };
 
         $scope.initLookup();
     }

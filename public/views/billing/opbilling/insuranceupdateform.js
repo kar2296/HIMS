@@ -13,6 +13,7 @@
         $scope.currentcontext.id = modalConfig.params.id;
         $scope.getItemCallback = function (scope, data, options, hasError) {
             $scope.item = data;
+            $scope.refreshReactProps();
         };
 
         $scope.getItem = function () {
@@ -50,6 +51,7 @@
         $scope.lookupCallback = function (scope, data, options, hasError) {
             $scope.lookup = hasError ? {} : data;
             $scope.getItem();
+            $scope.refreshReactProps();
         }
 
         $scope.initLookup = function () {
@@ -99,6 +101,29 @@
             };
             utl.Http.doAction(options);
         }
+
+        $scope.refreshReactProps = function () {
+            $scope.reactProps = {
+                guarantorTypeId: $scope.item.GuarantorTypeId,
+                guarantorId: $scope.item.GuarantorId,
+                guarantorTypeOptions: ($scope.lookup && $scope.lookup.GuarantorType) || [],
+                guarantorOptions: ($scope.lookup && $scope.lookup.Guarantor) || []
+            };
+            $scope.$applyAsync();
+        };
+
+        $scope.handleReactAction = function (actionName, payload) {
+            switch (actionName) {
+                case 'guarantorTypeChange':
+                    $scope.item.GuarantorTypeId = payload.value;
+                    $scope.refreshReactProps();
+                    break;
+                case 'guarantorChange':
+                    $scope.item.GuarantorId = payload.value;
+                    $scope.refreshReactProps();
+                    break;
+            }
+        };
 
         $scope.initLookup();
     }
