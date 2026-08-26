@@ -79,6 +79,7 @@
             if ($scope.item.AssignTypeId == 0 || $scope.item.AssignTypeId == null) {
                 $scope.item.AssignTypeId = -1;
             }
+            $scope.refreshReactProps();
         };
 
         $scope.getItem = function (pageNo) {
@@ -130,6 +131,7 @@
         $scope.lookupCallback = function (scope, data, options, hasError) {
             $scope.lookup = hasError ? {} : data;
             $scope.getItem();
+            $scope.refreshReactProps();
         }
 
         $scope.initLookup = function () {
@@ -157,6 +159,41 @@
             };
             utl.Http.doAction(options);
         }
+
+        $scope.refreshReactProps = function () {
+            $scope.reactProps = {
+                assignTypeId: $scope.item.AssignTypeId,
+                bodySiteId: $scope.item.BodySiteId,
+                executableProcedureStatusId: $scope.item.ExecutableProcedureStatusId,
+                executedBy: $scope.item.ExecutedBy,
+                assignTypeOptions: ($scope.lookup && $scope.lookup.LabAssignType) || [],
+                bodySiteOptions: ($scope.lookup && $scope.lookup.BodySite) || [],
+                statusOptions: ($scope.lookup && $scope.lookup.ExecutableProcedureStatus) || [],
+                userOptions: ($scope.lookup && $scope.lookup.User) || []
+            };
+            $scope.$applyAsync();
+        };
+
+        $scope.handleReactAction = function (actionName, payload) {
+            switch (actionName) {
+                case 'assignTypeChange':
+                    $scope.item.AssignTypeId = payload.value;
+                    $scope.refreshReactProps();
+                    break;
+                case 'bodySiteChange':
+                    $scope.item.BodySiteId = payload.value;
+                    $scope.refreshReactProps();
+                    break;
+                case 'statusChange':
+                    $scope.item.ExecutableProcedureStatusId = payload.value;
+                    $scope.refreshReactProps();
+                    break;
+                case 'executedByChange':
+                    $scope.item.ExecutedBy = payload.value;
+                    $scope.refreshReactProps();
+                    break;
+            }
+        };
 
         $scope.initLookup();
     }
