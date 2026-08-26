@@ -35,6 +35,7 @@
 
         $scope.lookupCallback = function (scope, data, options, hasError) {
             $scope.lookup = hasError ? {} : data;
+            $scope.refreshReactProps();
         }
 
         $scope.initLookup = function () {
@@ -52,6 +53,19 @@
             utl.Http.doAction(options);
         }
 
+
+
+        $scope.refreshReactProps = function () {
+            $scope.reactProps = {
+                dispatchedById: $scope.item.DispatchedById,
+                dispatchedByOptions: ($scope.lookup && $scope.lookup.User) || []
+            };
+        };
+
+        $scope.handleReactAction = function (actionType, payload) {
+            // DispatchedById is always disabled in the original markup (ng-disabled="true"),
+            // so no dispatch case is needed here; refreshReactProps re-syncs after lookup load.
+        };
 
         $scope.initLookup();
     }
