@@ -470,6 +470,7 @@ import { IpMrdFileTransferStatusFilterScreen } from './react-components/IpMrdFil
 import { IpMrdFileTransferListScreen } from './react-components/IpMrdFileTransferListScreen';
 import { TransferredFileReturnsStatusFilterScreen } from './react-components/TransferredFileReturnsStatusFilterScreen';
 import { TransferredFileReturnsListScreen } from './react-components/TransferredFileReturnsListScreen';
+import { EditDrShareInfoListScreen } from './react-components/EditDrShareInfoListScreen';
 import { ClaimReceiptBillsTableScreen } from './react-components/ClaimReceiptBillsTableScreen';
 import { NewReceiptBillsTableScreen } from './react-components/NewReceiptBillsTableScreen';
 import { ItemwiseOpBillCancelSelectScreen } from './react-components/ItemwiseOpBillCancelSelectScreen';
@@ -740,6 +741,7 @@ import { ItemwiseOpBillCancelTableScreen } from './react-components/ItemwiseOpBi
   IpMrdFileTransferListScreen,
   TransferredFileReturnsStatusFilterScreen,
   TransferredFileReturnsListScreen,
+  EditDrShareInfoListScreen,
   ClaimReceiptBillsTableScreen,
   NewReceiptBillsTableScreen,
   ItemwiseOpBillCancelSelectScreen,

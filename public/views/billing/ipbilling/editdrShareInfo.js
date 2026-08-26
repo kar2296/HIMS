@@ -22,6 +22,43 @@
         }
         $scope.CanShowUpdate = true;
 
+        //React bridge: replaces the whole Team/Doctor/Share Amount
+        //table (a plain ng-repeat over $scope.DocShareDetails
+        //containing one <ui-select> per row for DoctorId). Rows are
+        //correlated by array index since DocShareDetails is iterated
+        //unfiltered. The original ui-select's on-select="SelectedDoctor(...)"
+        //calls a function that doesn't exist anywhere in this controller
+        //-- not reproduced (see EditDrShareInfoListScreen's doc comment).
+        $scope.handleReactAction = function (actionType, payload) {
+            if (actionType == 'doctorChange') {
+                $scope.DocShareDetails[payload.index].DoctorId = payload.id;
+                $scope.refreshReactProps();
+            } else if (actionType == 'shareAmountChange') {
+                $scope.DocShareDetails[payload.index].DoctorShareAmount = payload.value;
+                $scope.refreshReactProps();
+            }
+        };
+
+        $scope.refreshReactProps = function () {
+            $scope.reactPropsContainer = {
+                reactProps: {
+                    doctorOptions: ($scope.lookup && $scope.lookup.Doctor) || [],
+                    showDoctorShare: !!$scope.ShowDoctorShare,
+                    rows: ($scope.DocShareDetails || []).map(function (item, idx) {
+                        return {
+                            index: idx,
+                            teamDescription: item.Team && item.Team.Description,
+                            doctorId: item.DoctorId,
+                            doctorShareAmount: item.DoctorShareAmount
+                        };
+                    })
+                },
+                onAction: $scope.handleReactAction
+            };
+        };
+
+        $scope.refreshReactProps();
+
         $scope.getDocShareDetailsCallback = function (scope, res, options, hasError) {
             $scope.DocShareDetails = [];
             for(var idx in res.Data){
@@ -30,6 +67,7 @@
                     $scope.DocShareDetails.push(item);
                 }
             }
+            $scope.refreshReactProps();
         };
 
         $scope.getDocShareDetails = function () {
@@ -59,6 +97,7 @@
             }
             // $scope.DocShareDetails = res.Data;
             $scope.CanShowUpdate = false;
+            $scope.refreshReactProps();
         };
 
         $scope.getDrsharebyBillId = function () {
@@ -106,6 +145,7 @@
             if (data.IsDoctorShare) {
                 $scope.ShowDoctorShare = true;
             }
+            $scope.refreshReactProps();
         };
 
         $scope.getFacInfo = function () {
