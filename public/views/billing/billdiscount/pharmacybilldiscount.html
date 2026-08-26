@@ -1,24 +1,37 @@
+<!--
+  React bridge migration (hybrid). This screen has 2 native, live
+  business-search widgets left untouched: <patientsearch> (below), and
+  no other native controls otherwise. No utl.Validator.validate call.
+
+  Migrated via 3 <react-component> mounts sharing generalized
+  BillDiscountFilterScreen / BillDiscountListScreen components (also
+  used by the op variant of this screen):
+    1. BillDiscountFilterScreen (part: 'dates') - From/To Bill Date
+       inputs, BEFORE the native <patientsearch> in the same row.
+    2. BillDiscountFilterScreen (part: 'actions') - Bill Number input
+       + Fetch button, AFTER the native <patientsearch>.
+    3. BillDiscountListScreen (variant: 'pharmacy') - the plain
+       ng-repeat results table (no custom-table/ui-grid, no sort).
+
+  Preserved real API call (unchanged): billing/patientbills/GetPatientBills
+  via getList(); edit opens the untouched app.pharmacybilldiscount-form modal (4600+/7400+
+  line form, deferred to the high-risk queue, not touched).
+
+  Confirmed pre-existing quirks, reproduced as-is (not "fixed"):
+  - The From/To Bill Date inputs have no ng-change in the original --
+    they do NOT auto-refetch; only the Fetch button calls getList().
+  - The visible "Bill Number" input binds to currentfilter.BillNo, but
+    getList() actually reads currentfilter.PatBillNum (Key 49) -- a
+    different, never-populated property. Typing here has no effect on
+    results, both before and after this migration.
+  - <patientsearch> binds currentfilter.PatientId, which getList()
+    never reads either -- selecting a patient also has no effect on
+    results.
+-->
 <div class="row">
     <form id="item_form" name="item_form" class="form-horizontal" role="form">
         <div class="drhms-list-filters">
-            <div class="col-sm-4">
-                <label class="col-sm-4" translate="billing.pharmacy-billdetails.fromdate.lbl"></label>
-                <div class="col-sm-8">
-                    <input type="text" class="form-control" name="FromBillDate" ng-date-object
-                        datetime-picker="{{datePickerOptions.dateTimeFormat}}" datepicker-append-to-body="true"
-                        placeholder="{{datePickerOptions.placeholder}}" ng-click="FromBillDatePopup = { opened: true }"
-                        is-open="FromBillDatePopup.opened" ng-model="currentfilter.FromBillDate">
-                </div>
-            </div>
-            <div class="col-sm-4">
-                <label class="col-sm-4" translate="billing.pharmacy-billdetails.todate.lbl"></label>
-                <div class="col-sm-8">
-                    <input type="text" class="form-control" name="ToBillDate" ng-date-object
-                        datetime-picker="{{datePickerOptions.dateTimeFormat}}" datepicker-append-to-body="true"
-                        placeholder="{{datePickerOptions.placeholder}}" ng-click="ToBillDatePopup = { opened: true }"
-                        is-open="ToBillDatePopup.opened" ng-model="currentfilter.ToBillDate">
-                </div>
-            </div>
+            <react-component name="BillDiscountFilterScreen" props="{ part: 'dates', reactProps: reactProps, onAction: handleReactAction }"></react-component>
             <div class="col-sm-4">
                 <label class="col-sm-4" translate="billing.opbilling-list.patientsearch.lbl"></label>
                 <div class="col-sm-8">
@@ -27,93 +40,13 @@
                         filterconfig="patientfilterconfig"></patientsearch>
                 </div>
             </div>
-            <div class="col-sm-4">
-                <label class="col-sm-4" translate="Bill Number"></label>
-                <div class="col-sm-8">
-                    <input type="text" tabindex="-1" class="form-control" ng-model="currentfilter.BillNo"
-                        placeholder="">
-                </div>
-            </div>
-            <div class="col-sm-4">
-                <button class="draftbutton" ng-click="getList()">
-                    <i class="fas fa-search" aria-hidden="true"></i>&nbsp;&nbsp;
-                    <span translate="Fetch"></span>
-                </button>
-            </div>
+            <react-component name="BillDiscountFilterScreen" props="{ part: 'actions', reactProps: reactProps, onAction: handleReactAction }"></react-component>
         </div>
     </form>
 </div>
 <div class="row">
     <form id="item_form" name="item_form" class="form-horizontal" role="form">
-        <div class="table-control formRoot pharmacycollections">
-            <table class="table table-hover table-responsive table-bordered">
-                <thead class="bg-subhead">
-                    <tr>
-                        <th>
-                            <span translate="billing.paymodechange.billdate.lbl"></span>
-                        </th>
-                        <th>
-                            <span translate="billing.paymodechange.billno.lbl"></span>
-                        </th>
-                        <!-- <th>
-                                <span translate="billing.paymodechange.receiptno.lbl"></span>
-                            </th> -->
-                        <th>
-                            <span translate="billing.paymodechange.patientname.lbl"></span>
-                        </th>
-                        <th>
-                            <span translate="billing.paymodechange.doctor.lbl"></span>
-                        </th>
-                        <th>
-                            <span translate="Bill Amount"></span>
-                        </th>
-                        <th>
-                            <span translate="Paid Amount"></span>
-                        </th>
-                        <th>
-                            <span translate="billing.paymodechange.status.lbl"></span>
-                        </th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr ng-repeat="billInfo in OPBills">
-                        <td class="text-left">
-                            <span>
-                                {{billInfo.BillDateTime | date : 'dd/MMM/yyyy' }}&nbsp;
-                                {{billInfo.BillDateTime | date:'HH:mm'}}
-                            </span>
-                        </td>
-                        <td class="text-left">
-                            <span> {{ billInfo.BillNumber }}</span>
-                        </td>
-                        <!-- <td class="text-left">
-                                <span> {{ billInfo.ReceiptNumber }}</span>
-                            </td> -->
-                        <td class="text-left">
-                            <span> {{ billInfo.Patient.Title.Description }}&nbsp;{{
-                                billInfo.Patient.FirstName }}&nbsp;{{
-                                billInfo.Patient.LastName }}</span>
-                        </td>
-                        <td class="text-left">
-                            <span> {{ billInfo.DoctorName }}</span>
-                        </td>
-                        <td class="text-right">
-                            <span>{{ billInfo.BillAmount
-                                | displaycurrency }}</span>
-                        </td>
-                        <td class="text-right">
-                            <span>{{ billInfo.PaidAmount
-                                | displaycurrency }}</span>
-                        </td>
-                        <td>
-                            <span ng-click="editPatBills(billInfo)"><img src="assets/svg/edit.svg" alt=""></span>
-                            <!-- <button type="button" class="btn btn-sm pyr-color10"></button> -->
-                        </td>
-                    </tr>
-                </tbody>
-
-            </table>
-        </div>
+        <react-component name="BillDiscountListScreen" props="{ variant: 'pharmacy', reactProps: reactProps, onAction: handleReactAction }"></react-component>
     </form>
 </div>
 <div class="fooder-bgs"></div>

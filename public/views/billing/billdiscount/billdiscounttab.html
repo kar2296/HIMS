@@ -1,3 +1,12 @@
+<!--
+  React bridge migration (single mount). Replaces the <uib-tabset> tab
+  header only -- see BillDiscountTabScreen.tsx for the active-highlight
+  logic (compares tab.state to $state.current.name, refreshed on
+  $stateChangeSuccess, added to billdiscounttab.js). The native
+  <div ui-view class="tabview"> stays untouched below, rendering
+  whichever of opbilldiscount.html / pharmacybilldiscount.html is
+  active.
+-->
 <link rel="stylesheet" href="app/css/drhms.css">
 <style>
     patientsearch.logo .custom-popup-wrapper {
@@ -6,22 +15,12 @@
 </style>
 <div class="page-header-list">
     <h4 class="header-name-litle" translate="Bill Discount/Write Off"></h4>
-    <!-- <div class="search-list-right">
-        <button class="btn-add" ng-click="addNew()" uib-tooltip="{{ 'appmanager.usertab.pagetitle.lbl' | translate }}"
-            tooltip-placement="bottom">
-            <i class="fas fa-plus" aria-hidden="true"></i>
-        </button>
-    </div> -->
 </div>
 
 <div id="receipt_tab">
     <div class="row">
         <div class="col-sm-12">
-            <uib-tabset active="active" id="assettabs">
-                <uib-tab index="$index" ng-repeat="tab in tabs" heading="{{tab.title}}" ng-click="switchTab(tab)"
-                    disable="tab.canDisable">
-                </uib-tab>
-            </uib-tabset>
+            <react-component name="BillDiscountTabScreen" props="{ reactProps: reactProps, onAction: handleReactAction }"></react-component>
             <div ui-view class="tabview"></div>
         </div>
     </div>

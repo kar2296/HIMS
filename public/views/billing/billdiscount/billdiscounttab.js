@@ -29,6 +29,29 @@
                 $state.go(tab.state);
             }
         };
+
+        $scope.refreshReactProps = function () {
+            $scope.reactProps = {
+                tabs: $scope.tabs,
+                activeState: $state.current.name
+            };
+        };
+
+        $scope.handleReactAction = function (actionName, payload) {
+            switch (actionName) {
+                case 'switchTab':
+                    var t = $scope.tabs.filter(function (x) { return x.state === payload.state; })[0];
+                    if (t && !t.canDisable) {
+                        $state.go(payload.state);
+                    }
+                    break;
+            }
+            $scope.$applyAsync();
+        };
+
+        $rootScope.$on('$stateChangeSuccess', function () {
+            $scope.refreshReactProps();
+        });
         $timeout(function () {
             removeFloatingNav();
         }, 100);
@@ -37,6 +60,8 @@
             $rootScope.app.layout.isCollapsed = true;
         }
         $scope.switchTab($scope.tabs[0]);
+
+        $scope.refreshReactProps();
 
     }
 

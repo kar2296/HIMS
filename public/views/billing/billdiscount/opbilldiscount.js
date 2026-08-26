@@ -18,6 +18,7 @@
 
         $scope.getListCallback = function (scope, res, options, hasError) {
             $scope.OPBills = res.Data;
+            $scope.refreshReactProps();
         };
 
         $scope.getList = function (pageNo) {
@@ -75,6 +76,39 @@
                 });
             }
         };
+
+        $scope.refreshReactProps = function () {
+            $scope.reactProps = {
+                currentfilter: $scope.currentfilter,
+                rows: $scope.OPBills
+            };
+        };
+
+        $scope.handleReactAction = function (actionName, payload) {
+            switch (actionName) {
+                case 'fromDateChange':
+                    $scope.currentfilter.FromBillDate = payload.value || null;
+                    $scope.refreshReactProps();
+                    break;
+                case 'toDateChange':
+                    $scope.currentfilter.ToBillDate = payload.value || null;
+                    $scope.refreshReactProps();
+                    break;
+                case 'billNoChange':
+                    $scope.currentfilter.BillNo = payload.value;
+                    $scope.refreshReactProps();
+                    break;
+                case 'fetch':
+                    $scope.getList();
+                    break;
+                case 'edit':
+                    $scope.editPatBills(payload);
+                    break;
+            }
+            $scope.$applyAsync();
+        };
+
+        $scope.refreshReactProps();
 
 
         $scope.lookupCallback = function (scope, data, options, hasError) {
