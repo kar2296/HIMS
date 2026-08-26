@@ -472,6 +472,7 @@ import { TransferredFileReturnsStatusFilterScreen } from './react-components/Tra
 import { TransferredFileReturnsListScreen } from './react-components/TransferredFileReturnsListScreen';
 import { EditDrShareInfoListScreen } from './react-components/EditDrShareInfoListScreen';
 import { DiscountFormModeScreen } from './react-components/DiscountFormModeScreen';
+import { OpBillingInfoFormSelectScreen } from './react-components/OpBillingInfoFormSelectScreen';
 import { ClaimReceiptBillsTableScreen } from './react-components/ClaimReceiptBillsTableScreen';
 import { NewReceiptBillsTableScreen } from './react-components/NewReceiptBillsTableScreen';
 import { ItemwiseOpBillCancelSelectScreen } from './react-components/ItemwiseOpBillCancelSelectScreen';
@@ -744,6 +745,7 @@ import { ItemwiseOpBillCancelTableScreen } from './react-components/ItemwiseOpBi
   TransferredFileReturnsListScreen,
   EditDrShareInfoListScreen,
   DiscountFormModeScreen,
+  OpBillingInfoFormSelectScreen,
   ClaimReceiptBillsTableScreen,
   NewReceiptBillsTableScreen,
   ItemwiseOpBillCancelSelectScreen,
