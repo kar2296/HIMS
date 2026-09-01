@@ -30,6 +30,10 @@ export interface DataTableProps<T> {
   onRowClick?: (row: T) => void;
   /** Client-side sort, matching the app's existing custom-table `reOrder` behavior (case-insensitive string compare, toggled ascending/descending). Pass false for screens whose real data is server-sorted/paginated instead. */
   clientSort?: boolean;
+  /** Optional per-row inline style, for the app's real custom-table
+   * config.background.style rule (e.g. {7: {background:'red', color:'#fff'}}
+   * keyed off a status field). Returns undefined for unhighlighted rows. */
+  rowStyle?: (row: T) => React.CSSProperties | undefined;
 }
 
 function resolveField(row: any, path?: string) {
@@ -47,7 +51,7 @@ function resolveField(row: any, path?: string) {
  */
 export function DataTable<T>({
   columns, rows, rowKey, actions, actionsHeader = 'Actions', loading, emptyText = 'No records found',
-  emptyIcon, onRowClick, clientSort = true,
+  emptyIcon, onRowClick, clientSort = true, rowStyle,
 }: DataTableProps<T>) {
   const [sort, setSort] = useState<{ key: string; order: 1 | -1 } | null>(null);
 
@@ -109,9 +113,9 @@ export function DataTable<T>({
               <tr
                 key={rowKey(row)}
                 onClick={onRowClick ? () => onRowClick(row) : undefined}
-                style={{ cursor: onRowClick ? 'pointer' : 'default', transition: 'background-color 0.12s' }}
-                onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = colors.surfaceMuted; }}
-                onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'transparent'; }}
+                style={{ cursor: onRowClick ? 'pointer' : 'default', transition: 'background-color 0.12s', ...(rowStyle ? rowStyle(row) : undefined) }}
+                onMouseEnter={(e) => { if (!rowStyle?.(row)?.background && !rowStyle?.(row)?.backgroundColor) e.currentTarget.style.backgroundColor = colors.surfaceMuted; }}
+                onMouseLeave={(e) => { if (!rowStyle?.(row)?.background && !rowStyle?.(row)?.backgroundColor) e.currentTarget.style.backgroundColor = 'transparent'; }}
               >
                 {columns.map((c) => (
                   <td key={c.key} style={tdStyle(c)}>

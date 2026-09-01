@@ -475,6 +475,8 @@ import { DiscountFormModeScreen } from './react-components/DiscountFormModeScree
 import { OpBillingInfoFormSelectScreen } from './react-components/OpBillingInfoFormSelectScreen';
 import { IpFileTransferReceiveStatusFilterScreen } from './react-components/IpFileTransferReceiveStatusFilterScreen';
 import { IpFileTransferReceiveListScreen } from './react-components/IpFileTransferReceiveListScreen';
+import { BridgeGridScreen } from './react-components/BridgeGridScreen';
+import { BridgeLookupSelectScreen } from './react-components/BridgeLookupSelectScreen';
 import { ClaimReceiptBillsTableScreen } from './react-components/ClaimReceiptBillsTableScreen';
 import { NewReceiptBillsTableScreen } from './react-components/NewReceiptBillsTableScreen';
 import { ItemwiseOpBillCancelSelectScreen } from './react-components/ItemwiseOpBillCancelSelectScreen';
@@ -750,6 +752,8 @@ import { ItemwiseOpBillCancelTableScreen } from './react-components/ItemwiseOpBi
   OpBillingInfoFormSelectScreen,
   IpFileTransferReceiveStatusFilterScreen,
   IpFileTransferReceiveListScreen,
+  BridgeGridScreen,
+  BridgeLookupSelectScreen,
   ClaimReceiptBillsTableScreen,
   NewReceiptBillsTableScreen,
   ItemwiseOpBillCancelSelectScreen,
