@@ -32,6 +32,11 @@ export interface BridgeGridRow {
   actions?: { key: string; label: string; variant?: string; icon?: string; color?: string; title?: string }[];
   /** True when the row matches the screen's config.background.style rule. */
   highlight?: boolean;
+  /** Per-row highlight style, for screens whose config.background.style maps
+   * SEVERAL field values to different colours (e.g. daycarebillinglist's
+   * ColorCode 5 vs 6). Falls back to reactProps.highlightStyle, then to the
+   * default red, so existing callers are unaffected. */
+  highlightStyle?: React.CSSProperties;
 }
 
 interface Props {
@@ -104,7 +109,7 @@ export const BridgeGridScreen: React.FC<Props> = ({ reactProps, onAction }) => {
         rowKey={(r) => r.id}
         emptyText="No records found"
         actionsHeader={actionsHeader}
-        rowStyle={(r) => (r.highlight ? (reactProps?.highlightStyle || { background: 'red', color: '#fff' }) : undefined)}
+        rowStyle={(r) => (r.highlight ? (r.highlightStyle || reactProps?.highlightStyle || { background: 'red', color: '#fff' }) : undefined)}
         actions={
           hasActions
             ? (r) =>
