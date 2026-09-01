@@ -90,6 +90,7 @@
                     ? item.Appointments[0] : null;
             }
             vm.gridConfig.data = items;
+            $scope.refreshReactProps();
         };
 
         $scope.getList = function (pageNo) {
@@ -177,6 +178,68 @@
         };
         //Grid selection related code ends
 
+
+        //React bridge: replaces the ui-grid="vm.gridConfig" + ui-grid-selection
+        //picker grid. Exactly as in refundpicker, this modal's whole purpose is
+        //selection: clicking a row fired gridApi.selection.on.rowSelectionChanged,
+        //which called $scope.confirmCallback({ rid: row.entity.Id }) --
+        //$uibModalInstance.close -- returning the chosen receipt's Id to the
+        //caller. The onRegisterApi handler above can no longer fire (no ui-grid
+        //directive remains) and is left in place, documented, while the same
+        //close-with-rid behaviour is reproduced here on row click.
+        $scope.handleGridAction = function (actionType, payload) {
+            if (actionType == 'rowAction' || actionType == 'cellAction') {
+                console.log(payload.id);
+                $scope.confirmCallback({ rid: payload.id });
+            }
+        };
+
+        $scope.refreshReactProps = function () {
+            var defs = vm.gridConfig.columnDefs || [];
+            function hdr(i) { return defs[i] ? defs[i].displayName : ''; }
+            function patientLabel(pt) {
+                if (!pt) { return ''; }
+                var title = pt.Title && pt.Title.Description ? pt.Title.Description + '.' : '';
+                return (title + (pt.FirstName || '') + ' / ' + (pt.MRN || '') + ' / ' + (pt.Age || '') + ' / ' + (pt.Gender && pt.Gender.Description ? pt.Gender.Description : ''));
+            }
+            var items = vm.gridConfig.data || [];
+            $scope.reactPropsGridContainer = {
+                reactProps: {
+                    columns: [
+                        { key: 'receiptdate', header: hdr(0) },
+                        { key: 'mrn', header: hdr(1), sortable: true },
+                        { key: 'opdgip', header: hdr(2), width: '30%' },
+                        { key: 'receiptno', header: hdr(3), sortable: true },
+                        { key: 'patient', header: hdr(4), link: true },
+                        { key: 'paymenttype', header: hdr(5), sortable: true },
+                        { key: 'payerscenario', header: hdr(6), sortable: true },
+                        { key: 'guarantorname', header: hdr(7), sortable: true },
+                        { key: 'amountpaid', header: hdr(8), align: 'right' }
+                    ],
+                    hasActions: false,
+                    rows: items.map(function (entity) {
+                        return {
+                            id: entity.Id,
+                            cells: {
+                                //Same "N/A" fallback and dd/MM/yyyy HH:mm:ss format as the original cellTemplate.
+                                receiptdate: entity.ReceiptDateTime ? $filter('date')(entity.ReceiptDateTime, 'dd/MM/yyyy HH:mm:ss') : 'N/A',
+                                mrn: entity.Patient && entity.Patient.MRN,
+                                //PRE-EXISTING QUIRK: this column's cellTemplate renders the literal "OP" regardless of EncountertypeId.
+                                opdgip: 'OP',
+                                receiptno: entity.ReceiptNumber,
+                                patient: patientLabel(entity.Patient),
+                                paymenttype: entity.PaymentType && entity.PaymentType.Description,
+                                payerscenario: entity.GuarantorType && entity.GuarantorType.Description,
+                                guarantorname: entity.GurantorName,
+                                amountpaid: entity.AmountPaid
+                            }
+                        };
+                    })
+                },
+                onAction: $scope.handleGridAction
+            };
+        };
+
         //Lookup
         $scope.lookupCallback = function (scope, data, options, hasError) {
             $scope.lookup = hasError ? {} : data;
@@ -212,6 +275,8 @@
             };
             utl.Http.doAction(options);
         }
+
+        $scope.refreshReactProps();
 
         $scope.initLookup();
     }

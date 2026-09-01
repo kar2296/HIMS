@@ -183,6 +183,50 @@
         }
 
 
+
+        //React bridge: the three <ui-select> controls (Payment Type, Bank,
+        //Card Type) render through the shared BridgeLookupSelectScreen. Each
+        //dispatch writes the same $scope.item field the original ng-model
+        //wrote and then calls the screen's own unchanged handler, so
+        //paymodevarchange(item) -- which clears Bank/Cheque/DD/UPI/Card/
+        //Terminal fields when the payment mode changes -- still runs exactly
+        //as before. Every other control on this form stays native.
+        $scope.handlePaymentTypeAction = function (actionType, payload) {
+            if (actionType == 'change') {
+                $scope.item.PaymentTypeId = payload.id;
+                $scope.paymodevarchange($scope.item);
+                $scope.refreshReactProps();
+            }
+        };
+        $scope.handleBankAction = function (actionType, payload) {
+            if (actionType == 'change') {
+                $scope.item.BankId = payload.id;
+                $scope.refreshReactProps();
+            }
+        };
+        $scope.handleCardTypeAction = function (actionType, payload) {
+            if (actionType == 'change') {
+                $scope.item.CardTypeId = payload.id;
+                $scope.refreshReactProps();
+            }
+        };
+
+        $scope.refreshReactProps = function () {
+            var lk = $scope.lookup || {};
+            $scope.reactPropsPaymentTypeContainer = {
+                reactProps: { options: lk.PaymentType || [], value: $scope.item.PaymentTypeId, name: 'payments' },
+                onAction: $scope.handlePaymentTypeAction
+            };
+            $scope.reactPropsBankContainer = {
+                reactProps: { options: lk.Bank || [], value: $scope.item.BankId, name: 'bankname' },
+                onAction: $scope.handleBankAction
+            };
+            $scope.reactPropsCardTypeContainer = {
+                reactProps: { options: lk.CardType || [], value: $scope.item.CardTypeId, name: 'cardtype' },
+                onAction: $scope.handleCardTypeAction
+            };
+        };
+
         $scope.lookupCallback = function (scope, data, options, hasError) {
             $scope.lookup = hasError ? {} : data;
 
@@ -190,6 +234,7 @@
                 utl.Lookup.getDesc($scope.lookup.PaymentType, $scope.currentcontext.PaymentTypeId);
             $scope.item.PayModeHistory += "\r\n Current Updated User :" +
                 utl.Lookup.getDesc($scope.lookup.User, utl.Session.getCurrentUserId());
+            $scope.refreshReactProps();
         }
 
         $scope.initLookup = function () {
@@ -211,6 +256,7 @@
             utl.Http.doAction(options);
         }
 
+        $scope.refreshReactProps();
         $scope.initLookup();
     }
 

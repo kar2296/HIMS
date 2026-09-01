@@ -196,6 +196,7 @@
                 vm.gridConfig.data.push(item);
             }
             $scope.getPagination();
+            $scope.refreshReactProps();
             //vm.gridConfig.pagerObj.totalItems = data.PageContext.TotalRecords;
         };
 
@@ -695,6 +696,117 @@
             }
         };
 
+
+        //React bridge: the four filter <ui-select>s (Ward, Guarantor,
+        //Admission Status, TPA) render through the shared
+        //BridgeLookupSelectScreen and the <custom-table config="vm.gridConfig">
+        //through the shared BridgeGridScreen. Each filter dispatch writes the
+        //same $scope.currentfilter field its ng-model wrote and then calls the
+        //same $scope.getList() its ng-change called, so the query payload and
+        //paging are untouched. Row actions dispatch into the existing
+        //unchanged $scope.handleEvents.
+        $scope.handleGridAction = function (actionType, payload) {
+            var items = vm.gridConfig.data || [];
+            var entity = null;
+            for (var i = 0; i < items.length; i++) {
+                if (items[i].Id === payload.id) { entity = items[i]; break; }
+            }
+            if (actionType == 'rowAction') {
+                $scope.handleEvents('edit', entity);
+            } else if (actionType == 'cellAction') {
+                $scope.handleEvents('patientinfo', entity);
+            }
+        };
+
+        function makeFilterHandler(field) {
+            return function (actionType, payload) {
+                if (actionType == 'change') {
+                    $scope.currentfilter[field] = payload.id;
+                    $scope.getList();
+                }
+            };
+        }
+        $scope.handleWardAction = makeFilterHandler('WardId');
+        $scope.handleGuarantorAction = makeFilterHandler('GuarantorId');
+        $scope.handleAdmissionStatusAction = makeFilterHandler('AdmissionStatusId');
+        $scope.handleTPAAction = makeFilterHandler('TPAId');
+
+        $scope.refreshReactProps = function () {
+            var defs = vm.gridConfig.columnDefs || [];
+            function hdr(i) { return defs[i] ? defs[i].displayName : ''; }
+            function patientLabel(pt) {
+                if (!pt) { return ''; }
+                //Original cellTemplate: FirstName LastName / MRN, then Age /
+                //Gender only inside ng-if="Patient.Title && Title.Description".
+                var s = (pt.FirstName || '') + ' ' + (pt.LastName || '') + ' / ' + (pt.MRN || '');
+                if (pt.Title && pt.Title.Description) {
+                    s += ' / ' + (pt.Age || '') + ' / ' + (pt.Gender && pt.Gender.Description ? pt.Gender.Description : '');
+                }
+                return s;
+            }
+            function roomLabel(e) {
+                //Original: ward/room shown only when WardRoomMaster exists, bed
+                //only when WardRoomBedMaster exists.
+                var out = '';
+                if (e.WardRoomMaster) {
+                    out += (e.WardMaster && e.WardMaster.WardName ? e.WardMaster.WardName : '') + ' / ' + (e.WardRoomMaster.RoomNo || '') + ' / ';
+                }
+                if (e.WardRoomBedMaster) { out += (e.WardRoomBedMaster.BedNo || ''); }
+                return out;
+            }
+            var items = vm.gridConfig.data || [];
+            $scope.reactPropsGridContainer = {
+                reactProps: {
+                    columns: [
+                        { key: 'ipnumber', header: hdr(0), sortable: true },
+                        { key: 'patient', header: hdr(1), link: true },
+                        { key: 'roomdetails', header: hdr(2) },
+                        { key: 'doa', header: hdr(3) },
+                        { key: 'guarantor', header: hdr(4), sortable: true },
+                        { key: 'status', header: hdr(5), sortable: true }
+                    ],
+                    actionsHeader: defs.length ? defs[defs.length - 1].displayName : 'Actions',
+                    hasActions: true,
+                    //config.background.flag 'IsBillLock' -> the .bg-custom class
+                    //in custom-table.html (#ed143dad / #fff).
+                    highlightStyle: { background: '#ed143dad', color: '#fff' },
+                    rows: items.map(function (entity) {
+                        return {
+                            id: entity.Id,
+                            highlight: !!entity.IsBillLock,
+                            actions: [{ key: 'edit', label: '', icon: 'fas fa-money-bill', variant: 'icon', title: 'In patients' }],
+                            cells: {
+                                ipnumber: entity.VisitIdentifier,
+                                patient: patientLabel(entity.Patient),
+                                roomdetails: roomLabel(entity),
+                                doa: (entity.AdmissionDate ? $filter('date')(entity.AdmissionDate, 'dd-MMM-yyyy') : '') + ' ' + (entity.AdmissionDate ? $filter('date')(entity.AdmissionDate, 'HH:mm') : ''),
+                                guarantor: entity.PatientGuarantor && entity.PatientGuarantor.GuarantorName,
+                                status: entity.AdmissionStatus && entity.AdmissionStatus.Description
+                            }
+                        };
+                    })
+                },
+                onAction: $scope.handleGridAction
+            };
+            var lk = $scope.lookup || {};
+            $scope.reactPropsWardContainer = {
+                reactProps: { options: lk.Ward || [], value: $scope.currentfilter.WardId },
+                onAction: $scope.handleWardAction
+            };
+            $scope.reactPropsGuarantorContainer = {
+                reactProps: { options: lk.Guarantor || [], value: $scope.currentfilter.GuarantorId, id: 'GuarantorId' },
+                onAction: $scope.handleGuarantorAction
+            };
+            $scope.reactPropsAdmissionStatusContainer = {
+                reactProps: { options: lk.AdmissionStatus || [], value: $scope.currentfilter.AdmissionStatusId },
+                onAction: $scope.handleAdmissionStatusAction
+            };
+            $scope.reactPropsTPAContainer = {
+                reactProps: { options: lk.TPA || [], value: $scope.currentfilter.TPAId },
+                onAction: $scope.handleTPAAction
+            };
+        };
+
         $scope.lookupCallback = function (scope, data, options, hasError) {
             $scope.lookup = hasError ? {} : data;
             initDynamicForm();
@@ -767,6 +879,8 @@
             };
             utl.Http.doAction(options);
         };
+
+        $scope.refreshReactProps();
 
         $scope.initLookup();
     }
