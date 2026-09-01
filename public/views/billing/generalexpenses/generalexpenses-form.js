@@ -235,9 +235,72 @@
             }
         }
 
+        //React bridge: the five <ui-select> controls on this form (Expense Type,
+        //Payment Type, Bank, Terminal, Card Type) render through the shared
+        //BridgeLookupSelectScreen. None of them had an ng-change in the
+        //original, so each dispatch only writes the same $scope.item field the
+        //ng-model wrote. The ng-disabled expressions are passed through
+        //unchanged ($scope.IsDisabled for the first two, item.isCompleted for
+        //the payment-detail three). Every other control stays native.
+        $scope.handleExpenseTypeAction = function (actionType, payload) {
+            if (actionType == 'change') {
+                $scope.item.ExpenseTypeId = payload.id;
+                $scope.refreshReactProps();
+            }
+        };
+        $scope.handlePaymentTypeAction = function (actionType, payload) {
+            if (actionType == 'change') {
+                $scope.item.PaymentTypeId = payload.id;
+                $scope.refreshReactProps();
+            }
+        };
+        $scope.handleBankAction = function (actionType, payload) {
+            if (actionType == 'change') {
+                $scope.item.BankId = payload.id;
+                $scope.refreshReactProps();
+            }
+        };
+        $scope.handleTerminalAction = function (actionType, payload) {
+            if (actionType == 'change') {
+                $scope.item.TerminalNoId = payload.id;
+                $scope.refreshReactProps();
+            }
+        };
+        $scope.handleCardTypeAction = function (actionType, payload) {
+            if (actionType == 'change') {
+                $scope.item.CardTypeId = payload.id;
+                $scope.refreshReactProps();
+            }
+        };
+
+        $scope.refreshReactProps = function () {
+            var lk = $scope.lookup || {};
+            $scope.reactPropsExpenseTypeContainer = {
+                reactProps: { options: lk.GeneralExpenseType || [], value: $scope.item.ExpenseTypeId, disabled: $scope.IsDisabled },
+                onAction: $scope.handleExpenseTypeAction
+            };
+            $scope.reactPropsPaymentTypeContainer = {
+                reactProps: { options: lk.PaymentType || [], value: $scope.item.PaymentTypeId, disabled: $scope.IsDisabled },
+                onAction: $scope.handlePaymentTypeAction
+            };
+            $scope.reactPropsBankContainer = {
+                reactProps: { options: lk.Bank || [], value: $scope.item.BankId, disabled: $scope.item.isCompleted },
+                onAction: $scope.handleBankAction
+            };
+            $scope.reactPropsTerminalContainer = {
+                reactProps: { options: lk.Terminal || [], value: $scope.item.TerminalNoId, disabled: $scope.item.isCompleted },
+                onAction: $scope.handleTerminalAction
+            };
+            $scope.reactPropsCardTypeContainer = {
+                reactProps: { options: lk.CardType || [], value: $scope.item.CardTypeId, disabled: $scope.item.isCompleted },
+                onAction: $scope.handleCardTypeAction
+            };
+        };
+
         $scope.lookupCallback = function (scope, data, options, hasError) {
             $scope.lookup = hasError ? {} : data;
             $scope.getItem();
+            $scope.refreshReactProps();
         }
 
         $scope.initLookup = function () {
@@ -267,6 +330,7 @@
             utl.Http.doAction(options);
         }
 
+        $scope.refreshReactProps();
         $scope.initLookup();
     }
 

@@ -423,6 +423,58 @@
             return result;
         }
 
+        //React bridge: the four <ui-select> controls (Promotion Scheme Type and
+        //three Discount Type selects) render through the shared
+        //BridgeLookupSelectScreen. None had ng-change or ng-disabled in the
+        //original. PRE-EXISTING QUIRK preserved: the three Discount Type
+        //selects are all bound to the SAME model, item.DiscountModeId, so they
+        //stay in lockstep exactly as they do today -- separate mounts, one
+        //shared value.
+        $scope.handleSchemeTypeAction = function (actionType, payload) {
+            if (actionType == 'change') {
+                $scope.item.PromotionSchemeTypeId = payload.id;
+                $scope.refreshReactProps();
+            }
+        };
+        $scope.handleDiscountMode1Action = function (actionType, payload) {
+            if (actionType == 'change') {
+                $scope.item.DiscountModeId = payload.id;
+                $scope.refreshReactProps();
+            }
+        };
+        $scope.handleDiscountMode2Action = function (actionType, payload) {
+            if (actionType == 'change') {
+                $scope.item.DiscountModeId = payload.id;
+                $scope.refreshReactProps();
+            }
+        };
+        $scope.handleDiscountMode3Action = function (actionType, payload) {
+            if (actionType == 'change') {
+                $scope.item.DiscountModeId = payload.id;
+                $scope.refreshReactProps();
+            }
+        };
+
+        $scope.refreshReactProps = function () {
+            var lk = $scope.lookup || {};
+            $scope.reactPropsSchemeTypeContainer = {
+                reactProps: { options: lk.PromotionSchemeType || [], value: $scope.item.PromotionSchemeTypeId },
+                onAction: $scope.handleSchemeTypeAction
+            };
+            $scope.reactPropsDiscountMode1Container = {
+                reactProps: { options: lk.DiscountMode || [], value: $scope.item.DiscountModeId },
+                onAction: $scope.handleDiscountMode1Action
+            };
+            $scope.reactPropsDiscountMode2Container = {
+                reactProps: { options: lk.DiscountMode || [], value: $scope.item.DiscountModeId },
+                onAction: $scope.handleDiscountMode2Action
+            };
+            $scope.reactPropsDiscountMode3Container = {
+                reactProps: { options: lk.DiscountMode || [], value: $scope.item.DiscountModeId },
+                onAction: $scope.handleDiscountMode3Action
+            };
+        };
+
         $scope.lookupCallback = function(scope, data, options, hasError) {
             $scope.lookup = hasError ? {} : data;
 
@@ -431,6 +483,7 @@
             } else {
                 $scope.getServiceCategorys();
             }
+            $scope.refreshReactProps();
         };
 
         $scope.initLookup = function() {
@@ -454,6 +507,7 @@
             utl.Http.doAction(options);
         }
 
+        $scope.refreshReactProps();
         $scope.initLookup();
     }
 
