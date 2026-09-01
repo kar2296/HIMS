@@ -95,6 +95,17 @@
         //wrote. No calculation, validation, privilege check, payload or API
         //call is touched: save(), saveandApprove(), completeRefund(), Cancel(),
         //print(), saveItem() and every guard inside them are unchanged.
+        //Payment Mode: no ng-change/on-select in the original, so the dispatch
+        //only writes the same $scope.item field its ng-model wrote. Its
+        //`required` validator is preserved by the hidden <span> form control
+        //in the template (see that markup's comment).
+        $scope.handlePaymentTypeAction = function (actionType, payload) {
+            if (actionType == 'change') {
+                $scope.item.PaymentTypeId = payload.id;
+                $scope.refreshReactProps();
+            }
+        };
+
         $scope.handleRefundTypeAction = function (actionType, payload) {
             if (actionType == 'change') {
                 $scope.item.RefundTypeId = payload.id;
@@ -111,6 +122,16 @@
         $scope.refreshReactProps = function () {
             var lk = $scope.lookup || {};
             var it = $scope.item || {};
+            $scope.reactPropsPaymentTypeContainer = {
+                reactProps: {
+                    options: lk.PaymentType || [],
+                    value: it.PaymentTypeId,
+                    //ng-disabled="IsCompleted"
+                    disabled: !!$scope.IsCompleted,
+                    name: 'payments'
+                },
+                onAction: $scope.handlePaymentTypeAction
+            };
             $scope.reactPropsRefundTypeContainer = {
                 reactProps: {
                     options: lk.RefundType || [],

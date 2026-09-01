@@ -112,17 +112,18 @@
                             <label class="col-sm-12 control-label" for="payments"
                                 translate="billing.refund-form.paymentmode.lbl"></label>
                             <div class="col-sm-12">
-                                <ui-select ng-model="item.PaymentTypeId" name="payments" ng-disabled="IsCompleted"
-                                    required>
-                                    <ui-select-match>
-                                        {{$select.selected.Text | limitTo : 20 : 0}}
-                                        <span ng-if="$select.selected.Text.length>20">...</span>
-                                    </ui-select-match>
-                                    <ui-select-choices
-                                        repeat="lookupitem.Id as lookupitem in lookup.PaymentType | filter: { Text: $select.search }">
-                                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
-                                    </ui-select-choices>
-                                </ui-select>
+                                <react-component name="BridgeLookupSelectScreen" props="{ reactProps: reactPropsPaymentTypeContainer.reactProps, onAction: reactPropsPaymentTypeContainer.onAction }"></react-component>
+                                <!-- Angular required-validator mirror for the React Payment Mode select above.
+                                     Carries the SAME ng-model and the SAME form-control name="payments" and
+                                     the SAME `required` as the original <ui-select>, so item_form.payments and
+                                     item_form.$valid keep behaving identically and
+                                     utl.Validator.validate($scope) still blocks saveItem() when empty.
+                                     It is a <span>, not an <input>: ngModel registers a control on ANY element
+                                     (base.js form.$addControl uses $name) and Angular's requiredDirective is
+                                     restrict:"A" require:"?ngModel", while ngFabForm only auto-inserts its
+                                     validation-message template onto input/select/textarea elements -- so this
+                                     adds no new visible UI, exactly like the <ui-select> it replaces. -->
+                                <span style="display:none" name="payments" ng-model="item.PaymentTypeId" required></span>
                             </div>
                         </div>
                         <div class="form-group">
