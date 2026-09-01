@@ -86,6 +86,7 @@
                 }
             }
             vm.gridConfig.data = Bills;
+            $scope.refreshReactProps();
             vm.gridConfig.pagerObj.totalItems = res.PageContext.TotalRecords;
         };
 
@@ -563,6 +564,84 @@
             };
             utl.Http.doPrint(options);
         };
+
+        //React bridge for the <custom-table config="vm.gridConfig"> grid only.
+        //The header buttons (Previous Orders / Add New, gated by
+        //ng-if="HasAccess('IPBILLING_DETAILS','IPDEL_PREVIOUS_ORDER')" and
+        //'IPDEL_ADDNEW') and every other control stay untouched native markup,
+        //so all privilege gating is unchanged. The screen's only <ui-select>
+        //is commented out in the template and was left that way.
+        //Row actions dispatch into the existing, unchanged $scope.handleEvents.
+        $scope.handleGridAction = function (actionType, payload) {
+            var items = vm.gridConfig.data || [];
+            var entity = null;
+            for (var i = 0; i < items.length; i++) {
+                if (items[i].Id === payload.id) { entity = items[i]; break; }
+            }
+            if (actionType == 'rowAction') {
+                $scope.handleEvents(payload.key, entity);
+            }
+        };
+
+        $scope.refreshReactProps = function () {
+            var defs = vm.gridConfig.columnDefs || [];
+            function hdr(i) { return defs[i] ? defs[i].displayName : ''; }
+            function cur(v) { return $filter('displaycurrency')(v); }
+            var items = vm.gridConfig.data || [];
+            $scope.reactPropsGridContainer = {
+                reactProps: {
+                    columns: [
+                        { key: 'billdate', header: hdr(0) },
+                        { key: 'billno', header: hdr(1), sortable: true },
+                        { key: 'doctor', header: hdr(2) },
+                        { key: 'gross', header: hdr(3), align: 'right' },
+                        { key: 'discount', header: hdr(4), align: 'right' },
+                        { key: 'net', header: hdr(5), align: 'right' },
+                        { key: 'status', header: hdr(6), sortable: true }
+                    ],
+                    actionsHeader: hdr(7) || 'Actions',
+                    hasActions: true,
+                    //config.background.style: PatientBillStatusId 2 -> pink/#fff.
+                    highlightStyle: { background: 'pink', color: '#fff' },
+                    rows: items.map(function (entity) {
+                        var acts = [
+                            //Both print and view are unconditional in the original.
+                            { key: 'print', label: '', icon: 'fa fa-print', variant: 'icon', title: 'Print' },
+                            { key: 'view', label: '', icon: 'fas fa-edit', variant: 'icon', title: 'View' }
+                        ];
+                        //ng-if="entity.showDelete === 1" ng-hide="entity.PatientBillStatusId == 2"
+                        //showDelete comes from currentcontext.CanDelete, i.e. the real
+                        //HasAccess('IPBILLING_DETAILS','CanDeletedBillButton') privilege.
+                        if (entity.showDelete === 1 && entity.PatientBillStatusId != 2) {
+                            acts.push({ key: 'cancel', label: '', icon: 'fas fa-trash', variant: 'icon', title: 'Cancel' });
+                        }
+                        return {
+                            id: entity.Id,
+                            highlight: entity.PatientBillStatusId == 2,
+                            actions: acts,
+                            cells: {
+                                //Original cellTemplate uses the <ngformatdate> directive
+                                //(vendor/common/ngCommonHelper.js), whose datetime-val
+                                //branch renders date:'dd-MMM-yyyy HH:mm'.
+                                billdate: entity.BillDateTime ? $filter('date')(entity.BillDateTime, 'dd-MMM-yyyy HH:mm') : '',
+                                billno: entity.BillNumber,
+                                //The column's field is DoctorName but its cellTemplate
+                                //renders entity.User's title/first/last -- kept as-is.
+                                doctor: ((entity.User && entity.User.Title && entity.User.Title.Description ? entity.User.Title.Description + ' ' : '') + (entity.User && entity.User.FirstName ? entity.User.FirstName : '') + ' ' + (entity.User && entity.User.LastName ? entity.User.LastName : '')).replace(/\s+/g, ' ').trim(),
+                                gross: cur(entity.GrossAmount),
+                                discount: cur(entity.BillDiscount),
+                                //PRE-EXISTING QUIRK: this column's field is BillAmount but
+                                //its cellTemplate renders entity.NetAmount. Reproduced.
+                                net: cur(entity.NetAmount),
+                                status: entity.PatientBillStatus && entity.PatientBillStatus.Description
+                            }
+                        };
+                    })
+                },
+                onAction: $scope.handleGridAction
+            };
+        };
+
         vm.gridConfig = {
             enableColumnResizing: true,
             background: {
@@ -632,6 +711,8 @@
                 pageSize: 25
             }
         };
+
+        $scope.refreshReactProps();
 
 
         //lookup

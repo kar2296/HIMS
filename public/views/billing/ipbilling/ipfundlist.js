@@ -72,6 +72,7 @@
 
             vm.gridConfig.data = data.Data;
             vm.gridConfig.pagerObj.totalItems = data.PageContext.TotalRecords;
+            $scope.refreshReactProps();
         };
 
         $scope.getList = function () {
@@ -390,6 +391,105 @@
         };
         /* Security IsValid */
 
+
+        //React bridge: the two filter <ui-select>s (Receipt Type, Receipt
+        //Status) render through the shared BridgeLookupSelectScreen and
+        //<custom-table config="vm.gridConfig"> through the shared
+        //BridgeGridScreen. Filters write the same currentfilter fields and call
+        //the same getList(), so the
+        //Billing/PatientPaymentDetails/GetPatientPaymentDetails payload is
+        //unchanged. Every row action dispatches into this controller's
+        //existing, unchanged $scope.handleEvents, so openRefund, print
+        //(PrintPatientPaymentDetails), openModal and the PaymentStatusId == 3
+        //"payment consumed" guard all still run from the controller.
+        $scope.handleGridAction = function (actionType, payload) {
+            var items = vm.gridConfig.data || [];
+            var entity = null;
+            for (var i = 0; i < items.length; i++) {
+                if (items[i].Id === payload.id) { entity = items[i]; break; }
+            }
+            if (actionType == 'rowAction') {
+                $scope.handleEvents(payload.key, entity);
+            }
+        };
+
+        $scope.handleReceiptTypeAction = function (actionType, payload) {
+            if (actionType == 'change') { $scope.currentfilter.ReceiptTypeId = payload.id; $scope.getList(); }
+        };
+        $scope.handleReceiptStatusAction = function (actionType, payload) {
+            if (actionType == 'change') { $scope.currentfilter.ReceiptStatusId = payload.id; $scope.getList(); }
+        };
+
+        $scope.refreshReactProps = function () {
+            var defs = vm.gridConfig.columnDefs || [];
+            function hdr(i) { return defs[i] ? defs[i].displayName : ''; }
+            function dt(v, f) { return v ? $filter('date')(v, f) : ''; }
+            var items = vm.gridConfig.data || [];
+            $scope.reactPropsGridContainer = {
+                reactProps: {
+                    columns: [
+                        { key: 'receiptno', header: hdr(0), sortable: true },
+                        { key: 'receiptdate', header: hdr(1) },
+                        { key: 'receipttype', header: hdr(2), sortable: true },
+                        { key: 'amountpaid', header: hdr(3), align: 'right' },
+                        { key: 'paymentmode', header: hdr(4), sortable: true },
+                        { key: 'receiptstatus', header: hdr(5), sortable: true }
+                    ],
+                    actionsHeader: hdr(6) || 'Actions',
+                    hasActions: true,
+                    //DUPLICATE-KEY QUIRK reproduced: vm.gridConfig declares
+                    //`background:` TWICE in the same object literal, so the
+                    //second one wins in JavaScript -- the effective rule is
+                    //ReceiptStatusId 3 -> PINK (#fff text), not the red in the
+                    //first, shadowed block. Documented, not "corrected".
+                    highlightStyle: { background: 'pink', color: '#fff' },
+                    rows: items.map(function (entity) {
+                        var acts = [];
+                        //ng-show="entity.ReceiptStatusId == 1 || entity.ReceiptStatusId == 3"
+                        if (entity.ReceiptStatusId == 1 || entity.ReceiptStatusId == 3) {
+                            acts.push({ key: 'view', label: '', icon: 'fas fa-edit', variant: 'icon', title: 'View' });
+                        }
+                        //ng-show="entity.ReceiptStatusId == 2"
+                        if (entity.ReceiptStatusId == 2) {
+                            acts.push({ key: 'edit', label: '', icon: 'fas fa-edit', variant: 'icon', title: 'Edit' });
+                        }
+                        //ng-show="entity.ReceiptStatusId == 2" (no privilege call
+                        //on this screen, unlike ipreceipt-list)
+                        if (entity.ReceiptStatusId == 2) {
+                            acts.push({ key: 'delete', label: '', icon: 'fas fa-trash', variant: 'icon', title: 'Delete' });
+                        }
+                        //ng-show="entity.ReceiptTypeId != 6 && entity.ReceiptStatusId == 1 && entity.isRefundCancel"
+                        if (entity.ReceiptTypeId != 6 && entity.ReceiptStatusId == 1 && entity.isRefundCancel) {
+                            acts.push({ key: 'refund', label: '', icon: 'fas fa-hand-holding-usd', variant: 'icon', color: '#27a727', title: 'Refund' });
+                        }
+                        //ng-show="entity.ReceiptStatusId != 2"
+                        if (entity.ReceiptStatusId != 2) {
+                            acts.push({ key: 'print', label: '', icon: 'fa fa-print', variant: 'icon', color: '#795548', title: 'Print' });
+                        }
+                        return {
+                            id: entity.Id,
+                            highlight: entity.ReceiptStatusId == 3,
+                            actions: acts,
+                            cells: {
+                                receiptno: entity.ReceiptNumber,
+                                //PRE-EXISTING QUIRK: the receipt-date column formats
+                                //entity.CreatedAt, not entity.ReceiptDateTime.
+                                receiptdate: dt(entity.CreatedAt, 'dd-MMM-yyyy') + ' ' + dt(entity.CreatedAt, 'HH:mm'),
+                                receipttype: entity.ReceiptType && entity.ReceiptType.Description,
+                                amountpaid: $filter('displaycurrency')(entity.AmountPaid),
+                                paymentmode: entity.PaymentType && entity.PaymentType.Description,
+                                receiptstatus: entity.ReceiptStatus && entity.ReceiptStatus.Description
+                            }
+                        };
+                    })
+                },
+                onAction: $scope.handleGridAction
+            };
+            var lk = $scope.lookup || {};
+            $scope.reactPropsReceiptTypeContainer = { reactProps: { options: lk.ReceiptType || [], value: $scope.currentfilter.ReceiptTypeId }, onAction: $scope.handleReceiptTypeAction };
+            $scope.reactPropsReceiptStatusContainer = { reactProps: { options: lk.ReceiptStatus || [], value: $scope.currentfilter.ReceiptStatusId }, onAction: $scope.handleReceiptStatusAction };
+        };
+
         vm.gridConfig = {
             enableColumnResizing: true,
             background: {
@@ -478,6 +578,8 @@
                 pageSize: 25
             }
         };
+
+        $scope.refreshReactProps();
 
 
 
