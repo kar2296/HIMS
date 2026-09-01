@@ -35,6 +35,7 @@
             vm.gridConfig.data = data.Data;
             vm.gridConfig.pagerObj.totalItems = data.PageContext.TotalRecords;
             $scope.CheckFinalize();
+            $scope.refreshReactProps();
         };
 
         $scope.getList = function () {
@@ -224,6 +225,94 @@
             }
         };
 
+
+        //React bridge: this screen's Refund Approval Status filter renders via
+        //the shared BridgeLookupSelectScreen and its
+        //<custom-table config="vm.gridConfig"> via the shared BridgeGridScreen.
+        //Amounts and dates are formatted here with the same
+        //$filter('displaycurrency') / $filter('date', ...) calls the original
+        //cellTemplates used. Row actions dispatch back into this controller's
+        //existing, unchanged $scope.handleEvents.
+        $scope.handleGridAction = function (actionType, payload) {
+            var items = vm.gridConfig.data || [];
+            var entity = null;
+            for (var i = 0; i < items.length; i++) {
+                if (items[i].Id === payload.id) { entity = items[i]; break; }
+            }
+            if (actionType == 'rowAction') {
+                $scope.handleEvents(payload.key, entity);
+            } else if (actionType == 'cellAction') {
+                $scope.handleEvents('patientinfo', entity);
+            }
+        };
+
+        $scope.handleFilterAction = function (actionType, payload) {
+            if (actionType == 'change') {
+                $scope.currentfilter.RefundApprovalStatusId = payload.id;
+                $scope.getList();
+            }
+        };
+
+        $scope.refreshReactProps = function () {
+            var defs = vm.gridConfig.columnDefs || [];
+            function hdr(i) { return defs[i] ? defs[i].displayName : ''; }
+            function patientLabel(p) {
+                if (!p) { return ''; }
+                var title = p.Title && p.Title.Description ? p.Title.Description + ' ' : '';
+                return (title + (p.FirstName || '') + ' ' + (p.LastName || '') + ' / ' + (p.Age || '') + ' / ' + (p.Gender && p.Gender.Description ? p.Gender.Description : '')).trim();
+            }
+            var items = vm.gridConfig.data || [];
+            $scope.reactPropsGridContainer = {
+                reactProps: {
+                    columns: [
+                        { key: 'refundno', header: hdr(0), sortable: true },
+                        { key: 'refunddate', header: hdr(1), sortable: true },
+                        { key: 'patient', header: hdr(2), link: true },
+                        { key: 'refundtype', header: hdr(3), sortable: true },
+                        { key: 'refundamount', header: hdr(4), align: 'right' },
+                        { key: 'paymentmode', header: hdr(5), sortable: true },
+                        { key: 'refundstatus', header: hdr(6), sortable: true },
+                        { key: 'approvalstatus', header: hdr(7), sortable: true }
+                    ],
+                    actionsHeader: defs.length ? defs[defs.length - 1].displayName : 'Actions',
+                    hasActions: true,
+                    rows: items.map(function (entity) {
+                        //Same ng-show conditions the original action cellTemplate used:
+                        //the edit/view icon for RefundStatusId 1 or 2, delete only for 1.
+                        var acts = [];
+                        if (entity.RefundStatusId == 1 || entity.RefundStatusId == 2) {
+                            acts.push({ key: 'view', label: '', icon: 'fas fa-edit', variant: 'icon' });
+                        }
+                        if (entity.RefundStatusId == 1) {
+                            acts.push({ key: 'delete', label: $translate.instant('common.deleteaction.lbl'), variant: 'link' });
+                        }
+                        return {
+                            id: entity.Id,
+                            actions: acts,
+                            cells: {
+                                refundno: entity.RefundIdentifier,
+                                refunddate: (entity.RefundDateTime ? $filter('date')(entity.RefundDateTime, 'dd-MMM-yyyy') : '') + ' ' + (entity.RefundDateTime ? $filter('date')(entity.RefundDateTime, 'HH:mm') : ''),
+                                patient: patientLabel(entity.Patient),
+                                refundtype: entity.RefundType && entity.RefundType.Description,
+                                refundamount: $filter('displaycurrency')(entity.RefundAmount),
+                                paymentmode: entity.PaymentType && entity.PaymentType.Description,
+                                refundstatus: entity.RefundStatus && entity.RefundStatus.Description,
+                                approvalstatus: entity.RefundApprovalStatus && entity.RefundApprovalStatus.Description
+                            }
+                        };
+                    })
+                },
+                onAction: $scope.handleGridAction
+            };
+            $scope.reactPropsFilterContainer = {
+                reactProps: {
+                    options: ($scope.lookup && $scope.lookup.RefundApprovalStatus) || [],
+                    value: $scope.currentfilter.RefundApprovalStatusId
+                },
+                onAction: $scope.handleFilterAction
+            };
+        };
+
         vm.gridConfig = {
             columnDefs: [{
                     field: "RefundIdentifier",
@@ -291,6 +380,8 @@
                 pageSize: 25
             }
         };
+
+        $scope.refreshReactProps();
 
         $scope.lookupCallback = function (scope, data, options, hasError) {
             $scope.lookup = hasError ? {} : data;
