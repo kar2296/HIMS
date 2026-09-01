@@ -33,6 +33,7 @@
             if (res.Data.length > 0)
                 res.Data.sort($scope.custom_sort);
             vm.gridConfig.data = res.Data;
+            $scope.refreshGridProps();
             var Amount = 0;
             for (var idx in res.Data) {
                 Amount = Amount + res.Data[idx].RefundAmount
@@ -43,6 +44,7 @@
 
             vm.gridConfig.pagerObj.totalItems = res.PageContext.TotalRecords;
             $scope.refreshReactProps();
+        $scope.refreshGridProps();
         };
 
         $scope.getList = function () {
@@ -180,6 +182,82 @@
             };
             utl.Http.doAction(options);
         }
+
+
+        // Grid bridge: replaces the last native <div ui-grid="vm.gridConfig">
+        // on this screen with the shared BridgeGridScreen. This is a REAL
+        // ui-grid, so its cellTemplates' row.entity / grid.appScope expressions
+        // were valid -- this is a straight port, not a repair. The dispatcher
+        // hands $scope.handleEvents the SAME { entity: ... } wrapper ui-grid
+        // passed, so handleEvents keeps reading row.entity.Id,
+        // row.entity.PaymentStatusId and row.entity.RefundStatusId unchanged,
+        // and every $state.go / confirmDelete / payment-consumed guard inside
+        // it still runs from the controller.
+        $scope.handleGridAction = function (actionType, payload) {
+            var items = (vm.gridConfig && vm.gridConfig.data) || [];
+            var entity = null;
+            for (var i = 0; i < items.length; i++) {
+                if (items[i].Id === payload.id) { entity = items[i]; break; }
+            }
+            if (entity === null) { return; }
+            if (actionType == 'rowAction') {
+                $scope.handleEvents(payload.key, { entity: entity });
+            }
+        };
+
+        $scope.refreshGridProps = function () {
+            var defs = (vm.gridConfig && vm.gridConfig.columnDefs) || [];
+            function hdr(i) { return defs[i] ? defs[i].displayName : ''; }
+            function dt(v, f) { return v ? $filter('date')(v, f) : ''; }
+            function cur(v) { return $filter('displaycurrency')(v); }
+            function patientLabel(pt) {
+                if (!pt) { return ''; }
+                var title = pt.Title && pt.Title.Description ? pt.Title.Description + '.' : '';
+                return title + (pt.FirstName || '') + '/' + (pt.MRN || '') + '/' + (pt.Age || '') + '/' + (pt.Gender && pt.Gender.Description ? pt.Gender.Description : '');
+            }
+            var items = (vm.gridConfig && vm.gridConfig.data) || [];
+            $scope.reactPropsGridContainer = {
+                reactProps: {
+                    columns: [
+                        { key: 'refundno', header: hdr(0), sortable: true },
+                        { key: 'refunddate', header: hdr(1) },
+                        { key: 'patient', header: hdr(2) },
+                        { key: 'refundtype', header: hdr(3), sortable: true },
+                        { key: 'refundamount', header: hdr(4), align: 'right' },
+                        { key: 'paymentmode', header: hdr(5), sortable: true },
+                        { key: 'refundstatus', header: hdr(6), sortable: true }
+                    ],
+                    actionsHeader: hdr(7) || 'Actions',
+                    hasActions: true,
+                    rows: items.map(function (entity) {
+                        var acts = [];
+                        // ng-show="RefundStatusId == 1 || RefundStatusId == 3"
+                        if (entity.RefundStatusId == 1 || entity.RefundStatusId == 3) {
+                            acts.push({ key: 'view', label: $translate.instant('common.viewaction.lbl'), variant: 'link' });
+                        }
+                        // ng-show="RefundStatusId == 2"
+                        if (entity.RefundStatusId == 2) {
+                            acts.push({ key: 'edit', label: $translate.instant('common.editaction.lbl'), variant: 'link' });
+                            acts.push({ key: 'delete', label: $translate.instant('common.deleteaction.lbl'), variant: 'link' });
+                        }
+                        return {
+                            id: entity.Id,
+                            actions: acts,
+                            cells: {
+                                refundno: entity.RefundIdentifier,
+                                refunddate: dt(entity.RefundDateTime, 'dd-MMM-yyyy') + ' ' + dt(entity.RefundDateTime, 'HH:mm'),
+                                patient: patientLabel(entity.Patient),
+                                refundtype: entity.RefundType && entity.RefundType.Description,
+                                refundamount: cur(entity.RefundAmount),
+                                paymentmode: entity.PaymentType && entity.PaymentType.Description,
+                                refundstatus: entity.RefundStatus && entity.RefundStatus.Description
+                            }
+                        };
+                    })
+                },
+                onAction: $scope.handleGridAction
+            };
+        };
 
         $scope.refreshReactProps = function () {
             $scope.reactProps = {
