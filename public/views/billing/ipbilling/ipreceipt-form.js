@@ -159,6 +159,7 @@
         //get item
         $scope.getItemCallback = function (scope, data, options, hasError) {
             $scope.item = data;
+            $scope.refreshReactProps();
             $scope.IsCompleted = false;
             $scope.canShowPrintledBtn = false;
             $scope.canShowCancelledBtn = false;
@@ -811,6 +812,7 @@
         };
         $scope.clear = function () {
             $scope.item = {};
+            $scope.refreshReactProps();
         }
         $scope.setPaymentType = function (selected) {
             if (selected.Id == 6 || selected.Id == 5)
@@ -1139,8 +1141,118 @@
             utl.Http.doAction(options);
         };
 
+
+        //React bridge for this form's four <ui-select> controls only. Nothing
+        //else on this screen is touched: the Hosmat/MomentPay POS integration
+        //(setupPayment, generateProcessId, the $interval polling, getListPOS,
+        //saveStatus and their callbacks), every calculation, every guard and
+        //every API call remain exactly as they are in this controller.
+        //
+        //Each select keeps its own traced attributes. Three of them
+        //(Receipt Type/name=receipt, Payment Mode/name=payments,
+        //Terminal/name=terminal) carry `required` and keep their validators
+        //through the hidden <span> form controls in the template; Bank is NOT
+        //required in this form's markup and therefore gets no shim and no
+        //fabricated validator.
+        //
+        //Receipt Type's original ng-change is the EMPTY expression ng-change=""
+        //-- a no-op -- so its dispatch performs only the ng-model write.
+        $scope.handleReceiptTypeAction = function (actionType, payload) {
+            if (actionType == 'change') {
+                $scope.item.ReceiptTypeId = payload.id;
+                $scope.refreshReactProps();
+            }
+        };
+
+        //Payment Mode: ng-change="setPaymentType($select.selected)" receives the
+        //FULL selected lookup object. It is resolved out of
+        //$scope.lookup.PaymentType by exact Id and handed to the existing,
+        //unchanged $scope.setPaymentType, which owns the TerminalNoId mutation
+        //(Ids 5/6 -> 2, otherwise 0). No fallback object is invented and the
+        //handler runs only when a genuine option resolves, mirroring ui-select,
+        //whose ng-change fires only on a real item selection.
+        //NOTE: item.PaymentTypeId also drives the Save button's
+        //ng-if="!(IsMomentPay && (item.PaymentTypeId == 5 || item.PaymentTypeId == 11))"
+        //gateway branch; that ng-if stays native Angular and re-evaluates on the
+        //same digest as before.
+        $scope.handlePaymentTypeAction = function (actionType, payload) {
+            if (actionType == 'change') {
+                $scope.item.PaymentTypeId = payload.id;
+                var opts = ($scope.lookup && $scope.lookup.PaymentType) || [];
+                var selected = null;
+                for (var i = 0; i < opts.length; i++) {
+                    if (opts[i].Id === payload.id) { selected = opts[i]; break; }
+                }
+                if (selected) {
+                    $scope.setPaymentType(selected);
+                }
+                $scope.refreshReactProps();
+            }
+        };
+
+        $scope.handleBankAction = function (actionType, payload) {
+            if (actionType == 'change') {
+                $scope.item.BankId = payload.id;
+                $scope.refreshReactProps();
+            }
+        };
+
+        //Terminal: keeps id="Terminal" on the rendered control and dispatches the
+        //same key event the original ng-keyup="FooterFocus('Terminal')" fired.
+        //PRE-EXISTING DEAD FOCUS TARGET, reproduced not fixed: FooterFocus is not
+        //defined on this controller, on any parent, or on $rootScope (it exists
+        //only on unrelated pharmacy controllers), so the original expression
+        //evaluates to a silent no-op in Angular. The call is guarded the same way
+        //here -- invoked only if it is ever a function -- so behaviour is
+        //identical today and would work unchanged if it is ever defined.
+        $scope.handleTerminalAction = function (actionType, payload) {
+            if (actionType == 'change') {
+                $scope.item.TerminalNoId = payload.id;
+                $scope.refreshReactProps();
+            } else if (actionType == 'keyUp') {
+                if (typeof $scope.FooterFocus === 'function') {
+                    $scope.FooterFocus(payload.nextId);
+                }
+            }
+        };
+
+        $scope.refreshReactProps = function () {
+            var lk = $scope.lookup || {};
+            var it = $scope.item || {};
+            $scope.reactPropsReceiptTypeContainer = {
+                //ng-disabled="IsCompleted"
+                reactProps: { options: lk.ReceiptType || [], value: it.ReceiptTypeId, disabled: !!$scope.IsCompleted, name: 'receipt' },
+                onAction: $scope.handleReceiptTypeAction
+            };
+            $scope.reactPropsPaymentTypeContainer = {
+                //ng-disabled="IsCompleted"
+                reactProps: { options: lk.PaymentType || [], value: it.PaymentTypeId, disabled: !!$scope.IsCompleted, name: 'payments' },
+                onAction: $scope.handlePaymentTypeAction
+            };
+            $scope.reactPropsBankContainer = {
+                //ng-disabled="IsCompleted"; not required in this form's markup
+                reactProps: { options: lk.Bank || [], value: it.BankId, disabled: !!$scope.IsCompleted, name: 'bankname' },
+                onAction: $scope.handleBankAction
+            };
+            $scope.reactPropsTerminalContainer = {
+                //ng-disabled="item.isCompleted" -- this field's own condition,
+                //which is the item flag, NOT the $scope.IsCompleted the other
+                //three use. Preserved exactly.
+                reactProps: {
+                    options: lk.Terminal || [],
+                    value: it.TerminalNoId,
+                    disabled: !!it.isCompleted,
+                    name: 'terminal',
+                    id: 'Terminal',
+                    keyUpId: 'Terminal'
+                },
+                onAction: $scope.handleTerminalAction
+            };
+        };
+
         $scope.lookupCallback = function (scope, data, options, hasError) {
             $scope.lookup = hasError ? {} : data;
+            $scope.refreshReactProps();
             if ($scope.cashcountermandatory == 1) {
                 $scope.checkCounterStatusByUserId();
             } else {
@@ -1196,6 +1308,8 @@
                 $scope.item.WithHeader = false;
             }
         };
+        $scope.refreshReactProps();
+
         $scope.initLookup();
 
          // Hosmat POS Integration
