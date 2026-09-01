@@ -40,6 +40,7 @@
             vm.gridConfig.data = data.Data;
             vm.gridConfig.pagerObj.totalItems = data.PageContext.TotalRecords;
             $scope.CheckFinalize();
+            $scope.refreshReactProps();
         };
 
         $scope.getList = function () {
@@ -315,6 +316,106 @@
                 handleEvent: $scope.handleEvents,
             });
         }
+
+        $scope.refreshReactProps();
+
+
+        //React bridge for the <custom-table config="vm.gridConfig"> grid only.
+        //
+        //PRIVILEGE GATING IS DELIBERATELY NOT TOUCHED: the Refund and Partial
+        //Refund buttons in the template are native AngularJS <button>s gated by
+        //ng-if="HasAccess('IPBILLING_REFUND','IPREF_REFUND')" /
+        //ng-if="HasAccess('IPBILLING_REFUND','IPREF_PARTIAL_REFUND')" (from
+        //utl.Ctrl.getPrivilegeCtrl), and they stay exactly as they were, so
+        //addRefund()/addPartialRefund() and their IsDisabled/BillFinalized
+        //guards keep running unchanged in this controller.
+        //
+        //Columns are read back off vm.gridConfig.columnDefs rather than
+        //hardcoded, so the facility-setting-driven composition ($scope.iprefund
+        //== 1 pushes an extra "Refund Approval" column) is preserved as-is.
+        $scope.handleGridAction = function (actionType, payload) {
+            var items = vm.gridConfig.data || [];
+            var entity = null;
+            for (var i = 0; i < items.length; i++) {
+                if (items[i].Id === payload.id) { entity = items[i]; break; }
+            }
+            if (actionType == 'rowAction') {
+                $scope.handleEvents(payload.key, entity);
+            }
+        };
+
+        $scope.refreshReactProps = function () {
+            var defs = vm.gridConfig.columnDefs || [];
+            //Same dotted-path resolution the custom-table dotParser filter does.
+            function resolve(entity, path) {
+                if (!path) { return ''; }
+                var parts = path.split('.');
+                var cur = entity;
+                for (var i = 0; i < parts.length; i++) {
+                    if (cur === null || cur === undefined) { return ''; }
+                    cur = cur[parts[i]];
+                }
+                return cur === null || cur === undefined ? '' : cur;
+            }
+            //Reproduces each original cellTemplate for this screen's columns.
+            function cellFor(entity, field) {
+                if (field == 'RefundDateTime') {
+                    return (entity.RefundDateTime ? $filter('date')(entity.RefundDateTime, 'dd-MMM-yyyy') : '') + ' ' + (entity.RefundDateTime ? $filter('date')(entity.RefundDateTime, 'HH:mm') : '');
+                }
+                if (field == 'RefundAmount') {
+                    return $filter('displaycurrency')(entity.RefundAmount);
+                }
+                if (field == 'RefundApprovalStatus.Description') {
+                    //Original cellTemplate wraps this in ng-show="entity.IsRefundApproval == 1".
+                    return entity.IsRefundApproval == 1 ? resolve(entity, field) : '';
+                }
+                return resolve(entity, field);
+            }
+            //The original custom-table reOrder does a case-insensitive string
+            //compare on the raw field value, so it throws for numeric/date
+            //fields; sort is enabled only where it works today.
+            var SORTABLE = {
+                'RefundIdentifier': true,
+                'RefundType.Description': true,
+                'PaymentType.Description': true,
+                'RefundStatus.Description': true,
+                'RefundApprovalStatus.Description': true
+            };
+            var dataCols = [];
+            var actionDef = null;
+            for (var d = 0; d < defs.length; d++) {
+                if (defs[d].field == 'Id') { actionDef = defs[d]; continue; }
+                dataCols.push({
+                    key: defs[d].field,
+                    header: defs[d].displayName,
+                    sortable: !!SORTABLE[defs[d].field],
+                    align: defs[d].field == 'RefundAmount' ? 'right' : undefined
+                });
+            }
+            var items = vm.gridConfig.data || [];
+            $scope.reactPropsGridContainer = {
+                reactProps: {
+                    columns: dataCols,
+                    actionsHeader: actionDef ? actionDef.displayName : 'Actions',
+                    hasActions: !!actionDef,
+                    rows: items.map(function (entity) {
+                        var cells = {};
+                        for (var c = 0; c < dataCols.length; c++) {
+                            cells[dataCols[c].key] = cellFor(entity, dataCols[c].key);
+                        }
+                        return {
+                            id: entity.Id,
+                            //Single live action in the original cellTemplate: the
+                            //edit.svg icon dispatching handleEvents('view', entity),
+                            //which opens app.iprefund-form via openModal(entity.Id).
+                            actions: [{ key: 'view', label: '', icon: 'fas fa-edit', variant: 'icon' }],
+                            cells: cells
+                        };
+                    })
+                },
+                onAction: $scope.handleGridAction
+            };
+        };
 
         $scope.lookupCallback = function (scope, data, options, hasError) {
             $scope.lookup = hasError ? {} : data;
