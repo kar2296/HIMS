@@ -205,6 +205,7 @@
                 }
             }
             vm.gridConfig.pagerObj.totalItems = data.PageContext.TotalRecords;
+            $scope.refreshReactProps();
         };
 
         $scope.getList = function () {
@@ -590,6 +591,109 @@
             }
         };
 
+
+        //React bridge: the two filter <ui-select>s (Ward, Guarantor) render
+        //through the shared BridgeLookupSelectScreen and
+        //<custom-table config="vm.gridConfig"> through the shared
+        //BridgeGridScreen. Filters write the same currentfilter fields and call
+        //the same getList(); rows dispatch into the existing unchanged
+        //$scope.handleEvents.
+        $scope.handleGridAction = function (actionType, payload) {
+            var items = vm.gridConfig.data || [];
+            var entity = null;
+            for (var i = 0; i < items.length; i++) {
+                if (items[i].Id === payload.id) { entity = items[i]; break; }
+            }
+            if (actionType == 'rowAction') {
+                $scope.handleEvents(payload.key, entity);
+            } else if (actionType == 'cellAction') {
+                if (payload.key == 'doctor') {
+                    //PRE-EXISTING BUG reproduced, not fixed: the doctor cell's
+                    //original ng-click is handleEvents('patientinfo', row) -- but
+                    //`row` does not exist in <custom-table>'s cell scope, so it
+                    //passes undefined and handleEvents throws on
+                    //entity.Patient.Id today. The same undefined is passed here
+                    //so the behaviour is unchanged. (The patient cell, which
+                    //correctly passes `entity`, keeps working.)
+                    $scope.handleEvents('patientinfo', undefined);
+                } else {
+                    $scope.handleEvents('patientinfo', entity);
+                }
+            }
+        };
+
+        $scope.handleWardAction = function (actionType, payload) {
+            if (actionType == 'change') { $scope.currentfilter.WardId = payload.id; $scope.getList(); }
+        };
+        $scope.handleGuarantorAction = function (actionType, payload) {
+            if (actionType == 'change') { $scope.currentfilter.GuarantorId = payload.id; $scope.getList(); }
+        };
+
+        $scope.refreshReactProps = function () {
+            var defs = vm.gridConfig.columnDefs || [];
+            function hdr(i) { return defs[i] ? defs[i].displayName : ''; }
+            function dt(v, f) { return v ? $filter('date')(v, f) : ''; }
+            function cur(v) { return $filter('displaycurrency')(v); }
+            function nameOf(o, withMrnAge) {
+                if (!o) { return ''; }
+                var s = (o.Title && o.Title.Description ? o.Title.Description + ' ' : '') + (o.FirstName || '') + ' ' + (o.LastName || '');
+                if (withMrnAge) {
+                    s += ' / ' + (o.MRN || '');
+                    if (o.Title && o.Title.Description) {
+                        s += ' / ' + (o.Age || '') + ' / ' + (o.Gender && o.Gender.Description ? o.Gender.Description : '');
+                    }
+                }
+                return s.replace(/\s+/g, ' ').trim();
+            }
+            var items = vm.gridConfig.data || [];
+            $scope.reactPropsGridContainer = {
+                reactProps: {
+                    columns: [
+                        { key: '__sno', header: hdr(0), width: '60px' },
+                        { key: 'billdate', header: hdr(1) },
+                        { key: 'dod', header: hdr(2) },
+                        { key: 'billno', header: hdr(3), sortable: true },
+                        { key: 'patient', header: hdr(4), link: true },
+                        { key: 'doctor', header: hdr(5), link: true },
+                        { key: 'guarantor', header: hdr(6), sortable: true },
+                        { key: 'gross', header: hdr(7), align: 'right' },
+                        { key: 'discount', header: hdr(8), align: 'right' },
+                        { key: 'net', header: hdr(9), align: 'right' }
+                    ],
+                    actionsHeader: hdr(10) || 'Actions',
+                    hasActions: true,
+                    rows: items.map(function (entity) {
+                        var acts = [
+                            { key: 'edit', label: '', icon: 'fas fa-procedures', variant: 'icon', title: 'In patients' }
+                        ];
+                        //ng-show="entity.CancelReqRaisedStatusId==2"
+                        if (entity.CancelReqRaisedStatusId == 2) {
+                            acts.push({ key: 'cancel', label: '', icon: 'fas fa-times', variant: 'icon', title: 'Cancel' });
+                        }
+                        return {
+                            id: entity.Id,
+                            actions: acts,
+                            cells: {
+                                billdate: dt(entity.BillDate, 'dd-MMM-yyyy') + ' ' + dt(entity.BillDate, 'HH:mm'),
+                                dod: dt(entity.DischargeDate, 'dd-MMM-yyyy') + ' ' + dt(entity.DischargeDate, 'HH:mm'),
+                                billno: entity.BillNumber,
+                                patient: nameOf(entity.Patient, true),
+                                doctor: nameOf(entity.Doctor, false),
+                                guarantor: entity.Guarantor && entity.Guarantor.GuarantorName,
+                                gross: cur(entity.GrossAmount),
+                                discount: cur(entity.BillDiscount),
+                                net: cur(entity.NetAmount)
+                            }
+                        };
+                    })
+                },
+                onAction: $scope.handleGridAction
+            };
+            var lk = $scope.lookup || {};
+            $scope.reactPropsWardContainer = { reactProps: { options: lk.Ward || [], value: $scope.currentfilter.WardId, disabled: $scope.item && $scope.item.isAdmitted }, onAction: $scope.handleWardAction };
+            $scope.reactPropsGuarantorContainer = { reactProps: { options: lk.Guarantor || [], value: $scope.currentfilter.GuarantorId, disabled: $scope.item && $scope.item.isAdmitted }, onAction: $scope.handleGuarantorAction };
+        };
+
         $scope.lookupCallback = function (scope, data, options, hasError) {
             $scope.lookup = hasError ? {} : data;
             initDynamicForm();
@@ -652,6 +756,8 @@
             };
             utl.Http.doAction(options);
         };
+
+        $scope.refreshReactProps();
 
         $scope.initLookup();
     }

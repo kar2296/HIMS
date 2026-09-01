@@ -205,6 +205,7 @@
             }
             $scope.getPagination();
             // vm.gridConfig.pagerObj.totalItems = data.PageContext.TotalRecords;
+            $scope.refreshReactProps();
             // vm.gridConfig.pagerObj.totalItems = data.Data.length;
         };
 
@@ -680,6 +681,121 @@
             }
         };
 
+
+        //React bridge: the four filter <ui-select>s (Ward, Guarantor, Admission
+        //Status, TPA) render through the shared BridgeLookupSelectScreen and
+        //<custom-table config="vm.gridConfig"> through the shared
+        //BridgeGridScreen. Each filter writes the same currentfilter field its
+        //ng-model wrote and calls the same getList() its ng-change called, so
+        //the request payload and paging are unchanged. Row actions dispatch
+        //into this controller's existing, unchanged $scope.handleEvents.
+        $scope.handleGridAction = function (actionType, payload) {
+            var items = vm.gridConfig.data || [];
+            var entity = null;
+            for (var i = 0; i < items.length; i++) {
+                if (items[i].Id === payload.id) { entity = items[i]; break; }
+            }
+            if (actionType == 'rowAction') {
+                $scope.handleEvents(payload.key, entity);
+            } else if (actionType == 'cellAction') {
+                $scope.handleEvents('patientinfo', entity);
+            }
+        };
+
+        function makeDaycareFilterHandler(field) {
+            return function (actionType, payload) {
+                if (actionType == 'change') {
+                    $scope.currentfilter[field] = payload.id;
+                    $scope.getList();
+                }
+            };
+        }
+        $scope.handleWardAction = makeDaycareFilterHandler('WardId');
+        $scope.handleGuarantorAction = makeDaycareFilterHandler('GuarantorId');
+        $scope.handleAdmissionStatusAction = makeDaycareFilterHandler('AdmissionStatusId');
+        $scope.handleTPAAction = makeDaycareFilterHandler('TPAId');
+
+        $scope.refreshReactProps = function () {
+            var defs = vm.gridConfig.columnDefs || [];
+            function hdr(i) { return defs[i] ? defs[i].displayName : ''; }
+            function dt(v, f) { return v ? $filter('date')(v, f) : ''; }
+            function cur(v) { return $filter('displaycurrency')(v); }
+            function nameOf(o, withMrnAge) {
+                if (!o) { return ''; }
+                var s = (o.Title && o.Title.Description ? o.Title.Description + ' ' : '') + (o.FirstName || '') + ' ' + (o.LastName || '');
+                if (withMrnAge) {
+                    s += ' / ' + (o.MRN || '');
+                    //Original wraps Age/Gender in ng-if="Patient.Title && Patient.Title.Description".
+                    if (o.Title && o.Title.Description) {
+                        s += ' / ' + (o.Age || '') + ' / ' + (o.Gender && o.Gender.Description ? o.Gender.Description : '');
+                    }
+                }
+                return s.replace(/\s+/g, ' ').trim();
+            }
+            function roomLabel(e) {
+                var out = '';
+                if (e.WardRoomMaster) {
+                    out += (e.WardMaster && e.WardMaster.WardName ? e.WardMaster.WardName : '') + ' / ' + (e.WardRoomMaster.RoomNo || '') + ' / ';
+                }
+                if (e.WardRoomBedMaster) { out += (e.WardRoomBedMaster.BedNo || ''); }
+                return out;
+            }
+            var items = vm.gridConfig.data || [];
+            $scope.reactPropsGridContainer = {
+                reactProps: {
+                    columns: [
+                        { key: 'ipno', header: hdr(0), sortable: true },
+                        { key: 'patient', header: hdr(1), link: true },
+                        { key: 'doctor', header: hdr(2), link: true },
+                        { key: 'roomdetails', header: hdr(3) },
+                        { key: 'doa', header: hdr(4) },
+                        { key: 'guarantor', header: hdr(5), sortable: true },
+                        { key: 'debit', header: hdr(6), align: 'right' },
+                        { key: 'credit', header: hdr(7), align: 'right' },
+                        { key: 'balance', header: hdr(8), align: 'right' },
+                        { key: 'status', header: hdr(9), sortable: true }
+                    ],
+                    actionsHeader: hdr(10) || 'Actions',
+                    hasActions: true,
+                    rows: items.map(function (entity) {
+                        //config.background.style keys off ColorCode: 5 -> #4274d8ad,
+                        //6 -> #ed143dad, both with #fff text. Reproduced per row.
+                        var hs = null;
+                        if (entity.ColorCode == 5) { hs = { background: '#4274d8ad', color: '#fff' }; }
+                        else if (entity.ColorCode == 6) { hs = { background: '#ed143dad', color: '#fff' }; }
+                        return {
+                            id: entity.Id,
+                            highlight: !!hs,
+                            highlightStyle: hs,
+                            //Both actions are unconditional in the original cellTemplate.
+                            actions: [
+                                { key: 'edit', label: '', icon: 'fas fa-procedures', variant: 'icon', title: 'DayCare patients' },
+                                { key: 'packages', label: '', icon: 'fas fa-file-invoice-dollar', variant: 'icon', title: 'Packages' }
+                            ],
+                            cells: {
+                                ipno: entity.VisitIdentifier,
+                                patient: nameOf(entity.Patient, true),
+                                doctor: nameOf(entity.Doctor, false),
+                                roomdetails: roomLabel(entity),
+                                doa: dt(entity.AdmissionDate, 'dd-MMM-yyyy') + ' ' + dt(entity.AdmissionDate, 'HH:mm'),
+                                guarantor: entity.Guarantor && entity.Guarantor.GuarantorName,
+                                debit: cur(entity.Debit),
+                                credit: cur(entity.Credit),
+                                balance: cur(entity.Balance),
+                                status: entity.AdmissionStatus && entity.AdmissionStatus.Description
+                            }
+                        };
+                    })
+                },
+                onAction: $scope.handleGridAction
+            };
+            var lk = $scope.lookup || {};
+            $scope.reactPropsWardContainer = { reactProps: { options: lk.Ward || [], value: $scope.currentfilter.WardId }, onAction: $scope.handleWardAction };
+            $scope.reactPropsGuarantorContainer = { reactProps: { options: lk.Guarantor || [], value: $scope.currentfilter.GuarantorId }, onAction: $scope.handleGuarantorAction };
+            $scope.reactPropsAdmissionStatusContainer = { reactProps: { options: lk.AdmissionStatus || [], value: $scope.currentfilter.AdmissionStatusId }, onAction: $scope.handleAdmissionStatusAction };
+            $scope.reactPropsTPAContainer = { reactProps: { options: lk.TPA || [], value: $scope.currentfilter.TPAId }, onAction: $scope.handleTPAAction };
+        };
+
         $scope.lookupCallback = function(scope, data, options, hasError) {
             $scope.lookup = hasError ? {} : data;
             initDynamicForm();
@@ -747,6 +863,8 @@
             };
             utl.Http.doAction(options);
         };
+
+        $scope.refreshReactProps();
 
         $scope.initLookup();
     }
