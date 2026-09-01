@@ -95,6 +95,7 @@
                 item.OutStandingAmount = item.FinalBills[0].OutStandingAmount;
             }
             vm.gridConfig.pagerObj.totalItems = data.PageContext.TotalRecords;
+            $scope.refreshReactProps();
         };
 
         $scope.getList = function () {
@@ -291,6 +292,121 @@
             pagerObj: { totalItems: 0, currentPage: 1, startIndex: 0, pageSize: 25 }
         };
 
+
+        //React bridge for the <custom-table config="vm.gridConfig"> grid.
+        //
+        //AUTHORISED PRESENTATION-BINDING REPAIR (this screen only): the
+        //cellTemplates in vm.gridConfig were written for ui-grid and still use
+        //ui-grid-only expressions -- {{row.entity.X}} and
+        //grid.appScope.handleEvents(...). The template renders through
+        //<custom-table>, whose cell scope (js/app.js cellTemplateFun) exposes
+        //only entity, index, template, event and handleEvents. So `row` and
+        //`grid` are undefined today: those columns render blank and the two
+        //action buttons are inert. The bindings are corrected here to the
+        //values the controller demonstrably intends:
+        //  row.entity.X                  -> the row's own entity value
+        //  grid.appScope.handleEvents(a) -> this bridge's dispatcher, which
+        //                                   calls $scope.handleEvents unchanged
+        //Evidence: getListCallback computes BillDate, BillNumber, GrossAmount,
+        //BillDiscount, NetAmount and OutStandingAmount onto each record;
+        //handleEvents itself reads row.entity.Id / row.entity.Patient.Id and
+        //passes row.entity to onCancelBill; and the GrossAmount/BillDiscount/
+        //NetAmount columns already use the correct {{entity.X}} form, which is
+        //what the broken columns were meant to be.
+        //
+        //handleEvents is NOT modified: it still receives a ui-grid-shaped
+        //{ entity: ... } wrapper, so row.entity.Id, row.entity.Patient.Id and
+        //onCancelBill(row.entity) all keep working on the real record. No API,
+        //payload, filter or business logic is touched.
+        $scope.handleGridAction = function (actionType, payload) {
+            var items = vm.gridConfig.data || [];
+            var entity = null;
+            for (var i = 0; i < items.length; i++) {
+                if (items[i].Id === payload.id) { entity = items[i]; break; }
+            }
+            if (entity === null) { return; }
+            //Same wrapper shape ui-grid passed, so handleEvents is unchanged.
+            var row = { entity: entity };
+            if (actionType == 'rowAction') {
+                $scope.handleEvents(payload.key, row);
+            } else if (actionType == 'cellAction') {
+                $scope.handleEvents('patientinfo', row);
+            }
+        };
+
+        $scope.refreshReactProps = function () {
+            var defs = vm.gridConfig.columnDefs || [];
+            function hdr(i) { return defs[i] ? defs[i].displayName : ''; }
+            function dt(v, fmt) { return v ? $filter('date')(v, fmt) : ''; }
+            function cur(v) { return $filter('displaycurrency')(v); }
+            function nameOf(o, withMrnAge) {
+                if (!o) { return ''; }
+                var s = (o.Title && o.Title.Description ? o.Title.Description + ' ' : '') + (o.FirstName || '') + ' ' + (o.LastName || '');
+                if (withMrnAge) {
+                    s += ' / ' + (o.MRN || '');
+                    //Original wraps Age/Gender in ng-if="Patient.Title && Patient.Title.Description".
+                    if (o.Title && o.Title.Description) {
+                        s += ' / ' + (o.Age || '') + ' / ' + (o.Gender && o.Gender.Description ? o.Gender.Description : '');
+                    }
+                }
+                return s.replace(/\s+/g, ' ').trim();
+            }
+            var items = vm.gridConfig.data || [];
+            $scope.reactPropsGridContainer = {
+                reactProps: {
+                    //Column order and headers taken from vm.gridConfig.columnDefs
+                    //as-is, including the two separate DOA columns the original
+                    //defines (indexes 0 and 6) -- not de-duplicated.
+                    columns: [
+                        { key: 'doa1', header: hdr(0) },
+                        { key: 'billdate', header: hdr(1) },
+                        { key: 'billno', header: hdr(2), sortable: true },
+                        { key: 'ipno', header: hdr(3), sortable: true },
+                        { key: 'patient', header: hdr(4), link: true },
+                        { key: 'doctor', header: hdr(5), link: true },
+                        { key: 'doa2', header: hdr(6) },
+                        { key: 'dod', header: hdr(7) },
+                        { key: 'guarantor', header: hdr(8), sortable: true },
+                        { key: 'gross', header: hdr(9), align: 'right' },
+                        { key: 'discount', header: hdr(10), align: 'right' },
+                        { key: 'net', header: hdr(11), align: 'right' },
+                        { key: 'outstanding', header: hdr(12), align: 'right' }
+                    ],
+                    actionsHeader: hdr(13) || 'Actions',
+                    hasActions: true,
+                    rows: items.map(function (entity) {
+                        return {
+                            id: entity.Id,
+                            //Both original buttons were unconditional (no ng-show,
+                            //no ng-if, no privilege check) -- kept unconditional.
+                            actions: [
+                                { key: 'edit', label: '', icon: 'fa fa-usd', variant: 'warning', title: 'Bill' },
+                                { key: 'cancel', label: '', icon: 'fa fa-close', variant: 'danger', title: 'Cancel' }
+                            ],
+                            cells: {
+                                //PRE-EXISTING QUIRK kept: this column takes its DATE
+                                //from AdmissionDate but its TIME from BillDate.
+                                doa1: dt(entity.AdmissionDate, 'dd-MMM-yyyy') + ' ' + dt(entity.BillDate, 'HH:mm'),
+                                billdate: dt(entity.BillDate, 'dd-MMM-yyyy') + ' ' + dt(entity.BillDate, 'HH:mm'),
+                                billno: entity.BillNumber,
+                                ipno: entity.VisitIdentifier,
+                                patient: nameOf(entity.Patient, true),
+                                doctor: nameOf(entity.Doctor, false),
+                                doa2: dt(entity.AdmissionDate, 'dd-MMM-yyyy') + ' ' + dt(entity.AdmissionDate, 'HH:mm'),
+                                dod: dt(entity.DischargeDate, 'dd-MMM-yyyy') + ' ' + dt(entity.DischargeDate, 'HH:mm'),
+                                guarantor: entity.PatientGuarantor && entity.PatientGuarantor.GuarantorName,
+                                gross: cur(entity.GrossAmount),
+                                discount: cur(entity.BillDiscount),
+                                net: cur(entity.NetAmount),
+                                outstanding: cur(entity.OutStandingAmount)
+                            }
+                        };
+                    })
+                },
+                onAction: $scope.handleGridAction
+            };
+        };
+
         $scope.lookupCallback = function (scope, data, options, hasError) {
             $scope.lookup = hasError ? {} : data;
             initDynamicForm();
@@ -337,6 +453,8 @@
             };
             utl.Http.doAction(options);
         };
+
+        $scope.refreshReactProps();
 
         $scope.initLookup();
     }
