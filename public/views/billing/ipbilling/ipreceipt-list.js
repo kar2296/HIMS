@@ -125,6 +125,7 @@
 
             vm.gridConfig.data = data.Data;
             vm.gridConfig.pagerObj.totalItems = data.PageContext.TotalRecords;
+            $scope.refreshReactProps();
         };
 
         $scope.getList = function () {
@@ -394,6 +395,134 @@
             utl.Http.doAction(options);
         }
 
+
+        //React bridge for the <custom-table config="vm.gridConfig"> grid only.
+        //
+        //The header buttons (AdjustAgainstFund, addReceipt gated by
+        //ng-if="HasAccess('IPRECEIPT_DETAILS','IPRECEIPT_ADVANCE')") and the
+        //Total/Back footer stay untouched native AngularJS markup, so all
+        //privilege gating and modal wiring there is unchanged.
+        //
+        //Every row action below reproduces its original cellTemplate ng-show /
+        //ng-if condition exactly, and dispatches into this controller's
+        //existing, unchanged $scope.handleEvents -- so openRefund/Fund/print/
+        //openModal, the PaymentStatusId == 3 "payment consumed" guard, the
+        //requiredsecuritypin cancel flow (utl.FacilitySetting +
+        //utl.Dialog.confirmCancel / onCancelConfirmed) and confirmDelete all
+        //keep running from the controller with the same entity objects.
+        $scope.handleGridAction = function (actionType, payload) {
+            var items = vm.gridConfig.data || [];
+            var entity = null;
+            for (var i = 0; i < items.length; i++) {
+                if (items[i].Id === payload.id) { entity = items[i]; break; }
+            }
+            if (actionType == 'rowAction') {
+                $scope.handleEvents(payload.key, entity);
+            }
+        };
+
+        $scope.refreshReactProps = function () {
+            var defs = vm.gridConfig.columnDefs || [];
+            function resolve(entity, path) {
+                if (!path) { return ''; }
+                var parts = path.split('.');
+                var cur = entity;
+                for (var i = 0; i < parts.length; i++) {
+                    if (cur === null || cur === undefined) { return ''; }
+                    cur = cur[parts[i]];
+                }
+                return cur === null || cur === undefined ? '' : cur;
+            }
+            function cellFor(entity, field) {
+                if (field == 'ReceiptDateTime') {
+                    //PRE-EXISTING QUIRK: the original cellTemplate for the
+                    //"Receipt Date" column formats entity.CreatedAt, not
+                    //entity.ReceiptDateTime. Reproduced exactly.
+                    return (entity.CreatedAt ? $filter('date')(entity.CreatedAt, 'dd-MMM-yyyy') : '') + ' ' + (entity.CreatedAt ? $filter('date')(entity.CreatedAt, 'HH:mm') : '');
+                }
+                if (field == 'AmountPaid') {
+                    return $filter('displaycurrency')(entity.AmountPaid);
+                }
+                return resolve(entity, field);
+            }
+            //custom-table's reOrder does a case-insensitive string compare on
+            //the raw value, so it throws on the numeric/date columns; sort is
+            //enabled only where it works today.
+            var SORTABLE = {
+                'ReceiptNumber': true,
+                'ReceiptType.Description': true,
+                'PaymentType.Description': true,
+                'ReceiptStatus.Description': true
+            };
+            var dataCols = [];
+            var actionDef = null;
+            for (var d = 0; d < defs.length; d++) {
+                if (defs[d].field == 'Id') { actionDef = defs[d]; continue; }
+                dataCols.push({
+                    key: defs[d].field,
+                    header: defs[d].displayName,
+                    sortable: !!SORTABLE[defs[d].field],
+                    align: defs[d].field == 'AmountPaid' ? 'right' : undefined
+                });
+            }
+            var items = vm.gridConfig.data || [];
+            $scope.reactPropsGridContainer = {
+                reactProps: {
+                    columns: dataCols,
+                    actionsHeader: actionDef ? actionDef.displayName : 'Actions',
+                    hasActions: !!actionDef,
+                    //config.background.style: ReceiptStatusId 3 -> red/#fff.
+                    highlightStyle: { background: 'red', color: '#fff' },
+                    rows: items.map(function (entity) {
+                        var acts = [];
+                        //ng-show="entity.ReceiptStatusId == 1 || entity.ReceiptStatusId == 3"
+                        if (entity.ReceiptStatusId == 1 || entity.ReceiptStatusId == 3) {
+                            acts.push({ key: 'view', label: '', icon: 'fas fa-edit', variant: 'icon', title: 'View' });
+                        }
+                        //ng-show="entity.ReceiptStatusId == 2"
+                        if (entity.ReceiptStatusId == 2) {
+                            acts.push({ key: 'edit', label: '', icon: 'fas fa-edit', variant: 'icon', title: 'Edit' });
+                        }
+                        //ng-show="Canipbillingdeletebutton() && entity.ReceiptStatusId == 2"
+                        //PRE-EXISTING BUG kept: Canipbillingdeletebutton is only
+                        //ever assigned as a BOOLEAN on $scope.currentcontext, so
+                        //the bare scope call in the original expression resolves
+                        //to undefined and this button never shows today. The same
+                        //expression is evaluated here rather than substituting the
+                        //currentcontext boolean, so behaviour is identical now and
+                        //would start working if the privilege ctrl ever defines it.
+                        var canDeleteBtn = (typeof $scope.Canipbillingdeletebutton === 'function') ? $scope.Canipbillingdeletebutton() : undefined;
+                        if (canDeleteBtn && entity.ReceiptStatusId == 2) {
+                            acts.push({ key: 'delete', label: '', icon: 'fas fa-trash', variant: 'icon', title: 'Delete' });
+                        }
+                        //ng-show="entity.ReceiptTypeId != 6 && entity.ReceiptStatusId == 1 && entity.isRefundCancel"
+                        if (entity.ReceiptTypeId != 6 && entity.ReceiptStatusId == 1 && entity.isRefundCancel) {
+                            acts.push({ key: 'refund', label: '', icon: 'fas fa-hand-holding-usd', variant: 'icon', color: '#27a727', title: 'Refund' });
+                        }
+                        //ng-show="entity.ReceiptTypeId == 1 && entity.ReceiptStatusId == 1"
+                        if (entity.ReceiptTypeId == 1 && entity.ReceiptStatusId == 1) {
+                            acts.push({ key: 'fund', label: '', icon: 'fas fa-hand-holding-usd', variant: 'icon', color: '#27a727', title: 'Fund' });
+                        }
+                        //ng-if="entity.showDelete === 1" ng-show="entity.ReceiptStatusId == 1 && entity.isRefundCancel"
+                        if (entity.showDelete === 1 && entity.ReceiptStatusId == 1 && entity.isRefundCancel) {
+                            acts.push({ key: 'cancel', label: '', icon: 'fas fa-trash', variant: 'icon', color: '#F44336', title: 'Cancel' });
+                        }
+                        var cells = {};
+                        for (var c = 0; c < dataCols.length; c++) {
+                            cells[dataCols[c].key] = cellFor(entity, dataCols[c].key);
+                        }
+                        return {
+                            id: entity.Id,
+                            highlight: entity.ReceiptStatusId == 3,
+                            actions: acts,
+                            cells: cells
+                        };
+                    })
+                },
+                onAction: $scope.handleGridAction
+            };
+        };
+
         $scope.handleEvents = function (actionType, entity) {
             if (actionType == 'refund') {
                 $scope.openRefund(0, entity)
@@ -565,6 +694,8 @@
                 pageSize: 25
             }
         };
+
+        $scope.refreshReactProps();
 
 
 
