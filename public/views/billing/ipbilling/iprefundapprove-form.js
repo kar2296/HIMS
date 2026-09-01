@@ -343,6 +343,29 @@
         //Neither converted select has ng-change or on-select in the original,
         //so each dispatch only writes the same $scope.item field its ng-model
         //wrote. No calculation, guard, privilege, payload or API call moves.
+        //Payment Mode / Bank / Card Type: none of the three has ng-change or
+        //on-select in the original, so each dispatch only writes the same
+        //$scope.item field its ng-model wrote. Each keeps its `required`
+        //validator through the hidden <span> form control in the template.
+        $scope.handlePaymentTypeAction = function (actionType, payload) {
+            if (actionType == 'change') {
+                $scope.item.PaymentTypeId = payload.id;
+                $scope.refreshReactProps();
+            }
+        };
+        $scope.handleBankAction = function (actionType, payload) {
+            if (actionType == 'change') {
+                $scope.item.BankId = payload.id;
+                $scope.refreshReactProps();
+            }
+        };
+        $scope.handleCardTypeAction = function (actionType, payload) {
+            if (actionType == 'change') {
+                $scope.item.CardTypeId = payload.id;
+                $scope.refreshReactProps();
+            }
+        };
+
         $scope.handleCurrencyTypeAction = function (actionType, payload) {
             if (actionType == 'change') {
                 $scope.item.CurrencyTypeId = payload.id;
@@ -359,6 +382,21 @@
         $scope.refreshReactProps = function () {
             var lk = $scope.lookup || {};
             var it = $scope.item || {};
+            $scope.reactPropsPaymentTypeContainer = {
+                //ng-disabled="IsCompleted"
+                reactProps: { options: lk.PaymentType || [], value: it.PaymentTypeId, disabled: !!$scope.IsCompleted, name: 'payments' },
+                onAction: $scope.handlePaymentTypeAction
+            };
+            $scope.reactPropsBankContainer = {
+                //ng-disabled="IsCompleted"
+                reactProps: { options: lk.Bank || [], value: it.BankId, disabled: !!$scope.IsCompleted, name: 'bankname' },
+                onAction: $scope.handleBankAction
+            };
+            $scope.reactPropsCardTypeContainer = {
+                //ng-disabled="IsCompleted"
+                reactProps: { options: lk.CardType || [], value: it.CardTypeId, disabled: !!$scope.IsCompleted, name: 'cardtype' },
+                onAction: $scope.handleCardTypeAction
+            };
             $scope.reactPropsCurrencyTypeContainer = {
                 //ng-disabled="IsCompleted"
                 reactProps: { options: lk.CurrencyType || [], value: it.CurrencyTypeId, disabled: !!$scope.IsCompleted },
