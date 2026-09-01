@@ -75,6 +75,62 @@
         if (modalConfig && modalConfig.params && modalConfig.params.IsAgainstReceipt)
             $scope.IsAgainstReceipt = modalConfig.params.IsAgainstReceipt;
 
+
+        //React bridge: renders TWO of this form's three <ui-select> controls
+        //(Refund Type and Bank) through the shared BridgeLookupSelectScreen.
+        //
+        //THE PAYMENT MODE SELECT IS DELIBERATELY LEFT NATIVE. It carries
+        //`required`, and Angular core's requiredDirective (restrict 'A',
+        //require '?ngModel' -- "force truthy in case we are on non input
+        //element") registers a real $validators.required on it. That feeds
+        //item_form.$valid, which utl.Validator.validate($scope) reads and
+        //saveItem() checks before every AddPatientRefund/UpdatePatientRefund
+        //call. Moving it into React would silently remove a save-blocking
+        //validator from a refund form, so it stays in the Angular form.
+        //(The other two selects carry no validator, so their form validity
+        //contribution is unconditionally valid either way.)
+        //
+        //Neither converted select has ng-change or on-select in the original,
+        //so each dispatch only writes the same $scope.item field its ng-model
+        //wrote. No calculation, validation, privilege check, payload or API
+        //call is touched: save(), saveandApprove(), completeRefund(), Cancel(),
+        //print(), saveItem() and every guard inside them are unchanged.
+        $scope.handleRefundTypeAction = function (actionType, payload) {
+            if (actionType == 'change') {
+                $scope.item.RefundTypeId = payload.id;
+                $scope.refreshReactProps();
+            }
+        };
+        $scope.handleBankAction = function (actionType, payload) {
+            if (actionType == 'change') {
+                $scope.item.BankId = payload.id;
+                $scope.refreshReactProps();
+            }
+        };
+
+        $scope.refreshReactProps = function () {
+            var lk = $scope.lookup || {};
+            var it = $scope.item || {};
+            $scope.reactPropsRefundTypeContainer = {
+                reactProps: {
+                    options: lk.RefundType || [],
+                    value: it.RefundTypeId,
+                    //ng-disabled="IsCompleted || IsAgainstReceipt"
+                    disabled: !!($scope.IsCompleted || $scope.IsAgainstReceipt)
+                },
+                onAction: $scope.handleRefundTypeAction
+            };
+            $scope.reactPropsBankContainer = {
+                reactProps: {
+                    options: lk.Bank || [],
+                    value: it.BankId,
+                    //ng-disabled="IsCompleted"
+                    disabled: !!$scope.IsCompleted
+                },
+                onAction: $scope.handleBankAction
+            };
+        };
+
         $scope.getEncounterCallback = function (scope, data, options, hasError) {
             $scope.Encounter = data;
             $scope.item.PatientId = $scope.Encounter.PatientId;
@@ -97,6 +153,7 @@
 
         $scope.getItemCallback = function (scope, data, options, hasError) {
             $scope.item = data;
+            $scope.refreshReactProps();
             $scope.IsCompleted = false;
             $scope.canShowPrintledBtn = false;
             $scope.canShowCancelledBtn = false;
@@ -150,6 +207,7 @@
                     }
                 }
             }
+            $scope.refreshReactProps();
         };
 
         $scope.getItem = function () {
@@ -254,6 +312,7 @@
         };
         $scope.clear = function () {
             $scope.item = {};
+            $scope.refreshReactProps();
         }
         $scope.completeRefund = function () {
             var confirmOptions = {
@@ -446,6 +505,7 @@
         };
         $scope.lookupCallback = function (scope, data, options, hasError) {
             $scope.lookup = hasError ? {} : data;
+            $scope.refreshReactProps();
             if ($scope.cashcountermandatory == 1) {
                 $scope.checkCounterStatusByUserId();
             } else {
@@ -487,6 +547,8 @@
             };
             utl.Http.doAction(options);
         };
+
+        $scope.refreshReactProps();
 
         $scope.initLookup();
     }
