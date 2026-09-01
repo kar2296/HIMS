@@ -29,7 +29,7 @@ export interface BridgeGridRow {
   /** Grids whose actions column holds several buttons supply them per row,
    * so a row can legitimately offer a different set (edit vs view vs delete)
    * exactly as its original ng-show/ng-hide cellTemplate did. */
-  actions?: { key: string; label: string; variant?: string; icon?: string }[];
+  actions?: { key: string; label: string; variant?: string; icon?: string; color?: string; title?: string }[];
   /** True when the row matches the screen's config.background.style rule. */
   highlight?: boolean;
 }
@@ -117,6 +117,8 @@ export const BridgeGridScreen: React.FC<Props> = ({ reactProps, onAction }) => {
                         size="xs"
                         text={a.label}
                         icon={a.icon}
+                        title={a.title}
+                        style={a.color ? { color: a.color } : undefined}
                         onClick={() => onAction('rowAction', { key: a.key, id: r.id })}
                       />
                     ))}
