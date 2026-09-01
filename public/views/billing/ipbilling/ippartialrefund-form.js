@@ -127,6 +127,7 @@
         $scope.getItemCallback = function (scope, data, options, hasError) {
             $scope.item = data;
             $scope.IsCompleted = false;
+            $scope.refreshReactProps();
             $scope.canShowPrintledBtn = false;
             $scope.canShowCancelledBtn = false;
             $scope.canHidePrintledBtn = false;
@@ -215,6 +216,7 @@
         };
         $scope.clear = function () {
             $scope.item = {};
+            $scope.refreshReactProps();
         }
         $scope.Cancel = function () {
             var confirmOptions = {
@@ -382,8 +384,54 @@
 
             utl.Http.doAction(options);
         };
+
+        //React bridge: renders the two NON-VALIDATING <ui-select>s (Currency
+        //Type and Refund Type) through the shared BridgeLookupSelectScreen.
+        //
+        //The Payment Mode, Bank and Card Type selects are DELIBERATELY LEFT
+        //NATIVE: each carries `required`, and Angular core's requiredDirective
+        //(restrict 'A', require '?ngModel') registers a real
+        //$validators.required on them. Those feed item_form.$valid, which
+        //utl.Validator.validate($scope) returns and saveItem() checks before
+        //every Add/UpdatePatientRefund call. Moving them into React would
+        //silently remove save-blocking validators from a refund form.
+        //The two converted selects carry no validator, so form validity is
+        //bit-for-bit unchanged.
+        //
+        //Neither converted select has ng-change or on-select in the original,
+        //so each dispatch only writes the same $scope.item field its ng-model
+        //wrote. No calculation, guard, privilege, payload or API call moves.
+        $scope.handleCurrencyTypeAction = function (actionType, payload) {
+            if (actionType == 'change') {
+                $scope.item.CurrencyTypeId = payload.id;
+                $scope.refreshReactProps();
+            }
+        };
+        $scope.handleRefundTypeAction = function (actionType, payload) {
+            if (actionType == 'change') {
+                $scope.item.RefundTypeId = payload.id;
+                $scope.refreshReactProps();
+            }
+        };
+
+        $scope.refreshReactProps = function () {
+            var lk = $scope.lookup || {};
+            var it = $scope.item || {};
+            $scope.reactPropsCurrencyTypeContainer = {
+                //ng-disabled="IsCompleted"
+                reactProps: { options: lk.CurrencyType || [], value: it.CurrencyTypeId, disabled: !!$scope.IsCompleted },
+                onAction: $scope.handleCurrencyTypeAction
+            };
+            $scope.reactPropsRefundTypeContainer = {
+                //ng-disabled="true" in the original -- permanently read-only.
+                reactProps: { options: lk.RefundType || [], value: it.RefundTypeId, disabled: true },
+                onAction: $scope.handleRefundTypeAction
+            };
+        };
+
         $scope.lookupCallback = function (scope, data, options, hasError) {
             $scope.lookup = hasError ? {} : data;
+            $scope.refreshReactProps();
             //$scope.getEncounter();
             if ($scope.cashcountermandatory == 1) {
                 $scope.checkCounterStatusByUserId();
@@ -414,6 +462,8 @@
 
             utl.Http.doAction(options);
         }
+
+        $scope.refreshReactProps();
 
         $scope.initLookup();
     }
