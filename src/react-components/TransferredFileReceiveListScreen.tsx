@@ -1,3 +1,8 @@
+import React from 'react';
+import { spacing, typography } from '../components/ui/tokens';
+import { DataTable, type DataTableColumn } from '../components/ui/DataTable';
+import { Button } from './Button';
+
 interface Row {
   id: number;
   requestDateDisplay: string;
@@ -25,74 +30,83 @@ interface Props {
  *
  * Replaces <custom-table config="vm.gridConfig"></custom-table>.
  *
- * Column notes:
- *  - "S.No" is the 1-based row position (index+1), computed from row
- *    order exactly like the original cellTemplate's {{index+1}}.
+ * UI-MODERNIZATION RETROFIT: this table now renders through the global
+ * design-system DataTable/Button instead of the hand-rolled <table> it was
+ * first migrated with. NOTHING behavioral changed -- same rows from the same
+ * reactProps, same single dispatch ('fileReturn' with the row id), which the
+ * bridge still turns into the existing, unchanged
+ * $scope.handleEvents('filereturn', entity).
+ *
+ * Column-header click-to-sort is restored via DataTable's clientSort, which
+ * uses the same case-insensitive string compare as the original custom-table
+ * `reOrder` directive, and S.No renumbers with the displayed order exactly as
+ * the original {{index+1}} cellTemplate did. Sorting is enabled only on the
+ * plain-value columns: the original reOrder throws today on this screen's
+ * composite object columns (RequestUser/ApproveUser) and on the numeric Id
+ * column, so those stay unsortable rather than reproducing a crash.
+ *
+ * Other original details preserved:
  *  - RequestDate is pre-formatted by the AngularJS bridge with the same
- *    $filter('date', 'dd-MMM-yyyy') / $filter('date', 'HH:mm') calls the
- *    original cellTemplate used.
- *  - The status column's original cellTemplate has a malformed
- *    style/class attribute
- *    (style='height:15px;width:20px;border-radius: 7px;margin-top:
- *    4px;class='col-sm-2'></div>) with no background-color ever set --
- *    so today it renders as an invisible/colorless rounded box
- *    regardless of status. Reproduced functionally (an empty box with
- *    the same height/width/border-radius/margin, no color), not as
- *    malformed markup, since JSX cannot represent invalid HTML
- *    attributes -- the visible result (no color) is unchanged.
- *  - The Actions column always dispatches 'fileReturn' with the row's
- *    id, exactly as both original ng-show/ng-hide spans called the same
- *    handleEvents('filereturn', entity) -- only the button label
- *    ("File Receive" vs "View") depends on statusId === 9.
+ *    $filter('date', 'dd-MMM-yyyy') / $filter('date', 'HH:mm') calls.
+ *  - The status column's original cellTemplate has a malformed style/class
+ *    attribute with no background-color ever set, so its colour box has never
+ *    been visible; only the status text it wrapped is rendered.
+ *  - The action button toggles "File Receive" / "View" at
+ *    MRDIPFileStatusId === 8; both original ng-show/ng-hide spans called the
+ *    same handler, so one conditionally-labelled button is equivalent.
  */
-export function TransferredFileReceiveListScreen({ reactProps, onAction }: Props) {
-  const headers: string[] = reactProps?.headers || [];
+export const TransferredFileReceiveListScreen: React.FC<Props> = ({ reactProps, onAction }) => {
   const rows: Row[] = reactProps?.rows || [];
+  const headers: string[] = reactProps?.headers || [];
+  const header = (idx: number, fallback: string) => headers[idx] || fallback;
+
+  const columns: DataTableColumn<Row>[] = [
+    { key: 'sno', header: header(0, 'S.No'), width: '60px', render: (_r, i) => i + 1 },
+    {
+      key: 'requestdate',
+      header: header(1, 'Date'),
+      field: 'requestDateDisplay',
+      sortable: true,
+      render: (r) => (
+        <>
+          <span>{r.requestDateDisplay} </span>
+          <span>{r.requestTimeDisplay}</span>
+        </>
+      ),
+    },
+    { key: 'visitno', header: header(2, 'Visit No'), field: 'visitNo', sortable: true },
+    { key: 'patientname', header: header(3, 'Patient Name'), field: 'patientName', sortable: true },
+    {
+      key: 'requestuser',
+      header: header(4, 'Requested By'),
+      render: (r) => `${r.requestUserTitle || ''} ${r.requestUserFirstName || ''} ${r.requestUserLastName || ''}`.trim(),
+    },
+    {
+      key: 'approveuser',
+      header: header(5, 'Approved By'),
+      render: (r) => `${r.approveUserTitle || ''} ${r.approveUserFirstName || ''} ${r.approveUserLastName || ''}`.trim(),
+    },
+    { key: 'doctorname', header: header(6, 'Doctor Name'), field: 'doctorName', sortable: true },
+    { key: 'status', header: header(7, 'Status'), field: 'statusDescription', sortable: true },
+  ];
 
   return (
-    <table className="table">
-      <thead>
-        <tr>
-          {headers.map((h, i) => (
-            <th key={i}>{h}</th>
-          ))}
-        </tr>
-      </thead>
-      <tbody>
-        {rows.map((row, idx) => (
-          <tr key={row.id}>
-            <td>{idx + 1}</td>
-            <td>
-              <span>{row.requestDateDisplay} </span>
-              <span>{row.requestTimeDisplay}</span>
-            </td>
-            <td>{row.visitNo}</td>
-            <td>{row.patientName}</td>
-            <td>
-              <span>{row.requestUserTitle}&nbsp;</span>
-              <span>{row.requestUserFirstName}&nbsp;</span>
-              <span>{row.requestUserLastName}</span>
-            </td>
-            <td>
-              <span>{row.approveUserTitle}&nbsp;</span>
-              <span>{row.approveUserFirstName}&nbsp;</span>
-              <span>{row.approveUserLastName}</span>
-            </td>
-            <td>{row.doctorName}</td>
-            <td>
-              <div style={{ height: 15, width: 20, borderRadius: 7, marginTop: 4 }} />
-              &nbsp;<span>{row.statusDescription}</span>
-            </td>
-            <td>
-              <span className="grid-action" onClick={() => onAction('fileReturn', { id: row.id })}>
-                <i className="btn text-white dem-color4 btn-xs" aria-hidden="true">
-                  <strong>{row.statusId === 9 ? 'View' : 'File Receive'}</strong>
-                </i>
-              </span>
-            </td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
+    <div style={{ padding: `0 ${spacing.xs} ${spacing.lg}`, fontFamily: typography.fontFamily }}>
+      <DataTable<Row>
+        columns={columns}
+        rows={rows}
+        rowKey={(r) => r.id}
+        emptyText="No records found"
+        actionsHeader={header(8, 'Actions')}
+        actions={(r) => (
+          <Button
+            variant="primary"
+            size="xs"
+            text={r.statusId === 8 ? 'View' : 'File Receive'}
+            onClick={() => onAction('fileReturn', { id: r.id })}
+          />
+        )}
+      />
+    </div>
   );
-}
+};

@@ -8,7 +8,11 @@ export interface DataTableColumn<T> {
   header: React.ReactNode;
   /** Dotted path into the row for the default cell renderer (e.g. "GuarantorType.Description"), mirrors the app's real dotParser-filtered custom-table columns. */
   field?: string;
-  render?: (row: T) => React.ReactNode;
+  /** Cell renderer. The second argument is the row's 0-based position in the
+   * CURRENTLY DISPLAYED (post-sort) order, for the S.No columns the app's
+   * custom-table cellTemplates render as {{index+1}}. Existing callers that
+   * take only (row) are unaffected. */
+  render?: (row: T, displayIndex: number) => React.ReactNode;
   sortable?: boolean;
   align?: 'left' | 'center' | 'right';
   width?: string;
@@ -101,7 +105,7 @@ export function DataTable<T>({
           ) : sortedRows.length === 0 ? (
             <tr><td colSpan={columns.length + (actions ? 1 : 0)} style={{ padding: 0 }}><EmptyState text={emptyText} icon={emptyIcon} /></td></tr>
           ) : (
-            sortedRows.map((row) => (
+            sortedRows.map((row, rowIndex) => (
               <tr
                 key={rowKey(row)}
                 onClick={onRowClick ? () => onRowClick(row) : undefined}
@@ -111,7 +115,7 @@ export function DataTable<T>({
               >
                 {columns.map((c) => (
                   <td key={c.key} style={tdStyle(c)}>
-                    {c.render ? c.render(row) : String(resolveField(row, c.field) ?? '')}
+                    {c.render ? c.render(row, rowIndex) : String(resolveField(row, c.field) ?? '')}
                   </td>
                 ))}
                 {actions && (

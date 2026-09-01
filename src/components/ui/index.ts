@@ -19,6 +19,7 @@
 export * from './tokens';
 export * from './Input';
 export * from './Select';
+export * from './LookupSelect';
 export * from './Checkbox';
 export * from './DatePicker';
 export * from './TimePicker';
