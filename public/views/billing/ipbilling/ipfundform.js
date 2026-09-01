@@ -144,6 +144,7 @@
         $scope.getItemCallback = function(scope, data, options, hasError) {
             $scope.item = data;
             $scope.IsCompleted = false;
+            $scope.refreshReactProps();
             $scope.canShowPrintledBtn = false;
             $scope.canShowCancelledBtn = false;
             $scope.canHidePrintledBtn = false;
@@ -781,6 +782,7 @@
         };
         $scope.clear = function() {
             $scope.item = {};
+            $scope.refreshReactProps();
         }
         $scope.setPaymentType = function(selected) {
             if (selected.Id == 6 || selected.Id == 5)
@@ -1019,8 +1021,61 @@
 
         };
 
+
+        //React bridge: both <ui-select> controls (Payment Mode, Bank) render
+        //through the shared BridgeLookupSelectScreen. Each keeps its `required`
+        //validator via the hidden <span> form control in the template, so
+        //item_form.payments / item_form.bankname and item_form.$valid are
+        //unchanged and utl.Validator.validate($scope) still gates saveItem()
+        //BEFORE the AmountPaid <= 0 guard -- that ordering is untouched.
+        //
+        //Payment Mode's original ng-change is setPaymentType($select.selected),
+        //which receives the FULL selected lookup object and sets
+        //item.TerminalNoId to 2 for Ids 5/6 and 0 otherwise. The dispatcher
+        //resolves that same object out of $scope.lookup.PaymentType by Id and
+        //passes it to the existing unchanged $scope.setPaymentType -- the logic
+        //is not duplicated in React and no fallback object is invented. It is
+        //called only when a real option is resolved, mirroring ui-select, whose
+        //ng-change only fires on an actual item selection.
+        $scope.handlePaymentTypeAction = function (actionType, payload) {
+            if (actionType == 'change') {
+                $scope.item.PaymentTypeId = payload.id;
+                var opts = ($scope.lookup && $scope.lookup.PaymentType) || [];
+                var selected = null;
+                for (var i = 0; i < opts.length; i++) {
+                    if (opts[i].Id === payload.id) { selected = opts[i]; break; }
+                }
+                if (selected) {
+                    $scope.setPaymentType(selected);
+                }
+                $scope.refreshReactProps();
+            }
+        };
+        $scope.handleBankAction = function (actionType, payload) {
+            if (actionType == 'change') {
+                $scope.item.BankId = payload.id;
+                $scope.refreshReactProps();
+            }
+        };
+
+        $scope.refreshReactProps = function () {
+            var lk = $scope.lookup || {};
+            var it = $scope.item || {};
+            $scope.reactPropsPaymentTypeContainer = {
+                //ng-disabled="IsCompleted"
+                reactProps: { options: lk.PaymentType || [], value: it.PaymentTypeId, disabled: !!$scope.IsCompleted, name: 'payments' },
+                onAction: $scope.handlePaymentTypeAction
+            };
+            $scope.reactPropsBankContainer = {
+                //ng-disabled="IsCompleted"
+                reactProps: { options: lk.Bank || [], value: it.BankId, disabled: !!$scope.IsCompleted, name: 'bankname' },
+                onAction: $scope.handleBankAction
+            };
+        };
+
         $scope.lookupCallback = function(scope, data, options, hasError) {
             $scope.lookup = hasError ? {} : data;
+            $scope.refreshReactProps();
             $scope.getEncounter();
             $scope.getItem();
             if ($scope.maxadvancecash == 1) {
@@ -1061,6 +1116,8 @@
             utl.Http.doAction(options);
         }
         $scope.getPharmacyPrintPreference();
+        $scope.refreshReactProps();
+
         $scope.initLookup();
     }
 
