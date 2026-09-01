@@ -215,6 +215,7 @@
                 res.BillInfo.Data.sort($scope.custom_sort);
                 $scope.PatientBillDetails = res.BillInfo.Data;
                 vm.gridConfig.data = res.BillInfo.Data;
+            $scope.refreshReactProps();
                 if (res.PRFundInfo && res.PRFundInfo.Data.length > 0) {
                     var refundAmount = 0;
                     $scope.refundDetails = res.PRFundInfo.Data;
@@ -545,6 +546,57 @@
             }
         };
 
+
+        //React bridge: replaces the ui-grid="vm.gridConfig" grid with the
+        //shared BridgeGridScreen.
+        //
+        //NOTE: unlike discharged-patients, this screen's cellTemplates are
+        //CORRECT for their container -- it is a real <div ui-grid=...>, where
+        //row.entity and grid.appScope genuinely exist. Translating them here is
+        //a straight port, not a repair: the row's entity supplies the cell
+        //values, and the action dispatcher calls $scope.handleEvents with the
+        //SAME { entity: ... } wrapper ui-grid passed, so handleEvents keeps
+        //reading row.entity.Id and row.entity.PatientBillSplitDetails unchanged.
+        $scope.handleGridAction = function (actionType, payload) {
+            var items = vm.gridConfig.data || [];
+            var entity = null;
+            for (var i = 0; i < items.length; i++) {
+                if (items[i].Id === payload.id) { entity = items[i]; break; }
+            }
+            if (entity === null) { return; }
+            if (actionType == 'rowAction') {
+                $scope.handleEvents(payload.key, { entity: entity });
+            }
+        };
+
+        $scope.refreshReactProps = function () {
+            var defs = vm.gridConfig.columnDefs || [];
+            function hdr(i) { return defs[i] ? defs[i].displayName : ''; }
+            var items = vm.gridConfig.data || [];
+            $scope.reactPropsGridContainer = {
+                reactProps: {
+                    columns: [
+                        { key: 'itemname', header: hdr(0), sortable: true },
+                        { key: 'amount', header: hdr(1), align: 'right' }
+                    ],
+                    actionsHeader: hdr(2) || 'Actions',
+                    hasActions: true,
+                    rows: items.map(function (entity) {
+                        return {
+                            id: entity.Id,
+                            //The original view action carries no ng-show/ng-if.
+                            actions: [{ key: 'view', label: '', icon: 'fas fa-eye', variant: 'icon', title: 'View' }],
+                            cells: {
+                                itemname: entity.ServiceCategory && entity.ServiceCategory.ServiceCategoryName,
+                                amount: $filter('displaycurrency')(entity.GroupNetAmount)
+                            }
+                        };
+                    })
+                },
+                onAction: $scope.handleGridAction
+            };
+        };
+
         vm.gridConfig = {
             enableColumnResizing: true,
             columnDefs: [{
@@ -565,6 +617,8 @@
             }],
             pagerObj: { totalItems: 0, currentPage: 1, startIndex: 0, pageSize: 25 }
         };
+
+        $scope.refreshReactProps();
         //lookup
         $scope.lookupCallback = function (scope, data, options, hasError) {
             $scope.lookup = hasError ? {} : data;
