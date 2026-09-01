@@ -552,10 +552,41 @@
             };
 
             // lookup
+
+            //React bridge: the three live <ui-select> controls on this form render
+            //through the shared BridgeLookupSelectScreen. None had ng-change or
+            //ng-disabled in the original, so each dispatch only writes the same
+            //$scope.item field its ng-model wrote. Every other control, and the
+            //form's save/print paths (PrintPatientEstimation /
+            //PrintPatientEstimationwithoutheader), stay untouched.
+            //
+            //PRE-EXISTING NAMING MISMATCH kept: the first select's ng-model is
+            //item.GuarantorId but its choices come from lookup.GuarantorType, and
+            //the second's ng-model is item.RelationshipId fed by lookup.GuardianType.
+            //Both are wired exactly as found.
+            $scope.handleGuarantorAction = function (actionType, payload) {
+            if (actionType == 'change') { $scope.item.GuarantorId = payload.id; $scope.refreshReactProps(); }
+            };
+            $scope.handleRelationshipAction = function (actionType, payload) {
+            if (actionType == 'change') { $scope.item.RelationshipId = payload.id; $scope.refreshReactProps(); }
+            };
+            $scope.handleBedTypeAction = function (actionType, payload) {
+            if (actionType == 'change') { $scope.item.BedTypeId = payload.id; $scope.refreshReactProps(); }
+            };
+
+            $scope.refreshReactProps = function () {
+            var lk = $scope.lookup || {};
+            var it = $scope.item || {};
+            $scope.reactPropsGuarantorContainer = { reactProps: { options: lk.GuarantorType || [], value: it.GuarantorId }, onAction: $scope.handleGuarantorAction };
+            $scope.reactPropsRelationshipContainer = { reactProps: { options: lk.GuardianType || [], value: it.RelationshipId }, onAction: $scope.handleRelationshipAction };
+            $scope.reactPropsBedTypeContainer = { reactProps: { options: lk.BedType || [], value: it.BedTypeId }, onAction: $scope.handleBedTypeAction };
+            };
+
             $scope.lookupCallback = function (scope, data, options, hasError) {
                 $scope.lookup = hasError ? {} : data;
                 loadData();
                 
+                $scope.refreshReactProps();
             }
             $scope.initLookup = function () {
                 var inputData = [
@@ -583,6 +614,7 @@
                 };
                 utl.Http.doAction(options);
             }
+            $scope.refreshReactProps();
             $scope.initLookup();
             // lookup finish
         }

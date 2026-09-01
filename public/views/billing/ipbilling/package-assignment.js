@@ -185,6 +185,7 @@
 
         $scope.getPatientAssignedPackageCallback = function (scope, data, options, hasError) {
             vm.gridConfig.data = data.Data;
+            $scope.refreshReactProps();
             if (data.Data.length > 0) {
                 $scope.canShowAssignBtn = false;
             } else {
@@ -592,6 +593,81 @@
             }
         };
 
+
+        //React bridge: the three <ui-select>s (Guarantor Type, Service Rate
+        //Category, Guarantor) render through the shared
+        //BridgeLookupSelectScreen and <custom-table config="vm.gridConfig">
+        //through the shared BridgeGridScreen. The Guarantor Type dispatch calls
+        //the screen's own unchanged getGuarantor(), matching its original
+        //ng-change. Rows dispatch into the existing unchanged handleEvents.
+        $scope.handleGridAction = function (actionType, payload) {
+            var items = vm.gridConfig.data || [];
+            var entity = null;
+            for (var i = 0; i < items.length; i++) {
+                if (items[i].Id === payload.id) { entity = items[i]; break; }
+            }
+            if (actionType == 'rowAction') { $scope.handleEvents(payload.key, entity); }
+        };
+        $scope.handleGuarantorTypeAction = function (actionType, payload) {
+            if (actionType == 'change') { $scope.item.GuarantorTypeId = payload.id; $scope.getGuarantor(); $scope.refreshReactProps(); }
+        };
+        $scope.handleServiceRateCategoryAction = function (actionType, payload) {
+            if (actionType == 'change') { $scope.item.ServiceRateCategoryId = payload.id; $scope.refreshReactProps(); }
+        };
+        $scope.handleGuarantorAction = function (actionType, payload) {
+            if (actionType == 'change') { $scope.item.GuarantorId = payload.id; $scope.refreshReactProps(); }
+        };
+
+        $scope.refreshReactProps = function () {
+            var defs = vm.gridConfig.columnDefs || [];
+            function hdr(i) { return defs[i] ? defs[i].displayName : ''; }
+            function dt(v, f) { return v ? $filter('date')(v, f) : ''; }
+            var items = vm.gridConfig.data || [];
+            $scope.reactPropsGridContainer = {
+                reactProps: {
+                    columns: [
+                        { key: 'assigneddate', header: hdr(0) },
+                        { key: 'code', header: hdr(1), sortable: true },
+                        { key: 'name', header: hdr(2), sortable: true },
+                        { key: 'description', header: hdr(3), sortable: true },
+                        { key: 'days', header: hdr(4) },
+                        { key: 'ratecategory', header: hdr(5), sortable: true },
+                        { key: 'guarantor', header: hdr(6), sortable: true },
+                        { key: 'amount', header: hdr(7), align: 'right' }
+                    ],
+                    actionsHeader: hdr(8) || 'Actions',
+                    hasActions: true,
+                    rows: items.map(function (entity) {
+                        var acts = [{ key: 'view', label: '', icon: 'fas fa-eye', variant: 'icon', title: 'View' }];
+                        //ng-show="entity.ActiveStatusId == 2"
+                        if (entity.ActiveStatusId == 2) {
+                            acts.push({ key: 'cancel', label: '', icon: 'fas fa-trash', variant: 'icon', title: 'Cancel' });
+                        }
+                        return {
+                            id: entity.Id,
+                            actions: acts,
+                            cells: {
+                                assigneddate: dt(entity.PackageAssignedDate, 'dd-MMM-yyyy') + ' ' + dt(entity.PackageAssignedDate, 'HH:mm'),
+                                code: entity.IPPackageCode,
+                                name: entity.IPPackageName,
+                                description: entity.IPPackageDescription,
+                                days: entity.IPPackageDays,
+                                ratecategory: entity.ServiceRateCategory && entity.ServiceRateCategory.Description,
+                                guarantor: entity.Guarantor && entity.Guarantor.GuarantorName,
+                                amount: $filter('displaycurrency')(entity.PackageAmount)
+                            }
+                        };
+                    })
+                },
+                onAction: $scope.handleGridAction
+            };
+            var lk = $scope.lookup || {};
+            var it = $scope.item || {};
+            $scope.reactPropsGuarantorTypeContainer = { reactProps: { options: lk.GuarantorType || [], value: it.GuarantorTypeId }, onAction: $scope.handleGuarantorTypeAction };
+            $scope.reactPropsServiceRateCategoryContainer = { reactProps: { options: lk.ServiceRateCategory || [], value: it.ServiceRateCategoryId }, onAction: $scope.handleServiceRateCategoryAction };
+            $scope.reactPropsGuarantorContainer = { reactProps: { options: lk.Guarantor || [], value: it.GuarantorId }, onAction: $scope.handleGuarantorAction };
+        };
+
         vm.gridConfig = {
             enableColumnResizing: true,
             columnDefs: [{
@@ -646,6 +722,8 @@
                 pageSize: 25
             }
         };
+
+        $scope.refreshReactProps();
 
         vm.ippackagecontrolconfig = {
             query: '',

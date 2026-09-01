@@ -194,6 +194,7 @@
         //getList
         $scope.getListCallback = function (scope, res, options, hasError) {
             vm.gridConfig.data = res.Data;
+            $scope.refreshReactProps();
             vm.gridConfig.pagerObj.totalItems = res.PageContext.TotalRecords;
             var consultationList = res.Data;
             console.log(consultationList);
@@ -411,6 +412,75 @@
         }
 
 
+
+        //React bridge: <custom-table config="vm.gridConfig"> renders through the
+        //shared BridgeGridScreen. This screen has no live <ui-select>. Both row
+        //actions dispatch into the existing unchanged $scope.handleEvents, so
+        //reviewnote (Summary Notes) and print keep running from the controller
+        //with the same entity. The third action in the original cellTemplate
+        //('edit' -> Discharge Notes) is commented out and stays that way.
+        $scope.handleGridAction = function (actionType, payload) {
+            var items = vm.gridConfig.data || [];
+            var entity = null;
+            for (var i = 0; i < items.length; i++) {
+                if (items[i].Id === payload.id) { entity = items[i]; break; }
+            }
+            if (actionType == 'rowAction') { $scope.handleEvents(payload.key, entity); }
+        };
+
+        $scope.refreshReactProps = function () {
+            var defs = vm.gridConfig.columnDefs || [];
+            function hdr(i) { return defs[i] ? defs[i].displayName : ''; }
+            function dt(v, f) { return v ? $filter('date')(v, f) : ''; }
+            var items = vm.gridConfig.data || [];
+            $scope.reactPropsGridContainer = {
+                reactProps: {
+                    columns: [
+                        { key: '__sno', header: hdr(0), width: '60px' },
+                        { key: 'date', header: hdr(1) },
+                        { key: 'patientname', header: hdr(2) },
+                        { key: 'mrn', header: hdr(3), sortable: true },
+                        { key: 'ipno', header: hdr(4), sortable: true },
+                        { key: 'doa', header: hdr(5) },
+                        { key: 'dod', header: hdr(6) },
+                        { key: 'dischargetype', header: hdr(7), sortable: true },
+                        { key: 'doctor', header: hdr(8), sortable: true },
+                        { key: 'notesname', header: hdr(9), sortable: true },
+                        { key: 'status', header: hdr(10), sortable: true }
+                    ],
+                    actionsHeader: hdr(11) || 'Actions',
+                    hasActions: true,
+                    rows: items.map(function (entity) {
+                        var p = entity.Patient || {};
+                        return {
+                            id: entity.Id,
+                            actions: [
+                                { key: 'reviewnote', label: '', icon: 'fas fa-file-medical', variant: 'icon', title: 'Summary Notes' },
+                                { key: 'print', label: '', icon: 'fa fa-print', variant: 'icon', title: 'Print' }
+                            ],
+                            cells: {
+                                date: dt(entity.CreatedAt, 'dd-MMM-yyyy') + ' ' + dt(entity.CreatedAt, 'HH:mm'),
+                                //PRE-EXISTING QUIRK: this cell reads Patient.firstname /
+                                //Patient.lastname (lowercase), which do not match the
+                                //API's FirstName/LastName casing, so the name renders as
+                                //just the title today. Reproduced exactly.
+                                patientname: ((p.Title && p.Title.Description ? p.Title.Description + ' ' : '') + (p.firstname || '') + ' ' + (p.lastname || '')).replace(/\s+/g, ' ').trim(),
+                                mrn: p.MRN,
+                                ipno: entity.Encounter && entity.Encounter.VisitIdentifier,
+                                doa: dt(entity.AdmissionDate, 'dd-MMM-yyyy') + ' ' + dt(entity.AdmissionDate, 'HH:mm'),
+                                dod: dt(entity.DischargeDate, 'dd-MMM-yyyy') + ' ' + dt(entity.DischargeDate, 'HH:mm'),
+                                dischargetype: entity.DischargeType && entity.DischargeType.Description,
+                                doctor: entity.Doctor,
+                                notesname: entity.ProfileMaster && entity.ProfileMaster.Name,
+                                status: entity.ProgressNoteStatus && entity.ProgressNoteStatus.Description
+                            }
+                        };
+                    })
+                },
+                onAction: $scope.handleGridAction
+            };
+        };
+
         vm.gridConfig = {
             enableColumnResizing: true,
             columnDefs: [{
@@ -481,6 +551,8 @@
             }
 
         };
+
+        $scope.refreshReactProps();
         vm.doctorcontrolconfig = {
             query: '',
             searchbyid: false,
