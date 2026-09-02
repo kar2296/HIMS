@@ -1092,6 +1092,127 @@
             utl.Http.doAction(options);
         };
 
+        // ------------------------------------------------------------------
+        // React bridge for this screen's four live filter <ui-select>
+        // controls: Ward, Payer (Guarantor), Status (AdmissionStatus) and TPA.
+        // All four render through the shared BridgeLookupSelectScreen. Nothing
+        // else on the workbench changes -- the results table and its repeat
+        // over vm.gridConfig.data, the advanced filter, the date controls, the
+        // export and every API call, payload and privilege check stay exactly
+        // as they are.
+        //
+        // Common to all four:
+        //   model            the same currentfilter field
+        //   lookup           lookup.Ward / .Guarantor / .AdmissionStatus /
+        //                    .TPA, unreshaped
+        //   id type          numeric Id -- every repeat was
+        //                    "lookupitem.Id as lookupitem in ...", so these
+        //                    models have only ever held the Id
+        //   full object      none had an on-select, and ng-change="getList()"
+        //                    takes no argument, so no handler has ever
+        //                    received the selected object; none invented
+        //   required         none is required; this screen has no item_form
+        //                    and never calls utl.Validator.validate, so no
+        //                    validator shim is added to any of them
+        //   disabled         no ng-disabled in the originals; none added
+        //   allow-clear      not present; not added
+        //   ng-change        getList(), the same unchanged scope function,
+        //                    called after the model is written -- the order
+        //                    ng-model then ng-change produced
+        //   class/id         class="filter-combo" carried through on Ward,
+        //                    Status and TPA; the Payer select's id
+        //                    'GuarantorId' is preserved so anything targeting
+        //                    that DOM id still finds it. The Payer select has
+        //                    no class in the original and none is added.
+        //   facility/privilege  none of the four is gated
+        //
+        // PRE-EXISTING QUIRK documented, NOT fixed: currentfilter
+        // .AdmissionStatusId is assigned an ARRAY ([2,3,4,5,6], [5,6], [3,4])
+        // by the tab initialisers, and is also read back as a single Value in
+        // the request payloads. An array never matches a single choice, so the
+        // Status control already renders with nothing selected in those tabs.
+        // Reproduced as is: the same array reaches the select and the same
+        // blank selection results.
+        //
+        // The filter models are written from several paths (tab
+        // initialisation, $stateParams restore in lookupCallback, clear), so
+        // the props are rebuilt from $watchGroup rather than from a fixed list
+        // of call sites; the watches read only the lookup array reference and
+        // the model value, so they are reference/primitive comparisons.
+        function filterSelectProps(field, lookupKey, extra) {
+            var props = {
+                options: ($scope.lookup && $scope.lookup[lookupKey]) || [],
+                value: $scope.currentfilter[field]
+            };
+            if (extra) {
+                for (var k in extra) { if (extra.hasOwnProperty(k)) { props[k] = extra[k]; } }
+            }
+            return props;
+        }
+
+        function filterSelectAction(field, refresh) {
+            return function (actionType, payload) {
+                if (actionType == 'change') {
+                    $scope.currentfilter[field] = payload.id;
+                    $scope.getList();
+                    refresh();
+                }
+            };
+        }
+
+        $scope.refreshWardFilterProps = function () {
+            $scope.reactPropsWardContainer = {
+                reactProps: filterSelectProps('WardId', 'Ward', { className: 'filter-combo' }),
+                onAction: filterSelectAction('WardId', $scope.refreshWardFilterProps)
+            };
+        };
+
+        $scope.refreshGuarantorFilterProps = function () {
+            $scope.reactPropsGuarantorContainer = {
+                reactProps: filterSelectProps('GuarantorId', 'Guarantor', { id: 'GuarantorId' }),
+                onAction: filterSelectAction('GuarantorId', $scope.refreshGuarantorFilterProps)
+            };
+        };
+
+        $scope.refreshAdmissionStatusFilterProps = function () {
+            $scope.reactPropsAdmissionStatusContainer = {
+                reactProps: filterSelectProps('AdmissionStatusId', 'AdmissionStatus', { className: 'filter-combo' }),
+                onAction: filterSelectAction('AdmissionStatusId', $scope.refreshAdmissionStatusFilterProps)
+            };
+        };
+
+        $scope.refreshTPAFilterProps = function () {
+            $scope.reactPropsTPAContainer = {
+                reactProps: filterSelectProps('TPAId', 'TPA', { className: 'filter-combo' }),
+                onAction: filterSelectAction('TPAId', $scope.refreshTPAFilterProps)
+            };
+        };
+
+        $scope.refreshWardFilterProps();
+        $scope.refreshGuarantorFilterProps();
+        $scope.refreshAdmissionStatusFilterProps();
+        $scope.refreshTPAFilterProps();
+
+        $scope.$watchGroup([
+            function () { return $scope.lookup && $scope.lookup.Ward; },
+            function () { return $scope.currentfilter.WardId; }
+        ], $scope.refreshWardFilterProps);
+
+        $scope.$watchGroup([
+            function () { return $scope.lookup && $scope.lookup.Guarantor; },
+            function () { return $scope.currentfilter.GuarantorId; }
+        ], $scope.refreshGuarantorFilterProps);
+
+        $scope.$watchGroup([
+            function () { return $scope.lookup && $scope.lookup.AdmissionStatus; },
+            function () { return $scope.currentfilter.AdmissionStatusId; }
+        ], $scope.refreshAdmissionStatusFilterProps);
+
+        $scope.$watchGroup([
+            function () { return $scope.lookup && $scope.lookup.TPA; },
+            function () { return $scope.currentfilter.TPAId; }
+        ], $scope.refreshTPAFilterProps);
+
         $scope.initLookup();
     }
 
