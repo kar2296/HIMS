@@ -179,6 +179,7 @@
 
         $scope.lookupCallback = function (scope, data, options, hasError) {
             $scope.lookup = hasError ? {} : data;
+            $scope.refreshStatusFilterProps();
             $scope.getList();
         }
 
@@ -248,6 +249,38 @@
             $scope.refreshReactProps();
             $scope.$applyAsync();
         };
+
+
+        // Status filter: the last remaining native <ui-select> on this screen,
+        // now rendered through the shared BridgeLookupSelectScreen. It has no
+        // `required` (and this screen has no item_form and never calls
+        // utl.Validator.validate), so NO validator shim is added. It has no
+        // ng-disabled and no on-select; its only binding was
+        // ng-change="getList()", so the dispatch writes the same currentfilter
+        // field its ng-model wrote and then calls the same unchanged
+        // $scope.getList(). The rest of the filter row (Voucher No, Voucher
+        // Date, the <autosearch> "Created By") stays native, exactly as the
+        // disclosure above describes.
+        $scope.handleStatusFilterAction = function (actionType, payload) {
+            if (actionType == 'change') {
+                $scope.currentfilter.VoucherStatusId = payload.id;
+                $scope.getList();
+                $scope.refreshStatusFilterProps();
+                $scope.$applyAsync();
+            }
+        };
+
+        $scope.refreshStatusFilterProps = function () {
+            $scope.reactPropsStatusContainer = {
+                reactProps: {
+                    options: ($scope.lookup && $scope.lookup.VoucherStatus) || [],
+                    value: $scope.currentfilter.VoucherStatusId
+                },
+                onAction: $scope.handleStatusFilterAction
+            };
+        };
+
+        $scope.refreshStatusFilterProps();
 
         $scope.initLookup();
     }
