@@ -219,6 +219,7 @@
                 // }
             }
             vm.gridConfig.pagerObj.totalItems = data.PageContext.TotalRecords;
+            $scope.refreshDischargeGridProps();
         };
 
         $scope.getList = function() {
@@ -712,6 +713,214 @@
             };
             utl.Http.doAction(options);
         };
+
+        // ------------------------------------------------------------------
+        // React bridge: three filter <ui-select> controls and the
+        // <custom-table>, all through the shared BridgeLookupSelectScreen and
+        // BridgeGridScreen. No new React component, and no business logic or
+        // API call moves into React -- the bridge only reshapes what the
+        // controller already computed.
+        //
+        // Selects -- Ward (currentfilter.WardId), Payer
+        // (currentfilter.GuarantorId), Doctor (currentfilter.DoctorId):
+        //   lookup    lookup.Ward / .Guarantor / .Doctor, unreshaped
+        //   id type   numeric Id ("lookupitem.Id as lookupitem in ...")
+        //   full obj  none had an on-select, and ng-change="getList()" takes
+        //             no argument, so no handler has ever received the
+        //             selected object; none invented
+        //   required  none is required; nothing on this screen consumes
+        //             item_form validity, so NO validator shim is added
+        //   name      none of the three had a name attribute; none invented
+        //   disabled  Ward and Payer carry ng-disabled="item.isAdmitted",
+        //             reproduced verbatim off the scope. DOCUMENTED
+        //             PRE-EXISTING QUIRK: item.isAdmitted is never assigned
+        //             anywhere in this controller, so the expression is
+        //             undefined and both controls are always enabled today.
+        //             Reproduced as-is, not corrected.
+        //   class / tabindex / allow-clear / default: none present; none added
+        //   facility / privilege: none of the three is gated
+        //   ng-change getList(), the same unchanged scope function, after the
+        //             model write -- the order ng-model then ng-change gave
+        //
+        // Grid -- 11 data columns in columnDefs order plus the actions column:
+        //   S.No is {{index+1}} over the displayed order; BillDate and
+        //   DischargeDate keep date:'dd-MMM-yyyy' + date:'HH:mm'; GrossAmount,
+        //   BillDiscount and NetAmount keep the displaycurrency filter, called
+        //   through $filter so the rupee symbol, the Indian digit grouping and
+        //   the toFixed(2) rounding are byte-identical to today's output. No
+        //   calculation is re-implemented.
+        //   Row actions reproduce the inline cellTemplate exactly:
+        //     'edit'          always shown, fa-procedures, tooltip "In patients"
+        //     'cancelrequest' ng-hide CancelReqRaisedStatusId == 1 or 2
+        //     'cancel'        ng-show CancelReqRaisedStatusId == 2
+        //   Each dispatches the SAME payload the template used -- the entity
+        //   itself, not a {entity} wrapper -- into the unchanged
+        //   $scope.handleEvents, so $state.go('app.ipbillingtab.summary', ...)
+        //   with its nine filter params, onCancelBill and onCancelRequest all
+        //   run exactly as before. The column's actions array is [] and its
+        //   cellTemplate is inline, so actionTemplate.html is not involved.
+        //   Pagination is untouched: the existing <ul uib-pagination> still
+        //   binds vm.gridConfig.pagerObj and still calls getList().
+        //   Header sorting is enabled only on the three plain string columns,
+        //   matching custom-table's reOrder string compare; S.No, the two date
+        //   columns, the two person-object columns and the three currency
+        //   columns are left unsortable because reOrder throws or orders
+        //   differently on those today.
+        //   No config.background, no onRegisterApi, no export or print
+        //   behaviour exists on this grid, and none was invented.
+        //
+        // TWO BROKEN LEGACY CELL EXPRESSIONS documented, NOT corrected:
+        //   1. The Patient cellTemplate opens
+        //      '<a class="grid-action" ng-click="handleEvents(...)" ' and
+        //      never closes that tag, so every following span is swallowed
+        //      into the anchor's attribute text and the cell does not render
+        //      as intended today. The cell is rendered here as its plain
+        //      Title/First/Last / MRN / Age / Gender text with the same
+        //      'patientinfo' click the column's handleEvent wires up.
+        //   2. The admitting-doctor cellTemplate calls
+        //      handleEvents('patientinfo', row). Inside a <custom-table> the
+        //      cell isolate scope exposes only entity/index/template/event,
+        //      there is no `row`, and this column sets no handleEvent -- so
+        //      that click has never fired. Rendered as plain text, with no
+        //      click.
+        //
+        // DEAD GRID CONFIG documented: rowTemplate (the 'nonself' guarantor
+        // row class) and enableColumnResizing are ui-grid options.
+        // <custom-table> ignores both -- it has no rowTemplate support and
+        // uses config.background for row styling, which this screen does not
+        // set -- so neither has ever had an effect here. Not reproduced.
+        function dpbFilterProps(field, lookupKey, disabledExpr) {
+            return {
+                options: ($scope.lookup && $scope.lookup[lookupKey]) || [],
+                value: $scope.currentfilter[field],
+                disabled: !!disabledExpr
+            };
+        }
+
+        function dpbFilterAction(field, refresh) {
+            return function(actionType, payload) {
+                if (actionType == 'change') {
+                    $scope.currentfilter[field] = payload.id;
+                    $scope.getList();
+                    refresh();
+                }
+            };
+        }
+
+        $scope.refreshWardFilterProps = function() {
+            $scope.reactPropsWardContainer = {
+                reactProps: dpbFilterProps('WardId', 'Ward', $scope.item && $scope.item.isAdmitted),
+                onAction: dpbFilterAction('WardId', $scope.refreshWardFilterProps)
+            };
+        };
+
+        $scope.refreshGuarantorFilterProps = function() {
+            $scope.reactPropsGuarantorContainer = {
+                reactProps: dpbFilterProps('GuarantorId', 'Guarantor', $scope.item && $scope.item.isAdmitted),
+                onAction: dpbFilterAction('GuarantorId', $scope.refreshGuarantorFilterProps)
+            };
+        };
+
+        $scope.refreshDoctorFilterProps = function() {
+            $scope.reactPropsDoctorContainer = {
+                reactProps: dpbFilterProps('DoctorId', 'Doctor', false),
+                onAction: dpbFilterAction('DoctorId', $scope.refreshDoctorFilterProps)
+            };
+        };
+
+        function personName(p) {
+            p = p || {};
+            var t = (p.Title && p.Title.Description) ? p.Title.Description + ' ' : '';
+            return t + (p.FirstName || '') + ' ' + (p.LastName || '');
+        }
+
+        $scope.refreshDischargeGridProps = function() {
+            var defs = (vm.gridConfig && vm.gridConfig.columnDefs) || [];
+            function hdr(i) { return defs[i] ? defs[i].displayName : ''; }
+            var items = (vm.gridConfig && vm.gridConfig.data) || [];
+            var money = $filter('displaycurrency');
+            var date = $filter('date');
+            $scope.reactPropsDischargeGridContainer = {
+                reactProps: {
+                    columns: [
+                        { key: '__sno', header: hdr(0), width: '60px' },
+                        { key: 'visitno', header: hdr(1), sortable: true },
+                        { key: 'billdate', header: hdr(2) },
+                        { key: 'dischargedate', header: hdr(3) },
+                        { key: 'billno', header: hdr(4), sortable: true },
+                        { key: 'patient', header: hdr(5), link: true },
+                        { key: 'doctor', header: hdr(6) },
+                        { key: 'guarantor', header: hdr(7), sortable: true },
+                        { key: 'grossamount', header: hdr(8), align: 'right' },
+                        { key: 'billdiscount', header: hdr(9), align: 'right' },
+                        { key: 'netamount', header: hdr(10), align: 'right' }
+                    ],
+                    actionsHeader: hdr(11) || 'Actions',
+                    hasActions: true,
+                    rows: items.map(function(entity, i) {
+                        var acts = [{ key: 'edit', label: '', icon: 'fas fa-procedures', variant: 'icon', title: 'In patients' }];
+                        // ng-hide="CancelReqRaisedStatusId==1||CancelReqRaisedStatusId==2"
+                        if (!(entity.CancelReqRaisedStatusId == 1 || entity.CancelReqRaisedStatusId == 2)) {
+                            acts.push({ key: 'cancelrequest', label: '', icon: 'fa fa-trash', variant: 'danger', title: 'Cancel request' });
+                        }
+                        // ng-show="CancelReqRaisedStatusId==2"
+                        if (entity.CancelReqRaisedStatusId == 2) {
+                            acts.push({ key: 'cancel', label: '', icon: 'fas fa-times', variant: 'danger', title: 'Cancel' });
+                        }
+                        return {
+                            id: (entity && entity.Id != null) ? entity.Id : i,
+                            actions: acts,
+                            cells: {
+                                visitno: entity.VisitIdentifier,
+                                billdate: entity.BillDate ? date(entity.BillDate, 'dd-MMM-yyyy') + ' ' + date(entity.BillDate, 'HH:mm') : '',
+                                dischargedate: entity.DischargeDate ? date(entity.DischargeDate, 'dd-MMM-yyyy') + ' ' + date(entity.DischargeDate, 'HH:mm') : '',
+                                billno: entity.BillNumber,
+                                patient: personName(entity.Patient) + '/' + ((entity.Patient && entity.Patient.MRN) || '') +
+                                    '/ ' + ((entity.Patient && entity.Patient.Age) || '') + ' /' +
+                                    ((entity.Patient && entity.Patient.Gender && entity.Patient.Gender.Description) || ''),
+                                doctor: personName(entity.Doctor),
+                                guarantor: entity.Guarantor && entity.Guarantor.GuarantorName,
+                                grossamount: money(entity.GrossAmount),
+                                billdiscount: money(entity.BillDiscount),
+                                netamount: money(entity.NetAmount)
+                            }
+                        };
+                    })
+                },
+                onAction: function(actionType, payload) {
+                    var list = (vm.gridConfig && vm.gridConfig.data) || [];
+                    var entity = null;
+                    for (var i = 0; i < list.length; i++) {
+                        if (list[i].Id === payload.id) { entity = list[i]; break; }
+                    }
+                    if (entity === null) { return; }
+                    if (actionType == 'rowAction') { $scope.handleEvents(payload.key, entity); }
+                    else if (actionType == 'cellAction') { $scope.handleEvents('patientinfo', entity); }
+                }
+            };
+        };
+
+        $scope.refreshWardFilterProps();
+        $scope.refreshGuarantorFilterProps();
+        $scope.refreshDoctorFilterProps();
+        $scope.refreshDischargeGridProps();
+
+        $scope.$watchGroup([
+            function() { return $scope.lookup && $scope.lookup.Ward; },
+            function() { return $scope.currentfilter.WardId; },
+            function() { return $scope.item && $scope.item.isAdmitted; }
+        ], $scope.refreshWardFilterProps);
+
+        $scope.$watchGroup([
+            function() { return $scope.lookup && $scope.lookup.Guarantor; },
+            function() { return $scope.currentfilter.GuarantorId; },
+            function() { return $scope.item && $scope.item.isAdmitted; }
+        ], $scope.refreshGuarantorFilterProps);
+
+        $scope.$watchGroup([
+            function() { return $scope.lookup && $scope.lookup.Doctor; },
+            function() { return $scope.currentfilter.DoctorId; }
+        ], $scope.refreshDoctorFilterProps);
 
         $scope.initLookup();
     }
