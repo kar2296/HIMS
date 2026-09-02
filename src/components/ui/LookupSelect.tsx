@@ -26,6 +26,12 @@ export interface LookupSelectProps {
   name?: string;
   id?: string;
   fullWidth?: boolean;
+  /** Mirrors the original ui-select's tabindex (several master screens set
+   * tabindex="-1" to keep the control out of the tab order). */
+  tabIndex?: number;
+  /** Extra class names from the original ui-select, for screens whose
+   * stylesheet targets the control by class (e.g. "ui-select-grid"). */
+  className?: string;
   /**
    * Renders each option as "{Title.Description} {Text}" instead of plain Text.
    * A handful of approver lookups do this in their original
@@ -52,7 +58,7 @@ export interface LookupSelectProps {
  */
 export const LookupSelect: React.FC<LookupSelectProps> = ({
   options, value, onChange, onKeyUp, disabled, label, required,
-  placeholder = ' ', name, id, fullWidth = true, titlePrefixed,
+  placeholder = ' ', name, id, fullWidth = true, titlePrefixed, tabIndex, className,
 }) => {
   const selectOptions: SelectOption[] = useMemo(
     () =>
@@ -82,6 +88,8 @@ export const LookupSelect: React.FC<LookupSelectProps> = ({
         name={name}
         id={id}
         fullWidth={fullWidth}
+        tabIndex={tabIndex}
+        className={className}
       />
     </div>
   );

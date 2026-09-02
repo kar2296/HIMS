@@ -28,6 +28,8 @@ export const BridgeLookupSelectScreen: React.FC<Props> = ({ reactProps, onAction
     titlePrefixed={!!reactProps?.titlePrefixed}
     name={reactProps?.name}
     id={reactProps?.id}
+    tabIndex={reactProps?.tabIndex}
+    className={reactProps?.className}
     onChange={(id) => onAction('change', { id })}
     onKeyUp={reactProps?.keyUpId ? () => onAction('keyUp', { nextId: reactProps.keyUpId }) : undefined}
   />

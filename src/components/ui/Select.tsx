@@ -20,13 +20,19 @@ export interface SelectProps {
   loading?: boolean;
   name?: string;
   id?: string;
+  /** Mirrors a source control's tabindex attribute, so a control the original
+   * kept out of the tab order (tabindex="-1") stays out of it. Optional. */
+  tabIndex?: number;
+  /** Extra class names carried over from the original markup, for screens
+   * whose stylesheet targets the control by class. Optional. */
+  className?: string;
 }
 
 /** Global native <select>, styled to match Input. Preserves whatever real
  * options/value/onChange the caller passes -- no data source changes. */
 export const Select: React.FC<SelectProps> = ({
   label, required, error, helperText, options, value, onChange, placeholder,
-  disabled, fullWidth = true, loading, name, id,
+  disabled, fullWidth = true, loading, name, id, tabIndex, className,
 }) => {
   const [focused, setFocused] = useState(false);
   const selectId = id || (label ? `select-${label.replace(/\s+/g, '-').toLowerCase()}` : undefined);
@@ -41,6 +47,8 @@ export const Select: React.FC<SelectProps> = ({
         <select
           id={selectId}
           name={name}
+          tabIndex={tabIndex}
+          className={className}
           required={required}
           disabled={disabled || loading}
           value={value ?? ''}
