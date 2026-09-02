@@ -2201,6 +2201,183 @@
         });
         /* Shortcut Keys Ends Here */
 
+        // ------------------------------------------------------------------
+        // Field-by-field comparison with b2bbilling-form was done before this
+        // pattern was reused: all four <ui-select> blocks are byte-identical
+        // between the two templates, both controllers define
+        // ServiceRateCatChange and DiscountModechange with identical bodies,
+        // both set the same four defaults (-1 / 1 / 2 / current facility), and
+        // both call utl.Validator.validate($scope) at the same point in
+        // saveItem. The forms were verified equal on these points, not assumed
+        // equal.
+        //
+        // TWO PRE-EXISTING BUGS documented, NOT fixed:
+        //  1. The route app.einvoiceform (hims-states.js:2287) declares
+        //     controller 'einvoiceFormController as vm', but no controller of
+        //     that name is defined anywhere in the repository -- this file
+        //     registers 'b2bBillingFormController'. The state therefore cannot
+        //     instantiate its controller today.
+        //  2. That name collides with b2bbilling-form.js, which registers the
+        //     same 'b2bBillingFormController'; whichever module is lazy-loaded
+        //     last wins.
+        // Neither is touched here. This conversion changes only the four
+        // selects in this template and the props that feed them.
+        //
+        // React bridge for this form's four live <ui-select> controls:
+        // B2B Customer, Service Rate Category, Discount Mode and Assign Lab
+        // Facility. All four render through the shared
+        // BridgeLookupSelectScreen; no new React component. Everything else on
+        // this form is untouched -- the line-item repeat and its calculations,
+        // the discount workflow, save/approve/cancel, the print preference,
+        // the patientsearch control, and every API endpoint and payload.
+        //
+        //   B2B Customer (currentfilter.B2BCustomerMasterId)
+        //     lookup lookup.B2BCustomerMaster, numeric Id, name "b2bcustomer",
+        //     REQUIRED (live -- saveItem calls utl.Validator.validate($scope)),
+        //     no ng-change, no ng-disabled, no class, no tabindex,
+        //     default -1 set at controller init.
+        //   Service Rate Category (currentfilter.ServiceRateCategoryId)
+        //     lookup lookup.ServiceRateCategory, numeric Id,
+        //     name "serviceratecategory", REQUIRED (live),
+        //     ng-change="ServiceRateCatChange($select.selected)" -- this
+        //     handler consumes the FULL selected object (it reads .Id and
+        //     .Text), so the dispatcher resolves the object out of the same
+        //     lookup array by Id and passes it whole. The handler itself is
+        //     unchanged and still owns clearing PatientBillDetails /
+        //     PatientPaymentDetails and calling addNewLineItem().
+        //     Default 1 at controller init.
+        //   Discount Mode (currentfilter.DiscountModeId)
+        //     lookup lookup.DiscountMode, numeric Id, name "discountmode",
+        //     NOT required, class "ui-select-grid",
+        //     ng-change="DiscountModechange()" (takes no argument).
+        //     Default 2 at controller init.
+        //   Assign Lab Facility (currentfilter.FacilityId)
+        //     lookup lookup.Facility, numeric Id, name "assignlabfacility",
+        //     NOT required, class "ui-select-grid", no ng-change, no
+        //     ng-disabled. Default utl.Session.getCurrentFacilityId().
+        //
+        // The two required controls keep live validators through the proven
+        // invisible mirror shims in the template, which carry the SAME control
+        // names, so item_form.b2bcustomer / .serviceratecategory and
+        // item_form.$valid behave exactly as before. Note the pre-existing
+        // behaviour this preserves: Angular's core required validator treats
+        // -1 as non-empty, so the B2B Customer default of -1 already satisfies
+        // required today -- that is reproduced, not corrected.
+        //
+        // The two NON-required controls (discountmode, assignlabfacility) keep
+        // their name on the rendered native <select> but no longer register as
+        // AngularJS form controls, because the React root is outside Angular's
+        // compile. That is behaviour-neutral here: nothing in this screen or
+        // anywhere else reads item_form.discountmode or
+        // item_form.assignlabfacility, and a control with no validator
+        // contributes nothing to item_form.$valid, which is the only thing
+        // utl.Validator.validate($scope) returns. No shim was added for them,
+        // since adding one would fabricate a validator the original never had.
+        //
+        // None of the four has an on-select other than the ng-change above, an
+        // allow-clear, a tabindex, a facility-setting gate or a privilege gate,
+        // and none was invented. The models are written from several
+        // asynchronous paths (getEncounter, getPatientBills, the B2B customer
+        // resolution at line ~1359), so the props are rebuilt from $watchGroup
+        // on reference/primitive reads rather than from a fixed call list.
+        function b2bSelectProps(field, lookupKey, name, extra) {
+            var props = {
+                options: ($scope.lookup && $scope.lookup[lookupKey]) || [],
+                value: $scope.currentfilter[field],
+                name: name
+            };
+            if (extra) {
+                for (var k in extra) { if (extra.hasOwnProperty(k)) { props[k] = extra[k]; } }
+            }
+            return props;
+        }
+
+        function lookupObjectById(lookupKey, id) {
+            var opts = ($scope.lookup && $scope.lookup[lookupKey]) || [];
+            for (var i = 0; i < opts.length; i++) {
+                if (opts[i].Id === id) { return opts[i]; }
+            }
+            return null;
+        }
+
+        $scope.refreshB2BCustomerProps = function () {
+            $scope.reactPropsB2BCustomerContainer = {
+                reactProps: b2bSelectProps('B2BCustomerMasterId', 'B2BCustomerMaster', 'b2bcustomer'),
+                onAction: function (actionType, payload) {
+                    if (actionType == 'change') {
+                        $scope.currentfilter.B2BCustomerMasterId = payload.id;
+                        $scope.refreshB2BCustomerProps();
+                    }
+                }
+            };
+        };
+
+        $scope.refreshServiceRateCatProps = function () {
+            $scope.reactPropsServiceRateCatContainer = {
+                reactProps: b2bSelectProps('ServiceRateCategoryId', 'ServiceRateCategory', 'serviceratecategory'),
+                onAction: function (actionType, payload) {
+                    if (actionType == 'change') {
+                        // ng-model wrote the Id, then ng-change handed the
+                        // whole selected object to ServiceRateCatChange.
+                        $scope.currentfilter.ServiceRateCategoryId = payload.id;
+                        var selected = lookupObjectById('ServiceRateCategory', payload.id);
+                        if (selected) { $scope.ServiceRateCatChange(selected); }
+                        $scope.refreshServiceRateCatProps();
+                    }
+                }
+            };
+        };
+
+        $scope.refreshDiscountModeProps = function () {
+            $scope.reactPropsDiscountModeContainer = {
+                reactProps: b2bSelectProps('DiscountModeId', 'DiscountMode', 'discountmode', { className: 'ui-select-grid' }),
+                onAction: function (actionType, payload) {
+                    if (actionType == 'change') {
+                        $scope.currentfilter.DiscountModeId = payload.id;
+                        $scope.DiscountModechange();
+                        $scope.refreshDiscountModeProps();
+                    }
+                }
+            };
+        };
+
+        $scope.refreshFacilityProps = function () {
+            $scope.reactPropsFacilityContainer = {
+                reactProps: b2bSelectProps('FacilityId', 'Facility', 'assignlabfacility', { className: 'ui-select-grid' }),
+                onAction: function (actionType, payload) {
+                    if (actionType == 'change') {
+                        $scope.currentfilter.FacilityId = payload.id;
+                        $scope.refreshFacilityProps();
+                    }
+                }
+            };
+        };
+
+        $scope.refreshB2BCustomerProps();
+        $scope.refreshServiceRateCatProps();
+        $scope.refreshDiscountModeProps();
+        $scope.refreshFacilityProps();
+
+        $scope.$watchGroup([
+            function () { return $scope.lookup && $scope.lookup.B2BCustomerMaster; },
+            function () { return $scope.currentfilter.B2BCustomerMasterId; }
+        ], $scope.refreshB2BCustomerProps);
+
+        $scope.$watchGroup([
+            function () { return $scope.lookup && $scope.lookup.ServiceRateCategory; },
+            function () { return $scope.currentfilter.ServiceRateCategoryId; }
+        ], $scope.refreshServiceRateCatProps);
+
+        $scope.$watchGroup([
+            function () { return $scope.lookup && $scope.lookup.DiscountMode; },
+            function () { return $scope.currentfilter.DiscountModeId; }
+        ], $scope.refreshDiscountModeProps);
+
+        $scope.$watchGroup([
+            function () { return $scope.lookup && $scope.lookup.Facility; },
+            function () { return $scope.currentfilter.FacilityId; }
+        ], $scope.refreshFacilityProps);
+
         $scope.getPharmacyPrintPreference();
         $scope.initLookup();
     }
