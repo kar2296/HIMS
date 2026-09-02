@@ -5,7 +5,7 @@
         .module('app.pages')
         .controller('billlockingController', billlockingController);
 
-    function billlockingController($scope, $stateParams, $state, $translate, utl, $uibModalInstance, modalConfig) {
+    function billlockingController($scope, $stateParams, $state, $translate, utl, $uibModalInstance, modalConfig, $filter) {
         var vm = this;
 
         $scope.Items = [];
@@ -24,6 +24,7 @@
 
         $scope.getListCallback = function(scope, data, options, hasError) {
             vm.gridConfig.data = data.Data;
+            $scope.refreshLockGridProps();
         };
 
         $scope.getList = function() {
@@ -172,6 +173,7 @@
         $scope.lookupCallback = function(scope, data, options, hasError) {
             $scope.lookup = hasError ? {} : data;
             $scope.item.LockTypeId = 3;
+            $scope.refreshLockTypeProps();
             $scope.getList();
         }
 
@@ -189,9 +191,122 @@
             utl.Http.doAction(options);
         }
 
+        // ------------------------------------------------------------------
+        // React bridge. Two controls: the Lock Type <ui-select> and the
+        // <custom-table>. Nothing else on this modal changes -- the lock /
+        // unlock buttons, checkmandatory(), doLock(), lockConfirmation(),
+        // the confirm dialog, GetPatientBillLocks and the modal
+        // confirm/cancel callbacks are untouched.
+        //
+        // Lock Type select parity:
+        //   model            item.LockTypeId (unchanged field)
+        //   lookup           lookup.LockType (unreshaped)
+        //   id type          numeric Id -- the original repeat was
+        //                    "lookupitem.Id as lookupitem in lookup.LockType",
+        //                    so the model has only ever held the Id
+        //   full object      not applicable: no on-select/ng-change existed,
+        //                    so no handler ever received the object
+        //   required         LIVE -- checkmandatory() calls
+        //                    utl.Validator.validate($scope), which returns
+        //                    item_form.$valid. The invisible mirror shim
+        //                    <span name="locktype" ng-model="item.LockTypeId"
+        //                    required> keeps the same control name, the same
+        //                    $error.required and the same form validity.
+        //   field name       "locktype", unchanged
+        //   disabled         ng-disabled="IsLocked", carried to the mount.
+        //                    Not added to the shim: ng-disabled does nothing
+        //                    on a non-input element, and Angular runs the
+        //                    required validator on disabled controls anyway,
+        //                    so validity is identical either way.
+        //   allow-clear      not present in the original; not added
+        //   on-select        none in the original
+        //   default          item.LockTypeId = 3, still set by lookupCallback
+        //                    before the props are built
+        //   facility setting none applies to this control
+        //   keyboard/focus   the original had no id, ng-keyup or focus target
+        //
+        // Grid parity: all 8 columns in columnDefs order, no actions column
+        // (the original actions entry is commented out in this file, so this
+        // grid has never had one), the two <ngformatdate datetime-val> columns
+        // formatted with the same dd-MMM-yyyy HH:mm the directive applies.
+        //
+        // PRE-EXISTING BUG documented, NOT fixed: the LockedUser cellTemplate
+        // wraps its text in <span ng-click="grid.appScope.handleEvents(
+        // 'patientinfo', entity)">. This is a <custom-table>, whose
+        // cell-template isolate scope exposes only entity/index/template/event
+        // -- there is no `grid`, and this column defines no handleEvent -- so
+        // that click has never fired. Rendered as plain text, and
+        // $scope.handleEvents is left in the file exactly as it is.
+        // Column-header sorting is enabled only on the four plain string
+        // columns, matching custom-table's reOrder string compare; the two
+        // user-object columns throw in reOrder today and the two date columns
+        // would sort by their formatted text rather than their raw value.
+        $scope.refreshLockTypeProps = function() {
+            $scope.reactPropsLockTypeContainer = {
+                reactProps: {
+                    options: ($scope.lookup && $scope.lookup.LockType) || [],
+                    value: $scope.item.LockTypeId,
+                    disabled: !!$scope.IsLocked,
+                    name: 'locktype'
+                },
+                onAction: function(actionType, payload) {
+                    if (actionType == 'change') {
+                        $scope.item.LockTypeId = payload.id;
+                        $scope.refreshLockTypeProps();
+                    }
+                }
+            };
+        };
+
+        function lockUserName(u) {
+            u = u || {};
+            var t = (u.Title && u.Title.Description) ? u.Title.Description + ' ' : '';
+            return t + (u.FirstName || '') + ' ' + (u.LastName || '');
+        }
+
+        $scope.refreshLockGridProps = function() {
+            var defs = (vm.gridConfig && vm.gridConfig.columnDefs) || [];
+            function hdr(i) { return defs[i] ? defs[i].displayName : ''; }
+            var items = (vm.gridConfig && vm.gridConfig.data) || [];
+            $scope.reactPropsLockGridContainer = {
+                reactProps: {
+                    columns: [
+                        { key: 'lockedon', header: hdr(0) },
+                        { key: 'lockeduser', header: hdr(1) },
+                        { key: 'unlockeduser', header: hdr(2) },
+                        { key: 'releasedon', header: hdr(3) },
+                        { key: 'comments', header: hdr(4), sortable: true },
+                        { key: 'unlockcomments', header: hdr(5), sortable: true },
+                        { key: 'locktype', header: hdr(6), sortable: true },
+                        { key: 'lockstatus', header: hdr(7), sortable: true }
+                    ],
+                    hasActions: false,
+                    rows: items.map(function(entity, i) {
+                        return {
+                            id: (entity && entity.Id != null) ? entity.Id : i,
+                            cells: {
+                                lockedon: entity.LockedOn ? $filter('date')(entity.LockedOn, 'dd-MMM-yyyy HH:mm') : '',
+                                lockeduser: lockUserName(entity.LockedUser),
+                                unlockeduser: lockUserName(entity.UnLockedUser),
+                                releasedon: entity.ReleasedOn ? $filter('date')(entity.ReleasedOn, 'dd-MMM-yyyy HH:mm') : '',
+                                comments: entity.Comments,
+                                unlockcomments: entity.UnLockComments,
+                                locktype: entity.LockType && entity.LockType.Description,
+                                lockstatus: entity.LockStatus && entity.LockStatus.Description
+                            }
+                        };
+                    })
+                },
+                onAction: function() {}
+            };
+        };
+
+        $scope.refreshLockTypeProps();
+        $scope.refreshLockGridProps();
+
         $scope.initLookup();
     }
 
-    billlockingController.$inject = ['$scope', '$stateParams', '$state', '$translate', 'utl', '$uibModalInstance', 'modalConfig'];
+    billlockingController.$inject = ['$scope', '$stateParams', '$state', '$translate', 'utl', '$uibModalInstance', 'modalConfig', '$filter'];
 
 })();
