@@ -4468,6 +4468,260 @@
                 $scope.item.WithHeader = false;
             }
         };
+        // ------------------------------------------------------------------
+        // React bridge: this screen's six live <ui-select> controls and the
+        // <custom-table>. All render through the shared
+        // BridgeLookupSelectScreen / BridgeGridScreen; no new React component,
+        // and no business logic, calculation or API call moves into React.
+        //
+        // PER-ROW MOUNT CHECK: this template has two ng-repeats
+        // (PatientBillDetails at live line 660 and PaymentInfoDetails at 863).
+        // All six selects sit in the header and footer sections OUTSIDE both,
+        // verified by locating each select's enclosing element. No React root
+        // is created per row.
+        //
+        // Select parity, control by control:
+        //   1. Gender    model currentfilter.GenderId, lookup.Gender,
+        //      name "gender", REQUIRED (live), tabindex 2, no id, no class,
+        //      no ng-disabled, no ng-change, placeholder "Please Select".
+        //   2. Header Discount Mode  model currentfilter.DiscountModeId,
+        //      lookup.DiscountMode, name "screen", NOT required, tabindex 6,
+        //      id 'DiscountModeId', class "ui-select-grid",
+        //      ng-disabled="currentcontext.RdoBillDiscountMode",
+        //      ng-change="DiscountModechange()" (no argument),
+        //      ng-keyup="moveHeaderFocus('DiscountModeId')".
+        //   3. Bill Discount Mode  SAME model currentfilter.DiscountModeId but
+        //      a separate control: name "headerdiscountmode", NOT required,
+        //      tabindex 8, same ng-disabled,
+        //      ng-change="BillDiscountModechange($select.selected)" -- this
+        //      handler consumes the FULL selected object (it reads .Id), so
+        //      the dispatcher resolves it out of the same lookup array by Id
+        //      and passes it whole. Both controls stay independent, exactly as
+        //      the two <ui-select> elements were.
+        //   4. Payment Type  model currentcontext.PaymentTypeId,
+        //      lookup.PaymentType, name "paymenttype", REQUIRED (live),
+        //      tabindex 12, id "paymenttype",
+        //      ng-disabled="RdoPaymentTypeId",
+        //      ng-keyup="FooterFocus('paymenttype')", default 1 at controller
+        //      init. Its inline style="flex: 1" is preserved by keeping the
+        //      mount inside a wrapper div carrying that style, so the flex row
+        //      it lives in is unchanged.
+        //   5. Discount Approver  model currentcontext.DiscountApprovedBy,
+        //      lookup.DiscountApprover, name "approvedby", REQUIRED (live),
+        //      tabindex 10, ng-disabled="RdoApprovedById",
+        //      ng-change="setDiscountLimit($select.selected)" -- also consumes
+        //      the FULL object (reads .DiscountLimit and .DiscountMode
+        //      .Description), resolved and passed whole. This control sits
+        //      inside ng-if="item.TotDiscAmount>0", and BOTH the mount and its
+        //      validator shim stay inside that ng-if, so the required
+        //      validator registers and deregisters with the block exactly as
+        //      before.
+        //   6. Bank Name  model item.BankId, lookup.Bank, name "bankname",
+        //      NOT required, tabindex 15, id "BankName",
+        //      ng-disabled="item.isCompleted",
+        //      ng-keyup="FooterFocus('BankName')". Sits inside
+        //      ng-if="currentcontext.PaymentTypeId > 1 && ... != 7 && ... != 12".
+        //
+        // Required-validator parity: three of the six are required and
+        // utl.Validator.validate($scope) is consumed on save, so exactly three
+        // invisible mirror shims are added -- gender, paymenttype, approvedby
+        // -- each carrying the original control name, so item_form.gender /
+        // .paymenttype / .approvedby, their $error.required and item_form
+        // .$valid keep the same empty/non-empty semantics and the same
+        // save-blocking behaviour. No shim is added to the three non-required
+        // controls.
+        //
+        // Keyboard/focus: tabindex is carried on all six, the two focus-chain
+        // ids ('paymenttype', 'BankName') and 'DiscountModeId' are preserved,
+        // and ng-keyup is dispatched back to the SAME unchanged scope
+        // functions -- moveHeaderFocus for control 2, FooterFocus for 4 and 6.
+        //
+        // DEAD GRID documented, NOT repaired: the template's
+        // <custom-table config="vm.gridConfig"> binds a config this controller
+        // never defines -- "gridConfig" appears zero times in
+        // directbillinglist.js -- so the grid receives undefined and renders an
+        // empty table today, with no columns, rows, actions, sorting,
+        // selection, highlighting, pagination, print or export behaviour of any
+        // kind. The mount is built from vm.gridConfig the same way every other
+        // converted screen does, which with an undefined config yields zero
+        // columns and zero rows: the same empty render. Nothing was invented to
+        // fill it.
+        function dblSelectProps(getValue, lookupKey, name, extra) {
+            var props = {
+                options: ($scope.lookup && $scope.lookup[lookupKey]) || [],
+                value: getValue(),
+                name: name,
+                placeholder: 'Please Select'
+            };
+            if (extra) {
+                for (var k in extra) { if (extra.hasOwnProperty(k)) { props[k] = extra[k]; } }
+            }
+            return props;
+        }
+
+        function dblLookupObject(lookupKey, id) {
+            var opts = ($scope.lookup && $scope.lookup[lookupKey]) || [];
+            for (var i = 0; i < opts.length; i++) {
+                if (opts[i].Id === id) { return opts[i]; }
+            }
+            return null;
+        }
+
+        $scope.refreshGenderProps = function () {
+            $scope.reactPropsGenderContainer = {
+                reactProps: dblSelectProps(function () { return $scope.currentfilter.GenderId; },
+                    'Gender', 'gender', { tabIndex: 2 }),
+                onAction: function (actionType, payload) {
+                    if (actionType == 'change') {
+                        $scope.currentfilter.GenderId = payload.id;
+                        $scope.refreshGenderProps();
+                    }
+                }
+            };
+        };
+
+        $scope.refreshScreenDiscountModeProps = function () {
+            $scope.reactPropsScreenDiscountModeContainer = {
+                reactProps: dblSelectProps(function () { return $scope.currentfilter.DiscountModeId; },
+                    'DiscountMode', 'screen',
+                    { tabIndex: 6, id: 'DiscountModeId', className: 'ui-select-grid',
+                      disabled: !!$scope.currentcontext.RdoBillDiscountMode, keyUpId: 'DiscountModeId' }),
+                onAction: function (actionType, payload) {
+                    if (actionType == 'change') {
+                        $scope.currentfilter.DiscountModeId = payload.id;
+                        $scope.DiscountModechange();
+                        $scope.refreshScreenDiscountModeProps();
+                        $scope.refreshBillDiscountModeProps();
+                    } else if (actionType == 'keyUp') {
+                        if (typeof $scope.moveHeaderFocus === 'function') { $scope.moveHeaderFocus(payload.nextId); }
+                    }
+                }
+            };
+        };
+
+        $scope.refreshBillDiscountModeProps = function () {
+            $scope.reactPropsBillDiscountModeContainer = {
+                reactProps: dblSelectProps(function () { return $scope.currentfilter.DiscountModeId; },
+                    'DiscountMode', 'headerdiscountmode',
+                    { tabIndex: 8, disabled: !!$scope.currentcontext.RdoBillDiscountMode }),
+                onAction: function (actionType, payload) {
+                    if (actionType == 'change') {
+                        $scope.currentfilter.DiscountModeId = payload.id;
+                        var selected = dblLookupObject('DiscountMode', payload.id);
+                        if (selected) { $scope.BillDiscountModechange(selected); }
+                        $scope.refreshBillDiscountModeProps();
+                        $scope.refreshScreenDiscountModeProps();
+                    }
+                }
+            };
+        };
+
+        $scope.refreshPaymentTypeProps = function () {
+            $scope.reactPropsPaymentTypeContainer = {
+                reactProps: dblSelectProps(function () { return $scope.currentcontext.PaymentTypeId; },
+                    'PaymentType', 'paymenttype',
+                    { tabIndex: 12, id: 'paymenttype', disabled: !!$scope.RdoPaymentTypeId, keyUpId: 'paymenttype' }),
+                onAction: function (actionType, payload) {
+                    if (actionType == 'change') {
+                        $scope.currentcontext.PaymentTypeId = payload.id;
+                        $scope.refreshPaymentTypeProps();
+                    } else if (actionType == 'keyUp') {
+                        if (typeof $scope.FooterFocus === 'function') { $scope.FooterFocus(payload.nextId); }
+                    }
+                }
+            };
+        };
+
+        $scope.refreshDiscountApproverProps = function () {
+            $scope.reactPropsDiscountApproverContainer = {
+                reactProps: dblSelectProps(function () { return $scope.currentcontext.DiscountApprovedBy; },
+                    'DiscountApprover', 'approvedby',
+                    { tabIndex: 10, disabled: !!$scope.RdoApprovedById }),
+                onAction: function (actionType, payload) {
+                    if (actionType == 'change') {
+                        $scope.currentcontext.DiscountApprovedBy = payload.id;
+                        var selected = dblLookupObject('DiscountApprover', payload.id);
+                        if (selected) { $scope.setDiscountLimit(selected); }
+                        $scope.refreshDiscountApproverProps();
+                    }
+                }
+            };
+        };
+
+        $scope.refreshBankNameProps = function () {
+            $scope.reactPropsBankNameContainer = {
+                reactProps: dblSelectProps(function () { return $scope.item.BankId; },
+                    'Bank', 'bankname',
+                    { tabIndex: 15, id: 'BankName', disabled: !!$scope.item.isCompleted, keyUpId: 'BankName' }),
+                onAction: function (actionType, payload) {
+                    if (actionType == 'change') {
+                        $scope.item.BankId = payload.id;
+                        $scope.refreshBankNameProps();
+                    } else if (actionType == 'keyUp') {
+                        if (typeof $scope.FooterFocus === 'function') { $scope.FooterFocus(payload.nextId); }
+                    }
+                }
+            };
+        };
+
+        $scope.refreshDirectBillGridProps = function () {
+            var cfg = vm.gridConfig;
+            var defs = (cfg && cfg.columnDefs) || [];
+            var items = (cfg && cfg.data) || [];
+            $scope.reactPropsDirectBillGridContainer = {
+                reactProps: {
+                    columns: defs.map(function (d, i) { return { key: 'c' + i, header: d.displayName }; }),
+                    hasActions: false,
+                    rows: items.map(function (entity, i) {
+                        var cells = {};
+                        defs.forEach(function (d, ci) { cells['c' + ci] = entity ? entity[d.field] : ''; });
+                        return { id: (entity && entity.Id != null) ? entity.Id : i, cells: cells };
+                    })
+                },
+                onAction: function () {}
+            };
+        };
+
+        $scope.refreshGenderProps();
+        $scope.refreshScreenDiscountModeProps();
+        $scope.refreshBillDiscountModeProps();
+        $scope.refreshPaymentTypeProps();
+        $scope.refreshDiscountApproverProps();
+        $scope.refreshBankNameProps();
+        $scope.refreshDirectBillGridProps();
+
+        $scope.$watchGroup([
+            function () { return $scope.lookup && $scope.lookup.Gender; },
+            function () { return $scope.currentfilter.GenderId; }
+        ], $scope.refreshGenderProps);
+
+        $scope.$watchGroup([
+            function () { return $scope.lookup && $scope.lookup.DiscountMode; },
+            function () { return $scope.currentfilter.DiscountModeId; },
+            function () { return $scope.currentcontext.RdoBillDiscountMode; }
+        ], function () {
+            $scope.refreshScreenDiscountModeProps();
+            $scope.refreshBillDiscountModeProps();
+        });
+
+        $scope.$watchGroup([
+            function () { return $scope.lookup && $scope.lookup.PaymentType; },
+            function () { return $scope.currentcontext.PaymentTypeId; },
+            function () { return $scope.RdoPaymentTypeId; }
+        ], $scope.refreshPaymentTypeProps);
+
+        $scope.$watchGroup([
+            function () { return $scope.lookup && $scope.lookup.DiscountApprover; },
+            function () { return $scope.currentcontext.DiscountApprovedBy; },
+            function () { return $scope.RdoApprovedById; }
+        ], $scope.refreshDiscountApproverProps);
+
+        $scope.$watchGroup([
+            function () { return $scope.lookup && $scope.lookup.Bank; },
+            function () { return $scope.item.BankId; },
+            function () { return $scope.item.isCompleted; }
+        ], $scope.refreshBankNameProps);
+
         $scope.getPharmacyPrintPreference();
         $scope.initLookup();
     }
