@@ -33,6 +33,7 @@
         $scope.getListCallback = function (scope, data, options, hasError) {
             console.log(data.Data);
             vm.gridConfig.data = data.Data;
+            $scope.refreshPaymentGridProps();
             vm.gridConfig.pagerObj.totalItems = data.PageContext.TotalRecords;
         };
 
@@ -147,6 +148,7 @@
             $scope.lookup = hasError ? {} : data;
             $scope.getList();
             $scope.refreshReactProps();
+            $scope.refreshPaymentGridProps();
         }
 
         $scope.initLookup = function () {
@@ -168,6 +170,80 @@
             };
             utl.Http.doAction(options);
         }
+
+
+        // Grid bridge: replaces the last native <div ui-grid="vm.gridConfig">
+        // on this form with a BridgeGridScreen mount. Only that grid is
+        // touched -- every existing React mount, payment action, save/approval
+        // path, discount flow, terminal/payment-mode behaviour, focus adapter,
+        // API call, facility-setting variant and print/claim behaviour on this
+        // form is left exactly as it is.
+        //
+        // This is a REAL ui-grid, so row.entity / grid.appScope were valid; the
+        // dispatcher hands $scope.handleEvents the SAME { entity: ... } wrapper
+        // it received before, so $state.go and utl.Dialog.confirmDelete still
+        // run unchanged. The action column renders the shared
+        // actionTemplate.html (app.html) driven by colDef.actions, which here
+        // is [{ actiontype: 'edit' }, { actiontype: 'delete' }] -- both
+        // unconditional, reproduced as two unconditional row actions.
+        // All six data columns are plain fields with no cellTemplate, so no
+        // formatting logic exists to preserve.
+        //
+        // PRE-EXISTING BUG documented, NOT fixed: the 'edit' branch of
+        // $scope.handleEvents calls $state.go('') with an empty state name, so
+        // the Edit action has never navigated anywhere. That handler is left
+        // exactly as it is; the bridge only changes how it is reached.
+        $scope.handlePaymentGridAction = function (actionType, payload) {
+            var items = (vm.gridConfig && vm.gridConfig.data) || [];
+            var entity = null;
+            for (var i = 0; i < items.length; i++) {
+                if (items[i].Id === payload.id) { entity = items[i]; break; }
+            }
+            if (entity === null) { return; }
+            if (actionType == 'rowAction') { $scope.handleEvents(payload.key, { entity: entity }); }
+        };
+
+        $scope.refreshPaymentGridProps = function () {
+            var defs = (vm.gridConfig && vm.gridConfig.columnDefs) || [];
+            function hdr(i) { return defs[i] ? defs[i].displayName : ''; }
+            var items = (vm.gridConfig && vm.gridConfig.data) || [];
+            $scope.reactPropsPaymentGridContainer = {
+                reactProps: {
+                    columns: [
+                        { key: 'mode', header: hdr(0), sortable: true },
+                        { key: 'amount', header: hdr(1), align: 'right' },
+                        { key: 'bankname', header: hdr(2), sortable: true },
+                        { key: 'cardtype', header: hdr(3), sortable: true },
+                        { key: 'authcode', header: hdr(4) },
+                        { key: 'terminalno', header: hdr(5) }
+                    ],
+                    actionsHeader: hdr(6) || 'Actions',
+                    hasActions: true,
+                    rows: items.map(function (entity) {
+                        return {
+                            id: entity.Id,
+                            actions: [
+                                { key: 'edit', label: '', icon: 'fa fa-pencil', variant: 'success', title: 'Edit' },
+                                { key: 'delete', label: '', icon: 'fa fa-trash', variant: 'danger', title: 'Delete' }
+                            ],
+                            cells: {
+                                mode: entity.PaymentType && entity.PaymentType.Description,
+                                amount: entity.AmountPaid,
+                                bankname: entity.Bank && entity.Bank.Description,
+                                cardtype: entity.CardType && entity.CardType.Description,
+                                authcode: entity.AuthorizedCode,
+                                terminalno: entity.TerminalNoId
+                            }
+                        };
+                    })
+                },
+                onAction: $scope.handlePaymentGridAction
+            };
+        };
+
+        // vm.gridConfig is already defined above, so the mount has real column
+        // headers before the first getList() response arrives.
+        $scope.refreshPaymentGridProps();
 
         $scope.refreshReactProps = function () {
             $scope.reactProps = {
