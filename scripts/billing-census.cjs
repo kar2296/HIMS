@@ -270,7 +270,9 @@ const physicalKeys = new Set(physical.map(keyOf));
 
 function controls(repoPath) {
   const live = fs.readFileSync(path.join(ROOT, repoPath), 'utf8').replace(/<!--[\s\S]*?-->/g, '');
-  const uiSelect = (live.match(/<ui-select\b/g) || []).length;
+  // (?![-\w]) so <ui-select-match> and <ui-select-choices>, which are children
+  // of a single control, are not counted as extra controls.
+  const uiSelect = (live.match(/<ui-select(?![-\w])/g) || []).length;
   const uiGrid = (live.match(/\bui-grid\s*=/g) || []).length;
   const customTable = (live.match(/<custom-table\b/g) || []).length;
   const reactMount = (live.match(/<react-component\b/g) || []).length;
