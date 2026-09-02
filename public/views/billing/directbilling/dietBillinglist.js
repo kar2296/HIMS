@@ -4035,6 +4035,286 @@
             $rootScope.app.layout.isCollapsed = true;
         }
 
+        // ------------------------------------------------------------------
+        // React bridge for this screen's nine live <ui-select> controls. All
+        // render through the shared BridgeLookupSelectScreen; no new React
+        // component, and no quantity, rate, amount, tax or billing
+        // calculation, and no API call, moves into React. No food, rate, tax
+        // or billing data is introduced anywhere -- every option list is the
+        // screen's own lookup array.
+        //
+        // PER-ROW MOUNT CHECK: this template has two ng-repeats
+        // (PatientBillDetails, whose <tr> opens at live line 178 and closes at
+        // 229, and PaymentInfoDetails at 577). All nine selects are at lines
+        // 69-489 and none binds the repeat variable `bi`; each was checked
+        // individually. No React root or deep watcher is created per row.
+        //
+        //  #  model                              lookup             name                required
+        //  1  currentfilter.GenderId             Gender             gender              YES
+        //  2  currentfilter.DepartmentId         Department         (none)              YES
+        //  3  currentfilter.DiscountModeId       DiscountMode       screen              no
+        //  4  currentfilter.DiscountModeId       DiscountMode       headerdiscountmode  no
+        //  5  currentcontext.DiscountApprovedBy  DiscountApprover   approvedby          YES
+        //  6  currentcontext.PaymentTypeId       PaymentType        paymenttype         YES
+        //  7  item.PrivateDueId                  PrivateDueApprover creditapprover      no
+        //  8  item.BankId                        Bank               bankname            YES
+        //  9  item.CardTypeId                    CardType           cardtype            YES
+        //
+        // Every one keeps its numeric Id type ("lookupitem.Id as lookupitem in
+        // ..."). Disabled expressions are read off the scope unchanged:
+        // (4) currentcontext.RdoBillDiscountMode, (5) RdoApprovedById,
+        // (6) RdoPaymentTypeId, (7) currentcontext.RdoGuarantorDue,
+        // (8) and (9) item.isCompleted. (1), (2) and (3) have no ng-disabled.
+        // None has allow-clear, a facility gate or a privilege gate on the
+        // control itself; none was invented.
+        //
+        // Full-object handlers preserved:
+        //   (4) ng-change="BillDiscountModechange($select.selected)" reads
+        //       .Id, so the object is resolved out of the same lookup array by
+        //       Id and passed whole.
+        //   (5) ng-change="setDiscountLimit($select.selected)" reads
+        //       .DiscountLimit and .DiscountMode.Description -- also resolved
+        //       and passed whole.
+        //   (3) ng-change="DiscountModechange()" takes no argument.
+        // Controls (3) and (4) share the SAME model
+        // currentfilter.DiscountModeId but are separate controls with separate
+        // names and handlers, exactly as the two elements were, so both are
+        // refreshed together whenever that model changes.
+        //
+        // Keyboard/focus: tabindex carried on all nine; the ids
+        // 'DiscountModeId', 'paymenttype', 'creditapprover', 'BankName' and
+        // 'CardType' preserved; ng-keyup dispatched back to the SAME unchanged
+        // scope functions -- moveHeaderFocus for (3), FooterFocus for (6),
+        // (7), (8) and (9). class="ui-select-grid" preserved on (3).
+        //
+        // DOCUMENTED PRE-EXISTING DEFECTS, NOT CORRECTED:
+        //  a. Controls (4) and (5) each carry TWO tabindex attributes --
+        //     tabindex="8" then tabindex="7" on (4), and tabindex="10" then
+        //     tabindex="-1" on (5). An HTML parser keeps the FIRST occurrence
+        //     and discards the duplicate, so the effective values today are 8
+        //     and 10. Those effective values are what is reproduced; the dead
+        //     duplicates are not revived.
+        //  b. Control (5) also carries uib-tooltip / tooltip-placement. A
+        //     tooltip directive on the converted control is not reproduced,
+        //     consistent with every other ui-select conversion in this
+        //     migration; the same text is visible in the control itself.
+        //  c. Control (2) is `required` but has NO name attribute. Angular's
+        //     form.$addControl pushes unnamed controls into the validity chain
+        //     while only exposing named ones as form.<name>, so it does affect
+        //     item_form.$valid but is not addressable by name. Its mirror shim
+        //     is therefore deliberately created WITHOUT a name, reproducing
+        //     exactly that.
+        //
+        // Required-validator parity: six of the nine are required and
+        // utl.Validator.validate($scope) is consumed on save, so exactly six
+        // invisible mirror shims are added, each carrying the original control
+        // name where one existed -- gender, (unnamed), approvedby,
+        // paymenttype, bankname, cardtype -- preserving item_form.<name>,
+        // $error.required, item_form.$valid, empty/non-empty semantics and
+        // save-blocking behaviour. No shim is added to the three non-required
+        // controls.
+        function dietSelectProps(getValue, lookupKey, name, extra) {
+            var props = {
+                options: ($scope.lookup && $scope.lookup[lookupKey]) || [],
+                value: getValue()
+            };
+            if (name) { props.name = name; }
+            if (extra) {
+                for (var k in extra) { if (extra.hasOwnProperty(k)) { props[k] = extra[k]; } }
+            }
+            return props;
+        }
+
+        function dietLookupObject(lookupKey, id) {
+            var opts = ($scope.lookup && $scope.lookup[lookupKey]) || [];
+            for (var i = 0; i < opts.length; i++) {
+                if (opts[i].Id === id) { return opts[i]; }
+            }
+            return null;
+        }
+
+        function dietFocus(fn) {
+            return function (nextId) {
+                if (typeof $scope[fn] === 'function') { $scope[fn](nextId); }
+            };
+        }
+
+        $scope.refreshDietGenderProps = function () {
+            $scope.reactPropsGenderContainer = {
+                reactProps: dietSelectProps(function () { return $scope.currentfilter.GenderId; },
+                    'Gender', 'gender', { tabIndex: 2 }),
+                onAction: function (a, p) {
+                    if (a == 'change') { $scope.currentfilter.GenderId = p.id; $scope.refreshDietGenderProps(); }
+                }
+            };
+        };
+
+        $scope.refreshDietDepartmentProps = function () {
+            $scope.reactPropsDepartmentContainer = {
+                reactProps: dietSelectProps(function () { return $scope.currentfilter.DepartmentId; },
+                    'Department', null),
+                onAction: function (a, p) {
+                    if (a == 'change') { $scope.currentfilter.DepartmentId = p.id; $scope.refreshDietDepartmentProps(); }
+                }
+            };
+        };
+
+        $scope.refreshDietScreenDiscountModeProps = function () {
+            $scope.reactPropsScreenDiscountModeContainer = {
+                reactProps: dietSelectProps(function () { return $scope.currentfilter.DiscountModeId; },
+                    'DiscountMode', 'screen',
+                    { tabIndex: 6, id: 'DiscountModeId', className: 'ui-select-grid', keyUpId: 'DiscountModeId' }),
+                onAction: function (a, p) {
+                    if (a == 'change') {
+                        $scope.currentfilter.DiscountModeId = p.id;
+                        $scope.DiscountModechange();
+                        $scope.refreshDietScreenDiscountModeProps();
+                        $scope.refreshDietBillDiscountModeProps();
+                    } else if (a == 'keyUp') { dietFocus('moveHeaderFocus')(p.nextId); }
+                }
+            };
+        };
+
+        $scope.refreshDietBillDiscountModeProps = function () {
+            $scope.reactPropsBillDiscountModeContainer = {
+                reactProps: dietSelectProps(function () { return $scope.currentfilter.DiscountModeId; },
+                    'DiscountMode', 'headerdiscountmode',
+                    { tabIndex: 8, disabled: !!$scope.currentcontext.RdoBillDiscountMode }),
+                onAction: function (a, p) {
+                    if (a == 'change') {
+                        $scope.currentfilter.DiscountModeId = p.id;
+                        var sel = dietLookupObject('DiscountMode', p.id);
+                        if (sel) { $scope.BillDiscountModechange(sel); }
+                        $scope.refreshDietBillDiscountModeProps();
+                        $scope.refreshDietScreenDiscountModeProps();
+                    }
+                }
+            };
+        };
+
+        $scope.refreshDietDiscountApproverProps = function () {
+            $scope.reactPropsDiscountApproverContainer = {
+                reactProps: dietSelectProps(function () { return $scope.currentcontext.DiscountApprovedBy; },
+                    'DiscountApprover', 'approvedby',
+                    { tabIndex: 10, disabled: !!$scope.RdoApprovedById }),
+                onAction: function (a, p) {
+                    if (a == 'change') {
+                        $scope.currentcontext.DiscountApprovedBy = p.id;
+                        var sel = dietLookupObject('DiscountApprover', p.id);
+                        if (sel) { $scope.setDiscountLimit(sel); }
+                        $scope.refreshDietDiscountApproverProps();
+                    }
+                }
+            };
+        };
+
+        $scope.refreshDietPaymentTypeProps = function () {
+            $scope.reactPropsPaymentTypeContainer = {
+                reactProps: dietSelectProps(function () { return $scope.currentcontext.PaymentTypeId; },
+                    'PaymentType', 'paymenttype',
+                    { tabIndex: 12, id: 'paymenttype', disabled: !!$scope.RdoPaymentTypeId, keyUpId: 'paymenttype' }),
+                onAction: function (a, p) {
+                    if (a == 'change') { $scope.currentcontext.PaymentTypeId = p.id; $scope.refreshDietPaymentTypeProps(); }
+                    else if (a == 'keyUp') { dietFocus('FooterFocus')(p.nextId); }
+                }
+            };
+        };
+
+        $scope.refreshDietCreditApproverProps = function () {
+            $scope.reactPropsCreditApproverContainer = {
+                reactProps: dietSelectProps(function () { return $scope.item.PrivateDueId; },
+                    'PrivateDueApprover', 'creditapprover',
+                    { tabIndex: 14, id: 'creditapprover', disabled: !!$scope.currentcontext.RdoGuarantorDue, keyUpId: 'creditapprover' }),
+                onAction: function (a, p) {
+                    if (a == 'change') { $scope.item.PrivateDueId = p.id; $scope.refreshDietCreditApproverProps(); }
+                    else if (a == 'keyUp') { dietFocus('FooterFocus')(p.nextId); }
+                }
+            };
+        };
+
+        $scope.refreshDietBankNameProps = function () {
+            $scope.reactPropsBankNameContainer = {
+                reactProps: dietSelectProps(function () { return $scope.item.BankId; },
+                    'Bank', 'bankname',
+                    { tabIndex: 15, id: 'BankName', disabled: !!$scope.item.isCompleted, keyUpId: 'BankName' }),
+                onAction: function (a, p) {
+                    if (a == 'change') { $scope.item.BankId = p.id; $scope.refreshDietBankNameProps(); }
+                    else if (a == 'keyUp') { dietFocus('FooterFocus')(p.nextId); }
+                }
+            };
+        };
+
+        $scope.refreshDietCardTypeProps = function () {
+            $scope.reactPropsCardTypeContainer = {
+                reactProps: dietSelectProps(function () { return $scope.item.CardTypeId; },
+                    'CardType', 'cardtype',
+                    { tabIndex: 24, id: 'CardType', disabled: !!$scope.item.isCompleted, keyUpId: 'CardType' }),
+                onAction: function (a, p) {
+                    if (a == 'change') { $scope.item.CardTypeId = p.id; $scope.refreshDietCardTypeProps(); }
+                    else if (a == 'keyUp') { dietFocus('FooterFocus')(p.nextId); }
+                }
+            };
+        };
+
+        $scope.refreshDietGenderProps();
+        $scope.refreshDietDepartmentProps();
+        $scope.refreshDietScreenDiscountModeProps();
+        $scope.refreshDietBillDiscountModeProps();
+        $scope.refreshDietDiscountApproverProps();
+        $scope.refreshDietPaymentTypeProps();
+        $scope.refreshDietCreditApproverProps();
+        $scope.refreshDietBankNameProps();
+        $scope.refreshDietCardTypeProps();
+
+        $scope.$watchGroup([
+            function () { return $scope.lookup; },
+            function () { return $scope.currentfilter.GenderId; }
+        ], $scope.refreshDietGenderProps);
+
+        $scope.$watchGroup([
+            function () { return $scope.lookup; },
+            function () { return $scope.currentfilter.DepartmentId; }
+        ], $scope.refreshDietDepartmentProps);
+
+        $scope.$watchGroup([
+            function () { return $scope.lookup; },
+            function () { return $scope.currentfilter.DiscountModeId; },
+            function () { return $scope.currentcontext.RdoBillDiscountMode; }
+        ], function () {
+            $scope.refreshDietScreenDiscountModeProps();
+            $scope.refreshDietBillDiscountModeProps();
+        });
+
+        $scope.$watchGroup([
+            function () { return $scope.lookup; },
+            function () { return $scope.currentcontext.DiscountApprovedBy; },
+            function () { return $scope.RdoApprovedById; }
+        ], $scope.refreshDietDiscountApproverProps);
+
+        $scope.$watchGroup([
+            function () { return $scope.lookup; },
+            function () { return $scope.currentcontext.PaymentTypeId; },
+            function () { return $scope.RdoPaymentTypeId; }
+        ], $scope.refreshDietPaymentTypeProps);
+
+        $scope.$watchGroup([
+            function () { return $scope.lookup; },
+            function () { return $scope.item.PrivateDueId; },
+            function () { return $scope.currentcontext.RdoGuarantorDue; }
+        ], $scope.refreshDietCreditApproverProps);
+
+        $scope.$watchGroup([
+            function () { return $scope.lookup; },
+            function () { return $scope.item.BankId; },
+            function () { return $scope.item.isCompleted; }
+        ], $scope.refreshDietBankNameProps);
+
+        $scope.$watchGroup([
+            function () { return $scope.lookup; },
+            function () { return $scope.item.CardTypeId; },
+            function () { return $scope.item.isCompleted; }
+        ], $scope.refreshDietCardTypeProps);
+
         $scope.getPharmacyPrintPreference();
         $scope.initLookup();
     }
