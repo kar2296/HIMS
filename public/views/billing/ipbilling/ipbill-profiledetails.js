@@ -1971,6 +1971,106 @@
             }
         };
 
+        // ------------------------------------------------------------------
+        // React bridge for this screen's two live <ui-select> controls. The
+        // third select in this template is inside an HTML comment and stays
+        // commented out. Everything else -- the bill grid, the discount
+        // workflow, save/approve, the focus chain, every API call and payload
+        // -- is untouched.
+        //
+        // Both models are written from several asynchronous code paths in this
+        // 1978-line controller (getEncounters, getDetails, patientChange,
+        // package handling), so the props are rebuilt from $watchGroup rather
+        // than from a fixed list of call sites. The watches read only the
+        // lookup array reference, the model value and the privilege flag, so
+        // they are reference/primitive comparisons and add no deep traversal.
+        //
+        // Tariff select (Encounter.ServiceRateCategoryId):
+        //   model            unchanged field
+        //   lookup           lookup.ServiceRateCategory, unreshaped
+        //   id type          numeric Id ("lookupitem.Id as lookupitem in ...")
+        //   full object      no on-select / ng-change existed, so no handler
+        //                    has ever received the selected object; none added
+        //   required         NOT present on this control. utl.Validator
+        //                    .validate($scope) is called elsewhere in this
+        //                    controller, but this select contributes no
+        //                    required validator to item_form, so no shim is
+        //                    added and form validity is unchanged.
+        //   field name       "tariff", unchanged
+        //   disabled         currentcontext.CanEditTariff === false -- a real
+        //                    privilege gate, HasAccess('IPBILLING_DETAILS',
+        //                    'CanEditTariff'). Read from the scope exactly as
+        //                    before; the privilege call itself is untouched.
+        //   allow-clear      not present; not added
+        //   default          whatever getEncounters()/getDetails() set
+        //   keyboard/focus   tabindex="-1" preserved, so the control stays out
+        //                    of the tab order as it does today
+        //
+        // Discount Mode select (currentfilter.DiscountModeId):
+        //   model            unchanged field, default 2 set at controller init
+        //   lookup           lookup.DiscountMode, unreshaped
+        //   id type          numeric Id
+        //   full object      no on-select existed; ng-change takes no argument
+        //   required         not present; no shim
+        //   field name       the original had no name attribute; none invented
+        //   disabled         no ng-disabled in the original; none added
+        //   ng-change        DiscountModechange(), the same unchanged scope
+        //                    function, called after the model is written --
+        //                    the same order ng-model then ng-change produced
+        //   class            "ui-select-grid" carried through, since the
+        //                    stylesheet targets the control by that class
+        $scope.refreshTariffProps = function () {
+            $scope.reactPropsTariffContainer = {
+                reactProps: {
+                    options: ($scope.lookup && $scope.lookup.ServiceRateCategory) || [],
+                    value: $scope.Encounter ? $scope.Encounter.ServiceRateCategoryId : null,
+                    disabled: $scope.currentcontext.CanEditTariff === false,
+                    name: 'tariff',
+                    tabIndex: -1
+                },
+                onAction: function (actionType, payload) {
+                    if (actionType == 'change') {
+                        // ng-model="Encounter.ServiceRateCategoryId" would have
+                        // created the intermediate object on assignment.
+                        if (!$scope.Encounter) { $scope.Encounter = {}; }
+                        $scope.Encounter.ServiceRateCategoryId = payload.id;
+                        $scope.refreshTariffProps();
+                    }
+                }
+            };
+        };
+
+        $scope.refreshDiscountModeProps = function () {
+            $scope.reactPropsDiscountModeContainer = {
+                reactProps: {
+                    options: ($scope.lookup && $scope.lookup.DiscountMode) || [],
+                    value: $scope.currentfilter.DiscountModeId,
+                    className: 'ui-select-grid'
+                },
+                onAction: function (actionType, payload) {
+                    if (actionType == 'change') {
+                        $scope.currentfilter.DiscountModeId = payload.id;
+                        $scope.DiscountModechange();
+                        $scope.refreshDiscountModeProps();
+                    }
+                }
+            };
+        };
+
+        $scope.refreshTariffProps();
+        $scope.refreshDiscountModeProps();
+
+        $scope.$watchGroup([
+            function () { return $scope.lookup && $scope.lookup.ServiceRateCategory; },
+            function () { return $scope.Encounter && $scope.Encounter.ServiceRateCategoryId; },
+            function () { return $scope.currentcontext.CanEditTariff; }
+        ], $scope.refreshTariffProps);
+
+        $scope.$watchGroup([
+            function () { return $scope.lookup && $scope.lookup.DiscountMode; },
+            function () { return $scope.currentfilter.DiscountModeId; }
+        ], $scope.refreshDiscountModeProps);
+
         $scope.initLookup();
     }
 
