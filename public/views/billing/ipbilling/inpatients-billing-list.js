@@ -357,6 +357,7 @@
             }
             // $scope.getPagination();
             vm.gridConfig.pagerObj.totalItems = data.PageContext.TotalRecords;
+            $scope.refreshIpBillGridProps();
             // $scope.totalOccupancy = data.PageContext.TotalRecords;
             // vm.gridConfig.pagerObj.totalItems = data.Data.length;
             // vm.gridConfig.pagerObj.totalItems = data.Data.length;
@@ -1205,6 +1206,248 @@
             };
             utl.Http.doAction(options);
         };
+
+        // ------------------------------------------------------------------
+        // React bridge: four filter <ui-select> controls and the
+        // <custom-table>, through the shared BridgeLookupSelectScreen and
+        // BridgeGridScreen. No new React component, and no business
+        // calculation or API call moves into React -- NoOfDays, Debit, Credit,
+        // Balance and ColorCode are still computed in getListCallback exactly
+        // as before, and the bridge only reshapes what it produced.
+        //
+        // The four select blocks were verified byte-identical to
+        // billing-workbench's before that pattern was reused, so parity is the
+        // same: models currentfilter.WardId / .GuarantorId /
+        // .AdmissionStatusId / .TPAId unchanged; lookups lookup.Ward /
+        // .Guarantor / .AdmissionStatus / .TPA unreshaped; numeric Id; no
+        // on-select and ng-change="getList()" takes no argument, so no handler
+        // has ever received the selected object; none is required and this
+        // screen has no item_form, so NO validator shim is added; no name, no
+        // ng-disabled, no tabindex, no allow-clear on any of them; class
+        // "filter-combo" carried through on Ward, Status and TPA, and the
+        // Payer control's id 'GuarantorId' preserved; none is gated by a
+        // facility setting or privilege.
+        //
+        // PRE-EXISTING QUIRK, same as billing-workbench: currentfilter
+        // .AdmissionStatusId is assigned an ARRAY by the tab initialisers and
+        // read back as a single Value in the payloads, so that control already
+        // renders with nothing selected in those tabs. Reproduced.
+        //
+        // Grid -- 12 data columns in columnDefs order plus actions:
+        //   AdmissionDate keeps date:'dd-MMM-yyyy' + date:'HH:mm'; Debit,
+        //   Credit and Balance keep the displaycurrency filter, called through
+        //   $filter, so the rupee symbol, Indian digit grouping and toFixed(2)
+        //   rounding are byte-identical to today's output.
+        //   Nested-object bindings preserved exactly, including the room cell's
+        //   per-span ng-if conditions: WardName/RoomNo are emitted only when
+        //   entity.WardRoomMaster exists and BedNo only when
+        //   entity.WardRoomBedMaster exists.
+        //   Explicit column widths ('7%' on Guarantor, Referral Name and
+        //   No.Of Days, '6%' on Status) are carried through.
+        //   Row highlighting: config.background.style maps ColorCode 5, 6 and
+        //   7 to three different colours. Reproduced per row through
+        //   BridgeGridScreen's highlightStyle, using the same hex values.
+        //   Row actions reproduce the inline cellTemplate exactly -- 'edit'
+        //   (fas fa-procedures, "In patients") and 'packages' (fas
+        //   fa-file-invoice-dollar, "Packages"), both unconditional -- and
+        //   dispatch the SAME payload the template used, the entity itself,
+        //   into the unchanged $scope.handleEvents. Both $state.go targets and
+        //   all of their params, including the 18 filter params on
+        //   app.ipbillingtab.summary, are untouched. The actions array is []
+        //   and the cellTemplate is inline, so actionTemplate.html is not
+        //   involved.
+        //   Pagination untouched: the existing <ul uib-pagination> still binds
+        //   vm.gridConfig.pagerObj and still calls getList().
+        //   Sorting enabled only on the plain string columns, matching
+        //   custom-table's reOrder string compare.
+        //   No onRegisterApi, no row selection, no export or print behaviour
+        //   exists on this grid; none was invented.
+        //
+        // TWO BROKEN LEGACY CELL EXPRESSIONS documented, NOT corrected:
+        //   1. The Patient cellTemplate opens '<a class="grid-action"
+        //      ng-click="handleEvents(...)"' and never closes that tag, so the
+        //      following spans are swallowed into the anchor's attribute text.
+        //      Rendered here as its plain First/Last / MRN / Age / Gender text
+        //      with the same 'patientinfo' click the column's handleEvent
+        //      wires up. Note the Title is absent from the live template (it
+        //      is in the commented-out variant above it), so it is absent here
+        //      too.
+        //   2. The admitting-doctor cellTemplate calls
+        //      handleEvents('patientinfo', entity) but the column sets no
+        //      handleEvent, so handleEvents is undefined in that cell scope and
+        //      the click has never fired. Rendered as plain text, no click.
+        //
+        // DEAD GRID CONFIG documented: config.package.flag adds the
+        // 'pack-custom' class, whose entire CSS block in custom-table.html is
+        // commented out, so it has never had a visible effect;
+        // enableColumnResizing is a ui-grid option custom-table ignores.
+        // Neither is reproduced.
+        function ipFilterProps(field, lookupKey, extra) {
+            var props = {
+                options: ($scope.lookup && $scope.lookup[lookupKey]) || [],
+                value: $scope.currentfilter[field]
+            };
+            if (extra) {
+                for (var k in extra) { if (extra.hasOwnProperty(k)) { props[k] = extra[k]; } }
+            }
+            return props;
+        }
+
+        function ipFilterAction(field, refresh) {
+            return function (actionType, payload) {
+                if (actionType == 'change') {
+                    $scope.currentfilter[field] = payload.id;
+                    $scope.getList();
+                    refresh();
+                }
+            };
+        }
+
+        $scope.refreshWardFilterProps = function () {
+            $scope.reactPropsWardContainer = {
+                reactProps: ipFilterProps('WardId', 'Ward', { className: 'filter-combo' }),
+                onAction: ipFilterAction('WardId', $scope.refreshWardFilterProps)
+            };
+        };
+
+        $scope.refreshGuarantorFilterProps = function () {
+            $scope.reactPropsGuarantorContainer = {
+                reactProps: ipFilterProps('GuarantorId', 'Guarantor', { id: 'GuarantorId' }),
+                onAction: ipFilterAction('GuarantorId', $scope.refreshGuarantorFilterProps)
+            };
+        };
+
+        $scope.refreshAdmissionStatusFilterProps = function () {
+            $scope.reactPropsAdmissionStatusContainer = {
+                reactProps: ipFilterProps('AdmissionStatusId', 'AdmissionStatus', { className: 'filter-combo' }),
+                onAction: ipFilterAction('AdmissionStatusId', $scope.refreshAdmissionStatusFilterProps)
+            };
+        };
+
+        $scope.refreshTPAFilterProps = function () {
+            $scope.reactPropsTPAContainer = {
+                reactProps: ipFilterProps('TPAId', 'TPA', { className: 'filter-combo' }),
+                onAction: ipFilterAction('TPAId', $scope.refreshTPAFilterProps)
+            };
+        };
+
+        // Same hex values as vm.gridConfig.background.style.value.
+        var IPBILL_ROW_COLORS = {
+            5: { background: '#4274d8ad', color: '#fff' },
+            6: { background: '#ed143dad', color: '#fff' },
+            7: { background: '#EE7700', color: '#fff' }
+        };
+
+        function ipPersonName(p) {
+            p = p || {};
+            var t = (p.Title && p.Title.Description) ? p.Title.Description + ' ' : '';
+            return t + (p.FirstName || '') + ' ' + (p.LastName || '');
+        }
+
+        function ipRoomText(entity) {
+            var out = '';
+            if (entity.WardRoomMaster) {
+                out += ((entity.WardMaster && entity.WardMaster.WardName) || '') + '/' +
+                    (entity.WardRoomMaster.RoomNo || '') + '/';
+            }
+            if (entity.WardRoomBedMaster) {
+                out += (entity.WardRoomBedMaster.BedNo || '');
+            }
+            return out;
+        }
+
+        $scope.refreshIpBillGridProps = function () {
+            var defs = (vm.gridConfig && vm.gridConfig.columnDefs) || [];
+            function hdr(i) { return defs[i] ? defs[i].displayName : ''; }
+            var items = (vm.gridConfig && vm.gridConfig.data) || [];
+            var money = $filter('displaycurrency');
+            var date = $filter('date');
+            $scope.reactPropsIpBillGridContainer = {
+                reactProps: {
+                    columns: [
+                        { key: 'visitno', header: hdr(0), sortable: true },
+                        { key: 'patient', header: hdr(1), link: true },
+                        { key: 'doctor', header: hdr(2) },
+                        { key: 'room', header: hdr(3) },
+                        { key: 'admissiondate', header: hdr(4) },
+                        { key: 'guarantor', header: hdr(5), sortable: true, width: '7%' },
+                        { key: 'referral', header: hdr(6), sortable: true, width: '7%' },
+                        { key: 'noofdays', header: hdr(7), width: '7%' },
+                        { key: 'debit', header: hdr(8), align: 'right' },
+                        { key: 'credit', header: hdr(9), align: 'right' },
+                        { key: 'balance', header: hdr(10), align: 'right' },
+                        { key: 'status', header: hdr(11), sortable: true, width: '6%' }
+                    ],
+                    actionsHeader: hdr(12) || 'Actions',
+                    hasActions: true,
+                    rows: items.map(function (entity, i) {
+                        return {
+                            id: (entity && entity.Id != null) ? entity.Id : i,
+                            highlight: !!IPBILL_ROW_COLORS[entity.ColorCode],
+                            highlightStyle: IPBILL_ROW_COLORS[entity.ColorCode],
+                            actions: [
+                                { key: 'edit', label: '', icon: 'fas fa-procedures', variant: 'icon', title: 'In patients' },
+                                { key: 'packages', label: '', icon: 'fas fa-file-invoice-dollar', variant: 'icon', title: 'Packages' }
+                            ],
+                            cells: {
+                                visitno: entity.VisitIdentifier,
+                                patient: (entity.Patient ? (entity.Patient.FirstName || '') + ' ' + (entity.Patient.LastName || '') : '') +
+                                    '/' + ((entity.Patient && entity.Patient.MRN) || '') + '/' +
+                                    ((entity.Patient && entity.Patient.Age) || '') + '/' +
+                                    ((entity.Patient && entity.Patient.Gender && entity.Patient.Gender.Description) || ''),
+                                doctor: ipPersonName(entity.Doctor),
+                                room: ipRoomText(entity),
+                                admissiondate: entity.AdmissionDate
+                                    ? date(entity.AdmissionDate, 'dd-MMM-yyyy') + ' ' + date(entity.AdmissionDate, 'HH:mm') : '',
+                                guarantor: entity.Guarantor && entity.Guarantor.GuarantorName,
+                                referral: entity.ReferralName,
+                                noofdays: entity.NoOfDays,
+                                debit: money(entity.Debit),
+                                credit: money(entity.Credit),
+                                balance: money(entity.Balance),
+                                status: entity.AdmissionStatus && entity.AdmissionStatus.Description
+                            }
+                        };
+                    })
+                },
+                onAction: function (actionType, payload) {
+                    var list = (vm.gridConfig && vm.gridConfig.data) || [];
+                    var entity = null;
+                    for (var i = 0; i < list.length; i++) {
+                        if (list[i].Id === payload.id) { entity = list[i]; break; }
+                    }
+                    if (entity === null) { return; }
+                    if (actionType == 'rowAction') { $scope.handleEvents(payload.key, entity); }
+                    else if (actionType == 'cellAction') { $scope.handleEvents('patientinfo', entity); }
+                }
+            };
+        };
+
+        $scope.refreshWardFilterProps();
+        $scope.refreshGuarantorFilterProps();
+        $scope.refreshAdmissionStatusFilterProps();
+        $scope.refreshTPAFilterProps();
+        $scope.refreshIpBillGridProps();
+
+        $scope.$watchGroup([
+            function () { return $scope.lookup && $scope.lookup.Ward; },
+            function () { return $scope.currentfilter.WardId; }
+        ], $scope.refreshWardFilterProps);
+
+        $scope.$watchGroup([
+            function () { return $scope.lookup && $scope.lookup.Guarantor; },
+            function () { return $scope.currentfilter.GuarantorId; }
+        ], $scope.refreshGuarantorFilterProps);
+
+        $scope.$watchGroup([
+            function () { return $scope.lookup && $scope.lookup.AdmissionStatus; },
+            function () { return $scope.currentfilter.AdmissionStatusId; }
+        ], $scope.refreshAdmissionStatusFilterProps);
+
+        $scope.$watchGroup([
+            function () { return $scope.lookup && $scope.lookup.TPA; },
+            function () { return $scope.currentfilter.TPAId; }
+        ], $scope.refreshTPAFilterProps);
 
         $scope.initLookup();
         if ($scope.executeautobilllock == 1) {
