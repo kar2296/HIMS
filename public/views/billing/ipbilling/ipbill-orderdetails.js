@@ -1853,6 +1853,127 @@
             }
         };
 
+        // ------------------------------------------------------------------
+        // React bridge for this screen's three live <ui-select> controls
+        // (Department, Tariff, Discount Mode). The Doctor select in this
+        // template is inside an HTML comment -- the live Doctor control is the
+        // existing <autosearch> directive, which is not part of this
+        // conversion and is untouched. Nothing else on the screen changes:
+        // the order grid and its repeat, the discount workflow, save/approve,
+        // the focus chain, and every API call, payload and privilege check
+        // stay exactly as they are.
+        //
+        // All three models are written from several asynchronous paths in this
+        // 1860-line controller, so the props are rebuilt from $watchGroup
+        // rather than from a fixed list of call sites. The watches read only
+        // the lookup array reference, the model value and the two status
+        // flags, so they are reference/primitive comparisons with no deep
+        // traversal.
+        //
+        // Department (Encounter.DepartmentId) and Tariff
+        // (Encounter.ServiceRateCategoryId):
+        //   model            unchanged fields
+        //   lookup           lookup.Department / lookup.ServiceRateCategory,
+        //                    unreshaped
+        //   id type          numeric Id ("lookupitem.Id as lookupitem in ...")
+        //   full object      neither had an on-select or ng-change, so no
+        //                    handler has ever received the selected object;
+        //                    none invented
+        //   required         neither is required. utl.Validator.validate(
+        //                    $scope) is called elsewhere in this controller,
+        //                    but neither control contributes a required
+        //                    validator to item_form, so no shim is added and
+        //                    form validity is unchanged.
+        //   field names      "department" and "tariff", unchanged
+        //   disabled         isCompleted||isCancelled, read off the scope
+        //                    exactly as before
+        //   allow-clear      not present; not added
+        //   keyboard/focus   tabindex="-1" preserved on both, so they stay out
+        //                    of the tab order as they do today
+        //
+        // Discount Mode (currentfilter.DiscountModeId):
+        //   ng-change        DiscountModechange(), the same unchanged scope
+        //                    function, called after the model is written --
+        //                    the order ng-model then ng-change produced
+        //   no name, no required, no ng-disabled in the original; none added
+        //   class            "ui-select-grid" carried through, since the
+        //                    stylesheet targets the control by that class
+        function encounterSelectProps(field, lookupKey, name) {
+            return {
+                options: ($scope.lookup && $scope.lookup[lookupKey]) || [],
+                value: $scope.Encounter ? $scope.Encounter[field] : null,
+                disabled: !!($scope.isCompleted || $scope.isCancelled),
+                name: name,
+                tabIndex: -1
+            };
+        }
+
+        function encounterSelectAction(field, refresh) {
+            return function (actionType, payload) {
+                if (actionType == 'change') {
+                    // ng-model="Encounter.<field>" would have created the
+                    // intermediate object on assignment.
+                    if (!$scope.Encounter) { $scope.Encounter = {}; }
+                    $scope.Encounter[field] = payload.id;
+                    refresh();
+                }
+            };
+        }
+
+        $scope.refreshDepartmentProps = function () {
+            $scope.reactPropsDepartmentContainer = {
+                reactProps: encounterSelectProps('DepartmentId', 'Department', 'department'),
+                onAction: encounterSelectAction('DepartmentId', $scope.refreshDepartmentProps)
+            };
+        };
+
+        $scope.refreshTariffProps = function () {
+            $scope.reactPropsTariffContainer = {
+                reactProps: encounterSelectProps('ServiceRateCategoryId', 'ServiceRateCategory', 'tariff'),
+                onAction: encounterSelectAction('ServiceRateCategoryId', $scope.refreshTariffProps)
+            };
+        };
+
+        $scope.refreshDiscountModeProps = function () {
+            $scope.reactPropsDiscountModeContainer = {
+                reactProps: {
+                    options: ($scope.lookup && $scope.lookup.DiscountMode) || [],
+                    value: $scope.currentfilter.DiscountModeId,
+                    className: 'ui-select-grid'
+                },
+                onAction: function (actionType, payload) {
+                    if (actionType == 'change') {
+                        $scope.currentfilter.DiscountModeId = payload.id;
+                        $scope.DiscountModechange();
+                        $scope.refreshDiscountModeProps();
+                    }
+                }
+            };
+        };
+
+        $scope.refreshDepartmentProps();
+        $scope.refreshTariffProps();
+        $scope.refreshDiscountModeProps();
+
+        $scope.$watchGroup([
+            function () { return $scope.lookup && $scope.lookup.Department; },
+            function () { return $scope.Encounter && $scope.Encounter.DepartmentId; },
+            function () { return $scope.isCompleted; },
+            function () { return $scope.isCancelled; }
+        ], $scope.refreshDepartmentProps);
+
+        $scope.$watchGroup([
+            function () { return $scope.lookup && $scope.lookup.ServiceRateCategory; },
+            function () { return $scope.Encounter && $scope.Encounter.ServiceRateCategoryId; },
+            function () { return $scope.isCompleted; },
+            function () { return $scope.isCancelled; }
+        ], $scope.refreshTariffProps);
+
+        $scope.$watchGroup([
+            function () { return $scope.lookup && $scope.lookup.DiscountMode; },
+            function () { return $scope.currentfilter.DiscountModeId; }
+        ], $scope.refreshDiscountModeProps);
+
         $scope.initLookup();
     }
 
