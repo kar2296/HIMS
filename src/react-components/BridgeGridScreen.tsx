@@ -30,6 +30,12 @@ export interface BridgeGridRow {
    * so a row can legitimately offer a different set (edit vs view vs delete)
    * exactly as its original ng-show/ng-hide cellTemplate did. */
   actions?: { key: string; label: string; variant?: string; icon?: string; color?: string; title?: string }[];
+  /** Per-cell tooltip text, keyed by column key. Some original cellTemplates
+   * wrap the cell in uib-tooltip (e.g. the Patient cell showing
+   * "Title First Last | MRN | Age | Gender"); the bridge supplies the same
+   * interpolated string so the hover text survives the conversion. Optional,
+   * so existing callers are unaffected. */
+  cellTitles?: Record<string, string>;
   /** True when the row matches the screen's config.background.style rule. */
   highlight?: boolean;
   /** Per-row highlight style, for screens whose config.background.style maps
@@ -89,6 +95,7 @@ export const BridgeGridScreen: React.FC<Props> = ({ reactProps, onAction }) => {
         ? (r) => (
             <a
               href=""
+              title={r.cellTitles?.[c.key]}
               onClick={(e) => {
                 e.preventDefault();
                 onAction('cellAction', { key: c.key, id: r.id });
@@ -98,7 +105,12 @@ export const BridgeGridScreen: React.FC<Props> = ({ reactProps, onAction }) => {
               {r.cells?.[c.key]}
             </a>
           )
-        : (r) => r.cells?.[c.key] ?? '',
+        : (r) =>
+            r.cellTitles?.[c.key] ? (
+              <span title={r.cellTitles[c.key]}>{r.cells?.[c.key] ?? ''}</span>
+            ) : (
+              r.cells?.[c.key] ?? ''
+            ),
   }));
 
   return (
