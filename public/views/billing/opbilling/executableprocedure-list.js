@@ -26,6 +26,7 @@
                 $scope.currentfilter.DepartmentId = -1;
             }
             $scope.refreshReactProps();
+        $scope.refreshExecGridProps();
         };
 
         $scope.getCurrentLogInUserDepartment = function () {
@@ -63,6 +64,7 @@
         $scope.getListCallback = function (scope, res, options, hasError) {
             vm.gridConfig.data = res.Data;
             vm.patientordergridConfig.data = res.Data;
+            $scope.refreshExecGridProps();
             vm.gridConfig.pagerObj.totalItems = res.PageContext.TotalRecords;
             $scope.refreshReactProps();
         };
@@ -255,6 +257,109 @@
             };
             utl.Http.doAction(options);
         }
+
+
+        // Grid bridge: replaces BOTH native <div ui-grid=...> elements -- the
+        // bills grid (vm.gridConfig, shown when BillsRaisedFromId != 3) and the
+        // patient-order grid (vm.patientordergridConfig, shown when == 3) --
+        // with BridgeGridScreen mounts. Both are REAL ui-grids, so their
+        // cellTemplates' row.entity / grid.appScope expressions were valid;
+        // this is a straight port, not a repair. Each dispatch hands
+        // $scope.handleEvents the SAME { entity: ... } wrapper ui-grid passed.
+        // Both grids' action columns render the shared actionTemplate.html
+        // (defined in app.html) driven by colDef.actions, which for both grids
+        // is a single { actiontype: 'edit' } entry -- reproduced as one Edit
+        // action per row, unconditional, exactly as that template does.
+        //
+        // PRE-EXISTING BUG documented, not fixed: this controller defines
+        // $scope.handleEvents TWICE (the second definition overwrites the
+        // first), so only the later one is ever live. The bridge simply calls
+        // $scope.handleEvents, so it invokes exactly the same effective
+        // function the grids invoked before.
+        function buildExecRows(items, cfgName) {
+            return (items || []).map(function (entity) {
+                var pt = entity.Patient || {};
+                var title = pt.Title && pt.Title.Description ? pt.Title.Description + ' ' : '';
+                var when = cfgName === 'order' ? entity.OrderRequestDate : entity.BillDateTime;
+                var gender = (pt.Gender && pt.Gender.Description) || '';
+                return {
+                    id: entity.Id,
+                    // colDef.actions = [{ actiontype: 'edit' }] for both grids
+                    actions: [{ key: 'edit', label: '', icon: 'fa fa-pencil', variant: 'success', title: 'Edit' }],
+                    // uib-tooltip on the Patient cell:
+                    // "{{Title}} {{FirstName}} {{LastName}} | {{MRN}} | {{Age}} | {{Gender}}"
+                    cellTitles: {
+                        patient: title + (pt.FirstName || '') + ' ' + (pt.LastName || '') +
+                            ' | ' + (pt.MRN || '') + ' | ' + (pt.Age || '') + ' | ' + gender
+                    },
+                    cells: {
+                        // <span ng-if=Title>Title</span>&nbsp;First&nbsp;Last/MRN
+                        patient: title + (pt.FirstName || '') + ' ' + (pt.LastName || '') + '/' + (pt.MRN || ''),
+                        // <ngformatdate datetime-val=...> renders date:'dd-MMM-yyyy HH:mm'
+                        docdate: when ? $filter('date')(when, 'dd-MMM-yyyy HH:mm') : '',
+                        docno: cfgName === 'order'
+                            ? (entity.PatientOrder && entity.PatientOrder.OrderNumber)
+                            : (entity.PatientBill && entity.PatientBill.BillNumber),
+                        visitno: entity.Encounter && entity.Encounter.VisitIdentifier,
+                        testname: cfgName === 'order' ? entity.TestName : entity.ServiceName,
+                        department: entity.ServiceDepartment && entity.ServiceDepartment.DepartmentName,
+                        executedby: entity.Executeduser && entity.Executeduser.FirstName,
+                        status: entity.ExecutableProcedureStatus && entity.ExecutableProcedureStatus.Description
+                    }
+                };
+            });
+        }
+
+        $scope.handleExecGridAction = function (actionType, payload) {
+            var items = (vm.gridConfig && vm.gridConfig.data) || [];
+            var entity = null;
+            for (var i = 0; i < items.length; i++) {
+                if (items[i].Id === payload.id) { entity = items[i]; break; }
+            }
+            if (entity === null) { return; }
+            if (actionType == 'rowAction') { $scope.handleEvents(payload.key, { entity: entity }); }
+            else if (actionType == 'cellAction') { $scope.handleEvents('patientinfo', { entity: entity }); }
+        };
+
+        $scope.refreshExecGridProps = function () {
+            function cols(defs) {
+                function hdr(i) { return defs[i] ? defs[i].displayName : ''; }
+                return [
+                    { key: 'patient', header: hdr(0), link: true },
+                    { key: 'docno', header: hdr(1), sortable: true },
+                    { key: 'docdate', header: hdr(2) },
+                    { key: 'visitno', header: hdr(3), sortable: true },
+                    { key: 'testname', header: hdr(4), sortable: true },
+                    { key: 'department', header: hdr(5), sortable: true },
+                    { key: 'executedby', header: hdr(6), sortable: true },
+                    { key: 'status', header: hdr(7), sortable: true }
+                ];
+            }
+            var d1 = (vm.gridConfig && vm.gridConfig.columnDefs) || [];
+            var d2 = (vm.patientordergridConfig && vm.patientordergridConfig.columnDefs) || [];
+            $scope.reactPropsBillGridContainer = {
+                reactProps: {
+                    columns: cols(d1),
+                    actionsHeader: d1.length ? d1[d1.length - 1].displayName : 'Actions',
+                    hasActions: true,
+                    rows: buildExecRows(vm.gridConfig && vm.gridConfig.data, 'bill')
+                },
+                onAction: $scope.handleExecGridAction
+            };
+            $scope.reactPropsOrderGridContainer = {
+                reactProps: {
+                    columns: cols(d2),
+                    actionsHeader: d2.length ? d2[d2.length - 1].displayName : 'Actions',
+                    hasActions: true,
+                    rows: buildExecRows(vm.patientordergridConfig && vm.patientordergridConfig.data, 'order')
+                },
+                onAction: $scope.handleExecGridAction
+            };
+        };
+
+        // Both grid configs are already defined above, so the mounts have real
+        // columns before the first getList() response arrives.
+        $scope.refreshExecGridProps();
 
         $scope.refreshReactProps = function () {
             $scope.reactProps = {
