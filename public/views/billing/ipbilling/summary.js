@@ -4413,6 +4413,319 @@
             // utl.Http.doAction(options);
             utl.Http.doDownloadXslFile(options);
         };
+        // ------------------------------------------------------------------
+        // React bridge for this screen's fourteen live <ui-select> controls.
+        // All render through the shared BridgeLookupSelectScreen; no new React
+        // component. NO summary calculation, bill total, outstanding value,
+        // package or insurance value, discount, tax, approval, finalisation
+        // state, print action, navigation or API call moves into React -- the
+        // bridge only writes the same model the ng-model wrote and then calls
+        // the same unchanged scope handler.
+        //
+        // PER-ROW MOUNT CHECK: this template has twelve ng-repeats, the last
+        // of which closes at live line 810. All fourteen selects are at lines
+        // 848-1289, below every repeat, and none binds a repeat variable
+        // (`bill` or the package `item`). No React root or deep watcher is
+        // created per row.
+        //
+        // SELECT PARITY MATRIX (label | model | lookup | name | required |
+        // disabled | ng-change | tabindex | id | class | keyup):
+        //  1 Bill Discount Mode | currentfilter.DiscountModeId | DiscountMode
+        //    | headerdiscountmode | no | currentcontext.RdoBillDiscountMode ||
+        //    isFinalized | DiscountModeChange($select.selected) | -1 | - | - | -
+        //  2 Discount Approver | currentcontext.DiscountApprovedBy |
+        //    DiscountApprover | approvedby | YES | RdoApprovedById ||
+        //    isFinalized | setDiscountLimit($select.selected) | 10 | - | - | -
+        //  3 Guarantor Type | currentfilter.GuarantorTypeId | GuarantorType |
+        //    screen | no | - | GuarantorTypeChange($select.selected) | -1 |
+        //    GuarantorTypeId | ui-select-grid | moveHeaderFocus('GuarantorTypeId')
+        //  4 Settlement Type (block A) | currentcontext.FSTypeId |
+        //    SettlementType | fstype | YES | canChangeFSType ||
+        //    !item.IsBillLock || isFinalized | changeFSTType() | - | - | - | -
+        //  5 Payment Type (block A) | currentcontext.PaymentTypeId |
+        //    PaymentType | paymenttype | YES | RdoPaymentTypeId || isFinalized
+        //    | - | - | paymenttype | - | FooterFocus('paymenttype')
+        //  6 Transfer To | item.FamilyLinkId | FamilyLink | transferto | YES |
+        //    canChangeFSType || !item.IsBillLock || isFinalized |
+        //    onFamilyLinkChange($select.selected) | - | - | - | -
+        //  7 Guarantor Due | item.GuarantorDueId | Guarantor |
+        //    creditapprovedby | no | currentcontext.FSTypeId == 3 ||
+        //    isFinalized | - | - | - | - | -
+        //  8 Self Credit Voucher | currentcontext.SelfCreditApprovedBy |
+        //    PrivateDueApprover | selfcreditvocher | no | canChangeFSType ||
+        //    !item.IsBillLock || isFinalized | - | - | - | - | -
+        //  9 Credit Approver (block A) | item.PrivateDueId |
+        //    PrivateDueApprover | creditapprover | no |
+        //    currentcontext.RdoGuarantorDue | - | 14 | creditapprover | - |
+        //    FooterFocus('creditapprover')
+        // 10 Settlement Type (block B) | same model/name/disabled/handler as 4
+        // 11 Payment Type (block B) | same model/name/disabled as 5, keyup
+        //    FooterFocus('paymenttype')
+        // 12 Credit Approver (block B) | item.PrivateDueId |
+        //    PrivateDueApprover | creditapprover | no | isFinalized | - | - |
+        //    creditapprover | - | FooterFocus('creditapprover')
+        // 13 Bank Name | item.BankId | Bank | bankname | no |
+        //    item.isCompleted | - | - | BankName | - | FooterFocus('BankName')
+        // 14 Card Type | item.CardTypeId | CardType | cardtype | no |
+        //    item.isCompleted | - | - | CardType | - | FooterFocus('CardType')
+        //
+        // Every one keeps its numeric Id type ("lookupitem.Id as lookupitem in
+        // ..."). None has allow-clear or an on-select attribute, and none is
+        // gated by a facility setting; none was invented. Defaults are
+        // untouched: FSTypeId 1, PaymentTypeId 1, DiscountModeId 1,
+        // GuarantorTypeId 0 at controller init, all later overwritten by the
+        // encounter/final-bill load exactly as before.
+        //
+        // Pairs 4/10, 5/11 and 9/12 are DIFFERENT controls that share a model
+        // and a control name; they live in alternate UI blocks (the MultiPay
+        // branch and the outstanding-amount branch) whose ng-if conditions sit
+        // on ancestor elements this change does not touch. Each keeps its own
+        // mount and container so both blocks stay independent, and the members
+        // of a pair refresh together whenever their shared model changes.
+        //
+        // Which selects feed another lookup or calculation:
+        //   1  -> DiscountModeChange(): resets currentcontext.BillDiscount and
+        //         re-runs calcinsamt() or CalculateNetAmt(). Takes no argument
+        //         despite the template passing one.
+        //   2  -> setDiscountLimit(obj): FULL OBJECT -- reads .DiscountLimit
+        //         and .DiscountMode.Description, recomputes $scope
+        //         .DiscountLimit and may re-run CalculateNetAmt(). Resolved out
+        //         of the same lookup array by Id and passed whole.
+        //   4/10 -> changeFSTType(): sets item.GuarantorDueId and
+        //         currentcontext.isSelfGuarantor, which control select 7.
+        //   6  -> onFamilyLinkChange(obj): FULL OBJECT -- reads .Id,
+        //         .PatientEncounter.Id and .MemberId to set the transfer
+        //         target. Resolved and passed whole.
+        //   3, 5, 7, 8, 9, 11, 12, 13, 14 have no calculation effect of their
+        //         own beyond writing their model.
+        //
+        // NO VALIDATOR SHIMS ARE ADDED, and this is deliberate. Six of the
+        // fourteen carry `required` (2, 4, 5, 6, 10, 11), but summary.html
+        // contains no <form> and no ng-form, and its parent template
+        // ipbillingtab.html closes its <form id="item_form"> at line 125 while
+        // <div ui-view> -- where this template renders -- is at line 134,
+        // OUTSIDE that form. So these controls have no form ancestor: Angular
+        // gives them the null form controller, they set $error.required on
+        // their own ngModel and nothing aggregates it.
+        // utl.Validator.validate($scope) reads $scope.item_form, which resolves
+        // by prototypal inheritance to the PARENT tab's form -- a form these
+        // controls were never part of. Their required attributes therefore do
+        // not gate saveItem today. Condition (b) of the shim rule -- "its form
+        // control is registered" -- is false, so adding shims would fabricate
+        // validation this screen has never had. DOCUMENTED AS A PRE-EXISTING
+        // DEFECT, NOT REPAIRED.
+        //
+        // DOCUMENTED PRE-EXISTING DEFECT, NOT REPAIRED: select 3's
+        // ng-change="GuarantorTypeChange($select.selected)" names a function
+        // that is not defined anywhere in this controller. AngularJS skips the
+        // call entirely when the callee resolves to null/undefined
+        // (ASTInterpreter, `if (rhs.value != null)`), so this ng-change has
+        // always been a silent no-op. The dispatcher reproduces that with the
+        // same guarded call, which stays a no-op unless the function is ever
+        // defined.
+        function sumProps(getValue, lookupKey, name, extra) {
+            var props = {
+                options: ($scope.lookup && $scope.lookup[lookupKey]) || [],
+                value: getValue(),
+                name: name
+            };
+            if (extra) {
+                for (var k in extra) { if (extra.hasOwnProperty(k)) { props[k] = extra[k]; } }
+            }
+            return props;
+        }
+
+        function sumObject(lookupKey, id) {
+            var opts = ($scope.lookup && $scope.lookup[lookupKey]) || [];
+            for (var i = 0; i < opts.length; i++) {
+                if (opts[i].Id === id) { return opts[i]; }
+            }
+            return null;
+        }
+
+        function sumFocus(fn, nextId) {
+            if (typeof $scope[fn] === 'function') { $scope[fn](nextId); }
+        }
+
+        $scope.refreshSummarySelectProps = function () {
+            var fsDisabled = !!($scope.canChangeFSType || !$scope.item.IsBillLock || $scope.isFinalized);
+            var payDisabled = !!($scope.RdoPaymentTypeId || $scope.isFinalized);
+
+            $scope.reactPropsHeaderDiscountModeContainer = {
+                reactProps: sumProps(function () { return $scope.currentfilter.DiscountModeId; },
+                    'DiscountMode', 'headerdiscountmode',
+                    { tabIndex: -1, disabled: !!($scope.currentcontext.RdoBillDiscountMode || $scope.isFinalized) }),
+                onAction: function (a, p) {
+                    if (a == 'change') {
+                        $scope.currentfilter.DiscountModeId = p.id;
+                        $scope.DiscountModeChange(sumObject('DiscountMode', p.id));
+                        $scope.refreshSummarySelectProps();
+                    }
+                }
+            };
+
+            $scope.reactPropsDiscountApproverContainer = {
+                reactProps: sumProps(function () { return $scope.currentcontext.DiscountApprovedBy; },
+                    'DiscountApprover', 'approvedby',
+                    { tabIndex: 10, disabled: !!($scope.RdoApprovedById || $scope.isFinalized) }),
+                onAction: function (a, p) {
+                    if (a == 'change') {
+                        $scope.currentcontext.DiscountApprovedBy = p.id;
+                        var sel = sumObject('DiscountApprover', p.id);
+                        if (sel) { $scope.setDiscountLimit(sel); }
+                        $scope.refreshSummarySelectProps();
+                    }
+                }
+            };
+
+            $scope.reactPropsGuarantorTypeContainer = {
+                reactProps: sumProps(function () { return $scope.currentfilter.GuarantorTypeId; },
+                    'GuarantorType', 'screen',
+                    { tabIndex: -1, id: 'GuarantorTypeId', className: 'ui-select-grid', keyUpId: 'GuarantorTypeId' }),
+                onAction: function (a, p) {
+                    if (a == 'change') {
+                        $scope.currentfilter.GuarantorTypeId = p.id;
+                        // Undefined in this controller today -- AngularJS skips
+                        // the call, so this stays the same no-op it has been.
+                        if (typeof $scope.GuarantorTypeChange === 'function') {
+                            $scope.GuarantorTypeChange(sumObject('GuarantorType', p.id));
+                        }
+                        $scope.refreshSummarySelectProps();
+                    } else if (a == 'keyUp') { sumFocus('moveHeaderFocus', p.nextId); }
+                }
+            };
+
+            function fsTypeContainer() {
+                return {
+                    reactProps: sumProps(function () { return $scope.currentcontext.FSTypeId; },
+                        'SettlementType', 'fstype', { disabled: fsDisabled }),
+                    onAction: function (a, p) {
+                        if (a == 'change') {
+                            $scope.currentcontext.FSTypeId = p.id;
+                            $scope.changeFSTType();
+                            $scope.refreshSummarySelectProps();
+                        }
+                    }
+                };
+            }
+            $scope.reactPropsFSTypeAContainer = fsTypeContainer();
+            $scope.reactPropsFSTypeBContainer = fsTypeContainer();
+
+            function paymentTypeContainer() {
+                return {
+                    reactProps: sumProps(function () { return $scope.currentcontext.PaymentTypeId; },
+                        'PaymentType', 'paymenttype',
+                        { id: 'paymenttype', disabled: payDisabled, keyUpId: 'paymenttype' }),
+                    onAction: function (a, p) {
+                        if (a == 'change') {
+                            $scope.currentcontext.PaymentTypeId = p.id;
+                            $scope.refreshSummarySelectProps();
+                        } else if (a == 'keyUp') { sumFocus('FooterFocus', p.nextId); }
+                    }
+                };
+            }
+            $scope.reactPropsPaymentTypeAContainer = paymentTypeContainer();
+            $scope.reactPropsPaymentTypeBContainer = paymentTypeContainer();
+
+            $scope.reactPropsFamilyLinkContainer = {
+                reactProps: sumProps(function () { return $scope.item.FamilyLinkId; },
+                    'FamilyLink', 'transferto', { disabled: fsDisabled }),
+                onAction: function (a, p) {
+                    if (a == 'change') {
+                        $scope.item.FamilyLinkId = p.id;
+                        var sel = sumObject('FamilyLink', p.id);
+                        if (sel) { $scope.onFamilyLinkChange(sel); }
+                        $scope.refreshSummarySelectProps();
+                    }
+                }
+            };
+
+            $scope.reactPropsGuarantorDueContainer = {
+                reactProps: sumProps(function () { return $scope.item.GuarantorDueId; },
+                    'Guarantor', 'creditapprovedby',
+                    { disabled: !!($scope.currentcontext.FSTypeId == 3 || $scope.isFinalized) }),
+                onAction: function (a, p) {
+                    if (a == 'change') { $scope.item.GuarantorDueId = p.id; $scope.refreshSummarySelectProps(); }
+                }
+            };
+
+            $scope.reactPropsSelfCreditContainer = {
+                reactProps: sumProps(function () { return $scope.currentcontext.SelfCreditApprovedBy; },
+                    'PrivateDueApprover', 'selfcreditvocher', { disabled: fsDisabled }),
+                onAction: function (a, p) {
+                    if (a == 'change') { $scope.currentcontext.SelfCreditApprovedBy = p.id; $scope.refreshSummarySelectProps(); }
+                }
+            };
+
+            function creditApproverContainer(disabled, tabIndex) {
+                var extra = { id: 'creditapprover', disabled: disabled, keyUpId: 'creditapprover' };
+                if (tabIndex !== undefined) { extra.tabIndex = tabIndex; }
+                return {
+                    reactProps: sumProps(function () { return $scope.item.PrivateDueId; },
+                        'PrivateDueApprover', 'creditapprover', extra),
+                    onAction: function (a, p) {
+                        if (a == 'change') { $scope.item.PrivateDueId = p.id; $scope.refreshSummarySelectProps(); }
+                        else if (a == 'keyUp') { sumFocus('FooterFocus', p.nextId); }
+                    }
+                };
+            }
+            $scope.reactPropsCreditApproverAContainer = creditApproverContainer(!!$scope.currentcontext.RdoGuarantorDue, 14);
+            $scope.reactPropsCreditApproverBContainer = creditApproverContainer(!!$scope.isFinalized, undefined);
+
+            $scope.reactPropsBankNameContainer = {
+                reactProps: sumProps(function () { return $scope.item.BankId; },
+                    'Bank', 'bankname',
+                    { id: 'BankName', disabled: !!$scope.item.isCompleted, keyUpId: 'BankName' }),
+                onAction: function (a, p) {
+                    if (a == 'change') { $scope.item.BankId = p.id; $scope.refreshSummarySelectProps(); }
+                    else if (a == 'keyUp') { sumFocus('FooterFocus', p.nextId); }
+                }
+            };
+
+            $scope.reactPropsCardTypeContainer = {
+                reactProps: sumProps(function () { return $scope.item.CardTypeId; },
+                    'CardType', 'cardtype',
+                    { id: 'CardType', disabled: !!$scope.item.isCompleted, keyUpId: 'CardType' }),
+                onAction: function (a, p) {
+                    if (a == 'change') { $scope.item.CardTypeId = p.id; $scope.refreshSummarySelectProps(); }
+                    else if (a == 'keyUp') { sumFocus('FooterFocus', p.nextId); }
+                }
+            };
+        };
+
+        $scope.refreshSummarySelectProps();
+
+        // Every model here is written from many asynchronous paths in this
+        // 4421-line controller (encounter load, final-bill load, package and
+        // insurance recalculation, bill-lock changes), so the props are rebuilt
+        // from $watchGroup on reference/primitive reads rather than from a
+        // fixed list of call sites.
+        $scope.$watchGroup([
+            function () { return $scope.lookup; },
+            function () { return $scope.currentfilter.DiscountModeId; },
+            function () { return $scope.currentfilter.GuarantorTypeId; },
+            function () { return $scope.currentcontext.DiscountApprovedBy; },
+            function () { return $scope.currentcontext.FSTypeId; },
+            function () { return $scope.currentcontext.PaymentTypeId; },
+            function () { return $scope.currentcontext.SelfCreditApprovedBy; },
+            function () { return $scope.item.FamilyLinkId; },
+            function () { return $scope.item.GuarantorDueId; },
+            function () { return $scope.item.PrivateDueId; }
+        ], $scope.refreshSummarySelectProps);
+
+        $scope.$watchGroup([
+            function () { return $scope.item.BankId; },
+            function () { return $scope.item.CardTypeId; },
+            function () { return $scope.item.isCompleted; },
+            function () { return $scope.item.IsBillLock; },
+            function () { return $scope.isFinalized; },
+            function () { return $scope.canChangeFSType; },
+            function () { return $scope.RdoApprovedById; },
+            function () { return $scope.RdoPaymentTypeId; },
+            function () { return $scope.currentcontext.RdoBillDiscountMode; },
+            function () { return $scope.currentcontext.RdoGuarantorDue; }
+        ], $scope.refreshSummarySelectProps);
+
         $scope.initLookup();
     }
 
