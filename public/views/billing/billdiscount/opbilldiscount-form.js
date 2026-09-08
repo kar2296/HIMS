@@ -4346,7 +4346,16 @@
             $timeout(function() {
                 var uiSelect = angular.element(dom);
                 var uichild = uiSelect.controller('uiSelect');
-                uichild.activate();
+                // Guard added by the React-select conversion of BankName, CardType
+                // and the creditapprover pair: those ids no longer carry a uiSelect
+                // controller once converted, so uichild is undefined for them. Every
+                // remaining native <ui-select> in this file still resolves uichild
+                // truthy, so this guard is a no-op there and activate() runs exactly
+                // as before; for a converted control there is no ui-select popup to
+                // activate, so this now silently no-ops instead of throwing.
+                if (uichild) {
+                    uichild.activate();
+                }
             }, 100);
         };
 
@@ -4669,6 +4678,499 @@
             }];
             $scope.getLookUp(inputData);
         };
+
+        // ------------------------------------------------------------------
+        // React bridge for this screen's fourteen live <ui-select> controls.
+        // Route app.opbilldiscount-form (modalConfigProvider.add,
+        // hims-states.js:20299), controller opDiscountFormController.
+        // All fourteen render through the shared BridgeLookupSelectScreen;
+        // no new React component. NO calculation, bill total, discount
+        // amount, tax, approval/finalisation logic, save/print/navigation,
+        // API call or privilege check moves into React -- each dispatcher
+        // writes the same model its ng-model wrote and then calls the same
+        // unchanged scope handler, in the same ng-model-then-ng-change order.
+        //
+        // PER-ROW MOUNT CHECK: this template has two ng-repeats --
+        // "bi in PatientBillDetails | filter: billingFilter" (live lines
+        // 278-358, closing fieldset at 358, </tbody> at 384) and
+        // "payInfo in PaymentInfoDetails" (live line 801, plain {{}} spans,
+        // no controls at all). All fourteen <ui-select> occurrences are
+        // outside both repeats (six header selects above line 278, eight
+        // footer selects at lines 413-705, all below the closing </tbody> at
+        // 384) and none binds a repeat variable. No React root or deep
+        // watcher is created per row.
+        //
+        // TWO <form id="item_form" name="item_form"> ELEMENTS, SAME NAME:
+        // this template has two top-level sibling forms (live lines 78-225
+        // and 228-815), not nested, no ng-if/ng-repeat in between, both
+        // named "item_form" on the same controller scope. AngularJS's form
+        // directive assigns itself to the parent scope by name on link with
+        // a plain property write (no uniqueness check), and link order
+        // follows document order, so the SECOND form's FormController is
+        // whatever $scope.item_form ends up holding -- the first form's
+        // assignment is simply overwritten. utl.Validator.validate($scope)
+        // (called at lines 3248 and 3516) reads $scope.item_form, i.e. only
+        // the second (footer) form. Consequences for `required`:
+        //   FORM 1 (header, live 78-225) required controls -- Doctor
+        //     (doctorid), Payer Type (PayScenario), Payer (Guarantor),
+        //     Rate Type (serratecat) -- still set $error.required on their
+        //     OWN form's controller, but that controller is never the one
+        //     $scope.item_form points to, so they do not gate
+        //     utl.Validator.validate($scope) or saveItem today.
+        //     DOCUMENTED PRE-EXISTING DEFECT, NOT REPAIRED: no shim added
+        //     for these four; their `required` attribute is simply removed
+        //     with the native control, exactly mirroring how prior
+        //     conversions dropped required attributes proven inert (e.g.
+        //     summary.js, where required controls outside any form got the
+        //     same treatment).
+        //   FORM 2 (footer, live 228-815) required controls -- Discount
+        //     Approver (approvedby), Payment Type (paymenttype), Bank Name
+        //     (bankname), Card Type (cardtype), Terminal (terminal) -- ARE
+        //     the ones $scope.item_form resolves to, so their `required`
+        //     is live. Each keeps its validator via the proven
+        //     <span style="display:none" name="..." ng-model="..." required>
+        //     mirror (see the template comments beside each), so
+        //     item_form.$valid and utl.Validator.validate($scope) still
+        //     block save exactly as before.
+        //
+        // SELECT PARITY MATRIX (label | model | lookup | name | id | tab |
+        // disabled | ng-change | required | form):
+        //  1 Doctor | item.DoctorId | Doctor | doctorid | doctorid | -1 |
+        //    RdoDoctorId | onDoctorSelected($select.selected) FULL OBJECT |
+        //    YES (form1, inert) | 1
+        //  2 Payer Type | currentfilter.GuarantorTypeId | GuarantorType |
+        //    PayScenario | GuarantorTypeId | -1 |
+        //    RdoPayScenarioId||vm.Context=='DG' | getInsurancelookup()
+        //    no-arg | YES (form1, inert) | 1
+        //  3 Discount Type (header) | currentfilter.DiscountModeId |
+        //    DiscountMode | screen | DiscountModeId | -1 | - |
+        //    DiscountModechange() no-arg | no | 1 (class="ui-select-grid")
+        //  4 Patient Type | item.PatientTypeId | PatientType | - | - | - |
+        //    - | - | no | 1
+        //  5 Payer | currentfilter.GuarantorId | Guarantor | Guarantor |
+        //    GuarantorId | -1 | RdoGuarantorId||vm.Context=='DG' |
+        //    GuarantorChange($select.selected) FULL OBJECT |
+        //    YES (form1, inert) | 1 (class="col-sm-12")
+        //  6 Rate Type | currentfilter.ServiceRateCategoryId |
+        //    ServiceRateCategory | serratecat | ServiceRateCategoryId | -1 |
+        //    RdoServiceRateCategoryId | ServiceRateCatChange($select.selected)
+        //    FULL OBJECT | YES (form1, inert) | 1
+        //  7 Discount Type (footer) | currentfilter.DiscountModeId |
+        //    DiscountMode | headerdiscountmode | - | -1 | - |
+        //    BillDiscountModechange($select.selected) FULL OBJECT | no | 2
+        //  8 Discount Approver | currentcontext.DiscountApprovedBy |
+        //    DiscountApprover | approvedby | - | 10 | - |
+        //    setDiscountLimit($select.selected) FULL OBJECT |
+        //    YES (form2, LIVE -> shim) | 2 (uib-tooltip dropped, matches
+        //    the identical field's precedent in summary.html)
+        //  9 Payment Type | currentcontext.PaymentTypeId | PaymentType |
+        //    paymenttype | paymenttype | - | RdoPaymentTypeId | - |
+        //    YES (form2, LIVE -> shim) | 2
+        // 10 Credit Approver (Private Due) | item.PrivateDueId |
+        //    PrivateDueApprover | creditapprover | creditapprover | 14 |
+        //    currentcontext.RdoGuarantorDue | setDueLimit($select.selected)
+        //    FULL OBJECT | no | 2, ng-if="currentfilter.GuarantorTypeId==1"
+        //    kept on the mount
+        // 11 Credit Approver (Guarantor Due) | item.GuarantorDueId |
+        //    Guarantor | creditapprover | creditapprover | - |
+        //    true (hardcoded, unchanged) | - | no | 2,
+        //    ng-if="currentfilter.GuarantorTypeId>1" kept on the mount
+        // 12 Bank Name | item.BankId | Bank | bankname | BankName | - |
+        //    RdoPaymentTypeId | - | YES (form2, LIVE -> shim) | 2
+        // 13 Card Type | item.CardTypeId | CardType | cardtype | CardType |
+        //    - | item.isCompleted | - | YES (form2, LIVE -> shim) | 2
+        // 14 Terminal | item.TerminalNoId | Terminal | terminal | Terminal |
+        //    - | item.isCompleted | - | YES (form2, LIVE -> shim) | 2
+        //
+        // All fourteen keep their numeric Id type ("lookupitem.Id as
+        // lookupitem in ..."). None has allow-clear or an on-select
+        // attribute, and none is gated by a facility setting; none was
+        // invented. #10/#11 are DIFFERENT controls (different model fields)
+        // that happen to share name/id "creditapprover" and are mutually
+        // exclusive by GuarantorTypeId, exactly as the two native
+        // <ui-select id="creditapprover"> elements were -- each keeps its
+        // own container and its own ng-if on the mount so that mutual
+        // exclusivity is unchanged (this is deliberately NOT dropped, unlike
+        // a more permissive precedent elsewhere, because these two ng-if
+        // conditions sit directly on the control itself and gate two
+        // distinct fields).
+        //
+        // Which selects call a handler that reads or changes other state:
+        //   1  -> onDoctorSelected(obj): reads .Title.Description and .Text
+        //         to build item.DoctorName, then calls getdepartment().
+        //         Already null-tolerant (`if (data)`), called directly.
+        //   2  -> getInsurancelookup(): reloads the Guarantor lookup;
+        //         takes no argument, called exactly as before.
+        //   3  -> DiscountModechange(): recomputes per-line discount flags
+        //         via ItemwiseDiscountModechange() for every
+        //         PatientBillDetails row; no argument.
+        //   5  -> GuarantorChange(obj): FULL OBJECT -- reads .Id, .Text,
+        //         .GuarantorTypeId, .ServiceRateCategoryId, resets the bill
+        //         detail/payment arrays and re-adds a line item. Resolved
+        //         from the same lookup array by Id and passed whole; guarded
+        //         (only called when resolved) since the function dereferences
+        //         the object directly.
+        //   6  -> ServiceRateCatChange(obj): FULL OBJECT -- reads .Id, .Text,
+        //         resets the bill detail/payment arrays. Resolved and
+        //         guarded the same way.
+        //   7  -> BillDiscountModechange(obj): FULL OBJECT -- reads .Id to
+        //         decide the discount-mode reset branch across
+        //         PatientBillDetails. Resolved and guarded the same way.
+        //   8  -> setDiscountLimit(obj): FULL OBJECT -- reads .DiscountLimit
+        //         and .DiscountMode.Description, recomputes
+        //         $scope.DiscountLimit and calls CalculateNetAmt(). Resolved
+        //         and guarded the same way.
+        //  10  -> setDueLimit(obj): sets vm.DueApprover and calls
+        //         CalculateNetAmt(); resolved and guarded the same way for
+        //         consistency, though the function itself only assigns and
+        //         does not dereference.
+        //   4, 9, 11, 12, 13, 14 have no ng-change/on-select in the
+        //         original, so each dispatch only writes the model its
+        //         ng-model wrote.
+        //
+        // KEYUP FOCUS CHAIN: every ng-keyup="moveHeaderFocus('X')" or
+        // ng-keyup="FooterFocus('X')" is preserved via reactProps.keyUpId,
+        // dispatched on 'keyUp' with the identical literal id string the
+        // template always passed, so moveHeaderFocus/FooterFocus run exactly
+        // as before.
+        //
+        // setCmbFocus GUARD (disclosed, minimal, necessitated by this
+        // conversion): $scope.setCmbFocus (used by FooterFocus for
+        // nextId "paymenttype" -> BankName, "cardno" -> a mistyped
+        // "TerminalNoId" id that already does not exist today -- pre-existing
+        // dead code, unrelated to this change -- and "receivedamt" ->
+        // creditapprover) does
+        //   angular.element(dom).controller('uiSelect').activate()
+        // which assumed `dom` was always a live <ui-select>. BankName,
+        // CardType and the creditapprover pair no longer carry a uiSelect
+        // controller once converted, so uichild would be undefined and
+        // `.activate()` would throw instead of silently doing nothing. A
+        // one-line guard (`if (uichild) { ... }`) is added at its call site
+        // below: for every remaining native <ui-select> in this file (there
+        // are none left after this commit, but the guard is generic) uichild
+        // stays truthy and activate() still runs exactly as before; for a
+        // converted control there is no ui-select popup to activate, so the
+        // Enter-key auto-advance now silently no-ops there instead of
+        // throwing. No calculation, payload, API or privilege line is
+        // touched by this guard.
+        //
+        // Untouched: every calculation (CalculateNetAmt, CalcualteAmt,
+        // ItemwiseDiscountModechange, doctor-share math), bill total,
+        // discount workflow, tax, the PatientBillDetails/PaymentInfoDetails
+        // repeats and grids, save/approve/print/navigation
+        // (completeBill, DeleteCompleteBill, saveCancelled,
+        // saveItemwiseCancelled), every API endpoint, request payload and
+        // privilege check (HasAccess), and the existing focus chain beyond
+        // the one-line setCmbFocus guard above.
+        function opdSelectFromLookup(lookupKey, id) {
+            var opts = ($scope.lookup && $scope.lookup[lookupKey]) || [];
+            for (var i = 0; i < opts.length; i++) {
+                if (opts[i].Id === id) { return opts[i]; }
+            }
+            return null;
+        }
+
+        function opdFocus(fn, nextId) {
+            if (typeof $scope[fn] === 'function') { $scope[fn](nextId); }
+        }
+
+        $scope.refreshOpDiscountSelectProps = function () {
+            $scope.reactPropsDoctorContainer = {
+                reactProps: {
+                    options: ($scope.lookup && $scope.lookup.Doctor) || [],
+                    value: $scope.item.DoctorId,
+                    disabled: !!$scope.RdoDoctorId,
+                    name: 'doctorid',
+                    id: 'doctorid',
+                    tabIndex: -1,
+                    keyUpId: 'doctorid'
+                },
+                onAction: function (a, p) {
+                    if (a == 'change') {
+                        $scope.item.DoctorId = p.id;
+                        $scope.onDoctorSelected(opdSelectFromLookup('Doctor', p.id));
+                        $scope.refreshOpDiscountSelectProps();
+                    } else if (a == 'keyUp') { opdFocus('moveHeaderFocus', p.nextId); }
+                }
+            };
+
+            $scope.reactPropsGuarantorTypeContainer = {
+                reactProps: {
+                    options: ($scope.lookup && $scope.lookup.GuarantorType) || [],
+                    value: $scope.currentfilter.GuarantorTypeId,
+                    disabled: !!($scope.RdoPayScenarioId || vm.Context == 'DG'),
+                    name: 'PayScenario',
+                    id: 'GuarantorTypeId',
+                    tabIndex: -1,
+                    keyUpId: 'GuarantorTypeId'
+                },
+                onAction: function (a, p) {
+                    if (a == 'change') {
+                        $scope.currentfilter.GuarantorTypeId = p.id;
+                        $scope.getInsurancelookup();
+                        $scope.refreshOpDiscountSelectProps();
+                    } else if (a == 'keyUp') { opdFocus('moveHeaderFocus', p.nextId); }
+                }
+            };
+
+            $scope.reactPropsDiscountModeHeaderContainer = {
+                reactProps: {
+                    options: ($scope.lookup && $scope.lookup.DiscountMode) || [],
+                    value: $scope.currentfilter.DiscountModeId,
+                    name: 'screen',
+                    id: 'DiscountModeId',
+                    tabIndex: -1,
+                    className: 'ui-select-grid',
+                    keyUpId: 'DiscountModeId'
+                },
+                onAction: function (a, p) {
+                    if (a == 'change') {
+                        $scope.currentfilter.DiscountModeId = p.id;
+                        $scope.DiscountModechange();
+                        $scope.refreshOpDiscountSelectProps();
+                    } else if (a == 'keyUp') { opdFocus('moveHeaderFocus', p.nextId); }
+                }
+            };
+
+            $scope.reactPropsPatientTypeContainer = {
+                reactProps: {
+                    options: ($scope.lookup && $scope.lookup.PatientType) || [],
+                    value: $scope.item.PatientTypeId
+                },
+                onAction: function (a, p) {
+                    if (a == 'change') {
+                        $scope.item.PatientTypeId = p.id;
+                        $scope.refreshOpDiscountSelectProps();
+                    }
+                }
+            };
+
+            $scope.reactPropsGuarantorContainer = {
+                reactProps: {
+                    options: ($scope.lookup && $scope.lookup.Guarantor) || [],
+                    value: $scope.currentfilter.GuarantorId,
+                    disabled: !!($scope.RdoGuarantorId || vm.Context == 'DG'),
+                    name: 'Guarantor',
+                    id: 'GuarantorId',
+                    tabIndex: -1,
+                    className: 'col-sm-12',
+                    keyUpId: 'GuarantorId'
+                },
+                onAction: function (a, p) {
+                    if (a == 'change') {
+                        $scope.currentfilter.GuarantorId = p.id;
+                        var sel = opdSelectFromLookup('Guarantor', p.id);
+                        if (sel) { $scope.GuarantorChange(sel); }
+                        $scope.refreshOpDiscountSelectProps();
+                    } else if (a == 'keyUp') { opdFocus('moveHeaderFocus', p.nextId); }
+                }
+            };
+
+            $scope.reactPropsServiceRateCategoryContainer = {
+                reactProps: {
+                    options: ($scope.lookup && $scope.lookup.ServiceRateCategory) || [],
+                    value: $scope.currentfilter.ServiceRateCategoryId,
+                    disabled: !!$scope.RdoServiceRateCategoryId,
+                    name: 'serratecat',
+                    id: 'ServiceRateCategoryId',
+                    tabIndex: -1,
+                    keyUpId: 'ServiceRateCategoryId'
+                },
+                onAction: function (a, p) {
+                    if (a == 'change') {
+                        $scope.currentfilter.ServiceRateCategoryId = p.id;
+                        var sel = opdSelectFromLookup('ServiceRateCategory', p.id);
+                        if (sel) { $scope.ServiceRateCatChange(sel); }
+                        $scope.refreshOpDiscountSelectProps();
+                    } else if (a == 'keyUp') { opdFocus('moveHeaderFocus', p.nextId); }
+                }
+            };
+
+            $scope.reactPropsDiscountModeFooterContainer = {
+                reactProps: {
+                    options: ($scope.lookup && $scope.lookup.DiscountMode) || [],
+                    value: $scope.currentfilter.DiscountModeId,
+                    name: 'headerdiscountmode',
+                    tabIndex: -1
+                },
+                onAction: function (a, p) {
+                    if (a == 'change') {
+                        $scope.currentfilter.DiscountModeId = p.id;
+                        var sel = opdSelectFromLookup('DiscountMode', p.id);
+                        if (sel) { $scope.BillDiscountModechange(sel); }
+                        $scope.refreshOpDiscountSelectProps();
+                    }
+                }
+            };
+
+            $scope.reactPropsDiscountApproverContainer = {
+                reactProps: {
+                    options: ($scope.lookup && $scope.lookup.DiscountApprover) || [],
+                    value: $scope.currentcontext.DiscountApprovedBy,
+                    name: 'approvedby',
+                    tabIndex: 10
+                },
+                onAction: function (a, p) {
+                    if (a == 'change') {
+                        $scope.currentcontext.DiscountApprovedBy = p.id;
+                        var sel = opdSelectFromLookup('DiscountApprover', p.id);
+                        if (sel) { $scope.setDiscountLimit(sel); }
+                        $scope.refreshOpDiscountSelectProps();
+                    }
+                }
+            };
+
+            $scope.reactPropsPaymentTypeContainer = {
+                reactProps: {
+                    options: ($scope.lookup && $scope.lookup.PaymentType) || [],
+                    value: $scope.currentcontext.PaymentTypeId,
+                    disabled: !!$scope.RdoPaymentTypeId,
+                    name: 'paymenttype',
+                    id: 'paymenttype',
+                    keyUpId: 'paymenttype'
+                },
+                onAction: function (a, p) {
+                    if (a == 'change') {
+                        $scope.currentcontext.PaymentTypeId = p.id;
+                        $scope.refreshOpDiscountSelectProps();
+                    } else if (a == 'keyUp') { opdFocus('FooterFocus', p.nextId); }
+                }
+            };
+
+            $scope.reactPropsCreditApproverPrivateContainer = {
+                reactProps: {
+                    options: ($scope.lookup && $scope.lookup.PrivateDueApprover) || [],
+                    value: $scope.item.PrivateDueId,
+                    disabled: !!$scope.currentcontext.RdoGuarantorDue,
+                    name: 'creditapprover',
+                    id: 'creditapprover',
+                    tabIndex: 14,
+                    keyUpId: 'creditapprover'
+                },
+                onAction: function (a, p) {
+                    if (a == 'change') {
+                        $scope.item.PrivateDueId = p.id;
+                        var sel = opdSelectFromLookup('PrivateDueApprover', p.id);
+                        if (sel) { $scope.setDueLimit(sel); }
+                        $scope.refreshOpDiscountSelectProps();
+                    } else if (a == 'keyUp') { opdFocus('FooterFocus', p.nextId); }
+                }
+            };
+
+            $scope.reactPropsCreditApproverGuarantorContainer = {
+                reactProps: {
+                    options: ($scope.lookup && $scope.lookup.Guarantor) || [],
+                    value: $scope.item.GuarantorDueId,
+                    //ng-disabled="true" in the original -- hardcoded, unchanged
+                    disabled: true,
+                    name: 'creditapprover',
+                    id: 'creditapprover',
+                    keyUpId: 'creditapprover'
+                },
+                onAction: function (a, p) {
+                    if (a == 'change') {
+                        $scope.item.GuarantorDueId = p.id;
+                        $scope.refreshOpDiscountSelectProps();
+                    } else if (a == 'keyUp') { opdFocus('FooterFocus', p.nextId); }
+                }
+            };
+
+            $scope.reactPropsBankNameContainer = {
+                reactProps: {
+                    options: ($scope.lookup && $scope.lookup.Bank) || [],
+                    value: $scope.item.BankId,
+                    disabled: !!$scope.RdoPaymentTypeId,
+                    name: 'bankname',
+                    id: 'BankName',
+                    keyUpId: 'BankName'
+                },
+                onAction: function (a, p) {
+                    if (a == 'change') {
+                        $scope.item.BankId = p.id;
+                        $scope.refreshOpDiscountSelectProps();
+                    } else if (a == 'keyUp') { opdFocus('FooterFocus', p.nextId); }
+                }
+            };
+
+            $scope.reactPropsCardTypeContainer = {
+                reactProps: {
+                    options: ($scope.lookup && $scope.lookup.CardType) || [],
+                    value: $scope.item.CardTypeId,
+                    disabled: !!$scope.item.isCompleted,
+                    name: 'cardtype',
+                    id: 'CardType',
+                    keyUpId: 'CardType'
+                },
+                onAction: function (a, p) {
+                    if (a == 'change') {
+                        $scope.item.CardTypeId = p.id;
+                        $scope.refreshOpDiscountSelectProps();
+                    } else if (a == 'keyUp') { opdFocus('FooterFocus', p.nextId); }
+                }
+            };
+
+            $scope.reactPropsTerminalContainer = {
+                reactProps: {
+                    options: ($scope.lookup && $scope.lookup.Terminal) || [],
+                    value: $scope.item.TerminalNoId,
+                    disabled: !!$scope.item.isCompleted,
+                    name: 'terminal',
+                    id: 'Terminal',
+                    keyUpId: 'Terminal'
+                },
+                onAction: function (a, p) {
+                    if (a == 'change') {
+                        $scope.item.TerminalNoId = p.id;
+                        $scope.refreshOpDiscountSelectProps();
+                    } else if (a == 'keyUp') { opdFocus('FooterFocus', p.nextId); }
+                }
+            };
+        };
+
+        $scope.refreshOpDiscountSelectProps();
+
+        // This controller loads Doctor/Guarantor/DiscountMode/PaymentType/etc
+        // lookups and the bill item asynchronously (initLookup -> lookupCallback
+        // -> loadData, plus GuarantorChange/ServiceRateCatChange reloading bill
+        // detail arrays), so the props are rebuilt from $watchGroup on
+        // reference/primitive reads rather than from a fixed list of call sites.
+        $scope.$watchGroup([
+            function () { return $scope.lookup && $scope.lookup.Doctor; },
+            function () { return $scope.lookup && $scope.lookup.GuarantorType; },
+            function () { return $scope.lookup && $scope.lookup.DiscountMode; },
+            function () { return $scope.lookup && $scope.lookup.PatientType; },
+            function () { return $scope.lookup && $scope.lookup.Guarantor; },
+            function () { return $scope.lookup && $scope.lookup.ServiceRateCategory; },
+            function () { return $scope.lookup && $scope.lookup.DiscountApprover; },
+            function () { return $scope.lookup && $scope.lookup.PaymentType; },
+            function () { return $scope.lookup && $scope.lookup.PrivateDueApprover; },
+            function () { return $scope.lookup && $scope.lookup.Bank; },
+            function () { return $scope.lookup && $scope.lookup.CardType; },
+            function () { return $scope.lookup && $scope.lookup.Terminal; },
+            function () { return $scope.item.DoctorId; },
+            function () { return $scope.item.PatientTypeId; },
+            function () { return $scope.item.PrivateDueId; },
+            function () { return $scope.item.GuarantorDueId; },
+            function () { return $scope.item.BankId; },
+            function () { return $scope.item.CardTypeId; },
+            function () { return $scope.item.TerminalNoId; },
+            function () { return $scope.currentfilter.GuarantorTypeId; },
+            function () { return $scope.currentfilter.DiscountModeId; },
+            function () { return $scope.currentfilter.GuarantorId; },
+            function () { return $scope.currentfilter.ServiceRateCategoryId; },
+            function () { return $scope.currentcontext.DiscountApprovedBy; },
+            function () { return $scope.currentcontext.PaymentTypeId; }
+        ], $scope.refreshOpDiscountSelectProps);
+
+        $scope.$watchGroup([
+            function () { return $scope.RdoDoctorId; },
+            function () { return $scope.RdoPayScenarioId; },
+            function () { return $scope.RdoGuarantorId; },
+            function () { return $scope.RdoServiceRateCategoryId; },
+            function () { return $scope.RdoPaymentTypeId; },
+            function () { return $scope.currentcontext.RdoGuarantorDue; },
+            function () { return $scope.item.isCompleted; }
+        ], $scope.refreshOpDiscountSelectProps);
 
         $scope.initLookup();
     }
