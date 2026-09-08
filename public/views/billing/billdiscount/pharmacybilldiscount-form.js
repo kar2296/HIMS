@@ -7473,6 +7473,367 @@
             angular.element(document).off('keydown', keyupHandler);
         });
         /* Pharmacy  Sales - Shortcut Keys - End */
+        // ------------------------------------------------------------------
+        // React bridge for this screen's thirteen live <ui-select> controls.
+        // Route app.pharmacybilldiscount-form (modalConfigProvider,
+        // hims-states.js:20305, controller PharmacyDiscountFormController).
+        // All render through the shared BridgeLookupSelectScreen; no new
+        // React component. No calculation, bill total, discount amount,
+        // approval/finalisation, save/print/navigation, API call or
+        // privilege check moves into React -- each dispatcher writes the
+        // same model the ng-model wrote and then calls the same unchanged
+        // scope handler, in the same ng-model-then-ng-change order.
+        //
+        // PER-ROW MOUNT CHECK: this template has two ng-repeats
+        // (PatientBillDetails at live line 271, PaymentInfoDetails at live
+        // line 747). All thirteen selects sit outside both, in the header
+        // and footer sections, and none binds a repeat variable. No React
+        // root or deep watcher is created per row.
+        //
+        // SELECT PARITY MATRIX (label | model | lookup | name | required |
+        // disabled | ng-change | tabindex | id | class | keyup):
+        //  1 Visit Type | item.EncounterTypeId | EncounterType | (none) |
+        //    no | - | - | - | 'doctorid' | - | moveHeaderFocus('doctorid')
+        //  2 Doctor | item.DoctorId | Doctor | (none) | no | - | - | - |
+        //    'doctorid' | - | moveHeaderFocus('doctorid')
+        //  3 Pharmacy | currentfilter.StoreMasterId | UserStores |
+        //    storemaster | no | RdoStoreMasterId | StoreChange($select.selected)
+        //    | -1 | - | - | -
+        //  4 Payer | item.GuarantorId | Guarantor | Guarantor | YES (INERT,
+        //    see below) | RdoGuarantorId | GuarantorChange($select.selected)
+        //    | -1 | - | - | -
+        //  5 Discount Type (form1) | currentfilter.DiscountModeId |
+        //    DiscountMode | screen | no | - | DiscountModechange() (no
+        //    argument) | -1 | - | ui-select-grid | -
+        //  6 Patient Type | item.PatientTypeId | PatientType | (none) | no |
+        //    - | - | - | - | - | -
+        //  7 Discount Category | currentfilter.GuarantorTypeId |
+        //    GuarantorType | PayScenario | YES (INERT, see below) |
+        //    RdoPayScenarioId | GuarantorTypeChange($select.selected) | -1 |
+        //    - | - | -
+        //  8 Bill Discount Mode (footer) | currentfilter.DiscountModeId
+        //    (SAME model as 5, different control) | DiscountMode |
+        //    headerdiscountmode | no | - | BillDiscountModechange
+        //    ($select.selected) | -1 | - | - | -
+        //  9 Discount Approver | currentcontext.DiscountApprovedBy |
+        //    DiscountApprover | approvedby | YES (active, see below) | - |
+        //    setDiscountLimit($select.selected) | 10 | - | - | -
+        // 10 Payment Type | currentcontext.PaymentTypeId | PaymentType |
+        //    paymenttype | YES (active, see below) | RdoPaymentTypeId | - |
+        //    - | paymenttype | - | FooterFocus('paymenttype')
+        // 11 Credit Approver (item.GuarantorTypeId==1) | item.PrivateDueId |
+        //    PrivateDueApprover | creditapprover | no |
+        //    currentcontext.RdoGuarantorDue | setDueLimit($select.selected)
+        //    | 14 | creditapprover | - | FooterFocus('creditapprover')
+        // 12 Credit Approver (item.GuarantorTypeId>1) | item.GuarantorDueId |
+        //    Guarantor | creditapprover | no | true (hardcoded, always
+        //    disabled) | - | - | creditapprover | - |
+        //    FooterFocus('creditapprover')
+        // 13 Bank Name | item.BankId | Bank | bankname | no |
+        //    item.isCompleted | - | - | BankName | - |
+        //    FooterFocus('BankName')
+        //
+        // All thirteen keep their numeric Id type ("lookupitem.Id as
+        // lookupitem in ..."). None has allow-clear or an on-select
+        // attribute, and none is gated by a facility setting -- none was
+        // invented.
+        //
+        // Controls 1 and 2 share id="doctorid" and both dispatch
+        // ng-keyup="moveHeaderFocus('doctorid')" in the original template --
+        // a pre-existing duplicate-id quirk, not introduced here and not
+        // repaired. Both keyup dispatchers reproduce the same call with the
+        // same literal argument, exactly as the two native controls did.
+        //
+        // Controls 9 (approvedby) and 10 (paymenttype) consume the FULL
+        // selected object or write only their own model (9 does, via
+        // setDiscountLimit; 10 has no ng-change), so 9's dispatcher resolves
+        // the object out of the same lookup array by Id and passes it whole,
+        // exactly as setDiscountLimit has always received it. Likewise
+        // control 3 (StoreChange, reads .StoreMaster.* on the resolved
+        // lookup item), 4 (GuarantorChange, reads .GuarantorTypeId), 7
+        // (GuarantorTypeChange, reads .Id and compares against
+        // lookup.Guarantor), 8 (BillDiscountModechange, reads .Id) and 11
+        // (setDueLimit) all consume the FULL selected object and are resolved
+        // by Id from the same lookup array before the handler runs. Control
+        // 5's DiscountModechange() and control 12 take no argument and
+        // receive none, matching the original ng-change/absence of one.
+        //
+        // REQUIRED-VALIDATOR PARITY: this template has TWO sibling
+        // <form id="item_form" name="item_form"> elements (live lines 85 and
+        // 219), neither nested inside the other and neither guarded by
+        // ng-if/ng-repeat, so both link against the same controller $scope.
+        // AngularJS's form directive does $parse(name).assign(scope,
+        // formController) at link time for each form with a name attribute
+        // (base.js, ngFormPreLink); the second form to link overwrites the
+        // scope property the first one set. Compiled in document order, the
+        // SECOND <form id="item_form"> (live line 219, closing at live line
+        // 761) links after the first, so $scope.item_form ends up pointing
+        // at the SECOND form's controller. utl.Validator.validate($scope)
+        // (called once, before saveAndApprove) reads exactly
+        // $scope.item_form.$valid.
+        //   - Controls 4 (Payer/Guarantor) and 7 (Discount
+        //     Category/PayScenario) sit inside the FIRST <form
+        //     id="item_form"> (live lines 85-216) and both carry `required`
+        //     in the template. Their ngModel directives register with the
+        //     FIRST form's FormController -- a real, distinct object -- but
+        //     that object is not what $scope.item_form references once the
+        //     second form links, so their $error.required is never read by
+        //     utl.Validator.validate($scope). DOCUMENTED AS A PRE-EXISTING
+        //     DEFECT, NOT REPAIRED: no shim was added for either, matching
+        //     the shim rule's condition that a shim is added only when the
+        //     control's required attribute genuinely registers with the
+        //     form utl.Validator.validate($scope) actually reads.
+        //   - Controls 9 (Discount Approver/approvedby) and 10 (Payment
+        //     Type/paymenttype) sit inside the SECOND <form id="item_form">
+        //     (live lines 219-761) -- the one $scope.item_form does
+        //     reference -- and both carry `required`. These genuinely gate
+        //     saveAndApprove today, so each keeps an invisible mirror shim
+        //     in the template right beside its mount: a
+        //     `<span style="display:none" name="..." ng-model="..."
+        //     required></span>` carrying the same control name and the same
+        //     model field, so item_form.<name>, $error.required,
+        //     item_form.$valid and save-blocking behaviour are all
+        //     unchanged. Control 9's shim stays inside its original
+        //     ng-if="item.TotDiscAmount>0" block, registering and
+        //     deregistering with that block exactly as the native control
+        //     did; control 10's is unconditional, matching its original.
+        // Live required attributes in the template go 9 -> 4 (the two
+        // shims plus the two non-ui-select required inputs this conversion
+        // does not touch: chequeno/ddno/upirefno/cardno/transationno are
+        // gated by ng-if on PaymentTypeId, not part of this conversion).
+        //
+        // Control 9's original uib-tooltip="{{$select.selected.Text | ...}}"
+        // is not reproduced -- LookupSelect has no tooltip prop, consistent
+        // with the ui-select-match truncation this migration has never
+        // reproduced on any converted control.
+        //
+        // setCmbFocus(dom) (used by FooterFocus for 'paymenttype',
+        // 'BankName' and 'creditapprover') resolves the native ui-select's
+        // AngularJS widget controller via angular.element(dom)
+        // .controller('uiSelect') and calls .activate()/.close() on it. This
+        // is the exact same shared FooterFocus/setCmbFocus body already
+        // migrated in directbillinglist.js and dietBillinglist.js for these
+        // same three ids, where it was likewise left untouched; this
+        // conversion makes the same choice for the same reason (setCmbFocus
+        // itself is out of scope -- it is not a select, a calculation or an
+        // API call). Not a new regression introduced by this commit.
+        //
+        // Every model here is written from many asynchronous paths in this
+        // ~7480-line controller (patient/encounter load, bill load, save
+        // flows), so the props are rebuilt from $watchGroup on
+        // reference/primitive reads rather than from a fixed list of call
+        // sites.
+        function pdProps(getValue, lookupKey, name, extra) {
+            var props = {
+                options: ($scope.lookup && $scope.lookup[lookupKey]) || [],
+                value: getValue(),
+                name: name
+            };
+            if (extra) {
+                for (var k in extra) { if (extra.hasOwnProperty(k)) { props[k] = extra[k]; } }
+            }
+            return props;
+        }
+
+        function pdObject(lookupKey, id) {
+            var opts = ($scope.lookup && $scope.lookup[lookupKey]) || [];
+            for (var i = 0; i < opts.length; i++) {
+                if (opts[i].Id === id) { return opts[i]; }
+            }
+            return null;
+        }
+
+        function pdFocus(fn, nextId) {
+            if (typeof $scope[fn] === 'function') { $scope[fn](nextId); }
+        }
+
+        $scope.refreshPharmacyDiscountSelectProps = function () {
+            $scope.reactPropsVisitTypeContainer = {
+                reactProps: pdProps(function () { return $scope.item.EncounterTypeId; },
+                    'EncounterType', undefined, { keyUpId: 'doctorid' }),
+                onAction: function (a, p) {
+                    if (a == 'change') {
+                        $scope.item.EncounterTypeId = p.id;
+                        $scope.refreshPharmacyDiscountSelectProps();
+                    } else if (a == 'keyUp') { pdFocus('moveHeaderFocus', p.nextId); }
+                }
+            };
+
+            $scope.reactPropsDoctorContainer = {
+                reactProps: pdProps(function () { return $scope.item.DoctorId; },
+                    'Doctor', undefined, { keyUpId: 'doctorid' }),
+                onAction: function (a, p) {
+                    if (a == 'change') {
+                        $scope.item.DoctorId = p.id;
+                        $scope.refreshPharmacyDiscountSelectProps();
+                    } else if (a == 'keyUp') { pdFocus('moveHeaderFocus', p.nextId); }
+                }
+            };
+
+            $scope.reactPropsStoreMasterContainer = {
+                reactProps: pdProps(function () { return $scope.currentfilter.StoreMasterId; },
+                    'UserStores', 'storemaster', { tabIndex: -1, disabled: !!$scope.RdoStoreMasterId }),
+                onAction: function (a, p) {
+                    if (a == 'change') {
+                        $scope.currentfilter.StoreMasterId = p.id;
+                        var sel = pdObject('UserStores', p.id);
+                        if (sel) { $scope.StoreChange(sel); }
+                        $scope.refreshPharmacyDiscountSelectProps();
+                    }
+                }
+            };
+
+            $scope.reactPropsGuarantorContainer = {
+                reactProps: pdProps(function () { return $scope.item.GuarantorId; },
+                    'Guarantor', 'Guarantor', { tabIndex: -1, disabled: !!$scope.RdoGuarantorId }),
+                onAction: function (a, p) {
+                    if (a == 'change') {
+                        $scope.item.GuarantorId = p.id;
+                        var sel = pdObject('Guarantor', p.id);
+                        if (sel) { $scope.GuarantorChange(sel); }
+                        $scope.refreshPharmacyDiscountSelectProps();
+                    }
+                }
+            };
+
+            $scope.reactPropsDiscountTypeContainer = {
+                reactProps: pdProps(function () { return $scope.currentfilter.DiscountModeId; },
+                    'DiscountMode', 'screen', { tabIndex: -1, className: 'ui-select-grid' }),
+                onAction: function (a, p) {
+                    if (a == 'change') {
+                        $scope.currentfilter.DiscountModeId = p.id;
+                        $scope.DiscountModechange();
+                        $scope.refreshPharmacyDiscountSelectProps();
+                    }
+                }
+            };
+
+            $scope.reactPropsPatientTypeContainer = {
+                reactProps: pdProps(function () { return $scope.item.PatientTypeId; }, 'PatientType', undefined),
+                onAction: function (a, p) {
+                    if (a == 'change') {
+                        $scope.item.PatientTypeId = p.id;
+                        $scope.refreshPharmacyDiscountSelectProps();
+                    }
+                }
+            };
+
+            $scope.reactPropsGuarantorTypeContainer = {
+                reactProps: pdProps(function () { return $scope.currentfilter.GuarantorTypeId; },
+                    'GuarantorType', 'PayScenario', { tabIndex: -1, disabled: !!$scope.RdoPayScenarioId }),
+                onAction: function (a, p) {
+                    if (a == 'change') {
+                        $scope.currentfilter.GuarantorTypeId = p.id;
+                        var sel = pdObject('GuarantorType', p.id);
+                        if (sel) { $scope.GuarantorTypeChange(sel); }
+                        $scope.refreshPharmacyDiscountSelectProps();
+                    }
+                }
+            };
+
+            $scope.reactPropsHeaderDiscountModeContainer = {
+                reactProps: pdProps(function () { return $scope.currentfilter.DiscountModeId; },
+                    'DiscountMode', 'headerdiscountmode', { tabIndex: -1 }),
+                onAction: function (a, p) {
+                    if (a == 'change') {
+                        $scope.currentfilter.DiscountModeId = p.id;
+                        var sel = pdObject('DiscountMode', p.id);
+                        if (sel) { $scope.BillDiscountModechange(sel); }
+                        $scope.refreshPharmacyDiscountSelectProps();
+                    }
+                }
+            };
+
+            $scope.reactPropsDiscountApproverContainer = {
+                reactProps: pdProps(function () { return $scope.currentcontext.DiscountApprovedBy; },
+                    'DiscountApprover', 'approvedby', { tabIndex: 10 }),
+                onAction: function (a, p) {
+                    if (a == 'change') {
+                        $scope.currentcontext.DiscountApprovedBy = p.id;
+                        var sel = pdObject('DiscountApprover', p.id);
+                        if (sel) { $scope.setDiscountLimit(sel); }
+                        $scope.refreshPharmacyDiscountSelectProps();
+                    }
+                }
+            };
+
+            $scope.reactPropsPaymentTypeContainer = {
+                reactProps: pdProps(function () { return $scope.currentcontext.PaymentTypeId; },
+                    'PaymentType', 'paymenttype',
+                    { id: 'paymenttype', disabled: !!$scope.RdoPaymentTypeId, keyUpId: 'paymenttype' }),
+                onAction: function (a, p) {
+                    if (a == 'change') {
+                        $scope.currentcontext.PaymentTypeId = p.id;
+                        $scope.refreshPharmacyDiscountSelectProps();
+                    } else if (a == 'keyUp') { pdFocus('FooterFocus', p.nextId); }
+                }
+            };
+
+            $scope.reactPropsCreditApproverAContainer = {
+                reactProps: pdProps(function () { return $scope.item.PrivateDueId; },
+                    'PrivateDueApprover', 'creditapprover',
+                    { id: 'creditapprover', tabIndex: 14, disabled: !!$scope.currentcontext.RdoGuarantorDue, keyUpId: 'creditapprover' }),
+                onAction: function (a, p) {
+                    if (a == 'change') {
+                        $scope.item.PrivateDueId = p.id;
+                        var sel = pdObject('PrivateDueApprover', p.id);
+                        if (sel) { $scope.setDueLimit(sel); }
+                        $scope.refreshPharmacyDiscountSelectProps();
+                    } else if (a == 'keyUp') { pdFocus('FooterFocus', p.nextId); }
+                }
+            };
+
+            $scope.reactPropsCreditApproverBContainer = {
+                reactProps: pdProps(function () { return $scope.item.GuarantorDueId; },
+                    'Guarantor', 'creditapprover',
+                    { id: 'creditapprover', disabled: true, keyUpId: 'creditapprover' }),
+                onAction: function (a, p) {
+                    if (a == 'change') {
+                        $scope.item.GuarantorDueId = p.id;
+                        $scope.refreshPharmacyDiscountSelectProps();
+                    } else if (a == 'keyUp') { pdFocus('FooterFocus', p.nextId); }
+                }
+            };
+
+            $scope.reactPropsBankNameContainer = {
+                reactProps: pdProps(function () { return $scope.item.BankId; },
+                    'Bank', 'bankname',
+                    { id: 'BankName', disabled: !!$scope.item.isCompleted, keyUpId: 'BankName' }),
+                onAction: function (a, p) {
+                    if (a == 'change') {
+                        $scope.item.BankId = p.id;
+                        $scope.refreshPharmacyDiscountSelectProps();
+                    } else if (a == 'keyUp') { pdFocus('FooterFocus', p.nextId); }
+                }
+            };
+        };
+
+        $scope.refreshPharmacyDiscountSelectProps();
+
+        $scope.$watchGroup([
+            function () { return $scope.lookup; },
+            function () { return $scope.item.EncounterTypeId; },
+            function () { return $scope.item.DoctorId; },
+            function () { return $scope.currentfilter.StoreMasterId; },
+            function () { return $scope.item.GuarantorId; },
+            function () { return $scope.currentfilter.DiscountModeId; },
+            function () { return $scope.item.PatientTypeId; },
+            function () { return $scope.currentfilter.GuarantorTypeId; },
+            function () { return $scope.currentcontext.DiscountApprovedBy; },
+            function () { return $scope.currentcontext.PaymentTypeId; },
+            function () { return $scope.item.PrivateDueId; },
+            function () { return $scope.item.GuarantorDueId; },
+            function () { return $scope.item.BankId; }
+        ], $scope.refreshPharmacyDiscountSelectProps);
+
+        $scope.$watchGroup([
+            function () { return $scope.RdoStoreMasterId; },
+            function () { return $scope.RdoGuarantorId; },
+            function () { return $scope.RdoPayScenarioId; },
+            function () { return $scope.RdoPaymentTypeId; },
+            function () { return $scope.currentcontext.RdoGuarantorDue; },
+            function () { return $scope.item.isCompleted; }
+        ], $scope.refreshPharmacyDiscountSelectProps);
     }
 
     PharmacyDiscountFormController.$inject = ['$rootScope', '$scope', '$interval', '$stateParams', '$state', '$translate', 'utl', '$filter', '$uibModalInstance', 'modalConfig', '$timeout'];
