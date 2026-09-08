@@ -1565,6 +1565,290 @@
             }
         }
 
+
+        // -----------------------------------------------------------------
+        // REACT BRIDGE WIRING (migrated to AppointmentFormScreen.tsx).
+        // All API calls/business logic above are untouched. See the
+        // disclosure comment block at the top of AppointmentFormScreen.tsx
+        // for the full list of pre-existing defects (dead tab strip, broken
+        // numberonly() digit filter, permanently-disabled Resource "Add"
+        // button, etc.) preserved here exactly, NOT fixed.
+        // -----------------------------------------------------------------
+        $scope.reactProps = {
+            item: $scope.item,
+            currentcontext: $scope.currentcontext,
+            lookup: $scope.lookup,
+            selectedPatient: $scope.selectedPatient,
+            newPatient: $scope.newPatient,
+            canShowResearchProject: $scope.canShowResearchProject(),
+            canShowVisitType: $scope.canShowVisitType(),
+            canShowApproxAge: $scope.canShowApproxAge(),
+            canDisableCategory: $scope.canDisableCategory(),
+            canDisableGurarantor: $scope.canDisableGurarantor(),
+            canDisableProject: $scope.canDisableProject(),
+            canDisableFacility: $scope.canDisableFacility(),
+            canDisableDepartment: $scope.canDisableDepartment(),
+            canDisableResource: $scope.canDisableResource(),
+            canDisableAppointmentType: $scope.canDisableAppointmentType(),
+            canDisableAppointmentDate: $scope.canDisableAppointmentDate(),
+            isCancelled: $scope.isCancelled()
+        };
+
+        function refreshReactProps() {
+            $scope.reactProps.item = $scope.item;
+            $scope.reactProps.currentcontext = $scope.currentcontext;
+            $scope.reactProps.lookup = $scope.lookup;
+            $scope.reactProps.selectedPatient = $scope.selectedPatient;
+            $scope.reactProps.newPatient = $scope.newPatient;
+            $scope.reactProps.canShowResearchProject = $scope.canShowResearchProject();
+            $scope.reactProps.canShowVisitType = $scope.canShowVisitType();
+            $scope.reactProps.canShowApproxAge = $scope.canShowApproxAge();
+            $scope.reactProps.canDisableCategory = $scope.canDisableCategory();
+            $scope.reactProps.canDisableGurarantor = $scope.canDisableGurarantor();
+            $scope.reactProps.canDisableProject = $scope.canDisableProject();
+            $scope.reactProps.canDisableFacility = $scope.canDisableFacility();
+            $scope.reactProps.canDisableDepartment = $scope.canDisableDepartment();
+            $scope.reactProps.canDisableResource = $scope.canDisableResource();
+            $scope.reactProps.canDisableAppointmentType = $scope.canDisableAppointmentType();
+            $scope.reactProps.canDisableAppointmentDate = $scope.canDisableAppointmentDate();
+            $scope.reactProps.isCancelled = $scope.isCancelled();
+        }
+
+        var origLookupCallback = $scope.lookupCallback;
+        $scope.lookupCallback = function (scope, data, options, hasError) {
+            origLookupCallback(scope, data, options, hasError);
+            refreshReactProps();
+        };
+
+        var origGetItemCallback = $scope.getItemCallback;
+        $scope.getItemCallback = function (scope, data, options, hasError) {
+            origGetItemCallback(scope, data, options, hasError);
+            refreshReactProps();
+        };
+
+        var origGetPatientInfo = $scope.getPatientInfo;
+        $scope.getPatientInfo = function (scope, data, options, hasError) {
+            origGetPatientInfo(scope, data, options, hasError);
+            refreshReactProps();
+        };
+
+        var origGetPatientAttachmentsCallback = $scope.getPatientAttachmentsCallback;
+        $scope.getPatientAttachmentsCallback = function (scope, res, options, hasError) {
+            origGetPatientAttachmentsCallback(scope, res, options, hasError);
+            refreshReactProps();
+        };
+
+        var origLoadPatientGuarantorsCallback = $scope.loadPatientGuarantorsCallback;
+        $scope.loadPatientGuarantorsCallback = function (scope, data, options, hasError) {
+            origLoadPatientGuarantorsCallback(scope, data, options, hasError);
+            refreshReactProps();
+        };
+
+        var origGetdeptCallback = $scope.getdeptCallback;
+        $scope.getdeptCallback = function (scope, data, options, hasError) {
+            origGetdeptCallback(scope, data, options, hasError);
+            refreshReactProps();
+        };
+
+        var origDepartmentChangeCallback = $scope.departmentChangeCallback;
+        $scope.departmentChangeCallback = function (scope, data, options, hasError) {
+            origDepartmentChangeCallback(scope, data, options, hasError);
+            refreshReactProps();
+        };
+
+        var origIsPreviousEncounterExistCallback = $scope.isPreviousEncounterExistCallback;
+        $scope.isPreviousEncounterExistCallback = function (scope, res, options, hasError) {
+            origIsPreviousEncounterExistCallback(scope, res, options, hasError);
+            refreshReactProps();
+        };
+
+        $scope.handleReactAction = function (actionName, payload) {
+            switch (actionName) {
+                case 'appointmentTypeChange':
+                    // ng-change="getResourceDeptList()"
+                    $scope.item.AppointmentTypeId = payload.value;
+                    $scope.getResourceDeptList();
+                    refreshReactProps();
+                    break;
+                case 'appointmentStatusChange':
+                    // ng-change="appointmentStatusChanged()"
+                    $scope.item.AppointmentStatusId = payload.value;
+                    $scope.appointmentStatusChanged();
+                    refreshReactProps();
+                    break;
+                case 'appointmentDateChange':
+                    // ng-change="getList()"
+                    $scope.item.AppointmentDate = payload.value ? new Date(payload.value) : null;
+                    $scope.getList();
+                    refreshReactProps();
+                    break;
+                case 'categoryChange':
+                    // ng-change="appointmentCategoryChanged($select.selected)"
+                    $scope.item.AppointmentCategoryId = payload.value;
+                    $scope.appointmentCategoryChanged(payload.selected || {});
+                    refreshReactProps();
+                    break;
+                case 'guarantorChange':
+                    // No ng-change in the original.
+                    $scope.item.PatientGuarantorId = payload.value;
+                    refreshReactProps();
+                    break;
+                case 'addGuarantor':
+                    $scope.addGuarantor();
+                    break;
+                case 'researchProjectChange':
+                    // No ng-change in the original.
+                    $scope.item.ResearchProjectId = payload.value;
+                    refreshReactProps();
+                    break;
+                case 'mobileChange':
+                    // BUG 2 (see AppointmentFormScreen.tsx header): numberonly() is
+                    // never defined -- no filtering applied here either.
+                    $scope.newPatient.Mobile = payload.value;
+                    refreshReactProps();
+                    break;
+                case 'titleChange':
+                    // ng-change="fillGenderInfo()"
+                    $scope.newPatient.TitleId = payload.value;
+                    $scope.fillGenderInfo();
+                    refreshReactProps();
+                    break;
+                case 'firstNameChange':
+                    // No ng-change in the original; value already uppercased by the caller (uppercase directive).
+                    $scope.newPatient.FirstName = payload.value;
+                    refreshReactProps();
+                    break;
+                case 'genderChange':
+                    // No ng-change in the original.
+                    $scope.newPatient.GenderId = payload.value;
+                    refreshReactProps();
+                    break;
+                case 'approxAgeDaysChange':
+                    // ng-change="calculateDOB(newPatient.ApproxAgeDays, 'days')"
+                    $scope.newPatient.ApproxAgeDays = payload.value;
+                    $scope.calculateDOB(payload.value, 'days');
+                    refreshReactProps();
+                    break;
+                case 'approxAgeMonthsChange':
+                    // ng-change="calculateDOB(newPatient.ApproxAgeMonths, 'months')"
+                    $scope.newPatient.ApproxAgeMonths = payload.value;
+                    $scope.calculateDOB(payload.value, 'months');
+                    refreshReactProps();
+                    break;
+                case 'ageYearsChange':
+                    // ng-change="calculateDOB(newPatient.Age, 'years')" -- shared by both
+                    // the Approx-Age "Years" input and the main new-patient Age input
+                    // (both bind to the same newPatient.Age field in the original).
+                    $scope.newPatient.Age = payload.value;
+                    $scope.calculateDOB(payload.value, 'years');
+                    refreshReactProps();
+                    break;
+                case 'newPatientDobChange':
+                    // ng-change="calculateAge()"
+                    $scope.newPatient.DOB = payload.value ? new Date(payload.value) : null;
+                    $scope.calculateAge();
+                    refreshReactProps();
+                    break;
+                case 'facilityChange':
+                    // No ng-change in the original.
+                    $scope.item.FacilityId = payload.value;
+                    refreshReactProps();
+                    break;
+                case 'departmentChange':
+                    // ng-change="departmentChange()"
+                    $scope.item.DepartmentId = payload.value;
+                    $scope.departmentChange();
+                    refreshReactProps();
+                    break;
+                case 'resourceChange':
+                    // ng-change="resourceChange()"
+                    $scope.item.ResourceId = payload.value;
+                    $scope.resourceChange();
+                    refreshReactProps();
+                    break;
+                case 'forceBookingChange':
+                    // No ng-change in the original.
+                    $scope.item.IsForceBooking = payload.value;
+                    refreshReactProps();
+                    break;
+                case 'priorityChange':
+                    // No ng-change in the original.
+                    $scope.item.PriorityId = payload.value;
+                    refreshReactProps();
+                    break;
+                case 'visitTypeChange':
+                    // No ng-change in the original.
+                    $scope.item.VisitTypeId = payload.value;
+                    refreshReactProps();
+                    break;
+                case 'assignedToUserChange':
+                    // ng-change="assignedToUserChange()"
+                    $scope.item.IsAssignedToUser = payload.value;
+                    $scope.assignedToUserChange();
+                    refreshReactProps();
+                    break;
+                case 'assignedToGroupChange':
+                    // ng-change="assignedToGroupChange()"
+                    $scope.item.IsAssignedToGroup = payload.value;
+                    $scope.assignedToGroupChange();
+                    refreshReactProps();
+                    break;
+                case 'mrdFileChange':
+                    // No ng-change in the original.
+                    $scope.item.IsMRDFile = payload.value;
+                    refreshReactProps();
+                    break;
+                case 'assignedUserChange':
+                    // ng-change="assignedUserChange($select.selected)"
+                    $scope.item.AssignedUserId = payload.value;
+                    $scope.assignedUserChange(payload.selected || {});
+                    refreshReactProps();
+                    break;
+                case 'assignedGroupChange':
+                    // No ng-change in the original.
+                    $scope.item.AssignedGroupId = payload.value;
+                    refreshReactProps();
+                    break;
+                case 'remarkChange':
+                    // ng-change="remarkChange($select.selected)"
+                    $scope.item.RemarkId = payload.value;
+                    $scope.remarkChange(payload.selected || {});
+                    refreshReactProps();
+                    break;
+                case 'commentsChange':
+                    // No ng-change in the original.
+                    $scope.item.Comments = payload.value;
+                    refreshReactProps();
+                    break;
+                case 'cancelledRemarksChange':
+                    // No ng-change in the original.
+                    $scope.item.CancelledRemarks = payload.value;
+                    refreshReactProps();
+                    break;
+                case 'previousAppointment':
+                    $scope.previousappointment();
+                    break;
+                case 'openAttachments':
+                    $scope.openattachments();
+                    break;
+                case 'history':
+                    $scope.history();
+                    break;
+                case 'print':
+                    $scope.print();
+                    break;
+                case 'save':
+                    $scope.saveItem();
+                    break;
+                case 'cancel':
+                    $scope.cancelCallback();
+                    break;
+                default:
+                    break;
+            }
+            $scope.$applyAsync();
+        };
+
         $scope.initLookup();
     }
 

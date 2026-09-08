@@ -79,6 +79,21 @@ import { PreviousAppointmentModal } from './react-components/PreviousAppointment
 // Import DischargedPatientsScreen Component
 import { DischargedPatientsScreen } from './react-components/DischargedPatientsScreen';
 
+// Import AppointmentFormScreen Components
+import {
+  AppointmentFormTopBar,
+  AppointmentFormPatientPanel,
+  AppointmentFormApptTop,
+  AppointmentFormResourceRow,
+  AppointmentFormForceBooking,
+  AppointmentFormTimeDisplay,
+  AppointmentFormApptBottom,
+  AppointmentFormAssignPanel,
+  AppointmentFormRemarksPanel,
+  AppointmentFormCancelledRemarks,
+  AppointmentFormFooter,
+} from './react-components/AppointmentFormScreen';
+
 // Import InpatientTabScreen Component
 import { InpatientTabScreen } from './react-components/InpatientTabScreen';
 
@@ -523,6 +538,17 @@ import { ItemwiseOpBillCancelTableScreen } from './react-components/ItemwiseOpBi
   AppointmentHistoryModal,
   PreviousAppointmentModal,
   DischargedPatientsScreen,
+  AppointmentFormTopBar,
+  AppointmentFormPatientPanel,
+  AppointmentFormApptTop,
+  AppointmentFormResourceRow,
+  AppointmentFormForceBooking,
+  AppointmentFormTimeDisplay,
+  AppointmentFormApptBottom,
+  AppointmentFormAssignPanel,
+  AppointmentFormRemarksPanel,
+  AppointmentFormCancelledRemarks,
+  AppointmentFormFooter,
   InpatientTabScreen,
   OpdBillScreen,
   VisitCreateFormPatientHeader,
