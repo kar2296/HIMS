@@ -61,6 +61,7 @@
             if ($scope.currentcontext.id == 0) {
                 $scope.item.isCompleted = false;
             }
+                $scope.refreshReactProps();
         }
         //$scope.currentfilter = { PatientId: -1 };
         $scope.patientChange = function () {
@@ -194,6 +195,7 @@
 
 
             $scope.item.FacilityId = utl.Session.getCurrentFacilityId();
+            $scope.refreshReactProps();
 
         };
 
@@ -240,6 +242,7 @@
             };
             $scope.item.Id = ($scope.CurrentItem.Id || 0);
             $scope.FillInitialData();
+            $scope.refreshReactProps();
 
         };
 
@@ -466,6 +469,7 @@
             };
 
             $scope.applyVisibilityRules();
+            $scope.refreshReactProps();
         }
 
         function receiptPicker(receiptData) {
@@ -549,6 +553,7 @@
 
 
             $scope.applyVisibilityRules();
+            $scope.refreshReactProps();
         }
         $scope.openAttachments = function () {
             utl.Modal.open('app.patientattachments', {
@@ -716,6 +721,7 @@
 
         $scope.lookupCallback = function (scope, data, options, hasError) {
             $scope.lookup = hasError ? {} : data;
+            $scope.refreshReactProps();
             $scope.getItem();
         }
 
@@ -787,6 +793,171 @@
                 $scope.item.WithHeader = false;
             }
         };
+        // ------------------------------------------------------------------
+        // React bridge for this screen's eight live <ui-select> controls.
+        // All render through the shared BridgeLookupSelectScreen; no new
+        // React component. Nothing else on this payment/gateway-adjacent
+        // form is touched: the Hosmat/MomentPay POS integration
+        // (setupPaymentDetails, generateProcessId, the $interval polling and
+        // countdown, paymentInProgress, PosMomentLog/MomentTransactionStatus,
+        // PosMomentLog/AddPosMomentLog and their callbacks), every guard in
+        // saveItem/ApproveFromPayment, save/print/cancel/delete, and every
+        // API call and request payload stay exactly as they are.
+        //
+        // PER-ROW MOUNT CHECK: this template has no ng-repeat at all, so no
+        // control here is a per-row mount and no React root or watcher is
+        // created per row.
+        //
+        //  #  model                  lookup        name          required
+        //  1  item.ReceiptTypeId     ReceiptType   Receipttype   YES
+        //  2  item.EncounterTypeId   EncounterType (none)        no
+        //  3  item.PaymentTypeId     PaymentType   payments      YES
+        //  4  item.DepartmentID      Department    (none)        no
+        //  5  item.ServiceId         ServiceItem   (none)        no
+        //  6  item.BankId            Bank          bankname      no
+        //  7  item.CardTypeId        CardType      cardtype      no
+        //  8  item.TerminalNoId      Terminal      terminalno    no
+        //
+        // None of the eight has an ng-change or an on-select handler in this
+        // template, so none has ever received the full selected object; none
+        // is invented here -- every onAction 'change' handler performs only
+        // the ng-model write.
+        //
+        // Disabled: (1) is hardcoded ng-disabled="true" in the original
+        // markup -- always disabled, regardless of scope state, reproduced
+        // literally, not read off any flag. (2)-(8) all read
+        // item.isCompleted exactly as before (the same flag, not duplicated
+        // per control).
+        //
+        // Required-validator parity: (1) and (3) are the only two required
+        // controls, and utl.Validator.validate($scope) is consumed by both
+        // saveItem() and ApproveFromPayment(), so exactly two invisible
+        // mirror shims are added in the template (name="Receipttype" and
+        // name="payments"), preserving item_form.<name>, $error.required,
+        // item_form.$valid and save-blocking behaviour. No shim is added to
+        // the other six, which were never required.
+        //
+        // No tabindex, class or ng-keyup exists on any of the eight in the
+        // original markup; none is invented.
+        //
+        // PRE-EXISTING DEFECT, documented and NOT corrected: control 5's
+        // repeat reads lookup.ServiceItem, but initLookup()'s own request
+        // list has the "ServiceItem" key commented out
+        // (`// { "Key": "ServiceItem" },`), so $scope.lookup.ServiceItem is
+        // never populated by the API and this control has always rendered
+        // with zero options. That is reproduced exactly -- options resolves
+        // to an empty array, not fabricated data.
+        //
+        // $scope.item is replaced wholesale in several places in this
+        // controller (getItemCallback, getBilldata, addnew, the id==0 branch
+        // of clear) and item.isCompleted is also flipped asynchronously in
+        // getPatientInfo; $scope.lookup is populated once, in
+        // lookupCallback. refreshReactProps() is called directly at every
+        // one of those points (not via $watchGroup), which is this
+        // controller's own update pattern -- the same direct-call approach
+        // used for ipreceipt-form.
+        function receiptSelectProps(lookupKey, value, name, disabled) {
+            var props = { options: ($scope.lookup && $scope.lookup[lookupKey]) || [], value: value, disabled: !!disabled };
+            if (name) { props.name = name; }
+            return props;
+        }
+
+        $scope.handleReceiptTypeAction = function (actionType, payload) {
+            if (actionType == 'change') {
+                $scope.item.ReceiptTypeId = payload.id;
+                $scope.refreshReactProps();
+            }
+        };
+
+        $scope.handleEncounterTypeAction = function (actionType, payload) {
+            if (actionType == 'change') {
+                $scope.item.EncounterTypeId = payload.id;
+                $scope.refreshReactProps();
+            }
+        };
+
+        $scope.handlePaymentTypeAction = function (actionType, payload) {
+            if (actionType == 'change') {
+                $scope.item.PaymentTypeId = payload.id;
+                $scope.refreshReactProps();
+            }
+        };
+
+        $scope.handleDepartmentAction = function (actionType, payload) {
+            if (actionType == 'change') {
+                $scope.item.DepartmentID = payload.id;
+                $scope.refreshReactProps();
+            }
+        };
+
+        $scope.handleServiceAction = function (actionType, payload) {
+            if (actionType == 'change') {
+                $scope.item.ServiceId = payload.id;
+                $scope.refreshReactProps();
+            }
+        };
+
+        $scope.handleBankAction = function (actionType, payload) {
+            if (actionType == 'change') {
+                $scope.item.BankId = payload.id;
+                $scope.refreshReactProps();
+            }
+        };
+
+        $scope.handleCardTypeAction = function (actionType, payload) {
+            if (actionType == 'change') {
+                $scope.item.CardTypeId = payload.id;
+                $scope.refreshReactProps();
+            }
+        };
+
+        $scope.handleTerminalAction = function (actionType, payload) {
+            if (actionType == 'change') {
+                $scope.item.TerminalNoId = payload.id;
+                $scope.refreshReactProps();
+            }
+        };
+
+        $scope.refreshReactProps = function () {
+            var it = $scope.item || {};
+            $scope.reactPropsReceiptTypeContainer = {
+                //ng-disabled="true" in the original markup -- hardcoded, not read off the scope
+                reactProps: receiptSelectProps('ReceiptType', it.ReceiptTypeId, 'Receipttype', true),
+                onAction: $scope.handleReceiptTypeAction
+            };
+            $scope.reactPropsEncounterTypeContainer = {
+                reactProps: receiptSelectProps('EncounterType', it.EncounterTypeId, null, it.isCompleted),
+                onAction: $scope.handleEncounterTypeAction
+            };
+            $scope.reactPropsPaymentTypeContainer = {
+                reactProps: receiptSelectProps('PaymentType', it.PaymentTypeId, 'payments', it.isCompleted),
+                onAction: $scope.handlePaymentTypeAction
+            };
+            $scope.reactPropsDepartmentContainer = {
+                reactProps: receiptSelectProps('Department', it.DepartmentID, null, it.isCompleted),
+                onAction: $scope.handleDepartmentAction
+            };
+            $scope.reactPropsServiceContainer = {
+                //lookup.ServiceItem is never populated -- see the pre-existing defect note above
+                reactProps: receiptSelectProps('ServiceItem', it.ServiceId, null, it.isCompleted),
+                onAction: $scope.handleServiceAction
+            };
+            $scope.reactPropsBankContainer = {
+                reactProps: receiptSelectProps('Bank', it.BankId, 'bankname', it.isCompleted),
+                onAction: $scope.handleBankAction
+            };
+            $scope.reactPropsCardTypeContainer = {
+                reactProps: receiptSelectProps('CardType', it.CardTypeId, 'cardtype', it.isCompleted),
+                onAction: $scope.handleCardTypeAction
+            };
+            $scope.reactPropsTerminalContainer = {
+                reactProps: receiptSelectProps('Terminal', it.TerminalNoId, 'terminalno', it.isCompleted),
+                onAction: $scope.handleTerminalAction
+            };
+        };
+
+        $scope.refreshReactProps();
+
         $scope.initLookup();
 
         // Hosmat POS Integration
