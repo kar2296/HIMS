@@ -94,6 +94,9 @@ import {
   AppointmentFormFooter,
 } from './react-components/AppointmentFormScreen';
 
+// Import AppttokenScreen Components
+import { AppttokenFormPanel, AppttokenFooter } from './react-components/AppttokenScreen';
+
 // Import InpatientTabScreen Component
 import { InpatientTabScreen } from './react-components/InpatientTabScreen';
 
@@ -549,6 +552,8 @@ import { ItemwiseOpBillCancelTableScreen } from './react-components/ItemwiseOpBi
   AppointmentFormRemarksPanel,
   AppointmentFormCancelledRemarks,
   AppointmentFormFooter,
+  AppttokenFormPanel,
+  AppttokenFooter,
   InpatientTabScreen,
   OpdBillScreen,
   VisitCreateFormPatientHeader,

@@ -161,6 +161,80 @@
             };
             utl.Http.doAction(options);
         }
+        // REACT BRIDGE WIRING (migrated to AppttokenScreen.tsx).
+        // All API calls/business logic above are untouched. See the
+        // disclosure comment block at the top of AppttokenScreen.tsx for
+        // the full list of pre-existing quirks (dead $scope.save(), no
+        // ng-change/required on the Department select, the accepted
+        // client-side-validation trade-off) preserved here exactly, NOT
+        // fixed.
+        // -------------------------------------------------------------
+        $scope.reactProps = {
+            item: $scope.item,
+            lookup: $scope.lookup
+        };
+
+        function refreshReactProps() {
+            $scope.reactProps.item = $scope.item;
+            $scope.reactProps.lookup = $scope.lookup;
+        }
+
+        var origLookupCallback = $scope.lookupCallback;
+        $scope.lookupCallback = function (scope, data, options, hasError) {
+            origLookupCallback(scope, data, options, hasError);
+            refreshReactProps();
+        };
+
+        var origGetListCallback = $scope.getListCallback;
+        $scope.getListCallback = function (scope, res, options, hasError) {
+            origGetListCallback(scope, res, options, hasError);
+            refreshReactProps();
+        };
+
+        $scope.handleReactAction = function (actionName, payload) {
+            switch (actionName) {
+                case 'departmentChange':
+                    // No ng-change in the original.
+                    $scope.item.DepartmentId = payload.value;
+                    break;
+                case 'tokenNoChange':
+                    // No ng-change in the original.
+                    $scope.item.TokenNo = payload.value;
+                    break;
+                case 'roomNoChange':
+                    // No ng-change in the original.
+                    $scope.item.RoomNoId = payload.value;
+                    break;
+                case 'displayNoChange':
+                    // No ng-change in the original.
+                    $scope.item.DisplayNo = payload.value;
+                    break;
+                case 'locationChange':
+                    // No ng-change in the original.
+                    $scope.item.LocationId = payload.value;
+                    break;
+                case 'generate':
+                    // ng-click="saveItem()" (the "Generate" button)
+                    $scope.saveItem();
+                    break;
+                case 'call':
+                    // ng-click="call()"
+                    $scope.call();
+                    break;
+                case 'receive':
+                    // ng-click="receive()"
+                    $scope.receive();
+                    break;
+                case 'missed':
+                    // ng-click="missed()"
+                    $scope.missed();
+                    break;
+            }
+            refreshReactProps();
+            $scope.$applyAsync();
+        };
+        // ==================== END REACT BRIDGE WIRING ====================
+
         $scope.initLookup();
     }
     apnmttokenController.$inject = ['$scope', '$stateParams', '$state', '$translate', 'utl', '$uibModalInstance', 'modalConfig'];
