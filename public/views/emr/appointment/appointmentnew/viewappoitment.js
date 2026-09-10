@@ -1175,6 +1175,99 @@
 
         $scope.initLookup();
 
+        // REACT BRIDGE WIRING (migrated to ViewAppointmentScreen.tsx).
+        // All API calls/business logic above are untouched. See the
+        // disclosure comment block at the top of ViewAppointmentScreen.tsx
+        // for the full list of pre-existing quirks (dead deptChange()/
+        // getDoctorOrResources(), no live Department filter, dead
+        // advancedfilter/batchCheckout/getAppointmentCategorys/opd_dashboard,
+        // the buggy canShowAction(), the dead prepareAppointments()/
+        // getAppointmentSessions() calls inside getListCallback, etc.)
+        // preserved here exactly, NOT fixed. `<jqx-scheduler>`, `<patientsearch>`
+        // and the dead `#myModal` help-image popup stay fully native, untouched.
+        // -------------------------------------------------------------
+        $scope.reactProps = {
+            currentfilter: $scope.currentfilter,
+            currentcontext: $scope.currentcontext,
+            lookup: $scope.lookup,
+            rows: vm.gridConfig.data,
+            pager: vm.gridConfig.pagerObj,
+            showCalendar: vm.appointment.ShowCalendar
+        };
+
+        function refreshReactProps() {
+            $scope.reactProps.currentfilter = $scope.currentfilter;
+            $scope.reactProps.currentcontext = $scope.currentcontext;
+            $scope.reactProps.lookup = $scope.lookup;
+            $scope.reactProps.rows = vm.gridConfig.data;
+            $scope.reactProps.pager = vm.gridConfig.pagerObj;
+            $scope.reactProps.showCalendar = vm.appointment.ShowCalendar;
+        }
+
+        var origLookupCallback = $scope.lookupCallback;
+        $scope.lookupCallback = function (scope, data, options, hasError) {
+            origLookupCallback(scope, data, options, hasError);
+            refreshReactProps();
+        };
+
+        var origGetListCallback = $scope.getListCallback;
+        $scope.getListCallback = function (scope, res, options, hasError) {
+            origGetListCallback(scope, res, options, hasError);
+            refreshReactProps();
+        };
+
+        $scope.handleReactAction = function (actionName, payload) {
+            switch (actionName) {
+                case 'toggleView':
+                    $scope.toggleView();
+                    refreshReactProps();
+                    break;
+                case 'appointmentTypeChange':
+                    // ng-change="appointmenttypechange()"
+                    $scope.currentfilter.AppointmentTypeId = payload.value;
+                    $scope.appointmenttypechange();
+                    refreshReactProps();
+                    break;
+                case 'fromDateChange':
+                    // ng-change="getList()"
+                    $scope.currentfilter.fromdate = payload.value ? new Date(payload.value) : null;
+                    $scope.getList();
+                    refreshReactProps();
+                    break;
+                case 'toDateChange':
+                    // ng-change="getList()"
+                    $scope.currentfilter.todate = payload.value ? new Date(payload.value) : null;
+                    $scope.getList();
+                    refreshReactProps();
+                    break;
+                case 'doctorFilterChange':
+                    // change="doctorFilterChange()"
+                    $scope.currentfilter.DoctorId = payload.value;
+                    $scope.doctorFilterChange();
+                    refreshReactProps();
+                    break;
+                case 'statusChange':
+                    // ng-change="getList()"
+                    $scope.currentfilter.AppointmentStatusId = payload.value;
+                    $scope.getList();
+                    refreshReactProps();
+                    break;
+                case 'pageChange':
+                    // uib-pagination ng-change="getList()"
+                    vm.gridConfig.pagerObj.currentPage = payload.page;
+                    $scope.getList();
+                    refreshReactProps();
+                    break;
+                case 'handleEvents':
+                    $scope.handleEvents(payload.actionType, payload.entity);
+                    break;
+                default:
+                    break;
+            }
+            $scope.$applyAsync();
+        };
+        // ==================== END REACT BRIDGE WIRING ====================
+
 
         //Appointment slot computation starts
         var settings = {

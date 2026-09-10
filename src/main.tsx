@@ -114,6 +114,13 @@ import {
   AppointmentsFormFooter,
 } from './react-components/AppointmentsFormScreen';
 
+// Import ViewAppointmentScreen Components
+import {
+  ViewAppointmentToggleButton,
+  ViewAppointmentFilterBar,
+  ViewAppointmentGrid,
+} from './react-components/ViewAppointmentScreen';
+
 // Import InpatientTabScreen Component
 import { InpatientTabScreen } from './react-components/InpatientTabScreen';
 
@@ -580,6 +587,9 @@ import { ItemwiseOpBillCancelTableScreen } from './react-components/ItemwiseOpBi
   AppointmentsFormAppointmentPanel,
   AppointmentsFormSlotPicker,
   AppointmentsFormFooter,
+  ViewAppointmentToggleButton,
+  ViewAppointmentFilterBar,
+  ViewAppointmentGrid,
   InpatientTabScreen,
   OpdBillScreen,
   VisitCreateFormPatientHeader,
