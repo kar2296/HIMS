@@ -131,6 +131,10 @@
                 }
             }
             computeMenu(encounter, strCotext);
+            // No encounter in the event (e.g. a visit without an encounter id): nothing to switch to.
+            if (!$scope.contextLandingPageMap[strCotext]) {
+                return;
+            }
             var landingstate = $scope.contextLandingPageMap[strCotext].landingstate;
 
             $state.go(landingstate, {

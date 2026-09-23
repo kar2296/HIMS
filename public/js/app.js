@@ -2052,7 +2052,6 @@
             $scope.patientemr_emrworkspace = function() {
                 $state.go('patientemr.emrworkspace', {
                     pid: $scope.currentcontext.pid,
-                    eid: $scope.currentcontext.eid,
                     context: $scope.pagecontext
                 });
             };

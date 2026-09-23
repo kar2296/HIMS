@@ -2887,9 +2887,8 @@
         title: 'Electronic Medical Records',
         templateUrl: helper.basepath('emr/patientemr/emrworkspace/emrworkspace.html'),
         controller: 'emrWorkspaceController',
+        // pid / eid are inherited from the parent 'patientemr' state (do not redeclare them here).
         params: {
-            pid: null,
-            eid: null,
             cid: null,
             tab: '',
             context: ''
