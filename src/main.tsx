@@ -533,6 +533,8 @@ import { EmrWorkspaceScreen } from './react-components/emr-workspace/EmrWorkspac
 import { EmrPanelSelectionScreen } from './react-components/emr-admin/EmrPanelSelectionScreen';
 import { EmrFormAssemblyBuilderScreen } from './react-components/emr-admin/EmrFormAssemblyBuilderScreen';
 import { EmrPanelEditorScreen } from './react-components/emr-admin/EmrPanelEditorScreen';
+// Direct printing (QZ Tray) for the AngularJS print controllers: registers window.HimsPrint
+import './printing/qzPrinter';
 
 // Register components globally so the AngularJS bridge can find them
 (window as any).ReactComponents = {

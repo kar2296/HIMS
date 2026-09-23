@@ -2,70 +2,50 @@
     'use strict';
 
     /**
-     * Shared print base controller, mixed into screens through
-     * utl.Ctrl.getBarcodePrintCtrl() / utl.Ctrl.getDMPrintCtrl().
+     * Shared print base controllers, mixed into screens through
+     * utl.Ctrl.getBarcodePrintCtrl() (barcode labels) and utl.Ctrl.getDMPrintCtrl() (dot-matrix).
      *
-     * QZ Tray (local print agent) has been removed from the project, so:
-     *  - printHtml(options) prints server-generated HTML with the browser's print dialog
-     *    (hidden, sandboxed iframe: the HTML's own scripts never run).
-     *  - printRaw(printData) cannot work in a browser (raw EPL/ESC-P printer commands need a
-     *    local agent). It is kept so existing callers do not break, and tells the user once.
+     * Printing goes through window.HimsPrint (src/printing/qzPrinter.ts, QZ Tray 2.3):
+     *  - printRaw(printData)  raw EPL / ESC-P commands straight to the local printer
+     *  - printHtml(options)   HTML via QZ Tray, or the browser print dialog when QZ Tray is not running
+     * QZ Tray is contacted only when something is printed.
      */
     angular
         .module('app.pages')
-        .controller('barcodeprintcontroller', browserPrintController)
-        .controller('dotmatrixController', browserPrintController);
+        .controller('barcodeprintcontroller', createPrintController('barcode'))
+        .controller('dotmatrixController', createPrintController('dotmatrix'));
 
-    var rawPrintNoticeShown = false;
+    function createPrintController(kind) {
 
-    function browserPrintController($scope, utl) {
+        function printController($scope, utl) {
 
-        $scope.printHtml = function (options) {
-            var html = options && options.data;
-            if (typeof html !== 'string' || !html.trim()) {
-                utl.Alert.showErrorMsg('Nothing to print.');
-                return;
-            }
-            printInHiddenFrame(html);
-        };
+            $scope.printRaw = function (printData) {
+                run(function (printer) {
+                    return printer.printRaw(printData, { kind: kind });
+                });
+            };
 
-        $scope.printRaw = function () {
-            if (!rawPrintNoticeShown) {
-                rawPrintNoticeShown = true;
-                utl.Alert.showInfoMsg('Direct label / dot-matrix printing is not available. Please use the Print or PDF option on this screen.');
-            }
-        };
-    }
+            $scope.printHtml = function (options) {
+                run(function (printer) {
+                    return printer.printHtml(options && options.data, { kind: kind });
+                });
+            };
 
-    function printInHiddenFrame(html) {
-        var frame = document.createElement('iframe');
-        frame.setAttribute('aria-hidden', 'true');
-        frame.setAttribute('tabindex', '-1');
-        // allow-same-origin: lets this page call print() on the frame; allow-modals: the print dialog.
-        // No allow-scripts, so any script inside the printed HTML is not executed.
-        frame.setAttribute('sandbox', 'allow-same-origin allow-modals');
-        frame.style.cssText = 'position:fixed;right:0;bottom:0;width:0;height:0;border:0;visibility:hidden;';
-
-        frame.onload = function () {
-            // Give images/fonts a moment to render before opening the dialog.
-            setTimeout(function () {
-                try {
-                    frame.contentWindow.focus();
-                    frame.contentWindow.print();
-                } finally {
-                    setTimeout(function () {
-                        if (frame.parentNode) {
-                            frame.parentNode.removeChild(frame);
-                        }
-                    }, 1000);
+            function run(job) {
+                var printer = window.HimsPrint;
+                if (!printer) {
+                    utl.Alert.showErrorMsg('Printing is not ready yet. Please reload the page and try again.');
+                    return;
                 }
-            }, 250);
-        };
+                job(printer).catch(function (err) {
+                    console.error('Print failed', err);
+                    utl.Alert.showErrorMsg((err && err.message) || 'Printing failed.');
+                });
+            }
+        }
 
-        frame.srcdoc = html;
-        document.body.appendChild(frame);
+        printController.$inject = ['$scope', 'utl'];
+        return printController;
     }
-
-    browserPrintController.$inject = ['$scope', 'utl'];
 
 })();
