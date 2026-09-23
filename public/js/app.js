@@ -2048,6 +2048,15 @@
                 });
             };
 
+            // New React EMR workspace (views/emr/patientemr/emrworkspace) for the current patient and visit.
+            $scope.patientemr_emrworkspace = function() {
+                $state.go('patientemr.emrworkspace', {
+                    pid: $scope.currentcontext.pid,
+                    eid: $scope.currentcontext.eid,
+                    context: $scope.pagecontext
+                });
+            };
+
             // $scope.patientemr_consultation = function () {
             //     $state.go('patientemr.consultationtab.consultationcurrentlist', {
             //         pid: $scope.currentcontext.pid,
