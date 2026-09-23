@@ -7,11 +7,12 @@
  *   the private key never reaches the browser. Without one, QZ Tray asks once per PC to allow the site.
  * - HTML prints fall back to the browser print dialog when QZ Tray is not running.
  *
- * Exposed to AngularJS as window.HimsPrint (see public/views/common/barcodeprintcontroller.js).
+ * Loaded on the first print by himsPrint.ts, which exposes window.HimsPrint to AngularJS.
  */
 import qz from 'qz-tray';
 import type { QzPrintItem } from 'qz-tray';
 import { apiFetch } from '../react-components/utils/api';
+import { printWithBrowser } from './browserPrint';
 
 export type PrinterKind = 'barcode' | 'dotmatrix';
 
@@ -152,34 +153,3 @@ export async function listPrinters(): Promise<string[]> {
   const found = await qz.printers.find();
   return Array.isArray(found) ? found : [found];
 }
-
-/** Hidden, sandboxed iframe: the HTML is printed with the browser dialog and its scripts never run. */
-function printWithBrowser(html: string): void {
-  const frame = document.createElement('iframe');
-  frame.setAttribute('aria-hidden', 'true');
-  frame.setAttribute('tabindex', '-1');
-  frame.setAttribute('sandbox', 'allow-same-origin allow-modals');
-  frame.style.cssText = 'position:fixed;right:0;bottom:0;width:0;height:0;border:0;visibility:hidden;';
-  frame.onload = () => {
-    window.setTimeout(() => {
-      try {
-        frame.contentWindow?.focus();
-        frame.contentWindow?.print();
-      } finally {
-        window.setTimeout(() => frame.remove(), 1000);
-      }
-    }, 250);
-  };
-  frame.srcdoc = html;
-  document.body.appendChild(frame);
-}
-
-export const HimsPrint = { printRaw, printHtml, setPrinter, listPrinters };
-
-declare global {
-  interface Window {
-    HimsPrint?: typeof HimsPrint;
-  }
-}
-
-window.HimsPrint = HimsPrint;
