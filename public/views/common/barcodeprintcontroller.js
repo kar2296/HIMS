@@ -1,90 +1,71 @@
 (function () {
     'use strict';
 
+    /**
+     * Shared print base controller, mixed into screens through
+     * utl.Ctrl.getBarcodePrintCtrl() / utl.Ctrl.getDMPrintCtrl().
+     *
+     * QZ Tray (local print agent) has been removed from the project, so:
+     *  - printHtml(options) prints server-generated HTML with the browser's print dialog
+     *    (hidden, sandboxed iframe: the HTML's own scripts never run).
+     *  - printRaw(printData) cannot work in a browser (raw EPL/ESC-P printer commands need a
+     *    local agent). It is kept so existing callers do not break, and tells the user once.
+     */
     angular
         .module('app.pages')
-        .controller('barcodeprintcontroller', barcodeprintcontroller);
+        .controller('barcodeprintcontroller', browserPrintController)
+        .controller('dotmatrixController', browserPrintController);
 
-    function barcodeprintcontroller($scope, $stateParams, $state, $translate, utl) {
+    var rawPrintNoticeShown = false;
 
-        //var dmConfig = qz.configs.create("TVS MSP 240 Star");
-        var dmConfig = null;
-        var retrycount = 0;
-        var samplePrinterName = "ZDesigner GC420t (EPL) (Copy 1)";
+    function browserPrintController($scope, utl) {
 
         $scope.printHtml = function (options) {
-            var printData = [{
-                type: 'html',
-                format: 'plain',
-                data: options.data
-            }];
-
-            qz.print(dmConfig, printData).catch(displayError);
-        }
-
-        $scope.printRaw = function (printData) {
-            retrycount = parseInt(printData.retries);
-            startConnection();
-            qz.print(dmConfig, printData).catch(function (e) {
-                console.error(e);
-            });
-        }
-
-
-        function initPrinter() {
-            if (!dmConfig) {
-                qz.printers.getDefault().then(function (data) {
-                    var printerName = data ? data : samplePrinterName;
-                    dmConfig = qz.configs.create(printerName);
-                    console.log(dmConfig);
-                }).catch(handleGetDefaultException);
+            var html = options && options.data;
+            if (typeof html !== 'string' || !html.trim()) {
+                utl.Alert.showErrorMsg('Nothing to print.');
+                return;
             }
-        }
+            printInHiddenFrame(html);
+        };
 
-
-        function handleGetDefaultException(data) {
-            console.log('No default printer found!');
-            console.log(data);
-
-            dmConfig = qz.configs.create(samplePrinterName);
-            console.log(dmConfig);
-        }
-
-
-        function startConnection() {
-            if (!qz.websocket.isActive()) {
-                qz.websocket.connect({
-                    retries: retrycount,
-                    delay: 1
-                }).then(function () {
-                    console.log('connection success');
-                    initPrinter();
-                }).catch(handleConnectionError);
-            } else {
-                initPrinter();
+        $scope.printRaw = function () {
+            if (!rawPrintNoticeShown) {
+                rawPrintNoticeShown = true;
+                utl.Alert.showInfoMsg('Direct label / dot-matrix printing is not available. Please use the Print or PDF option on this screen.');
             }
-        }
-
-        function endConnection() {
-            if (qz.websocket.isActive()) {
-                qz.websocket.disconnect().then(function () {
-                    //
-                }).catch(handleConnectionError);
-            }
-        }
-
-        function handleConnectionError(exp) {
-            //Handle exception
-            console.log(exp);
-        }
-
-        function displayError(data) {
-            console.log(data);
-        }
-
-        startConnection();
+        };
     }
 
-    barcodeprintcontroller.$inject = ['$scope', '$stateParams', '$state', '$translate', 'utl'];
+    function printInHiddenFrame(html) {
+        var frame = document.createElement('iframe');
+        frame.setAttribute('aria-hidden', 'true');
+        frame.setAttribute('tabindex', '-1');
+        // allow-same-origin: lets this page call print() on the frame; allow-modals: the print dialog.
+        // No allow-scripts, so any script inside the printed HTML is not executed.
+        frame.setAttribute('sandbox', 'allow-same-origin allow-modals');
+        frame.style.cssText = 'position:fixed;right:0;bottom:0;width:0;height:0;border:0;visibility:hidden;';
+
+        frame.onload = function () {
+            // Give images/fonts a moment to render before opening the dialog.
+            setTimeout(function () {
+                try {
+                    frame.contentWindow.focus();
+                    frame.contentWindow.print();
+                } finally {
+                    setTimeout(function () {
+                        if (frame.parentNode) {
+                            frame.parentNode.removeChild(frame);
+                        }
+                    }, 1000);
+                }
+            }, 250);
+        };
+
+        frame.srcdoc = html;
+        document.body.appendChild(frame);
+    }
+
+    browserPrintController.$inject = ['$scope', 'utl'];
 
 })();
