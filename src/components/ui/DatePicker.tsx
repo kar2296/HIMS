@@ -6,7 +6,8 @@ export interface DatePickerProps {
   required?: boolean;
   error?: string;
   helperText?: string;
-  value?: string; // ISO yyyy-mm-dd, exactly what a native date input already produces -- no new date format introduced
+  /** yyyy-mm-dd (or yyyy-mm-ddThh:mm with includeTime). Date objects / other date text from AngularJS are normalised. */
+  value?: string | Date | null;
   onChange?: (value: string) => void;
   disabled?: boolean;
   fullWidth?: boolean;
@@ -15,6 +16,26 @@ export interface DatePickerProps {
   name?: string;
   id?: string;
   includeTime?: boolean;
+}
+
+const pad = (n: number) => String(n).padStart(2, '0');
+
+/**
+ * The native input only accepts yyyy-mm-dd (date) or yyyy-mm-ddThh:mm (datetime-local).
+ * AngularJS screens often pass a Date object, which the bridge turns into text such as
+ * "Wed Sep 23 2026 23:11:17 GMT+0530", so the browser rejected it and showed an empty field.
+ * Convert anything date-like to the local-time format the input needs.
+ */
+function toInputValue(value: DatePickerProps['value'], includeTime: boolean): string {
+  if (value === null || value === undefined || value === '') return '';
+  if (typeof value === 'string') {
+    if (!includeTime && /^\d{4}-\d{2}-\d{2}$/.test(value)) return value;
+    if (includeTime && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2}(\.\d+)?)?$/.test(value)) return value.slice(0, 16);
+  }
+  const date = value instanceof Date ? value : new Date(value);
+  if (Number.isNaN(date.getTime())) return '';
+  const day = `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+  return includeTime ? `${day}T${pad(date.getHours())}:${pad(date.getMinutes())}` : day;
 }
 
 /** Global date/datetime picker. Uses the native browser input[type=date|datetime-local]
@@ -37,7 +58,7 @@ export const DatePicker: React.FC<DatePickerProps> = ({
         id={inputId}
         name={name}
         type={includeTime ? 'datetime-local' : 'date'}
-        value={value || ''}
+        value={toInputValue(value, includeTime)}
         min={min}
         max={max}
         required={required}
