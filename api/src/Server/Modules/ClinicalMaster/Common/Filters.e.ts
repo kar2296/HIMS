@@ -316,6 +316,11 @@ export enum SectionMasterFilters {
     DockPositionId,
     SectionNoteTypeId
 }
+export enum ProfileSectionSettingFilters {
+    Id,
+    ProfileId,
+    SectionId
+}
 export enum ProfileSectionFilters {
     Id,
     Name,

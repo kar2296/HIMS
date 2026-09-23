@@ -64,6 +64,7 @@ import SystemExamination from './SystemExaminationRoute';
 import ServiceItemPerformingDoctor from './ServiceItemPerformingDoctorRoute';
 import ExaminationMaster from './ExaminationMasterRoute';
 import DefaultNotes from './DefaultNotesRoute';
+import ProfileSectionSetting from './ProfileSectionSettingRoute';
 
 let router: Router = GetRouter();
 router.use('/AllergyMaster', AllergyMaster);
@@ -131,4 +132,5 @@ router.use('/SystemExamination', SystemExamination);
 router.use('/ServiceItemPerformingDoctor', ServiceItemPerformingDoctor);
 router.use('/ExaminationMaster', ExaminationMaster);
 router.use('/DefaultNotes',DefaultNotes);
+router.use('/ProfileSectionSetting', ProfileSectionSetting);
 export default router;

@@ -64,3 +64,4 @@ export * from './SystemExaminationBo';
 export * from './ServiceItemPerformingDoctorBo';
 export * from './ExaminationMasterBo';
 export * from './DefaultNotesBo';
+export * from './ProfileSectionSettingBo';

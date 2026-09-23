@@ -37,6 +37,7 @@ declare global {
         ServiceItemPackageMap: SequelizeStatic.Model<i.ServiceItemPackageMapInstance, i.ServiceItemPackageMapAttributes>;
         NoteTemplate: SequelizeStatic.Model<i.NoteTemplateInstance, i.NoteTemplateAttributes>;
         ProfileSection: SequelizeStatic.Model<i.ProfileSectionInstance, i.ProfileSectionAttributes>;
+        ProfileSectionSetting: SequelizeStatic.Model<i.ProfileSectionSettingInstance, i.ProfileSectionSettingAttributes>;
         SectionMaster: SequelizeStatic.Model<i.SectionMasterInstance, i.SectionMasterAttributes>;
         ProfileMaster: SequelizeStatic.Model<i.ProfileMasterInstance, i.ProfileMasterAttributes>;
         TickSheetMaster: SequelizeStatic.Model<i.TickSheetMasterInstance, i.TickSheetMasterAttributes>;

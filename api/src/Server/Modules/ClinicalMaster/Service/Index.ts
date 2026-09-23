@@ -63,3 +63,4 @@ export * from './SystemExaminationService';
 export * from './ServiceItemPerformingDoctorService';
 export * from './ExaminationMasterService';
 export * from './DefaultNotesService';
+export * from './ProfileSectionSettingService';

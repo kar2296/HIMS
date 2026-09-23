@@ -66,3 +66,4 @@ export * from './SystemExaminationInterface';
 export * from './ServiceItemPerformingDoctorInterface';
 export * from './ExaminationMasterInterface';
 export * from './DefaultNotesInterface';
+export * from './ProfileSectionSettingInterface';
