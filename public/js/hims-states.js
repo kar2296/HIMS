@@ -218,6 +218,39 @@
                     }]
                 }
             })
+            .state('app.emrformbuilder', {
+                url: '/emrformbuilder',
+                title: 'EMR Form Builder',
+                templateUrl: helper.basepath('emr/emradmin/emrformbuilder.html'),
+                controller: 'emrAdminController',
+                resolve: {
+                    loadCtrl: ['$ocLazyLoad', function ($ocLazyLoad) {
+                        return $ocLazyLoad.load(helper.basepath('emr/emradmin/emradmin.js'));
+                    }]
+                }
+            })
+            .state('app.emrpaneleditor', {
+                url: '/emrpaneleditor',
+                title: 'EMR Panel Editor',
+                templateUrl: helper.basepath('emr/emradmin/emrpaneleditor.html'),
+                controller: 'emrAdminController',
+                resolve: {
+                    loadCtrl: ['$ocLazyLoad', function ($ocLazyLoad) {
+                        return $ocLazyLoad.load(helper.basepath('emr/emradmin/emradmin.js'));
+                    }]
+                }
+            })
+            .state('app.emrpanelselection', {
+                url: '/emrpanelselection',
+                title: 'EMR Panel Selection',
+                templateUrl: helper.basepath('emr/emradmin/emrpanelselection.html'),
+                controller: 'emrAdminController',
+                resolve: {
+                    loadCtrl: ['$ocLazyLoad', function ($ocLazyLoad) {
+                        return $ocLazyLoad.load(helper.basepath('emr/emradmin/emradmin.js'));
+                    }]
+                }
+            })
             /*Dashboards*/
             .state('app.admindashboard', {
                 url: '/admindashboard',
