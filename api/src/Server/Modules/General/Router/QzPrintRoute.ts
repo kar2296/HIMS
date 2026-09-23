@@ -34,7 +34,8 @@ function readPem(path: string | undefined): string | null {
     try {
         return readFileSync(resolve(process.cwd(), path), 'utf8');
     } catch (err) {
-        console.error(`QZ print: cannot read ${path}`, err);
+        // Plain concatenation: the gulp build runs files through gulp-template, which evaluates template literals.
+        console.error('QZ print: cannot read ' + path, err);
         return null;
     }
 }
