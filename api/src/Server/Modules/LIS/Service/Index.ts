@@ -36,3 +36,4 @@ export * from './OrgIsolationService';
 export * from './B2BCustomerMasterService';
 export * from './PatientCriticalOrderService';
 export * from './RISInterfaceResultService';
+export * from './LisPatientOrderService';

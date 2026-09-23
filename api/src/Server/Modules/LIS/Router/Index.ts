@@ -37,6 +37,9 @@ import OrgIsolation from './OrgIsolationRoute';
 import B2BCustomerMaster from './B2BCustomerMasterRoute';
 import PatientCriticalOrder from './PatientCriticalOrderRoute';
 import RISInterfaceResult from './RISInterfaceResultRoute';
+import LisPatientOrders from './LisPatientOrdersRoute';
+import LisPatientOrderdetails from './LisPatientOrderdetailsRoute';
+import LisEncounterOrderdetails from './LisEncounterOrderdetailsRoute';
 
 let router: Router = GetRouter();
 router.use('/Containertype', Containertype);
@@ -77,5 +80,9 @@ router.use('/OrgIsolation', OrgIsolation);
 router.use('/B2BCustomerMaster', B2BCustomerMaster);
 router.use('/PatientCriticalOrder', PatientCriticalOrder);
 router.use('/RISInterfaceResult', RISInterfaceResult);
+// Legacy LIS order screens (order acknowledge / process / sample collection / result approval) on the current order tables
+router.use('/patientorders', LisPatientOrders);
+router.use('/patientorderdetails', LisPatientOrderdetails);
+router.use('/encounterorderdetails', LisEncounterOrderdetails);
 
 export default router;
