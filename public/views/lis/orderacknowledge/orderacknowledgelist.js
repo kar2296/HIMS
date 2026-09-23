@@ -101,13 +101,13 @@
 
             }
             else if (actionType == 'token') {
-                utl.Dialog.confirmDelete(null, 'token ' + row.entity.Id);
+                utl.Dialog.confirmDelete(null, 'token ' + row.Id);
             }
             else if (actionType == 'patientinfo') {
                 // $scope.patientprofiledetails(entity.Patient.Id);
                 utl.Modal.open('registration.patientprofile', {
                     params: {
-                        pid: entity.PatientId
+                        pid: row.PatientId
                     },
                     confirmCallback: $scope.getitem
                 });
@@ -117,26 +117,26 @@
                     $state.go('app.orderdetaillist',
                     {
                         orddeptid: $scope.currentfilter.OrdDeptId,
-                        encorderid: row.entity.Id,
-                        patname: (row.entity.Patient.FirstName ? (row.entity.Patient.FirstName) : '') + (row.entity.Patient.LastName ? (row.entity.Patient.LastName) : ''),
-                        patmrn: row.entity.Patient.MRN,
-                        ordnr: row.entity.Ordernumber,
-                        orddt: row.entity.Orderrequestdate,
-                        billingdt: row.entity.Billdate,
-                        billingid:row.entity.Billingid
+                        encorderid: row.Id,
+                        patname: (row.Patient.FirstName ? (row.Patient.FirstName) : '') + (row.Patient.LastName ? (row.Patient.LastName) : ''),
+                        patmrn: row.Patient.MRN,
+                        ordnr: row.Ordernumber,
+                        orddt: row.Orderrequestdate,
+                        billingdt: row.Billdate,
+                        billingid:row.Billingid
                     });
                     */
                 utl.Modal.open('app.orderdetaillist', 
                 {
                     params: {                         
                         orddeptid: $scope.currentfilter.OrdDeptId,
-                        encorderid: row.entity.Id,
-                        patname: (row.entity.Patient.FirstName ? (row.entity.Patient.FirstName) : '') + (row.entity.Patient.LastName ? (row.entity.Patient.LastName) : ''),
-                        patmrn: row.entity.Patient.MRN,
-                        ordnr: row.entity.Ordernumber,
-                        orddt: row.entity.Orderrequestdate,
-                        billingdt: row.entity.Billdate,
-                        billingid:row.entity.Billingid },
+                        encorderid: row.Id,
+                        patname: (row.Patient.FirstName ? (row.Patient.FirstName) : '') + (row.Patient.LastName ? (row.Patient.LastName) : ''),
+                        patmrn: row.Patient.MRN,
+                        ordnr: row.Ordernumber,
+                        orddt: row.Orderrequestdate,
+                        billingdt: row.Billdate,
+                        billingid:row.Billingid },
                     confirmCallback: $scope.getList
                 }); 
             }
@@ -146,13 +146,13 @@
                 {
                     params: {                         
                         orddeptid: $scope.currentfilter.OrdDeptId,
-                        encorderid: row.entity.Id,
-                        patname: (row.entity.Patient.FirstName ? (row.entity.Patient.FirstName) : '') + (row.entity.Patient.LastName ? (row.entity.Patient.LastName) : ''),
-                        patmrn: row.entity.Patient.MRN,
-                        ordnr: row.entity.Ordernumber,
-                        orddt: row.entity.Orderrequestdate,
-                        billingdt: row.entity.Billdate,
-                        billingid:row.entity.Billingid },
+                        encorderid: row.Id,
+                        patname: (row.Patient.FirstName ? (row.Patient.FirstName) : '') + (row.Patient.LastName ? (row.Patient.LastName) : ''),
+                        patmrn: row.Patient.MRN,
+                        ordnr: row.Ordernumber,
+                        orddt: row.Orderrequestdate,
+                        billingdt: row.Billdate,
+                        billingid:row.Billingid },
                     confirmCallback: $scope.getList
                 }); 
             }
@@ -163,41 +163,42 @@
             columnDefs: [ 
                 {
                     field: "OrderReq", width: "15%",displayName: $translate.instant('lis.orderacknowledges.orderreqdate.lbl'),
-                    cellTemplate: '<div class="ui-grid-cell-contents" > {{row.entity.Orderrequestdate ? (row.entity.Orderrequestdate | date : "dd/MM/yyyy HH:mm:ss") : "N/A"}} </div>'
+                    cellTemplate: '<div class="ui-grid-cell-contents" > {{entity.Orderrequestdate ? (entity.Orderrequestdate | date : "dd/MM/yyyy HH:mm:ss") : "N/A"}} </div>'
                 },
                 {
                     field: "Order#", width: "10%", displayName: $translate.instant('lis.orderacknowledges.ordernr.lbl'),
-                    cellTemplate: '<div class="ui-grid-cell-contents" > {{row.entity.Ordernumber}} </div>'
+                    cellTemplate: '<div class="ui-grid-cell-contents" > {{entity.Ordernumber}} </div>'
                 },               
                 {
                     field: "patientname", width: "15%", displayName: $translate.instant('lis.orderacknowledges.patientname.lbl'),
                     cellTemplate: '<div class="ui-grid-cell-contents" >\
-                    <a class="grid-action" ng-click="handleEvents(\'patientinfo\',entity)"\
-                    <a href="#"> {{row.entity.Patient.MRN}} </a> {{row.entity.Patient.Title.Description}} {{row.entity.Patient.FirstName}} {{row.entity.Patient.LastName}} | {{row.entity.Patient.Gender.Description}}  </div>',
+                    <a class="grid-action" href="" ng-click="handleEvents(\'patientinfo\',entity)"> {{entity.Patient.MRN}} </a>\
+                    {{entity.Patient.Title.Description}} {{entity.Patient.FirstName}} {{entity.Patient.LastName}} | {{entity.Patient.Gender.Description}}  </div>',
                     handleEvent: $scope.handleEvents
                 }, 
                 {
                     field: "DoctorName", width: "15%", displayName: $translate.instant('lis.orderacknowledges.doctorname.lbl'),
-                    cellTemplate: '<div class="ui-grid-cell-contents " > {{row.entity.DoctorName}} </div>'
+                    cellTemplate: '<div class="ui-grid-cell-contents " > {{entity.DoctorName}} </div>'
                 },
                 {
                     field: "testname", width: "15%",displayName: $translate.instant('lis.orderacknowledges.testname.lbl'),
-                    cellTemplate: '<div class="ui-grid-cell-contents" > {{row.entity.PatientOrderdetails.Testname}} </div>'
+                    cellTemplate: '<div class="ui-grid-cell-contents" > {{entity.PatientOrderdetails.Testname}} </div>'
                 },
                 {
                     field: "priority", width: "10%", displayName: $translate.instant('lis.orderacknowledges.prioritystatuse.lbl'),
-                    cellTemplate: '<div class="ui-grid-cell-contents " > {{row.entity.PriorityStatus.DisplayName}} </div>'
+                    cellTemplate: '<div class="ui-grid-cell-contents " > {{entity.PriorityStatus.DisplayName}} </div>'
                 },
                 {
                     field: "Orderstatus", width: "10%", displayName: $translate.instant('lis.orderacknowledges.orderstatuse.lbl'),
-                    cellTemplate: '<div class="ui-grid-cell-contents " > {{row.entity.OrderStatus.DisplayName}} </div>'
+                    cellTemplate: '<div class="ui-grid-cell-contents " > {{entity.OrderStatus.DisplayName}} </div>'
                 },
                 {
                     field: "Id", width: "10%", displayName: $translate.instant('common.actions_col.lbl'),
-                    cellTemplate: '<a class="lnk-action" ng-click="grid.appScope.handleEvents(\'action\',row)"><img src="app/ico/16-16/action.png" alt="Image" class="block-center img-rounded" /></a> &nbsp;&nbsp;| ' +
-                    '<a class="lnk-action" ng-click="grid.appScope.handleEvents(\'billing\',row)">B</a> &nbsp;&nbsp;| ' +
-                    '<a class="lnk-action" ng-click="grid.appScope.handleEvents(\'token\',row)">T</a> &nbsp;&nbsp;| ' +                    
-                    '<a class="lnk-action" ng-click="grid.appScope.handleEvents(\'history\',row)"><img src="app/ico/16-16/info.png" alt="Image" class="block-center img-rounded" /></a></a>'
+                    cellTemplate: '<a class="lnk-action" ng-click="handleEvents(\'action\',entity)"><img src="app/ico/16-16/action.png" alt="Image" class="block-center img-rounded" /></a> &nbsp;&nbsp;| ' +
+                    '<a class="lnk-action" ng-click="handleEvents(\'billing\',entity)">B</a> &nbsp;&nbsp;| ' +
+                    '<a class="lnk-action" ng-click="handleEvents(\'token\',entity)">T</a> &nbsp;&nbsp;| ' +                    
+                    '<a class="lnk-action" ng-click="handleEvents(\'history\',entity)"><img src="app/ico/16-16/info.png" alt="Image" class="block-center img-rounded" /></a>',
+                    handleEvent: $scope.handleEvents
                 }
   
             ],

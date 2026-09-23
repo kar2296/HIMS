@@ -109,8 +109,15 @@
         }
 
         $scope.backToList = function () {
-            $state.confirmCallback;
+            if ($scope.confirmCallback) {
+                $scope.confirmCallback(true);
+            }
         }
+
+        $scope.cancelItemCallback = function (scope, data, options, hasError) {
+            utl.Alert.showSuccessMsg($translate.instant('common.successmsg.lbl'));
+            $scope.backToList();
+        };
 
         $scope.onCancelAction = function (Selecteddata) {
             var Items = [];
@@ -203,7 +210,7 @@
         $scope.handleEvents = function (actionType, row) {
 
             if (actionType == 'approve') {
-                if (row.entity.Orderstatuse == 2) {
+                if (row.entity.Orderstatuse == 1) {
                     utl.Dialog.confirmDelete($scope.onApproveConfirmed, row.entity, $translate.instant('lis.orderdetaillist.approveaction.lbl'));
                 } else {
                     alert($translate.instant('lis.orderdetaillist.statuschanged.lbl'));
@@ -213,7 +220,7 @@
                 utl.Dialog.confirmDelete(null, 'History ' + row.entity.Id);
             }
             else if (actionType == 'cancel') {
-                if (row.entity.Orderstatuse == 2) {
+                if (row.entity.Orderstatuse == 1) {
                     utl.Dialog.confirmDelete($scope.onCancelConfirmed, row.entity, $translate.instant('lis.orderdetaillist.cancelaction.lbl'));
                 } else {
                     alert($translate.instant('lis.orderdetaillist.statuschanged.lbl'));

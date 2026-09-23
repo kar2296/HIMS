@@ -36,7 +36,7 @@
 
 
         $scope.getListCallback = function (scope, data, options, hasError) {
-            vm.gridConfig.data = data;
+            vm.gridConfig.data = (data && data.Data) || [];
         };
 
         $scope.getList = function (pageNo) {
@@ -88,14 +88,17 @@
                 utl.Dialog.confirmDelete(null, 'token ' + row.entity.Id);
             }
             else if (actionType == 'action') { // call the child operations.
-                $state.go('app.orderdetaillist',
+                utl.Modal.open('app.orderdetaillist', {
+                    params:
                     {
                         encorderid: row.entity.Id,
                         patname: (row.entity.Patient.FirstName ? (row.entity.Patient.FirstName) : '') + (row.entity.Patient.LastName ? (row.entity.Patient.LastName) : ''),
                         patmrn: row.entity.Patient.MRN,
                         ordnr: row.entity.Ordernumber,
                         orddt: row.entity.Orderrequestdate
-                    });
+                    },
+                    confirmCallback: $scope.getList
+                });
             }
             else if (actionType == 'history') {
                 utl.Dialog.confirmDelete(null, 'history ' + row.entity.Id);
@@ -120,7 +123,7 @@
                 {
                     field: "MRN",
                     displayName: $translate.instant('Patient ID'),
-                    cellTemplate: "<div class='ui-grid-cell-contents'><span >{{entity.Patient.MRN}}</span>" + "</div>"
+                    cellTemplate: "<div class='ui-grid-cell-contents'><span >{{row.entity.Patient.MRN}}</span>" + "</div>"
                 },
                 {
                     field: "PatientInfo", displayName: $translate.instant('lis.resultdispatch.patientinfo.lbl'),

@@ -36,7 +36,7 @@
 
 
         $scope.getListCallback = function (scope, data, options, hasError) {
-            vm.gridConfig.data = data;
+            vm.gridConfig.data = (data && data.Data) || [];
         };
 
         $scope.getList = function (pageNo) {
@@ -88,14 +88,17 @@
                 utl.Dialog.confirmDelete(null, 'token ' + entity.Id);
             }
             else if (actionType == 'action') { // call the child operations.
-                $state.go('app.orderdetaillist',
+                utl.Modal.open('app.orderdetaillist', {
+                    params:
                     {
                         encorderid: entity.Id,
                         patname: (entity.Patient.FirstName ? (entity.Patient.FirstName) : '') + (entity.Patient.LastName ? (entity.Patient.LastName) : ''),
                         patmrn: entity.Patient.MRN,
                         ordnr: entity.Ordernumber,
                         orddt: entity.Orderrequestdate
-                    });
+                    },
+                    confirmCallback: $scope.getList
+                });
             }
             else if (actionType == 'history') {
                 utl.Dialog.confirmDelete(null, 'history ' + entity.Id);
@@ -107,30 +110,30 @@
             columnDefs: [
                 {
                     field: "Order#", displayName: $translate.instant('lis.orderassignment.ordernr.lbl'),
-                    cellTemplate: '<div class="ui-grid-cell-contents" > {{entity.Ordernumber}} </div>'
+                    cellTemplate: '<div class="ui-grid-cell-contents" > {{row.entity.Ordernumber}} </div>'
                 },
                 {
                     field: "OrderReq", displayName: $translate.instant('lis.orderassignment.orderreqdate.lbl'),
-                    cellTemplate: '<div class="ui-grid-cell-contents" > {{entity.Orderrequestdate ? (entity.Orderrequestdate | date : "dd/MM/yyyy HH:mm:ss") : "N/A"}} </div>'
+                    cellTemplate: '<div class="ui-grid-cell-contents" > {{row.entity.Orderrequestdate ? (row.entity.Orderrequestdate | date : "dd/MM/yyyy HH:mm:ss") : "N/A"}} </div>'
                 },
                 {
                     field: "PatientInfo", displayName: $translate.instant('lis.orderassignment.patientinfo.lbl'),
-                    cellTemplate: '<div class="ui-grid-cell-contents " > {{entity.Patient.Title.Description}} {{entity.Patient.FirstName}} {{entity.Patient.LastName}} | {{entity.Patient.Gender.Description}}  |  {{entity.Patient.DOB  ? (entity.Patient.DOB | date : "dd/MM/yyyy ") : "N/A" }} {{entity.DoctorName}} </div>'
+                    cellTemplate: '<div class="ui-grid-cell-contents " > {{row.entity.Patient.Title.Description}} {{row.entity.Patient.FirstName}} {{row.entity.Patient.LastName}} | {{row.entity.Patient.Gender.Description}}  |  {{row.entity.Patient.DOB  ? (row.entity.Patient.DOB | date : "dd/MM/yyyy ") : "N/A" }} {{row.entity.DoctorName}} </div>'
                 },
                 {
                     field: "priority", displayName: $translate.instant('lis.orderassignment.priority.lbl'),
-                    cellTemplate: '<div class="ui-grid-cell-contents " > {{entity.PriorityStatus.DisplayName}} </div>'
+                    cellTemplate: '<div class="ui-grid-cell-contents " > {{row.entity.PriorityStatus.DisplayName}} </div>'
                 },
                 {
                     field: "Orderstatus", displayName: $translate.instant('lis.orderassignment.orderstatuse.lbl'),
-                    cellTemplate: '<div class="ui-grid-cell-contents " > {{entity.OrderStatus.DisplayName}} </div>'
+                    cellTemplate: '<div class="ui-grid-cell-contents " > {{row.entity.OrderStatus.DisplayName}} </div>'
                 },
                 {
                     field: "Id", displayName: $translate.instant('common.actions_col.lbl'),
-                    cellTemplate : '<a class="lnk-action" ng-click="handleEvents(\'billing\',entity)"></a> &nbsp;&nbsp;| '+
-                    '<a class="lnk-action" ng-click="handleEvents(\'token\',entity)"></a> &nbsp;&nbsp;| '+
-                    '<a class="lnk-action" ng-click="handleEvents(\'action\',entity)"><img src="app/ico/16-16/action.png" alt="Image" class="block-center img-rounded" /></a> &nbsp;&nbsp;| '+
-                    '<a class="lnk-action" ng-click="handleEvents(\'history\',entity)"></a>',
+                    cellTemplate : '<a class="lnk-action" ng-click=\"grid.appScope.handleEvents(\'billing\',row.entity)\"></a> &nbsp;&nbsp;| '+
+                    '<a class="lnk-action" ng-click=\"grid.appScope.handleEvents(\'token\',row.entity)\"></a> &nbsp;&nbsp;| '+
+                    '<a class="lnk-action" ng-click=\"grid.appScope.handleEvents(\'action\',row.entity)\"><img src="app/ico/16-16/action.png" alt="Image" class="block-center img-rounded" /></a> &nbsp;&nbsp;| '+
+                    '<a class="lnk-action" ng-click=\"grid.appScope.handleEvents(\'history\',row.entity)\"></a>',
                     handleEvent: $scope.handleEvents
                 }
                 // { field: "Id", name: 'Order Details', cellTemplate: 'patientListTemplate.html' }

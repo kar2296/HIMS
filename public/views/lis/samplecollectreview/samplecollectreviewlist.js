@@ -91,7 +91,8 @@
                 utl.Dialog.confirmDelete(null, 'token ' + row.entity.Id);
             }
             else if (actionType == 'action') { // call the child operations.
-                $state.go('app.orderdetaillist',
+                utl.Modal.open('app.orderdetaillist', {
+                    params:
                    {
                         orddeptid: $scope.currentfilter.OrdDeptId,
                         encorderid: row.entity.Id,
@@ -99,7 +100,9 @@
                         patmrn: row.entity.Patient.MRN,
                         ordnr: row.entity.Ordernumber,
                         orddt: row.entity.Orderrequestdate
-                    });
+                    },
+                    confirmCallback: $scope.getList
+                });
             }
             else if (actionType == 'history') {
                 utl.Dialog.confirmDelete(null, 'history ' + row.entity.Id);
