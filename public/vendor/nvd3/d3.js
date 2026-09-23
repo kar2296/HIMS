@@ -1844,7 +1844,7 @@
     lightseagreen: 2142890,
     lightskyblue: 8900346,
     lightslategray: 7833753,
-    #ffffff00: 7833753,
+    lightslategrey: 7833753,
     lightsteelblue: 11584734,
     lightyellow: 16777184,
     lime: 65280,
