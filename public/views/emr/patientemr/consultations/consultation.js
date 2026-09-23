@@ -214,6 +214,10 @@
                     if (profileSection.SectionMaster) {
                         profileSection.SectionMaster.SRef = profileSection.SectionMaster.SRef || 'emr.cn.question';
                         var mapData = $scope.sectionMap[profileSection.SectionMaster.SRef];
+                        // Panel types that only the React EMR Workspace renders (emr.ws.*) have no classic template.
+                        if (!mapData) {
+                            continue;
+                        }
                         var currentTmpl = mapData.tmpl;
                         var tabItem = {
                             sectionid: profileSection.SectionMaster.Id,
