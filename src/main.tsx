@@ -529,6 +529,7 @@ import { ClaimReceiptBillsTableScreen } from './react-components/ClaimReceiptBil
 import { NewReceiptBillsTableScreen } from './react-components/NewReceiptBillsTableScreen';
 import { ItemwiseOpBillCancelSelectScreen } from './react-components/ItemwiseOpBillCancelSelectScreen';
 import { ItemwiseOpBillCancelTableScreen } from './react-components/ItemwiseOpBillCancelTableScreen';
+import { EmrWorkspaceScreen } from './react-components/emr-workspace/EmrWorkspaceScreen';
 
 // Register components globally so the AngularJS bridge can find them
 (window as any).ReactComponents = {
@@ -832,7 +833,8 @@ import { ItemwiseOpBillCancelTableScreen } from './react-components/ItemwiseOpBi
   ClaimReceiptBillsTableScreen,
   NewReceiptBillsTableScreen,
   ItemwiseOpBillCancelSelectScreen,
-  ItemwiseOpBillCancelTableScreen
+  ItemwiseOpBillCancelTableScreen,
+  EmrWorkspaceScreen,
 };
 
 console.log('React runtime and components loaded. ReactBridge initialized.');

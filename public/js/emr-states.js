@@ -2882,6 +2882,24 @@
             }]
         }
     })
+    .state('patientemr.emrworkspace', {
+        url: '/emrworkspace',
+        title: 'Electronic Medical Records',
+        templateUrl: helper.basepath('emr/patientemr/emrworkspace/emrworkspace.html'),
+        controller: 'emrWorkspaceController',
+        params: {
+            pid: null,
+            eid: null,
+            cid: null,
+            tab: '',
+            context: ''
+        },
+        resolve: {
+            loadCtrl: ['$ocLazyLoad', function($ocLazyLoad) {
+                return $ocLazyLoad.load(helper.basepath('emr/patientemr/emrworkspace/emrworkspace.js'));
+            }]
+        }
+    })
     .state('patientemr.patientallergy', {
         url: '/patientallergy/:pid/:id',
         title: 'Patient Allergy',
