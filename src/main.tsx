@@ -536,6 +536,7 @@ import { EmrPanelEditorScreen } from './react-components/emr-admin/EmrPanelEdito
 import { MrdOtReportScreen } from './react-components/legacy-screens/MrdOtReportScreen';
 import { TestTemplateMasterScreen } from './react-components/legacy-screens/TestTemplateMasterScreen';
 import { AntibioticCultureScreen } from './react-components/legacy-screens/AntibioticCultureScreen';
+import { DispensedItemsPickerScreen } from './react-components/legacy-screens/DispensedItemsPickerScreen';
 // Print API for the AngularJS print controllers (window.HimsPrint); QZ Tray loads on the first print
 import './printing/himsPrint';
 
@@ -849,6 +850,7 @@ import './printing/himsPrint';
   MrdOtReportScreen,
   TestTemplateMasterScreen,
   AntibioticCultureScreen,
+  DispensedItemsPickerScreen,
 };
 
 console.log('React runtime and components loaded. ReactBridge initialized.');
