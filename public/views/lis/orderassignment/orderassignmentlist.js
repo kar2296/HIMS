@@ -130,10 +130,9 @@
                     cellTemplate : '<a class="lnk-action" ng-click="handleEvents(\'billing\',entity)"></a> &nbsp;&nbsp;| '+
                     '<a class="lnk-action" ng-click="handleEvents(\'token\',entity)"></a> &nbsp;&nbsp;| '+
                     '<a class="lnk-action" ng-click="handleEvents(\'action\',entity)"><img src="app/ico/16-16/action.png" alt="Image" class="block-center img-rounded" /></a> &nbsp;&nbsp;| '+
-                    '<a class="lnk-action" ng-click="handleEvents(\'history\',entity)"></a>' 
+                    '<a class="lnk-action" ng-click="handleEvents(\'history\',entity)"></a>',
+                    handleEvent: $scope.handleEvents
                 }
-
-                handleEvent: $scope.handleEvents,
                 // { field: "Id", name: 'Order Details', cellTemplate: 'patientListTemplate.html' }
 
             ]
