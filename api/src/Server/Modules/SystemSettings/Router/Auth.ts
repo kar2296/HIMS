@@ -437,8 +437,10 @@ passport.use(new bearer.Strategy(
                     }
                 });
         } catch (err) {
-            console.log(err);
-            done(err, { id: 0 }, { message: 'Invalid token' });
+            // Expired / tampered token (decrypts to nothing): reject with 401 so the client returns to login,
+            // instead of passing the parse error on as a server error.
+            console.log('Bearer token rejected:', err && (err as Error).message);
+            done(null, false, { message: 'Invalid token' });
         }
     }));
 
