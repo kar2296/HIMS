@@ -213,7 +213,7 @@
         $scope.initLookup = function () {
             var inputData = [
                 { "Key": "OrderStatus" },
-                { "Key": "PriorityStatus" },
+                { "Key": "OrderPriority" },
                 { "Key": "Department" },
                 { "Key": "SubDepartment" }
             ]
