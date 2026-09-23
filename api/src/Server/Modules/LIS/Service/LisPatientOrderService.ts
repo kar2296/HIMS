@@ -2,7 +2,7 @@ import { BaseService, BoFactory } from '../../Base/Index';
 import { Request } from '../../../Core/Index';
 import { ApiResponse } from '../../../Common/Index';
 import * as emrbo from '../../EMR/Business/Index';
-import { PatientOrderDetailFilters } from '../../EMR/Common/Filters.e';
+import { PatientOrderDetailFilters, PatientOrderFilters } from '../../EMR/Common/Filters.e';
 import { PatientWorkorderBo } from '../Business/Index';
 import {
     toPatientOrderRequest, toPatientOrderDetailRequest, toLegacyOrder, toLegacyOrderDetail,
@@ -31,8 +31,23 @@ export class LisPatientOrderService extends BaseService {
 
     public async GetPatientOrderdetails(legacyReq: any): Promise<ApiResponse<any[]>> {
         const detailBo = BoFactory.GetBo(emrbo.PatientOrderDetailBo, this.Request);
-        const res: any = await detailBo.GetPatientOrderDetails(toPatientOrderDetailRequest(legacyReq));
-        return { PageContext: res.PageContext, Data: (res.Data || []).map(toLegacyOrderDetail) };
+        const detailReq = toPatientOrderDetailRequest(legacyReq);
+        const res: any = await detailBo.GetPatientOrderDetails(detailReq);
+        const rows: any[] = res.Data || [];
+        const orderId = detailReq.Params[0].Value;
+        const orderPriority = rows.some((r: any) => !r.OrderPriority) ? await this.orderPriorityName(orderId) : '';
+        return { PageContext: res.PageContext, Data: rows.map((r: any) => toLegacyOrderDetail(r, orderPriority)) };
+    }
+
+    /** Priority text of the order header (e.g. "Routine"), or '' when the order has none. */
+    private async orderPriorityName(orderId: number): Promise<string> {
+        const orderBo = BoFactory.GetBo(emrbo.PatientOrderBo, this.Request);
+        const res: any = await orderBo.GetPatientOrders({
+            Params: [{ Key: PatientOrderFilters.Id, Value: orderId }],
+            PageContext: { PageSize: 1, PageNumber: 1 }
+        } as any);
+        const order = res && res.Data && res.Data[0];
+        return order && order.OrderPriority && order.OrderPriority.Description ? order.OrderPriority.Description : '';
     }
 
     /** Accepts the ticked order lines that are still "Ordered". */

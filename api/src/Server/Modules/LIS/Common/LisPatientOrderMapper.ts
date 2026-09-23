@@ -110,7 +110,7 @@ export function toLegacyOrder(row: any): any {
 }
 
 /** Order line in the shape the legacy detail screens read. */
-export function toLegacyOrderDetail(row: any): any {
+export function toLegacyOrderDetail(row: any, orderPriority: string = ''): any {
     const d = plain(row);
     const department = d.Department ? { DepartmentName: d.Department.DepartmentName } : { DepartmentName: '' };
     return {
@@ -119,7 +119,8 @@ export function toLegacyOrderDetail(row: any): any {
         DoctorName: doctorName(d.PatientOrder && d.PatientOrder.Doctor),
         Orderstatuse: d.OrderStatusId || ORDER_STATUS.ORDERED,
         OrderStatus: { DisplayName: (d.OrderStatus && d.OrderStatus.DisplayName) || '' },
-        PriorityStatus: { DisplayName: (d.OrderPriority && d.OrderPriority.Description) || '' },
+        // Lines rarely carry their own priority; fall back to the order's.
+        PriorityStatus: { DisplayName: (d.OrderPriority && d.OrderPriority.Description) || orderPriority || '' },
         Department: department,
         DeptId: department
     };
