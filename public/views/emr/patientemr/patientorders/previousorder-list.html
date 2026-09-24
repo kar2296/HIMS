@@ -1,112 +1,190 @@
 <style>
-    .container-fluid {
-        margin-left: 0px;
-        margin-right: 0px;
-        margin-bottom: 0px;
-        background-image: url(app/img/bg-body.jpg);
-        background-repeat: repeat;
-    }
-     .modal-header {
-        padding: 9px 10px;
-        background-color: #597a9a;
-        color: #fff;
-    }
-   
-    .custom-modal-header {
-        margin-bottom: 10px  !important;
-    }
-    .panel-footer {
-        padding: 2px 15px !important;;
-    }
-    .modal-content{
-        height : 500px !important;
-    }
-    
-    .modal-lg {
-        width: 1200px !important;
-    }
-    
-    .cus-col {
-        width : 120px !important;
-        padding-left : 3px !important;
+    .modal-dialog.modal-full:has(.pvo) { width: min(1100px, calc(100vw - 32px)) !important; max-width: none !important; margin: 24px auto !important; }
+    .modal-content:has(.pvo) { top: 0 !important; height: auto !important; border: 0; border-radius: 14px; overflow: hidden; box-shadow: 0 24px 60px rgba(15, 23, 42, .28); }
 
-    }
-    .custom-table {
-        margin-bottom: 0px !important;
+    .pvo { --pvo-primary: #2563eb; --pvo-border: #e2e8f0; --pvo-muted: #475569; --pvo-subtle: #94a3b8; --pvo-text: #0f172a;
+        display: flex; flex-direction: column; max-height: calc(100vh - 48px); background: #fff; color: var(--pvo-text); }
+    .pvo *, .pvo *::before, .pvo *::after { box-sizing: border-box; }
+    .pvo-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 16px 20px; border-bottom: 1px solid var(--pvo-border); }
+    .pvo-title { display: flex; align-items: center; gap: 12px; min-width: 0; }
+    .pvo-title-icon { width: 38px; height: 38px; border-radius: 10px; background: #eff6ff; color: var(--pvo-primary); display: inline-flex;
+        align-items: center; justify-content: center; font-size: 16px; flex: none; }
+    .pvo .pvo-title h4 { margin: 0; font-size: 18px !important; font-weight: 700; color: var(--pvo-text); }
+    .pvo-title p { margin: 2px 0 0; font-size: 12.5px; color: var(--pvo-muted); }
+    .pvo-close { border: 0; background: transparent; width: 36px; height: 36px; border-radius: 8px; color: var(--pvo-muted); font-size: 18px; cursor: pointer; }
+    .pvo-close:hover { background: #f1f5f9; color: var(--pvo-text); }
+
+    .pvo-toolbar { display: flex; align-items: center; gap: 12px; padding: 12px 20px; border-bottom: 1px solid var(--pvo-border); flex-wrap: wrap; }
+    .pvo-search { position: relative; flex: 1 1 280px; max-width: 420px; }
+    .pvo-search i { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--pvo-subtle); }
+    .pvo .pvo-search input { width: 100%; height: 38px; padding: 0 12px 0 34px !important; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 13.5px; color: var(--pvo-text); }
+    .pvo-search input:focus { outline: none; border-color: var(--pvo-primary); box-shadow: 0 0 0 3px rgba(37, 99, 235, .15); }
+    .pvo-summary { font-size: 12.5px; color: var(--pvo-muted); margin-left: auto; }
+
+    .pvo-body { overflow: auto; padding: 16px 20px; display: grid; gap: 10px; align-content: start; min-height: 240px; }
+    .pvo-order { border: 1px solid var(--pvo-border); border-radius: 12px; background: #fff; overflow: hidden; }
+    .pvo-order.is-open { border-color: #bfdbfe; box-shadow: 0 1px 6px rgba(37, 99, 235, .08); }
+    .pvo-order-head { width: 100%; border: 0; background: transparent; text-align: left; cursor: pointer; padding: 12px 14px;
+        display: grid; grid-template-columns: 22px minmax(0, 1fr) auto; gap: 12px; align-items: center; }
+    .pvo-order-head:hover { background: #f8fafc; }
+    .pvo-order-head:focus-visible { outline: 2px solid var(--pvo-primary); outline-offset: -2px; }
+    .pvo-chevron { color: var(--pvo-subtle); transition: transform .15s; }
+    .pvo-order.is-open .pvo-chevron { transform: rotate(90deg); color: var(--pvo-primary); }
+    .pvo-line1 { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .pvo-number { font-weight: 700; font-size: 14px; color: var(--pvo-text); }
+    .pvo-meta { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 4px; font-size: 12.5px; color: var(--pvo-muted); }
+    .pvo-meta span { display: inline-flex; align-items: center; gap: 5px; }
+    .pvo-meta i { color: var(--pvo-subtle); }
+    .pvo-tests { margin-top: 4px; font-size: 12.5px; color: #334155; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .pvo-right { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
+
+    .pvo-badge { display: inline-flex; align-items: center; padding: 3px 9px; border-radius: 999px; font-size: 11.5px; font-weight: 700;
+        border: 1px solid transparent; white-space: nowrap; text-transform: capitalize; }
+    .pvo-badge.info { background: #eff6ff; color: #1d4ed8; border-color: #bfdbfe; }
+    .pvo-badge.success { background: #ecfdf5; color: #065f46; border-color: #a7f3d0; }
+    .pvo-badge.warning { background: #fffbeb; color: #92400e; border-color: #fde68a; }
+    .pvo-badge.danger { background: #fef2f2; color: #991b1b; border-color: #fecaca; }
+    .pvo-badge.neutral { background: #f1f5f9; color: #334155; border-color: #e2e8f0; }
+    .pvo-chip { display: inline-flex; padding: 2px 8px; border-radius: 6px; background: #f1f5f9; color: #334155; font-size: 11.5px; font-weight: 600; }
+
+    .pvo-lines { border-top: 1px solid var(--pvo-border); background: #f8fafc; padding: 4px 14px 10px 48px; overflow-x: auto; }
+    .pvo-lines table { width: 100%; border-collapse: collapse; margin: 0; min-width: 520px; }
+    .pvo-lines th { font-size: 11px; text-transform: uppercase; letter-spacing: .04em; color: var(--pvo-muted); font-weight: 700; text-align: left;
+        padding: 8px 8px 6px; border-bottom: 1px solid var(--pvo-border); }
+    .pvo-lines td { padding: 8px; font-size: 13px; border-bottom: 1px solid #eef2f7; vertical-align: middle; }
+    .pvo-lines tr:last-child td { border-bottom: 0; }
+    .pvo-lines .code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-weight: 700; color: var(--pvo-primary); white-space: nowrap; }
+    .pvo-lines tr.is-cancelled td { color: var(--pvo-subtle); }
+    .pvo-lines tr.is-cancelled .name { text-decoration: line-through; }
+
+    .pvo-state { text-align: center; padding: 48px 16px; color: var(--pvo-muted); font-size: 13.5px; }
+    .pvo-state i { display: block; font-size: 30px; color: var(--pvo-subtle); margin-bottom: 10px; }
+    .pvo-state strong { display: block; color: var(--pvo-text); font-size: 14.5px; margin-bottom: 4px; }
+    .pvo-state.is-error i { color: #ef4444; }
+    .pvo-skeleton { height: 64px; border-radius: 12px; background: linear-gradient(90deg, #f1f5f9 0%, #e2e8f0 50%, #f1f5f9 100%);
+        background-size: 200% 100%; animation: pvo-shimmer 1.2s infinite; }
+    @keyframes pvo-shimmer { from { background-position: 200% 0; } to { background-position: -200% 0; } }
+
+    .pvo-footer { display: flex; justify-content: flex-end; gap: 8px; padding: 12px 20px; border-top: 1px solid var(--pvo-border); }
+    .pvo-btn { height: 36px; padding: 0 16px; border-radius: 8px; border: 1px solid #cbd5e1; background: #fff; color: #1e293b; font-size: 13.5px;
+        font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
+    .pvo-btn:hover { background: #f8fafc; }
+
+    @media (max-width: 640px) {
+        .pvo-header, .pvo-toolbar, .pvo-body, .pvo-footer { padding-left: 14px; padding-right: 14px; }
+        .pvo-order-head { grid-template-columns: 18px minmax(0, 1fr); }
+        .pvo-right { grid-column: 2; flex-direction: row; align-items: center; justify-content: flex-start; }
+        .pvo-lines { padding-left: 14px; }
+        .pvo-summary { margin-left: 0; }
     }
 </style>
-<div class="modal-header custom-modal-header">
-    <h4 class="modal-title custom-modal-title" translate="patientemr.previousorder-list.pagetitle.lbl"></h4>
-</div>
-    
-<div class="col-sm-12">    
-    <div class="table-responsive"   id="mainresponsivetablecontrol" style="height:400px;">
-	    <table class="table table-hover table-responsive table-bordered custom-table">
-            <thead class="bg-subhead">
-                <tr>
-                    <td class="cus-col tbl-header"><span translate="patientemr.previousorder-list.number.lbl"></span></td>
-                    <td class="cus-col tbl-header"><span translate="patientemr.previousorder-list.ordereddate.lbl"></span></td>
-                    <td class="cus-col tbl-header"><span translate="patientemr.previousorder-list.ordertype.lbl"></span></td>
-                    <td class="cus-col tbl-header rxname"><span translate="patientemr.previousorder-list.testnames.lbl"></span></td>
-                    <td class="cus-col tbl-header"><span translate="patientemr.previousorder-list.priority.lbl"></span></td>
-                    <td class="cus-col tbl-header doctor"><span translate="patientemr.previousorder-list.orderedby.lbl"></span></td>
-                    <td class="cus-col tbl-header"><span translate="patientemr.previousorder-list.orderto.lbl"></span></td>
-                    <td class="cus-col tbl-header"><span translate="patientemr.previousorder-list.status.lbl"></span></td>
-                </tr>
-            </thead>
-            <tbody>
-                <tr ng-repeat="item in items">
-                    <td colspan="9">
-                        <table class="table table-hover table-responsive table-bordered custom-table">
-                            <thead>
-                                <tr>
-                                    <td class="cus-col ">
-                                        <button class="btn btn-default btn-xs" style="float: right;" ng-click="toggleCanShowDetails(item)">
-                                            <i class="fa fa-plus" aria-hidden="true" ng-show="!item.CanShowDetails"></i>
-                                            <i class="fa fa-minus" aria-hidden="true" ng-show="item.CanShowDetails"></i>
-                                        </button>
-                                        <span>{{item.OrderNumber}}</span>
-                                    </td>
-                                    <td class="cus-col " ><ngformatdate datetime-val='item.OrderRequestDate'></ngformatdate></td>
-                                    <td class="cus-col"><span>{{item.TESTMASTERTYP.Description}}</span></td>
-                                    <td class="cus-col rxname"></td>
-                                    <td class="cus-col " ><b class="text-highlight5 plain-text">{{item.OrderPriority.Description}}</b></td>
-                                    <td class="cus-col doctor"><b class="plain-text1"><displayuserlbl user="item.User"></displayuserlbl></b></td>
-                                    <td class="cus-col " >{{item.OrderTo.DepartmentName}}</td>
-                                    <td class="cus-col " ><b class="text-highlight8 plain-text">{{item.OrderStatus.DisplayName}}</b></td>
-                                    </td>
-                                </tr>
-                            </thead>
-                            <tbody ng-show="item.CanShowDetails">
-                                <tr ng-repeat="detail in item.PatientOrderDetails">
-                                        <td class="cus-col pno"></td>
-                                        <td class="cus-col"></td>
-                                        <td class="cus-col"></td>
-                                        <td class="cus-col rxname">
-                                            <span>{{detail.TestName}}</span>
-                                        </td>
-                                        <td class="cus-col " ><b class="text-highlight5 plain-text">{{detail.OrderPriority.Description}}</b></td>
-                                        <td class="cus-col doctor"><b class="plain-text1"><displayuserlbl user="item.User"></displayuserlbl></b></td>
-                                        <td class="cus-col " >{{item.OrderTo.DepartmentName}}</td>
-                                        <td class="cus-col " ><b class="text-highlight8 plain-text">{{item.OrderStatus.Description}}</b></td>
-                                    </tr> 
-                            </tbody>
-                        </table>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
-    <div class="fooder-bgs">
-        <div class="row ">
-            <div class="col-sm-12">
-                <div class="pull-left">
-                   
-                </div>
-                <div class="pull-right">
-                   <button id="btnCancelForm" type="button" class="draftbutton" ng-click="cancelCallback()" translate="common.cancelaction.lbl"></button>						
-                </div>
+
+<div class="pvo">
+    <div class="pvo-header">
+        <div class="pvo-title">
+            <span class="pvo-title-icon" aria-hidden="true"><i class="fa fa-history"></i></span>
+            <div>
+                <h4 translate="patientemr.previousorder-list.pagetitle.lbl"></h4>
+                <p>All service orders for this patient, newest first</p>
             </div>
         </div>
-    </div>		
+        <button type="button" class="pvo-close" ng-click="cancelCallback()" aria-label="Close" title="Close"><i class="fa fa-times" aria-hidden="true"></i></button>
+    </div>
+
+    <div class="pvo-toolbar">
+        <label class="pvo-search">
+            <span class="sr-only">Search orders</span>
+            <i class="fa fa-search" aria-hidden="true"></i>
+            <input type="search" ng-model="currentcontext.search" placeholder="Search order no., test, department or doctor" ng-disabled="currentcontext.loading">
+        </label>
+        <span class="pvo-summary" ng-if="!currentcontext.loading && !currentcontext.error">
+            <ng-pluralize count="(items | filter:matches).length" when="{'0': 'No orders', 'one': '1 order', 'other': '{} orders'}"></ng-pluralize>
+            <span ng-if="currentcontext.search"> matching “{{currentcontext.search}}”</span>
+        </span>
+    </div>
+
+    <div class="pvo-body" aria-live="polite">
+        <!-- loading -->
+        <div ng-if="currentcontext.loading" style="display: grid; gap: 10px;">
+            <div class="pvo-skeleton"></div><div class="pvo-skeleton"></div><div class="pvo-skeleton"></div>
+        </div>
+
+        <!-- error -->
+        <div class="pvo-state is-error" ng-if="!currentcontext.loading && currentcontext.error">
+            <i class="fa fa-exclamation-circle" aria-hidden="true"></i>
+            <strong>Could not load previous orders</strong>
+            Check your connection and try again.
+            <div style="margin-top: 14px;"><button type="button" class="pvo-btn" ng-click="getList()"><i class="fa fa-refresh" aria-hidden="true"></i> Retry</button></div>
+        </div>
+
+        <!-- empty -->
+        <div class="pvo-state" ng-if="!currentcontext.loading && !currentcontext.error && items.length === 0">
+            <i class="fa fa-flask" aria-hidden="true"></i>
+            <strong>No previous orders</strong>
+            This patient has no lab, radiology or procedure orders yet.
+        </div>
+        <div class="pvo-state" ng-if="!currentcontext.loading && items.length > 0 && (items | filter:matches).length === 0">
+            <i class="fa fa-search" aria-hidden="true"></i>
+            <strong>No matching orders</strong>
+            Try a different order number or test name.
+        </div>
+
+        <!-- orders -->
+        <div class="pvo-order" ng-repeat="item in items | filter:matches track by item.Id" ng-class="{'is-open': item.CanShowDetails}">
+            <button type="button" class="pvo-order-head" ng-click="toggleCanShowDetails(item)" aria-expanded="{{!!item.CanShowDetails}}">
+                <i class="fa fa-chevron-right pvo-chevron" aria-hidden="true"></i>
+                <div style="min-width: 0;">
+                    <div class="pvo-line1">
+                        <span class="pvo-number">{{item.OrderNumber || ('Order #' + item.Id)}}</span>
+                        <span class="pvo-chip" ng-if="item.TESTMASTERTYP.Description">{{item.TESTMASTERTYP.Description}}</span>
+                        <span class="pvo-chip" ng-if="item.OrderPriority.Description">{{item.OrderPriority.Description}}</span>
+                    </div>
+                    <div class="pvo-meta">
+                        <span><i class="fa fa-calendar-o" aria-hidden="true"></i><ngformatdate datetime-val="item.OrderRequestDate"></ngformatdate></span>
+                        <span ng-if="doctorName(item)"><i class="fa fa-user-md" aria-hidden="true"></i>{{doctorName(item)}}</span>
+                        <span ng-if="item.OrderTo.DepartmentName"><i class="fa fa-arrow-right" aria-hidden="true"></i>{{item.OrderTo.DepartmentName}}</span>
+                    </div>
+                    <div class="pvo-tests" ng-if="!item.CanShowDetails && item.testNames" title="{{item.testNames}}">{{item.testNames}}</div>
+                </div>
+                <div class="pvo-right">
+                    <span class="pvo-badge {{statusTone(item.OrderStatus)}}" ng-if="statusText(item.OrderStatus)">{{statusText(item.OrderStatus) | lowercase}}</span>
+                    <span style="font-size: 12px; color: #64748b;">
+                        <ng-pluralize count="item.lineCount" when="{'0': 'No services', 'one': '1 service', 'other': '{} services'}"></ng-pluralize>
+                    </span>
+                </div>
+            </button>
+            <div class="pvo-lines" ng-if="item.CanShowDetails">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Code</th>
+                            <th><span translate="patientemr.previousorder-list.testnames.lbl"></span></th>
+                            <th>Qty</th>
+                            <th><span translate="patientemr.previousorder-list.priority.lbl"></span></th>
+                            <th><span translate="patientemr.previousorder-list.status.lbl"></span></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="detail in item.PatientOrderDetails track by $index" ng-class="{'is-cancelled': detail.IsCanceled == 1 || detail.IsCanceled === true}">
+                            <td class="code">{{detail.TestCode || '—'}}</td>
+                            <td class="name">{{detail.TestName || '—'}}</td>
+                            <td>{{detail.Quantity || 1}}</td>
+                            <td>{{detail.OrderPriority.Description || item.OrderPriority.Description || '—'}}</td>
+                            <td>
+                                <span class="pvo-badge danger" ng-if="detail.IsCanceled == 1 || detail.IsCanceled === true">cancelled</span>
+                                <span class="pvo-badge {{statusTone(detail.OrderStatus || item.OrderStatus)}}"
+                                    ng-if="!(detail.IsCanceled == 1 || detail.IsCanceled === true) && statusText(detail.OrderStatus || item.OrderStatus)">
+                                    {{statusText(detail.OrderStatus || item.OrderStatus) | lowercase}}</span>
+                            </td>
+                        </tr>
+                        <tr ng-if="!item.PatientOrderDetails.length"><td colspan="5" style="color: #64748b;">No services on this order.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="pvo-footer">
+        <button type="button" id="btnCancelForm" class="pvo-btn" ng-click="cancelCallback()">Close</button>
+    </div>
 </div>

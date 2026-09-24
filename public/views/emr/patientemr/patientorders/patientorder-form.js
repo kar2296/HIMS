@@ -124,6 +124,17 @@
             }
             loadTickSheet();
         }
+        // Callers can open the form on a given tab (the EMR Workspace "New order" button asks for 'detail').
+        if (modalConfig && modalConfig.params && (modalConfig.params.startTab === 'detail' || modalConfig.params.startTab === 'ticksheet')) {
+            $scope.currentcontext.option = modalConfig.params.startTab;
+        }
+
+        /** Number of service rows that have a test selected (shown next to the Services heading). */
+        $scope.serviceCount = function () {
+            return ($scope.details || []).filter(function (d) {
+                return d.Status == 1 && d.TestId > 0;
+            }).length;
+        };
 
         $scope.serviceRateCategoryChanged = function () {
             $scope.ticksheetconfig.ticksheetmastertypeid = null; //fix to reload ticksheet

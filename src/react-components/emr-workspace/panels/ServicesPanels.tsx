@@ -87,7 +87,7 @@ export const ServicesPanel: React.FC<EmrPanelProps> = ({ context, canEdit, openL
   const openOrderForm = (id: number) => {
     openLegacyModal?.(
       'patientemr.patientorder',
-      { id, pid: context.patientId, eid: context.encounterId, cid: context.consultationId, context: 'emr' },
+      { id, pid: context.patientId, eid: context.encounterId, cid: context.consultationId, context: 'emr', startTab: 'detail' },
       () => {
         load();
         onDataChanged?.('services');
