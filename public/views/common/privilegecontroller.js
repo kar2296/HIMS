@@ -84,6 +84,10 @@
             }
 
         }
+
+        // Templates use HasPrivilege('Entity', 'Action') (Save / Order / Print / Approve buttons); it was never
+        // defined, so those buttons never rendered. Same rule as HasAccess.
+        $scope.HasPrivilege = $scope.HasAccess;
     }
 
     privilegeController.$inject = ['$scope', '$stateParams', '$state', '$translate', 'utl'];
