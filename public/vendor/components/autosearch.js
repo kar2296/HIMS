@@ -78,6 +78,25 @@
                 return null;
             };
 
+            // Result columns to show: drop text columns that are empty for every row in this
+            // result set (e.g. Qty/MRP when the drug has no stock item), so the list stays readable.
+            cvm.visibleOptions = function (matches) {
+                var options = (cvm.config && cvm.config.options) || [];
+                if (!matches || !matches.length) {
+                    return options;
+                }
+                var visible = options.filter(function (option) {
+                    if (option.datatype !== 'string') {
+                        return true;
+                    }
+                    return matches.some(function (match) {
+                        var value = match.model ? match.model[option.field] : null;
+                        return value !== undefined && value !== null && String(value).trim() !== '';
+                    });
+                });
+                return visible.length ? visible : options;
+            };
+
             cvm.init = function () {
                 //Init logic
             };

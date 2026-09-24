@@ -1,15 +1,16 @@
 ﻿<script type="text/ng-template" id="customPopupTemplate.html">
     <div class="custom-popup-wrapper"  style="display: block;" ng-show="isOpen() && !moveInProgress" aria-hidden="{{!isOpen()}}">
 
-        <table class="table table-bordered table-condensed align" role="listbox">
+        <table class="table table-bordered table-condensed align autosearch-results" role="listbox">
             <thead>
-                <th class="{{item.headercls}}" ng-repeat="item in $parent.cvm.config.options">{{item.header}}</th>
+                <tr>
+                    <th class="{{item.headercls}}" ng-repeat="item in $parent.cvm.visibleOptions(matches)">{{item.header}}</th>
+                </tr>
             </thead>
             <tbody>
-                <tr class="uib-typeahead-match" should-focus="isActive($index)" ng-repeat="match in matches" ng-class="{active: isActive($index) }" ng-mouseenter="selectActive($index)" ng-click="selectMatch($index)" role="option" id="{{::match.model.Id}}">
-
-                    <td class="{{item.fieldcls}}" ng-repeat="item in $parent.$parent.cvm.config.options">
-                        <div class="ndisplay"  ng-if="item.datatype=='string'">{{match.model[item.field]}}</div>
+                <tr class="uib-typeahead-match" should-focus="isActive($index)" ng-repeat="match in matches" ng-class="{active: isActive($index) }" ng-mouseenter="selectActive($index)" ng-click="selectMatch($index)" role="option" aria-selected="{{isActive($index)}}" id="{{::match.model.Id}}">
+                    <td class="{{item.fieldcls}}" ng-repeat="item in $parent.$parent.cvm.visibleOptions(matches)">
+                        <div class="ndisplay" ng-if="item.datatype=='string'">{{match.model[item.field]}}</div>
                         <displaydate ng-if="item.datatype=='date'" date-val='match.model[item.field]'></displaydate>
                     </td>
                 </tr>
