@@ -110,7 +110,7 @@ const fetchVitalsData = async (patientId: number, encounterId: number): Promise<
   return { masters, rows: recorded?.Data || [] };
 };
 
-export const VitalsPanel: React.FC<EmrPanelProps> = ({ context, encounter, canEdit, openLegacyModal, registerSaveHandler, onDataChanged }) => {
+export const VitalsPanel: React.FC<EmrPanelProps> = ({ context, encounter, canEdit, registerSaveHandler, onDataChanged }) => {
   const [entries, setEntries] = useState<Record<number, VitalEntry>>({});
   const [performedAt, setPerformedAt] = useState<string>(nowLocalInput());
   const [notes, setNotes] = useState('');
@@ -398,7 +398,7 @@ export const VitalsPanel: React.FC<EmrPanelProps> = ({ context, encounter, canEd
         )}
       </PanelSection>
 
-      <AllergyList context={context} canEdit={canEdit} openLegacyModal={openLegacyModal} onDataChanged={onDataChanged} />
+      <AllergyList context={context} canEdit={canEdit} onDataChanged={onDataChanged} />
     </div>
   );
 };

@@ -2,8 +2,8 @@
  * ALLERGY panel (EMR panel type emr.cn.allergy) -- also embedded at the bottom of the Vitals tab.
  *
  *   list          : emr/patientallergy/GetPatientAllergys  (Key 2 = PatientId, Key 4 = status 1 active)
- *   add / edit    : the existing allergy form (modal "patientemr.patientallergy") -- it already
- *                   handles the drug / food / substance master search, reactions and severity.
+ *   add / edit    : AllergyFormModal (React) -- allergen from the allergy master or free text, type,
+ *                   reaction, severity, date and comments; saves via emr/patientallergy/Add|UpdatePatientAllergy.
  *   NKA           : "No known allergies" is recorded the same way the legacy form does (an allergy row
  *                   named "NKA"), so it prints and alerts consistently.
  */
@@ -17,6 +17,7 @@ import type { EmrPanelProps } from '../types';
 import { formatDate } from '../emrHelpers';
 import { useAsyncData } from '../useAsyncData';
 import { InlineNotice, PanelSection, SimpleTable } from '../EmrUi';
+import { AllergyFormModal } from './AllergyFormModal';
 
 interface AllergyRow {
   Id: number;
@@ -29,11 +30,13 @@ interface AllergyRow {
   Comments?: string;
 }
 
-type AllergyListProps = Pick<EmrPanelProps, 'context' | 'canEdit' | 'openLegacyModal' | 'onDataChanged'>;
+type AllergyListProps = Pick<EmrPanelProps, 'context' | 'canEdit' | 'onDataChanged'>;
 
 /** The allergy table with Add / Edit / NKA actions (no outer tab chrome). */
-export const AllergyList: React.FC<AllergyListProps> = ({ context, canEdit, openLegacyModal, onDataChanged }) => {
+export const AllergyList: React.FC<AllergyListProps> = ({ context, canEdit, onDataChanged }) => {
   const [markingNka, setMarkingNka] = useState(false);
+  /** null = form closed, 0 = new allergy, >0 = edit that allergy. */
+  const [editingId, setEditingId] = useState<number | null>(null);
 
   const fetcher = useCallback(async (): Promise<AllergyRow[]> => {
     const res = await apiFetch('emr/patientallergy/GetPatientAllergys', {
@@ -52,9 +55,7 @@ export const AllergyList: React.FC<AllergyListProps> = ({ context, canEdit, open
     onDataChanged?.('allergies');
   };
 
-  const openForm = (id = 0) => {
-    openLegacyModal?.('patientemr.patientallergy', { id, pid: context.patientId, cid: context.consultationId }, changed);
-  };
+  const openForm = (id = 0) => setEditingId(id);
 
   const hasRealAllergy = allergies.some((a) => (a.AllergyName || '').trim().toUpperCase() !== 'NKA');
   const hasNka = allergies.some((a) => (a.AllergyName || '').trim().toUpperCase() === 'NKA');
@@ -99,7 +100,7 @@ export const AllergyList: React.FC<AllergyListProps> = ({ context, canEdit, open
               NKA
             </Button>
           )}
-          <Button size="sm" variant="outline-primary" icon="fa-solid fa-plus" onClick={() => openForm(0)} disabled={!canEdit || !openLegacyModal}>
+          <Button size="sm" variant="outline-primary" icon="fa-solid fa-plus" onClick={() => openForm(0)} disabled={!canEdit}>
             Add allergy
           </Button>
         </>
@@ -129,6 +130,18 @@ export const AllergyList: React.FC<AllergyListProps> = ({ context, canEdit, open
             </tr>
           ))}
         </SimpleTable>
+      )}
+      {editingId !== null && (
+        <AllergyFormModal
+          isOpen
+          allergyId={editingId}
+          context={context}
+          onClose={() => setEditingId(null)}
+          onSaved={() => {
+            setEditingId(null);
+            changed();
+          }}
+        />
       )}
     </PanelSection>
   );

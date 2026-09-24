@@ -1,4 +1,5 @@
 import React from 'react';
+import { createPortal } from 'react-dom';
 import { colors, radii, shadows, spacing, typography, zIndex } from './tokens';
 
 export interface ModalProps {
@@ -9,6 +10,12 @@ export interface ModalProps {
   footer?: React.ReactNode;
   width?: string;
   loading?: boolean;
+  /**
+   * Render into document.body. Needed when the modal is opened inside AngularJS page content: its view
+   * wrapper carries a CSS transform, which makes `position: fixed` relative to the scrolled page instead
+   * of the window, so the overlay can end up off-screen. Opt-in so existing screens are unchanged.
+   */
+  portal?: boolean;
 }
 
 /**
@@ -20,9 +27,9 @@ export interface ModalProps {
  * React-only dialog content, or to standardize a screen's own inline modal
  * header (e.g. the "Manage Payer Type" pattern) rather than hand-rolling one.
  */
-export const Modal: React.FC<ModalProps> = ({ isOpen, title, onClose, children, footer, width = '480px', loading }) => {
+export const Modal: React.FC<ModalProps> = ({ isOpen, title, onClose, children, footer, width = '480px', loading, portal = false }) => {
   if (!isOpen) return null;
-  return (
+  const dialog = (
     <div
       style={{
         position: 'fixed', inset: 0, backgroundColor: 'rgba(15, 23, 42, 0.5)', backdropFilter: 'blur(2px)',
@@ -62,4 +69,5 @@ export const Modal: React.FC<ModalProps> = ({ isOpen, title, onClose, children, 
       </div>
     </div>
   );
+  return portal && typeof document !== 'undefined' ? createPortal(dialog, document.body) : dialog;
 };
