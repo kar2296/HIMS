@@ -3350,8 +3350,52 @@
                         return false;
                     }
                 }
+                /**
+                 * Role-based check used by screens as utl.Privilege.hasPrivilege(...).
+                 *   hasPrivilege(entity, action) -> session-roleprivmap[role][entity][action]
+                 *   hasPrivilege(action)         -> that action under any entity of the user's roles
+                 * Same rule as privilegeController.HasAccess: a value configured for any of the user's
+                 * roles decides (true wins); when nothing is configured the action is allowed.
+                 * Server-side authorization still applies to every request.
+                 */
+                var hasPrivilege = function (entityOrAction, action) {
+                    try {
+                        var map = ngSessionHelper.getObject('session-roleprivmap') || {};
+                        var roles = ngSessionHelper.getUserRoles();
+                        if (!Array.isArray(roles)) {
+                            roles = roles ? [roles] : [];
+                        }
+                        var configured = false;
+                        var allowed = false;
+                        var check = function (entityMap, key) {
+                            if (entityMap && typeof entityMap[key] === 'boolean') {
+                                configured = true;
+                                allowed = allowed || entityMap[key];
+                            }
+                        };
+                        roles.forEach(function (role) {
+                            var roleMap = map[role];
+                            if (!roleMap || typeof roleMap !== 'object') {
+                                return;
+                            }
+                            if (action !== undefined) {
+                                check(roleMap[entityOrAction], action);
+                            } else {
+                                Object.keys(roleMap).forEach(function (entity) {
+                                    check(roleMap[entity], entityOrAction);
+                                });
+                            }
+                        });
+                        return configured ? allowed : true;
+                    } catch (ex) {
+                        console.log('Exception evaluating privilege: ' + entityOrAction + (action ? '/' + action : ''), ex);
+                        return false;
+                    }
+                };
+
                 return {
-                    hasAccess: hasAccess
+                    hasAccess: hasAccess,
+                    hasPrivilege: hasPrivilege
                 };
             }
         ]);

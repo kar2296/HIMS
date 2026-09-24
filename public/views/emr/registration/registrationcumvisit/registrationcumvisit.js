@@ -130,21 +130,8 @@
 
         $scope.EnableSave = false;
         $scope.IsOpenEncounter = false;
-        // PRESERVED PRE-EXISTING BUG (disclosed, not fixed -- explicit user decision on 2026-08-21):
-        // utl.Privilege only ever exposes a `hasAccess` method (confirmed by reading
-        // vendor/common/ngPrivilegeHelper.js's factory in full -- it returns only
-        // { hasAccess: hasAccess }). `hasPrivilege` does not exist on it anywhere in this
-        // codebase, so the next two lines throw a real, uncaught TypeError the instant this
-        // controller is constructed -- which halts the rest of this constructor function,
-        // including $scope.saveItem/$scope.save/$scope.saveAndApprove and the
-        // $scope.initLookup() call at the bottom (so lookups never load either). This is
-        // real, current, pre-existing behavior of this screen (which has zero real
-        // navigation call sites anywhere in the app -- confirmed unreachable). Left exactly
-        // as-is rather than "fixed" to utl.Privilege.hasAccess(...), per explicit
-        // instruction: everything below this point is still built correctly/completely so
-        // that a future one-line fix of this bug unlocks full working functionality
-        // immediately, but the migrated screen faithfully reproduces today's crash-on-load
-        // if ever actually reached.
+        // Page privileges: utl.Privilege.hasPrivilege (vendor/common/ngPrivilegeHelper.js) checks the
+        // session role-privilege map; anything not configured for the user's roles is allowed.
         $scope.currentcontext.CanUserManual = utl.Privilege.hasPrivilege('CanUserManual')
         $scope.currentcontext.CanProcessFlow = utl.Privilege.hasPrivilege('CanProcessFlow')
         $scope.clear = function () {
