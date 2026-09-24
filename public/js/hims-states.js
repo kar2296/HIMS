@@ -242,7 +242,7 @@
             })
             .state('app.emrpanelselection', {
                 url: '/emrpanelselection',
-                title: 'EMR Panel Selection',
+                title: 'Assign EMR Forms to Doctors',
                 templateUrl: helper.basepath('emr/emradmin/emrpanelselection.html'),
                 controller: 'emrAdminController',
                 resolve: {

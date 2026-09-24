@@ -139,7 +139,7 @@ export const EmrPanelSelectionScreen: React.FC<Props> = ({ reactProps }) => {
       <EmrWorkspaceStyles />
       <div className="emrws-stack">
         <div>
-          <h1 style={{ ...typography.h2, margin: 0 }}>EMR Panel Selection</h1>
+          <h1 style={{ ...typography.h2, margin: 0 }}>Assign EMR Forms to Doctors</h1>
           <p style={{ ...typography.body, color: colors.textMuted, margin: `${spacing.xs} 0 0` }}>Choose which EMR forms a user can start in the EMR workspace, and their default form.</p>
         </div>
         {masters.error && <InlineNotice tone="danger">{masters.error}</InlineNotice>}
