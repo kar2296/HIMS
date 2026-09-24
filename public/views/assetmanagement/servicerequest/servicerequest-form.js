@@ -109,7 +109,7 @@
 
             $scope.getCreatedUser();
             $scope.applyVisibilityRules();
-            $scope.item.CreatedUser = utl.Formatter.getCurrentUserId();
+            $scope.item.CreatedUser = utl.Session.getCurrentUserId();
         };
 
         $scope.getItem = function (pageNo) {

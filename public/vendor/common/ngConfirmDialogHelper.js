@@ -135,6 +135,43 @@
                 });
             };
 
+            /**
+             * Confirm with a meaningful "No" action (e.g. "Attend patient?" Yes / Not shown).
+             * Yes -> options.onSuccessMethod(itemId); the No button -> options.onErrorMethod(itemId);
+             * closing the dialog (Esc / outside click) does nothing.
+             * Called by the OP / emergency patient lists but was never implemented.
+             */
+            var confirmMessageWithNoKeyMethod = function (options) {
+                var yesStr = $translate.instant(options.yesKey || 'common.yeskey.lbl');
+                var noStr = $translate.instant(options.noKey || 'common.nokey.lbl');
+                var message = options.placeholder
+                    ? $translate.instant(options.messageKey, options.placeholder)
+                    : $translate.instant(options.messageKey);
+                var headingStr = options.headingKey ? $translate.instant(options.headingKey) : 'Confirm';
+
+                var confirmTemplate =
+                    '<div style="padding: 18px 20px 6px; font-weight: 700; font-size: 17px; color: #0f172a;">' + headingStr + '</div>' +
+                    '<div style="padding: 8px 20px 20px; font-size: 14px; color: #334155; line-height: 1.5;">' + message + '</div>' +
+                    '<div style="padding: 12px 20px; border-top: 1px solid #e2e8f0; display: flex; justify-content: flex-end; gap: 8px;">' +
+                    '<button type="button" class="btn btn-default" style="min-width: 96px;" ng-click="closeThisDialog(\'no\')">' + noStr + '</button>' +
+                    '<button type="button" class="btn btn-primary" style="min-width: 96px;" autofocus ng-click="confirm(1)">' + yesStr + '</button>' +
+                    '</div>';
+
+                ngDialog.openConfirm({
+                    template: confirmTemplate,
+                    plain: true,
+                    className: 'ngdialog-theme-default'
+                }).then(function () {
+                    if (options.onSuccessMethod) {
+                        options.onSuccessMethod(options.itemId);
+                    }
+                }, function (reason) {
+                    if (reason === 'no' && options.onErrorMethod) {
+                        options.onErrorMethod(options.itemId);
+                    }
+                });
+            };
+
             var confirmDeactivate = function (onSuccessMethod, itemDisplayName) {
                 var message = $translate.instant('common.deactivatemsg.lbl', { displayname: itemDisplayName });
 
@@ -376,6 +413,7 @@
             return {
                 confirmDelete: confirmDelete,
                 confirmMessage: confirmMessage,
+                confirmMessageWithNoKeyMethod: confirmMessageWithNoKeyMethod,
                 visitConfirmMessage: visitConfirmMessage,
                 confirmDeactivate: confirmDeactivate,
                 patientConfirmMessage: patientConfirmMessage,

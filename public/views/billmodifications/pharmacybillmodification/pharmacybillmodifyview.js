@@ -141,7 +141,7 @@
 
         $scope.getIPBillList = function () {
             if ($scope.item.EncounterId) {
-                utl.Modal.openFixedDialogFixedDialog('app.ipbilltoopbill', {
+                utl.Modal.openFixedDialog('app.ipbilltoopbill', {
                     params: {
                         eid: $scope.item.EncounterId
                     },

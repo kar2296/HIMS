@@ -157,6 +157,19 @@
             var setCurrentDepartmentId = function (value) {
                 return sessionStorage.setItem('Session-DepartmentId', value);
             }
+            // Used by facility selection (userfacility.js, swosthapatient.js) but were never defined.
+            var setCurrentDepartmentName = function (value) {
+                return sessionStorage.setItem('Session-DepartmentName', value);
+            }
+            var getCurrentDepartmentName = function () {
+                return sessionStorage.getItem('Session-DepartmentName');
+            }
+            var setCurrentFacilitySettings = function (value) {
+                return sessionStorage.setItem('Session-FacilitySettings', value);
+            }
+            var getCurrentFacilitySettings = function () {
+                return sessionStorage.getItem('Session-FacilitySettings');
+            }
 
             var getUserDepartments = function () {
                 return sessionStorage.getItem('Session-UserDepartments');
@@ -326,6 +339,10 @@
                 setIsDueCheck: setIsDueCheck,
                 getCurrentDepartmentId: getCurrentDepartmentId,
                 setCurrentDepartmentId: setCurrentDepartmentId,
+                setCurrentDepartmentName: setCurrentDepartmentName,
+                getCurrentDepartmentName: getCurrentDepartmentName,
+                setCurrentFacilitySettings: setCurrentFacilitySettings,
+                getCurrentFacilitySettings: getCurrentFacilitySettings,
                 getPatientDashboardRecordCount: getPatientDashboardRecordCount,
                 getUserDepartments: getUserDepartments,
                 setUserDepartments: setUserDepartments,

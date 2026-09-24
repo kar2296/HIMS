@@ -418,7 +418,7 @@
         }
 
         $scope.addPatientGuarantor = function () {
-            utl.Modal.openFixedDialogFixedDialg('app.patientguarantorlist', {
+            utl.Modal.openFixedDialog('app.patientguarantorlist', {
                 params: {
                     id: 0,
                     pid: $scope.item.PatientId,
