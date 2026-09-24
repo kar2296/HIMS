@@ -46,8 +46,37 @@
             return isduplicate;
         }
 
+        /**
+         * Downloads the visible report table(s) as an Excel-readable file (.xls). target: a CSS selector
+         * or element; when omitted, every visible top-level table in the current page is exported.
+         * Returns false when there is nothing to export.
+         */
+        var exportTableToExcel = function (target, fileName) {
+            var root = document.querySelector('.content-wrapper') || document.body;
+            var found = target ? (typeof target === 'string' ? root.querySelectorAll(target) : [target]) : root.querySelectorAll('table');
+            var tables = Array.prototype.filter.call(found, function (t) {
+                return t.offsetParent !== null && !t.closest('.custom-popup-wrapper') &&
+                    !(t.parentElement && t.parentElement.closest('table'));
+            });
+            if (!tables.length) {
+                return false;
+            }
+            var html = tables.map(function (t) { return t.outerHTML; }).join('<br/>');
+            var doc = '<html><head><meta charset="UTF-8"></head><body>' + html + '</body></html>';
+            var blob = new Blob(['\ufeff', doc], { type: 'application/vnd.ms-excel' });
+            var link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = (fileName || 'report').replace(/[\\/:*?"<>|]+/g, ' ').trim() + '.xls';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            setTimeout(function () { URL.revokeObjectURL(link.href); }, 1000);
+            return true;
+        };
+
         return {
             getItemByProp : getItemByProp,
+            exportTableToExcel: exportTableToExcel,
             isEmptyJSONObject: isEmptyJSONObject,
             isDuplicateRec : isDuplicateRec
         };

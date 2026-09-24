@@ -7,6 +7,12 @@
 
     function doctorsharesummaryreportController($scope, $stateParams, $state, $translate, $filter, utl) {
         var vm = this;
+        // Excel icon: export the report table(s) shown on screen.
+        $scope.excelDownload = function () {
+            if (!utl.Common.exportTableToExcel(null, 'Doctor Share Summary')) {
+                utl.Alert.showErrorMsg('Run the report first, then export it to Excel.');
+            }
+        };
 
         $scope.Items = [];
         $scope.currentfilter = {

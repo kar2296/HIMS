@@ -7,6 +7,12 @@
 
     function feedbacksummaryforopreportController($rootScope, $scope, $stateParams, $state, $translate, $filter, utl, $timeout) {
         var vm = this;
+        // Excel icon: export the report table(s) shown on screen.
+        $scope.excelDownload = function () {
+            if (!utl.Common.exportTableToExcel(null, 'Feedback Summary OP')) {
+                utl.Alert.showErrorMsg('Run the report first, then export it to Excel.');
+            }
+        };
         angular.extend(this, utl.Ctrl.getPrivilegeCtrl({
             $scope: $scope
         }));
