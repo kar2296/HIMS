@@ -607,7 +607,9 @@
                 item.DrugFrequencyId = item.SelectedItem.DrugFrequencyId || -1;
                 item.Dosage = item.SelectedItem.MaxDosagePerDay || 0;
                 item.DrugFormId = item.SelectedItem.DrugFormId || -1;
-                item.Price = parseFloat(item.SelectedItem.MrPrice).toFixed(2) || 0;
+                // drugs without a stock/item master have no MRP; show 0.00 rather than NaN
+                var mrPrice = parseFloat(item.SelectedItem.MrPrice);
+                item.Price = isNaN(mrPrice) ? '0.00' : mrPrice.toFixed(2);
                 item.AvailQuantity = item.SelectedItem.Quantity || 0;
                 item.DrugGenericId = item.SelectedItem.GenericId || -1;
                 item.DrugGenericCode = item.SelectedItem.GenericCode;
