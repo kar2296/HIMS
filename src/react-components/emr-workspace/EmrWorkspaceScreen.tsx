@@ -5,7 +5,8 @@
  * Data model (all existing tables):
  *   visit entry  = consultations row (emr/consultation/*), status 1 Draft → 2 Completed → 3 Finalized
  *   EMR form     = ProfileMaster, its tabs = ProfileSections → SectionMaster (panel type = SRef)
- *   forms a user may pick = ProfileUser assignments (EMR Panel Selection); falls back to all active forms
+ *   forms a user may pick = ProfileUser assignments (Assign EMR Forms to Doctors) of the logged-in user;
+ *                           if they have none, the visit doctor's assignments; otherwise all active forms
  *   per-form panel nickname / mandatory = emr_profile_section_settings (optional table)
  *
  * Mounted by public/views/emr/patientemr/emrworkspace/emrworkspace.{js,html}; the hollow controller only
@@ -68,6 +69,8 @@ interface EntriesData {
   consultations: ConsultationInfo[];
   profiles: ProfileInfo[];
   defaultProfileId?: number;
+  /** Whose form assignments were used: the logged-in user, the visit doctor, or none (all active forms). */
+  formsSource?: 'user' | 'doctor' | 'all';
 }
 
 export const EmrWorkspaceScreen: React.FC<EmrWorkspaceScreenProps> = ({ reactProps, openLegacyModal, navigateTo, downloadFile }) => {
@@ -135,11 +138,21 @@ export const EmrWorkspaceScreen: React.FC<EmrWorkspaceScreenProps> = ({ reactPro
   /* ───────────── visit entries & EMR forms ───────────── */
 
   const profileType = profileTypeFor(reactProps?.emrContext, encounter?.EncounterTypeId);
+  const visitDoctorId = toInt(encounter?.DoctorId);
 
   const entriesFetcher = useCallback(async (): Promise<EntriesData> => {
     if (!encounterId || !patientId) return { consultations: [], profiles: [] };
+    const assignedTo = (uid: number): Promise<any[]> =>
+      apiFetch('clinicalmaster/ProfileUser/GetProfileUsers', {
+        Params: [
+          { Key: 5, Value: uid },
+          { Key: 9, Value: profileType },
+        ],
+      })
+        .then((res) => (res?.Data || []).filter((a: any) => a.ProfileMaster))
+        .catch(() => []);
     // Visit entries and the user's form assignments are independent reads.
-    const [consultRes, assignedRes] = await Promise.all([
+    const [consultRes, mine] = await Promise.all([
       apiFetch('emr/consultation/GetConsultations', {
         Params: [
           { Key: 2, Value: encounterId },
@@ -147,14 +160,15 @@ export const EmrWorkspaceScreen: React.FC<EmrWorkspaceScreenProps> = ({ reactPro
         ],
         PageContext: { PageSize: 100, PageNumber: 1 },
       }),
-      apiFetch('clinicalmaster/ProfileUser/GetProfileUsers', {
-        Params: [
-          { Key: 5, Value: userId },
-          { Key: 9, Value: profileType },
-        ],
-      }).catch(() => ({ Data: [] })),
+      assignedTo(userId),
     ]);
-    const assignments: any[] = assignedRes?.Data || [];
+    let assignments: any[] = mine;
+    let formsSource: EntriesData['formsSource'] = 'user';
+    // Someone other than the visit doctor (admin, nurse, covering doctor) without own forms: use the doctor's.
+    if (assignments.length === 0 && visitDoctorId && visitDoctorId !== userId) {
+      assignments = await assignedTo(visitDoctorId);
+      formsSource = 'doctor';
+    }
     let profiles: ProfileInfo[] = [];
     const seen = new Set<number>();
     assignments.forEach((a) => {
@@ -172,10 +186,11 @@ export const EmrWorkspaceScreen: React.FC<EmrWorkspaceScreenProps> = ({ reactPro
         ],
       }).catch(() => ({ Data: [] }));
       profiles = all?.Data || [];
+      formsSource = 'all';
     }
     const def = assignments.find((a) => a.IsDefault && a.ProfileMaster)?.ProfileMaster?.Id;
-    return { consultations: consultRes?.Data || [], profiles, defaultProfileId: def || profiles[0]?.Id };
-  }, [encounterId, patientId, userId, profileType]);
+    return { consultations: consultRes?.Data || [], profiles, defaultProfileId: def || profiles[0]?.Id, formsSource };
+  }, [encounterId, patientId, userId, profileType, visitDoctorId]);
 
   const [pickedProfileId, setPickedProfileId] = useState<number | ''>('');
   const [chosenConsultationId, setChosenConsultationId] = useState<number>(requestedConsultationId);
@@ -184,6 +199,13 @@ export const EmrWorkspaceScreen: React.FC<EmrWorkspaceScreenProps> = ({ reactPro
   const consultations = entries.data.consultations;
   const profiles = entries.data.profiles;
   const selectedProfileId = pickedProfileId || entries.data.defaultProfileId || '';
+  const visitDoctorName = [encounter?.Doctor?.Title?.Description, encounter?.Doctor?.FirstName, encounter?.Doctor?.LastName].filter(Boolean).join(' ') || encounter?.DoctorName || 'the visit doctor';
+  const formsNote =
+    entries.data.formsSource === 'doctor'
+      ? `Showing the EMR forms assigned to ${visitDoctorName} (the visit doctor).`
+      : entries.data.formsSource === 'all' && profiles.length > 0
+        ? 'No EMR forms are assigned to you or the visit doctor, so all active forms are listed. Assign forms in "Assign EMR Forms to Doctors".'
+        : undefined;
 
   const activeSummary = consultations.find((c) => c.Id === chosenConsultationId) || consultations[0] || null;
   const activeConsultationId = startingNew ? 0 : activeSummary?.Id || 0;
@@ -394,6 +416,7 @@ export const EmrWorkspaceScreen: React.FC<EmrWorkspaceScreenProps> = ({ reactPro
             consultations={consultations}
             active={active}
             profiles={profiles}
+            formsNote={formsNote}
             selectedProfileId={selectedProfileId}
             onSelectProfile={setPickedProfileId}
             onStart={startEntry}

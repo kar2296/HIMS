@@ -17,6 +17,8 @@ interface VisitEntryToolbarProps {
   consultations: ConsultationInfo[];
   active: ConsultationInfo | null;
   profiles: ProfileInfo[];
+  /** Explains whose assigned forms are listed (shown with the form picker). */
+  formsNote?: string;
   selectedProfileId: number | '';
   onSelectProfile: (id: number) => void;
   onStart: () => void;
@@ -58,7 +60,9 @@ export const VisitEntryToolbar: React.FC<VisitEntryToolbarProps> = (p) => {
             />
           </div>
           <span style={{ ...typography.caption, color: colors.textMuted, alignSelf: 'end', paddingBottom: 8 }}>
-            {p.profiles.length === 0 && !p.loading ? 'Using the standard panels below. Configure EMR forms in EMR Form Assembly.' : 'Start a visit entry to use the EMR form’s panels.'}
+            {p.profiles.length === 0 && !p.loading
+              ? 'Using the standard panels below. Create EMR forms in EMR Form Builder.'
+              : p.formsNote || 'Start a visit entry to use the EMR form’s panels.'}
           </span>
         </div>
         <div className="emrws-toolbar-group" style={{ alignSelf: 'end' }}>
