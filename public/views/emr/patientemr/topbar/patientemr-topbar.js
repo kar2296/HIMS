@@ -136,6 +136,11 @@
                 return;
             }
             var landingstate = $scope.contextLandingPageMap[strCotext].landingstate;
+            // 'patientemr.pastvisits' is registered as a popup (modalConfig), not a page state:
+            // keep the user on the current page instead of failing the transition.
+            if (!$state.get(landingstate)) {
+                return;
+            }
 
             $state.go(landingstate, {
                 pid: $scope.currentcontext.pid,
@@ -156,6 +161,11 @@
 
             computeMenu(encounter, strCotext);
             var landingstate = $scope.contextLandingPageMap[strCotext].landingstate;
+            // 'patientemr.pastvisits' is registered as a popup (modalConfig), not a page state:
+            // keep the user on the current page instead of failing the transition.
+            if (!$state.get(landingstate)) {
+                return;
+            }
 
             $state.go(landingstate, {
                 eid: encounter.Id
