@@ -7,8 +7,8 @@
  *   emr.cn.socialhistory      → social history only
  *   emr.cn.familysocialhistory→ family social history only
  *
- * Every list reads the existing Get…s endpoint and adds/edits through the existing history modal, so the
- * master pick-lists (relationship, social type, frequency, severity…) and rules stay exactly as today.
+ * Every list reads the existing Get…s endpoint; add/edit use the React forms in HistoryForms.tsx, which save
+ * through the same Add…/Update… endpoints with the same pick-lists (relationship, social type, frequency…).
  */
 import React from 'react';
 import { apiFetch } from '../../utils/api';
@@ -16,7 +16,7 @@ import { spacing } from '../../../components/ui/tokens';
 import type { EmrPanelProps, EmrWorkspaceContext } from '../types';
 import { formatDate } from '../emrHelpers';
 import { RecordListSection, type RecordListConfig } from '../RecordListSection';
-import { ConditionFormModal } from './ConditionFormModal';
+import { FamilyConditionFormModal, FamilySocialHistoryFormModal, PastMedicalFormModal, SocialHistoryFormModal, SurgicalFormModal } from './HistoryForms';
 
 type Row = Record<string, any>;
 
@@ -49,7 +49,7 @@ const PAST_MEDICAL: RecordListConfig<Row> = {
     { header: 'Comments', render: (r) => r.Comments || '—' },
   ],
   rowKey: (r) => r.Id,
-  modal: { name: 'patientemr.patientcondition', params: modalParams, addLabel: 'Add condition', form: ConditionFormModal },
+  modal: { name: 'patientemr.patientcondition', params: modalParams, addLabel: 'Add condition', form: PastMedicalFormModal },
   deleteAction: 'emr/patientcondition/DeletePatientCondition',
   deleteLabel: (r) => r.DiagnosisName || 'this condition',
 };
@@ -66,7 +66,7 @@ const SURGICAL: RecordListConfig<Row> = {
     { header: 'Status', render: (r) => d(r.PatientSurgicalStatus) },
   ],
   rowKey: (r) => r.Id,
-  modal: { name: 'patientemr.patientsurgical', params: modalParams, addLabel: 'Add surgery' },
+  modal: { name: 'patientemr.patientsurgical', params: modalParams, addLabel: 'Add surgery', form: SurgicalFormModal },
   deleteAction: 'emr/patientsurgical/DeletePatientSurgical',
   deleteLabel: (r) => r.Procedure?.ProcedureName || r.ProcedureName || 'this surgery',
 };
@@ -84,7 +84,7 @@ const FAMILY: RecordListConfig<Row> = {
     { header: 'Since', render: (r) => formatDate(r.ConditionDate) },
   ],
   rowKey: (r) => r.Id,
-  modal: { name: 'patientemr.familycondition', params: modalParams, addLabel: 'Add family history' },
+  modal: { name: 'patientemr.familycondition', params: modalParams, addLabel: 'Add family history', form: FamilyConditionFormModal },
   deleteAction: 'emr/familycondition/DeleteFamilyCondition',
   deleteLabel: (r) => r.DiagnosisName || 'this family history',
 };
@@ -102,7 +102,7 @@ const SOCIAL: RecordListConfig<Row> = {
     { header: 'Status', render: (r) => d(r.SocialHistoryStatus) },
   ],
   rowKey: (r) => r.Id,
-  modal: { name: 'patientemr.patientsocialhistory', params: modalParams, addLabel: 'Add social history' },
+  modal: { name: 'patientemr.patientsocialhistory', params: modalParams, addLabel: 'Add social history', form: SocialHistoryFormModal },
   deleteAction: 'emr/patientsocialhistory/DeletePatientSocialHistory',
   deleteLabel: (r) => r.SocialType?.Description || 'this entry',
 };
@@ -120,7 +120,7 @@ const FAMILY_SOCIAL: RecordListConfig<Row> = {
     { header: 'Reviewed', render: (r) => formatDate(r.ReviewDate) },
   ],
   rowKey: (r) => r.Id,
-  modal: { name: 'patientemr.familysocialhistory', params: modalParams, addLabel: 'Add family social history' },
+  modal: { name: 'patientemr.familysocialhistory', params: modalParams, addLabel: 'Add family social history', form: FamilySocialHistoryFormModal },
   deleteAction: 'emr/familysocialhistory/DeleteFamilySocialHistory',
   deleteLabel: (r) => r.SocialType?.Description || 'this entry',
 };
