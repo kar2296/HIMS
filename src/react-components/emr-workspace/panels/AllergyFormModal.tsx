@@ -230,7 +230,7 @@ export const AllergyFormModal: React.FC<Props> = ({ isOpen, allergyId, context, 
                 form.AllergyId
                   ? 'From the allergy list'
                   : masterEmpty
-                    ? 'The allergy list is empty, so the name is saved as typed. Add common allergens in EMR Masters → Allergy.'
+                    ? 'The allergy master is empty, so the name is saved as typed. Add common allergens in the Allergies master (#/app/allergies).'
                     : 'Not in the allergy list — it will be saved as typed'
               }
               onChange={(e) => {
