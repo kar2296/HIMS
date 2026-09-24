@@ -2899,6 +2899,18 @@
             }]
         }
     })
+    .state('patientemr.dischargeworkstation', {
+        url: '/dischargeworkstation',
+        title: 'Discharge Summary Workstation',
+        templateUrl: helper.basepath('emr/dischargeworkstation/dischargeworkstation.html'),
+        controller: 'dischargeWorkstationController',
+        // pid / eid are inherited from the parent 'patientemr' state (do not redeclare them here).
+        resolve: {
+            loadCtrl: ['$ocLazyLoad', function($ocLazyLoad) {
+                return $ocLazyLoad.load(helper.basepath('emr/dischargeworkstation/dischargeworkstation.js'));
+            }]
+        }
+    })
     .state('patientemr.patientallergy', {
         url: '/patientallergy/:pid/:id',
         title: 'Patient Allergy',

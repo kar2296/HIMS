@@ -2273,6 +2273,14 @@
                 }
             };
 
+            // New React discharge summary workstation (views/emr/dischargeworkstation) for this admission.
+            $scope.patientemr_dischargeworkstation = function() {
+                $state.go('patientemr.dischargeworkstation', {
+                    pid: $scope.currentcontext.pid,
+                    context: $scope.pagecontext
+                });
+            };
+
             $scope.discharge_summary = function() {
                 $state.go('patientemr.dischargesummarytab.dischargesummarycurrentvisit', {
                     pid: $scope.currentcontext.pid,

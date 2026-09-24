@@ -533,6 +533,7 @@ import { EmrWorkspaceScreen } from './react-components/emr-workspace/EmrWorkspac
 import { EmrPanelSelectionScreen } from './react-components/emr-admin/EmrPanelSelectionScreen';
 import { EmrFormAssemblyBuilderScreen } from './react-components/emr-admin/EmrFormAssemblyBuilderScreen';
 import { EmrPanelEditorScreen } from './react-components/emr-admin/EmrPanelEditorScreen';
+import { DischargeWorkstationScreen } from './react-components/discharge-workstation/DischargeWorkstationScreen';
 import { MrdOtReportScreen } from './react-components/legacy-screens/MrdOtReportScreen';
 import { TestTemplateMasterScreen } from './react-components/legacy-screens/TestTemplateMasterScreen';
 import { AntibioticCultureScreen } from './react-components/legacy-screens/AntibioticCultureScreen';
@@ -847,6 +848,7 @@ import './printing/himsPrint';
   EmrPanelSelectionScreen,
   EmrFormAssemblyBuilderScreen,
   EmrPanelEditorScreen,
+  DischargeWorkstationScreen,
   MrdOtReportScreen,
   TestTemplateMasterScreen,
   AntibioticCultureScreen,
