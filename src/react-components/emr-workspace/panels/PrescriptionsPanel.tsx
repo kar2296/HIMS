@@ -83,6 +83,8 @@ export const PrescriptionsPanel: React.FC<EmrPanelProps> = ({ context, encounter
         cid: context.consultationId,
         doctid: encounter?.DoctorId,
         deptid: encounter?.DepartmentId,
+        // open on the prescription itself rather than the (often empty) tick sheet
+        startTab: 'detail',
       },
       () => {
         load();

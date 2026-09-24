@@ -66,6 +66,12 @@
             $scope.cancelCallback = $uibModalInstance.dismiss;
         }
 
+        // Callers (e.g. the EMR workspace) can choose the first tab; defaults to the tick sheet.
+        var startTabs = ['detail', 'ticksheet', 'panels'];
+        if (modalConfig && modalConfig.params && startTabs.indexOf(modalConfig.params.startTab) >= 0) {
+            $scope.currentcontext.option = modalConfig.params.startTab;
+        }
+
         if (modalConfig && modalConfig.params && modalConfig.params.context) {
             $scope.currentcontext.context = modalConfig.params.context;
             $scope.item.DoctorId = modalConfig.params.doctid;

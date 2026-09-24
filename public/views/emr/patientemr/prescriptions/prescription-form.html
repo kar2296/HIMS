@@ -18,58 +18,236 @@
     .mt10 {
         margin-top: 10px;
     }
+
+    /* ---- Manage Prescription (Rx) (scoped to .rxf) ---- */
+    .modal-dialog.modal-full:has(.rxf) { width: min(1240px, calc(100vw - 32px)) !important; max-width: none !important; margin: 24px auto !important; }
+    .modal-content:has(.rxf) { top: 0 !important; border: 0; border-radius: 14px; overflow: hidden; box-shadow: 0 24px 60px rgba(15, 23, 42, .28); }
+
+    .rxf { --rxf-primary: #2563eb; --rxf-primary-hover: #1d4ed8; --rxf-primary-light: #eff6ff; --rxf-border: #e2e8f0;
+        --rxf-border-strong: #cbd5e1; --rxf-muted: #475569; --rxf-subtle: #94a3b8; --rxf-text: #0f172a; --rxf-surface-muted: #f8fafc;
+        --rxf-danger: #dc2626; color: var(--rxf-text); background: #fff; }
+    .rxf *, .rxf *::before, .rxf *::after { box-sizing: border-box; }
+
+    .rxf-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+        padding: 16px 20px; border-bottom: 1px solid var(--rxf-border); background: #fff; }
+    .rxf-title { display: flex; align-items: center; gap: 12px; min-width: 0; }
+    .rxf-title-icon { width: 38px; height: 38px; border-radius: 10px; background: var(--rxf-primary-light); color: var(--rxf-primary);
+        display: inline-flex; align-items: center; justify-content: center; font-size: 16px; flex: none; }
+    .rxf-title-text { min-width: 0; }
+    .rxf .rxf-title h4 { margin: 0; font-size: 18px !important; font-weight: 700; line-height: 1.3; color: var(--rxf-text); white-space: nowrap; }
+    .rxf-meta { display: flex; align-items: center; gap: 6px 14px; flex-wrap: wrap; margin: 3px 0 0; font-size: 12.5px; color: var(--rxf-muted); }
+    .rxf-meta > span { display: inline-flex; align-items: center; gap: 5px; white-space: nowrap; }
+    .rxf-meta i { color: var(--rxf-subtle); }
+    .rxf-badge { padding: 2px 9px; border-radius: 999px; font-size: 11.5px; font-weight: 700; background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; }
+    .rxf-badge.is-new { background: #f1f5f9; color: #334155; border-color: #e2e8f0; }
+    .rxf-header-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+
+    .rxf-btn { display: inline-flex; align-items: center; justify-content: center; gap: 7px; height: 36px; padding: 0 14px;
+        border-radius: 8px; border: 1px solid transparent; font-size: 13.5px; font-weight: 600; line-height: 1; cursor: pointer;
+        white-space: nowrap; background: #fff; color: var(--rxf-text); text-shadow: none; box-shadow: none; transition: background .15s, border-color .15s; }
+    .rxf-btn:focus-visible { outline: 2px solid var(--rxf-primary); outline-offset: 2px; }
+    .rxf-btn-sm { height: 32px; padding: 0 12px; font-size: 12.5px; }
+    .rxf-btn-primary { background: var(--rxf-primary); color: #fff; }
+    .rxf-btn-primary:hover { background: var(--rxf-primary-hover); color: #fff; }
+    .rxf-btn-outline { border-color: var(--rxf-border-strong); color: #1e293b; }
+    .rxf-btn-outline:hover { background: var(--rxf-surface-muted); border-color: #94a3b8; }
+    .rxf-btn-ghost { color: var(--rxf-muted); }
+    .rxf-btn-ghost:hover { background: #f1f5f9; color: var(--rxf-text); }
+    .rxf-close { width: 36px; height: 36px; padding: 0; font-size: 18px; }
+
+    .rxf-body { padding: 16px 20px 0; display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; }
+    .rxf-form { margin: 0; display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; }
+
+    /* patient banner (shared directive): let values wrap instead of "M..." */
+    .rxf-patient { border: 1px solid var(--rxf-border); border-radius: 12px; background: var(--rxf-surface-muted); padding: 4px; }
+    .rxf-patient .patient-banner-table { display: grid !important; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 4px; margin: 0 !important; }
+    .rxf-patient .patient-banner-table-section { width: auto !important; min-width: 0; margin: 0 !important; padding: 8px 10px !important;
+        border: 0 !important; box-shadow: none !important; background: #fff !important; border-radius: 9px; }
+    .rxf .rxf-patient .patient-banner-row { display: grid !important; grid-template-columns: 96px minmax(0, 1fr) !important; gap: 8px; align-items: baseline;
+        padding: 3px 0 !important; background: transparent !important; border: 0 !important; min-height: 0 !important; height: auto !important; }
+    .rxf-patient .patient-banner-separator { display: none !important; }
+    .rxf-patient .patient-banner-label { font-size: 12px !important; color: var(--rxf-muted) !important; font-weight: 500 !important; }
+    .rxf-patient .patient-banner-value, .rxf-patient .patient-banner-value * { white-space: normal !important; overflow: visible !important;
+        text-overflow: clip !important; max-width: none !important; }
+    .rxf-patient .patient-banner-value { font-size: 13px; font-weight: 600; color: var(--rxf-text); word-break: break-word; min-width: 0; }
+    .rxf-patient .patient-banner-value .pull-right { float: none !important; }
+
+    /* mode tabs + allergy alert */
+    .rxf-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+    .rxf-tabs { display: inline-flex; padding: 4px; gap: 4px; background: #f1f5f9; border-radius: 10px; flex-wrap: wrap; }
+    .rxf-tab { border: 0; background: transparent; height: 34px; padding: 0 16px; border-radius: 8px; font-size: 13.5px; font-weight: 600;
+        color: var(--rxf-muted); cursor: pointer; display: inline-flex; align-items: center; gap: 8px; }
+    .rxf-tab:hover { color: var(--rxf-text); }
+    .rxf-tab.is-active { background: #fff; color: var(--rxf-primary); box-shadow: 0 1px 3px rgba(15, 23, 42, .12); }
+    .rxf-alert { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 999px; font-size: 12.5px; font-weight: 700;
+        background: #fef2f2; color: #b91c1c; border: 1px solid #fecaca; }
+
+    /* content cards */
+    .rxf-card { border: 1px solid var(--rxf-border); border-radius: 12px; background: #fff; padding: 16px 12px 4px; }
+    .rxf-detail > .rxf-card { margin: 0 0 16px !important; }
+    .rxf .rxf-card .form-group { margin-left: 0; margin-right: 0; margin-bottom: 14px; }
+    .rxf .rxf-card label { font-size: 12.5px; font-weight: 600; color: #334155; padding-top: 9px; }
+    .rxf .rxf-card label.col-sm-12 { padding-top: 0; margin-bottom: 6px; }
+    .rxf .rxf-card .form-control, .rxf .rxf-card .ui-select-container .ui-select-toggle {
+        min-height: 36px; border-radius: 8px !important; border: 1px solid var(--rxf-border-strong) !important; box-shadow: none !important; font-size: 13.5px; }
+    .rxf .rxf-card textarea.form-control { min-height: 76px; }
+    .rxf .rxf-card .form-control:focus { border-color: var(--rxf-primary) !important; box-shadow: 0 0 0 3px rgba(37, 99, 235, .15) !important; }
+    .rxf .rxf-card .ui-select-container, .rxf .rxf-card .ui-select-bootstrap { width: 100% !important; }
+    .rxf .rxf-card .table { margin: 4px 0 12px; border-radius: 10px; overflow: visible; }
+    .rxf .rxf-card .table > thead > tr > th { background: var(--rxf-surface-muted); color: var(--rxf-muted); font-size: 11px; font-weight: 700;
+        text-transform: uppercase; letter-spacing: .03em; vertical-align: bottom; border-color: var(--rxf-border) !important; }
+    .rxf .rxf-card .table > tbody > tr > td { vertical-align: middle; border-color: #f1f5f9 !important; font-size: 13px; }
+
+    /* sticky action bar */
+    .rxf .rxf-footer { position: sticky; bottom: 0; z-index: 3; margin: 0 -20px !important; padding: 12px 20px !important; background: #fff !important;
+        border: 0 !important; border-top: 1px solid var(--rxf-border) !important; box-shadow: 0 -6px 16px rgba(15, 23, 42, .05); }
+    .rxf .rxf-footer > .row { margin: 0; display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+    .rxf .rxf-footer .pull-left, .rxf .rxf-footer .pull-right { float: none !important; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .rxf .rxf-footer .pull-right { margin-left: auto; }
+    .rxf .rxf-footer .btn, .rxf .rxf-footer .draftbutton { height: 36px; margin: 0 !important; padding: 0 14px !important; border-radius: 8px !important;
+        border: 1px solid var(--rxf-border-strong) !important; background: #fff !important; background-image: none !important; color: #1e293b !important;
+        font-size: 13px; font-weight: 600; box-shadow: none !important; display: inline-flex; align-items: center; gap: 6px; }
+    .rxf .rxf-footer .btn:hover, .rxf .rxf-footer .draftbutton:hover { background: var(--rxf-surface-muted) !important; }
+    .rxf .rxf-footer .draftbutton i { font-style: normal; }
+    .rxf .rxf-footer .draftbutton.rxf-primary-action { background: var(--rxf-primary) !important; border-color: var(--rxf-primary) !important; color: #fff !important; }
+
+    /* tick sheet (shared ticksheetcontrol) */
+    .rxf-ticksheet { padding: 12px 12px 4px; margin-bottom: 16px; }
+    .rxf-ticksheet ticksheetcontrol { display: block; }
+    .rxf-ticksheet > ticksheetcontrol > .col-sm-12:first-of-type { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 0 0 12px;
+        border-bottom: 1px solid var(--rxf-border); margin-bottom: 12px; float: none; }
+    .rxf-ticksheet .col-sm-10, .rxf-ticksheet .col-sm-2 { float: none; width: auto; padding: 0; }
+    .rxf-ticksheet .col-sm-2 { display: flex; gap: 6px; }
+    .rxf-ticksheet .col-sm-12 { float: none; padding: 0; }
+    .rxf-ticksheet .btn-group > label.top-option { border: 1px solid var(--rxf-border-strong) !important; background: #fff !important; color: #334155 !important;
+        border-radius: 999px !important; margin: 0 6px 6px 0; padding: 6px 14px; font-weight: 600; font-size: 13px; box-shadow: none; }
+    .rxf-ticksheet .btn-group > label.top-option.active { background: var(--rxf-primary) !important; border-color: var(--rxf-primary) !important; color: #fff !important; }
+    .rxf-ticksheet .btn-add, .rxf-ticksheet .settingbtn { width: 34px; height: 34px; border-radius: 8px !important; border: 1px solid var(--rxf-border-strong) !important;
+        background: #fff !important; color: var(--rxf-muted) !important; display: inline-flex; align-items: center; justify-content: center; margin: 0 !important; padding: 0 !important; box-shadow: none; }
+    .rxf-ticksheet .settingbtn i.fa-cog, .rxf-ticksheet .btn-add i { color: inherit !important; font-size: 15px !important; }
+    .rxf-ticksheet fieldset { border: 1px solid var(--rxf-border); border-radius: 12px; padding: 10px 12px 6px; margin: 0 0 12px; }
+    .rxf-ticksheet legend { width: auto; border: 0; margin: 0 !important; padding: 0 6px; font-size: 12px !important; font-weight: 700;
+        text-transform: uppercase; letter-spacing: .04em; color: var(--rxf-muted) !important; }
+    .rxf-ticksheet .fooder-bgs { background: transparent !important; border: 0 !important; padding: 12px 0 0 !important; display: flex; justify-content: flex-end; }
+    .rxf-ticksheet .fooder-bgs .row { margin: 0; }
+    .rxf-ticksheet .fooder-bgs .draftbutton { background: var(--rxf-primary) !important; border: 0 !important; color: #fff !important; height: 36px;
+        padding: 0 18px !important; border-radius: 8px !important; font-weight: 600; background-image: none !important; }
+    /* no tick sheets configured yet: explain instead of an empty panel and a bare "Next" */
+    .rxf-ticksheet ticksheetcontrol:not(:has(label.top-option)) .fooder-bgs { display: none !important; }
+    .rxf-ticksheet ticksheetcontrol:not(:has(label.top-option))::after { content: "No tick sheets are set up yet. Use + to create one (or the gear to manage favourites), or write the prescription in the Prescription tab.";
+        display: block; clear: both; text-align: center; padding: 28px 16px; color: #475569; font-size: 13.5px; }
+    .rxf-panels { padding: 12px; margin-bottom: 16px; }
+    .rxf-panels::before { content: "Choose a saved Rx panel to fill this prescription"; display: block; margin: 0 0 8px; font-size: 12.5px; font-weight: 600; color: #334155; }
+
+    /* drug search / diagnosis search: fill their column, keep the + button beside the field */
+    .rxf .rxf-detail autosearch, .rxf .rxf-detail autosearch .autosearch-div, .rxf .rxf-detail autosearch input[type=text] { display: block; width: 100% !important; }
+    .rxf .rxf-detail .form-group:has(> .col-sm-10 + .col-sm-2) { display: flex; flex-wrap: wrap; align-items: center; }
+    .rxf .rxf-detail .form-group:has(> .col-sm-10 + .col-sm-2) > label { flex: 0 0 100%; }
+    .rxf .rxf-detail .form-group:has(> .col-sm-10 + .col-sm-2) > .col-sm-10 { flex: 1 1 0; width: auto; min-width: 0; float: none; }
+    .rxf .rxf-detail .form-group:has(> .col-sm-10 + .col-sm-2) > .col-sm-2 { flex: none; width: auto; float: none; padding-left: 0; }
+    @media (max-width: 767px) {
+        /* each drug line becomes a small card: no sideways scroll, so the drug search list is never clipped */
+        .rxf .rxf-detail #mainresponsivetablecontrol table, .rxf .rxf-detail #mainresponsivetablecontrol tbody,
+        .rxf .rxf-detail #mainresponsivetablecontrol tbody > tr > td { display: block; width: auto !important; min-width: 0; overflow: visible !important; }
+        .rxf .rxf-detail #mainresponsivetablecontrol { overflow: visible !important; }
+        .rxf .rxf-detail #mainresponsivetablecontrol thead { display: none; }
+        .rxf .rxf-detail #mainresponsivetablecontrol tbody > tr { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 12px;
+            padding: 12px; border: 1px solid var(--rxf-border); border-radius: 12px; margin-bottom: 10px; background: #fff; }
+        .rxf .rxf-detail #mainresponsivetablecontrol tbody > tr > td { padding: 0 !important; border: 0 !important; background: transparent !important; text-align: left !important; }
+        .rxf .rxf-detail #mainresponsivetablecontrol tbody > tr > td[data-col="drug"], .rxf .rxf-detail #mainresponsivetablecontrol tbody > tr > td[data-col="act"] { grid-column: 1 / -1; }
+        .rxf .rxf-detail #mainresponsivetablecontrol tbody > tr > td[data-col="act"] { text-align: right !important; }
+        .rxf .rxf-detail #mainresponsivetablecontrol tbody > tr > td[data-label]:not([data-label=""])::before { content: attr(data-label); display: block; margin-bottom: 4px;
+            font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .03em; color: var(--rxf-muted); }
+        .rxf .rxf-detail .custom-popup-wrapper { max-width: calc(100vw - 48px); overflow-x: auto; }
+    }
+    @media (max-width: 767px) {
+        .modal-dialog.modal-full:has(.rxf) { width: 100vw !important; margin: 0 !important; }
+        .modal-content:has(.rxf) { border-radius: 0; }
+        .rxf-header, .rxf-body { padding-left: 14px; padding-right: 14px; }
+        .rxf-header { position: relative; padding-right: 52px; }
+        .rxf-close { position: absolute; top: 14px; right: 8px; }
+        .rxf-hide-xs { display: none; }
+        .rxf .rxf-footer { margin: 0 -14px !important; padding: 10px 14px !important; }
+        .rxf .rxf-footer .pull-right { width: 100%; justify-content: flex-end; }
+        .rxf .rxf-footer .btn, .rxf .rxf-footer .draftbutton { height: 34px; padding: 0 10px !important; font-size: 12.5px; }
+        .rxf .rxf-footer .pull-left, .rxf .rxf-footer .pull-right { gap: 6px; }
+        .rxf .rxf-card [class*="col-sm-"] { padding-left: 4px; padding-right: 4px; }
+    }
 </style>
-<div class="row page-header">
-    <div class="col-sm-4">
-        <h4 class="mt0" translate="patientemr.prescription-form.pagetitle.lbl"></h4>
-    </div>
-    <div class="col-sm-4">
-        <span>
-            {{item.PrescriptionDate|date:'dd:MM:yyyy'}}&nbsp;|&nbsp;{{item.PrescriptionDate|date:'HH:mm'}}&nbsp;|&nbsp;{{item.Identifier}}&nbsp;|&nbsp;
-            {{item.DisplayPrecriptionStatus}}
-        </span>
-    </div>
-    <div class="col-sm-4">
-        <button type="button" class="drhms-billing-btn drhms-previousbill-btn" ng-click="previousmedication()"
-            uib-tooltip="{{'patientemr.patientprescription-list.previous_prescriptions.lbl' | translate }}"
-            tooltip-placement="bottom">
-            <i class="fas fa-prescription"></i></button>
-        <button type="button" class="drhms-billing-btn drhms-discharge-btn"
-            uib-tooltip="{{'patientemr.patientprescription-list.allergies.lbl' | translate }}"
-            tooltip-placement="bottom" ng-click="patientallergy()">
-            <i class="fas fa-allergies"></i></button>
-        <button type="button" class="drhms-billing-btn drhms-checkout-btn"
-            uib-tooltip="{{'patientemr.patientprescription-list.vitals.lbl' | translate }}" tooltip-placement="bottom"
-            ng-click="vital()">
-            <i class="fas fa-vial"></i>
-        </button>
-        <span class="drhms-billing-btn drhms-outstandingbill-btn" ng-click="doctor_dashboard()"
-            ng-hide="currentcontext.ismodal" uib-tooltip="Doctor Dashboard" tooltip-placement="bottom">
-            <i class="fas fa-th-large"></i>
-        </span>
-        <span class="drhms-billing-btn drhms-remark-btn" ng-click="patient_dashboard()" ng-hide="currentcontext.ismodal"
-            uib-tooltip="Patient Dashboard" tooltip-placement="bottom">
-            <i class="fas fa-th-large"></i>
-        </span>
-        <button ng-if="canUpdatePatientEMR()" class="btn-add" uib-tooltip="Add Prescription" tooltip-placement="bottom"
-            ng-click="addNew()">
-            <i class="fa fa-plus" aria-hidden="true"></i>
-        </button>
-    </div>
-</div>
-<div class="row">
-    <patientbanner patientid="item.PatientId" ng-if="currentcontext.ismodal"></patientbanner>
-</div>
-<div class="row">
-    <form id="item_form0" name="item_form" class="form-horizontal" role="form">
-        <div>
-            <label class="btn btn-secondary top-option" ng-repeat="option in options" ng-model="currentcontext.option"
-                uib-btn-radio="option.key">{{option.name}}</label>
-            <label ng-if="currentcontext.isPatientHasAllergy" class="allergyAlert">Patient has Drug
-                Allergy</label>
+<div class="rxf" id="prescriptionform">
+    <!-- Header -->
+    <div class="rxf-header">
+        <div class="rxf-title">
+            <span class="rxf-title-icon" aria-hidden="true"><i class="fas fa-prescription"></i></span>
+            <div class="rxf-title-text">
+                <h4 translate="patientemr.prescription-form.pagetitle.lbl"></h4>
+                <p class="rxf-meta">
+                    <span><i class="fa fa-calendar-o" aria-hidden="true"></i>{{item.PrescriptionDate|date:'dd MMM yyyy'}}</span>
+                    <span><i class="fa fa-clock-o" aria-hidden="true"></i>{{item.PrescriptionDate|date:'HH:mm'}}</span>
+                    <span ng-if="item.Identifier"><i class="fa fa-hashtag" aria-hidden="true"></i>{{item.Identifier}}</span>
+                    <span class="rxf-badge" ng-if="item.DisplayPrecriptionStatus">{{item.DisplayPrecriptionStatus}}</span>
+                    <span class="rxf-badge is-new" ng-if="!item.DisplayPrecriptionStatus && !(currentcontext.id > 0)">New</span>
+                </p>
+            </div>
         </div>
-        <div ng-show="canShowPrescriptionArea()">
-            <div class="mt10">
+        <div class="rxf-header-actions">
+            <button type="button" class="rxf-btn rxf-btn-outline rxf-btn-sm" ng-click="previousmedication()"
+                title="{{'patientemr.patientprescription-list.previous_prescriptions.lbl' | translate }}">
+                <i class="fa fa-history" aria-hidden="true"></i>
+                <span class="rxf-hide-xs" translate="patientemr.patientprescription-list.previous_prescriptions.lbl"></span>
+            </button>
+            <button type="button" class="rxf-btn rxf-btn-outline rxf-btn-sm" ng-click="patientallergy()"
+                title="{{'patientemr.patientprescription-list.allergies.lbl' | translate }}">
+                <i class="fas fa-allergies" aria-hidden="true"></i>
+                <span class="rxf-hide-xs" translate="patientemr.patientprescription-list.allergies.lbl"></span>
+            </button>
+            <button type="button" class="rxf-btn rxf-btn-outline rxf-btn-sm" ng-click="vital()"
+                title="{{'patientemr.patientprescription-list.vitals.lbl' | translate }}">
+                <i class="fas fa-heartbeat" aria-hidden="true"></i>
+                <span class="rxf-hide-xs" translate="patientemr.patientprescription-list.vitals.lbl"></span>
+            </button>
+            <button type="button" class="rxf-btn rxf-btn-outline rxf-btn-sm" ng-click="doctor_dashboard()"
+                ng-hide="currentcontext.ismodal" title="Doctor Dashboard">
+                <i class="fas fa-th-large" aria-hidden="true"></i><span class="rxf-hide-xs">Doctor Dashboard</span>
+            </button>
+            <button type="button" class="rxf-btn rxf-btn-outline rxf-btn-sm" ng-click="patient_dashboard()"
+                ng-hide="currentcontext.ismodal" title="Patient Dashboard">
+                <i class="fas fa-th-large" aria-hidden="true"></i><span class="rxf-hide-xs">Patient Dashboard</span>
+            </button>
+            <button type="button" ng-if="canUpdatePatientEMR() && currentcontext.id > 0" class="rxf-btn rxf-btn-primary rxf-btn-sm"
+                title="Add Prescription" ng-click="addNew()">
+                <i class="fa fa-plus" aria-hidden="true"></i><span class="rxf-hide-xs">New</span>
+            </button>
+            <button type="button" class="rxf-btn rxf-btn-ghost rxf-close" ng-if="currentcontext.ismodal && cancelCallback"
+                ng-click="cancelCallback()" aria-label="Close" title="Close">
+                <i class="fa fa-times" aria-hidden="true"></i>
+            </button>
+        </div>
+    </div>
+
+    <div class="rxf-body">
+        <!-- Patient -->
+        <div class="rxf-patient" ng-if="currentcontext.ismodal">
+            <patientbanner patientid="item.PatientId"></patientbanner>
+        </div>
+
+    <form id="item_form0" name="item_form" class="form-horizontal rxf-form" role="form">
+        <div class="rxf-toolbar">
+            <div class="rxf-tabs" role="tablist" aria-label="Prescription mode">
+                <button type="button" role="tab" class="rxf-tab" ng-repeat="option in options"
+                    ng-class="{'is-active': currentcontext.option == option.key}"
+                    aria-selected="{{currentcontext.option == option.key}}" ng-click="currentcontext.option = option.key">
+                    <i class="fa" aria-hidden="true"
+                        ng-class="{'fa-pencil-square-o': option.key == 'detail', 'fa-check-square-o': option.key == 'ticksheet', 'fa-th-list': option.key == 'panels'}"></i>
+                    {{option.name}}
+                </button>
+            </div>
+            <span ng-if="currentcontext.isPatientHasAllergy" class="rxf-alert" role="status">
+                <i class="fa fa-exclamation-triangle" aria-hidden="true"></i> Patient has drug allergy
+            </span>
+        </div>
+        <div ng-show="canShowPrescriptionArea()" class="rxf-detail">
+            <div class="mt10 rxf-card clearfix">
                 <div class="col-sm-12" ng-hide="canShowPatientControl()">
                     <!-- first row -->
                     <div class="col-sm-4">
@@ -327,13 +505,13 @@
                     </thead>
                     <tbody>
                         <tr ng-repeat="item in prescriptionDetails | filter:{Status:1}">
-                            <td class="fs-12 iconsize">
+                            <td class="fs-12 iconsize" data-label="{{'patientemr.prescription-form.rxname.lbl' | translate}}" data-col="drug">
                                 <autosearch controlid="'dgname'" itemid="item.DrugId" iteminfo="item.SelectedItem"
                                     name="'drug'" rowdata="item" config="vm.drugcontrolconfig" ng-if="!item.IsGeneric"
                                     itemchange="drugChanged($index,item)" class="inputsearchlogo"
                                     candisable="IsDisabled" isrequired="true"></autosearch>
                             </td>
-                            <td class="fs-12 cstm_batch">
+                            <td class="fs-12 cstm_batch" data-label="{{'patientemr.prescription-form.generic.lbl' | translate}}">
                                 <span uib-tooltip="{{item.DrugGenericName}}"
                                     tooltip-placement="bottom">{{item.DrugGenericName}}</span>
                                 <button ng-if="item.DrugGenericId" class="drhms-edit-button" type="button" tabindex="-1"
@@ -341,11 +519,11 @@
                                     <i class="fa fa-calendar-check-o" aria-hidden="true"></i>
                                 </button>
                             </td>
-                            <td class="fs-12">
+                            <td class="fs-12" data-label="{{'patientemr.prescription-form.dosage.lbl' | translate}}">
                                 <input id='dgdoesage{{$index}}' type="text" class="form-control"
                                     ng-disabled="IsDisabled" ng-model="item.Dosage" placeholder="">
                             </td>
-                            <td class="fs-12">
+                            <td class="fs-12" data-label="{{'patientemr.prescription-form.route.lbl' | translate}}">
                                 <ui-select id='dgroute{{$index}}' ng-model="item.DrugRouteId" name="screen"
                                     ng-disabled="IsDisabled" class="ui-select-grid">
                                     <ui-select-match>
@@ -358,7 +536,7 @@
                                     </ui-select-choices>
                                 </ui-select>
                             </td>
-                            <td class="fs-12">
+                            <td class="fs-12" data-label="{{'patientemr.prescription-form.frequency.lbl' | translate}}">
                                 <ui-select id='dgfreq{{$index}}' ng-model="item.DrugFrequencyId"
                                     ng-disabled="IsDisabled" class="ui-select-grid" ng-change="computeQuantity(item)">
                                     <ui-select-match>
@@ -371,12 +549,12 @@
                                     </ui-select-choices>
                                 </ui-select>
                             </td>
-                            <td class="fs-12 input_width1">
+                            <td class="fs-12 input_width1" data-label="{{'patientemr.prescription-form.duration.lbl' | translate}}">
                                 <input id='dgduration{{$index}}' type="text" class="form-control"
                                     ng-model="item.Duration" placeholder="" ng-disabled="IsDisabled"
                                     ng-change="computeQuantity(item)">
                             </td>
-                            <td class="fs-12 input_width1">
+                            <td class="fs-12 input_width1" data-label="Period">
                                 <ui-select id='dgduraperiod{{$index}}' ng-model="item.DurationPeriodId"
                                     class="ui-select-period" ng-disabled="IsDisabled" ng-change="computeQuantity(item)">
                                     <ui-select-match>
@@ -389,17 +567,17 @@
                                     </ui-select-choices>
                                 </ui-select>
                             </td>
-                            <td class="fs-12 cell-align-center">
+                            <td class="fs-12 cell-align-center" data-label="{{'patientemr.prescription-form.qty.lbl' | translate}}">
                                 <input id='Quantity{{$index}}' type="text" class="form-control" ng-disabled="IsDisabled"
                                     ng-model="item.Quantity" placeholder="">
                             </td>
-                            <td class="fs-12 cell-align-center">
+                            <td class="fs-12 cell-align-center" data-label="{{'patientemr.prescription-form.price.lbl' | translate}}">
                                 <span>{{item.Price}}</span>
                             </td>
-                            <td class="fs-12 cell-align-center">
+                            <td class="fs-12 cell-align-center" data-label="{{'patientemr.prescription-form.availqty.lbl' | translate}}">
                                 <span>{{item.AvailQuantity}}</span>
                             </td>
-                            <td class="fs-12 cell-align-center">
+                            <td class="fs-12 cell-align-center" data-label="{{'patientemr.prescription-form.druginstruct.lbl' | translate}}">
                                 <ui-select id='dgfreq{{$index}}' ng-model="item.DrugInstructionId"
                                     ng-disabled="IsDisabled" class="ui-select-grid" ng-change="computeQuantity(item)">
                                     <ui-select-match>
@@ -412,7 +590,7 @@
                                     </ui-select-choices>
                                 </ui-select>
                             </td>
-                            <td class="fs-12 cell-align-center">
+                            <td class="fs-12 cell-align-center" data-label="" data-col="act">
                                 <button class="drhms-edit-button" tabindex="-1" ng-click="editPrescriptionDetail(item)">
                                     <img src="assets/svg/edit.svg" alt="">
                                     <!-- <i class="fa fa-pencil" aria-hidden="true"></i> -->
@@ -582,7 +760,7 @@
                     </div>
                 </div>
             </div>
-            <div class="fooder-bgs">
+            <div class="fooder-bgs rxf-footer">
                 <div class="row">
                     <div class="pull-left">
                         <button type="button" class="btn pyr-color10 btn-sm" tabindex="-1" ng-click="backToList()"
@@ -593,12 +771,13 @@
                         <button type="button" tabindex="-1" class="draftbutton" ng-click="saveasRxPanel()"
                             ng-hide="IsDisabled && currentcontext.ismodal && canShowPatientControl"
                             translate="patientemr.prescription-form.saveasrxpanel.lbl"></button>
-                        <button type="button" tabindex="-1" class="draftbutton" uib-tooltip="Attachments"
+                        <button type="button" tabindex="-1" class="draftbutton" uib-tooltip="Attachments" aria-label="Attachments"
                             ng-click="openattachments()" tooltip-placement="top">
                             <i class="fa fa-paperclip fa-xs"
                                 aria-hidden="true">&nbsp;&nbsp;({{currentcontext.attachmentcount}})</i>
                         </button>
-                        <button type="button" tabindex="-1" class="draftbutton" ng-click="previousprescription()">
+                        <button type="button" tabindex="-1" class="draftbutton" ng-click="previousprescription()"
+                            title="Previous prescriptions" aria-label="Previous prescriptions">
                             <i class="fa fa-history btn-pp" aria-hidden="true"></i>
                         </button>
                         <button tabindex="-1" type="button" class="draftbutton" ng-if="item.PrecriptionStatusId==3"
@@ -613,7 +792,7 @@
                             translate="common.saveaction.lbl"
                             ng-hide="item.PrecriptionStatusId==1||item.PrecriptionStatusId==2||item.PrecriptionStatusId==3"
                             ng-click="saveDraft()"></button>
-                        <button type="button" ng-if="canUpdatePatientEMR()" class="draftbutton"
+                        <button type="button" ng-if="canUpdatePatientEMR()" class="draftbutton rxf-primary-action"
                             ng-hide="item.PrecriptionStatusId==2||item.PrecriptionStatusId==3" ng-click="prescribe()"
                             translate="patientemr.prescription-form.prescribe-action.lbl"></button>
                         <button type="button" ng-if="canUpdatePatientEMR()" class="draftbutton"
@@ -631,7 +810,7 @@
                             translate="common.saveaction.lbl"
                             ng-hide="item.PrecriptionStatusId==1||item.PrecriptionStatusId==2||item.PrecriptionStatusId==3"
                             ng-click="saveDraft()"></button>
-                        <button type="button" ng-if="canUpdatePatientEMR()" class="draftbutton" ng-click="prescribe()"
+                        <button type="button" ng-if="canUpdatePatientEMR()" class="draftbutton rxf-primary-action" ng-click="prescribe()"
                             translate="patientemr.prescription-form.prescribe-action.lbl"></button>
                         <button type="button" ng-if="canUpdatePatientEMR()" class="draftbutton"
                             ng-click="prescribeAndOrder()"
@@ -642,13 +821,14 @@
                 </div>
             </div>
         </div>
-        <div ng-show="canShowTickSheetArea()">
+        <div ng-show="canShowTickSheetArea()" class="rxf-card rxf-ticksheet">
             <ticksheetcontrol ng-if="canUpdatePatientEMR()" config="ticksheetconfig" storeid="item.PharmacyId"
                 addclick="addTickSheet()" saveclick="saveTickSheets()"></ticksheetcontrol>
         </div>
-        <div ng-show="canShowPanelsArea()">
+        <div ng-show="canShowPanelsArea()" class="rxf-card rxf-panels">
             <panelcontrol ng-if="canUpdatePatientEMR()" config="panelconfig" saveclick="savePanels()">
             </panelcontrol>
         </div>
     </form>
+    </div>
 </div>
