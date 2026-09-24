@@ -60,6 +60,17 @@ class Database {
         const Options = {};
         Object.assign(Options, db.Options, aliases);
         this._sequelize = new SequelizeStatic(db.Database, db.UserName, db.Password, Options);
+        // The codebase runs aggregate queries (SUM/COUNT dashboards, totals, reports) through Sequelize 4,
+        // which always adds the model's primary key to the SELECT list. MySQL 5.7+/8 reject that under the
+        // default ONLY_FULL_GROUP_BY mode ("nonaggregated column ... incompatible with sql_mode").
+        // Drop only that flag for this app's sessions; every other sql_mode setting is kept.
+        (this._sequelize as any).addHook('afterConnect', (connection: any): Promise<void> => {
+            return new Promise<void>((resolve: () => void, reject: (err: any) => void): void => {
+                connection.query(
+                    "SET SESSION sql_mode = TRIM(BOTH ',' FROM REPLACE(REPLACE(@@SESSION.sql_mode, 'ONLY_FULL_GROUP_BY', ''), ',,', ','))",
+                    (err: any): void => { if (err) { reject(err); } else { resolve(); } });
+            });
+        });
         this._models = ({} as any);
         let modelPattern = join(__dirname, '../Modules', '/**/*.Model.js');
         console.log(modelPattern);
