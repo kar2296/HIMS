@@ -24,6 +24,8 @@ import type { LookupItem } from '../emr-workspace/types';
 
 interface Props {
   reactProps?: { userId?: number; facilityId?: number };
+  /** Host navigation (hollow controller); used to open EMR Form Builder. */
+  navigateTo?: (state: string, params?: Record<string, unknown>) => void;
 }
 
 interface ProfileRow {
@@ -62,7 +64,7 @@ const typeNames = (csv: string | undefined, noteTypes: LookupItem[]) =>
     .filter(Boolean)
     .join(', ') || '—';
 
-export const EmrPanelSelectionScreen: React.FC<Props> = ({ reactProps }) => {
+export const EmrPanelSelectionScreen: React.FC<Props> = ({ reactProps, navigateTo }) => {
   const [userId, setUserId] = useState<number | ''>('');
   const [search, setSearch] = useState('');
   const [busyProfile, setBusyProfile] = useState<number | null>(null);
@@ -179,7 +181,12 @@ export const EmrPanelSelectionScreen: React.FC<Props> = ({ reactProps }) => {
               <SkeletonRows rows={6} columns={5} />
             </div>
           ) : (
-            <SimpleTable headers={['EMR form', 'Encounter types', 'Description', 'Assigned', 'Default']} empty={forms.length === 0} emptyText="No EMR forms. Create one in EMR Form Assembly.">
+            <SimpleTable headers={['EMR form', 'Encounter types', 'Description', 'Assigned', 'Default']} empty={forms.length === 0} emptyText={
+                search.trim()
+                  ? `No EMR form matches "${search.trim()}". Only forms saved in EMR Form Builder can be assigned.`
+                  : 'No EMR forms yet. Create one in EMR Form Builder.'
+              }
+            >
               {forms.map((f) => {
                 const a = assignmentFor(f.Id);
                 const busy = busyProfile === f.Id;
@@ -218,6 +225,13 @@ export const EmrPanelSelectionScreen: React.FC<Props> = ({ reactProps }) => {
                 );
               })}
             </SimpleTable>
+          )}
+          {!masters.loading && forms.length === 0 && navigateTo && (
+            <div style={{ padding: spacing.lg, paddingTop: 0 }}>
+              <Button variant="outline-primary" size="sm" icon="fa-solid fa-plus" onClick={() => navigateTo('app.emrformbuilder')}>
+                Open EMR Form Builder
+              </Button>
+            </div>
           )}
         </PanelSection>
       </div>
