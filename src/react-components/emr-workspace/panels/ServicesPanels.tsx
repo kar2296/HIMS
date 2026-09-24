@@ -50,7 +50,10 @@ interface PatientOrder {
   PatientOrderDetail?: OrderDetail[];
 }
 
-const detailsOf = (o: PatientOrder) => (o.PatientOrderDetails || o.PatientOrderDetail || []).filter((d) => !d.IsCanceled);
+/** Order status 2 = Cancelled. (IsCanceled is not reliable: older order-form saves stored 1 on active lines.) */
+const CANCELLED_STATUS = 2;
+const isCancelledLine = (d: OrderDetail) => d.OrderStatusId === CANCELLED_STATUS;
+const detailsOf = (o: PatientOrder) => (o.PatientOrderDetails || o.PatientOrderDetail || []).filter((d) => !isCancelledLine(d));
 
 const statusText = (s?: { DisplayName?: string; Description?: string }) => s?.DisplayName || s?.Description || '';
 

@@ -174,7 +174,8 @@ export class TestmasterBo extends BaseBo<TestmasterInstance, TestmasterAttribute
                                 required: false,
                                 where: {
                                     'ServiceRateCategoryId': info.ServiceRateCategoryId,
-                                    'FacilityId': info.FacilityId
+                                    // Callers usually send only the rate category; use the logged-in facility so tariffs match.
+                                    'FacilityId': info.FacilityId || (this.GetSession() || {}).FacilityId
                                 }
                             }]
                         });
