@@ -39,8 +39,14 @@
             copyid: 0
         };
         if ($scope.currentcontext.ismodal) {
-            $scope.currentcontext.CanSave = utl.Privilege.hasPrivilege('CanSave');
-            $scope.currentcontext.CanOrder = utl.Privilege.hasPrivilege('CanOrder');
+            // utl.Privilege only exposes hasAccess(); calling the missing hasPrivilege() threw a TypeError
+            // and stopped this controller, so the order form never opened as a modal. These flags are not
+            // configured in ngPrivilegeHelper, so treat them as allowed (server-side rules still apply).
+            var canDo = function (key) {
+                return typeof utl.Privilege.hasPrivilege === 'function' ? utl.Privilege.hasPrivilege(key) : true;
+            };
+            $scope.currentcontext.CanSave = canDo('CanSave');
+            $scope.currentcontext.CanOrder = canDo('CanOrder');
         }
         $scope.IsCopy = false;
         if ($stateParams.context) {
