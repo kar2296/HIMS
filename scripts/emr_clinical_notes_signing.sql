@@ -45,7 +45,8 @@ SET @sql := (SELECT IF(COUNT(*) = 0,
 PREPARE stmt FROM @sql; EXECUTE stmt; DEALLOCATE PREPARE stmt;
 
 -- Existing rows: mark as Draft so they behave exactly as before.
-UPDATE hims_patientclinicalnotes SET NoteStatus = 1 WHERE NoteStatus IS NULL;
+-- The primary-key condition keeps MySQL Workbench "safe update mode" (error 1175) happy.
+UPDATE hims_patientclinicalnotes SET NoteStatus = 1 WHERE PatientClinicalNoteId > 0 AND NoteStatus IS NULL;
 
 -- Lookup of amendments by the original note.
 SET @sql := (SELECT IF(COUNT(*) = 0,
