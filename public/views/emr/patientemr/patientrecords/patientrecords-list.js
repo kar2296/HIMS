@@ -652,7 +652,7 @@
                 PatientId: $scope.currentcontext.pid,
                 IsDay1Discharge: 0
             }
-            var actionName = 'Encounter/Visit/UpdateEncounter';
+            var actionName = 'Visit/Visit/UpdateEncounter';
             var options = {
                 action: actionName,
                 data: {

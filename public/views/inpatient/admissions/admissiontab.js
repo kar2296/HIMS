@@ -257,9 +257,9 @@
     //     $scope.item.Id = $scope.currentcontext.id;
     //     $scope.item.Status = 1;
     //     $scope.item.EncounterTypeId = 2;
-    //     var actionName = 'Encounter/Visit/ManageAdmissionEncounter';
+    //     var actionName = 'Visit/Visit/ManageAdmissionEncounter';
     //     // if ($scope.currentcontext.id && $scope.currentcontext.id > 0) {
-    //     //     actionName = 'Encounter/Visit/Updateadmission';
+    //     //     actionName = 'Visit/Visit/Updateadmission';
     //     // }
 
     //     var options = {

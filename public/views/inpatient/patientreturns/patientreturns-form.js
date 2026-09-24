@@ -1010,7 +1010,7 @@
             ],
             searchparams: {},
             result: {},
-            api: 'Encounter/Visit/GetEncounters',
+            api: 'Visit/Visit/GetEncounters',
             presearch: presearchencounter,
             formatdisplay: formatselectedencounter,
             postsearch: postsearchencounter

@@ -37,7 +37,7 @@
             $scope.item.Id = $scope.currentcontext.eid;
             $scope.item.EstimatedBillDist = $scope.currentcontext.TotDiscAmount;
             $scope.item.EstimatedBillDistTypeId = $scope.currentcontext.DiscountModeId;
-            var actionName = 'Encounter/Visit/UpdateEncounter';
+            var actionName = 'Visit/Visit/UpdateEncounter';
             var options = {
                 action: actionName,
                 data: { Data: $scope.item },

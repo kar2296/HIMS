@@ -134,7 +134,7 @@
 
             };
             var options = {
-                action: "Encounter/Visit/GetEncounters",
+                action: "Visit/Visit/GetEncounters",
                 data: inputData,
                 type: "post",
                 onComplete: $scope.excelDownloadCallbackExcel,

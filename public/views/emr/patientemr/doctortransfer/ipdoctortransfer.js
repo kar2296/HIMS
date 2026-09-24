@@ -107,7 +107,7 @@
 
         $scope.saveItem = function () {
 
-            var actionName = 'Encounter/EncounterDoctor/ManageIPEncounterDoctor';
+            var actionName = 'Visit/EncounterDoctor/ManageIPEncounterDoctor';
             var details = getDetails();
             var options = {
                 action: actionName,

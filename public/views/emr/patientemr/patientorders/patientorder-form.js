@@ -219,6 +219,8 @@
                 RequestDate: $scope.item.OrderRequestDate,
                 ScheduleDate: $scope.item.OrderScheduleDate,
                 Status: 1,
+                // Explicit, like the other order screens: the column defaults to 1, which marked every line cancelled.
+                IsCanceled: 0,
                 ResourceId: -1,
                 tabindex: $scope.tabindexmap.detailtabindex++
             };
@@ -1170,7 +1172,7 @@
             ],
             searchparams: {},
             result: {},
-            api: 'Encounter/Visit/GetEncounters',
+            api: 'Visit/Visit/GetEncounters',
             presearch: presearchEncounter,
             formatdisplay: formatselectedEncounter,
             postsearch: postsearchEncounter
@@ -1385,7 +1387,9 @@
                 {
                     Key: 8,
                     Value: {
-                        'ServiceRateCategoryId': $scope.item.ServiceRateCategoryId
+                        'ServiceRateCategoryId': $scope.item.ServiceRateCategoryId,
+                        // tariffs are per facility; without it every test priced at 0 and could not be ordered
+                        'FacilityId': utl.Session.getCurrentFacilityId()
                     }
                 }
                 ],
