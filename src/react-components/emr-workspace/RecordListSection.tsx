@@ -1,7 +1,8 @@
 /**
  * Generic "list + add/edit/remove" section for EMR panels whose data entry already exists as a
  * proven AngularJS form (history, charts, checklists, requests…). The list renders in React from the
- * existing Get… endpoint; Add / Edit open the existing modal so validation and business rules are reused;
+ * existing Get… endpoint; Add / Edit open the existing modal so validation and business rules are reused
+ * (or a React form, when the config supplies `modal.form`);
  * Remove calls the existing Delete… endpoint.
  */
 import React, { useCallback, useState } from 'react';
@@ -18,6 +19,15 @@ import { InlineNotice, PanelSection, SimpleTable } from './EmrUi';
 export interface RecordColumn<T> {
   header: string;
   render: (row: T) => React.ReactNode;
+}
+
+/** Props of a React add/edit form used instead of the legacy modal (RecordListConfig.modal.form). */
+export interface RecordFormProps {
+  /** 0 = add a new record. */
+  recordId: number;
+  context: EmrWorkspaceContext;
+  onClose: () => void;
+  onSaved: () => void;
 }
 
 export interface RecordListConfig<T> {
@@ -37,6 +47,8 @@ export interface RecordListConfig<T> {
     addLabel?: string;
     /** Some legacy forms are create-only. */
     noEdit?: boolean;
+    /** React form to use instead of the legacy modal `name`. */
+    form?: React.ComponentType<RecordFormProps>;
   };
   /** Existing Delete… action ({ Id }). */
   deleteAction?: string;
@@ -56,7 +68,11 @@ type SectionProps<T> = Pick<EmrPanelProps, 'context' | 'encounter' | 'canEdit' |
 
 export function RecordListSection<T>({ config, dataKey, context, encounter, canEdit, openLegacyModal, onDataChanged }: SectionProps<T>) {
   const [pendingDelete, setPendingDelete] = useState<T | null>(null);
+  /** Open React form: record id (0 = new), or null when closed. */
+  const [formRecordId, setFormRecordId] = useState<number | null>(null);
   const { fetch } = config;
+  const FormComponent = config.modal?.form;
+  const canOpenForm = Boolean(FormComponent || openLegacyModal);
 
   const fetcher = useCallback(() => fetch(context, encounter), [fetch, context, encounter]);
   const { data: rows, loading, error, reload } = useAsyncData<T[]>(fetcher, [], { errorMessage: `Could not load ${config.title.toLowerCase()}.` });
@@ -67,7 +83,12 @@ export function RecordListSection<T>({ config, dataKey, context, encounter, canE
   };
 
   const openModal = (row?: T) => {
-    if (!config.modal || !openLegacyModal) return;
+    if (!config.modal) return;
+    if (FormComponent) {
+      setFormRecordId(Number((row as { Id?: number } | undefined)?.Id) || 0);
+      return;
+    }
+    if (!openLegacyModal) return;
     openLegacyModal(config.modal.name, config.modal.params(context, encounter, row), changed, { fixed: config.modal.fixed });
   };
 
@@ -99,7 +120,7 @@ export function RecordListSection<T>({ config, dataKey, context, encounter, canE
             Reload
           </Button>
           {config.modal && (
-            <Button size="sm" variant="outline-primary" icon="fa-solid fa-plus" onClick={() => openModal()} disabled={!canEdit || !openLegacyModal}>
+            <Button size="sm" variant="outline-primary" icon="fa-solid fa-plus" onClick={() => openModal()} disabled={!canEdit || !canOpenForm}>
               {config.modal.addLabel || 'Add'}
             </Button>
           )}
@@ -127,7 +148,7 @@ export function RecordListSection<T>({ config, dataKey, context, encounter, canE
                   <td style={{ textAlign: 'right', whiteSpace: 'nowrap' }}>
                     {config.rowActions?.(row, { reload, canEdit })}
                     {config.modal && !config.modal.noEdit && (
-                      <Button size="xs" variant="icon" icon="fa-solid fa-pen" title="Open" aria-label="Open record" disabled={!openLegacyModal} onClick={() => openModal(row)} />
+                      <Button size="xs" variant="icon" icon="fa-solid fa-pen" title="Open" aria-label="Open record" disabled={!canOpenForm} onClick={() => openModal(row)} />
                     )}
                     {config.deleteAction && (
                       <Button size="xs" variant="icon" icon="fa-solid fa-trash" title="Remove" aria-label="Remove record" disabled={!canEdit} onClick={() => setPendingDelete(row)} />
@@ -138,6 +159,17 @@ export function RecordListSection<T>({ config, dataKey, context, encounter, canE
             ))}
           </SimpleTable>
         </>
+      )}
+      {FormComponent && formRecordId !== null && (
+        <FormComponent
+          recordId={formRecordId}
+          context={context}
+          onClose={() => setFormRecordId(null)}
+          onSaved={() => {
+            setFormRecordId(null);
+            changed();
+          }}
+        />
       )}
       <ConfirmModal
         isOpen={pendingDelete !== null}

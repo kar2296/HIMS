@@ -16,6 +16,7 @@ import { spacing } from '../../../components/ui/tokens';
 import type { EmrPanelProps, EmrWorkspaceContext } from '../types';
 import { formatDate } from '../emrHelpers';
 import { RecordListSection, type RecordListConfig } from '../RecordListSection';
+import { ConditionFormModal } from './ConditionFormModal';
 
 type Row = Record<string, any>;
 
@@ -48,7 +49,7 @@ const PAST_MEDICAL: RecordListConfig<Row> = {
     { header: 'Comments', render: (r) => r.Comments || '—' },
   ],
   rowKey: (r) => r.Id,
-  modal: { name: 'patientemr.patientcondition', params: modalParams, addLabel: 'Add condition' },
+  modal: { name: 'patientemr.patientcondition', params: modalParams, addLabel: 'Add condition', form: ConditionFormModal },
   deleteAction: 'emr/patientcondition/DeletePatientCondition',
   deleteLabel: (r) => r.DiagnosisName || 'this condition',
 };
