@@ -936,36 +936,34 @@
             var activeRecords = $filter('filterArrayItems')($scope.prescriptionDetails, [
                 { search: 1, fields: ['Status'] }
             ]);
-            if (activeRecords.length == 1) {
-                utl.Alert.showErrorMsg($translate.instant('common.req-validation-msg.lbl'));
+            var drugLines = activeRecords.filter(function (line) {
+                return line.DrugId > 0 || line.GenericId > 0;
+            });
+            if (drugLines.length === 0) {
+                utl.Alert.showErrorMsg('Add at least one drug to the prescription.');
                 return false;
             }
-            for (var idx in activeRecords) {
-                var item = activeRecords[idx];
-                if ((item.DrugId > 0) && (!item.Dosage || item.Dosage === 0)) {
-                    utl.Alert.showErrorMsg($translate.instant('common.req-validation-msg.lbl'));
-                    $('#dgdoesage' + idx).focus();
-                    return false;
-                } else if ((item.DrugId > 0) && (!item.DrugRouteId || item.DrugRouteId == -1)) {
-                    utl.Alert.showErrorMsg($translate.instant('common.req-validation-msg.lbl'));
-                    $('#dgroute' + idx).focus();
-                    return false;
-                } else if ((item.DrugId > 0) && (!item.DrugFrequencyId || item.DrugFrequencyId == -1)) {
-                    utl.Alert.showErrorMsg($translate.instant('common.req-validation-msg.lbl'));
-                    $('#dgfreq' + idx).focus();
-                    return false;
-                } else if ((item.DrugId > 0) && (!item.Duration || item.Duration === 0)) {
-                    utl.Alert.showErrorMsg($translate.instant('common.req-validation-msg.lbl'));
-                    $('#dgduration' + idx).focus();
-                    return false;
-                } else if ((item.DrugId > 0) && (!item.DurationPeriodId || item.DurationPeriodId === 0)) {
-                    utl.Alert.showErrorMsg($translate.instant('common.req-validation-msg.lbl'));
-                    $('#dgduraperiod' + idx).focus();
-                    return false;
-                } else if ((item.DrugId > 0) && (!item.Quantity || item.Quantity == 0)) {
-                    utl.Alert.showErrorMsg($translate.instant('common.req-validation-msg.lbl'));
-                    $('#Quantity' + idx).focus();
-                    return false;
+            // [field check, label, element id prefix] -- ids use the row index of the visible (active) rows
+            var checks = [
+                [function (l) { return !l.Dosage || l.Dosage === 0 || l.Dosage === '0'; }, 'Dosage', '#dgdoesage'],
+                [function (l) { return !l.DrugRouteId || l.DrugRouteId == -1; }, 'Route', '#dgroute'],
+                [function (l) { return !l.DrugFrequencyId || l.DrugFrequencyId == -1; }, 'Frequency', '#dgfreq'],
+                [function (l) { return !l.Duration || l.Duration == 0; }, 'Duration', '#dgduration'],
+                [function (l) { return !l.DurationPeriodId || l.DurationPeriodId == 0 || l.DurationPeriodId == -1; }, 'Period', '#dgduraperiod'],
+                [function (l) { return !l.Quantity || l.Quantity == 0; }, 'Qty', '#Quantity']
+            ];
+            for (var idx = 0; idx < activeRecords.length; idx++) {
+                var line = activeRecords[idx];
+                if (!(line.DrugId > 0)) {
+                    continue;
+                }
+                for (var c = 0; c < checks.length; c++) {
+                    if (checks[c][0](line)) {
+                        var drugName = line.DrugName || (line.SelectedItem && line.SelectedItem.DrugName) || ('line ' + (idx + 1));
+                        utl.Alert.showErrorMsg('Please enter ' + checks[c][1] + ' for ' + drugName + '.');
+                        $(checks[c][2] + idx).focus();
+                        return false;
+                    }
                 }
             }
             return true;

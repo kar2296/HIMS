@@ -544,10 +544,12 @@
                     <tbody>
                         <tr ng-repeat="item in prescriptionDetails | filter:{Status:1}">
                             <td class="fs-12 iconsize" data-label="{{'patientemr.prescription-form.rxname.lbl' | translate}}" data-col="drug">
+                                <!-- the blank last row is ignored on save, so the drug is only required once the row has other data -->
                                 <autosearch controlid="'dgname'" itemid="item.DrugId" iteminfo="item.SelectedItem"
                                     name="'drug'" rowdata="item" config="vm.drugcontrolconfig" placeholder="'drug by name or code'" ng-if="!item.IsGeneric"
                                     itemchange="drugChanged($index,item)" class="inputsearchlogo"
-                                    candisable="IsDisabled" isrequired="true"></autosearch>
+                                    candisable="IsDisabled"
+                                    isrequired="item.Dosage > 0 || item.DrugRouteId > 0 || item.DrugFrequencyId > 0 || item.Duration > 0 || item.Quantity > 0"></autosearch>
                             </td>
                             <td class="fs-12 cstm_batch" data-label="{{'patientemr.prescription-form.generic.lbl' | translate}}">
                                 <span uib-tooltip="{{item.DrugGenericName}}"
