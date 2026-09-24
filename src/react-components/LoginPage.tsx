@@ -80,8 +80,8 @@ export const LoginPage: React.FC<LoginPageProps> = ({
       fontFamily: typography.fontFamily,
       backgroundColor: colors.surfaceMuted,
     }}>
-      {/* ── Left panel (brand / features) ── */}
-      <div style={{
+      {/* ── Left panel (brand / features) ── hidden on narrow screens (hims-modern-theme.css) */}
+      <div className="hims-login-hero" style={{
         flex: '0 0 45%',
         background: `linear-gradient(145deg, #0a0f1d 0%, #1e2d5a 60%, #1e293b 100%)`,
         display: 'flex',
@@ -241,6 +241,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({
                     onFocus={() => setUserFocused(true)}
                     onBlur={() => { setUserFocused(false); setTouched((p) => ({ ...p, username: true })); }}
                     placeholder="Enter your username"
+                    className="hims-login-input"
                     style={inputStyle(userFocused, !!usernameError)}
                     disabled={isLoading || isAccountLocked}
                   />
@@ -277,6 +278,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({
                     onFocus={() => setPassFocused(true)}
                     onBlur={() => { setPassFocused(false); setTouched((p) => ({ ...p, password: true })); }}
                     placeholder="Enter your password"
+                    className="hims-login-input hims-login-input--password"
                     style={{ ...inputStyle(passFocused, !!passwordError), paddingRight: '44px' }}
                     disabled={isLoading || isAccountLocked}
                   />
