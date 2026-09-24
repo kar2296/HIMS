@@ -1722,6 +1722,12 @@
         }
 
         $scope.getBillItems = function () {
+            // Only an existing admission has bills. With id 0 the server ignores the filter and would
+            // load every IP bill (up to 1000 with all includes), which exhausted the API's memory.
+            if (!($scope.currentcontext.id > 0)) {
+                $scope.billItemCount = 0;
+                return;
+            }
             var inputData = {
                 Params: [{
                     Key: 16,
