@@ -1,3 +1,4 @@
+import type React from 'react';
 /**
  * Shared types for the EMR Workspace.
  *
@@ -160,4 +161,9 @@ export interface EmrPanelProps extends EmrHostCallbacks {
   onDataChanged?: (panelKey: string) => void;
   /** Panels register their save handler here so the toolbar "Save" button can trigger it. */
   registerSaveHandler?: (handler: (() => Promise<boolean>) | null) => void;
+  /**
+   * Question panels only: the standard panel(s) to show while no questions are configured for this panel
+   * (picked from the panel name, e.g. "Diagnosis" -> Diagnosis panel). See panelRegistry.builtInPanelsForName.
+   */
+  fallbackPanels?: Array<{ label: string; component: React.FC<EmrPanelProps> }>;
 }

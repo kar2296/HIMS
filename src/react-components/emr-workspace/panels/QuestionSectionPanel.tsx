@@ -149,7 +149,8 @@ const SECTION_TYPE_CATEGORY: Record<number, string> = { 3: 'HPI', 4: 'ROS', 5: '
 
 /* ───────────────────────── component ───────────────────────── */
 
-export const QuestionSectionPanel: React.FC<EmrPanelProps> = ({ context, canEdit, section, registerSaveHandler, onDataChanged }) => {
+export const QuestionSectionPanel: React.FC<EmrPanelProps> = (props) => {
+  const { context, canEdit, section, registerSaveHandler, onDataChanged, fallbackPanels, navigateTo } = props;
   const sectionId = section?.Id;
   const sectionTypeId = section?.SectionTypeId ?? 2;
   const consultationId = context.consultationId;
@@ -286,10 +287,13 @@ export const QuestionSectionPanel: React.FC<EmrPanelProps> = ({ context, canEdit
     }
   }, [canEdit, sectionId, consultationId, categories, answers, context.encounterId, context.patientId, section, reload, onDataChanged]);
 
+  // No questions configured: the fallback panel (if any) owns the toolbar Save; otherwise there is nothing to save.
+  const noQuestions = !loading && !loadError && categories.length === 0;
   useEffect(() => {
+    if (noQuestions) return;
     registerSaveHandler?.(save);
     return () => registerSaveHandler?.(null);
-  }, [registerSaveHandler, save]);
+  }, [registerSaveHandler, save, noQuestions]);
 
   const answeredCount = useMemo(
     () => Object.values(answers).filter((a) => a.value !== '' && a.value !== 'false' && a.value !== '0' ? true : a.json.length > 0 || a.rich.trim() !== '').length,
@@ -319,7 +323,46 @@ export const QuestionSectionPanel: React.FC<EmrPanelProps> = ({ context, canEdit
     );
   }
   if (categories.length === 0) {
-    return <InlineNotice tone="info">This panel has no questions yet. Add elements to it in EMR Masters → Edit Panel.</InlineNotice>;
+    const panelName = section?.Name || 'This panel';
+    if (fallbackPanels && fallbackPanels.length > 0) {
+      const labels = fallbackPanels.map((f) => f.label).join(' and ');
+      return (
+        <div style={{ display: 'grid', gap: spacing.lg }}>
+          <InlineNotice tone="info">
+            “{panelName}” has no custom questions yet, so the standard {labels} {fallbackPanels.length > 1 ? 'panels are' : 'panel is'} shown.
+            {navigateTo && (
+              <>
+                {' '}
+                <Button size="xs" variant="link" onClick={() => navigateTo('app.emrpaneleditor')}>
+                  Add questions in EMR Panel Editor
+                </Button>
+              </>
+            )}
+          </InlineNotice>
+          {fallbackPanels.map((f, i) => {
+            const Fallback = f.component;
+            // Only the first panel may own the toolbar "Save" (one handler at a time).
+            return <Fallback key={f.label} {...props} fallbackPanels={undefined} registerSaveHandler={i === 0 ? registerSaveHandler : undefined} />;
+          })}
+        </div>
+      );
+    }
+    return (
+      <PanelSection title={panelName} icon="fa-solid fa-clipboard-list">
+        <div style={{ textAlign: 'center', padding: `${spacing.xl} ${spacing.lg}`, display: 'grid', gap: spacing.sm, justifyItems: 'center' }}>
+          <i className="fa-solid fa-list-check" style={{ fontSize: 28, color: colors.textSubtle }} aria-hidden="true" />
+          <div style={{ ...typography.body, fontWeight: 600, color: colors.textMain }}>No questions are set up for “{panelName}” yet</div>
+          <div style={{ ...typography.caption, color: colors.textMuted, maxWidth: 460 }}>
+            Add the questions, check-lists or note fields this panel should collect in EMR Panel Editor. They will appear here for every visit entry that uses this EMR form.
+          </div>
+          {navigateTo && (
+            <Button size="sm" variant="outline-primary" icon="fa-solid fa-pen-to-square" onClick={() => navigateTo('app.emrpaneleditor')}>
+              Set up this panel
+            </Button>
+          )}
+        </div>
+      </PanelSection>
+    );
   }
 
   const disabled = !canEdit;

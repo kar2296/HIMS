@@ -29,7 +29,7 @@ import type {
   SectionSetting,
   WorkspaceTab,
 } from './types';
-import { DEFAULT_TABS, resolvePanel, savesFromToolbar } from './panelRegistry';
+import { DEFAULT_TABS, builtInPanelsForName, isQuestionSection, resolvePanel, savesFromToolbar } from './panelRegistry';
 import { cleanLookup, STATUS } from './emrHelpers';
 import { useAsyncData } from './useAsyncData';
 import { missingMandatoryPanels } from './completeness';
@@ -476,6 +476,7 @@ export const EmrWorkspaceScreen: React.FC<EmrWorkspaceScreenProps> = ({ reactPro
                   downloadFile={downloadFile}
                   onDataChanged={onDataChanged}
                   registerSaveHandler={isActive ? registerSaveHandler : undefined}
+                  fallbackPanels={tab.section && isQuestionSection(tab.section) ? builtInPanelsForName(tab.section.Name) : undefined}
                 />
               </div>
             );

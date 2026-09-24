@@ -69,6 +69,41 @@ export const PANEL_TYPES: PanelType[] = [
 
 const BY_SREF = new Map(PANEL_TYPES.map((p) => [p.sref, p]));
 
+/**
+ * Question panels named after a clinical area ("Diagnosis", "Complaints & History", "Treatment Plan"…) but
+ * with no questions configured yet show the matching standard panel(s) -- the same ones "New entry" uses --
+ * so the doctor can still record that part of the visit. Every matching rule contributes (in order), so
+ * "Complaints & History" gets CC / HPI and the medical / family / social history. "Other …" panels are
+ * free-form add-ons to a standard panel that is usually on the form already, so they get no fallback.
+ */
+const NAME_FALLBACKS: Array<[RegExp, string]> = [
+  [/vital/i, 'emr.cn.vital'],
+  [/complaint|\bhpi\b|presenting|present(ing)? illness/i, 'emr.cn.clinicalnotes'],
+  [/allerg/i, 'emr.cn.allergy'],
+  [/complaints? (&|and) history|medical history|family history|social history|past history/i, 'emr.ws.history'],
+  [/diagnos|impression|assessment/i, 'emr.cn.diagnosis'],
+  [/prescription|medication|\brx\b/i, 'emr.cn.prescription'],
+  [/investigation|lab order|\bservices?\b|procedure order/i, 'emr.cn.order'],
+  [/treatment plan/i, 'emr.cn.treatmentplan'],
+  [/admission/i, 'emr.ws.admission'],
+  [/discharge/i, 'emr.ws.dischargesummary'],
+  [/surgery|surgical advice|\bot booking/i, 'emr.ws.surgerybooking'],
+  [/previous (visit|note)/i, 'emr.cn.previousnotes'],
+  [/lab result/i, 'emr.cn.labresults'],
+  [/radiology/i, 'emr.cn.radiologyresults'],
+];
+
+export type FallbackPanel = { label: string; component: React.FC<EmrPanelProps> };
+
+export const builtInPanelsForName = (name?: string | null): FallbackPanel[] => {
+  if (!name || /^\s*other\b/i.test(name)) return [];
+  const srefs = Array.from(new Set(NAME_FALLBACKS.filter(([re]) => re.test(name)).map(([, sref]) => sref)));
+  return srefs
+    .map((sref) => BY_SREF.get(sref))
+    .filter((t): t is PanelType => Boolean(t))
+    .map((t) => ({ label: t.label, component: t.component }));
+};
+
 /** Section types (reference values) used by question panels: 2 question, 3 HPI, 4 ROS, 5 PE. */
 export const QUESTION_SECTION_TYPES = [2, 3, 4, 5];
 
