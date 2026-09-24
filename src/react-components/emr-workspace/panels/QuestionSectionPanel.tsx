@@ -123,6 +123,20 @@ interface Answer {
 }
 
 const emptyAnswer = (): Answer => ({ value: '', json: [], rich: '', comments: '' });
+/**
+ * A term is identified by its Code (answers are stored per Code), so a term entered twice in the master
+ * (e.g. "Renal" listed twice under Health History) would show two buttons that toggle together and save
+ * the same answer twice. Keep the first one.
+ */
+const uniqueTerms = (terms: Term[]): Term[] => {
+  const seen = new Set<string>();
+  return terms.filter((t) => {
+    const code = String(t.Code ?? '');
+    if (seen.has(code)) return false;
+    seen.add(code);
+    return true;
+  });
+};
 /** Draft = typed answers only (no saved entry ids); empty answers left out so the comparison is stable. */
 type AnswersDraft = Record<string, [string, any[], string, string]>;
 const toAnswersDraft = (answers: Record<string, Answer>): AnswersDraft => {
@@ -155,7 +169,7 @@ const categoriesOf = (def: SectionDefinition | Category[] | null): Category[] =>
     .filter((cat) => cat.Concepts && cat.Concepts.length > 0)
     .map((cat) => ({
       ...cat,
-      Concepts: (cat.Concepts || []).slice().sort(byOrder).map((c) => ({ ...c, Terms: (c.Terms || []).slice().sort(byOrder) })),
+      Concepts: (cat.Concepts || []).slice().sort(byOrder).map((c) => ({ ...c, Terms: uniqueTerms((c.Terms || []).slice().sort(byOrder)) })),
     }));
 };
 

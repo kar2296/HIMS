@@ -56,6 +56,13 @@
                     "CanEquipmentUsage": CanEquipmentUsage,
                     "Canbloodbank":Canbloodbank,
                     "Canipform":Canipform,
+                    // Requested by the patient EMR sidebar (app.js) but not configured for any role yet.
+                    "CanLocalWellOrders": notConfigured,
+                    "Cannew_born": notConfigured,
+                    "Canpatient_Labour": notConfigured,
+                    "CantaskAssignment": notConfigured,
+                    "CanIncident": notConfigured,
+                    "CanpackageeditButton": notConfigured,
 
 
 
@@ -3335,6 +3342,11 @@
                     return false;
                 }
 
+
+                /** Known key with no role configuration: not granted (same result as before, without the log). */
+                function notConfigured() {
+                    return false;
+                }
 
                 var hasAccess = function (key) {
                     try {
