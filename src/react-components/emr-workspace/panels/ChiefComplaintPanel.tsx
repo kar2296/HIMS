@@ -19,6 +19,8 @@ import type { EmrPanelProps, LookupItem } from '../types';
 import { formatDateTime, toSelectOptions } from '../emrHelpers';
 import { useAsyncData } from '../useAsyncData';
 import { InlineNotice, PanelSection } from '../EmrUi';
+import { draftKey, useEmrDraft } from '../useEmrDraft';
+import { DraftBanners, DraftStatusChip } from '../DraftStatus';
 
 interface ClinicalNote {
   Id?: number;
@@ -65,6 +67,21 @@ const HPI_FIELDS: { key: keyof ClinicalNote; label: string; placeholder: string 
 
 const EMPTY_NOTE: ClinicalNote = { ChiefComplaints: '', DurationCount: null, IllnessDurationTypeId: 1, IllnessTypeId: null };
 
+/** Fields the doctor types -- what the draft keeps (never server ids / timestamps). */
+const DRAFT_FIELDS: (keyof ClinicalNote)[] = [
+  'ChiefComplaints', 'IllnessTypeId', 'DurationCount', 'IllnessDurationTypeId',
+  ...HPI_FIELDS.map((f) => f.key), 'AdditionalNotes', 'TreatmentComments',
+];
+type NoteDraft = Partial<Record<keyof ClinicalNote, any>>;
+const toDraft = (n: ClinicalNote): NoteDraft => {
+  const out: NoteDraft = {};
+  DRAFT_FIELDS.forEach((k) => {
+    const v = n[k];
+    out[k] = v === undefined || v === '' ? null : v;
+  });
+  return out;
+};
+
 interface CcData {
   lookups: Lookups;
   note: ClinicalNote;
@@ -77,6 +94,8 @@ export const ChiefComplaintPanel: React.FC<EmrPanelProps> = ({ context, canEdit:
   const canEdit = canEditVisit && !signed;
   const [saving, setSaving] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+  /** The note as last loaded from / saved to the server (draft comparison). */
+  const [baseline, setBaseline] = useState<NoteDraft | undefined>(undefined);
 
 
   const fetcher = useCallback(async (): Promise<CcData> => {
@@ -100,6 +119,7 @@ export const ChiefComplaintPanel: React.FC<EmrPanelProps> = ({ context, canEdit:
     errorMessage: 'Could not load the clinical note.',
     onSuccess: (data) => {
       setNote(data.note);
+      setBaseline(toDraft(data.note));
       setFieldErrors({});
     },
   });
@@ -120,40 +140,63 @@ export const ChiefComplaintPanel: React.FC<EmrPanelProps> = ({ context, canEdit:
     return errs;
   };
 
-  const save = useCallback(async (): Promise<boolean> => {
-    if (!canEdit) {
-      alert.showErrorMsg('Open a visit before recording the complaint.');
-      return false;
-    }
-    const errs = validate();
-    setFieldErrors(errs);
-    if (Object.keys(errs).length) {
-      alert.showErrorMsg('Please complete the required fields.');
-      return false;
-    }
-    const payload: ClinicalNote = {
-      ...note,
-      ChiefComplaints: note.ChiefComplaints?.trim(),
-      DurationCount: Number(note.DurationCount),
-      PatientId: context.patientId,
-      EncounterId: context.encounterId,
-      ConsultationId: context.consultationId ?? note.ConsultationId ?? null,
-    };
-    const action = note.Id ? 'emr/PatientClinicalNotes/UpdatePatientClinicalNotes' : 'emr/PatientClinicalNotes/AddPatientClinicalNotes';
-    setSaving(true);
-    try {
-      await apiFetch(action, { Data: payload });
-      alert.showSuccessMsg('Chief complaint & HPI saved');
-      reload();
-      onDataChanged?.('cc-hpi');
-      return true;
-    } catch {
-      return false;
-    } finally {
-      setSaving(false);
-    }
+  /** Saves the note. Silent = auto-save: no messages, skipped while required fields are missing. */
+  const persist = useCallback(
+    async (silent: boolean): Promise<boolean> => {
+      if (!canEdit) {
+        if (!silent) alert.showErrorMsg('Open a visit before recording the complaint.');
+        return false;
+      }
+      const errs = validate();
+      if (!silent) setFieldErrors(errs);
+      if (Object.keys(errs).length) {
+        if (!silent) alert.showErrorMsg('Please complete the required fields.');
+        return false;
+      }
+      const snapshot = note;
+      const payload: ClinicalNote = {
+        ...note,
+        ChiefComplaints: note.ChiefComplaints?.trim(),
+        DurationCount: Number(note.DurationCount),
+        PatientId: context.patientId,
+        EncounterId: context.encounterId,
+        ConsultationId: context.consultationId ?? note.ConsultationId ?? null,
+      };
+      const action = note.Id ? 'emr/PatientClinicalNotes/UpdatePatientClinicalNotes' : 'emr/PatientClinicalNotes/AddPatientClinicalNotes';
+      if (!silent) setSaving(true);
+      try {
+        const res = await apiFetch(action, { Data: payload });
+        if (silent) {
+          // Keep what the user may have typed meanwhile; only adopt the new record id.
+          const newId = !note.Id && typeof res === 'number' ? res : undefined;
+          if (newId) setNote((prev) => ({ ...prev, Id: prev.Id || newId }));
+          setBaseline(toDraft(snapshot));
+          return true;
+        }
+        alert.showSuccessMsg('Chief complaint & HPI saved');
+        reload();
+        onDataChanged?.('cc-hpi');
+        return true;
+      } catch {
+        return false;
+      } finally {
+        if (!silent) setSaving(false);
+      }
+    },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [canEdit, note, context, reload, onDataChanged]);
+    [canEdit, note, context, reload, onDataChanged],
+  );
+  const save = useCallback(() => persist(false), [persist]);
+  const autoSave = useCallback(() => persist(true), [persist]);
+
+  const draft = useEmrDraft<NoteDraft>({
+    storageKey: canEdit ? draftKey(context.userId, context.consultationId, 'cchpi') : null,
+    value: toDraft(note),
+    baseline,
+    onRestore: (d) => setNote((prev) => ({ ...prev, ...d })),
+    autoSave,
+    canAutoSave: canEdit && Object.keys(validate()).length === 0,
+  });
 
   useEffect(() => {
     registerSaveHandler?.(save);
@@ -182,12 +225,16 @@ export const ChiefComplaintPanel: React.FC<EmrPanelProps> = ({ context, canEdit:
   return (
     <div style={{ display: 'grid', gap: spacing.lg }}>
       {signed && <InlineNotice tone="info">This clinical note is signed and locked. Use the Addendum panel to add late changes.</InlineNotice>}
+      <DraftBanners draft={draft} />
       <PanelSection
         title="Chief Complaint"
         icon="fa-solid fa-comment-medical"
         actions={
           <>
-            {note.Id && <span style={{ fontSize: 12, color: '#64748b' }}>Last saved {formatDateTime(note.UpdatedAt || note.CreatedAt)}</span>}
+            <DraftStatusChip draft={draft} serverAutoSave />
+            {note.Id && draft.status !== 'unsaved' && draft.status !== 'saving' && !draft.savedAt && (
+              <span style={{ fontSize: 12, color: '#64748b' }}>Last saved {formatDateTime(note.UpdatedAt || note.CreatedAt)}</span>
+            )}
             <Button size="sm" variant="primary" icon="fa-solid fa-floppy-disk" onClick={save} loading={saving} loadingText="Saving…" disabled={!canEdit}>
               Save
             </Button>

@@ -25,6 +25,8 @@ import type { EmrPanelProps } from '../types';
 import { errorText } from '../emrHelpers';
 import { FieldRow, InlineNotice, PanelSection } from '../EmrUi';
 import { SearchPicker } from '../SearchPicker';
+import { draftKey, useEmrDraft } from '../useEmrDraft';
+import { DraftBanners, DraftStatusChip } from '../DraftStatus';
 
 /* ───────────────────────── definition model ───────────────────────── */
 
@@ -121,6 +123,18 @@ interface Answer {
 }
 
 const emptyAnswer = (): Answer => ({ value: '', json: [], rich: '', comments: '' });
+/** Draft = typed answers only (no saved entry ids); empty answers left out so the comparison is stable. */
+type AnswersDraft = Record<string, [string, any[], string, string]>;
+const toAnswersDraft = (answers: Record<string, Answer>): AnswersDraft => {
+  const out: AnswersDraft = {};
+  Object.keys(answers)
+    .sort()
+    .forEach((k) => {
+      const a = answers[k];
+      if (a && (a.value !== '' || a.json.length || a.rich.trim() || a.comments.trim())) out[k] = [a.value, a.json, a.rich, a.comments];
+    });
+  return out;
+};
 const conceptKey = (cat: Category, c: Concept) => `${cat.CategoryIdentifier}.${c.ConceptIdentifier}`;
 const termKey = (cat: Category, c: Concept, t: Term) => `${conceptKey(cat, c)}.${t.Code}`;
 const truthy = (v: unknown) => v === true || v === 1 || v === '1' || v === 'true';
@@ -163,6 +177,7 @@ export const QuestionSectionPanel: React.FC<EmrPanelProps> = (props) => {
   const [missing, setMissing] = useState<string[]>([]);
   const [openComments, setOpenComments] = useState<Record<string, boolean>>({});
   const [reloadKey, setReloadKey] = useState(0);
+  const [baseline, setBaseline] = useState<AnswersDraft | undefined>(undefined);
 
   // Definition first, then answers (answers are keyed by the definition's identifiers).
   useEffect(() => {
@@ -187,8 +202,10 @@ export const QuestionSectionPanel: React.FC<EmrPanelProps> = (props) => {
           PageContext: { PageSize: 500, PageNumber: 1 },
         });
         if (!active) return;
+        const built = buildAnswers(defs, saved?.Data || []);
         setCategories(defs);
-        setAnswers(buildAnswers(defs, saved?.Data || []));
+        setAnswers(built);
+        setBaseline(toAnswersDraft(built));
         setMissing([]);
         setLoadError(null);
       } catch (err: any) {
@@ -220,11 +237,13 @@ export const QuestionSectionPanel: React.FC<EmrPanelProps> = (props) => {
 
   /* ───────────── save ───────────── */
 
-  const save = useCallback(async (): Promise<boolean> => {
+  /** Saves the answers. Silent = auto-save: no messages; skipped while mandatory answers are missing. */
+  const persist = useCallback(async (silent: boolean): Promise<boolean> => {
     if (!canEdit || !sectionId || !consultationId) {
-      alert.showErrorMsg('Start a visit entry before filling this panel.');
+      if (!silent) alert.showErrorMsg('Start a visit entry before filling this panel.');
       return false;
     }
+    const snapshot = toAnswersDraft(answers);
     // Mandatory concepts
     const req: string[] = [];
     categories.forEach((cat) =>
@@ -240,9 +259,9 @@ export const QuestionSectionPanel: React.FC<EmrPanelProps> = (props) => {
         if (empty) req.push(conceptKey(cat, c));
       }),
     );
-    setMissing(req);
+    if (!silent) setMissing(req);
     if (req.length) {
-      alert.showErrorMsg('Please answer the mandatory questions (marked *).');
+      if (!silent) alert.showErrorMsg('Please answer the mandatory questions (marked *).');
       return false;
     }
 
@@ -273,9 +292,29 @@ export const QuestionSectionPanel: React.FC<EmrPanelProps> = (props) => {
       }),
     );
 
-    setSaving(true);
+    if (!silent) setSaving(true);
     try {
       await apiFetch('emr/CategorySectionEntry/ManageCategorySectionEntries', { Data: { details } });
+      if (silent) {
+        // Adopt the saved entry ids (next save updates them), keeping anything typed meanwhile.
+        const saved = await apiFetch('emr/CategorySectionEntry/GetCategorySectionEntrys', {
+          Params: [
+            { Key: 2, Value: sectionId },
+            { Key: 3, Value: consultationId },
+          ],
+          PageContext: { PageSize: 500, PageNumber: 1 },
+        });
+        const fresh = buildAnswers(categories, saved?.Data || []);
+        setAnswers((prev) => {
+          const next: Record<string, Answer> = { ...prev };
+          Object.keys(fresh).forEach((k) => {
+            if (fresh[k].entryId) next[k] = { ...(next[k] || emptyAnswer()), entryId: fresh[k].entryId };
+          });
+          return next;
+        });
+        setBaseline(snapshot);
+        return true;
+      }
       alert.showSuccessMsg(`${section?.Name || 'Panel'} saved`);
       reload();
       onDataChanged?.(`section-${sectionId}`);
@@ -283,9 +322,47 @@ export const QuestionSectionPanel: React.FC<EmrPanelProps> = (props) => {
     } catch {
       return false;
     } finally {
-      setSaving(false);
+      if (!silent) setSaving(false);
     }
   }, [canEdit, sectionId, consultationId, categories, answers, context.encounterId, context.patientId, section, reload, onDataChanged]);
+  const save = useCallback(() => persist(false), [persist]);
+  const autoSave = useCallback(() => persist(true), [persist]);
+
+  const mandatoryMissing = useMemo(() => {
+    let missingAny = false;
+    categories.forEach((cat) =>
+      (cat.Concepts || []).forEach((c) => {
+        if (!c.IsMandatory || missingAny) return;
+        const kind = kindOf(c);
+        if (kind === 'multi') {
+          if (!(c.Terms || []).some((t) => truthy(answers[termKey(cat, c, t)]?.value))) missingAny = true;
+          return;
+        }
+        const a = answers[conceptKey(cat, c)] || emptyAnswer();
+        const empty = kind === 'cpt' || kind === 'icd' ? a.json.length === 0 : kind === 'notes' || kind === 'rich' ? !a.rich.replace(/<[^>]*>/g, '').trim() : a.value === '';
+        if (empty) missingAny = true;
+      }),
+    );
+    return missingAny;
+  }, [categories, answers]);
+
+  const draft = useEmrDraft<AnswersDraft>({
+    storageKey: canEdit && categories.length > 0 ? draftKey(context.userId, consultationId, 'section', sectionId) : null,
+    value: toAnswersDraft(answers),
+    baseline,
+    onRestore: (d) =>
+      setAnswers((prev) => {
+        const next: Record<string, Answer> = {};
+        new Set([...Object.keys(prev), ...Object.keys(d)]).forEach((k) => {
+          const v = d[k];
+          next[k] = v ? { value: v[0], json: v[1], rich: v[2], comments: v[3], entryId: prev[k]?.entryId } : { ...emptyAnswer(), entryId: prev[k]?.entryId };
+        });
+        return next;
+      }),
+    autoSave,
+    canAutoSave: canEdit && categories.length > 0 && !mandatoryMissing,
+  });
+
 
   // No questions configured: the fallback panel (if any) owns the toolbar Save; otherwise there is nothing to save.
   const noQuestions = !loading && !loadError && categories.length === 0;
@@ -515,11 +592,13 @@ export const QuestionSectionPanel: React.FC<EmrPanelProps> = (props) => {
 
   return (
     <div style={{ display: 'grid', gap: spacing.lg }}>
+      <DraftBanners draft={draft} />
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: spacing.sm, flexWrap: 'wrap' }}>
         <span style={{ ...typography.caption, color: colors.textSubtle }}>
           {answeredCount} answered · questions marked <span style={{ color: colors.danger }}>*</span> are required
         </span>
-        <div style={{ display: 'flex', gap: spacing.sm }}>
+        <div style={{ display: 'flex', gap: spacing.sm, alignItems: 'center', flexWrap: 'wrap' }}>
+          <DraftStatusChip draft={draft} serverAutoSave />
           <Button size="sm" variant="outline-secondary" icon="fa-solid fa-rotate" onClick={reload} disabled={saving}>
             Reload
           </Button>

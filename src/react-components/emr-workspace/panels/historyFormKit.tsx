@@ -8,6 +8,8 @@ import { Modal } from '../../../components/ui/Modal';
 import { colors, radii, spacing, typography } from '../../../components/ui/tokens';
 import type { LookupItem } from '../types';
 import { InlineNotice } from '../EmrUi';
+import { DraftBanners, DraftStatusChip } from '../DraftStatus';
+import type { UseEmrDraftResult } from '../useEmrDraft';
 
 export const FieldError: React.FC<{ show: boolean; children: React.ReactNode }> = ({ show, children }) =>
   show ? <div style={{ ...typography.caption, color: colors.dangerText, marginTop: 6 }}>{children}</div> : null;
@@ -87,7 +89,9 @@ export const HistoryFormShell: React.FC<{
   onClose: () => void;
   onSave: () => void;
   children: React.ReactNode;
-}> = ({ title, saveLabel, loading, saving, error, onClose, onSave, children }) => (
+  /** Local draft of this form (useEmrDraft): shows "draft restored" and the draft status. */
+  draft?: UseEmrDraftResult<unknown>;
+}> = ({ title, saveLabel, loading, saving, error, onClose, onSave, children, draft }) => (
   <Modal
     isOpen
     portal
@@ -95,7 +99,12 @@ export const HistoryFormShell: React.FC<{
     onClose={onClose}
     width="680px"
     footer={
-      <div style={{ display: 'flex', justifyContent: 'flex-end', gap: spacing.sm }}>
+      <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: spacing.sm, flexWrap: 'wrap' }}>
+        {draft && (
+          <span style={{ marginRight: 'auto' }}>
+            <DraftStatusChip draft={draft} serverAutoSave={false} />
+          </span>
+        )}
         <Button variant="outline-secondary" onClick={onClose} disabled={saving}>
           Cancel
         </Button>
@@ -109,6 +118,7 @@ export const HistoryFormShell: React.FC<{
       <div style={{ padding: spacing.lg, ...typography.body, color: colors.textMuted }}>Loading…</div>
     ) : (
       <div style={{ display: 'grid', gap: spacing.lg }}>
+        {draft && <DraftBanners draft={draft} />}
         {error && <InlineNotice tone="danger">{error}</InlineNotice>}
         {children}
       </div>

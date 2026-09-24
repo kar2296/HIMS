@@ -22,6 +22,8 @@ import { calculateBmi, cleanLookup, qualifierIdFor, rangeStatus } from '../emrHe
 import { useAsyncData } from '../useAsyncData';
 import { FieldRow, InlineNotice, PainScale, PanelSection, RangeFlag } from '../EmrUi';
 import { AllergyList } from './AllergyPanel';
+import { draftKey, useEmrDraft } from '../useEmrDraft';
+import { DraftBanners, DraftStatusChip } from '../DraftStatus';
 
 interface VitalMaster extends LookupItem {
   VitalName: string;
@@ -71,6 +73,25 @@ const kindOf = (m: VitalMaster): VitalKind => {
 
 const emptyEntry = (): VitalEntry => ({ value: '', value1: '', value2: '' });
 
+/** What the draft keeps: typed values only (never saved reading ids). */
+interface VitalsDraft {
+  values: Record<string, [string, string, string]>;
+  performedAt: string;
+  notes: string;
+  /** Typed on a "New reading" (restoring must not overwrite the earlier set). */
+  newReading: boolean;
+}
+const toVitalsDraft = (entries: Record<number, VitalEntry>, performedAt: string, notes: string, newReading: boolean): VitalsDraft => {
+  const values: Record<string, [string, string, string]> = {};
+  Object.keys(entries)
+    .sort()
+    .forEach((id) => {
+      const e = entries[Number(id)];
+      if (e && (e.value.trim() || e.value1.trim() || e.value2.trim())) values[id] = [e.value.trim(), e.value1.trim(), e.value2.trim()];
+    });
+  return { values, performedAt, notes: notes.trim(), newReading };
+};
+
 /** datetime-local value for "now". */
 const nowLocalInput = () => {
   const d = new Date();
@@ -118,6 +139,8 @@ export const VitalsPanel: React.FC<EmrPanelProps> = ({ context, encounter, canEd
   const [errors, setErrors] = useState<Record<number, string>>({});
   /** GroupId of the reading set being edited; undefined = a new set (server assigns one). */
   const [groupId, setGroupId] = useState<number | undefined>(undefined);
+  const [newReading, setNewReading] = useState(false);
+  const [baseline, setBaseline] = useState<VitalsDraft | undefined>(undefined);
 
 
   /* ───────────── data loading ───────────── */
@@ -137,11 +160,15 @@ export const VitalsPanel: React.FC<EmrPanelProps> = ({ context, encounter, canEd
       }
       next[r.VitalId] = entry;
     });
+    const at = latestRows[0]?.PerformedDate ? toLocalInput(latestRows[0].PerformedDate) : nowLocalInput();
+    const loadedNotes = latestRows.find((r) => r.Comments)?.Comments || '';
     setEntries(next);
     setGroupId(latestGroup);
     setErrors({});
-    setPerformedAt(latestRows[0]?.PerformedDate ? toLocalInput(latestRows[0].PerformedDate) : nowLocalInput());
-    setNotes(latestRows.find((r) => r.Comments)?.Comments || '');
+    setPerformedAt(at);
+    setNotes(loadedNotes);
+    setNewReading(false);
+    setBaseline(toVitalsDraft(next, at, loadedNotes, false));
   };
 
   const vitalsFetcher = useCallback(() => fetchVitalsData(context.patientId, context.encounterId), [context.patientId, context.encounterId]);
@@ -194,17 +221,19 @@ export const VitalsPanel: React.FC<EmrPanelProps> = ({ context, encounter, canEd
     return errs;
   };
 
-  const save = useCallback(async (): Promise<boolean> => {
+  /** Saves the reading set. Silent = auto-save: no messages; skipped while something is invalid. */
+  const persist = useCallback(async (silent: boolean): Promise<boolean> => {
     if (!canEdit) {
-      alert.showErrorMsg('Open a visit before recording vitals.');
+      if (!silent) alert.showErrorMsg('Open a visit before recording vitals.');
       return false;
     }
     const errs = validate();
-    setErrors(errs);
+    if (!silent) setErrors(errs);
     if (Object.keys(errs).length > 0) {
-      alert.showErrorMsg('Please correct the highlighted vitals.');
+      if (!silent) alert.showErrorMsg('Please correct the highlighted vitals.');
       return false;
     }
+    const snapshot = toVitalsDraft(entries, performedAt, notes, newReading);
 
     const performedDate = new Date(performedAt);
     const rows: any[] = [];
@@ -247,13 +276,31 @@ export const VitalsPanel: React.FC<EmrPanelProps> = ({ context, encounter, canEd
     });
 
     if (rows.length === 0) {
-      alert.showInfoMsg('Enter at least one vital reading.');
+      if (!silent) alert.showInfoMsg('Enter at least one vital reading.');
       return false;
     }
 
-    setSaving(true);
+    if (!silent) setSaving(true);
     try {
       await apiFetch('emr/patientvital/ManagePatientVitals', { Data: rows });
+      if (silent) {
+        // Adopt the saved reading ids (so the next save updates them) but keep anything typed meanwhile.
+        const fresh = await fetchVitalsData(context.patientId, context.encounterId);
+        const latest = fresh.rows.reduce<number | undefined>((acc, r) => (r.GroupId !== undefined && r.GroupId !== null && (acc === undefined || r.GroupId > acc) ? r.GroupId : acc), undefined);
+        const latestRows = latest === undefined ? fresh.rows : fresh.rows.filter((r) => r.GroupId === latest);
+        const idByVital = new Map(latestRows.map((r) => [r.VitalId, r.Id]));
+        setGroupId(latest);
+        setNewReading(false);
+        setEntries((prev) => {
+          const next: Record<number, VitalEntry> = {};
+          Object.keys(prev).forEach((id) => {
+            next[Number(id)] = { ...prev[Number(id)], existingId: idByVital.get(Number(id)) };
+          });
+          return next;
+        });
+        setBaseline({ ...snapshot, newReading: false });
+        return true;
+      }
       alert.showSuccessMsg('Vitals saved');
       reloadVitals();
       onDataChanged?.('vitals');
@@ -261,10 +308,38 @@ export const VitalsPanel: React.FC<EmrPanelProps> = ({ context, encounter, canEd
     } catch {
       return false; // utl.Http already showed the server's error toast
     } finally {
-      setSaving(false);
+      if (!silent) setSaving(false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [canEdit, masters, entries, computedBmi, performedAt, notes, groupId, context, encounter, reloadVitals, onDataChanged]);
+  }, [canEdit, masters, entries, computedBmi, performedAt, notes, groupId, newReading, context, encounter, reloadVitals, onDataChanged]);
+  const save = useCallback(() => persist(false), [persist]);
+  const autoSave = useCallback(() => persist(true), [persist]);
+
+  const vitalsDraftValue = toVitalsDraft(entries, performedAt, notes, newReading);
+  const hasAnyValue = Object.keys(vitalsDraftValue.values).length > 0;
+  const draft = useEmrDraft<VitalsDraft>({
+    storageKey: canEdit ? draftKey(context.userId, context.consultationId, 'vitals') : null,
+    value: vitalsDraftValue,
+    baseline,
+    onRestore: (d) => {
+      setEntries((prev) => {
+        const next: Record<number, VitalEntry> = {};
+        const ids = new Set([...Object.keys(prev), ...Object.keys(d.values)]);
+        ids.forEach((id) => {
+          const v = d.values[id] || ['', '', ''];
+          next[Number(id)] = { value: v[0], value1: v[1], value2: v[2], existingId: d.newReading ? undefined : prev[Number(id)]?.existingId };
+        });
+        return next;
+      });
+      if (d.newReading) setGroupId(undefined);
+      setNewReading(d.newReading);
+      setPerformedAt(d.performedAt);
+      setNotes(d.notes);
+    },
+    autoSave,
+    canAutoSave: canEdit && hasAnyValue && Object.keys(validate()).length === 0,
+  });
+
 
   useEffect(() => {
     registerSaveHandler?.(save);
@@ -273,11 +348,15 @@ export const VitalsPanel: React.FC<EmrPanelProps> = ({ context, encounter, canEd
 
   /** Start a fresh set of readings (e.g. repeat observation later in the same visit). */
   const startNewReading = () => {
+    const at = nowLocalInput();
     setEntries({});
     setErrors({});
     setGroupId(undefined);
     setNotes('');
-    setPerformedAt(nowLocalInput());
+    setPerformedAt(at);
+    setNewReading(true);
+    // An empty new reading is not an unsaved change.
+    setBaseline(toVitalsDraft({}, at, '', true));
   };
 
 
@@ -344,11 +423,13 @@ export const VitalsPanel: React.FC<EmrPanelProps> = ({ context, encounter, canEd
   return (
     <div style={{ display: 'grid', gap: spacing.lg }}>
 
+      <DraftBanners draft={draft} />
       <PanelSection
         title="Vital Signs"
         icon="fa-solid fa-heart-pulse"
         actions={
           <>
+            <DraftStatusChip draft={draft} serverAutoSave />
             <Button size="sm" variant="outline-secondary" icon="fa-solid fa-rotate" onClick={reloadVitals} disabled={loading || saving}>
               Reload
             </Button>

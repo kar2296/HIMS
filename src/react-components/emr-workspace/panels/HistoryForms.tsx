@@ -23,6 +23,7 @@ import { useAsyncData } from '../useAsyncData';
 import { SearchPicker } from '../SearchPicker';
 import type { RecordFormProps } from '../RecordListSection';
 import { ChoiceButtons, FieldError, FieldLabel, FormRow, HistoryFormShell, PickedCard } from './historyFormKit';
+import { draftKey, useEmrDraft } from '../useEmrDraft';
 import { saveHistoryRecord, today } from './historyFormUtils';
 
 type Rec = Record<string, any>;
@@ -46,14 +47,29 @@ function useHistoryForm(entity: string, lookupKeys: LookupKey[], recordId: numbe
   const lookups = useAsyncData<Lookups>(lookupFetcher, {}, { errorMessage: 'Could not load the lists.' });
 
   const [form, setForm] = useState<Rec>({});
+  const [baseline, setBaseline] = useState<Rec | undefined>(undefined);
   const recordFetcher = useCallback(async (): Promise<Rec | null> => {
     if (!recordId) return newRecord();
     return (await apiFetch(`emr/${entity.toLowerCase()}/Get${entity}ById`, { Id: recordId, PatientId: context.patientId })) || null;
   }, [entity, recordId, context.patientId, newRecord]);
-  const record = useAsyncData<Rec | null>(recordFetcher, null, { errorMessage: 'Could not load the record.', onSuccess: (r) => setForm(r || {}) });
+  const record = useAsyncData<Rec | null>(recordFetcher, null, {
+    errorMessage: 'Could not load the record.',
+    onSuccess: (r) => {
+      setForm(r || {});
+      setBaseline(r || {});
+    },
+  });
+
+  // Unsaved typing is kept on this device until the record is saved (closing the form or the app loses nothing).
+  const draft = useEmrDraft<Rec>({
+    storageKey: draftKey(context.userId, context.encounterId, 'history', entity, recordId || 'new'),
+    value: form,
+    baseline,
+    onRestore: (d) => setForm(d),
+  });
 
   const set = (patch: Rec) => setForm((f) => ({ ...f, ...patch }));
-  return { lookups: lookups.data, form, set, loading: lookups.loading || record.loading, error: lookups.error || record.error };
+  return { lookups: lookups.data, form, set, draft, loading: lookups.loading || record.loading, error: lookups.error || record.error };
 }
 
 /* ------------------------------------------------------------------ ICD field */
@@ -124,11 +140,14 @@ export const PastMedicalFormModal: React.FC<RecordFormProps> = ({ recordId, cont
       successText: form.Id ? 'Condition updated' : 'Condition recorded',
     });
     setSaving(false);
-    if (ok) onSaved();
+    if (ok) {
+      f.draft.clearDraft();
+      onSaved();
+    }
   };
 
   return (
-    <HistoryFormShell title={recordId ? 'Edit condition' : 'Add past medical condition'} saveLabel="Save condition" loading={f.loading} saving={saving} error={f.error} onClose={onClose} onSave={save}>
+    <HistoryFormShell title={recordId ? 'Edit condition' : 'Add past medical condition'} saveLabel="Save condition" loading={f.loading} saving={saving} error={f.error} onClose={onClose} onSave={save} draft={f.draft}>
       <IcdField id="pm-icd" form={form} set={set} required showError={showErrors} />
       <ChoiceButtons label="Type" required options={f.lookups.ConditionType || []} value={form.ConditionTypeId} onChange={(id) => set({ ConditionTypeId: id })} error={showErrors && !form.ConditionTypeId ? 'Choose the diagnosis type' : undefined} />
       <FormRow>
@@ -182,11 +201,14 @@ export const SurgicalFormModal: React.FC<RecordFormProps> = ({ recordId, context
       stampPerformed: false,
     });
     setSaving(false);
-    if (ok) onSaved();
+    if (ok) {
+      f.draft.clearDraft();
+      onSaved();
+    }
   };
 
   return (
-    <HistoryFormShell title={recordId ? 'Edit surgery' : 'Add past surgery'} saveLabel="Save surgery" loading={f.loading} saving={saving} error={f.error} onClose={onClose} onSave={save}>
+    <HistoryFormShell title={recordId ? 'Edit surgery' : 'Add past surgery'} saveLabel="Save surgery" loading={f.loading} saving={saving} error={f.error} onClose={onClose} onSave={save} draft={f.draft}>
       <div style={{ display: 'grid', gap: 6 }}>
         <FieldLabel required>Procedure</FieldLabel>
         {hasProcedure ? (
@@ -253,11 +275,14 @@ export const FamilyConditionFormModal: React.FC<RecordFormProps> = ({ recordId, 
       successText: form.Id ? 'Family history updated' : 'Family history recorded',
     });
     setSaving(false);
-    if (ok) onSaved();
+    if (ok) {
+      f.draft.clearDraft();
+      onSaved();
+    }
   };
 
   return (
-    <HistoryFormShell title={recordId ? 'Edit family history' : 'Add family history'} saveLabel="Save family history" loading={f.loading} saving={saving} error={f.error} onClose={onClose} onSave={save}>
+    <HistoryFormShell title={recordId ? 'Edit family history' : 'Add family history'} saveLabel="Save family history" loading={f.loading} saving={saving} error={f.error} onClose={onClose} onSave={save} draft={f.draft}>
       <IcdField id="fam-icd" form={form} set={set} required showError={showErrors} />
       <ChoiceButtons label="Relationship" required options={f.lookups.Relationship || []} value={form.RelationshipId} onChange={(id) => set({ RelationshipId: id })} error={showErrors && !form.RelationshipId ? 'Choose the relative' : undefined} />
       <ChoiceButtons label="Type" required options={f.lookups.ConditionType || []} value={form.ConditionTypeId} onChange={(id) => set({ ConditionTypeId: id })} error={showErrors && !form.ConditionTypeId ? 'Choose the diagnosis type' : undefined} />
@@ -301,11 +326,14 @@ const SocialForm: React.FC<RecordFormProps & { family: boolean }> = ({ recordId,
       successText: `${noun} ${form.Id ? 'updated' : 'recorded'}`,
     });
     setSaving(false);
-    if (ok) onSaved();
+    if (ok) {
+      f.draft.clearDraft();
+      onSaved();
+    }
   };
 
   return (
-    <HistoryFormShell title={`${recordId ? 'Edit' : 'Add'} ${noun.toLowerCase()}`} saveLabel="Save" loading={f.loading} saving={saving} error={f.error} onClose={onClose} onSave={save}>
+    <HistoryFormShell title={`${recordId ? 'Edit' : 'Add'} ${noun.toLowerCase()}`} saveLabel="Save" loading={f.loading} saving={saving} error={f.error} onClose={onClose} onSave={save} draft={f.draft}>
       {family && (
         <ChoiceButtons label="Relationship" required options={f.lookups.Relationship || []} value={form.RelationshipId} onChange={(id) => set({ RelationshipId: id })} error={showErrors && !form.RelationshipId ? 'Choose the relative' : undefined} />
       )}

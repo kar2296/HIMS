@@ -21,6 +21,8 @@ import type { EmrWorkspaceContext, LookupItem } from '../types';
 import { cleanLookup, toSelectOptions } from '../emrHelpers';
 import { useAsyncData } from '../useAsyncData';
 import { InlineNotice } from '../EmrUi';
+import { draftKey, useEmrDraft } from '../useEmrDraft';
+import { DraftBanners, DraftStatusChip } from '../DraftStatus';
 
 interface MasterAllergy extends LookupItem {
   AllergyName?: string;
@@ -93,6 +95,7 @@ export const AllergyFormModal: React.FC<Props> = ({ isOpen, allergyId, context, 
   });
 
   const [form, setForm] = useState<AllergyRecord>({});
+  const [baseline, setBaseline] = useState<AllergyRecord | undefined>(undefined);
   const [showErrors, setShowErrors] = useState(false);
   const [saving, setSaving] = useState(false);
   const [suggestOpen, setSuggestOpen] = useState(false);
@@ -108,8 +111,17 @@ export const AllergyFormModal: React.FC<Props> = ({ isOpen, allergyId, context, 
     errorMessage: 'Could not load the allergy.',
     onSuccess: (r) => {
       setForm(r || {});
+      setBaseline(r ? r : undefined);
       setShowErrors(false);
     },
+  });
+
+  // Unsaved typing is kept on this device until the allergy is saved.
+  const draft = useEmrDraft<AllergyRecord>({
+    storageKey: isOpen ? draftKey(context.userId, context.encounterId, 'allergy', allergyId || 'new') : null,
+    value: form,
+    baseline,
+    onRestore: (d) => setForm(d),
   });
 
   // Focus the allergen field once the form is ready.
@@ -176,6 +188,7 @@ export const AllergyFormModal: React.FC<Props> = ({ isOpen, allergyId, context, 
       if (form.Id) await apiFetch('emr/patientallergy/UpdatePatientAllergy', { Data: data });
       else await apiFetch('emr/patientallergy/AddPatientAllergy', { Data: data });
       alert.showSuccessMsg(form.Id ? 'Allergy updated' : 'Allergy recorded');
+      draft.clearDraft();
       onSaved();
     } catch {
       /* server error already shown by apiFetch; keep the form open */
@@ -195,7 +208,10 @@ export const AllergyFormModal: React.FC<Props> = ({ isOpen, allergyId, context, 
       width="640px"
       portal
       footer={
-        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: spacing.sm }}>
+        <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: spacing.sm, flexWrap: 'wrap' }}>
+          <span style={{ marginRight: 'auto' }}>
+            <DraftStatusChip draft={draft} serverAutoSave={false} />
+          </span>
           <Button variant="outline-secondary" onClick={onClose} disabled={saving}>
             Cancel
           </Button>
@@ -209,6 +225,7 @@ export const AllergyFormModal: React.FC<Props> = ({ isOpen, allergyId, context, 
         <div style={{ padding: spacing.lg, ...typography.body, color: colors.textMuted }}>Loading…</div>
       ) : (
         <div style={{ display: 'grid', gap: spacing.lg }}>
+          <DraftBanners draft={draft} />
           {(lookups.error || record.error) && <InlineNotice tone="danger">{lookups.error || record.error}</InlineNotice>}
 
           {/* Allergen: master search or free text */}
