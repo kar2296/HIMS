@@ -594,7 +594,11 @@
         };
 
         $scope.drugChanged = function(idx, item) {
-            var isDuplicate = utl.Common.isDuplicateRec($scope.prescriptionDetails, { pivotkey: 'DrugId', displaykey: 'RxName' });
+            // only rows that have a drug can be duplicates (blank rows share DrugId -1/null)
+            var linesWithDrug = $scope.prescriptionDetails.filter(function (line) {
+                return line.Status === 1 && line.DrugId > 0;
+            });
+            var isDuplicate = utl.Common.isDuplicateRec(linesWithDrug, { pivotkey: 'DrugId', displaykey: 'DrugName' }, true);
             if (isDuplicate) {
                 item.RxName = '';
                 item.DrugId = null;
@@ -942,6 +946,19 @@
             if (drugLines.length === 0) {
                 utl.Alert.showErrorMsg('Add at least one drug to the prescription.');
                 return false;
+            }
+            // A drug name typed into a row but not picked from the search list has no DrugId and would be
+            // silently left out of the saved prescription -- stop and say so instead.
+            var rowInputs = document.querySelectorAll('.rxf-detail #mainresponsivetablecontrol > table > tbody > tr > td[data-col="drug"] input[type=text]');
+            for (var r = 0; r < activeRecords.length && r < rowInputs.length; r++) {
+                var typed = (rowInputs[r].value || '').trim();
+                var rowLine = activeRecords[r];
+                if (typed && !(rowLine.DrugId > 0) && !(rowLine.GenericId > 0)) {
+                    var safeText = typed.replace(/[<>&"']/g, '');
+                    utl.Alert.showErrorMsg('"' + safeText + '" was not picked from the list. Select the drug from the search results (or clear that row).');
+                    rowInputs[r].focus();
+                    return false;
+                }
             }
             // [field check, label, element id prefix] -- ids use the row index of the visible (active) rows
             var checks = [
