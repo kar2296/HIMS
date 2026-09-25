@@ -675,6 +675,15 @@
             item.DrugGenericId = 0;
             item.DrugGenericCode = '';
             item.DrugGenericName = '';
+            // keep one empty line so another medicine can always be added
+            var hasBlankLine = $scope.prescriptionDetails.some(function (line) {
+                return line.Status === 1 && !(line.DrugId > 0) && !(line.GenericId > 0);
+            });
+            if (!hasBlankLine) {
+                $scope.addNewLineItem();
+            }
+            // called from the confirm dialog, outside Angular's digest: refresh the grid now
+            $scope.$applyAsync();
         };
 
         $scope.deleteItemCallback = function(scope, data, options, hasError) {
@@ -949,14 +958,16 @@
             }
             // A drug name typed into a row but not picked from the search list has no DrugId and would be
             // silently left out of the saved prescription -- stop and say so instead.
-            var rowInputs = document.querySelectorAll('.rxf-detail #mainresponsivetablecontrol > table > tbody > tr > td[data-col="drug"] input[type=text]');
-            for (var r = 0; r < activeRecords.length && r < rowInputs.length; r++) {
-                var typed = (rowInputs[r].value || '').trim();
+            // (rows follow the grid order; a row with a picked drug shows no search box)
+            var gridRows = document.querySelectorAll('.rxf-detail #mainresponsivetablecontrol > table > tbody > tr');
+            for (var r = 0; r < activeRecords.length && r < gridRows.length; r++) {
+                var rowInput = gridRows[r].querySelector('td[data-col="drug"] input[type=text]');
+                var typed = rowInput ? (rowInput.value || '').trim() : '';
                 var rowLine = activeRecords[r];
                 if (typed && !(rowLine.DrugId > 0) && !(rowLine.GenericId > 0)) {
                     var safeText = typed.replace(/[<>&"']/g, '');
                     utl.Alert.showErrorMsg('"' + safeText + '" was not picked from the list. Select the drug from the search results (or clear that row).');
-                    rowInputs[r].focus();
+                    rowInput.focus();
                     return false;
                 }
             }
@@ -1091,8 +1102,11 @@
             var result = [];
             for (var idx in $scope.prescriptionDetails) {
                 var item = $scope.prescriptionDetails[idx];
-                if (item.DrugId > 0 || item.GenericId > 0) {
+                if (item.Status === 1 && (item.DrugId > 0 || item.GenericId > 0)) {
                     item.PharmacyId = $scope.item.PharmacyId;
+                    result.push(item);
+                } else if (item.Status === 2 && item.Id > 0) {
+                    // a saved line the user removed: send it so the server marks it deleted
                     result.push(item);
                 }
             }
