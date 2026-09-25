@@ -99,7 +99,8 @@ const reactRouterStateMap = {
     'app.fullregistrationtab.patientkin': { route: '/registration/kin', component: 'PatientKinFormScreen' },
 
     // Batch 2 Migration: Clinical Masters & Sub-forms
-    'app.allergyreactions': { route: '/allergyreactions', component: 'AllergyReactionListScreen' }
+    'app.allergyreactions': { route: '/allergyreactions', component: 'AllergyReactionListScreen' },
+    'app.allergies': { route: '/allergies', component: 'AllergyMasterListScreen' }
 };
 
 
