@@ -144,6 +144,8 @@
                 { "Key": "SourceType" },
                 { "Key": "ActiveStatus" },
                 { "Key": "GuarantorType" },
+                { "Key": "EncounterType" },
+                { "Key": "PrimaryCategory" }
             ];
 
             var options = {
@@ -153,8 +155,76 @@
                 onComplete: $scope.lookupCallback
             };
             utl.Http.doAction(options);
-        }
+        };
 
+        // React Bridge
+        $scope.refreshReactProps = function () {
+            $scope.reactProps = {
+                items: vm.gridConfig.data || [],
+                totalItems: vm.gridConfig.pagerObj.totalItems || 0,
+                currentPage: vm.gridConfig.pagerObj.currentPage || 1,
+                pageSize: vm.gridConfig.pagerObj.pageSize || 25,
+                pagerObj: vm.gridConfig.pagerObj,
+                currentfilter: $scope.currentfilter,
+                lookup: {
+                    Facility: ($scope.lookup && $scope.lookup.Facility) || [],
+                    SourceType: ($scope.lookup && $scope.lookup.SourceType) || [],
+                    ActiveStatus: ($scope.lookup && $scope.lookup.ActiveStatus) || [],
+                    GuarantorType: ($scope.lookup && $scope.lookup.GuarantorType) || [],
+                    EncounterType: ($scope.lookup && $scope.lookup.EncounterType) || [],
+                    PrimaryCategory: ($scope.lookup && $scope.lookup.PrimaryCategory) || []
+                }
+            };
+        };
+
+        var _origGetListCallback = $scope.getListCallback;
+        $scope.getListCallback = function (scope, res, options, hasError) {
+            _origGetListCallback(scope, res, options, hasError);
+            $scope.refreshReactProps();
+            $scope.$applyAsync();
+        };
+
+        var _origLookupCallback = $scope.lookupCallback;
+        $scope.lookupCallback = function (scope, data, options, hasError) {
+            _origLookupCallback(scope, data, options, hasError);
+            $scope.refreshReactProps();
+            $scope.$applyAsync();
+        };
+
+        $scope.handleReactAction = function (actionName, payload) {
+            if (actionName === 'search') {
+                if (payload) {
+                    if (payload.FacilityId !== undefined) $scope.currentfilter.FacilityId = payload.FacilityId;
+                    if (payload.ActiveStatusId !== undefined) $scope.currentfilter.ActiveStatusId = payload.ActiveStatusId;
+                    if (payload.TariffTypeId !== undefined) $scope.currentfilter.TariffTypeId = payload.TariffTypeId;
+                    if (payload.Name !== undefined) $scope.currentfilter.Name = payload.Name;
+                }
+                vm.gridConfig.pagerObj.currentPage = 1;
+                $scope.getList();
+            } else if (actionName === 'resetFilters') {
+                $scope.currentfilter.FacilityId = [-1, utl.Session.getCurrentFacilityId()];
+                $scope.currentfilter.ActiveStatusId = 2;
+                $scope.currentfilter.TariffTypeId = undefined;
+                $scope.currentfilter.Name = '';
+                vm.gridConfig.pagerObj.currentPage = 1;
+                $scope.getList();
+            } else if (actionName === 'pageChange') {
+                vm.gridConfig.pagerObj.currentPage = payload && payload.page ? payload.page : 1;
+                $scope.getList();
+            } else if (actionName === 'addNew') {
+                $scope.addNew();
+            } else if (actionName === 'edit') {
+                $scope.handleEvents('edit', payload);
+            } else if (actionName === 'delete') {
+                $scope.handleEvents('delete', payload);
+            } else if (typeof $scope[actionName] === 'function') {
+                $scope[actionName]();
+            }
+            $scope.refreshReactProps();
+            $scope.$applyAsync();
+        };
+
+        $scope.refreshReactProps();
         $scope.initLookup();
     }
 
