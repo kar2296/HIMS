@@ -24,6 +24,7 @@ import { VitalMasterListScreen } from '../react-components/VitalMasterListScreen
 import { DrugFrequencyListScreen } from '../react-components/DrugFrequencyListScreen';
 import { GenericMasterListScreen } from '../react-components/GenericMasterListScreen';
 import { ImmunizationListScreen } from '../react-components/ImmunizationListScreen';
+import { ServiceCategoryListScreen } from '../react-components/ServiceCategoryListScreen';
 
 // Route Guard component
 export const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -280,6 +281,15 @@ export const AppRoutes: React.FC = () => {
           element={
             <ProtectedRoute>
               <ShellWrapper activeTab="emr" component={<ImmunizationListScreen />} />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/servicecategories"
+          element={
+            <ProtectedRoute>
+              <ShellWrapper activeTab="emr" component={<ServiceCategoryListScreen />} />
             </ProtectedRoute>
           }
         />

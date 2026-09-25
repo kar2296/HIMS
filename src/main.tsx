@@ -352,6 +352,7 @@ import { VitalMasterListScreen } from './react-components/VitalMasterListScreen'
 import { DrugFrequencyListScreen } from './react-components/DrugFrequencyListScreen';
 import { GenericMasterListScreen } from './react-components/GenericMasterListScreen';
 import { ImmunizationListScreen } from './react-components/ImmunizationListScreen';
+import { ServiceCategoryListScreen } from './react-components/ServiceCategoryListScreen';
 import { DistrictMasterListScreen } from './react-components/DistrictMasterListScreen';
 import { DistrictMasterFormScreen } from './react-components/DistrictMasterFormScreen';
 import { PincodeMasterListScreen } from './react-components/PincodeMasterListScreen';
@@ -649,6 +650,7 @@ import './printing/himsPrint';
   DrugFrequencyListScreen,
   GenericMasterListScreen,
   ImmunizationListScreen,
+  ServiceCategoryListScreen,
   DistrictMasterListScreen,
   DistrictMasterFormScreen,
   PincodeMasterListScreen,
