@@ -38,6 +38,7 @@ import { PatientHeader, VisitStrip, type AllergySummary } from './PatientBanner'
 import { EmrTabBar } from './EmrTabBar';
 import { VisitEntryToolbar } from './VisitEntryToolbar';
 import { InlineNotice } from './EmrUi';
+import { CopyFromVisitModal } from './CopyFromVisitModal';
 
 export interface EmrWorkspaceScreenProps extends EmrHostCallbacks {
   reactProps?: {
@@ -275,6 +276,10 @@ export const EmrWorkspaceScreen: React.FC<EmrWorkspaceScreenProps> = ({ reactPro
   const [starting, setStarting] = useState(false);
   const [busyAction, setBusyAction] = useState<'complete' | 'finalize' | null>(null);
   const [confirmFinalize, setConfirmFinalize] = useState(false);
+  /** "Copy from previous visit": open state + visit entry to pre-select. */
+  const [copyFrom, setCopyFrom] = useState<{ open: boolean; consultationId: number | null }>({ open: false, consultationId: null });
+  /** Bumped after copying so the panels reload what was added. */
+  const [dataVersion, setDataVersion] = useState(0);
 
   const registerSaveHandler = useCallback((handler: (() => Promise<boolean>) | null) => {
     saveHandlerRef.current = handler;
@@ -378,6 +383,8 @@ export const EmrWorkspaceScreen: React.FC<EmrWorkspaceScreenProps> = ({ reactPro
   );
   const finalized = (active?.ProgressNoteStatusId || 0) >= STATUS.FINALIZED;
   const canEdit = Boolean(encounter && encounterId) && !finalized;
+  const openCopyFrom = useCallback((consultationId: number | null = null) => setCopyFrom({ open: true, consultationId }), []);
+  const onCopied = useCallback(() => setDataVersion((v) => v + 1), []);
 
   /* ───────────── render ───────────── */
 
@@ -451,6 +458,7 @@ export const EmrWorkspaceScreen: React.FC<EmrWorkspaceScreenProps> = ({ reactPro
                 : undefined
             }
             onReviewNotes={openLegacyModal && active ? () => openLegacyModal('patientemr.reviewnotes', { cid: active.Id, pid: patientId }) : undefined}
+            onCopyFromPrevious={canEdit && active ? () => openCopyFrom(null) : undefined}
           />
           {finalized && <InlineNotice tone="success">This visit entry is finalized and locked. Use an Addendum to record late changes.</InlineNotice>}
           {!encounter && !entries.loading && <InlineNotice tone="warning">No active visit — panels are read-only.</InlineNotice>}
@@ -464,7 +472,7 @@ export const EmrWorkspaceScreen: React.FC<EmrWorkspaceScreenProps> = ({ reactPro
             const Panel = resolvePanel(tab);
             const isActive = key === activeTab.key;
             return (
-              <div key={`${active?.Id || 0}-${key}`} hidden={!isActive}>
+              <div key={`${active?.Id || 0}-${key}-${dataVersion}`} hidden={!isActive}>
                 <Panel
                   context={context}
                   encounter={encounter}
@@ -477,12 +485,24 @@ export const EmrWorkspaceScreen: React.FC<EmrWorkspaceScreenProps> = ({ reactPro
                   onDataChanged={onDataChanged}
                   registerSaveHandler={isActive ? registerSaveHandler : undefined}
                   fallbackPanels={tab.section && isQuestionSection(tab.section) ? builtInPanelsForName(tab.section.Name) : undefined}
+                  onCopyFromVisit={canEdit && active ? (cid) => openCopyFrom(cid) : undefined}
                 />
               </div>
             );
           })}
         </div>
       </div>
+
+      <CopyFromVisitModal
+        isOpen={copyFrom.open}
+        onClose={() => setCopyFrom({ open: false, consultationId: null })}
+        context={context}
+        encounter={encounter}
+        initialConsultationId={copyFrom.consultationId}
+        openLegacyModal={openLegacyModal}
+        downloadFile={downloadFile}
+        onCopied={onCopied}
+      />
 
       <ConfirmModal
         isOpen={confirmFinalize}

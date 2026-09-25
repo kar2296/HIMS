@@ -35,6 +35,8 @@ interface VisitEntryToolbarProps {
   onEndConsultation?: () => void;
   onPrint?: () => void;
   onReviewNotes?: () => void;
+  /** Copy complaints, diagnoses, medicines and tests from an earlier visit. */
+  onCopyFromPrevious?: () => void;
   /** Shown while choosing a form for an additional entry. */
   onCancelStart?: () => void;
 }
@@ -112,6 +114,11 @@ export const VisitEntryToolbar: React.FC<VisitEntryToolbarProps> = (p) => {
         </Button>
       </div>
       <div className="emrws-toolbar-group" style={{ gap: spacing.sm }}>
+        {p.onCopyFromPrevious && (
+          <Button size="sm" variant="outline-secondary" icon="fa-solid fa-copy" onClick={p.onCopyFromPrevious} title="Copy complaints, diagnoses, medicines and tests from an earlier visit">
+            Copy from previous visit
+          </Button>
+        )}
         {p.onReviewNotes && (
           <Button size="sm" variant="outline-secondary" icon="fa-solid fa-magnifying-glass" onClick={p.onReviewNotes}>
             Review

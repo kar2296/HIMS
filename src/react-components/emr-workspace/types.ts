@@ -166,4 +166,6 @@ export interface EmrPanelProps extends EmrHostCallbacks {
    * (picked from the panel name, e.g. "Diagnosis" -> Diagnosis panel). See panelRegistry.builtInPanelsForName.
    */
   fallbackPanels?: Array<{ label: string; component: React.FC<EmrPanelProps> }>;
+  /** Opens "Copy from previous visit" with the given visit entry pre-selected (only while the entry is editable). */
+  onCopyFromVisit?: (consultationId: number) => void;
 }

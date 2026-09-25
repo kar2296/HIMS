@@ -188,7 +188,7 @@ export const SummaryPanel: React.FC<EmrPanelProps> = ({ context, openLegacyModal
 
 /* ═════════════════════════ PREVIOUS VISITS ═════════════════════════ */
 
-export const PreviousVisitsPanel: React.FC<EmrPanelProps> = ({ context, openLegacyModal, downloadFile }) => {
+export const PreviousVisitsPanel: React.FC<EmrPanelProps> = ({ context, openLegacyModal, downloadFile, onCopyFromVisit }) => {
   const fetcher = useCallback(async (): Promise<Row[]> => {
     const params: { Key: number; Value: any }[] = [{ Key: 3, Value: context.patientId }];
     if (context.consultationId) params.push({ Key: 14, Value: context.consultationId });
@@ -229,6 +229,13 @@ export const PreviousVisitsPanel: React.FC<EmrPanelProps> = ({ context, openLega
                 <Button size="xs" variant="outline-primary" icon="fa-solid fa-eye" disabled={!openLegacyModal} onClick={() => openLegacyModal?.('patientemr.reviewnotes', { cid: r.Id, pid: context.patientId })}>
                   View
                 </Button>{' '}
+                {onCopyFromVisit && (
+                  <>
+                    <Button size="xs" variant="outline-secondary" icon="fa-solid fa-copy" title="Copy complaints, diagnoses, medicines and tests into this visit" onClick={() => onCopyFromVisit(r.Id)}>
+                      Copy
+                    </Button>{' '}
+                  </>
+                )}
                 <Button
                   size="xs"
                   variant="icon"
