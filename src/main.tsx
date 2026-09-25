@@ -346,6 +346,7 @@ import { CountryMasterFormScreen } from './react-components/CountryMasterFormScr
 import { AllergyReactionListScreen } from './react-components/AllergyReactionListScreen';
 import { AllergyMasterListScreen } from './react-components/AllergyMasterListScreen';
 import { ChiefComplaintListScreen } from './react-components/ChiefComplaintListScreen';
+import { DiagnosisListScreen } from './react-components/DiagnosisListScreen';
 import { DistrictMasterListScreen } from './react-components/DistrictMasterListScreen';
 import { DistrictMasterFormScreen } from './react-components/DistrictMasterFormScreen';
 import { PincodeMasterListScreen } from './react-components/PincodeMasterListScreen';
@@ -637,6 +638,7 @@ import './printing/himsPrint';
   AllergyReactionListScreen,
   AllergyMasterListScreen,
   ChiefComplaintListScreen,
+  DiagnosisListScreen,
   DistrictMasterListScreen,
   DistrictMasterFormScreen,
   PincodeMasterListScreen,
