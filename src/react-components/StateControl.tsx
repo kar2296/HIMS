@@ -8,6 +8,7 @@ interface StateItem {
 }
 
 interface StateControlProps {
+  id?: string;
   stateid?: number | null;
   countryid?: number | null;
   candisable?: boolean;
@@ -15,6 +16,7 @@ interface StateControlProps {
 }
 
 export const StateControl: React.FC<StateControlProps> = ({
+  id,
   stateid,
   countryid,
   candisable = false,
@@ -91,6 +93,7 @@ export const StateControl: React.FC<StateControlProps> = ({
 
   return (
     <Select
+      id={id}
       disabled={candisable}
       loading={loading}
       value={stateid || ''}

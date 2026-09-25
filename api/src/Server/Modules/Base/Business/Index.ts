@@ -269,7 +269,7 @@ export abstract class BaseBo<TModel extends Instance<IAttributes>, TAttributes e
         this.CheckId(entity);
         options = options || { where: { Id: entity.Id }, limit: 1 };
         options.transaction = options.transaction || this.transaction;
-        entity.UpdatedBy = this.Session.UserId;
+        entity.UpdatedBy = this.Session ? this.Session.UserId : null;
         let hasRev = false;
         if (entity.Rev || entity.Rev === 0) {
             options.where['Rev'] = entity.Rev;
@@ -279,8 +279,11 @@ export abstract class BaseBo<TModel extends Instance<IAttributes>, TAttributes e
         let res = await this.Items.update(entity, options);
         const updateStatus = res && res[0] !== 1;
         if (hasRev && updateStatus) {
-            // throw 'ERROR: Update failed - object not found or seems to be updated by someone else';
-            throw { code: 'OBJECT_UPDATED_BY_SOMEONE' };
+            const conflictErr: any = new Error('Record has been modified by another user or session. Please refresh and try again.');
+            conflictErr.code = 'OBJECT_UPDATED_BY_SOMEONE';
+            conflictErr.status = 409;
+            conflictErr.statusCode = 409;
+            throw conflictErr;
         }
         return res && res[0] > 0;
     }
@@ -288,19 +291,20 @@ export abstract class BaseBo<TModel extends Instance<IAttributes>, TAttributes e
         this.CheckId(entity);
         options = options || { where: { Id: entity.Id }, limit: 1 };
         options.transaction = options.transaction || this.transaction;
-        // entity.UpdatedBy = this.Session.UserId;
-        // let hasRev = false;
-        // if (entity.Rev || entity.Rev === 0) {
-        //     options.where['Rev'] = entity.Rev;
-        //     entity.Rev++;
-        //     hasRev = true;
-        // }
+        let hasRev = false;
+        if (entity.Rev || entity.Rev === 0) {
+            options.where['Rev'] = entity.Rev;
+            entity.Rev++;
+            hasRev = true;
+        }
         let res = await this.Items.update(entity, options);
         const updateStatus = res && res[0] !== 1;
-        // if (hasRev && updateStatus) {
-        if (updateStatus) {
-            // throw 'ERROR: Update failed - object not found or seems to be updated by someone else';
-            throw { code: 'OBJECT_UPDATED_BY_SOMEONE' };
+        if (hasRev && updateStatus) {
+            const conflictErr: any = new Error('Record has been modified by another user or session. Please refresh and try again.');
+            conflictErr.code = 'OBJECT_UPDATED_BY_SOMEONE';
+            conflictErr.status = 409;
+            conflictErr.statusCode = 409;
+            throw conflictErr;
         }
         return res && res[0] > 0;
     }

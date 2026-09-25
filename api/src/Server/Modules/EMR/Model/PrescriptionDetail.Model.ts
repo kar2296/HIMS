@@ -55,6 +55,10 @@ export default function (sequelize: Sequelize, DataTypes: DataTypes):
         AdministeredQuantity: { type: DataTypes.INTEGER, field: 'AdministeredQuantity' },
         AdministerStatusId: { type: DataTypes.INTEGER, field: 'AdministerStatusId' },
         IseMAR: { type: DataTypes.BOOLEAN, field: 'IseMAR' },
+        IsAllergyOverride: { type: DataTypes.BOOLEAN, field: 'IsAllergyOverride' },
+        AllergyOverrideReason: { type: DataTypes.STRING, field: 'AllergyOverrideReason' },
+        AllergyOverrideBy: { type: DataTypes.INTEGER, field: 'AllergyOverrideBy' },
+        AllergyOverrideAt: { type: DataTypes.DATE, field: 'AllergyOverrideAt' },
     },
         {
             indexes: [],

@@ -362,21 +362,16 @@ export class PrivilegeHelper {
     "CanSurgerySchedule": PrivilegeHelper.CanSurgerySchedule,
     "CanSurgeryConfirmation": PrivilegeHelper.CanSurgeryConfirmation,
     "CanOT_Procedure_Entries": PrivilegeHelper.CanOT_Procedure_Entries,
-    "CanStockIndent": PrivilegeHelper.CanStockIndent,
     "CanStockReceive": PrivilegeHelper.CanStockReceive,
     "CanInPatients": PrivilegeHelper.CanInPatients,
     "CanReport": PrivilegeHelper.CanReport,
     "CanOP_Patients": PrivilegeHelper.CanOP_Patients,
     "CanIP_Patients": PrivilegeHelper.CanIP_Patients,
-    "CanAppointments": PrivilegeHelper.CanAppointments,
-    "CanSurgerySchedule": PrivilegeHelper.CanSurgerySchedule,
-    "CanReports": PrivilegeHelper.CanReports,
     "CanPurchaseOrder_Amend": PrivilegeHelper.CanPurchaseOrder_Amend,
     "CanAdmCancel": PrivilegeHelper.CanAdmCancel,
     "CanPatientRecords": PrivilegeHelper.CanPatientRecords,
     "CanMedicalHistory": PrivilegeHelper.CanMedicalHistory,
     "CanSymptoms": PrivilegeHelper.CanSymptoms,
-    "CanDiagnosis": PrivilegeHelper.CanDiagnosis,
     "CanVitals": PrivilegeHelper.CanVitals,
     "CanClinicalDocuments": PrivilegeHelper.CanClinicalDocuments,
     "CanClinicalOrders": PrivilegeHelper.CanClinicalOrders,
@@ -414,8 +409,6 @@ export class PrivilegeHelper {
     "CanPrint": PrivilegeHelper.CanPrint,
     "CanPrintWithoutHeader": PrivilegeHelper.CanPrintWithoutHeader,
     "Cansendforapproval": PrivilegeHelper.Cansendforapproval,
-    "Cansendforapproval": PrivilegeHelper.Cansendforapproval,
-    "CanCredit_Approver": PrivilegeHelper.CanCredit_Approver,
     "CanAddToCredit_Button": PrivilegeHelper.CanAddToCredit_Button,
     "CanAddnewbutton": PrivilegeHelper.CanAddnewbutton,
     "CanSickLeave": PrivilegeHelper.CanSickLeave,
@@ -2245,10 +2238,7 @@ export class PrivilegeHelper {
     return false;
   }
 
-  private static CanStockIndent(): boolean {
-    // TODO: Implement actual session checks when SessionHelper is available
-    return false;
-  }
+  
 
   private static CanStockReceive(): boolean {
     // TODO: Implement actual session checks when SessionHelper is available
@@ -2275,20 +2265,11 @@ export class PrivilegeHelper {
     return false;
   }
 
-  private static CanAppointments(): boolean {
-    // TODO: Implement actual session checks when SessionHelper is available
-    return false;
-  }
+  
 
-  private static CanSurgerySchedule(): boolean {
-    // TODO: Implement actual session checks when SessionHelper is available
-    return false;
-  }
+  
 
-  private static CanReports(): boolean {
-    // TODO: Implement actual session checks when SessionHelper is available
-    return false;
-  }
+  
 
   private static CanPurchaseOrder_Amend(): boolean {
     // TODO: Implement actual session checks when SessionHelper is available
@@ -2315,10 +2296,7 @@ export class PrivilegeHelper {
     return false;
   }
 
-  private static CanDiagnosis(): boolean {
-    // TODO: Implement actual session checks when SessionHelper is available
-    return false;
-  }
+  
 
   private static CanVitals(): boolean {
     // TODO: Implement actual session checks when SessionHelper is available
@@ -2505,15 +2483,9 @@ export class PrivilegeHelper {
     return false;
   }
 
-  private static Cansendforapproval(): boolean {
-    // TODO: Implement actual session checks when SessionHelper is available
-    return false;
-  }
+  
 
-  private static CanCredit_Approver(): boolean {
-    // TODO: Implement actual session checks when SessionHelper is available
-    return false;
-  }
+  
 
   private static CanAddToCredit_Button(): boolean {
     // TODO: Implement actual session checks when SessionHelper is available

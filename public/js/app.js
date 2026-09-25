@@ -1175,6 +1175,77 @@
                 var baseItems = $scope.rawMenuItems || [];
                 var fullList = [];
 
+                // Ensure EMR Modernization Hub is guaranteed at the top of the sidebar
+                var hasEmr = baseItems.some(function(it) {
+                    return it.text && (it.text.toLowerCase().indexOf('emr modernization') !== -1 || it.text.toLowerCase().indexOf('emr portal') !== -1);
+                });
+                if (!hasEmr) {
+                    baseItems.unshift({
+                        text: 'EMR Modernization Hub',
+                        sref: '#',
+                        icon: 'fa fa-user-md fa-lg',
+                        translate: '',
+                        submenu: [
+                            {
+                                text: 'EMR Waiting List & Portal Hub',
+                                sref: 'app.emrportalhub',
+                                icon: 'fa fa-th-large fa-lg',
+                                translate: '',
+                                submenu: []
+                            },
+                            {
+                                text: 'Discharge Summary Workstation',
+                                sref: 'app.emrdischargesummary',
+                                icon: 'fa fa-file-text-o fa-lg',
+                                translate: '',
+                                submenu: []
+                            },
+                            {
+                                text: 'EMR Form Assembly',
+                                sref: 'app.emrformassembly',
+                                icon: 'fa fa-list-alt fa-lg',
+                                translate: '',
+                                submenu: []
+                            },
+                            {
+                                text: 'EMR Form Builder',
+                                sref: 'app.emrformbuilder',
+                                icon: 'fa fa-th-list fa-lg',
+                                translate: '',
+                                submenu: []
+                            },
+                            {
+                                text: 'EMR Panel Editor',
+                                sref: 'app.emrpaneleditor',
+                                icon: 'fa fa-pencil-square-o fa-lg',
+                                translate: '',
+                                submenu: []
+                            },
+                            {
+                                text: 'Assign EMR Forms to Doctors',
+                                sref: 'app.emrpanelselection',
+                                icon: 'fa fa-user-plus fa-lg',
+                                translate: '',
+                                submenu: []
+                            },
+                            {
+                                text: 'EMR Masters Catalog',
+                                sref: 'app.emrmasters',
+                                icon: 'fa fa-cogs fa-lg',
+                                translate: '',
+                                submenu: []
+                            },
+                            {
+                                text: 'EMR Visit Summary & History',
+                                sref: 'app.emrvisitsummary',
+                                icon: 'fa fa-history fa-lg',
+                                translate: '',
+                                submenu: []
+                            }
+                        ]
+                    });
+                }
+
                 if ($scope.favoritesList && $scope.favoritesList.length > 0) {
                     var favSubmenu = $scope.favoritesList.map(function(fav) {
                         return {
@@ -3597,6 +3668,150 @@
                             displayorder: 999,
                             submenu: []
                         });
+                    }
+                }
+
+                // Ensure EMR Modernization Hub is always included in the main sidebar
+                var hasEmrHub = menu.some(function(m) {
+                    var title = (m.text || '').toLowerCase();
+                    return title.indexOf('emr modernization') !== -1 || title.indexOf('emr portal') !== -1;
+                });
+                if (!hasEmrHub) {
+                    menu.unshift({
+                        text: 'EMR Modernization Hub',
+                        sref: '#',
+                        icon: 'fa fa-user-md fa-lg',
+                        translate: '',
+                        displayorder: -1,
+                        submenu: [
+                            {
+                                text: 'EMR Waiting List & Portal Hub',
+                                sref: 'app.emrportalhub',
+                                icon: 'fa fa-th-large fa-lg',
+                                translate: '',
+                                submenu: []
+                            },
+                            {
+                                text: 'Discharge Summary Workstation',
+                                sref: 'app.emrdischargesummary',
+                                icon: 'fa fa-file-text-o fa-lg',
+                                translate: '',
+                                submenu: []
+                            },
+                            {
+                                text: 'EMR Form Assembly',
+                                sref: 'app.emrformassembly',
+                                icon: 'fa fa-list-alt fa-lg',
+                                translate: '',
+                                submenu: []
+                            },
+                            {
+                                text: 'EMR Form Builder',
+                                sref: 'app.emrformbuilder',
+                                icon: 'fa fa-th-list fa-lg',
+                                translate: '',
+                                submenu: []
+                            },
+                            {
+                                text: 'EMR Panel Editor',
+                                sref: 'app.emrpaneleditor',
+                                icon: 'fa fa-pencil-square-o fa-lg',
+                                translate: '',
+                                submenu: []
+                            },
+                            {
+                                text: 'Assign EMR Forms to Doctors',
+                                sref: 'app.emrpanelselection',
+                                icon: 'fa fa-user-plus fa-lg',
+                                translate: '',
+                                submenu: []
+                            },
+                            {
+                                text: 'EMR Masters Catalog',
+                                sref: 'app.emrmasters',
+                                icon: 'fa fa-cogs fa-lg',
+                                translate: '',
+                                submenu: []
+                            },
+                            {
+                                text: 'EMR Visit Summary & History',
+                                sref: 'app.emrvisitsummary',
+                                icon: 'fa fa-history fa-lg',
+                                translate: '',
+                                submenu: []
+                            }
+                        ]
+                    });
+                }
+
+                // Also inject under existing EMR menu group if present
+                var existingEmrGroup = menu.find(function(m) {
+                    var title = (m.text || '').trim().toLowerCase();
+                    return title === 'emr' || title === 'electronic medical records';
+                });
+                if (existingEmrGroup && existingEmrGroup.submenu) {
+                    var hasWaitingList = existingEmrGroup.submenu.some(function(sub) {
+                        return sub.sref === 'app.emrportalhub' || sub.sref === 'app.viewemrwaitinglist';
+                    });
+                    if (!hasWaitingList) {
+                        existingEmrGroup.submenu.unshift(
+                            {
+                                text: 'EMR Waiting List & Portal Hub',
+                                sref: 'app.emrportalhub',
+                                icon: 'fa fa-th-large fa-lg',
+                                translate: '',
+                                submenu: []
+                            },
+                            {
+                                text: 'Discharge Summary Workstation',
+                                sref: 'app.emrdischargesummary',
+                                icon: 'fa fa-file-text-o fa-lg',
+                                translate: '',
+                                submenu: []
+                            },
+                            {
+                                text: 'EMR Form Assembly',
+                                sref: 'app.emrformassembly',
+                                icon: 'fa fa-list-alt fa-lg',
+                                translate: '',
+                                submenu: []
+                            },
+                            {
+                                text: 'EMR Form Builder',
+                                sref: 'app.emrformbuilder',
+                                icon: 'fa fa-th-list fa-lg',
+                                translate: '',
+                                submenu: []
+                            },
+                            {
+                                text: 'EMR Panel Editor',
+                                sref: 'app.emrpaneleditor',
+                                icon: 'fa fa-pencil-square-o fa-lg',
+                                translate: '',
+                                submenu: []
+                            },
+                            {
+                                text: 'Assign EMR Forms to Doctors',
+                                sref: 'app.emrpanelselection',
+                                icon: 'fa fa-user-plus fa-lg',
+                                translate: '',
+                                submenu: []
+                            },
+                            {
+                                text: 'EMR Masters Catalog',
+                                sref: 'app.emrmasters',
+                                icon: 'fa fa-cogs fa-lg',
+                                translate: '',
+                                submenu: []
+                            },
+                            {
+                                text: 'EMR Visit Summary & History',
+                                sref: 'app.emrvisitsummary',
+                                icon: 'fa fa-history fa-lg',
+                                translate: '',
+                                submenu: []
+                            }
+                        );
                     }
                 }
 

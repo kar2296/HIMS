@@ -19,7 +19,7 @@ export default function (sequelize: Sequelize, DataTypes: DataTypes):
         AnalyteName: { type: DataTypes.STRING, field: 'AnalyteName' },
         ResultValue: { type: DataTypes.STRING, field: 'ResultValue' },
         FullResultValue: { type: DataTypes.STRING, field: 'FullResultValue' },
-        // DisplayNo: { type: DataTypes.INTEGER, field: 'DisplayNo' },
+        DisplayNo: { type: DataTypes.INTEGER, field: 'DisplayNo' },
         Approved: { type: DataTypes.BOOLEAN, field: 'Approved' },
         ApprovedById: { type: DataTypes.INTEGER, field: 'ApprovedById' },
         ApproveDt: { type: DataTypes.DATE, field: 'ApproveDt' },

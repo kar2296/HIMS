@@ -23,6 +23,12 @@ import { join } from 'path';
 export class PrescriptionBo extends BaseBo<PrescriptionInstance, PrescriptionAttributes> {
 
     public async AddPrescription(req: BaseRequest): Promise<number> {
+        if (!req.Data || !req.Data.Header || !req.Data.Header.PatientId || req.Data.Header.PatientId <= 0) {
+            throw new Error('A valid PatientId is required to create a prescription.');
+        }
+        if (!req.Data.Header.EncounterId || req.Data.Header.EncounterId <= 0) {
+            throw new Error('A valid EncounterId is required to create a prescription.');
+        }
         let generateprscription = 0;
         if (req.Data.Header.PrecriptionStatusId === 3 //Prescribed
             && !req.Data.Header.Identifier) {

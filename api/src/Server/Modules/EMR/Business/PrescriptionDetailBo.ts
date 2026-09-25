@@ -15,12 +15,24 @@ import * as userbo from '../../SystemSettings/Business/Index';
 import { join } from 'path';
 
 export class PrescriptionDetailBo extends BaseBo<PrescriptionDetailInstance, PrescriptionDetailAttributes>  {
+    private ProcessAllergyOverride(detail: PrescriptionDetailAttributes): void {
+        if (detail && detail.IsAllergyOverride) {
+            if (!detail.AllergyOverrideReason || typeof detail.AllergyOverrideReason !== 'string' || detail.AllergyOverrideReason.trim() === '') {
+                throw new Error('A valid clinical reason must be provided when overriding an allergy warning.');
+            }
+            detail.AllergyOverrideBy = detail.AllergyOverrideBy || (this.Session ? this.Session.UserId : null);
+            detail.AllergyOverrideAt = detail.AllergyOverrideAt || new Date();
+        }
+    }
+
     public async AddPrescriptionDetail(req: BaseRequest): Promise<number> {
+        this.ProcessAllergyOverride(req.Data);
         let result = await this.Save(req.Data);
         return result.dataValues.Id;
     }
 
     public async UpdatePrescriptionDetail(req: BaseRequest): Promise<boolean> {
+        this.ProcessAllergyOverride(req.Data);
         let result = await this.Update(req.Data);
         return result;
     }
@@ -35,6 +47,7 @@ export class PrescriptionDetailBo extends BaseBo<PrescriptionDetailInstance, Pre
                 if (detail.Status === 2 && detail.Id !== 0) {
                     await this.MarkAsDelete(detail.Id);
                 } else if (detail.Id === 0) {
+                    this.ProcessAllergyOverride(detail);
                     let pdetail = await this.Save(detail);
                     let pdetaildata = pdetail.dataValues;
                     if (pdetaildata.Id > 0 && pdetaildata.IseMAR) {

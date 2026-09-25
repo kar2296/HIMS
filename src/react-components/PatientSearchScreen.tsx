@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { colors, spacing, radii, typography } from '../components/ui/tokens';
 import { Input } from '../components/ui/Input';
 import { Select } from '../components/ui/Select';
@@ -8,6 +8,7 @@ import { Card, FilterBar } from '../components/ui/Card';
 import { Pagination } from '../components/ui/Pagination';
 import { EmptyState } from '../components/ui/EmptyState';
 import { AgeDisplay } from './AgeDisplay';
+import { Button } from './Button';
 
 interface LookupItem {
   Id: number;
@@ -265,17 +266,147 @@ function formatDateTime(val?: string | null): string {
 // ---------------------------------------------------------------------------
 
 export const PatientSearchScreen: React.FC<ScreenProps> = ({ reactProps, onAction }) => {
+  const [standaloneItems, setStandaloneItems] = useState<PatientRow[]>([]);
+  const [standaloneTotal, setStandaloneTotal] = useState<number>(0);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+
+  // Standalone search filters
+  const [filterPatientName, setFilterPatientName] = useState('');
+  const [filterDOB, setFilterDOB] = useState('');
+  const [filterStatus, setFilterStatus] = useState<number | undefined>(undefined);
+  const [filterPhoneNo, setFilterPhoneNo] = useState('');
+  const [filterVisitId, setFilterVisitId] = useState('');
+  const [filterRegisteredDate, setFilterRegisteredDate] = useState('');
+  const [filterIsTemp, setFilterIsTemp] = useState(false);
+  const [filterIsOtherFacility, setFilterIsOtherFacility] = useState(false);
+  const [currentPageState, setCurrentPageState] = useState(1);
+
+  // Advanced filter drawer state
+  const [isAdvancedFilterOpen, setIsAdvancedFilterOpen] = useState(false);
+  const [advMRN, setAdvMRN] = useState('');
+  const [advName, setAdvName] = useState('');
+  const [advDOB, setAdvDOB] = useState('');
+  const [advPhone, setAdvPhone] = useState('');
+  const [advFromDate, setAdvFromDate] = useState('');
+  const [advToDate, setAdvToDate] = useState('');
+  const [advPincode, setAdvPincode] = useState('');
+  const [advCountry, setAdvCountry] = useState('');
+  const [advState, setAdvState] = useState('');
+  const [advCityTown, setAdvCityTown] = useState('');
+  const [advArea, setAdvArea] = useState('');
+  const [advShowTempPatient, setAdvShowTempPatient] = useState(false);
+
   const {
-    items = [],
+    items = standaloneItems,
     lookup = {},
     currentfilter = {},
-    pager = {},
+    pager = { totalItems: standaloneTotal, pageSize: 25, currentPage: currentPageState },
   } = reactProps || {};
-  const dispatch = (action: string, payload?: any) => { if (onAction) onAction(action, payload); };
+
+  const executeFetch = async (page = 1, useAdv = false) => {
+    setIsLoading(true);
+    try {
+      const { callBackendApi } = await import('../services/apiService');
+      const params: any[] = [
+        { Key: 8, Value: true }, // IncludeAppointments
+      ];
+
+      const nameVal = useAdv ? advName : filterPatientName;
+      if (nameVal) params.push({ Key: 1, Value: nameVal });
+
+      const dobVal = useAdv ? advDOB : filterDOB;
+      if (dobVal) params.push({ Key: 3, Value: dobVal });
+
+      const phoneVal = useAdv ? advPhone : filterPhoneNo;
+      if (phoneVal) params.push({ Key: 4, Value: phoneVal });
+
+      if (filterVisitId) params.push({ Key: 5, Value: filterVisitId });
+      if (filterStatus) params.push({ Key: 7, Value: filterStatus });
+
+      if (useAdv) {
+        if (advMRN) params.push({ Key: 26, Value: advMRN });
+        if (advFromDate) params.push({ Key: 9, Value: advFromDate });
+        if (advToDate) params.push({ Key: 10, Value: advToDate });
+        if (advPincode) params.push({ Key: 16, Value: advPincode });
+        if (advCountry) params.push({ Key: 17, Value: advCountry });
+        if (advState) params.push({ Key: 18, Value: advState });
+        if (advCityTown) params.push({ Key: 19, Value: advCityTown });
+        if (advArea) params.push({ Key: 20, Value: advArea });
+        if (advShowTempPatient) params.push({ Key: 23, Value: true });
+      } else {
+        if (filterIsTemp) params.push({ Key: 23, Value: true });
+      }
+
+      const res: any = await callBackendApi({
+        action: 'Registration/Patient/GetPatients',
+        data: {
+          Params: params,
+          PageContext: { PageSize: 25, PageNumber: page }
+        },
+        type: 'post'
+      });
+
+      if (res?.Data) {
+        setStandaloneItems(res.Data);
+        setStandaloneTotal(res.TotalRecords || res.Data.length);
+      }
+    } catch (err) {
+      console.error('Error fetching patients:', err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (!reactProps?.items) {
+      executeFetch(1);
+    }
+  }, [reactProps]);
+
+  const dispatch = (action: string, payload?: any) => {
+    if (onAction) {
+      onAction(action, payload);
+    } else {
+      if (action === 'openAdvancedFilter') {
+        setIsAdvancedFilterOpen(true);
+      } else if (action === 'search') {
+        setCurrentPageState(1);
+        executeFetch(1, false);
+      } else if (action === 'pageChange') {
+        const page = payload?.page || 1;
+        setCurrentPageState(page);
+        executeFetch(page, false);
+      }
+    }
+  };
+
+  const handleApplyAdvancedFilter = () => {
+    setIsAdvancedFilterOpen(false);
+    setCurrentPageState(1);
+    executeFetch(1, true);
+  };
+
+  const handleResetAdvancedFilter = () => {
+    setAdvMRN('');
+    setAdvName('');
+    setAdvDOB('');
+    setAdvPhone('');
+    setAdvFromDate('');
+    setAdvToDate('');
+    setAdvPincode('');
+    setAdvCountry('');
+    setAdvState('');
+    setAdvCityTown('');
+    setAdvArea('');
+    setAdvShowTempPatient(false);
+    setIsAdvancedFilterOpen(false);
+    setCurrentPageState(1);
+    executeFetch(1, false);
+  };
 
   const pageSize = pager.pageSize || 25;
-  const totalItems = pager.totalItems || 0;
-  const currentPage = pager.currentPage || 1;
+  const totalItems = pager.totalItems || standaloneTotal;
+  const currentPage = pager.currentPage || currentPageState;
 
   return (
     <div style={{ fontFamily: typography.fontFamily, padding: `${spacing.sm} ${spacing.md} ${spacing.xl}` }}>
@@ -294,24 +425,32 @@ export const PatientSearchScreen: React.FC<ScreenProps> = ({ reactProps, onActio
             <img src="app/img/main/download.png" alt="home" style={{ width: 22, height: 22 }} />
           </button>
           <button
+            id="btnFilterPatientSearch"
             type="button"
             title="Filter"
-            onClick={() => dispatch('openAdvancedFilter')}
+            onClick={() => {
+              if (onAction) onAction('openAdvancedFilter');
+              setIsAdvancedFilterOpen(true);
+            }}
             style={{
-              display: 'inline-flex', alignItems: 'center', gap: 6, height: 30, padding: '0 12px',
+              display: 'inline-flex', alignItems: 'center', gap: 6, height: 32, padding: '0 12px',
               borderRadius: radii.sm, border: `1px solid ${colors.border}`, backgroundColor: colors.surface,
               color: colors.textMain, fontSize: '12px', fontWeight: 600, cursor: 'pointer',
             }}
           >
-            <i className="fa fa-search fa-xs" aria-hidden="true" />
+            <i className="fa fa-filter fa-xs" aria-hidden="true" />
             Filter
           </button>
           {/* Real button label is always hidden today (HasPrivilege undefined) -- icon-only, see disclosure above. */}
           <button
+            id="btnAddNewFullRegistration"
             type="button"
-            onClick={() => dispatch('addNewFull')}
+            onClick={() => {
+              if (onAction) onAction('addNewFull');
+              else window.location.href = '/registration/new';
+            }}
             style={{
-              display: 'inline-flex', alignItems: 'center', height: 30, padding: '0 12px',
+              display: 'inline-flex', alignItems: 'center', height: 32, padding: '0 12px',
               borderRadius: radii.sm, border: 'none', backgroundColor: colors.primary,
               color: '#fff', fontSize: '13px', cursor: 'pointer',
             }}
@@ -323,7 +462,7 @@ export const PatientSearchScreen: React.FC<ScreenProps> = ({ reactProps, onActio
             type="button"
             onClick={() => dispatch('addNewQuick')}
             style={{
-              display: 'inline-flex', alignItems: 'center', height: 30, padding: '0 12px',
+              display: 'inline-flex', alignItems: 'center', height: 32, padding: '0 12px',
               borderRadius: radii.sm, border: 'none', backgroundColor: colors.accent,
               color: '#fff', fontSize: '13px', cursor: 'pointer',
             }}
@@ -338,74 +477,200 @@ export const PatientSearchScreen: React.FC<ScreenProps> = ({ reactProps, onActio
         <FilterBar>
           <div style={{ minWidth: 200 }}>
             <Input
+              id="txtPatientSearchName"
               label="Patient Name"
               leftIcon="fas fa-search"
               placeholder="Patient Name"
-              value={currentfilter.patientname ?? ''}
-              onChange={(ev) => dispatch('filterChange', { field: 'patientname', value: ev.target.value })}
+              value={reactProps ? (currentfilter.patientname ?? '') : filterPatientName}
+              onChange={(ev) => {
+                setFilterPatientName(ev.target.value);
+                dispatch('filterChange', { field: 'patientname', value: ev.target.value });
+              }}
               onKeyDown={(ev) => { if (ev.key === 'Enter') { ev.preventDefault(); dispatch('search'); } }}
             />
           </div>
           <div style={{ minWidth: 160 }}>
             <DatePicker
               label="Date of Birth"
-              value={currentfilter.dateofbirth ?? ''}
-              onChange={(v) => dispatch('filterChangeAndSearch', { field: 'dateofbirth', value: v })}
-            />
-          </div>
-          <div style={{ minWidth: 180 }}>
-            <Select
-              label="Status"
-              value={currentfilter.status ?? ''}
-              onChange={(v) => dispatch('filterChangeAndSearch', { field: 'status', value: Number(v) })}
-              options={(lookup.PatientStatus || []).map((o) => ({ value: o.Id, label: o.Text }))}
+              value={reactProps ? (currentfilter.dateofbirth ?? '') : filterDOB}
+              onChange={(v) => {
+                setFilterDOB(v);
+                dispatch('filterChangeAndSearch', { field: 'dateofbirth', value: v });
+              }}
             />
           </div>
           <div style={{ minWidth: 160 }}>
             <Input
+              id="txtPatientSearchPhone"
               label="Phone No"
               leftIcon="fas fa-search"
               placeholder="Phone No"
-              value={currentfilter.phoneno ?? ''}
-              onChange={(ev) => dispatch('filterChange', { field: 'phoneno', value: ev.target.value })}
+              value={reactProps ? (currentfilter.phoneno ?? '') : filterPhoneNo}
+              onChange={(ev) => {
+                setFilterPhoneNo(ev.target.value);
+                dispatch('filterChange', { field: 'phoneno', value: ev.target.value });
+              }}
               onKeyDown={(ev) => { if (ev.key === 'Enter') { ev.preventDefault(); dispatch('search'); } }}
             />
           </div>
           <div style={{ minWidth: 160 }}>
             <Input
+              id="txtPatientSearchVisitId"
               label="ID (OP/IP/ER)"
               leftIcon="fas fa-search"
               placeholder="ID (OP/IP/ER)"
-              value={currentfilter.visitid ?? ''}
-              onChange={(ev) => dispatch('filterChange', { field: 'visitid', value: ev.target.value })}
+              value={reactProps ? (currentfilter.visitid ?? '') : filterVisitId}
+              onChange={(ev) => {
+                setFilterVisitId(ev.target.value);
+                dispatch('filterChange', { field: 'visitid', value: ev.target.value });
+              }}
               onKeyDown={(ev) => { if (ev.key === 'Enter') { ev.preventDefault(); dispatch('search'); } }}
             />
           </div>
-          <div style={{ minWidth: 160 }}>
-            <DatePicker
-              label="Registered Date"
-              value={currentfilter.registereddate ?? ''}
-              onChange={(v) => dispatch('filterChangeAndSearch', { field: 'registereddate', value: v })}
-            />
-          </div>
-          {/* Real cell heading label describes the FIRST checkbox only; the literal,
-              untranslated "Other" text sits between the two checkboxes and actually
-              precedes the SECOND one (isOtherFacility) -- reproduced verbatim, see
-              disclosure above. */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: spacing.lg, paddingBottom: 6 }}>
-            <Checkbox
-              label="Temp Patient"
-              checked={!!currentfilter.istemp}
-              onChange={(checked) => dispatch('filterChangeAndSearch', { field: 'istemp', value: checked })}
-            />
-            <Checkbox
-              label="Other"
-              checked={!!currentfilter.isOtherFacility}
-              onChange={(checked) => dispatch('filterChangeAndSearch', { field: 'isOtherFacility', value: checked })}
-            />
+          <div style={{ display: 'flex', alignItems: 'flex-end', gap: spacing.sm }}>
+            <button
+              id="btnRunPatientSearch"
+              type="button"
+              onClick={() => dispatch('search')}
+              style={{
+                height: 36, padding: '0 16px', borderRadius: radii.sm,
+                border: 'none', backgroundColor: colors.primary, color: '#fff',
+                fontSize: 13, fontWeight: 600, cursor: 'pointer'
+              }}
+            >
+              Search
+            </button>
           </div>
         </FilterBar>
       </Card>
+
+      {/* Advanced Filter Modal Dialog */}
+      {isAdvancedFilterOpen && (
+        <div
+          id="patientAdvancedFilterOverlay"
+          style={{
+            position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.5)', zIndex: 1050,
+            display: 'flex', alignItems: 'center', justifyContent: 'center'
+          }}
+          onClick={(e) => { if (e.target === e.currentTarget) setIsAdvancedFilterOpen(false); }}
+        >
+          <div
+            id="patientAdvancedFilterDialog"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="advancedFilterTitle"
+            style={{
+              backgroundColor: '#fff', borderRadius: 8, padding: spacing.xl,
+              width: '100%', maxWidth: 700, maxHeight: '90vh', overflowY: 'auto',
+              boxShadow: '0 20px 25px -5px rgba(0,0,0,0.2)'
+            }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: spacing.lg, borderBottom: `1px solid ${colors.border}`, paddingBottom: spacing.sm }}>
+              <h3 id="advancedFilterTitle" style={{ margin: 0, ...typography.h3, color: colors.textMain }}>
+                Advanced Patient Filter
+              </h3>
+              <button
+                id="btnCloseAdvancedFilter"
+                type="button"
+                onClick={() => setIsAdvancedFilterOpen(false)}
+                style={{ border: 'none', background: 'none', fontSize: 18, cursor: 'pointer', color: colors.textMuted }}
+                aria-label="Close"
+              >
+                &times;
+              </button>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: spacing.md }}>
+              <Input
+                id="txtAdvFilterMRN"
+                label="MRN"
+                value={advMRN}
+                onChange={(e) => setAdvMRN(e.target.value)}
+                placeholder="MRN Number"
+              />
+              <Input
+                id="txtAdvFilterName"
+                label="Patient Name"
+                value={advName}
+                onChange={(e) => setAdvName(e.target.value)}
+                placeholder="Full or partial name"
+              />
+              <DatePicker
+                label="Date of Birth"
+                value={advDOB}
+                onChange={(v) => setAdvDOB(v)}
+              />
+              <Input
+                id="txtAdvFilterPhone"
+                label="Phone"
+                value={advPhone}
+                onChange={(e) => setAdvPhone(e.target.value)}
+                placeholder="Mobile / Landline"
+              />
+              <DatePicker
+                label="Registered From"
+                value={advFromDate}
+                onChange={(v) => setAdvFromDate(v)}
+              />
+              <DatePicker
+                label="Registered To"
+                value={advToDate}
+                onChange={(v) => setAdvToDate(v)}
+              />
+              <Input
+                id="txtAdvFilterPincode"
+                label="Pincode"
+                value={advPincode}
+                onChange={(e) => setAdvPincode(e.target.value)}
+                placeholder="6-digit pincode"
+              />
+              <Input
+                id="txtAdvFilterCountry"
+                label="Country"
+                value={advCountry}
+                onChange={(e) => setAdvCountry(e.target.value)}
+                placeholder="Country"
+              />
+              <Input
+                id="txtAdvFilterState"
+                label="State"
+                value={advState}
+                onChange={(e) => setAdvState(e.target.value)}
+                placeholder="State"
+              />
+              <Input
+                id="txtAdvFilterCity"
+                label="City / Town"
+                value={advCityTown}
+                onChange={(e) => setAdvCityTown(e.target.value)}
+                placeholder="City"
+              />
+              <Input
+                id="txtAdvFilterArea"
+                label="Area"
+                value={advArea}
+                onChange={(e) => setAdvArea(e.target.value)}
+                placeholder="Area"
+              />
+              <div style={{ display: 'flex', alignItems: 'center', gap: spacing.sm, marginTop: spacing.md }}>
+                <input
+                  id="chkAdvFilterTempPatient"
+                  type="checkbox"
+                  checked={advShowTempPatient}
+                  onChange={(e) => setAdvShowTempPatient(e.target.checked)}
+                />
+                <label htmlFor="chkAdvFilterTempPatient" style={{ fontSize: 14, color: colors.textMain, cursor: 'pointer' }}>Show Temp Patients</label>
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: spacing.sm, marginTop: spacing.xl, paddingTop: spacing.md, borderTop: `1px solid ${colors.border}` }}>
+              <Button id="btnResetAdvFilter" variant="secondary" onClick={handleResetAdvancedFilter}>Reset</Button>
+              <Button id="btnApplyAdvFilter" variant="primary" onClick={handleApplyAdvancedFilter}>Apply Filter</Button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Patient list -- the real ui-grid here is a single-column card list
           (columnDefs has exactly one active column, "Patient Details", with
@@ -415,7 +680,7 @@ export const PatientSearchScreen: React.FC<ScreenProps> = ({ reactProps, onActio
         <EmptyState text="No records" />
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: spacing.sm }}>
-          {items.map((row) => (
+          {items.map((row: PatientRow) => (
             <PatientCard key={row.Id} row={row} onAction={dispatch} />
           ))}
         </div>

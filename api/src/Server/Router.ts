@@ -33,13 +33,29 @@ SessionConfig.store = new Store(CacheConfig);
 
 //CORS middleware
 var allowCrossDomain = function (req: Request, res: Response, next: NextFunction) {
-    res.header('Access-Control-Allow-Origin', '*');
+    const origin = req.headers.origin as string;
+    const allowedEnv = process.env.ALLOWED_ORIGINS;
+    const allowedOrigins = allowedEnv ? allowedEnv.split(',').map(o => o.trim()) : [];
+
+    if (allowedOrigins.length > 0) {
+        if (origin && (allowedOrigins.includes(origin) || allowedOrigins.includes('*'))) {
+            res.header('Access-Control-Allow-Origin', origin);
+            res.header('Access-Control-Allow-Credentials', 'true');
+        }
+    } else {
+        if (origin) {
+            res.header('Access-Control-Allow-Origin', origin);
+            res.header('Access-Control-Allow-Credentials', 'true');
+        } else {
+            res.header('Access-Control-Allow-Origin', '*');
+        }
+    }
+
     res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
     res.header('Access-Control-Allow-Headers', 'Authorization, Origin, X-Requested-With, Content-Type, Accept, x-api-key');
-    // res.header('Access-Control-Allow-Headers', 'Authorization, Origin, X-Requested-With, Content-Type, Accept');
 
     if (req.method === 'OPTIONS') {
-        res.send(200);
+        res.sendStatus(200);
     } else {
         next();
     }

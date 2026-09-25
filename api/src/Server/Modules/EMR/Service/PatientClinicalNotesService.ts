@@ -29,6 +29,14 @@ export class PatientClinicalNotesService extends BaseService {
         return await this.PatientClinicalNotesBo.GetPatientClinicalNotess(apiReq);
     }
 
+    public async SignPatientClinicalNote(req: BaseRequest): Promise<boolean> {
+        return await this.PatientClinicalNotesBo.SignPatientClinicalNote(req);
+    }
+
+    public async AmendPatientClinicalNote(req: BaseRequest): Promise<number> {
+        return await this.PatientClinicalNotesBo.AmendPatientClinicalNote(req);
+    }
+
     public async DeletePatientClinicalNotes(req: BaseRequest): Promise<Boolean> {
         return await this.PatientClinicalNotesBo.DeletePatientClinicalNotes(req);
     }

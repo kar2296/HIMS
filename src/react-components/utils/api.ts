@@ -57,9 +57,21 @@ export const apiFetch = async (action: string | { action: string, data: any }, p
       });
     } catch (e) {
       // Angular injector unavailable (e.g. component rendered outside the bootstrapped
-      // app) -- fail loudly rather than silently falling back to a separate HTTP path.
-      console.error('apiFetch: could not reach the Angular utl service', e);
-      reject(e);
+      // app, such as standalone React Router routes) -- fall back to callBackendApi
+      // so standalone screens can fetch from the backend proxy cleanly.
+      import('../../services/apiService').then(({ callBackendApi }) => {
+        callBackendApi({
+          action: urlAction,
+          data: requestData,
+          type: 'post'
+        })
+          .then(resolve)
+          .catch(reject);
+      }).catch(err => {
+        console.error('apiFetch: could not reach Angular utl service or apiService fallback', err);
+        reject(err);
+      });
     }
   });
 };
+

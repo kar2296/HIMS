@@ -52,6 +52,10 @@ export interface PrescriptionDetailAttributes extends IAttributes {
     AdministeredQuantity: number;
     AdministerStatusId: number;
     IseMAR: boolean;
+    IsAllergyOverride?: boolean;
+    AllergyOverrideReason?: string;
+    AllergyOverrideBy?: number;
+    AllergyOverrideAt?: Date;
 }
 
 export interface PrescriptionDetailInstance extends Instance<PrescriptionDetailAttributes> {

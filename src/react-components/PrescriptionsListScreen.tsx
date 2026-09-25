@@ -328,13 +328,25 @@ const PrescriptionCard: React.FC<{ row: PrescriptionRow; onAction: (action: stri
         </div>
 
         {/* Action */}
-        <div style={{ flex: '0 0 auto' }}>
+        <div style={{ flex: '0 0 auto', display: 'flex', gap: spacing.xs, alignItems: 'center', marginTop: 25 }}>
           <button
             type="button"
+            title="Print Prescription"
+            onClick={() => onAction('print', { row })}
+            style={{
+              border: '1px solid #d1d5db', background: '#f9fafb', color: colors.textMain, borderRadius: radii.sm,
+              width: 30, height: 30, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center'
+            }}
+          >
+            <i className="fa fa-print" aria-hidden="true" />
+          </button>
+          <button
+            type="button"
+            title="View Details"
             onClick={() => onAction('edit', { row })}
             style={{
               border: 'none', background: '#1dafa1', color: '#fff', borderRadius: radii.sm,
-              width: 30, height: 30, cursor: 'pointer', marginTop: 25,
+              width: 30, height: 30, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center'
             }}
           >
             <i className="fa fa-chevron-right" aria-hidden="true" />

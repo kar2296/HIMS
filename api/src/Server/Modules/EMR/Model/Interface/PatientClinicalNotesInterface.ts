@@ -22,6 +22,12 @@ export interface PatientClinicalNotesAttributes extends IAttributes {
     ModifyingFactors: string;
     AdditionalNotes: string;
     OtherComplaints: string;
+    SignedAt?: Date;
+    SignedBy?: number;
+    SignedContent?: string;
+    NoteStatus?: number;
+    AmendmentOf?: number;
+    AmendmentReason?: string;
     Rev: number;
     CreatedBy: number;
     CreatedAt: Date;

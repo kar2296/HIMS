@@ -84,12 +84,29 @@ export class WebServer {
     //     });
     // }
     public HandlerFor404: RequestHandler = (req: Request, res: Response, next: NextFunction): void => {
-        let err = new Error('Resource Not Found.');
+        let err: any = new Error('Resource Not Found.');
+        err.status = 404;
         next(err);
     }
-    public ErrorHandler: ErrorRequestHandler = (err: Error, req: Request, res: Response, next: NextFunction): void => {
+    public ErrorHandler: ErrorRequestHandler = (err: any, req: Request, res: Response, next: NextFunction): void => {
         console.error(err);
-        res.status(404).json(err);
+        let statusCode = err.status || err.statusCode;
+        if (!statusCode) {
+            if (err.code === 'OBJECT_UPDATED_BY_SOMEONE') {
+                statusCode = 409;
+            } else if (err.message === 'Resource Not Found.') {
+                statusCode = 404;
+            } else {
+                statusCode = 500;
+            }
+        }
+        res.status(statusCode).json({
+            Data: null,
+            Error: {
+                Code: err.code || 'ERROR',
+                Message: err.message || (typeof err === 'string' ? err : 'An error occurred.')
+            }
+        });
     }
     private registerModules(): void {
         var self = this;

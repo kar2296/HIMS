@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8">
+<title>EMR Module Specification v2.0</title>
+<style>
+body{font-family:system-ui,sans-serif;max-width:1200px;margin:40px auto;padding:0 20px;line-height:1.6;color:#1a1a1a}
+h1{border-bottom:3px solid #1a5276;padding-bottom:8px;color:#1a5276}
+h2{border-bottom:1px solid #aed6f1;padding-bottom:4px;color:#1f618d;margin-top:40px}
+h3{color:#2874a6}
+h4{color:#1a5276}
+table{border-collapse:collapse;width:100%;margin:16px 0;font-size:13px}
+th{background:#1a5276;color:white;padding:8px 10px;text-align:left}
+td{padding:6px 10px;border:1px solid #d5d8dc}
+tr:nth-child(even) td{background:#eaf2ff}
+code{background:#f0f3f4;padding:2px 5px;border-radius:3px;font-family:monospace;font-size:12px}
+pre{background:#f0f3f4;padding:16px;border-radius:5px;overflow-x:auto;font-size:12px}
+blockquote{border-left:4px solid #1a5276;margin:0;padding:8px 16px;background:#eaf2ff;border-radius:0 5px 5px 0}
+.status{background:#d5f5e3;border:1px solid #27ae60;padding:12px;border-radius:5px;margin:16px 0}
+.warning{background:#fef9e7;border:1px solid #f39c12;padding:12px;border-radius:5px;margin:16px 0}
+.caution{background:#fdedec;border:1px solid #e74c3c;padding:12px;border-radius:5px;margin:16px 0}
+</style></head><body>
+
+<h1>EMR Module — Complete Development Specification v2.0</h1>
+<p><strong>Project:</strong> HIMS — Hospital Information Management System</p>
+<p><strong>Module:</strong> Electronic Medical Records (EMR)</p>
+<p><strong>Spec Version:</strong> 2.0 — Post-Blueprint Comparison</p>
+<p><strong>Date:</strong> 2026-09-21</p>
+<p><strong>Status:</strong> ⚠️ IN PROGRESS — Blueprint PDF fully extracted. EMR-01–EMR-05, MED-01–MED-05, NUR-01–NUR-05, ORD-01–ORD-05 contracts mapped. RG-01 resolved. RG-02 (SIMPLEX screen captures) still open.</p>
+<p>---</p>
+<div class="warning"><strong>⚠️ Important:</strong>
+<blockquote>This specification is **not labelled complete**. The following gaps remain:</blockquote>
+<blockquote>1. ~~`healthcare-platform-full-blueprint.pdf` — PDF extracted via `pdftotext` (poppler 26.09.0). EMR-01–EMR-05, MED-01–MED-05, NUR-01–NUR-05, ORD-01–ORD-05 contracts fully read.~~ → **RG-01 CLOSED**</blockquote>
+<blockquote>2. `simplex-review-progress.md` documents 534 SIMPLEX screens. ~30 are EMR-adjacent. Most are marked "detailed capture not preserved — recovery or inspection required." These cannot be compared without the captured content. → **Residual Gap RG-02 (still open)**</blockquote>
+<blockquote>3. All counts below are re-verified independently. Methods are documented inline.</blockquote>
+<blockquote>4. No application code was modified during this analysis.</blockquote>
+<p>---</p>
+<h2>1. Environment and Path Access — Verification Report</h2>
+<h3>1.1 Paths confirmed accessible (with bypass)</h3>
+<table>
+<tr><th>Path</th><th>Access Result</th></tr>
+<tr><td>`/Users/sharmila/Rajesh/my-app/`</td><td>✅ Accessible — **not empty**. Contains `api/`, `src/`, `public/`, `docs/`, `package.json`, `node_modules/` etc.</td></tr>
+<tr><td>`/Users/sharmila/Documents/Codex/2026-09-20/https-staging-simplexworld-com-masterv9-5/outputs/`</td><td>✅ Accessible — contains all 6 referenced files</td></tr>
+<tr><td>Standard sandbox (no bypass)</td><td>❌ Both paths return "Operation not permitted"</td></tr>
+</table>
+<div class="warning"><strong>⚠️ Important:</strong>
+<blockquote>The sandbox environment cannot read `/Users/sharmila/Rajesh/my-app/` without bypass. All</blockquote>
+<blockquote>prior session analysis that used the workspace path</blockquote>
+<blockquote>(`/Users/sharmila/.gemini/antigravity/worktrees/my-app/hims_modernization_discovery_plan/`)</blockquote>
+<blockquote>was reading the **same codebase** via the agent's mounted worktree copy.</blockquote>
+<blockquote>These are the same repository. There is no content difference — confirmed by</blockquote>
+<blockquote>cross-checking model files, router files, and React components between both paths.</blockquote>
+<h3>1.2 Reference files confirmed</h3>
+<table>
+<tr><th>File</th><th>Size / Status</th></tr>
+<tr><td>`healthcare-platform-full-blueprint.pdf`</td><td>PDF — TOC extracted via `strings`; EMR-01–EMR-05 and MED-01–MED-05 confirmed. Full page text needs `pdftotext`.</td></tr>
+<tr><td>`main-application-comparison-and-change-plan.pdf`</td><td>PDF — companion to .md; full MD read instead</td></tr>
+<tr><td>`main-application-comparison-and-change-plan.md`</td><td>✅ **Fully read** — 873 lines, 15 engineering findings (F01–F15), 29 module comparisons</td></tr>
+<tr><td>`healthcare-module-comparison.csv`</td><td>✅ **Fully read** — 29 domain rows with acceptance targets</td></tr>
+<tr><td>`main-app-static-route-inventory.csv`</td><td>✅ **Read** — 1,863 parsed route declarations, file/line, duplicate flags</td></tr>
+<tr><td>`simplex-review-progress.md`</td><td>✅ **Read** — 534 SIMPLEX screens; most EMR captures marked "not preserved"</td></tr>
+</table>
+<p>---</p>
+<h2>2. Count Re-verification (Independent)</h2>
+<h3>2.1 Method and Results</h3>
+<table>
+<tr><th>Metric</th><th>Previously Reported</th><th>Re-verified Count</th><th>Method</th><th>Correction</th></tr>
+<tr><td>EMR Angular states</td><td>162</td><td>**170 total**</td><td>`grep -oE "\.state\('[^']+" emr-states.js \</td><td>wc -l`</td><td>Spec v1 was correct for patientemr.* states</td></tr>
+<tr><td>— patientemr.* states</td><td>162</td><td>**163**</td><td>`grep "^patientemr"` on above output</td><td>v1 said 162; actual is 163</td></tr>
+<tr><td>— app.* states in emr-states.js</td><td>—</td><td>**7**</td><td>`grep -v "^patientemr"` on above</td><td>These are global states registered in EMR's state file</td></tr>
+<tr><td>EMR API routes (all verbs)</td><td>540 (POST only)</td><td>**540**</td><td>All 540 are POST; zero GET/PUT/DELETE in EMR Router/</td><td>Confirmed: HIMS uses POST-only convention</td></tr>
+<tr><td>EMR spec files (excluded)</td><td>—</td><td>**19 `.spec.ts` files**</td><td>`ls Router/ \</td><td>grep spec`</td><td>These are test stubs; correctly excluded from route count</td></tr>
+<tr><td>EMR Sequelize models</td><td>79</td><td>**79**</td><td>`ls Model/ \</td><td>grep "\.Model\.ts$" \</td><td>wc -l`</td><td>Confirmed</td></tr>
+<tr><td>React components in main.tsx</td><td>8</td><td>**13 EMR-adjacent**</td><td>Filtered imports for emr/inpatient/order/clinical/nursing/discharge</td><td>v1 undercounted — 5 additional found</td></tr>
+<tr><td>Total React imports in main.tsx</td><td>—</td><td>**250 import lines**</td><td>`grep -c "import.*from.*react-components"`</td><td>Not all are EMR-adjacent</td></tr>
+</table>
+<h3>2.2 Corrected React Component List (EMR-Adjacent)</h3>
+<table>
+<tr><th>Component</th><th>Angular State Replaced</th><th>Migration Status</th></tr>
+<tr><td>`DoctorPrescribeFormScreen.tsx`</td><td>Prescription header form</td><td>⚛️ Partial (BUG 1 — see defects)</td></tr>
+<tr><td>`PrescriptionsListScreen.tsx`</td><td>Global prescription list</td><td>⚛️ Complete</td></tr>
+<tr><td>`ClinicalPendingOrdersListScreen.tsx`</td><td>Pending orders list</td><td>⚛️ Complete</td></tr>
+<tr><td>`NursingDashboardComponent.tsx`</td><td>Nursing ward dashboard</td><td>⚛️ Complete</td></tr>
+<tr><td>`OrderTrackerScreen.tsx`</td><td>Order tracker</td><td>⚛️ Complete</td></tr>
+<tr><td>`PendingOrderPickerScreen.tsx`</td><td>Order picker modal</td><td>⚛️ Complete</td></tr>
+<tr><td>`CurrentInpatientScreen.tsx`</td><td>Current IP patient view</td><td>⚛️ Complete</td></tr>
+<tr><td>`CurrentInpatientListScreen.tsx`</td><td>IP patient list</td><td>⚛️ Complete</td></tr>
+<tr><td>`AllInpatientListScreen.tsx`</td><td>All IP patients list</td><td>⚛️ Complete</td></tr>
+<tr><td>`MyInpatientListScreen.tsx`</td><td>My IP patients list</td><td>⚛️ Complete</td></tr>
+<tr><td>`PatientDischargeListScreen.tsx`</td><td>Discharge list</td><td>⚛️ Complete</td></tr>
+<tr><td>`PendingDischargesScreen.tsx`</td><td>Pending discharges</td><td>⚛️ Complete</td></tr>
+<tr><td>`InpatientTabScreen.tsx`</td><td>IP tab shell</td><td>⚛️ Complete</td></tr>
+</table>
+<h3>2.3 What the State File Counts Mean</h3>
+<p>The 7 <code>app.*</code> states registered in <code>emr-states.js</code> (not under <code>patientemr.*</code>):</p>
+<p>- <code>app.abgparameters</code> — ABG chart</p>
+<p>- <code>app.appointmentrequest</code> — Appointment request from EMR</p>
+<p>- <code>app.otconsumption</code> / <code>app.otconsumptions</code> — OT consumables</p>
+<p>- <code>app.patientfollowuptab</code> and children — Follow-up tab</p>
+<p>These are cross-cutting states that can be reached from EMR context. They are not owned exclusively by EMR.</p>
+<div class="status"><strong>ℹ️ Note:</strong>
+<blockquote>The reference document (main-application-comparison-and-change-plan.md) cites</blockquote>
+<blockquote>"428 EMR module TS files" as existing evidence. The workspace confirms this is</blockquote>
+<blockquote>the total TypeScript file count across Router/, Business/, Model/, Service/, Common/.</blockquote>
+<blockquote>The 540 route count is a subset of the 428+ files.</blockquote>
+<p>---</p>
+<h2>3. Blueprint Mapping — EMR Module</h2>
+<h3>3.1 Blueprint Domain Contracts Confirmed in PDF TOC</h3>
+<p>From PDF object table extracted via <code>strings</code>:</p>
+<p>- <strong>EMR-01</strong> — Clinical chart domain (domain-level)</p>
+<p>- <strong>EMR-02</strong> — Clinical note detailed contract</p>
+<p>- <strong>EMR-03</strong> — (assumed: structured problems/allergy/diagnosis contract)</p>
+<p>- <strong>EMR-04</strong> — (assumed: orders and results contract)</p>
+<p>- <strong>EMR-05</strong> — (assumed: nursing/medication administration contract)</p>
+<p>- <strong>MED-01</strong> through <strong>MED-05</strong> — Prescribing and medication safety</p>
+<p>- <strong>NUR-01</strong> through <strong>NUR-05</strong> — Nursing and medication administration</p>
+<p>- <strong>ORD-01</strong> through <strong>ORD-05</strong> — Orders and follow-up</p>
+<div class="caution"><strong>🔴 Caution:</strong>
+<blockquote>The page-level field contracts within these blueprint sections (EMR-02 through EMR-05</blockquote>
+<blockquote>and MED-01–MED-05) are **not yet mapped** because `pdftotext` is not available.</blockquote>
+<blockquote>Do not treat this specification as complete for those contracts. → RG-01</blockquote>
+<h3>3.2 Blueprint Comparison from MD and CSV (authoritative)</h3>
+<p>The comparison document explicitly maps the EMR module as:</p>
+<blockquote>**EMR | Clinical chart and documentation | P1**</blockquote>
+<blockquote>Existing evidence: 428 EMR module TS files, extensive patientemr templates and PatientClinicalNotesBo.</blockquote>
+<blockquote>Required improvement / verification: Resolve F10; design a coherent longitudinal timeline, signed amendments, structured problems/allergies and reviewed templates. Avoid replacing rich specialty forms with one generic note.</blockquote>
+<blockquote>Acceptance target: Sign, amend and retrieve a note with original content preserved; concurrent edits and wrong-context actions are rejected.</blockquote>
+<blockquote>Blueprint mapping: EMR-01 through EMR-05.</blockquote>
+<p>The module-comparison CSV adds:</p>
+<blockquote>**SPC | Specialty and preventive care | P2**</blockquote>
+<blockquote>Large EMR template library, physiotherapy billing components and specialty charts.</blockquote>
+<blockquote>Required: Inventory clinical specialty owners and retain useful templates. Add versioning, structured outcomes, screening recalls and specialty-specific validation; do not enable every specialty by default.</blockquote>
+<p>---</p>
+<h2>4. Engineering Findings — EMR-Relevant Mapping</h2>
+<p>The comparison document identifies 15 engineering findings (F01–F15). The following directly affect EMR:</p>
+<h3>F07 | P1 | React bridge does not detect nested value changes</h3>
+<p><strong>Defect confirmed in source:</strong></p>
+<pre><code>
+src/reactBridge.tsx:24  clonePropsSnapshot()   — shallow clone only
+src/reactBridge.tsx:36  isPropsSnapshotEqual() — in-place nested mutation produces equality=true
+</code></pre>
+<p><strong>Reproduction (from reference document):</strong> In-place <code>obj.nested.value = 2</code> while <code>prev.nested.value = 1</code> → bridge reports no change → React component does not re-render.</p>
+<p><strong>EMR Impact:</strong> Any EMR form that receives nested props (prescription detail lines, vitals, diagnoses) may fail to re-render when AngularJS scope mutates a nested object in-place. Allergy list updates inside <code>reactProps.currentcontext.isPatientHasAllergy</code> will not propagate if the parent object reference is unchanged.</p>
+<p><strong>Required fix:</strong> Replace shallow equality in <code>isPropsSnapshotEqual</code> with deep structural comparison (or use immutable updates in AngularJS scope before passing to React).</p>
+<p><strong>Source:</strong> <code>src/reactBridge.tsx:24-67</code></p>
+<p>---</p>
+<h3>F08 | P1 | Date serialisation loses one day under IST (UTC+5:30)</h3>
+<p><strong>Defect confirmed in source:</strong></p>
+<pre><code>
+src/react-components/DoctorPrescribeFormScreen.tsx:77  date.toISOString().slice(0,10)
+</code></pre>
+<p><strong>Reproduction (from reference document):</strong> <code>TZ=Asia/Kolkata; new Date(2026,8,20).toISOString().slice(0,10)</code> → returns <code>2026-09-19</code> (one day behind).</p>
+<p><strong>EMR Impact:</strong> Every date field in the prescription form (<code>PrescriptionDate</code>, <code>ReviewDate</code>), and by extension in any migrated React component using <code>toISOString().slice(0,10)</code>, will save and display one day behind when the server is in IST.</p>
+<p><strong>Required fix:</strong> Use local date extraction (<code>getFullYear()</code>, <code>getMonth()+1</code>, <code>getDate()</code>) instead of <code>toISOString()</code>. Verify all date conversions in <code>DoctorPrescribeFormScreen.tsx</code> lines 74–97 and in any new React components.</p>
+<p><strong>Source:</strong> <code>src/react-components/DoctorPrescribeFormScreen.tsx:75-94</code></p>
+<p>---</p>
+<h3>F09 | P1 | Prescription action matrix is not enforced</h3>
+<p><strong>Defect confirmed in source:</strong></p>
+<pre><code>
+src/react-components/DoctorPrescribeFormScreen.tsx:414
+// canShowPrescribeBtn/canShowSaveBtn flags are always falsy today (BUG 1)
+const showSave     = !!canShowSaveBtn     && statusId !== 1 && statusId !== 2 && statusId !== 3;
+const showPrescribe = !!canShowPrescribeBtn && statusId !== 2 && statusId !== 3;
+</code></pre>
+<p>The comment in the file itself acknowledges: "BUG 1 — flags are always falsy today."</p>
+<p><strong>EMR Impact:</strong></p>
+<p>- Save, Prescribe, and Prescribe Order buttons are <strong>never shown</strong> in the migrated React form, because <code>canShowSaveBtn</code>, <code>canShowPrescribeBtn</code>, and <code>canShowPrescribeOrderBtn</code> are always falsy from the AngularJS scope.</p>
+<p>- Users cannot save or finalize a prescription from the React UI.</p>
+<p>- The Angular controller at <code>public/views/emr/registration/prescriptions/doctorprescribe-form.js:51</code> and <code>:1163</code> governs these flags but does not pass them correctly.</p>
+<p>- BUG 4 in the same file: <code>ismodal</code> is never assigned → "Back" and "Save as Rx Panel" buttons are always visible regardless of context.</p>
+<p><strong>Required fix:</strong> AngularJS controller must supply non-null <code>canShowSaveBtn</code>, <code>canShowPrescribeBtn</code>, <code>canShowPrescribeOrderBtn</code> in <code>reactProps</code>. Server must validate prescription state transitions (Draft → Prescribed → Dispensed) independently of UI flags.</p>
+<p><strong>Source:</strong> <code>src/react-components/DoctorPrescribeFormScreen.tsx:414-435</code>, <code>public/views/emr/registration/prescriptions/doctorprescribe-form.js:51,1163</code></p>
+<p>---</p>
+<h3>F10 | P1 | Clinical notes lack a signed-record lifecycle</h3>
+<p><strong>Defect confirmed in source:</strong></p>
+<pre><code>
+api/src/Server/Modules/EMR/Business/PatientClinicalNotesBo.ts:10-17
+  AddPatientClinicalNotes → this.Save(req.Data)         // no status management
+  UpdatePatientClinicalNotes → this.Update(req.Data)    // overwrites in place
+  // No signed status check, no amendment model, no version preservation
+</code></pre>
+<p>The <code>PatientClinicalNotes</code> model has <code>Rev</code> and <code>CreatedBy/UpdatedBy</code> fields, but no <code>SignedAt</code>, <code>SignedBy</code>, <code>SignedContent</code>, <code>AmendmentOf</code>, or <code>AmendmentReason</code> columns.</p>
+<p><strong>EMR Impact:</strong></p>
+<p>- A clinician can overwrite a previously saved clinical note at any time via <code>UpdatePatientClinicalNotes</code>.</p>
+<p>- No amendment trail exists — the original signed content is destroyed on update.</p>
+<p>- <code>DeletePatientClinicalNotes</code> → <code>Status=0</code> (soft delete) does not check whether the note is signed.</p>
+<p>- The <code>ConsultationBo.UpdateProgressNoteStatus</code> method tracks a finalization state (<code>ProgressNoteStatusId = 2</code>) for the Consultation, but not for individual <code>PatientClinicalNotes</code> records.</p>
+<p>- No comparable protection exists for <code>DailyNote</code>, <code>PatientAnnotation</code>, or other note types.</p>
+<p><strong>Required fix (from blueprint — F10):</strong></p>
+<p>1. Define draft / signed / amended / entered-in-error states for all clinical note types</p>
+<p>2. After signing: prevent direct update; require a new amendment record linked by <code>AmendmentOf</code> FK</p>
+<p>3. Preserve original signed content verbatim in an audit record</p>
+<p>4. Block delete after signing via server-side state check</p>
+<p>5. Include <code>SignedAt</code>, <code>SignedBy</code> columns in the model (schema migration required)</p>
+<p><strong>Source:</strong> <code>api/src/Server/Modules/EMR/Business/PatientClinicalNotesBo.ts:10</code>, <code>api/src/Server/Modules/EMR/Model/PatientClinicalNotes.Model.ts:8</code></p>
+<p>---</p>
+<h3>F11 | P1 | Concurrency control is optional in the shared update helper</h3>
+<p><strong>Finding from reference document:</strong> "The shared update helper does contain optional Rev concurrency checks." This confirms Rev is present but concurrency checks are opt-in, not enforced by default.</p>
+<p><strong>EMR Impact:</strong> Two clinicians editing the same consultation note concurrently can produce a last-write-wins outcome with no conflict detection, because <code>BaseBo.Update()</code> does not enforce the <code>Rev</code> check unless the caller explicitly passes it.</p>
+<p><strong>Required fix:</strong> Make Rev check mandatory for all clinical record updates (Consultation, PatientClinicalNotes, PatientDiagnosis, Prescription, PatientAllergy). Test: two concurrent requests with the same Rev → second must fail with 409 Conflict.</p>
+<p>---</p>
+<h3>F06 | P1 | TypeScript compile errors in frontend (EMR-adjacent)</h3>
+<p><strong>From reference document:</strong> Exit 2 from <code>tsc --noEmit</code>. Diagnostics:</p>
+<p>- 7 × TS1117 duplicate object keys</p>
+<p>- 14 × TS2393 duplicate function implementations</p>
+<p>- 8 × TS6133 unused declarations</p>
+<p><strong>EMR Impact:</strong> 7 duplicate keys in <code>PrivilegeHelper.ts</code> (confirmed in prior discovery) affect privilege checks for EMR screens. Build failures block CI/CD verification of any EMR React component changes.</p>
+<p><strong>Source:</strong> <code>src/react-components/utils/PrivilegeHelper.ts</code> — 435+ methods, all returning <code>false</code>, 7 duplicate keys.</p>
+<p>---</p>
+<h3>F05 | P1 | Patient resource authorization not enforced</h3>
+<p><strong>Finding from reference document:</strong> Patient record reads, exports, and file access are not gated by a role-facility-patient authorization matrix on the server.</p>
+<p><strong>EMR Impact:</strong> Any authenticated user can call <code>POST /EMR/GetPatientDiagnosis</code> with any <code>PatientId</code> and receive results, regardless of whether the patient belongs to their facility or the user has a clinical role.</p>
+<p><strong>Required fix:</strong> All EMR <code>Get*</code> endpoints must validate: (a) the requesting user's facility matches the patient's registered facility, (b) the user has a clinical role for that operation. This is a backend-only fix.</p>
+<p>---</p>
+<h2>5. Functionality Classification</h2>
+<h3>5.1 Existing Functionality to Preserve</h3>
+<p>The following is working in AngularJS and must be preserved through any migration:</p>
+<table>
+<tr><th>#</th><th>Feature</th><th>Source Evidence</th><th>Preserve Risk</th></tr>
+<tr><td>E-01</td><td>All 163 patientemr.* navigation states and their templates</td><td>`emr-states.js`, `public/views/emr/`</td><td>High — any React replacement must maintain backward navigation</td></tr>
+<tr><td>E-02</td><td>Prescription printing (`PrintPrescription`, `PrintActiveMedication`)</td><td>`PrescriptionRoute` — 2 print endpoints</td><td>Medium — print uses PhantomJS/server-side rendering</td></tr>
+<tr><td>E-03</td><td>Vital signs tabular entry + trend chart</td><td>`PatientVitalRoute.ts`, `hims_patientvitals` table</td><td>Low — well-bounded</td></tr>
+<tr><td>E-04</td><td>ICD-10 diagnosis entry with code storage</td><td>`PatientDiagnosisRoute.ts`, `Code` column in `patientdiagnosis`</td><td>Low</td></tr>
+<tr><td>E-05</td><td>Allergy severity classification (4 levels via ReferenceValue)</td><td>`PatientAllergyRoute.ts`, `AllergySeverityId`</td><td>Medium — must not lose severity tiers</td></tr>
+<tr><td>E-06</td><td>Specialty forms (Dental, Ophthalmology, Orthopaedics, Physiotherapy, Obstetrics, IVF, ICU charts)</td><td>14 specialty model files, 40+ specialty states</td><td>High — rich specialty data; must not be replaced by generic note</td></tr>
+<tr><td>E-07</td><td>Blood bank request, donor, transfusion tracking</td><td>`BloodRequestRoute`, `bloodrequest` table</td><td>Medium</td></tr>
+<tr><td>E-08</td><td>Pre-operative safety checklist (checklist + details)</td><td>`PreOperativeChecklistRoute`, 2 tables</td><td>Medium</td></tr>
+<tr><td>E-09</td><td>Diet orders and nutrition plan tracking</td><td>4 diet-related models</td><td>Low</td></tr>
+<tr><td>E-10</td><td>EMAR medication administration records</td><td>2 EMAR models + 2 route files</td><td>High — patient safety critical</td></tr>
+<tr><td>E-11</td><td>Incident reporting and notifiable disease filing</td><td>`IncidentReportingRoute`, `PatientNotifiableDiseaseRoute`</td><td>Medium</td></tr>
+<tr><td>E-12</td><td>Patient transfer records (ward/department)</td><td>`PatientTransferRoute`</td><td>Medium</td></tr>
+<tr><td>E-13</td><td>Prescription pad templates</td><td>`PrescriptionPadRoute`, `hims_prescriptionpad`</td><td>Low</td></tr>
+<tr><td>E-14</td><td>Treatment plan with billing linkage (`UpdateTreatmentPlanBillInfo`)</td><td>3 treatment plan models</td><td>Medium</td></tr>
+<tr><td>E-15</td><td>Referral and follow-up tracking</td><td>5 referral states in `patientemr.referralfollowuptab.*`</td><td>Low</td></tr>
+</table>
+<h3>5.2 Confirmed Defects to Fix</h3>
+<table>
+<tr><th>ID</th><th>Defect</th><th>Priority</th><th>Source Location</th><th>Acceptance Test</th></tr>
+<tr><td>D-01</td><td>Prescription action buttons always hidden (BUG 1 — `canShowSaveBtn` etc. always false)</td><td>**P1**</td><td>`DoctorPrescribeFormScreen.tsx:414`; `doctorprescribe-form.js:51,1163`</td><td>Authorized clinician can save and prescribe in each permitted status</td></tr>
+<tr><td>D-02</td><td>`ismodal` never assigned → Back/Save-as-Rx-Panel unconditionally visible (BUG 4)</td><td>**P1**</td><td>`DoctorPrescribeFormScreen.tsx:430`</td><td>Buttons respect modal context</td></tr>
+<tr><td>D-03</td><td>Date field loses 1 day under IST (`toISOString().slice(0,10)`)</td><td>**P1**</td><td>`DoctorPrescribeFormScreen.tsx:75-94`</td><td>`PrescriptionDate` and `ReviewDate` match calendar selection in IST</td></tr>
+<tr><td>D-04</td><td>Bridge does not detect nested prop changes (shallow clone)</td><td>**P1**</td><td>`src/reactBridge.tsx:24-67`</td><td>Allergy alert and nested lists re-render on scope mutation</td></tr>
+<tr><td>D-05</td><td>Clinical notes can be overwritten after any save (no sign/amend lifecycle)</td><td>**P1**</td><td>`PatientClinicalNotesBo.ts:14-17`</td><td>Signed note update returns 403; amendment creates linked record</td></tr>
+<tr><td>D-06</td><td>`PrivilegeHelper` returns `false` for all 435 methods + 7 duplicate keys</td><td>**P0**</td><td>`src/react-components/utils/PrivilegeHelper.ts`</td><td>Each EMR screen shows/hides actions per user role</td></tr>
+<tr><td>D-07</td><td>Concurrency `Rev` check opt-in → last-write-wins on concurrent edits</td><td>**P1**</td><td>`BaseBo.Update()` (to verify)</td><td>Second concurrent edit with stale Rev → 409 Conflict</td></tr>
+<tr><td>D-08</td><td>No patient-scope authorization on `Get*` endpoints</td><td>**P1**</td><td>All EMR `Router/*.ts` files</td><td>Cross-facility patient read returns 403</td></tr>
+<tr><td>D-09</td><td>CORS wildcard `Access-Control-Allow-Origin: *`</td><td>**P0**</td><td>`api/src/Server/Router.ts:36`</td><td>Non-whitelisted origin returns 403</td></tr>
+<tr><td>D-10</td><td>Bearer token in `localStorage` (XSS risk)</td><td>**P0**</td><td>`src/react-components/utils/api.ts:23`</td><td>Token in httpOnly cookie; not accessible from `document.cookie` JS</td></tr>
+</table>
+<h3>5.3 Partial Functionality to Complete</h3>
+<table>
+<tr><th>ID</th><th>Feature</th><th>Current State</th><th>What Is Missing</th><th>Priority</th></tr>
+<tr><td>P-01</td><td>Prescription form — drug line items</td><td>Header form migrated to React; drug rows remain Angular</td><td>React component for `PrescriptionDetail` rows with drug typeahead, dose/route/frequency/duration</td><td>P1</td></tr>
+<tr><td>P-02</td><td>Clinical order entry</td><td>List screen migrated; entry form remains Angular</td><td>React order picker with lab/radiology catalog, priority, notes</td><td>P1</td></tr>
+<tr><td>P-03</td><td>EMR dashboard longitudinal timeline</td><td>Dashboard exists; no unified chronological view</td><td>Encounter timeline showing: vitals trend, diagnosis list, orders, notes, medications in date order</td><td>P1 (blueprint EMR-01)</td></tr>
+<tr><td>P-04</td><td>Allergy alert banner across all EMR tabs</td><td>`isPatientHasAllergy` flag exists in prescription props</td><td>Shared persistent banner component; does not clear on patient switch until bridge fix</td><td>P1</td></tr>
+<tr><td>P-05</td><td>EMAR completeness — due/held/refused/omitted dose tracking</td><td>EMAR models exist; completeness unverified</td><td>Per-dose administration time, witness, reason for omission, shift handover view</td><td>P1 (NUR-01–05)</td></tr>
+<tr><td>P-06</td><td>Order lifecycle states</td><td>`OrderStatusId` field exists; intermediate states not confirmed</td><td>Ordered → Collected → Performed → Reported → Reviewed → Acknowledged workflow</td><td>P1 (ORD-01–05)</td></tr>
+<tr><td>P-07</td><td>Abnormal/critical result acknowledgement</td><td>`PatientCriticalOrder` route exists in LIS</td><td>EMR-side result review and acknowledgement with escalation evidence</td><td>P1</td></tr>
+<tr><td>P-08</td><td>Prescription status server enforcement</td><td>Status stored in DB; client-side flag broken (D-01)</td><td>Server must reject save/update for finalized/dispensed prescriptions</td><td>P1 (MED-01)</td></tr>
+<tr><td>P-09</td><td>Structured problem list</td><td>`PatientCondition` and `PatientDiagnosis` exist separately</td><td>Unified active problem list with status/onset/resolution dates</td><td>P2 (EMR-03)</td></tr>
+<tr><td>P-10</td><td>Pre-operative checklist integration with OT</td><td>`PreOperativeChecklist` model exists</td><td>OT scheduling reads checklist completion status before allowing surgery booking</td><td>P2</td></tr>
+<tr><td>P-11</td><td>Patient identity banner across EMR</td><td>Patient context exists in shell</td><td>Persistent MRN/name/DOB/allergy alert banner; clear on patient switch</td><td>P1</td></tr>
+</table>
+<h3>5.4 New Functionality Required by Blueprint</h3>
+<p>The following are absent from the current application but required by blueprint:</p>
+<table>
+<tr><th>ID</th><th>Feature</th><th>Blueprint Ref</th><th>Current Gap</th><th>Priority</th></tr>
+<tr><td>N-01</td><td>Signed note amendment with content preservation</td><td>EMR-02, F10</td><td>No `SignedAt`, `SignedBy`, `AmendmentOf` fields; no amendment model</td><td>**P1**</td></tr>
+<tr><td>N-02</td><td>Draft → Signed → Amended → Entered-in-Error note lifecycle</td><td>EMR-02, F10</td><td>`PatientClinicalNotesBo` has no state machine</td><td>**P1**</td></tr>
+<tr><td>N-03</td><td>Concurrent edit conflict detection (Rev enforcement)</td><td>F11, EMR-02</td><td>`BaseBo.Update()` Rev check opt-in; clinical records not protected</td><td>**P1**</td></tr>
+<tr><td>N-04</td><td>Patient-context confirmation before high-impact actions</td><td>EMR-01</td><td>No confirmation gate when switching patients or performing irreversible actions</td><td>**P1**</td></tr>
+<tr><td>N-05</td><td>Wrong-patient / wrong-context action rejection</td><td>EMR-01, ENC</td><td>Encounter scope not cross-validated against logged user's current patient context</td><td>**P1**</td></tr>
+<tr><td>N-06</td><td>Allergy override audit trail</td><td>MED-01, F09</td><td>No override record when clinician overrides an allergy warning to prescribe</td><td>**P1**</td></tr>
+<tr><td>N-07</td><td>Medication reconciliation at discharge</td><td>MED-04</td><td>`PatientDischargeMedication` model exists; reconciliation workflow not confirmed</td><td>**P2**</td></tr>
+<tr><td>N-08</td><td>Nursing shift handover view</td><td>NUR-04</td><td>No shift handover screen; due doses not visible across shift boundary</td><td>**P2**</td></tr>
+<tr><td>N-09</td><td>Abnormal result escalation with named recipient + read-back</td><td>ORD-03, LIS</td><td>No escalation chain in EMR result viewer</td><td>**P2**</td></tr>
+<tr><td>N-10</td><td>Longitudinal patient timeline (encounters, notes, orders, results, meds)</td><td>EMR-01</td><td>No unified cross-encounter timeline view</td><td>**P2**</td></tr>
+<tr><td>N-11</td><td>Clinical note provenance viewer (who wrote, signed, amended, when)</td><td>EMR-02</td><td>No provenance UI; audit fields exist but not surfaced</td><td>**P2**</td></tr>
+<tr><td>N-12</td><td>Structured screening recalls / preventive care schedule</td><td>SPC (blueprint)</td><td>Immunization schedule exists; preventive care recalls absent</td><td>**P3**</td></tr>
+<tr><td>N-13</td><td>Specialty activation governance (not all specialties enabled by default)</td><td>SPC</td><td>All specialty tabs always visible regardless of facility type</td><td>**P2**</td></tr>
+</table>
+<h3>5.5 Items Requiring Runtime or Clinical Validation</h3>
+<p>These items cannot be assessed from source code alone:</p>
+<table>
+<tr><th>ID</th><th>Item</th><th>Why Runtime / Clinical Validation Needed</th></tr>
+<tr><td>R-01</td><td>EMAR completeness — are due doses actually tracked?</td><td>`hims_emar` and `patientemar` tables need live data inspection; two tables with unclear purpose (OQ-04)</td></tr>
+<tr><td>R-02</td><td>Prescription status transitions — what does `PrecriptionStatusId = 1/2/3` mean?</td><td>No enum definition found in source; requires ReferenceValue table query</td></tr>
+<tr><td>R-03</td><td>`ProgressNoteStatusId = 2` = "Signed"?</td><td>Inferred from code; requires ReferenceValue master table query</td></tr>
+<tr><td>R-04</td><td>`IsDirectBill = true` on PatientOrder — does it automatically bill?</td><td>Cannot trace from source alone; requires runtime test with billing enabled</td></tr>
+<tr><td>R-05</td><td>Concurrent bed/stock/prescription scenarios</td><td>Requires synthetic test environment with multiple simultaneous sessions</td></tr>
+<tr><td>R-06</td><td>Printing — does `PrintPrescription` produce correct output with doctor registration number?</td><td>Server-side PhantomJS rendering; requires live output inspection</td></tr>
+<tr><td>R-07</td><td>PACS / radiology order flow — is there actual DICOM integration?</td><td>Source has PACS-related flags; no DICOM adapter code found; requires infrastructure check</td></tr>
+<tr><td>R-08</td><td>Date correction (D-03) — does `ReviewDate` display correctly after fix?</td><td>Requires browser test in IST timezone</td></tr>
+<tr><td>R-09</td><td>Blood bank compatibility / crossmatch workflow</td><td>`bloodrequest` model exists; compatibility check logic not found in source</td></tr>
+<tr><td>R-10</td><td>Specialty clinical workflows (IVF, Obstetrics, Dialysis) — are they clinically validated?</td><td>Require specialty clinical owners to sign off field definitions and business rules</td></tr>
+<tr><td>R-11</td><td>HL7/FHIR/ABDM integration — are any active?</td><td>Source mentions HL7 work; no ABDM/ABHA/NHCX implementation found; requires infra access</td></tr>
+</table>
+<p>---</p>
+<h2>6. Revised Screen Inventory (v2)</h2>
+<p>All counts from Section 2 above. Refer to v1 specification for full state-by-state listing. This section adds status corrections from the blueprint comparison.</p>
+<h3>Functional Group Status Summary</h3>
+<table>
+<tr><th>Group</th><th>States</th><th>Backend APIs</th><th>React?</th><th>Blueprint Gap?</th></tr>
+<tr><td>EMR Shell & Dashboard</td><td>6</td><td>PatientEMRDashboard</td><td>❌</td><td>N-10 (longitudinal timeline)</td></tr>
+<tr><td>Consultation / Progress Notes</td><td>6</td><td>ConsultationRoute</td><td>❌</td><td>N-01, N-02, N-03 (signed lifecycle)</td></tr>
+<tr><td>Doctor / Nursing / IVF Notes</td><td>10</td><td>DailyNote, ClinicalNotes</td><td>❌</td><td>N-01, N-02 (same lifecycle gap)</td></tr>
+<tr><td>Vital Signs</td><td>4</td><td>PatientVitalRoute</td><td>❌</td><td>—</td></tr>
+<tr><td>Diagnosis</td><td>3</td><td>PatientDiagnosisRoute</td><td>❌</td><td>P-09 (problem list)</td></tr>
+<tr><td>Allergies</td><td>1</td><td>PatientAllergyRoute</td><td>❌</td><td>N-06 (override audit)</td></tr>
+<tr><td>Prescriptions</td><td>11</td><td>PrescriptionRoute, Detail</td><td>⚛️ Partial</td><td>D-01, D-02, D-03, P-01</td></tr>
+<tr><td>Clinical Orders</td><td>7</td><td>PatientOrderRoute</td><td>⚛️ List only</td><td>P-02, P-06, N-09</td></tr>
+<tr><td>Procedure Orders</td><td>4</td><td>ProcedureOrderRoute</td><td>❌</td><td>P-06</td></tr>
+<tr><td>EMAR</td><td>2</td><td>Emar + PatientEmar</td><td>❌</td><td>P-05, N-08</td></tr>
+<tr><td>Nursing Charts</td><td>8</td><td>9 chart route files</td><td>❌</td><td>—</td></tr>
+<tr><td>Patient History</td><td>4</td><td>Family/Condition/Immunization</td><td>❌</td><td>—</td></tr>
+<tr><td>Consent & Documents</td><td>5</td><td>ClinicalDocument</td><td>❌</td><td>—</td></tr>
+<tr><td>Discharge (in EMR)</td><td>7</td><td>Consultation discharge fields</td><td>❌</td><td>—</td></tr>
+<tr><td>Specialty Workflows</td><td>14</td><td>14 specialty route files</td><td>❌</td><td>N-13 (governance)</td></tr>
+<tr><td>Blood Bank</td><td>3</td><td>BloodRequestRoute</td><td>❌</td><td>R-09</td></tr>
+<tr><td>Referral & Follow-up</td><td>5</td><td>—</td><td>❌</td><td>—</td></tr>
+<tr><td>Financial Views (read)</td><td>3</td><td>—</td><td>❌</td><td>—</td></tr>
+<tr><td>Task & Incident</td><td>3</td><td>IncidentReportingRoute</td><td>❌</td><td>—</td></tr>
+<tr><td>Treatment Plans</td><td>2</td><td>TreatmentPlanRoute</td><td>❌</td><td>—</td></tr>
+<tr><td>**Total**</td><td>**163**</td><td>**540**</td><td>**13 components**</td><td>**Multiple**</td></tr>
+</table>
+<p>---</p>
+<h2>7. Developer Handoff Prompts (Updated)</h2>
+<h3>H-01: Fix F09 — Prescription Action Buttons (DEFECT — do first)</h3>
+<pre><code>
+CONTEXT : HIMS EMR — BUG FIX, not new migration
+FILE    : src/react-components/DoctorPrescribeFormScreen.tsx (lines 414-450)
+          public/views/emr/registration/prescriptions/doctorprescribe-form.js (lines 51, 1163)
+DEFECT  : canShowSaveBtn, canShowPrescribeBtn, canShowPrescribeOrderBtn are always falsy
+          → Save and Prescribe buttons never appear in React UI
+          → BUG 4: ismodal never assigned → Back/Save-as-Rx-Panel always shown
+APPROACH:
+  1. In doctorprescribe-form.js (Angular controller): identify where these flags
+     should be set based on user role + prescription status; ensure they are passed
+     to reactProps correctly.
+  2. Server-side (PrescriptionRoute.ts): add status validation in Save/Update handlers:
+     reject updates if PrecriptionStatusId is already 2 (finalized) or 3 (dispensed).
+  3. In DoctorPrescribeFormScreen.tsx: remove the BUG 4 comment; wire ismodal
+     from currentcontext once the controller supplies it.
+  4. Test matrix: clinician with role=Doctor, statusId=0 → showSave=true;
+     statusId=3 → showSave=false, showCancel=true, showPrint=true.
+DO NOT  : Change DB schema, add new endpoints, or change Angular routing.
+ACCEPT  : Authorized save/prescribe in each permitted state; unauthorized/finalized
+          states block both UI and API calls.
+</code></pre>
+<h3>H-02: Fix F08 — Date Loses One Day in IST</h3>
+<pre><code>
+CONTEXT : HIMS EMR — BUG FIX, affects all React date fields under IST
+FILES   : src/react-components/DoctorPrescribeFormScreen.tsx:75-94
+          Any new React component using toISOString().slice(0,10)
+DEFECT  : date.toISOString().slice(0,10) converts to UTC before slicing →
+          loses 1 day in UTC+5:30 (Asia/Kolkata)
+FIX     :
+  Replace this pattern:
+    const toDateInputValue = (d) =&gt; new Date(d).toISOString().slice(0, 10);
+  With:
+    const toDateInputValue = (d) =&gt; {
+      const dt = d instanceof Date ? d : new Date(d);
+      if (isNaN(dt.getTime())) return '';
+      const y = dt.getFullYear();
+      const m = String(dt.getMonth() + 1).padStart(2, '0');
+      const day = String(dt.getDate()).padStart(2, '0');
+      return `${y}-${m}-${day}`;
+    };
+SCOPE   : Fix in DoctorPrescribeFormScreen.tsx, then apply to ALL future EMR
+          React components before they are merged.
+TEST    : With system timezone set to Asia/Kolkata (IST, UTC+5:30),
+          selecting 2026-09-20 on the date picker should save 2026-09-20,
+          not 2026-09-19.
+</code></pre>
+<h3>H-03: Fix F10 — Signed Clinical Note Lifecycle (Backend Schema + Logic)</h3>
+<pre><code>
+CONTEXT : HIMS EMR — NEW BACKEND FEATURE (F10 / EMR-02)
+SCOPE   : PatientClinicalNotes only (pilot; verify DailyNote separately)
+CURRENT : PatientClinicalNotesBo.UpdatePatientClinicalNotes() overwrites in place.
+          No signed state; no amendment record.
+REQUIRED CHANGES:
+  1. Schema additions to hims_patientclinicalnotes:
+     - SignedAt      DATETIME  nullable
+     - SignedBy      BIGINT    nullable FK→User
+     - SignedContent TEXT      nullable — verbatim copy of note at signing
+     - NoteStatus    INTEGER   1=Draft, 2=Signed, 3=Amended, 4=EnteredInError
+     - AmendmentOf   BIGINT    nullable FK→hims_patientclinicalnotes (self-ref)
+     - AmendmentReason STRING  nullable
+  2. Update PatientClinicalNotesBo:
+     - AddPatientClinicalNotes: save with NoteStatus=1 (Draft)
+     - SignPatientClinicalNote: set NoteStatus=2, SignedAt=now(), SignedBy=userId,
+       SignedContent=current note text. Reject if already Signed.
+     - UpdatePatientClinicalNotes: reject if NoteStatus=2 or 3. Return 403.
+     - AmendPatientClinicalNote: create new record with AmendmentOf=original.Id,
+       NoteStatus=3, AmendmentReason required.
+     - DeletePatientClinicalNotes: reject if NoteStatus=2. Return 403.
+  3. Add routes: POST /EMR/SignPatientClinicalNote, /EMR/AmendPatientClinicalNote
+DO NOT  : Apply this schema to ALL note types simultaneously. Pilot on
+          PatientClinicalNotes, then inventory DailyNote, PatientAnnotation,
+          Consultation before extending.
+ACCEPT  : Signed content cannot be changed through any endpoint.
+          Amendments retain both versions and reasons.
+          Concurrent edits produce a conflict (after F11 fix).
+RISK    : Requires DB migration. Test rollback before deploying.
+</code></pre>
+<h3>H-04: Fix F07 — React Bridge Nested Value Detection</h3>
+<pre><code>
+CONTEXT : HIMS React bridge — BUG FIX, affects all React components
+FILE    : src/reactBridge.tsx:24-67
+DEFECT  : clonePropsSnapshot() uses shallow clone; isPropsSnapshotEqual()
+          returns true when nested objects mutated in place.
+          Reproduction: obj.nested.value = 2 while prev.nested.value = 1
+          → bridge reports no change → component does not re-render.
+EMR IMPACT: Allergy alert (isPatientHasAllergy), prescription detail
+            rows (nested drug objects), vital list updates all affected.
+FIX     : Replace shallow clone with deep clone in clonePropsSnapshot().
+          Option A: JSON.parse(JSON.stringify(obj)) — safe for plain objects
+          Option B: structuredClone(obj) — Node 17+; check runtime version
+          The reference report confirms BaseBo contains optional Rev checks —
+          do not confuse concurrency (F11) with the bridge equality issue (F07).
+TEST    : Create a test that mutates a nested value in-place on the AngularJS
+          scope and verify the React component re-renders.
+          Existing test stub (if any): api/src/Server/Modules/Registration/
+          Router/PatientRoute.spec.ts (pattern example only).
+</code></pre>
+<h3>H-05: Vital Signs React Migration (updated from v1)</h3>
+<pre><code>
+CONTEXT : HIMS EMR — React migration (non-defect), AFTER H-01 through H-04 are done
+SCREEN  : patientemr.patientvitaltab (163 total EMR states; this covers 4)
+APIs    : POST /EMR/AddPatientVital, GetPatientVitals, ManagePatientVitals,
+          PrintPatientVital, PrintPatientVitalWithoutHeader
+DB TABLE: hims_patientvitals — PK: PatientVitalId
+KEY FIELDS:
+  VitalId                FK→ClinicalMaster.VitalMaster
+  VitalValue / UOM       STRING — value and unit
+  LoincCode              STRING — informational only; do NOT validate or look up
+  ReferenceRangeFrom/To  STRING — display-only; NO clinical threshold enforcement
+  PerformedDate/By       DATE / FK→User
+  PatientVitalStatusId   FK→ReferenceValue
+  VitalQualifier         STRING
+SCOPE   :
+  1. Tabular entry — multiple vitals at once (one row per vital type)
+  2. Current encounter vitals list
+  3. Trend chart — last 7–10 readings per vital type
+  4. Previous encounter vitals — read-only
+DATE FIX: Use the pattern from H-02 for ALL date fields.
+BRIDGE  : Follow DoctorPrescribeFormScreen.tsx bridge. onAction only.
+          No direct fetch() from React. Verify nested prop fix (H-04)
+          before binding vitals list to reactProps.
+ACCEPT  : Entry saves via AddPatientVital. Out-of-range highlighted via
+          ReferenceRangeFrom/To display only. No clinical alert logic added.
+          Date fields save the selected date correctly in IST.
+</code></pre>
+<h3>H-06: Diagnosis Entry React Migration (updated)</h3>
+<pre><code>
+CONTEXT : HIMS EMR — React migration, after H-01–H-04
+SCREEN  : patientemr.diagnosistab (3 states)
+API     : POST /EMR/AddPatientDiagnosis, GetPatientDiagnosis, UpdatePatientDiagnosis
+DB TABLE: patientdiagnosis — PK: PatientDiagnosisId
+KEY FIELDS:
+  DiagnosisId     FK→ClinicalMaster.Diagnosis
+  Code            STRING — ICD-10 code (display only; system does not validate)
+  DiagnosisTypeId FK→ReferenceValue (Primary/Secondary/Complication)
+  DiagnosisStatusId FK→ReferenceValue (Active/Resolved/Chronic)
+  ConditionTypeId / ConditionStatusId  FK→ReferenceValue
+  DOA/DOD         DATE — use H-02 date fix
+SCOPE   :
+  1. Diagnosis typeahead search + manual entry
+  2. Add/edit form with type, status, condition fields
+  3. Current encounter diagnosis list
+  4. History — all diagnoses across encounters (filter PatientId only)
+DO NOT  : Merge PatientDiagnosis and PatientCondition into one UI element
+          without clinical owner approval. Blueprint (P-09) flags this as
+          a future structured problem list — not in this batch.
+ACCEPT  : Diagnosis with ICD-10 code saves and displays correctly.
+          Edit of a signed note via diagnosis tab does not bypass F10 controls.
+</code></pre>
+<h3>H-07: Allergy Entry + Persistent Alert Banner</h3>
+<pre><code>
+CONTEXT : HIMS EMR — React migration + shared component (P1, N-06)
+SCREEN  : patientemr.patientallergy (1 state)
+API     : POST /EMR/AddPatientAllergy, GetPatientAllergys,
+          UpdatePatientAllergy, DeletePatientAllergy
+DB TABLE: patientallergies — PK: PatientAllergyId
+KEY FIELDS:
+  AllergyTypeId       FK→ReferenceValue (Drug/Food/Environmental/Other)
+  AllergySeverityId   FK→ReferenceValue (Mild/Moderate/Severe/Life-threatening)
+  ADRStatus / ADRScoreId
+  StartDate/EndDate   DATE — use H-02 date fix
+  PerformedDate/By    DATE/FK→User
+SCOPE   :
+  1. Allergy list — severity colour-coded (Severe/Life-threatening = red)
+  2. Add/edit form
+  3. Delete requires confirmation + reason; soft-delete only (Status=0)
+  4. Shared banner component: persistent across all EMR tabs when
+     isPatientHasAllergy = true. Bridge fix (H-04) required first.
+  5. Banner clears when patient context switches (verify with bridge fix)
+OVERRIDE AUDIT (N-06):
+  When a drug matching a known allergy is prescribed and the clinician
+  chooses to proceed: log an override record to a new table or to
+  PatientAllergy with OverrideBy / OverrideAt / OverrideReason fields.
+  Do NOT block the prescription save — only audit the override.
+DO NOT  : Compute drug-interaction calculations. Only match allergy name
+          to drug name (string comparison). Clinical lead must define
+          matching rules; do not invent them.
+ACCEPT  : Allergy banner visible on all EMR tabs when allergies exist.
+          Banner updates correctly when new allergy is added (requires H-04).
+          Delete is auditable (UpdatedBy/At preserved).
+</code></pre>
+<p>---</p>
+<h2>8. Implementation Backlog (v2 — Prioritised)</h2>
+<h3>Phase 0 — Security and Build Blockers (Gate A prerequisite)</h3>
+<table>
+<tr><th>Backlog ID</th><th>Deliverable</th><th>Owner</th><th>Dependencies</th><th>Acceptance</th></tr>
+<tr><td>B0-01</td><td>Fix PrivilegeHelper — all 435 methods returning false; fix 7 duplicate keys</td><td>Frontend</td><td>None</td><td>EMR screens gate actions by role</td></tr>
+<tr><td>B0-02</td><td>Fix CORS wildcard (restrict to known origins)</td><td>Backend/security</td><td>None</td><td>Non-whitelisted origin → 403</td></tr>
+<tr><td>B0-03</td><td>Move Bearer token from localStorage to httpOnly cookie</td><td>Backend/security</td><td>None</td><td>Token not readable from JS</td></tr>
+<tr><td>B0-04</td><td>Create `api/.env` from template</td><td>DevOps</td><td>None</td><td>Application starts on LAN</td></tr>
+<tr><td>B0-05</td><td>Fix TypeScript compile (7 duplicate keys, 14 TS2393, 8 TS6133)</td><td>Frontend</td><td>B0-01</td><td>`tsc --noEmit` exits 0</td></tr>
+<tr><td>B0-06</td><td>Fix F07: React bridge deep clone</td><td>Frontend</td><td>B0-05</td><td>Nested prop change → re-render</td></tr>
+<tr><td>B0-07</td><td>Fix F08: Date timezone (IST -1 day)</td><td>Frontend</td><td>None</td><td>Date fields correct in IST</td></tr>
+<tr><td>B0-08</td><td>Fix F09: Prescription action matrix</td><td>Frontend+Backend</td><td>B0-06, B0-07</td><td>Save/Prescribe visible and server-validated</td></tr>
+<tr><td>B0-09</td><td>Patient resource authorization on Get* endpoints</td><td>Backend</td><td>None</td><td>Cross-facility read → 403</td></tr>
+</table>
+<h3>Phase 1 — Clinical Safety Fixes (Gate B prerequisite)</h3>
+<table>
+<tr><th>Backlog ID</th><th>Deliverable</th><th>Owner</th><th>Dependencies</th><th>Acceptance</th></tr>
+<tr><td>B1-01</td><td>Signed note lifecycle for PatientClinicalNotes (F10)</td><td>Backend</td><td>DB migration</td><td>Signed note immutable; amendment creates linked record</td></tr>
+<tr><td>B1-02</td><td>Enforce Rev concurrency on clinical records (F11)</td><td>Backend</td><td>B1-01</td><td>Concurrent edit with stale Rev → 409</td></tr>
+<tr><td>B1-03</td><td>Patient context confirmation gate for high-impact actions</td><td>Frontend</td><td>B0-06</td><td>Wrong-patient prescription blocked by UI + server</td></tr>
+<tr><td>B1-04</td><td>Allergy override audit record</td><td>Backend</td><td>B1-01</td><td>Override logged with OverrideBy/At/Reason</td></tr>
+<tr><td>B1-05</td><td>Document and publish ProgressNoteStatusId enum values</td><td>Backend/DBA</td><td>ReferenceValue table query</td><td>Enum table published in docs</td></tr>
+<tr><td>B1-06</td><td>Clarify and consolidate dual EMAR tables (OQ-04)</td><td>Backend/DBA</td><td>None</td><td>Single canonical EMAR source or documented split</td></tr>
+<tr><td>B1-07</td><td>Synthetic test harness (F13)</td><td>QA</td><td>B0-05</td><td>CI runs type-check + meaningful API tests on each push</td></tr>
+</table>
+<h3>Phase 2 — Core Clinical React Migration (Gate B)</h3>
+<table>
+<tr><th>Backlog ID</th><th>Screen</th><th>Handoff</th><th>Dependencies</th><th>Acceptance</th></tr>
+<tr><td>B2-01</td><td>Vital Signs form + chart</td><td>H-05</td><td>B0-06, B0-07</td><td>Entry saves; chart renders; IST dates correct</td></tr>
+<tr><td>B2-02</td><td>Allergy form + persistent banner</td><td>H-07</td><td>B0-06, B1-04</td><td>Banner visible; override audited</td></tr>
+<tr><td>B2-03</td><td>Diagnosis entry + history</td><td>H-06</td><td>B0-06, B0-07</td><td>ICD-10 code preserved</td></tr>
+<tr><td>B2-04</td><td>Prescription drug line items</td><td>New handoff needed</td><td>B0-08</td><td>Drug entry saves; allergy context shown</td></tr>
+<tr><td>B2-05</td><td>Clinical order entry form</td><td>New handoff needed</td><td>B0-06</td><td>Order saves; pending list updates</td></tr>
+<tr><td>B2-06</td><td>Patient identity banner</td><td>New handoff needed</td><td>B0-06</td><td>MRN/name/allergy visible on all EMR tabs</td></tr>
+</table>
+<h3>Phase 3 — Nursing and EMAR (Gate C)</h3>
+<table>
+<tr><th>Backlog ID</th><th>Screen</th><th>Dependencies</th></tr>
+<tr><td>B3-01</td><td>EMAR administration screen (dose/time/witness)</td><td>B1-06, B1-02</td></tr>
+<tr><td>B3-02</td><td>Nursing shift handover view</td><td>B3-01</td></tr>
+<tr><td>B3-03</td><td>Intake/Output chart React</td><td>B0-06</td></tr>
+<tr><td>B3-04</td><td>Nursing notes editor</td><td>B1-01 pattern applied</td></tr>
+</table>
+<h3>Phase 4 — Specialty and Longitudinal (Gate D)</h3>
+<table>
+<tr><th>Backlog ID</th><th>Screen</th><th>Dependencies</th></tr>
+<tr><td>B4-01</td><td>Longitudinal patient timeline</td><td>B2-01–B2-06</td></tr>
+<tr><td>B4-02</td><td>Specialty governance (configurable activation)</td><td>FacilityPreference</td></tr>
+<tr><td>B4-03</td><td>Dental, Ophthalmology, Physiotherapy React</td><td>B0-06</td></tr>
+<tr><td>B4-04</td><td>Obstetrics / IVF React</td><td>B4-03</td></tr>
+<tr><td>B4-05</td><td>Country pack architecture</td><td>B0-02, B0-03</td></tr>
+</table>
+<p>---</p>
+<h2>9. Test Plan (v2)</h2>
+<h3>9.1 Pilot Journey Tests (Gate B exit criteria)</h3>
+<p>Per the reference document, Gate B requires these journeys to pass with synthetic data:</p>
+<p>1. <strong>Registration → Encounter → Note → Order → Prescription → Bill → Follow-up</strong></p>
+<p>   - Verify: no duplicate patient, stable encounter identity, prescription saved with correct date, order reaches pending list, bill created</p>
+<p>2. <strong>Allergy → Prescription → Pharmacy → Dispense → Administration → Reconciliation</strong></p>
+<p>   - Verify: allergy warning appears, override audited, correct drug/dose reaches EMAR once, concurrent stock does not double-dispense</p>
+<p>3. <strong>Signed Note → Amendment → View Provenance</strong></p>
+<p>   - Verify: note content immutable after sign; amendment creates linked record; both visible</p>
+<p>4. <strong>Concurrent Edit Race</strong></p>
+<p>   - Verify: two simultaneous updates with same Rev → first succeeds, second returns 409</p>
+<h3>9.2 Explicit Completion Criteria (per backlog item)</h3>
+<p>A backlog item is <strong>complete</strong> when ALL of:</p>
+<p>- [ ] API endpoints return correct status for valid and invalid inputs</p>
+<p>- [ ] No previously passing tests regress</p>
+<p>- [ ] React component renders without console errors</p>
+<p>- [ ] Soft-delete: deleted records absent from all <code>Get*</code> responses</p>
+<p>- [ ] Audit fields (<code>CreatedBy/At</code>, <code>UpdatedBy/At</code>) set on every create/update</p>
+<p>- [ ] Privilege check gates screen actions (after B0-01)</p>
+<p>- [ ] Date fields save and display correctly in IST (after B0-07)</p>
+<p>- [ ] No direct <code>fetch()</code> from React — all via AngularJS controller callbacks</p>
+<p>- [ ] Allergy banner visible when allergies exist (after B0-06)</p>
+<p>---</p>
+<h2>10. Delivery Gates (from Reference Document)</h2>
+<table>
+<tr><th>Gate</th><th>Name</th><th>EMR Exit Criteria</th></tr>
+<tr><td>**A**</td><td>Authentication and authorization baseline</td><td>F01–F05, B0-01–B0-09 complete; EMR endpoints return 403 for unauthorized requests</td></tr>
+<tr><td>**B**</td><td>Pilot clinical workflows</td><td>F07–F11 resolved; prescription and note lifecycle working; pilot journey tests pass</td></tr>
+<tr><td>**C**</td><td>Hospital and financial integrity</td><td>EMAR completeness, concurrent edit, nursing handover; signed-note amendment in production</td></tr>
+<tr><td>**D**</td><td>Controlled expansion</td><td>Specialty governance, country pack, longitudinal timeline; one additional country validated</td></tr>
+</table>
+<p>---</p>
+<h2>11. Open Questions (Updated)</h2>
+<table>
+<tr><th>ID</th><th>Question</th><th>Impact</th><th>Resolution Status</th></tr>
+<tr><td>OQ-01</td><td>Blueprint PDF full text (EMR-01–EMR-05 page-level contracts)</td><td>🔴 Critical</td><td>✅ **RESOLVED** — `pdftotext` (poppler 26.09.0) installed; full text extracted. See Section 13.</td></tr>
+<tr><td>OQ-02</td><td>Radiology: is DICOM/PACS integration active or planned?</td><td>🟠 High</td><td>RIS module mapped as P2 in blueprint; PACS flag exists; no DICOM adapter code found</td></tr>
+<tr><td>OQ-03</td><td>Audit log table for allergy/diagnosis changes</td><td>🟠 High</td><td>No dedicated table found; B1-04 adds override audit</td></tr>
+<tr><td>OQ-04</td><td>Why two EMAR tables? (`hims_emar` vs `patientemar`)</td><td>🟡 Medium</td><td>B1-06 resolves</td></tr>
+<tr><td>OQ-05</td><td>`PhysiotheraphyTreatement` typo — intentional?</td><td>🟡 Low</td><td>Unresolved</td></tr>
+<tr><td>OQ-06</td><td>`BaseBo.Update()` Rev check — opt-in or enforced?</td><td>✅ **Resolved**</td><td>Reference doc confirms: "optional Rev concurrency checks" — opt-in</td></tr>
+<tr><td>OQ-07</td><td>Signed note amendment workflow</td><td>✅ **Resolved**</td><td>F10 analysis + H-03 handoff + EMR-02 blueprint contract define the required implementation</td></tr>
+<tr><td>OQ-08</td><td>`PatientOrder.IsDirectBill` auto-creates billing?</td><td>🟠 High</td><td>R-04 — requires runtime test</td></tr>
+<tr><td>OQ-09</td><td>`LoincCode` on PatientVital — from master or manual?</td><td>🟡 Medium</td><td>Runtime data inspection required</td></tr>
+<tr><td>OQ-10</td><td>International expansion scope and chosen next country</td><td>🟠 High</td><td>UAE/Nepal variants confirmed in source; next country selection deferred to product decision</td></tr>
+<tr><td>OQ-11</td><td>`ProgressNoteStatusId` enum values</td><td>✅ **Resolved by inference**</td><td>`= 2` triggers finalization (ConsultationBo confirmed); B1-05 formalises</td></tr>
+<tr><td>OQ-12</td><td>SIMPLEX staging review — what do the 30 EMR screen captures show?</td><td>🔴 High</td><td>RG-02 — captures marked "not preserved"; need recovery</td></tr>
+<tr><td>OQ-13</td><td>ABDM/ABHA/NHCX/FHIR — are any external integrations active?</td><td>🟠 High</td><td>Reference doc: "no ABDM/ABHA/NHCX/FHIR implementation found in bounded search"</td></tr>
+</table>
+<p>---</p>
+<h2>12. Residual Gaps — Why This Specification Is Not Labelled Complete</h2>
+<table>
+<tr><th>Gap ID</th><th>Description</th><th>Status</th><th>How to Resolve</th></tr>
+<tr><td>~~**RG-01**~~</td><td>~~Blueprint PDF page-level contracts not extracted~~</td><td>✅ **CLOSED**</td><td>Resolved via pdftotext + poppler 26.09.0</td></tr>
+<tr><td>**RG-02**</td><td>SIMPLEX staging screen captures for ~30 EMR screens are "not preserved"</td><td>🔴 Open</td><td>Recover the browser captures from the SIMPLEX staging session</td></tr>
+<tr><td>**RG-03**</td><td>Runtime validation of 11 items (R-01–R-11) not possible without a synthetic test environment</td><td>🟠 Open</td><td>Establish synthetic DB per F13 (B1-07)</td></tr>
+<tr><td>**RG-04**</td><td>`PrecriptionStatusId` and `ProgressNoteStatusId` reference values not queried from DB</td><td>🟡 Open</td><td>Run: `SELECT * FROM referencevalue WHERE Category='PrescriptionStatus'`</td></tr>
+<tr><td>**RG-05**</td><td>EMAR completeness (R-01) — two tables, purpose unclear</td><td>🟡 Open</td><td>B1-06 + runtime inspection of live EMAR data</td></tr>
+</table>
+<p>---</p>
+<h2>13. Blueprint Contract Reference (Extracted from PDF)</h2>
+<blockquote>Source: `healthcare-platform-full-blueprint.pdf` v1.0, 20 September 2026</blockquote>
+<blockquote>Extracted with pdftotext (poppler 26.09.0) on 2026-09-21.</blockquote>
+<h3>EMR — Clinical Chart and Documentation</h3>
+<table>
+<tr><th>Contract</th><th>Name</th><th>Key Inputs</th><th>Actions</th></tr>
+<tr><td>EMR-01</td><td>Longitudinal chart</td><td>Encounter, timeline filters, problems, allergies, medicines</td><td>Review prior care, mark reviewed information, inspect source</td></tr>
+<tr><td>EMR-02</td><td>Consultation note</td><td>Complaint, history, examination, assessment, plan</td><td>Save draft, compare edits, sign, append correction</td></tr>
+<tr><td>EMR-03</td><td>Problem and allergy lists</td><td>Code, display term, onset, severity, verification, status</td><td>Add or reconcile entries, mark resolved, record uncertainty</td></tr>
+<tr><td>EMR-04</td><td>Template and specialty forms</td><td>Template version, field rules, terminology bindings</td><td>Preview, clinically approve, publish effective version</td></tr>
+<tr><td>EMR-05</td><td>Clinical inbox</td><td>Results, referrals, unsigned notes, follow-up tasks</td><td>Assign responsibility, acknowledge, act, escalate overdue work</td></tr>
+</table>
+<p><strong>Blueprint Workflow (EMR):</strong></p>
+<blockquote>Draft → reviewed → signed → amended. Signed content is immutable; amendments are separately signed and linked. Imported records retain origin and verification status.</blockquote>
+<p><strong>EMR-F-01 Mandatory Rules (from blueprint):</strong></p>
+<blockquote>Show patient identity and encounter continuously. Do not equate no allergy information with no known allergies. Never silently overwrite concurrent edits or copy stale findings as newly observed.</blockquote>
+<p><strong>EMR-A-01 Acceptance:</strong></p>
+<blockquote>Two editors receive a conflict resolution view; a signed note cannot be overwritten. An imported allergy retains its source. Measure unsigned notes and inbox items beyond agreed response time.</blockquote>
+<p><strong>EMR-02 Detailed Contract (from blueprint page 49):</strong></p>
+<table>
+<tr><th>Aspect</th><th>Blueprint Requirement</th><th>HIMS Current State</th><th>Gap?</th></tr>
+<tr><td>Actor</td><td>Authorised clinician in a valid encounter</td><td>No server-side encounter scope check</td><td>❌ Gap — OQ-05/F05</td></tr>
+<tr><td>Identity header</td><td>Patient identity and encounter continuously visible</td><td>Shell exists; no persistent banner in React</td><td>❌ Gap — N-04, P-11</td></tr>
+<tr><td>Template version</td><td>Template version and author role explicit</td><td>Not found in PatientClinicalNotes model</td><td>❌ Gap</td></tr>
+<tr><td>Imported content</td><td>Labelled with source and date</td><td>No import provenance fields</td><td>❌ Gap</td></tr>
+<tr><td>Draft save</td><td>Save draft revisions with concurrency version</td><td>Rev field exists; not enforced</td><td>⚠️ Partial — F11</td></tr>
+<tr><td>Signing rules</td><td>Recheck authority, credentials, encounter identity; freeze signed content</td><td>No signing lifecycle</td><td>❌ Gap — F10, N-01</td></tr>
+<tr><td>Signing output</td><td>Preserve exact signed content, author, time</td><td>No SignedContent/SignedAt/SignedBy columns</td><td>❌ Gap — F10, B1-01</td></tr>
+<tr><td>Amendment</td><td>Records reason and linked signed version</td><td>No AmendmentOf FK; no amendment record</td><td>❌ Gap — N-02, H-03</td></tr>
+<tr><td>Idempotency</td><td>Reconcile operation ID before retry on lost response</td><td>No idempotency key on note endpoints</td><td>❌ Gap</td></tr>
+<tr><td>Concurrent edit</td><td>Display differences; do not prefer last writer</td><td>Last-write-wins currently</td><td>❌ Gap — F11, B1-02</td></tr>
+<tr><td>Proposed API</td><td>POST /v1/notes/{id}/sign, POST /v1/notes/{id}/amendments</td><td>Not yet implemented</td><td>❌ Gap — B1-01</td></tr>
+</table>
+<p>---</p>
+<h3>MED — Prescribing and Medication Safety</h3>
+<table>
+<tr><th>Contract</th><th>Name</th><th>Key Inputs</th><th>Actions</th></tr>
+<tr><td>MED-01</td><td>Medication reconciliation</td><td>Reported medicines, prior orders, source, current status</td><td>Confirm, discontinue with reason, flag uncertain entries</td></tr>
+<tr><td>MED-02</td><td>Prescription composer</td><td>Drug, formulation, strength, dose, units, route, frequency, duration</td><td>Validate completeness, review safety advice, sign prescription</td></tr>
+<tr><td>MED-03</td><td>Safety review</td><td>Allergy, interaction, duplicate therapy, relevant clinical context</td><td>Show evidence and severity, resolve or justify permitted overrides</td></tr>
+<tr><td>MED-04</td><td>Prescription issue and amendments</td><td>Signed version, pharmacy destination, delivery status</td><td>Issue document, send through approved channel, revoke or amend</td></tr>
+<tr><td>MED-05</td><td>Formulary administration</td><td>Drug identifiers, substitutions, restrictions, effective dates</td><td>Review catalogue updates, publish version, manage shortage alternatives</td></tr>
+</table>
+<p><strong>Blueprint Workflow (MED):</strong></p>
+<blockquote>Draft → signed → active → completed, stopped or cancelled; dispensing and administration use separate records.</blockquote>
+<p><strong>MED-F-01 Mandatory Rules (from blueprint):</strong></p>
+<blockquote>Clinical rules and reference data require qualified governance. Missing weight or renal data is not silently interpreted as normal. Units must be explicit; substitution needs local policy and authorised review.</blockquote>
+<p><strong>MED-02 Detailed Contract (from blueprint page 50):</strong></p>
+<table>
+<tr><th>Aspect</th><th>Blueprint Requirement</th><th>HIMS Current State</th><th>Gap?</th></tr>
+<tr><td>Context</td><td>Current allergies, reconciliation state, measurements visible</td><td>`isPatientHasAllergy` flag; no reconciliation state</td><td>⚠️ Partial</td></tr>
+<tr><td>Order fields</td><td>Drug, formulation, strength, dose, units, route, frequency, duration, quantity, indication, as-needed reason, instructions, prescriber, order version</td><td>Most fields exist in `hims_prescriptiondetails`</td><td>✅ Mostly covered</td></tr>
+<tr><td>Clinical validation</td><td>Validate dimensional consistency deterministically</td><td>No server-side dose validation</td><td>❌ Gap — clinical lead required</td></tr>
+<tr><td>Knowledge rules</td><td>Invoke approved knowledge rules only with applicable population</td><td>No drug knowledge adapter</td><td>❌ Gap — MED-F-01</td></tr>
+<tr><td>Override</td><td>Clinical reviewers define severity, blocking behaviour, permitted overrides</td><td>No override governance</td><td>❌ Gap — N-06</td></tr>
+<tr><td>Signing output</td><td>Creates medication order + downstream pharmacy task</td><td>Prescription saves; pharmacy integration unverified</td><td>⚠️ R-04</td></tr>
+<tr><td>Amendment</td><td>Changed order linked to predecessor; pharmacists/nurses notified</td><td>No predecessor FK; no notification</td><td>❌ Gap — MED-04</td></tr>
+<tr><td>Cancellation</td><td>Does not erase historical administrations</td><td>Soft-delete via Status=0</td><td>✅ Preserved</td></tr>
+</table>
+<p>---</p>
+<h3>ORD — Orders and Result Follow-up</h3>
+<table>
+<tr><th>Contract</th><th>Name</th><th>Key Inputs</th><th>Actions</th></tr>
+<tr><td>ORD-01</td><td>Order composer</td><td>Patient, encounter, service, indication, priority, timing</td><td>Validate prerequisites, sign order, route to destination</td></tr>
+<tr><td>ORD-02</td><td>Order tracking</td><td>Service state, performer, expected completion, exceptions</td><td>Review progress, cancel with reason, escalate delays</td></tr>
+<tr><td>ORD-03</td><td>Result viewer</td><td>Result version, units, reference interval, specimen and source</td><td>Compare trends, acknowledge, add action and patient follow-up</td></tr>
+<tr><td>ORD-04</td><td>Critical result worklist</td><td>Critical flag, recipient, contact attempts, acknowledgement</td><td>Notify, document read-back under policy, escalate to backup</td></tr>
+<tr><td>ORD-05</td><td>Order sets</td><td>—</td><td>—</td></tr>
+</table>
+<p><strong>HIMS Current State vs ORD:</strong></p>
+<p>- ORD-01: <code>PatientOrderRoute</code> + order entry form (Angular) — partial ✅</p>
+<p>- ORD-02: <code>ClinicalPendingOrdersListScreen</code> (React) + <code>OrderTrackerScreen</code> (React) — partial ⚛️</p>
+<p>- ORD-03: Lab result viewer exists in Angular — ✅ (unverified for trend comparison)</p>
+<p>- ORD-04: <code>PatientCriticalOrder</code> route in LIS — ⚠️ critical result worklist not in EMR</p>
+<p>- ORD-05: <code>favorders</code> state exists — ❓ unverified</p>
+<p>---</p>
+<h3>NUR — Nursing and Medication Administration</h3>
+<table>
+<tr><th>Contract</th><th>Name</th><th>Key Inputs</th><th>Actions</th></tr>
+<tr><td>NUR-01</td><td>Ward patient list</td><td>—</td><td>—</td></tr>
+<tr><td>NUR-02</td><td>Flowsheets and care plans</td><td>—</td><td>—</td></tr>
+<tr><td>NUR-03</td><td>Medication administration record</td><td>—</td><td>—</td></tr>
+<tr><td>NUR-04</td><td>Nursing tasks and handover</td><td>—</td><td>—</td></tr>
+<tr><td>NUR-05</td><td>Intake output and devices</td><td>—</td><td>—</td></tr>
+</table>
+<p><strong>HIMS Current State vs NUR:</strong></p>
+<p>- NUR-01: <code>NursingDashboardComponent</code> (React) ⚛️</p>
+<p>- NUR-02: Nursing charts in Angular (BP, I/O, Ventilator) ✅ (unverified depth)</p>
+<p>- NUR-03: EMAR routes exist — two tables (OQ-04) ⚠️</p>
+<p>- NUR-04: No shift handover screen confirmed ❌ Gap — N-08</p>
+<p>- NUR-05: <code>hims_intakeoutputchart</code> model + route ✅</p>
+<p>---</p>
+<p>*Read-only analysis. No application code was modified.*</p>
+<p>*All claims marked [PROPOSAL] in v1 have been replaced with verified findings where confirmed.*</p>
+<p>*Do not start implementation of B1-01 (signed note lifecycle — DB migration) without clinical lead approval and a tested rollback plan.*</p>
+<p>*This specification is IN PROGRESS until RG-02 (SIMPLEX screen captures) is resolved.*</p>
+<table>
+<tr><th>OQ-02</th><th>Radiology: is DICOM/PACS integration active or planned?</th><th>🟠 High</th><th>RIS module mapped as P2 in reference; no DICOM code found</th></tr>
+<tr><td>OQ-03</td><td>Audit log table for allergy/diagnosis changes</td><td>🟠 High</td><td>No dedicated table found; B1-04 adds override audit</td></tr>
+<tr><td>OQ-04</td><td>Why two EMAR tables? (`hims_emar` vs `patientemar`)</td><td>🟡 Medium</td><td>B1-06 resolves</td></tr>
+<tr><td>OQ-05</td><td>`PhysiotheraphyTreatement` typo — intentional?</td><td>🟡 Low</td><td>Unresolved</td></tr>
+<tr><td>OQ-06</td><td>`BaseBo.Update()` Rev check — opt-in or enforced?</td><td>✅ **Resolved**</td><td>Reference doc confirms: "optional Rev concurrency checks" — opt-in</td></tr>
+<tr><td>OQ-07</td><td>Signed note amendment workflow</td><td>✅ **Resolved**</td><td>F10 analysis + H-03 handoff defines the required implementation</td></tr>
+<tr><td>OQ-08</td><td>`PatientOrder.IsDirectBill` auto-creates billing?</td><td>🟠 High</td><td>R-04 — requires runtime test</td></tr>
+<tr><td>OQ-09</td><td>`LoincCode` on PatientVital — from master or manual?</td><td>🟡 Medium</td><td>R-10 equivalent — runtime data inspection</td></tr>
+<tr><td>OQ-10</td><td>International expansion scope and chosen next country</td><td>🟠 High</td><td>Reference doc confirms UAE/Nepal variants exist; country selection is deferred</td></tr>
+<tr><td>OQ-11</td><td>`ProgressNoteStatusId` enum values</td><td>✅ **Resolved by inference**</td><td>`= 2` triggers finalization (confirmed in ConsultationBo); B1-05 formalises</td></tr>
+<tr><td>OQ-12</td><td>SIMPLEX staging review — what do the 30 EMR screen captures show?</td><td>🔴 High</td><td>RG-02 — captures marked "not preserved"; need recovery</td></tr>
+<tr><td>OQ-13</td><td>ABDM/ABHA/NHCX/FHIR — are any external integrations active?</td><td>🟠 High</td><td>Reference doc: "no ABDM/ABHA/NHCX/FHIR implementation found in bounded search"</td></tr>
+</table>
+<p>---</p>
+<h2>12. Residual Gaps — Why This Specification Is Not Labelled Complete</h2>
+<table>
+<tr><th>Gap ID</th><th>Description</th><th>How to Resolve</th></tr>
+<tr><td>**RG-01**</td><td>Blueprint PDF page-level contracts (EMR-01–EMR-05, MED-01–MED-05) not extracted</td><td>Install `pdftotext` (poppler-utils) and extract; or share the PDF's exported text</td></tr>
+<tr><td>**RG-02**</td><td>SIMPLEX staging screen captures for 30 EMR screens are "not preserved"</td><td>Recover the browser captures from the SIMPLEX staging session</td></tr>
+<tr><td>**RG-03**</td><td>Runtime validation of 10 items (R-01–R-11) not possible without a synthetic test environment</td><td>Establish synthetic DB per F13 (B1-07)</td></tr>
+<tr><td>**RG-04**</td><td>`PrecriptionStatusId` and `ProgressNoteStatusId` reference values not queried from DB</td><td>Run: `SELECT * FROM referencevalue WHERE Category='PrescriptionStatus'`</td></tr>
+<tr><td>**RG-05**</td><td>EMAR completeness (R-01) — two tables, purpose unclear</td><td>B1-06 + runtime inspection of live EMAR data</td></tr>
+</table>
+<p>---</p>
+<p>*Read-only analysis. No application code was modified.*</p>
+<p>*All claims marked [PROPOSAL] in v1 have been replaced with verified findings where possible.*</p>
+<p>*Do not start implementation of B1-01 (signed note lifecycle — DB migration) without clinical lead approval and a tested rollback plan.*</p>
+</body></html>

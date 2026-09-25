@@ -137,3 +137,57 @@ Replace the contents of the legacy `.html` template (e.g., `mydashboard.html`) w
 *   **Avoid `$digest` Loops:** By pre-calculating privileges in the controller and passing them as a map to React, we prevent AngularJS from firing `HasAccess()` multiple times per render cycle.
 *   **Concurrent Data Fetching:** Legacy controllers often chained HTTP requests or relied on sequential callbacks. In React, use `Promise.all()` inside a `useEffect` hook to resolve multiple API calls concurrently, dramatically reducing load times.
 *   **Clean Dependency Injection:** Let AngularJS handle the legacy `$state` routing and `utl.Session` authentication. Pass only the resulting raw data or callback references to React. React components should not be tightly coupled to AngularJS globals if possible.
+
+---
+
+## 4. The Approved API / HTTP Path (Mandatory)
+
+There is exactly **one** approved path for a React component to talk to the backend:
+
+```
+React component
+  -> src/react-components/utils/api.ts : apiFetch()
+  -> AngularJS utl.Http.doAction()
+  -> existing Express API (api/)
+```
+
+`apiFetch()` is not a new HTTP client. It reaches into the running AngularJS app
+(`angular.element(document.body).injector().get('utl')`) and calls the app's real,
+existing `utl.Http.doAction()` -- the same mechanism every legacy controller already
+uses. This means every call made through `apiFetch()` automatically gets, for free,
+with zero duplicated logic:
+
+- the app-wide bearer/session authentication header (set globally in `app.js`)
+- the `#divgifLoading` spinner
+- the standard error toast (`utl.Alert.showErrorMsg`) on failure
+- the exact same request/response contract the AngularJS screen it replaces already used
+
+### This is a hard rule, not a style preference
+
+New or migrated React components under `src/react-components/` must **not**:
+
+- call `fetch()` directly
+- introduce Axios or any other HTTP client library
+- call `$http` directly
+- create another API service file or module (a second `apiService.ts`-style file)
+- implement separate token/session handling (e.g. reading a token out of
+  `localStorage`/`sessionStorage`) -- the app's real session lives in AngularJS/`utl`,
+  and a second auth scheme will silently diverge from it
+- attach an API client to a `window` global (e.g. `window.ReactApiService`)
+
+Any of the above creates a second, parallel HTTP path with its own auth and error
+handling that can drift from the real one and fail silently in production. (A file
+matching this exact anti-pattern -- `src/services/apiService.ts`, a standalone
+`fetch()`-based client with its own `localStorage` token logic, wired to nothing --
+existed in this repo and was removed for this reason; see `migration_fixes_log.md` /
+project history.)
+
+### Sequencing multiple calls
+
+When a React component needs more than one backend call:
+
+- Use `Promise.all([...])` **only** when the calls are genuinely independent of each
+  other's results.
+- Use sequential `await` (not `Promise.all`) whenever a later call depends on data
+  returned by an earlier one -- do not parallelize a dependent chain just to save time.
+

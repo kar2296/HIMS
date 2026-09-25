@@ -54,6 +54,13 @@ gulp.task('build.test', gulp.series(
   'build.js.test'
 ));
 
+// Build test (skip TSLint — for running specs when pre-existing lint errors exist)
+gulp.task('build.test.nolint', gulp.series(
+  'clean.dev',
+  'build.assets.dev',
+  'build.js.test'
+));
+
 // Build test watch
 gulp.task('build.test.watch', gulp.series(
   'build.test',

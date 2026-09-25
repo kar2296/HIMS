@@ -15,7 +15,7 @@ export interface LISInterfaceResultAttributes extends IAttributes {
     AnalyteName: string;
     ResultValue: string;
     FullResultValue: string;
-    // DisplayNo:number;
+    DisplayNo: number;
     Approved: boolean;
     ApprovedById:number;
     ApproveDt: Date;

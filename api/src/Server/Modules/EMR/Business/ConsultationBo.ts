@@ -365,7 +365,7 @@ export class ConsultationBo extends BaseBo<ConsultationInstance, ConsultationAtt
             if (printSections.PrintConfig && printSections.PrintConfig.indexOf(section.SectionMaster.Id) === -1) {
                 continue; //Skip this section
             }
-            if (req.Data && req.Data.sectionList.indexOf(section.SectionMaster.Id) === -1) {
+            if (req.Data && req.Data.sectionList && req.Data.sectionList.indexOf(section.SectionMaster.Id) === -1) {
                 continue; //Skip this section
             }
             switch (section.SectionMaster.SRef) {
@@ -647,7 +647,7 @@ export class ConsultationBo extends BaseBo<ConsultationInstance, ConsultationAtt
             if (printSections.PrintConfig && printSections.PrintConfig.indexOf(section.SectionMaster.Id) === -1) {
                 continue; //Skip this section
             }
-            if (req.Data && req.Data.sectionList.indexOf(section.SectionMaster.Id) === -1) {
+            if (req.Data && req.Data.sectionList && req.Data.sectionList.indexOf(section.SectionMaster.Id) === -1) {
                 continue; //Skip this section
             }
             switch (section.SectionMaster.SRef) {

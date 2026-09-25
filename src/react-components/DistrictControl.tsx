@@ -8,6 +8,7 @@ interface DistrictItem {
 }
 
 interface DistrictControlProps {
+  id?: string;
   districtid?: number | null;
   countryid?: number | null;
   stateid?: number | null;
@@ -16,6 +17,7 @@ interface DistrictControlProps {
 }
 
 export const DistrictControl: React.FC<DistrictControlProps> = ({
+  id,
   districtid,
   countryid,
   stateid,
@@ -92,6 +94,7 @@ export const DistrictControl: React.FC<DistrictControlProps> = ({
 
   return (
     <Select
+      id={id}
       disabled={candisable}
       loading={loading}
       value={districtid || ''}

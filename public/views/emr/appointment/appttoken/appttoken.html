@@ -53,10 +53,90 @@
 
 <div class="row">
     <form id="item_form" name="item_form" class="form-horizontal" role="form">
-        <react-component name="AppttokenFormPanel" props="{ reactProps: reactProps, onAction: handleReactAction }"></react-component>
+        <div class="col-sm-6 form-group">
+            <label class="col-sm-12 control-label" for="status" translate="ordermanagement.token.dept.lbl"></label>
+            <div class="col-sm-12">
+                <ui-select ng-model="item.DepartmentId" name="status">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 20 : 0}}
+                        <span ng-if="$select.selected.Text.length>s20">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.Department | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text |highlight:$select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+        <div class="col-sm-6 form-group">
+            <label class="col-sm-12 control-label" for="token" translate="ordermanagement.token.token.lbl"></label>
+            <div class="col-sm-12">
+                <input type="text" class="form-control" name="token" ng-model="item.TokenNo" placeholder=""
+                    ng-minlength="1" required>
+            </div>
+        </div>
+        <div class="col-sm-6 form-group">
+            <label class="col-sm-12 control-label" for="roomno" translate="ordermanagement.token.room.lbl"></label>
+            <div class="col-sm-12">
+                <ui-select ng-model="item.RoomNoId" name="roomno" required>
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 20 : 0}}
+                        <span ng-if="$select.selected.Text.length>20">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.OPDRoom | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+        <div class="col-sm-6 form-group">
+            <label class="col-sm-12 control-label" for="displayno"
+                translate="appointment.doctordisplay-form.displaynoId.lbl"></label>
+            <div class="col-sm-12">
+                <ui-select ng-model="item.DisplayNo" name="displayno" required>
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 20 : 0}}
+                        <span ng-if="$select.selected.Text.length>20">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.DisplayNo | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+        <div class="col-sm-6 form-group">
+            <label class="col-sm-12 control-label filter-lbl" for="location"
+                translate="appointment.doctordisplay-form.locationId.lbl"></label>
+            <div class="col-sm-12">
+                <ui-select ng-model="item.LocationId" name="location" class="filter-combo" required>
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 20 : 0}}
+                        <span ng-if="$select.selected.Text.length>20">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.QmsLocation | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
     </form>
 </div>
 
 <div class="">
-    <react-component name="AppttokenFooter" props="{ reactProps: reactProps, onAction: handleReactAction }"></react-component>
+    <div class="row">
+        <div class="pull-right">
+            <button type="button" class="draftbutton" translate="ordermanagement.token.generate.lbl"
+                ng-click="saveItem()"
+                ng-hide="item.TokenStatusId==1||item.TokenStatusId==2||item.TokenStatusId==3||item.TokenStatusId==4"></button>
+            <button type="button" class="draftbutton" translate="ordermanagement.token.call.lbl" ng-click="call()"
+                ng-if="item.TokenStatusId==1||item.TokenStatusId==4"></button>
+            <button type="button" class="draftbutton" translate="ordermanagement.token.receive.lbl" ng-click="receive()"
+                ng-if="item.TokenStatusId==2"></button>
+            <button type="button" class="draftbutton" translate="ordermanagement.token.miss.lbl" ng-click="missed()"
+                ng-if="item.TokenStatusId==2"></button>
+        </div>
+    </div>
 </div>

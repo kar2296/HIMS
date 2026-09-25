@@ -65,9 +65,13 @@ interface DistrictMasterListScreenProps {
 // confirmed, not reproduced. No Dashboard/Home button exists in the live
 // controller/template either -- confirmed, not reproduced.
 export const DistrictMasterListScreen: React.FC<DistrictMasterListScreenProps> = ({ reactProps, onAction }) => {
+  const [standaloneItems, setStandaloneItems] = useState<DistrictRow[]>([]);
+  const [standaloneTotal, setStandaloneTotal] = useState<number>(0);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+
   const {
-    items = [],
-    pagerObj = {},
+    items = standaloneItems,
+    pagerObj = { totalItems: standaloneTotal, pageSize: 25, currentPage: 1 },
     currentfilter = {},
     lookup,
   } = reactProps || {};
@@ -76,15 +80,206 @@ export const DistrictMasterListScreen: React.FC<DistrictMasterListScreenProps> =
   const [districtCode, setDistrictCode] = useState(currentfilter.DistrictCode || '');
   useEffect(() => { setDistrictCode(currentfilter.DistrictCode || ''); }, [currentfilter.DistrictCode]);
 
-  const dispatch = (action: string, payload?: any) => {
-    if (onAction) onAction(action, payload);
+  useEffect(() => {
+    if (!reactProps?.items) {
+      setIsLoading(true);
+      import('../services/apiService').then(({ callBackendApi }) => {
+        callBackendApi({
+          action: 'GeneralMaster/DistrictMaster/GetDistrictMasters',
+          data: { Params: [], PageContext: { PageSize: 25, PageNumber: 1 } },
+          type: 'post'
+        }).then((res: any) => {
+          if (res?.Data) {
+            setStandaloneItems(res.Data);
+            setStandaloneTotal(res.TotalRecords || res.Data.length);
+          }
+          setIsLoading(false);
+        }).catch((err) => {
+          console.error('Error loading district masters:', err);
+          setIsLoading(false);
+        });
+      }).catch(() => setIsLoading(false));
+    }
+  }, [reactProps]);
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingItem, setEditingItem] = useState<DistrictRow | null>(null);
+  const [modalCode, setModalCode] = useState('');
+  const [modalName, setModalName] = useState('');
+  const [modalCountryId, setModalCountryId] = useState<number | null>(null);
+  const [modalStateId, setModalStateId] = useState<number | null>(null);
+  const [modalIsActive, setModalIsActive] = useState(true);
+  const [modalError, setModalError] = useState('');
+  const [isSaving, setIsSaving] = useState(false);
+
+  const [filterCountryId, setFilterCountryId] = useState<number | undefined>(currentfilter.CountryId);
+  const [filterStateId, setFilterStateId] = useState<number | undefined>(currentfilter.StateId);
+  const [statusFilter, setStatusFilter] = useState<number | undefined>(currentfilter.ActiveStatusId);
+  const [currentPage, setCurrentPage] = useState<number>(pagerObj.currentPage || 1);
+
+  const fetchData = async (code = districtCode, stateId = filterStateId, countryId = filterCountryId, status = statusFilter, page = currentPage) => {
+    setIsLoading(true);
+    try {
+      const { callBackendApi } = await import('../services/apiService');
+      const params: any[] = [];
+      if (code) params.push({ Key: 7, Value: code });
+      if (stateId !== undefined && stateId !== null && stateId !== -1) params.push({ Key: 2, Value: stateId });
+      if (countryId !== undefined && countryId !== null && countryId !== -1) params.push({ Key: 5, Value: countryId });
+      if (status !== undefined && status !== null && status !== -1) params.push({ Key: 6, Value: status });
+
+      const res: any = await callBackendApi({
+        action: 'GeneralMaster/DistrictMaster/GetDistrictMasters',
+        data: {
+          Params: params,
+          PageContext: { PageSize: 25, PageNumber: page }
+        },
+        type: 'post'
+      });
+      if (res?.Data) {
+        setStandaloneItems(res.Data);
+        setStandaloneTotal(res.TotalRecords || res.Data.length);
+      }
+    } catch (err) {
+      console.error('Error loading district masters:', err);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const runSearch = () => dispatch('search', { value: districtCode });
+  const handleAddNew = () => {
+    if (onAction) {
+      onAction('addNew');
+    }
+    setEditingItem(null);
+    setModalCode('');
+    setModalName('');
+    setModalCountryId(null);
+    setModalStateId(null);
+    setModalIsActive(true);
+    setModalError('');
+    setIsModalOpen(true);
+  };
 
-  const totalItems = pagerObj.totalItems || 0;
+  const handleEdit = (row: DistrictRow) => {
+    if (onAction) {
+      onAction('edit', row);
+    }
+    setEditingItem(row);
+    setModalCode(row.DistrictCode || '');
+    setModalName(row.DistrictName || '');
+    setModalCountryId(null);
+    setModalStateId(null);
+    setModalIsActive(row.ActiveStatusId === 1 || row.ActiveStatusId === 2);
+    setModalError('');
+    setIsModalOpen(true);
+  };
+
+  const handleDelete = async (row: DistrictRow) => {
+    if (onAction) {
+      onAction('delete', row);
+      return;
+    }
+    if (window.confirm(`Are you sure you want to delete district ${row.DistrictName || row.DistrictCode}?`)) {
+      try {
+        const { callBackendApi } = await import('../services/apiService');
+        await callBackendApi({
+          action: 'GeneralMaster/DistrictMaster/DeleteDistrictMaster',
+          data: { Id: row.Id },
+          type: 'post'
+        });
+        fetchData();
+      } catch (err) {
+        console.error('Error deleting district master:', err);
+      }
+    }
+  };
+
+  const handleModalSave = async (activeStatusId: number = 1) => {
+    if (!modalCode.trim() || !modalName.trim()) {
+      setModalError('District Code and District Name are required.');
+      return;
+    }
+    setIsSaving(true);
+    setModalError('');
+    try {
+      const { callBackendApi } = await import('../services/apiService');
+      const isUpdate = !!editingItem?.Id;
+      const payload = {
+        Data: {
+          Id: editingItem?.Id || 0,
+          DistrictCode: modalCode.trim().toUpperCase(),
+          DistrictName: modalName.trim(),
+          CountryId: modalCountryId || 1,
+          StateId: modalStateId || 1,
+          ActiveStatusId: activeStatusId,
+          IsActive: modalIsActive
+        }
+      };
+      await callBackendApi({
+        action: isUpdate ? 'GeneralMaster/DistrictMaster/UpdateDistrictMaster' : 'GeneralMaster/DistrictMaster/AddDistrictMaster',
+        data: payload,
+        type: 'post'
+      });
+      setIsSaving(false);
+      setIsModalOpen(false);
+      fetchData();
+    } catch (err: any) {
+      setIsSaving(false);
+      setModalError(err?.message || 'Error saving district record.');
+    }
+  };
+
+  const runSearch = () => {
+    if (onAction) {
+      onAction('search', { value: districtCode });
+    } else {
+      setCurrentPage(1);
+      fetchData(districtCode, filterStateId, filterCountryId, statusFilter, 1);
+    }
+  };
+
+  const handleCountryFilterChange = (countryId?: number) => {
+    setFilterCountryId(countryId);
+    setFilterStateId(undefined);
+    if (onAction) {
+      onAction('locationFilterChange', { CountryId: countryId, StateId: -1 });
+    } else {
+      setCurrentPage(1);
+      fetchData(districtCode, undefined, countryId, statusFilter, 1);
+    }
+  };
+
+  const handleStateFilterChange = (stateId?: number) => {
+    setFilterStateId(stateId);
+    if (onAction) {
+      onAction('locationFilterChange', { StateId: stateId });
+    } else {
+      setCurrentPage(1);
+      fetchData(districtCode, stateId, filterCountryId, statusFilter, 1);
+    }
+  };
+
+  const handleStatusChange = (val?: number) => {
+    setStatusFilter(val);
+    if (onAction) {
+      onAction('statusFilterChange', { value: val });
+    } else {
+      setCurrentPage(1);
+      fetchData(districtCode, filterStateId, filterCountryId, val, 1);
+    }
+  };
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    if (onAction) {
+      onAction('pageChange', { page });
+    } else {
+      fetchData(districtCode, filterStateId, filterCountryId, statusFilter, page);
+    }
+  };
+
+  const totalItems = pagerObj.totalItems || standaloneTotal;
   const pageSize = pagerObj.pageSize || 25;
-  const currentPage = pagerObj.currentPage || 1;
 
   const thStyle: React.CSSProperties = {
     textAlign: 'left', padding: `${spacing.sm} ${spacing.md}`, borderBottom: `1px solid ${colors.border}`,
@@ -100,14 +295,15 @@ export const DistrictMasterListScreen: React.FC<DistrictMasterListScreenProps> =
       <PageHeader
         title="District Master"
         actions={
-          <Button variant="primary" icon="fa-plus" onClick={() => dispatch('addNew')}>Add New</Button>
+          <Button id="btnAddNewDistrict" variant="primary" icon="fa-plus" onClick={handleAddNew}>Add New</Button>
         }
       />
 
       <Card>
         <FilterBar>
-          <div style={{ minWidth: 200 }}>
+          <div style={{ minWidth: 180 }}>
             <Input
+              id="txtDistrictCodeSearch"
               label="District Code"
               value={districtCode}
               onChange={(e) => setDistrictCode(e.target.value)}
@@ -116,34 +312,42 @@ export const DistrictMasterListScreen: React.FC<DistrictMasterListScreenProps> =
               placeholder="Search by code"
             />
           </div>
-          <div style={{ minWidth: 180 }}>
-            <label style={{ ...typography.label, color: colors.textMain, marginBottom: spacing.xs, display: 'block' }}>State</label>
-            <StateControl
-              stateid={currentfilter.StateId ?? null}
-              countryid={currentfilter.CountryId ?? null}
-              onUpdate={(u) => dispatch('locationFilterChange', { StateId: u.stateid ?? undefined })}
-            />
-          </div>
-          <div style={{ minWidth: 180 }}>
+          <div style={{ minWidth: 160 }}>
             <label style={{ ...typography.label, color: colors.textMain, marginBottom: spacing.xs, display: 'block' }}>Country</label>
             <CountryControl
-              countryid={currentfilter.CountryId ?? null}
-              onUpdate={(u) => dispatch('locationFilterChange', { CountryId: u.countryid ?? undefined, StateId: -1 })}
+              countryid={filterCountryId ?? null}
+              onUpdate={(u) => handleCountryFilterChange(u.countryid ?? undefined)}
             />
           </div>
           <div style={{ minWidth: 160 }}>
+            <label style={{ ...typography.label, color: colors.textMain, marginBottom: spacing.xs, display: 'block' }}>State</label>
+            <StateControl
+              stateid={filterStateId ?? null}
+              countryid={filterCountryId ?? null}
+              onUpdate={(u) => handleStateFilterChange(u.stateid ?? undefined)}
+            />
+          </div>
+          <div style={{ minWidth: 140 }}>
             <Select
+              id="ddlDistrictStatusFilter"
               label="Status"
-              value={currentfilter.ActiveStatusId != null ? String(currentfilter.ActiveStatusId) : ''}
-              options={activeStatusOptions.map((s) => ({ value: String(s.Id), label: s.Text }))}
-              onChange={(v) => dispatch('statusFilterChange', { value: v ? parseInt(String(v), 10) : undefined })}
+              value={statusFilter != null ? String(statusFilter) : ''}
+              options={activeStatusOptions.length > 0 ? activeStatusOptions.map((s) => ({ value: String(s.Id), label: s.Text })) : [
+                { value: '1', label: 'Draft' },
+                { value: '2', label: 'Approved' },
+                { value: '3', label: 'Inactive' }
+              ]}
+              onChange={(v) => handleStatusChange(v ? parseInt(String(v), 10) : undefined)}
               placeholder="All"
             />
+          </div>
+          <div style={{ display: 'flex', alignItems: 'flex-end' }}>
+            <Button id="btnDistrictSearch" variant="secondary" onClick={runSearch}>Search</Button>
           </div>
         </FilterBar>
 
         <div style={{ overflowX: 'auto' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+          <table id="tblDistrictMaster" style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead>
               <tr>
                 <th style={thStyle}>District Code</th>
@@ -156,33 +360,35 @@ export const DistrictMasterListScreen: React.FC<DistrictMasterListScreenProps> =
             </thead>
             <tbody>
               {items.length === 0 && (
-                <tr><td style={tdStyle} colSpan={6}>No records found.</td></tr>
+                <tr><td style={tdStyle} colSpan={6}>{isLoading ? 'Loading records...' : 'No records found.'}</td></tr>
               )}
               {items.map((row) => (
-                <tr key={row.Id}>
+                <tr key={row.Id} data-district-id={row.Id}>
                   <td style={tdStyle}>{row.DistrictCode}</td>
                   <td style={tdStyle}>{row.DistrictName}</td>
                   <td style={tdStyle}>{row.StateMaster?.StateName}</td>
                   <td style={tdStyle}>{row.CountryMaster?.CountryName}</td>
-                  <td style={tdStyle}>{row.ActiveStatus?.Description}</td>
+                  <td style={tdStyle}>{row.ActiveStatus?.Description || (row.ActiveStatusId === 2 ? 'Approved' : row.ActiveStatusId === 1 ? 'Draft' : 'Inactive')}</td>
                   <td style={tdStyle}>
                     <div style={{ display: 'flex', gap: spacing.sm }}>
-                      <span
-                        className="grid-action" style={{ cursor: 'pointer' }}
-                        onClick={() => dispatch('edit', row)}
+                      <button
+                        className="btn-edit-district"
+                        style={{ border: 'none', background: 'none', cursor: 'pointer', padding: 4 }}
+                        onClick={() => handleEdit(row)}
                         title="Edit"
+                        aria-label={`Edit ${row.DistrictName || row.DistrictCode}`}
                       >
-                        <img className="drhms-edit-button" src="assets/svg/edit.svg" alt="Edit" aria-hidden="true" />
-                      </span>
-                      {(row.ActiveStatusId === 1 || row.ActiveStatusId === 3) && (
-                        <span
-                          className="grid-action" style={{ cursor: 'pointer' }}
-                          onClick={() => dispatch('delete', row)}
-                          title="Delete"
-                        >
-                          <img className="drhms-edit-button" src="assets/svg/delete.svg" alt="Delete" aria-hidden="true" />
-                        </span>
-                      )}
+                        <i className="fa fa-pencil" style={{ color: colors.primary }} aria-hidden="true" />
+                      </button>
+                      <button
+                        className="btn-delete-district"
+                        style={{ border: 'none', background: 'none', cursor: 'pointer', padding: 4 }}
+                        onClick={() => handleDelete(row)}
+                        title="Delete"
+                        aria-label={`Delete ${row.DistrictName || row.DistrictCode}`}
+                      >
+                        <i className="fa fa-trash" style={{ color: colors.danger || '#ef4444' }} aria-hidden="true" />
+                      </button>
                     </div>
                   </td>
                 </tr>
@@ -195,9 +401,106 @@ export const DistrictMasterListScreen: React.FC<DistrictMasterListScreenProps> =
           currentPage={currentPage}
           totalItems={totalItems}
           pageSize={pageSize}
-          onPageChange={(page) => dispatch('pageChange', { page })}
+          onPageChange={handlePageChange}
         />
       </Card>
+
+      {/* Embedded React Add/Edit Modal Dialog */}
+      {isModalOpen && (
+        <div
+          id="districtModalOverlay"
+          style={{
+            position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.5)', zIndex: 1050,
+            display: 'flex', alignItems: 'center', justifyContent: 'center'
+          }}
+          onClick={(e) => { if (e.target === e.currentTarget) setIsModalOpen(false); }}
+        >
+          <div
+            id="districtModalDialog"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="districtModalTitle"
+            style={{
+              backgroundColor: '#fff', borderRadius: 8, padding: spacing.xl,
+              width: '100%', maxWidth: 550, boxShadow: '0 20px 25px -5px rgba(0,0,0,0.2)'
+            }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: spacing.lg, borderBottom: `1px solid ${colors.border}`, paddingBottom: spacing.sm }}>
+              <h3 id="districtModalTitle" style={{ margin: 0, ...typography.h3, color: colors.textMain }}>
+                {editingItem ? 'Edit District Master' : 'Add District Master'}
+              </h3>
+              <button
+                id="btnCloseDistrictModal"
+                type="button"
+                onClick={() => setIsModalOpen(false)}
+                style={{ border: 'none', background: 'none', fontSize: 18, cursor: 'pointer', color: colors.textMuted }}
+                aria-label="Close"
+              >
+                &times;
+              </button>
+            </div>
+
+            {modalError && (
+              <div id="districtModalError" style={{ padding: '8px 12px', marginBottom: spacing.md, backgroundColor: '#fef2f2', color: '#b91c1c', borderRadius: 6, fontSize: 13 }}>
+                {modalError}
+              </div>
+            )}
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: spacing.md }}>
+              <Input
+                id="txtModalDistrictCode"
+                label="District Code"
+                required
+                value={modalCode}
+                onChange={(e) => setModalCode(e.target.value)}
+                placeholder="e.g. DL, BLR"
+              />
+              <Input
+                id="txtModalDistrictName"
+                label="District Name"
+                required
+                value={modalName}
+                onChange={(e) => setModalName(e.target.value)}
+                placeholder="e.g. New Delhi, Bengaluru Urban"
+              />
+              <div>
+                <label style={{ ...typography.label, color: colors.textMain, marginBottom: spacing.xs, display: 'block' }}>Country</label>
+                <CountryControl
+                  countryid={modalCountryId}
+                  onUpdate={(u) => {
+                    setModalCountryId(u.countryid ?? null);
+                    setModalStateId(null);
+                  }}
+                />
+              </div>
+              <div>
+                <label style={{ ...typography.label, color: colors.textMain, marginBottom: spacing.xs, display: 'block' }}>State</label>
+                <StateControl
+                  stateid={modalStateId}
+                  countryid={modalCountryId}
+                  onUpdate={(u) => setModalStateId(u.stateid ?? null)}
+                />
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: spacing.sm, marginTop: spacing.xs }}>
+                <input
+                  id="chkModalDistrictActive"
+                  type="checkbox"
+                  checked={modalIsActive}
+                  onChange={(e) => setModalIsActive(e.target.checked)}
+                />
+                <label htmlFor="chkModalDistrictActive" style={{ fontSize: 14, color: colors.textMain, cursor: 'pointer' }}>Active</label>
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: spacing.sm, marginTop: spacing.xl, paddingTop: spacing.md, borderTop: `1px solid ${colors.border}` }}>
+              <Button id="btnCancelDistrictModal" variant="secondary" onClick={() => setIsModalOpen(false)}>Cancel</Button>
+              <Button id="btnSaveDistrictModal" variant="secondary" onClick={() => handleModalSave(1)} disabled={isSaving}>Save</Button>
+              <Button id="btnSaveApproveDistrictModal" variant="primary" onClick={() => handleModalSave(modalIsActive ? 2 : 3)} disabled={isSaving}>Save &amp; Approve</Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

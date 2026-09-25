@@ -194,21 +194,31 @@
         <div class="form-group col-sm-4">
             <label class="col-sm-12 control-label" for="Receipttype" translate="billing.receipt-form.type.lbl"></label>
             <div class="col-sm-12">
-                <react-component name="BridgeLookupSelectScreen" props="{ reactProps: reactPropsReceiptTypeContainer.reactProps, onAction: reactPropsReceiptTypeContainer.onAction }"></react-component>
-                <!-- Angular required-validator mirror for the React Receipt Type select above.
-                     Same ng-model, same form-control name="Receipttype", same `required` as the
-                     original <ui-select>, so item_form.Receipttype and item_form.$valid are
-                     unchanged and utl.Validator.validate($scope) still blocks save when
-                     empty. A <span> (not an <input>) because ngFabForm only auto-inserts
-                     its validation-message template onto input/select/textarea, so this
-                     adds no visible UI -- exactly like the <ui-select> it replaces. -->
-                <span style="display:none" name="Receipttype" ng-model="item.ReceiptTypeId" required></span>
+                <ui-select ng-model="item.ReceiptTypeId" name="Receipttype" ng-disabled="true" required>
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 20 : 0}}
+                        <span ng-if="$select.selected.Text.length>20">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.ReceiptType | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
             </div>
         </div>
         <div class="form-group col-sm-4">
             <label class="col-sm-12 control-label" translate="Visit Type"></label>
             <div class="col-sm-12">
-                <react-component name="BridgeLookupSelectScreen" props="{ reactProps: reactPropsEncounterTypeContainer.reactProps, onAction: reactPropsEncounterTypeContainer.onAction }"></react-component>
+                <ui-select ng-model="item.EncounterTypeId" ng-disabled="item.isCompleted">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 20 : 0}}
+                        <span ng-if="$select.selected.Text.length>20">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.EncounterType | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
             </div>
         </div>
         <div class="form-group col-sm-4">
@@ -235,27 +245,46 @@
             <label class="col-sm-12 control-label" for="payments"
                 translate="billing.receipt-form.paymentmode.lbl"></label>
             <div class="col-sm-12">
-                <react-component name="BridgeLookupSelectScreen" props="{ reactProps: reactPropsPaymentTypeContainer.reactProps, onAction: reactPropsPaymentTypeContainer.onAction }"></react-component>
-                <!-- Angular required-validator mirror for the React Payment Mode select above.
-                     Same ng-model, same form-control name="payments", same `required` as the
-                     original <ui-select>, so item_form.payments and item_form.$valid are
-                     unchanged and utl.Validator.validate($scope) still blocks save when
-                     empty. A <span> (not an <input>) because ngFabForm only auto-inserts
-                     its validation-message template onto input/select/textarea, so this
-                     adds no visible UI -- exactly like the <ui-select> it replaces. -->
-                <span style="display:none" name="payments" ng-model="item.PaymentTypeId" required></span>
+                <ui-select ng-model="item.PaymentTypeId" name="payments" ng-disabled="item.isCompleted" required>
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 20 : 0}}
+                        <span ng-if="$select.selected.Text.length>20">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.PaymentType | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
             </div>
         </div>
         <div class="form-group col-sm-4">
             <label class="col-sm-12 control-label" translate="billing.receipt-form.department.lbl"></label>
             <div class="col-sm-12">
-                <react-component name="BridgeLookupSelectScreen" props="{ reactProps: reactPropsDepartmentContainer.reactProps, onAction: reactPropsDepartmentContainer.onAction }"></react-component>
+                <ui-select ng-model="item.DepartmentID" ng-disabled="item.isCompleted">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 20 : 0}}
+                        <span ng-if="$select.selected.Text.length>20">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.Department | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
             </div>
         </div>
         <div class="form-group col-sm-4">
             <label class="col-sm-12 control-label" translate="billing.receipt-form.servicename.lbl"></label>
             <div class="col-sm-12">
-                <react-component name="BridgeLookupSelectScreen" props="{ reactProps: reactPropsServiceContainer.reactProps, onAction: reactPropsServiceContainer.onAction }"></react-component>
+                <ui-select ng-model="item.ServiceId" ng-disabled="item.isCompleted">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 20 : 0}}
+                        <span ng-if="$select.selected.Text.length>20">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.ServiceItem | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
             </div>
         </div>
         <!-- <div class="form-group col-sm-4">
@@ -311,7 +340,16 @@
         <div class="form-group col-sm-4" ng-if="item.PaymentTypeId==5||item.PaymentTypeId == 6">
             <label class="col-sm-12 control-label" for="bankname" translate="billing.receipt-form.bankname.lbl"></label>
             <div class="col-sm-12">
-                <react-component name="BridgeLookupSelectScreen" props="{ reactProps: reactPropsBankContainer.reactProps, onAction: reactPropsBankContainer.onAction }"></react-component>
+                <ui-select ng-model="item.BankId" name="bankname" ng-disabled="item.isCompleted">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 20 : 0}}
+                        <span ng-if="$select.selected.Text.length>20">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.Bank | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
             </div>
         </div>
         <div class="form-group col-sm-4" ng-if="item.PaymentTypeId==2">
@@ -388,14 +426,32 @@
         <div class="form-group col-sm-4" ng-if="item.PaymentTypeId==5||item.PaymentTypeId == 6">
             <label class="col-sm-12 control-label" for="cardtype" translate="billing.receipt-form.cardtype.lbl"></label>
             <div class="col-sm-12">
-                <react-component name="BridgeLookupSelectScreen" props="{ reactProps: reactPropsCardTypeContainer.reactProps, onAction: reactPropsCardTypeContainer.onAction }"></react-component>
+                <ui-select ng-model="item.CardTypeId" name="cardtype" ng-disabled="item.isCompleted">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 20 : 0}}
+                        <span ng-if="$select.selected.Text.length>20">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.CardType | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
             </div>
         </div>
         <div class="form-group col-sm-4" ng-if="item.PaymentTypeId==5||item.PaymentTypeId == 6">
             <label class="col-sm-12 control-label" for="terminalno"
                 translate="billing.receipt-form.terminalno.lbl"></label>
             <div class="col-sm-12">
-                <react-component name="BridgeLookupSelectScreen" props="{ reactProps: reactPropsTerminalContainer.reactProps, onAction: reactPropsTerminalContainer.onAction }"></react-component>
+                <ui-select ng-model="item.TerminalNoId" name="terminalno" ng-disabled="item.isCompleted">
+                    <ui-select-match>
+                        {{$select.selected.Text | limitTo : 20 : 0}}
+                        <span ng-if="$select.selected.Text.length>20">...</span>
+                    </ui-select-match>
+                    <ui-select-choices
+                        repeat="lookupitem.Id as lookupitem in lookup.Terminal | filter: { Text: $select.search }">
+                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
             </div>
         </div>
         <!-- <div class="form-group col-sm-4" ng-if="item.PaymentTypeId==5||item.PaymentTypeId == 6">

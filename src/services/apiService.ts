@@ -1,4 +1,5 @@
 // React API Service Layer for Backend Endpoints
+import { sessionHelper } from './sessionHelper';
 
 export const API_BASE_URL = '/api';
 
@@ -17,8 +18,8 @@ export async function callBackendApi<T = any>(options: ApiRequestOptions): Promi
     'Accept': 'application/json',
   };
 
-  // Include auth token if available in storage
-  const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+  // Include auth token from session (same key as AngularJS ngSessionHelper)
+  const token = sessionHelper.getAuthToken() || localStorage.getItem('token') || sessionStorage.getItem('token');
   if (token) {
     headers['Authorization'] = `Bearer ${token}`;
   }
@@ -81,6 +82,34 @@ export const masterApi = {
     callBackendApi({ action: 'common/master/GetDoctors', type: 'get' }),
 };
 
+// Dedicated API Methods for Doctor Dashboard
+export const doctorDashboardApi = {
+  /**
+   * Fetches all 4 count keys in one POST, same as AngularJS $scope.getddCount().
+   * Returns: { mycheckedin, myinpatient, appointment, otschedule }
+   */
+  getDashboardCounts: (doctorId: number, facilityId: number, fromDate: string, toDate: string) =>
+    callBackendApi({
+      action: 'Visit/DoctorDashboard/GetDashboardOptions',
+      data: {
+        Data: {
+          Keys: [
+            { Key: 'appointment' },
+            { Key: 'mycheckedin' },
+            { Key: 'myinpatient' },
+            { Key: 'otschedule' },
+          ],
+        },
+        Attributes: {
+          FacilityId: facilityId,
+          DoctorId: doctorId,
+          FromDate: fromDate,
+          ToDate: toDate,
+        },
+      },
+    }),
+};
+
 // Expose globally for hybrid React/Angular usages
 if (typeof window !== 'undefined') {
   (window as any).ReactApiService = {
@@ -88,5 +117,6 @@ if (typeof window !== 'undefined') {
     patientApi,
     billingApi,
     masterApi,
+    doctorDashboardApi,
   };
 }

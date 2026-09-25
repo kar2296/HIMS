@@ -8,6 +8,7 @@ interface CityItem {
 }
 
 interface CityControlProps {
+  id?: string;
   cityid?: number | null;
   countryid?: number | null;
   stateid?: number | null;
@@ -17,6 +18,7 @@ interface CityControlProps {
 }
 
 export const CityControl: React.FC<CityControlProps> = ({
+  id,
   cityid,
   countryid,
   stateid,
@@ -92,6 +94,7 @@ export const CityControl: React.FC<CityControlProps> = ({
 
   return (
     <Select
+      id={id}
       disabled={candisable || loading}
       loading={loading}
       value={cityid || ''}

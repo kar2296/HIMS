@@ -8,12 +8,14 @@ interface CountryItem {
 }
 
 interface CountryControlProps {
+  id?: string;
   countryid?: number | null;
   candisable?: boolean;
   onUpdate?: (updates: Record<string, any>) => void;
 }
 
 export const CountryControl: React.FC<CountryControlProps> = ({
+  id,
   countryid,
   candisable = false,
   onUpdate
@@ -89,6 +91,7 @@ export const CountryControl: React.FC<CountryControlProps> = ({
 
   return (
     <Select
+      id={id}
       disabled={candisable || loading}
       loading={loading}
       value={countryid || ''}

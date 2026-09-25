@@ -133,7 +133,25 @@
         </div>
         <div class="col-sm-7">
             <div class="filters">
-                <react-component name="AppointmentsListTopBar" props="{ reactProps: reactProps, onAction: handleReactAction }"></react-component>
+                <div class="search">
+                    <input type="text" id="pid" class="form-control" on-enter="getList()" ng-model="currentfilter.MRN"
+                        placeholder="MRN / Name"> <i class="fas fa-search" aria-hidden="true"></i>
+                </div>
+                <button class="btn-add" ng-click="addNew()"
+                    uib-tooltip="{{ 'appointment.appointment-list.pagetitle.lbl' | translate }}"
+                    tooltip-placement="bottom">
+                    <i class="fa fa-plus" aria-hidden="true"></i>
+                </button>
+                <label class="btn-add" id="calenderid" ng-click="toggleView()"
+                    style="background-color: #e8311f !important;border-color: #9d1d14 !important;">
+                    <i class="fa fa-calendar" aria-hidden="true"></i>
+                </label>
+                <button type="button" tabindex="-1" class="btn-add" ng-click="backtoList()" uib-tooltip="Dashboard" tooltip-placement="bottom">
+                    <i class="fa fa-home" aria-hidden="true"> </i>
+                </button>
+
+                <!-- <i class="fa fa-home" align="right" ng-click="backtoList()" uib-tooltip="Dashboard"
+                    tooltip-placement="bottom"></i> -->
             </div>
         </div>
         <!-- <div class="col-sm- col-md-5"> -->
@@ -310,7 +328,73 @@
             </div>
         </div>
     </div> -->
-<react-component name="AppointmentsListFilterTable" props="{ reactProps: reactProps, onAction: handleReactAction }"></react-component>
+<table id="bannerdetails">
+    <tr>
+        <td translate="appointment.appointment-list.filter_type.lbl"></td>
+        <td>
+            <ui-select ng-model="currentfilter.AppointmentTypeId" ng-change="appointmenttypechange()"
+                class="filter-combo" ng-disabled="currentcontext.candisableappttype">
+                <ui-select-match>
+                    {{$select.selected.Text | limitTo : 10 : 0}}
+                    <span ng-if="$select.selected.Text.length>8">...</span>
+                </ui-select-match>
+                <ui-select-choices
+                    repeat="lookupitem.Id as lookupitem in lookup.AppointmentType | filter: { Text: $select.search }">
+                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                </ui-select-choices>
+            </ui-select>
+        </td>
+        <td translate="From Date"></td>
+        <td> <input type="text" class="form-control" name="fromdate" ng-change="getList()"
+                datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}"
+                uib-datepicker-popup="{{datePickerOptions.dateFormat}}" placeholder="{{datePickerOptions.placeholder}}"
+                ng-click="fromdatePopup = { opened: true }" is-open="fromdatePopup.opened"
+                ng-model="currentfilter.fromdate">
+        </td>
+        <td translate="To Date"></td>
+        <td> <input type="text" class="form-control" name="todate" ng-change="getList()"
+                datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}"
+                uib-datepicker-popup="{{datePickerOptions.dateFormat}}" placeholder="{{datePickerOptions.placeholder}}"
+                ng-click="todatePopup = { opened: true }" is-open="todatePopup.opened"
+                ng-model="currentfilter.todate">
+        </td>
+        <td translate="appointment.appointment-list.filter_department.lbl"></td>
+        <td>
+            <ui-select ng-model="currentfilter.DepartmentId" ng-change="getList()" class="filter-combo">
+                <ui-select-match>
+                    {{$select.selected.Text | limitTo : 15 : 0}}
+                    <span ng-if="$select.selected.Text.length>8">...</span>
+                </ui-select-match>
+                <ui-select-choices
+                    repeat="lookupitem.Id as lookupitem in lookup.Department | filter: { Text: $select.search }">
+                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                </ui-select-choices>
+            </ui-select>
+        </td>
+    </tr>
+    <tr>
+        <td translate="appointment.appointment-list.filter_doctor.lbl"></td>
+        <td>
+            <multiselectchk list="lookup.Doctor" selected="currentfilter.DoctorId" change="doctorFilterChange()">
+            </multiselectchk>
+        </td>
+        <td translate="appointment.appointment-list.filter_appointmentstatus.lbl"></td>
+        <td>
+            <ui-select ng-model="currentfilter.AppointmentStatusId" ng-change="getList()" class="filter-combo">
+                <ui-select-match>
+                    {{$select.selected.Text | limitTo : 15 : 0}}
+                    <span ng-if="$select.selected.Text.length>8">...</span>
+                </ui-select-match>
+                <ui-select-choices
+                    repeat="lookupitem.Id as lookupitem in lookup.AppointmentStatus | filter: { Text: $select.search }">
+                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                </ui-select-choices>
+            </ui-select>
+        </td>
+        <td></td>
+        <td></td>
+    </tr>
+</table>
 
 
 
@@ -371,9 +455,17 @@
 </script> -->
 <div class="container-fluid filter" id="appoinmentsheight">
 
-    <react-component name="AppointmentsListGrid" props="{ reactProps: reactProps, onAction: handleReactAction }" ng-show="!vm.appointment.ShowCalendar"></react-component>
+    <custom-table config="vm.gridConfig" ng-show="!vm.appointment.ShowCalendar"></custom-table>
     <!-- <div ui-grid="vm.gridConfig" class="table-uigrid" ui-grid-selection "></div> -->
     <jqx-scheduler jqx-settings="settings" id="scheduler" ng-show="vm.appointment.ShowCalendar"></jqx-scheduler>
+
+    <div class="fooder-bgs">
+        <div class="row">
+            <ul uib-pagination total-items="vm.gridConfig.pagerObj.totalItems"
+                items-per-page="vm.gridConfig.pagerObj.pageSize" start-index="vm.gridConfig.pagerObj.startIndex"
+                ng-model="vm.gridConfig.pagerObj.currentPage" ng-change="getList()"></ul>
+        </div>
+    </div>
 </div>
 
 

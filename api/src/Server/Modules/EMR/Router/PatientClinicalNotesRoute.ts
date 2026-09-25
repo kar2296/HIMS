@@ -35,5 +35,17 @@ router.post('/DeletePatientClinicalNotes', (req: Request, res: Response, next: N
         .then((response) => { res.send(response); })
         .catch(next);
 });
+router.post('/SignPatientClinicalNote', (req: Request, res: Response, next: NextFunction): any => {
+    const service = ServiceFactory.CreateService(PatientClinicalNotesService, req);
+    service.SignPatientClinicalNote(req.body)
+        .then((response) => { res.send(response); })
+        .catch(next);
+});
+router.post('/AmendPatientClinicalNote', (req: Request, res: Response, next: NextFunction): any => {
+    const service = ServiceFactory.CreateService(PatientClinicalNotesService, req);
+    service.AmendPatientClinicalNote(req.body)
+        .then((response) => { res.send(response); })
+        .catch(next);
+});
 
 export default router;

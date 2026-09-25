@@ -268,56 +268,6 @@
         $scope.editOld = function (event) {
             $scope.openModals(event);
         }
-
-        // REACT BRIDGE WIRING (migrated to AppointmentCalendarScreen.tsx).
-        // All API calls/business logic above are untouched; the fullCalendar
-        // widget + jQuery-UI datepicker stay fully native. See the disclosure
-        // comment block at the top of AppointmentCalendarScreen.tsx for the
-        // confirmed real multiselectchk read-side bug (never fixed here).
-        // -------------------------------------------------------------
-        $scope.reactProps = {
-            currentfilter: $scope.currentfilter,
-            lookup: $scope.lookup
-        };
-
-        function refreshReactProps() {
-            $scope.reactProps.currentfilter = $scope.currentfilter;
-            $scope.reactProps.lookup = $scope.lookup;
-        }
-
-        var origLookupCallback = $scope.lookupCallback;
-        $scope.lookupCallback = function (scope, data, options, hasError) {
-            origLookupCallback(scope, data, options, hasError);
-            refreshReactProps();
-        };
-
-        $scope.handleReactAction = function (actionName, payload) {
-            switch (actionName) {
-                case 'doctorFilterChange':
-                    // The real <multiselectchk> tag here has no change=
-                    // attribute -- no live refetch on selection, matching
-                    // the original exactly (only 'fetchClick' refetches).
-                    $scope.currentfilter.DoctorId = payload.value;
-                    refreshReactProps();
-                    break;
-                case 'fetchClick':
-                    // ng-click="getList()"
-                    $scope.getList();
-                    refreshReactProps();
-                    break;
-                case 'statusToggle':
-                    // ng-click="toggleAppSelection(appointment.Id)" --
-                    // toggleAppSelection() itself calls getList().
-                    $scope.toggleAppSelection(payload.id);
-                    refreshReactProps();
-                    break;
-                default:
-                    break;
-            }
-            $scope.$applyAsync();
-        };
-        // ==================== END REACT BRIDGE WIRING ====================
-
         $scope.initLookup();
     }
 
