@@ -258,6 +258,7 @@ import { NursingDashboardComponent } from './react-components/NursingDashboardCo
 // Import Registration Toolbars
 import { RegistrationActionBar } from './react-components/RegistrationActionBar';
 import { RegistrationFooter } from './react-components/RegistrationFooter';
+import { TodayOpdVisits } from './react-components/TodayOpdVisits';
 
 // Import OP Billing Toolbars
 import { OPBillingActionBar } from './react-components/OPBillingActionBar';
@@ -665,6 +666,7 @@ import './printing/himsPrint';
   NursingDashboardComponent,
   RegistrationActionBar,
   RegistrationFooter,
+  TodayOpdVisits,
   OPBillingActionBar,
   OPBillingSaveBar,
   PrintControl,

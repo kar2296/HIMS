@@ -112,6 +112,67 @@
             }
         };
 
+        // ---- New-design header actions: Today's OPD Visits, Find / Search Patient (F2), Reset Form (F3) ----
+        $scope.currentFacilityId = utl.Session.getCurrentFacilityId();
+
+        /** Load a patient picked from "Today's OPD Visits" (same path as picking one in the patient search). */
+        $scope.loadPatientById = function(patientId) {
+            $scope.$applyAsync(function() {
+                if (patientId > 0) {
+                    $scope.item.PatientId = patientId;
+                    $scope.patientChange();
+                }
+            });
+        };
+
+        $scope.focusPatientSearch = function() {
+            var input = document.querySelector('.reg-nd .drhms-filters input#pid') || document.querySelector('.reg-nd .drhms-filters input');
+            if (input) {
+                input.focus();
+                if (input.select) { input.select(); }
+            }
+        };
+
+        var RESET_CONFIRM_MSG = 'Clear the form? Details you have entered will be lost.';
+        function isResetConfirmOpen() {
+            return Array.prototype.some.call(document.body.children, function(el) {
+                return el.offsetParent !== null && (el.textContent || '').indexOf(RESET_CONFIRM_MSG) >= 0;
+            });
+        }
+
+        $scope.resetRegistrationForm = function() {
+            var dirty = $scope.item_form && $scope.item_form.$dirty;
+            if (!dirty) {
+                $scope.clear();
+                return;
+            }
+            utl.Dialog.confirmMessage({
+                headingKey: 'common.confirm-modal-header.lbl',
+                messageKey: RESET_CONFIRM_MSG,
+                yesKey: 'common.yeskey.lbl',
+                noKey: 'common.nokey.lbl',
+                onSuccessMethod: $scope.clear
+            });
+        };
+
+        function onRegistrationShortcut(e) {
+            // not while a popup is open (F3 would stack another reset confirmation)
+            if (document.querySelector('.modal.in') || isResetConfirmOpen()) {
+                return;
+            }
+            if (e.key === 'F2') {
+                e.preventDefault();
+                $scope.focusPatientSearch();
+            } else if (e.key === 'F3') {
+                e.preventDefault();
+                $scope.$applyAsync($scope.resetRegistrationForm);
+            }
+        }
+        document.addEventListener('keydown', onRegistrationShortcut);
+        $scope.$on('$destroy', function() {
+            document.removeEventListener('keydown', onRegistrationShortcut);
+        });
+
         $scope.refreshReactProps = function() {
             vm.reactPropsActionBar = {
                 saveCompleted: $scope.SaveCompleted || false,

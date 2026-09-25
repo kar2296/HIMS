@@ -32,6 +32,27 @@
         background-color: #fff !important; border: 1px solid #cbd5e1 !important; }
     .reg-nd > .drhms-filters .filters input#pid { background-color: #fff !important; border: 1px solid #cbd5e1 !important; height: 44px !important; }
 
+    /* header action buttons, VIP/MLC flags */
+    .reg-nd-btn { display: inline-flex; align-items: center; gap: 8px; height: 44px; padding: 0 18px; border-radius: 8px; border: 1px solid transparent;
+        font-size: 14px; font-weight: 700; cursor: pointer; white-space: nowrap; line-height: 1; transition: filter .15s, background .15s; }
+    .reg-nd-btn:focus-visible { outline: 2px solid #2563eb; outline-offset: 2px; }
+    /* regbilling.css turns every '.filters button' into a 30px round icon; these are text buttons */
+    .reg-nd .filters .reg-nd-btn { width: auto !important; height: 44px !important; padding: 0 18px !important; border-radius: 8px !important;
+        float: none !important; flex: none; font-size: 14px !important; }
+    .reg-nd .filters .reg-nd-btn.is-outline { border: 1px solid #cbd5e1 !important; }
+    .reg-nd > .drhms-filters > div:last-child { align-self: stretch; }
+    .reg-nd > .drhms-filters .filters { justify-content: flex-start !important; }
+    .reg-nd-btn.is-green { background: #3f8f5f; color: #fff; }
+    .reg-nd-btn.is-navy { background: #0b1a6b; color: #fff; }
+    .reg-nd-btn.is-green:hover, .reg-nd-btn.is-navy:hover { filter: brightness(1.1); }
+    .reg-nd-btn.is-outline { background: #fff; color: #1e293b; border-color: #cbd5e1; }
+    .reg-nd-btn.is-outline:hover { background: #f8fafc; }
+    .reg-nd-flags { margin-left: auto; display: inline-flex; gap: 22px; flex-wrap: wrap; }
+    .reg-nd-flags label { display: inline-flex !important; align-items: center; gap: 8px; margin: 0 !important; font-size: 14px; font-weight: 600;
+        color: #0f172a; cursor: pointer; }
+    .reg-nd-flags input { width: 18px; height: 18px; margin: 0 !important; accent-color: #2563eb; cursor: pointer; }
+    .reg-nd .reg-nd-moved { display: none !important; }
+
     /* section cards */
     .reg-nd .row:has(> .drhms-sub-header-border, > .accordian-button, > .drhms-sub-header, > .acordians) {
         background: #fff; border: 1px solid #e2e8f0; border-radius: 14px; margin: 0 0 20px !important; padding: 4px 12px 14px;
@@ -195,6 +216,13 @@
         </div>
         <div>
             <div class="filters" style="display: flex; align-items: center; gap: 8px; margin: 0;">
+                <react-component name="TodayOpdVisits" props="{ facilityId: currentFacilityId, onSelectPatient: loadPatientById }"></react-component>
+                <button type="button" class="reg-nd-btn is-navy" ng-click="focusPatientSearch()" title="Find a registered patient (F2)">
+                    <i class="fas fa-search" aria-hidden="true"></i> Find / Search Patient (F2)
+                </button>
+                <button type="button" class="reg-nd-btn is-outline" ng-click="resetRegistrationForm()" title="Clear the form and start again (F3)">
+                    <i class="fas fa-rotate-left" aria-hidden="true"></i> Reset Form (F3)
+                </button>
                 <div class="search">
                     <autosearch class="reasonsearch" itemid="item.PatientId" iteminfo="item.SelectedItem" rowdata="item"
                         config="vm.membernocontrolconfig" itemchange="patientChange()" name="'patient'"
@@ -228,7 +256,7 @@
     <div class="col-sm-12">
         <form id="item_form" name="item_form" class="form-horizontal" role="form">
             <div class="row">
-                <div class="drhms-sub-header-border"><span class="reg-nd-ico" aria-hidden="true"><i class="fas fa-id-card"></i></span><span class="reg-nd-num">1.</span><span translate="registration.registrationcumvisit.patientinfo.lbl"></span></div>
+                <div class="drhms-sub-header-border"><span class="reg-nd-ico" aria-hidden="true"><i class="fas fa-id-card"></i></span><span class="reg-nd-num">1.</span><span translate="registration.registrationcumvisit.patientinfo.lbl"></span><span class="reg-nd-flags"><label><input type="checkbox" ng-model="item.IsVip" tabindex="-1"> VIP Patient</label><label><input type="checkbox" ng-model="item.IsMLC" ng-disabled="SaveCompleted" tabindex="-1"> Medico-Legal (MLC)</label></span></div>
                 <div class="form-group col-lg-3">
                     <label class="col-lg-12 control-label" for="tittle"
                         translate="registration.registrationcumvisit.title.lbl"></label>
@@ -544,7 +572,7 @@
                         </ui-select>
                     </div>
                 </div>
-                <div class="form-group col-lg-3">
+                <div class="form-group col-lg-3 reg-nd-moved">
                     <label class="col-lg-12 control-label" translate="registration.fullregistration.isvip.lbl"></label>
                     <div class="col-lg-12">
                         <input type="checkbox" name="isvip" tabindex="-1" class="custom-checkbox" ng-model="item.IsVip">
@@ -793,7 +821,7 @@
                             ng-disabled="item.candisable" placeholder="">
                     </div>
                 </div>
-                <div class="form-group col-lg-3">
+                <div class="form-group col-lg-3 reg-nd-moved">
                     <label class="col-lg-12 control-label ng-scope " translate="MLC">
                     </label>
                     <div class="col-lg-7">
