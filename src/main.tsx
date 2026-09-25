@@ -349,6 +349,7 @@ import { ChiefComplaintListScreen } from './react-components/ChiefComplaintListS
 import { DiagnosisListScreen } from './react-components/DiagnosisListScreen';
 import { DietItemListScreen } from './react-components/DietItemListScreen';
 import { VitalMasterListScreen } from './react-components/VitalMasterListScreen';
+import { DrugFrequencyListScreen } from './react-components/DrugFrequencyListScreen';
 import { DistrictMasterListScreen } from './react-components/DistrictMasterListScreen';
 import { DistrictMasterFormScreen } from './react-components/DistrictMasterFormScreen';
 import { PincodeMasterListScreen } from './react-components/PincodeMasterListScreen';
@@ -643,6 +644,7 @@ import './printing/himsPrint';
   DiagnosisListScreen,
   DietItemListScreen,
   VitalMasterListScreen,
+  DrugFrequencyListScreen,
   DistrictMasterListScreen,
   DistrictMasterFormScreen,
   PincodeMasterListScreen,
