@@ -15,6 +15,7 @@ import { DistrictMasterListScreen } from '../react-components/DistrictMasterList
 import { PincodeMasterListScreen } from '../react-components/PincodeMasterListScreen';
 import { PatientIdentityFormScreen } from '../react-components/PatientIdentityFormScreen';
 import { PatientKinFormScreen } from '../react-components/PatientKinFormScreen';
+import { AllergyReactionListScreen } from '../react-components/AllergyReactionListScreen';
 
 // Route Guard component
 export const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -189,6 +190,16 @@ export const AppRoutes: React.FC = () => {
           element={
             <ProtectedRoute>
               <ShellWrapper activeTab="registration" component={<PatientKinFormScreen />} />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Batch 2: Clinical Masters */}
+        <Route
+          path="/allergyreactions"
+          element={
+            <ProtectedRoute>
+              <ShellWrapper activeTab="emr" component={<AllergyReactionListScreen />} />
             </ProtectedRoute>
           }
         />

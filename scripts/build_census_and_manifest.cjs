@@ -96,7 +96,10 @@ const reactRouterStateMap = {
     'app.districtmaster': { route: '/masters/districts', component: 'DistrictMasterListScreen' },
     'app.pincodes': { route: '/masters/pincodes', component: 'PincodeMasterListScreen' },
     'app.fullregistrationtab.patientidentity': { route: '/registration/identity', component: 'PatientIdentityFormScreen' },
-    'app.fullregistrationtab.patientkin': { route: '/registration/kin', component: 'PatientKinFormScreen' }
+    'app.fullregistrationtab.patientkin': { route: '/registration/kin', component: 'PatientKinFormScreen' },
+
+    // Batch 2 Migration: Clinical Masters & Sub-forms
+    'app.allergyreactions': { route: '/allergyreactions', component: 'AllergyReactionListScreen' }
 };
 
 

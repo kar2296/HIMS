@@ -343,6 +343,7 @@ import { StateMasterListScreen } from './react-components/StateMasterListScreen'
 import { StateMasterFormScreen } from './react-components/StateMasterFormScreen';
 import { CountryMasterListScreen } from './react-components/CountryMasterListScreen';
 import { CountryMasterFormScreen } from './react-components/CountryMasterFormScreen';
+import { AllergyReactionListScreen } from './react-components/AllergyReactionListScreen';
 import { DistrictMasterListScreen } from './react-components/DistrictMasterListScreen';
 import { DistrictMasterFormScreen } from './react-components/DistrictMasterFormScreen';
 import { PincodeMasterListScreen } from './react-components/PincodeMasterListScreen';
@@ -631,6 +632,7 @@ import './printing/himsPrint';
   StateMasterFormScreen,
   CountryMasterListScreen,
   CountryMasterFormScreen,
+  AllergyReactionListScreen,
   DistrictMasterListScreen,
   DistrictMasterFormScreen,
   PincodeMasterListScreen,
