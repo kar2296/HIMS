@@ -30,6 +30,7 @@ import { ServiceGroupListScreen } from '../react-components/ServiceGroupListScre
 import { ServiceSubCategoryListScreen } from '../react-components/ServiceSubCategoryListScreen';
 import { ProcedureListScreen } from '../react-components/ProcedureListScreen';
 import { CategoryTypeListScreen } from '../react-components/CategoryTypeListScreen';
+import { AttachmentTypeListScreen } from '../react-components/AttachmentTypeListScreen';
 
 // Route Guard component
 export const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -340,6 +341,15 @@ export const AppRoutes: React.FC = () => {
           element={
             <ProtectedRoute>
               <ShellWrapper activeTab="emr" component={<CategoryTypeListScreen />} />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/attachmenttypes"
+          element={
+            <ProtectedRoute>
+              <ShellWrapper activeTab="emr" component={<AttachmentTypeListScreen />} />
             </ProtectedRoute>
           }
         />

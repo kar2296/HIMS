@@ -107,8 +107,65 @@ $scope.openModal = function (Id) {
     $scope.lookupCallback = function (scope, data, options, hasError) {
         $scope.lookup = hasError ? {} : data;
         $scope.getList();
-    }
-    
+    };
+
+    $scope.refreshReactProps = function () {
+        $scope.reactProps = {
+            items: vm.gridConfig.data || [],
+            totalItems: (vm.gridConfig.pagerObj && vm.gridConfig.pagerObj.totalItems) || 0,
+            currentPage: (vm.gridConfig.pagerObj && vm.gridConfig.pagerObj.currentPage) || 1,
+            pageSize: (vm.gridConfig.pagerObj && vm.gridConfig.pagerObj.pageSize) || 25,
+            pagerObj: vm.gridConfig.pagerObj,
+            currentfilter: $scope.currentfilter,
+            lookup: $scope.lookup || {}
+        };
+    };
+
+    var _origGetListCallback = $scope.getListCallback;
+    $scope.getListCallback = function (scope, res, options, hasError) {
+        _origGetListCallback(scope, res, options, hasError);
+        $scope.refreshReactProps();
+        $scope.$applyAsync();
+    };
+
+    var _origLookupCallback = $scope.lookupCallback;
+    $scope.lookupCallback = function (scope, data, options, hasError) {
+        _origLookupCallback(scope, data, options, hasError);
+        $scope.refreshReactProps();
+        $scope.$applyAsync();
+    };
+
+    $scope.handleReactAction = function (actionName, payload) {
+        if (actionName === 'search') {
+            if (payload) {
+                if (payload.Name !== undefined) $scope.currentfilter.Name = payload.Name;
+                if (payload.DepartmentId !== undefined) $scope.currentfilter.DepartmentId = payload.DepartmentId;
+                if (payload.ActiveStatusId !== undefined) $scope.currentfilter.ActiveStatusId = payload.ActiveStatusId;
+            }
+            vm.gridConfig.pagerObj.currentPage = 1;
+            $scope.getList();
+        } else if (actionName === 'resetFilters') {
+            $scope.currentfilter.Name = '';
+            $scope.currentfilter.DepartmentId = -1;
+            $scope.currentfilter.ActiveStatusId = 2;
+            vm.gridConfig.pagerObj.currentPage = 1;
+            $scope.getList();
+        } else if (actionName === 'pageChange') {
+            vm.gridConfig.pagerObj.currentPage = payload && payload.page ? payload.page : 1;
+            $scope.getList();
+        } else if (actionName === 'addNew') {
+            $scope.addNew();
+        } else if (actionName === 'edit') {
+            $scope.handleEvents('edit', payload);
+        } else if (actionName === 'delete') {
+            $scope.handleEvents('delete', payload);
+        } else if (typeof $scope[actionName] === 'function') {
+            $scope[actionName]();
+        }
+        $scope.refreshReactProps();
+        $scope.$applyAsync();
+    };
+
     $scope.initLookup = function () {
         var inputData = [ 
                             { "Key": "Department" },
@@ -122,8 +179,9 @@ $scope.openModal = function (Id) {
             onComplete: $scope.lookupCallback
         };
         utl.Http.doAction(options);
-    }
+    };
     
+    $scope.refreshReactProps();
     $scope.initLookup();
 }
 
