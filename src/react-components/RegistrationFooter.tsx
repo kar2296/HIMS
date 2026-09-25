@@ -61,7 +61,7 @@ export const RegistrationFooter: React.FC<RegistrationFooterProps> = (props: any
   const isDisabled = canDisableApprove === true || canDisableApprove === 'true' || Number(canDisableApprove) === 1;
 
   return (
-    <div style={{
+    <div className="hims-reg-footer" style={{
       display: 'flex',
       justifyContent: 'space-between',
       alignItems: 'center',
@@ -69,11 +69,14 @@ export const RegistrationFooter: React.FC<RegistrationFooterProps> = (props: any
       backgroundColor: colors.surface,
       borderTop: '2px solid var(--premium-blue, #21008d)',
       boxShadow: '0 -4px 20px rgba(0, 0, 0, 0.18)',
-      position: 'fixed',
-      bottom: '48px',
-      left: 0,
-      right: 0,
-      zIndex: 99999,
+      // Sticks to the bottom of the page area (it used to be fixed to the window from left: 0, so its
+      // first buttons slid under the side menu and it covered the last form rows).
+      position: 'sticky',
+      bottom: 0,
+      zIndex: 30,
+      marginTop: spacing.lg,
+      flexWrap: 'wrap',
+      gap: spacing.sm,
       minHeight: '60px',
       boxSizing: 'border-box'
     }}>
