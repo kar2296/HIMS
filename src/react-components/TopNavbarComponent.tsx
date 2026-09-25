@@ -56,6 +56,7 @@ export const TopNavbarComponent: React.FC<TopNavbarComponentProps> = ({
   quickSearchResults = [],
   isSearching = false,
   currentModule,
+  facilityName,
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchOpen, setSearchOpen] = useState(false);
@@ -207,6 +208,18 @@ export const TopNavbarComponent: React.FC<TopNavbarComponentProps> = ({
           )}
         </div>
       </div>
+
+      {/* Centre-left: current facility + online status (as in the new design) */}
+      {facilityName && (
+        <div className="hims-topbar-facility" style={{ display: 'flex', alignItems: 'center', gap: '10px', minWidth: 0, flexShrink: 1 }}>
+          <span style={{ fontSize: '11.5px', fontWeight: 700, color: colors.textMuted, textTransform: 'uppercase', letterSpacing: '0.04em', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', fontFamily: typography.fontFamily }}>
+            Facility: <strong style={{ color: colors.textMain }}>{facilityName}</strong>
+          </span>
+          <span style={{ fontSize: '11px', background: '#dcfce7', color: '#166534', padding: '2px 8px', borderRadius: '9999px', fontWeight: 600, whiteSpace: 'nowrap', fontFamily: typography.fontFamily }}>
+            ● Online
+          </span>
+        </div>
+      )}
 
       {/* Right: Search + Quick Actions + Notifications + User */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
