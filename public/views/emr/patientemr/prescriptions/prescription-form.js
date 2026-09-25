@@ -66,6 +66,17 @@
             $scope.cancelCallback = $uibModalInstance.dismiss;
         }
 
+        // Copy from a previous visit (EMR workspace): the ticked medicines of earlier prescriptions are
+        // loaded as a NEW draft for the current visit; the doctor reviews and prescribes.
+        //   params.copyFromPrescriptionIds: [prescriptionId], params.copyDetailIds: [prescriptionDetailId] (optional filter)
+        if (modalConfig && modalConfig.params && angular.isArray(modalConfig.params.copyFromPrescriptionIds)
+            && modalConfig.params.copyFromPrescriptionIds.length) {
+            $scope.currentcontext.copyFromPrescriptionIds = modalConfig.params.copyFromPrescriptionIds;
+            $scope.currentcontext.copyDetailIds = angular.isArray(modalConfig.params.copyDetailIds) ? modalConfig.params.copyDetailIds : null;
+            $scope.currentcontext.id = 0;
+            $scope.currentcontext.option = 'detail';
+        }
+
         // Callers (e.g. the EMR workspace) can choose the first tab; defaults to the tick sheet.
         var startTabs = ['detail', 'ticksheet', 'panels'];
         if (modalConfig && modalConfig.params && startTabs.indexOf(modalConfig.params.startTab) >= 0) {
@@ -750,6 +761,8 @@
                     onComplete: $scope.copyDetailsCallback
                 };
                 utl.Http.doAction(options);
+            } else if ($scope.currentcontext.copyFromPrescriptionIds) {
+                loadCopiedLines($scope.currentcontext.copyFromPrescriptionIds, $scope.currentcontext.copyDetailIds);
             } else {
                 var lastIndex = $scope.prescriptionDetails.length - 1;
                 if (lastIndex < 0) {
@@ -757,6 +770,51 @@
                 }
             }
         };
+
+        /** A saved prescription line turned into a new, unsaved line of this prescription. */
+        function toCopiedLine(source) {
+            var line = angular.copy(source);
+            ['Id', 'PrescriptionId', 'CreatedAt', 'CreatedBy', 'UpdatedAt', 'UpdatedBy', 'Rev', 'DispensedQuantity',
+                'AdministeredQuantity', 'AdministerStatusId', 'IsAllergyOverride', 'AllergyOverrideReason',
+                'AllergyOverrideBy', 'AllergyOverrideAt', 'PrecriptionStatusId', '$$hashKey'].forEach(function (key) {
+                delete line[key];
+            });
+            line.Id = 0;
+            line.Status = 1;
+            line.StartDate = utl.Formatter.getCurrentDate();
+            line.tabindex = $scope.tabindexmap.detailtabindex++;
+            return line;
+        }
+
+        function loadCopiedLines(prescriptionIds, detailIds) {
+            var pending = prescriptionIds.length;
+            var copied = [];
+            prescriptionIds.forEach(function (prescriptionId) {
+                utl.Http.doAction({
+                    action: 'emr/prescriptiondetail/GetPrescriptionDetails',
+                    data: { Params: [{ Key: 2, Value: prescriptionId }] },
+                    type: 'post',
+                    onComplete: function (scope, res) {
+                        (res && res.Data || []).forEach(function (line) {
+                            var active = line.Status === undefined || line.Status === 1;
+                            var wanted = !detailIds || detailIds.indexOf(line.Id) >= 0;
+                            var alreadyCopied = copied.some(function (c) { return c.DrugId > 0 && c.DrugId === line.DrugId; });
+                            if (active && wanted && !alreadyCopied && (line.DrugId > 0 || line.GenericId > 0)) {
+                                copied.push(toCopiedLine(line));
+                            }
+                        });
+                        pending--;
+                        if (pending === 0) {
+                            $scope.prescriptionDetails = copied;
+                            $scope.addNewLineItem();
+                            if (copied.length) {
+                                utl.Alert.showSuccessMsg(copied.length + ' medicine(s) copied from the previous visit. Review and click Prescribe.');
+                            }
+                        }
+                    }
+                });
+            });
+        }
 
         $scope.getItemCallback = function(scope, data, options, hasError) {
             $scope.item = data;

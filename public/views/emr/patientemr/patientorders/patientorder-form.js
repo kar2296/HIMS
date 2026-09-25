@@ -124,6 +124,16 @@
             }
             loadTickSheet();
         }
+        // Copy from a previous visit (EMR workspace): the ticked tests of earlier orders are loaded as a NEW
+        // order for the current visit (current encounter/doctor/rates kept); the user reviews and saves.
+        //   params.copyFromOrderIds: [patientOrderId], params.copyDetailIds: [patientOrderDetailId] (optional filter)
+        if (modalConfig && modalConfig.params && angular.isArray(modalConfig.params.copyFromOrderIds)
+            && modalConfig.params.copyFromOrderIds.length) {
+            $scope.currentcontext.copyFromOrderIds = modalConfig.params.copyFromOrderIds;
+            $scope.currentcontext.copyDetailIds = angular.isArray(modalConfig.params.copyDetailIds) ? modalConfig.params.copyDetailIds : null;
+            $scope.currentcontext.id = 0;
+            $scope.currentcontext.option = 'detail';
+        }
         // Callers can open the form on a given tab (the EMR Workspace "New order" button asks for 'detail').
         if (modalConfig && modalConfig.params && (modalConfig.params.startTab === 'detail' || modalConfig.params.startTab === 'ticksheet')) {
             $scope.currentcontext.option = modalConfig.params.startTab;
@@ -750,10 +760,61 @@
                     onComplete: $scope.copyDetailsCallback
                 };
                 utl.Http.doAction(options);
+            } else if ($scope.currentcontext.copyFromOrderIds) {
+                loadCopiedOrderLines($scope.currentcontext.copyFromOrderIds, $scope.currentcontext.copyDetailIds);
             } else {
                 $scope.addNewLineItem();
             }
         };
+
+        // Fields that describe the test itself; everything else (ids, billing, status, results) starts fresh.
+        var COPIED_ORDER_FIELDS = ['GroupId', 'SideId', 'TestMasterPositionId', 'TestId', 'TestCode', 'TestName', 'CategoryName',
+            'TestDescription', 'TestTypeId', 'DiagnosisId', 'TestPrice', 'TestPriceCurrencyCode', 'TestPriceCode', 'Discount', 'TestCost',
+            'TestCostCurrencyCode', 'TestCostCode', 'TaxId', 'TaxCost', 'OrderToLocationId', 'OrderLocationId', 'TestInstruction',
+            'SpecimanId', 'BodySiteId', 'Indication', 'ProfileName', 'PackageName', 'MasterObjectTypeId', 'MasterId', 'DepartmentId',
+            'SubDepartmentId', 'Quantity', 'IsCalculateGST', 'NetAmount', 'IsPackage', 'IsExecutableProcedure', 'IsExternalLab',
+            'ExternalPrice', 'ClinicalReason', 'OrderComments', 'Duration', 'DurationPeriodId'];
+
+        function toCopiedOrderLine(source) {
+            var line = getNewItem();
+            COPIED_ORDER_FIELDS.forEach(function (field) {
+                if (source[field] !== undefined) {
+                    line[field] = source[field];
+                }
+            });
+            return line;
+        }
+
+        function loadCopiedOrderLines(orderIds, detailIds) {
+            var pending = orderIds.length;
+            var copied = [];
+            orderIds.forEach(function (orderId) {
+                utl.Http.doAction({
+                    action: 'emr/patientorderdetail/GetPatientOrderDetails',
+                    data: { Params: [{ Key: 2, Value: orderId }], PageContext: { PageSize: 100, PageNumber: 1 } },
+                    type: 'post',
+                    onComplete: function (scope, res) {
+                        (res && res.Data || []).forEach(function (line) {
+                            var cancelled = line.OrderStatusId == 2 || line.Status === 2;
+                            var wanted = !detailIds || detailIds.indexOf(line.Id) >= 0;
+                            var alreadyCopied = copied.some(function (c) { return c.TestId === line.TestId; });
+                            if (!cancelled && wanted && !alreadyCopied && line.TestId > 0) {
+                                copied.push(toCopiedOrderLine(line));
+                            }
+                        });
+                        pending--;
+                        if (pending === 0) {
+                            $scope.details = copied;
+                            $scope.item.OrderTotal = copied.reduce(function (sum, l) { return sum + (Number(l.NetAmount) || 0); }, 0);
+                            $scope.addNewLineItem();
+                            if (copied.length) {
+                                utl.Alert.showSuccessMsg(copied.length + ' test(s) copied from the previous visit. Review and save the order.');
+                            }
+                        }
+                    }
+                });
+            });
+        }
 
 
         //getItem
@@ -777,7 +838,7 @@
         $scope.copyCallback = function (scope, data, options, hasError) {
             $scope.item.EncounterId = data.EncounterId;
             $scope.item.PatientId = data.PatientId;
-            $scope.item.PatientId = data.OrderTypeId;
+            $scope.item.OrderTypeId = data.OrderTypeId; // was assigned to PatientId by mistake
             $scope.item.DoctorId = data.DoctorId;
             $scope.item.DoctorName = data.DoctorName;
             $scope.item.OrderFromId = data.OrderFromId;
