@@ -100,7 +100,8 @@ const reactRouterStateMap = {
 
     // Batch 2 Migration: Clinical Masters & Sub-forms
     'app.allergyreactions': { route: '/allergyreactions', component: 'AllergyReactionListScreen' },
-    'app.allergies': { route: '/allergies', component: 'AllergyMasterListScreen' }
+    'app.allergies': { route: '/allergies', component: 'AllergyMasterListScreen' },
+    'app.chiefcomplaints': { route: '/chiefcomplaints', component: 'ChiefComplaintListScreen' }
 };
 
 
