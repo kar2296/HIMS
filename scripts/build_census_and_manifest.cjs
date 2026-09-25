@@ -111,7 +111,8 @@ const reactRouterStateMap = {
     'app.servicecategories': { route: '/servicecategories', component: 'ServiceCategoryListScreen' },
     'app.serviceratecategories': { route: '/serviceratecategories', component: 'ServiceRateCategoryListScreen' },
     'app.servicegroups': { route: '/servicegroups', component: 'ServiceGroupListScreen' },
-    'app.servicesubcategories': { route: '/servicesubcategories', component: 'ServiceSubCategoryListScreen' }
+    'app.servicesubcategories': { route: '/servicesubcategories', component: 'ServiceSubCategoryListScreen' },
+    'app.procedures': { route: '/procedures', component: 'ProcedureListScreen' }
 };
 
 

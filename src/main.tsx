@@ -356,6 +356,7 @@ import { ServiceCategoryListScreen } from './react-components/ServiceCategoryLis
 import { ServiceRateCategoryListScreen } from './react-components/ServiceRateCategoryListScreen';
 import { ServiceGroupListScreen } from './react-components/ServiceGroupListScreen';
 import { ServiceSubCategoryListScreen } from './react-components/ServiceSubCategoryListScreen';
+import { ProcedureListScreen } from './react-components/ProcedureListScreen';
 import { DistrictMasterListScreen } from './react-components/DistrictMasterListScreen';
 import { DistrictMasterFormScreen } from './react-components/DistrictMasterFormScreen';
 import { PincodeMasterListScreen } from './react-components/PincodeMasterListScreen';
@@ -657,6 +658,7 @@ import './printing/himsPrint';
   ServiceRateCategoryListScreen,
   ServiceGroupListScreen,
   ServiceSubCategoryListScreen,
+  ProcedureListScreen,
   DistrictMasterListScreen,
   DistrictMasterFormScreen,
   PincodeMasterListScreen,

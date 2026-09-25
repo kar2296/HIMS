@@ -116,7 +116,10 @@ function procedureListController($scope, $stateParams, $state, $translate, utl) 
         var inputData = [ 
                             { "Key": "ProcedureCodeScheme" },
                             { "Key": "ProcedureType" },
-                            { "Key": "ActiveStatus" }
+                            { "Key": "ActiveStatus" },
+                            { "Key": "ProcedureCategory" },
+                            { "Key": "ProcedureSubCategory" },
+                            { "Key": "AnaesthesiaType" }
                         ];
 
         var options = {
@@ -126,8 +129,78 @@ function procedureListController($scope, $stateParams, $state, $translate, utl) 
             onComplete: $scope.lookupCallback
         };
         utl.Http.doAction(options);
-    }
-    
+    };
+
+    // React Bridge
+    $scope.refreshReactProps = function () {
+        $scope.reactProps = {
+            items: vm.gridConfig.data || [],
+            totalItems: vm.gridConfig.pagerObj.totalItems || 0,
+            currentPage: vm.gridConfig.pagerObj.currentPage || 1,
+            pageSize: vm.gridConfig.pagerObj.pageSize || 25,
+            pagerObj: vm.gridConfig.pagerObj,
+            currentfilter: $scope.currentfilter,
+            lookup: {
+                ProcedureCodeScheme: ($scope.lookup && $scope.lookup.ProcedureCodeScheme) || [],
+                ProcedureType: ($scope.lookup && $scope.lookup.ProcedureType) || [],
+                ActiveStatus: ($scope.lookup && $scope.lookup.ActiveStatus) || [],
+                ProcedureCategory: ($scope.lookup && $scope.lookup.ProcedureCategory) || [],
+                ProcedureSubCategory: ($scope.lookup && $scope.lookup.ProcedureSubCategory) || [],
+                AnaesthesiaType: ($scope.lookup && $scope.lookup.AnaesthesiaType) || []
+            }
+        };
+    };
+
+    var _origGetListCallback = $scope.getListCallback;
+    $scope.getListCallback = function (scope, res, options, hasError) {
+        _origGetListCallback(scope, res, options, hasError);
+        $scope.refreshReactProps();
+        $scope.$applyAsync();
+    };
+
+    var _origLookupCallback = $scope.lookupCallback;
+    $scope.lookupCallback = function (scope, data, options, hasError) {
+        _origLookupCallback(scope, data, options, hasError);
+        $scope.refreshReactProps();
+        $scope.$applyAsync();
+    };
+
+    $scope.handleReactAction = function (actionName, payload) {
+        if (actionName === 'search') {
+            if (payload) {
+                if (payload.Code !== undefined) $scope.currentfilter.Code = payload.Code;
+                if (payload.ProcedureName !== undefined) $scope.currentfilter.ProcedureName = payload.ProcedureName;
+                if (payload.ProcedureCodeSchemeId !== undefined) $scope.currentfilter.ProcedureCodeSchemeId = payload.ProcedureCodeSchemeId;
+                if (payload.ProcedureTypeId !== undefined) $scope.currentfilter.ProcedureTypeId = payload.ProcedureTypeId;
+                if (payload.ActiveStatusId !== undefined) $scope.currentfilter.ActiveStatusId = payload.ActiveStatusId;
+            }
+            vm.gridConfig.pagerObj.currentPage = 1;
+            $scope.getList();
+        } else if (actionName === 'resetFilters') {
+            $scope.currentfilter.Code = '';
+            $scope.currentfilter.ProcedureName = '';
+            $scope.currentfilter.ProcedureCodeSchemeId = -1;
+            $scope.currentfilter.ProcedureTypeId = -1;
+            $scope.currentfilter.ActiveStatusId = 2;
+            vm.gridConfig.pagerObj.currentPage = 1;
+            $scope.getList();
+        } else if (actionName === 'pageChange') {
+            vm.gridConfig.pagerObj.currentPage = payload && payload.page ? payload.page : 1;
+            $scope.getList();
+        } else if (actionName === 'addNew') {
+            $scope.addNew();
+        } else if (actionName === 'edit') {
+            $scope.handleEvents('edit', payload);
+        } else if (actionName === 'delete') {
+            $scope.handleEvents('delete', payload);
+        } else if (typeof $scope[actionName] === 'function') {
+            $scope[actionName]();
+        }
+        $scope.refreshReactProps();
+        $scope.$applyAsync();
+    };
+
+    $scope.refreshReactProps();
     $scope.initLookup();
 }
 

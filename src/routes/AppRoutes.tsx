@@ -28,6 +28,7 @@ import { ServiceCategoryListScreen } from '../react-components/ServiceCategoryLi
 import { ServiceRateCategoryListScreen } from '../react-components/ServiceRateCategoryListScreen';
 import { ServiceGroupListScreen } from '../react-components/ServiceGroupListScreen';
 import { ServiceSubCategoryListScreen } from '../react-components/ServiceSubCategoryListScreen';
+import { ProcedureListScreen } from '../react-components/ProcedureListScreen';
 
 // Route Guard component
 export const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -320,6 +321,15 @@ export const AppRoutes: React.FC = () => {
           element={
             <ProtectedRoute>
               <ShellWrapper activeTab="emr" component={<ServiceSubCategoryListScreen />} />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/procedures"
+          element={
+            <ProtectedRoute>
+              <ShellWrapper activeTab="emr" component={<ProcedureListScreen />} />
             </ProtectedRoute>
           }
         />
