@@ -110,7 +110,8 @@ const reactRouterStateMap = {
     'app.immunizations': { route: '/immunizations', component: 'ImmunizationListScreen' },
     'app.servicecategories': { route: '/servicecategories', component: 'ServiceCategoryListScreen' },
     'app.serviceratecategories': { route: '/serviceratecategories', component: 'ServiceRateCategoryListScreen' },
-    'app.servicegroups': { route: '/servicegroups', component: 'ServiceGroupListScreen' }
+    'app.servicegroups': { route: '/servicegroups', component: 'ServiceGroupListScreen' },
+    'app.servicesubcategories': { route: '/servicesubcategories', component: 'ServiceSubCategoryListScreen' }
 };
 
 

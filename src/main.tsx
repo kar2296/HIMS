@@ -355,6 +355,7 @@ import { ImmunizationListScreen } from './react-components/ImmunizationListScree
 import { ServiceCategoryListScreen } from './react-components/ServiceCategoryListScreen';
 import { ServiceRateCategoryListScreen } from './react-components/ServiceRateCategoryListScreen';
 import { ServiceGroupListScreen } from './react-components/ServiceGroupListScreen';
+import { ServiceSubCategoryListScreen } from './react-components/ServiceSubCategoryListScreen';
 import { DistrictMasterListScreen } from './react-components/DistrictMasterListScreen';
 import { DistrictMasterFormScreen } from './react-components/DistrictMasterFormScreen';
 import { PincodeMasterListScreen } from './react-components/PincodeMasterListScreen';
@@ -655,6 +656,7 @@ import './printing/himsPrint';
   ServiceCategoryListScreen,
   ServiceRateCategoryListScreen,
   ServiceGroupListScreen,
+  ServiceSubCategoryListScreen,
   DistrictMasterListScreen,
   DistrictMasterFormScreen,
   PincodeMasterListScreen,
