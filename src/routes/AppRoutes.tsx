@@ -19,6 +19,7 @@ import { AllergyReactionListScreen } from '../react-components/AllergyReactionLi
 import { AllergyMasterListScreen } from '../react-components/AllergyMasterListScreen';
 import { ChiefComplaintListScreen } from '../react-components/ChiefComplaintListScreen';
 import { DiagnosisListScreen } from '../react-components/DiagnosisListScreen';
+import { DietItemListScreen } from '../react-components/DietItemListScreen';
 
 // Route Guard component
 export const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -230,6 +231,15 @@ export const AppRoutes: React.FC = () => {
           element={
             <ProtectedRoute>
               <ShellWrapper activeTab="emr" component={<DiagnosisListScreen />} />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/dietitems"
+          element={
+            <ProtectedRoute>
+              <ShellWrapper activeTab="emr" component={<DietItemListScreen />} />
             </ProtectedRoute>
           }
         />

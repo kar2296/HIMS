@@ -102,7 +102,8 @@ const reactRouterStateMap = {
     'app.allergyreactions': { route: '/allergyreactions', component: 'AllergyReactionListScreen' },
     'app.allergies': { route: '/allergies', component: 'AllergyMasterListScreen' },
     'app.chiefcomplaints': { route: '/chiefcomplaints', component: 'ChiefComplaintListScreen' },
-    'app.diagnosis': { route: '/diagnosis', component: 'DiagnosisListScreen' }
+    'app.diagnosis': { route: '/diagnosis', component: 'DiagnosisListScreen' },
+    'app.dietitems': { route: '/dietitems', component: 'DietItemListScreen' }
 };
 
 

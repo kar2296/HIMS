@@ -5,23 +5,25 @@
         .module('app.pages')
         .controller('dietitemListController', dietitemListController);
 
-    function dietitemListController($rootScope,$timeout,$scope, $stateParams, $state, $translate, utl) {
+    function dietitemListController($rootScope, $timeout, $scope, $stateParams, $state, $translate, utl) {
         var vm = this;
 
         $scope.Items = [];
         $scope.currentfilter = {
-            DietCategoryId:-1,
+            DietCategoryId: -1,
             DietItemTypeId: -1,
-            ActiveStatusId: 2
+            ActiveStatusId: 2,
+            DietItemCode: ''
         };
 
         $scope.getListCallback = function (scope, res, options, hasError) {
             vm.gridConfig.data = res.Data;
             vm.gridConfig.pagerObj.totalItems = res.PageContext.TotalRecords;
+            $scope.refreshReactProps();
+            $scope.$applyAsync();
         };
 
         $scope.getList = function () {
-
             var inputData = {
                 Params: [
                     { Key: 1, Value: $scope.currentfilter.DietItemTypeId },
@@ -44,18 +46,20 @@
 
             utl.Http.doAction(options);
         };
+
         $scope.openModal = function (Id) {
             utl.Modal.open('app.dietitem', {
-                params: { id: Id }, confirmCallback: $scope.initLookup
-            }
-            );
-        }
+                params: { id: Id },
+                confirmCallback: function () {
+                    $scope.initLookup();
+                }
+            });
+        };
 
         //Grid Actions
         $scope.addNew = function () {
-            // $state.go('app.location-form', { id: 0 });
             $scope.openModal(0);
-        }
+        };
 
         $scope.deleteItemCallback = function (scope, data, options, hasError) {
             utl.Alert.showSuccessMsg($translate.instant('common.delete_successmsg.lbl'));
@@ -70,27 +74,15 @@
                 onComplete: $scope.deleteItemCallback
             };
             utl.Http.doAction(options);
-        }
+        };
 
         $scope.handleEvents = function (actionType, entity) {
-
-            if (actionType == 'edit') {
+            if (actionType === 'edit') {
                 $scope.openModal(entity.Id);
-            }
-            else if (actionType == 'delete') {
+            } else if (actionType === 'delete') {
                 utl.Dialog.confirmDelete($scope.onDeleteConfirmed, entity.Id, entity.DietName);
-                /*var confirmOptions = {
-                    headingKey : 'common.confirm-modal-header.lbl',
-                    messageKey : 'common.deletemsg.lbl',
-                    yesKey : 'common.yeskey.lbl',
-                    noKey : 'common.nokey.lbl',
-                    onSuccessMethod : $scope.onDeleteConfirmed,
-                    itemId : entity.Id
-                };
-                utl.Dialog.confirmMessage(confirmOptions); 
-                */
             }
-        }
+        };
 
         vm.gridConfig = {
             enableColumnResizing: true,
@@ -113,24 +105,28 @@
             ],
             pagerObj: { totalItems: 0, currentPage: 1, startIndex: 0, pageSize: 25 }
         };
+
         $timeout(function () {
             removeFloatingNav();
         }, 100);
 
         function removeFloatingNav() {
-            $rootScope.app.layout.isCollapsed = true;
+            if ($rootScope.app && $rootScope.app.layout) {
+                $rootScope.app.layout.isCollapsed = true;
+            }
         }
 
         $scope.lookupCallback = function (scope, data, options, hasError) {
             $scope.lookup = hasError ? {} : data;
             $scope.getList();
-        }
+        };
 
         $scope.initLookup = function () {
             var inputData = [
                 { "Key": "DietItemType" },
                 { "Key": "DietCategory" },
-                { "Key": "ActiveStatus" },
+                { "Key": "DietFrequency" },
+                { "Key": "ActiveStatus" }
             ];
 
             var options = {
@@ -140,11 +136,64 @@
                 onComplete: $scope.lookupCallback
             };
             utl.Http.doAction(options);
-        }
+        };
 
+        $scope.refreshReactProps = function () {
+            $scope.reactProps = {
+                items: vm.gridConfig.data || [],
+                totalItems: (vm.gridConfig.pagerObj && vm.gridConfig.pagerObj.totalItems) || 0,
+                currentPage: (vm.gridConfig.pagerObj && vm.gridConfig.pagerObj.currentPage) || 1,
+                pageSize: (vm.gridConfig.pagerObj && vm.gridConfig.pagerObj.pageSize) || 25,
+                filters: {
+                    DietItemCode: $scope.currentfilter.DietItemCode,
+                    DietItemTypeId: $scope.currentfilter.DietItemTypeId,
+                    DietCategoryId: $scope.currentfilter.DietCategoryId,
+                    ActiveStatusId: $scope.currentfilter.ActiveStatusId
+                },
+                lookup: {
+                    DietItemType: ($scope.lookup && $scope.lookup.DietItemType) || [],
+                    DietCategory: ($scope.lookup && $scope.lookup.DietCategory) || [],
+                    DietFrequency: ($scope.lookup && $scope.lookup.DietFrequency) || [],
+                    ActiveStatus: ($scope.lookup && $scope.lookup.ActiveStatus) || []
+                }
+            };
+        };
+
+        $scope.handleReactAction = function (actionName, payload) {
+            if (actionName === 'search') {
+                $scope.currentfilter.DietItemCode = payload && payload.value !== undefined ? payload.value : '';
+                $scope.getList();
+            } else if (actionName === 'typeFilterChange') {
+                $scope.currentfilter.DietItemTypeId = payload && payload.value;
+                $scope.getList();
+            } else if (actionName === 'categoryFilterChange') {
+                $scope.currentfilter.DietCategoryId = payload && payload.value;
+                $scope.getList();
+            } else if (actionName === 'statusFilterChange') {
+                $scope.currentfilter.ActiveStatusId = payload && payload.value;
+                $scope.getList();
+            } else if (actionName === 'pageChange') {
+                vm.gridConfig.pagerObj.currentPage = payload && payload.page;
+                $scope.getList();
+            } else if (actionName === 'addNew') {
+                $scope.addNew();
+            } else if (actionName === 'edit') {
+                $scope.handleEvents('edit', payload);
+            } else if (actionName === 'delete') {
+                $scope.handleEvents('delete', payload);
+            } else if (actionName === 'refresh') {
+                $scope.getList();
+            } else if (typeof $scope[actionName] === 'function') {
+                $scope[actionName]();
+            }
+            $scope.refreshReactProps();
+            $scope.$applyAsync();
+        };
+
+        $scope.refreshReactProps();
         $scope.initLookup();
     }
 
-    dietitemListController.$inject = ['$rootScope','$timeout','$scope', '$stateParams', '$state', '$translate', 'utl'];
+    dietitemListController.$inject = ['$rootScope', '$timeout', '$scope', '$stateParams', '$state', '$translate', 'utl'];
 
 })();
