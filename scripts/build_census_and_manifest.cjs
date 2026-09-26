@@ -425,7 +425,9 @@ for (const raw of allRawStates) {
     const retiredAngularJsStates = new Set([
         'app.categorytypes',
         'app.attachmenttypes',
-        'app.drugs'
+        'app.drugs',
+        'app.allergies',
+        'app.chiefcomplaints'
     ]);
     const angularjsRouteRetired = retiredAngularJsStates.has(stateName);
 

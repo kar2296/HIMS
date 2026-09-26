@@ -6,6 +6,8 @@ import { Pagination } from '../components/ui/Pagination';
 import { PageHeader } from '../components/ui/Breadcrumb';
 import { Card, FilterBar } from '../components/ui/Card';
 import { colors, spacing, typography } from '../components/ui/tokens';
+import { ConfirmModal } from './ConfirmModal';
+import { callBackendApi } from '../services/apiService';
 
 interface LookupItem {
   Id: number;
@@ -134,33 +136,19 @@ export const GenericMasterListScreen: React.FC<GenericMasterListScreenProps> = (
     }, 3500);
   };
 
-  const getAuthHeaders = (): Record<string, string> => {
-    const token =
-      (window as any).sessionHelper?.getAuthToken?.() ||
-      localStorage.getItem('token') ||
-      sessionStorage.getItem('token') ||
-      '';
-    return {
-      'Content-Type': 'application/json',
-      Accept: 'application/json',
-      ...(token ? { Authorization: `Bearer ${token}` } : {})
-    };
-  };
-
   // Fetch Lookups
   const fetchLookups = async () => {
     try {
-      const resp = await fetch('/api/General/Options/getoptions', {
-        method: 'POST',
-        headers: getAuthHeaders(),
-        body: JSON.stringify([
+      const data = await callBackendApi({
+        action: 'General/Options/getoptions',
+        data: [
           { Key: 'AllergenType' },
           { Key: 'ActiveStatus' },
           { Key: 'ScheduleType' }
-        ])
+        ],
+        type: 'post'
       });
-      if (resp.ok) {
-        const data = await resp.json();
+      if (data) {
         setStandaloneLookups({
           AllergenType: data.AllergenType || [],
           ActiveStatus: data.ActiveStatus || [],
@@ -191,14 +179,13 @@ export const GenericMasterListScreen: React.FC<GenericMasterListScreenProps> = (
         }
       };
 
-      const resp = await fetch('/api/clinicalmaster/GenericMaster/GetGenericMasters', {
-        method: 'POST',
-        headers: getAuthHeaders(),
-        body: JSON.stringify(inputData)
+      const res = await callBackendApi({
+        action: 'clinicalmaster/GenericMaster/GetGenericMasters',
+        data: inputData,
+        type: 'post'
       });
 
-      if (resp.ok) {
-        const res = await resp.json();
+      if (res) {
         setStandaloneItems(res.Data || []);
         setStandaloneTotal(res.PageContext?.TotalRecords || 0);
         setCurrentPage(page);
@@ -285,52 +272,50 @@ export const GenericMasterListScreen: React.FC<GenericMasterListScreenProps> = (
     setIsModalOpen(true);
 
     try {
-      const resp = await fetch('/api/clinicalmaster/GenericMaster/GetGenericMasterById', {
-        method: 'POST',
-        headers: getAuthHeaders(),
-        body: JSON.stringify({ Id: item.Id })
+      const full = await callBackendApi({
+        action: 'clinicalmaster/GenericMaster/GetGenericMasterById',
+        data: { Id: item.Id },
+        type: 'post'
       });
-      if (resp.ok) {
-        const full = await resp.json();
-        if (full) {
-          setModalFormData({
-            Id: full.Id || item.Id,
-            Code: full.Code || item.Code || '',
-            GenericName: full.GenericName || item.GenericName || '',
-            Description: full.Description || item.Description || '',
-            ScheduleTypeId: full.ScheduleTypeId || item.ScheduleTypeId || '',
-            IsPrescribed: !!full.IsPrescribed,
-            IsActive: full.IsActive !== undefined ? full.IsActive : true
-          });
-        }
+      if (full) {
+        setModalFormData({
+          Id: full.Id || item.Id,
+          Code: full.Code || item.Code || '',
+          GenericName: full.GenericName || item.GenericName || '',
+          Description: full.Description || item.Description || '',
+          ScheduleTypeId: full.ScheduleTypeId || item.ScheduleTypeId || '',
+          IsPrescribed: !!full.IsPrescribed,
+          IsActive: full.IsActive !== undefined ? full.IsActive : true
+        });
       }
     } catch (e) {
       console.warn('Failed to load generic item detail:', e);
     }
   };
 
-  const handleDelete = async (item: GenericRow) => {
-    if (!window.confirm(`Are you sure you want to delete ${item.GenericName || 'this generic item'}?`)) {
-      return;
-    }
+  const [itemToDelete, setItemToDelete] = useState<GenericRow | null>(null);
 
+  const handleDelete = (item: GenericRow) => {
     if (isEmbedded && onAction) {
       onAction('delete', item);
       return;
     }
+    setItemToDelete(item);
+  };
+
+  const confirmDelete = async () => {
+    if (!itemToDelete) return;
+    const item = itemToDelete;
+    setItemToDelete(null);
 
     try {
-      const resp = await fetch('/api/clinicalmaster/GenericMaster/DeleteGenericMaster', {
-        method: 'POST',
-        headers: getAuthHeaders(),
-        body: JSON.stringify({ Id: item.Id })
+      await callBackendApi({
+        action: 'clinicalmaster/GenericMaster/DeleteGenericMaster',
+        data: { Id: item.Id },
+        type: 'post'
       });
-      if (resp.ok) {
-        showToast('Generic item deleted successfully', 'success');
-        fetchList(activePage);
-      } else {
-        showToast('Failed to delete generic item', 'error');
-      }
+      showToast('Generic item deleted successfully', 'success');
+      fetchList(activePage);
     } catch (e) {
       showToast('Error deleting item', 'error');
     }
@@ -353,9 +338,9 @@ export const GenericMasterListScreen: React.FC<GenericMasterListScreenProps> = (
 
     setIsSaving(true);
     const isEdit = modalFormData.Id > 0;
-    const actionUrl = isEdit
-      ? '/api/clinicalmaster/GenericMaster/UpdateGenericMaster'
-      : '/api/clinicalmaster/GenericMaster/AddGenericMaster';
+    const actionName = isEdit
+      ? 'clinicalmaster/GenericMaster/UpdateGenericMaster'
+      : 'clinicalmaster/GenericMaster/AddGenericMaster';
 
     const payload = {
       Data: {
@@ -370,25 +355,21 @@ export const GenericMasterListScreen: React.FC<GenericMasterListScreenProps> = (
     };
 
     try {
-      const resp = await fetch(actionUrl, {
-        method: 'POST',
-        headers: getAuthHeaders(),
-        body: JSON.stringify(payload)
+      await callBackendApi({
+        action: actionName,
+        data: payload,
+        type: 'post'
       });
 
-      if (resp.ok) {
-        showToast(isEdit ? 'Generic item updated successfully' : 'Generic item added successfully', 'success');
-        setIsModalOpen(false);
-        if (isEmbedded && onAction) {
-          onAction('refresh');
-        } else {
-          fetchList(isEdit ? activePage : 1);
-        }
+      showToast(isEdit ? 'Generic item updated successfully' : 'Generic item added successfully', 'success');
+      setIsModalOpen(false);
+      if (isEmbedded && onAction) {
+        onAction('refresh');
       } else {
-        showToast('Error saving generic item. Please try again.', 'error');
+        fetchList(isEdit ? activePage : 1);
       }
     } catch (e) {
-      showToast('Network error while saving generic item.', 'error');
+      showToast('Error saving generic item. Please try again.', 'error');
     } finally {
       setIsSaving(false);
     }
@@ -438,6 +419,7 @@ export const GenericMasterListScreen: React.FC<GenericMasterListScreenProps> = (
         ]}
         actions={
           <Button
+            id="btnAddGenericMaster"
             variant="primary"
             onClick={openAddModal}
             style={{ display: 'flex', alignItems: 'center', gap: 6 }}
@@ -457,6 +439,7 @@ export const GenericMasterListScreen: React.FC<GenericMasterListScreenProps> = (
                 Generic Name / Code
               </label>
               <Input
+                id="filterGenericName"
                 placeholder="Search generic name..."
                 value={filterName}
                 onChange={(e) => setFilterName(e.target.value)}
@@ -492,10 +475,11 @@ export const GenericMasterListScreen: React.FC<GenericMasterListScreenProps> = (
 
             {/* Search & Reset Buttons */}
             <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-              <Button variant="secondary" onClick={handleSearchSubmit}>
+              <Button id="btnSearchGenericMaster" variant="secondary" onClick={handleSearchSubmit}>
                 <i className="fas fa-search" style={{ marginRight: 6 }} /> Search
               </Button>
               <Button
+                id="btnResetGenericMaster"
                 variant="outline"
                 onClick={() => {
                   setFilterName('');
@@ -701,12 +685,13 @@ export const GenericMasterListScreen: React.FC<GenericMasterListScreenProps> = (
                     Code <span style={{ color: '#ef4444' }}>*</span>
                   </label>
                   <Input
+                    id="inputModalGenericCode"
                     placeholder="e.g. GEN001"
                     value={modalFormData.Code}
                     onChange={(e) => setModalFormData({ ...modalFormData, Code: e.target.value })}
                   />
                   {formErrors.Code && (
-                    <div style={{ color: '#ef4444', fontSize: 12, marginTop: 4 }}>{formErrors.Code}</div>
+                    <div className="validation-error" style={{ color: '#ef4444', fontSize: 12, marginTop: 4 }}>{formErrors.Code}</div>
                   )}
                 </div>
 
@@ -716,12 +701,13 @@ export const GenericMasterListScreen: React.FC<GenericMasterListScreenProps> = (
                     Generic Name <span style={{ color: '#ef4444' }}>*</span>
                   </label>
                   <Input
+                    id="inputModalGenericName"
                     placeholder="e.g. Paracetamol"
                     value={modalFormData.GenericName}
                     onChange={(e) => setModalFormData({ ...modalFormData, GenericName: e.target.value })}
                   />
                   {formErrors.GenericName && (
-                    <div style={{ color: '#ef4444', fontSize: 12, marginTop: 4 }}>{formErrors.GenericName}</div>
+                    <div className="validation-error" style={{ color: '#ef4444', fontSize: 12, marginTop: 4 }}>{formErrors.GenericName}</div>
                   )}
                 </div>
               </div>
@@ -732,6 +718,7 @@ export const GenericMasterListScreen: React.FC<GenericMasterListScreenProps> = (
                   Description
                 </label>
                 <Input
+                  id="inputModalGenericDescription"
                   placeholder="Enter description"
                   value={modalFormData.Description}
                   onChange={(e) => setModalFormData({ ...modalFormData, Description: e.target.value })}
@@ -790,12 +777,26 @@ export const GenericMasterListScreen: React.FC<GenericMasterListScreenProps> = (
               <Button variant="outline" onClick={() => setIsModalOpen(false)}>
                 Cancel
               </Button>
-              <Button variant="primary" onClick={handleSaveModal} disabled={isSaving}>
+              <Button id="btnSaveGenericModal" variant="primary" onClick={handleSaveModal} disabled={isSaving}>
                 {isSaving ? 'Saving...' : 'Save & Approve'}
               </Button>
             </div>
           </div>
         </div>
+      )}
+
+      {itemToDelete && (
+        <ConfirmModal
+          isOpen={true}
+          title="Delete Generic Item"
+          message={`Are you sure you want to delete ${itemToDelete.GenericName || 'this generic item'}?`}
+          yesLabel="Delete"
+          noLabel="Cancel"
+          variant="danger"
+          onConfirm={confirmDelete}
+          onCancel={() => setItemToDelete(null)}
+          onClose={() => setItemToDelete(null)}
+        />
       )}
     </div>
   );

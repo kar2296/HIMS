@@ -6,6 +6,8 @@ import { Pagination } from '../components/ui/Pagination';
 import { PageHeader } from '../components/ui/Breadcrumb';
 import { Card, FilterBar } from '../components/ui/Card';
 import { colors, spacing, typography } from '../components/ui/tokens';
+import { ConfirmModal } from './ConfirmModal';
+import { callBackendApi } from '../services/apiService';
 
 interface LookupItem {
   Id: number;
@@ -134,32 +136,18 @@ export const VitalMasterListScreen: React.FC<VitalMasterListScreenProps> = ({ re
     }, 3500);
   };
 
-  const getAuthHeaders = (): Record<string, string> => {
-    const token =
-      (window as any).sessionHelper?.getAuthToken?.() ||
-      localStorage.getItem('token') ||
-      sessionStorage.getItem('token') ||
-      '';
-    return {
-      'Content-Type': 'application/json',
-      Accept: 'application/json',
-      ...(token ? { Authorization: `Bearer ${token}` } : {})
-    };
-  };
-
   // Fetch Lookups
   const fetchLookups = async () => {
     try {
-      const resp = await fetch('/api/General/Options/getoptions', {
-        method: 'POST',
-        headers: getAuthHeaders(),
-        body: JSON.stringify([
+      const data = await callBackendApi({
+        action: 'General/Options/getoptions',
+        data: [
           { Key: 'VitalValueType' },
           { Key: 'ActiveStatus' }
-        ])
+        ],
+        type: 'post'
       });
-      if (resp.ok) {
-        const data = await resp.json();
+      if (data) {
         setStandaloneLookups({
           VitalValueType: data.VitalValueType || [],
           ActiveStatus: data.ActiveStatus || []
@@ -187,14 +175,13 @@ export const VitalMasterListScreen: React.FC<VitalMasterListScreenProps> = ({ re
         }
       };
 
-      const resp = await fetch('/api/clinicalmaster/VitalMaster/GetVitalMasters', {
-        method: 'POST',
-        headers: getAuthHeaders(),
-        body: JSON.stringify(inputData)
+      const res = await callBackendApi({
+        action: 'clinicalmaster/VitalMaster/GetVitalMasters',
+        data: inputData,
+        type: 'post'
       });
 
-      if (resp.ok) {
-        const res = await resp.json();
+      if (res) {
         setStandaloneItems(res.Data || []);
         setStandaloneTotal(res.PageContext?.TotalRecords || 0);
         setCurrentPage(page);
@@ -285,54 +272,52 @@ export const VitalMasterListScreen: React.FC<VitalMasterListScreenProps> = ({ re
     setIsModalOpen(true);
 
     try {
-      const resp = await fetch('/api/clinicalmaster/VitalMaster/GetVitalMasterById', {
-        method: 'POST',
-        headers: getAuthHeaders(),
-        body: JSON.stringify({ Id: item.Id })
+      const full = await callBackendApi({
+        action: 'clinicalmaster/VitalMaster/GetVitalMasterById',
+        data: { Id: item.Id },
+        type: 'post'
       });
-      if (resp.ok) {
-        const full = await resp.json();
-        if (full) {
-          setModalFormData({
-            Id: full.Id || item.Id,
-            VitalName: full.VitalName || item.VitalName || '',
-            UOM: full.UOM || item.UOM || '',
-            VitalValueTypeId: full.VitalValueTypeId || item.VitalValueTypeId || '',
-            ValueFormat: full.ValueFormat || '',
-            ReferenceRangeFrom: full.ReferenceRangeFrom !== undefined ? String(full.ReferenceRangeFrom) : '',
-            ReferenceRangeTo: full.ReferenceRangeTo !== undefined ? String(full.ReferenceRangeTo) : '',
-            DisplayOrder: full.DisplayOrder || 1,
-            IsActive: full.IsActive !== undefined ? full.IsActive : true
-          });
-        }
+      if (full) {
+        setModalFormData({
+          Id: full.Id || item.Id,
+          VitalName: full.VitalName || item.VitalName || '',
+          UOM: full.UOM || item.UOM || '',
+          VitalValueTypeId: full.VitalValueTypeId || item.VitalValueTypeId || '',
+          ValueFormat: full.ValueFormat || '',
+          ReferenceRangeFrom: full.ReferenceRangeFrom !== undefined ? String(full.ReferenceRangeFrom) : '',
+          ReferenceRangeTo: full.ReferenceRangeTo !== undefined ? String(full.ReferenceRangeTo) : '',
+          DisplayOrder: full.DisplayOrder || 1,
+          IsActive: full.IsActive !== undefined ? full.IsActive : true
+        });
       }
     } catch (e) {
       console.warn('Failed to load vital detail:', e);
     }
   };
 
-  const handleDelete = async (item: VitalRow) => {
-    if (!window.confirm(`Are you sure you want to delete ${item.VitalName || 'this vital'}?`)) {
-      return;
-    }
+  const [itemToDelete, setItemToDelete] = useState<VitalRow | null>(null);
 
+  const handleDelete = (item: VitalRow) => {
     if (isEmbedded && onAction) {
       onAction('delete', item);
       return;
     }
+    setItemToDelete(item);
+  };
+
+  const confirmDelete = async () => {
+    if (!itemToDelete) return;
+    const item = itemToDelete;
+    setItemToDelete(null);
 
     try {
-      const resp = await fetch('/api/clinicalmaster/VitalMaster/DeleteVitalMaster', {
-        method: 'POST',
-        headers: getAuthHeaders(),
-        body: JSON.stringify({ Id: item.Id })
+      await callBackendApi({
+        action: 'clinicalmaster/VitalMaster/DeleteVitalMaster',
+        data: { Id: item.Id },
+        type: 'post'
       });
-      if (resp.ok) {
-        showToast('Vital deleted successfully', 'success');
-        fetchList(activePage);
-      } else {
-        showToast('Failed to delete vital', 'error');
-      }
+      showToast('Vital deleted successfully', 'success');
+      fetchList(activePage);
     } catch (e) {
       showToast('Error deleting vital', 'error');
     }
@@ -346,18 +331,6 @@ export const VitalMasterListScreen: React.FC<VitalMasterListScreenProps> = ({ re
     if (!modalFormData.UOM.trim()) {
       errors.UOM = 'UOM (Unit of Measure) is required';
     }
-    if (!modalFormData.VitalValueTypeId) {
-      errors.VitalValueTypeId = 'Vital Value Type is required';
-    }
-    if (!modalFormData.ValueFormat.trim()) {
-      errors.ValueFormat = 'Value Format is required';
-    }
-    if (!modalFormData.ReferenceRangeFrom.trim()) {
-      errors.ReferenceRangeFrom = 'Reference Range From is required';
-    }
-    if (!modalFormData.ReferenceRangeTo.trim()) {
-      errors.ReferenceRangeTo = 'Reference Range To is required';
-    }
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
   };
@@ -367,44 +340,41 @@ export const VitalMasterListScreen: React.FC<VitalMasterListScreenProps> = ({ re
 
     setIsSaving(true);
     const isEdit = modalFormData.Id > 0;
-    const actionUrl = isEdit
-      ? '/api/clinicalmaster/VitalMaster/UpdateVitalMaster'
-      : '/api/clinicalmaster/VitalMaster/AddVitalMaster';
+    const actionName = isEdit
+      ? 'clinicalmaster/VitalMaster/UpdateVitalMaster'
+      : 'clinicalmaster/VitalMaster/AddVitalMaster';
 
+    const defaultTypeId = standaloneLookups.VitalValueType[0]?.Id || 1;
     const payload = {
       Data: {
         Id: modalFormData.Id,
         VitalName: modalFormData.VitalName.trim(),
         UOM: modalFormData.UOM.trim(),
-        VitalValueTypeId: Number(modalFormData.VitalValueTypeId),
-        ValueFormat: modalFormData.ValueFormat.trim(),
-        ReferenceRangeFrom: modalFormData.ReferenceRangeFrom.trim(),
-        ReferenceRangeTo: modalFormData.ReferenceRangeTo.trim(),
+        VitalValueTypeId: modalFormData.VitalValueTypeId ? Number(modalFormData.VitalValueTypeId) : defaultTypeId,
+        ValueFormat: modalFormData.ValueFormat ? modalFormData.ValueFormat.trim() : '',
+        ReferenceRangeFrom: modalFormData.ReferenceRangeFrom ? modalFormData.ReferenceRangeFrom.trim() : '',
+        ReferenceRangeTo: modalFormData.ReferenceRangeTo ? modalFormData.ReferenceRangeTo.trim() : '',
         DisplayOrder: Number(modalFormData.DisplayOrder) || 1,
         IsActive: modalFormData.IsActive
       }
     };
 
     try {
-      const resp = await fetch(actionUrl, {
-        method: 'POST',
-        headers: getAuthHeaders(),
-        body: JSON.stringify(payload)
+      await callBackendApi({
+        action: actionName,
+        data: payload,
+        type: 'post'
       });
 
-      if (resp.ok) {
-        showToast(isEdit ? 'Vital updated successfully' : 'Vital added successfully', 'success');
-        setIsModalOpen(false);
-        if (isEmbedded && onAction) {
-          onAction('refresh');
-        } else {
-          fetchList(isEdit ? activePage : 1);
-        }
+      showToast(isEdit ? 'Vital updated successfully' : 'Vital added successfully', 'success');
+      setIsModalOpen(false);
+      if (isEmbedded && onAction) {
+        onAction('refresh');
       } else {
-        showToast('Error saving vital. Please try again.', 'error');
+        fetchList(isEdit ? activePage : 1);
       }
     } catch (e) {
-      showToast('Network error while saving vital.', 'error');
+      showToast('Error saving vital. Please try again.', 'error');
     } finally {
       setIsSaving(false);
     }
@@ -454,6 +424,7 @@ export const VitalMasterListScreen: React.FC<VitalMasterListScreenProps> = ({ re
         ]}
         actions={
           <Button
+            id="btnAddVitalMaster"
             variant="primary"
             onClick={openAddModal}
             style={{ display: 'flex', alignItems: 'center', gap: 6 }}
@@ -473,6 +444,7 @@ export const VitalMasterListScreen: React.FC<VitalMasterListScreenProps> = ({ re
                 Vital Name
               </label>
               <Input
+                id="filterVitalName"
                 placeholder="Search vital name..."
                 value={filterName}
                 onChange={(e) => setFilterName(e.target.value)}
@@ -508,10 +480,11 @@ export const VitalMasterListScreen: React.FC<VitalMasterListScreenProps> = ({ re
 
             {/* Search & Reset Buttons */}
             <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-              <Button variant="secondary" onClick={handleSearchSubmit}>
+              <Button id="btnSearchVitalMaster" variant="secondary" onClick={handleSearchSubmit}>
                 <i className="fas fa-search" style={{ marginRight: 6 }} /> Search
               </Button>
               <Button
+                id="btnResetVitalMaster"
                 variant="outline"
                 onClick={() => {
                   setFilterName('');
@@ -719,12 +692,13 @@ export const VitalMasterListScreen: React.FC<VitalMasterListScreenProps> = ({ re
                     Vital Name <span style={{ color: '#ef4444' }}>*</span>
                   </label>
                   <Input
+                    id="inputModalVitalName"
                     placeholder="Enter vital name (e.g. Heart Rate)"
                     value={modalFormData.VitalName}
                     onChange={(e) => setModalFormData({ ...modalFormData, VitalName: e.target.value })}
                   />
                   {formErrors.VitalName && (
-                    <div style={{ color: '#ef4444', fontSize: 12, marginTop: 4 }}>{formErrors.VitalName}</div>
+                    <div className="validation-error" style={{ color: '#ef4444', fontSize: 12, marginTop: 4 }}>{formErrors.VitalName}</div>
                   )}
                 </div>
 
@@ -734,6 +708,7 @@ export const VitalMasterListScreen: React.FC<VitalMasterListScreenProps> = ({ re
                     UOM (Unit of Measure) <span style={{ color: '#ef4444' }}>*</span>
                   </label>
                   <Input
+                    id="inputModalVitalUOM"
                     placeholder="e.g. bpm, mmHg, °F"
                     value={modalFormData.UOM}
                     onChange={(e) => setModalFormData({ ...modalFormData, UOM: e.target.value })}
@@ -851,12 +826,26 @@ export const VitalMasterListScreen: React.FC<VitalMasterListScreenProps> = ({ re
               <Button variant="outline" onClick={() => setIsModalOpen(false)}>
                 Cancel
               </Button>
-              <Button variant="primary" onClick={handleSaveModal} disabled={isSaving}>
+              <Button id="btnSaveVitalModal" variant="primary" onClick={handleSaveModal} disabled={isSaving}>
                 {isSaving ? 'Saving...' : 'Save & Approve'}
               </Button>
             </div>
           </div>
         </div>
+      )}
+
+      {itemToDelete && (
+        <ConfirmModal
+          isOpen={true}
+          title="Delete Vital"
+          message={`Are you sure you want to delete ${itemToDelete.VitalName || 'this vital'}?`}
+          yesLabel="Delete"
+          noLabel="Cancel"
+          variant="danger"
+          onConfirm={confirmDelete}
+          onCancel={() => setItemToDelete(null)}
+          onClose={() => setItemToDelete(null)}
+        />
       )}
     </div>
   );

@@ -3188,56 +3188,31 @@
             })
             .state('app.allergies', {
                 url: '/allergies',
-                params: {
-                    context: ''
-                },
                 title: 'Allergies',
-                templateUrl: helper.basepath('emr/clinicalmaster/allergy/allergy-list.html'),
-                controller: 'allergyListController as vm',
-                resolve: {
-                    loadCtrl: ['$ocLazyLoad', function ($ocLazyLoad) {
-                        return $ocLazyLoad.load(helper.basepath('emr/clinicalmaster/allergy/allergy-list.js'));
-                    }]
-                }
+                onEnter: ['$window', function ($window) {
+                    $window.location.href = '/allergies';
+                }]
             })
             .state('app.allergyreactions', {
                 url: '/allergyreactions',
                 title: 'Allergy Reactions',
-                templateUrl: helper.basepath('emr/clinicalmaster/allergyreaction/allergyreaction-list.html'),
-                controller: 'allergyReactionListController as vm',
-                resolve: {
-                    loadCtrl: ['$ocLazyLoad', function ($ocLazyLoad) {
-                        return $ocLazyLoad.load(helper.basepath('emr/clinicalmaster/allergyreaction/allergyreaction-list.js'));
-                    }]
-                }
+                onEnter: ['$window', function ($window) {
+                    $window.location.href = '/allergyreactions';
+                }]
             })
             .state('app.chiefcomplaints', {
                 url: '/chiefcomplaints',
-                params: {
-                    context: ''
-                },
                 title: 'Chief Complaints',
-                templateUrl: helper.basepath('emr/clinicalmaster/chiefcomplaints/chiefcomplaint-list.html'),
-                controller: 'chiefComplaintListController as vm',
-                resolve: {
-                    loadCtrl: ['$ocLazyLoad', function ($ocLazyLoad) {
-                        return $ocLazyLoad.load(helper.basepath('emr/clinicalmaster/chiefcomplaints/chiefcomplaint-list.js'));
-                    }]
-                }
+                onEnter: ['$window', function ($window) {
+                    $window.location.href = '/chiefcomplaints';
+                }]
             })
             .state('app.diagnosis', {
                 url: '/diagnosis',
-                params: {
-                    context: ''
-                },
                 title: 'Diagnosis',
-                templateUrl: helper.basepath('emr/clinicalmaster/diagnosis/diagnosis-list.html'),
-                controller: 'diagnosisListController as vm',
-                resolve: {
-                    loadCtrl: ['$ocLazyLoad', function ($ocLazyLoad) {
-                        return $ocLazyLoad.load(helper.basepath('emr/clinicalmaster/diagnosis/diagnosis-list.js'));
-                    }]
-                }
+                onEnter: ['$window', function ($window) {
+                    $window.location.href = '/diagnosis';
+                }]
             })
             .state('app.templatemasters', {
                 url: '/templatemasters',
@@ -3573,13 +3548,9 @@
             .state('app.generics', {
                 url: '/generics',
                 title: 'Generic Master',
-                templateUrl: helper.basepath('emr/clinicalmaster/generics/generic-list.html'),
-                controller: 'genericListController as vm',
-                resolve: {
-                    loadCtrl: ['$ocLazyLoad', function ($ocLazyLoad) {
-                        return $ocLazyLoad.load(helper.basepath('emr/clinicalmaster/generics/generic-list.js'));
-                    }]
-                }
+                onEnter: ['$window', function ($window) {
+                    $window.location.href = '/generics';
+                }]
             })
             .state('app.immunizations', {
                 url: '/immunizations',
@@ -3605,17 +3576,10 @@
             })
             .state('app.vitals', {
                 url: '/vitals',
-                params: {
-                    context: ''
-                },
                 title: 'Vital Master',
-                templateUrl: helper.basepath('emr/clinicalmaster/vitals/vital-list.html'),
-                controller: 'vitalListController as vm',
-                resolve: {
-                    loadCtrl: ['$ocLazyLoad', function ($ocLazyLoad) {
-                        return $ocLazyLoad.load(helper.basepath('emr/clinicalmaster/vitals/vital-list.js'));
-                    }]
-                }
+                onEnter: ['$window', function ($window) {
+                    $window.location.href = '/vitals';
+                }]
             })
             .state('app.drugs', {
                 url: '/drugs',

@@ -6,6 +6,7 @@ import { Pagination } from '../components/ui/Pagination';
 import { PageHeader } from '../components/ui/Breadcrumb';
 import { Card, FilterBar } from '../components/ui/Card';
 import { colors, spacing, typography } from '../components/ui/tokens';
+import { ConfirmModal } from './ConfirmModal';
 
 interface LookupItem {
   Id: number;
@@ -156,9 +157,9 @@ export const AllergyReactionListScreen: React.FC<AllergyReactionListScreenProps>
 
   const handleAddNew = () => {
     setEditingItem(null);
-    setModalDisplayId('');
+    setModalDisplayId(`AR-${Date.now().toString().slice(-4)}`);
     setModalReactionName('');
-    setModalTypeId(reactionTypeOptions[0]?.Id);
+    setModalTypeId(reactionTypeOptions[0]?.Id || 1);
     setModalRefLink('');
     setModalDescription('');
     setModalComments('');
@@ -225,20 +226,26 @@ export const AllergyReactionListScreen: React.FC<AllergyReactionListScreenProps>
     }
   };
 
-  const handleDelete = async (row: AllergyReactionRow) => {
-    if (window.confirm(`Are you sure you want to delete "${row.AllergyReactionName}"?`)) {
-      try {
-        const { callBackendApi } = await import('../services/apiService');
-        await callBackendApi({
-          action: 'clinicalmaster/AllergyReaction/DeleteAllergyReaction',
-          data: { Id: row.Id },
-          type: 'post'
-        });
-        fetchData(nameFilter, typeFilter, statusFilter, currentPage);
-      } catch (err) {
-        console.error('Error deleting allergy reaction:', err);
-        alert('Failed to delete allergy reaction.');
-      }
+  const [itemToDelete, setItemToDelete] = useState<AllergyReactionRow | null>(null);
+
+  const handleDelete = (row: AllergyReactionRow) => {
+    setItemToDelete(row);
+  };
+
+  const confirmDelete = async () => {
+    if (!itemToDelete) return;
+    try {
+      const { callBackendApi } = await import('../services/apiService');
+      await callBackendApi({
+        action: 'clinicalmaster/AllergyReaction/DeleteAllergyReaction',
+        data: { Id: itemToDelete.Id },
+        type: 'post'
+      });
+      setItemToDelete(null);
+      fetchData(nameFilter, typeFilter, statusFilter, currentPage);
+    } catch (err) {
+      console.error('Error deleting allergy reaction:', err);
+      alert('Failed to delete allergy reaction.');
     }
   };
 
@@ -659,6 +666,20 @@ export const AllergyReactionListScreen: React.FC<AllergyReactionListScreenProps>
             </div>
           </div>
         </div>
+      )}
+
+      {itemToDelete && (
+        <ConfirmModal
+          isOpen={true}
+          title="Delete Allergy Reaction"
+          message={`Are you sure you want to delete "${itemToDelete.AllergyReactionName}"?`}
+          yesLabel="Delete"
+          noLabel="Cancel"
+          variant="danger"
+          onConfirm={confirmDelete}
+          onCancel={() => setItemToDelete(null)}
+          onClose={() => setItemToDelete(null)}
+        />
       )}
     </div>
   );

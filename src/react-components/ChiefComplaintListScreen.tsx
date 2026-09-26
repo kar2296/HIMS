@@ -6,6 +6,7 @@ import { Pagination } from '../components/ui/Pagination';
 import { PageHeader } from '../components/ui/Breadcrumb';
 import { Card, FilterBar } from '../components/ui/Card';
 import { colors, spacing, typography } from '../components/ui/tokens';
+import { ConfirmModal } from './ConfirmModal';
 
 interface LookupItem {
   Id: number;
@@ -217,20 +218,26 @@ export const ChiefComplaintListScreen: React.FC<ChiefComplaintListScreenProps> =
     }
   };
 
-  const handleDelete = async (row: ChiefComplaintRow) => {
-    if (window.confirm(`Are you sure you want to delete "${row.ChiefComplaint}"?`)) {
-      try {
-        const { callBackendApi } = await import('../services/apiService');
-        await callBackendApi({
-          action: 'clinicalmaster/chiefcomplaint/DeleteChiefComplaint',
-          data: { Id: row.Id },
-          type: 'post'
-        });
-        fetchData(nameFilter, categoryFilter, statusFilter, currentPage);
-      } catch (err) {
-        console.error('Error deleting chief complaint:', err);
-        alert('Failed to delete chief complaint.');
-      }
+  const [itemToDelete, setItemToDelete] = useState<ChiefComplaintRow | null>(null);
+
+  const handleDelete = (row: ChiefComplaintRow) => {
+    setItemToDelete(row);
+  };
+
+  const confirmDelete = async () => {
+    if (!itemToDelete) return;
+    try {
+      const { callBackendApi } = await import('../services/apiService');
+      await callBackendApi({
+        action: 'clinicalmaster/chiefcomplaint/DeleteChiefComplaint',
+        data: { Id: itemToDelete.Id },
+        type: 'post'
+      });
+      setItemToDelete(null);
+      fetchData(nameFilter, categoryFilter, statusFilter, currentPage);
+    } catch (err) {
+      console.error('Error deleting chief complaint:', err);
+      alert('Failed to delete chief complaint.');
     }
   };
 
@@ -607,6 +614,20 @@ export const ChiefComplaintListScreen: React.FC<ChiefComplaintListScreenProps> =
             </div>
           </div>
         </div>
+      )}
+
+      {itemToDelete && (
+        <ConfirmModal
+          isOpen={true}
+          title="Delete Chief Complaint"
+          message={`Are you sure you want to delete "${itemToDelete.ChiefComplaint}"?`}
+          yesLabel="Delete"
+          noLabel="Cancel"
+          variant="danger"
+          onConfirm={confirmDelete}
+          onCancel={() => setItemToDelete(null)}
+          onClose={() => setItemToDelete(null)}
+        />
       )}
     </div>
   );

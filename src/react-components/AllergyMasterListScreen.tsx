@@ -7,6 +7,8 @@ import { PageHeader } from '../components/ui/Breadcrumb';
 import { Card, FilterBar } from '../components/ui/Card';
 import { colors, spacing, typography } from '../components/ui/tokens';
 
+import { ConfirmModal } from './ConfirmModal';
+
 interface LookupItem {
   Id: number;
   Text: string;
@@ -220,20 +222,26 @@ export const AllergyMasterListScreen: React.FC<AllergyMasterListScreenProps> = (
     }
   };
 
-  const handleDelete = async (row: AllergyRow) => {
-    if (window.confirm(`Are you sure you want to delete "${row.AllergyName}"?`)) {
-      try {
-        const { callBackendApi } = await import('../services/apiService');
-        await callBackendApi({
-          action: 'clinicalmaster/AllergyMaster/DeleteAllergyMaster',
-          data: { Id: row.Id },
-          type: 'post'
-        });
-        fetchData(nameFilter, typeFilter, statusFilter, currentPage);
-      } catch (err) {
-        console.error('Error deleting allergy master:', err);
-        alert('Failed to delete allergy master.');
-      }
+  const [itemToDelete, setItemToDelete] = useState<AllergyRow | null>(null);
+
+  const handleDelete = (row: AllergyRow) => {
+    setItemToDelete(row);
+  };
+
+  const confirmDelete = async () => {
+    if (!itemToDelete) return;
+    try {
+      const { callBackendApi } = await import('../services/apiService');
+      await callBackendApi({
+        action: 'clinicalmaster/AllergyMaster/DeleteAllergyMaster',
+        data: { Id: itemToDelete.Id },
+        type: 'post'
+      });
+      setItemToDelete(null);
+      fetchData(nameFilter, typeFilter, statusFilter, currentPage);
+    } catch (err) {
+      console.error('Error deleting allergy master:', err);
+      alert('Failed to delete allergy master.');
     }
   };
 
@@ -623,6 +631,20 @@ export const AllergyMasterListScreen: React.FC<AllergyMasterListScreenProps> = (
             </div>
           </div>
         </div>
+      )}
+
+      {itemToDelete && (
+        <ConfirmModal
+          isOpen={true}
+          title="Delete Allergy"
+          message={`Are you sure you want to delete "${itemToDelete.AllergyName}"?`}
+          yesLabel="Delete"
+          noLabel="Cancel"
+          variant="danger"
+          onConfirm={confirmDelete}
+          onCancel={() => setItemToDelete(null)}
+          onClose={() => setItemToDelete(null)}
+        />
       )}
     </div>
   );

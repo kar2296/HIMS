@@ -27,6 +27,7 @@ export async function callBackendApi<T = any>(options: ApiRequestOptions): Promi
   const config: RequestInit = {
     method: type.toUpperCase(),
     headers,
+    credentials: 'include',
   };
 
   if (type.toLowerCase() !== 'get' && data !== undefined) {

@@ -6,6 +6,7 @@ import { Pagination } from '../components/ui/Pagination';
 import { PageHeader } from '../components/ui/Breadcrumb';
 import { Card, FilterBar } from '../components/ui/Card';
 import { colors, spacing, typography } from '../components/ui/tokens';
+import { ConfirmModal } from './ConfirmModal';
 
 interface LookupItem {
   Id: number;
@@ -173,8 +174,8 @@ export const DiagnosisListScreen: React.FC<DiagnosisListScreenProps> = ({ reactP
     setEditingItem(null);
     setModalCode('');
     setModalName('');
-    setModalSchemeId(schemeOptions[0]?.Id);
-    setModalVersionId(versionOptions[0]?.Id);
+    setModalSchemeId(schemeOptions[0]?.Id || 1);
+    setModalVersionId(versionOptions[0]?.Id || 1);
     setModalDescription('');
     setModalSynonym('');
     setModalLengthOfStay('');
@@ -188,8 +189,8 @@ export const DiagnosisListScreen: React.FC<DiagnosisListScreenProps> = ({ reactP
     setEditingItem(row);
     setModalCode(row.Code || '');
     setModalName(row.DiagnosisName || '');
-    setModalSchemeId(row.DiagnosisCodeSchemeId ?? row.DiagnosisCodeScheme?.Id);
-    setModalVersionId(row.DiagnosisVersionId ?? row.DiagnosisVersion?.Id);
+    setModalSchemeId(row.DiagnosisCodeSchemeId ?? row.DiagnosisCodeScheme?.Id ?? (schemeOptions[0]?.Id || 1));
+    setModalVersionId(row.DiagnosisVersionId ?? row.DiagnosisVersion?.Id ?? (versionOptions[0]?.Id || 1));
     setModalDescription(row.Description || '');
     setModalSynonym(row.Synonym || '');
     setModalLengthOfStay(row.LengthOfStay ? row.LengthOfStay.toString() : '');
@@ -211,8 +212,8 @@ export const DiagnosisListScreen: React.FC<DiagnosisListScreenProps> = ({ reactP
       const payload: any = {
         Code: modalCode.trim(),
         DiagnosisName: modalName.trim(),
-        DiagnosisCodeSchemeId: modalSchemeId ? Number(modalSchemeId) : undefined,
-        DiagnosisVersionId: modalVersionId ? Number(modalVersionId) : undefined,
+        DiagnosisCodeSchemeId: modalSchemeId ? Number(modalSchemeId) : (schemeOptions[0]?.Id || 1),
+        DiagnosisVersionId: modalVersionId ? Number(modalVersionId) : (versionOptions[0]?.Id || 1),
         Description: modalDescription.trim(),
         Synonym: modalSynonym.trim(),
         LengthOfStay: modalLengthOfStay.trim() ? Number(modalLengthOfStay) : undefined,
@@ -246,20 +247,26 @@ export const DiagnosisListScreen: React.FC<DiagnosisListScreenProps> = ({ reactP
     }
   };
 
-  const handleDelete = async (row: DiagnosisRow) => {
-    if (window.confirm(`Are you sure you want to delete "${row.DiagnosisName}" (${row.Code})?`)) {
-      try {
-        const { callBackendApi } = await import('../services/apiService');
-        await callBackendApi({
-          action: 'clinicalmaster/diagnosis/DeleteDiagnosis',
-          data: { Id: row.Id },
-          type: 'post'
-        });
-        fetchData(searchQuery, schemeFilter, versionFilter, statusFilter, currentPage);
-      } catch (err) {
-        console.error('Error deleting diagnosis:', err);
-        alert('Failed to delete diagnosis.');
-      }
+  const [itemToDelete, setItemToDelete] = useState<DiagnosisRow | null>(null);
+
+  const handleDelete = (row: DiagnosisRow) => {
+    setItemToDelete(row);
+  };
+
+  const confirmDelete = async () => {
+    if (!itemToDelete) return;
+    try {
+      const { callBackendApi } = await import('../services/apiService');
+      await callBackendApi({
+        action: 'clinicalmaster/diagnosis/DeleteDiagnosis',
+        data: { Id: itemToDelete.Id },
+        type: 'post'
+      });
+      setItemToDelete(null);
+      fetchData(searchQuery, schemeFilter, versionFilter, statusFilter, currentPage);
+    } catch (err) {
+      console.error('Error deleting diagnosis:', err);
+      alert('Failed to delete diagnosis.');
     }
   };
 
@@ -723,6 +730,20 @@ export const DiagnosisListScreen: React.FC<DiagnosisListScreenProps> = ({ reactP
             </div>
           </div>
         </div>
+      )}
+
+      {itemToDelete && (
+        <ConfirmModal
+          isOpen={true}
+          title="Delete Diagnosis"
+          message={`Are you sure you want to delete "${itemToDelete.DiagnosisName}" (${itemToDelete.Code})?`}
+          yesLabel="Delete"
+          noLabel="Cancel"
+          variant="danger"
+          onConfirm={confirmDelete}
+          onCancel={() => setItemToDelete(null)}
+          onClose={() => setItemToDelete(null)}
+        />
       )}
     </div>
   );
