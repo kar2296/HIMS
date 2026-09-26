@@ -39,8 +39,17 @@ export const OppatientTabScreen: React.FC<ScreenProps> = ({ reactProps, onAction
   const { tabs = [] } = reactProps || {};
   const dispatch = (action: string, payload?: any) => { if (onAction) onAction(action, payload); };
 
+  const isTabActive = (tabState: string) => {
+    if (typeof window !== 'undefined' && window.location.hash) {
+      const hash = window.location.hash.toLowerCase();
+      const tabKey = tabState.toLowerCase().split('.').pop() || '';
+      return hash.includes(tabKey) || (tabKey === 'mycheckin' && (hash.includes('myoplist') || hash.includes('mycheckin')));
+    }
+    return false;
+  };
+
   return (
-    <div style={{ fontFamily: typography.fontFamily }}>
+    <div style={{ fontFamily: typography.fontFamily, padding: '16px 20px 0 20px' }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: spacing.md }}>
         <h3 style={{ ...typography.pageTitle, color: colors.textMain, margin: 0 }}>OP Patient List</h3>
         <button
@@ -53,25 +62,30 @@ export const OppatientTabScreen: React.FC<ScreenProps> = ({ reactProps, onAction
       </div>
 
       <div style={{ display: 'flex', gap: spacing.xs, borderBottom: `1px solid ${colors.border}` }}>
-        {tabs.map((tab) => (
-          <button
-            key={tab.state}
-            onClick={() => { if (!tab.canDisable) dispatch('switchTab', { state: tab.state }); }}
-            disabled={tab.canDisable}
-            style={{
-              border: 'none',
-              background: 'none',
-              padding: `${spacing.sm} ${spacing.md}`,
-              cursor: tab.canDisable ? 'not-allowed' : 'pointer',
-              opacity: tab.canDisable ? 0.5 : 1,
-              color: colors.textMain,
-              fontFamily: typography.fontFamily,
-              borderBottom: `2px solid transparent`,
-            }}
-          >
-            {tab.title}
-          </button>
-        ))}
+        {tabs.map((tab) => {
+          const active = isTabActive(tab.state);
+          return (
+            <button
+              key={tab.state}
+              onClick={() => { if (!tab.canDisable) dispatch('switchTab', { state: tab.state }); }}
+              disabled={tab.canDisable}
+              style={{
+                border: 'none',
+                background: 'none',
+                padding: `${spacing.sm} ${spacing.md}`,
+                cursor: tab.canDisable ? 'not-allowed' : 'pointer',
+                opacity: tab.canDisable ? 0.5 : 1,
+                color: active ? colors.primary : colors.textMuted,
+                fontWeight: active ? 600 : 500,
+                fontFamily: typography.fontFamily,
+                borderBottom: active ? `2px solid ${colors.primary}` : `2px solid transparent`,
+                transition: 'all 0.15s ease',
+              }}
+            >
+              {tab.title}
+            </button>
+          );
+        })}
       </div>
     </div>
   );

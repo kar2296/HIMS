@@ -532,10 +532,7 @@
                 }
                 /*doctordashboard*/
                 function CanOP_Patients() {
-                    ngSessionHelper.getClinicalRoleId();
-                    ngSessionHelper.getUserTypeId();
-                    ngSessionHelper.getUserGroupId();
-                    return false;
+                    return hasPrivilege('DoctorDashboard', 'OP_Patients');
                 }
                 function CanAddnewbutton() {
                     ngSessionHelper.getClinicalRoleId();
@@ -562,31 +559,19 @@
                     return false;
                 }
                 function CanSurgerySchedule() {
-                    ngSessionHelper.getClinicalRoleId();
-                    ngSessionHelper.getUserTypeId();
-                    ngSessionHelper.getUserGroupId();
-                    return false;
+                    return hasPrivilege('DoctorDashboard', 'SurgerySchedule');
                 }
 
                 function CanIP_Patients() {
-                    ngSessionHelper.getClinicalRoleId();
-                    ngSessionHelper.getUserTypeId();
-                    ngSessionHelper.getUserGroupId();
-                    return false;
+                    return hasPrivilege('DoctorDashboard', 'IP_Patients');
                 }
 
                 function CanAppointments() {
-                    ngSessionHelper.getClinicalRoleId();
-                    ngSessionHelper.getUserTypeId();
-                    ngSessionHelper.getUserGroupId();
-                    return false;
+                    return hasPrivilege('DoctorDashboard', 'Appointments');
                 }
 
                 function CanReports() {
-                    ngSessionHelper.getClinicalRoleId();
-                    ngSessionHelper.getUserTypeId();
-                    ngSessionHelper.getUserGroupId();
-                    return false;
+                    return hasPrivilege('DoctorDashboard', 'Reports');
                 }
                 /*doctordashboard*/
                 /*surgerydashboard*/

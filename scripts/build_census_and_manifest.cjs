@@ -254,6 +254,25 @@ for (const sf of stateSourceFiles) {
     allRawStates.push(...parseStatesFromFile(sf.file, sf.defaultModule));
 }
 
+// Explicitly retired AngularJS states (navigation switched 100% to standalone React, removed from runtime menus)
+const retiredAngularJsStates = new Set([
+    'app.categorytypes',
+    'app.attachmenttypes',
+    'app.drugs',
+    'app.allergies',
+    'app.chiefcomplaints',
+    'app.countrymaster',
+    'app.statemaster',
+    'app.districtmaster',
+    'app.citymaster',
+    'app.pincodes',
+    'app.occupation',
+    'app.servicecategories',
+    'app.serviceratecategories',
+    'app.servicegroups',
+    'app.servicesubcategories'
+]);
+
 // 5. Process each state into the 7-status manifest
 const parsedStates = [];
 
@@ -425,19 +444,6 @@ for (const raw of allRawStates) {
     const humanUatPassed = false;
 
     // 7. AngularJS Route Retired: Explicitly retired when navigation switches 100% to standalone React
-    const retiredAngularJsStates = new Set([
-        'app.categorytypes',
-        'app.attachmenttypes',
-        'app.drugs',
-        'app.allergies',
-        'app.chiefcomplaints',
-        'app.countrymaster',
-        'app.statemaster',
-        'app.districtmaster',
-        'app.citymaster',
-        'app.pincodes',
-        'app.occupation'
-    ]);
     const angularjsRouteRetired = retiredAngularJsStates.has(stateName);
 
     // Directives & Plugins used
@@ -494,6 +500,10 @@ const stats = {
         reconciliation: {
             activeRegisteredStatesDenominator: 1624,
             distinctStateNames: 1609,
+            statesWithAngularJsRedirects: retiredAngularJsStates.size,
+            statesRemovedFromRuntimeMenus: retiredAngularJsStates.size,
+            remainingActiveAngularJsStatesWithControllers: 1624 - retiredAngularJsStates.size,
+            retiredStateNames: Array.from(retiredAngularJsStates),
             legacyInventoryCsvTotalRows: 1906,
             legacyInventoryCsvUniqueStates: 1706,
             regexTruncationCountInPreviousRun: 805,

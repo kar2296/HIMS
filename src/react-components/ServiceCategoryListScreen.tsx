@@ -11,6 +11,7 @@ import { sessionHelper } from '../services/sessionHelper';
 export interface ServiceCategoryItem {
   Id: number;
   FacilityId?: number;
+  ParentServiceCategoryId?: number;
   ServiceCategoryCode: string;
   ServiceCategoryName: string;
   DisplayOrder?: number | string;
@@ -130,6 +131,7 @@ export const ServiceCategoryListScreen: React.FC<ServiceCategoryListScreenProps>
     return {
       Id: 0,
       FacilityId: currentFacilityId > 0 ? currentFacilityId : 1,
+      ParentServiceCategoryId: -1,
       ServiceCategoryCode: '',
       ServiceCategoryName: '',
       DisplayOrder: '',
@@ -303,6 +305,7 @@ export const ServiceCategoryListScreen: React.FC<ServiceCategoryListScreenProps>
         return {
           ...it,
           FacilityId: facId,
+          ParentServiceCategoryId: -1,
           Status: 1,
           DisplayOrder: it.DisplayOrder ? Number(it.DisplayOrder) : 0,
           PrintOrder: it.PrintOrder ? Number(it.PrintOrder) : 0,

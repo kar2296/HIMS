@@ -72,7 +72,7 @@ export const ServiceSubCategoryListScreen: React.FC<ServiceSubCategoryListScreen
   const [filterFacilityId, setFilterFacilityId] = useState<number>(currentFacilityId > 0 ? currentFacilityId : 1);
   const [filterSourceTypeId, setFilterSourceTypeId] = useState<number>(1);
   const [filterCategoryId, setFilterCategoryId] = useState<number>(-1);
-  const [filterStatusId, setFilterStatusId] = useState<number>(2);
+  const [filterStatusId, setFilterStatusId] = useState<number>(-1);
   const [filterName, setFilterName] = useState<string>('');
 
   // UI state
@@ -160,16 +160,24 @@ export const ServiceSubCategoryListScreen: React.FC<ServiceSubCategoryListScreen
       setIsLoading(true);
       try {
         const { callBackendApi } = await import('../services/apiService');
+        const params: any[] = [
+          { Key: 1, Value: name.trim() },
+          { Key: 2, Value: facilityId === -1 ? [-1, currentFacilityId] : facilityId },
+          { Key: 3, Value: sourceTypeId },
+        ];
+        if (categoryId > 0) {
+          params.push({ Key: 6, Value: categoryId });
+        }
+        if (statusId === 1) {
+          params.push({ Key: 5, Value: true });
+        } else if (statusId === 0) {
+          params.push({ Key: 5, Value: false });
+        }
+
         const res: any = await callBackendApi({
           action: 'clinicalmaster/servicecategory/GetServiceSubCategorys',
           data: {
-            Params: [
-              { Key: 1, Value: name.trim() },
-              { Key: 2, Value: facilityId },
-              { Key: 3, Value: sourceTypeId },
-              { Key: 5, Value: statusId },
-              { Key: 6, Value: categoryId },
-            ],
+            Params: params,
             PageContext: { PageSize: 100, PageNumber: 1 },
           },
           type: 'post',

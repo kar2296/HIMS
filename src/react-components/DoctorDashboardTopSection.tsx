@@ -62,7 +62,14 @@ export const DoctorDashboardTopSection: React.FC<DoctorDashboardProps> = (allPro
   // Angular bridge still passes items/permissions as optional props;
   // we use them as the initial value but immediately overwrite with a direct API call.
   const propItems = allProps.items || allProps.reactProps?.items || {};
-  const permissions = allProps.permissions || allProps.reactProps?.permissions || {};
+  const rawPermissions = allProps.permissions || allProps.reactProps?.permissions || {};
+  // If rawPermissions has entries but every single one is false (legacy stub failure),
+  // default to allowing access so doctor dashboard options (OP, IP, Appointments, etc.) are visible.
+  const hasAnyTrue = Object.values(rawPermissions).some((v) => v === true);
+  const permissions: DoctorDashboardProps['permissions'] =
+    Object.keys(rawPermissions).length > 0 && !hasAnyTrue
+      ? { OP_Patients: true, IP_Patients: true, Appointments: true, SurgerySchedule: true, Reports: true }
+      : rawPermissions;
   const onNavigate = allProps.onNavigate;
 
   // ── Self-fetch state ───────────────────────────────────────

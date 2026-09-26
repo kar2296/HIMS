@@ -2747,24 +2747,16 @@
             .state('app.servicecategories', {
                 url: '/servicecategories',
                 title: 'Service Category',
-                templateUrl: helper.basepath('emr/clinicalmaster/servicecategories/servicecategory-list.html'),
-                controller: 'serviceCategoryListController as vm',
-                resolve: {
-                    loadCtrl: ['$ocLazyLoad', function ($ocLazyLoad) {
-                        return $ocLazyLoad.load(helper.basepath('emr/clinicalmaster/servicecategories/servicecategory-list.js'));
-                    }]
-                }
+                onEnter: ['$window', function ($window) {
+                    $window.location.href = '/servicecategories';
+                }]
             })
             .state('app.serviceratecategories', {
                 url: '/serviceratecategories',
                 title: 'Service Rate Categories',
-                templateUrl: helper.basepath('emr/clinicalmaster/serviceratecategories/serviceratecategory-list.html'),
-                controller: 'serviceRateCategoryListController as vm',
-                resolve: {
-                    loadCtrl: ['$ocLazyLoad', function ($ocLazyLoad) {
-                        return $ocLazyLoad.load(helper.basepath('emr/clinicalmaster/serviceratecategories/serviceratecategory-list.js'));
-                    }]
-                }
+                onEnter: ['$window', function ($window) {
+                    $window.location.href = '/serviceratecategories';
+                }]
             })
             .state('app.serviceitems', {
                 url: '/serviceitems',
@@ -4191,24 +4183,16 @@
             .state('app.servicesubcategories', {
                 url: '/servicesubcategories',
                 title: 'Service Sub Category',
-                templateUrl: helper.basepath('emr/clinicalmaster/servicesubcategories/servicesubcategory-list.html'),
-                controller: 'serviceSubCategoryListController as vm',
-                resolve: {
-                    loadCtrl: ['$ocLazyLoad', function ($ocLazyLoad) {
-                        return $ocLazyLoad.load(helper.basepath('emr/clinicalmaster/servicesubcategories/servicesubcategory-list.js'));
-                    }]
-                }
+                onEnter: ['$window', function ($window) {
+                    $window.location.href = '/servicesubcategories';
+                }]
             })
             .state('app.servicegroups', {
                 url: '/servicegroups',
                 title: 'Service Groups',
-                templateUrl: helper.basepath('emr/clinicalmaster/servicegroups/servicegroup-list.html'),
-                controller: 'serviceGroupListController as vm',
-                resolve: {
-                    loadCtrl: ['$ocLazyLoad', function ($ocLazyLoad) {
-                        return $ocLazyLoad.load(helper.basepath('emr/clinicalmaster/servicegroups/servicegroup-list.js'));
-                    }]
-                }
+                onEnter: ['$window', function ($window) {
+                    $window.location.href = '/servicegroups';
+                }]
             })
             /*Medical Master */
 

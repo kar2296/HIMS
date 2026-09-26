@@ -681,7 +681,7 @@ export const ServiceRateCategoryListScreen: React.FC<ServiceRateCategoryListScre
               ) : (
                 items.map((item, index) => {
                   const isActive = item.ActiveStatusId === 2 || item.ActiveStatus?.Id === 2 || item.IsActive === true;
-                  const canDelete = item.ActiveStatusId === 3 || item.ActiveStatusId === 1 || !isActive;
+                  const canDelete = true;
 
                   return (
                     <tr

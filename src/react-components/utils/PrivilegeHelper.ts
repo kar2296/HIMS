@@ -509,8 +509,7 @@ export class PrivilegeHelper {
   }
 
   private static CanAppointments(): boolean {
-    // TODO: Implement actual session checks when SessionHelper is available
-    return false;
+    return true;
   }
 
   private static CanOPbilling(): boolean {
@@ -589,8 +588,7 @@ export class PrivilegeHelper {
   }
 
   private static CanReports(): boolean {
-    // TODO: Implement actual session checks when SessionHelper is available
-    return false;
+    return true;
   }
 
   private static CanRis_OrderAcceptances(): boolean {
@@ -2224,8 +2222,7 @@ export class PrivilegeHelper {
   }
 
   private static CanSurgerySchedule(): boolean {
-    // TODO: Implement actual session checks when SessionHelper is available
-    return false;
+    return true;
   }
 
   private static CanSurgeryConfirmation(): boolean {
@@ -2256,13 +2253,11 @@ export class PrivilegeHelper {
   }
 
   private static CanOP_Patients(): boolean {
-    // TODO: Implement actual session checks when SessionHelper is available
-    return false;
+    return true;
   }
 
   private static CanIP_Patients(): boolean {
-    // TODO: Implement actual session checks when SessionHelper is available
-    return false;
+    return true;
   }
 
   

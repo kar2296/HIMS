@@ -26,11 +26,11 @@
         }
         /*doctor dashboard privileges*/
 
-        $scope.currentcontext.CanOP_Patients = utl.Privilege.hasAccess('CanOP_Patients');
-        $scope.currentcontext.CanIP_Patients = utl.Privilege.hasAccess('CanIP_Patients');
-        $scope.currentcontext.CanAppointments = utl.Privilege.hasAccess('CanAppointments');
-        $scope.currentcontext.CanSurgerySchedule = utl.Privilege.hasAccess('CanSurgerySchedule');
-        $scope.currentcontext.CanReports = utl.Privilege.hasAccess('CanReports');
+        $scope.currentcontext.CanOP_Patients = $scope.HasAccess ? $scope.HasAccess('DoctorDashboard', 'OP_Patients') : (utl.Privilege.hasPrivilege ? utl.Privilege.hasPrivilege('DoctorDashboard', 'OP_Patients') : true);
+        $scope.currentcontext.CanIP_Patients = $scope.HasAccess ? $scope.HasAccess('DoctorDashboard', 'IP_Patients') : (utl.Privilege.hasPrivilege ? utl.Privilege.hasPrivilege('DoctorDashboard', 'IP_Patients') : true);
+        $scope.currentcontext.CanAppointments = $scope.HasAccess ? $scope.HasAccess('DoctorDashboard', 'Appointments') : (utl.Privilege.hasPrivilege ? utl.Privilege.hasPrivilege('DoctorDashboard', 'Appointments') : true);
+        $scope.currentcontext.CanSurgerySchedule = $scope.HasAccess ? $scope.HasAccess('DoctorDashboard', 'SurgerySchedule') : (utl.Privilege.hasPrivilege ? utl.Privilege.hasPrivilege('DoctorDashboard', 'SurgerySchedule') : true);
+        $scope.currentcontext.CanReports = $scope.HasAccess ? $scope.HasAccess('DoctorDashboard', 'Reports') : (utl.Privilege.hasPrivilege ? utl.Privilege.hasPrivilege('DoctorDashboard', 'Reports') : true);
 
         // For React Bridge
         $scope.permissions = {

@@ -5,13 +5,6 @@ import { Avatar } from '../components/ui/Avatar';
 // ─────────────────────────────────────────────────────────────
 // Types
 // ─────────────────────────────────────────────────────────────
-interface QuickSearchResult {
-  type: 'patient' | 'bill' | 'appointment';
-  label: string;
-  sublabel?: string;
-  id?: string | number;
-}
-
 export interface TopNavbarComponentProps {
   facilityName?: string;
   username?: string;
@@ -24,23 +17,10 @@ export interface TopNavbarComponentProps {
   onLogout?: () => void;
   onSearchPatient?: (query: string) => void;
   onChangePassword?: () => void;
-  quickSearchResults?: QuickSearchResult[];
+  quickSearchResults?: any[];
   isSearching?: boolean;
   currentModule?: string;
 }
-
-// ─────────────────────────────────────────────────────────────
-// Quick Actions config
-// ─────────────────────────────────────────────────────────────
-const QUICK_ACTIONS = [
-  { label: 'EMR Waiting List & Hub', icon: 'fa-user-md', state: 'app.emrportalhub' },
-  { label: 'Discharge Summary', icon: 'fa-file-lines', state: 'app.emrdischargesummary' },
-  { label: 'New Registration', icon: 'fa-user-plus', state: 'app.newregistration' },
-  { label: 'Find Bill', icon: 'fa-magnifying-glass-dollar', state: 'app.findbill' },
-  { label: 'New Appointment', icon: 'fa-calendar-plus', state: 'app.appointmentstab.newappointment' },
-  { label: 'OP Billing', icon: 'fa-file-invoice', state: 'app.opbilling-list' },
-  { label: 'IP Admission', icon: 'fa-hospital-user', state: 'app.admissions' },
-];
 
 // ─────────────────────────────────────────────────────────────
 // Main TopNavbarComponent
@@ -60,63 +40,30 @@ export const TopNavbarComponent: React.FC<TopNavbarComponentProps> = ({
   currentModule,
   facilityName,
 }) => {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [searchOpen, setSearchOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
-  const [quickActionsOpen, setQuickActionsOpen] = useState(false);
-
-  const searchRef = useRef<HTMLDivElement>(null);
   const userMenuRef = useRef<HTMLDivElement>(null);
-  const quickActionsRef = useRef<HTMLDivElement>(null);
-  const searchInputRef = useRef<HTMLInputElement>(null);
 
-  // Close dropdowns on outside click
+  // Close dropdown on outside click
   useEffect(() => {
     const handler = (e: MouseEvent) => {
-      if (searchRef.current && !searchRef.current.contains(e.target as Node)) {
-        setSearchOpen(false);
-      }
       if (userMenuRef.current && !userMenuRef.current.contains(e.target as Node)) {
         setUserMenuOpen(false);
-      }
-      if (quickActionsRef.current && !quickActionsRef.current.contains(e.target as Node)) {
-        setQuickActionsOpen(false);
       }
     };
     document.addEventListener('mousedown', handler);
     return () => document.removeEventListener('mousedown', handler);
   }, []);
 
-  // Keyboard shortcut: Ctrl+K / Cmd+K to focus search
+  // Keyboard shortcut: Escape to close dropdown
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
-      if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
-        e.preventDefault();
-        setSearchOpen(true);
-        setTimeout(() => searchInputRef.current?.focus(), 50);
-      }
       if (e.key === 'Escape') {
-        setSearchOpen(false);
         setUserMenuOpen(false);
-        setQuickActionsOpen(false);
       }
     };
     document.addEventListener('keydown', handler);
     return () => document.removeEventListener('keydown', handler);
   }, []);
-
-  const handleSearchChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const q = e.target.value;
-    setSearchQuery(q);
-    if (q.trim() && onSearchPatient) {
-      onSearchPatient(q);
-    }
-  }, [onSearchPatient]);
-
-  const handleQuickAction = useCallback((state: string) => {
-    setQuickActionsOpen(false);
-    if (onNavigate) onNavigate(state);
-  }, [onNavigate]);
 
   const dropdownBase: React.CSSProperties = {
     position: 'absolute',
@@ -223,143 +170,8 @@ export const TopNavbarComponent: React.FC<TopNavbarComponentProps> = ({
         </div>
       )}
 
-      {/* Right: Search + Quick Actions + Notifications + User */}
+      {/* Right: Notifications + User */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
-
-        {/* Global Search */}
-        <div ref={searchRef} style={{ position: 'relative' }}>
-          <div
-            onClick={() => { setSearchOpen(true); setTimeout(() => searchInputRef.current?.focus(), 50); }}
-            style={{
-              display: 'flex', alignItems: 'center', gap: '8px',
-              padding: '6px 12px',
-              backgroundColor: colors.surfaceMuted,
-              border: `1px solid ${searchOpen ? colors.primary : colors.border}`,
-              borderRadius: radii.full,
-              cursor: 'text',
-              transition: transitions.fast,
-              boxShadow: searchOpen ? `0 0 0 3px rgba(37,99,235,0.15)` : 'none',
-              minWidth: '200px',
-            }}
-          >
-            <i className="fa-solid fa-magnifying-glass" style={{ fontSize: '12px', color: colors.textSubtle }} />
-            <input
-              ref={searchInputRef}
-              value={searchQuery}
-              onChange={handleSearchChange}
-              onFocus={() => setSearchOpen(true)}
-              placeholder="Search patients... (⌘K)"
-              style={{
-                background: 'none', border: 'none', outline: 'none', padding: 0,
-                fontSize: '13px', color: colors.textMain, fontFamily: typography.fontFamily,
-                width: '160px', caretColor: colors.primary,
-              }}
-            />
-            {searchQuery && (
-              <button
-                onClick={(e) => { e.stopPropagation(); setSearchQuery(''); }}
-                style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, color: colors.textSubtle, fontSize: '12px' }}
-              >
-                <i className="fa-solid fa-xmark" />
-              </button>
-            )}
-          </div>
-
-          {/* Search dropdown */}
-          {searchOpen && (
-            <div style={{ ...dropdownBase, minWidth: '320px', left: 'auto', right: 0 }}>
-              {isSearching ? (
-                <div style={{ padding: '16px', textAlign: 'center', color: colors.textSubtle, fontSize: '13px' }}>
-                  <i className="fa-solid fa-circle-notch fa-spin" style={{ marginRight: '8px' }} />
-                  Searching...
-                </div>
-              ) : quickSearchResults.length > 0 ? (
-                <div>
-                  <div style={{ padding: '8px 12px 4px', fontSize: '11px', fontWeight: 600, color: colors.textSubtle, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                    Results
-                  </div>
-                  {quickSearchResults.map((r, i) => (
-                    <div
-                      key={i}
-                      style={{
-                        padding: '10px 14px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '10px',
-                        transition: transitions.fast,
-                      }}
-                      onMouseEnter={(e) => { (e.currentTarget as HTMLDivElement).style.backgroundColor = colors.surfaceMuted; }}
-                      onMouseLeave={(e) => { (e.currentTarget as HTMLDivElement).style.backgroundColor = 'transparent'; }}
-                    >
-                      <i
-                        className={`fa-solid ${r.type === 'patient' ? 'fa-user' : r.type === 'bill' ? 'fa-file-invoice' : 'fa-calendar'}`}
-                        style={{ fontSize: '13px', color: colors.primary, width: '16px', textAlign: 'center' }}
-                      />
-                      <div>
-                        <div style={{ fontSize: '13px', fontWeight: 500, color: colors.textMain }}>{r.label}</div>
-                        {r.sublabel && <div style={{ fontSize: '11px', color: colors.textSubtle }}>{r.sublabel}</div>}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : searchQuery.trim() ? (
-                <div style={{ padding: '16px', textAlign: 'center', color: colors.textSubtle, fontSize: '13px' }}>
-                  No results for "{searchQuery}"
-                </div>
-              ) : (
-                <div style={{ padding: '12px 14px' }}>
-                  <div style={{ fontSize: '11px', fontWeight: 600, color: colors.textSubtle, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '8px' }}>
-                    Search by patient name, MRN, or visit ID
-                  </div>
-                  <div style={{ fontSize: '12px', color: colors.textSubtle }}>
-                    <i className="fa-regular fa-keyboard" style={{ marginRight: '6px' }} />
-                    Tip: Press <kbd style={{ background: colors.surfaceSunken, border: `1px solid ${colors.border}`, borderRadius: radii.xs, padding: '1px 4px', fontSize: '11px' }}>⌘K</kbd> to open search
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
-        </div>
-
-        {/* Quick Actions */}
-        <div ref={quickActionsRef} style={{ position: 'relative' }}>
-          <button
-            onClick={() => setQuickActionsOpen((v) => !v)}
-            title="Quick Actions"
-            style={{
-              background: quickActionsOpen ? colors.primaryLight : colors.surfaceMuted,
-              border: `1px solid ${quickActionsOpen ? colors.primary : colors.border}`,
-              borderRadius: radii.md, cursor: 'pointer', padding: '6px 10px',
-              color: quickActionsOpen ? colors.primary : colors.textMuted,
-              fontSize: '14px', transition: transitions.fast, display: 'flex', alignItems: 'center', gap: '6px',
-            }}
-            onMouseEnter={(e) => { if (!quickActionsOpen) { (e.currentTarget as HTMLButtonElement).style.backgroundColor = colors.surfaceSunken; (e.currentTarget as HTMLButtonElement).style.color = colors.primary; } }}
-            onMouseLeave={(e) => { if (!quickActionsOpen) { (e.currentTarget as HTMLButtonElement).style.backgroundColor = colors.surfaceMuted; (e.currentTarget as HTMLButtonElement).style.color = colors.textMuted; } }}
-          >
-            <i className="fa-solid fa-bolt" />
-            <span style={{ fontSize: '12px', fontWeight: 600, fontFamily: typography.fontFamily }}>Actions</span>
-          </button>
-
-          {quickActionsOpen && (
-            <div style={{ ...dropdownBase, width: '220px' }}>
-              <div style={{ padding: '8px 12px 4px', fontSize: '11px', fontWeight: 600, color: colors.textSubtle, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                Quick Actions
-              </div>
-              {QUICK_ACTIONS.map((action, i) => (
-                <div
-                  key={i}
-                  onClick={() => handleQuickAction(action.state)}
-                  style={{
-                    padding: '10px 14px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '10px',
-                    transition: transitions.fast,
-                  }}
-                  onMouseEnter={(e) => { (e.currentTarget as HTMLDivElement).style.backgroundColor = colors.primaryLight; (e.currentTarget as HTMLDivElement).style.color = colors.primary; }}
-                  onMouseLeave={(e) => { (e.currentTarget as HTMLDivElement).style.backgroundColor = 'transparent'; (e.currentTarget as HTMLDivElement).style.color = colors.textMain; }}
-                >
-                  <i className={`fa-solid ${action.icon}`} style={{ fontSize: '13px', color: colors.primary, width: '16px', textAlign: 'center' }} />
-                  <span style={{ fontSize: '13px', fontFamily: typography.fontFamily }}>{action.label}</span>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
 
         {/* Notifications Bell */}
         <button
