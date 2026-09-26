@@ -6,6 +6,7 @@ import { Pagination } from '../components/ui/Pagination';
 import { PageHeader } from '../components/ui/Breadcrumb';
 import { Card, FilterBar } from '../components/ui/Card';
 import { colors, spacing, typography } from '../components/ui/tokens';
+import { ConfirmModal } from './ConfirmModal';
 
 interface LookupItem {
   Id: number;
@@ -117,6 +118,7 @@ export const PincodeMasterListScreen: React.FC<PincodeMasterListScreenProps> = (
   const [modalIsActive, setModalIsActive] = useState(true);
   const [modalError, setModalError] = useState('');
   const [isSaving, setIsSaving] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState<PincodeRow | null>(null);
 
   const [filterCountryId, setFilterCountryId] = useState<number | undefined>(currentfilter.CountryId);
   const [filterStateId, setFilterStateId] = useState<number | undefined>(currentfilter.StateId);
@@ -186,23 +188,27 @@ export const PincodeMasterListScreen: React.FC<PincodeMasterListScreenProps> = (
     setIsModalOpen(true);
   };
 
-  const handleDelete = async (row: PincodeRow) => {
+  const handleDelete = (row: PincodeRow) => {
     if (onAction) {
       onAction('delete', row);
       return;
     }
-    if (window.confirm(`Are you sure you want to delete pincode ${row.Pincode} (${row.Area})?`)) {
-      try {
-        const { callBackendApi } = await import('../services/apiService');
-        await callBackendApi({
-          action: 'GeneralMaster/PincodeMaster/DeletePincodeMaster',
-          data: { Id: row.Id },
-          type: 'post'
-        });
-        fetchData();
-      } catch (err) {
-        console.error('Error deleting pincode master:', err);
-      }
+    setItemToDelete(row);
+  };
+
+  const confirmDelete = async () => {
+    if (!itemToDelete) return;
+    try {
+      const { callBackendApi } = await import('../services/apiService');
+      await callBackendApi({
+        action: 'GeneralMaster/PincodeMaster/DeletePincodeMaster',
+        data: { Id: itemToDelete.Id },
+        type: 'post'
+      });
+      setItemToDelete(null);
+      fetchData();
+    } catch (err) {
+      console.error('Error deleting pincode master:', err);
     }
   };
 
@@ -527,6 +533,16 @@ export const PincodeMasterListScreen: React.FC<PincodeMasterListScreenProps> = (
           </div>
         </div>
       )}
+
+      <ConfirmModal
+        isOpen={!!itemToDelete}
+        title="Confirm Delete"
+        message={`Are you sure you want to delete pincode ${itemToDelete?.Pincode} (${itemToDelete?.Area})?`}
+        confirmLabel="Delete"
+        variant="danger"
+        onConfirm={confirmDelete}
+        onCancel={() => setItemToDelete(null)}
+      />
     </div>
   );
 };

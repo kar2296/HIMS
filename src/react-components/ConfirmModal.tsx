@@ -5,7 +5,9 @@ export interface ConfirmModalProps {
   title?: string;
   message?: string;
   yesLabel?: string;
+  confirmLabel?: string;
   noLabel?: string;
+  cancelLabel?: string;
   variant?: 'danger' | 'warning' | 'primary' | 'success' | 'info';
   icon?: string;
   width?: string;
@@ -20,8 +22,10 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
   isOpen = true,
   title = 'Confirm',
   message = '',
-  yesLabel = 'Yes',
-  noLabel = 'No',
+  yesLabel,
+  confirmLabel,
+  noLabel,
+  cancelLabel,
   variant,
   icon,
   width = '350px',
@@ -32,6 +36,9 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
   onClose,
 }) => {
   if (!isOpen) return null;
+
+  const effectiveYesLabel = confirmLabel || yesLabel || 'Yes';
+  const effectiveNoLabel = cancelLabel !== undefined ? cancelLabel : (noLabel !== undefined ? noLabel : 'No');
 
   const handleClose = () => {
     if (onClose) onClose();
@@ -231,7 +238,7 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
             borderTop: '1px solid #f1f5f9',
           }}
         >
-          {noLabel && (
+          {effectiveNoLabel && (
             <button
               id="btnConfirmModalNo"
               type="button"
@@ -258,7 +265,7 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
                 e.currentTarget.style.borderColor = '#cbd5e1';
               }}
             >
-              {noLabel}
+              {effectiveNoLabel}
             </button>
           )}
 
@@ -296,7 +303,7 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
                 : '0 2px 5px rgba(37, 99, 235, 0.2)';
             }}
           >
-            {yesLabel}
+            {effectiveYesLabel}
           </button>
         </div>
       </div>

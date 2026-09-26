@@ -93,8 +93,11 @@ const reactRouterStateMap = {
     // Batch 1 Migration: Patient Search, Geographic Masters & Registration Sub-forms
     'app.patientsearch': { route: '/patientsearch', component: 'PatientSearchScreen' },
     'app.countrymaster': { route: '/masters/countries', component: 'CountryMasterListScreen' },
+    'app.statemaster': { route: '/masters/states', component: 'StateMasterListScreen' },
     'app.districtmaster': { route: '/masters/districts', component: 'DistrictMasterListScreen' },
+    'app.citymaster': { route: '/masters/cities', component: 'CityMasterListScreen' },
     'app.pincodes': { route: '/masters/pincodes', component: 'PincodeMasterListScreen' },
+    'app.occupation': { route: '/masters/occupations', component: 'OccupationMasterListScreen' },
     'app.fullregistrationtab.patientidentity': { route: '/registration/identity', component: 'PatientIdentityFormScreen' },
     'app.fullregistrationtab.patientkin': { route: '/registration/kin', component: 'PatientKinFormScreen' },
 
@@ -427,7 +430,13 @@ for (const raw of allRawStates) {
         'app.attachmenttypes',
         'app.drugs',
         'app.allergies',
-        'app.chiefcomplaints'
+        'app.chiefcomplaints',
+        'app.countrymaster',
+        'app.statemaster',
+        'app.districtmaster',
+        'app.citymaster',
+        'app.pincodes',
+        'app.occupation'
     ]);
     const angularjsRouteRetired = retiredAngularJsStates.has(stateName);
 

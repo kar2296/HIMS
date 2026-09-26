@@ -4363,17 +4363,10 @@
             })
             .state('app.pincodes', {
                 url: '/pincodes',
-                params: {
-                    context: ''
-                },
                 title: 'Pincodes',
-                templateUrl: helper.basepath('emr/generalmaster/pincodes/pincode-list.html'),
-                controller: 'pincodeListController as vm',
-                resolve: {
-                    loadCtrl: ['$ocLazyLoad', function ($ocLazyLoad) {
-                        return $ocLazyLoad.load(helper.basepath('emr/generalmaster/pincodes/pincode-list.js'));
-                    }]
-                }
+                onEnter: ['$window', function ($window) {
+                    $window.location.href = '/masters/pincodes';
+                }]
             })
             .state('app.referrals', {
                 url: '/referrals',
@@ -4610,67 +4603,38 @@
             })
             .state('app.occupation', {
                 url: '/occupationmasters',
-                params: {
-                    context: ''
-                },
                 title: 'Occupation Masters',
-                templateUrl: helper.basepath('emr/generalmaster/occupationmaster/occupation-list.html'),
-                controller: 'occupationListController as vm',
-                resolve: {
-                    loadCtrl: ['$ocLazyLoad', function ($ocLazyLoad) {
-                        return $ocLazyLoad.load(helper.basepath('emr/generalmaster/occupationmaster/occupation-list.js'));
-                    }]
-                }
+                onEnter: ['$window', function ($window) {
+                    $window.location.href = '/masters/occupations';
+                }]
             })
             .state('app.countrymaster', {
                 url: '/countrymasters',
                 title: 'Country Master',
-                templateUrl: helper.basepath('emr/generalmaster/countrymaster/countrymaster-list.html'),
-                controller: 'countryMasterListController as vm',
-                resolve: {
-                    loadCtrl: ['$ocLazyLoad', function ($ocLazyLoad) {
-                        return $ocLazyLoad.load(helper.basepath('emr/generalmaster/countrymaster/countrymaster-list.js'));
-                    }]
-                }
+                onEnter: ['$window', function ($window) {
+                    $window.location.href = '/masters/countries';
+                }]
             })
             .state('app.statemaster', {
                 url: '/statemasters',
-                params: {
-                    context: ''
-                },
                 title: 'State Master',
-                templateUrl: helper.basepath('emr/generalmaster/statemaster/statemaster-list.html'),
-                controller: 'stateMasterListController as vm',
-                resolve: {
-                    loadCtrl: ['$ocLazyLoad', function ($ocLazyLoad) {
-                        return $ocLazyLoad.load(helper.basepath('emr/generalmaster/statemaster/statemaster-list.js'));
-                    }]
-                }
+                onEnter: ['$window', function ($window) {
+                    $window.location.href = '/masters/states';
+                }]
             })
             .state('app.districtmaster', {
                 url: '/districtmasters',
                 title: 'District Master',
-                templateUrl: helper.basepath('emr/generalmaster/districtmaster/districtmaster-list.html'),
-                controller: 'districtMasterListController as vm',
-                resolve: {
-                    loadCtrl: ['$ocLazyLoad', function ($ocLazyLoad) {
-                        return $ocLazyLoad.load(helper.basepath('emr/generalmaster/districtmaster/districtmaster-list.js'));
-                    }]
-                }
+                onEnter: ['$window', function ($window) {
+                    $window.location.href = '/masters/districts';
+                }]
             })
             .state('app.citymaster', {
                 url: '/citymasters',
-                params: {
-                    context: ''
-                },
                 title: 'City Master',
-                templateUrl: helper.basepath('emr/generalmaster/citymaster/citymaster-list.html'),
-                controller: 'cityMasterListController as vm',
-                resolve: {
-                    loadCtrl: ['$ocLazyLoad', function ($ocLazyLoad) {
-                        return $ocLazyLoad.load(helper.basepath('emr/generalmaster/citymaster/citymaster-list.js'));
-                    }]
-                }
+                onEnter: ['$window', function ($window) {
+                    $window.location.href = '/masters/cities';
+                }]
             })
             .state('app.cardmaster', {
                 url: '/cardmasters',

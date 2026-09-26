@@ -8,6 +8,7 @@ import { Pagination } from '../components/ui/Pagination';
 import { PageHeader } from '../components/ui/Breadcrumb';
 import { Card, FilterBar } from '../components/ui/Card';
 import { colors, spacing, typography } from '../components/ui/tokens';
+import { ConfirmModal } from './ConfirmModal';
 
 interface LookupItem {
   Id: number;
@@ -174,23 +175,29 @@ export const DistrictMasterListScreen: React.FC<DistrictMasterListScreenProps> =
     setIsModalOpen(true);
   };
 
-  const handleDelete = async (row: DistrictRow) => {
+  const [itemToDelete, setItemToDelete] = useState<DistrictRow | null>(null);
+
+  const handleDelete = (row: DistrictRow) => {
     if (onAction) {
       onAction('delete', row);
       return;
     }
-    if (window.confirm(`Are you sure you want to delete district ${row.DistrictName || row.DistrictCode}?`)) {
-      try {
-        const { callBackendApi } = await import('../services/apiService');
-        await callBackendApi({
-          action: 'GeneralMaster/DistrictMaster/DeleteDistrictMaster',
-          data: { Id: row.Id },
-          type: 'post'
-        });
-        fetchData();
-      } catch (err) {
-        console.error('Error deleting district master:', err);
-      }
+    setItemToDelete(row);
+  };
+
+  const confirmDelete = async () => {
+    if (!itemToDelete) return;
+    try {
+      const { callBackendApi } = await import('../services/apiService');
+      await callBackendApi({
+        action: 'GeneralMaster/DistrictMaster/DeleteDistrictMaster',
+        data: { Id: itemToDelete.Id },
+        type: 'post'
+      });
+      setItemToDelete(null);
+      fetchData();
+    } catch (err) {
+      console.error('Error deleting district master:', err);
     }
   };
 
@@ -500,6 +507,17 @@ export const DistrictMasterListScreen: React.FC<DistrictMasterListScreenProps> =
             </div>
           </div>
         </div>
+      )}
+
+      {itemToDelete && (
+        <ConfirmModal
+          isOpen={true}
+          title="Delete District"
+          message={`Are you sure you want to delete district ${itemToDelete.DistrictName || itemToDelete.DistrictCode}?`}
+          confirmLabel="Delete"
+          onConfirm={confirmDelete}
+          onCancel={() => setItemToDelete(null)}
+        />
       )}
     </div>
   );

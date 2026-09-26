@@ -11,8 +11,11 @@ import { PrescriptionsListScreen } from '../react-components/PrescriptionsListSc
 import { LabDashboardComponent } from '../react-components/LabDashboardComponent';
 import { PatientSearchScreen } from '../react-components/PatientSearchScreen';
 import { CountryMasterListScreen } from '../react-components/CountryMasterListScreen';
+import { StateMasterListScreen } from '../react-components/StateMasterListScreen';
 import { DistrictMasterListScreen } from '../react-components/DistrictMasterListScreen';
+import { CityMasterListScreen } from '../react-components/CityMasterListScreen';
 import { PincodeMasterListScreen } from '../react-components/PincodeMasterListScreen';
+import { OccupationMasterListScreen } from '../react-components/OccupationMasterListScreen';
 import { PatientIdentityFormScreen } from '../react-components/PatientIdentityFormScreen';
 import { PatientKinFormScreen } from '../react-components/PatientKinFormScreen';
 import { AllergyReactionListScreen } from '../react-components/AllergyReactionListScreen';
@@ -163,12 +166,37 @@ export const AppRoutes: React.FC = () => {
           }
         />
 
-        {/* Batch 1: Geographic Masters */}
+        {/* General & Geographic Masters */}
         <Route
           path="/masters/countries"
           element={
             <ProtectedRoute>
               <ShellWrapper activeTab="dashboard" component={<CountryMasterListScreen />} />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/countrymasters"
+          element={
+            <ProtectedRoute>
+              <ShellWrapper activeTab="dashboard" component={<CountryMasterListScreen />} />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/masters/states"
+          element={
+            <ProtectedRoute>
+              <ShellWrapper activeTab="dashboard" component={<StateMasterListScreen />} />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/statemasters"
+          element={
+            <ProtectedRoute>
+              <ShellWrapper activeTab="dashboard" component={<StateMasterListScreen />} />
             </ProtectedRoute>
           }
         />
@@ -181,12 +209,62 @@ export const AppRoutes: React.FC = () => {
             </ProtectedRoute>
           }
         />
+        <Route
+          path="/districtmasters"
+          element={
+            <ProtectedRoute>
+              <ShellWrapper activeTab="dashboard" component={<DistrictMasterListScreen />} />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/masters/cities"
+          element={
+            <ProtectedRoute>
+              <ShellWrapper activeTab="dashboard" component={<CityMasterListScreen />} />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/citymasters"
+          element={
+            <ProtectedRoute>
+              <ShellWrapper activeTab="dashboard" component={<CityMasterListScreen />} />
+            </ProtectedRoute>
+          }
+        />
 
         <Route
           path="/masters/pincodes"
           element={
             <ProtectedRoute>
               <ShellWrapper activeTab="dashboard" component={<PincodeMasterListScreen />} />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/pincodes"
+          element={
+            <ProtectedRoute>
+              <ShellWrapper activeTab="dashboard" component={<PincodeMasterListScreen />} />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/masters/occupations"
+          element={
+            <ProtectedRoute>
+              <ShellWrapper activeTab="dashboard" component={<OccupationMasterListScreen />} />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/occupationmasters"
+          element={
+            <ProtectedRoute>
+              <ShellWrapper activeTab="dashboard" component={<OccupationMasterListScreen />} />
             </ProtectedRoute>
           }
         />
