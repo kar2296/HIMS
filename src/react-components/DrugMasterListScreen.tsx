@@ -445,7 +445,7 @@ export const DrugMasterListScreen: React.FC<DrugMasterListScreenProps> = ({
           { label: 'Drug Master' },
         ]}
         actions={
-          <Button variant="primary" onClick={handleAddNew} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <Button id="btnAddDrugMaster" variant="primary" onClick={handleAddNew} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
             <i className="fa fa-plus" aria-hidden="true"></i> Add New Drug
           </Button>
         }
@@ -476,6 +476,7 @@ export const DrugMasterListScreen: React.FC<DrugMasterListScreenProps> = ({
                 Drug Name
               </label>
               <Input
+                id="filterDrugName"
                 placeholder="Search by drug name..."
                 value={filterDrugName}
                 onChange={(e) => setFilterDrugName(e.target.value)}
@@ -559,10 +560,10 @@ export const DrugMasterListScreen: React.FC<DrugMasterListScreenProps> = ({
             </div>
 
             <div style={{ display: 'flex', gap: spacing.sm, justifyContent: 'flex-end' }}>
-              <Button variant="primary" onClick={handleSearch} disabled={isLoading}>
+              <Button id="btnSearchDrugMaster" variant="primary" onClick={handleSearch} disabled={isLoading}>
                 <i className="fas fa-search" style={{ marginRight: 6 }}></i> Search
               </Button>
-              <Button variant="outline" onClick={handleReset} disabled={isLoading}>
+              <Button id="btnResetDrugMaster" variant="outline" onClick={handleReset} disabled={isLoading}>
                 Reset
               </Button>
             </div>
@@ -730,7 +731,7 @@ export const DrugMasterListScreen: React.FC<DrugMasterListScreenProps> = ({
             <Button variant="outline" onClick={() => setIsModalOpen(false)} disabled={isSaving}>
               Cancel
             </Button>
-            <Button variant="primary" onClick={handleSaveModal} disabled={isSaving}>
+            <Button variant="primary" onClick={handleSaveModal} disabled={isSaving} id="btnSaveDrugModal">
               {isSaving ? (
                 <>
                   <i className="fa fa-spinner fa-spin" style={{ marginRight: 6 }}></i> Saving...
@@ -757,6 +758,7 @@ export const DrugMasterListScreen: React.FC<DrugMasterListScreenProps> = ({
               Drug Name <span style={{ color: colors.danger }}>*</span>
             </label>
             <Input
+              id="inputModalDrugName"
               value={modalForm.DrugName}
               onChange={(e) => {
                 setModalForm({ ...modalForm, DrugName: e.target.value });
@@ -765,7 +767,7 @@ export const DrugMasterListScreen: React.FC<DrugMasterListScreenProps> = ({
               placeholder="Enter drug name"
             />
             {formErrors.DrugName && (
-              <span style={{ fontSize: '0.75rem', color: colors.danger, marginTop: spacing.xs, display: 'block' }}>
+              <span id="errModalDrugName" className="validation-error" style={{ fontSize: '0.75rem', color: colors.danger, marginTop: spacing.xs, display: 'block' }}>
                 {formErrors.DrugName}
               </span>
             )}
@@ -785,6 +787,7 @@ export const DrugMasterListScreen: React.FC<DrugMasterListScreenProps> = ({
               Drug Code
             </label>
             <Input
+              id="inputModalDrugCode"
               value={modalForm.DrugCode}
               onChange={(e) => setModalForm({ ...modalForm, DrugCode: e.target.value })}
               placeholder="Enter drug code"
@@ -857,6 +860,7 @@ export const DrugMasterListScreen: React.FC<DrugMasterListScreenProps> = ({
               Description
             </label>
             <Input
+              id="inputModalDrugDesc"
               value={modalForm.Description}
               onChange={(e) => setModalForm({ ...modalForm, Description: e.target.value })}
               placeholder="Enter description"

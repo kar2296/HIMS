@@ -238,11 +238,12 @@ export const CategoryTypeListScreen: React.FC<CategoryTypeListScreenProps> = ({
   // Open Add Modal
   const handleOpenAdd = () => {
     setEditingItem(null);
+    const defaultRefId = lookups.CategoryTypeRef && lookups.CategoryTypeRef.length > 0 ? lookups.CategoryTypeRef[0].Id : 1;
     setModalForm({
       Id: 0,
       Name: '',
       Description: '',
-      CategoryTypeRefId: -1,
+      CategoryTypeRefId: defaultRefId,
       IsAssociatedWithCC: false,
       IsActive: true,
       SpecialInstruction: '',
@@ -294,11 +295,13 @@ export const CategoryTypeListScreen: React.FC<CategoryTypeListScreenProps> = ({
     setIsSaving(true);
     try {
       const { callBackendApi } = await import('../services/apiService');
+      const defaultRefId = lookups.CategoryTypeRef && lookups.CategoryTypeRef.length > 0 ? lookups.CategoryTypeRef[0].Id : 1;
+      const refId = (!modalForm.CategoryTypeRefId || modalForm.CategoryTypeRefId === -1) ? defaultRefId : modalForm.CategoryTypeRefId;
       const payload: any = {
         Id: modalForm.Id,
         Name: modalForm.Name.trim(),
         Description: modalForm.Description?.trim() || '',
-        CategoryTypeRefId: modalForm.CategoryTypeRefId === -1 ? null : modalForm.CategoryTypeRefId,
+        CategoryTypeRefId: refId,
         IsAssociatedWithCC: modalForm.IsAssociatedWithCC,
         IsActive: modalForm.IsActive,
         ActiveStatusId: modalForm.IsActive ? 2 : 3,

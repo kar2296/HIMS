@@ -411,7 +411,7 @@ export const AttachmentTypeListScreen: React.FC<AttachmentTypeListScreenProps> =
           { label: 'Attachment Types' },
         ]}
         actions={
-          <Button variant="primary" onClick={handleAddNew} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <Button id="btnAddAttachmentType" variant="primary" onClick={handleAddNew} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
             <i className="fa fa-plus" aria-hidden="true"></i> Add New
           </Button>
         }
@@ -442,6 +442,7 @@ export const AttachmentTypeListScreen: React.FC<AttachmentTypeListScreenProps> =
                 Name
               </label>
               <Input
+                id="filterAttachmentTypeName"
                 placeholder="Search by name..."
                 value={filterName}
                 onChange={(e) => setFilterName(e.target.value)}
@@ -500,10 +501,10 @@ export const AttachmentTypeListScreen: React.FC<AttachmentTypeListScreenProps> =
             </div>
 
             <div style={{ display: 'flex', gap: spacing.sm, justifyContent: 'flex-end' }}>
-              <Button variant="primary" onClick={handleSearch} disabled={isLoading}>
+              <Button id="btnSearchAttachmentType" variant="primary" onClick={handleSearch} disabled={isLoading}>
                 <i className="fas fa-search" style={{ marginRight: 6 }}></i> Search
               </Button>
-              <Button variant="outline" onClick={handleReset} disabled={isLoading}>
+              <Button id="btnResetAttachmentType" variant="outline" onClick={handleReset} disabled={isLoading}>
                 Reset
               </Button>
             </div>
@@ -684,7 +685,7 @@ export const AttachmentTypeListScreen: React.FC<AttachmentTypeListScreenProps> =
             <Button variant="outline" onClick={() => setIsModalOpen(false)} disabled={isSaving}>
               Cancel
             </Button>
-            <Button variant="primary" onClick={handleSaveModal} disabled={isSaving}>
+            <Button variant="primary" onClick={handleSaveModal} disabled={isSaving} id="btnSaveAttModal">
               {isSaving ? (
                 <>
                   <i className="fa fa-spinner fa-spin" style={{ marginRight: 6 }}></i> Saving...
@@ -711,6 +712,7 @@ export const AttachmentTypeListScreen: React.FC<AttachmentTypeListScreenProps> =
               Name <span style={{ color: colors.danger }}>*</span>
             </label>
             <Input
+              id="inputModalAttName"
               value={modalForm.Name}
               onChange={(e) => {
                 setModalForm({ ...modalForm, Name: e.target.value });
@@ -719,7 +721,7 @@ export const AttachmentTypeListScreen: React.FC<AttachmentTypeListScreenProps> =
               placeholder="Enter attachment type name"
             />
             {formErrors.Name && (
-              <span style={{ fontSize: '0.75rem', color: colors.danger, marginTop: spacing.xs, display: 'block' }}>
+              <span id="errModalAttName" className="validation-error" style={{ fontSize: '0.75rem', color: colors.danger, marginTop: spacing.xs, display: 'block' }}>
                 {formErrors.Name}
               </span>
             )}
@@ -739,6 +741,7 @@ export const AttachmentTypeListScreen: React.FC<AttachmentTypeListScreenProps> =
               Description
             </label>
             <Input
+              id="inputModalAttDesc"
               value={modalForm.Description}
               onChange={(e) => setModalForm({ ...modalForm, Description: e.target.value })}
               placeholder="Enter description"

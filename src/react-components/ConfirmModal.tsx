@@ -233,6 +233,7 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
         >
           {noLabel && (
             <button
+              id="btnConfirmModalNo"
               type="button"
               onClick={handleClose}
               style={{
@@ -262,6 +263,7 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
           )}
 
           <button
+            id="btnConfirmModalYes"
             type="button"
             onClick={handleConfirm}
             autoFocus

@@ -421,8 +421,13 @@ for (const raw of allRawStates) {
     // 6. Human UAT Passed: Pending until explicit browser UAT sign-off
     const humanUatPassed = false;
 
-    // 7. AngularJS Route Retired: None retired while dual-runtime is preserved
-    const angularjsRouteRetired = false;
+    // 7. AngularJS Route Retired: Explicitly retired when navigation switches 100% to standalone React
+    const retiredAngularJsStates = new Set([
+        'app.categorytypes',
+        'app.attachmenttypes',
+        'app.drugs'
+    ]);
+    const angularjsRouteRetired = retiredAngularJsStates.has(stateName);
 
     // Directives & Plugins used
     const plugins = [];

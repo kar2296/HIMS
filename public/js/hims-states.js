@@ -3566,13 +3566,9 @@
             .state('app.attachmenttypes', {
                 url: '/attachmenttypes',
                 title: 'Attachment Types',
-                templateUrl: helper.basepath('emr/clinicalmaster/attachmenttypes/attachmenttype-list.html'),
-                controller: 'attachmentTypeListController as vm',
-                resolve: {
-                    loadCtrl: ['$ocLazyLoad', function ($ocLazyLoad) {
-                        return $ocLazyLoad.load(helper.basepath('emr/clinicalmaster/attachmenttypes/attachmenttype-list.js'));
-                    }]
-                }
+                onEnter: ['$window', function ($window) {
+                    $window.location.href = '/attachmenttypes';
+                }]
             })
             .state('app.generics', {
                 url: '/generics',
@@ -3624,13 +3620,9 @@
             .state('app.drugs', {
                 url: '/drugs',
                 title: 'Drug Master',
-                templateUrl: helper.basepath('emr/clinicalmaster/drugs/drug-list.html'),
-                controller: 'drugListController as vm',
-                resolve: {
-                    loadCtrl: ['$ocLazyLoad', function ($ocLazyLoad) {
-                        return $ocLazyLoad.load(helper.basepath('emr/clinicalmaster/drugs/drug-list.js'));
-                    }]
-                }
+                onEnter: ['$window', function ($window) {
+                    $window.location.href = '/drugs';
+                }]
             })
             .state('app.diagnosisform', {
                 url: '/diagnosisform',
@@ -4228,13 +4220,9 @@
             .state('app.categorytypes', {
                 url: '/categorytypes',
                 title: 'Category Type Master',
-                templateUrl: helper.basepath('emr/clinicalmaster/categorytypes/categorytype-list.html'),
-                controller: 'categoryTypeListController as vm',
-                resolve: {
-                    loadCtrl: ['$ocLazyLoad', function ($ocLazyLoad) {
-                        return $ocLazyLoad.load(helper.basepath('emr/clinicalmaster/categorytypes/categorytype-list.js'));
-                    }]
-                }
+                onEnter: ['$window', function ($window) {
+                    $window.location.href = '/categorytypes';
+                }]
             })
             .state('app.servicesubcategories', {
                 url: '/servicesubcategories',
