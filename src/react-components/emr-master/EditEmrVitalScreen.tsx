@@ -11,9 +11,35 @@ import {
 } from '../emr-workspace/vitalElementsCatalog';
 import { alert } from '../utils/alert';
 
-export const EditEmrVitalScreen: React.FC = () => {
-  const navigate = useNavigate();
-  const { formId = '1' } = useParams<{ formId?: string; panelId?: string }>();
+export interface EditEmrVitalScreenProps {
+  formId?: string;
+  panelId?: string;
+  onClose?: () => void;
+  isModal?: boolean;
+}
+
+export const EditEmrVitalScreen: React.FC<EditEmrVitalScreenProps> = ({
+  formId: propFormId,
+  panelId: propPanelId,
+  onClose,
+  isModal = false,
+}) => {
+  let navigate: ReturnType<typeof useNavigate> | null = null;
+  let params: { formId?: string; panelId?: string } = {};
+  try {
+    navigate = useNavigate();
+    params = useParams<{ formId?: string; panelId?: string }>();
+  } catch (e) {
+    // Outside react router
+  }
+
+  // Parse from URL hash if outside React router
+  const hashParts = (typeof window !== 'undefined' ? window.location.hash : '').split('/');
+  const hashFormId = hashParts.length >= 5 ? hashParts[hashParts.length - 1] : undefined;
+  const hashPanelId = hashParts.length >= 5 ? hashParts[hashParts.length - 2] : undefined;
+
+  const formId = propFormId || params.formId || hashFormId || '1';
+  const panelId = propPanelId || params.panelId || hashPanelId || 'panel_1_1_0';
 
   // Configured (Selected) elements on Left Table
   const [selectedElements, setSelectedElements] = useState<ConfiguredVitalElement[]>(() =>
@@ -75,12 +101,27 @@ export const EditEmrVitalScreen: React.FC = () => {
     );
   };
 
+  const handleBack = () => {
+    if (onClose) {
+      onClose();
+    } else if (navigate) {
+      navigate(-1);
+    } else if (window.history.length > 1) {
+      window.history.back();
+    } else {
+      window.location.hash = '#/app/emrformassembly';
+    }
+  };
+
   // Save changes
   const handleSave = () => {
     setSaving(true);
     try {
       saveConfiguredVitalElements(formId, selectedElements);
       alert.showSuccessMsg(`Saved ${selectedElements.length} Vital Elements successfully.`);
+      if (onClose && isModal) {
+        setTimeout(() => onClose(), 350);
+      }
     } catch {
       alert.showErrorMsg('Failed to save vital elements configuration.');
     } finally {
@@ -98,13 +139,22 @@ export const EditEmrVitalScreen: React.FC = () => {
   };
 
   return (
-    <div style={{ background: '#f5f7fa', minHeight: '100vh', padding: '16px 24px', fontFamily: 'inherit' }}>
+    <div
+      style={{
+        background: '#f5f7fa',
+        minHeight: isModal ? '100%' : '100vh',
+        height: isModal ? '100%' : undefined,
+        overflowY: isModal ? 'auto' : undefined,
+        padding: '16px 24px',
+        fontFamily: 'inherit',
+      }}
+    >
       {/* Top Breadcrumb & Navigation */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
         <div>
           <button
             type="button"
-            onClick={() => navigate(-1)}
+            onClick={handleBack}
             style={{
               background: 'none',
               border: 'none',
@@ -119,14 +169,14 @@ export const EditEmrVitalScreen: React.FC = () => {
               marginBottom: 4,
             }}
           >
-            <i className="fa-solid fa-arrow-left" /> Back to EMR Form Builder
+            <i className="fa-solid fa-arrow-left" /> {isModal ? 'Back to Form Assembly' : 'Back to EMR Form Assembly'}
           </button>
           <h2 style={{ margin: 0, fontSize: 20, color: '#2d3748', fontWeight: 700 }}>
             EMR Standard Panel Element Master
           </h2>
         </div>
 
-        <div style={{ display: 'flex', gap: 10 }}>
+        <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
           <button
             type="button"
             onClick={handleResetDefaults}
@@ -161,6 +211,25 @@ export const EditEmrVitalScreen: React.FC = () => {
           >
             <i className="fa-solid fa-floppy-disk" style={{ marginRight: 6 }} /> {saving ? 'Saving…' : 'Save & Assign'}
           </button>
+          {isModal && onClose && (
+            <button
+              type="button"
+              onClick={onClose}
+              title="Close Dialog"
+              style={{
+                background: '#edf2f7',
+                border: '1px solid #cbd5e0',
+                borderRadius: 6,
+                padding: '7px 12px',
+                fontSize: 13,
+                fontWeight: 700,
+                color: '#4a5568',
+                cursor: 'pointer',
+              }}
+            >
+              ✕ Close
+            </button>
+          )}
         </div>
       </div>
 

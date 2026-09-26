@@ -14,7 +14,19 @@
 
         $locationProvider.html5Mode(false);
 
-        $urlRouterProvider.otherwise('/page/login');
+        $urlRouterProvider.otherwise(function ($injector, $location) {
+            var hash = window.location.hash || '';
+            var path = window.location.pathname || '';
+            if (
+                hash.indexOf('emr') !== -1 ||
+                hash.indexOf('vital') !== -1 ||
+                hash.indexOf('app') !== -1 ||
+                path.indexOf('emr') !== -1
+            ) {
+                return;
+            }
+            return '/page/login';
+        });
         $stateProvider
         .state('patientemr', {
             url: '/patientemr',

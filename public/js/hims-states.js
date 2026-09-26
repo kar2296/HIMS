@@ -17,6 +17,14 @@
             if (path && path !== '/' && path !== '/index.html') {
                 return;
             }
+            var hash = window.location.hash || '';
+            if (
+                hash.indexOf('emr') !== -1 ||
+                hash.indexOf('vital') !== -1 ||
+                hash.indexOf('app') !== -1
+            ) {
+                return;
+            }
             return '/page/login';
         });
 
@@ -246,6 +254,16 @@
                 url: '/emrformassembly',
                 title: 'EMR Form Assembly',
                 templateUrl: helper.basepath('emr/emrformassembly.html')
+            })
+            .state('app.editemrvital', {
+                url: '/emr/edit-vital/:panelId/:formId',
+                title: 'Edit EMR Vital Elements',
+                templateUrl: helper.basepath('emr/editemrvital.html')
+            })
+            .state('app.editemrvitalalt', {
+                url: '/editemrvital/:id',
+                title: 'Edit EMR Vital Elements',
+                templateUrl: helper.basepath('emr/editemrvital.html')
             })
             .state('app.emrformbuilder', {
                 url: '/emrformbuilder',

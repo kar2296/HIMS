@@ -9,6 +9,7 @@ import {
   searchStandardPanels,
   type StandardPanelTemplate,
 } from './emr-workspace/standardPanelsCatalog';
+import { EditEmrVitalScreen } from './emr-master/EditEmrVitalScreen';
 
 export type FieldInputType =
   | 'TEXT'
@@ -865,6 +866,8 @@ export const EmrFormAssemblyScreen: React.FC<EmrFormAssemblyScreenProps> = ({
   const [selectedMasterPanel, setSelectedMasterPanel] = useState<StandardPanelTemplate | null>(null);
   const [showPanelSuggestions, setShowPanelSuggestions] = useState(false);
   const [showBrowseLibraryModal, setShowBrowseLibraryModal] = useState(false);
+  const [showVitalElementsModal, setShowVitalElementsModal] = useState(false);
+  const [vitalElementsSection, setVitalElementsSection] = useState<FormAssemblySection | null>(null);
   const [saveToast, setSaveToast] = useState(false);
   const [saveToastMessage, setSaveToastMessage] = useState('');
 
@@ -2047,7 +2050,8 @@ export const EmrFormAssemblyScreen: React.FC<EmrFormAssemblyScreenProps> = ({
                           type="button"
                           title="Configure Standard Vital Elements (All 46)"
                           onClick={() => {
-                            window.location.hash = `#/emr/edit-vital/${sec.id || 'panel_1_1_0'}/${selectedTemplate.id || 1}`;
+                            setVitalElementsSection(sec);
+                            setShowVitalElementsModal(true);
                           }}
                           style={{
                             border: '1px solid #c05621',
@@ -3745,6 +3749,54 @@ export const EmrFormAssemblyScreen: React.FC<EmrFormAssemblyScreenProps> = ({
                 Close
               </Button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* Standard Vital Master Element Editor Modal (46 Elements)                  */}
+      {/* ========================================================================= */}
+      {showVitalElementsModal && vitalElementsSection && (
+        <div
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(15, 23, 42, 0.75)',
+            zIndex: 99999,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: 20,
+            backdropFilter: 'blur(4px)',
+          }}
+        >
+          <div
+            style={{
+              backgroundColor: '#ffffff',
+              borderRadius: radii.lg,
+              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+              width: '100%',
+              maxWidth: 1200,
+              height: '92vh',
+              maxHeight: '92vh',
+              display: 'flex',
+              flexDirection: 'column',
+              overflow: 'hidden',
+              position: 'relative',
+            }}
+          >
+            <EditEmrVitalScreen
+              isModal
+              formId={String(selectedTemplate.id || 1)}
+              panelId={vitalElementsSection.id}
+              onClose={() => {
+                setShowVitalElementsModal(false);
+                setVitalElementsSection(null);
+              }}
+            />
           </div>
         </div>
       )}

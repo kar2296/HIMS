@@ -490,7 +490,23 @@ export const AppRoutes: React.FC = () => {
           }
         />
         <Route
+          path="/app/emr/edit-vital/:panelId/:formId"
+          element={
+            <ProtectedRoute>
+              <ShellWrapper activeTab="emr" component={<EditEmrVitalScreen />} />
+            </ProtectedRoute>
+          }
+        />
+        <Route
           path="/editemrvital/:id"
+          element={
+            <ProtectedRoute>
+              <ShellWrapper activeTab="emr" component={<EditEmrVitalScreen />} />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/app/editemrvital/:id"
           element={
             <ProtectedRoute>
               <ShellWrapper activeTab="emr" component={<EditEmrVitalScreen />} />

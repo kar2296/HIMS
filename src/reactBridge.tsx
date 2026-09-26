@@ -1,5 +1,6 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
+import { HashRouter } from 'react-router-dom';
 
 // Make sure angular is available
 declare var angular: any;
@@ -68,7 +69,11 @@ angular.module('app.reactBridge', [])
             return;
           }
           prevSnapshot = newSnapshot;
-          root.render(<Component {...validProps} />);
+          root.render(
+            <HashRouter>
+              <Component {...validProps} />
+            </HashRouter>
+          );
         };
 
         // Render immediately on mount
