@@ -4,6 +4,11 @@ import { Card } from '../components/ui/Card';
 import { Badge } from '../components/ui/Badge';
 import { Button } from './Button';
 import { Input, Textarea } from '../components/ui/Input';
+import {
+  STANDARD_PANELS_CATALOG,
+  searchStandardPanels,
+  type StandardPanelTemplate,
+} from './emr-workspace/standardPanelsCatalog';
 
 export type FieldInputType =
   | 'TEXT'
@@ -857,8 +862,28 @@ export const EmrFormAssemblyScreen: React.FC<EmrFormAssemblyScreenProps> = ({
   const [newSectionTitle, setNewSectionTitle] = useState('');
   const [newSectionReq, setNewSectionReq] = useState<RequirementType>('MANDATORY');
   const [newSectionNickName, setNewSectionNickName] = useState('');
+  const [selectedMasterPanel, setSelectedMasterPanel] = useState<StandardPanelTemplate | null>(null);
+  const [showPanelSuggestions, setShowPanelSuggestions] = useState(false);
+  const [showBrowseLibraryModal, setShowBrowseLibraryModal] = useState(false);
   const [saveToast, setSaveToast] = useState(false);
   const [saveToastMessage, setSaveToastMessage] = useState('');
+
+  const panelSearchResults = useMemo(() => {
+    return searchStandardPanels(newSectionTitle, selectedTemplate.sections);
+  }, [newSectionTitle, selectedTemplate.sections]);
+
+  const activeMasterPanel = useMemo(() => {
+    if (selectedMasterPanel) return selectedMasterPanel;
+    const trimmed = newSectionTitle.trim().toLowerCase();
+    if (!trimmed) return null;
+    return (
+      STANDARD_PANELS_CATALOG.find(
+        (p) =>
+          p.sectionTitle.toLowerCase().trim() === trimmed ||
+          p.nickName.toLowerCase().trim() === trimmed
+      ) || null
+    );
+  }, [selectedMasterPanel, newSectionTitle]);
 
   // New Custom Panel Creation Modal
   const [showNewPanelModal, setShowNewPanelModal] = useState(false);
@@ -1041,12 +1066,37 @@ export const EmrFormAssemblyScreen: React.FC<EmrFormAssemblyScreenProps> = ({
 
   const handleAddSection = () => {
     if (!newSectionTitle.trim()) return;
-    const cleanCode = `FLD_${newSectionTitle.toUpperCase().replace(/[^A-Z0-9]/g, '_').slice(0, 15)}`;
+
+    const matchedMaster = activeMasterPanel;
+    let fieldsToUse: FormFieldDefinition[] = [];
+
+    if (matchedMaster && matchedMaster.fields.length > 0) {
+      fieldsToUse = matchedMaster.fields.map((f, idx) => ({
+        ...f,
+        id: `F-${Date.now()}-${idx + 1}`,
+      }));
+    } else {
+      const cleanCode = `FLD_${newSectionTitle.toUpperCase().replace(/[^A-Z0-9]/g, '_').slice(0, 15)}`;
+      fieldsToUse = [
+        {
+          id: `F-${Date.now()}-1`,
+          fieldCode: cleanCode,
+          fieldLabel: `${newSectionTitle} Finding`,
+          fieldType: 'TEXT',
+          placeholder: 'Enter clinical observations...',
+          isRequired: newSectionReq === 'MANDATORY',
+          requirementType: newSectionReq,
+          order: 1,
+          ageScope: 'ALL',
+        },
+      ];
+    }
+
     const newSec: FormAssemblySection = {
       id: `SEC-${Date.now().toString().slice(-4)}`,
       sectionTitle: newSectionTitle.trim(),
-      nickName: newSectionNickName.trim() || newSectionTitle.trim(),
-      fieldsCount: 1,
+      nickName: newSectionNickName.trim() || (matchedMaster?.nickName || newSectionTitle.trim()),
+      fieldsCount: fieldsToUse.length,
       isRequired: newSectionReq === 'MANDATORY',
       requirementType: newSectionReq,
       order: selectedTemplate.sections.length + 1,
@@ -1060,19 +1110,7 @@ export const EmrFormAssemblyScreen: React.FC<EmrFormAssemblyScreenProps> = ({
       displayInConsultation: true,
       canSkip: false,
       ageTarget: 'ALL',
-      fields: [
-        {
-          id: `F-${Date.now()}-1`,
-          fieldCode: cleanCode,
-          fieldLabel: `${newSectionTitle} Finding`,
-          fieldType: 'TEXT',
-          placeholder: 'Enter clinical observations...',
-          isRequired: newSectionReq === 'MANDATORY',
-          requirementType: newSectionReq,
-          order: 1,
-          ageScope: 'ALL',
-        },
-      ],
+      fields: fieldsToUse,
     };
     const updated: SpecialtyFormTemplate = {
       ...selectedTemplate,
@@ -1082,7 +1120,9 @@ export const EmrFormAssemblyScreen: React.FC<EmrFormAssemblyScreenProps> = ({
     setTemplates(templates.map((t) => (t.id === updated.id ? updated : t)));
     setNewSectionTitle('');
     setNewSectionNickName('');
-    triggerToast(`Added section "${newSec.sectionTitle}" to ${selectedTemplate.templateName}`);
+    setSelectedMasterPanel(null);
+    setShowPanelSuggestions(false);
+    triggerToast(`Added panel "${newSec.sectionTitle}" (${fieldsToUse.length} fields) to ${selectedTemplate.templateName}`);
     if (onSaveTemplate) onSaveTemplate(updated);
   };
 
@@ -2062,69 +2102,308 @@ export const EmrFormAssemblyScreen: React.FC<EmrFormAssemblyScreenProps> = ({
               })}
             </div>
 
-            {/* Add New Section to Selected Template */}
+            {/* Add New Section / Panel to Selected Template */}
             <div
               style={{
-                display: 'flex',
-                gap: spacing.sm,
-                alignItems: 'center',
                 backgroundColor: colors.surfaceSunken,
-                border: `1px dashed ${colors.borderStrong}`,
+                border: `1px solid ${colors.borderStrong}`,
                 borderRadius: radii.md,
-                padding: '12px 16px',
-                flexWrap: 'wrap',
+                padding: '16px',
+                marginTop: spacing.md,
               }}
             >
-              <div style={{ flex: '2 1 200px' }}>
-                <Input
-                  label=""
-                  placeholder="Enter new panel title (e.g. Ophthalmology IOP Readings)..."
-                  value={newSectionTitle}
-                  onChange={(e) => setNewSectionTitle(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') handleAddSection();
-                  }}
-                />
-              </div>
-
-              <div style={{ flex: '1 1 150px' }}>
-                <Input
-                  label=""
-                  placeholder="Panel Nickname (Optional)"
-                  value={newSectionNickName}
-                  onChange={(e) => setNewSectionNickName(e.target.value)}
-                />
-              </div>
-
-              <div style={{ minWidth: 120 }}>
-                <select
-                  value={newSectionReq}
-                  onChange={(e) => setNewSectionReq(e.target.value as RequirementType)}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12, flexWrap: 'wrap', gap: 8 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <span style={{ fontSize: 13, fontWeight: 700, color: colors.textMain }}>
+                    ➕ Add Panel to Template
+                  </span>
+                  <span style={{ fontSize: 11, color: colors.textMuted }}>
+                    (Type to search standard panels from library or create custom)
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setShowBrowseLibraryModal(true)}
                   style={{
-                    width: '100%',
-                    padding: '8px 10px',
-                    fontSize: 12,
+                    border: '1px solid #3b82f6',
+                    background: '#eff6ff',
+                    color: '#1d4ed8',
+                    padding: '4px 10px',
                     borderRadius: radii.sm,
-                    border: `1px solid ${colors.borderStrong}`,
-                    backgroundColor: '#ffffff',
-                    fontWeight: 600,
+                    fontSize: 12,
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 6,
                   }}
                 >
-                  <option value="MANDATORY">Mandatory</option>
-                  <option value="OPTIONAL">Optional</option>
-                  <option value="CONDITIONAL">Conditional</option>
-                </select>
+                  <i className="fa fa-th-list" />
+                  Browse Standard Panels ({STANDARD_PANELS_CATALOG.length})
+                </button>
               </div>
 
-              <Button
-                variant="primary"
-                size="md"
-                icon="fa-plus"
-                onClick={handleAddSection}
-                disabled={!newSectionTitle.trim()}
+              <div
+                style={{
+                  display: 'flex',
+                  gap: spacing.sm,
+                  alignItems: 'center',
+                  flexWrap: 'wrap',
+                }}
               >
-                Add Panel
-              </Button>
+                {/* Search Input with floating suggestions */}
+                <div style={{ flex: '2 1 240px', position: 'relative' }}>
+                  <div style={{ position: 'relative' }}>
+                    <Input
+                      label=""
+                      placeholder="Search panel (e.g. Chief Complaints, Vitals, Physical Exam)..."
+                      value={newSectionTitle}
+                      onChange={(e) => {
+                        setNewSectionTitle(e.target.value);
+                        setSelectedMasterPanel(null);
+                        setShowPanelSuggestions(true);
+                      }}
+                      onFocus={() => setShowPanelSuggestions(true)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') handleAddSection();
+                        if (e.key === 'Escape') setShowPanelSuggestions(false);
+                      }}
+                    />
+                    {newSectionTitle && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setNewSectionTitle('');
+                          setSelectedMasterPanel(null);
+                          setShowPanelSuggestions(false);
+                        }}
+                        style={{
+                          position: 'absolute',
+                          right: 10,
+                          top: '50%',
+                          transform: 'translateY(-50%)',
+                          background: 'none',
+                          border: 'none',
+                          color: '#94a3b8',
+                          cursor: 'pointer',
+                          fontSize: 14,
+                        }}
+                      >
+                        ✕
+                      </button>
+                    )}
+                  </div>
+
+                  {/* Suggestions Popover / Dropdown */}
+                  {showPanelSuggestions && panelSearchResults.length > 0 && (
+                    <div
+                      style={{
+                        position: 'absolute',
+                        top: '100%',
+                        left: 0,
+                        right: 0,
+                        backgroundColor: '#ffffff',
+                        border: '1px solid #cbd5e1',
+                        borderRadius: radii.md,
+                        boxShadow: '0 10px 25px rgba(0,0,0,0.15)',
+                        zIndex: 9999,
+                        marginTop: 4,
+                        maxHeight: 280,
+                        overflowY: 'auto',
+                      }}
+                    >
+                      <div
+                        style={{
+                          padding: '6px 12px',
+                          backgroundColor: '#f1f5f9',
+                          fontSize: 11,
+                          fontWeight: 700,
+                          color: '#475569',
+                          borderBottom: '1px solid #e2e8f0',
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                        }}
+                      >
+                        <span>AVAILABLE STANDARD PANELS ({panelSearchResults.length})</span>
+                        <span style={{ fontWeight: 400, color: '#64748b' }}>Click to select & load details</span>
+                      </div>
+                      {panelSearchResults.map((panel) => (
+                        <div
+                          key={panel.id}
+                          onClick={() => {
+                            setNewSectionTitle(panel.sectionTitle);
+                            setNewSectionNickName(panel.nickName);
+                            setNewSectionReq(panel.requirementType);
+                            setSelectedMasterPanel(panel);
+                            setShowPanelSuggestions(false);
+                          }}
+                          style={{
+                            padding: '10px 14px',
+                            borderBottom: '1px solid #f1f5f9',
+                            cursor: 'pointer',
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                            backgroundColor: panel.isAlreadyAdded ? '#f8fafc' : '#ffffff',
+                            transition: 'background 0.15s ease',
+                          }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.backgroundColor = '#eff6ff';
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.backgroundColor = panel.isAlreadyAdded ? '#f8fafc' : '#ffffff';
+                          }}
+                        >
+                          <div>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                              <i className={`fa ${panel.icon}`} style={{ color: '#2563eb', fontSize: 13 }} />
+                              <strong style={{ fontSize: 13, color: '#1e293b' }}>{panel.sectionTitle}</strong>
+                              <span style={{ fontSize: 11, color: '#64748b' }}>({panel.nickName})</span>
+                            </div>
+                            <div style={{ fontSize: 11, color: '#64748b', marginTop: 2 }}>
+                              {panel.description}
+                            </div>
+                          </div>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
+                            <span
+                              style={{
+                                fontSize: 11,
+                                fontWeight: 700,
+                                padding: '2px 8px',
+                                borderRadius: 12,
+                                backgroundColor: '#f1f5f9',
+                                color: '#475569',
+                              }}
+                            >
+                              {panel.fields.length} Fields
+                            </span>
+                            {panel.isAlreadyAdded ? (
+                              <span
+                                style={{
+                                  fontSize: 11,
+                                  fontWeight: 600,
+                                  padding: '2px 8px',
+                                  borderRadius: 12,
+                                  backgroundColor: '#fef3c7',
+                                  color: '#92400e',
+                                }}
+                              >
+                                ✓ In Template
+                              </span>
+                            ) : (
+                              <span
+                                style={{
+                                  fontSize: 11,
+                                  fontWeight: 700,
+                                  padding: '2px 8px',
+                                  borderRadius: 12,
+                                  backgroundColor: '#dbeafe',
+                                  color: '#1d4ed8',
+                                }}
+                              >
+                                + Select
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Nickname Input */}
+                <div style={{ flex: '1 1 150px' }}>
+                  <Input
+                    label=""
+                    placeholder="Panel Nickname"
+                    value={newSectionNickName}
+                    onChange={(e) => setNewSectionNickName(e.target.value)}
+                  />
+                </div>
+
+                {/* Requirement Select */}
+                <div style={{ minWidth: 120 }}>
+                  <select
+                    value={newSectionReq}
+                    onChange={(e) => setNewSectionReq(e.target.value as RequirementType)}
+                    style={{
+                      width: '100%',
+                      padding: '8px 10px',
+                      fontSize: 12,
+                      borderRadius: radii.sm,
+                      border: `1px solid ${colors.borderStrong}`,
+                      backgroundColor: '#ffffff',
+                      fontWeight: 600,
+                    }}
+                  >
+                    <option value="MANDATORY">Mandatory</option>
+                    <option value="OPTIONAL">Optional</option>
+                    <option value="CONDITIONAL">Conditional</option>
+                  </select>
+                </div>
+
+                {/* Add Button */}
+                <Button
+                  variant="primary"
+                  size="md"
+                  icon="fa-plus"
+                  onClick={handleAddSection}
+                  disabled={!newSectionTitle.trim()}
+                >
+                  Add Panel
+                </Button>
+              </div>
+
+              {/* Loaded Panel Details Preview Box */}
+              {activeMasterPanel && (
+                <div
+                  style={{
+                    marginTop: 12,
+                    padding: '12px 16px',
+                    backgroundColor: '#f0fdf4',
+                    border: '1px solid #86efac',
+                    borderRadius: radii.sm,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: 8,
+                  }}
+                >
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 8 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <span style={{ fontSize: 13, fontWeight: 700, color: '#166534' }}>
+                        ✓ Loaded Panel Details: <strong>{activeMasterPanel.sectionTitle}</strong>
+                      </span>
+                      <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 12, backgroundColor: '#dcfce7', color: '#15803d', fontWeight: 700 }}>
+                        {activeMasterPanel.fields.length} Fields Configured
+                      </span>
+                      <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 12, backgroundColor: '#e0f2fe', color: '#0369a1', fontWeight: 600 }}>
+                        Category: {activeMasterPanel.category}
+                      </span>
+                    </div>
+                    <span style={{ fontSize: 12, color: '#15803d', fontWeight: 700 }}>
+                      ⚡ Ready to Add — Click "+ Add Panel" to insert
+                    </span>
+                  </div>
+                  <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', alignItems: 'center' }}>
+                    <span style={{ fontSize: 11, color: '#374151', fontWeight: 700 }}>Predefined Fields:</span>
+                    {activeMasterPanel.fields.map((f, i) => (
+                      <span
+                        key={f.id}
+                        style={{
+                          fontSize: 11,
+                          backgroundColor: '#ffffff',
+                          border: '1px solid #bbf7d0',
+                          padding: '2px 8px',
+                          borderRadius: 4,
+                          color: '#1e293b',
+                        }}
+                      >
+                        <strong>{i + 1}. {f.fieldLabel}</strong> <span style={{ color: '#64748b' }}>({f.fieldType}{f.unit ? ` • ${f.unit}` : ''})</span>
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           </Card>
         </div>
@@ -3243,6 +3522,155 @@ export const EmrFormAssemblyScreen: React.FC<EmrFormAssemblyScreenProps> = ({
                 onClick={handleSaveFieldsModal}
               >
                 Save & Apply Section Fields
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* ========================================================================= */}
+      {/* Browse Standard Panels Library Modal                                      */}
+      {/* ========================================================================= */}
+      {showBrowseLibraryModal && (
+        <div
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(15, 23, 42, 0.65)',
+            zIndex: 99999,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: 20,
+            backdropFilter: 'blur(3px)',
+          }}
+        >
+          <div
+            style={{
+              backgroundColor: '#ffffff',
+              borderRadius: radii.lg,
+              boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.2)',
+              width: '100%',
+              maxWidth: 860,
+              maxHeight: '85vh',
+              display: 'flex',
+              flexDirection: 'column',
+              overflow: 'hidden',
+            }}
+          >
+            {/* Modal Header */}
+            <div
+              style={{
+                padding: '16px 20px',
+                borderBottom: '1px solid #e2e8f0',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                backgroundColor: '#f8fafc',
+              }}
+            >
+              <div>
+                <h3 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: '#1e293b' }}>
+                  📚 Standard Panels Library ({STANDARD_PANELS_CATALOG.length} Panels)
+                </h3>
+                <p style={{ margin: '2px 0 0', fontSize: 12, color: '#64748b' }}>
+                  Select any standard panel to insert it directly with all its predefined fields into <strong>{selectedTemplate.templateName}</strong>
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowBrowseLibraryModal(false)}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  fontSize: 18,
+                  cursor: 'pointer',
+                  color: '#64748b',
+                }}
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Modal Body: Panels Grid */}
+            <div style={{ padding: 20, overflowY: 'auto', flex: 1, display: 'flex', flexDirection: 'column', gap: 16 }}>
+              {(['General Assessment', 'Nursing & Inpatient', 'Surgical & Peri-Op', 'Specialty Clinics'] as const).map((cat) => {
+                const catPanels = STANDARD_PANELS_CATALOG.filter((p) => p.category === cat);
+                if (catPanels.length === 0) return null;
+                return (
+                  <div key={cat}>
+                    <div style={{ fontSize: 13, fontWeight: 800, color: '#334155', textTransform: 'uppercase', marginBottom: 8, letterSpacing: 0.5 }}>
+                      {cat} ({catPanels.length})
+                    </div>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(380px, 1fr))', gap: 10 }}>
+                      {catPanels.map((p) => {
+                        const isAdded = selectedTemplate.sections.some(
+                          (s) => s.sectionTitle.toLowerCase().trim() === p.sectionTitle.toLowerCase().trim()
+                        );
+                        return (
+                          <div
+                            key={p.id}
+                            style={{
+                              border: isAdded ? '1px solid #cbd5e1' : '1px solid #bfdbfe',
+                              backgroundColor: isAdded ? '#f8fafc' : '#ffffff',
+                              borderRadius: radii.md,
+                              padding: 12,
+                              display: 'flex',
+                              flexDirection: 'column',
+                              justifyContent: 'space-between',
+                              gap: 8,
+                            }}
+                          >
+                            <div>
+                              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8 }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                  <i className={`fa ${p.icon}`} style={{ color: isAdded ? '#94a3b8' : '#2563eb' }} />
+                                  <span style={{ fontSize: 13, fontWeight: 700, color: isAdded ? '#64748b' : '#1e293b' }}>
+                                    {p.sectionTitle}
+                                  </span>
+                                </div>
+                                <span style={{ fontSize: 11, fontWeight: 700, padding: '2px 8px', borderRadius: 10, backgroundColor: '#f1f5f9', color: '#475569' }}>
+                                  {p.fields.length} Fields
+                                </span>
+                              </div>
+                              <div style={{ fontSize: 11, color: '#64748b', marginTop: 4 }}>
+                                {p.description}
+                              </div>
+                            </div>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid #f1f5f9', paddingTop: 8 }}>
+                              <span style={{ fontSize: 11, color: '#94a3b8' }}>
+                                Nickname: <strong>{p.nickName}</strong>
+                              </span>
+                              <Button
+                                variant={isAdded ? 'secondary' : 'primary'}
+                                size="sm"
+                                icon={isAdded ? 'fa-check' : 'fa-plus'}
+                                onClick={() => {
+                                  setNewSectionTitle(p.sectionTitle);
+                                  setNewSectionNickName(p.nickName);
+                                  setNewSectionReq(p.requirementType);
+                                  setSelectedMasterPanel(p);
+                                  setShowBrowseLibraryModal(false);
+                                }}
+                              >
+                                {isAdded ? 'Select Again' : 'Load Details'}
+                              </Button>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Modal Footer */}
+            <div style={{ padding: '12px 20px', borderTop: '1px solid #e2e8f0', display: 'flex', justifyContent: 'flex-end', backgroundColor: '#f8fafc' }}>
+              <Button variant="secondary" size="md" onClick={() => setShowBrowseLibraryModal(false)}>
+                Close
               </Button>
             </div>
           </div>
