@@ -39,6 +39,7 @@ import { EmrFormAssemblyScreen } from '../react-components/EmrFormAssemblyScreen
 import { EditEmrVitalScreen } from '../react-components/emr-master/EditEmrVitalScreen';
 import { EmrMastersHubScreen } from '../react-components/emr-master/EmrMastersHubScreen';
 import { EmrMasterGenericScreen } from '../react-components/emr-master/EmrMasterGenericScreen';
+import { EmrPrintMasterScreen } from '../react-components/emr-master/EmrPrintMasterScreen';
 
 // Route Guard component
 export const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -518,6 +519,24 @@ export const AppRoutes: React.FC = () => {
           element={
             <ProtectedRoute>
               <ShellWrapper activeTab="emr" component={<EditEmrVitalScreen />} />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* EMR Print Master Configuration Screen */}
+        <Route
+          path="/emr/print-config"
+          element={
+            <ProtectedRoute>
+              <ShellWrapper activeTab="emr" component={<EmrPrintMasterScreen />} />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/emrprintconfig"
+          element={
+            <ProtectedRoute>
+              <ShellWrapper activeTab="emr" component={<EmrPrintMasterScreen />} />
             </ProtectedRoute>
           }
         />

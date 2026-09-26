@@ -242,7 +242,7 @@ import { EmrMastersScreen } from './react-components/EmrMastersScreen';
 import { EmrMastersHubScreen } from './react-components/emr-master/EmrMastersHubScreen';
 import { EmrMasterGenericScreen } from './react-components/emr-master/EmrMasterGenericScreen';
 import { EditEmrVitalScreen } from './react-components/emr-master/EditEmrVitalScreen';
-import { EmrVisitSummaryScreen } from './react-components/EmrVisitSummaryScreen';
+import { EmrPrintMasterScreen } from './react-components/emr-master/EmrPrintMasterScreen';
 import { InvestigationFollowupTrackerScreen } from './react-components/InvestigationFollowupTrackerScreen';
 import { PatientIdentityBanner } from './react-components/PatientIdentityBanner';
 import { PatientAllergyScreen } from './react-components/PatientAllergyScreen';
@@ -836,7 +836,7 @@ import './printing/himsPrint';
   EmrMastersHubScreen,
   EmrMasterGenericScreen,
   EditEmrVitalScreen,
-  EmrVisitSummaryScreen,
+  EmrPrintMasterScreen,
   EmrWorkspaceScreen,
   EmrPanelSelectionScreen,
   EmrFormAssemblyBuilderScreen,

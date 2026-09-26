@@ -43,24 +43,8 @@ export const EmrMastersHubScreen: React.FC = () => {
       >
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 16 }}>
           <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
-              <span
-                style={{
-                  background: 'rgba(255,255,255,0.2)',
-                  fontSize: 11,
-                  fontWeight: 800,
-                  padding: '3px 10px',
-                  borderRadius: 20,
-                  letterSpacing: 0.5,
-                  textTransform: 'uppercase',
-                }}
-              >
-                SIMPLEX HIMES v9.3 Masters
-              </span>
-              <span style={{ fontSize: 13, opacity: 0.85 }}>All 77 Master Screens Supported</span>
-            </div>
-            <h1 style={{ margin: 0, fontSize: 24, fontWeight: 800 }}>EMR Masters Directory</h1>
-            <p style={{ margin: '6px 0 0', fontSize: 14, opacity: 0.9 }}>
+            <h1 style={{ margin: '0 0 6px 0', fontSize: 24, fontWeight: 800 }}>EMR Masters Directory</h1>
+            <p style={{ margin: 0, fontSize: 14, opacity: 0.9 }}>
               Centralized repository for Review of Systems, Physical Exams, Anesthesia, Scoring Scales, Nursing, and Specialty Clinical Masters.
             </p>
           </div>
@@ -85,6 +69,26 @@ export const EmrMastersHubScreen: React.FC = () => {
               }}
             >
               <i className="fa-solid fa-layer-group" /> EMR Form Assembly
+            </button>
+            <button
+              type="button"
+              onClick={() => navigate('/emr/print-config')}
+              style={{
+                background: '#10b981',
+                color: '#fff',
+                border: 'none',
+                borderRadius: 6,
+                padding: '8px 16px',
+                fontSize: 13,
+                fontWeight: 700,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 6,
+                boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+              }}
+            >
+              <i className="fa-solid fa-print" /> Print Config Master
             </button>
             <button
               type="button"

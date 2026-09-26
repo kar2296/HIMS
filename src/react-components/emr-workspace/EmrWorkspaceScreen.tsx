@@ -39,6 +39,7 @@ import { EmrTabBar } from './EmrTabBar';
 import { VisitEntryToolbar } from './VisitEntryToolbar';
 import { InlineNotice } from './EmrUi';
 import { CopyFromVisitModal } from './CopyFromVisitModal';
+import { ConsultationPrintModal } from './ConsultationPrintModal';
 
 export interface EmrWorkspaceScreenProps extends EmrHostCallbacks {
   reactProps?: {
@@ -276,6 +277,7 @@ export const EmrWorkspaceScreen: React.FC<EmrWorkspaceScreenProps> = ({ reactPro
   const [starting, setStarting] = useState(false);
   const [busyAction, setBusyAction] = useState<'complete' | 'finalize' | null>(null);
   const [confirmFinalize, setConfirmFinalize] = useState(false);
+  const [printModalOpen, setPrintModalOpen] = useState(false);
   /** "Copy from previous visit": open state + visit entry to pre-select. */
   const [copyFrom, setCopyFrom] = useState<{ open: boolean; consultationId: number | null }>({ open: false, consultationId: null });
   /** Bumped after copying so the panels reload what was added. */
@@ -449,12 +451,10 @@ export const EmrWorkspaceScreen: React.FC<EmrWorkspaceScreenProps> = ({ reactPro
                 : undefined
             }
             onPrint={
-              downloadFile && active
-                ? () =>
-                    downloadFile('emr/consultation/PrintConsultation', {
-                      Id: active.Id,
-                      Data: { PatientId: patientId, EncounterId: encounterId, ConsultationId: active.Id, sectionList: profileSectionIds },
-                    })
+              active
+                ? () => {
+                    setPrintModalOpen(true);
+                  }
                 : undefined
             }
             onReviewNotes={openLegacyModal && active ? () => openLegacyModal('patientemr.reviewnotes', { cid: active.Id, pid: patientId }) : undefined}
@@ -513,6 +513,16 @@ export const EmrWorkspaceScreen: React.FC<EmrWorkspaceScreenProps> = ({ reactPro
         variant="warning"
         onConfirm={finalize}
         onCancel={() => setConfirmFinalize(false)}
+      />
+
+      <ConsultationPrintModal
+        isOpen={printModalOpen}
+        onClose={() => setPrintModalOpen(false)}
+        context={context}
+        encounter={encounter}
+        consultation={active}
+        profileSectionIds={profileSectionIds}
+        downloadFile={downloadFile}
       />
     </div>
   );

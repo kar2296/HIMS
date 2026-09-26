@@ -1409,19 +1409,6 @@ export const EmrFormAssemblyScreen: React.FC<EmrFormAssemblyScreenProps> = ({
             >
               EMA Forms & Specialty Panel Assembly
             </h2>
-            <span
-              style={{
-                fontSize: 11,
-                fontWeight: 800,
-                color: '#059669',
-                backgroundColor: '#ecfdf5',
-                border: '1px solid #a7f3d0',
-                padding: '2px 8px',
-                borderRadius: radii.full,
-              }}
-            >
-              SIMPLEX HIMES v9.3 MATCHED
-            </span>
           </div>
           <p style={{ margin: '4px 0 0', fontSize: 13, color: colors.textMuted }}>
             Configure and document Standard and Custom EMA forms, panel libraries, adult vs child dynamic views, and options end-to-end.
@@ -1743,18 +1730,6 @@ export const EmrFormAssemblyScreen: React.FC<EmrFormAssemblyScreenProps> = ({
                           {tpl.templateName}
                         </div>
                       </div>
-                      <span
-                        style={{
-                          backgroundColor: isSelected ? colors.primary : '#e2e8f0',
-                          color: isSelected ? '#ffffff' : colors.textBody,
-                          fontSize: 10,
-                          fontWeight: 700,
-                          padding: '2px 6px',
-                          borderRadius: radii.full,
-                        }}
-                      >
-                        {tpl.version}
-                      </span>
                     </div>
 
                     <div

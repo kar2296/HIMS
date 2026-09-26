@@ -346,26 +346,41 @@ export class ConsultationBo extends BaseBo<ConsultationInstance, ConsultationAtt
             SectionList: sec
         };
 
-        // let sections = currentConsultation.ProfileMaster.ProfileSections;
-        // let OrderSections = _.orderBy(sections, ['DisplayOrder']);
-        let sections = currentConsultation.ProfileMaster.ProfileSections;
+        let sections = (currentConsultation && currentConsultation.ProfileMaster && currentConsultation.ProfileMaster.ProfileSections) ? currentConsultation.ProfileMaster.ProfileSections : [];
         let OrderSections = sections.slice().sort(function (var1: any, var2: any) {
             if (Number(var1.DisplayOrder) < Number(var2.DisplayOrder)) return -1;
             if (Number(var1.DisplayOrder) > Number(var2.DisplayOrder)) return 1;
             return 0;
         });
         let printSections: any = {};
-        if (currentConsultation.ProfileMaster.PrintConfig) {
-            printSections = JSON.parse(currentConsultation.ProfileMaster.PrintConfig);
+        if (currentConsultation && currentConsultation.ProfileMaster && currentConsultation.ProfileMaster.PrintConfig) {
+            try {
+                printSections = JSON.parse(currentConsultation.ProfileMaster.PrintConfig);
+            } catch (_) {}
+        }
+
+        if (!OrderSections || OrderSections.length === 0) {
+            info.SectionValues.Chiefcomplaint = await this.GetChiefComplaints(patientId, consultationId);
+            info.SectionList.push({ Chiefcomplaint: info.SectionValues.Chiefcomplaint });
+            info.SectionValues.Vital = await this.GetVitals(patientId, consultationId);
+            await this.FormatVitalData(info.SectionValues.Vital);
+            info.SectionList.push({ Vital: info.SectionValues.Vital });
+            info.SectionValues.Condition = await this.GetConditions(patientId, consultationId);
+            info.SectionList.push({ Condition: info.SectionValues.Condition });
+            info.SectionValues.Prescription = await this.GetPrescriptions(patientId, consultationId);
+            info.SectionList.push({ Prescription: info.SectionValues.Prescription });
+            info.SectionValues.Order = await this.GetOrders(patientId, consultationId);
+            info.SectionList.push({ Order: info.SectionValues.Order });
         }
 
         for (var idx in OrderSections) {
             let resultValue: any = {};
             var section = OrderSections[idx];
+            if (!section || !section.SectionMaster) continue;
             if (printSections.PrintConfig && printSections.PrintConfig.indexOf(section.SectionMaster.Id) === -1) {
                 continue; //Skip this section
             }
-            if (req.Data && req.Data.sectionList && req.Data.sectionList.indexOf(section.SectionMaster.Id) === -1) {
+            if (req.Data && Array.isArray(req.Data.sectionList) && req.Data.sectionList.length > 0 && req.Data.sectionList.indexOf(section.SectionMaster.Id) === -1) {
                 continue; //Skip this section
             }
             switch (section.SectionMaster.SRef) {
@@ -628,26 +643,41 @@ export class ConsultationBo extends BaseBo<ConsultationInstance, ConsultationAtt
             SectionList: sec
         };
 
-        // let sections = currentConsultation.ProfileMaster.ProfileSections;
-        // let OrderSections = _.orderBy(sections, ['DisplayOrder']);
-        let sections = currentConsultation.ProfileMaster.ProfileSections;
+        let sections = (currentConsultation && currentConsultation.ProfileMaster && currentConsultation.ProfileMaster.ProfileSections) ? currentConsultation.ProfileMaster.ProfileSections : [];
         let OrderSections = sections.slice().sort(function (var1: any, var2: any) {
             if (Number(var1.DisplayOrder) < Number(var2.DisplayOrder)) return -1;
             if (Number(var1.DisplayOrder) > Number(var2.DisplayOrder)) return 1;
             return 0;
         });
         let printSections: any = {};
-        if (currentConsultation.ProfileMaster.PrintConfig) {
-            printSections = JSON.parse(currentConsultation.ProfileMaster.PrintConfig);
+        if (currentConsultation && currentConsultation.ProfileMaster && currentConsultation.ProfileMaster.PrintConfig) {
+            try {
+                printSections = JSON.parse(currentConsultation.ProfileMaster.PrintConfig);
+            } catch (_) {}
+        }
+
+        if (!OrderSections || OrderSections.length === 0) {
+            info.SectionValues.Chiefcomplaint = await this.GetChiefComplaints(patientId, consultationId);
+            info.SectionList.push({ Chiefcomplaint: info.SectionValues.Chiefcomplaint });
+            info.SectionValues.Vital = await this.GetVitals(patientId, consultationId);
+            await this.FormatVitalData(info.SectionValues.Vital);
+            info.SectionList.push({ Vital: info.SectionValues.Vital });
+            info.SectionValues.Condition = await this.GetConditions(patientId, consultationId);
+            info.SectionList.push({ Condition: info.SectionValues.Condition });
+            info.SectionValues.Prescription = await this.GetPrescriptions(patientId, consultationId);
+            info.SectionList.push({ Prescription: info.SectionValues.Prescription });
+            info.SectionValues.Order = await this.GetOrders(patientId, consultationId);
+            info.SectionList.push({ Order: info.SectionValues.Order });
         }
 
         for (var idx in OrderSections) {
             let resultValue: any = {};
             var section = OrderSections[idx];
+            if (!section || !section.SectionMaster) continue;
             if (printSections.PrintConfig && printSections.PrintConfig.indexOf(section.SectionMaster.Id) === -1) {
                 continue; //Skip this section
             }
-            if (req.Data && req.Data.sectionList && req.Data.sectionList.indexOf(section.SectionMaster.Id) === -1) {
+            if (req.Data && Array.isArray(req.Data.sectionList) && req.Data.sectionList.length > 0 && req.Data.sectionList.indexOf(section.SectionMaster.Id) === -1) {
                 continue; //Skip this section
             }
             switch (section.SectionMaster.SRef) {

@@ -290,11 +290,11 @@ export class PatientTrackerBo extends BaseBo<PatientTrackerInstance, PatientTrac
                 PrevAppointmentId: null,
                 ParentTrackId: null,
                 PatientId: assignInfo.PatientId,
-                AppointmentId: assignInfo.AppointmentId,
+                AppointmentId: (assignInfo.AppointmentId && Number(assignInfo.AppointmentId) > 0) ? assignInfo.AppointmentId : null,
                 AppointmentName: null,
                 //EncounterId: null,
-                EncounterId: (assignInfo.EncounterId) ? assignInfo.EncounterId : '',
-                DoctorId: null,
+                EncounterId: (assignInfo.EncounterId && Number(assignInfo.EncounterId) > 0) ? assignInfo.EncounterId : null,
+                DoctorId: (assignInfo.DoctorId && Number(assignInfo.DoctorId) > 0) ? assignInfo.DoctorId : null,
                 FacilityId: assignInfo.FacilityId,
                 AssignedRoomId: null,
                 AssignedRoomName: null,
@@ -566,23 +566,25 @@ export class PatientTrackerBo extends BaseBo<PatientTrackerInstance, PatientTrac
         let encDocBO = BoFactory.GetBo(encbo.EncounterDoctorBo, this.Request);
         await encDocBO.CheckoutEncounterDoctor(req);
         //close AppointmentStatus - checkout
-        let appointment: any = { AppointmentStatusId: 11 };
-        this.Models.Appointment.update(appointment, {
-            fields: ['AppointmentStatusId'],
-            where: {
-                PatientId: checkoutInfo.PatientId,
-                AppointmentId: checkoutInfo.AppointmentId
-            }
-        });
+        if (checkoutInfo.AppointmentId && Number(checkoutInfo.AppointmentId) > 0) {
+            let appointment: any = { AppointmentStatusId: 11 };
+            this.Models.Appointment.update(appointment, {
+                fields: ['AppointmentStatusId'],
+                where: {
+                    PatientId: checkoutInfo.PatientId,
+                    AppointmentId: checkoutInfo.AppointmentId
+                }
+            });
+        }
         //close tracker
         let trackerInfo: any = {
             PrevAppointmentId: null,
             ParentTrackId: null,
             PatientId: checkoutInfo.PatientId,
-            AppointmentId: checkoutInfo.AppointmentId,
+            AppointmentId: (checkoutInfo.AppointmentId && Number(checkoutInfo.AppointmentId) > 0) ? checkoutInfo.AppointmentId : null,
             AppointmentName: null,
-            EncounterId: checkoutInfo.EncounterId,
-            DoctorId: checkoutInfo.DoctorId,
+            EncounterId: (checkoutInfo.EncounterId && Number(checkoutInfo.EncounterId) > 0) ? checkoutInfo.EncounterId : null,
+            DoctorId: (checkoutInfo.DoctorId && Number(checkoutInfo.DoctorId) > 0) ? checkoutInfo.DoctorId : null,
             FacilityId: null,
             AssignedRoomId: null,
             AssignedRoomName: null,

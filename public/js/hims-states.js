@@ -12,6 +12,11 @@
     function routesConfig($stateProvider, $locationProvider, $urlRouterProvider,
         helper, modalStateProvider, modalConfigProvider) {
 
+        $urlRouterProvider.when('/emr/print-config', '/app/emrprintconfig');
+        $urlRouterProvider.when('/emrprintconfig', '/app/emrprintconfig');
+        $urlRouterProvider.when('/emr/masters', '/app/emrmasters');
+        $urlRouterProvider.when('/emrmasters', '/app/emrmasters');
+
         $urlRouterProvider.otherwise(function ($injector, $location) {
             var path = window.location.pathname;
             if (path && path !== '/' && path !== '/index.html') {
@@ -303,10 +308,10 @@
                 title: 'EMR Masters Configuration',
                 templateUrl: helper.basepath('emr/emrmasters.html')
             })
-            .state('app.emrvisitsummary', {
-                url: '/emrvisitsummary',
-                title: 'EMR Visit Summary',
-                templateUrl: helper.basepath('emr/emrvisitsummary.html')
+            .state('app.emrprintconfig', {
+                url: '/emrprintconfig',
+                title: 'EMR Print Configuration Master',
+                templateUrl: helper.basepath('emr/emrprintconfig.html')
             })
             /*Dashboards*/
             .state('app.admindashboard', {

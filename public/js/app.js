@@ -1227,13 +1227,6 @@
                                 icon: 'fa fa-cogs fa-lg',
                                 translate: '',
                                 submenu: []
-                            },
-                            {
-                                text: 'EMR Visit Summary & History',
-                                sref: 'app.emrvisitsummary',
-                                icon: 'fa fa-history fa-lg',
-                                translate: '',
-                                submenu: []
                             }
                         ]
                     });
@@ -3718,13 +3711,6 @@
                                 icon: 'fa fa-cogs fa-lg',
                                 translate: '',
                                 submenu: []
-                            },
-                            {
-                                text: 'EMR Visit Summary & History',
-                                sref: 'app.emrvisitsummary',
-                                icon: 'fa fa-history fa-lg',
-                                translate: '',
-                                submenu: []
                             }
                         ]
                     });
@@ -3780,13 +3766,6 @@
                                 text: 'EMR Masters Catalog',
                                 sref: 'app.emrmasters',
                                 icon: 'fa fa-cogs fa-lg',
-                                translate: '',
-                                submenu: []
-                            },
-                            {
-                                text: 'EMR Visit Summary & History',
-                                sref: 'app.emrvisitsummary',
-                                icon: 'fa fa-history fa-lg',
                                 translate: '',
                                 submenu: []
                             }

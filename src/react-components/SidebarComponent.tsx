@@ -269,7 +269,7 @@ export const SidebarComponent: React.FC<SidebarComponentProps> = ({
           { label: 'EMR Panel Editor', state: 'app.emrpaneleditor', icon: 'fa fa-pencil-square-o' },
           { label: 'Assign EMR Forms to Doctors', state: 'app.emrpanelselection', icon: 'fa fa-user-plus' },
           { label: 'EMR Masters Catalog', state: 'app.emrmasters', icon: 'fa fa-cogs' },
-          { label: 'EMR Visit Summary & History', state: 'app.emrvisitsummary', icon: 'fa fa-history' },
+          { label: 'EMR Print Configuration', state: 'app.emrprintconfig', icon: 'fa fa-print' }
         ]
       });
     }

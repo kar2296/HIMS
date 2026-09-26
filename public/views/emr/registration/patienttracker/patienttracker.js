@@ -30,10 +30,11 @@
         };
 
         if (modalConfig && modalConfig.params) {
-            $scope.currentcontext.pid = parseInt(modalConfig.params.pid);
-            $scope.currentcontext.aid = parseInt(modalConfig.params.aid);
-            $scope.currentcontext.eid = parseInt(modalConfig.params.eid);
-            $scope.currentcontext.edid = parseInt(modalConfig.params.edid);
+            $scope.currentcontext.pid = parseInt(modalConfig.params.pid, 10) || 0;
+            var aid = parseInt(modalConfig.params.aid, 10);
+            $scope.currentcontext.aid = (!isNaN(aid) && aid > 0) ? aid : null;
+            $scope.currentcontext.eid = parseInt(modalConfig.params.eid, 10) || 0;
+            $scope.currentcontext.edid = parseInt(modalConfig.params.edid, 10) || 0;
             $scope.context = modalConfig.params.context;
             if (modalConfig.params.tracker && modalConfig.params.tracker != '') {
                 console.log(modalConfig.params.tracker);
@@ -49,7 +50,7 @@
             if (modalConfig.params.assignto)
                 $scope.item.AssignTo = modalConfig.params.assignto;
             if (modalConfig.params.did)
-                $scope.item.DoctorId = modalConfig.params.did;
+                $scope.item.DoctorId = parseInt(modalConfig.params.did, 10) || null;
 
             $scope.confirmCallback = $uibModalInstance.close;
             $scope.cancelCallback = $uibModalInstance.dismiss;
@@ -79,7 +80,8 @@
         }
 
         $scope.item.PatientId = $scope.currentcontext.pid;
-        $scope.item.AppointmentId = $scope.currentcontext.aid;
+        $scope.item.AppointmentId = $scope.currentcontext.aid || null;
+        $scope.item.EncounterId = $scope.currentcontext.eid || null;
 
         //Visibility rules starts
         $scope.canShowUser = function () {
@@ -133,14 +135,20 @@
             }
         }
         $scope.getpatientsCallback = function (scope, data, options, hasError) {
-            if (data.Data.length > 0) {
+            if (data && data.Data && data.Data.length > 0) {
                 var Patient = data.Data[0];
-                $scope.currentcontext.DoctorName = Patient.Encounters[0].DoctorName;
-                if (Patient.Encounters[0].EncounterDoctors) {
-                    if (Patient.Encounters[0].EncounterDoctors.length > 0) {
-                        var encounter = Patient.Encounters[0].EncounterDoctors[0];
-                        $scope.currentcontext.DoctorId = encounter.DoctorId;
-                        $scope.currentcontext.DepartmentId = encounter.DepartmentId;
+                if (Patient.Encounters && Patient.Encounters.length > 0) {
+                    var enc = Patient.Encounters[0];
+                    $scope.currentcontext.DoctorName = enc.DoctorName;
+                    if (!$scope.item.DoctorId && enc.DoctorId) {
+                        $scope.item.DoctorId = enc.DoctorId;
+                    }
+                    if (enc.EncounterDoctors && enc.EncounterDoctors.length > 0) {
+                        var encDoc = enc.EncounterDoctors[0];
+                        $scope.currentcontext.DoctorId = encDoc.DoctorId;
+                        $scope.currentcontext.DepartmentId = encDoc.DepartmentId;
+                        $scope.item.DoctorId = $scope.item.DoctorId || encDoc.DoctorId;
+                        $scope.item.DepartmentId = $scope.item.DepartmentId || encDoc.DepartmentId;
                     }
                 }
             }
@@ -182,15 +190,8 @@
             $state.go('app.doctordashboard');
         }
         $scope.saveItemCallback = function (scope, data, options, hasError) {
+            if (hasError) return;
             utl.Alert.showSuccessMsg($translate.instant('common.successmsg.lbl'));
-            // var data = options.data ? options.data : null;
-            // if ($scope.context == 'emr') {
-            //     if (options.data && options.data.Data) {
-            //         if (options.data.Data.AssignTo && options.data.Data.AssignTo == 4) {
-            //             $scope.doctor_dashboard();
-            //         }
-            //     }
-            // }
             $scope.confirmCallback();
         };
 
@@ -422,18 +423,15 @@
                     $scope.item[payload.field] = payload.value;
                     break;
                 case 'assignToChange':
-                    // Mirrors the original radiogroupcontrol's direct
-                    // ng-model="item.AssignTo" two-way binding -- there is
-                    // no existing onAssignToChange() function to call back
-                    // into, the real controller never had one.
                     $scope.item.AssignTo = payload.value;
                     break;
+                case 'userChange':
+                    $scope.item.AssignedUserId = payload.userId;
+                    $scope.item.AssignedUserName = payload.userName;
+                    $scope.item.DoctorId = payload.doctorId || payload.userId;
+                    if (payload.departmentId) $scope.item.DepartmentId = payload.departmentId;
+                    break;
                 case 'groupChange':
-                    // Mirrors ng-model="item.AssignedGroupId" +
-                    // ng-change="onGroupChange($select.selected)" on the
-                    // real ui-select: set the id directly, then call the
-                    // real onGroupChange() with the matching lookup object
-                    // (same shape ui-select's $select.selected provided).
                     $scope.item.AssignedGroupId = payload.value;
                     var groupItem = utl.Lookup.getObject($scope.lookup.Group, payload.value);
                     if (groupItem) {
@@ -441,8 +439,6 @@
                     }
                     break;
                 case 'durationPeriodChange':
-                    // Mirrors ng-model="item.DurationPeriodId" +
-                    // ng-change="onDurationPeriodChange($select.selected)".
                     $scope.item.DurationPeriodId = payload.value;
                     var periodItem = utl.Lookup.getObject($scope.lookup.DurationPeriod, payload.value);
                     if (periodItem) {
@@ -450,13 +446,16 @@
                     }
                     break;
                 case 'followupDateChange':
-                    // Mirrors ng-model="item.FollowupAppointmentOn" on the
-                    // real uib-datepicker-popup input (a plain two-way
-                    // binding, no existing change handler to call).
                     $scope.item.FollowupAppointmentOn = payload.value ? new Date(payload.value) : null;
                     break;
                 case 'saveItem':
+                    if (payload && payload.item) {
+                        angular.extend($scope.item, payload.item);
+                    }
                     $scope.saveItem();
+                    break;
+                case 'cancel':
+                    $scope.cancelCallback();
                     break;
                 default:
                     break;

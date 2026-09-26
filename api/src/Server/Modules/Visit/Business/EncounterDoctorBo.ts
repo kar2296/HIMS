@@ -363,26 +363,31 @@ export class EncounterDoctorBo extends BaseBo<EncounterDoctorInstance, Encounter
             EndDate: new Date(),
             EncounterDoctorStatus: 3
         };
-        if (checkoutInfo.DoctorId && Number(checkoutInfo.DoctorId) > 0) {
+        if (checkoutInfo.DoctorId && Number(checkoutInfo.DoctorId) > 0 && checkoutInfo.EncounterId && Number(checkoutInfo.EncounterId) > 0) {
             let updated = await this.Update(updateInfo, {
                 fields: ['EndDate', 'EncounterDoctorStatus'],
                 where: {
                     PatientId: checkoutInfo.PatientId,
-                    // AppointmentId: checkoutInfo.AppointmentId,
                     DoctorId: checkoutInfo.DoctorId,
                     EncounterId: checkoutInfo.EncounterId
                 }
             });
             return updated ? 0 : -1;
-        } else {
+        } else if (checkoutInfo.EncounterId && Number(checkoutInfo.EncounterId) > 0) {
             let updated = await this.Update(updateInfo, {
                 fields: ['EndDate', 'EncounterDoctorStatus'],
                 where: {
                     PatientId: checkoutInfo.PatientId,
-                    AppointmentId: checkoutInfo.AppointmentId,
-                    // DoctorId: checkoutInfo.DoctorId,
-                    // EncounterId: checkoutInfo.EncounterId
+                    EncounterId: checkoutInfo.EncounterId
                 }
+            });
+            return updated ? 0 : -1;
+        } else {
+            let whereClause: any = { PatientId: checkoutInfo.PatientId };
+            if (checkoutInfo.AppointmentId) whereClause.AppointmentId = checkoutInfo.AppointmentId;
+            let updated = await this.Update(updateInfo, {
+                fields: ['EndDate', 'EncounterDoctorStatus'],
+                where: whereClause
             });
             return updated ? 0 : -1;
         }

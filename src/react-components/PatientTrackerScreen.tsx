@@ -204,12 +204,63 @@ export const PatientTrackerScreen: React.FC<ScreenProps> = ({ reactProps, onActi
   const field = (name: string, value: any) => dispatch('itemFieldChange', { field: name, value });
 
   const assignTo = Number(item.AssignTo);
-  // Same conditions as the real canShowGroup()/item.AssignTo==3 checks in the
-  // untouched controller/template -- computed here rather than re-derived
-  // through a bridged function, since both are pure comparisons against the
-  // same item.AssignTo value already present in reactProps.
   const showGroup = assignTo === 2;
   const showFollowupDate = assignTo === 3;
+
+  const [doctors, setDoctors] = React.useState<Array<{ Id: number; FullName: string; DepartmentId?: number; Speciality?: string }>>([]);
+  const [selectedDoctorId, setSelectedDoctorId] = React.useState<number | string>(item.AssignedUserId || item.DoctorId || '');
+  const [loadingDoctors, setLoadingDoctors] = React.useState(false);
+  const [saving, setSaving] = React.useState(false);
+
+  React.useEffect(() => {
+    let active = true;
+    setLoadingDoctors(true);
+    import('../services/apiService').then(({ callBackendApi }) => {
+      callBackendApi({
+        action: 'SystemSettings/User/GetMinUsers',
+        data: {
+          Params: [
+            { Key: 3, Value: 2 },
+            { Key: 33, Value: item.FacilityId || 1 }
+          ],
+          PageContext: { PageSize: 100, PageNumber: 1 }
+        }
+      })
+        .then((res: any) => {
+          if (!active) return;
+          const list = res?.Data || [];
+          const mapped = list.map((u: any) => ({
+            Id: u.UserId || u.Id,
+            FullName: [u.Title?.Description, u.FirstName, u.LastName].filter(Boolean).join(' ') || u.DoctorName || `User #${u.Id}`,
+            DepartmentId: u.DepartmentId,
+            Speciality: u.Speciality || u.Department?.DepartmentName
+          }));
+          setDoctors(mapped);
+        })
+        .catch(() => {})
+        .finally(() => { if (active) setLoadingDoctors(false); });
+    });
+    return () => { active = false; };
+  }, [item.FacilityId]);
+
+  const handleSave = () => {
+    if (assignTo === 1 && !selectedDoctorId && !item.AssignedUserId) {
+      alert('Please select a Doctor / User to assign to.');
+      return;
+    }
+    setSaving(true);
+    const followup = item.FollowupAppointmentOn ? item.FollowupAppointmentOn : null;
+    dispatch('saveItem', {
+      item: {
+        ...item,
+        TrackerNotes: item.TrackerNotes || null,
+        FollowupAppointmentOn: followup,
+        AssignedUserId: selectedDoctorId ? Number(selectedDoctorId) : item.AssignedUserId,
+        DoctorId: selectedDoctorId ? Number(selectedDoctorId) : item.DoctorId
+      }
+    });
+    setTimeout(() => setSaving(false), 2000);
+  };
 
   return (
     <div style={{ padding: `${spacing.sm} ${spacing.md} ${spacing.xl}`, fontFamily: typography.fontFamily }}>
@@ -247,9 +298,36 @@ export const PatientTrackerScreen: React.FC<ScreenProps> = ({ reactProps, onActi
         </div>
       )}
 
-      {/* Real condition: ng-show="canShowGroup()" -- markup present in the
-          real template but effectively unreachable in production today, see
-          disclosure above. Reproduced faithfully, not removed. */}
+      {/* When Assign To: User is selected, allow picking the Doctor / User */}
+      {assignTo === 1 && (
+        <div style={{ marginBottom: spacing.md }}>
+          <Select
+            label="Doctor / User *"
+            options={[
+              { value: '', label: loadingDoctors ? 'Loading doctors...' : '-- Select Doctor --' },
+              ...doctors.map((d) => ({
+                value: d.Id,
+                label: d.FullName + (d.Speciality ? ` (${d.Speciality})` : ''),
+              })),
+            ]}
+            value={selectedDoctorId}
+            onChange={(v) => {
+              setSelectedDoctorId(v);
+              const doc = doctors.find((d) => String(d.Id) === String(v));
+              if (doc) {
+                dispatch('userChange', {
+                  userId: doc.Id,
+                  userName: doc.FullName,
+                  doctorId: doc.Id,
+                  departmentId: doc.DepartmentId,
+                });
+              }
+            }}
+          />
+        </div>
+      )}
+
+      {/* Real condition: ng-show="canShowGroup()" */}
       {showGroup && (
         <div style={{ marginBottom: spacing.md, maxWidth: 360 }}>
           <Select
@@ -260,11 +338,6 @@ export const PatientTrackerScreen: React.FC<ScreenProps> = ({ reactProps, onActi
           />
         </div>
       )}
-
-      {/* Real condition: ng-show="canShowUser()" -- the actual <autosearch>
-          doctor/user picker renders as a NATIVE sibling in
-          patienttracker.html here (live server-searched typeahead, not
-          reimplemented in React). Nothing rendered in this slot. */}
 
       <div style={{ marginBottom: spacing.md }}>
         <Textarea
@@ -285,9 +358,6 @@ export const PatientTrackerScreen: React.FC<ScreenProps> = ({ reactProps, onActi
           />
         </div>
       ) : (
-        // Real condition: ng-hide="item.AssignTo==3" -- same real label
-        // (registration.patienttracker.followupappointments.lbl) is reused
-        // by the original template for this Duration+Period pair too.
         <div style={{ marginBottom: spacing.md }}>
           <label style={{ ...typography.label, color: colors.textMain, display: 'block', marginBottom: spacing.xs, fontFamily: typography.fontFamily }}>
             Followup Appointment On
@@ -296,6 +366,7 @@ export const PatientTrackerScreen: React.FC<ScreenProps> = ({ reactProps, onActi
             <div style={{ flex: '1 1 200px' }}>
               <Input
                 value={item.Duration ?? ''}
+                placeholder="Duration (e.g. 7)"
                 onChange={(e) => field('Duration', e.target.value)}
               />
             </div>
@@ -310,8 +381,9 @@ export const PatientTrackerScreen: React.FC<ScreenProps> = ({ reactProps, onActi
         </div>
       )}
 
-      <div style={{ marginTop: spacing.xl, display: 'flex', justifyContent: 'flex-end' }}>
-        <Button variant="primary" text="Save" onClick={() => dispatch('saveItem')} />
+      <div style={{ marginTop: spacing.xl, display: 'flex', justifyContent: 'flex-end', gap: spacing.sm }}>
+        <Button variant="outline-secondary" text="Cancel" onClick={() => dispatch('cancel')} disabled={saving} />
+        <Button variant="primary" text={saving ? 'Saving...' : 'Save'} onClick={handleSave} disabled={saving} />
       </div>
     </div>
   );

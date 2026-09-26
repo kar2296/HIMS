@@ -80,16 +80,30 @@
                     $http.post(options.action, options.data, { responseType: 'arraybuffer' })
                         .then(function (response) {
                             //console.log(response);
-                            var blob = new Blob([response.data], { type: response.headers('Content-Type') });
-
-                            /*var link = document.createElement('a');
-                            link.href = window.URL.createObjectURL(blob);
-                            link.download = response.headers('Content-Disposition').match(/filename="(.+)"/)[1];
-                            link.click();
-                            window.URL.revokeObjectURL(link.href);
-                            */
+                            var blob = new Blob([response.data], { type: response.headers('Content-Type') || 'application/pdf' });
                             var fileURL = URL.createObjectURL(blob);
-                            window.open(fileURL);
+                            var opened = null;
+                            try {
+                                opened = window.open(fileURL);
+                            } catch (e) {
+                                opened = null;
+                            }
+                            if (!opened || opened.closed || typeof opened.closed === 'undefined') {
+                                var link = document.createElement('a');
+                                link.href = fileURL;
+                                var disposition = response.headers('Content-Disposition') || '';
+                                var match = disposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+                                var filename = (match && match[1]) ? match[1].replace(/['"]/g, '') : 'Consultation_Report.pdf';
+                                link.download = filename;
+                                document.body.appendChild(link);
+                                link.click();
+                                setTimeout(function () {
+                                    if (link.parentNode) {
+                                        link.parentNode.removeChild(link);
+                                    }
+                                    URL.revokeObjectURL(fileURL);
+                                }, 1000);
+                            }
 
                             if (typeof options['onComplete'] === 'function') {
                                 options['onComplete'](null, response.data, options, false);

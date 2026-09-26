@@ -9,7 +9,7 @@ import { DischargeSummaryScreen } from './DischargeSummaryScreen';
 import { EmrFormAssemblyScreen } from './EmrFormAssemblyScreen';
 import { EmrMastersScreen } from './EmrMastersScreen';
 import { EmrMastersHubScreen } from './emr-master/EmrMastersHubScreen';
-import { EmrVisitSummaryScreen } from './EmrVisitSummaryScreen';
+import { EmrPrintMasterScreen } from './emr-master/EmrPrintMasterScreen';
 import { ClinicalAuditTrailScreen } from './ClinicalAuditTrailScreen';
 import { PatientIdentityBanner } from './PatientIdentityBanner';
 import { PatientVitalScreen } from './PatientVitalScreen';
@@ -28,7 +28,7 @@ export type EmrHubView =
   | 'DISCHARGE_AUDIT'
   | 'FORM_ASSEMBLY'
   | 'EMR_MASTERS'
-  | 'VISIT_SUMMARY'
+  | 'EMR_PRINT_CONFIG'
   | 'USER_REPORT'
   | 'VISIT_REPORT_BR';
 
@@ -148,10 +148,11 @@ export const EmrPortalHubScreen: React.FC<EmrPortalHubScreenProps> = ({
       description: 'Allergens, Vaccines, Lines/Drains & Clinical Scales',
     },
     {
-      id: 'VISIT_SUMMARY',
-      label: 'Visit & Longitudinal Summary',
-      icon: 'fa-history',
-      description: 'Patient Historical Encounters & Biometric Trends',
+      id: 'EMR_PRINT_CONFIG',
+      label: 'EMR Print Configuration',
+      icon: 'fa-print',
+      description: 'Paper Size, Margins, Header/Stationery & Clinical Panels',
+      badge: 'Master',
     },
     {
       id: 'DISCHARGE_AUDIT',
@@ -485,7 +486,7 @@ export const EmrPortalHubScreen: React.FC<EmrPortalHubScreenProps> = ({
       {currentView === 'DISCHARGE_AUDIT' && <ClinicalAuditTrailScreen />}
       {currentView === 'FORM_ASSEMBLY' && <EmrFormAssemblyScreen />}
       {currentView === 'EMR_MASTERS' && <EmrMastersHubScreen />}
-      {currentView === 'VISIT_SUMMARY' && <EmrVisitSummaryScreen />}
+      {currentView === 'EMR_PRINT_CONFIG' && <EmrPrintMasterScreen />}
 
       {currentView === 'WORKSTATION' && (
         <Card padding={spacing.md}>
