@@ -263,7 +263,6 @@ export const SidebarComponent: React.FC<SidebarComponentProps> = ({
         label: 'EMR Modernization Hub',
         icon: 'fa fa-user-md fa-lg',
         children: [
-          { label: 'EMR Waiting List & Portal Hub', state: 'app.emrportalhub', icon: 'fa fa-th-large' },
           { label: 'Discharge Summary Workstation', state: 'app.emrdischargesummary', icon: 'fa fa-file-text-o' },
           { label: 'EMR Form Assembly', state: 'app.emrformassembly', icon: 'fa fa-list-alt' },
           { label: 'EMR Form Builder', state: 'app.emrformbuilder', icon: 'fa fa-th-list' },

@@ -222,16 +222,14 @@
                     }]
                 }
             })
-            /* EMR Modernization Portal & Hub States */
+            /* EMR Modernization States */
             .state('app.emrportalhub', {
                 url: '/emrportalhub',
-                title: 'EMR Waiting List & Portal Hub',
-                templateUrl: helper.basepath('emr/emrportalhub.html')
+                controller: ['$state', function ($state) { $state.go('app.emrworkspace'); }]
             })
             .state('app.viewemrwaitinglist', {
                 url: '/viewEMRWaitingList/:id',
-                title: 'EMR Waiting List & Portal Hub',
-                templateUrl: helper.basepath('emr/emrportalhub.html')
+                controller: ['$state', function ($state) { $state.go('app.emrworkspace'); }]
             })
             .state('app.emrdischargesummary', {
                 url: '/emrdischargesummary',

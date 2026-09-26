@@ -1187,13 +1187,6 @@
                         translate: '',
                         submenu: [
                             {
-                                text: 'EMR Waiting List & Portal Hub',
-                                sref: 'app.emrportalhub',
-                                icon: 'fa fa-th-large fa-lg',
-                                translate: '',
-                                submenu: []
-                            },
-                            {
                                 text: 'Discharge Summary Workstation',
                                 sref: 'app.emrdischargesummary',
                                 icon: 'fa fa-file-text-o fa-lg',
@@ -3685,13 +3678,6 @@
                         displayorder: -1,
                         submenu: [
                             {
-                                text: 'EMR Waiting List & Portal Hub',
-                                sref: 'app.emrportalhub',
-                                icon: 'fa fa-th-large fa-lg',
-                                translate: '',
-                                submenu: []
-                            },
-                            {
                                 text: 'Discharge Summary Workstation',
                                 sref: 'app.emrdischargesummary',
                                 icon: 'fa fa-file-text-o fa-lg',
@@ -3755,13 +3741,6 @@
                     });
                     if (!hasWaitingList) {
                         existingEmrGroup.submenu.unshift(
-                            {
-                                text: 'EMR Waiting List & Portal Hub',
-                                sref: 'app.emrportalhub',
-                                icon: 'fa fa-th-large fa-lg',
-                                translate: '',
-                                submenu: []
-                            },
                             {
                                 text: 'Discharge Summary Workstation',
                                 sref: 'app.emrdischargesummary',

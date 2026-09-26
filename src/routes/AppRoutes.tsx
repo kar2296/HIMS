@@ -3,7 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate, useLocation, useNavigate } from
 import { AppLayout } from '../components/layout/AppLayout';
 import { sessionHelper } from '../services/sessionHelper';
 import { AdminDashboardComponent } from '../react-components/AdminDashboardComponent';
-import { EmrPortalHubScreen } from '../react-components/EmrPortalHubScreen';
+import { EmrWorkspaceScreen } from '../react-components/emr-workspace/EmrWorkspaceScreen';
 import { RegisteredPatientsScreen } from '../react-components/RegisteredPatientsScreen';
 import { NewRegistrationScreen } from '../react-components/NewRegistrationScreen';
 import { OpdBillScreen } from '../react-components/OpdBillScreen';
@@ -120,12 +120,20 @@ export const AppRoutes: React.FC = () => {
           }
         />
 
-        {/* EMR Clinical Portal */}
+        {/* EMR Clinical Workstation */}
         <Route
           path="/emr"
           element={
             <ProtectedRoute>
-              <ShellWrapper activeTab="emr" component={<EmrPortalHubScreen />} />
+              <ShellWrapper activeTab="emr" component={<EmrWorkspaceScreen />} />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/emrworkspace"
+          element={
+            <ProtectedRoute>
+              <ShellWrapper activeTab="emr" component={<EmrWorkspaceScreen />} />
             </ProtectedRoute>
           }
         />
