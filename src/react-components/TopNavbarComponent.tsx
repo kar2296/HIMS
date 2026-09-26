@@ -33,6 +33,8 @@ export interface TopNavbarComponentProps {
 // Quick Actions config
 // ─────────────────────────────────────────────────────────────
 const QUICK_ACTIONS = [
+  { label: 'EMR Waiting List & Hub', icon: 'fa-user-md', state: 'app.emrportalhub' },
+  { label: 'Discharge Summary', icon: 'fa-file-lines', state: 'app.emrdischargesummary' },
   { label: 'New Registration', icon: 'fa-user-plus', state: 'app.newregistration' },
   { label: 'Find Bill', icon: 'fa-magnifying-glass-dollar', state: 'app.findbill' },
   { label: 'New Appointment', icon: 'fa-calendar-plus', state: 'app.appointmentstab.newappointment' },

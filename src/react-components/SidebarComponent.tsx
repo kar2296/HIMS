@@ -252,6 +252,28 @@ export const SidebarComponent: React.FC<SidebarComponentProps> = ({
     }
   }, [onNavigate]);
 
+  const effectiveMenuItems = React.useMemo(() => {
+    const list = [...menuItems];
+    const hasHub = list.some(item => 
+      item.label?.toLowerCase().includes('emr modernization') ||
+      item.label?.toLowerCase().includes('emr portal')
+    );
+    if (!hasHub) {
+      list.unshift({
+        label: 'EMR Modernization Hub',
+        icon: 'fa fa-user-md fa-lg',
+        children: [
+          { label: 'EMR Waiting List & Portal Hub', state: 'app.emrportalhub', icon: 'fa fa-th-large' },
+          { label: 'Discharge Summary Workstation', state: 'app.emrdischargesummary', icon: 'fa fa-file-text-o' },
+          { label: 'EMR Form Assembly', state: 'app.emrformassembly', icon: 'fa fa-list-alt' },
+          { label: 'EMR Masters Catalog', state: 'app.emrmasters', icon: 'fa fa-cogs' },
+          { label: 'EMR Visit Summary & History', state: 'app.emrvisitsummary', icon: 'fa fa-history' },
+        ]
+      });
+    }
+    return list;
+  }, [menuItems]);
+
   const sidebarWidth = collapsed ? sidebar.collapsedWidth : sidebar.width;
 
   return (
@@ -361,7 +383,7 @@ export const SidebarComponent: React.FC<SidebarComponentProps> = ({
         }}
         role="menu"
       >
-        {menuItems.map((item, i) =>
+        {effectiveMenuItems.map((item, i) =>
           item.children?.length ? (
             <SidebarGroup
               key={i}

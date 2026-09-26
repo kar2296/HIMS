@@ -218,6 +218,37 @@
                     }]
                 }
             })
+            /* EMR Modernization Portal & Hub States */
+            .state('app.emrportalhub', {
+                url: '/emrportalhub',
+                title: 'EMR Waiting List & Portal Hub',
+                templateUrl: helper.basepath('emr/emrportalhub.html')
+            })
+            .state('app.viewemrwaitinglist', {
+                url: '/viewEMRWaitingList/:id',
+                title: 'EMR Waiting List & Portal Hub',
+                templateUrl: helper.basepath('emr/emrportalhub.html')
+            })
+            .state('app.emrdischargesummary', {
+                url: '/emrdischargesummary',
+                title: 'Discharge Summary Workstation',
+                templateUrl: helper.basepath('emr/dischargesummary.html')
+            })
+            .state('app.emrformassembly', {
+                url: '/emrformassembly',
+                title: 'EMR Form Assembly',
+                templateUrl: helper.basepath('emr/emrformassembly.html')
+            })
+            .state('app.emrmasters', {
+                url: '/emrmasters',
+                title: 'EMR Masters Configuration',
+                templateUrl: helper.basepath('emr/emrmasters.html')
+            })
+            .state('app.emrvisitsummary', {
+                url: '/emrvisitsummary',
+                title: 'EMR Visit Summary',
+                templateUrl: helper.basepath('emr/emrvisitsummary.html')
+            })
             /*Dashboards*/
             .state('app.admindashboard', {
                 url: '/admindashboard',

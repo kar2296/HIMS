@@ -232,6 +232,26 @@ import { RichTextEditor } from './react-components/RichTextEditor';
 // Import Button and ConfirmModal Components
 import { Button } from './react-components/Button';
 import { ConfirmModal } from './react-components/ConfirmModal';
+
+// Import EMR Clinical Workstation & Portal Components
+import { EmrPortalHubScreen } from './react-components/EmrPortalHubScreen';
+import { DischargeSummaryScreen } from './react-components/DischargeSummaryScreen';
+import { EmrFormAssemblyScreen } from './react-components/EmrFormAssemblyScreen';
+import { EmrMastersScreen } from './react-components/EmrMastersScreen';
+import { EmrVisitSummaryScreen } from './react-components/EmrVisitSummaryScreen';
+import { InvestigationFollowupTrackerScreen } from './react-components/InvestigationFollowupTrackerScreen';
+import { PatientIdentityBanner } from './react-components/PatientIdentityBanner';
+import { PatientAllergyScreen } from './react-components/PatientAllergyScreen';
+import { PatientVitalScreen } from './react-components/PatientVitalScreen';
+import { PatientDiagnosisScreen } from './react-components/PatientDiagnosisScreen';
+import { PatientOrderScreen } from './react-components/PatientOrderScreen';
+import { PrescriptionDetailRowComponent } from './react-components/PrescriptionDetailRowComponent';
+import { WardEmarScreen } from './react-components/WardEmarScreen';
+import { WardHandoverScreen } from './react-components/WardHandoverScreen';
+import { WardFluidBalanceScreen } from './react-components/WardFluidBalanceScreen';
+import { WardNursingNotesScreen } from './react-components/WardNursingNotesScreen';
+import { ClinicalAuditTrailScreen } from './react-components/ClinicalAuditTrailScreen';
+import { ClinicalCdsAlertsScreen } from './react-components/ClinicalCdsAlertsScreen';
 import { createRoot } from 'react-dom/client';
 
 (window as any).renderReactConfirmModal = function(options: {
@@ -757,7 +777,26 @@ import { ItemwiseOpBillCancelTableScreen } from './react-components/ItemwiseOpBi
   ClaimReceiptBillsTableScreen,
   NewReceiptBillsTableScreen,
   ItemwiseOpBillCancelSelectScreen,
-  ItemwiseOpBillCancelTableScreen
+  ItemwiseOpBillCancelTableScreen,
+  // EMR Clinical Workstation & Portal
+  EmrPortalHubScreen,
+  DischargeSummaryScreen,
+  EmrFormAssemblyScreen,
+  EmrMastersScreen,
+  EmrVisitSummaryScreen,
+  InvestigationFollowupTrackerScreen,
+  PatientIdentityBanner,
+  PatientAllergyScreen,
+  PatientVitalScreen,
+  PatientDiagnosisScreen,
+  PatientOrderScreen,
+  PrescriptionDetailRowComponent,
+  WardEmarScreen,
+  WardHandoverScreen,
+  WardFluidBalanceScreen,
+  WardNursingNotesScreen,
+  ClinicalAuditTrailScreen,
+  ClinicalCdsAlertsScreen
 };
 
 console.log('React runtime and components loaded. ReactBridge initialized.');
