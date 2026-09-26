@@ -1,85 +1,86 @@
-global.sessionStorage = { getItem: () => null, setItem: () => null };
-global.window = global;
-console.log('Testing searchStandardPanels...');
+const fs = require('fs');
+const path = require('path');
 
-const testCatalog = [
-  {
-    id: 'STD-PANEL-CC-HPI',
-    sectionTitle: 'Chief Complaints & History of Present Illness (HPI)',
-    nickName: 'Chief Complaints',
-    category: 'General Assessment',
-    requirementType: 'MANDATORY',
-    fields: [
-      { fieldLabel: 'Primary Complaint', fieldType: 'TEXT' },
-      { fieldLabel: 'Duration & Onset Period', fieldType: 'PERIOD' },
-      { fieldLabel: 'Symptom Severity (VAS / Grade)', fieldType: 'DROPDOWN' },
-      { fieldLabel: 'History of Present Illness (HPI)', fieldType: 'TEXTAREA' },
-    ]
-  },
-  {
-    id: 'STD-PANEL-VITALS',
-    sectionTitle: 'Vitals & Physiological Biometrics',
-    nickName: 'Clinical Vitals',
-    category: 'General Assessment',
-    requirementType: 'MANDATORY',
-    fields: [
-      { fieldLabel: 'Systolic Blood Pressure', fieldType: 'NUMBER' },
-      { fieldLabel: 'Diastolic Blood Pressure', fieldType: 'NUMBER' },
-      { fieldLabel: 'Heart / Pulse Rate', fieldType: 'NUMBER' },
-      { fieldLabel: 'Core Temperature (°C)', fieldType: 'NUMBER' },
-    ]
-  }
-];
+// Extract the catalog from the TS file without complicated regex
+const tsContent = fs.readFileSync(path.join(__dirname, '../src/react-components/emr-workspace/standardPanelsCatalog.ts'), 'utf-8');
 
-function normalize(s) {
-  return s.toLowerCase().replace(/[^a-z0-9]/g, '');
-}
+// Strip all TypeScript types cleanly
+let js = tsContent
+  .replace(/import type [^;]+;/g, '')
+  .replace(/export interface [^}]+}/gs, '')
+  .replace(/:\s*StandardPanelTemplate\[\]/g, '')
+  .replace(/:\s*Array<[^>]+>/g, '')
+  .replace(/:\s*FormAssemblySection\[\]\s*=\s*\[\]/g, ' = []')
+  .replace(/:\s*\{\s*panel:\s*StandardPanelTemplate;\s*score:\s*number\s*\}\[\]/g, '')
+  .replace(/:\s*RequirementType/g, '')
+  .replace(/:\s*FormFieldDefinition\[\]/g, '')
+  .replace(/:\s*EncounterScope/g, '')
+  .replace(/:\s*string\[\]/g, '')
+  .replace(/:\s*string/g, '')
+  .replace(/:\s*number/g, '')
+  .replace(/:\s*boolean/g, '')
+  .replace(/export const /g, 'const ')
+  .replace(/export function /g, 'function ');
 
-function search(query, catalog, existing = []) {
-  const q = (query || '').trim().toLowerCase();
-  const existingTitles = new Set(existing.map((s) => s.sectionTitle.toLowerCase().trim()));
+const sandbox = {};
+const runner = new Function('sandbox', `${js}\nsandbox.STANDARD_PANELS_CATALOG = STANDARD_PANELS_CATALOG;\nsandbox.searchStandardPanels = searchStandardPanels;`);
+runner(sandbox);
 
-  return catalog.filter((panel) => {
-    if (!q) return true;
-    const normQ = normalize(q);
-    const normTitle = normalize(panel.sectionTitle);
-    const normNick = normalize(panel.nickName);
-    const normCat = normalize(panel.category || '');
+const { STANDARD_PANELS_CATALOG, searchStandardPanels } = sandbox;
 
-    if (normTitle.includes(normQ) || normNick.includes(normQ) || normCat.includes(normQ)) return true;
-    if (normQ === 'chif' || normQ === 'cheif') {
-      if (normTitle.includes('chief') || normNick.includes('chief')) return true;
-    }
-    let qIdx = 0;
-    for (let i = 0; i < normTitle.length && qIdx < normQ.length; i++) {
-      if (normTitle[i] === normQ[qIdx]) qIdx++;
-    }
-    return qIdx === normQ.length;
-  }).map(p => ({
-    ...p,
-    isAlreadyAdded: existingTitles.has(p.sectionTitle.toLowerCase().trim())
-  }));
-}
+console.log(`\n========================================`);
+console.log(`STANDARD PANELS CATALOG VERIFICATION`);
+console.log(`Total Panels in Library: ${STANDARD_PANELS_CATALOG.length}`);
+console.log(`========================================\n`);
 
-// 1. Test "Chif" typing (exact user case from screenshot)
-const chifResults = search('Chif', testCatalog);
-console.log('Results for "Chif":', chifResults.length);
-if (chifResults.length > 0) {
-  console.log('MATCH FOUND:', chifResults[0].sectionTitle);
-  console.log('NICKNAME:', chifResults[0].nickName);
-  console.log('FIELDS COUNT:', chifResults[0].fields.length);
-  chifResults[0].fields.forEach((f, i) => {
-    console.log(`  Field ${i+1}: ${f.fieldLabel} (${f.fieldType})`);
-  });
-}
-
-// 2. Test "Vital"
-const vitalResults = search('vital', testCatalog);
-console.log('\nResults for "vital":', vitalResults.length, vitalResults[0]?.sectionTitle);
-
-if (chifResults.length > 0 && chifResults[0].sectionTitle.includes('Chief Complaints')) {
-  console.log('\n✅ TEST PASSED: Typing "Chif" successfully matches and loads Chief Complaints panel details with all fields!');
-} else {
-  console.error('\n❌ TEST FAILED');
+// Test 1: User's exact query: "Chief Complaint-Normal"
+const q1 = 'Chief Complaint-Normal';
+const r1 = searchStandardPanels(q1);
+console.log(`1. Testing Search: "${q1}"`);
+console.log(`   Results count: ${r1.length}`);
+if (r1.length === 0 || r1[0].sectionTitle !== 'Chief Complaint-Normal') {
+  console.error(`   ❌ FAILED: Expected "Chief Complaint-Normal" at index 0, got:`, r1[0]?.sectionTitle);
   process.exit(1);
 }
+console.log(`   ✅ Top Match: "${r1[0].sectionTitle}"`);
+console.log(`   Nickname: "${r1[0].nickName}"`);
+console.log(`   Requirement: "${r1[0].requirementType}"`);
+console.log(`   Fields Count: ${r1[0].fields.length}`);
+r1[0].fields.forEach((f, idx) => {
+  console.log(`     Field ${idx + 1}: ${f.fieldLabel} (${f.fieldType}, ${f.requirementType})`);
+});
+
+// Test 2: User typing "Chief Complaint"
+const q2 = 'Chief Complaint';
+const r2 = searchStandardPanels(q2);
+console.log(`\n2. Testing Search: "${q2}"`);
+console.log(`   Results count: ${r2.length}`);
+console.log(`   Top 2: ${r2.slice(0, 2).map(p => `"${p.sectionTitle}"`).join(' and ')}`);
+if (!r2.some(p => p.sectionTitle === 'Chief Complaint-Normal')) {
+  console.error('   ❌ FAILED: Chief Complaint-Normal should match "Chief Complaint"');
+  process.exit(1);
+}
+console.log('   ✅ Chief Complaint-Normal found in results!');
+
+// Test 3: User typing "Chif" (typo)
+const q3 = 'Chif';
+const r3 = searchStandardPanels(q3);
+console.log(`\n3. Testing Typo Search: "${q3}"`);
+console.log(`   Results count: ${r3.length}`);
+console.log(`   Top 2: ${r3.slice(0, 2).map(p => `"${p.sectionTitle}"`).join(' and ')}`);
+if (r3.length === 0 || !r3.some(p => p.sectionTitle === 'Chief Complaint-Normal')) {
+  console.error('   ❌ FAILED: Typo match failed!');
+  process.exit(1);
+}
+console.log('   ✅ Typo "Chif" successfully matched Chief Complaint-Normal!');
+
+// Test 4: User typing "Normal"
+const q4 = 'Normal';
+const r4 = searchStandardPanels(q4);
+console.log(`\n4. Testing Search: "${q4}"`);
+console.log(`   Results count with -Normal panels: ${r4.length}`);
+console.log(`   List: ${r4.map(p => p.sectionTitle).join('\n         ')}`);
+
+console.log('\n========================================');
+console.log('🎉 ALL PANEL SEARCH TESTS PASSED 100%!');
+console.log('========================================\n');

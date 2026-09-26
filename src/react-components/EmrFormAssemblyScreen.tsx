@@ -876,12 +876,26 @@ export const EmrFormAssemblyScreen: React.FC<EmrFormAssemblyScreenProps> = ({
     if (selectedMasterPanel) return selectedMasterPanel;
     const trimmed = newSectionTitle.trim().toLowerCase();
     if (!trimmed) return null;
+    const cleanTrimmed = trimmed.replace(/[^a-z0-9]/g, '');
     return (
-      STANDARD_PANELS_CATALOG.find(
-        (p) =>
-          p.sectionTitle.toLowerCase().trim() === trimmed ||
-          p.nickName.toLowerCase().trim() === trimmed
-      ) || null
+      STANDARD_PANELS_CATALOG.find((p) => {
+        const tLower = p.sectionTitle.toLowerCase().trim();
+        const nLower = p.nickName.toLowerCase().trim();
+        const tClean = tLower.replace(/[^a-z0-9]/g, '');
+        const nClean = nLower.replace(/[^a-z0-9]/g, '');
+        if (tLower === trimmed || tClean === cleanTrimmed) return true;
+        if (nLower === trimmed || nClean === cleanTrimmed) return true;
+        if (
+          p.aliases &&
+          p.aliases.some((a) => {
+            const aLower = a.toLowerCase().trim();
+            return aLower === trimmed || aLower.replace(/[^a-z0-9]/g, '') === cleanTrimmed;
+          })
+        ) {
+          return true;
+        }
+        return false;
+      }) || null
     );
   }, [selectedMasterPanel, newSectionTitle]);
 
@@ -2156,12 +2170,21 @@ export const EmrFormAssemblyScreen: React.FC<EmrFormAssemblyScreenProps> = ({
                   <div style={{ position: 'relative' }}>
                     <Input
                       label=""
-                      placeholder="Search panel (e.g. Chief Complaints, Vitals, Physical Exam)..."
+                      placeholder="Search panel (e.g. Chief Complaint-Normal, Vitals, Physical Exam)..."
                       value={newSectionTitle}
                       onChange={(e) => {
-                        setNewSectionTitle(e.target.value);
+                        const val = e.target.value;
+                        setNewSectionTitle(val);
                         setSelectedMasterPanel(null);
                         setShowPanelSuggestions(true);
+                        const exact = STANDARD_PANELS_CATALOG.find(
+                          (p) =>
+                            p.sectionTitle.toLowerCase() === val.trim().toLowerCase() ||
+                            (p.aliases && p.aliases.some((a) => a.toLowerCase() === val.trim().toLowerCase()))
+                        );
+                        if (exact && !newSectionNickName) {
+                          setNewSectionNickName(exact.nickName);
+                        }
                       }}
                       onFocus={() => setShowPanelSuggestions(true)}
                       onKeyDown={(e) => {
@@ -2174,6 +2197,7 @@ export const EmrFormAssemblyScreen: React.FC<EmrFormAssemblyScreenProps> = ({
                         type="button"
                         onClick={() => {
                           setNewSectionTitle('');
+                          setNewSectionNickName('');
                           setSelectedMasterPanel(null);
                           setShowPanelSuggestions(false);
                         }}
@@ -2307,6 +2331,54 @@ export const EmrFormAssemblyScreen: React.FC<EmrFormAssemblyScreenProps> = ({
                           </div>
                         </div>
                       ))}
+                    </div>
+                  )}
+
+                  {/* Empty Search Fallback Helper */}
+                  {showPanelSuggestions && newSectionTitle.trim() && panelSearchResults.length === 0 && (
+                    <div
+                      style={{
+                        position: 'absolute',
+                        top: '100%',
+                        left: 0,
+                        right: 0,
+                        backgroundColor: '#ffffff',
+                        border: '1px solid #cbd5e1',
+                        borderRadius: radii.md,
+                        boxShadow: '0 10px 25px rgba(0,0,0,0.15)',
+                        zIndex: 9999,
+                        marginTop: 4,
+                        padding: '12px 14px',
+                        fontSize: 12,
+                        color: '#64748b',
+                      }}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: '#f59e0b', fontWeight: 600, marginBottom: 4 }}>
+                        <i className="fa fa-info-circle" />
+                        <span>No standard panel matches "{newSectionTitle}"</span>
+                      </div>
+                      <div>
+                        Click <strong>+ Add Panel</strong> to add this as a custom panel, or{' '}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setShowBrowseLibraryModal(true);
+                            setShowPanelSuggestions(false);
+                          }}
+                          style={{
+                            background: 'none',
+                            border: 'none',
+                            padding: 0,
+                            color: '#2563eb',
+                            textDecoration: 'underline',
+                            cursor: 'pointer',
+                            fontWeight: 600,
+                            font: 'inherit',
+                          }}
+                        >
+                          browse all standard panels ({STANDARD_PANELS_CATALOG.length})
+                        </button>.
+                      </div>
                     </div>
                   )}
                 </div>
