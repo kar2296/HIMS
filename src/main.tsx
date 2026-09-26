@@ -359,6 +359,7 @@ import { ServiceSubCategoryListScreen } from './react-components/ServiceSubCateg
 import { ProcedureListScreen } from './react-components/ProcedureListScreen';
 import { CategoryTypeListScreen } from './react-components/CategoryTypeListScreen';
 import { AttachmentTypeListScreen } from './react-components/AttachmentTypeListScreen';
+import { DrugMasterListScreen } from './react-components/DrugMasterListScreen';
 import { DistrictMasterListScreen } from './react-components/DistrictMasterListScreen';
 import { DistrictMasterFormScreen } from './react-components/DistrictMasterFormScreen';
 import { PincodeMasterListScreen } from './react-components/PincodeMasterListScreen';
@@ -663,6 +664,7 @@ import './printing/himsPrint';
   ProcedureListScreen,
   CategoryTypeListScreen,
   AttachmentTypeListScreen,
+  DrugMasterListScreen,
   DistrictMasterListScreen,
   DistrictMasterFormScreen,
   PincodeMasterListScreen,
