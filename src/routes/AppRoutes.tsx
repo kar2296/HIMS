@@ -35,6 +35,10 @@ import { ProcedureListScreen } from '../react-components/ProcedureListScreen';
 import { CategoryTypeListScreen } from '../react-components/CategoryTypeListScreen';
 import { AttachmentTypeListScreen } from '../react-components/AttachmentTypeListScreen';
 import { DrugMasterListScreen } from '../react-components/DrugMasterListScreen';
+import { EmrFormAssemblyScreen } from '../react-components/EmrFormAssemblyScreen';
+import { EditEmrVitalScreen } from '../react-components/emr-master/EditEmrVitalScreen';
+import { EmrMastersHubScreen } from '../react-components/emr-master/EmrMastersHubScreen';
+import { EmrMasterGenericScreen } from '../react-components/emr-master/EmrMasterGenericScreen';
 
 // Route Guard component
 export const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -438,6 +442,92 @@ export const AppRoutes: React.FC = () => {
           element={
             <ProtectedRoute>
               <ShellWrapper activeTab="emr" component={<DrugMasterListScreen />} />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* EMR Form Assembly & Specialty Panels */}
+        <Route
+          path="/emr/form-assembly"
+          element={
+            <ProtectedRoute>
+              <ShellWrapper activeTab="emr" component={<EmrFormAssemblyScreen />} />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/emrformassembly"
+          element={
+            <ProtectedRoute>
+              <ShellWrapper activeTab="emr" component={<EmrFormAssemblyScreen />} />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/emrpanelselection"
+          element={
+            <ProtectedRoute>
+              <ShellWrapper activeTab="emr" component={<EmrFormAssemblyScreen />} />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* EMR Standard Vital Panel Element Master */}
+        <Route
+          path="/emr/edit-vital/:panelId/:formId"
+          element={
+            <ProtectedRoute>
+              <ShellWrapper activeTab="emr" component={<EditEmrVitalScreen />} />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/editemrvital/:id"
+          element={
+            <ProtectedRoute>
+              <ShellWrapper activeTab="emr" component={<EditEmrVitalScreen />} />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/MasterV9.3/editEMRVital/:id"
+          element={
+            <ProtectedRoute>
+              <ShellWrapper activeTab="emr" component={<EditEmrVitalScreen />} />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* EMR Masters Catalog (All 77 Master Screens with Live Seed Data & CRUD) */}
+        <Route
+          path="/emr/masters"
+          element={
+            <ProtectedRoute>
+              <ShellWrapper activeTab="emr" component={<EmrMastersHubScreen />} />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/emrmasters"
+          element={
+            <ProtectedRoute>
+              <ShellWrapper activeTab="emr" component={<EmrMastersHubScreen />} />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/emr/masters/:masterKey"
+          element={
+            <ProtectedRoute>
+              <ShellWrapper activeTab="emr" component={<EmrMasterGenericScreen />} />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/MasterV9.3/:legacyPath"
+          element={
+            <ProtectedRoute>
+              <ShellWrapper activeTab="emr" component={<EmrMasterGenericScreen />} />
             </ProtectedRoute>
           }
         />

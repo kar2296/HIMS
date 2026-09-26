@@ -239,6 +239,9 @@ import { EmrPortalHubScreen } from './react-components/EmrPortalHubScreen';
 import { DischargeSummaryScreen } from './react-components/DischargeSummaryScreen';
 import { EmrFormAssemblyScreen } from './react-components/EmrFormAssemblyScreen';
 import { EmrMastersScreen } from './react-components/EmrMastersScreen';
+import { EmrMastersHubScreen } from './react-components/emr-master/EmrMastersHubScreen';
+import { EmrMasterGenericScreen } from './react-components/emr-master/EmrMasterGenericScreen';
+import { EditEmrVitalScreen } from './react-components/emr-master/EditEmrVitalScreen';
 import { EmrVisitSummaryScreen } from './react-components/EmrVisitSummaryScreen';
 import { InvestigationFollowupTrackerScreen } from './react-components/InvestigationFollowupTrackerScreen';
 import { PatientIdentityBanner } from './react-components/PatientIdentityBanner';
@@ -830,6 +833,9 @@ import './printing/himsPrint';
   DischargeSummaryScreen,
   EmrFormAssemblyScreen,
   EmrMastersScreen,
+  EmrMastersHubScreen,
+  EmrMasterGenericScreen,
+  EditEmrVitalScreen,
   EmrVisitSummaryScreen,
   EmrWorkspaceScreen,
   EmrPanelSelectionScreen,

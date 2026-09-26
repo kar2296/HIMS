@@ -8,6 +8,7 @@ import { Button } from './Button';
 import { DischargeSummaryScreen } from './DischargeSummaryScreen';
 import { EmrFormAssemblyScreen } from './EmrFormAssemblyScreen';
 import { EmrMastersScreen } from './EmrMastersScreen';
+import { EmrMastersHubScreen } from './emr-master/EmrMastersHubScreen';
 import { EmrVisitSummaryScreen } from './EmrVisitSummaryScreen';
 import { ClinicalAuditTrailScreen } from './ClinicalAuditTrailScreen';
 import { PatientIdentityBanner } from './PatientIdentityBanner';
@@ -483,7 +484,7 @@ export const EmrPortalHubScreen: React.FC<EmrPortalHubScreenProps> = ({
       {currentView === 'DISCHARGE_SUMMARY' && <DischargeSummaryScreen />}
       {currentView === 'DISCHARGE_AUDIT' && <ClinicalAuditTrailScreen />}
       {currentView === 'FORM_ASSEMBLY' && <EmrFormAssemblyScreen />}
-      {currentView === 'EMR_MASTERS' && <EmrMastersScreen />}
+      {currentView === 'EMR_MASTERS' && <EmrMastersHubScreen />}
       {currentView === 'VISIT_SUMMARY' && <EmrVisitSummaryScreen />}
 
       {currentView === 'WORKSTATION' && (

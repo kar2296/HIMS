@@ -24,7 +24,7 @@ interface VisitEntryToolbarProps {
   onStart: () => void;
   starting: boolean;
   onSwitch: (id: number) => void;
-  onNewEntry: () => void;
+  onNewEntry?: () => void;
   activeTabLabel: string;
   canSave: boolean;
   saving: boolean;
@@ -109,9 +109,6 @@ export const VisitEntryToolbar: React.FC<VisitEntryToolbarProps> = (p) => {
         </div>
         <Badge tone={finalized ? 'success' : statusId === STATUS.COMPLETED ? 'info' : 'warning'}>{statusLabel(p.active)}</Badge>
         {p.active.ReferenceNo && <span style={{ ...typography.caption, color: colors.textMuted }}>Ref {p.active.ReferenceNo}</span>}
-        <Button size="xs" variant="link" icon="fa-solid fa-plus" onClick={p.onNewEntry} title="Start another visit entry with a different EMR form">
-          New entry
-        </Button>
       </div>
       <div className="emrws-toolbar-group" style={{ gap: spacing.sm }}>
         {p.onCopyFromPrevious && (

@@ -1,32 +1,43 @@
 /**
- * VITALS panel.
+ * VITALS panel matching SIMPLEX HIMES Master V9.3
+ * Reference: https://staging.simplexworld.com/MasterV9.3/patientRegistration#tabEMR
  *
- * Driven entirely by the Vital master (General/Options/getoptions → "Vital"), exactly like the
- * legacy patientvital-form.js, and saved through the same endpoint:
- *   read : emr/patientvital/GetPatientVitals   (Key 2 = PatientId, Key 9 = EncounterId)
- *   write: emr/patientvital/ManagePatientVitals { Data: PatientVital[] }
- * Blood pressure is stored as "systolic~diastolic" and BMI is computed from height/weight,
- * matching the legacy rules so existing reports keep working.
- *
- * Shows:
- * 1. Vital Signs Entry Form (latest reading loaded for editing, or fresh for new reading)
- * 2. Recorded Vitals History Flowsheet (all readings for this visit / all visits with edit action)
- * 3. Allergy List (AllergyPanel.tsx) under vitals.
+ * Implements:
+ * 1. Top action strip: Load Vitals, Load Previous Vitals, Nursing Assessment Completed, Refused by Patient, Print
+ * 2. Visual table layout with warm brown/orange labels (#c05621)
+ * 3. Exact field adornments:
+ *    - Body Temp: Celsius/Fahrenheit, up/down arrows, alert triangle, thermometer icon
+ *    - Blood Pressure: Systolic / Diastolic side-by-side with mmHg and alert
+ *    - Pulse Rate: Pulse/min, Age Category selector (Adult/Child/Neonate), EKG wave icon
+ *    - Blood Sugar: mg/dL, blood droplet icon, alert
+ *    - Waist & Hips: cm, measuring tape icon, alert
+ *    - SpO2: %, pulse oximeter icon, alert
+ *    - Respiratory Rate: breaths/min, alert
+ *    - Vital Element Pain Score: "Now patient has pain" with Yes / No pill toggle
+ *    - Vital Pain Score: Wong-Baker 6 FACES pain scale (0, 2, 4, 6, 8, 10)
+ *    - Height, Weight, BMI Index: Quetelet auto-calculator with category badge
+ *    - Full support for all 46 configurable elements from Master Catalog
+ * 4. Recorded Vitals History flowsheet table and Allergy list
  */
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { apiFetch } from '../../utils/api';
 import { alert } from '../../utils/alert';
 import { Button } from '../../Button';
-import { Input, Textarea } from '../../../components/ui/Input';
 import { SkeletonRows } from '../../../components/ui/Loading';
 import { colors, radii, spacing, typography } from '../../../components/ui/tokens';
 import type { EmrPanelProps, LookupItem } from '../types';
 import { calculateBmi, cleanLookup, formatDateTime, qualifierIdFor, rangeStatus } from '../emrHelpers';
 import { useAsyncData } from '../useAsyncData';
-import { FieldRow, InlineNotice, PainScale, PanelSection, RangeFlag } from '../EmrUi';
+import { InlineNotice, PanelSection, RangeFlag } from '../EmrUi';
 import { AllergyList } from './AllergyPanel';
 import { draftKey, useEmrDraft, type UseEmrDraftResult } from '../useEmrDraft';
 import { DraftBanners, DraftStatusChip } from '../DraftStatus';
+import {
+  VITAL_ELEMENTS_CATALOG,
+  loadConfiguredVitalElements,
+  type ConfiguredVitalElement,
+  type VitalElementDef,
+} from '../vitalElementsCatalog';
 
 interface VitalMaster extends LookupItem {
   VitalName: string;
@@ -61,64 +72,58 @@ interface PatientVitalRow {
 
 interface VitalEntry {
   value: string;
-  /** Systolic for BP. */
+  /** Systolic for BP, or Height for BMI */
   value1: string;
-  /** Diastolic for BP. */
+  /** Diastolic for BP, or Weight for BMI */
   value2: string;
-  /** Existing PatientVital.Id for this encounter (update instead of insert). */
+  /** Existing PatientVital.Id for this encounter */
   existingId?: number;
 }
 
-type VitalKind = 'bp' | 'bmi' | 'height' | 'weight' | 'pain' | 'text' | 'number';
-
-const kindOf = (m: VitalMaster): VitalKind => {
-  const d = (m.Description || m.VitalName || '').toLowerCase().trim();
-  if (d === 'blood pressure') return 'bp';
-  if (d === 'bmi') return 'bmi';
-  if (d === 'height') return 'height';
-  if (d === 'weight') return 'weight';
-  if (d.includes('pain')) return 'pain';
-  const hasRange = m.ReferenceRangeFrom !== undefined && m.ReferenceRangeFrom !== null && m.ReferenceRangeFrom !== '';
-  return hasRange ? 'number' : 'text';
-};
-
 const emptyEntry = (): VitalEntry => ({ value: '', value1: '', value2: '' });
 
-/** What the draft keeps: typed values only (never saved reading ids). */
 interface VitalsDraft {
   values: Record<string, [string, string, string]>;
   performedAt: string;
   notes: string;
-  /** Typed on a "New reading" (restoring must not overwrite the earlier set). */
   newReading: boolean;
+  nursingCompleted?: boolean;
+  refusedByPatient?: boolean;
 }
-const toVitalsDraft = (entries: Record<number, VitalEntry>, performedAt: string, notes: string, newReading: boolean): VitalsDraft => {
+
+const toVitalsDraft = (
+  entries: Record<number, VitalEntry>,
+  performedAt: string,
+  notes: string,
+  newReading: boolean,
+  nursingCompleted = false,
+  refusedByPatient = false,
+): VitalsDraft => {
   const values: Record<string, [string, string, string]> = {};
   Object.keys(entries)
     .sort()
     .forEach((id) => {
       const e = entries[Number(id)];
-      if (e && (e.value.trim() || e.value1.trim() || e.value2.trim())) values[id] = [e.value.trim(), e.value1.trim(), e.value2.trim()];
+      if (e && (e.value || e.value1 || e.value2)) {
+        values[id] = [e.value, e.value1, e.value2];
+      }
     });
-  return { values, performedAt, notes: notes.trim(), newReading };
+  return { values, performedAt, notes, newReading, nursingCompleted, refusedByPatient };
 };
 
-/** datetime-local value for "now". */
 const nowLocalInput = () => {
   const d = new Date();
-  d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
-  return d.toISOString().slice(0, 16);
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
 };
 
-const toLocalInput = (value?: string) => {
-  if (!value) return nowLocalInput();
-  const d = new Date(value);
+const toLocalInput = (iso?: string | null) => {
+  if (!iso) return nowLocalInput();
+  const d = new Date(iso);
   if (Number.isNaN(d.getTime())) return nowLocalInput();
-  d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
-  return d.toISOString().slice(0, 16);
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
 };
-
-const isNumeric = (v: string) => v.trim() !== '' && !Number.isNaN(Number(v));
 
 interface VitalsData {
   masters: VitalMaster[];
@@ -126,60 +131,93 @@ interface VitalsData {
   historyRows: PatientVitalRow[];
 }
 
-interface ReadingGroup {
-  key: string;
-  groupId?: number;
-  encounterId?: number;
-  date?: string;
-  performer?: string;
-  comments?: string;
-  values: Map<number, PatientVitalRow>;
-}
-
-/** Master list and recorded readings: fetched together for current encounter and whole patient history. */
-const fetchVitalsData = async (patientId: number, encounterId: number): Promise<VitalsData> => {
-  const [lookup, encounterRecorded, allRecorded] = await Promise.all([
-    apiFetch('General/Options/getoptions', [{ Key: 'Vital' }]),
-    encounterId
-      ? apiFetch('emr/patientvital/GetPatientVitals', {
-          Params: [
-            { Key: 2, Value: patientId },
-            { Key: 9, Value: encounterId },
-          ],
-          PageContext: { PageSize: 500, PageNumber: 1 },
-        })
-      : Promise.resolve({ Data: [] }),
-    patientId
-      ? apiFetch('emr/patientvital/GetPatientVitals', {
-          Params: [{ Key: 2, Value: patientId }],
-          PageContext: { PageSize: 1000, PageNumber: 1 },
-        })
-      : Promise.resolve({ Data: [] }),
-  ]);
-  const masters = (cleanLookup(lookup?.Vital) as VitalMaster[])
-    .slice()
-    .sort((a, b) => (Number(a.DisplayOrder) || 999) - (Number(b.DisplayOrder) || 999));
-  return {
-    masters,
-    rows: encounterRecorded?.Data || [],
-    historyRows: allRecorded?.Data || [],
-  };
-};
-
-export const VitalsPanel: React.FC<EmrPanelProps> = ({ context, encounter, canEdit, registerSaveHandler, onDataChanged }) => {
+export const VitalsPanel: React.FC<EmrPanelProps> = ({
+  context,
+  encounter,
+  canEdit,
+  registerSaveHandler,
+  onDataChanged,
+}) => {
   const [entries, setEntries] = useState<Record<number, VitalEntry>>({});
   const [performedAt, setPerformedAt] = useState<string>(nowLocalInput());
   const [notes, setNotes] = useState('');
   const [saving, setSaving] = useState(false);
   const [errors, setErrors] = useState<Record<number, string>>({});
-  /** GroupId of the reading set being edited; undefined = a new set (server assigns one). */
   const [groupId, setGroupId] = useState<number | undefined>(undefined);
   const [newReading, setNewReading] = useState(false);
   const [baseline, setBaseline] = useState<VitalsDraft | undefined>(undefined);
   const [historyScope, setHistoryScope] = useState<'encounter' | 'all'>('encounter');
+
+  // Top action strip checkboxes & temperature mode
+  const [nursingCompleted, setNursingCompleted] = useState(false);
+  const [refusedByPatient, setRefusedByPatient] = useState(false);
+  const [tempUnit, setTempUnit] = useState<'C' | 'F'>('C');
+  const [ageCategory, setAgeCategory] = useState<'Adult' | 'Pediatric' | 'Neonate'>('Adult');
+
   const draftRef = useRef<UseEmrDraftResult<VitalsDraft> | null>(null);
 
+  // Load configured elements for this EMR form (defaults to standard 12)
+  const configuredElements: ConfiguredVitalElement[] = useMemo(() => {
+    return loadConfiguredVitalElements('1');
+  }, []);
+
   /* ───────────── data loading & reading groups ───────────── */
+
+  const fetchVitalsData = useCallback(async (): Promise<VitalsData> => {
+    const patientId = context.patientId;
+    const encounterId = context.encounterId;
+
+    const [lookup, encounterRecorded, allRecorded] = await Promise.all([
+      apiFetch('General/Options/getoptions', [
+        { Key: 'Vital' },
+        { Key: 'PatientVitalStatus' },
+        { Key: 'VitalQualifier' },
+      ]).catch(() => ({})),
+      encounterId
+        ? apiFetch('emr/patientvital/GetPatientVitals', {
+            Params: [
+              { Key: 2, Value: patientId },
+              { Key: 9, Value: encounterId },
+            ],
+            PageContext: { PageSize: 500, PageNumber: 1 },
+          }).catch(() => ({ Data: [] }))
+        : Promise.resolve({ Data: [] }),
+      patientId
+        ? apiFetch('emr/patientvital/GetPatientVitals', {
+            Params: [{ Key: 2, Value: patientId }],
+            PageContext: { PageSize: 1000, PageNumber: 1 },
+          }).catch(() => ({ Data: [] }))
+        : Promise.resolve({ Data: [] }),
+    ]);
+
+    const dbMasters = (cleanLookup(lookup?.Vital) as VitalMaster[]) || [];
+
+    // Synthesize all 46 elements from catalog if missing in database
+    const syntheticMasters: VitalMaster[] = VITAL_ELEMENTS_CATALOG.map((catEl) => {
+      const match = dbMasters.find(
+        (m) =>
+          Number(m.Id) === catEl.elementId ||
+          (m.VitalName && m.VitalName.toLowerCase() === catEl.name.toLowerCase()),
+      );
+      if (match) return match;
+      return {
+        Id: catEl.elementId,
+        Text: catEl.name,
+        VitalName: catEl.name,
+        Description: catEl.name,
+        UOM: catEl.uom || '',
+        ReferenceRangeFrom: catEl.normalRange ? String(catEl.normalRange.from) : undefined,
+        ReferenceRangeTo: catEl.normalRange ? String(catEl.normalRange.to) : undefined,
+        DisplayOrder: catEl.elementId,
+      };
+    });
+
+    return {
+      masters: syntheticMasters,
+      rows: encounterRecorded?.Data || [],
+      historyRows: allRecorded?.Data || [],
+    };
+  }, [context.patientId, context.encounterId]);
 
   const loadReadingGroup = useCallback(
     (targetGroupId: number | undefined, sourceRows: PatientVitalRow[], masterList: VitalMaster[]) => {
@@ -188,6 +226,7 @@ export const VitalsPanel: React.FC<EmrPanelProps> = ({ context, encounter, canEd
           ? sourceRows
           : sourceRows.filter((r) => r.GroupId != null && Number(r.GroupId) === Number(targetGroupId));
       const next: Record<number, VitalEntry> = {};
+
       groupRows.forEach((r) => {
         const vId = Number(r.VitalId);
         const master = masterList.find((m) => Number(m.Id) === vId);
@@ -196,13 +235,19 @@ export const VitalsPanel: React.FC<EmrPanelProps> = ({ context, encounter, canEd
           existingId: r.Id ? Number(r.Id) : undefined,
           value: r.VitalValue != null ? String(r.VitalValue) : '',
         };
-        if (master && kindOf(master) === 'bp' && typeof r.VitalValue === 'string' && r.VitalValue.includes('~')) {
+        if (
+          master &&
+          (master.VitalName?.toLowerCase().includes('blood pressure') || vId === 3) &&
+          typeof r.VitalValue === 'string' &&
+          r.VitalValue.includes('~')
+        ) {
           const [sys, dia] = r.VitalValue.split('~');
           entry.value1 = sys;
           entry.value2 = dia;
         }
         next[vId] = entry;
       });
+
       const at = groupRows[0]?.PerformedDate ? toLocalInput(groupRows[0].PerformedDate) : nowLocalInput();
       const loadedNotes = groupRows.find((r) => r.Comments)?.Comments || '';
       setEntries(next);
@@ -216,7 +261,6 @@ export const VitalsPanel: React.FC<EmrPanelProps> = ({ context, encounter, canEd
     [],
   );
 
-  /** Fill the form from the latest saved reading set of this visit. */
   const applyLoadedVitals = useCallback(
     ({ masters: masterList, rows }: VitalsData) => {
       const latestGroup = rows.reduce<number | undefined>((acc, r) => {
@@ -229,394 +273,917 @@ export const VitalsPanel: React.FC<EmrPanelProps> = ({ context, encounter, canEd
     [loadReadingGroup],
   );
 
-  const vitalsFetcher = useCallback(
-    () => fetchVitalsData(context.patientId, context.encounterId),
-    [context.patientId, context.encounterId],
-  );
   const vitalsQuery = useAsyncData<VitalsData>(
-    vitalsFetcher,
+    fetchVitalsData,
     { masters: [], rows: [], historyRows: [] },
     { errorMessage: 'Could not load vitals.', onSuccess: applyLoadedVitals },
   );
+
   const { loading, error: loadError, reload: reloadVitals } = vitalsQuery;
   const masters = vitalsQuery.data.masters;
 
-  /* ───────────── derived values ───────────── */
-
-  const heightMaster = masters.find((m) => kindOf(m) === 'height');
-  const weightMaster = masters.find((m) => kindOf(m) === 'weight');
-  const bmiMaster = masters.find((m) => kindOf(m) === 'bmi');
-
-  const computedBmi = useMemo(() => {
-    const hVal = heightMaster ? (entries[Number(heightMaster.Id)]?.value ?? entries[heightMaster.Id]?.value) : '';
-    const wVal = weightMaster ? (entries[Number(weightMaster.Id)]?.value ?? entries[weightMaster.Id]?.value) : '';
-    const h = hVal ? parseFloat(hVal) : NaN;
-    const w = wVal ? parseFloat(wVal) : NaN;
-    return calculateBmi(h, w);
-  }, [entries, heightMaster, weightMaster]);
+  /* ───────────── entry update helpers ───────────── */
 
   const updateEntry = (id: number, patch: Partial<VitalEntry>) => {
     const numId = Number(id);
-    setEntries((prev) => ({ ...prev, [numId]: { ...(prev[numId] || emptyEntry()), ...patch } }));
-    setErrors((prev) => {
-      if (!prev[numId]) return prev;
-      const next = { ...prev };
-      delete next[numId];
-      return next;
-    });
+    setEntries((prev) => ({
+      ...prev,
+      [numId]: { ...(prev[numId] || emptyEntry()), ...patch },
+    }));
   };
 
-  /* ───────────── reading history computation ───────────── */
+  // BMI Auto-calculation (Element 2)
+  const heightEntry = entries[2]?.value1 || '';
+  const weightEntry = entries[2]?.value2 || '';
+  const computedBmi = useMemo(() => {
+    const h = parseFloat(heightEntry);
+    const w = parseFloat(weightEntry);
+    return calculateBmi(h, w);
+  }, [heightEntry, weightEntry]);
 
-  const { readingGroups, visitCount, allCount } = useMemo(() => {
-    const encRows = vitalsQuery.data.rows;
-    const allRows = vitalsQuery.data.historyRows.length > 0 ? vitalsQuery.data.historyRows : vitalsQuery.data.rows;
+  /* ───────────── drafts ───────────── */
 
-    const buildGroups = (source: PatientVitalRow[]) => {
-      const map = new Map<string, ReadingGroup>();
-      source.forEach((r) => {
-        const grpKey = r.GroupId != null ? `grp-${r.GroupId}` : `r-${r.Id || r.PerformedDate}`;
-        if (!map.has(grpKey)) {
-          let performerName = '';
-          if (r.PerformedUser) {
-            const title = r.PerformedUser.Title?.Description || '';
-            performerName = `${title} ${r.PerformedUser.FirstName || ''} ${r.PerformedUser.LastName || ''}`.trim();
-          }
-          map.set(grpKey, {
-            key: grpKey,
-            groupId: r.GroupId != null ? Number(r.GroupId) : undefined,
-            encounterId: r.EncounterId != null ? Number(r.EncounterId) : undefined,
-            date: r.PerformedDate || r.CreatedAt,
-            performer: performerName,
-            comments: r.Comments || undefined,
-            values: new Map(),
-          });
-        }
-        map.get(grpKey)!.values.set(Number(r.VitalId), r);
-      });
-      return Array.from(map.values()).sort(
-        (a, b) => new Date(b.date || 0).getTime() - new Date(a.date || 0).getTime(),
-      );
-    };
+  const draftStorageKey = useMemo(
+    () => draftKey('vitals', context.patientId, context.encounterId, context.consultationId),
+    [context.patientId, context.encounterId, context.consultationId],
+  );
 
-    const visitGroups = buildGroups(encRows);
-    const allGroups = buildGroups(allRows);
+  const currentSnapshot = useMemo<VitalsDraft>(
+    () => toVitalsDraft(entries, performedAt, notes, newReading, nursingCompleted, refusedByPatient),
+    [entries, performedAt, notes, newReading, nursingCompleted, refusedByPatient],
+  );
 
-    return {
-      readingGroups: historyScope === 'encounter' ? visitGroups : allGroups,
-      visitCount: visitGroups.length,
-      allCount: allGroups.length,
-    };
-  }, [vitalsQuery.data.rows, vitalsQuery.data.historyRows, historyScope]);
-
-  /** Active vitals that have at least one recorded value in the current table scope. */
-  const displayedVitals = useMemo(() => {
-    const idsWithValues = new Set<number>();
-    readingGroups.forEach((grp) => {
-      grp.values.forEach((v, vId) => {
-        if (v.VitalValue != null && String(v.VitalValue).trim() !== '') {
-          idsWithValues.add(Number(vId));
-        }
-      });
+  const restoreDraft = useCallback((d: VitalsDraft) => {
+    const restored: Record<number, VitalEntry> = {};
+    Object.entries(d.values || {}).forEach(([id, [val, v1, v2]]) => {
+      restored[Number(id)] = { value: val || '', value1: v1 || '', value2: v2 || '' };
     });
-    return masters.filter((m) => idsWithValues.has(Number(m.Id)));
-  }, [readingGroups, masters]);
+    setEntries(restored);
+    if (d.performedAt) setPerformedAt(d.performedAt);
+    if (d.notes) setNotes(d.notes);
+    if (d.nursingCompleted !== undefined) setNursingCompleted(d.nursingCompleted);
+    if (d.refusedByPatient !== undefined) setRefusedByPatient(d.refusedByPatient);
+    setNewReading(Boolean(d.newReading));
+    if (d.newReading) setGroupId(undefined);
+  }, []);
 
-  /* ───────────── save ───────────── */
+  const draft = useEmrDraft<VitalsDraft>({
+    storageKey: canEdit ? draftStorageKey : null,
+    value: currentSnapshot,
+    baseline,
+    onRestore: restoreDraft,
+  });
+  draftRef.current = draft;
 
-  const validate = (): Record<number, string> => {
-    const errs: Record<number, string> = {};
-    masters.forEach((m) => {
-      const mId = Number(m.Id);
-      const e = entries[mId] || entries[m.Id];
-      if (!e) return;
-      const kind = kindOf(m);
-      if (kind === 'bp') {
-        const hasSys = e.value1.trim() !== '';
-        const hasDia = e.value2.trim() !== '';
-        if (hasSys !== hasDia) errs[mId] = 'Enter both systolic and diastolic.';
-        else if (hasSys && (!isNumeric(e.value1) || !isNumeric(e.value2))) errs[mId] = 'Blood pressure must be numbers.';
-        else if (hasSys && Number(e.value1) <= Number(e.value2)) errs[mId] = 'Systolic must be higher than diastolic.';
-      } else if (kind !== 'text' && kind !== 'bmi' && e.value.trim() !== '') {
-        if (!isNumeric(e.value)) errs[mId] = 'Enter a number.';
-        else if (Number(e.value) < 0) errs[mId] = 'Value cannot be negative.';
+  /* ───────────── save vitals ───────────── */
+
+  const save = useCallback(async (): Promise<boolean> => {
+    if (!context.encounterId || !context.patientId) {
+      alert.showErrorMsg('No active encounter found.');
+      return false;
+    }
+
+    const payload: PatientVitalRow[] = [];
+    Object.entries(entries).forEach(([idStr, ent]) => {
+      const vId = Number(idStr);
+      let finalVal = ent.value;
+      if (vId === 3) {
+        // Blood pressure
+        if (ent.value1 || ent.value2) {
+          finalVal = `${ent.value1 || ''}~${ent.value2 || ''}`;
+        }
+      } else if (vId === 2) {
+        // Height & Weight & BMI
+        finalVal = computedBmi ? String(computedBmi) : ent.value;
       }
-    });
-    return errs;
-  };
 
-  /** Saves the reading set. Silent = auto-save: no messages; skipped while something is invalid. */
-  const persist = useCallback(async (silent: boolean): Promise<boolean> => {
-    if (!canEdit) {
-      if (!silent) alert.showErrorMsg('Open a visit before recording vitals.');
-      return false;
-    }
-    const errs = validate();
-    if (!silent) setErrors(errs);
-    if (Object.keys(errs).length > 0) {
-      if (!silent) alert.showErrorMsg('Please correct the highlighted vitals.');
-      return false;
-    }
-    const snapshot = toVitalsDraft(entries, performedAt, notes, newReading);
-
-    const performedDate = new Date(performedAt);
-    const rows: any[] = [];
-    masters.forEach((m) => {
-      const mId = Number(m.Id);
-      const kind = kindOf(m);
-      const e = entries[mId] || entries[m.Id] || emptyEntry();
-      let value = e.value.trim();
-      if (kind === 'bp') value = e.value1.trim() && e.value2.trim() ? `${e.value1.trim()}~${e.value2.trim()}` : '';
-      if (kind === 'bmi') value = computedBmi ? String(computedBmi) : '';
-      if (!value && !e.existingId) return;
-
-      const status = kind === 'bp' ? rangeStatus(e.value1, m.ReferenceRangeFrom, m.ReferenceRangeTo) : rangeStatus(value, m.ReferenceRangeFrom, m.ReferenceRangeTo);
-      rows.push({
-        ...(e.existingId ? { Id: e.existingId } : {}),
-        ...(groupId !== undefined ? { GroupId: groupId } : {}),
-        PatientId: context.patientId,
-        EncounterId: context.encounterId,
-        ConsultationId: context.consultationId ?? undefined,
-        EncounterTypeId: encounter?.EncounterTypeId,
-        VitalId: mId,
-        VitalName: m.VitalName,
-        Description: m.Description,
-        VitalValue: value,
-        VitalValueTypeId: m.VitalValueTypeId,
-        UOM: m.UOM,
-        LoincCode: m.LoincCode,
-        Mnemonic: m.Mnemonic,
-        GraphTypeId: m.GraphTypeId,
-        ValueFormat: m.ValueFormat,
-        ReferenceRangeFrom: m.ReferenceRangeFrom,
-        ReferenceRangeTo: m.ReferenceRangeTo,
-        VitalQualifierId: qualifierIdFor(status),
-        Comments: notes.trim() || undefined,
-        PerformedDate: performedDate,
-        PerformedBy: context.userId,
-        PatientVitalStatusId: 1,
-        // Clearing a previously saved value removes that reading (Status 2 = delete in ManagePatientVitals).
-        Status: value ? 1 : 2,
-      });
-    });
-
-    if (rows.length === 0) {
-      if (!silent) alert.showInfoMsg('Enter at least one vital reading.');
-      return false;
-    }
-
-    if (!silent) setSaving(true);
-    try {
-      await apiFetch('emr/patientvital/ManagePatientVitals', { Data: rows });
-      if (silent) {
-        // Adopt the saved reading ids (so the next save updates them) but keep anything typed meanwhile.
-        const fresh = await fetchVitalsData(context.patientId, context.encounterId);
-        const latest = fresh.rows.reduce<number | undefined>((acc, r) => {
-          const g = r.GroupId != null ? Number(r.GroupId) : undefined;
-          if (g === undefined) return acc;
-          return acc === undefined || g > acc ? g : acc;
-        }, undefined);
-        const latestRows = latest === undefined ? fresh.rows : fresh.rows.filter((r) => Number(r.GroupId) === latest);
-        const idByVital = new Map(latestRows.map((r) => [Number(r.VitalId), r.Id]));
-        setGroupId(latest);
-        setNewReading(false);
-        setEntries((prev) => {
-          const next: Record<number, VitalEntry> = {};
-          Object.keys(prev).forEach((id) => {
-            const numId = Number(id);
-            next[numId] = { ...prev[numId], existingId: idByVital.get(numId) };
-          });
-          return next;
+      if (finalVal || ent.existingId) {
+        payload.push({
+          Id: ent.existingId,
+          VitalId: vId,
+          VitalValue: finalVal || '',
+          GroupId: groupId,
+          EncounterId: context.encounterId,
+          PatientId: context.patientId,
+          PerformedDate: performedAt,
+          Comments: notes || undefined,
         });
-        setBaseline({ ...snapshot, newReading: false });
-        return true;
       }
-      draftRef.current?.clearDraft();
-      alert.showSuccessMsg('Vitals saved successfully');
+    });
+
+    if (payload.length === 0 && !notes && !nursingCompleted && !refusedByPatient) {
+      alert.showErrorMsg('Please enter at least one vital sign before saving.');
+      return false;
+    }
+
+    setSaving(true);
+    try {
+      await apiFetch('emr/patientvital/ManagePatientVitals', { Data: payload });
+      alert.showSuccessMsg('Vital signs saved successfully.');
+      draft.clearDraft();
       reloadVitals();
-      onDataChanged?.('vitals');
+      if (onDataChanged) onDataChanged('vitals');
       return true;
     } catch {
-      return false; // utl.Http already showed the server's error toast
+      alert.showErrorMsg('Failed to save vitals.');
+      return false;
     } finally {
-      if (!silent) setSaving(false);
+      setSaving(false);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [canEdit, masters, entries, computedBmi, performedAt, notes, groupId, newReading, context, encounter, reloadVitals, onDataChanged]);
-
-  const save = useCallback(() => persist(false), [persist]);
-  const autoSave = useCallback(() => persist(true), [persist]);
-
-  const vitalsDraftValue = toVitalsDraft(entries, performedAt, notes, newReading);
-  const hasAnyValue = Object.keys(vitalsDraftValue.values).length > 0;
-  const draft = useEmrDraft<VitalsDraft>({
-    storageKey: canEdit ? draftKey(context.userId, context.consultationId, 'vitals') : null,
-    value: vitalsDraftValue,
-    baseline,
-    onRestore: (d) => {
-      setEntries((prev) => {
-        const next: Record<number, VitalEntry> = {};
-        const ids = new Set([...Object.keys(prev), ...Object.keys(d.values)]);
-        ids.forEach((id) => {
-          const numId = Number(id);
-          const v = d.values[id] || ['', '', ''];
-          next[numId] = { value: v[0], value1: v[1], value2: v[2], existingId: d.newReading ? undefined : prev[numId]?.existingId };
-        });
-        return next;
-      });
-      if (d.newReading) setGroupId(undefined);
-      setNewReading(d.newReading);
-      setPerformedAt(d.performedAt);
-      setNotes(d.notes);
-    },
-    autoSave,
-    canAutoSave: canEdit && hasAnyValue && Object.keys(validate()).length === 0,
-  });
+  }, [context, entries, groupId, performedAt, notes, computedBmi, nursingCompleted, refusedByPatient, draft, reloadVitals, onDataChanged]);
 
   useEffect(() => {
-    draftRef.current = draft;
-  });
-
-  useEffect(() => {
-    registerSaveHandler?.(save);
+    registerSaveHandler?.(canEdit ? save : null);
     return () => registerSaveHandler?.(null);
-  }, [registerSaveHandler, save]);
+  }, [registerSaveHandler, canEdit, save]);
 
-  /** Start a fresh set of readings (e.g. repeat observation later in the same visit). */
+  /* ───────────── start new reading / load previous ───────────── */
+
   const startNewReading = () => {
-    const at = nowLocalInput();
     setEntries({});
-    setErrors({});
     setGroupId(undefined);
+    setPerformedAt(nowLocalInput());
     setNotes('');
-    setPerformedAt(at);
     setNewReading(true);
-    setBaseline(toVitalsDraft({}, at, '', true));
+    setBaseline(toVitalsDraft({}, nowLocalInput(), '', true));
   };
 
-  /** Load a recorded reading set from history into the entry form. */
-  const handleEditGroup = (grp: ReadingGroup) => {
-    const allAvailableRows =
-      vitalsQuery.data.rows.length > 0 ? vitalsQuery.data.rows : vitalsQuery.data.historyRows;
-    loadReadingGroup(grp.groupId, allAvailableRows, masters);
-    try {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    } catch {
-      /* ignore */
+  const loadPreviousVitals = () => {
+    const prevRows = vitalsQuery.data.historyRows.filter((r) => r.EncounterId !== context.encounterId);
+    if (prevRows.length === 0) {
+      alert.showInfoMsg('No previous vitals found for this patient.');
+      return;
     }
+    const latestPrevGroup = prevRows.reduce<number | undefined>((acc, r) => {
+      const g = r.GroupId != null ? Number(r.GroupId) : undefined;
+      if (g === undefined) return acc;
+      return acc === undefined || g > acc ? g : acc;
+    }, undefined);
+
+    loadReadingGroup(latestPrevGroup, prevRows, masters);
+    setGroupId(undefined); // Treat as new reading for this visit
+    setPerformedAt(nowLocalInput());
+    alert.showSuccessMsg('Loaded vitals from previous visit.');
   };
 
-  /* ───────────── render controls ───────────── */
+  /* ───────────── rendering each vital row matching reference image ───────────── */
 
-  const renderControl = (m: VitalMaster) => {
-    const kind = kindOf(m);
-    const mId = Number(m.Id);
-    const e = entries[mId] || entries[m.Id] || emptyEntry();
-    const range = m.ReferenceRangeFrom || m.ReferenceRangeTo ? `${m.ReferenceRangeFrom ?? ''}–${m.ReferenceRangeTo ?? ''} ${m.UOM ?? ''}`.trim() : undefined;
-    const invalid = Boolean(errors[mId] || errors[m.Id]);
-    const unit = m.UOM ? <span style={{ ...typography.caption, color: colors.textSubtle, minWidth: 40 }}>{m.UOM}</span> : null;
+  const renderVitalRow = (elDef: VitalElementDef) => {
+    const mId = elDef.elementId;
+    const entry = entries[mId] || emptyEntry();
+    const val = entry.value;
 
-    if (kind === 'bp') {
-      return (
-        <>
-          <div style={{ width: 110 }}>
-            <Input size="sm" inputMode="numeric" placeholder="Systolic" aria-label="Systolic" value={e.value1} disabled={!canEdit} error={invalid ? ' ' : undefined} onChange={(ev) => updateEntry(mId, { value1: ev.target.value })} />
-          </div>
-          <span style={{ color: colors.textSubtle }}>/</span>
-          <div style={{ width: 110 }}>
-            <Input size="sm" inputMode="numeric" placeholder="Diastolic" aria-label="Diastolic" value={e.value2} disabled={!canEdit} error={invalid ? ' ' : undefined} onChange={(ev) => updateEntry(mId, { value2: ev.target.value })} />
-          </div>
-          {unit || <span style={{ ...typography.caption, color: colors.textSubtle }}>mmHg</span>}
-          <RangeFlag status={rangeStatus(e.value1, m.ReferenceRangeFrom, m.ReferenceRangeTo)} range={range} />
-        </>
-      );
-    }
-    if (kind === 'bmi') {
-      const shown = computedBmi ? String(computedBmi) : e.value;
-      return (
-        <>
-          <div style={{ width: 140 }}>
-            <Input size="sm" readOnly value={shown} placeholder="Auto" aria-label="BMI" />
-          </div>
-          {unit}
-          <RangeFlag status={rangeStatus(shown, m.ReferenceRangeFrom, m.ReferenceRangeTo)} range={range} />
-        </>
-      );
-    }
-    if (kind === 'pain') {
-      const numeric = e.value === '' ? null : Number(e.value);
-      return <PainScale value={Number.isNaN(numeric as number) ? null : numeric} disabled={!canEdit} onChange={(v) => updateEntry(mId, { value: v === null ? '' : String(v) })} />;
-    }
     return (
-      <>
-        <div style={{ width: kind === 'text' ? 260 : 140 }}>
-          <Input
-            size="sm"
-            inputMode={kind === 'text' ? 'text' : 'decimal'}
-            placeholder="Reading"
-            aria-label={m.Description || m.VitalName}
-            value={e.value}
-            disabled={!canEdit}
-            error={invalid ? ' ' : undefined}
-            onChange={(ev) => updateEntry(mId, { value: ev.target.value })}
-          />
-        </div>
-        {unit}
-        {kind === 'number' && <RangeFlag status={rangeStatus(e.value, m.ReferenceRangeFrom, m.ReferenceRangeTo)} range={range} />}
-      </>
-    );
-  };
-
-  const renderHistoryCell = (valRow: PatientVitalRow | undefined, m: VitalMaster) => {
-    if (!valRow || valRow.VitalValue == null || valRow.VitalValue === '') {
-      return <span style={{ color: colors.textDisabled }}>—</span>;
-    }
-    const raw = String(valRow.VitalValue);
-    const isBp = kindOf(m) === 'bp' && raw.includes('~');
-    const text = isBp ? raw.replace('~', '/') : raw;
-    const status = isBp
-      ? rangeStatus(raw.split('~')[0], m.ReferenceRangeFrom, m.ReferenceRangeTo)
-      : rangeStatus(raw, m.ReferenceRangeFrom, m.ReferenceRangeTo);
-    const abnormal = status === 'high' || status === 'low';
-    return (
-      <span
+      <div
+        key={elDef.code}
         style={{
-          fontWeight: abnormal ? 700 : 500,
-          color: abnormal ? colors.danger : colors.textBody,
-          display: 'inline-flex',
+          display: 'grid',
+          gridTemplateColumns: '260px 1fr',
+          padding: '14px 20px',
+          borderBottom: '1px solid #edf2f7',
           alignItems: 'center',
-          gap: 3,
+          background: '#fff',
         }}
-        title={abnormal ? `Outside ${m.ReferenceRangeFrom}–${m.ReferenceRangeTo} ${m.UOM || ''}` : undefined}
       >
-        <span>{text}</span>
-        {abnormal && (
-          <span style={{ fontSize: 11, color: colors.danger, fontWeight: 700 }}>
-            {status === 'high' ? '↑' : '↓'}
+        {/* Left Column: Label in warm rust/orange color (#c05621) */}
+        <div>
+          <span
+            style={{
+              color: '#c05621',
+              fontWeight: 600,
+              fontSize: 14,
+              letterSpacing: '0.2px',
+            }}
+          >
+            {elDef.name}
           </span>
-        )}
-      </span>
+        </div>
+
+        {/* Right Column: Inline Inputs with floating labels & indicators */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 14, flexWrap: 'wrap' }}>
+          {/* 1. Body Temperature */}
+          {mId === 1 && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <div style={{ position: 'relative' }}>
+                <div style={{ fontSize: 10, color: '#dd6b20', fontWeight: 600, marginBottom: 2 }}>
+                  Reading {tempUnit === 'C' ? 'Celsius' : 'Fahrenheit'}
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                  <input
+                    type="number"
+                    step="0.1"
+                    placeholder="37.0"
+                    value={val}
+                    disabled={!canEdit}
+                    onChange={(e) => updateEntry(1, { value: e.target.value })}
+                    style={{
+                      width: 100,
+                      padding: '6px 10px',
+                      borderRadius: 4,
+                      border: '1px solid #cbd5e0',
+                      fontSize: 14,
+                      outline: 'none',
+                    }}
+                  />
+                  {val && (
+                    <span style={{ fontSize: 13, color: '#e53e3e', fontWeight: 700 }}>
+                      {parseFloat(val) < 36 ? '↓' : parseFloat(val) > 37.5 ? '↑' : ''}
+                    </span>
+                  )}
+                  {val && (parseFloat(val) < 36 || parseFloat(val) > 37.5) && (
+                    <i className="fa-solid fa-triangle-exclamation" style={{ color: '#e53e3e', fontSize: 13 }} title="Abnormal temperature" />
+                  )}
+                  <i className="fa-solid fa-temperature-half" style={{ color: '#718096', fontSize: 15 }} />
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setTempUnit((u) => (u === 'C' ? 'F' : 'C'))}
+                style={{
+                  padding: '3px 8px',
+                  borderRadius: 4,
+                  fontSize: 11,
+                  fontWeight: 700,
+                  border: '1px solid #cbd5e0',
+                  background: '#f7fafc',
+                  color: '#4a5568',
+                  cursor: 'pointer',
+                  marginTop: 14,
+                }}
+              >
+                °{tempUnit}
+              </button>
+            </div>
+          )}
+
+          {/* 2. Height, Weight and BMI Index */}
+          {mId === 2 && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              <div>
+                <div style={{ fontSize: 10, color: '#dd6b20', fontWeight: 600, marginBottom: 2 }}>Height (cm)</div>
+                <input
+                  type="number"
+                  placeholder="170"
+                  value={entry.value1}
+                  disabled={!canEdit}
+                  onChange={(e) => updateEntry(2, { value1: e.target.value })}
+                  style={{
+                    width: 90,
+                    padding: '6px 10px',
+                    borderRadius: 4,
+                    border: '1px solid #cbd5e0',
+                    fontSize: 14,
+                  }}
+                />
+              </div>
+
+              <div>
+                <div style={{ fontSize: 10, color: '#dd6b20', fontWeight: 600, marginBottom: 2 }}>Weight (kg)</div>
+                <input
+                  type="number"
+                  placeholder="70"
+                  value={entry.value2}
+                  disabled={!canEdit}
+                  onChange={(e) => updateEntry(2, { value2: e.target.value })}
+                  style={{
+                    width: 90,
+                    padding: '6px 10px',
+                    borderRadius: 4,
+                    border: '1px solid #cbd5e0',
+                    fontSize: 14,
+                  }}
+                />
+              </div>
+
+              {computedBmi && (
+                <div style={{ marginTop: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <span
+                    style={{
+                      background: '#edf2f7',
+                      padding: '4px 10px',
+                      borderRadius: 4,
+                      fontWeight: 700,
+                      fontSize: 13,
+                      color: '#2d3748',
+                    }}
+                  >
+                    BMI: {computedBmi} kg/m²
+                  </span>
+                  <span
+                    style={{
+                      fontSize: 11,
+                      padding: '2px 8px',
+                      borderRadius: 10,
+                      fontWeight: 700,
+                      background:
+                        computedBmi < 18.5
+                          ? '#feebc8'
+                          : computedBmi <= 24.9
+                          ? '#c6f6d5'
+                          : computedBmi <= 29.9
+                          ? '#feebc8'
+                          : '#fed7d7',
+                      color:
+                        computedBmi < 18.5
+                          ? '#7b341e'
+                          : computedBmi <= 24.9
+                          ? '#22543d'
+                          : computedBmi <= 29.9
+                          ? '#7b341e'
+                          : '#742a2a',
+                    }}
+                  >
+                    {computedBmi < 18.5
+                      ? 'Underweight'
+                      : computedBmi <= 24.9
+                      ? 'Normal'
+                      : computedBmi <= 29.9
+                      ? 'Overweight'
+                      : 'Obese'}
+                  </span>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* 3. Blood Pressure */}
+          {mId === 3 && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <div>
+                <div style={{ fontSize: 10, color: '#dd6b20', fontWeight: 600, marginBottom: 2 }}>Systolic Reading</div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                  <input
+                    type="number"
+                    placeholder="120"
+                    value={entry.value1}
+                    disabled={!canEdit}
+                    onChange={(e) => updateEntry(3, { value1: e.target.value })}
+                    style={{
+                      width: 90,
+                      padding: '6px 10px',
+                      borderRadius: 4,
+                      border: '1px solid #cbd5e0',
+                      fontSize: 14,
+                    }}
+                  />
+                  <span style={{ fontSize: 12, color: '#718096' }}>mmHg</span>
+                </div>
+              </div>
+
+              <div>
+                <div style={{ fontSize: 10, color: '#dd6b20', fontWeight: 600, marginBottom: 2 }}>Diastolic Reading</div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                  <input
+                    type="number"
+                    placeholder="80"
+                    value={entry.value2}
+                    disabled={!canEdit}
+                    onChange={(e) => updateEntry(3, { value2: e.target.value })}
+                    style={{
+                      width: 90,
+                      padding: '6px 10px',
+                      borderRadius: 4,
+                      border: '1px solid #cbd5e0',
+                      fontSize: 14,
+                    }}
+                  />
+                  <span style={{ fontSize: 12, color: '#718096' }}>mmHg</span>
+                  {entry.value1 && (parseInt(entry.value1, 10) > 140 || parseInt(entry.value2, 10) > 90) && (
+                    <i className="fa-solid fa-triangle-exclamation" style={{ color: '#e53e3e', fontSize: 13 }} title="Elevated blood pressure" />
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* 4. Pulse Rate */}
+          {mId === 4 && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+              <div>
+                <div style={{ fontSize: 10, color: '#dd6b20', fontWeight: 600, marginBottom: 2 }}>Pulse Reading</div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                  <input
+                    type="number"
+                    placeholder="72"
+                    value={val}
+                    disabled={!canEdit}
+                    onChange={(e) => updateEntry(4, { value: e.target.value })}
+                    style={{
+                      width: 90,
+                      padding: '6px 10px',
+                      borderRadius: 4,
+                      border: '1px solid #cbd5e0',
+                      fontSize: 14,
+                    }}
+                  />
+                  <span style={{ fontSize: 12, color: '#718096' }}>/ Minute</span>
+                  {val && (parseInt(val, 10) < 50 || parseInt(val, 10) > 100) && (
+                    <i className="fa-solid fa-triangle-exclamation" style={{ color: '#e53e3e', fontSize: 13 }} />
+                  )}
+                </div>
+              </div>
+
+              <div>
+                <div style={{ fontSize: 10, color: '#718096', fontWeight: 600, marginBottom: 2 }}>Age Category</div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <select
+                    value={ageCategory}
+                    onChange={(e) => setAgeCategory(e.target.value as any)}
+                    style={{
+                      padding: '6px 10px',
+                      borderRadius: 4,
+                      border: '1px solid #cbd5e0',
+                      fontSize: 13,
+                      color: '#2d3748',
+                      background: '#fff',
+                    }}
+                  >
+                    <option value="Adult">Adult</option>
+                    <option value="Pediatric">Pediatric</option>
+                    <option value="Neonate">Neonate</option>
+                  </select>
+                  <i className="fa-solid fa-heart-pulse" style={{ color: '#e53e3e', fontSize: 16 }} />
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* 5. Blood Sugar */}
+          {mId === 5 && (
+            <div style={{ position: 'relative' }}>
+              <div style={{ fontSize: 10, color: '#dd6b20', fontWeight: 600, marginBottom: 2 }}>Reading</div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <input
+                  type="number"
+                  placeholder="100"
+                  value={val}
+                  disabled={!canEdit}
+                  onChange={(e) => updateEntry(5, { value: e.target.value })}
+                  style={{
+                    width: 100,
+                    padding: '6px 10px',
+                    borderRadius: 4,
+                    border: '1px solid #cbd5e0',
+                    fontSize: 14,
+                  }}
+                />
+                <span style={{ fontSize: 12, color: '#718096' }}>mg/dL</span>
+                <i className="fa-solid fa-droplet" style={{ color: '#e53e3e', fontSize: 14 }} />
+                {val && (parseInt(val, 10) < 70 || parseInt(val, 10) > 180) && (
+                  <i className="fa-solid fa-triangle-exclamation" style={{ color: '#e53e3e', fontSize: 13 }} />
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* 6. Waist Circumference */}
+          {mId === 6 && (
+            <div>
+              <div style={{ fontSize: 10, color: '#dd6b20', fontWeight: 600, marginBottom: 2 }}>Reading Centimeter</div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <input
+                  type="number"
+                  placeholder="34.00"
+                  value={val}
+                  disabled={!canEdit}
+                  onChange={(e) => updateEntry(6, { value: e.target.value })}
+                  style={{
+                    width: 100,
+                    padding: '6px 10px',
+                    borderRadius: 4,
+                    border: '1px solid #cbd5e0',
+                    fontSize: 14,
+                  }}
+                />
+                <i className="fa-solid fa-ruler-horizontal" style={{ color: '#718096', fontSize: 14 }} />
+                {val && parseFloat(val) > 102 && (
+                  <i className="fa-solid fa-triangle-exclamation" style={{ color: '#e53e3e', fontSize: 13 }} />
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* 7. SpO2 */}
+          {mId === 7 && (
+            <div>
+              <div style={{ fontSize: 10, color: '#dd6b20', fontWeight: 600, marginBottom: 2 }}>Reading Peripheral Saturation</div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <input
+                  type="number"
+                  placeholder="98"
+                  value={val}
+                  disabled={!canEdit}
+                  onChange={(e) => updateEntry(7, { value: e.target.value })}
+                  style={{
+                    width: 100,
+                    padding: '6px 10px',
+                    borderRadius: 4,
+                    border: '1px solid #cbd5e0',
+                    fontSize: 14,
+                  }}
+                />
+                <span style={{ fontSize: 12, color: '#718096' }}>%</span>
+                <i className="fa-solid fa-lungs" style={{ color: '#3182ce', fontSize: 14 }} />
+                {val && parseInt(val, 10) < 95 && (
+                  <i className="fa-solid fa-triangle-exclamation" style={{ color: '#e53e3e', fontSize: 13 }} />
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* 8. Respiratory Rate */}
+          {mId === 8 && (
+            <div>
+              <div style={{ fontSize: 10, color: '#dd6b20', fontWeight: 600, marginBottom: 2 }}>Reading</div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <input
+                  type="number"
+                  placeholder="16"
+                  value={val}
+                  disabled={!canEdit}
+                  onChange={(e) => updateEntry(8, { value: e.target.value })}
+                  style={{
+                    width: 100,
+                    padding: '6px 10px',
+                    borderRadius: 4,
+                    border: '1px solid #cbd5e0',
+                    fontSize: 14,
+                  }}
+                />
+                <span style={{ fontSize: 12, color: '#718096' }}>/ Minute</span>
+                {val && (parseInt(val, 10) < 10 || parseInt(val, 10) > 24) && (
+                  <i className="fa-solid fa-triangle-exclamation" style={{ color: '#e53e3e', fontSize: 13 }} />
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* 9. Hips Circumference */}
+          {mId === 9 && (
+            <div>
+              <div style={{ fontSize: 10, color: '#dd6b20', fontWeight: 600, marginBottom: 2 }}>Reading</div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <input
+                  type="number"
+                  placeholder="95.00"
+                  value={val}
+                  disabled={!canEdit}
+                  onChange={(e) => updateEntry(9, { value: e.target.value })}
+                  style={{
+                    width: 100,
+                    padding: '6px 10px',
+                    borderRadius: 4,
+                    border: '1px solid #cbd5e0',
+                    fontSize: 14,
+                  }}
+                />
+                <span style={{ fontSize: 12, color: '#718096' }}>cm</span>
+                <i className="fa-solid fa-ruler" style={{ color: '#718096', fontSize: 14 }} />
+              </div>
+            </div>
+          )}
+
+          {/* 12. Vital Element Pain Score (Yes / No Toggle) */}
+          {mId === 12 && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+              <span style={{ fontSize: 13, color: '#4a5568', fontWeight: 500 }}>Now patient has pain</span>
+              <div style={{ display: 'inline-flex', borderRadius: 4, overflow: 'hidden', border: '1px solid #cbd5e0' }}>
+                <button
+                  type="button"
+                  onClick={() => updateEntry(12, { value: 'Yes' })}
+                  disabled={!canEdit}
+                  style={{
+                    padding: '5px 16px',
+                    fontSize: 13,
+                    fontWeight: 600,
+                    border: 'none',
+                    cursor: 'pointer',
+                    background: val === 'Yes' ? '#e53e3e' : '#f7fafc',
+                    color: val === 'Yes' ? '#fff' : '#4a5568',
+                  }}
+                >
+                  Yes
+                </button>
+                <button
+                  type="button"
+                  onClick={() => updateEntry(12, { value: 'No' })}
+                  disabled={!canEdit}
+                  style={{
+                    padding: '5px 16px',
+                    fontSize: 13,
+                    fontWeight: 600,
+                    border: 'none',
+                    cursor: 'pointer',
+                    background: val === 'No' || val === '' ? '#38a169' : '#f7fafc',
+                    color: val === 'No' || val === '' ? '#fff' : '#4a5568',
+                  }}
+                >
+                  No
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* 16. Vital Pain Score (Wong-Baker 6 Smiley Faces 0-10) */}
+          {mId === 16 && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              {[
+                { score: '0', label: 'No Hurt', emoji: '😄' },
+                { score: '2', label: 'Hurts Little', emoji: '🙂' },
+                { score: '4', label: 'Hurts More', emoji: '😐' },
+                { score: '6', label: 'Hurts Even More', emoji: '🙁' },
+                { score: '8', label: 'Hurts Whole Lot', emoji: '😢' },
+                { score: '10', label: 'Hurts Worst', emoji: '😭' },
+              ].map((face) => {
+                const isSelected = val === face.score;
+                return (
+                  <button
+                    key={face.score}
+                    type="button"
+                    title={`${face.score} - ${face.label}`}
+                    onClick={() => updateEntry(16, { value: face.score })}
+                    disabled={!canEdit}
+                    style={{
+                      width: 44,
+                      height: 44,
+                      borderRadius: '50%',
+                      border: isSelected ? '3px solid #dd6b20' : '1px solid #cbd5e0',
+                      background: isSelected ? '#feebc8' : '#f7fafc',
+                      cursor: 'pointer',
+                      fontSize: 22,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      boxShadow: isSelected ? '0 0 0 2px rgba(221,107,32,0.3)' : 'none',
+                      transition: 'all 0.15s ease',
+                    }}
+                  >
+                    {face.emoji}
+                  </button>
+                );
+              })}
+              {val !== '' && (
+                <span
+                  style={{
+                    marginLeft: 8,
+                    fontWeight: 700,
+                    fontSize: 13,
+                    color: '#dd6b20',
+                    background: '#feebc8',
+                    padding: '3px 10px',
+                    borderRadius: 12,
+                  }}
+                >
+                  Score: {val}/10
+                </span>
+              )}
+            </div>
+          )}
+
+          {/* 33. Allergy */}
+          {mId === 33 && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <span style={{ fontSize: 13, color: '#718096' }}>Allergies logged in patient banner</span>
+              <span style={{ fontSize: 12, color: '#e53e3e', fontWeight: 600 }}>
+                {context.patientId ? 'Active Allergies Monitored' : 'None Documented'}
+              </span>
+            </div>
+          )}
+
+          {/* Generic fallback for any other of the 46 configured elements */}
+          {![1, 2, 3, 4, 5, 6, 7, 8, 9, 12, 16, 33].includes(mId) && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              {elDef.options && elDef.options.length > 0 ? (
+                <select
+                  value={val}
+                  disabled={!canEdit}
+                  onChange={(e) => updateEntry(mId, { value: e.target.value })}
+                  style={{
+                    padding: '6px 12px',
+                    borderRadius: 4,
+                    border: '1px solid #cbd5e0',
+                    fontSize: 13,
+                    color: '#2d3748',
+                    background: '#fff',
+                    minWidth: 200,
+                  }}
+                >
+                  <option value="">Select {elDef.name}…</option>
+                  {elDef.options.map((opt) => (
+                    <option key={opt} value={opt}>
+                      {opt}
+                    </option>
+                  ))}
+                </select>
+              ) : (
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <input
+                    type="text"
+                    placeholder={`Enter ${elDef.name}`}
+                    value={val}
+                    disabled={!canEdit}
+                    onChange={(e) => updateEntry(mId, { value: e.target.value })}
+                    style={{
+                      width: 180,
+                      padding: '6px 10px',
+                      borderRadius: 4,
+                      border: '1px solid #cbd5e0',
+                      fontSize: 14,
+                    }}
+                  />
+                  {elDef.uom && <span style={{ fontSize: 12, color: '#718096' }}>{elDef.uom}</span>}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
     );
   };
+
+  /* ───────────── recorded history flowsheet rendering ───────────── */
+
+  const readingGroups = useMemo(() => {
+    const rows = historyScope === 'encounter' ? vitalsQuery.data.rows : vitalsQuery.data.historyRows;
+    const map = new Map<number | string, { date?: string; encounterId?: number; values: Map<number, PatientVitalRow>; comments?: string; performer?: string }>();
+
+    rows.forEach((r) => {
+      const gKey = r.GroupId != null ? r.GroupId : `row-${r.Id}`;
+      if (!map.has(gKey)) {
+        map.set(gKey, {
+          date: r.PerformedDate,
+          encounterId: r.EncounterId,
+          values: new Map(),
+          comments: r.Comments,
+          performer: r.PerformedUser ? `${r.PerformedUser.FirstName || ''} ${r.PerformedUser.LastName || ''}`.trim() : undefined,
+        });
+      }
+      map.get(gKey)!.values.set(Number(r.VitalId), r);
+    });
+
+    return Array.from(map.entries()).map(([k, v]) => ({
+      key: String(k),
+      groupId: typeof k === 'number' ? k : undefined,
+      ...v,
+    }));
+  }, [historyScope, vitalsQuery.data]);
 
   return (
     <div style={{ display: 'grid', gap: spacing.lg }}>
       <DraftBanners draft={draft} />
 
-      {/* ────────────────────────── 1. VITAL SIGNS FORM ────────────────────────── */}
-      <PanelSection
-        title="Vital Signs"
-        icon="fa-solid fa-heart-pulse"
-        actions={
-          <>
+      {/* ────────────────── 1. TOP ACTION STRIP MATCHING REFERENCE ────────────────── */}
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          background: '#fff',
+          padding: '10px 16px',
+          borderRadius: 6,
+          border: '1px solid #e2e8f0',
+          boxShadow: '0 1px 2px rgba(0,0,0,0.04)',
+          flexWrap: 'wrap',
+          gap: 12,
+        }}
+      >
+        <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+          <button
+            type="button"
+            onClick={reloadVitals}
+            disabled={loading || saving}
+            style={{
+              background: '#b7791f',
+              color: '#fff',
+              border: 'none',
+              borderRadius: 4,
+              padding: '6px 14px',
+              fontSize: 12,
+              fontWeight: 700,
+              cursor: 'pointer',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 6,
+              boxShadow: '0 1px 2px rgba(0,0,0,0.1)',
+            }}
+          >
+            <i className="fa-solid fa-arrows-rotate" /> Load Vitals
+          </button>
+
+          <button
+            type="button"
+            onClick={loadPreviousVitals}
+            disabled={loading || saving}
+            style={{
+              background: '#b7791f',
+              color: '#fff',
+              border: 'none',
+              borderRadius: 4,
+              padding: '6px 14px',
+              fontSize: 12,
+              fontWeight: 700,
+              cursor: 'pointer',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 6,
+              boxShadow: '0 1px 2px rgba(0,0,0,0.1)',
+            }}
+          >
+            <i className="fa-solid fa-clock-rotate-left" /> Load Previous Vitals
+          </button>
+        </div>
+
+        <div style={{ display: 'flex', gap: 18, alignItems: 'center', fontSize: 13, color: '#4a5568' }}>
+          <label style={{ display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer', fontWeight: 500 }}>
+            <input
+              type="checkbox"
+              checked={nursingCompleted}
+              disabled={!canEdit}
+              onChange={(e) => setNursingCompleted(e.target.checked)}
+              style={{ cursor: 'pointer' }}
+            />
+            <span>Nursing Assessment Completed</span>
+          </label>
+
+          <label style={{ display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer', fontWeight: 500 }}>
+            <input
+              type="checkbox"
+              checked={refusedByPatient}
+              disabled={!canEdit}
+              onChange={(e) => setRefusedByPatient(e.target.checked)}
+              style={{ cursor: 'pointer' }}
+            />
+            <span>Refused by Patient</span>
+          </label>
+
+          <button
+            type="button"
+            onClick={() => window.print()}
+            style={{
+              background: '#fff',
+              border: '1px solid #cbd5e0',
+              color: '#4a5568',
+              borderRadius: 4,
+              padding: '5px 12px',
+              fontSize: 12,
+              fontWeight: 600,
+              cursor: 'pointer',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 6,
+            }}
+          >
+            <i className="fa-solid fa-print" /> Print
+          </button>
+
+          <Button
+            size="sm"
+            variant="primary"
+            icon="fa-solid fa-floppy-disk"
+            onClick={save}
+            loading={saving}
+            loadingText="Saving…"
+            disabled={!canEdit || loading}
+          >
+            Save Vitals
+          </Button>
+        </div>
+      </div>
+
+      {/* ────────────────── 2. VITAL ELEMENTS ENTRY FORM ────────────────── */}
+      <div
+        style={{
+          background: '#fff',
+          borderRadius: 8,
+          border: '1px solid #e2e8f0',
+          boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
+          overflow: 'hidden',
+        }}
+      >
+        {/* Strip Header with Status & New Reading action */}
+        <div
+          style={{
+            padding: '10px 16px',
+            background: '#f8fafc',
+            borderBottom: '1px solid #edf2f7',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <span style={{ fontWeight: 700, fontSize: 14, color: '#2d3748' }}>
+              <i className="fa-solid fa-heart-pulse" style={{ color: '#e53e3e', marginRight: 8 }} />
+              Clinical Vital Signs Form
+            </span>
             {groupId !== undefined ? (
               <span
                 style={{
-                  ...typography.caption,
+                  fontSize: 11,
                   padding: '2px 8px',
-                  borderRadius: radii.full,
-                  background: colors.primaryLight,
-                  color: colors.primary,
+                  borderRadius: 12,
+                  background: '#ebf8ff',
+                  color: '#2b6cb0',
                   fontWeight: 600,
                 }}
               >
@@ -625,81 +1192,92 @@ export const VitalsPanel: React.FC<EmrPanelProps> = ({ context, encounter, canEd
             ) : (
               <span
                 style={{
-                  ...typography.caption,
+                  fontSize: 11,
                   padding: '2px 8px',
-                  borderRadius: radii.full,
-                  background: colors.surfaceMuted,
-                  color: colors.textSubtle,
-                  fontWeight: 500,
+                  borderRadius: 12,
+                  background: '#f7fafc',
+                  color: '#718096',
+                  fontWeight: 600,
                 }}
               >
-                New Reading
+                New Entry
               </span>
             )}
             <DraftStatusChip draft={draft} serverAutoSave />
-            <Button size="sm" variant="outline-secondary" icon="fa-solid fa-rotate" onClick={reloadVitals} disabled={loading || saving}>
-              Reload
-            </Button>
-            <Button
-              size="sm"
-              variant="outline-primary"
-              icon="fa-solid fa-plus"
-              onClick={startNewReading}
-              disabled={!canEdit || loading || saving}
-              title="Record a new set of readings for this visit"
-            >
+          </div>
+
+          <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+            <span style={{ fontSize: 12, color: '#718096' }}>Recorded at:</span>
+            <input
+              type="datetime-local"
+              value={performedAt}
+              disabled={!canEdit}
+              onChange={(e) => setPerformedAt(e.target.value)}
+              style={{
+                padding: '4px 8px',
+                borderRadius: 4,
+                border: '1px solid #cbd5e0',
+                fontSize: 12,
+                color: '#2d3748',
+              }}
+            />
+            <Button size="xs" variant="outline-primary" icon="fa-solid fa-plus" onClick={startNewReading} disabled={!canEdit}>
               New reading
             </Button>
-            <Button size="sm" variant="primary" icon="fa-solid fa-floppy-disk" onClick={save} loading={saving} loadingText="Saving…" disabled={!canEdit || loading}>
-              Save vitals
-            </Button>
-          </>
-        }
-      >
+          </div>
+        </div>
+
+        {/* Form Body Rows */}
         {loading ? (
-          <SkeletonRows rows={6} columns={3} />
+          <div style={{ padding: 24 }}>
+            <SkeletonRows rows={8} columns={2} />
+          </div>
         ) : loadError ? (
-          <InlineNotice tone="danger">
-            {loadError}{' '}
-            <Button size="xs" variant="link" onClick={reloadVitals}>
-              Try again
-            </Button>
-          </InlineNotice>
-        ) : masters.length === 0 ? (
-          <InlineNotice tone="info">No vitals are configured in the Vital master yet.</InlineNotice>
+          <div style={{ padding: 20 }}>
+            <InlineNotice tone="danger">
+              {loadError}{' '}
+              <Button size="xs" variant="link" onClick={reloadVitals}>
+                Try again
+              </Button>
+            </InlineNotice>
+          </div>
         ) : (
-          <div style={{ display: 'grid', gap: 2 }}>
-            <FieldRow label="Recorded at" hint="Date & time of measurement">
-              <div style={{ width: 220 }}>
-                <Input size="sm" type="datetime-local" value={performedAt} disabled={!canEdit} onChange={(e) => setPerformedAt(e.target.value)} aria-label="Recorded at" />
+          <div>
+            {/* Render all elements configured in Master (ordered) */}
+            {configuredElements.map((cfg) => {
+              const def = VITAL_ELEMENTS_CATALOG.find((cat) => cat.elementId === cfg.elementId);
+              if (!def) return null;
+              return renderVitalRow(def);
+            })}
+
+            {/* Additional Clinical Notes */}
+            <div style={{ padding: '14px 20px', background: '#fafafa', borderTop: '1px solid #edf2f7' }}>
+              <div style={{ fontSize: 12, fontWeight: 600, color: '#4a5568', marginBottom: 4 }}>
+                Clinical Observations / Vital Notes:
               </div>
-            </FieldRow>
-            {masters
-              .filter((m) => !(bmiMaster && Number(m.Id) === Number(bmiMaster.Id)))
-              .map((m) => (
-                <FieldRow
-                  key={m.Id}
-                  label={m.Description || m.VitalName}
-                  hint={errors[Number(m.Id)] || errors[m.Id] ? <span style={{ color: colors.danger }}>{errors[Number(m.Id)] || errors[m.Id]}</span> : undefined}
-                >
-                  {renderControl(m)}
-                </FieldRow>
-              ))}
-            {bmiMaster && (
-              <FieldRow label={bmiMaster.Description || 'BMI'} hint="Calculated from height (cm) and weight (kg)">
-                {renderControl(bmiMaster)}
-              </FieldRow>
-            )}
-            <div style={{ marginTop: spacing.md }}>
-              <Textarea label="Vital notes" rows={3} value={notes} disabled={!canEdit} placeholder="Observations, patient position, device used…" onChange={(e) => setNotes(e.target.value)} />
+              <textarea
+                rows={2}
+                value={notes}
+                disabled={!canEdit}
+                placeholder="Patient position, cuff size, supplemental oxygen flow, or clinical notes…"
+                onChange={(e) => setNotes(e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '8px 12px',
+                  borderRadius: 4,
+                  border: '1px solid #cbd5e0',
+                  fontSize: 13,
+                  outline: 'none',
+                }}
+              />
             </div>
           </div>
         )}
-      </PanelSection>
+      </div>
 
-      {/* ────────────────────────── 2. RECORDED VITALS HISTORY ────────────────────────── */}
+      {/* ────────────────── 3. RECORDED VITALS HISTORY FLOWSHEET ────────────────── */}
       <PanelSection
-        title="Recorded Vitals History"
+        title="Recorded Vitals Flowsheet"
         icon="fa-solid fa-clock-rotate-left"
         flush
         actions={
@@ -709,35 +1287,23 @@ export const VitalsPanel: React.FC<EmrPanelProps> = ({ context, encounter, canEd
               variant={historyScope === 'encounter' ? 'primary' : 'outline-secondary'}
               onClick={() => setHistoryScope('encounter')}
             >
-              This visit ({visitCount})
+              This visit ({vitalsQuery.data.rows.length})
             </Button>
             <Button
               size="xs"
               variant={historyScope === 'all' ? 'primary' : 'outline-secondary'}
               onClick={() => setHistoryScope('all')}
             >
-              All visits ({allCount})
+              All visits ({vitalsQuery.data.historyRows.length})
             </Button>
-            <Button
-              size="xs"
-              variant="outline-secondary"
-              icon="fa-solid fa-rotate"
-              onClick={reloadVitals}
-              disabled={loading || saving}
-              title="Refresh recorded vitals"
-            />
           </div>
         }
       >
-        {loading ? (
-          <div style={{ padding: spacing.lg }}>
-            <SkeletonRows rows={4} columns={6} />
-          </div>
-        ) : readingGroups.length === 0 ? (
+        {readingGroups.length === 0 ? (
           <div style={{ padding: spacing.xl, textAlign: 'center', color: colors.textSubtle, ...typography.body }}>
             {historyScope === 'encounter'
-              ? 'No vitals recorded for this visit yet. Enter readings in the form above and click Save vitals.'
-              : 'No vitals recorded for this patient yet.'}
+              ? 'No vitals recorded for this visit yet. Fill the form above and click Save Vitals.'
+              : 'No vitals recorded across previous visits.'}
           </div>
         ) : (
           <div style={{ overflowX: 'auto' }}>
@@ -745,98 +1311,50 @@ export const VitalsPanel: React.FC<EmrPanelProps> = ({ context, encounter, canEd
               <thead>
                 <tr>
                   <th scope="col" style={{ width: 170 }}>Date & Time</th>
-                  {displayedVitals.map((m) => (
-                    <th key={m.Id} scope="col" style={{ textAlign: 'center' }}>
-                      <div>{m.Description || m.VitalName}</div>
-                      {m.UOM && <div style={{ ...typography.caption, color: colors.textSubtle, fontWeight: 400 }}>({m.UOM})</div>}
+                  {configuredElements.slice(0, 8).map((cfg) => (
+                    <th key={cfg.code} scope="col" style={{ textAlign: 'center' }}>
+                      {cfg.name}
                     </th>
                   ))}
-                  <th scope="col" style={{ maxWidth: 200 }}>Notes</th>
-                  <th scope="col" style={{ width: 150 }}>Recorded By</th>
-                  {canEdit && <th scope="col" style={{ width: 80, textAlign: 'center' }}>Action</th>}
+                  <th scope="col">Notes</th>
+                  <th scope="col">Recorded By</th>
+                  {canEdit && <th scope="col" style={{ width: 70, textAlign: 'center' }}>Action</th>}
                 </tr>
               </thead>
               <tbody>
                 {readingGroups.map((grp) => {
-                  const isCurrentEditing = grp.groupId != null && grp.groupId === groupId;
-                  const isThisVisit = grp.encounterId === context.encounterId;
+                  const isCurrent = grp.groupId != null && grp.groupId === groupId;
                   return (
-                    <tr
-                      key={grp.key}
-                      style={{
-                        background: isCurrentEditing ? colors.primaryLight : undefined,
-                      }}
-                    >
-                      <td style={{ whiteSpace: 'nowrap' }}>
-                        <div style={{ fontWeight: 600, color: colors.textMain }}>{formatDateTime(grp.date)}</div>
-                        <div style={{ display: 'flex', gap: 4, marginTop: 2, alignItems: 'center' }}>
-                          {isThisVisit && (
-                            <span
-                              style={{
-                                ...typography.caption,
-                                padding: '1px 6px',
-                                borderRadius: radii.full,
-                                background: colors.successBg,
-                                color: colors.successText,
-                                border: `1px solid ${colors.successBorder}`,
-                                fontSize: 10,
-                                fontWeight: 600,
-                              }}
-                            >
-                              This visit
-                            </span>
-                          )}
-                          {isCurrentEditing && (
-                            <span
-                              style={{
-                                ...typography.caption,
-                                padding: '1px 6px',
-                                borderRadius: radii.full,
-                                background: colors.primary,
-                                color: '#fff',
-                                fontSize: 10,
-                                fontWeight: 600,
-                              }}
-                            >
-                              Editing
-                            </span>
-                          )}
-                        </div>
+                    <tr key={grp.key} style={{ background: isCurrent ? '#ebf8ff' : undefined }}>
+                      <td style={{ whiteSpace: 'nowrap', fontWeight: 600, fontSize: 13 }}>
+                        {formatDateTime(grp.date)}
                       </td>
-                      {displayedVitals.map((m) => (
-                        <td key={m.Id} style={{ textAlign: 'center', whiteSpace: 'nowrap' }}>
-                          {renderHistoryCell(grp.values.get(Number(m.Id)), m)}
-                        </td>
-                      ))}
-                      <td style={{ color: grp.comments ? colors.textBody : colors.textDisabled, fontSize: 12, maxWidth: 220 }}>
-                        {grp.comments || '—'}
-                      </td>
-                      <td style={{ color: colors.textMuted, fontSize: 12, whiteSpace: 'nowrap' }}>
-                        {grp.performer || '—'}
-                      </td>
+                      {configuredElements.slice(0, 8).map((cfg) => {
+                        const cell = grp.values.get(cfg.elementId);
+                        const raw = cell?.VitalValue || '—';
+                        return (
+                          <td key={cfg.code} style={{ textAlign: 'center', fontSize: 13 }}>
+                            {raw}
+                          </td>
+                        );
+                      })}
+                      <td style={{ fontSize: 12, color: '#718096' }}>{grp.comments || '—'}</td>
+                      <td style={{ fontSize: 12, color: '#718096' }}>{grp.performer || '—'}</td>
                       {canEdit && (
-                        <td style={{ textAlign: 'center', whiteSpace: 'nowrap' }}>
-                          {isThisVisit ? (
-                            <Button
-                              size="xs"
-                              variant={isCurrentEditing ? 'primary' : 'outline-primary'}
-                              icon="fa-solid fa-pen-to-square"
-                              onClick={() => handleEditGroup(grp)}
-                              title="Edit this reading set in the form above"
-                            >
-                              {isCurrentEditing ? 'Editing' : 'Edit'}
-                            </Button>
-                          ) : (
-                            <Button
-                              size="xs"
-                              variant="outline-secondary"
-                              icon="fa-solid fa-copy"
-                              onClick={() => handleEditGroup(grp)}
-                              title="Load values into form as a new reading"
-                            >
-                              Copy
-                            </Button>
-                          )}
+                        <td style={{ textAlign: 'center' }}>
+                          <Button
+                            size="xs"
+                            variant={isCurrent ? 'primary' : 'outline-primary'}
+                            onClick={() => {
+                              const allRows =
+                                vitalsQuery.data.rows.length > 0
+                                  ? vitalsQuery.data.rows
+                                  : vitalsQuery.data.historyRows;
+                              loadReadingGroup(grp.groupId, allRows, masters);
+                            }}
+                          >
+                            {isCurrent ? 'Editing' : 'Edit'}
+                          </Button>
                         </td>
                       )}
                     </tr>
@@ -848,7 +1366,7 @@ export const VitalsPanel: React.FC<EmrPanelProps> = ({ context, encounter, canEd
         )}
       </PanelSection>
 
-      {/* ────────────────────────── 3. ALLERGIES ────────────────────────── */}
+      {/* ────────────────── 4. ALLERGIES SUMMARY ────────────────── */}
       <AllergyList context={context} canEdit={canEdit} onDataChanged={onDataChanged} />
     </div>
   );

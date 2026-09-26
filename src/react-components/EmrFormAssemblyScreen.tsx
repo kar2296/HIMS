@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { colors, spacing, typography, radii } from '../components/ui/tokens';
 import { Card } from '../components/ui/Card';
 import { Badge } from '../components/ui/Badge';
@@ -14,11 +14,24 @@ export type FieldInputType =
   | 'DATE'
   | 'RADIO'
   | 'ODONTOGRAM'
-  | 'VA_CHART';
+  | 'VA_CHART'
+  | 'DIAGRAM'
+  | 'YES_NO'
+  | 'TRUE_FALSE'
+  | 'PERIOD'
+  | 'FRACTION'
+  | 'GRID'
+  | 'HEADER';
 
 export type RequirementType = 'MANDATORY' | 'OPTIONAL' | 'CONDITIONAL';
 
-export type PanelCategoryType = 'STANDARD' | 'CUSTOM';
+export type PanelCategoryType = 'STANDARD' | 'CUSTOM' | 'EXTERNAL';
+
+export type AgeTargetMode = 'ALL' | 'ADULT' | 'CHILD' | 'NEONATE';
+
+export type EncounterScope = 'ALL' | 'OUTPATIENT' | 'INPATIENT' | 'EMERGENCY' | 'DAY_SURGERY';
+
+export type DockPosition = 'TOP' | 'RIGHT' | 'FULL';
 
 export interface FormFieldDefinition {
   id: string;
@@ -32,15 +45,28 @@ export interface FormFieldDefinition {
   isRequired: boolean;
   requirementType: RequirementType;
   order: number;
+  ageScope?: AgeTargetMode;
+  pediatricNote?: string;
 }
 
 export interface FormAssemblySection {
   id: string;
   sectionTitle: string;
+  nickName?: string;
   fieldsCount: number;
   isRequired: boolean;
   requirementType: RequirementType;
   order: number;
+  dockPosition?: DockPosition;
+  encounterScope?: EncounterScope;
+  retainRevisions?: boolean;
+  saveAndComplete?: boolean;
+  doctorSignature?: boolean;
+  patientSignature?: boolean;
+  witnessSignature?: boolean;
+  displayInConsultation?: boolean;
+  canSkip?: boolean;
+  ageTarget?: AgeTargetMode;
   fields: FormFieldDefinition[];
 }
 
@@ -52,6 +78,10 @@ export interface SpecialtyFormTemplate {
   panelType: PanelCategoryType;
   version: string;
   status: 'ACTIVE' | 'DRAFT' | 'INACTIVE';
+  layoutOrientation: 'HORIZONTAL' | 'VERTICAL';
+  isDefault: boolean;
+  encounterScope: EncounterScope;
+  formGroupRole: 'CLINICIANS' | 'NURSING' | 'IP_NURSING' | 'MRD_CLAIMS' | 'OT_FORMS' | 'EMR' | 'TEST' | 'PHARMACIST' | 'IP';
   assignedDepartments: string[];
   assignedDoctors: string[];
   sections: FormAssemblySection[];
@@ -60,505 +90,759 @@ export interface SpecialtyFormTemplate {
 export interface EmrFormAssemblyScreenProps {
   onSaveTemplate?: (template: SpecialtyFormTemplate) => void;
   onAssignDepartment?: (templateId: string, departments: string[]) => void;
+  initialAgeMode?: 'ADULT' | 'CHILD';
 }
 
 export const EmrFormAssemblyScreen: React.FC<EmrFormAssemblyScreenProps> = ({
   onSaveTemplate,
+  initialAgeMode = 'ADULT',
 }) => {
+  // Global Active Age Switcher: Simulates viewing an Adult patient (>= 18) vs Pediatric patient (< 18)
+  const [activeAgeMode, setActiveAgeMode] = useState<'ADULT' | 'CHILD' | 'NEONATE'>(
+    initialAgeMode === 'CHILD' ? 'CHILD' : 'ADULT'
+  );
+
   const [templates, setTemplates] = useState<SpecialtyFormTemplate[]>([
-    // ==========================================
-    // STANDARD (BUILT-IN / SYSTEM CORE) PANELS
-    // ==========================================
+    // =========================================================================
+    // REFERENCE STANDARD EMA FORMS (from SIMPLEX HIMES Staging Reference)
+    // =========================================================================
     {
-      id: 'TPL-STD-01',
-      templateCode: 'OPD-GEN-01',
-      templateName: 'General OPD Assessment Form',
-      specialty: 'General Medicine',
+      id: 'TPL-STD-OP-CLIN',
+      templateCode: 'OP-CLINICIANS',
+      templateName: 'OP - CLINICIANS (General OPD Assessment)',
+      specialty: 'General Medicine & Family Practice',
       panelType: 'STANDARD',
-      version: 'v2.4',
+      version: 'v9.3',
       status: 'ACTIVE',
-      assignedDepartments: ['General OPD', 'Family Medicine', 'Internal Medicine'],
-      assignedDoctors: ['Dr. Rajesh Kumar', 'Dr. Mohammed Al Nuaimi'],
+      layoutOrientation: 'HORIZONTAL',
+      isDefault: true,
+      encounterScope: 'OUTPATIENT',
+      formGroupRole: 'CLINICIANS',
+      assignedDepartments: ['General OPD', 'Family Medicine', 'Internal Medicine', 'Consultation Suite 1'],
+      assignedDoctors: ['Dr. Rajesh Kumar', 'Dr. Mohammed Al Nuaimi', 'Dr. Sarah Jenkins'],
       sections: [
         {
-          id: 'SEC-1',
+          id: 'SEC-CLIN-1',
           sectionTitle: 'Chief Complaints & History of Present Illness (HPI)',
+          nickName: 'Presenting Complaints',
           fieldsCount: 4,
           isRequired: true,
           requirementType: 'MANDATORY',
           order: 1,
+          dockPosition: 'TOP',
+          encounterScope: 'OUTPATIENT',
+          retainRevisions: true,
+          saveAndComplete: true,
+          doctorSignature: true,
+          patientSignature: false,
+          witnessSignature: false,
+          displayInConsultation: true,
+          canSkip: false,
+          ageTarget: 'ALL',
           fields: [
-            { id: 'F1-1', fieldCode: 'FLD_CHIEF_COMPLAINT', fieldLabel: 'Primary Complaint', fieldType: 'TEXT', placeholder: 'e.g. Fever with chills for 3 days', isRequired: true, requirementType: 'MANDATORY', order: 1 },
-            { id: 'F1-2', fieldCode: 'FLD_ONSET_DURATION', fieldLabel: 'Onset Duration', fieldType: 'NUMBER', unit: 'Days', isRequired: true, requirementType: 'MANDATORY', order: 2 },
-            { id: 'F1-3', fieldCode: 'FLD_SEVERITY', fieldLabel: 'Pain / Symptom Severity', fieldType: 'DROPDOWN', options: ['Mild', 'Moderate', 'Severe', 'Excruciating'], isRequired: false, requirementType: 'OPTIONAL', order: 3 },
-            { id: 'F1-4', fieldCode: 'FLD_HPI_NARRATIVE', fieldLabel: 'Detailed History of Present Illness', fieldType: 'TEXTAREA', placeholder: 'Chronological progression of symptoms...', isRequired: false, requirementType: 'OPTIONAL', order: 4 },
+            { id: 'FC-1', fieldCode: 'FLD_CHIEF_COMPLAINT', fieldLabel: 'Primary Complaint', fieldType: 'TEXT', placeholder: 'e.g. Fever with chills / dry cough', isRequired: true, requirementType: 'MANDATORY', order: 1, ageScope: 'ALL' },
+            { id: 'FC-2', fieldCode: 'FLD_DURATION_PERIOD', fieldLabel: 'Duration & Progression', fieldType: 'PERIOD', unit: 'Days', isRequired: true, requirementType: 'MANDATORY', order: 2, ageScope: 'ALL' },
+            { id: 'FC-3', fieldCode: 'FLD_SEVERITY_SCALE', fieldLabel: 'Symptom Severity (VAS / Grade)', fieldType: 'DROPDOWN', options: ['Mild (VAS 1-3)', 'Moderate (VAS 4-6)', 'Severe (VAS 7-9)', 'Excruciating (VAS 10)'], isRequired: false, requirementType: 'OPTIONAL', order: 3, ageScope: 'ALL' },
+            { id: 'FC-4', fieldCode: 'FLD_HPI_NARRATIVE', fieldLabel: 'History of Present Illness (HPI)', fieldType: 'TEXTAREA', placeholder: 'Chronological symptom progression, triggers, associated factors...', isRequired: false, requirementType: 'OPTIONAL', order: 4, ageScope: 'ALL' },
           ],
         },
         {
-          id: 'SEC-2',
-          sectionTitle: 'Systemic Physical Examination',
+          id: 'SEC-CLIN-2',
+          sectionTitle: 'Vitals & Physiological Biometrics',
+          nickName: 'Clinical Vitals',
           fieldsCount: 8,
           isRequired: true,
           requirementType: 'MANDATORY',
           order: 2,
+          dockPosition: 'TOP',
+          encounterScope: 'ALL',
+          retainRevisions: true,
+          saveAndComplete: false,
+          doctorSignature: false,
+          patientSignature: false,
+          witnessSignature: false,
+          displayInConsultation: true,
+          canSkip: false,
+          ageTarget: 'ALL',
           fields: [
-            { id: 'F2-1', fieldCode: 'FLD_GEN_APPEARANCE', fieldLabel: 'General Appearance', fieldType: 'DROPDOWN', options: ['Well Nourished & Alert', 'Pale / Anemic', 'Febrile & Flushed', 'Toxic / Distressed', 'Lethargic'], isRequired: true, requirementType: 'MANDATORY', order: 1 },
-            { id: 'F2-2', fieldCode: 'FLD_PULSE_RATE', fieldLabel: 'Pulse Rate', fieldType: 'NUMBER', unit: 'bpm', isRequired: true, requirementType: 'MANDATORY', order: 2 },
-            { id: 'F2-3', fieldCode: 'FLD_BP_SYS', fieldLabel: 'Systolic Blood Pressure', fieldType: 'NUMBER', unit: 'mmHg', isRequired: true, requirementType: 'MANDATORY', order: 3 },
-            { id: 'F2-4', fieldCode: 'FLD_BP_DIA', fieldLabel: 'Diastolic Blood Pressure', fieldType: 'NUMBER', unit: 'mmHg', isRequired: true, requirementType: 'MANDATORY', order: 4 },
-            { id: 'F2-5', fieldCode: 'FLD_RESP_RATE', fieldLabel: 'Respiratory Rate', fieldType: 'NUMBER', unit: 'breaths/min', isRequired: true, requirementType: 'MANDATORY', order: 5 },
-            { id: 'F2-6', fieldCode: 'FLD_CVS_EXAM', fieldLabel: 'Cardiovascular (Heart Sounds)', fieldType: 'TEXT', placeholder: 'S1, S2 heard, no murmur', isRequired: false, requirementType: 'OPTIONAL', order: 6 },
-            { id: 'F2-7', fieldCode: 'FLD_RS_EXAM', fieldLabel: 'Respiratory (Chest / Lungs)', fieldType: 'TEXT', placeholder: 'Bilateral vesicular breath sounds, no wheeze', isRequired: false, requirementType: 'OPTIONAL', order: 7 },
-            { id: 'F2-8', fieldCode: 'FLD_PA_EXAM', fieldLabel: 'Abdomen (Per Abdomen)', fieldType: 'TEXT', placeholder: 'Soft, non-tender, no organomegaly', isRequired: false, requirementType: 'OPTIONAL', order: 8 },
+            { id: 'FV-1', fieldCode: 'FLD_BP_SYS', fieldLabel: 'Systolic Blood Pressure', fieldType: 'NUMBER', unit: 'mmHg', placeholder: '120', isRequired: true, requirementType: 'MANDATORY', order: 1, ageScope: 'ADULT' },
+            { id: 'FV-2', fieldCode: 'FLD_BP_DIA', fieldLabel: 'Diastolic Blood Pressure', fieldType: 'NUMBER', unit: 'mmHg', placeholder: '80', isRequired: true, requirementType: 'MANDATORY', order: 2, ageScope: 'ADULT' },
+            { id: 'FV-3', fieldCode: 'FLD_PULSE_RATE', fieldLabel: 'Heart / Pulse Rate', fieldType: 'NUMBER', unit: 'bpm', placeholder: '72', isRequired: true, requirementType: 'MANDATORY', order: 3, ageScope: 'ALL' },
+            { id: 'FV-4', fieldCode: 'FLD_TEMP_C', fieldLabel: 'Core Temperature', fieldType: 'NUMBER', unit: '°C', placeholder: '37.0', isRequired: true, requirementType: 'MANDATORY', order: 4, ageScope: 'ALL' },
+            { id: 'FV-5', fieldCode: 'FLD_SPO2', fieldLabel: 'Oxygen Saturation (SpO2)', fieldType: 'NUMBER', unit: '%', placeholder: '98', isRequired: true, requirementType: 'MANDATORY', order: 5, ageScope: 'ALL' },
+            { id: 'FV-6', fieldCode: 'FLD_RESP_RATE', fieldLabel: 'Respiratory Rate', fieldType: 'NUMBER', unit: 'breaths/min', placeholder: '16', isRequired: true, requirementType: 'MANDATORY', order: 6, ageScope: 'ALL' },
+            { id: 'FV-7', fieldCode: 'FLD_HEIGHT_CM', fieldLabel: 'Height / Length', fieldType: 'NUMBER', unit: 'cm', placeholder: '170', isRequired: false, requirementType: 'OPTIONAL', order: 7, ageScope: 'ALL' },
+            { id: 'FV-8', fieldCode: 'FLD_WEIGHT_KG', fieldLabel: 'Body Weight', fieldType: 'NUMBER', unit: 'kg', placeholder: '70', isRequired: true, requirementType: 'MANDATORY', order: 8, ageScope: 'ALL' },
+            // Pediatric-specific dynamic vitals fields:
+            { id: 'FV-PED-1', fieldCode: 'FLD_HEAD_CIRCUMFERENCE', fieldLabel: 'Head Circumference (OFC)', fieldType: 'NUMBER', unit: 'cm', placeholder: '35.5', isRequired: true, requirementType: 'MANDATORY', order: 9, ageScope: 'CHILD', pediatricNote: 'Standard for pediatric patients < 36 months' },
+            { id: 'FV-PED-2', fieldCode: 'FLD_MUAC', fieldLabel: 'Mid-Upper Arm Circumference (MUAC)', fieldType: 'NUMBER', unit: 'cm', placeholder: '14.0', isRequired: false, requirementType: 'OPTIONAL', order: 10, ageScope: 'CHILD', pediatricNote: 'Nutritional status screening' },
+            { id: 'FV-PED-3', fieldCode: 'FLD_GROWTH_PERCENTILE', fieldLabel: 'WHO Growth Percentile Category', fieldType: 'DROPDOWN', options: ['< 3rd Percentile (Underweight)', '3rd - 15th Percentile', '15th - 50th Percentile (Normal)', '50th - 85th Percentile', '> 85th Percentile (Overweight)', '> 97th Percentile (Obese)'], isRequired: false, requirementType: 'CONDITIONAL', order: 11, ageScope: 'CHILD' },
           ],
         },
         {
-          id: 'SEC-3',
-          sectionTitle: 'Clinical Impression & ICD-10 Diagnosis',
-          fieldsCount: 3,
+          id: 'SEC-CLIN-3',
+          sectionTitle: 'Systemic Physical Examination',
+          nickName: 'Physical Exam',
+          fieldsCount: 6,
           isRequired: true,
           requirementType: 'MANDATORY',
           order: 3,
+          dockPosition: 'TOP',
+          encounterScope: 'OUTPATIENT',
+          retainRevisions: false,
+          saveAndComplete: false,
+          doctorSignature: false,
+          patientSignature: false,
+          witnessSignature: false,
+          displayInConsultation: true,
+          canSkip: false,
+          ageTarget: 'ALL',
           fields: [
-            { id: 'F3-1', fieldCode: 'FLD_PROV_DIAGNOSIS', fieldLabel: 'Provisional Clinical Diagnosis', fieldType: 'TEXT', placeholder: 'Acute Upper Respiratory Tract Infection', isRequired: true, requirementType: 'MANDATORY', order: 1 },
-            { id: 'F3-2', fieldCode: 'FLD_ICD10_CODE', fieldLabel: 'ICD-10 Primary Code', fieldType: 'TEXT', placeholder: 'J06.9', isRequired: true, requirementType: 'MANDATORY', order: 2 },
-            { id: 'F3-3', fieldCode: 'FLD_IS_CHRONIC', fieldLabel: 'Chronic Condition / Comorbidity', fieldType: 'CHECKBOX', isRequired: false, requirementType: 'CONDITIONAL', order: 3 },
+            { id: 'FPE-1', fieldCode: 'FLD_GEN_EXAM', fieldLabel: 'General Appearance & Sensorium', fieldType: 'DROPDOWN', options: ['Alert, conscious, well oriented', 'Febrile, flushed, mild distress', 'Pale / Anemic appearance', 'Dehydrated, dry mucous membranes', 'Lethargic / Drowsy', 'Acute distress'], isRequired: true, requirementType: 'MANDATORY', order: 1, ageScope: 'ALL' },
+            { id: 'FPE-2', fieldCode: 'FLD_CVS_EXAM', fieldLabel: 'Cardiovascular System (CVS)', fieldType: 'TEXT', placeholder: 'S1, S2 heard, regular rhythm, no murmur', isRequired: false, requirementType: 'OPTIONAL', order: 2, ageScope: 'ALL' },
+            { id: 'FPE-3', fieldCode: 'FLD_RS_EXAM', fieldLabel: 'Respiratory System (Chest / Lungs)', fieldType: 'TEXT', placeholder: 'Bilateral vesicular breath sounds, clear fields', isRequired: false, requirementType: 'OPTIONAL', order: 3, ageScope: 'ALL' },
+            { id: 'FPE-4', fieldCode: 'FLD_PA_EXAM', fieldLabel: 'Per Abdomen (PA)', fieldType: 'TEXT', placeholder: 'Soft, non-tender, no organomegaly, normal bowel sounds', isRequired: false, requirementType: 'OPTIONAL', order: 4, ageScope: 'ALL' },
+            { id: 'FPE-5', fieldCode: 'FLD_CNS_EXAM', fieldLabel: 'Central Nervous System (CNS)', fieldType: 'TEXT', placeholder: 'GCS 15/15, cranial nerves intact, no focal deficit', isRequired: false, requirementType: 'OPTIONAL', order: 5, ageScope: 'ADULT' },
+            { id: 'FPE-PED-1', fieldCode: 'FLD_PED_GCS', fieldLabel: 'Pediatric Glasgow Coma Scale (pGCS)', fieldType: 'DROPDOWN', options: ['15 - Normal Pediatric Behavior', '13-14 - Mild Alteration', '9-12 - Moderate Impairment', '<= 8 - Severe Coma'], isRequired: true, requirementType: 'MANDATORY', order: 6, ageScope: 'CHILD' },
           ],
         },
         {
-          id: 'SEC-4',
-          sectionTitle: 'Plan of Care & Patient Advice',
-          fieldsCount: 2,
-          isRequired: false,
-          requirementType: 'OPTIONAL',
+          id: 'SEC-CLIN-4',
+          sectionTitle: 'Clinical Impression & ICD-10 Diagnosis',
+          nickName: 'Diagnosis Coding',
+          fieldsCount: 3,
+          isRequired: true,
+          requirementType: 'MANDATORY',
           order: 4,
+          dockPosition: 'TOP',
+          encounterScope: 'ALL',
+          retainRevisions: true,
+          saveAndComplete: false,
+          doctorSignature: true,
+          patientSignature: false,
+          witnessSignature: false,
+          displayInConsultation: true,
+          canSkip: false,
+          ageTarget: 'ALL',
           fields: [
-            { id: 'F4-1', fieldCode: 'FLD_CARE_PLAN', fieldLabel: 'Clinical Treatment Plan & Instructions', fieldType: 'TEXTAREA', placeholder: 'Dietary advice, rest, hydration, warning signs...', isRequired: true, requirementType: 'MANDATORY', order: 1 },
-            { id: 'F4-2', fieldCode: 'FLD_REVIEW_TIMELINE', fieldLabel: 'Follow-up Review Schedule', fieldType: 'DROPDOWN', options: ['3 Days', '5 Days', '1 Week', '2 Weeks', '1 Month', 'PRN (As Needed)'], isRequired: false, requirementType: 'OPTIONAL', order: 2 },
+            { id: 'FD-1', fieldCode: 'FLD_PRIMARY_DX', fieldLabel: 'Primary Clinical Diagnosis', fieldType: 'TEXT', placeholder: 'e.g. Acute Upper Respiratory Tract Infection', isRequired: true, requirementType: 'MANDATORY', order: 1, ageScope: 'ALL' },
+            { id: 'FD-2', fieldCode: 'FLD_ICD10_PRIMARY', fieldLabel: 'Primary ICD-10 Code', fieldType: 'TEXT', placeholder: 'J06.9', isRequired: true, requirementType: 'MANDATORY', order: 2, ageScope: 'ALL' },
+            { id: 'FD-3', fieldCode: 'FLD_IS_CHRONIC', fieldLabel: 'Chronic Illness / Comorbidity', fieldType: 'CHECKBOX', isRequired: false, requirementType: 'CONDITIONAL', order: 3, ageScope: 'ALL' },
+          ],
+        },
+        {
+          id: 'SEC-CLIN-5',
+          sectionTitle: 'Orders, Prescriptions & Plan of Care',
+          nickName: 'Rx & Treatment Plan',
+          fieldsCount: 3,
+          isRequired: true,
+          requirementType: 'MANDATORY',
+          order: 5,
+          dockPosition: 'TOP',
+          encounterScope: 'OUTPATIENT',
+          retainRevisions: true,
+          saveAndComplete: true,
+          doctorSignature: true,
+          patientSignature: false,
+          witnessSignature: false,
+          displayInConsultation: true,
+          canSkip: false,
+          ageTarget: 'ALL',
+          fields: [
+            { id: 'FR-1', fieldCode: 'FLD_RX_ORDERS', fieldLabel: 'Medication Orders & Dosage Instructions', fieldType: 'TEXTAREA', placeholder: 'Tab Paracetamol 500mg TDS x 3 days...', isRequired: true, requirementType: 'MANDATORY', order: 1, ageScope: 'ALL' },
+            { id: 'FR-2', fieldCode: 'FLD_LAB_RAD_ORDERS', fieldLabel: 'Laboratory & Radiology Diagnostic Requests', fieldType: 'TEXT', placeholder: 'CBC, ESR, Chest X-Ray PA View', isRequired: false, requirementType: 'OPTIONAL', order: 2, ageScope: 'ALL' },
+            { id: 'FR-3', fieldCode: 'FLD_FOLLOWUP_DATE', fieldLabel: 'Next Follow-up Appointment Date', fieldType: 'DATE', isRequired: false, requirementType: 'OPTIONAL', order: 3, ageScope: 'ALL' },
           ],
         },
       ],
     },
     {
-      id: 'TPL-STD-02',
-      templateCode: 'IPD-NURSE-01',
-      templateName: 'Inpatient Bedside & eMAR Nursing Station',
-      specialty: 'Inpatient Nursing',
+      id: 'TPL-STD-OP-NURSE',
+      templateCode: 'OP-NURSING',
+      templateName: 'OP - NURSING (Triage & Intake Assessment)',
+      specialty: 'Outpatient Nursing',
       panelType: 'STANDARD',
-      version: 'v2.1',
+      version: 'v9.3',
       status: 'ACTIVE',
-      assignedDepartments: ['General Ward', 'ICU', 'CCU', 'Post-Op Recovery'],
-      assignedDoctors: ['Inpatient Nursing Team', 'Dr. Alexander Reed'],
+      layoutOrientation: 'VERTICAL',
+      isDefault: true,
+      encounterScope: 'OUTPATIENT',
+      formGroupRole: 'NURSING',
+      assignedDepartments: ['OPD Nursing Station', 'Triage Area', 'Injection Room'],
+      assignedDoctors: ['Staff Nurse In-Charge', 'Triage Nursing Team'],
       sections: [
         {
-          id: 'SEC-N1',
-          sectionTitle: 'Vital Signs & 24h Monitoring Trajectory',
-          fieldsCount: 5,
+          id: 'SEC-OPN-1',
+          sectionTitle: 'Nurse Intake & Allergy Screening',
+          nickName: 'Allergy Screen',
+          fieldsCount: 3,
           isRequired: true,
           requirementType: 'MANDATORY',
           order: 1,
+          dockPosition: 'TOP',
+          encounterScope: 'ALL',
+          retainRevisions: true,
+          saveAndComplete: false,
+          doctorSignature: false,
+          patientSignature: true,
+          witnessSignature: false,
+          displayInConsultation: true,
+          canSkip: false,
+          ageTarget: 'ALL',
           fields: [
-            { id: 'FN-1', fieldCode: 'FLD_IPD_BP', fieldLabel: 'Non-Invasive Blood Pressure (NIBP)', fieldType: 'TEXT', placeholder: '120/80', isRequired: true, requirementType: 'MANDATORY', order: 1 },
-            { id: 'FN-2', fieldCode: 'FLD_IPD_PULSE', fieldLabel: 'Pulse Rate', fieldType: 'NUMBER', unit: 'bpm', isRequired: true, requirementType: 'MANDATORY', order: 2 },
-            { id: 'FN-3', fieldCode: 'FLD_IPD_TEMP', fieldLabel: 'Core Temperature', fieldType: 'NUMBER', unit: '°C', isRequired: true, requirementType: 'MANDATORY', order: 3 },
-            { id: 'FN-4', fieldCode: 'FLD_IPD_SPO2', fieldLabel: 'Oxygen Saturation (SpO2)', fieldType: 'NUMBER', unit: '%', isRequired: true, requirementType: 'MANDATORY', order: 4 },
-            { id: 'FN-5', fieldCode: 'FLD_IPD_O2_SUPPORT', fieldLabel: 'Supplemental O2 Flow Rate', fieldType: 'TEXT', placeholder: 'Room Air / 2L via NC', isRequired: false, requirementType: 'CONDITIONAL', order: 5 },
+            { id: 'FON-1', fieldCode: 'FLD_NKA_STATUS', fieldLabel: 'No Known Allergies (NKA)', fieldType: 'CHECKBOX', isRequired: false, requirementType: 'OPTIONAL', order: 1, ageScope: 'ALL' },
+            { id: 'FON-2', fieldCode: 'FLD_ALLERGY_DETAILS', fieldLabel: 'Known Drug, Food or Substance Allergies', fieldType: 'TEXT', placeholder: 'e.g. Penicillin (Anaphylaxis), Peanuts (Urticaria)', isRequired: false, requirementType: 'CONDITIONAL', order: 2, ageScope: 'ALL' },
+            { id: 'FON-3', fieldCode: 'FLD_ALLERGY_SEVERITY', fieldLabel: 'Allergic Reaction Severity', fieldType: 'DROPDOWN', options: ['Mild', 'Moderate', 'Severe / Life-Threatening'], isRequired: false, requirementType: 'CONDITIONAL', order: 3, ageScope: 'ALL' },
           ],
         },
         {
-          id: 'SEC-N2',
-          sectionTitle: 'Intake & Output Fluid Balance Summary',
+          id: 'SEC-OPN-2',
+          sectionTitle: 'Fall Risk & Vulnerability Assessment',
+          nickName: 'Fall Risk Scale',
           fieldsCount: 3,
           isRequired: true,
           requirementType: 'MANDATORY',
           order: 2,
+          dockPosition: 'TOP',
+          encounterScope: 'ALL',
+          retainRevisions: false,
+          saveAndComplete: false,
+          doctorSignature: false,
+          patientSignature: false,
+          witnessSignature: false,
+          displayInConsultation: true,
+          canSkip: false,
+          ageTarget: 'ALL',
           fields: [
-            { id: 'FN-21', fieldCode: 'FLD_TOTAL_INTAKE', fieldLabel: '24-Hour Cumulative Intake', fieldType: 'NUMBER', unit: 'mL', isRequired: true, requirementType: 'MANDATORY', order: 1 },
-            { id: 'FN-22', fieldCode: 'FLD_TOTAL_OUTPUT', fieldLabel: '24-Hour Cumulative Output', fieldType: 'NUMBER', unit: 'mL', isRequired: true, requirementType: 'MANDATORY', order: 2 },
-            { id: 'FN-23', fieldCode: 'FLD_NET_BALANCE', fieldLabel: 'Net Fluid Balance (+/-)', fieldType: 'NUMBER', unit: 'mL', isRequired: true, requirementType: 'MANDATORY', order: 3 },
+            { id: 'FON-4', fieldCode: 'FLD_FALL_HISTORY', fieldLabel: 'History of Falls within Last 6 Months', fieldType: 'YES_NO', isRequired: true, requirementType: 'MANDATORY', order: 1, ageScope: 'ALL' },
+            { id: 'FON-5', fieldCode: 'FLD_AMBULATION_AID', fieldLabel: 'Requires Ambulatory Assistance / Cane / Wheelchair', fieldType: 'YES_NO', isRequired: true, requirementType: 'MANDATORY', order: 2, ageScope: 'ALL' },
+            { id: 'FON-6', fieldCode: 'FLD_FALL_RISK_LEVEL', fieldLabel: 'Calculated Fall Risk Category', fieldType: 'DROPDOWN', options: ['Low Risk (Green Band)', 'Moderate Risk (Yellow Band)', 'High Fall Risk (Red Band - Direct Nurse Supervision)'], isRequired: true, requirementType: 'MANDATORY', order: 3, ageScope: 'ALL' },
+          ],
+        },
+        {
+          id: 'SEC-OPN-3',
+          sectionTitle: 'Pediatric Immunization & Growth Tracking',
+          nickName: 'Child Immunization',
+          fieldsCount: 3,
+          isRequired: false,
+          requirementType: 'CONDITIONAL',
+          order: 3,
+          dockPosition: 'TOP',
+          encounterScope: 'OUTPATIENT',
+          retainRevisions: true,
+          saveAndComplete: false,
+          doctorSignature: false,
+          patientSignature: false,
+          witnessSignature: false,
+          displayInConsultation: true,
+          canSkip: true,
+          ageTarget: 'CHILD',
+          fields: [
+            { id: 'FON-PED-1', fieldCode: 'FLD_IMMUNIZATION_STATUS', fieldLabel: 'Vaccination Schedule Up to Date', fieldType: 'YES_NO', isRequired: true, requirementType: 'MANDATORY', order: 1, ageScope: 'CHILD' },
+            { id: 'FON-PED-2', fieldCode: 'FLD_VACCINE_MISSED', fieldLabel: 'Pending / Delayed Vaccines', fieldType: 'TEXT', placeholder: 'e.g. MMR-2 booster pending', isRequired: false, requirementType: 'OPTIONAL', order: 2, ageScope: 'CHILD' },
+            { id: 'FON-PED-3', fieldCode: 'FLD_FEEDING_PATTERN', fieldLabel: 'Infant Feeding Regimen', fieldType: 'DROPDOWN', options: ['Exclusive Breastfeeding', 'Formula Feed', 'Mixed Feed', 'Age-Appropriate Solid Weaning'], isRequired: false, requirementType: 'OPTIONAL', order: 3, ageScope: 'CHILD' },
           ],
         },
       ],
     },
     {
-      id: 'TPL-STD-03',
-      templateCode: 'ER-TRIAGE-01',
-      templateName: 'Emergency Triage & Rapid Resuscitation',
-      specialty: 'Emergency Medicine',
+      id: 'TPL-STD-IP-NURSE',
+      templateCode: 'IP-NURSING',
+      templateName: 'IP NURSING (Inpatient Bedside & eMAR Station)',
+      specialty: 'Inpatient Nursing & Critical Care',
       panelType: 'STANDARD',
-      version: 'v1.9',
+      version: 'v9.3',
       status: 'ACTIVE',
-      assignedDepartments: ['Emergency Department', 'Trauma Resuscitation'],
-      assignedDoctors: ['Dr. Emily Watson', 'Emergency Triage Team'],
+      layoutOrientation: 'VERTICAL',
+      isDefault: true,
+      encounterScope: 'INPATIENT',
+      formGroupRole: 'IP_NURSING',
+      assignedDepartments: ['General Ward', 'ICU', 'HDU', 'Maternity Ward', 'Surgical Ward'],
+      assignedDoctors: ['Inpatient Nursing Staff', 'Dr. Alexander Reed'],
       sections: [
         {
-          id: 'SEC-ER1',
-          sectionTitle: 'Emergency Severity Index (ESI) Triage Classification',
-          fieldsCount: 3,
+          id: 'SEC-IPN-1',
+          sectionTitle: 'Vital Signs & 24h Hemodynamic Trajectory',
+          nickName: '24h Vitals',
+          fieldsCount: 5,
           isRequired: true,
           requirementType: 'MANDATORY',
           order: 1,
+          dockPosition: 'TOP',
+          encounterScope: 'INPATIENT',
+          retainRevisions: true,
+          saveAndComplete: false,
+          doctorSignature: false,
+          patientSignature: false,
+          witnessSignature: false,
+          displayInConsultation: true,
+          canSkip: false,
+          ageTarget: 'ALL',
           fields: [
-            { id: 'FER-1', fieldCode: 'FLD_ESI_LEVEL', fieldLabel: 'ESI Triage Level', fieldType: 'DROPDOWN', options: ['Level 1 - Resuscitation (Immediate)', 'Level 2 - Emergent (High Risk)', 'Level 3 - Urgent (Multiple Resources)', 'Level 4 - Less Urgent', 'Level 5 - Non-Urgent'], isRequired: true, requirementType: 'MANDATORY', order: 1 },
-            { id: 'FER-2', fieldCode: 'FLD_TRIAGE_CHIEF', fieldLabel: 'Triage Acuity Complaint', fieldType: 'TEXT', placeholder: 'Acute chest pain, severe trauma, shortness of breath', isRequired: true, requirementType: 'MANDATORY', order: 2 },
-            { id: 'FER-3', fieldCode: 'FLD_GCS_TOTAL', fieldLabel: 'Glasgow Coma Scale Total', fieldType: 'NUMBER', placeholder: '15', isRequired: true, requirementType: 'MANDATORY', order: 3 },
+            { id: 'FIN-1', fieldCode: 'FLD_IP_BP', fieldLabel: 'Non-Invasive BP (NIBP)', fieldType: 'TEXT', placeholder: '120/80', isRequired: true, requirementType: 'MANDATORY', order: 1, ageScope: 'ALL' },
+            { id: 'FIN-2', fieldCode: 'FLD_IP_HR', fieldLabel: 'Continuous Heart Rate', fieldType: 'NUMBER', unit: 'bpm', isRequired: true, requirementType: 'MANDATORY', order: 2, ageScope: 'ALL' },
+            { id: 'FIN-3', fieldCode: 'FLD_IP_TEMP', fieldLabel: 'Body Temperature', fieldType: 'NUMBER', unit: '°C', isRequired: true, requirementType: 'MANDATORY', order: 3, ageScope: 'ALL' },
+            { id: 'FIN-4', fieldCode: 'FLD_IP_SPO2', fieldLabel: 'SpO2 on Room Air / O2 Device', fieldType: 'NUMBER', unit: '%', isRequired: true, requirementType: 'MANDATORY', order: 4, ageScope: 'ALL' },
+            { id: 'FIN-5', fieldCode: 'FLD_IP_O2_SUPPORT', fieldLabel: 'Supplemental Oxygen Rate', fieldType: 'DROPDOWN', options: ['Room Air', '2L via Nasal Cannula', '4L via Facemask', '10L via Non-Rebreather', 'High Flow Nasal Cannula (HFNC)', 'Mechanical Ventilation'], isRequired: false, requirementType: 'OPTIONAL', order: 5, ageScope: 'ALL' },
+          ],
+        },
+        {
+          id: 'SEC-IPN-2',
+          sectionTitle: 'Intake & Output Fluid Balance Chart',
+          nickName: 'I/O Fluid Chart',
+          fieldsCount: 4,
+          isRequired: true,
+          requirementType: 'MANDATORY',
+          order: 2,
+          dockPosition: 'TOP',
+          encounterScope: 'INPATIENT',
+          retainRevisions: true,
+          saveAndComplete: false,
+          doctorSignature: false,
+          patientSignature: false,
+          witnessSignature: false,
+          displayInConsultation: true,
+          canSkip: false,
+          ageTarget: 'ALL',
+          fields: [
+            { id: 'FIN-6', fieldCode: 'FLD_ORAL_INTAKE', fieldLabel: 'Oral Fluid Intake (24h)', fieldType: 'NUMBER', unit: 'mL', isRequired: true, requirementType: 'MANDATORY', order: 1, ageScope: 'ALL' },
+            { id: 'FIN-7', fieldCode: 'FLD_IV_INTAKE', fieldLabel: 'IV Infusions & Medications', fieldType: 'NUMBER', unit: 'mL', isRequired: true, requirementType: 'MANDATORY', order: 2, ageScope: 'ALL' },
+            { id: 'FIN-8', fieldCode: 'FLD_TOTAL_OUTPUT', fieldLabel: 'Total Output (Urine + Drain + Stool)', fieldType: 'NUMBER', unit: 'mL', isRequired: true, requirementType: 'MANDATORY', order: 3, ageScope: 'ALL' },
+            { id: 'FIN-9', fieldCode: 'FLD_NET_BALANCE', fieldLabel: 'Calculated Net Fluid Balance (+/-)', fieldType: 'NUMBER', unit: 'mL', isRequired: true, requirementType: 'MANDATORY', order: 4, ageScope: 'ALL' },
+          ],
+        },
+        {
+          id: 'SEC-IPN-3',
+          sectionTitle: 'ISBAR Shift Handover Communication',
+          nickName: 'ISBAR Handover',
+          fieldsCount: 4,
+          isRequired: true,
+          requirementType: 'MANDATORY',
+          order: 3,
+          dockPosition: 'TOP',
+          encounterScope: 'INPATIENT',
+          retainRevisions: true,
+          saveAndComplete: true,
+          doctorSignature: false,
+          patientSignature: false,
+          witnessSignature: true,
+          displayInConsultation: true,
+          canSkip: false,
+          ageTarget: 'ALL',
+          fields: [
+            { id: 'FIN-10', fieldCode: 'FLD_ISBAR_S', fieldLabel: 'Situation (Active Acute Issues)', fieldType: 'TEXT', placeholder: 'Post-op Day 1, pain well controlled', isRequired: true, requirementType: 'MANDATORY', order: 1, ageScope: 'ALL' },
+            { id: 'FIN-11', fieldCode: 'FLD_ISBAR_B', fieldLabel: 'Background (Admission Reason & Co-morbidities)', fieldType: 'TEXT', placeholder: 'Admitted for laparoscopic cholecystectomy, HTN', isRequired: true, requirementType: 'MANDATORY', order: 2, ageScope: 'ALL' },
+            { id: 'FIN-12', fieldCode: 'FLD_ISBAR_A', fieldLabel: 'Assessment (Current Vital Status & Lines)', fieldType: 'TEXT', placeholder: 'Vitals stable, IV cannula in left forearm patent', isRequired: true, requirementType: 'MANDATORY', order: 3, ageScope: 'ALL' },
+            { id: 'FIN-13', fieldCode: 'FLD_ISBAR_R', fieldLabel: 'Recommendation (Plan for Next Shift)', fieldType: 'TEXT', placeholder: 'Mobilize to chair, repeat electrolytes at 6 PM', isRequired: true, requirementType: 'MANDATORY', order: 4, ageScope: 'ALL' },
           ],
         },
       ],
     },
     {
-      id: 'TPL-STD-04',
-      templateCode: 'DISCH-SUM-01',
-      templateName: 'Inpatient Hospital Discharge Summary',
-      specialty: 'Medical Records / Inpatient',
+      id: 'TPL-STD-PRE-OP',
+      templateCode: 'PRE-OPERATIVE',
+      templateName: 'PRE-OPERATIVE (Pre-Op Verification & Checklist)',
+      specialty: 'Surgical Day Care & Anesthesia',
       panelType: 'STANDARD',
-      version: 'v3.0',
+      version: 'v9.3',
       status: 'ACTIVE',
-      assignedDepartments: ['All Inpatient Wards', 'ICU', 'Cardiology', 'Surgery'],
-      assignedDoctors: ['Dr. Alexander Reed', 'Discharge Coordination Team'],
+      layoutOrientation: 'VERTICAL',
+      isDefault: false,
+      encounterScope: 'INPATIENT',
+      formGroupRole: 'EMR',
+      assignedDepartments: ['Pre-Op Holding Area', 'Surgical Ward', 'Day Surgery Unit'],
+      assignedDoctors: ['Dr. Vikram Sharma', 'Operating Surgeon', 'Pre-Op Holding Nurse'],
       sections: [
         {
-          id: 'SEC-DS1',
-          sectionTitle: 'Hospital Course & Inpatient Synopsis',
-          fieldsCount: 3,
+          id: 'SEC-PRE-1',
+          sectionTitle: 'Pre-Operative Verification Checklist',
+          nickName: 'Pre-Op Safety',
+          fieldsCount: 5,
           isRequired: true,
           requirementType: 'MANDATORY',
           order: 1,
+          dockPosition: 'TOP',
+          encounterScope: 'INPATIENT',
+          retainRevisions: true,
+          saveAndComplete: true,
+          doctorSignature: true,
+          patientSignature: true,
+          witnessSignature: true,
+          displayInConsultation: true,
+          canSkip: false,
+          ageTarget: 'ALL',
           fields: [
-            { id: 'FDS-1', fieldCode: 'FLD_DS_ADMIT_REASON', fieldLabel: 'Reason for Admission', fieldType: 'TEXT', isRequired: true, requirementType: 'MANDATORY', order: 1 },
-            { id: 'FDS-2', fieldCode: 'FLD_DS_COURSE', fieldLabel: 'Hospital Progression & Summary', fieldType: 'TEXTAREA', isRequired: true, requirementType: 'MANDATORY', order: 2 },
-            { id: 'FDS-3', fieldCode: 'FLD_DS_SURGERY', fieldLabel: 'Surgical / Invasive Procedures Performed', fieldType: 'TEXTAREA', isRequired: false, requirementType: 'OPTIONAL', order: 3 },
+            { id: 'FPRE-1', fieldCode: 'FLD_CONSENT_SIGNED', fieldLabel: 'Informed Surgical & Anesthesia Consent Signed', fieldType: 'YES_NO', isRequired: true, requirementType: 'MANDATORY', order: 1, ageScope: 'ALL' },
+            { id: 'FPRE-2', fieldCode: 'FLD_SITE_MARKED', fieldLabel: 'Surgical Site Marked by Operating Surgeon', fieldType: 'YES_NO', isRequired: true, requirementType: 'MANDATORY', order: 2, ageScope: 'ALL' },
+            { id: 'FPRE-3', fieldCode: 'FLD_NPO_HOURS', fieldLabel: 'NPO Hours for Solids / Clear Liquids', fieldType: 'PERIOD', unit: 'Hours', isRequired: true, requirementType: 'MANDATORY', order: 3, ageScope: 'ALL' },
+            { id: 'FPRE-4', fieldCode: 'FLD_BLOOD_CROSSMATCH', fieldLabel: 'Blood Cross-match & Availability Confirmed', fieldType: 'DROPDOWN', options: ['Confirmed Ready in Blood Bank', 'Type & Screen Only', 'Not Indicated for this Procedure'], isRequired: true, requirementType: 'MANDATORY', order: 4, ageScope: 'ALL' },
+            { id: 'FPRE-5', fieldCode: 'FLD_JEWELRY_REMOVED', fieldLabel: 'Dentures / Hearing Aids / Jewelry Removed', fieldType: 'YES_NO', isRequired: true, requirementType: 'MANDATORY', order: 5, ageScope: 'ALL' },
           ],
         },
       ],
     },
     {
-      id: 'TPL-STD-05',
-      templateCode: 'SOAP-NOTE-01',
-      templateName: 'Physician SOAP Progress & Consultation Note',
-      specialty: 'Clinical Practice',
+      id: 'TPL-STD-OT-FORM',
+      templateCode: 'OT-FORMS',
+      templateName: 'OT FORMS (Intra-Operative & WHO Safety Checklist)',
+      specialty: 'Operating Theater & Surgery',
       panelType: 'STANDARD',
-      version: 'v2.0',
+      version: 'v9.3',
       status: 'ACTIVE',
-      assignedDepartments: ['All Outpatient & Inpatient Specialties'],
-      assignedDoctors: ['All Attending Clinicians'],
+      layoutOrientation: 'VERTICAL',
+      isDefault: false,
+      encounterScope: 'INPATIENT',
+      formGroupRole: 'OT_FORMS',
+      assignedDepartments: ['Operating Theater 1', 'Operating Theater 2', 'Laparoscopy Suite'],
+      assignedDoctors: ['Operating Surgeon', 'Anesthetist', 'Scrub Nurse', 'Circulating Nurse'],
       sections: [
         {
-          id: 'SEC-SP1',
-          sectionTitle: 'Structured SOAP Note',
+          id: 'SEC-OT-1',
+          sectionTitle: 'WHO Surgical Safety Checklist',
+          nickName: 'WHO Time-Out',
           fieldsCount: 4,
           isRequired: true,
           requirementType: 'MANDATORY',
           order: 1,
+          dockPosition: 'TOP',
+          encounterScope: 'INPATIENT',
+          retainRevisions: true,
+          saveAndComplete: true,
+          doctorSignature: true,
+          patientSignature: false,
+          witnessSignature: true,
+          displayInConsultation: true,
+          canSkip: false,
+          ageTarget: 'ALL',
           fields: [
-            { id: 'FSP-1', fieldCode: 'FLD_SOAP_S', fieldLabel: 'Subjective (Patient Reported History & Symptoms)', fieldType: 'TEXTAREA', isRequired: true, requirementType: 'MANDATORY', order: 1 },
-            { id: 'FSP-2', fieldCode: 'FLD_SOAP_O', fieldLabel: 'Objective (Physical Exam, Labs & Diagnostics)', fieldType: 'TEXTAREA', isRequired: true, requirementType: 'MANDATORY', order: 2 },
-            { id: 'FSP-3', fieldCode: 'FLD_SOAP_A', fieldLabel: 'Assessment (Clinical Impression & Differential Diagnosis)', fieldType: 'TEXTAREA', isRequired: true, requirementType: 'MANDATORY', order: 3 },
-            { id: 'FSP-4', fieldCode: 'FLD_SOAP_P', fieldLabel: 'Plan (Prescriptions, Orders, Referrals & Followup)', fieldType: 'TEXTAREA', isRequired: true, requirementType: 'MANDATORY', order: 4 },
+            { id: 'FOT-1', fieldCode: 'FLD_SIGN_IN', fieldLabel: 'Sign-In: Patient identity, site, procedure and pulse oximeter confirmed', fieldType: 'YES_NO', isRequired: true, requirementType: 'MANDATORY', order: 1, ageScope: 'ALL' },
+            { id: 'FOT-2', fieldCode: 'FLD_TIME_OUT', fieldLabel: 'Time-Out: Entire surgical team verbally confirmed patient, procedure and anticipated critical events', fieldType: 'YES_NO', isRequired: true, requirementType: 'MANDATORY', order: 2, ageScope: 'ALL' },
+            { id: 'FOT-3', fieldCode: 'FLD_SIGN_OUT', fieldLabel: 'Sign-Out: Instrument, sponge and needle counts verified correct', fieldType: 'YES_NO', isRequired: true, requirementType: 'MANDATORY', order: 3, ageScope: 'ALL' },
+            { id: 'FOT-4', fieldCode: 'FLD_SPECIMEN_LABEL', fieldLabel: 'Pathology Specimen Accurately Labeled with Patient MRN', fieldType: 'YES_NO', isRequired: true, requirementType: 'MANDATORY', order: 4, ageScope: 'ALL' },
+          ],
+        },
+        {
+          id: 'SEC-OT-2',
+          sectionTitle: 'Operative Findings & Procedure Summary',
+          nickName: 'Surgical Log',
+          fieldsCount: 3,
+          isRequired: true,
+          requirementType: 'MANDATORY',
+          order: 2,
+          dockPosition: 'TOP',
+          encounterScope: 'INPATIENT',
+          retainRevisions: true,
+          saveAndComplete: true,
+          doctorSignature: true,
+          patientSignature: false,
+          witnessSignature: false,
+          displayInConsultation: true,
+          canSkip: false,
+          ageTarget: 'ALL',
+          fields: [
+            { id: 'FOT-5', fieldCode: 'FLD_PROCEDURE_PERFORMED', fieldLabel: 'Exact Procedure Name Performed', fieldType: 'TEXT', placeholder: 'e.g. Diagnostic Laparoscopy and Appendectomy', isRequired: true, requirementType: 'MANDATORY', order: 1, ageScope: 'ALL' },
+            { id: 'FOT-6', fieldCode: 'FLD_ESTIMATED_BLOOD_LOSS', fieldLabel: 'Estimated Blood Loss (EBL)', fieldType: 'NUMBER', unit: 'mL', placeholder: '50', isRequired: true, requirementType: 'MANDATORY', order: 2, ageScope: 'ALL' },
+            { id: 'FOT-7', fieldCode: 'FLD_SURGEON_NARRATIVE', fieldLabel: 'Intra-Operative Narrative & Technique', fieldType: 'TEXTAREA', placeholder: 'Standard 3-port entry, mesoappendix coagulated, base ligated with endoloop...', isRequired: true, requirementType: 'MANDATORY', order: 3, ageScope: 'ALL' },
+          ],
+        },
+      ],
+    },
+    {
+      id: 'TPL-STD-POST-OP',
+      templateCode: 'POST-OP',
+      templateName: 'POST OP (PACU Recovery & Aldrete Score)',
+      specialty: 'Post-Anesthesia Care Unit (PACU)',
+      panelType: 'STANDARD',
+      version: 'v9.3',
+      status: 'ACTIVE',
+      layoutOrientation: 'VERTICAL',
+      isDefault: false,
+      encounterScope: 'INPATIENT',
+      formGroupRole: 'IP',
+      assignedDepartments: ['PACU Recovery Room', 'Post-Surgical Floor'],
+      assignedDoctors: ['PACU Recovery Nurse', 'Dr. Vikram Sharma'],
+      sections: [
+        {
+          id: 'SEC-POP-1',
+          sectionTitle: 'Aldrete Recovery Scoring & Discharge Criteria',
+          nickName: 'Aldrete Score',
+          fieldsCount: 6,
+          isRequired: true,
+          requirementType: 'MANDATORY',
+          order: 1,
+          dockPosition: 'TOP',
+          encounterScope: 'INPATIENT',
+          retainRevisions: true,
+          saveAndComplete: true,
+          doctorSignature: true,
+          patientSignature: false,
+          witnessSignature: false,
+          displayInConsultation: true,
+          canSkip: false,
+          ageTarget: 'ALL',
+          fields: [
+            { id: 'FPOP-1', fieldCode: 'FLD_ALDRETE_ACTIVITY', fieldLabel: 'Activity: Moves all 4 extremities voluntarily (2), 2 extremities (1), none (0)', fieldType: 'DROPDOWN', options: ['2 - Moves 4 extremities', '1 - Moves 2 extremities', '0 - Unable to move extremities'], isRequired: true, requirementType: 'MANDATORY', order: 1, ageScope: 'ALL' },
+            { id: 'FPOP-2', fieldCode: 'FLD_ALDRETE_RESP', fieldLabel: 'Respiration: Breathes deeply & coughs (2), dyspneic (1), apneic (0)', fieldType: 'DROPDOWN', options: ['2 - Deep breath & cough freely', '1 - Dyspneic / shallow breathing', '0 - Apneic'], isRequired: true, requirementType: 'MANDATORY', order: 2, ageScope: 'ALL' },
+            { id: 'FPOP-3', fieldCode: 'FLD_ALDRETE_CIRC', fieldLabel: 'Circulation: BP within +/- 20mmHg of baseline (2), +/- 20-50mmHg (1), >50mmHg (0)', fieldType: 'DROPDOWN', options: ['2 - BP +/- 20mmHg pre-op', '1 - BP +/- 20-50mmHg pre-op', '0 - BP +/- >50mmHg pre-op'], isRequired: true, requirementType: 'MANDATORY', order: 3, ageScope: 'ALL' },
+            { id: 'FPOP-4', fieldCode: 'FLD_ALDRETE_CONSCIOUS', fieldLabel: 'Consciousness: Fully awake (2), arousable on calling (1), not responding (0)', fieldType: 'DROPDOWN', options: ['2 - Fully awake', '1 - Arousable on calling', '0 - Not responding'], isRequired: true, requirementType: 'MANDATORY', order: 4, ageScope: 'ALL' },
+            { id: 'FPOP-5', fieldCode: 'FLD_ALDRETE_O2', fieldLabel: 'O2 Saturation: SpO2 > 92% on room air (2), requires supplemental O2 (1), SpO2 < 90% (0)', fieldType: 'DROPDOWN', options: ['2 - SpO2 > 92% room air', '1 - Requires supplemental O2', '0 - SpO2 < 90% with O2'], isRequired: true, requirementType: 'MANDATORY', order: 5, ageScope: 'ALL' },
+            { id: 'FPOP-6', fieldCode: 'FLD_FIT_FOR_WARD', fieldLabel: 'Fit for Transfer to Surgical Inpatient Ward (Aldrete >= 9)', fieldType: 'YES_NO', isRequired: true, requirementType: 'MANDATORY', order: 6, ageScope: 'ALL' },
+          ],
+        },
+      ],
+    },
+    {
+      id: 'TPL-STD-MRD',
+      templateCode: 'MRD-DISCHARGE',
+      templateName: 'MRD (Hospital Discharge Summary & Claims)',
+      specialty: 'Medical Records & Inpatient Services',
+      panelType: 'STANDARD',
+      version: 'v9.3',
+      status: 'ACTIVE',
+      layoutOrientation: 'VERTICAL',
+      isDefault: false,
+      encounterScope: 'INPATIENT',
+      formGroupRole: 'MRD_CLAIMS',
+      assignedDepartments: ['MRD Department', 'Medical Inpatient Unit', 'Insurance Claims Office'],
+      assignedDoctors: ['Discharge Consultant', 'Dr. Alexander Reed', 'MRD Officer'],
+      sections: [
+        {
+          id: 'SEC-MRD-1',
+          sectionTitle: 'Inpatient Hospital Course & Discharge Condition',
+          nickName: 'Hospital Course',
+          fieldsCount: 4,
+          isRequired: true,
+          requirementType: 'MANDATORY',
+          order: 1,
+          dockPosition: 'TOP',
+          encounterScope: 'INPATIENT',
+          retainRevisions: true,
+          saveAndComplete: true,
+          doctorSignature: true,
+          patientSignature: true,
+          witnessSignature: false,
+          displayInConsultation: true,
+          canSkip: false,
+          ageTarget: 'ALL',
+          fields: [
+            { id: 'FMRD-1', fieldCode: 'FLD_DISCHARGE_CONDITION', fieldLabel: 'Condition at Time of Discharge', fieldType: 'DROPDOWN', options: ['Improved / Hemodynamically Stable', 'Cured / Resolved', 'Transferred to Tertiary Center', 'Discharged Against Medical Advice (DAMA)', 'Expired'], isRequired: true, requirementType: 'MANDATORY', order: 1, ageScope: 'ALL' },
+            { id: 'FMRD-2', fieldCode: 'FLD_FINAL_DX_ICD', fieldLabel: 'Final Primary Discharge ICD-10 Diagnosis', fieldType: 'TEXT', placeholder: 'K35.80 - Acute appendicitis', isRequired: true, requirementType: 'MANDATORY', order: 2, ageScope: 'ALL' },
+            { id: 'FMRD-3', fieldCode: 'FLD_HOSPITAL_COURSE_SUMMARY', fieldLabel: 'Brief Narrative of Inpatient Course', fieldType: 'TEXTAREA', placeholder: 'Admitted with acute abdominal pain, underwent uncomplicated appendectomy, tolerated oral diet, afebrile on discharge...', isRequired: true, requirementType: 'MANDATORY', order: 3, ageScope: 'ALL' },
+            { id: 'FMRD-4', fieldCode: 'FLD_DISCHARGE_ADVICE', fieldLabel: 'Discharge Instructions & Emergency Warning Signs', fieldType: 'TEXTAREA', placeholder: 'Wound care instructions, seek immediate ER attention if fever > 38.5C, wound discharge, severe pain...', isRequired: true, requirementType: 'MANDATORY', order: 4, ageScope: 'ALL' },
           ],
         },
       ],
     },
 
-    // ==========================================
-    // CUSTOM SPECIALTY / DYNAMIC PANELS
-    // ==========================================
+    // =========================================================================
+    // REFERENCE CUSTOM SPECIALTY EMA FORMS (Dental, Eye, OBGYN, PAC, Physio, Peds)
+    // =========================================================================
     {
-      id: 'TPL-CUST-01',
+      id: 'TPL-CUST-DENT',
       templateCode: 'DENT-01',
       templateName: 'Dental Examination & Odontogram Chart',
       specialty: 'Dental / Maxillofacial',
       panelType: 'CUSTOM',
-      version: 'v1.8',
+      version: 'v2.0',
       status: 'ACTIVE',
-      assignedDepartments: ['Dental Clinic', 'Orthodontics'],
+      layoutOrientation: 'VERTICAL',
+      isDefault: false,
+      encounterScope: 'OUTPATIENT',
+      formGroupRole: 'CLINICIANS',
+      assignedDepartments: ['Dental Operatory 1', 'Orthodontic Clinic', 'Oral Surgery'],
       assignedDoctors: ['Dr. Tariq Al Mansoori'],
       sections: [
         {
-          id: 'SEC-11',
-          sectionTitle: 'Dental Chief Complaint & Pain Score (VAS 1-10)',
+          id: 'SEC-DENT-1',
+          sectionTitle: 'Interactive Dental Odontogram FDI Chart',
+          nickName: 'Odontogram Chart',
           fieldsCount: 3,
           isRequired: true,
           requirementType: 'MANDATORY',
           order: 1,
+          dockPosition: 'TOP',
+          encounterScope: 'OUTPATIENT',
+          retainRevisions: true,
+          saveAndComplete: false,
+          doctorSignature: true,
+          patientSignature: false,
+          witnessSignature: false,
+          displayInConsultation: true,
+          canSkip: false,
+          ageTarget: 'ALL',
           fields: [
-            { id: 'F11-1', fieldCode: 'FLD_DENT_COMPLAINT', fieldLabel: 'Chief Dental Concern', fieldType: 'TEXT', placeholder: 'e.g. Throbbing pain in lower right molar', isRequired: true, requirementType: 'MANDATORY', order: 1 },
-            { id: 'F11-2', fieldCode: 'FLD_DENT_PAIN_SCORE', fieldLabel: 'Visual Analogue Pain Scale (VAS)', fieldType: 'DROPDOWN', options: ['0 - No Pain', '1-3 Mild Pain', '4-6 Moderate Pain', '7-9 Severe Pain', '10 - Worst Pain'], isRequired: true, requirementType: 'MANDATORY', order: 2 },
-            { id: 'F11-3', fieldCode: 'FLD_DENT_TRIGGER', fieldLabel: 'Pain Trigger', fieldType: 'DROPDOWN', options: ['Thermal (Cold/Hot)', 'Mastication / Chewing', 'Spontaneous / Night Pain', 'Sweet / Sour Foods'], isRequired: false, requirementType: 'OPTIONAL', order: 3 },
-          ],
-        },
-        {
-          id: 'SEC-12',
-          sectionTitle: 'Interactive Adult / Child 32-Tooth Odontogram Grid',
-          fieldsCount: 2,
-          isRequired: true,
-          requirementType: 'MANDATORY',
-          order: 2,
-          fields: [
-            { id: 'F12-1', fieldCode: 'FLD_ODONTOGRAM_CHART', fieldLabel: 'Adult 32-Tooth FDI Charting Grid', fieldType: 'ODONTOGRAM', isRequired: true, requirementType: 'MANDATORY', order: 1 },
-            { id: 'F12-2', fieldCode: 'FLD_TOOTH_FINDINGS', fieldLabel: 'Pathology Summary (Caries, Missing, Restored, RCT)', fieldType: 'TEXTAREA', placeholder: 'Tooth #16: Deep occlusal caries; Tooth #48: Impacted', isRequired: false, requirementType: 'OPTIONAL', order: 2 },
-          ],
-        },
-        {
-          id: 'SEC-13',
-          sectionTitle: 'Periodontal Screening & Plaque Index',
-          fieldsCount: 4,
-          isRequired: false,
-          requirementType: 'OPTIONAL',
-          order: 3,
-          fields: [
-            { id: 'F13-1', fieldCode: 'FLD_PLAQUE_INDEX', fieldLabel: 'Plaque Index Score', fieldType: 'DROPDOWN', options: ['Score 0 - Good Oral Hygiene', 'Score 1 - Mild Plaque', 'Score 2 - Moderate Plaque', 'Score 3 - Heavy Calculus'], isRequired: false, requirementType: 'OPTIONAL', order: 1 },
-            { id: 'F13-2', fieldCode: 'FLD_GINGIVAL_BLEEDING', fieldLabel: 'Gingival Bleeding on Probing (BOP)', fieldType: 'CHECKBOX', isRequired: false, requirementType: 'OPTIONAL', order: 2 },
-            { id: 'F13-3', fieldCode: 'FLD_POCKET_DEPTH', fieldLabel: 'Max Probing Pocket Depth', fieldType: 'NUMBER', unit: 'mm', isRequired: false, requirementType: 'CONDITIONAL', order: 3 },
-            { id: 'F13-4', fieldCode: 'FLD_MOBILITY_GRADE', fieldLabel: 'Tooth Mobility Grade', fieldType: 'DROPDOWN', options: ['None', 'Grade I (<1mm horizontal)', 'Grade II (>1mm horizontal)', 'Grade III (Vertical mobility)'], isRequired: false, requirementType: 'OPTIONAL', order: 4 },
-          ],
-        },
-        {
-          id: 'SEC-14',
-          sectionTitle: 'Procedure Treatment Plan (Extraction, RCT, Scaling)',
-          fieldsCount: 4,
-          isRequired: true,
-          requirementType: 'MANDATORY',
-          order: 4,
-          fields: [
-            { id: 'F14-1', fieldCode: 'FLD_DENT_PROCEDURE', fieldLabel: 'Proposed Dental Procedure', fieldType: 'DROPDOWN', options: ['Ultrasonic Scaling & Polishing', 'Root Canal Treatment (RCT)', 'Simple Tooth Extraction', 'Surgical Extraction / Impaction', 'Composite Resin Restoration', 'Crown & Bridge Preparation', 'Dental Implant'], isRequired: true, requirementType: 'MANDATORY', order: 1 },
-            { id: 'F14-2', fieldCode: 'FLD_TARGET_TEETH', fieldLabel: 'Target Tooth Number(s) (FDI)', fieldType: 'TEXT', placeholder: 'e.g. 16, 26, 48', isRequired: true, requirementType: 'MANDATORY', order: 2 },
-            { id: 'F14-3', fieldCode: 'FLD_ANESTHESIA_TYPE', fieldLabel: 'Local Anesthetic Technique', fieldType: 'DROPDOWN', options: ['Infiltration Anesthesia', 'Inferior Alveolar Nerve Block (IANB)', 'Mental Nerve Block', 'Topical Benzocaine Only'], isRequired: false, requirementType: 'OPTIONAL', order: 3 },
-            { id: 'F14-4', fieldCode: 'FLD_DENT_CONSENT', fieldLabel: 'Informed Consent Signed by Patient', fieldType: 'CHECKBOX', isRequired: true, requirementType: 'MANDATORY', order: 4 },
+            { id: 'FDENT-1', fieldCode: 'FLD_ODONTOGRAM_GRID', fieldLabel: 'FDI Tooth Matrix (Adult 32-Tooth / Pediatric 20-Tooth)', fieldType: 'ODONTOGRAM', isRequired: true, requirementType: 'MANDATORY', order: 1, ageScope: 'ALL' },
+            { id: 'FDENT-2', fieldCode: 'FLD_GINGIVAL_INDEX', fieldLabel: 'Gingival / Periodontal Status', fieldType: 'DROPDOWN', options: ['Healthy / No Inflammation', 'Mild Gingivitis (Marginal erythema)', 'Moderate Periodontitis (Pocket depth 4-5mm)', 'Severe Periodontitis (Pocket depth > 6mm, bone loss)'], isRequired: true, requirementType: 'MANDATORY', order: 2, ageScope: 'ALL' },
+            { id: 'FDENT-3', fieldCode: 'FLD_TREATMENT_PLAN_DENT', fieldLabel: 'Proposed Dental Procedures', fieldType: 'TEXTAREA', placeholder: 'Composite restoration #46 occlusal, ultrasonic scaling & polishing...', isRequired: true, requirementType: 'MANDATORY', order: 3, ageScope: 'ALL' },
           ],
         },
       ],
     },
     {
-      id: 'TPL-CUST-02',
+      id: 'TPL-CUST-EYE',
       templateCode: 'EYE-OPT-01',
       templateName: 'Ophthalmology & Optometry Refraction Form',
-      specialty: 'Ophthalmology',
+      specialty: 'Ophthalmology & Optometry',
       panelType: 'CUSTOM',
-      version: 'v3.1',
+      version: 'v2.2',
       status: 'ACTIVE',
-      assignedDepartments: ['Eye Clinic', 'Optometry Dept'],
+      layoutOrientation: 'VERTICAL',
+      isDefault: false,
+      encounterScope: 'OUTPATIENT',
+      formGroupRole: 'CLINICIANS',
+      assignedDepartments: ['Eye Clinic', 'Optometry Suite 2', 'Refraction Room'],
       assignedDoctors: ['Dr. Sarah Jenkins'],
       sections: [
         {
-          id: 'SEC-21',
-          sectionTitle: 'Visual Acuity (Uncorrected / Corrected - OD / OS)',
+          id: 'SEC-EYE-1',
+          sectionTitle: 'Visual Acuity & Refraction Matrix',
+          nickName: 'Snellen & Refraction',
           fieldsCount: 4,
           isRequired: true,
           requirementType: 'MANDATORY',
           order: 1,
+          dockPosition: 'TOP',
+          encounterScope: 'OUTPATIENT',
+          retainRevisions: true,
+          saveAndComplete: false,
+          doctorSignature: true,
+          patientSignature: false,
+          witnessSignature: false,
+          displayInConsultation: true,
+          canSkip: false,
+          ageTarget: 'ALL',
           fields: [
-            { id: 'F21-1', fieldCode: 'FLD_VA_OD_UC', fieldLabel: 'Right Eye (OD) Uncorrected Snellen Acuity', fieldType: 'DROPDOWN', options: ['6/6', '6/9', '6/12', '6/18', '6/24', '6/36', '6/60', 'Counting Fingers (CF)', 'Hand Motion (HM)', 'Light Perception (LP)'], isRequired: true, requirementType: 'MANDATORY', order: 1 },
-            { id: 'F21-2', fieldCode: 'FLD_VA_OS_UC', fieldLabel: 'Left Eye (OS) Uncorrected Snellen Acuity', fieldType: 'DROPDOWN', options: ['6/6', '6/9', '6/12', '6/18', '6/24', '6/36', '6/60', 'Counting Fingers (CF)', 'Hand Motion (HM)', 'Light Perception (LP)'], isRequired: true, requirementType: 'MANDATORY', order: 2 },
-            { id: 'F21-3', fieldCode: 'FLD_VA_OD_PINHOLE', fieldLabel: 'Right Eye (OD) With Pinhole', fieldType: 'TEXT', placeholder: '6/6', isRequired: false, requirementType: 'CONDITIONAL', order: 3 },
-            { id: 'F21-4', fieldCode: 'FLD_VA_OS_PINHOLE', fieldLabel: 'Left Eye (OS) With Pinhole', fieldType: 'TEXT', placeholder: '6/6', isRequired: false, requirementType: 'CONDITIONAL', order: 4 },
-          ],
-        },
-        {
-          id: 'SEC-22',
-          sectionTitle: 'Auto-Refractometer & Keratometry Readings',
-          fieldsCount: 6,
-          isRequired: true,
-          requirementType: 'MANDATORY',
-          order: 2,
-          fields: [
-            { id: 'F22-1', fieldCode: 'FLD_OD_SPHERE', fieldLabel: 'OD Sphere (SPH)', fieldType: 'NUMBER', unit: 'Diopters', isRequired: true, requirementType: 'MANDATORY', order: 1 },
-            { id: 'F22-2', fieldCode: 'FLD_OD_CYLINDER', fieldLabel: 'OD Cylinder (CYL)', fieldType: 'NUMBER', unit: 'Diopters', isRequired: false, requirementType: 'OPTIONAL', order: 2 },
-            { id: 'F22-3', fieldCode: 'FLD_OD_AXIS', fieldLabel: 'OD Axis', fieldType: 'NUMBER', unit: 'Degrees (°)', isRequired: false, requirementType: 'OPTIONAL', order: 3 },
-            { id: 'F22-4', fieldCode: 'FLD_OS_SPHERE', fieldLabel: 'OS Sphere (SPH)', fieldType: 'NUMBER', unit: 'Diopters', isRequired: true, requirementType: 'MANDATORY', order: 4 },
-            { id: 'F22-5', fieldCode: 'FLD_OS_CYLINDER', fieldLabel: 'OS Cylinder (CYL)', fieldType: 'NUMBER', unit: 'Diopters', isRequired: false, requirementType: 'OPTIONAL', order: 5 },
-            { id: 'F22-6', fieldCode: 'FLD_OS_AXIS', fieldLabel: 'OS Axis', fieldType: 'NUMBER', unit: 'Degrees (°)', isRequired: false, requirementType: 'OPTIONAL', order: 6 },
-          ],
-        },
-        {
-          id: 'SEC-23',
-          sectionTitle: 'Slit Lamp & Dilated Fundus Examination',
-          fieldsCount: 4,
-          isRequired: true,
-          requirementType: 'MANDATORY',
-          order: 3,
-          fields: [
-            { id: 'F23-1', fieldCode: 'FLD_CORNEA_EXAM', fieldLabel: 'Corneal Clarity & Epithelium', fieldType: 'DROPDOWN', options: ['Clear & Lustrous', 'Epithelial Defect / Abrasion', 'Corneal Infiltrate / Ulcer', 'Stromal Edema', 'Old Scar / Opacity'], isRequired: true, requirementType: 'MANDATORY', order: 1 },
-            { id: 'F23-2', fieldCode: 'FLD_LENS_STATUS', fieldLabel: 'Crystalline Lens Status', fieldType: 'DROPDOWN', options: ['Clear Phakic', 'Nuclear Sclerosis NS Grade 1-2', 'Cortical Cataract', 'Posterior Subcapsular Cataract', 'Pseudophakic (PCIOL in situ)'], isRequired: true, requirementType: 'MANDATORY', order: 2 },
-            { id: 'F23-3', fieldCode: 'FLD_CUP_DISC_RATIO', fieldLabel: 'Optic Disc Cup-to-Disc Ratio (C:D)', fieldType: 'NUMBER', placeholder: '0.3', isRequired: false, requirementType: 'OPTIONAL', order: 3 },
-            { id: 'F23-4', fieldCode: 'FLD_MACULA_RETINA', fieldLabel: 'Macula & Peripheral Retina', fieldType: 'TEXT', placeholder: 'Normal foveal reflex, no hemorrhage or drusen', isRequired: false, requirementType: 'OPTIONAL', order: 4 },
-          ],
-        },
-        {
-          id: 'SEC-24',
-          sectionTitle: 'Intraocular Pressure (IOP - Goldmann / Non-Contact)',
-          fieldsCount: 3,
-          isRequired: true,
-          requirementType: 'MANDATORY',
-          order: 4,
-          fields: [
-            { id: 'F24-1', fieldCode: 'FLD_IOP_OD', fieldLabel: 'Right Eye (OD) IOP', fieldType: 'NUMBER', unit: 'mmHg', isRequired: true, requirementType: 'MANDATORY', order: 1 },
-            { id: 'F24-2', fieldCode: 'FLD_IOP_OS', fieldLabel: 'Left Eye (OS) IOP', fieldType: 'NUMBER', unit: 'mmHg', isRequired: true, requirementType: 'MANDATORY', order: 2 },
-            { id: 'F24-3', fieldCode: 'FLD_IOP_METHOD', fieldLabel: 'Tonometry Measurement Method', fieldType: 'DROPDOWN', options: ['Goldmann Applanation Tonometry (GAT)', 'Non-Contact Air-Puff (NCT)', 'iCare Rebound Tonometer', 'Tono-Pen'], isRequired: false, requirementType: 'OPTIONAL', order: 3 },
+            { id: 'FEYE-1', fieldCode: 'FLD_SNELLEN_VA', fieldLabel: 'Snellen Visual Acuity Matrix (OD Right / OS Left)', fieldType: 'VA_CHART', isRequired: true, requirementType: 'MANDATORY', order: 1, ageScope: 'ALL' },
+            { id: 'FEYE-2', fieldCode: 'FLD_IOP_TONOMETRY', fieldLabel: 'Intraocular Pressure (IOP) Goldmann Tonometry', fieldType: 'TEXT', placeholder: 'OD: 15 mmHg | OS: 16 mmHg', isRequired: true, requirementType: 'MANDATORY', order: 2, ageScope: 'ALL' },
+            { id: 'FEYE-3', fieldCode: 'FLD_SLIT_LAMP', fieldLabel: 'Slit Lamp Anterior Segment Findings', fieldType: 'TEXTAREA', placeholder: 'Cornea clear, anterior chamber deep and quiet, lens clear bilaterally...', isRequired: false, requirementType: 'OPTIONAL', order: 3, ageScope: 'ALL' },
+            { id: 'FEYE-4', fieldCode: 'FLD_FUNDUS_EXAM', fieldLabel: 'Dilated Funduscopy (Optic Disc & Macula)', fieldType: 'TEXTAREA', placeholder: 'Disc pink, cup-to-disc ratio 0.3, macula intact, vessels normal caliber...', isRequired: false, requirementType: 'OPTIONAL', order: 4, ageScope: 'ALL' },
           ],
         },
       ],
     },
     {
-      id: 'TPL-CUST-03',
+      id: 'TPL-CUST-OBGYN',
       templateCode: 'OBGYN-ANC-01',
       templateName: 'Antenatal Care (ANC) & Obstetric Form',
       specialty: 'Obstetrics & Gynecology',
       panelType: 'CUSTOM',
-      version: 'v2.0',
+      version: 'v2.1',
       status: 'ACTIVE',
-      assignedDepartments: ['OB/GYN Clinic', 'Maternity Ward'],
+      layoutOrientation: 'VERTICAL',
+      isDefault: false,
+      encounterScope: 'OUTPATIENT',
+      formGroupRole: 'CLINICIANS',
+      assignedDepartments: ['Maternity OPD', 'Antenatal Clinic 3', 'Fetal Assessment Unit'],
       assignedDoctors: ['Dr. Fatima Al Zahra'],
       sections: [
         {
-          id: 'SEC-31',
-          sectionTitle: 'Obstetric History (G, P, L, A) & LMP / EDD Calculator',
-          fieldsCount: 6,
+          id: 'SEC-OB-1',
+          sectionTitle: 'Obstetric History (GPTAL) & Gestational Milestones',
+          nickName: 'ANC Milestones',
+          fieldsCount: 5,
           isRequired: true,
           requirementType: 'MANDATORY',
           order: 1,
+          dockPosition: 'TOP',
+          encounterScope: 'OUTPATIENT',
+          retainRevisions: true,
+          saveAndComplete: false,
+          doctorSignature: true,
+          patientSignature: false,
+          witnessSignature: false,
+          displayInConsultation: true,
+          canSkip: false,
+          ageTarget: 'ADULT',
           fields: [
-            { id: 'F31-1', fieldCode: 'FLD_GRAVIDA', fieldLabel: 'Gravida (G)', fieldType: 'NUMBER', isRequired: true, requirementType: 'MANDATORY', order: 1 },
-            { id: 'F31-2', fieldCode: 'FLD_PARA', fieldLabel: 'Para (P)', fieldType: 'NUMBER', isRequired: true, requirementType: 'MANDATORY', order: 2 },
-            { id: 'F31-3', fieldCode: 'FLD_LIVING', fieldLabel: 'Living (L)', fieldType: 'NUMBER', isRequired: true, requirementType: 'MANDATORY', order: 3 },
-            { id: 'F31-4', fieldCode: 'FLD_ABORTION', fieldLabel: 'Abortions (A)', fieldType: 'NUMBER', isRequired: true, requirementType: 'MANDATORY', order: 4 },
-            { id: 'F31-5', fieldCode: 'FLD_LMP_DATE', fieldLabel: 'Last Menstrual Period (LMP)', fieldType: 'DATE', isRequired: true, requirementType: 'MANDATORY', order: 5 },
-            { id: 'F31-6', fieldCode: 'FLD_EDD_DATE', fieldLabel: 'Estimated Date of Delivery (EDD)', fieldType: 'DATE', isRequired: true, requirementType: 'MANDATORY', order: 6 },
-          ],
-        },
-        {
-          id: 'SEC-32',
-          sectionTitle: 'Antenatal Visit Matrix (Symphysio-Fundal Height, FHR, Presentation)',
-          fieldsCount: 4,
-          isRequired: true,
-          requirementType: 'MANDATORY',
-          order: 2,
-          fields: [
-            { id: 'F32-1', fieldCode: 'FLD_SFH_HEIGHT', fieldLabel: 'Symphysis-Fundal Height (SFH)', fieldType: 'NUMBER', unit: 'cm', isRequired: true, requirementType: 'MANDATORY', order: 1 },
-            { id: 'F32-2', fieldCode: 'FLD_FETAL_HR', fieldLabel: 'Fetal Heart Rate (FHR)', fieldType: 'NUMBER', unit: 'bpm', isRequired: true, requirementType: 'MANDATORY', order: 2 },
-            { id: 'F32-3', fieldCode: 'FLD_FETAL_PRES', fieldLabel: 'Fetal Presentation', fieldType: 'DROPDOWN', options: ['Cephalic / Vertex', 'Breech (Frank / Complete)', 'Transverse Lie', 'Unstable Lie'], isRequired: true, requirementType: 'MANDATORY', order: 3 },
-            { id: 'F32-4', fieldCode: 'FLD_FETAL_MOVEMENTS', fieldLabel: 'Fetal Movements (Quickening)', fieldType: 'DROPDOWN', options: ['Active & Normal (>10 kicks/2h)', 'Reduced Fetal Movements', 'Absent'], isRequired: true, requirementType: 'MANDATORY', order: 4 },
-          ],
-        },
-        {
-          id: 'SEC-33',
-          sectionTitle: 'High-Risk Pregnancy Checklist (GDM, PIH, Preeclampsia)',
-          fieldsCount: 5,
-          isRequired: true,
-          requirementType: 'CONDITIONAL',
-          order: 3,
-          fields: [
-            { id: 'F33-1', fieldCode: 'FLD_HR_GDM', fieldLabel: 'Gestational Diabetes Mellitus (GDM)', fieldType: 'CHECKBOX', isRequired: false, requirementType: 'CONDITIONAL', order: 1 },
-            { id: 'F33-2', fieldCode: 'FLD_HR_PIH', fieldLabel: 'Pregnancy-Induced Hypertension (PIH / Preeclampsia)', fieldType: 'CHECKBOX', isRequired: false, requirementType: 'CONDITIONAL', order: 2 },
-            { id: 'F33-3', fieldCode: 'FLD_HR_PREV_CS', fieldLabel: 'Previous Lower Segment Cesarean Section (LSCS)', fieldType: 'CHECKBOX', isRequired: false, requirementType: 'CONDITIONAL', order: 3 },
-            { id: 'F33-4', fieldCode: 'FLD_HR_MULTIPLE', fieldLabel: 'Multiple Gestation (Twins / Triplets)', fieldType: 'CHECKBOX', isRequired: false, requirementType: 'CONDITIONAL', order: 4 },
-            { id: 'F33-5', fieldCode: 'FLD_HR_RH_NEG', fieldLabel: 'Rh-Negative Blood Group (Anti-D Required)', fieldType: 'CHECKBOX', isRequired: false, requirementType: 'CONDITIONAL', order: 5 },
-          ],
-        },
-        {
-          id: 'SEC-34',
-          sectionTitle: 'Ultrasound Fetal Biometry (BPD, HC, AC, FL, EFW)',
-          fieldsCount: 5,
-          isRequired: false,
-          requirementType: 'OPTIONAL',
-          order: 4,
-          fields: [
-            { id: 'F34-1', fieldCode: 'FLD_US_BPD', fieldLabel: 'Biparietal Diameter (BPD)', fieldType: 'NUMBER', unit: 'mm', isRequired: false, requirementType: 'OPTIONAL', order: 1 },
-            { id: 'F34-2', fieldCode: 'FLD_US_HC', fieldLabel: 'Head Circumference (HC)', fieldType: 'NUMBER', unit: 'mm', isRequired: false, requirementType: 'OPTIONAL', order: 2 },
-            { id: 'F34-3', fieldCode: 'FLD_US_AC', fieldLabel: 'Abdominal Circumference (AC)', fieldType: 'NUMBER', unit: 'mm', isRequired: false, requirementType: 'OPTIONAL', order: 3 },
-            { id: 'F34-4', fieldCode: 'FLD_US_FL', fieldLabel: 'Femur Length (FL)', fieldType: 'NUMBER', unit: 'mm', isRequired: false, requirementType: 'OPTIONAL', order: 4 },
-            { id: 'F34-5', fieldCode: 'FLD_US_EFW', fieldLabel: 'Estimated Fetal Weight (EFW)', fieldType: 'NUMBER', unit: 'Grams', isRequired: false, requirementType: 'OPTIONAL', order: 5 },
+            { id: 'FOB-1', fieldCode: 'FLD_OB_GRAVIDA', fieldLabel: 'Gravida (Total Pregnancies)', fieldType: 'NUMBER', isRequired: true, requirementType: 'MANDATORY', order: 1, ageScope: 'ADULT' },
+            { id: 'FOB-2', fieldCode: 'FLD_OB_PARA', fieldLabel: 'Para (Viable Births)', fieldType: 'NUMBER', isRequired: true, requirementType: 'MANDATORY', order: 2, ageScope: 'ADULT' },
+            { id: 'FOB-3', fieldCode: 'FLD_LMP_DATE', fieldLabel: 'Last Menstrual Period (LMP)', fieldType: 'DATE', isRequired: true, requirementType: 'MANDATORY', order: 3, ageScope: 'ADULT' },
+            { id: 'FOB-4', fieldCode: 'FLD_EDD_DATE', fieldLabel: 'Estimated Due Date (EDD by Naegele Rule)', fieldType: 'DATE', isRequired: true, requirementType: 'MANDATORY', order: 4, ageScope: 'ADULT' },
+            { id: 'FOB-5', fieldCode: 'FLD_FETAL_HEART_RATE', fieldLabel: 'Fetal Heart Rate (FHR Doppler)', fieldType: 'NUMBER', unit: 'bpm', placeholder: '142', isRequired: true, requirementType: 'MANDATORY', order: 5, ageScope: 'ADULT' },
           ],
         },
       ],
     },
     {
-      id: 'TPL-CUST-04',
-      templateCode: 'ANES-PREOP-01',
-      templateName: 'Pre-Anesthetic Evaluation (PAC) & Risk Stratification',
-      specialty: 'Anesthesiology',
+      id: 'TPL-CUST-PED-WELL',
+      templateCode: 'PED-WELL-01',
+      templateName: 'Pediatric Well-Child & Growth Assessment',
+      specialty: 'Pediatrics & Neonatology',
       panelType: 'CUSTOM',
-      version: 'v1.5',
+      version: 'v1.8',
       status: 'ACTIVE',
-      assignedDepartments: ['Anesthesia Dept', 'OT Complex'],
-      assignedDoctors: ['Dr. Vikram Sharma'],
+      layoutOrientation: 'VERTICAL',
+      isDefault: false,
+      encounterScope: 'OUTPATIENT',
+      formGroupRole: 'CLINICIANS',
+      assignedDepartments: ['Pediatric Clinic', 'Child Wellness Suite', 'Neonatal Follow-up'],
+      assignedDoctors: ['Dr. Maya Patel', 'Pediatric Specialist'],
       sections: [
         {
-          id: 'SEC-41',
-          sectionTitle: 'ASA Physical Status Classification (ASA I - VI)',
-          fieldsCount: 2,
+          id: 'SEC-PED-1',
+          sectionTitle: 'Pediatric Anthropometry & WHO Growth Percentiles',
+          nickName: 'Child Growth',
+          fieldsCount: 5,
           isRequired: true,
           requirementType: 'MANDATORY',
           order: 1,
+          dockPosition: 'TOP',
+          encounterScope: 'OUTPATIENT',
+          retainRevisions: true,
+          saveAndComplete: false,
+          doctorSignature: true,
+          patientSignature: false,
+          witnessSignature: false,
+          displayInConsultation: true,
+          canSkip: false,
+          ageTarget: 'CHILD',
           fields: [
-            { id: 'F41-1', fieldCode: 'FLD_ASA_CLASS', fieldLabel: 'ASA Physical Status', fieldType: 'DROPDOWN', options: ['ASA I - Normal Healthy Patient', 'ASA II - Mild Systemic Disease', 'ASA III - Severe Systemic Disease', 'ASA IV - Severe Disease with Threat to Life', 'ASA V - Moribund Patient', 'ASA VI - Brain Dead Organ Donor'], isRequired: true, requirementType: 'MANDATORY', order: 1 },
-            { id: 'F41-2', fieldCode: 'FLD_EMERGENCY_MODIFIER', fieldLabel: 'Emergency Case ("E" Modifier)', fieldType: 'CHECKBOX', isRequired: false, requirementType: 'CONDITIONAL', order: 2 },
-          ],
-        },
-        {
-          id: 'SEC-42',
-          sectionTitle: 'Airway Assessment (Mallampati I-IV, Thyromental Distance)',
-          fieldsCount: 4,
-          isRequired: true,
-          requirementType: 'MANDATORY',
-          order: 2,
-          fields: [
-            { id: 'F42-1', fieldCode: 'FLD_MALLAMPATI', fieldLabel: 'Modified Mallampati Class', fieldType: 'DROPDOWN', options: ['Class I - Soft palate, fauces, uvula, pillars visible', 'Class II - Soft palate, fauces, uvula visible', 'Class III - Soft palate, base of uvula visible', 'Class IV - Soft palate not visible at all (Difficult Airway)'], isRequired: true, requirementType: 'MANDATORY', order: 1 },
-            { id: 'F42-2', fieldCode: 'FLD_THYROMENTAL_DIST', fieldLabel: 'Thyromental Distance', fieldType: 'NUMBER', unit: 'cm (Normal > 6.5 cm)', isRequired: true, requirementType: 'MANDATORY', order: 2 },
-            { id: 'F42-3', fieldCode: 'FLD_MOUTH_OPENING', fieldLabel: 'Inter-Incisor Mouth Opening', fieldType: 'NUMBER', unit: 'cm (Normal >= 4 cm)', isRequired: true, requirementType: 'MANDATORY', order: 3 },
-            { id: 'F42-4', fieldCode: 'FLD_DENTITION_STATUS', fieldLabel: 'Dentition & Dental Hygiene', fieldType: 'DROPDOWN', options: ['Intact Natural Teeth', 'Loose / Carious Incisors', 'Fixed Bridge / Crown', 'Full Upper / Lower Dentures', 'Edentulous'], isRequired: false, requirementType: 'OPTIONAL', order: 4 },
-          ],
-        },
-        {
-          id: 'SEC-43',
-          sectionTitle: 'Cardiovascular & Pulmonary Risk Assessment',
-          fieldsCount: 3,
-          isRequired: true,
-          requirementType: 'MANDATORY',
-          order: 3,
-          fields: [
-            { id: 'F43-1', fieldCode: 'FLD_METS_CAPACITY', fieldLabel: 'Functional Capacity (METS)', fieldType: 'DROPDOWN', options: ['> 4 METS (Can climb 2 flights of stairs)', '< 4 METS (Poor functional capacity)'], isRequired: true, requirementType: 'MANDATORY', order: 1 },
-            { id: 'F43-2', fieldCode: 'FLD_CARDIAC_RISK', fieldLabel: 'Cardiac History / Risk Markers', fieldType: 'TEXT', placeholder: 'Prior MI, stents, pacemakers, hypertension...', isRequired: false, requirementType: 'OPTIONAL', order: 2 },
-            { id: 'F43-3', fieldCode: 'FLD_PULM_RISK', fieldLabel: 'Pulmonary / Airway Markers', fieldType: 'DROPDOWN', options: ['No Respiratory Symptoms', 'Active Asthma / Bronchospasm', 'COPD / Emphysema', 'Obstructive Sleep Apnea (OSA) / STOP-BANG High Risk', 'Recent Upper Respiratory Tract Infection (< 2 weeks)'], isRequired: false, requirementType: 'OPTIONAL', order: 3 },
-          ],
-        },
-        {
-          id: 'SEC-44',
-          sectionTitle: 'Anesthetic Plan & Informed Consent Confirmation',
-          fieldsCount: 3,
-          isRequired: true,
-          requirementType: 'MANDATORY',
-          order: 4,
-          fields: [
-            { id: 'F44-1', fieldCode: 'FLD_PRIMARY_TECHNIQUE', fieldLabel: 'Primary Anesthetic Technique', fieldType: 'DROPDOWN', options: ['General Anesthesia (GA) with ETT', 'GA with Laryngeal Mask Airway (LMA)', 'Spinal Subarachnoid Block (SAB)', 'Epidural Anesthesia', 'Combined Spinal Epidural (CSE)', 'Peripheral Regional Nerve Block', 'Monitored Anesthesia Care (MAC) Sedation'], isRequired: true, requirementType: 'MANDATORY', order: 1 },
-            { id: 'F44-2', fieldCode: 'FLD_NPO_STATUS', fieldLabel: 'NPO (Fasting) Compliance Verified', fieldType: 'CHECKBOX', isRequired: true, requirementType: 'MANDATORY', order: 2 },
-            { id: 'F44-3', fieldCode: 'FLD_PAC_CONSENT', fieldLabel: 'Informed Anesthetic Consent Signed', fieldType: 'CHECKBOX', isRequired: true, requirementType: 'MANDATORY', order: 3 },
+            { id: 'FPED-1', fieldCode: 'FLD_BIRTH_WEIGHT', fieldLabel: 'Birth Weight', fieldType: 'NUMBER', unit: 'kg', placeholder: '3.2', isRequired: true, requirementType: 'MANDATORY', order: 1, ageScope: 'CHILD' },
+            { id: 'FPED-2', fieldCode: 'FLD_HEAD_CIRC', fieldLabel: 'Head Circumference (OFC)', fieldType: 'NUMBER', unit: 'cm', placeholder: '36.0', isRequired: true, requirementType: 'MANDATORY', order: 2, ageScope: 'CHILD' },
+            { id: 'FPED-3', fieldCode: 'FLD_LENGTH_HEIGHT', fieldLabel: 'Recumbent Length / Standing Height', fieldType: 'NUMBER', unit: 'cm', placeholder: '85', isRequired: true, requirementType: 'MANDATORY', order: 3, ageScope: 'CHILD' },
+            { id: 'FPED-4', fieldCode: 'FLD_WEIGHT_AGE_PERCENTILE', fieldLabel: 'WHO Weight-for-Age Percentile', fieldType: 'DROPDOWN', options: ['< 3rd percentile (Severe Wasting)', '3rd - 15th percentile', '15th - 85th percentile (Normal)', '> 85th percentile (Overweight)'], isRequired: true, requirementType: 'MANDATORY', order: 4, ageScope: 'CHILD' },
+            { id: 'FPED-5', fieldCode: 'FLD_DEV_MILESTONES', fieldLabel: 'Denver Developmental Milestones Status', fieldType: 'DROPDOWN', options: ['Appropriate for Chronological Age', 'Mild Developmental Delay', 'Significant Motor Delay', 'Significant Speech / Language Delay'], isRequired: true, requirementType: 'MANDATORY', order: 5, ageScope: 'CHILD' },
           ],
         },
       ],
     },
     {
-      id: 'TPL-CUST-05',
+      id: 'TPL-CUST-PHYSIO',
       templateCode: 'PHYSIO-01',
       templateName: 'Physiotherapy & Musculoskeletal ROM Matrix',
       specialty: 'Physiotherapy & Rehabilitation',
       panelType: 'CUSTOM',
       version: 'v1.4',
       status: 'ACTIVE',
+      layoutOrientation: 'VERTICAL',
+      isDefault: false,
+      encounterScope: 'OUTPATIENT',
+      formGroupRole: 'TEST',
       assignedDepartments: ['Physiotherapy OPD', 'Rehabilitation Center'],
       assignedDoctors: ['Dr. Maya Patel'],
       sections: [
         {
           id: 'SEC-PH1',
           sectionTitle: 'Joint Range of Motion (ROM) & Goniometry',
+          nickName: 'Joint ROM',
           fieldsCount: 3,
           isRequired: true,
           requirementType: 'MANDATORY',
           order: 1,
+          dockPosition: 'TOP',
+          encounterScope: 'OUTPATIENT',
+          retainRevisions: true,
+          saveAndComplete: false,
+          doctorSignature: true,
+          patientSignature: false,
+          witnessSignature: false,
+          displayInConsultation: true,
+          canSkip: false,
+          ageTarget: 'ALL',
           fields: [
-            { id: 'FPH-1', fieldCode: 'FLD_TARGET_JOINT', fieldLabel: 'Target Joint / Extremity', fieldType: 'DROPDOWN', options: ['Shoulder (Flexion/Abduction)', 'Knee (Flexion/Extension)', 'Hip (Internal/External)', 'Cervical Spine', 'Lumbar Spine'], isRequired: true, requirementType: 'MANDATORY', order: 1 },
-            { id: 'FPH-2', fieldCode: 'FLD_ROM_DEGREES', fieldLabel: 'Active Range of Motion', fieldType: 'NUMBER', unit: 'Degrees (°)', isRequired: true, requirementType: 'MANDATORY', order: 2 },
-            { id: 'FPH-3', fieldCode: 'FLD_MUSCLE_GRADE', fieldLabel: 'Medical Research Council (MRC) Muscle Grade', fieldType: 'DROPDOWN', options: ['Grade 5 - Normal Strength', 'Grade 4 - Active Against Resistance', 'Grade 3 - Active Against Gravity', 'Grade 2 - Active Gravity Eliminated', 'Grade 1 - Trace Muscle Flicker', 'Grade 0 - Complete Paralysis'], isRequired: true, requirementType: 'MANDATORY', order: 3 },
+            { id: 'FPH-1', fieldCode: 'FLD_TARGET_JOINT', fieldLabel: 'Target Joint / Extremity', fieldType: 'DROPDOWN', options: ['Shoulder (Flexion/Abduction)', 'Knee (Flexion/Extension)', 'Hip (Internal/External)', 'Cervical Spine', 'Lumbar Spine'], isRequired: true, requirementType: 'MANDATORY', order: 1, ageScope: 'ALL' },
+            { id: 'FPH-2', fieldCode: 'FLD_ROM_DEGREES', fieldLabel: 'Active Range of Motion (Goniometry)', fieldType: 'NUMBER', unit: 'Degrees (°)', isRequired: true, requirementType: 'MANDATORY', order: 2, ageScope: 'ALL' },
+            { id: 'FPH-3', fieldCode: 'FLD_MUSCLE_GRADE', fieldLabel: 'MRC Muscle Strength Grade (0-5)', fieldType: 'DROPDOWN', options: ['Grade 5 - Normal Strength', 'Grade 4 - Active Against Resistance', 'Grade 3 - Active Against Gravity', 'Grade 2 - Gravity Eliminated', 'Grade 1 - Trace Flicker', 'Grade 0 - Complete Paralysis'], isRequired: true, requirementType: 'MANDATORY', order: 3, ageScope: 'ALL' },
           ],
         },
       ],
@@ -568,10 +852,13 @@ export const EmrFormAssemblyScreen: React.FC<EmrFormAssemblyScreenProps> = ({
   const [selectedTemplate, setSelectedTemplate] = useState<SpecialtyFormTemplate>(templates[0]);
   const [panelCategoryFilter, setPanelCategoryFilter] = useState<'ALL' | 'STANDARD' | 'CUSTOM'>('ALL');
   const [selectedDoctorFilter, setSelectedDoctorFilter] = useState<string>('ALL');
+  const [selectedRoleFilter, setSelectedRoleFilter] = useState<string>('ALL');
   const [searchQuery, setSearchQuery] = useState('');
   const [newSectionTitle, setNewSectionTitle] = useState('');
   const [newSectionReq, setNewSectionReq] = useState<RequirementType>('MANDATORY');
+  const [newSectionNickName, setNewSectionNickName] = useState('');
   const [saveToast, setSaveToast] = useState(false);
+  const [saveToastMessage, setSaveToastMessage] = useState('');
 
   // New Custom Panel Creation Modal
   const [showNewPanelModal, setShowNewPanelModal] = useState(false);
@@ -579,6 +866,11 @@ export const EmrFormAssemblyScreen: React.FC<EmrFormAssemblyScreenProps> = ({
   const [newPanelName, setNewPanelName] = useState('');
   const [newPanelSpecialty, setNewPanelSpecialty] = useState('');
   const [newPanelDepartments, setNewPanelDepartments] = useState('');
+  const [newPanelRole, setNewPanelRole] = useState<any>('CLINICIANS');
+  const [newPanelScope, setNewPanelScope] = useState<EncounterScope>('ALL');
+
+  // Section / Panel Configuration Drawer / Modal state
+  const [configuringSection, setConfiguringSection] = useState<FormAssemblySection | null>(null);
 
   // Field configuration modal state
   const [editingSection, setEditingSection] = useState<FormAssemblySection | null>(null);
@@ -591,23 +883,32 @@ export const EmrFormAssemblyScreen: React.FC<EmrFormAssemblyScreenProps> = ({
   const [newFieldOptions, setNewFieldOptions] = useState('');
   const [newFieldReqType, setNewFieldReqType] = useState<RequirementType>('MANDATORY');
   const [newFieldPlaceholder, setNewFieldPlaceholder] = useState('');
+  const [newFieldAgeScope, setNewFieldAgeScope] = useState<AgeTargetMode>('ALL');
 
-  const filteredTemplates = templates
-    .filter((t) => panelCategoryFilter === 'ALL' || t.panelType === panelCategoryFilter)
-    .filter(
-      (t) =>
-        selectedDoctorFilter === 'ALL' ||
-        (t.assignedDoctors || []).some((d) => d.toLowerCase().includes(selectedDoctorFilter.toLowerCase()))
-    )
-    .filter(
-      (t) =>
-        t.templateName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        t.specialty.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        t.templateCode.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (t.assignedDoctors || []).some((d) => d.toLowerCase().includes(searchQuery.toLowerCase()))
-    );
+  // Interactive Live Preview State
+  const [previewValues, setPreviewValues] = useState<Record<string, any>>({});
+  const [selectedTeeth, setSelectedTeeth] = useState<number[]>([]);
 
-  // Create new Custom Panel
+  // Filter templates
+  const filteredTemplates = useMemo(() => {
+    return templates
+      .filter((t) => panelCategoryFilter === 'ALL' || t.panelType === panelCategoryFilter)
+      .filter(
+        (t) =>
+          selectedDoctorFilter === 'ALL' ||
+          (t.assignedDoctors || []).some((d) => d.toLowerCase().includes(selectedDoctorFilter.toLowerCase()))
+      )
+      .filter((t) => selectedRoleFilter === 'ALL' || t.formGroupRole === selectedRoleFilter)
+      .filter(
+        (t) =>
+          t.templateName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          t.specialty.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          t.templateCode.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          (t.assignedDoctors || []).some((d) => d.toLowerCase().includes(searchQuery.toLowerCase()))
+      );
+  }, [templates, panelCategoryFilter, selectedDoctorFilter, selectedRoleFilter, searchQuery]);
+
+  // Handle Create Custom Panel
   const handleCreateCustomPanel = () => {
     if (!newPanelName.trim() || !newPanelCode.trim()) return;
     const depts = newPanelDepartments
@@ -622,16 +923,31 @@ export const EmrFormAssemblyScreen: React.FC<EmrFormAssemblyScreenProps> = ({
       panelType: 'CUSTOM',
       version: 'v1.0',
       status: 'ACTIVE',
+      layoutOrientation: 'VERTICAL',
+      isDefault: false,
+      encounterScope: newPanelScope,
+      formGroupRole: newPanelRole,
       assignedDepartments: depts,
       assignedDoctors: ['All Attending Specialists'],
       sections: [
         {
           id: `SEC-${Date.now()}-1`,
-          sectionTitle: 'Clinical Assessment & Findings',
+          sectionTitle: 'Specialty Clinical Findings',
+          nickName: 'Clinical Observations',
           fieldsCount: 2,
           isRequired: true,
           requirementType: 'MANDATORY',
           order: 1,
+          dockPosition: 'TOP',
+          encounterScope: newPanelScope,
+          retainRevisions: true,
+          saveAndComplete: false,
+          doctorSignature: true,
+          patientSignature: false,
+          witnessSignature: false,
+          displayInConsultation: true,
+          canSkip: false,
+          ageTarget: 'ALL',
           fields: [
             {
               id: `F-${Date.now()}-1`,
@@ -642,16 +958,18 @@ export const EmrFormAssemblyScreen: React.FC<EmrFormAssemblyScreenProps> = ({
               isRequired: true,
               requirementType: 'MANDATORY',
               order: 1,
+              ageScope: 'ALL',
             },
             {
               id: `F-${Date.now()}-2`,
-              fieldCode: 'FLD_CLINICAL_NOTES',
-              fieldLabel: 'Specialty Notes & Instructions',
+              fieldCode: 'FLD_SPECIALTY_NOTES',
+              fieldLabel: 'Specialty Assessment Narrative',
               fieldType: 'TEXTAREA',
-              placeholder: 'Enter detailed notes...',
+              placeholder: 'Enter detailed examination narrative...',
               isRequired: false,
               requirementType: 'OPTIONAL',
               order: 2,
+              ageScope: 'ALL',
             },
           ],
         },
@@ -666,7 +984,14 @@ export const EmrFormAssemblyScreen: React.FC<EmrFormAssemblyScreenProps> = ({
     setNewPanelName('');
     setNewPanelSpecialty('');
     setNewPanelDepartments('');
+    triggerToast(`Custom Panel "${newTemplate.templateName}" created successfully!`);
     if (onSaveTemplate) onSaveTemplate(newTemplate);
+  };
+
+  const triggerToast = (msg: string) => {
+    setSaveToastMessage(msg);
+    setSaveToast(true);
+    setTimeout(() => setSaveToast(false), 3500);
   };
 
   // Cycle section requirement
@@ -716,23 +1041,36 @@ export const EmrFormAssemblyScreen: React.FC<EmrFormAssemblyScreenProps> = ({
 
   const handleAddSection = () => {
     if (!newSectionTitle.trim()) return;
+    const cleanCode = `FLD_${newSectionTitle.toUpperCase().replace(/[^A-Z0-9]/g, '_').slice(0, 15)}`;
     const newSec: FormAssemblySection = {
       id: `SEC-${Date.now().toString().slice(-4)}`,
       sectionTitle: newSectionTitle.trim(),
+      nickName: newSectionNickName.trim() || newSectionTitle.trim(),
       fieldsCount: 1,
       isRequired: newSectionReq === 'MANDATORY',
       requirementType: newSectionReq,
       order: selectedTemplate.sections.length + 1,
+      dockPosition: 'TOP',
+      encounterScope: selectedTemplate.encounterScope,
+      retainRevisions: true,
+      saveAndComplete: false,
+      doctorSignature: true,
+      patientSignature: false,
+      witnessSignature: false,
+      displayInConsultation: true,
+      canSkip: false,
+      ageTarget: 'ALL',
       fields: [
         {
           id: `F-${Date.now()}-1`,
-          fieldCode: `FLD_${newSectionTitle.toUpperCase().replace(/[^A-Z0-9]/g, '_').slice(0, 15)}`,
-          fieldLabel: `${newSectionTitle} Observation`,
+          fieldCode: cleanCode,
+          fieldLabel: `${newSectionTitle} Finding`,
           fieldType: 'TEXT',
           placeholder: 'Enter clinical observations...',
           isRequired: newSectionReq === 'MANDATORY',
           requirementType: newSectionReq,
           order: 1,
+          ageScope: 'ALL',
         },
       ],
     };
@@ -743,6 +1081,8 @@ export const EmrFormAssemblyScreen: React.FC<EmrFormAssemblyScreenProps> = ({
     setSelectedTemplate(updated);
     setTemplates(templates.map((t) => (t.id === updated.id ? updated : t)));
     setNewSectionTitle('');
+    setNewSectionNickName('');
+    triggerToast(`Added section "${newSec.sectionTitle}" to ${selectedTemplate.templateName}`);
     if (onSaveTemplate) onSaveTemplate(updated);
   };
 
@@ -753,13 +1093,13 @@ export const EmrFormAssemblyScreen: React.FC<EmrFormAssemblyScreenProps> = ({
     };
     setSelectedTemplate(updated);
     setTemplates(templates.map((t) => (t.id === updated.id ? updated : t)));
+    triggerToast('Section removed');
     if (onSaveTemplate) onSaveTemplate(updated);
   };
 
   const handleSave = () => {
     if (onSaveTemplate) onSaveTemplate(selectedTemplate);
-    setSaveToast(true);
-    setTimeout(() => setSaveToast(false), 3000);
+    triggerToast(`Form Assembly configuration for "${selectedTemplate.templateName}" saved successfully!`);
   };
 
   const moveSection = (index: number, direction: 'up' | 'down') => {
@@ -775,22 +1115,19 @@ export const EmrFormAssemblyScreen: React.FC<EmrFormAssemblyScreenProps> = ({
   };
 
   const openFieldModal = (section: FormAssemblySection) => {
-    try {
-      const secCopy: FormAssemblySection = JSON.parse(JSON.stringify(section));
-      if (!secCopy.fields || !Array.isArray(secCopy.fields)) {
-        secCopy.fields = [];
-      }
-      setEditingSection(secCopy);
-      setFieldModalTab('FIELDS');
-      setNewFieldLabel('');
-      setNewFieldType('TEXT');
-      setNewFieldUnit('');
-      setNewFieldOptions('');
-      setNewFieldReqType('MANDATORY');
-      setNewFieldPlaceholder('');
-    } catch (e) {
-      console.error('Failed to open field modal:', e);
+    const secCopy: FormAssemblySection = JSON.parse(JSON.stringify(section));
+    if (!secCopy.fields || !Array.isArray(secCopy.fields)) {
+      secCopy.fields = [];
     }
+    setEditingSection(secCopy);
+    setFieldModalTab('FIELDS');
+    setNewFieldLabel('');
+    setNewFieldType('TEXT');
+    setNewFieldUnit('');
+    setNewFieldOptions('');
+    setNewFieldReqType('MANDATORY');
+    setNewFieldPlaceholder('');
+    setNewFieldAgeScope('ALL');
   };
 
   const handleAddFieldToSection = () => {
@@ -811,6 +1148,7 @@ export const EmrFormAssemblyScreen: React.FC<EmrFormAssemblyScreenProps> = ({
       isRequired: newFieldReqType === 'MANDATORY',
       requirementType: newFieldReqType,
       order: (editingSection.fields?.length || 0) + 1,
+      ageScope: newFieldAgeScope,
     };
 
     const updatedFields = [...(editingSection.fields || []), newField];
@@ -825,6 +1163,7 @@ export const EmrFormAssemblyScreen: React.FC<EmrFormAssemblyScreenProps> = ({
     setNewFieldOptions('');
     setNewFieldPlaceholder('');
     setNewFieldReqType('MANDATORY');
+    setNewFieldAgeScope('ALL');
   };
 
   const handleRemoveField = (fieldId: string) => {
@@ -851,7 +1190,28 @@ export const EmrFormAssemblyScreen: React.FC<EmrFormAssemblyScreenProps> = ({
     setSelectedTemplate(updatedTemplate);
     setTemplates(templates.map((t) => (t.id === updatedTemplate.id ? updatedTemplate : t)));
     setEditingSection(null);
+    triggerToast(`Field schema for "${editingSection.sectionTitle}" updated.`);
     if (onSaveTemplate) onSaveTemplate(updatedTemplate);
+  };
+
+  const handleSaveSectionConfig = () => {
+    if (!configuringSection) return;
+    const updatedSections = selectedTemplate.sections.map((s) =>
+      s.id === configuringSection.id ? configuringSection : s
+    );
+    const updatedTemplate = { ...selectedTemplate, sections: updatedSections };
+    setSelectedTemplate(updatedTemplate);
+    setTemplates(templates.map((t) => (t.id === updatedTemplate.id ? updatedTemplate : t)));
+    setConfiguringSection(null);
+    triggerToast(`Panel settings updated for "${configuringSection.sectionTitle}"`);
+    if (onSaveTemplate) onSaveTemplate(updatedTemplate);
+  };
+
+  // Toggle tooth in Odontogram
+  const toggleTooth = (toothNumber: number) => {
+    setSelectedTeeth((prev) =>
+      prev.includes(toothNumber) ? prev.filter((t) => t !== toothNumber) : [...prev, toothNumber]
+    );
   };
 
   const renderRequirementBadge = (req: RequirementType, onClick?: () => void) => {
@@ -946,7 +1306,7 @@ export const EmrFormAssemblyScreen: React.FC<EmrFormAssemblyScreenProps> = ({
             position: 'fixed',
             top: 24,
             right: 24,
-            zIndex: 9999,
+            zIndex: 99999,
             background: colors.successBg,
             border: `1px solid ${colors.successBorder}`,
             color: colors.successText,
@@ -961,11 +1321,11 @@ export const EmrFormAssemblyScreen: React.FC<EmrFormAssemblyScreenProps> = ({
           }}
         >
           <i className="fa fa-check-circle" style={{ color: colors.success, fontSize: 18 }} />
-          Form assembly configuration saved successfully!
+          {saveToastMessage || 'Form assembly saved successfully!'}
         </div>
       )}
 
-      {/* Top Header Section */}
+      {/* Global Top Banner & Age-Based View Switcher */}
       <div
         style={{
           display: 'flex',
@@ -980,7 +1340,7 @@ export const EmrFormAssemblyScreen: React.FC<EmrFormAssemblyScreenProps> = ({
       >
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <span style={{ fontSize: 20, color: colors.primary }}>📑</span>
+            <span style={{ fontSize: 22, color: colors.primary }}>📑</span>
             <h2
               style={{
                 ...typography.sectionHeading,
@@ -990,35 +1350,140 @@ export const EmrFormAssemblyScreen: React.FC<EmrFormAssemblyScreenProps> = ({
                 fontWeight: 700,
               }}
             >
-              EMR Form Assembly & Specialty Panels
+              EMA Forms & Specialty Panel Assembly
             </h2>
+            <span
+              style={{
+                fontSize: 11,
+                fontWeight: 800,
+                color: '#059669',
+                backgroundColor: '#ecfdf5',
+                border: '1px solid #a7f3d0',
+                padding: '2px 8px',
+                borderRadius: radii.full,
+              }}
+            >
+              SIMPLEX HIMES v9.3 MATCHED
+            </span>
           </div>
           <p style={{ margin: '4px 0 0', fontSize: 13, color: colors.textMuted }}>
-            Manage Standard Core System Panels and Custom Specialty Dynamic Assemblies across hospital departments.
+            Configure and document Standard and Custom EMA forms, panel libraries, adult vs child dynamic views, and options end-to-end.
           </p>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: spacing.sm }}>
-          <Button
-            variant="secondary"
-            size="md"
-            icon="fa-plus"
-            onClick={() => setShowNewPanelModal(true)}
+        {/* Global Age-Based View Switcher (Adult vs Child vs Neonate) */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              backgroundColor: '#ffffff',
+              border: `1px solid ${colors.borderStrong}`,
+              borderRadius: radii.md,
+              padding: 3,
+              boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+            }}
           >
-            Create Custom Panel
-          </Button>
-          <Button variant="primary" size="md" icon="fa-save" onClick={handleSave}>
-            Save Configuration
-          </Button>
+            <span style={{ fontSize: 11, fontWeight: 700, color: colors.textMuted, padding: '0 8px', textTransform: 'uppercase' }}>
+              Patient Age Mode:
+            </span>
+            <button
+              type="button"
+              onClick={() => setActiveAgeMode('ADULT')}
+              style={{
+                border: 'none',
+                borderRadius: radii.sm,
+                padding: '5px 12px',
+                fontSize: 12,
+                fontWeight: activeAgeMode === 'ADULT' ? 700 : 500,
+                backgroundColor: activeAgeMode === 'ADULT' ? colors.primary : 'transparent',
+                color: activeAgeMode === 'ADULT' ? '#ffffff' : colors.textBody,
+                cursor: 'pointer',
+                transition: 'all 0.15s ease',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 4,
+              }}
+            >
+              <span>👤 Adult (≥ 18y)</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setActiveAgeMode('CHILD')}
+              style={{
+                border: 'none',
+                borderRadius: radii.sm,
+                padding: '5px 12px',
+                fontSize: 12,
+                fontWeight: activeAgeMode === 'CHILD' ? 700 : 500,
+                backgroundColor: activeAgeMode === 'CHILD' ? '#7c3aed' : 'transparent',
+                color: activeAgeMode === 'CHILD' ? '#ffffff' : colors.textBody,
+                cursor: 'pointer',
+                transition: 'all 0.15s ease',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 4,
+              }}
+            >
+              <span>👶 Pediatric / Child (&lt; 18y)</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setActiveAgeMode('NEONATE')}
+              style={{
+                border: 'none',
+                borderRadius: radii.sm,
+                padding: '5px 12px',
+                fontSize: 12,
+                fontWeight: activeAgeMode === 'NEONATE' ? 700 : 500,
+                backgroundColor: activeAgeMode === 'NEONATE' ? '#d97706' : 'transparent',
+                color: activeAgeMode === 'NEONATE' ? '#ffffff' : colors.textBody,
+                cursor: 'pointer',
+                transition: 'all 0.15s ease',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 4,
+              }}
+            >
+              <span>🍼 Neonate (&lt; 2y)</span>
+            </button>
+          </div>
+
+          <div style={{ display: 'flex', gap: spacing.sm }}>
+            <Button
+              variant="secondary"
+              size="md"
+              icon="fa-database"
+              onClick={() => {
+                window.location.href = '/emr/masters';
+              }}
+              style={{ backgroundColor: '#1e293b', color: '#ffffff', border: 'none' }}
+            >
+              EMR Masters (77)
+            </Button>
+            <Button
+              variant="secondary"
+              size="md"
+              icon="fa-plus"
+              onClick={() => setShowNewPanelModal(true)}
+            >
+              Create Custom Panel
+            </Button>
+            <Button variant="primary" size="md" icon="fa-save" onClick={handleSave}>
+              Save Configuration
+            </Button>
+          </div>
         </div>
       </div>
 
-      {/* 2-Column Split: Catalog List (Left 35%) & Assembly Detail (Right 65%) */}
+      {/* Main 2-Column Split: Form Library (35%) & Assembly Detail / Editor (65%) */}
       <div style={{ display: 'flex', gap: spacing.md, flexWrap: 'wrap' }}>
-        {/* Left Column: Template Catalog */}
-        <div style={{ flex: '1 1 340px', maxWidth: 430 }}>
-          <Card title="Clinical Panels Catalog" padding={spacing.md} style={{ marginBottom: spacing.md }}>
-            {/* Standard vs Custom Filter Tabs */}
+        {/* Left Column: Form & Panel Library */}
+        <div style={{ flex: '1 1 350px', maxWidth: 440 }}>
+          <Card title="EMA Forms & Panels Library" padding={spacing.md} style={{ marginBottom: spacing.md }}>
+            {/* Filter Tabs: All / Standard / Custom */}
             <div
               style={{
                 display: 'flex',
@@ -1031,7 +1496,7 @@ export const EmrFormAssemblyScreen: React.FC<EmrFormAssemblyScreenProps> = ({
               }}
             >
               {[
-                { id: 'ALL', label: 'All Panels', count: templates.length },
+                { id: 'ALL', label: 'All Forms', count: templates.length },
                 { id: 'STANDARD', label: 'Standard', count: templates.filter((t) => t.panelType === 'STANDARD').length },
                 { id: 'CUSTOM', label: 'Custom', count: templates.filter((t) => t.panelType === 'CUSTOM').length },
               ].map((tab) => {
@@ -1077,56 +1542,82 @@ export const EmrFormAssemblyScreen: React.FC<EmrFormAssemblyScreenProps> = ({
               })}
             </div>
 
-            {/* Doctor / Clinician Filter */}
-            <div style={{ marginBottom: spacing.sm }}>
-              <label style={{ display: 'block', fontSize: 11, fontWeight: 700, color: colors.textMuted, marginBottom: 4, textTransform: 'uppercase' }}>
-                <i className="fa fa-user-md" style={{ marginRight: 4, color: colors.primary }} />
-                Filter by Clinician / Doctor:
-              </label>
-              <select
-                value={selectedDoctorFilter}
-                onChange={(e) => setSelectedDoctorFilter(e.target.value)}
-                style={{
-                  width: '100%',
-                  padding: '7px 10px',
-                  fontSize: 12,
-                  borderRadius: radii.sm,
-                  border: `1px solid ${colors.borderStrong}`,
-                  backgroundColor: '#ffffff',
-                  color: colors.textMain,
-                  fontWeight: 600,
-                  outline: 'none',
-                  cursor: 'pointer',
-                }}
-              >
-                <option value="ALL">All Doctors & Specialties</option>
-                <option value="Dr. Rajesh Kumar">Dr. Rajesh Kumar (General Medicine)</option>
-                <option value="Dr. Sarah Jenkins">Dr. Sarah Jenkins (Ophthalmology)</option>
-                <option value="Dr. Tariq Al Mansoori">Dr. Tariq Al Mansoori (Dental)</option>
-                <option value="Dr. Fatima Al Zahra">Dr. Fatima Al Zahra (OB/GYN)</option>
-                <option value="Dr. Vikram Sharma">Dr. Vikram Sharma (Anesthesiology / PAC)</option>
-                <option value="Dr. Maya Patel">Dr. Maya Patel (Physiotherapy)</option>
-                <option value="Dr. Emily Watson">Dr. Emily Watson (Emergency)</option>
-                <option value="Dr. Alexander Reed">Dr. Alexander Reed (Inpatient / Discharge)</option>
-              </select>
+            {/* Filter by Role / Group */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: spacing.sm }}>
+              <div>
+                <label style={{ display: 'block', fontSize: 10, fontWeight: 700, color: colors.textMuted, marginBottom: 3, textTransform: 'uppercase' }}>
+                  Role Group:
+                </label>
+                <select
+                  value={selectedRoleFilter}
+                  onChange={(e) => setSelectedRoleFilter(e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '6px 8px',
+                    fontSize: 11,
+                    borderRadius: radii.sm,
+                    border: `1px solid ${colors.borderStrong}`,
+                    backgroundColor: '#ffffff',
+                    fontWeight: 600,
+                  }}
+                >
+                  <option value="ALL">All Groups</option>
+                  <option value="CLINICIANS">Clinicians</option>
+                  <option value="NURSING">Nursing</option>
+                  <option value="IP_NURSING">IP Nursing</option>
+                  <option value="MRD_CLAIMS">MRD & Claims</option>
+                  <option value="OT_FORMS">OT Forms</option>
+                  <option value="EMR">EMR</option>
+                </select>
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: 10, fontWeight: 700, color: colors.textMuted, marginBottom: 3, textTransform: 'uppercase' }}>
+                  Doctor / Clinician:
+                </label>
+                <select
+                  value={selectedDoctorFilter}
+                  onChange={(e) => setSelectedDoctorFilter(e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '6px 8px',
+                    fontSize: 11,
+                    borderRadius: radii.sm,
+                    border: `1px solid ${colors.borderStrong}`,
+                    backgroundColor: '#ffffff',
+                    fontWeight: 600,
+                  }}
+                >
+                  <option value="ALL">All Clinicians</option>
+                  <option value="Dr. Rajesh Kumar">Dr. Rajesh Kumar</option>
+                  <option value="Dr. Sarah Jenkins">Dr. Sarah Jenkins</option>
+                  <option value="Dr. Tariq Al Mansoori">Dr. Tariq Al Mansoori</option>
+                  <option value="Dr. Fatima Al Zahra">Dr. Fatima Al Zahra</option>
+                  <option value="Dr. Vikram Sharma">Dr. Vikram Sharma</option>
+                  <option value="Dr. Maya Patel">Dr. Maya Patel</option>
+                  <option value="Dr. Alexander Reed">Dr. Alexander Reed</option>
+                </select>
+              </div>
             </div>
 
+            {/* Search Input */}
             <div style={{ marginBottom: spacing.sm }}>
               <Input
                 label=""
-                placeholder="Search panels, specialty, code..."
+                placeholder="Search forms, panels, specialty..."
                 leftIcon="fa fa-search"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
             </div>
 
+            {/* Templates List */}
             <div
               style={{
                 display: 'flex',
                 flexDirection: 'column',
                 gap: spacing.xs,
-                maxHeight: 560,
+                maxHeight: 580,
                 overflowY: 'auto',
                 paddingRight: 4,
               }}
@@ -1165,14 +1656,29 @@ export const EmrFormAssemblyScreen: React.FC<EmrFormAssemblyScreenProps> = ({
                           >
                             {tpl.panelType}
                           </span>
+                          {tpl.isDefault && (
+                            <span
+                              style={{
+                                fontSize: 9,
+                                fontWeight: 800,
+                                color: '#047857',
+                                backgroundColor: '#d1fae5',
+                                border: '1px solid #6ee7b7',
+                                padding: '1px 5px',
+                                borderRadius: radii.sm,
+                              }}
+                            >
+                              DEFAULT
+                            </span>
+                          )}
                           <span style={{ fontSize: 11, fontWeight: 700, color: colors.textMuted }}>
-                            {tpl.templateCode} • {tpl.specialty}
+                            {tpl.templateCode}
                           </span>
                         </div>
                         <div
                           style={{
                             fontSize: 13,
-                            fontWeight: 600,
+                            fontWeight: 700,
                             color: colors.textMain,
                             marginTop: 4,
                           }}
@@ -1184,9 +1690,9 @@ export const EmrFormAssemblyScreen: React.FC<EmrFormAssemblyScreenProps> = ({
                         style={{
                           backgroundColor: isSelected ? colors.primary : '#e2e8f0',
                           color: isSelected ? '#ffffff' : colors.textBody,
-                          fontSize: 11,
+                          fontSize: 10,
                           fontWeight: 700,
-                          padding: '2px 8px',
+                          padding: '2px 6px',
                           borderRadius: radii.full,
                         }}
                       >
@@ -1199,7 +1705,7 @@ export const EmrFormAssemblyScreen: React.FC<EmrFormAssemblyScreenProps> = ({
                         display: 'flex',
                         justifyContent: 'space-between',
                         alignItems: 'center',
-                        fontSize: 12,
+                        fontSize: 11,
                         color: colors.textMuted,
                         marginTop: 8,
                         borderTop: `1px solid ${isSelected ? colors.primaryMid : '#f1f5f9'}`,
@@ -1207,12 +1713,12 @@ export const EmrFormAssemblyScreen: React.FC<EmrFormAssemblyScreenProps> = ({
                       }}
                     >
                       <span>
-                        <i className="fa fa-list-ul" style={{ marginRight: 4 }} />
-                        {tpl.sections.length} Sections
+                        <i className="fa fa-cubes" style={{ marginRight: 4, color: colors.primary }} />
+                        {tpl.sections.length} Panels
                       </span>
                       <span>
-                        <i className="fa fa-hospital-o" style={{ marginRight: 4 }} />
-                        {tpl.assignedDepartments.length} Depts
+                        <i className="fa fa-building-o" style={{ marginRight: 4 }} />
+                        {tpl.encounterScope}
                       </span>
                     </div>
                   </div>
@@ -1222,14 +1728,14 @@ export const EmrFormAssemblyScreen: React.FC<EmrFormAssemblyScreenProps> = ({
           </Card>
         </div>
 
-        {/* Right Column: Template Assembly Editor */}
-        <div style={{ flex: '2 1 550px' }}>
+        {/* Right Column: Template Assembly Detail & Editor */}
+        <div style={{ flex: '2 1 600px' }}>
           <Card
-            title={`Form Assembly: ${selectedTemplate.templateName} (${selectedTemplate.templateCode})`}
+            title={`Form Architecture: ${selectedTemplate.templateName}`}
             padding={spacing.md}
             style={{ marginBottom: spacing.md }}
           >
-            {/* Template Metadata Box */}
+            {/* Form Attributes Summary Banner */}
             <div
               style={{
                 backgroundColor: colors.surfaceSunken,
@@ -1238,15 +1744,15 @@ export const EmrFormAssemblyScreen: React.FC<EmrFormAssemblyScreenProps> = ({
                 padding: '14px 18px',
                 marginBottom: spacing.md,
                 display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
-                gap: 16,
+                gridTemplateColumns: 'repeat(auto-fit, minmax(170px, 1fr))',
+                gap: 14,
               }}
             >
               <div>
-                <span style={{ fontSize: 11, color: colors.textMuted, textTransform: 'uppercase', fontWeight: 600 }}>
-                  Panel Classification
+                <span style={{ fontSize: 10, color: colors.textMuted, textTransform: 'uppercase', fontWeight: 700 }}>
+                  Form Classification
                 </span>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 4 }}>
+                <div style={{ marginTop: 4 }}>
                   <span
                     style={{
                       backgroundColor: selectedTemplate.panelType === 'STANDARD' ? colors.primaryLight : '#f5f3ff',
@@ -1258,85 +1764,64 @@ export const EmrFormAssemblyScreen: React.FC<EmrFormAssemblyScreenProps> = ({
                       borderRadius: radii.sm,
                     }}
                   >
-                    {selectedTemplate.panelType === 'STANDARD' ? '🏛️ STANDARD SYSTEM PANEL' : '✨ CUSTOM SPECIALTY PANEL'}
+                    {selectedTemplate.panelType === 'STANDARD' ? '🏛️ STANDARD SYSTEM' : '✨ CUSTOM SPECIALTY'}
                   </span>
                 </div>
               </div>
 
               <div>
-                <span style={{ fontSize: 11, color: colors.textMuted, textTransform: 'uppercase', fontWeight: 600 }}>
-                  Clinical Specialty
+                <span style={{ fontSize: 10, color: colors.textMuted, textTransform: 'uppercase', fontWeight: 700 }}>
+                  Layout & Orientation
                 </span>
-                <div style={{ fontSize: 13, fontWeight: 700, color: colors.textMain, marginTop: 4 }}>
-                  {selectedTemplate.specialty}
+                <div style={{ fontSize: 12, fontWeight: 700, color: colors.textMain, marginTop: 4 }}>
+                  {selectedTemplate.layoutOrientation === 'HORIZONTAL' ? '↔️ Horizontal (Tabbed)' : '↕️ Vertical (Accordion Canvas)'}
                 </div>
               </div>
 
               <div>
-                <span style={{ fontSize: 11, color: colors.textMuted, textTransform: 'uppercase', fontWeight: 600 }}>
-                  Assigned Clinicians / Doctors
+                <span style={{ fontSize: 10, color: colors.textMuted, textTransform: 'uppercase', fontWeight: 700 }}>
+                  Encounter Scoping
                 </span>
-                <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: 4 }}>
-                  {(selectedTemplate.assignedDoctors || ['All Attending Doctors']).map((doc, i) => (
+                <div style={{ fontSize: 12, fontWeight: 700, color: colors.textMain, marginTop: 4 }}>
+                  🏷️ {selectedTemplate.encounterScope}
+                </div>
+              </div>
+
+              <div>
+                <span style={{ fontSize: 10, color: colors.textMuted, textTransform: 'uppercase', fontWeight: 700 }}>
+                  Role Group
+                </span>
+                <div style={{ fontSize: 12, fontWeight: 700, color: colors.textMain, marginTop: 4 }}>
+                  👥 {selectedTemplate.formGroupRole}
+                </div>
+              </div>
+
+              <div>
+                <span style={{ fontSize: 10, color: colors.textMuted, textTransform: 'uppercase', fontWeight: 700 }}>
+                  Assigned Clinicians
+                </span>
+                <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap', marginTop: 4 }}>
+                  {selectedTemplate.assignedDoctors.map((doc, i) => (
                     <span
                       key={i}
                       style={{
                         backgroundColor: colors.primaryLight,
                         border: `1px solid ${colors.primaryMid}`,
                         color: colors.primary,
-                        fontSize: 11,
-                        padding: '2px 8px',
+                        fontSize: 10,
+                        padding: '1px 6px',
                         borderRadius: radii.sm,
                         fontWeight: 700,
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        gap: 4,
                       }}
                     >
-                      <i className="fa fa-user-md" style={{ fontSize: 10 }} />
                       {doc}
                     </span>
                   ))}
                 </div>
               </div>
-
-              <div>
-                <span style={{ fontSize: 11, color: colors.textMuted, textTransform: 'uppercase', fontWeight: 600 }}>
-                  Assigned Departments
-                </span>
-                <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: 4 }}>
-                  {selectedTemplate.assignedDepartments.map((dept, i) => (
-                    <span
-                      key={i}
-                      style={{
-                        backgroundColor: '#ffffff',
-                        border: `1px solid ${colors.borderStrong}`,
-                        color: colors.textBody,
-                        fontSize: 11,
-                        padding: '2px 8px',
-                        borderRadius: radii.sm,
-                        fontWeight: 600,
-                      }}
-                    >
-                      {dept}
-                    </span>
-                  ))}
-                </div>
-              </div>
-
-              <div>
-                <span style={{ fontSize: 11, color: colors.textMuted, textTransform: 'uppercase', fontWeight: 600 }}>
-                  Lifecycle Status
-                </span>
-                <div style={{ marginTop: 4 }}>
-                  <Badge tone={selectedTemplate.status === 'ACTIVE' ? 'success' : 'neutral'}>
-                    {selectedTemplate.status}
-                  </Badge>
-                </div>
-              </div>
             </div>
 
-            {/* Configured Sections Heading */}
+            {/* Panels / Sections Header */}
             <div
               style={{
                 display: 'flex',
@@ -1348,145 +1833,236 @@ export const EmrFormAssemblyScreen: React.FC<EmrFormAssemblyScreenProps> = ({
               }}
             >
               <h4 style={{ margin: 0, fontSize: 14, fontWeight: 700, color: colors.textMain }}>
-                Configured Form Sections ({selectedTemplate.sections.length})
+                Form Panels & Sections ({selectedTemplate.sections.length})
               </h4>
-              <span style={{ fontSize: 12, color: colors.textMuted }}>
-                Click requirement tag to toggle Mandatory / Optional / Conditional
+              <span style={{ fontSize: 11, color: colors.textMuted }}>
+                Active Patient Age Filter: <strong>{activeAgeMode}</strong>
               </span>
             </div>
 
-            {/* Sections List */}
+            {/* List of Panels in Active Form */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: spacing.sm, marginBottom: spacing.md }}>
-              {selectedTemplate.sections.map((sec, idx) => (
-                <div
-                  key={sec.id}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    padding: '12px 14px',
-                    backgroundColor: '#ffffff',
-                    border: `1px solid ${colors.border}`,
-                    borderRadius: radii.md,
-                    boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
-                    gap: 12,
-                  }}
-                >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 12, flex: 1 }}>
-                    <div
-                      style={{
-                        width: 28,
-                        height: 28,
-                        borderRadius: radii.full,
-                        backgroundColor: colors.primaryLight,
-                        color: colors.primary,
-                        fontWeight: 700,
-                        fontSize: 12,
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        flexShrink: 0,
-                      }}
-                    >
-                      {idx + 1}
-                    </div>
+              {selectedTemplate.sections.map((sec, idx) => {
+                // Determine whether this panel is visible for current age mode
+                const isAgeMatch =
+                  !sec.ageTarget ||
+                  sec.ageTarget === 'ALL' ||
+                  sec.ageTarget === activeAgeMode ||
+                  (sec.ageTarget === 'CHILD' && (activeAgeMode === 'CHILD' || activeAgeMode === 'NEONATE'));
 
-                    <div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                        <span style={{ fontSize: 13, fontWeight: 600, color: colors.textMain }}>
-                          {sec.sectionTitle}
-                        </span>
-                        {/* Interactive Clickable Requirement Badge */}
-                        {renderRequirementBadge(sec.requirementType || (sec.isRequired ? 'MANDATORY' : 'OPTIONAL'), () =>
-                          cycleSectionRequirement(sec.id)
-                        )}
+                return (
+                  <div
+                    key={sec.id}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      padding: '12px 14px',
+                      backgroundColor: '#ffffff',
+                      border: `1px solid ${colors.border}`,
+                      borderRadius: radii.md,
+                      boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
+                      opacity: isAgeMatch ? 1 : 0.6,
+                      gap: 12,
+                    }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 12, flex: 1 }}>
+                      <div
+                        style={{
+                          width: 28,
+                          height: 28,
+                          borderRadius: radii.full,
+                          backgroundColor: colors.primaryLight,
+                          color: colors.primary,
+                          fontWeight: 700,
+                          fontSize: 12,
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          flexShrink: 0,
+                        }}
+                      >
+                        {idx + 1}
                       </div>
-                      <span style={{ fontSize: 12, color: colors.textMuted, marginTop: 2, display: 'block' }}>
-                        {sec.fields?.length || sec.fieldsCount || 0} Active Clinical Input Fields
-                      </span>
+
+                      <div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                          <span style={{ fontSize: 13, fontWeight: 700, color: colors.textMain }}>
+                            {sec.nickName || sec.sectionTitle}
+                          </span>
+                          {sec.nickName && sec.nickName !== sec.sectionTitle && (
+                            <span style={{ fontSize: 11, color: colors.textMuted }}>({sec.sectionTitle})</span>
+                          )}
+                          {renderRequirementBadge(
+                            sec.requirementType || (sec.isRequired ? 'MANDATORY' : 'OPTIONAL'),
+                            () => cycleSectionRequirement(sec.id)
+                          )}
+                          {sec.ageTarget && sec.ageTarget !== 'ALL' && (
+                            <span
+                              style={{
+                                backgroundColor: '#fdf4ff',
+                                color: '#a21caf',
+                                border: '1px solid #f0abfc',
+                                fontSize: 10,
+                                fontWeight: 700,
+                                padding: '1px 6px',
+                                borderRadius: radii.sm,
+                              }}
+                            >
+                              {sec.ageTarget === 'CHILD' ? '👶 Child Only' : '👤 Adult Only'}
+                            </span>
+                          )}
+                          {sec.doctorSignature && (
+                            <span title="Doctor Signature Required" style={{ fontSize: 11, color: colors.primary }}>
+                              ✍️ Dr Sig
+                            </span>
+                          )}
+                          {sec.patientSignature && (
+                            <span title="Patient Signature Required" style={{ fontSize: 11, color: '#059669' }}>
+                              ✍️ Pt Sig
+                            </span>
+                          )}
+                        </div>
+                        <div style={{ fontSize: 11, color: colors.textMuted, marginTop: 3 }}>
+                          {sec.fields?.length || sec.fieldsCount || 0} Fields • Dock: {sec.dockPosition || 'TOP'} • Rev: {sec.retainRevisions ? 'Retained' : 'Overwrite'}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Action Buttons for Panel */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                      <button
+                        type="button"
+                        title="Move Up"
+                        disabled={idx === 0}
+                        onClick={() => moveSection(idx, 'up')}
+                        style={{
+                          border: `1px solid ${colors.border}`,
+                          background: '#ffffff',
+                          borderRadius: radii.sm,
+                          padding: '4px 8px',
+                          cursor: idx === 0 ? 'not-allowed' : 'pointer',
+                          opacity: idx === 0 ? 0.4 : 1,
+                        }}
+                      >
+                        <i className="fa fa-arrow-up" />
+                      </button>
+                      <button
+                        type="button"
+                        title="Move Down"
+                        disabled={idx === selectedTemplate.sections.length - 1}
+                        onClick={() => moveSection(idx, 'down')}
+                        style={{
+                          border: `1px solid ${colors.border}`,
+                          background: '#ffffff',
+                          borderRadius: radii.sm,
+                          padding: '4px 8px',
+                          cursor: idx === selectedTemplate.sections.length - 1 ? 'not-allowed' : 'pointer',
+                          opacity: idx === selectedTemplate.sections.length - 1 ? 0.4 : 1,
+                        }}
+                      >
+                        <i className="fa fa-arrow-down" />
+                      </button>
+
+                      {/* Options / Behavior Settings Button */}
+                      <button
+                        type="button"
+                        title="Panel Options (Signatures, Nickname, Dock, Scope)"
+                        onClick={() => setConfiguringSection(JSON.parse(JSON.stringify(sec)))}
+                        style={{
+                          border: `1px solid ${colors.borderStrong}`,
+                          background: '#ffffff',
+                          borderRadius: radii.sm,
+                          padding: '5px 10px',
+                          fontSize: 11,
+                          fontWeight: 600,
+                          cursor: 'pointer',
+                          color: colors.textBody,
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 4,
+                        }}
+                      >
+                        <i className="fa fa-sliders" />
+                        Options
+                      </button>
+
+                      {/* Standard Vital Master Element Editor Button (46 Elements) */}
+                      {sec.sectionTitle?.toUpperCase().includes('VITAL') && (
+                        <button
+                          type="button"
+                          title="Configure Standard Vital Elements (All 46)"
+                          onClick={() => {
+                            window.location.hash = `#/emr/edit-vital/${sec.id || 'panel_1_1_0'}/${selectedTemplate.id || 1}`;
+                          }}
+                          style={{
+                            border: '1px solid #c05621',
+                            background: '#fffaf0',
+                            borderRadius: radii.sm,
+                            padding: '5px 12px',
+                            fontSize: 12,
+                            fontWeight: 700,
+                            cursor: 'pointer',
+                            color: '#c05621',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 6,
+                            boxShadow: '0 1px 2px rgba(192,86,33,0.1)',
+                          }}
+                        >
+                          <i className="fa fa-heart-pulse" />
+                          Vital Elements (46)
+                        </button>
+                      )}
+
+                      {/* Fields Designer Button */}
+                      <button
+                        type="button"
+                        title="Configure Panel Fields & Preview"
+                        onClick={() => openFieldModal(sec)}
+                        style={{
+                          border: `1px solid ${colors.primary}`,
+                          background: colors.primaryLight,
+                          borderRadius: radii.sm,
+                          padding: '5px 12px',
+                          fontSize: 12,
+                          fontWeight: 700,
+                          cursor: 'pointer',
+                          color: colors.primary,
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 6,
+                          boxShadow: '0 1px 2px rgba(37,99,235,0.1)',
+                        }}
+                      >
+                        <i className="fa fa-cog" />
+                        Fields ({sec.fields?.length || sec.fieldsCount || 0})
+                      </button>
+
+                      {/* Remove Section */}
+                      <button
+                        type="button"
+                        title="Delete Section"
+                        onClick={() => handleRemoveSection(sec.id)}
+                        style={{
+                          border: `1px solid ${colors.dangerBorder}`,
+                          background: colors.dangerBg,
+                          borderRadius: radii.sm,
+                          padding: '5px 8px',
+                          fontSize: 12,
+                          cursor: 'pointer',
+                          color: colors.dangerText,
+                        }}
+                      >
+                        <i className="fa fa-trash-o" />
+                      </button>
                     </div>
                   </div>
-
-                  {/* Action Buttons */}
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <button
-                      type="button"
-                      title="Move Up"
-                      disabled={idx === 0}
-                      onClick={() => moveSection(idx, 'up')}
-                      style={{
-                        border: `1px solid ${colors.border}`,
-                        background: '#ffffff',
-                        borderRadius: radii.sm,
-                        padding: '4px 8px',
-                        cursor: idx === 0 ? 'not-allowed' : 'pointer',
-                        opacity: idx === 0 ? 0.4 : 1,
-                        color: colors.textBody,
-                      }}
-                    >
-                      <i className="fa fa-arrow-up" />
-                    </button>
-                    <button
-                      type="button"
-                      title="Move Down"
-                      disabled={idx === selectedTemplate.sections.length - 1}
-                      onClick={() => moveSection(idx, 'down')}
-                      style={{
-                        border: `1px solid ${colors.border}`,
-                        background: '#ffffff',
-                        borderRadius: radii.sm,
-                        padding: '4px 8px',
-                        cursor: idx === selectedTemplate.sections.length - 1 ? 'not-allowed' : 'pointer',
-                        opacity: idx === selectedTemplate.sections.length - 1 ? 0.4 : 1,
-                        color: colors.textBody,
-                      }}
-                    >
-                      <i className="fa fa-arrow-down" />
-                    </button>
-                    <button
-                      type="button"
-                      title="Configure Fields"
-                      onClick={() => openFieldModal(sec)}
-                      style={{
-                        border: `1px solid ${colors.primary}`,
-                        background: colors.primaryLight,
-                        borderRadius: radii.sm,
-                        padding: '5px 12px',
-                        fontSize: 12,
-                        fontWeight: 700,
-                        cursor: 'pointer',
-                        color: colors.primary,
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 6,
-                        boxShadow: '0 1px 2px rgba(37,99,235,0.1)',
-                      }}
-                    >
-                      <i className="fa fa-cog" />
-                      Fields ({sec.fields?.length || sec.fieldsCount || 0})
-                    </button>
-                    <button
-                      type="button"
-                      title="Delete Section"
-                      onClick={() => handleRemoveSection(sec.id)}
-                      style={{
-                        border: `1px solid ${colors.dangerBorder}`,
-                        background: colors.dangerBg,
-                        borderRadius: radii.sm,
-                        padding: '5px 8px',
-                        fontSize: 12,
-                        cursor: 'pointer',
-                        color: colors.dangerText,
-                      }}
-                    >
-                      <i className="fa fa-trash-o" />
-                    </button>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
 
-            {/* Add New Section Toolbar with Requirement Type Selector */}
+            {/* Add New Section to Selected Template */}
             <div
               style={{
                 display: 'flex',
@@ -1499,10 +2075,10 @@ export const EmrFormAssemblyScreen: React.FC<EmrFormAssemblyScreenProps> = ({
                 flexWrap: 'wrap',
               }}
             >
-              <div style={{ flex: '1 1 240px' }}>
+              <div style={{ flex: '2 1 200px' }}>
                 <Input
                   label=""
-                  placeholder="Enter new section title (e.g. Ophthalmology IOP Readings)..."
+                  placeholder="Enter new panel title (e.g. Ophthalmology IOP Readings)..."
                   value={newSectionTitle}
                   onChange={(e) => setNewSectionTitle(e.target.value)}
                   onKeyDown={(e) => {
@@ -1511,19 +2087,26 @@ export const EmrFormAssemblyScreen: React.FC<EmrFormAssemblyScreenProps> = ({
                 />
               </div>
 
-              <div style={{ minWidth: 140 }}>
+              <div style={{ flex: '1 1 150px' }}>
+                <Input
+                  label=""
+                  placeholder="Panel Nickname (Optional)"
+                  value={newSectionNickName}
+                  onChange={(e) => setNewSectionNickName(e.target.value)}
+                />
+              </div>
+
+              <div style={{ minWidth: 120 }}>
                 <select
                   value={newSectionReq}
                   onChange={(e) => setNewSectionReq(e.target.value as RequirementType)}
                   style={{
                     width: '100%',
-                    padding: '8px 12px',
-                    fontSize: 13,
+                    padding: '8px 10px',
+                    fontSize: 12,
                     borderRadius: radii.sm,
                     border: `1px solid ${colors.borderStrong}`,
                     backgroundColor: '#ffffff',
-                    color: colors.textMain,
-                    outline: 'none',
                     fontWeight: 600,
                   }}
                 >
@@ -1540,12 +2123,178 @@ export const EmrFormAssemblyScreen: React.FC<EmrFormAssemblyScreenProps> = ({
                 onClick={handleAddSection}
                 disabled={!newSectionTitle.trim()}
               >
-                Add Section
+                Add Panel
               </Button>
             </div>
           </Card>
         </div>
       </div>
+
+      {/* ========================================================================= */}
+      {/* Panel Options Configuration Drawer / Modal                                */}
+      {/* ========================================================================= */}
+      {configuringSection && (
+        <div
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(15, 23, 42, 0.65)',
+            zIndex: 99999,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: 20,
+            backdropFilter: 'blur(3px)',
+          }}
+        >
+          <div
+            style={{
+              backgroundColor: '#ffffff',
+              borderRadius: radii.lg,
+              boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.2)',
+              width: '100%',
+              maxWidth: 620,
+              padding: 24,
+              border: `1px solid ${colors.border}`,
+            }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16, borderBottom: `1px solid ${colors.border}`, paddingBottom: 10 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <span style={{ fontSize: 20, color: colors.primary }}>⚙️</span>
+                <h3 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: colors.textMain }}>
+                  Panel Behavior & Options: {configuringSection.sectionTitle}
+                </h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setConfiguringSection(null)}
+                style={{ border: 'none', background: 'transparent', fontSize: 20, cursor: 'pointer', color: colors.textMuted }}
+              >
+                ✕
+              </button>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+              <div>
+                <Input
+                  label="Panel Display Nickname (Override Title in Consultation)"
+                  placeholder="e.g. Clinical Vitals"
+                  value={configuringSection.nickName || ''}
+                  onChange={(e) => setConfiguringSection({ ...configuringSection, nickName: e.target.value })}
+                />
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: colors.textMain, marginBottom: 4 }}>
+                    Dock Position
+                  </label>
+                  <select
+                    value={configuringSection.dockPosition || 'TOP'}
+                    onChange={(e) => setConfiguringSection({ ...configuringSection, dockPosition: e.target.value as DockPosition })}
+                    style={{ width: '100%', padding: '8px 10px', fontSize: 12, borderRadius: radii.sm, border: `1px solid ${colors.borderStrong}` }}
+                  >
+                    <option value="TOP">Top Dock (Main Canvas Pane)</option>
+                    <option value="RIGHT">Right Dock (Side Slideout)</option>
+                    <option value="FULL">Full Canvas Width</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: colors.textMain, marginBottom: 4 }}>
+                    Age-Target Filtering
+                  </label>
+                  <select
+                    value={configuringSection.ageTarget || 'ALL'}
+                    onChange={(e) => setConfiguringSection({ ...configuringSection, ageTarget: e.target.value as AgeTargetMode })}
+                    style={{ width: '100%', padding: '8px 10px', fontSize: 12, borderRadius: radii.sm, border: `1px solid ${colors.borderStrong}` }}
+                  >
+                    <option value="ALL">All Patients (Adults & Children)</option>
+                    <option value="ADULT">Adult Only (Age ≥ 18)</option>
+                    <option value="CHILD">Pediatric Only (Age &lt; 18)</option>
+                    <option value="NEONATE">Neonate / Infant (&lt; 2y)</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Checkboxes for Options Matching Reference */}
+              <div style={{ backgroundColor: colors.surfaceSunken, padding: 14, borderRadius: radii.md, border: `1px solid ${colors.border}` }}>
+                <span style={{ display: 'block', fontSize: 11, fontWeight: 700, color: colors.textMuted, marginBottom: 10, textTransform: 'uppercase' }}>
+                  Operational Flags & Signatures
+                </span>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, cursor: 'pointer' }}>
+                    <input
+                      type="checkbox"
+                      checked={Boolean(configuringSection.retainRevisions)}
+                      onChange={(e) => setConfiguringSection({ ...configuringSection, retainRevisions: e.target.checked })}
+                    />
+                    Retain Revisions (History log)
+                  </label>
+
+                  <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, cursor: 'pointer' }}>
+                    <input
+                      type="checkbox"
+                      checked={Boolean(configuringSection.saveAndComplete)}
+                      onChange={(e) => setConfiguringSection({ ...configuringSection, saveAndComplete: e.target.checked })}
+                    />
+                    Save & Complete Trigger
+                  </label>
+
+                  <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, cursor: 'pointer' }}>
+                    <input
+                      type="checkbox"
+                      checked={Boolean(configuringSection.doctorSignature)}
+                      onChange={(e) => setConfiguringSection({ ...configuringSection, doctorSignature: e.target.checked })}
+                    />
+                    Doctor Signature Required
+                  </label>
+
+                  <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, cursor: 'pointer' }}>
+                    <input
+                      type="checkbox"
+                      checked={Boolean(configuringSection.patientSignature)}
+                      onChange={(e) => setConfiguringSection({ ...configuringSection, patientSignature: e.target.checked })}
+                    />
+                    Patient Signature Required
+                  </label>
+
+                  <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, cursor: 'pointer' }}>
+                    <input
+                      type="checkbox"
+                      checked={Boolean(configuringSection.witnessSignature)}
+                      onChange={(e) => setConfiguringSection({ ...configuringSection, witnessSignature: e.target.checked })}
+                    />
+                    Witness Signature Required
+                  </label>
+
+                  <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, cursor: 'pointer' }}>
+                    <input
+                      type="checkbox"
+                      checked={Boolean(configuringSection.canSkip)}
+                      onChange={(e) => setConfiguringSection({ ...configuringSection, canSkip: e.target.checked })}
+                    />
+                    Can Skip Option in Flow
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 12, marginTop: 20, borderTop: `1px solid ${colors.border}`, paddingTop: 14 }}>
+              <Button variant="secondary" size="md" onClick={() => setConfiguringSection(null)}>
+                Cancel
+              </Button>
+              <Button variant="primary" size="md" icon="fa-check" onClick={handleSaveSectionConfig}>
+                Save Panel Options
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ========================================================================= */}
       {/* Create Custom Specialty Panel Modal                                       */}
@@ -1559,7 +2308,7 @@ export const EmrFormAssemblyScreen: React.FC<EmrFormAssemblyScreenProps> = ({
             right: 0,
             bottom: 0,
             backgroundColor: 'rgba(15, 23, 42, 0.65)',
-            zIndex: 9999,
+            zIndex: 99999,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -1595,16 +2344,13 @@ export const EmrFormAssemblyScreen: React.FC<EmrFormAssemblyScreenProps> = ({
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-              <div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: 12 }}>
                 <Input
                   label="Panel / Form Code *"
-                  placeholder="e.g. DERM-01, ORTHO-02"
+                  placeholder="e.g. DERM-01"
                   value={newPanelCode}
                   onChange={(e) => setNewPanelCode(e.target.value)}
                 />
-              </div>
-
-              <div>
                 <Input
                   label="Panel Title / Name *"
                   placeholder="e.g. Dermatology Assessment & Lesion Chart"
@@ -1620,6 +2366,41 @@ export const EmrFormAssemblyScreen: React.FC<EmrFormAssemblyScreenProps> = ({
                   value={newPanelSpecialty}
                   onChange={(e) => setNewPanelSpecialty(e.target.value)}
                 />
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: colors.textMain, marginBottom: 4 }}>
+                    Role Group *
+                  </label>
+                  <select
+                    value={newPanelRole}
+                    onChange={(e) => setNewPanelRole(e.target.value as any)}
+                    style={{ width: '100%', padding: '8px 10px', fontSize: 12, borderRadius: radii.sm, border: `1px solid ${colors.borderStrong}` }}
+                  >
+                    <option value="CLINICIANS">Clinicians / Doctors</option>
+                    <option value="NURSING">Nursing</option>
+                    <option value="IP_NURSING">Inpatient Nursing</option>
+                    <option value="MRD_CLAIMS">MRD & Claims</option>
+                    <option value="OT_FORMS">Operating Theater</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: colors.textMain, marginBottom: 4 }}>
+                    Encounter Scope *
+                  </label>
+                  <select
+                    value={newPanelScope}
+                    onChange={(e) => setNewPanelScope(e.target.value as EncounterScope)}
+                    style={{ width: '100%', padding: '8px 10px', fontSize: 12, borderRadius: radii.sm, border: `1px solid ${colors.borderStrong}` }}
+                  >
+                    <option value="ALL">All Encounters (OP & IP)</option>
+                    <option value="OUTPATIENT">Outpatient (OP)</option>
+                    <option value="INPATIENT">Inpatient (IP)</option>
+                    <option value="EMERGENCY">Emergency (ER)</option>
+                  </select>
+                </div>
               </div>
 
               <div>
@@ -1676,8 +2457,8 @@ export const EmrFormAssemblyScreen: React.FC<EmrFormAssemblyScreenProps> = ({
               borderRadius: radii.lg,
               boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.2), 0 10px 10px -5px rgba(0, 0, 0, 0.1)',
               width: '100%',
-              maxWidth: 900,
-              maxHeight: '90vh',
+              maxWidth: 960,
+              maxHeight: '92vh',
               display: 'flex',
               flexDirection: 'column',
               overflow: 'hidden',
@@ -1699,12 +2480,15 @@ export const EmrFormAssemblyScreen: React.FC<EmrFormAssemblyScreenProps> = ({
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                   <span style={{ color: colors.primary, fontSize: 18 }}>⚙️</span>
                   <h3 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: colors.textMain }}>
-                    Configure Fields: {editingSection.sectionTitle}
+                    Configure Fields: {editingSection.nickName || editingSection.sectionTitle}
                   </h3>
                 </div>
                 <div style={{ fontSize: 12, color: colors.textMuted, marginTop: 2 }}>
-                  Template: {selectedTemplate.templateName} ({selectedTemplate.templateCode}) •{' '}
-                  {editingSection.fields?.length || 0} Configured Clinical Fields
+                  Form: {selectedTemplate.templateName} ({selectedTemplate.templateCode}) •{' '}
+                  {editingSection.fields?.length || 0} Configured Fields • Active Age Mode:{' '}
+                  <strong style={{ color: activeAgeMode === 'ADULT' ? colors.primary : '#7c3aed' }}>
+                    {activeAgeMode}
+                  </strong>
                 </div>
               </div>
 
@@ -1724,7 +2508,7 @@ export const EmrFormAssemblyScreen: React.FC<EmrFormAssemblyScreenProps> = ({
               </button>
             </div>
 
-            {/* Modal Navigation Tabs (Field Schema Designer vs Live Clinical Preview) */}
+            {/* Modal Navigation Tabs: Schema Designer vs Live Encounter Preview */}
             <div
               style={{
                 display: 'flex',
@@ -1732,43 +2516,64 @@ export const EmrFormAssemblyScreen: React.FC<EmrFormAssemblyScreenProps> = ({
                 borderBottom: `1px solid ${colors.border}`,
                 padding: '0 20px',
                 backgroundColor: '#ffffff',
+                alignItems: 'center',
+                justifyContent: 'space-between',
               }}
             >
-              <button
-                type="button"
-                onClick={() => setFieldModalTab('FIELDS')}
-                style={{
-                  padding: '10px 16px',
-                  border: 'none',
-                  borderBottom: `3px solid ${fieldModalTab === 'FIELDS' ? colors.primary : 'transparent'}`,
-                  background: 'transparent',
-                  color: fieldModalTab === 'FIELDS' ? colors.primary : colors.textMuted,
-                  fontWeight: fieldModalTab === 'FIELDS' ? 700 : 500,
-                  fontSize: 13,
-                  cursor: 'pointer',
-                }}
-              >
-                <i className="fa fa-list" style={{ marginRight: 6 }} />
-                Field Schema List ({editingSection.fields?.length || 0})
-              </button>
+              <div style={{ display: 'flex', gap: 4 }}>
+                <button
+                  type="button"
+                  onClick={() => setFieldModalTab('FIELDS')}
+                  style={{
+                    padding: '10px 16px',
+                    border: 'none',
+                    borderBottom: `3px solid ${fieldModalTab === 'FIELDS' ? colors.primary : 'transparent'}`,
+                    background: 'transparent',
+                    color: fieldModalTab === 'FIELDS' ? colors.primary : colors.textMuted,
+                    fontWeight: fieldModalTab === 'FIELDS' ? 700 : 500,
+                    fontSize: 13,
+                    cursor: 'pointer',
+                  }}
+                >
+                  <i className="fa fa-list" style={{ marginRight: 6 }} />
+                  Field Schema List ({editingSection.fields?.length || 0})
+                </button>
 
-              <button
-                type="button"
-                onClick={() => setFieldModalTab('PREVIEW')}
-                style={{
-                  padding: '10px 16px',
-                  border: 'none',
-                  borderBottom: `3px solid ${fieldModalTab === 'PREVIEW' ? colors.primary : 'transparent'}`,
-                  background: 'transparent',
-                  color: fieldModalTab === 'PREVIEW' ? colors.primary : colors.textMuted,
-                  fontWeight: fieldModalTab === 'PREVIEW' ? 700 : 500,
-                  fontSize: 13,
-                  cursor: 'pointer',
-                }}
-              >
-                <i className="fa fa-eye" style={{ marginRight: 6 }} />
-                Interactive Encounter Form Preview
-              </button>
+                <button
+                  type="button"
+                  onClick={() => setFieldModalTab('PREVIEW')}
+                  style={{
+                    padding: '10px 16px',
+                    border: 'none',
+                    borderBottom: `3px solid ${fieldModalTab === 'PREVIEW' ? colors.primary : 'transparent'}`,
+                    background: 'transparent',
+                    color: fieldModalTab === 'PREVIEW' ? colors.primary : colors.textMuted,
+                    fontWeight: fieldModalTab === 'PREVIEW' ? 700 : 500,
+                    fontSize: 13,
+                    cursor: 'pointer',
+                  }}
+                >
+                  <i className="fa fa-eye" style={{ marginRight: 6 }} />
+                  Live Encounter Preview & Age Testing
+                </button>
+              </div>
+
+              {/* Age Mode Indicator inside Modal */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12 }}>
+                <span style={{ color: colors.textMuted, fontWeight: 600 }}>Test View:</span>
+                <span
+                  style={{
+                    backgroundColor: activeAgeMode === 'ADULT' ? colors.primaryLight : '#f3e8ff',
+                    color: activeAgeMode === 'ADULT' ? colors.primary : '#7c3aed',
+                    padding: '2px 8px',
+                    borderRadius: radii.sm,
+                    fontWeight: 700,
+                    border: `1px solid ${activeAgeMode === 'ADULT' ? colors.primaryMid : '#d8b4fe'}`,
+                  }}
+                >
+                  {activeAgeMode === 'ADULT' ? 'Adult Physiological' : 'Pediatric Anthropometric'}
+                </span>
+              </div>
             </div>
 
             {/* Modal Body */}
@@ -1779,10 +2584,10 @@ export const EmrFormAssemblyScreen: React.FC<EmrFormAssemblyScreenProps> = ({
                   <div style={{ marginBottom: 16 }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
                       <h4 style={{ margin: 0, fontSize: 13, fontWeight: 700, color: colors.textMain }}>
-                        Active Clinical Input Fields
+                        Active Clinical Fields ({editingSection.fields?.length || 0})
                       </h4>
                       <span style={{ fontSize: 11, color: colors.textMuted }}>
-                        Click on any badge under Requirement to cycle Mandatory / Optional / Conditional
+                        Click on Requirement tag to cycle Mandatory / Optional / Conditional
                       </span>
                     </div>
 
@@ -1807,8 +2612,9 @@ export const EmrFormAssemblyScreen: React.FC<EmrFormAssemblyScreenProps> = ({
                               <th style={{ padding: '8px 10px', textAlign: 'left', fontWeight: 700, width: 30 }}>#</th>
                               <th style={{ padding: '8px 10px', textAlign: 'left', fontWeight: 700 }}>Field Label & Code</th>
                               <th style={{ padding: '8px 10px', textAlign: 'left', fontWeight: 700 }}>Input Type</th>
+                              <th style={{ padding: '8px 10px', textAlign: 'left', fontWeight: 700 }}>Age Scope</th>
                               <th style={{ padding: '8px 10px', textAlign: 'left', fontWeight: 700 }}>Unit / Options</th>
-                              <th style={{ padding: '8px 10px', textAlign: 'left', fontWeight: 700 }}>Requirement Type (Click to Toggle)</th>
+                              <th style={{ padding: '8px 10px', textAlign: 'left', fontWeight: 700 }}>Requirement</th>
                               <th style={{ padding: '8px 10px', textAlign: 'center', fontWeight: 700, width: 60 }}>Action</th>
                             </tr>
                           </thead>
@@ -1838,6 +2644,20 @@ export const EmrFormAssemblyScreen: React.FC<EmrFormAssemblyScreenProps> = ({
                                     }}
                                   >
                                     {f.fieldType}
+                                  </span>
+                                </td>
+                                <td style={{ padding: '8px 10px' }}>
+                                  <span
+                                    style={{
+                                      backgroundColor: f.ageScope === 'CHILD' ? '#f3e8ff' : f.ageScope === 'ADULT' ? '#eff6ff' : '#f1f5f9',
+                                      color: f.ageScope === 'CHILD' ? '#7c3aed' : f.ageScope === 'ADULT' ? colors.primary : colors.textMuted,
+                                      fontSize: 10,
+                                      fontWeight: 700,
+                                      padding: '2px 6px',
+                                      borderRadius: radii.sm,
+                                    }}
+                                  >
+                                    {f.ageScope || 'ALL'}
                                   </span>
                                 </td>
                                 <td style={{ padding: '8px 10px', color: colors.textBody }}>
@@ -1884,7 +2704,7 @@ export const EmrFormAssemblyScreen: React.FC<EmrFormAssemblyScreenProps> = ({
                     )}
                   </div>
 
-                  {/* Add Field Form */}
+                  {/* Enhanced 16-Type Clinical Field Designer Form */}
                   <div
                     style={{
                       backgroundColor: colors.surfaceSunken,
@@ -1894,14 +2714,14 @@ export const EmrFormAssemblyScreen: React.FC<EmrFormAssemblyScreenProps> = ({
                     }}
                   >
                     <h4 style={{ margin: '0 0 12px', fontSize: 13, fontWeight: 700, color: colors.textMain }}>
-                      ➕ Add New Clinical Field
+                      ➕ Add Clinical Field (16 Canonical Canvas Control Types)
                     </h4>
 
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 12, marginBottom: 12 }}>
                       <div>
                         <Input
                           label="Field Label *"
-                          placeholder="e.g. Corneal Clarity, Pain VAS, Gravida"
+                          placeholder="e.g. Corneal Clarity, Head Circumference"
                           value={newFieldLabel}
                           onChange={(e) => setNewFieldLabel(e.target.value)}
                         />
@@ -1917,41 +2737,73 @@ export const EmrFormAssemblyScreen: React.FC<EmrFormAssemblyScreenProps> = ({
                           style={{
                             width: '100%',
                             padding: '8px 12px',
-                            fontSize: 13,
+                            fontSize: 12,
                             borderRadius: radii.sm,
                             border: `1px solid ${colors.borderStrong}`,
                             backgroundColor: '#ffffff',
                             color: colors.textMain,
                             outline: 'none',
+                            fontWeight: 600,
                           }}
                         >
-                          <option value="TEXT">Single Line Text</option>
-                          <option value="NUMBER">Numeric / Measurement</option>
-                          <option value="TEXTAREA">Multi-line Narrative / Textarea</option>
-                          <option value="DROPDOWN">Dropdown Single Select</option>
-                          <option value="RADIO">Radio Button Group</option>
-                          <option value="CHECKBOX">Boolean Checkbox Toggle</option>
-                          <option value="DATE">Date / Calendar</option>
-                          <option value="ODONTOGRAM">Dental 32-Tooth Odontogram Grid</option>
-                          <option value="VA_CHART">Ophthalmology Visual Acuity Chart</option>
+                          <option value="TEXT">1. Single Line Text</option>
+                          <option value="NUMBER">2. Numeric / Measurement</option>
+                          <option value="TEXTAREA">3. Multi-line Narrative / Textarea</option>
+                          <option value="DROPDOWN">4. Dropdown Single Select</option>
+                          <option value="RADIO">5. Radio Button Group</option>
+                          <option value="CHECKBOX">6. Boolean Checkbox Toggle</option>
+                          <option value="DATE">7. Date / Calendar Picker</option>
+                          <option value="ODONTOGRAM">8. Dental Odontogram (32/20-Tooth Grid)</option>
+                          <option value="VA_CHART">9. Visual Acuity (Snellen Chart)</option>
+                          <option value="DIAGRAM">10. Anatomical Diagram / Body Map</option>
+                          <option value="YES_NO">11. Yes / No Toggle</option>
+                          <option value="TRUE_FALSE">12. True / False Selection</option>
+                          <option value="PERIOD">13. Period / Onset Duration</option>
+                          <option value="FRACTION">14. Fraction Input (e.g. 20/20)</option>
+                          <option value="GRID">15. Tabular Matrix / Grid</option>
+                          <option value="HEADER">16. Sub-section Section Header</option>
+                        </select>
+                      </div>
+
+                      <div>
+                        <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: colors.textMain, marginBottom: 4 }}>
+                          Age Scope
+                        </label>
+                        <select
+                          value={newFieldAgeScope}
+                          onChange={(e) => setNewFieldAgeScope(e.target.value as AgeTargetMode)}
+                          style={{
+                            width: '100%',
+                            padding: '8px 12px',
+                            fontSize: 12,
+                            borderRadius: radii.sm,
+                            border: `1px solid ${colors.borderStrong}`,
+                            backgroundColor: '#ffffff',
+                            fontWeight: 600,
+                          }}
+                        >
+                          <option value="ALL">All Ages (Adult & Child)</option>
+                          <option value="ADULT">Adult Only (Age ≥ 18)</option>
+                          <option value="CHILD">Pediatric / Child Only (Age &lt; 18)</option>
+                          <option value="NEONATE">Neonate / Infant (&lt; 2y)</option>
                         </select>
                       </div>
 
                       <div>
                         <Input
                           label="Unit of Measure (Optional)"
-                          placeholder="e.g. mmHg, bpm, cm, Diopters"
+                          placeholder="e.g. mmHg, bpm, cm, mg/dL"
                           value={newFieldUnit}
                           onChange={(e) => setNewFieldUnit(e.target.value)}
                         />
                       </div>
                     </div>
 
-                    {(newFieldType === 'DROPDOWN' || newFieldType === 'RADIO') && (
+                    {(newFieldType === 'DROPDOWN' || newFieldType === 'RADIO' || newFieldType === 'GRID') && (
                       <div style={{ marginBottom: 12 }}>
                         <Input
                           label="Select Options (Comma-separated values)"
-                          placeholder="e.g. Mild, Moderate, Severe, Excruciating"
+                          placeholder="e.g. Normal, Mild, Moderate, Severe"
                           value={newFieldOptions}
                           onChange={(e) => setNewFieldOptions(e.target.value)}
                         />
@@ -1962,32 +2814,32 @@ export const EmrFormAssemblyScreen: React.FC<EmrFormAssemblyScreenProps> = ({
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 12, flexWrap: 'wrap', gap: 12 }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
                         <span style={{ fontSize: 12, fontWeight: 700, color: colors.textMain }}>
-                          Requirement Type:
+                          Requirement Level:
                         </span>
-                        <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, cursor: 'pointer', color: colors.dangerText, fontWeight: 600 }}>
+                        <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, cursor: 'pointer', color: colors.dangerText, fontWeight: 700 }}>
                           <input
                             type="radio"
-                            name="reqTypeRadio"
+                            name="reqTypeRadioModal"
                             value="MANDATORY"
                             checked={newFieldReqType === 'MANDATORY'}
                             onChange={() => setNewFieldReqType('MANDATORY')}
                           />
                           Mandatory
                         </label>
-                        <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, cursor: 'pointer', color: colors.textBody, fontWeight: 500 }}>
+                        <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, cursor: 'pointer', color: colors.textBody, fontWeight: 600 }}>
                           <input
                             type="radio"
-                            name="reqTypeRadio"
+                            name="reqTypeRadioModal"
                             value="OPTIONAL"
                             checked={newFieldReqType === 'OPTIONAL'}
                             onChange={() => setNewFieldReqType('OPTIONAL')}
                           />
                           Optional
                         </label>
-                        <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, cursor: 'pointer', color: colors.warningText, fontWeight: 600 }}>
+                        <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, cursor: 'pointer', color: colors.warningText, fontWeight: 700 }}>
                           <input
                             type="radio"
-                            name="reqTypeRadio"
+                            name="reqTypeRadioModal"
                             value="CONDITIONAL"
                             checked={newFieldReqType === 'CONDITIONAL'}
                             onChange={() => setNewFieldReqType('CONDITIONAL')}
@@ -2009,24 +2861,70 @@ export const EmrFormAssemblyScreen: React.FC<EmrFormAssemblyScreenProps> = ({
                   </div>
                 </div>
               ) : (
-                /* Live Interactive Encounter Form Preview */
+                /* ========================================================================= */
+                /* Live Interactive Encounter Form Preview (With Adult/Child Switching)      */
+                /* ========================================================================= */
                 <div>
                   <div
                     style={{
                       padding: '12px 16px',
-                      backgroundColor: colors.primaryLight,
+                      backgroundColor: activeAgeMode === 'ADULT' ? colors.primaryLight : '#fdf4ff',
                       borderRadius: radii.md,
-                      border: `1px solid ${colors.primaryMid}`,
+                      border: `1px solid ${activeAgeMode === 'ADULT' ? colors.primaryMid : '#f0abfc'}`,
                       marginBottom: 16,
                       fontSize: 12,
-                      color: colors.primaryHover,
+                      color: activeAgeMode === 'ADULT' ? colors.primaryHover : '#86198f',
                       display: 'flex',
                       alignItems: 'center',
+                      justifyContent: 'space-between',
+                      flexWrap: 'wrap',
                       gap: 8,
                     }}
                   >
-                    <i className="fa fa-info-circle" style={{ fontSize: 16 }} />
-                    This live preview shows exactly how clinicians will see and document this section during a clinical encounter.
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <i className="fa fa-info-circle" style={{ fontSize: 16 }} />
+                      <span>
+                        Simulating Live Encounter Documentation for{' '}
+                        <strong>
+                          {activeAgeMode === 'ADULT' ? 'Adult Patient (34 Years, Female)' : 'Pediatric Patient (4 Years, Male)'}
+                        </strong>
+                      </span>
+                    </div>
+
+                    <div style={{ display: 'flex', gap: 6 }}>
+                      <button
+                        type="button"
+                        onClick={() => setActiveAgeMode('ADULT')}
+                        style={{
+                          padding: '4px 8px',
+                          fontSize: 11,
+                          fontWeight: 700,
+                          borderRadius: radii.sm,
+                          border: 'none',
+                          backgroundColor: activeAgeMode === 'ADULT' ? colors.primary : '#ffffff',
+                          color: activeAgeMode === 'ADULT' ? '#ffffff' : colors.textBody,
+                          cursor: 'pointer',
+                        }}
+                      >
+                        Adult View
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setActiveAgeMode('CHILD')}
+                        style={{
+                          padding: '4px 8px',
+                          fontSize: 11,
+                          fontWeight: 700,
+                          borderRadius: radii.sm,
+                          border: 'none',
+                          backgroundColor: activeAgeMode === 'CHILD' ? '#7c3aed' : '#ffffff',
+                          color: activeAgeMode === 'CHILD' ? '#ffffff' : colors.textBody,
+                          cursor: 'pointer',
+                        }}
+                      >
+                        Child View
+                      </button>
+                    </div>
                   </div>
 
                   <div
@@ -2040,185 +2938,279 @@ export const EmrFormAssemblyScreen: React.FC<EmrFormAssemblyScreenProps> = ({
                   >
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16, borderBottom: `1px solid ${colors.border}`, paddingBottom: 8 }}>
                       <h4 style={{ margin: 0, fontSize: 15, fontWeight: 700, color: colors.textMain }}>
-                        {editingSection.sectionTitle}
+                        {editingSection.nickName || editingSection.sectionTitle}
                       </h4>
                       {renderRequirementBadge(editingSection.requirementType || (editingSection.isRequired ? 'MANDATORY' : 'OPTIONAL'))}
                     </div>
 
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 16 }}>
-                      {(editingSection.fields || []).map((f) => (
-                        <div key={f.id}>
-                          {f.fieldType === 'TEXT' && (
-                            <Input
-                              label={`${f.fieldLabel} ${f.requirementType === 'MANDATORY' ? '*' : f.requirementType === 'CONDITIONAL' ? ' (Conditional)' : ''}`}
-                              placeholder={f.placeholder || `Enter ${f.fieldLabel.toLowerCase()}...`}
-                            />
-                          )}
+                      {(editingSection.fields || [])
+                        .filter((f) => {
+                          if (!f.ageScope || f.ageScope === 'ALL') return true;
+                          if (activeAgeMode === 'ADULT') return f.ageScope === 'ADULT';
+                          return f.ageScope === 'CHILD' || f.ageScope === 'NEONATE';
+                        })
+                        .map((f) => (
+                          <div key={f.id}>
+                            {f.fieldType === 'TEXT' && (
+                              <Input
+                                label={`${f.fieldLabel} ${f.requirementType === 'MANDATORY' ? '*' : f.requirementType === 'CONDITIONAL' ? ' (Conditional)' : ''}`}
+                                placeholder={f.placeholder || `Enter ${f.fieldLabel.toLowerCase()}...`}
+                                value={previewValues[f.id] || ''}
+                                onChange={(e) => setPreviewValues({ ...previewValues, [f.id]: e.target.value })}
+                              />
+                            )}
 
-                          {f.fieldType === 'NUMBER' && (
-                            <div>
-                              <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: colors.textMain, marginBottom: 4 }}>
-                                {f.fieldLabel} {f.requirementType === 'MANDATORY' ? '*' : f.requirementType === 'CONDITIONAL' ? ' (Conditional)' : ''} {f.unit ? `(${f.unit})` : ''}
-                              </label>
-                              <div style={{ display: 'flex', alignItems: 'center' }}>
-                                <input
-                                  type="number"
-                                  placeholder="0.00"
+                            {f.fieldType === 'NUMBER' && (
+                              <div>
+                                <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: colors.textMain, marginBottom: 4 }}>
+                                  {f.fieldLabel} {f.requirementType === 'MANDATORY' ? '*' : ''} {f.unit ? `(${f.unit})` : ''}
+                                </label>
+                                <div style={{ display: 'flex', alignItems: 'center' }}>
+                                  <input
+                                    type="number"
+                                    placeholder={f.placeholder || '0.00'}
+                                    value={previewValues[f.id] || ''}
+                                    onChange={(e) => setPreviewValues({ ...previewValues, [f.id]: e.target.value })}
+                                    style={{
+                                      width: '100%',
+                                      padding: '8px 12px',
+                                      fontSize: 13,
+                                      borderRadius: f.unit ? `${radii.sm} 0 0 ${radii.sm}` : radii.sm,
+                                      border: `1px solid ${colors.borderStrong}`,
+                                      outline: 'none',
+                                    }}
+                                  />
+                                  {f.unit && (
+                                    <span
+                                      style={{
+                                        backgroundColor: colors.surfaceSunken,
+                                        border: `1px solid ${colors.borderStrong}`,
+                                        borderLeft: 'none',
+                                        padding: '8px 12px',
+                                        fontSize: 12,
+                                        color: colors.textMuted,
+                                        borderRadius: `0 ${radii.sm} ${radii.sm} 0`,
+                                        fontWeight: 600,
+                                      }}
+                                    >
+                                      {f.unit}
+                                    </span>
+                                  )}
+                                </div>
+                              </div>
+                            )}
+
+                            {f.fieldType === 'TEXTAREA' && (
+                              <Textarea
+                                label={`${f.fieldLabel} ${f.requirementType === 'MANDATORY' ? '*' : ''}`}
+                                placeholder={f.placeholder || `Enter ${f.fieldLabel.toLowerCase()} narrative...`}
+                                rows={3}
+                                value={previewValues[f.id] || ''}
+                                onChange={(e) => setPreviewValues({ ...previewValues, [f.id]: e.target.value })}
+                              />
+                            )}
+
+                            {f.fieldType === 'DROPDOWN' && (
+                              <div>
+                                <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: colors.textMain, marginBottom: 4 }}>
+                                  {f.fieldLabel} {f.requirementType === 'MANDATORY' ? '*' : ''}
+                                </label>
+                                <select
+                                  value={previewValues[f.id] || ''}
+                                  onChange={(e) => setPreviewValues({ ...previewValues, [f.id]: e.target.value })}
                                   style={{
                                     width: '100%',
                                     padding: '8px 12px',
-                                    fontSize: 13,
-                                    borderRadius: f.unit ? `${radii.sm} 0 0 ${radii.sm}` : radii.sm,
+                                    fontSize: 12,
+                                    borderRadius: radii.sm,
                                     border: `1px solid ${colors.borderStrong}`,
+                                    backgroundColor: '#ffffff',
                                     outline: 'none',
                                   }}
-                                />
-                                {f.unit && (
-                                  <span
-                                    style={{
-                                      backgroundColor: colors.surfaceSunken,
-                                      border: `1px solid ${colors.borderStrong}`,
-                                      borderLeft: 'none',
-                                      padding: '8px 12px',
-                                      fontSize: 12,
-                                      color: colors.textMuted,
-                                      borderRadius: `0 ${radii.sm} ${radii.sm} 0`,
-                                      fontWeight: 600,
-                                    }}
-                                  >
-                                    {f.unit}
+                                >
+                                  <option value="">-- Select {f.fieldLabel} --</option>
+                                  {(f.options || []).map((opt, oi) => (
+                                    <option key={oi} value={opt}>
+                                      {opt}
+                                    </option>
+                                  ))}
+                                </select>
+                              </div>
+                            )}
+
+                            {f.fieldType === 'YES_NO' && (
+                              <div>
+                                <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: colors.textMain, marginBottom: 6 }}>
+                                  {f.fieldLabel} {f.requirementType === 'MANDATORY' ? '*' : ''}
+                                </label>
+                                <div style={{ display: 'flex', gap: 12 }}>
+                                  {['Yes', 'No'].map((val) => (
+                                    <label key={val} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, cursor: 'pointer', fontWeight: 600 }}>
+                                      <input
+                                        type="radio"
+                                        name={`yn_${f.id}`}
+                                        value={val}
+                                        checked={previewValues[f.id] === val}
+                                        onChange={() => setPreviewValues({ ...previewValues, [f.id]: val })}
+                                      />
+                                      {val}
+                                    </label>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+
+                            {f.fieldType === 'PERIOD' && (
+                              <div>
+                                <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: colors.textMain, marginBottom: 4 }}>
+                                  {f.fieldLabel} {f.requirementType === 'MANDATORY' ? '*' : ''}
+                                </label>
+                                <div style={{ display: 'flex', gap: 8 }}>
+                                  <input
+                                    type="number"
+                                    placeholder="3"
+                                    style={{ width: '40%', padding: '8px 10px', fontSize: 12, borderRadius: radii.sm, border: `1px solid ${colors.borderStrong}` }}
+                                  />
+                                  <select style={{ width: '60%', padding: '8px 10px', fontSize: 12, borderRadius: radii.sm, border: `1px solid ${colors.borderStrong}` }}>
+                                    <option>Days</option>
+                                    <option>Weeks</option>
+                                    <option>Months</option>
+                                    <option>Hours</option>
+                                  </select>
+                                </div>
+                              </div>
+                            )}
+
+                            {/* Odontogram Interactive Component */}
+                            {f.fieldType === 'ODONTOGRAM' && (
+                              <div style={{ gridColumn: '1 / -1', padding: 14, backgroundColor: colors.surfaceSunken, borderRadius: radii.md, border: `1px solid ${colors.border}` }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                                  <span style={{ fontSize: 13, fontWeight: 700, color: colors.textMain }}>
+                                    🦷 {activeAgeMode === 'ADULT' ? 'Adult Permanent 32-Tooth FDI Grid' : 'Pediatric Primary 20-Tooth Deciduous Grid'}
                                   </span>
-                                )}
+                                  <span style={{ fontSize: 11, color: colors.textMuted }}>
+                                    Selected Teeth: <strong>{selectedTeeth.join(', ') || 'None'}</strong>
+                                  </span>
+                                </div>
+
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                                  {/* Upper Jaw */}
+                                  <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap', justifyContent: 'center' }}>
+                                    {(activeAgeMode === 'ADULT'
+                                      ? [18, 17, 16, 15, 14, 13, 12, 11, 21, 22, 23, 24, 25, 26, 27, 28]
+                                      : [55, 54, 53, 52, 51, 61, 62, 63, 64, 65]
+                                    ).map((tooth) => {
+                                      const isPicked = selectedTeeth.includes(tooth);
+                                      return (
+                                        <button
+                                          key={tooth}
+                                          type="button"
+                                          onClick={() => toggleTooth(tooth)}
+                                          style={{
+                                            padding: '6px 8px',
+                                            fontSize: 11,
+                                            fontWeight: 700,
+                                            borderRadius: radii.sm,
+                                            border: `1px solid ${isPicked ? colors.primary : colors.border}`,
+                                            backgroundColor: isPicked ? colors.primary : '#ffffff',
+                                            color: isPicked ? '#ffffff' : colors.textMain,
+                                            cursor: 'pointer',
+                                          }}
+                                        >
+                                          {tooth}
+                                        </button>
+                                      );
+                                    })}
+                                  </div>
+
+                                  {/* Lower Jaw */}
+                                  <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap', justifyContent: 'center' }}>
+                                    {(activeAgeMode === 'ADULT'
+                                      ? [48, 47, 46, 45, 44, 43, 42, 41, 31, 32, 33, 34, 35, 36, 37, 38]
+                                      : [85, 84, 83, 82, 81, 71, 72, 73, 74, 75]
+                                    ).map((tooth) => {
+                                      const isPicked = selectedTeeth.includes(tooth);
+                                      return (
+                                        <button
+                                          key={tooth}
+                                          type="button"
+                                          onClick={() => toggleTooth(tooth)}
+                                          style={{
+                                            padding: '6px 8px',
+                                            fontSize: 11,
+                                            fontWeight: 700,
+                                            borderRadius: radii.sm,
+                                            border: `1px solid ${isPicked ? colors.primary : colors.border}`,
+                                            backgroundColor: isPicked ? colors.primary : '#ffffff',
+                                            color: isPicked ? '#ffffff' : colors.textMain,
+                                            cursor: 'pointer',
+                                          }}
+                                        >
+                                          {tooth}
+                                        </button>
+                                      );
+                                    })}
+                                  </div>
+                                </div>
                               </div>
-                            </div>
-                          )}
+                            )}
 
-                          {f.fieldType === 'TEXTAREA' && (
-                            <Textarea
-                              label={`${f.fieldLabel} ${f.requirementType === 'MANDATORY' ? '*' : f.requirementType === 'CONDITIONAL' ? ' (Conditional)' : ''}`}
-                              placeholder={f.placeholder || `Enter ${f.fieldLabel.toLowerCase()} narrative...`}
-                              rows={3}
-                            />
-                          )}
-
-                          {f.fieldType === 'DROPDOWN' && (
-                            <div>
-                              <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: colors.textMain, marginBottom: 4 }}>
-                                {f.fieldLabel} {f.requirementType === 'MANDATORY' ? '*' : f.requirementType === 'CONDITIONAL' ? ' (Conditional)' : ''}
-                              </label>
-                              <select
-                                style={{
-                                  width: '100%',
-                                  padding: '8px 12px',
-                                  fontSize: 13,
-                                  borderRadius: radii.sm,
-                                  border: `1px solid ${colors.borderStrong}`,
-                                  backgroundColor: '#ffffff',
-                                  outline: 'none',
-                                }}
-                              >
-                                <option value="">-- Select {f.fieldLabel} --</option>
-                                {(f.options || []).map((opt, oi) => (
-                                  <option key={oi} value={opt}>
-                                    {opt}
-                                  </option>
-                                ))}
-                              </select>
-                            </div>
-                          )}
-
-                          {f.fieldType === 'RADIO' && (
-                            <div>
-                              <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: colors.textMain, marginBottom: 6 }}>
-                                {f.fieldLabel} {f.requirementType === 'MANDATORY' ? '*' : f.requirementType === 'CONDITIONAL' ? ' (Conditional)' : ''}
-                              </label>
-                              <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
-                                {(f.options || []).map((opt, oi) => (
-                                  <label key={oi} style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, cursor: 'pointer' }}>
-                                    <input type="radio" name={`radio_${f.id}`} value={opt} />
-                                    {opt}
-                                  </label>
-                                ))}
+                            {/* Visual Acuity Snellen Chart */}
+                            {f.fieldType === 'VA_CHART' && (
+                              <div style={{ gridColumn: '1 / -1', padding: 14, backgroundColor: colors.surfaceSunken, borderRadius: radii.md, border: `1px solid ${colors.border}` }}>
+                                <span style={{ fontSize: 13, fontWeight: 700, color: colors.textMain }}>
+                                  👁️ Snellen Visual Acuity Matrix
+                                </span>
+                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginTop: 8 }}>
+                                  <div>
+                                    <label style={{ fontSize: 11, fontWeight: 600, color: colors.textMuted }}>OD (Right Eye):</label>
+                                    <select style={{ width: '100%', padding: '6px 10px', fontSize: 12, borderRadius: radii.sm, border: `1px solid ${colors.borderStrong}` }}>
+                                      <option>6/6 (Normal 20/20)</option>
+                                      <option>6/9</option>
+                                      <option>6/12</option>
+                                      <option>6/18</option>
+                                      <option>6/60</option>
+                                    </select>
+                                  </div>
+                                  <div>
+                                    <label style={{ fontSize: 11, fontWeight: 600, color: colors.textMuted }}>OS (Left Eye):</label>
+                                    <select style={{ width: '100%', padding: '6px 10px', fontSize: 12, borderRadius: radii.sm, border: `1px solid ${colors.borderStrong}` }}>
+                                      <option>6/6 (Normal 20/20)</option>
+                                      <option>6/9</option>
+                                      <option>6/12</option>
+                                      <option>6/18</option>
+                                      <option>6/60</option>
+                                    </select>
+                                  </div>
+                                </div>
                               </div>
-                            </div>
-                          )}
+                            )}
 
-                          {f.fieldType === 'CHECKBOX' && (
-                            <div style={{ paddingTop: 20 }}>
-                              <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, fontWeight: 600, color: colors.textMain, cursor: 'pointer' }}>
-                                <input type="checkbox" style={{ width: 18, height: 18 }} />
-                                {f.fieldLabel} {f.requirementType === 'MANDATORY' ? '*' : f.requirementType === 'CONDITIONAL' ? ' (Conditional)' : ''}
-                              </label>
-                            </div>
-                          )}
-
-                          {f.fieldType === 'DATE' && (
-                            <div>
-                              <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: colors.textMain, marginBottom: 4 }}>
-                                {f.fieldLabel} {f.requirementType === 'MANDATORY' ? '*' : f.requirementType === 'CONDITIONAL' ? ' (Conditional)' : ''}
-                              </label>
-                              <input
-                                type="date"
-                                style={{
-                                  width: '100%',
-                                  padding: '8px 12px',
-                                  fontSize: 13,
-                                  borderRadius: radii.sm,
-                                  border: `1px solid ${colors.borderStrong}`,
-                                  outline: 'none',
-                                }}
-                              />
-                            </div>
-                          )}
-
-                          {f.fieldType === 'ODONTOGRAM' && (
-                            <div style={{ gridColumn: '1 / -1', padding: 12, backgroundColor: colors.surfaceSunken, borderRadius: radii.md, border: `1px solid ${colors.border}` }}>
-                              <span style={{ fontSize: 12, fontWeight: 700, color: colors.textMain }}>
-                                🦷 Adult 32-Tooth Odontogram FDI Chart Grid (Interactive)
-                              </span>
-                              <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap', marginTop: 8 }}>
-                                {[18, 17, 16, 15, 14, 13, 12, 11, 21, 22, 23, 24, 25, 26, 27, 28].map((t) => (
-                                  <button
-                                    key={t}
-                                    type="button"
-                                    style={{
-                                      padding: '6px 8px',
-                                      fontSize: 11,
-                                      fontWeight: 700,
-                                      border: `1px solid ${colors.border}`,
-                                      borderRadius: radii.sm,
-                                      backgroundColor: '#ffffff',
-                                      cursor: 'pointer',
-                                    }}
-                                  >
-                                    {t}
-                                  </button>
-                                ))}
+                            {/* Anatomical Diagram / Body Map */}
+                            {f.fieldType === 'DIAGRAM' && (
+                              <div style={{ gridColumn: '1 / -1', padding: 14, backgroundColor: colors.surfaceSunken, borderRadius: radii.md, border: `1px solid ${colors.border}` }}>
+                                <span style={{ fontSize: 13, fontWeight: 700, color: colors.textMain }}>
+                                  🗺️ Anatomical Body Map & Pain Location Marker
+                                </span>
+                                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 120, border: '2px dashed #cbd5e1', borderRadius: radii.sm, marginTop: 8, color: colors.textMuted, fontSize: 12 }}>
+                                  <i className="fa fa-crosshairs" style={{ marginRight: 6 }} /> Click canvas to pinpoint anatomical region or wound location
+                                </div>
                               </div>
-                            </div>
-                          )}
+                            )}
+                          </div>
+                        ))}
+                    </div>
 
-                          {f.fieldType === 'VA_CHART' && (
-                            <div style={{ gridColumn: '1 / -1', padding: 12, backgroundColor: colors.surfaceSunken, borderRadius: radii.md, border: `1px solid ${colors.border}` }}>
-                              <span style={{ fontSize: 12, fontWeight: 700, color: colors.textMain }}>
-                                👁️ Snellen Acuity Matrix (OD / OS)
-                              </span>
-                              <div style={{ display: 'flex', gap: 12, marginTop: 8 }}>
-                                <select style={{ flex: 1, padding: '6px 10px', fontSize: 12, borderRadius: radii.sm, border: `1px solid ${colors.borderStrong}` }}>
-                                  <option>OD: 6/6 (Normal)</option>
-                                  <option>OD: 6/9</option>
-                                  <option>OD: 6/12</option>
-                                </select>
-                                <select style={{ flex: 1, padding: '6px 10px', fontSize: 12, borderRadius: radii.sm, border: `1px solid ${colors.borderStrong}` }}>
-                                  <option>OS: 6/6 (Normal)</option>
-                                  <option>OS: 6/9</option>
-                                  <option>OS: 6/12</option>
-                                </select>
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      ))}
+                    <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 20, borderTop: `1px solid ${colors.border}`, paddingTop: 12 }}>
+                      <Button
+                        variant="primary"
+                        size="md"
+                        icon="fa-check"
+                        onClick={() => triggerToast('Clinical Encounter test inputs verified!')}
+                      >
+                        Verify & Sign Encounter Preview
+                      </Button>
                     </div>
                   </div>
                 </div>
@@ -2242,7 +3234,7 @@ export const EmrFormAssemblyScreen: React.FC<EmrFormAssemblyScreenProps> = ({
                 size="md"
                 onClick={() => setEditingSection(null)}
               >
-                Cancel
+                Close
               </Button>
               <Button
                 variant="primary"

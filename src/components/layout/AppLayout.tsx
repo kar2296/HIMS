@@ -22,6 +22,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
     { id: 'registration', label: 'Registration & Queue', icon: 'fa-user-plus', module: 'Front Office' },
     { id: 'appointments', label: 'Appointments', icon: 'fa-calendar-alt', module: 'Front Office' },
     { id: 'emr', label: 'EMR Clinical Portal', icon: 'fa-stethoscope', module: 'Clinical' },
+    { id: 'emr/masters', label: 'EMR Masters (77)', icon: 'fa-database', module: 'Clinical' },
     { id: 'inpatient', label: 'Inpatient (IPD)', icon: 'fa-bed', module: 'Clinical' },
     { id: 'lis', label: 'Laboratory (LIS)', icon: 'fa-vial', module: 'Diagnostics' },
     { id: 'billing', label: 'Billing & Cashier', icon: 'fa-file-invoice-dollar', module: 'Finance' },
