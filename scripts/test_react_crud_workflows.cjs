@@ -125,7 +125,7 @@ async function run() {
     // 3. Validation test (Empty Add form)
     await client.eval(`
       (() => {
-        const addBtn = document.getElementById("btnAddCategoryType") || Array.from(document.querySelectorAll("button")).find(b => b.innerText.includes("Add"));
+        const addBtn = document.getElementById("btnAddCategoryType");
         addBtn?.click();
       })()
     `);
@@ -134,12 +134,16 @@ async function run() {
       (() => {
         const nameInput = document.getElementById("inputModalCatTypeName");
         if (nameInput) window.__setVal(nameInput, "");
-        const saveBtn = document.getElementById("btnSaveCatTypeModal") || Array.from(document.querySelectorAll("button")).find(b => b.innerText.includes("Save"));
+        const saveBtn = document.getElementById("btnSaveCatTypeModal");
         saveBtn?.click();
       })()
     `);
     await new Promise(r => setTimeout(r, 800));
-    const valMsg = await client.eval(`document.body.innerText.includes("Name is required") || document.body.innerText.includes("required")`);
+    const valMsg = await client.eval(`
+      document.body.innerText.includes("required") ||
+      Boolean(document.querySelector(".validation-error")) ||
+      Boolean(document.querySelector("[style*='color: #ef4444']"))
+    `);
     console.log('  [Validation on Empty Save] Error message shown:', valMsg);
     results.screens.categoryTypes.checks.validation = valMsg;
 
@@ -152,18 +156,22 @@ async function run() {
         if (nameInput) window.__setVal(nameInput, "${testCatName}");
         const descInput = document.getElementById("inputModalCatTypeDesc");
         if (descInput) window.__setVal(descInput, "Automated UAT Category Type Description");
-        const saveBtn = document.getElementById("btnSaveCatTypeModal") || Array.from(document.querySelectorAll("button")).find(b => b.innerText.includes("Save"));
+        const saveBtn = document.getElementById("btnSaveCatTypeModal");
         saveBtn?.click();
       })()
     `);
     await new Promise(r => setTimeout(r, 2500));
 
+    // Reload page to verify server persistence
+    await client.reload(2500);
+    await client.eval(helperScript);
+
     // 5. Search for newly added record
     await client.eval(`
       (() => {
-        const input = document.getElementById("inputCatTypeNameSearch");
+        const input = document.getElementById("filterCategoryTypeName");
         if (input) window.__setVal(input, "${testCatName}");
-        const searchBtn = document.getElementById("btnCatTypeSearch");
+        const searchBtn = document.getElementById("btnFilterSearchCatType");
         searchBtn?.click();
       })()
     `);
@@ -186,7 +194,7 @@ async function run() {
       (() => {
         const descInput = document.getElementById("inputModalCatTypeDesc");
         if (descInput) window.__setVal(descInput, "${updatedCatDesc}");
-        const saveBtn = document.getElementById("btnSaveCatTypeModal") || Array.from(document.querySelectorAll("button")).find(b => b.innerText.includes("Save"));
+        const saveBtn = document.getElementById("btnSaveCatTypeModal");
         saveBtn?.click();
       })()
     `);
@@ -197,9 +205,9 @@ async function run() {
     await client.eval(helperScript);
     await client.eval(`
       (() => {
-        const input = document.getElementById("inputCatTypeNameSearch");
+        const input = document.getElementById("filterCategoryTypeName");
         if (input) window.__setVal(input, "${testCatName}");
-        const searchBtn = document.getElementById("btnCatTypeSearch");
+        const searchBtn = document.getElementById("btnFilterSearchCatType");
         searchBtn?.click();
       })()
     `);
@@ -219,20 +227,20 @@ async function run() {
     await new Promise(r => setTimeout(r, 1000));
     await client.eval(`
       (() => {
-        const confirmBtn = Array.from(document.querySelectorAll("button")).find(b => b.innerText.trim() === "Delete" || b.innerText.trim() === "Yes");
+        const confirmBtn = document.getElementById("btnConfirmModalYes") || Array.from(document.querySelectorAll("button")).find(b => b.innerText.trim() === "Delete" || b.innerText.trim() === "Yes");
         confirmBtn?.click();
       })()
     `);
     await new Promise(r => setTimeout(r, 2500));
 
-    // Verify cleanup
+    // Verify cleanup after reload
     await client.reload(2000);
     await client.eval(helperScript);
     await client.eval(`
       (() => {
-        const input = document.getElementById("inputCatTypeNameSearch");
+        const input = document.getElementById("filterCategoryTypeName");
         if (input) window.__setVal(input, "${testCatName}");
-        const searchBtn = document.getElementById("btnCatTypeSearch");
+        const searchBtn = document.getElementById("btnFilterSearchCatType");
         searchBtn?.click();
       })()
     `);
@@ -274,21 +282,24 @@ async function run() {
     // 3. Validation test (Empty Add form)
     await client.eval(`
       (() => {
-        const addBtn = Array.from(document.querySelectorAll("button")).find(b => b.innerText.includes("Add New"));
+        const addBtn = document.getElementById("btnAddAttachmentType");
         addBtn?.click();
       })()
     `);
     await new Promise(r => setTimeout(r, 1000));
     await client.eval(`
       (() => {
-        const nameInput = document.querySelector(".modal-content input[placeholder*='name' i]");
+        const nameInput = document.getElementById("inputModalAttName");
         if (nameInput) window.__setVal(nameInput, "");
-        const saveBtn = Array.from(document.querySelectorAll(".modal-content button")).find(b => b.innerText.trim() === "Save");
+        const saveBtn = document.getElementById("btnSaveAttModal");
         saveBtn?.click();
       })()
     `);
     await new Promise(r => setTimeout(r, 800));
-    const valMsg = await client.eval(`document.body.innerText.includes("Name is required") || document.body.innerText.includes("required")`);
+    const valMsg = await client.eval(`
+      Boolean(document.getElementById("errModalAttName")) ||
+      document.body.innerText.includes("required")
+    `);
     console.log('  [Validation on Empty Save] Error message shown:', valMsg);
     results.screens.attachmentTypes.checks.validation = valMsg;
 
@@ -297,22 +308,26 @@ async function run() {
     console.log('  [Real Add] Adding test record:', testAttName);
     await client.eval(`
       (() => {
-        const nameInput = document.querySelector(".modal-content input[placeholder*='name' i]");
+        const nameInput = document.getElementById("inputModalAttName");
         if (nameInput) window.__setVal(nameInput, "${testAttName}");
-        const descInput = document.querySelector(".modal-content input[placeholder*='description' i]");
+        const descInput = document.getElementById("inputModalAttDesc");
         if (descInput) window.__setVal(descInput, "Automated UAT Attachment Description");
-        const saveBtn = Array.from(document.querySelectorAll(".modal-content button")).find(b => b.innerText.trim() === "Save");
+        const saveBtn = document.getElementById("btnSaveAttModal");
         saveBtn?.click();
       })()
     `);
     await new Promise(r => setTimeout(r, 2500));
 
+    // Reload page to verify server persistence
+    await client.reload(2500);
+    await client.eval(helperScript);
+
     // 5. Search for newly added record
     await client.eval(`
       (() => {
-        const input = document.querySelector("input[placeholder*='search by name' i]");
+        const input = document.getElementById("filterAttachmentTypeName");
         if (input) window.__setVal(input, "${testAttName}");
-        const searchBtn = Array.from(document.querySelectorAll("button")).find(b => b.innerText.trim() === "Search");
+        const searchBtn = document.getElementById("btnSearchAttachmentType");
         searchBtn?.click();
       })()
     `);
@@ -333,9 +348,9 @@ async function run() {
     await new Promise(r => setTimeout(r, 1200));
     await client.eval(`
       (() => {
-        const descInput = document.querySelector(".modal-content input[placeholder*='description' i]");
+        const descInput = document.getElementById("inputModalAttDesc");
         if (descInput) window.__setVal(descInput, "${updatedAttDesc}");
-        const saveBtn = Array.from(document.querySelectorAll(".modal-content button")).find(b => b.innerText.trim() === "Save");
+        const saveBtn = document.getElementById("btnSaveAttModal");
         saveBtn?.click();
       })()
     `);
@@ -346,9 +361,9 @@ async function run() {
     await client.eval(helperScript);
     await client.eval(`
       (() => {
-        const input = document.querySelector("input[placeholder*='search by name' i]");
+        const input = document.getElementById("filterAttachmentTypeName");
         if (input) window.__setVal(input, "${testAttName}");
-        const searchBtn = Array.from(document.querySelectorAll("button")).find(b => b.innerText.trim() === "Search");
+        const searchBtn = document.getElementById("btnSearchAttachmentType");
         searchBtn?.click();
       })()
     `);
@@ -368,7 +383,7 @@ async function run() {
     await new Promise(r => setTimeout(r, 1000));
     await client.eval(`
       (() => {
-        const confirmBtn = Array.from(document.querySelectorAll("button")).find(b => b.innerText.trim() === "Delete" || b.innerText.trim() === "Yes");
+        const confirmBtn = document.getElementById("btnConfirmModalYes") || Array.from(document.querySelectorAll("button")).find(b => b.innerText.trim() === "Delete" || b.innerText.trim() === "Yes");
         confirmBtn?.click();
       })()
     `);
@@ -379,9 +394,9 @@ async function run() {
     await client.eval(helperScript);
     await client.eval(`
       (() => {
-        const input = document.querySelector("input[placeholder*='search by name' i]");
+        const input = document.getElementById("filterAttachmentTypeName");
         if (input) window.__setVal(input, "${testAttName}");
-        const searchBtn = Array.from(document.querySelectorAll("button")).find(b => b.innerText.trim() === "Search");
+        const searchBtn = document.getElementById("btnSearchAttachmentType");
         searchBtn?.click();
       })()
     `);
@@ -423,21 +438,24 @@ async function run() {
     // 3. Validation test (Empty Add form)
     await client.eval(`
       (() => {
-        const addBtn = Array.from(document.querySelectorAll("button")).find(b => b.innerText.includes("Add New Drug"));
+        const addBtn = document.getElementById("btnAddDrugMaster");
         addBtn?.click();
       })()
     `);
     await new Promise(r => setTimeout(r, 1000));
     await client.eval(`
       (() => {
-        const nameInput = document.querySelector(".modal-content input[placeholder*='drug name' i]");
+        const nameInput = document.getElementById("inputModalDrugName");
         if (nameInput) window.__setVal(nameInput, "");
-        const saveBtn = Array.from(document.querySelectorAll(".modal-content button")).find(b => b.innerText.trim() === "Save");
+        const saveBtn = document.getElementById("btnSaveDrugModal");
         saveBtn?.click();
       })()
     `);
     await new Promise(r => setTimeout(r, 800));
-    const valMsg = await client.eval(`document.body.innerText.includes("Drug Name is required") || document.body.innerText.includes("required")`);
+    const valMsg = await client.eval(`
+      Boolean(document.getElementById("errModalDrugName")) ||
+      document.body.innerText.includes("required")
+    `);
     console.log('  [Validation on Empty Save] Error message shown:', valMsg);
     results.screens.drugMaster.checks.validation = valMsg;
 
@@ -446,24 +464,28 @@ async function run() {
     console.log('  [Real Add] Adding test record:', testDrugName);
     await client.eval(`
       (() => {
-        const nameInput = document.querySelector(".modal-content input[placeholder*='drug name' i]");
+        const nameInput = document.getElementById("inputModalDrugName");
         if (nameInput) window.__setVal(nameInput, "${testDrugName}");
-        const codeInput = document.querySelector(".modal-content input[placeholder*='code' i]");
+        const codeInput = document.getElementById("inputModalDrugCode");
         if (codeInput) window.__setVal(codeInput, "UAT99");
-        const descInput = document.querySelector(".modal-content input[placeholder*='description' i]");
+        const descInput = document.getElementById("inputModalDrugDesc");
         if (descInput) window.__setVal(descInput, "Automated UAT Drug Description");
-        const saveBtn = Array.from(document.querySelectorAll(".modal-content button")).find(b => b.innerText.trim() === "Save");
+        const saveBtn = document.getElementById("btnSaveDrugModal");
         saveBtn?.click();
       })()
     `);
     await new Promise(r => setTimeout(r, 2500));
 
+    // Reload page to verify server persistence
+    await client.reload(2500);
+    await client.eval(helperScript);
+
     // 5. Search for newly added record
     await client.eval(`
       (() => {
-        const input = document.querySelector("input[placeholder*='search by drug name' i]");
+        const input = document.getElementById("filterDrugName");
         if (input) window.__setVal(input, "${testDrugName}");
-        const searchBtn = Array.from(document.querySelectorAll("button")).find(b => b.innerText.trim() === "Search");
+        const searchBtn = document.getElementById("btnSearchDrugMaster");
         searchBtn?.click();
       })()
     `);
@@ -484,9 +506,9 @@ async function run() {
     await new Promise(r => setTimeout(r, 1200));
     await client.eval(`
       (() => {
-        const descInput = document.querySelector(".modal-content input[placeholder*='description' i]");
+        const descInput = document.getElementById("inputModalDrugDesc");
         if (descInput) window.__setVal(descInput, "${updatedDrugDesc}");
-        const saveBtn = Array.from(document.querySelectorAll(".modal-content button")).find(b => b.innerText.trim() === "Save");
+        const saveBtn = document.getElementById("btnSaveDrugModal");
         saveBtn?.click();
       })()
     `);
@@ -497,9 +519,9 @@ async function run() {
     await client.eval(helperScript);
     await client.eval(`
       (() => {
-        const input = document.querySelector("input[placeholder*='search by drug name' i]");
+        const input = document.getElementById("filterDrugName");
         if (input) window.__setVal(input, "${testDrugName}");
-        const searchBtn = Array.from(document.querySelectorAll("button")).find(b => b.innerText.trim() === "Search");
+        const searchBtn = document.getElementById("btnSearchDrugMaster");
         searchBtn?.click();
       })()
     `);
@@ -519,7 +541,7 @@ async function run() {
     await new Promise(r => setTimeout(r, 1000));
     await client.eval(`
       (() => {
-        const confirmBtn = Array.from(document.querySelectorAll("button")).find(b => b.innerText.trim() === "Delete" || b.innerText.trim() === "Yes");
+        const confirmBtn = document.getElementById("btnConfirmModalYes") || Array.from(document.querySelectorAll("button")).find(b => b.innerText.trim() === "Delete" || b.innerText.trim() === "Yes");
         confirmBtn?.click();
       })()
     `);
@@ -530,9 +552,9 @@ async function run() {
     await client.eval(helperScript);
     await client.eval(`
       (() => {
-        const input = document.querySelector("input[placeholder*='search by drug name' i]");
+        const input = document.getElementById("filterDrugName");
         if (input) window.__setVal(input, "${testDrugName}");
-        const searchBtn = Array.from(document.querySelectorAll("button")).find(b => b.innerText.trim() === "Search");
+        const searchBtn = document.getElementById("btnSearchDrugMaster");
         searchBtn?.click();
       })()
     `);

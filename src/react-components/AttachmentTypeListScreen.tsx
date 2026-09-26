@@ -177,12 +177,18 @@ export const AttachmentTypeListScreen: React.FC<AttachmentTypeListScreenProps> =
     async (page = 1, name = filterName, deptId = filterDepartmentId, statusId = filterStatusId) => {
       setIsLoading(true);
       try {
+        const params: any[] = [];
+        if (name && name.trim()) {
+          params.push({ Key: 1, Value: name.trim() });
+        }
+        if (deptId && Number(deptId) > 0) {
+          params.push({ Key: 2, Value: Number(deptId) });
+        }
+        if (statusId && Number(statusId) > 0) {
+          params.push({ Key: 3, Value: Number(statusId) });
+        }
         const payload = {
-          Params: [
-            { Key: 1, Value: name },
-            { Key: 2, Value: deptId },
-            { Key: 3, Value: statusId },
-          ],
+          Params: params,
           PageContext: {
             PageSize: pageSize,
             PageNumber: page,
@@ -362,6 +368,7 @@ export const AttachmentTypeListScreen: React.FC<AttachmentTypeListScreenProps> =
           ReferrenceLink: modalForm.ReferrenceLink,
           SpecialInstruction: modalForm.SpecialInstruction,
           IsActive: modalForm.IsActive,
+          ActiveStatusId: modalForm.IsActive ? 2 : 1,
         },
       };
 
