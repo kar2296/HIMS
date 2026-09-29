@@ -3,8 +3,14 @@
 
 	angular
 		.module('common.utils')
-		.controller('areacontrolCtrl', ['utl', '$scope', '$timeout', function (utl, $scope, $timeout) {
+		.controller('areacontrolCtrl', ['utl', '$scope', '$timeout', '$attrs', function (utl, $scope, $timeout, $attrs) {
 			var cvm = this;
+
+			var hasAssignableAttr = function(attr) {
+				if (!$attrs) return false;
+				var val = $attrs[attr] || $attrs[attr.toLowerCase()];
+				return typeof val === 'string' && val.trim().length > 0 && val !== 'undefined';
+			};
 
 			$scope.apiFetch = function(action, payload) {
 				return new Promise(function(resolve, reject) {
@@ -25,10 +31,10 @@
 
 			$scope.onUpdate = function(updates) {
 				$timeout(function() {
-					if (updates.hasOwnProperty('areaid')) cvm.areaid = updates.areaid;
-					if (updates.hasOwnProperty('area')) cvm.area = updates.area;
-					if (updates.hasOwnProperty('pincodeid') && cvm.hasOwnProperty('pincodeid')) cvm.pincodeid = updates.pincodeid;
-					if (updates.hasOwnProperty('pincode') && cvm.hasOwnProperty('pincode')) cvm.pincode = updates.pincode;
+					if (updates.hasOwnProperty('areaid') && hasAssignableAttr('areaid')) cvm.areaid = updates.areaid;
+					if (updates.hasOwnProperty('area') && hasAssignableAttr('area')) cvm.area = updates.area;
+					if (updates.hasOwnProperty('pincodeid') && hasAssignableAttr('pincodeid')) cvm.pincodeid = updates.pincodeid;
+					if (updates.hasOwnProperty('pincode') && hasAssignableAttr('pincode')) cvm.pincode = updates.pincode;
 				});
 			};
 
@@ -60,19 +66,19 @@
 		}])
 		.component('areacontrol', {
 			bindings: {
-				pincode: "=",
-				pincodeid: "=",
-				area: "=",
-				areaid: "=",
-				city: "=",
-				cityid: "<",
-				stateid: "<",
-				state: "=",
-				districtid: "<",
-				district: "=",
-				countryid: "<",
-				country: "=",
-				candisable: "<"
+				pincode: "=?",
+				pincodeid: "=?",
+				area: "=?",
+				areaid: "=?",
+				city: "=?",
+				cityid: "<?",
+				stateid: "<?",
+				state: "=?",
+				districtid: "<?",
+				district: "=?",
+				countryid: "<?",
+				country: "=?",
+				candisable: "<?"
 			},
 			controller: 'areacontrolCtrl',
 			controllerAs: 'cvm',

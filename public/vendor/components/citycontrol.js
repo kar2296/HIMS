@@ -3,8 +3,14 @@
 
 	angular
 		.module('common.utils')
-		.controller('citycontrolCtrl', ['utl', '$scope', '$timeout', function (utl, $scope, $timeout) {
+		.controller('citycontrolCtrl', ['utl', '$scope', '$timeout', '$attrs', function (utl, $scope, $timeout, $attrs) {
 			var cvm = this;
+
+			var hasAssignableAttr = function(attr) {
+				if (!$attrs) return false;
+				var val = $attrs[attr] || $attrs[attr.toLowerCase()];
+				return typeof val === 'string' && val.trim().length > 0 && val !== 'undefined';
+			};
 
 			// Proxy fetch calls through AngularJS utl.Http
 			$scope.apiFetch = function(action, payload) {
@@ -26,12 +32,12 @@
 
 			$scope.onUpdate = function(updates) {
 				$timeout(function() {
-					if (updates.hasOwnProperty('cityid')) cvm.cityid = updates.cityid;
-					if (updates.hasOwnProperty('city')) cvm.city = updates.city;
-					if (updates.hasOwnProperty('pincodeid')) cvm.pincodeid = updates.pincodeid;
-					if (updates.hasOwnProperty('pincode')) cvm.pincode = updates.pincode;
-					if (updates.hasOwnProperty('area')) cvm.area = updates.area;
-					if (updates.hasOwnProperty('areaid')) cvm.areaid = updates.areaid;
+					if (updates.hasOwnProperty('cityid') && hasAssignableAttr('cityid')) cvm.cityid = updates.cityid;
+					if (updates.hasOwnProperty('city') && hasAssignableAttr('city')) cvm.city = updates.city;
+					if (updates.hasOwnProperty('pincodeid') && hasAssignableAttr('pincodeid')) cvm.pincodeid = updates.pincodeid;
+					if (updates.hasOwnProperty('pincode') && hasAssignableAttr('pincode')) cvm.pincode = updates.pincode;
+					if (updates.hasOwnProperty('area') && hasAssignableAttr('area')) cvm.area = updates.area;
+					if (updates.hasOwnProperty('areaid') && hasAssignableAttr('areaid')) cvm.areaid = updates.areaid;
 				});
 			};
 
@@ -59,16 +65,16 @@
 		}])
 		.component('citycontrol', {
 			bindings: {
-				pincode: "=",
-				pincodeid: "=",
-				area: "=", // added to match resetAddress behavior
-				areaid: "=", // added
-				city: "=",
-				cityid: "=",
-				countryid: "<", // added for proper filtering
-				stateid: "<",
-				districtid: "<",
-				candisable: "<"
+				pincode: "=?",
+				pincodeid: "=?",
+				area: "=?",
+				areaid: "=?",
+				city: "=?",
+				cityid: "=?",
+				countryid: "<?",
+				stateid: "<?",
+				districtid: "<?",
+				candisable: "<?"
 			},
 			controller: 'citycontrolCtrl',
 			controllerAs: 'cvm',

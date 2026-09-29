@@ -3,8 +3,14 @@
 
 	angular
 		.module('common.utils')
-		.controller('statecontrolCtrl', ['utl', '$scope', '$timeout', function (utl, $scope, $timeout) {
+		.controller('statecontrolCtrl', ['utl', '$scope', '$timeout', '$attrs', function (utl, $scope, $timeout, $attrs) {
 			var cvm = this;
+
+			var hasAssignableAttr = function(attr) {
+				if (!$attrs) return false;
+				var val = $attrs[attr] || $attrs[attr.toLowerCase()];
+				return typeof val === 'string' && val.trim().length > 0 && val !== 'undefined';
+			};
 
 			$scope.apiFetch = function(action, payload) {
 				return new Promise(function(resolve, reject) {
@@ -25,16 +31,16 @@
 
 			$scope.onUpdate = function(updates) {
 				$timeout(function() {
-					if (updates.hasOwnProperty('stateid')) cvm.stateid = updates.stateid;
-					if (updates.hasOwnProperty('state')) cvm.state = updates.state;
-					if (updates.hasOwnProperty('districtid') && cvm.hasOwnProperty('districtid')) cvm.districtid = updates.districtid;
-					if (updates.hasOwnProperty('district') && cvm.hasOwnProperty('district')) cvm.district = updates.district;
-					if (updates.hasOwnProperty('cityid') && cvm.hasOwnProperty('cityid')) cvm.cityid = updates.cityid;
-					if (updates.hasOwnProperty('city') && cvm.hasOwnProperty('city')) cvm.city = updates.city;
-					if (updates.hasOwnProperty('area') && cvm.hasOwnProperty('area')) cvm.area = updates.area;
-					if (updates.hasOwnProperty('areaid') && cvm.hasOwnProperty('areaid')) cvm.areaid = updates.areaid;
-					if (updates.hasOwnProperty('pincodeid') && cvm.hasOwnProperty('pincodeid')) cvm.pincodeid = updates.pincodeid;
-					if (updates.hasOwnProperty('pincode') && cvm.hasOwnProperty('pincode')) cvm.pincode = updates.pincode;
+					if (updates.hasOwnProperty('stateid') && hasAssignableAttr('stateid')) cvm.stateid = updates.stateid;
+					if (updates.hasOwnProperty('state') && hasAssignableAttr('state')) cvm.state = updates.state;
+					if (updates.hasOwnProperty('districtid') && hasAssignableAttr('districtid')) cvm.districtid = updates.districtid;
+					if (updates.hasOwnProperty('district') && hasAssignableAttr('district')) cvm.district = updates.district;
+					if (updates.hasOwnProperty('cityid') && hasAssignableAttr('cityid')) cvm.cityid = updates.cityid;
+					if (updates.hasOwnProperty('city') && hasAssignableAttr('city')) cvm.city = updates.city;
+					if (updates.hasOwnProperty('area') && hasAssignableAttr('area')) cvm.area = updates.area;
+					if (updates.hasOwnProperty('areaid') && hasAssignableAttr('areaid')) cvm.areaid = updates.areaid;
+					if (updates.hasOwnProperty('pincodeid') && hasAssignableAttr('pincodeid')) cvm.pincodeid = updates.pincodeid;
+					if (updates.hasOwnProperty('pincode') && hasAssignableAttr('pincode')) cvm.pincode = updates.pincode;
 				});
 			};
 
@@ -58,18 +64,19 @@
 		}])
 		.component('statecontrol', {
 			bindings: {
-				pincode: "=",
-				pincodeid: "=",
-				area: "=",
-				city: "=",
-				cityid: "=",
-				state: "=",
-				stateid: "=",
-				country: "=",
-				countryid: "<",
-				district: "=",
-				districtid: "=",
-				candisable: "<"
+				pincode: "=?",
+				pincodeid: "=?",
+				area: "=?",
+				areaid: "=?",
+				city: "=?",
+				cityid: "=?",
+				state: "=?",
+				stateid: "=?",
+				country: "=?",
+				countryid: "<?",
+				district: "=?",
+				districtid: "=?",
+				candisable: "<?"
 			},
 			controller: 'statecontrolCtrl',
 			controllerAs: 'cvm',
