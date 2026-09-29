@@ -6,7 +6,7 @@ var replace = require('gulp-replace');
 export = () => {
     // return gulp.src(join(APP_SRC, '**/*.Model.ts'))
     //return gulp.src('/Users/NatarajanG/BitBucket/code/api/src/Server/Modules/SystemSettings/Model/Facility.Model.ts')
-    const src = ['D:/Personal/Projects/zerofence/gloomsoft-dev/code/api/src/Server/Modules/**/*.Model.ts'];
+    const src = ['D:/Personal/Projects/zerofence/pkv-dev/code/api/src/Server/Modules/**/*.Model.ts'];
     return gulp.src(src)
         .pipe(debug({ title: 'Model files :' }))
         // tslint:disable-next-line:max-line-length

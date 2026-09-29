@@ -225,7 +225,7 @@
             });
         }
         // $scope.videoconference = function () {
-        //     window.open("https://appr.tc/r/Gloomsofttech");
+        //     window.open("https://appr.tc/r/pkvtech");
         // };
 
         $scope.videoconferenceCallback = function (scope, data, options, hasError) {

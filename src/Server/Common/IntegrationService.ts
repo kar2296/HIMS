@@ -1,6 +1,6 @@
 import * as http from 'request';
 import type { BaseRequest } from '../Common/Index';
-// import { getSession } from '@cloudedu-api/common';
+// import { getSession } from '@pkv-api/common';
 
 export class IntegrationService {
 

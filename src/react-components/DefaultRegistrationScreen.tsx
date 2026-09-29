@@ -44,7 +44,7 @@ export const DefaultRegistrationScreen: React.FC<DefaultRegistrationScreenProps>
                 <span className="icon-bar"></span>
                 <span className="icon-bar"></span>
               </button>
-              <a className="navbar-brand" href="http://www.gloomsofttechnologies.com/">
+              <a className="navbar-brand" href="http://www.pkvtechnologies.com/">
                 {/* Same (pre-existing, already-missing) asset path as the original template */}
                 <img src="app/img/patientservices/logo.png" alt="logo" />
               </a>
@@ -132,7 +132,7 @@ export const DefaultRegistrationScreen: React.FC<DefaultRegistrationScreenProps>
         <footer className="container-fluid bg-4 text-center">
           <p>
             &copy; &nbsp;
-            <a href="http://www.gloomsoft.com/">Gloomsoft Technologies</a>
+            <a href="http://www.pkv.com/">pkv Technologies</a>
           </p>
         </footer>
       </div>

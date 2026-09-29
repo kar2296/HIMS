@@ -27,7 +27,7 @@ The remaining work is large: roughly **97–99% of legacy screens** (by state co
 | Legacy frontend | AngularJS (1.x, `ui-router`, `ng-include` partials) | bundled, pre-npm era | `public/` (served statically; `dist/` is its build copy) |
 | New frontend | React + Vite | React 19.2.5, Vite 8.0.10, TypeScript ~6.0 | `src/` (repo root) |
 | Bridge layer | Custom AngularJS directive + `window.ReactComponents` registry | — | `src/reactBridge.tsx`, `src/main.tsx` |
-| Backend API | Node.js / Express 5-alpha / TypeScript 4.9, built with Gulp | `gloomsoft.api` v2.0.391 | `api/` (npm workspace) |
+| Backend API | Node.js / Express 5-alpha / TypeScript 4.9, built with Gulp | `pkv.api` v2.0.391 | `api/` (npm workspace) |
 | ORM / DB | Sequelize v4, dialect set via env (`mysql2` and `tedious`/mssql both present as deps — multi-dialect deployment) | — | `api/src/config/DbConfig.ts` |
 | Auth | Passport.js: `bearer` strategy globally, `local` strategy scoped to `/Auth`; Redis-backed `express-session` | — | `api/src/Server/Router.ts`, `Core/Middleware/Auth.ts` |
 | Build orchestration | npm workspaces (root `package.json` → `workspaces: ["api"]`), root builds React via `tsc -b && vite build`, API via Gulp | — | root `package.json`, `api/package.json` |

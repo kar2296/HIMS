@@ -329,7 +329,7 @@ export abstract class BaseBo<TModel extends Instance<IAttributes>, TAttributes e
     // protected GetMailProvider(): MailProvider {
     //     let mailProvider = MailFactory.GetMailProvider('gmail', {
     //         userName: 'hh@gmail.com',
-    //         password: 'gloomsoft@123'
+    //         password: 'pkv@123'
     //     });
     //     return mailProvider;
     // }

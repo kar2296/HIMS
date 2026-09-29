@@ -14,7 +14,7 @@ jasmine.DEFAULT_TIMEOUT_INTERVAL = 30000;
 
 // Server configuration
 const BASE = 'http://127.0.0.1:' + (process.env.WEB_PORT || 2012);
-const SECRET = process.env.JWT_SECRET || 'gloomsoft secret key goes here';
+const SECRET = process.env.JWT_SECRET || 'pkv secret key goes here';
 
 // Generate valid Bearer auth token for testing
 const tokenData = { userName: 'sdh', password: '1234' };

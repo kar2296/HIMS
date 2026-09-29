@@ -109,7 +109,7 @@ export const RegisteredPatientsScreen: React.FC<RegisteredPatientsScreenProps> =
                 <span className="icon-bar"></span>
                 <span className="icon-bar"></span>
               </button>
-              <a className="navbar-brand" href="http://www.gloomsoft.com/">
+              <a className="navbar-brand" href="http://www.pkv.com/">
                 <img src="app/img/patientservices/logo.png" alt="logo" />
               </a>
             </div>
@@ -204,7 +204,7 @@ export const RegisteredPatientsScreen: React.FC<RegisteredPatientsScreenProps> =
         <footer className="container-fluid bg-4 text-center">
           <p>
             &copy; &nbsp;
-            <a href="http://www.gloomsoft.com/">Gloomsoft Technologies</a>
+            <a href="http://www.pkv.com/">pkv Technologies</a>
           </p>
         </footer>
       </div>

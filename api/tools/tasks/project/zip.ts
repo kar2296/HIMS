@@ -15,7 +15,7 @@ export = () => {
         join(PROD_DEST, '**', '*.*'),
         pkgPath
     ])
-        .pipe(plugins.zip('gloomsoftpharmacy-' + version + '.zip'))
+        .pipe(plugins.zip('pkvpharmacy-' + version + '.zip'))
         .pipe(gulp.dest(PROD_DEST_ZIP));
 };
 

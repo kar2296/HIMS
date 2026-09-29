@@ -10,7 +10,7 @@ export = (done: any) => {
     client.on('ready', function () {
         const jsonfile = require('jsonfile');
         const pkg = jsonfile.readFileSync(pkgPath);
-        const file = `gloomsoft-${pkg.version}.zip`;
+        const file = `pkv-${pkg.version}.zip`;
         const content = readFileSync(join(PROD_DEST_ZIP, file));
         util.log(`Content Length - ${content.length}`);
         client.put(content, join('releases', 'hm', file), function (err) {

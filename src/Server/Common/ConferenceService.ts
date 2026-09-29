@@ -1,5 +1,5 @@
 import * as http from 'request';
-// import { getSession } from '@cloudedu-api/common';
+// import { getSession } from '@pkv-api/common';
 
 export class ConferenceService {
 

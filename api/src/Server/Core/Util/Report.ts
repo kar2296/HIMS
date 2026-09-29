@@ -534,10 +534,10 @@ export class Report {
         // console.log('json file path');
         // console.log(filePartialPath);
 
-        let clientCode = process.env.CLIENT_CODE || 'gloomsoft';
+        let clientCode = process.env.CLIENT_CODE || 'pkv';
         let path = join(__dirname, '/../../Templates/', clientCode, filePartialPath);
         if (!existsSync(path)) {
-            path = join(__dirname, '/../../Templates/', 'gloomsoft', filePartialPath);
+            path = join(__dirname, '/../../Templates/', 'pkv', filePartialPath);
         }
         if (!existsSync(path)) {
             return null;
@@ -556,10 +556,10 @@ export class Report {
         // console.log('json file path');
         // console.log(filePartialPath);
 
-        let clientCode = process.env.CLIENT_CODE || 'gloomsoft';
+        let clientCode = process.env.CLIENT_CODE || 'pkv';
         let path = join(__dirname, '/../../Templates/', clientCode, filePartialPath);
         if (!existsSync(path)) {
-            path = join(__dirname, '/../../Templates/', 'gloomsoft', filePartialPath);
+            path = join(__dirname, '/../../Templates/', 'pkv', filePartialPath);
         }
         if (!existsSync(path)) {
             return null;
@@ -572,10 +572,10 @@ export class Report {
 
     private static GetCompiledTemplate(key: string, data: any, compileOptions?: CompileOptions): string {
         let filePartialPath = TemplateRepo[key];
-        let clientCode = process.env.CLIENT_CODE || 'gloomsoft';
+        let clientCode = process.env.CLIENT_CODE || 'pkv';
         let path = join(__dirname, '/../../Templates/', clientCode, filePartialPath);
         if (!existsSync(path)) {
-            path = join(__dirname, '/../../Templates/', 'gloomsoft', filePartialPath);
+            path = join(__dirname, '/../../Templates/', 'pkv', filePartialPath);
         }
         if (!existsSync(path)) {
             throw new Error(`Template path is not configured for given key '` + key + `' = ` + path);

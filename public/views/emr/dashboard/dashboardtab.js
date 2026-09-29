@@ -10,7 +10,7 @@
         var canDisableTab = parseInt($stateParams.id) == 0 ? true : false;
 
         $scope.tabs = [
-            { title: $translate.instant('dashboard.gloomsoftdashboard.lbl'), state: 'app.dashboardtab.dashboard', canDisable: false },
+            { title: $translate.instant('dashboard.pkvdashboard.lbl'), state: 'app.dashboardtab.dashboard', canDisable: false },
             { title: $translate.instant('dashboard.inventorydashboard.lbl'), state: 'app.dashboardtab.inventorydashboard', canDisable: false },
 
         ];
