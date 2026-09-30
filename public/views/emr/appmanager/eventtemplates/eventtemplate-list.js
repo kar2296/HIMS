@@ -14,9 +14,45 @@ function eventTemplateListController($rootScope,$scope, $stateParams, $state, $t
         eventtypeid : -1
     };
 
+    $scope.refreshReactProps = function () {
+        $scope.reactProps = {
+            items: vm.gridConfig ? vm.gridConfig.data : [],
+            totalItems: (vm.gridConfig && vm.gridConfig.pagerObj) ? vm.gridConfig.pagerObj.totalItems : 0,
+            pageSize: (vm.gridConfig && vm.gridConfig.pagerObj) ? vm.gridConfig.pagerObj.pageSize : 25,
+            currentPage: (vm.gridConfig && vm.gridConfig.pagerObj) ? vm.gridConfig.pagerObj.currentPage : 1,
+            lookup: $scope.lookup || {},
+            currentfilter: $scope.currentfilter
+        };
+    };
+
+    $scope.handleReactAction = function (action, payload) {
+        $scope.$evalAsync(function () {
+            if (action === 'fetchData' && payload) {
+                if (payload.currentPage && vm.gridConfig) vm.gridConfig.pagerObj.currentPage = payload.currentPage;
+                if (payload.pageSize && vm.gridConfig) vm.gridConfig.pagerObj.pageSize = payload.pageSize;
+                if (payload.currentfilter) {
+                    angular.extend($scope.currentfilter, payload.currentfilter);
+                }
+                $scope.getList();
+            } else if (action === 'addNew') {
+                $scope.addNew();
+            } else if (action === 'edit' && payload) {
+                $state.go('app.eventtemplate', { id: payload.Id });
+            } else if (action === 'delete' && payload) {
+                $scope.onDeleteConfirmed(payload.Id);
+            }
+        });
+    };
+
     $scope.getListCallback = function (scope, res, options, hasError) {
-        vm.gridConfig.data = res.Data;
-        vm.gridConfig.pagerObj.totalItems = res.PageContext.TotalRecords;
+        if (!hasError && res && res.Data) {
+            vm.gridConfig.data = res.Data;
+            vm.gridConfig.pagerObj.totalItems = (res.PageContext && res.PageContext.TotalRecords !== undefined) ? res.PageContext.TotalRecords : res.Data.length;
+        } else {
+            vm.gridConfig.data = [];
+            vm.gridConfig.pagerObj.totalItems = 0;
+        }
+        $scope.refreshReactProps();
     };
 
     $scope.getList = function () {

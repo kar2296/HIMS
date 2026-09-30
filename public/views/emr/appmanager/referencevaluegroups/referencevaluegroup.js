@@ -24,8 +24,31 @@
         }
         // $scope.currentcontext.id = parseInt($stateParams.id);
 
+        $scope.refreshReactProps = function () {
+            $scope.reactProps = {
+                item: $scope.item || {},
+                lookup: $scope.lookup || {}
+            };
+        };
+
+        $scope.handleReactAction = function (action, payload) {
+            $scope.$evalAsync(function () {
+                if (action === 'saveItem' && payload) {
+                    $scope.item = payload;
+                    $scope.saveItem();
+                } else if (action === 'cancel') {
+                    if ($scope.cancelCallback) {
+                        $scope.cancelCallback();
+                    } else {
+                        $scope.backToList();
+                    }
+                }
+            });
+        };
+
         $scope.getItemCallback = function (scope, data, options, hasError) {
             $scope.item = data;
+            $scope.refreshReactProps();
         };
 
         $scope.getItem = function (pageNo) {
@@ -83,6 +106,7 @@
 
         $scope.lookupCallback = function (scope, data, options, hasError) {
             $scope.lookup = hasError ? {} : data;
+            $scope.refreshReactProps();
             $scope.getItem();
         }
 

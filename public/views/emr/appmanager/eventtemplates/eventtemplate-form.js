@@ -12,6 +12,30 @@ function eventTemplateFormController($scope, $stateParams, $state, $translate, u
 
     $scope.currentcontext =  {};
     $scope.currentcontext.id = parseInt($stateParams.id);
+
+    $scope.refreshReactProps = function () {
+        $scope.reactProps = {
+            id: $scope.currentcontext.id,
+            item: $scope.item || {},
+            lookup: $scope.lookup || {},
+            currentcontext: $scope.currentcontext
+        };
+    };
+
+    $scope.handleReactAction = function (action, payload) {
+        $scope.$evalAsync(function () {
+            if (action === 'backToList') {
+                $scope.backToList();
+            } else if (action === 'save') {
+                if (payload) angular.extend($scope.item, payload);
+                $scope.save();
+            } else if (action === 'saveAndApprove') {
+                if (payload) angular.extend($scope.item, payload);
+                $scope.saveAndApprove();
+            }
+        });
+    };
+
     $scope.templateButtonGroup = [
         {"displaytext": "Facility Name", "placeholder": "{{facilityName}}"},
         {"displaytext": "Patient Name", "placeholder": "{{patientName}}"},
@@ -32,6 +56,7 @@ function eventTemplateFormController($scope, $stateParams, $state, $translate, u
     
     $scope.getItemCallback = function (scope, data, options, hasError) {
         $scope.item = data;
+        $scope.refreshReactProps();
     };
 
     $scope.getItem = function (pageNo) {
@@ -44,6 +69,8 @@ function eventTemplateFormController($scope, $stateParams, $state, $translate, u
                 onComplete: $scope.getItemCallback
             };
             utl.Http.doAction(options);
+        } else {
+            $scope.refreshReactProps();
         }
     };
 
@@ -62,9 +89,9 @@ function eventTemplateFormController($scope, $stateParams, $state, $translate, u
             return;
         }
             
-        var actionName = 'SystemSettingsEventTemplate/AddEventTemplate';
+        var actionName = 'SystemSettings/EventTemplate/AddEventTemplate';
         if ($scope.currentcontext.id && $scope.currentcontext.id > 0) {
-            actionName = 'SystemSettingsEventTemplate/UpdateEventTemplate';
+            actionName = 'SystemSettings/EventTemplate/UpdateEventTemplate';
         }
       
         var options = {

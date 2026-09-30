@@ -18,30 +18,61 @@
         };
 
 
+        $scope.refreshReactProps = function() {
+            $scope.reactProps = {
+                items: vm.gridConfig.data || [],
+                totalItems: vm.gridConfig.pagerObj.totalItems || 0,
+                pageSize: vm.gridConfig.pagerObj.pageSize || 25,
+                currentPage: vm.gridConfig.pagerObj.currentPage || 1,
+                lookup: $scope.lookup || {},
+                currentfilter: $scope.currentfilter
+            };
+        };
+
+        $scope.handleReactAction = function(action, payload) {
+            $scope.$evalAsync(function() {
+                if (action === 'fetchData' && payload) {
+                    if (payload.currentPage) vm.gridConfig.pagerObj.currentPage = payload.currentPage;
+                    if (payload.pageSize) vm.gridConfig.pagerObj.pageSize = payload.pageSize;
+                    if (payload.currentfilter) {
+                        angular.extend($scope.currentfilter, payload.currentfilter);
+                    }
+                    $scope.getList();
+                } else if (action === 'edit' && payload) {
+                    $scope.handleEvents('edit', payload);
+                }
+            });
+        };
+
         $scope.getListCallback = function(scope, data, options, hasError) {
 
             vm.gridConfig.data = [];
-            for (var idx in data.Data) {
-                var list = {};
-                if (data.Data[idx].AdmissionStatusId != 6) {
-                    list = data.Data[idx];
-                    list.NoOfDays = '';
-                    var admDate = new Date(list.AdmissionDate);
-                    var crntDate = $filter('date')(utl.Formatter.getCurrentDate(), 'yyyy-MM-dd 23:59:59') || null;
-                    var date2 = new Date(crntDate);
-                    var difference_ms = date2.getTime() - admDate.getTime();
-                    difference_ms = difference_ms / 1000;
-                    var seconds = Math.floor(difference_ms % 60);
-                    difference_ms = difference_ms / 60;
-                    var minutes = Math.floor(difference_ms % 60);
-                    difference_ms = difference_ms / 60;
-                    var hours = Math.floor(difference_ms % 24);
-                    var days = Math.floor(difference_ms / 24);
-                    list.NoOfDays = days + 1;
-                    vm.gridConfig.data.push(list);
+            if (!hasError && data && data.Data) {
+                for (var idx in data.Data) {
+                    var list = {};
+                    if (data.Data[idx].AdmissionStatusId != 6) {
+                        list = data.Data[idx];
+                        list.NoOfDays = '';
+                        var admDate = new Date(list.AdmissionDate);
+                        var crntDate = $filter('date')(utl.Formatter.getCurrentDate(), 'yyyy-MM-dd 23:59:59') || null;
+                        var date2 = new Date(crntDate);
+                        var difference_ms = date2.getTime() - admDate.getTime();
+                        difference_ms = difference_ms / 1000;
+                        var seconds = Math.floor(difference_ms % 60);
+                        difference_ms = difference_ms / 60;
+                        var minutes = Math.floor(difference_ms % 60);
+                        difference_ms = difference_ms / 60;
+                        var hours = Math.floor(difference_ms % 24);
+                        var days = Math.floor(difference_ms / 24);
+                        list.NoOfDays = days + 1;
+                        vm.gridConfig.data.push(list);
+                    }
                 }
+                vm.gridConfig.pagerObj.totalItems = (data.PageContext && data.PageContext.TotalRecords !== undefined) ? data.PageContext.TotalRecords : vm.gridConfig.data.length;
+            } else {
+                vm.gridConfig.pagerObj.totalItems = 0;
             }
-            vm.gridConfig.pagerObj.totalItems = data.PageContext.TotalRecords;
+            $scope.refreshReactProps();
         };
 
         $scope.getList = function() {
@@ -300,6 +331,7 @@
         }
         $scope.lookupCallback = function(scope, data, options, hasError) {
             $scope.lookup = hasError ? {} : data;
+            $scope.refreshReactProps();
             $scope.getList();
         }
 

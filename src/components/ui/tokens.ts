@@ -9,6 +9,12 @@
 // ─────────────────────────────────────────────────────────────
 // COLOR PALETTE
 // ─────────────────────────────────────────────────────────────
+function makeColorToken<T extends Record<string, any>>(value: string, sub: T): string & T {
+  const s = new String(value);
+  Object.assign(s, sub);
+  return s as unknown as string & T;
+}
+
 export const colors = {
   // Brand — Primary Blue
   // NOTE: these resolve through the same --hims-primary* CSS custom
@@ -18,7 +24,13 @@ export const colors = {
   // screens wrap themselves in a `.hims-theme-registration` class
   // (registration-5174-theme.css) that overrides just these variables to
   // the 5174 design-reference palette -- no other module is affected.
-  primary:       'var(--hims-primary, #2563eb)',
+  primary: makeColorToken('var(--hims-primary, #2563eb)', {
+    main:     'var(--hims-primary, #2563eb)',
+    light:    'var(--hims-primary-light, #eff6ff)',
+    hover:    'var(--hims-primary-hover, #1d4ed8)',
+    active:   'var(--hims-primary-active, #1e40af)',
+    contrast: '#ffffff',
+  }),
   primaryHover:  'var(--hims-primary-hover, #1d4ed8)',
   primaryActive: 'var(--hims-primary-active, #1e40af)',
   primaryLight:  'var(--hims-primary-light, #eff6ff)',
@@ -44,6 +56,23 @@ export const colors = {
   sidebarActive: 'rgba(37,99,235,0.20)',
   sidebarActiveBar: '#2563eb',
 
+  // Background hierarchy
+  background: {
+    primary:   '#ffffff',
+    secondary: '#f8fafc',
+    tertiary:  '#f1f5f9',
+    inverse:   '#0f172a',
+  },
+
+  // Text hierarchy
+  text: {
+    primary:   '#0f172a',
+    secondary: '#475569',
+    tertiary:  '#94a3b8',
+    inverse:   '#ffffff',
+    disabled:  '#cbd5e1',
+  },
+
   // Neutrals — Slate scale
   textMain:      '#0f172a',   // slate-900
   textBody:      '#1e293b',   // slate-800
@@ -52,7 +81,12 @@ export const colors = {
   textDisabled:  '#cbd5e1',   // slate-300
   textInverse:   '#ffffff',
 
-  border:        '#e2e8f0',   // slate-200
+  border: makeColorToken('#e2e8f0', {
+    subtle:  '#e2e8f0',
+    default: '#cbd5e1',
+    strong:  '#cbd5e1',
+    focus:   'var(--hims-primary, #2563eb)',
+  }),
   borderStrong:  '#cbd5e1',   // slate-300
   borderFocus:   'var(--hims-primary, #2563eb)',
 
@@ -63,6 +97,18 @@ export const colors = {
 
   overlay:       'rgba(15,23,42,0.5)',
   overlayLight:  'rgba(15,23,42,0.08)',
+
+  // Semantic Status Object
+  state: {
+    danger:       '#ef4444',
+    dangerLight:  '#fef2f2',
+    success:      '#10b981',
+    successLight: '#ecfdf5',
+    warning:      '#f59e0b',
+    warningLight: '#fffbeb',
+    info:         '#0ea5e9',
+    infoLight:    '#f0f9ff',
+  },
 
   // Semantic — Status colors
   success:       '#10b981',   // Emerald-500
@@ -106,12 +152,29 @@ export const colors = {
     '#f97316', // Orange
     '#84cc16', // Lime
   ],
-} as const;
+};
 
 // ─────────────────────────────────────────────────────────────
 // TYPOGRAPHY
 // ─────────────────────────────────────────────────────────────
 export const typography = {
+  fontSizes: {
+    xs:   '11px',
+    sm:   '12px',
+    md:   '13px',
+    base: '14px',
+    lg:   '16px',
+    xl:   '18px',
+    '2xl': '20px',
+    '3xl': '24px',
+  },
+  fontWeights: {
+    normal:   400,
+    medium:   500,
+    semibold: 600,
+    bold:     700,
+  },
+
   // Font families
   fontFamily:     '"Inter", "Poppins", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
   fontFamilyMono: 'ui-monospace, "JetBrains Mono", Consolas, "Courier New", monospace',
@@ -131,7 +194,7 @@ export const typography = {
   helper:         { fontSize: '12px', fontWeight: 400, lineHeight: 1.4  },
   caption:        { fontSize: '11px', fontWeight: 500, lineHeight: 1.3  },
   mono:           { fontSize: '12px', fontWeight: 400, lineHeight: 1.5, fontFamily: 'ui-monospace, Consolas, monospace' },
-} as const;
+};
 
 // ─────────────────────────────────────────────────────────────
 // SPACING (4px grid)

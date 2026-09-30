@@ -14,17 +14,17 @@
             Category: 'autogenerationcode'
         };
 
-        // $scope.CategoryDisplayMap = {
-        //     general: 'General Setting',
-        //     billing: 'Billing Setting',
-        //     demographic: 'Demographic Setting',
-        //     patientemr: 'Patient EMR',
-        //     print: 'Print',
-        //     dmprint: 'DM Print',
-        //     erpintegration: 'ERP Integration',
-        //     hl7integration: 'HL7 Integration',
-        //     idcardprint: 'ID Card',
-        // };
+        $scope.CategoryDisplayMap = {
+            general: 'General Setting',
+            billing: 'Billing Setting',
+            demographic: 'Demographic Setting',
+            patientemr: 'Patient EMR',
+            print: 'Print',
+            dmprint: 'DM Print',
+            erpintegration: 'ERP Integration',
+            hl7integration: 'HL7 Integration',
+            idcardprint: 'ID Card',
+        };
 
         $scope.PreferenceLookupMap = {
             defaultcurrency: 'CurrencyCode',
@@ -125,7 +125,7 @@
         }
 
         function getCategoryDisplay(catCode) {
-            return $scope.CategoryDisplayMap[catCode] ? $scope.CategoryDisplayMap[catCode] : catCode;
+            return ($scope.CategoryDisplayMap && $scope.CategoryDisplayMap[catCode]) ? $scope.CategoryDisplayMap[catCode] : catCode;
         }
 
         //save item

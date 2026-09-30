@@ -162,9 +162,12 @@
             var selectedItem = vm.serviceitemcontrolconfig.selected;
             var result = '';
             if (selectedItem && !utl.Common.isEmptyJSONObject(selectedItem)) {
-                result = [selectedItem.ItemCode, selectedItem.Name].join(' ');
+                result = [selectedItem.ItemCode, selectedItem.Name].filter(Boolean).join(' ');
             } else if (vm.serviceitemcontrolconfig.rowdata) {
-                result = [vm.serviceitemcontrolconfig.rowdata.ServiceItem.ItemCode, vm.serviceitemcontrolconfig.rowdata.ServiceItem.Name].join(' ');
+                var sItem = vm.serviceitemcontrolconfig.rowdata.ServiceItem || vm.serviceitemcontrolconfig.rowdata;
+                if (sItem && (sItem.ItemCode || sItem.Name)) {
+                    result = [sItem.ItemCode, sItem.Name].filter(Boolean).join(' ');
+                }
             }
             return result;
         }

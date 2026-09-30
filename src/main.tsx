@@ -365,6 +365,33 @@ import { AttachmentTypeListScreen } from './react-components/AttachmentTypeListS
 import { DrugMasterListScreen } from './react-components/DrugMasterListScreen';
 import { DistrictMasterListScreen } from './react-components/DistrictMasterListScreen';
 import { DistrictMasterFormScreen } from './react-components/DistrictMasterFormScreen';
+import { FacilitiesListScreen } from './react-components/FacilitiesListScreen';
+import { DepartmentsListScreen } from './react-components/DepartmentsListScreen';
+import { DepartmentFormScreen } from './react-components/DepartmentFormScreen';
+import { RolesListScreen } from './react-components/RolesListScreen';
+import { RoleTabScreen } from './react-components/RoleTabScreen';
+import { EncounterUpdateListScreen } from './react-components/EncounterUpdateListScreen';
+import { EncounterUpdateModal } from './react-components/EncounterUpdateModal';
+import { ReferenceValueGroupsListScreen } from './react-components/ReferenceValueGroupsListScreen';
+import { ReferenceValueGroupModal } from './react-components/ReferenceValueGroupModal';
+import { SequenceMastersListScreen } from './react-components/SequenceMastersListScreen';
+import { SequenceMastersModal } from './react-components/SequenceMastersModal';
+import { EventTemplatesListScreen } from './react-components/EventTemplatesListScreen';
+import { EventTemplateFormScreen } from './react-components/EventTemplateFormScreen';
+import { GroupsListScreen } from './react-components/GroupsListScreen';
+import { GroupTabScreen } from './react-components/GroupTabScreen';
+import { GroupFormScreen } from './react-components/GroupFormScreen';
+import { GroupRoleMapScreen } from './react-components/GroupRoleMapScreen';
+import { GroupFacilityMapScreen } from './react-components/GroupFacilityMapScreen';
+import { RoleFormScreen } from './react-components/RoleFormScreen';
+import { RoleFacilityMapScreen } from './react-components/RoleFacilityMapScreen';
+import { RolePrivilegeListScreen } from './react-components/RolePrivilegeListScreen';
+import { RoleMobileConfigScreen } from './react-components/RoleMobileConfigScreen';
+import { RoleControlMapModal } from './react-components/RoleControlMapModal';
+import { FacilityTabScreen } from './react-components/FacilityTabScreen';
+import { FacilityFormScreen } from './react-components/FacilityFormScreen';
+import { FacilityDefaultServiceScreen } from './react-components/FacilityDefaultServiceScreen';
+import { FacilityPreferenceSettingsScreen } from './react-components/FacilityPreferenceSettingsScreen';
 import { PincodeMasterListScreen } from './react-components/PincodeMasterListScreen';
 import { PincodeMasterFormScreen } from './react-components/PincodeMasterFormScreen';
 import { OccupationMasterListScreen } from './react-components/OccupationMasterListScreen';
@@ -406,7 +433,8 @@ import { BillingCashSubmissionFormScreen } from './react-components/BillingCashS
 import { BillingDiscountApprovalListScreen } from './react-components/BillingDiscountApprovalListScreen';
 import { BillingEditDiscountScreen } from './react-components/BillingEditDiscountScreen';
 import { DrPaymentModifyBillNoScreen } from './react-components/DrPaymentModifyBillNoScreen';
-import { DrPaymentModifyFilterScreen } from './react-components/DrPaymentModifyFilterScreen';
+import { DoctorPaymentModifyScreen } from './react-components/DoctorPaymentModifyScreen';
+import { DrPaymentModifyFilterScreen, DrPaymentModifyDatesScreen, DrPaymentModifyBillingTypeScreen } from './react-components/DrPaymentModifyFilterScreen';
 import { DrPaymentModifyListScreen } from './react-components/DrPaymentModifyListScreen';
 import { DrPaymentModifyFormHeaderScreen } from './react-components/DrPaymentModifyFormHeaderScreen';
 import { DrPaymentModifyFormDetailsScreen } from './react-components/DrPaymentModifyFormDetailsScreen';
@@ -670,6 +698,33 @@ import './printing/himsPrint';
   DrugMasterListScreen,
   DistrictMasterListScreen,
   DistrictMasterFormScreen,
+  FacilitiesListScreen,
+  DepartmentsListScreen,
+  DepartmentFormScreen,
+  RolesListScreen,
+  RoleTabScreen,
+  EncounterUpdateListScreen,
+  EncounterUpdateModal,
+  ReferenceValueGroupsListScreen,
+  ReferenceValueGroupModal,
+  SequenceMastersListScreen,
+  SequenceMastersModal,
+  EventTemplatesListScreen,
+  EventTemplateFormScreen,
+  GroupsListScreen,
+  GroupTabScreen,
+  GroupFormScreen,
+  GroupRoleMapScreen,
+  GroupFacilityMapScreen,
+  RoleFormScreen,
+  RoleFacilityMapScreen,
+  RolePrivilegeListScreen,
+  RoleMobileConfigScreen,
+  RoleControlMapModal,
+  FacilityTabScreen,
+  FacilityFormScreen,
+  FacilityDefaultServiceScreen,
+  FacilityPreferenceSettingsScreen,
   PincodeMasterListScreen,
   PincodeMasterFormScreen,
   OccupationMasterListScreen,
@@ -712,7 +767,10 @@ import './printing/himsPrint';
   BillingDiscountApprovalListScreen,
   BillingEditDiscountScreen,
   DrPaymentModifyBillNoScreen,
+  DoctorPaymentModifyScreen,
   DrPaymentModifyFilterScreen,
+  DrPaymentModifyDatesScreen,
+  DrPaymentModifyBillingTypeScreen,
   DrPaymentModifyListScreen,
   DrPaymentModifyFormHeaderScreen,
   DrPaymentModifyFormDetailsScreen,

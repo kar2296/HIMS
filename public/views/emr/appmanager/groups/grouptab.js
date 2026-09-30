@@ -6,40 +6,58 @@
         .controller('groupTabController', groupTabController);
 
     function groupTabController($rootScope, $scope, $stateParams, $state, $translate, $timeout) {
+        var groupId = parseInt($stateParams.id) || 0;
+        var canDisable = groupId === 0;
 
-        var canShowTab = parseInt($stateParams.id) > 0 ? true : false;
-
-        $scope.tabs = [{
+        $scope.tabs = [
+            {
                 title: $translate.instant('appmanager.grouptab.tabgeneral.lbl'),
                 state: 'app.grouptab.general',
-                canShow: true
+                canDisable: false,
+                icon: 'fa-id-badge'
             },
             {
                 title: $translate.instant('appmanager.grouptab.tabgrouprolemap.lbl'),
                 state: 'app.grouptab.role',
-                canShow: true
+                canDisable: canDisable,
+                icon: 'fa-user-tag'
             },
-            // {title : $translate.instant('appmanager.grouptab.tabgroupfacilitymap.lbl'), state : 'app.grouptab.facility', canShow : true},
+            {
+                title: 'Facility Mapping',
+                state: 'app.grouptab.facility',
+                canDisable: canDisable,
+                icon: 'fa-hospital'
+            }
         ];
 
-        $scope.backToList = function () {
-            $state.go('app.groups');
-        }
-        $scope.addNew = function () {
-            $state.go('app.grouptab.general', {
-                id: 0
+        $scope.reactProps = {
+            groupId: groupId,
+            activeState: $state.current.name,
+            tabs: $scope.tabs
+        };
+
+        $scope.handleReactAction = function (actionName, payload) {
+            $timeout(function () {
+                if (actionName === 'backToList') {
+                    $state.go('app.groups');
+                } else if (actionName === 'addNew') {
+                    $state.go('app.grouptab.general', { id: 0 });
+                } else if (actionName === 'switchTab') {
+                    if (payload && payload.state) {
+                        $state.go(payload.state, { id: groupId });
+                    }
+                }
             });
-        }
+        };
+
         $timeout(function () {
             removeFloatingNav();
         }, 100);
 
         function removeFloatingNav() {
-            $rootScope.app.layout.isCollapsed = true;
-        }
-
-        $scope.switchTab = function (tab) {
-            $state.go(tab.state);
+            if ($rootScope.app && $rootScope.app.layout) {
+                $rootScope.app.layout.isCollapsed = true;
+            }
         }
     }
 

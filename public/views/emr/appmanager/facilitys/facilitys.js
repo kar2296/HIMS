@@ -187,10 +187,76 @@ function facilityListController($rootScope,$scope, $stateParams, $state, $transl
             onComplete: $scope.lookupCallback
         };
         utl.Http.doAction(options);
-        //$scope.getList();
-    }
+    };
 
     $scope.initLookup();
+
+    // REACT BRIDGE (AppManager / Facilities list): hollow-controller pattern --
+    // keeps real logic (initLookup, getList, addNew, delete, handleEvents) intact
+    // while mirroring state into reactProps and accepting UI actions via handleReactAction.
+    $scope.refreshReactProps = function () {
+        $scope.reactProps = {
+            items: vm.gridConfig.data || [],
+            pagerObj: vm.gridConfig.pagerObj,
+            currentfilter: $scope.currentfilter,
+            lookup: {
+                ActiveStatus: ($scope.lookup && $scope.lookup.ActiveStatus) || [],
+                Organization: ($scope.lookup && $scope.lookup.Organization) || []
+            }
+        };
+    };
+
+    var _origGetListCallback = $scope.getListCallback;
+    $scope.getListCallback = function (scope, res, options, hasError) {
+        _origGetListCallback(scope, res, options, hasError);
+        $scope.refreshReactProps();
+        $scope.$applyAsync();
+    };
+
+    var _origLookupCallback = $scope.lookupCallback;
+    $scope.lookupCallback = function (scope, data, options, hasError) {
+        _origLookupCallback(scope, data, options, hasError);
+        $scope.refreshReactProps();
+        $scope.$applyAsync();
+    };
+
+    var _origDeleteCallback = $scope.deleteItemCallback;
+    $scope.deleteItemCallback = function (scope, data, options, hasError) {
+        _origDeleteCallback(scope, data, options, hasError);
+        $scope.refreshReactProps();
+        $scope.$applyAsync();
+    };
+
+    $scope.refreshReactProps();
+
+    $scope.handleReactAction = function (actionName, payload) {
+        if (actionName === 'search') {
+            $scope.currentfilter.facilitycode = payload && payload.value;
+            vm.gridConfig.pagerObj.currentPage = 1;
+            $scope.getList();
+        } else if (actionName === 'statusFilterChange') {
+            $scope.currentfilter.ActiveStatusId = payload && payload.value;
+            vm.gridConfig.pagerObj.currentPage = 1;
+            $scope.getList();
+        } else if (actionName === 'pageChange') {
+            vm.gridConfig.pagerObj.currentPage = payload && payload.page;
+            $scope.getList();
+        } else if (actionName === 'addNew') {
+            $scope.addNew();
+        } else if (actionName === 'edit') {
+            $scope.handleEvents('edit', payload);
+        } else if (actionName === 'view') {
+            $scope.handleEvents('view', payload);
+        } else if (actionName === 'delete') {
+            $scope.handleEvents('delete', payload);
+        } else if (actionName === 'setting') {
+            $scope.handleEvents('setting', payload);
+        } else if (typeof $scope[actionName] === 'function') {
+            $scope[actionName](payload);
+        }
+        $scope.refreshReactProps();
+        $scope.$applyAsync();
+    };
 
 }
 

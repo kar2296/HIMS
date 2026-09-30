@@ -16,16 +16,37 @@
             CountryId: 1
         };
 
+        $scope.lookup = {
+            FacilityType: [],
+            Organization: [],
+            Language: [],
+            Pincode: [],
+            City: [],
+            State: [],
+            Country: []
+        };
+
         $scope.currentcontext = {};
         $scope.currentcontext.file = null;
         $scope.currentcontext.file1 = null;
+        $scope.currentcontext.id = parseInt($stateParams.id) || 0;
 
-        $scope.currentcontext.id = parseInt($stateParams.id);
+        $scope.refreshReactProps = function () {
+            $scope.reactProps = {
+                item: angular.copy($scope.item),
+                lookup: $scope.lookup,
+                facilityId: $scope.currentcontext.id,
+                logoBase64: $scope.currentcontext.Logo || null,
+                isSaving: false
+            };
+        };
 
-
-        //getFacilityLogo
+        // getFacilityLogo
         $scope.getFacilityLogoCallback = function (scope, data, options, hasError) {
-            $scope.currentcontext.Logo = data.Logo;
+            if (!hasError && data) {
+                $scope.currentcontext.Logo = data.Logo;
+                $scope.refreshReactProps();
+            }
         };
 
         $scope.getFacilityLogo = function () {
@@ -45,52 +66,43 @@
                 utl.Http.doAction(options);
             }
         };
-        $scope.numberonly = function (e) {
-            if ((e.charCode > 47 && e.charCode < 58) || (e.charCode == 0)) {
-                return;
-            } else
-                e.preventDefault();
-        };
+
         $scope.preferenceCallback = function (scope, res, options, hasError) {
-            //console.log(res);
             $scope.item.IsDirectLabSync = false;
             $scope.item.IsPharmacybasedonStore = false;
             $scope.item.IsItemExactSearch = false;
-            for (var idx in res.Data) {
-                var item = res.Data[idx];
-                if (item.PreferenceKey == 'directlabsync') {
-                    if (parseInt(item.PreferenceValue) == 1)
-                        $scope.item.IsDirectLabSync = true;
-                } else if (item.PreferenceKey == 'pharseqbasedonstore') {
-                    if (parseInt(item.PreferenceValue) == 1)
-                        $scope.item.IsPharmacybasedonStore = true;
-                } else if (item.PreferenceKey == 'itemexactsearch') {
-                    if (parseInt(item.PreferenceValue) == 1)
-                        $scope.item.IsItemExactSearch = true;
+            if (res && res.Data) {
+                for (var idx in res.Data) {
+                    var item = res.Data[idx];
+                    if (item.PreferenceKey == 'directlabsync') {
+                        if (parseInt(item.PreferenceValue) == 1)
+                            $scope.item.IsDirectLabSync = true;
+                    } else if (item.PreferenceKey == 'pharseqbasedonstore') {
+                        if (parseInt(item.PreferenceValue) == 1)
+                            $scope.item.IsPharmacybasedonStore = true;
+                    } else if (item.PreferenceKey == 'itemexactsearch') {
+                        if (parseInt(item.PreferenceValue) == 1)
+                            $scope.item.IsItemExactSearch = true;
+                    }
                 }
             }
-            // if (parseInt(res.Data[0].PreferenceValue) == 1)
-            //     $scope.item.IsDirectLabSync = true;
+            $scope.refreshReactProps();
         };
 
         $scope.getFacilitypreference = function () {
-
             var inputData = {
                 Params: [{
-                        Key: 1,
-                        Value: 'general'
-                    },
-                    {
-                        Key: 3,
-                        Value: $scope.item.FacilityId
-                    },
-                    {
-                        Key: 2,
-                        Value: ['directlabsync', 'pharseqbasedonstore',
-                            'itemexactsearch'
-                        ]
-                    },
-
+                    Key: 1,
+                    Value: 'general'
+                },
+                {
+                    Key: 3,
+                    Value: $scope.item.FacilityId || $scope.item.Id
+                },
+                {
+                    Key: 2,
+                    Value: ['directlabsync', 'pharseqbasedonstore', 'itemexactsearch']
+                }
                 ],
                 PageContext: {
                     PageSize: 500,
@@ -107,8 +119,11 @@
 
             utl.Http.doAction(options);
         };
+
         $scope.getSecondLogoCallback = function (scope, data, options, hasError) {
-            $scope.currentcontext.SecondLogo = data.Logo;
+            if (!hasError && data) {
+                $scope.currentcontext.SecondLogo = data.Logo;
+            }
         };
 
         $scope.getSecondLogo = function () {
@@ -130,15 +145,17 @@
         };
 
         $scope.getItemCallback = function (scope, data, options, hasError) {
-            $scope.item = data;
-            $scope.getFacilityLogo();
-            $scope.getSecondLogo();
-            $scope.getFacilitypreference();
+            if (!hasError && data) {
+                $scope.item = angular.extend({}, $scope.item, data);
+                $scope.getFacilityLogo();
+                $scope.getSecondLogo();
+                $scope.getFacilitypreference();
+                $scope.refreshReactProps();
+            }
         };
 
-        $scope.getItem = function (pageNo) {
+        $scope.getItem = function () {
             if ($scope.currentcontext.id && $scope.currentcontext.id > 0) {
-
                 var options = {
                     action: 'SystemSettings/facility/GetFacilityById',
                     data: {
@@ -153,130 +170,90 @@
 
         $scope.backToList = function () {
             $state.go('app.facilitys');
-        }
-
+        };
 
         $scope.saveItemCallback = function (scope, data, options, hasError) {
-            utl.Alert.showSuccessMsg($translate.instant('common.successmsg.lbl'));
+            utl.Alert.showSuccessMsg($translate.instant('common.successmsg.lbl') || 'Saved successfully');
             $scope.backToList();
         };
 
         $scope.clear = function () {
-            $scope.item = {};
-        }
+            $scope.item = {
+                IsActive: true,
+                CountryId: 1
+            };
+            $scope.refreshReactProps();
+        };
 
         $scope.saveItem = function () {
             if ($scope.item.IsGstRegistered && (!$scope.item.GstNumber || !$scope.item.RegistrationNo || !$scope.item.TaxActiveFrom || !$scope.item.TaxActiveTo)) {
-                utl.Alert.showErrorMsg($translate.instant('appmanager.facility.gstrequiredfieldmsg.lbl'));
+                utl.Alert.showErrorMsg($translate.instant('appmanager.facility.gstrequiredfieldmsg.lbl') || 'GST fields are required');
                 return;
+            }
+
+            var actionName = 'SystemSettings/Facility/AddFacility';
+            if ($scope.currentcontext.id && $scope.currentcontext.id > 0) {
+                actionName = 'SystemSettings/Facility/UpdateFacility';
+            }
+
+            if ($scope.currentcontext.file) {
+                var actionUrl = utl.Http.getRootPath() + actionName;
+                Upload.upload({
+                    url: actionUrl,
+                    data: {
+                        file: $scope.currentcontext.file,
+                        Data: $scope.item
+                    }
+                }).then(function (resp) {
+                    utl.Alert.showSuccessMsg($translate.instant('common.successmsg.lbl') || 'Saved successfully');
+                    $scope.currentcontext.file = null;
+                    $scope.backToList();
+                }, function (resp) {
+                    utl.Alert.showErrorMsg('Error status: ' + resp.status);
+                });
             } else {
-
-                if (!utl.Validator.validate($scope)) {
-                    return;
-                }
-
-                console.log($scope.item);
-
-                var actionName = 'SystemSettings/Facility/AddFacility';
-                if ($scope.currentcontext.id && $scope.currentcontext.id > 0) {
-                    actionName = 'SystemSettings/Facility/UpdateFacility';
-                }
-
-                // //TODO
-                // //$scope.item.OrganizationId = 0;
-                // var options = {
-                //     action: actionName,
-                //     data: {Data : $scope.item },
-                //     type: 'post',
-                //     onComplete: $scope.saveItemCallback
-                // };
-                // utl.Http.doAction(options);
-
-                if ($scope.currentcontext.file) {
-                    var actionUrl = utl.Http.getRootPath() + actionName;
-                    Upload.upload({
-                        url: actionUrl,
-                        data: {
-                            file: $scope.currentcontext.file,
-                            Data: $scope.item
-                        }
-                    }).then(function (resp) { //upload function returns a promise
-                            utl.Alert.showSuccessMsg($translate.instant('common.successmsg.lbl'));
-                            $scope.currentcontext.file = null;
-                            $scope.backToList();
-                        },
-                        function (resp) { //catch error
-                            console.log('Error status: ' + resp.status);
-                            utl.Alert.showErrorMsg('Error status: ' + resp.status);
-                        },
-                        function (evt) {
-                            console.log(evt);
-                        });
-                    return false;
-                } else if ($scope.currentcontext.file1) {
-                    var actionUrl = utl.Http.getRootPath() + actionName;
-                    Upload.upload({
-                        url: actionUrl,
-                        data: {
-                            file: $scope.currentcontext.file1,
-                            Data: $scope.item
-                        }
-                    }).then(function (resp) { //upload function returns a promise
-                            utl.Alert.showSuccessMsg($translate.instant('common.successmsg.lbl'));
-                            $scope.currentcontext.file1 = null;
-                            $scope.backToList();
-                        },
-                        function (resp) { //catch error
-                            console.log('Error status: ' + resp.status);
-                            utl.Alert.showErrorMsg('Error status: ' + resp.status);
-                        },
-                        function (evt) {
-                            console.log(evt);
-                        });
-                    return false;
-                } else {
-                    var options = {
-                        action: actionName,
-                        data: {
-                            Data: $scope.item,
-                            file: $scope.currentcontext.file
-                        },
-                        type: 'post',
-                        onComplete: $scope.saveItemCallback
-                    };
-                    utl.Http.doAction(options);
-                }
+                var options = {
+                    action: actionName,
+                    data: {
+                        Data: $scope.item,
+                        file: null
+                    },
+                    type: 'post',
+                    onComplete: $scope.saveItemCallback
+                };
+                utl.Http.doAction(options);
             }
         };
 
         $scope.lookupCallback = function (scope, data, options, hasError) {
             $scope.lookup = hasError ? {} : data;
+            $scope.refreshReactProps();
             $scope.getItem();
-        }
+        };
 
         $scope.initLookup = function () {
             var inputData = [{
-                    "Key": "FacilityType"
-                },
-                {
-                    "Key": "Language"
-                },
-                {
-                    "Key": "Organization"
-                },
-                {
-                    "Key": "Pincode"
-                },
-                {
-                    "Key": "City"
-                },
-                {
-                    "Key": "State"
-                },
-                {
-                    "Key": "Country"
-                }
-            ]
+                Key: 'FacilityType'
+            },
+            {
+                Key: 'Language'
+            },
+            {
+                Key: 'Organization'
+            },
+            {
+                Key: 'Pincode'
+            },
+            {
+                Key: 'City'
+            },
+            {
+                Key: 'State'
+            },
+            {
+                Key: 'Country'
+            }
+            ];
             var options = {
                 action: 'General/Options/getoptions',
                 data: inputData,
@@ -284,12 +261,52 @@
                 onComplete: $scope.lookupCallback
             };
             utl.Http.doAction(options);
-        }
+        };
+
+        // React bridge handler
+        $scope.handleReactAction = function (actionName, payload) {
+            if (actionName === 'backToList') {
+                $scope.backToList();
+            } else if (actionName === 'fieldChange') {
+                if (payload) {
+                    angular.extend($scope.item, payload);
+                }
+            } else if (actionName === 'onAddressUpdate') {
+                if (payload) {
+                    if (payload.countryid !== undefined) $scope.item.CountryId = payload.countryid === -1 ? null : payload.countryid;
+                    if (payload.country !== undefined) $scope.item.Country = payload.country;
+                    if (payload.stateid !== undefined) $scope.item.StateId = payload.stateid === -1 ? null : payload.stateid;
+                    if (payload.state !== undefined) $scope.item.State = payload.state;
+                    if (payload.districtid !== undefined) $scope.item.DistrictId = payload.districtid === -1 ? null : payload.districtid;
+                    if (payload.district !== undefined) $scope.item.District = payload.district;
+                    if (payload.cityid !== undefined) $scope.item.CityId = payload.cityid === -1 ? null : payload.cityid;
+                    if (payload.city !== undefined) $scope.item.City = payload.city;
+                    if (payload.areaid !== undefined) $scope.item.WardId = payload.areaid === -1 ? null : payload.areaid;
+                    if (payload.area !== undefined) $scope.item.Area = payload.area;
+                    if (payload.pincodeid !== undefined) $scope.item.PinCodeId = payload.pincodeid === -1 ? null : payload.pincodeid;
+                    if (payload.pincode !== undefined) {
+                        $scope.item.PinCode = payload.pincode;
+                        $scope.item.Pincode = payload.pincode;
+                    }
+                }
+            } else if (actionName === 'onLogoUpload') {
+                if (payload && payload.file) {
+                    $scope.currentcontext.file = payload.file;
+                }
+            } else if (actionName === 'saveItem' || actionName === 'saveAndApprove') {
+                if (payload && payload.item) {
+                    angular.extend($scope.item, payload.item);
+                }
+                if (payload && payload.file) {
+                    $scope.currentcontext.file = payload.file;
+                }
+                $scope.saveItem();
+            }
+        };
 
         $scope.initLookup();
-        $scope.item.ActiveFrom = new Date();
+        $scope.refreshReactProps();
     }
 
     facilityFormController.$inject = ['$scope', '$stateParams', '$state', '$translate', 'utl', 'Upload'];
-
 })();

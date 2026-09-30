@@ -19,7 +19,7 @@ function getUtl(): any {
   return injector.get('utl');
 }
 
-export const apiFetch = async (action: string | { action: string, data: any }, payload?: any): Promise<any> => {
+export const apiFetch = async <T = any>(action: string | { action: string, data: any }, payload?: any): Promise<T> => {
   let urlAction: string;
   let requestData: any;
 
@@ -28,10 +28,19 @@ export const apiFetch = async (action: string | { action: string, data: any }, p
   // 2. apiFetch({ action: 'Action/Path', data: { ...payload } })
   if (typeof action === 'string') {
     urlAction = action;
-    requestData = payload || {};
+    requestData = payload !== undefined ? payload : {};
   } else {
     urlAction = action.action;
-    requestData = action.data || {};
+    requestData = action.data !== undefined ? action.data : {};
+  }
+
+  // Normalize if caller mistakenly passed fetch-like RequestInit options ({ method, body })
+  if (requestData && typeof requestData === 'object' && 'body' in requestData && ('method' in requestData || 'headers' in requestData)) {
+    try {
+      requestData = typeof requestData.body === 'string' ? JSON.parse(requestData.body) : requestData.body;
+    } catch {
+      requestData = requestData.body;
+    }
   }
 
   return new Promise((resolve, reject) => {

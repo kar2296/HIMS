@@ -11,6 +11,63 @@ import { join } from 'path';
 
 
 export class DepartmentBo extends BaseBo<DepartmentInstance, DepartmentAttributes> implements IOptionProvider {
+    private SanitizeDepartmentData(data: any): void {
+        if (!data) return;
+        if (!data.ParentDepartmentId || data.ParentDepartmentId === '0' || data.ParentDepartmentId === '') {
+            data.ParentDepartmentId = null;
+        }
+        if (!data.SpecialityId || data.SpecialityId === '0' || data.SpecialityId === '') {
+            data.SpecialityId = null;
+        }
+        if (!data.CostCenterId || data.CostCenterId === '0' || data.CostCenterId === '') {
+            data.CostCenterId = null;
+        }
+        if (!data.GenderId || data.GenderId === '0' || data.GenderId === '') {
+            data.GenderId = null;
+        }
+        if (data.DisplayOrder === '' || data.DisplayOrder === undefined || data.DisplayOrder === null || isNaN(Number(data.DisplayOrder))) {
+            data.DisplayOrder = null;
+        } else {
+            data.DisplayOrder = Number(data.DisplayOrder);
+        }
+        if (data.ThresholdDuration === '' || data.ThresholdDuration === undefined || data.ThresholdDuration === null || isNaN(Number(data.ThresholdDuration))) {
+            data.ThresholdDuration = null;
+        } else {
+            data.ThresholdDuration = Number(data.ThresholdDuration);
+        }
+        if (data.FollowupDays === '' || data.FollowupDays === undefined || data.FollowupDays === null || isNaN(Number(data.FollowupDays))) {
+            data.FollowupDays = null;
+        } else {
+            data.FollowupDays = Number(data.FollowupDays);
+        }
+        if (!data.NightStartTime || data.NightStartTime === '') {
+            data.NightStartTime = null;
+        }
+        if (!data.NightEndTime || data.NightEndTime === '') {
+            data.NightEndTime = null;
+        }
+        if (!data.ActiveTo || data.ActiveTo === '') {
+            data.ActiveTo = null;
+        }
+        data.IsEmergency = data.IsEmergency ? 1 : 0;
+        data.IsAdmittingDept = data.IsAdmittingDept ? 1 : 0;
+        data.IncludeMRDRequired = data.IncludeMRDRequired ? 1 : 0;
+        data.IsPatientFlowMandatory = data.IsPatientFlowMandatory ? 1 : 0;
+        data.IsProcessingCenter = data.IsProcessingCenter ? 1 : 0;
+        data.IsIPClearence = data.IsIPClearence ? 1 : 0;
+        data.IsParentDepartment = data.IsParentDepartment ? 1 : 0;
+        data.IsVirtual = data.IsVirtual ? 1 : 0;
+        data.IsDiet = data.IsDiet ? 1 : 0;
+        data.IsBloodBank = data.IsBloodBank ? 1 : 0;
+        data.IsMRDLocation = data.IsMRDLocation ? 1 : 0;
+        data.IsAssetDept = data.IsAssetDept ? 1 : 0;
+        data.IsPatientPortal = data.IsPatientPortal ? 1 : 0;
+        data.IsAllFacility = data.IsAllFacility ? 1 : 0;
+        data.IsActive = (data.IsActive === false || data.IsActive === 0) ? 0 : 1;
+        data.Rev = data.Rev ? Number(data.Rev) : 0;
+        data.Status = 1;
+    }
+
     public async AddDepartment(req: BaseRequest): Promise<number> {
         let file = this.Request.file;
         if (file) {
@@ -18,6 +75,7 @@ export class DepartmentBo extends BaseBo<DepartmentInstance, DepartmentAttribute
         }
         this.HandleNullDataViaFileUpload(req.Data);
         this.HandleActiveState(req.Data);
+        this.SanitizeDepartmentData(req.Data);
         let result = await this.Save(req.Data);
         return result.dataValues.Id;
     }
@@ -29,6 +87,7 @@ export class DepartmentBo extends BaseBo<DepartmentInstance, DepartmentAttribute
         }
         this.HandleNullDataViaFileUpload(req.Data);
         this.HandleActiveState(req.Data);
+        this.SanitizeDepartmentData(req.Data);
         let result = await this.Update(req.Data);
         return result;
     }

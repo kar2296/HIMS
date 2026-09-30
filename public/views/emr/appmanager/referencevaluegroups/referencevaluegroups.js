@@ -16,9 +16,47 @@
             ActiveStatusId: 2
         };
 
+        $scope.refreshReactProps = function () {
+            $scope.reactProps = {
+                items: vm.gridConfig.data || [],
+                totalItems: vm.gridConfig.pagerObj.totalItems || 0,
+                pageSize: vm.gridConfig.pagerObj.pageSize || 25,
+                currentPage: vm.gridConfig.pagerObj.currentPage || 1,
+                lookup: $scope.lookup || {},
+                currentfilter: $scope.currentfilter
+            };
+        };
+
+        $scope.handleReactAction = function (action, payload) {
+            $scope.$evalAsync(function () {
+                if (action === 'fetchData' && payload) {
+                    if (payload.currentPage) vm.gridConfig.pagerObj.currentPage = payload.currentPage;
+                    if (payload.pageSize) vm.gridConfig.pagerObj.pageSize = payload.pageSize;
+                    if (payload.currentfilter) {
+                        angular.extend($scope.currentfilter, payload.currentfilter);
+                    }
+                    $scope.getList();
+                } else if (action === 'addNew') {
+                    $scope.addNew();
+                } else if (action === 'edit' && payload) {
+                    $scope.openModal(payload.Id);
+                } else if (action === 'delete' && payload) {
+                    $scope.onDeleteConfirmed(payload.Id);
+                } else if (action === 'refvalueaction' && payload) {
+                    $scope.handleEvents('refvalueaction', payload);
+                }
+            });
+        };
+
         $scope.getListCallback = function (scope, res, options, hasError) {
-            vm.gridConfig.data = res.Data;
-            vm.gridConfig.pagerObj.totalItems = res.PageContext.TotalRecords;
+            if (!hasError && res && res.Data) {
+                vm.gridConfig.data = res.Data;
+                vm.gridConfig.pagerObj.totalItems = (res.PageContext && res.PageContext.TotalRecords !== undefined) ? res.PageContext.TotalRecords : res.Data.length;
+            } else {
+                vm.gridConfig.data = [];
+                vm.gridConfig.pagerObj.totalItems = 0;
+            }
+            $scope.refreshReactProps();
         };
 
         $scope.getList = function () {
@@ -169,6 +207,7 @@
         }
         $scope.lookupCallback = function (scope, data, options, hasError) {
             $scope.lookup = hasError ? {} : data;
+            $scope.refreshReactProps();
             $scope.getList();
         }
 

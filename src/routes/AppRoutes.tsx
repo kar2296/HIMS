@@ -15,6 +15,22 @@ import { StateMasterListScreen } from '../react-components/StateMasterListScreen
 import { DistrictMasterListScreen } from '../react-components/DistrictMasterListScreen';
 import { CityMasterListScreen } from '../react-components/CityMasterListScreen';
 import { PincodeMasterListScreen } from '../react-components/PincodeMasterListScreen';
+import { FacilitiesListScreen } from '../react-components/FacilitiesListScreen';
+import { FacilityFormScreen } from '../react-components/FacilityFormScreen';
+import { FacilityTabScreen } from '../react-components/FacilityTabScreen';
+import { DepartmentsListScreen } from '../react-components/DepartmentsListScreen';
+import { DepartmentFormScreen } from '../react-components/DepartmentFormScreen';
+import { RolesListScreen } from '../react-components/RolesListScreen';
+import { RoleTabScreen } from '../react-components/RoleTabScreen';
+import { EncounterUpdateListScreen } from '../react-components/EncounterUpdateListScreen';
+import { ReferenceValueGroupsListScreen } from '../react-components/ReferenceValueGroupsListScreen';
+import { SequenceMastersListScreen } from '../react-components/SequenceMastersListScreen';
+import { EventTemplatesListScreen } from '../react-components/EventTemplatesListScreen';
+import { EventTemplateFormScreen } from '../react-components/EventTemplateFormScreen';
+import { DoctorPaymentModifyScreen } from '../react-components/DoctorPaymentModifyScreen';
+import { RoleFormScreen } from '../react-components/RoleFormScreen';
+import { GroupsListScreen } from '../react-components/GroupsListScreen';
+import { GroupTabScreen } from '../react-components/GroupTabScreen';
 import { OccupationMasterListScreen } from '../react-components/OccupationMasterListScreen';
 import { PatientIdentityFormScreen } from '../react-components/PatientIdentityFormScreen';
 import { PatientKinFormScreen } from '../react-components/PatientKinFormScreen';
@@ -261,6 +277,275 @@ export const AppRoutes: React.FC = () => {
           element={
             <ProtectedRoute>
               <ShellWrapper activeTab="dashboard" component={<PincodeMasterListScreen />} />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/facilitys"
+          element={
+            <ProtectedRoute>
+              <ShellWrapper activeTab="dashboard" component={<FacilitiesListScreen />} />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/app/facilitys"
+          element={
+            <ProtectedRoute>
+              <ShellWrapper activeTab="dashboard" component={<FacilitiesListScreen />} />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/app/facility/:id"
+          element={
+            <ProtectedRoute>
+              <ShellWrapper activeTab="dashboard" component={<div><FacilityTabScreen /><FacilityFormScreen /></div>} />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/app/facility/:id/general"
+          element={
+            <ProtectedRoute>
+              <ShellWrapper activeTab="dashboard" component={<div><FacilityTabScreen /><FacilityFormScreen /></div>} />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/depts"
+          element={
+            <ProtectedRoute>
+              <ShellWrapper activeTab="dashboard" component={<DepartmentsListScreen />} />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/app/depts"
+          element={
+            <ProtectedRoute>
+              <ShellWrapper activeTab="dashboard" component={<DepartmentsListScreen />} />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/app/dept"
+          element={
+            <ProtectedRoute>
+              <ShellWrapper activeTab="dashboard" component={<DepartmentFormScreen />} />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/roles"
+          element={
+            <ProtectedRoute>
+              <ShellWrapper activeTab="dashboard" component={<RolesListScreen />} />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/app/roles"
+          element={
+            <ProtectedRoute>
+              <ShellWrapper activeTab="dashboard" component={<RolesListScreen />} />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/encdocupdate"
+          element={
+            <ProtectedRoute>
+              <ShellWrapper activeTab="inpatient" component={<EncounterUpdateListScreen />} />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/app/encdocupdate"
+          element={
+            <ProtectedRoute>
+              <ShellWrapper activeTab="inpatient" component={<EncounterUpdateListScreen />} />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/referencevaluegroups"
+          element={
+            <ProtectedRoute>
+              <ShellWrapper activeTab="emr" component={<ReferenceValueGroupsListScreen />} />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/app/referencevaluegroups"
+          element={
+            <ProtectedRoute>
+              <ShellWrapper activeTab="emr" component={<ReferenceValueGroupsListScreen />} />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/sequencemasters"
+          element={
+            <ProtectedRoute>
+              <ShellWrapper activeTab="emr" component={<SequenceMastersListScreen />} />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/app/sequencemasters"
+          element={
+            <ProtectedRoute>
+              <ShellWrapper activeTab="emr" component={<SequenceMastersListScreen />} />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/eventtemplates"
+          element={
+            <ProtectedRoute>
+              <ShellWrapper activeTab="emr" component={<EventTemplatesListScreen />} />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/app/eventtemplates"
+          element={
+            <ProtectedRoute>
+              <ShellWrapper activeTab="emr" component={<EventTemplatesListScreen />} />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/eventtemplate"
+          element={
+            <ProtectedRoute>
+              <ShellWrapper activeTab="emr" component={<EventTemplateFormScreen />} />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/app/eventtemplate"
+          element={
+            <ProtectedRoute>
+              <ShellWrapper activeTab="emr" component={<EventTemplateFormScreen />} />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/eventtemplate/:id"
+          element={
+            <ProtectedRoute>
+              <ShellWrapper activeTab="emr" component={<EventTemplateFormScreen />} />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/app/eventtemplate/:id"
+          element={
+            <ProtectedRoute>
+              <ShellWrapper activeTab="emr" component={<EventTemplateFormScreen />} />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/doctorpaymentmodify"
+          element={
+            <ProtectedRoute>
+              <ShellWrapper activeTab="billing" component={<DoctorPaymentModifyScreen />} />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/doctorpaymentmodify/"
+          element={
+            <ProtectedRoute>
+              <ShellWrapper activeTab="billing" component={<DoctorPaymentModifyScreen />} />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/app/doctorpaymentmodify"
+          element={
+            <ProtectedRoute>
+              <ShellWrapper activeTab="billing" component={<DoctorPaymentModifyScreen />} />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/app/doctorpaymentmodify/"
+          element={
+            <ProtectedRoute>
+              <ShellWrapper activeTab="billing" component={<DoctorPaymentModifyScreen />} />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/app/role/:id"
+          element={
+            <ProtectedRoute>
+              <ShellWrapper activeTab="dashboard" component={<RoleTabScreen />} />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/app/role/:id/:tab"
+          element={
+            <ProtectedRoute>
+              <ShellWrapper activeTab="dashboard" component={<RoleTabScreen />} />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/app/role"
+          element={
+            <ProtectedRoute>
+              <ShellWrapper activeTab="dashboard" component={<RoleTabScreen />} />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Groups */}
+        <Route
+          path="/groups"
+          element={
+            <ProtectedRoute>
+              <ShellWrapper activeTab="dashboard" component={<GroupsListScreen />} />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/app/groups"
+          element={
+            <ProtectedRoute>
+              <ShellWrapper activeTab="dashboard" component={<GroupsListScreen />} />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/app/group/:id"
+          element={
+            <ProtectedRoute>
+              <ShellWrapper activeTab="dashboard" component={<GroupTabScreen />} />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/app/group/:id/:tab"
+          element={
+            <ProtectedRoute>
+              <ShellWrapper activeTab="dashboard" component={<GroupTabScreen />} />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/app/group"
+          element={
+            <ProtectedRoute>
+              <ShellWrapper activeTab="dashboard" component={<GroupTabScreen />} />
             </ProtectedRoute>
           }
         />
