@@ -578,7 +578,7 @@ export class Report {
             path = join(__dirname, '/../../Templates/', 'pkv', filePartialPath);
         }
         if (!existsSync(path)) {
-            throw new Error(`Template path is not configured for given key '` + key + `' = ` + path);
+            throw new Error(`Template path is not configured for given key '" + key + "' = ` + path);
         }
         let template = readFileSync(path, 'utf-8');
         return Template.Compile(template, { data: data }, compileOptions);

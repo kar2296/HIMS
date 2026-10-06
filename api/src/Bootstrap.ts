@@ -25,7 +25,9 @@ export class Bootstrap {
                 Error: { Code: code, Message: err.message, Stack: process.env.NODE_ENV === 'development' ? err.stack : null }
             };
             console.error(err);
-            res.status(404).json(out);
+            if (e.sql) console.error('FAILED SQL:', e.sql);
+            const statusCode = (e && (e.statusCode || e.status)) ? (e.statusCode || e.status) : 500;
+            res.status(statusCode).json(out);
         };
         server.Init();
         server.AddStaticFileRouting(AppConfig.WebBasePath, __dirname + process.env.WEB_UI_PATH, AppConfig.WebStaticFile);

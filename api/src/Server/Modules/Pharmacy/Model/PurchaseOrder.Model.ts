@@ -122,8 +122,8 @@ export default function (sequelize: Sequelize, DataTypes: DataTypes):
         PurchaseOrder.belongsTo(models.ReferenceValue, { as: 'PoStatus', targetKey: 'ReferenceValueCodeId' });
         PurchaseOrder.belongsTo(models.ReferenceValue, { as: 'PoType', targetKey: 'ReferenceValueCodeId' });
         PurchaseOrder.belongsTo(models.ReferenceValue, { as: 'PaymentTerms', targetKey: 'ReferenceValueCodeId' });
-        PurchaseOrder.hasMany(models.PurchaseOrderDetail);
-        PurchaseOrder.hasMany(models.Grn);
+        PurchaseOrder.hasMany(models.PurchaseOrderDetail, { foreignKey: 'PurchaseOrderId' });
+        PurchaseOrder.hasMany(models.Grn, { foreignKey: 'PurchaseOrderId' });
         PurchaseOrder.belongsTo(models.User, { as: 'RequestedUser', foreignKey: 'RequestedBy' });
         PurchaseOrder.belongsTo(models.User, { as: 'CreatedUser', foreignKey: 'CreatedBy' });
         PurchaseOrder.belongsTo(models.User, { as: 'ApprovedUser', foreignKey: 'ApprovedBy' });

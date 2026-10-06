@@ -66,6 +66,7 @@ export class PatientRefundBo extends BaseBo<PatientRefundInstance, PatientRefund
     }
 
     public async sendRefundSms(req: any): Promise<boolean> {
+        if (process.env.DISABLE_OUTBOUND_SMS === 'true' || process.env.ENABLE_OUTBOUND_SMS === 'false') return true;
         const patientBO = BoFactory.GetBo(regbo.PatientBo, this.Request);
         const patient: any = await patientBO.GetById(req.Data.Header.PatientId);
         if (patient) {

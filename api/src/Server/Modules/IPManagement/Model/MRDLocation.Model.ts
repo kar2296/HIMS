@@ -58,9 +58,9 @@ export default function (sequelize: Sequelize, DataTypes: DataTypes):
         MRDLocation.belongsTo(models.User, { as: 'CreatedUser', foreignKey: 'UpdatedBy' });
         MRDLocation.belongsTo(models.Department, { as: 'PatientDepartment', foreignKey: 'DepartmentId' });
         MRDLocation.belongsTo(models.Department, { as: 'FileLocation', foreignKey: 'LocationId' });
-        MRDLocation.belongsTo(models.ReferenceValue, { as: 'PRIORITY', targetKey: 'ReferenceValueCodeId' });
-        MRDLocation.belongsTo(models.ReferenceValue, { as: 'MRDFileStatus', targetKey: 'ReferenceValueCodeId' });
-        MRDLocation.belongsTo(models.ReferenceValue, { as: 'MRDMovementStatus', targetKey: 'ReferenceValueCodeId' });
+        MRDLocation.belongsTo(models.ReferenceValue, { as: 'PRIORITY', foreignKey: 'PriorityId', targetKey: 'ReferenceValueCodeId' });
+        MRDLocation.belongsTo(models.ReferenceValue, { as: 'MRDFileStatus', foreignKey: 'MRDFileStatusId', targetKey: 'ReferenceValueCodeId' });
+        MRDLocation.belongsTo(models.ReferenceValue, { as: 'MRDMovementStatus', foreignKey: 'MRDMovementStatusId', targetKey: 'ReferenceValueCodeId' });
         MRDLocation.belongsTo(models.ReferenceValue,
             { as: 'EncounterType', foreignKey: 'MRDTypeId', targetKey: 'ReferenceValueCodeId' });
         MRDLocation.belongsTo(models.ReferenceValue,

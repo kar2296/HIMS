@@ -84,10 +84,10 @@ export default function (sequelize: Sequelize, DataTypes: DataTypes):
         });
 
     (PatientWorkorder as any).associate = function (models: Models) {
-        PatientWorkorder.belongsTo(models.Patient);
+        PatientWorkorder.belongsTo(models.Patient, { foreignKey: 'Patientid' });
         PatientWorkorder.belongsTo(models.PatientOrder, { foreignKey: 'Orderid' });
-        PatientWorkorder.belongsTo(models.WorkOrderStatus);
-        PatientWorkorder.belongsTo(models.Department);
+        PatientWorkorder.belongsTo(models.WorkOrderStatus, { foreignKey: 'WorkOrderStatusId' });
+        PatientWorkorder.belongsTo(models.Department, { foreignKey: 'Departmentid' });
         PatientWorkorder.belongsTo(models.Department, { foreignKey: 'Subdepartmentid', as: 'SubDepartment' });
         PatientWorkorder.belongsTo(models.ReferenceValue, { as: 'OrderPriority', targetKey: 'ReferenceValueCodeId' });
         PatientWorkorder.belongsTo(models.ReferenceValue, { as: 'LabAssignType', targetKey: 'ReferenceValueCodeId' });

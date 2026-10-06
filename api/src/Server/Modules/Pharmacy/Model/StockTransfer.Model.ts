@@ -87,7 +87,7 @@ export default function (sequelize: Sequelize, DataTypes: DataTypes):
         StockTransfer.belongsTo(models.User, { as: 'CancelledUser', foreignKey: 'CancelledBy' });
         StockTransfer.belongsTo(models.User, { as: 'CreatedUser', foreignKey: 'CreatedBy' });
         StockTransfer.belongsTo(models.StockRequest, { foreignKey: 'StockRequestId' });
-        StockTransfer.hasMany(models.StockTransferDetail);
+        StockTransfer.hasMany(models.StockTransferDetail, { foreignKey: 'StockTransferId' });
     };
 
     return StockTransfer;

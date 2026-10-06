@@ -226,7 +226,7 @@ export class StockItemBo extends BaseBo<StockItemInstance, StockItemAttributes> 
                     where['Quantity'] = { [Op.gt]: '0' };
                     let dbtQry = this.GetSelectQuery(this.Models.StockSerialItem, {
                         attributes: [this.Dal.fn('SUM', this.Dal.col('AmountPaid'))],
-                        where: [this.Dal.literal('`ItemMasterId` = `StockItem`.`ItemMasterId`'),
+                        where: [this.Dal.literal('"ItemMasterId" = "StockItem"."ItemMasterId"'),
                         {
                             'Status': 1,
                             Quantity: { [Op.gt]: 0 }

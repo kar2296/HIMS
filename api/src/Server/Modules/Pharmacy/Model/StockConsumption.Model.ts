@@ -65,7 +65,7 @@ export default function (sequelize: Sequelize, DataTypes: DataTypes):
         StockConsumption.belongsTo(models.User, { as: 'ConsumedUser', foreignKey: 'ConsumedBy' });
         StockConsumption.belongsTo(models.User, { as: 'ApprovedUser', foreignKey: 'ApprovedBy' });
         StockConsumption.belongsTo(models.User, { as: 'AuthorizedUser', foreignKey: 'AuthorizedBy' });
-        StockConsumption.hasMany(models.StockConsumptionDetail);
+        StockConsumption.hasMany(models.StockConsumptionDetail, { foreignKey: 'StockConsumptionId' });
         StockConsumption.belongsTo(models.User, { as: 'CancelledUser', foreignKey: 'CancelledBy' });
         StockConsumption.belongsTo(models.Patient);
         StockConsumption.belongsTo(models.Encounter);

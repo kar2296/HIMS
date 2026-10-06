@@ -403,7 +403,7 @@ export class PatientWorkorderBo extends BaseBo<PatientWorkorderInstance, Patient
         });
         let totalAttachmentQuery = this.GetSelectQuery(this.Models.WorkOrderAttachment, {
             attributes: [this.Dal.fn('COUNT', this.Dal.col('WorkOrderAttachmentId'))],
-            where: [this.Dal.literal('`WorkOrderAttachment`.`WorkOrderId` = `PatientWorkorder`.`Workorderid`'),
+            where: [this.Dal.literal('"WorkOrderAttachment"."WorkOrderId" = "PatientWorkorder"."Workorderid"'),
             {
                 'Status': 1
             }]

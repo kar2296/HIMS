@@ -371,97 +371,98 @@ export class PatientBillDetailsBo extends BaseBo<PatientBillDetailsInstance, Pat
                         let EncounterIPPackageData = await encounterippackagebo.GetEncounterIPPackages(EncounterPackageReq);
                         let EncounterIPPackage = EncounterIPPackageData.Data[0];
                         let EncIPPackageId = 0;
-                        if (EncounterIPPackageData.Data.length > 0) {
+                        if (EncounterIPPackageData.Data && EncounterIPPackageData.Data.length > 0) {
                             EncIPPackageId = EncounterIPPackage.Id;
                         }
-                        let EncounterPackageDetailReq = {
-                            Id: 0,
-                            PageContext: { PageSize: 50, PageNumber: 1 },
-                            Params: [
-                                { Key: EncounterIPPackageDetailFilters.EncounterIPPackageId, Value: EncIPPackageId },
-                                { Key: EncounterIPPackageDetailFilters.ServiceCategoryId, Value: detail.ServiceCategoryId }
-                            ]
-                        };
-                        let EncounterIPPackageDetailData = await
-                            encounterippackagedetailbo.GetEncounterIPPackageDetails(EncounterPackageDetailReq);
-                        let EnIPPD = 0;
-                        let IsDataUpdated = 0;
-                        let servicecategoryBo = BoFactory.GetBo(clinicalMasterBo.ServiceCategoryBo, this.Request);
-                        let ServiceCategoryInfo = await servicecategoryBo.GetServiceCategoryById({ Id: detail.ServiceCategoryId });
-
-                        for (var idx in EncounterIPPackageDetailData.Data) {
-                            var DetailData = EncounterIPPackageDetailData.Data[idx];
-                            if (DetailData.ServiceCategoryId === detail.ServiceCategoryId) {
-                                EnIPPD = DetailData.Id;
-                                IsDataUpdated = 1;
-                                if (detail.IsExclusionItem) {
-                                    let pacData: any = {
-                                        Id: 0,
-                                        EncounterIPPackageDetailId: EnIPPD,
-                                        PatientBillDetailId: detail.Id,
-                                        IPPackageId: EncounterIPPackage.IPPackageId,
-                                        EncounterIPPackageId: EncIPPackageId,
-                                        PackageName: EncounterIPPackage.IPPackageName,
-                                        ServiceGroupId: detail.ServiceGroupId,
-                                        ServiceCategoryId: detail.ServiceCategoryId,
-                                        ServiceItemId: detail.ServiceId,
-                                        ServiceItemName: detail.ServiceName,
-                                        Quantity: detail.Quantity,
-                                        Rate: detail.Rate,
-                                        Amount: detail.Amount,
-                                        TotalAmount: detail.GrossAmount,
-                                        ActiveStatusId: 2,
-                                        Status: 1
-                                    };
-                                    PackageDetailExclusion.push(pacData);
-                                    await patientbillpackageexclusionbo
-                                        .ManageEncounterIPPackageServiceExclusions(EncIPPackageId, EnIPPD, PackageDetailExclusion);
-                                } else if (detail.IsInclusionItem) {
-                                    let pacData: any = {
-                                        Id: 0,
-                                        EncounterIPPackageDetailId: EnIPPD,
-                                        PatientBillDetailId: detail.Id,
-                                        IPPackageId: EncounterIPPackage.IPPackageId,
-                                        EncounterIPPackageId: EncIPPackageId,
-                                        PackageName: EncounterIPPackage.IPPackageName,
-                                        ServiceGroupId: detail.ServiceGroupId,
-                                        ServiceCategoryId: detail.ServiceCategoryId,
-                                        ServiceItemId: detail.ServiceId,
-                                        ServiceItemName: detail.ServiceName,
-                                        Quantity: detail.Quantity,
-                                        Rate: detail.Rate,
-                                        Amount: detail.Amount,
-                                        TotalAmount: detail.GrossAmount,
-                                        ActiveStatusId: 2,
-                                        Status: 1
-                                    };
-                                    PackageDetailInclusion.push(pacData);
-                                    await patientbillpackageinclusionbo
-                                        .ManageEncounterIPPackageServiceInclusions(EncIPPackageId, EnIPPD, PackageDetailInclusion);
-
-                                }
-                                break;
-                            }
-                        }
-                        if (IsDataUpdated === 0) {
-                            let pacDetailData: any = {
-                                Data: {
-                                    Id: 0,
-                                    EncounterIPPackageId: EncIPPackageId,
-                                    IPPackageDetailId: 0,
-                                    ServiceCategoryId: detail.ServiceCategoryId,
-                                    ServiceCategoryCode: ServiceCategoryInfo.ServiceCategoryCode,
-                                    ServiceCategoryName: ServiceCategoryInfo.ServiceCategoryName,
-                                    PackageAmount: detail.NetAmount,
-                                    ActiveStatusId: 2,
-                                    Status: 1,
-                                }
+                        if (EncIPPackageId > 0 && EncounterIPPackage) {
+                            let EncounterPackageDetailReq = {
+                                Id: 0,
+                                PageContext: { PageSize: 50, PageNumber: 1 },
+                                Params: [
+                                    { Key: EncounterIPPackageDetailFilters.EncounterIPPackageId, Value: EncIPPackageId },
+                                    { Key: EncounterIPPackageDetailFilters.ServiceCategoryId, Value: detail.ServiceCategoryId }
+                                ]
                             };
-                            // PackageDetails.Push(pacDetailData);
-                            let detailDataId = await encounterippackagedetailbo
-                                .AddEncounterIPPackageDetail(pacDetailData);
-                            console.log('*******detailDataId********', detailDataId);
-                            let PackageDetailsId = detailDataId;
+                            let EncounterIPPackageDetailData = await
+                                encounterippackagedetailbo.GetEncounterIPPackageDetails(EncounterPackageDetailReq);
+                            let EnIPPD = 0;
+                            let IsDataUpdated = 0;
+                            let servicecategoryBo = BoFactory.GetBo(clinicalMasterBo.ServiceCategoryBo, this.Request);
+                            let ServiceCategoryInfo = detail.ServiceCategoryId ? await servicecategoryBo.GetServiceCategoryById({ Id: detail.ServiceCategoryId }) : null;
+
+                            for (var idx in EncounterIPPackageDetailData.Data) {
+                                var DetailData = EncounterIPPackageDetailData.Data[idx];
+                                if (DetailData.ServiceCategoryId === detail.ServiceCategoryId) {
+                                    EnIPPD = DetailData.Id;
+                                    IsDataUpdated = 1;
+                                    if (detail.IsExclusionItem) {
+                                        let pacData: any = {
+                                            Id: 0,
+                                            EncounterIPPackageDetailId: EnIPPD,
+                                            PatientBillDetailId: detail.Id,
+                                            IPPackageId: EncounterIPPackage.IPPackageId,
+                                            EncounterIPPackageId: EncIPPackageId,
+                                            PackageName: EncounterIPPackage.IPPackageName,
+                                            ServiceGroupId: detail.ServiceGroupId,
+                                            ServiceCategoryId: detail.ServiceCategoryId,
+                                            ServiceItemId: detail.ServiceId,
+                                            ServiceItemName: detail.ServiceName,
+                                            Quantity: detail.Quantity,
+                                            Rate: detail.Rate,
+                                            Amount: detail.Amount,
+                                            TotalAmount: detail.GrossAmount,
+                                            ActiveStatusId: 2,
+                                            Status: 1
+                                        };
+                                        PackageDetailExclusion.push(pacData);
+                                        await patientbillpackageexclusionbo
+                                            .ManageEncounterIPPackageServiceExclusions(EncIPPackageId, EnIPPD, PackageDetailExclusion);
+                                    } else if (detail.IsInclusionItem) {
+                                        let pacData: any = {
+                                            Id: 0,
+                                            EncounterIPPackageDetailId: EnIPPD,
+                                            PatientBillDetailId: detail.Id,
+                                            IPPackageId: EncounterIPPackage.IPPackageId,
+                                            EncounterIPPackageId: EncIPPackageId,
+                                            PackageName: EncounterIPPackage.IPPackageName,
+                                            ServiceGroupId: detail.ServiceGroupId,
+                                            ServiceCategoryId: detail.ServiceCategoryId,
+                                            ServiceItemId: detail.ServiceId,
+                                            ServiceItemName: detail.ServiceName,
+                                            Quantity: detail.Quantity,
+                                            Rate: detail.Rate,
+                                            Amount: detail.Amount,
+                                            TotalAmount: detail.GrossAmount,
+                                            ActiveStatusId: 2,
+                                            Status: 1
+                                        };
+                                        PackageDetailInclusion.push(pacData);
+                                        await patientbillpackageinclusionbo
+                                            .ManageEncounterIPPackageServiceInclusions(EncIPPackageId, EnIPPD, PackageDetailInclusion);
+
+                                    }
+                                    break;
+                                }
+                            }
+                            if (IsDataUpdated === 0) {
+                                let pacDetailData: any = {
+                                    Data: {
+                                        Id: 0,
+                                        EncounterIPPackageId: EncIPPackageId,
+                                        IPPackageDetailId: 0,
+                                        ServiceCategoryId: detail.ServiceCategoryId,
+                                        ServiceCategoryCode: ServiceCategoryInfo ? ServiceCategoryInfo.ServiceCategoryCode : '',
+                                        ServiceCategoryName: ServiceCategoryInfo ? ServiceCategoryInfo.ServiceCategoryName : '',
+                                        PackageAmount: detail.NetAmount,
+                                        ActiveStatusId: 2,
+                                        Status: 1,
+                                    }
+                                };
+                                // PackageDetails.Push(pacDetailData);
+                                let detailDataId = await encounterippackagedetailbo
+                                    .AddEncounterIPPackageDetail(pacDetailData);
+                                console.log('*******detailDataId********', detailDataId);
+                                let PackageDetailsId = detailDataId;
                             if (detail.IsExclusionItem) {
                                 let pacData: any = {
                                     Id: 0,
@@ -510,6 +511,7 @@ export class PatientBillDetailsBo extends BaseBo<PatientBillDetailsInstance, Pat
 
                             }
                         }
+                    }
                     }
                 } else if (detail.Id > 0) {
                     await this.Update(detail);

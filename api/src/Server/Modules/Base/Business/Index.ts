@@ -309,6 +309,9 @@ export abstract class BaseBo<TModel extends Instance<IAttributes>, TAttributes e
         return res && res[0] > 0;
     }
     protected GetSmsProvider(): SmsProvider {
+        if (process.env.DISABLE_OUTBOUND_SMS === 'true' || process.env.ENABLE_OUTBOUND_SMS === 'false') {
+            return { send: async () => ({ status: 'MOCKED_OUTBOUND', success: true }) } as any;
+        }
         let provider = SmsConfig['PROVIDER'];
         let userName = SmsConfig['USER_NAME'];
         let password = SmsConfig['PASSWORD'];
@@ -516,7 +519,7 @@ export class MapBo<TModel extends Instance<IAttributes>, TAttributes extends IAt
             let _entities = _(entities);
             let groups = _entities.groupBy(this.PivoteKey).map().value();
             if (groups.length > 1) {
-                throw `More than one group of '` + this.PivoteKey + `' cannot mange at a time'`;
+                throw `More than one group of '" + this.PivoteKey + "' cannot mange at a time'`;
             }
             let pivoteValue = (<any>_entities.first())[this.PivoteKey];
             let source: Array<TModel> = await super.FindAll({ where: { [this.PivoteKey]: pivoteValue } });
@@ -564,7 +567,7 @@ export class MapBo<TModel extends Instance<IAttributes>, TAttributes extends IAt
             let _entities = _(entities);
             let groups = _entities.groupBy(this.PivoteKey).map().value();
             if (groups.length > 1) {
-                throw `More than one group of '` + this.PivoteKey + `' cannot mange at a time'`;
+                throw `More than one group of '" + this.PivoteKey + "' cannot mange at a time'`;
             }
             let pivoteValue = (<any>_entities.first())[this.PivoteKey];
             let source: Array<TModel> = await super.FindAll({ where: { [this.PivoteKey]: pivoteValue } });

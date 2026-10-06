@@ -15,6 +15,7 @@ import * as userbo from '../../SystemSettings/Business/Index';
 
 export class BankStatementsBo extends BaseBo<BankStatementsInstance, BankStatementsAttributes> {
     public async AddBankStatements(req: BaseRequest): Promise<number> {
+        await this.AssertNotAlreadySubmitted(req.Data.Header);
         let NrIdentifier: any = null;
         if (req.Data.Header.DocumentNumber === null) {
             req.Data.Header.DocumentDate = new Date();
@@ -45,6 +46,40 @@ export class BankStatementsBo extends BaseBo<BankStatementsInstance, BankStateme
         }
 
         return 0;
+    }
+
+    /**
+     * Refuses a second submitted statement for exactly the same facility, department, user and
+     * period. The screen could send Submit twice (double click while the first save was on its
+     * way), which created two identical statements. The submitting user's row is locked first
+     * so two simultaneous requests are checked one after the other.
+     */
+    private async AssertNotAlreadySubmitted(header: any): Promise<void> {
+        if (!header || !header.OpeningDate || !header.ClosingDate) {
+            return;
+        }
+        const tx = (this as any).transaction;
+        await this.Models.User.findOne({
+            where: { Id: this.Session.UserId }, attributes: ['Id'],
+            transaction: tx, lock: tx ? (tx as any).LOCK.UPDATE : undefined
+        } as any);
+        const where: any = {
+            FacilityId: header.FacilityId,
+            DepartmentId: header.DepartmentId,
+            UserId: header.UserId,
+            OpeningDate: header.OpeningDate,
+            ClosingDate: header.ClosingDate,
+            BillingCounterStatusId: 3,
+            Status: 1
+        };
+        Object.keys(where).forEach((k) => { if (where[k] === undefined) { where[k] = null; } });
+        const existing = await this.Items.findOne({ where, attributes: ['Id', 'DocumentNumber'], transaction: tx } as any);
+        if (existing) {
+            const doc = (existing as any).dataValues.DocumentNumber || (existing as any).dataValues.Id;
+            const err: any = new Error('This bank statement has already been submitted (' + doc + ') for the same department, user and period.');
+            err.status = 409;
+            throw err;
+        }
     }
 
     public async DatesAlreadyExist(req: BaseRequest): Promise<boolean> {

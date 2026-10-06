@@ -788,7 +788,7 @@ export class PatientBo extends BaseBo<PatientInstance, PatientAttributes> implem
         let billQry = this.GetSelectQuery(this.Models.PatientBills, {
             attributes: [this.Dal.fn('SUM', this.Dal.col('OutStandingAmount'))],
             where: where,
-            // where: [this.Dal.literal('`PatientId` = ' + req.Id),
+            // where: [this.Dal.literal('"PatientId" = ' + req.Id),
             // {
             //     'Status': 1,
             //     'PatientBillStatusId': 3
@@ -799,7 +799,7 @@ export class PatientBo extends BaseBo<PatientInstance, PatientAttributes> implem
         let returnQry = this.GetSelectQuery(this.Models.PatientBills, {
             attributes: [this.Dal.fn('SUM', this.Dal.col('ReturnedAmount'))],
             where: where,
-            // where: [this.Dal.literal('`PatientId` = ' + req.Id),
+            // where: [this.Dal.literal('"PatientId" = ' + req.Id),
             // {
             //     'Status': 1,
             //     'PatientBillStatusId': 3
@@ -809,7 +809,7 @@ export class PatientBo extends BaseBo<PatientInstance, PatientAttributes> implem
 
         let paidQry = this.GetSelectQuery(this.Models.PatientPaymentDetails, {
             attributes: [this.Dal.fn('SUM', this.Dal.col('AmountPaid'))],
-            where: [this.Dal.literal('`PatientId` = ' + req.Id),
+            where: [this.Dal.literal('"PatientId" = ' + req.Id),
             {
                 'Status': 1,
                 'ReceiptTypeId': 1,
@@ -820,7 +820,7 @@ export class PatientBo extends BaseBo<PatientInstance, PatientAttributes> implem
 
         let adjustedQry = this.GetSelectQuery(this.Models.PatientPaymentDetails, {
             attributes: [this.Dal.fn('SUM', this.Dal.col('AmountAdjusted'))],
-            where: [this.Dal.literal('`PatientId` = ' + req.Id),
+            where: [this.Dal.literal('"PatientId" = ' + req.Id),
             {
                 'Status': 1,
                 'ReceiptTypeId': 1,
@@ -895,7 +895,7 @@ export class PatientBo extends BaseBo<PatientInstance, PatientAttributes> implem
         attributes['include'] = [];
         let billQry = this.GetSelectQuery(this.Models.PatientBills, {
             attributes: [this.Dal.fn('SUM', this.Dal.col('OutStandingAmount'))],
-            where: [this.Dal.literal('`PatientId` = ' + req.Id),
+            where: [this.Dal.literal('"PatientId" = ' + req.Id),
             {
                 'Status': 1,
                 'PatientBillStatusId': 3
@@ -905,7 +905,7 @@ export class PatientBo extends BaseBo<PatientInstance, PatientAttributes> implem
 
         let paidQry = this.GetSelectQuery(this.Models.PatientPaymentDetails, {
             attributes: [this.Dal.fn('SUM', this.Dal.col('AmountPaid'))],
-            where: [this.Dal.literal('`PatientId` = ' + req.Id),
+            where: [this.Dal.literal('"PatientId" = ' + req.Id),
             {
                 'Status': 1,
                 'ReceiptTypeId': 1,
@@ -916,7 +916,7 @@ export class PatientBo extends BaseBo<PatientInstance, PatientAttributes> implem
 
         let adjustedQry = this.GetSelectQuery(this.Models.PatientPaymentDetails, {
             attributes: [this.Dal.fn('SUM', this.Dal.col('AmountAdjusted'))],
-            where: [this.Dal.literal('`PatientId` = ' + req.Id),
+            where: [this.Dal.literal('"PatientId" = ' + req.Id),
             {
                 'Status': 1,
                 'ReceiptTypeId': 1,
@@ -1052,7 +1052,7 @@ export class PatientBo extends BaseBo<PatientInstance, PatientAttributes> implem
         attributes['include'] = [];
         let billQry = this.GetSelectQuery(this.Models.PatientBills, {
             attributes: [this.Dal.fn('SUM', this.Dal.col('OutStandingAmount'))],
-            where: [this.Dal.literal('`PatientId` = ' + req.Id),
+            where: [this.Dal.literal('"PatientId" = ' + req.Id),
             {
                 'Status': 1,
                 'PatientBillStatusId': 3,
@@ -1064,7 +1064,7 @@ export class PatientBo extends BaseBo<PatientInstance, PatientAttributes> implem
 
         let opbillQry = this.GetSelectQuery(this.Models.PatientBills, {
             attributes: [this.Dal.fn('SUM', this.Dal.col('BillAmount'))],
-            where: [this.Dal.literal('`PatientId` = ' + req.Id),
+            where: [this.Dal.literal('"PatientId" = ' + req.Id),
             {
                 'BillTypeId': 4,
                 'Status': 1,
@@ -1075,7 +1075,7 @@ export class PatientBo extends BaseBo<PatientInstance, PatientAttributes> implem
 
         let opbilldiscountQry = this.GetSelectQuery(this.Models.PatientBills, {
             attributes: [this.Dal.fn('SUM', this.Dal.col('BillDiscount'))],
-            where: [this.Dal.literal('`PatientId` = ' + req.Id),
+            where: [this.Dal.literal('"PatientId" = ' + req.Id),
             {
                 'BillTypeId': 4,
                 'Status': 1,
@@ -1086,7 +1086,7 @@ export class PatientBo extends BaseBo<PatientInstance, PatientAttributes> implem
 
         let opbillroundoffQry = this.GetSelectQuery(this.Models.PatientBills, {
             attributes: [this.Dal.fn('SUM', this.Dal.col('RoundOffValue'))],
-            where: [this.Dal.literal('`PatientId` = ' + req.Id),
+            where: [this.Dal.literal('"PatientId" = ' + req.Id),
             {
                 'BillTypeId': 4,
                 'Status': 1,
@@ -1097,7 +1097,7 @@ export class PatientBo extends BaseBo<PatientInstance, PatientAttributes> implem
 
         let ipbillQry = this.GetSelectQuery(this.Models.PatientBills, {
             attributes: [this.Dal.fn('SUM', this.Dal.col('BillAmount'))],
-            where: [this.Dal.literal('`PatientId` = ' + req.Id),
+            where: [this.Dal.literal('"PatientId" = ' + req.Id),
             {
                 'BillTypeId': 2,
                 'Status': 1,
@@ -1108,7 +1108,7 @@ export class PatientBo extends BaseBo<PatientInstance, PatientAttributes> implem
 
         let ipbilldiscountQry = this.GetSelectQuery(this.Models.PatientBills, {
             attributes: [this.Dal.fn('SUM', this.Dal.col('BillDiscount'))],
-            where: [this.Dal.literal('`PatientId` = ' + req.Id),
+            where: [this.Dal.literal('"PatientId" = ' + req.Id),
             {
                 'BillTypeId': 2,
                 'Status': 1,
@@ -1119,7 +1119,7 @@ export class PatientBo extends BaseBo<PatientInstance, PatientAttributes> implem
 
         let ipbillroundoffQry = this.GetSelectQuery(this.Models.PatientBills, {
             attributes: [this.Dal.fn('SUM', this.Dal.col('RoundOffValue'))],
-            where: [this.Dal.literal('`PatientId` = ' + req.Id),
+            where: [this.Dal.literal('"PatientId" = ' + req.Id),
             {
                 'BillTypeId': 2,
                 'Status': 1,
@@ -1130,7 +1130,7 @@ export class PatientBo extends BaseBo<PatientInstance, PatientAttributes> implem
 
         let paidQry = this.GetSelectQuery(this.Models.PatientPaymentDetails, {
             attributes: [this.Dal.fn('SUM', this.Dal.col('AmountPaid'))],
-            where: [this.Dal.literal('`PatientId` = ' + req.Id),
+            where: [this.Dal.literal('"PatientId" = ' + req.Id),
             {
                 'Status': 1,
                 'ReceiptStatusId': 1
@@ -1140,7 +1140,7 @@ export class PatientBo extends BaseBo<PatientInstance, PatientAttributes> implem
 
         let refundQry = this.GetSelectQuery(this.Models.PatientRefund, {
             attributes: [this.Dal.fn('SUM', this.Dal.col('RefundAmount'))],
-            where: [this.Dal.literal('`PatientId` = ' + req.Id),
+            where: [this.Dal.literal('"PatientId" = ' + req.Id),
             {
                 'Status': 1,
                 'RefundStatusId': 1
@@ -1389,7 +1389,7 @@ export class PatientBo extends BaseBo<PatientInstance, PatientAttributes> implem
                     case PatientFilters.IsBillOutStanding:
                         let billQry = this.GetSelectQuery(this.Models.PatientBills, {
                             attributes: [this.Dal.fn('SUM', this.Dal.col('OutStandingAmount'))],
-                            where: [this.Dal.literal('`PatientId` = `Patient`.`PatientId`'),
+                            where: [this.Dal.literal('"PatientId" = "Patient"."PatientId"'),
                             {
                                 'Status': 1,
                                 'PatientBillStatusId': 3
@@ -1684,7 +1684,7 @@ export class PatientBo extends BaseBo<PatientInstance, PatientAttributes> implem
                     case PatientFilters.IsBillOutStanding:
                         let billQry = this.GetSelectQuery(this.Models.PatientBills, {
                             attributes: [this.Dal.fn('SUM', this.Dal.col('OutStandingAmount'))],
-                            where: [this.Dal.literal('`PatientId` = `Patient`.`PatientId`'),
+                            where: [this.Dal.literal('"PatientId" = "Patient"."PatientId"'),
                             {
                                 'Status': 1,
                                 'PatientBillStatusId': 3
@@ -1959,7 +1959,7 @@ export class PatientBo extends BaseBo<PatientInstance, PatientAttributes> implem
                     case PatientFilters.IsBillOutStanding:
                         let billQry = this.GetSelectQuery(this.Models.PatientBills, {
                             attributes: [this.Dal.fn('SUM', this.Dal.col('OutStandingAmount'))],
-                            where: [this.Dal.literal('`PatientId` = `Patient`.`PatientId`'),
+                            where: [this.Dal.literal('"PatientId" = "Patient"."PatientId"'),
                             {
                                 'Status': 1,
                                 'PatientBillStatusId': 3
@@ -2417,7 +2417,7 @@ export class PatientBo extends BaseBo<PatientInstance, PatientAttributes> implem
                     case PatientFilters.IsBillOutStanding:
                         let billQry = this.GetSelectQuery(this.Models.PatientBills, {
                             attributes: [this.Dal.fn('SUM', this.Dal.col('OutStandingAmount'))],
-                            where: [this.Dal.literal('`PatientId` = `Patient`.`PatientId`'),
+                            where: [this.Dal.literal('"PatientId" = "Patient"."PatientId"'),
                             {
                                 'Status': 1,
                                 'PatientBillStatusId': 3

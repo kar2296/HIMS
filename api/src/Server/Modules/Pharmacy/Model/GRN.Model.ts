@@ -126,7 +126,7 @@ export default function (sequelize: Sequelize, DataTypes: DataTypes):
         });
         Grn.belongsTo(models.ReferenceValue, { as: 'GrnType', targetKey: 'ReferenceValueCodeId' });
         Grn.belongsTo(models.ReferenceValue, { as: 'GrnSubType', targetKey: 'ReferenceValueCodeId' });
-        Grn.hasMany(models.GrnDetail);
+        Grn.hasMany(models.GrnDetail, { foreignKey: 'GrnId' });
         Grn.belongsTo(models.PurchaseOrder, { foreignKey: 'PurchaseOrderId' });
         Grn.belongsTo(models.User, { as: 'CreatedUser', foreignKey: 'CreatedBy' });
         Grn.belongsTo(models.User, { as: 'UpdatedUser', foreignKey: 'UpdatedBy' });

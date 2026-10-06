@@ -143,9 +143,9 @@ export default function (sequelize: Sequelize, DataTypes: DataTypes):
         ItemMaster.belongsTo(models.GstMaster, { as: 'CGstMaster', foreignKey: 'CGstId' });
         ItemMaster.belongsTo(models.GstMaster, { as: 'SGstMaster', foreignKey: 'SGstId' });
         ItemMaster.hasMany(models.PurchaseOrderDetail, { foreignKey: 'ItemMasterId' });
-        ItemMaster.hasMany(models.GuarantorSupplementary, { as: 'Supplementary' });
+        ItemMaster.hasMany(models.GuarantorSupplementary, { as: 'Supplementary', foreignKey: 'ItemMasterId' });
         ItemMaster.belongsTo(models.Indication, { foreignKey: 'IndicationId' });
-        ItemMaster.hasMany(models.ItemFacilityMap);
+        ItemMaster.hasMany(models.ItemFacilityMap, { foreignKey: 'ItemMasterId' });
         ItemMaster.belongsTo(models.ItemStoreMap, { as: 'StoreMap', foreignKey: 'ItemMasterId' });
     };
     return ItemMaster;

@@ -79,7 +79,7 @@ export class WardMasterBo extends BaseBo<WardMasterInstance, WardMasterAttribute
                     case WardMasterFilters.IsDashBoard:
                         let totalBedQry = this.GetSelectQuery(this.Models.WardRoomBedMaster, {
                             attributes: [this.Dal.fn('COUNT', this.Dal.col('BedId'))],
-                            where: [this.Dal.literal('`WardRoomBedMaster`.`WardId` = `WardMaster`.`WardId`'),
+                            where: [this.Dal.literal('"WardRoomBedMaster"."WardId" = "WardMaster"."WardId"'),
                             {
                                 'Status': 1
                             }]
@@ -87,7 +87,7 @@ export class WardMasterBo extends BaseBo<WardMasterInstance, WardMasterAttribute
                         attributes.include.push(totalBedQry);
                         let availableBedQry = this.GetSelectQuery(this.Models.WardRoomBedMaster, {
                             attributes: [this.Dal.fn('COUNT', this.Dal.col('BedId'))],
-                            where: [this.Dal.literal('`WardRoomBedMaster`.`WardId` = `WardMaster`.`WardId`'),
+                            where: [this.Dal.literal('"WardRoomBedMaster"."WardId" = "WardMaster"."WardId"'),
                             {
                                 'Status': 1,
                                 'BedStatusId': 1
@@ -96,7 +96,7 @@ export class WardMasterBo extends BaseBo<WardMasterInstance, WardMasterAttribute
                         attributes.include.push(availableBedQry);
                         let occupiedBedQry = this.GetSelectQuery(this.Models.WardRoomBedMaster, {
                             attributes: [this.Dal.fn('COUNT', this.Dal.col('BedId'))],
-                            where: [this.Dal.literal('`WardRoomBedMaster`.`WardId` = `WardMaster`.`WardId`'),
+                            where: [this.Dal.literal('"WardRoomBedMaster"."WardId" = "WardMaster"."WardId"'),
                             {
                                 'Status': 1,
                                 'BedStatusId': 2
@@ -105,7 +105,7 @@ export class WardMasterBo extends BaseBo<WardMasterInstance, WardMasterAttribute
                         attributes.include.push(occupiedBedQry);
                         let otherBedQry = this.GetSelectQuery(this.Models.WardRoomBedMaster, {
                             attributes: [this.Dal.fn('COUNT', this.Dal.col('BedId'))],
-                            where: [this.Dal.literal('`WardRoomBedMaster`.`WardId` = `WardMaster`.`WardId`'),
+                            where: [this.Dal.literal('"WardRoomBedMaster"."WardId" = "WardMaster"."WardId"'),
                             {
                                 'Status': 1,
                                 'BedStatusId': 3

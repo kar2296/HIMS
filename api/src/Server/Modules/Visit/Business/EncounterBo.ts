@@ -4413,7 +4413,7 @@ case EncounterFilters.VisitIdentifier:
                     case EncounterFilters.IncludePaymentDetails:
                         let paidQry = this.GetSelectQuery(this.Models.PatientPaymentDetails, {
                             attributes: [this.Dal.fn('SUM', this.Dal.col('AmountPaid'))],
-                            where: [this.Dal.literal('`PatientId` = `Encounter`.`PatientId`'),
+                            where: [this.Dal.literal('"PatientId" = "Encounter"."PatientId"'),
                             {
                                 'Status': 1,
                                 'ReceiptTypeId': [1, 2],
@@ -4423,7 +4423,7 @@ case EncounterFilters.VisitIdentifier:
                         attributes.include.push(paidQry);
                         let adjustedQry = this.GetSelectQuery(this.Models.PatientPaymentDetails, {
                             attributes: [this.Dal.fn('SUM', this.Dal.col('AmountAdjusted'))],
-                            where: [this.Dal.literal('`PatientId` = `Encounter`.`PatientId`'),
+                            where: [this.Dal.literal('"PatientId" = "Encounter"."PatientId"'),
                             {
                                 'Status': 1,
                                 'ReceiptTypeId': [1, 2],
@@ -4435,7 +4435,7 @@ case EncounterFilters.VisitIdentifier:
                     case EncounterFilters.IncludeBillPharmacyInfoDetails:
                         let opbillAmountQry = this.GetSelectQuery(this.Models.PatientBills, {
                             attributes: [this.Dal.fn('SUM', this.Dal.col('BillAmount'))],
-                            where: [this.Dal.literal('`EncounterId` = `Encounter`.`EncounterId`'),
+                            where: [this.Dal.literal('"EncounterId" = "Encounter"."EncounterId"'),
                             {
                                 'Status': 1,
                                 'BillTypeId': [1, 5],
@@ -4445,7 +4445,7 @@ case EncounterFilters.VisitIdentifier:
                         attributes.include.push(opbillAmountQry);
                         let pharmacybillAmountQry = this.GetSelectQuery(this.Models.PatientBills, {
                             attributes: [this.Dal.fn('SUM', this.Dal.col('BillAmount'))],
-                            where: [this.Dal.literal('`EncounterId` = `Encounter`.`EncounterId`'),
+                            where: [this.Dal.literal('"EncounterId" = "Encounter"."EncounterId"'),
                             {
                                 'Status': 1,
                                 'BillTypeId': 4,
@@ -4457,7 +4457,7 @@ case EncounterFilters.VisitIdentifier:
                     case EncounterFilters.IncludeBillDetails:
                         let dbtQry = this.GetSelectQuery(this.Models.PatientPaymentDetails, {
                             attributes: [this.Dal.fn('SUM', this.Dal.col('AmountPaid'))],
-                            where: [this.Dal.literal('`EncounterId` = `Encounter`.`EncounterId`'),
+                            where: [this.Dal.literal('"EncounterId" = "Encounter"."EncounterId"'),
                             {
                                 'Status': 1,
                                 '$or': [{ 'EncounterTypeId': 2 }, { 'EncounterTypeId': 3 }],
@@ -4468,7 +4468,7 @@ case EncounterFilters.VisitIdentifier:
                         attributes.include.push(dbtQry);
                         let tdsQry = this.GetSelectQuery(this.Models.PatientPaymentDetails, {
                             attributes: [this.Dal.fn('SUM', this.Dal.col('TDSAmount'))],
-                            where: [this.Dal.literal('`EncounterId` = `Encounter`.`EncounterId`'),
+                            where: [this.Dal.literal('"EncounterId" = "Encounter"."EncounterId"'),
                             {
                                 'Status': 1,
                                 '$or': [{ 'EncounterTypeId': 2 }, { 'EncounterTypeId': 3 }],
@@ -4478,7 +4478,7 @@ case EncounterFilters.VisitIdentifier:
                         attributes.include.push(tdsQry);
                         let disQry = this.GetSelectQuery(this.Models.PatientPaymentDetails, {
                             attributes: [this.Dal.fn('SUM', this.Dal.col('Disallowance'))],
-                            where: [this.Dal.literal('`EncounterId` = `Encounter`.`EncounterId`'),
+                            where: [this.Dal.literal('"EncounterId" = "Encounter"."EncounterId"'),
                             {
                                 'Status': 1,
                                 '$or': [{ 'EncounterTypeId': 2 }, { 'EncounterTypeId': 3 }],
@@ -4488,7 +4488,7 @@ case EncounterFilters.VisitIdentifier:
                         attributes.include.push(disQry);
                         let billAmountQry = this.GetSelectQuery(this.Models.PatientBills, {
                             attributes: [this.Dal.fn('SUM', this.Dal.col('BillAmount'))],
-                            where: [this.Dal.literal('`EncounterId` = `Encounter`.`EncounterId`'),
+                            where: [this.Dal.literal('"EncounterId" = "Encounter"."EncounterId"'),
                             {
                                 'Status': 1,
                                 'BillTypeId': 3,
@@ -4498,7 +4498,7 @@ case EncounterFilters.VisitIdentifier:
                         attributes.include.push(billAmountQry);
                         let billDiscountQry = this.GetSelectQuery(this.Models.PatientBills, {
                             attributes: [this.Dal.fn('SUM', this.Dal.col('BillDiscount'))],
-                            where: [this.Dal.literal('`EncounterId` = `Encounter`.`EncounterId`'),
+                            where: [this.Dal.literal('"EncounterId" = "Encounter"."EncounterId"'),
                             {
                                 'Status': 1,
                                 'BillTypeId': 3,
@@ -4508,7 +4508,7 @@ case EncounterFilters.VisitIdentifier:
                         attributes.include.push(billDiscountQry);
                         let billRoundoffQry = this.GetSelectQuery(this.Models.PatientBills, {
                             attributes: [this.Dal.fn('SUM', this.Dal.col('RoundOffValue'))],
-                            where: [this.Dal.literal('`EncounterId` = `Encounter`.`EncounterId`'),
+                            where: [this.Dal.literal('"EncounterId" = "Encounter"."EncounterId"'),
                             {
                                 'Status': 1,
                                 'BillTypeId': 3,
@@ -4543,7 +4543,7 @@ case EncounterFilters.VisitIdentifier:
                         });
                         let billPackageInclusionQry = this.GetSelectQuery(this.Models.EncounterIPPackage, {
                             attributes: [this.Dal.fn('SUM', this.Dal.col('PackageAmount'))],
-                            where: [this.Dal.literal('`EncounterId` = `Encounter`.`EncounterId`'),
+                            where: [this.Dal.literal('"EncounterId" = "Encounter"."EncounterId"'),
                             {
                                 'Status': 1
                             }]
@@ -4551,7 +4551,7 @@ case EncounterFilters.VisitIdentifier:
                         attributes.include.push(billPackageInclusionQry);
                         let billPackageExclusionQry = this.GetSelectQuery(this.Models.PatientBillPackageSummary, {
                             attributes: [this.Dal.fn('SUM', this.Dal.col('ExclusionAmount'))],
-                            where: [this.Dal.literal('`EncounterId` = `Encounter`.`EncounterId`'),
+                            where: [this.Dal.literal('"EncounterId" = "Encounter"."EncounterId"'),
                             {
                                 'Status': 1
                             }]
@@ -4559,7 +4559,7 @@ case EncounterFilters.VisitIdentifier:
                         attributes.include.push(billPackageExclusionQry);
                         let billPackageDiscountQry = this.GetSelectQuery(this.Models.EncounterIPPackage, {
                             attributes: [this.Dal.fn('SUM', this.Dal.col('DiscountAmount'))],
-                            where: [this.Dal.literal('`EncounterId` = `Encounter`.`EncounterId`'),
+                            where: [this.Dal.literal('"EncounterId" = "Encounter"."EncounterId"'),
                             {
                                 'Status': 1
                             }]
@@ -6135,7 +6135,7 @@ case EncounterFilters.OpenEncounter:
                     case EncounterFilters.IncludeBillDetails:
                         let dbtQry = this.GetSelectQuery(this.Models.PatientPaymentDetails, {
                             attributes: [this.Dal.fn('SUM', this.Dal.col('AmountPaid'))],
-                            where: [this.Dal.literal('`EncounterId` = `Encounter`.`EncounterId`'),
+                            where: [this.Dal.literal('"EncounterId" = "Encounter"."EncounterId"'),
                             {
                                 'Status': 1,
                                 '$or': [{ 'EncounterTypeId': 2 }, { 'EncounterTypeId': 3 }],
@@ -8906,7 +8906,7 @@ case EncounterFilters.VisitIdentifier:
                     case EncounterFilters.IncludeBillSummary:
                         let billSummQry = this.GetSelectQuery(this.Models.PatientBillSummary, {
                             attributes: [this.Dal.fn('SUM', this.Dal.col('ActualAmount'))],
-                            where: [this.Dal.literal('`EncounterId` = `Encounter`.`EncounterId`'),
+                            where: [this.Dal.literal('"EncounterId" = "Encounter"."EncounterId"'),
                             {
                                 'Status': 1,
                             }]
@@ -8916,7 +8916,7 @@ case EncounterFilters.VisitIdentifier:
                     case EncounterFilters.IncludePaymentDetails:
                         let paidQry = this.GetSelectQuery(this.Models.PatientPaymentDetails, {
                             attributes: [this.Dal.fn('SUM', this.Dal.col('AmountPaid'))],
-                            where: [this.Dal.literal('`PatientId` = `Encounter`.`PatientId`'),
+                            where: [this.Dal.literal('"PatientId" = "Encounter"."PatientId"'),
                             {
                                 'Status': 1,
                                 'ReceiptTypeId': 1,
@@ -8926,7 +8926,7 @@ case EncounterFilters.VisitIdentifier:
                         attributes.include.push(paidQry);
                         let adjustedQry = this.GetSelectQuery(this.Models.PatientPaymentDetails, {
                             attributes: [this.Dal.fn('SUM', this.Dal.col('AmountAdjusted'))],
-                            where: [this.Dal.literal('`PatientId` = `Encounter`.`PatientId`'),
+                            where: [this.Dal.literal('"PatientId" = "Encounter"."PatientId"'),
                             {
                                 'Status': 1,
                                 'ReceiptTypeId': 1,
@@ -8938,7 +8938,7 @@ case EncounterFilters.VisitIdentifier:
                     case EncounterFilters.IncludeBillDetails:
                         let dbtQry = this.GetSelectQuery(this.Models.PatientPaymentDetails, {
                             attributes: [this.Dal.fn('SUM', this.Dal.col('AmountPaid'))],
-                            where: [this.Dal.literal('`EncounterId` = `Encounter`.`EncounterId`'),
+                            where: [this.Dal.literal('"EncounterId" = "Encounter"."EncounterId"'),
                             {
                                 'Status': 1,
                                 '$or': [{ 'EncounterTypeId': 2 }, { 'EncounterTypeId': 3 }],
@@ -8949,7 +8949,7 @@ case EncounterFilters.VisitIdentifier:
                         attributes.include.push(dbtQry);
                         // let tdsQry = this.GetSelectQuery(this.Models.PatientPaymentDetails, {
                         //     attributes: [this.Dal.fn('SUM', this.Dal.col('TDSAmount'))],
-                        //     where: [this.Dal.literal('`EncounterId` = `Encounter`.`EncounterId`'),
+                        //     where: [this.Dal.literal('"EncounterId" = "Encounter"."EncounterId"'),
                         //     {
                         //         'Status': 1,
                         //         '$or': [{ 'EncounterTypeId': 2 }, { 'EncounterTypeId': 3 }],
@@ -8959,7 +8959,7 @@ case EncounterFilters.VisitIdentifier:
                         // attributes.include.push(tdsQry);
                         // let disQry = this.GetSelectQuery(this.Models.PatientPaymentDetails, {
                         //     attributes: [this.Dal.fn('SUM', this.Dal.col('Disallowance'))],
-                        //     where: [this.Dal.literal('`EncounterId` = `Encounter`.`EncounterId`'),
+                        //     where: [this.Dal.literal('"EncounterId" = "Encounter"."EncounterId"'),
                         //     {
                         //         'Status': 1,
                         //         '$or': [{ 'EncounterTypeId': 2 }, { 'EncounterTypeId': 3 }],
@@ -8969,7 +8969,7 @@ case EncounterFilters.VisitIdentifier:
                         // attributes.include.push(disQry);
                         // let billAmountQry = this.GetSelectQuery(this.Models.PatientBills, {
                         //     attributes: [this.Dal.fn('SUM', this.Dal.col('BillAmount'))],
-                        //     where: [this.Dal.literal('`EncounterId` = `Encounter`.`EncounterId`'),
+                        //     where: [this.Dal.literal('"EncounterId" = "Encounter"."EncounterId"'),
                         //     {
                         //         'Status': 1,
                         //         'BillTypeId': 3,
@@ -8979,7 +8979,7 @@ case EncounterFilters.VisitIdentifier:
                         // attributes.include.push(billAmountQry);
                         let billDiscountQry = this.GetSelectQuery(this.Models.PatientBills, {
                             attributes: [this.Dal.fn('SUM', this.Dal.col('BillDiscount'))],
-                            where: [this.Dal.literal('`EncounterId` = `Encounter`.`EncounterId`'),
+                            where: [this.Dal.literal('"EncounterId" = "Encounter"."EncounterId"'),
                             {
                                 'Status': 1,
                                 'BillTypeId': 3,
@@ -8989,7 +8989,7 @@ case EncounterFilters.VisitIdentifier:
                         attributes.include.push(billDiscountQry);
                         let billRoundoffQry = this.GetSelectQuery(this.Models.PatientBills, {
                             attributes: [this.Dal.fn('SUM', this.Dal.col('RoundOffValue'))],
-                            where: [this.Dal.literal('`EncounterId` = `Encounter`.`EncounterId`'),
+                            where: [this.Dal.literal('"EncounterId" = "Encounter"."EncounterId"'),
                             {
                                 'Status': 1,
                                 'BillTypeId': 3,
@@ -9025,7 +9025,7 @@ case EncounterFilters.VisitIdentifier:
                         });
                         let billPackageInclusionQry = this.GetSelectQuery(this.Models.EncounterIPPackage, {
                             attributes: [this.Dal.fn('SUM', this.Dal.col('PackageAmount'))],
-                            where: [this.Dal.literal('`EncounterId` = `Encounter`.`EncounterId`'),
+                            where: [this.Dal.literal('"EncounterId" = "Encounter"."EncounterId"'),
                             {
                                 'Status': 1
                             }]
@@ -9033,7 +9033,7 @@ case EncounterFilters.VisitIdentifier:
                         attributes.include.push(billPackageInclusionQry);
                         let billPackageExclusionQry = this.GetSelectQuery(this.Models.PatientBillPackageSummary, {
                             attributes: [this.Dal.fn('SUM', this.Dal.col('ExclusionAmount'))],
-                            where: [this.Dal.literal('`EncounterId` = `Encounter`.`EncounterId`'),
+                            where: [this.Dal.literal('"EncounterId" = "Encounter"."EncounterId"'),
                             {
                                 'Status': 1
                             }]
@@ -9041,7 +9041,7 @@ case EncounterFilters.VisitIdentifier:
                         attributes.include.push(billPackageExclusionQry);
                         let billPackageDiscountQry = this.GetSelectQuery(this.Models.EncounterIPPackage, {
                             attributes: [this.Dal.fn('SUM', this.Dal.col('DiscountAmount'))],
-                            where: [this.Dal.literal('`EncounterId` = `Encounter`.`EncounterId`'),
+                            where: [this.Dal.literal('"EncounterId" = "Encounter"."EncounterId"'),
                             {
                                 'Status': 1
                             }]
@@ -9397,7 +9397,7 @@ case EncounterFilters.VisitIdentifier:
                     case EncounterFilters.IncludeBillSummary:
                         let billSummQry = this.GetSelectQuery(this.Models.PatientBillSummary, {
                             attributes: [this.Dal.fn('SUM', this.Dal.col('ActualAmount'))],
-                            where: [this.Dal.literal('`EncounterId` = `Encounter`.`EncounterId`'),
+                            where: [this.Dal.literal('"EncounterId" = "Encounter"."EncounterId"'),
                             {
                                 'Status': 1,
                             }]
@@ -9413,7 +9413,7 @@ case EncounterFilters.VisitIdentifier:
                     case EncounterFilters.IncludePaymentDetails:
                         let paidQry = this.GetSelectQuery(this.Models.PatientPaymentDetails, {
                             attributes: [this.Dal.fn('SUM', this.Dal.col('AmountPaid'))],
-                            where: [this.Dal.literal('`PatientId` = `Encounter`.`PatientId`'),
+                            where: [this.Dal.literal('"PatientId" = "Encounter"."PatientId"'),
                             {
                                 'Status': 1,
                                 'ReceiptTypeId': 1,
@@ -9423,7 +9423,7 @@ case EncounterFilters.VisitIdentifier:
                         attributes.include.push(paidQry);
                         let adjustedQry = this.GetSelectQuery(this.Models.PatientPaymentDetails, {
                             attributes: [this.Dal.fn('SUM', this.Dal.col('AmountAdjusted'))],
-                            where: [this.Dal.literal('`PatientId` = `Encounter`.`PatientId`'),
+                            where: [this.Dal.literal('"PatientId" = "Encounter"."PatientId"'),
                             {
                                 'Status': 1,
                                 'ReceiptTypeId': 1,
@@ -9435,7 +9435,7 @@ case EncounterFilters.VisitIdentifier:
                     case EncounterFilters.IncludeBillDetails:
                         let dbtQry = this.GetSelectQuery(this.Models.PatientPaymentDetails, {
                             attributes: [this.Dal.fn('SUM', this.Dal.col('AmountPaid'))],
-                            where: [this.Dal.literal('`EncounterId` = `Encounter`.`EncounterId`'),
+                            where: [this.Dal.literal('"EncounterId" = "Encounter"."EncounterId"'),
                             {
                                 'Status': 1,
                                 '$or': [{ 'EncounterTypeId': 2 }, { 'EncounterTypeId': 3 }],
@@ -9446,7 +9446,7 @@ case EncounterFilters.VisitIdentifier:
                         attributes.include.push(dbtQry);
                         // let tdsQry = this.GetSelectQuery(this.Models.PatientPaymentDetails, {
                         //     attributes: [this.Dal.fn('SUM', this.Dal.col('TDSAmount'))],
-                        //     where: [this.Dal.literal('`EncounterId` = `Encounter`.`EncounterId`'),
+                        //     where: [this.Dal.literal('"EncounterId" = "Encounter"."EncounterId"'),
                         //     {
                         //         'Status': 1,
                         //         '$or': [{ 'EncounterTypeId': 2 }, { 'EncounterTypeId': 3 }],
@@ -9456,7 +9456,7 @@ case EncounterFilters.VisitIdentifier:
                         // attributes.include.push(tdsQry);
                         // let disQry = this.GetSelectQuery(this.Models.PatientPaymentDetails, {
                         //     attributes: [this.Dal.fn('SUM', this.Dal.col('Disallowance'))],
-                        //     where: [this.Dal.literal('`EncounterId` = `Encounter`.`EncounterId`'),
+                        //     where: [this.Dal.literal('"EncounterId" = "Encounter"."EncounterId"'),
                         //     {
                         //         'Status': 1,
                         //         '$or': [{ 'EncounterTypeId': 2 }, { 'EncounterTypeId': 3 }],
@@ -9466,7 +9466,7 @@ case EncounterFilters.VisitIdentifier:
                         // attributes.include.push(disQry);
                         // let billAmountQry = this.GetSelectQuery(this.Models.PatientBills, {
                         //     attributes: [this.Dal.fn('SUM', this.Dal.col('BillAmount'))],
-                        //     where: [this.Dal.literal('`EncounterId` = `Encounter`.`EncounterId`'),
+                        //     where: [this.Dal.literal('"EncounterId" = "Encounter"."EncounterId"'),
                         //     {
                         //         'Status': 1,
                         //         'BillTypeId': 3,
@@ -9476,7 +9476,7 @@ case EncounterFilters.VisitIdentifier:
                         // attributes.include.push(billAmountQry);
                         let billDiscountQry = this.GetSelectQuery(this.Models.PatientBills, {
                             attributes: [this.Dal.fn('SUM', this.Dal.col('BillDiscount'))],
-                            where: [this.Dal.literal('`EncounterId` = `Encounter`.`EncounterId`'),
+                            where: [this.Dal.literal('"EncounterId" = "Encounter"."EncounterId"'),
                             {
                                 'Status': 1,
                                 'BillTypeId': 3,
@@ -9486,7 +9486,7 @@ case EncounterFilters.VisitIdentifier:
                         attributes.include.push(billDiscountQry);
                         let billRoundoffQry = this.GetSelectQuery(this.Models.PatientBills, {
                             attributes: [this.Dal.fn('SUM', this.Dal.col('RoundOffValue'))],
-                            where: [this.Dal.literal('`EncounterId` = `Encounter`.`EncounterId`'),
+                            where: [this.Dal.literal('"EncounterId" = "Encounter"."EncounterId"'),
                             {
                                 'Status': 1,
                                 'BillTypeId': 3,
@@ -9526,7 +9526,7 @@ case EncounterFilters.VisitIdentifier:
                         // });
                         let billPackageInclusionQry = this.GetSelectQuery(this.Models.EncounterIPPackage, {
                             attributes: [this.Dal.fn('SUM', this.Dal.col('PackageAmount'))],
-                            where: [this.Dal.literal('`EncounterId` = `Encounter`.`EncounterId`'),
+                            where: [this.Dal.literal('"EncounterId" = "Encounter"."EncounterId"'),
                             {
                                 'Status': 1,
                                 'ActiveStatusId': 2
@@ -9535,7 +9535,7 @@ case EncounterFilters.VisitIdentifier:
                         attributes.include.push(billPackageInclusionQry);
                         let billPackageExclusionQry = this.GetSelectQuery(this.Models.PatientBillPackageSummary, {
                             attributes: [this.Dal.fn('SUM', this.Dal.col('ExclusionAmount'))],
-                            where: [this.Dal.literal('`EncounterId` = `Encounter`.`EncounterId`'),
+                            where: [this.Dal.literal('"EncounterId" = "Encounter"."EncounterId"'),
                             {
                                 'Status': 1
                             }]
@@ -9543,7 +9543,7 @@ case EncounterFilters.VisitIdentifier:
                         attributes.include.push(billPackageExclusionQry);
                         let billPackageDiscountQry = this.GetSelectQuery(this.Models.EncounterIPPackage, {
                             attributes: [this.Dal.fn('SUM', this.Dal.col('DiscountAmount'))],
-                            where: [this.Dal.literal('`EncounterId` = `Encounter`.`EncounterId`'),
+                            where: [this.Dal.literal('"EncounterId" = "Encounter"."EncounterId"'),
                             {
                                 'Status': 1
                             }]

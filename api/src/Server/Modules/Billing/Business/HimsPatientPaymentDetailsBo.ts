@@ -32,256 +32,87 @@ import * as generalMasterBo from '../../GeneralMaster/Business/Index';
 
 export class PatientPaymentDetailsBo extends BaseBo<PatientPaymentDetailsInstance, PatientPaymentDetailsAttributes> {
     // public async AddPatientPaymentDetails(req: BaseRequest): Promise<number> {
-    //     let generateReceiptNr = 0;
-    //     if (!req.Data.ReceiptNumber && req.Data.ReceiptStatusId === 1) {
-    //         generateReceiptNr = 1;
-    //         req.Data.ReceiptNumber = null; //await Sequence.Next(SequenceKeys.ReceiptNrId);
-    //         req.Data.ReceiptDateTime = new Date();
-    //     }
-    //     if (req.Data.PatientBillId && req.Data.PatientBillId > 0 && req.Data.ReceiptStatusId !== 2) {
-    //         let billBO = BoFactory.GetBo(billingbo.PatientBillsBo, this.Request);
-    //         let PatientBill = await billBO.GetPatientBillsById({ Id: req.Data.PatientBillId });
-    //         let totalReceivedAmount: number = 0;
-    //         PatientBill.PaidAmount = PatientBill.PaidAmount !== null ? PatientBill.PaidAmount : 0;
-    //         PatientBill.TDSAmount = PatientBill.TDSAmount !== null ? PatientBill.TDSAmount : 0;
-    //         PatientBill.Disallowed = PatientBill.Disallowed !== null ? PatientBill.Disallowed : 0;
-    //         if (PatientBill.OutStandingAmount !== 0) {
-    //             totalReceivedAmount = parseFloat(req.Data.AmountPaid.toString())
-    //                 + parseFloat(req.Data.TDSAmount.toString()) + parseFloat(req.Data.AgreementDiscountAmt.toString())
-    //                 + parseFloat(req.Data.Disallowance.toString());
-    //             PatientBill.OutStandingAmount = parseFloat(PatientBill.OutStandingAmount.toString())
-    //                 - parseFloat(totalReceivedAmount.toString());
-    //             PatientBill.PaidAmount = parseFloat(PatientBill.PaidAmount.toString())
-    //                 + parseFloat(req.Data.AmountPaid.toString());
-    //             PatientBill.IsPaidFully = PatientBill.OutStandingAmount === 0;
-    //             if (PatientBill.OutStandingAmount === 0) {
-    //                 PatientBill.IsPaidFully = true;
-    //             }
-    //         } else {
-    //             PatientBill.IsPaidFully = true;
-    //         }
-    //         if (PatientBill.TDSAmount >= 0) {
-    //             PatientBill.TDSAmount = parseFloat(PatientBill.TDSAmount.toString())
-    //                 + parseFloat(req.Data.TDSAmount.toString());
-    //         }
-    //         if (PatientBill.Disallowed >= 0) {
-    //             PatientBill.Disallowed = parseFloat(PatientBill.Disallowed.toString())
-    //                 + parseFloat(req.Data.Disallowance.toString());
-    //         }
-    //         if (PatientBill.AgreementDiscountAmt >= 0) {
-    //             PatientBill.AgreementDiscountAmt = parseFloat(PatientBill.AgreementDiscountAmt.toString())
-    //                 + parseFloat(req.Data.AgreementDiscountAmt.toString());
-    //         }
-    //         await billBO.Update(PatientBill);
-    //     }
-    //     const patientBO = BoFactory.GetBo(regbo.PatientBo, this.Request);
-    //     const patient: any = await patientBO.GetById(req.Data.PatientId);
-    //     let vPatientName = '';
-    //     if (patient.FirstName) vPatientName += patient.FirstName;
-    //     if (patient.LastName) vPatientName += ' ' + patient.LastName;
-    //     if (patient && (patient.NotificationToken && req.Data.ReceiptTypeId === 1)) {
-    //         /* tslint:disable-next-line */
-    //         const pushMessage: string = 'Dear ' +
-    // vPatientName + ', ' + ' You Paid' +
-    // 'Rs.' + req.Data.AmountPaid + ' ' + 'for advance' + '.';
-    //         const notificationService: any = new NotificationService();
-    //         const body = {
-    //             type: 'appoinment_booking',
-    //         };
-    //         const pushTokens: string[] = [];
-    //         if (patient.NotificationToken) {
-    //             pushTokens.push(patient.NotificationToken);
-    //         }
-    //         await notificationService.sendNotification(pushMessage, pushTokens, body);
-    //         console.log('*************************pushMessage**********************', pushMessage);
-    //         console.log('*************************pushTokens**********************', pushTokens);
-    //     }
-    //     if (patient && (patient.NotificationToken && req.Data.ReceiptTypeId === 5)) {
-    //         /* tslint:disable-next-line */
-    //         const pushMessage: string = 'Dear ' +
-    // vPatientName + ',' + ' You Paid' + 'Rs.'
-    // + req.Data.AmountPaid + ' ' + 'for receipt' + '.';
-    //         const notificationService: any = new NotificationService();
-    //         const body = {
-    //             type: 'appoinment_booking',
-    //         };
-    //         const pushTokens: string[] = [];
-    //         if (patient.NotificationToken) {
-    //             pushTokens.push(patient.NotificationToken);
-    //         }
-    //         await notificationService.sendNotification(pushMessage, pushTokens, body);
-    //         console.log('*************************pushMessage**********************', pushMessage);
-    //         console.log('*************************pushTokens**********************', pushTokens);
-    //     }
-    //     let result = await this.Save(req.Data);
-    //     if (patient.Mobile && req.Data.ReceiptTypeId === 1) {
-    //         let apiReqTitle = {
-    //             Id: 0,
-    //             PageContext: { PageSize: 50, PageNumber: 1 },
-    //             Params: [
-    //                 { Key: ReferenceValueFilters.ReferenceGroupCode, Value: 'Title' },
-    //                 { Key: ReferenceValueFilters.ReferenceValueCodeId, Value: patient.TitleId }
-    //             ]
-    //         };
-    //         let refTitleBo = BoFactory.GetBo(userbo.ReferenceValueBo, this.Request);
-    //         let TitleData = await refTitleBo.GetReferenceValues(apiReqTitle);
-    //         let title = TitleData.Data[0].Description;
-    //         let apiReq = {
-    //             Id: 0,
-    //             PageContext: { PageSize: 50, PageNumber: 1 },
-    //             Params: [
-    //                 { Key: ReferenceValueFilters.ReferenceGroupCode, Value: 'PaymentType' },
-    //                 { Key: ReferenceValueFilters.ReferenceValueCodeId, Value: req.Data.PaymentTypeId }
-    //             ]
-    //         };
-    //         let payData = await refTitleBo.GetReferenceValues(apiReq);
-    //         let paymentType = payData.Data[0].Description;
-    //         let DisplayWard = '';
-    //         let encdata: any;
-    //         if (req.Data.EncounterTypeId === 2) {
-    //             let encounterbo = BoFactory.GetBo(encbo.EncounterBo, this.Request);
-    //             encdata = await encounterbo.GetEncounterById({ Id: req.Data.EncounterId });
-    //             let wardMasterBO = BoFactory.GetBo(generalMasterBo.WardMasterBo, this.Request);
-    //             let warddata = await wardMasterBO.GetWardMasterById({ Id: encdata.WardId });
-    //             DisplayWard = warddata.WardName;
-    //         }
-    //         let department = '';
-    //         if (req.Data.DepartmentID) {
-    //             let departmentBO = BoFactory.GetBo(userbo.DepartmentBo, this.Request);
-    //             let departmentData = await departmentBO.GetDepartmentById({ Id: req.Data.DepartmentID });
-    //             department = departmentData.DepartmentName;
-    //         }
-    //         let eventTemplateBO = BoFactory.GetBo(userbo.EventTemplateBo, this.Request);
-    //         let smsTemplateInfo = null;
-    //         if (req.Data.EncounterTypeId === 1) {
-    //             smsTemplateInfo = await eventTemplateBO.GetTemplateInfo('OPAdvance', 'OPAdvance', 1);
-    //         } else {
-    //             smsTemplateInfo = await eventTemplateBO.GetTemplateInfo('patientAdvance', 'patientAdvance', 1);
-    //         }
-    //         if (smsTemplateInfo) {
-    //             let smsmodel: any = {};
-    //             if (SmsConfig['PROVIDER'] === 'HOSMAT') {
-    //                 smsmodel = {
-    //                     numbers: [patient.Mobile],
-    //                     message: Template.Compile(smsTemplateInfo.TemplateContent,
-    //                         {
-    //                             patientName: vPatientName,
-    //                             mrn: patient.MRN,
-    //                             advancePayment: req.Data.AmountPaid,
-    //                             contactNo: this.Session.FacilityContact
+        const crypto = require("crypto");
+        const idempotencyKey = (this.Request && this.Request.headers && (this.Request.headers["x-idempotency-key"] || this.Request.headers["idempotency-key"]))
+            || (req && (req.IdempotencyKey || (req.Data && req.Data.IdempotencyKey)));
 
-    //                         })
-    //                 };
-    //             } else if (SmsConfig['PROVIDER'] === 'SHUVADHARSHINI') {
-    //                 try {
-    //                     if (req.Data.EncounterTypeId === 1) {
-    //                         smsmodel = {
-    //                             numbers: [patient.Mobile],
-    //                             message: Template.Compile(smsTemplateInfo.TemplateContent,
-    //                                 {
-    //                                     originCurrency: 'INR',
-    //                                     Amount: req.Data.AmountPaid,
-    //                                     title: title,
-    //                                     patientName: vPatientName,
-    //                                     PaymentMode: paymentType,
-    //                                     department: department,
-    //                                     mrn: patient.MRN,
-    //                                 }),
-    //                             templateId: smsTemplateInfo.ModuleId
-    //                         };
-    //                     } else {
-    //                         smsmodel = {
-    //                             numbers: [patient.Mobile],
-    //                             message: Template.Compile(smsTemplateInfo.TemplateContent,
-    //                                 {
-    //                                     originCurrency: 'INR',
-    //                                     Amount: req.Data.AmountPaid,
-    //                                     title: title,
-    //                                     patientName: vPatientName,
-    //                                     PaymentMode: paymentType,
-    //                                     ward: DisplayWard,
-    //                                     visitIdentifier: encdata.VisitIdentifier,
-    //                                     mrn: patient.MRN,
-    //                                 }),
-    //                             templateId: smsTemplateInfo.ModuleId
-    //                         };
-    //                     }
-    //                 } catch (error) {
-    //                     console.log('Error Processing SMS:', error);
-    //                 }
-    //             } else {
-    //                 smsmodel = {
-    //                     numbers: [patient.Mobile],
-    //                     message: Template.Compile(smsTemplateInfo.TemplateContent,
-    //                         {
-    //                             patientName: vPatientName,
-    //                             mrn: patient.MRN,
-    //                             advancePayment: req.Data.AmountPaid,
-    //                             contactNo: this.Session.FacilityContact
+        let facilityId = (req && req.Data && req.Data.FacilityId) || (this.Session && this.Session.FacilityId) || 1;
+        let fingerprint = null;
 
-    //                         })
-    //                 };
-    //             }
-    //             let smsProvider = this.GetSmsProvider();
-    //             if (smsProvider) {
-    //                 let SMSStatus = await smsProvider.send(smsmodel);
-    //                 let eventDashboardOutboundBo = BoFactory.GetBo(userbo.EventDashboardBo, this.Request);
-    //                 await eventDashboardOutboundBo.ManageSMSOutBound(SMSStatus, smsmodel.message + ' To : ' + patient.Mobile);
-    //             }
-    //         }
-    //     }
-    //     if (result) {
-    //         let patientaccountsBO = BoFactory.GetBo(billingbo.PatientAccountsBo, this.Request);
-    //         let PatientReceiptId = result.dataValues.Id;
-    //         if (generateReceiptNr === 1) {
-    //             this.deferSequenceKey(PatientReceiptId, 'ReceiptNumber',
-    //                 this.getFacilitySequenceIdentifier(SequenceKeys.ReceiptNrId,
-    //                     (req.Data.FacilityId ? req.Data.FacilityId : -1)
-    //                 ));
-    //             if ((req.Data.EncounterTypeId === 2 || req.Data.EncounterTypeId === 5) && req.Data.ReceiptTypeId === 1) {
-    //                 this.deferSequenceKey(PatientReceiptId, 'ReceiptNumber',
-    //                     this.getFacilitySequenceIdentifier(SequenceKeys.IpAdvanceNrId,
-    //                         (req.Data.FacilityId ? req.Data.FacilityId : -1)
-    //                     ));
-    //             } if ((req.Data.EncounterTypeId === 2 || req.Data.EncounterTypeId === 5) && req.Data.ReceiptTypeId === 2) {
-    //                 this.deferSequenceKey(PatientReceiptId, 'ReceiptNumber',
-    //                     this.getFacilitySequenceIdentifier(SequenceKeys.IPReceiptNrId,
-    //                         (req.Data.FacilityId ? req.Data.FacilityId : -1)
-    //                     ));
-    //             }
-    //         }
+        if (idempotencyKey) {
+            const normalizedPayload = JSON.stringify({
+                PatientBillId: (req && req.Data && req.Data.PatientBillId) || 0,
+                PatientId: (req && req.Data && req.Data.PatientId) || 0,
+                EncounterId: (req && req.Data && req.Data.EncounterId) || 0,
+                FacilityId: facilityId,
+                AmountPaid: parseFloat(((req && req.Data && req.Data.AmountPaid) || 0).toString()),
+                PaymentTypeId: (req && req.Data && req.Data.PaymentTypeId) || 0,
+                ReceiptTypeId: (req && req.Data && req.Data.ReceiptTypeId) || 0
+            });
+            fingerprint = crypto.createHash("sha256").update(normalizedPayload).digest("hex");
+            const sequelize = this.Models.PatientPaymentDetails.sequelize;
 
-    //         if (req.Data.ReceiptStatusId === 1 && req.Data.ReceiptTypeId === 1) {
-    //             let patientaccount = {};
-    //             patientaccount = {
-    //                 Id: 0,
-    //                 PatientId: req.Data.PatientId,
-    //                 EncounterId: req.Data.EncounterId,
-    //                 TransactionTypeId: 1,
-    //                 TransactionId: PatientReceiptId,
-    //                 TransactionNumber: req.Data.ReceiptNumber,
-    //                 TransactionDate: new Date(),
-    //                 BillAmount: 0,
-    //                 PaidAmount: req.Data.AmountPaid,
-    //                 AdjustedAmount: 0,
-    //                 UnAdjustedAmount: req.Data.AmountPaid,
-    //                 DueAmount: 0,
-    //                 DebitAmount: 0,
-    //                 CreditAmount: req.Data.AmountPaid,
-    //                 IsAdvance: 1
-    //             };
+            const insertResult = await sequelize.query(
+                `INSERT INTO idempotency_records ("IdempotencyKey", "FacilityId", "OperationType", "RequestFingerprint", "Status", "CreatedAt", "UpdatedAt") ` +
+                `VALUES (:key, :fac, :op, :fp, :status, NOW(), NOW()) ` +
+                `ON CONFLICT ("IdempotencyKey", "FacilityId", "OperationType") DO NOTHING ` +
+                `RETURNING "IdempotencyKey"`,
+                {
+                    replacements: { key: String(idempotencyKey), fac: facilityId, fp: fingerprint, op: "CASHIER_PAYMENT", status: "IN_PROGRESS" },
+                    type: sequelize.QueryTypes.INSERT
+                }
+            );
 
-    //             await patientaccountsBO.ManagePatientAccounts(1, patientaccount as any);
-    //         }
+            const wasInserted = insertResult && insertResult[0] && insertResult[0].length > 0;
+            if (!wasInserted) {
+                const existing = await sequelize.query(
+                    `SELECT "IdempotencyKey", "RequestFingerprint", "Status", "ResponseCode", "ResponseBody", "EntityId" ` +
+                    `FROM idempotency_records ` +
+                    `WHERE "IdempotencyKey" = :key AND "FacilityId" = :fac AND "OperationType" = :op`,
+                    {
+                        replacements: { key: String(idempotencyKey), fac: facilityId, op: "CASHIER_PAYMENT" },
+                        type: sequelize.QueryTypes.SELECT
+                    }
+                );
 
+                if (existing && existing.length > 0) {
+                    const rec = existing[0];
+                    if (rec.RequestFingerprint !== fingerprint) {
+                        const err = new Error("IDEMPOTENCY_KEY_PAYLOAD_MISMATCH: The idempotency key was previously used with a different request payload");
+                        err.statusCode = 409;
+                        err.status = 409;
+                        throw err;
+                    }
 
-    //         return PatientReceiptId;
-    //     }
-    //     return 0;
-    // }
+                    if (rec.Status === "COMPLETED") {
+                        const entityId = rec.EntityId || (rec.ResponseBody && rec.ResponseBody.PatientReceiptId) || 0;
+                        return parseInt(entityId, 10);
+                    }
 
-    public async AddPatientPaymentDetails(req: BaseRequest): Promise<number> {
-        let generateReceiptNr = 0;
+                    if (rec.Status === "IN_PROGRESS") {
+                        for (let attempt = 0; attempt < 20; attempt++) {
+                            await new Promise(resolve => setTimeout(resolve, 100));
+                            const pollRec = await sequelize.query(
+                                `SELECT "Status", "EntityId", "ResponseBody" FROM idempotency_records WHERE "IdempotencyKey" = :key AND "FacilityId" = :fac AND "OperationType" = :op`,
+                                {
+                                    replacements: { key: String(idempotencyKey), fac: facilityId, op: "CASHIER_PAYMENT" },
+                                    type: sequelize.QueryTypes.SELECT
+                                }
+                            );
+                            if (pollRec && pollRec.length > 0 && pollRec[0].Status === "COMPLETED") {
+                                const pollEid = pollRec[0].EntityId || (pollRec[0].ResponseBody && pollRec[0].ResponseBody.PatientReceiptId) || 0;
+                                return parseInt(pollEid, 10);
+                            }
+                        }
+                        const err = new Error("CONCURRENT_OPERATION_IN_PROGRESS: A request with this idempotency key is already in progress");
+                        err.statusCode = 409;
+                        err.status = 409;
+                        throw err;
+                    }
+                }
+            }
+        }
+        let generateReceiptNr: number = 0;
         if (!req.Data.ReceiptNumber && req.Data.ReceiptStatusId === 1) {
             generateReceiptNr = 1;
             req.Data.ReceiptNumber = null; //await Sequence.Next(SequenceKeys.ReceiptNrId);
@@ -294,17 +125,18 @@ export class PatientPaymentDetailsBo extends BaseBo<PatientPaymentDetailsInstanc
             // PatientBill.PaidAmount = PatientBill.PaidAmount !== null ? PatientBill.PaidAmount : 0;
             // PatientBill.TDSAmount = PatientBill.TDSAmount !== null ? PatientBill.TDSAmount : 0;
             // PatientBill.Disallowed = PatientBill.Disallowed !== null ? PatientBill.Disallowed : 0;
-            PatientBill.PaidAmount = (PatientBill.PaidAmount) ? PatientBill.PaidAmount : 0;
+            PatientBill.PaidAmount = (PatientBill.PaidAmount != null) ? PatientBill.PaidAmount : 0;
+            PatientBill.AgreementDiscountAmt = (PatientBill.AgreementDiscountAmt != null) ? PatientBill.AgreementDiscountAmt : 0;
             PatientBill.TDSAmount = (PatientBill.TDSAmount) ? PatientBill.TDSAmount : 0;
             PatientBill.Disallowed = (PatientBill.Disallowed) ? PatientBill.Disallowed : 0;
             if (PatientBill.OutStandingAmount !== 0) {
-                totalReceivedAmount = parseFloat(req.Data.AmountPaid.toString())
-                    + parseFloat(req.Data.TDSAmount.toString()) + parseFloat(req.Data.AgreementDiscountAmt.toString())
-                    + parseFloat(req.Data.Disallowance.toString());
+                totalReceivedAmount = parseFloat((req.Data.AmountPaid || 0).toString())
+                    + parseFloat((req.Data.TDSAmount || 0).toString()) + parseFloat((req.Data.AgreementDiscountAmt || 0).toString())
+                    + parseFloat((req.Data.Disallowance || 0).toString());
                 PatientBill.OutStandingAmount = parseFloat(PatientBill.OutStandingAmount.toString())
                     - parseFloat(totalReceivedAmount.toString());
                 PatientBill.PaidAmount = parseFloat(PatientBill.PaidAmount.toString())
-                    + parseFloat(req.Data.AmountPaid.toString());
+                    + parseFloat((req.Data.AmountPaid || 0).toString());
                 PatientBill.IsPaidFully = PatientBill.OutStandingAmount === 0;
                 if (PatientBill.OutStandingAmount === 0) {
                     PatientBill.IsPaidFully = true;
@@ -312,25 +144,25 @@ export class PatientPaymentDetailsBo extends BaseBo<PatientPaymentDetailsInstanc
             } else {
                 PatientBill.IsPaidFully = true;
             }
-            if (PatientBill.TDSAmount >= 0) {
-                PatientBill.TDSAmount = parseFloat(PatientBill.TDSAmount.toString())
-                    + parseFloat(req.Data.TDSAmount.toString());
+            if (PatientBill.TDSAmount != null && PatientBill.TDSAmount >= 0) {
+                PatientBill.TDSAmount = parseFloat((PatientBill.TDSAmount || 0).toString())
+                    + parseFloat((req.Data.TDSAmount || 0).toString());
             }
-            if (PatientBill.Disallowed >= 0) {
-                PatientBill.Disallowed = parseFloat(PatientBill.Disallowed.toString())
-                    + parseFloat(req.Data.Disallowance.toString());
+            if (PatientBill.Disallowed != null && PatientBill.Disallowed >= 0) {
+                PatientBill.Disallowed = parseFloat((PatientBill.Disallowed || 0).toString())
+                    + parseFloat((req.Data.Disallowance || 0).toString());
             }
-            if (PatientBill.AgreementDiscountAmt >= 0) {
-                PatientBill.AgreementDiscountAmt = parseFloat(PatientBill.AgreementDiscountAmt.toString())
-                    + parseFloat(req.Data.AgreementDiscountAmt.toString());
+            if (PatientBill.AgreementDiscountAmt != null && PatientBill.AgreementDiscountAmt >= 0) {
+                PatientBill.AgreementDiscountAmt = parseFloat((PatientBill.AgreementDiscountAmt || 0).toString())
+                    + parseFloat((req.Data.AgreementDiscountAmt || 0).toString());
             }
             await billBO.Update(PatientBill);
         }
         const patientBO = BoFactory.GetBo(regbo.PatientBo, this.Request);
         const patient: any = await patientBO.GetById(req.Data.PatientId);
         let vPatientName = '';
-        if (patient.FirstName) vPatientName += patient.FirstName;
-        if (patient.LastName) vPatientName += ' ' + patient.LastName;
+        if (patient && patient.FirstName) vPatientName += patient.FirstName;
+        if (patient && patient.LastName) vPatientName += ' ' + patient.LastName;
         if (patient && (patient.NotificationToken && req.Data.ReceiptTypeId === 1)) {
             /* tslint:disable-next-line */
             const pushMessage: string = 'Dear ' + vPatientName + ', ' + ' You Paid' + 'Rs.' + req.Data.AmountPaid + ' ' + 'for advance' + '.';
@@ -594,9 +426,9 @@ export class PatientPaymentDetailsBo extends BaseBo<PatientPaymentDetailsInstanc
         //     PatientBill.TDSAmount = PatientBill.TDSAmount !== null ? PatientBill.TDSAmount : 0;
         //     PatientBill.Disallowed = PatientBill.Disallowed !== null ? PatientBill.Disallowed : 0;
         //     PatientBill.TDSAmount = parseFloat(PatientBill.TDSAmount.toString())
-        //         + parseFloat(req.Data.TDSAmount.toString());
+        //         + parseFloat((req.Data.TDSAmount || 0).toString());
         //     PatientBill.Disallowed = parseFloat(PatientBill.Disallowed.toString())
-        //         + parseFloat(req.Data.Disallowance.toString());
+        //         + parseFloat((req.Data.Disallowance || 0).toString());
         //     await billBO.Update(PatientBill);
         // }
         let result = await this.Save(req.Data);
@@ -740,13 +572,13 @@ export class PatientPaymentDetailsBo extends BaseBo<PatientPaymentDetailsInstanc
             let PatientBill = await billBO.GetPatientBillsById({ Id: req.Data.PatientBillId });
             let totalReceivedAmount: number = 0;
             if (PatientBill.OutStandingAmount !== 0) {
-                totalReceivedAmount = parseFloat(req.Data.AmountPaid.toString())
-                    + parseFloat(req.Data.TDSAmount.toString())
-                    + parseFloat(req.Data.Disallowance.toString());
+                totalReceivedAmount = parseFloat((req.Data.AmountPaid || 0).toString())
+                    + parseFloat((req.Data.TDSAmount || 0).toString())
+                    + parseFloat((req.Data.Disallowance || 0).toString());
                 PatientBill.OutStandingAmount = parseFloat(PatientBill.OutStandingAmount.toString())
                     - parseFloat(totalReceivedAmount.toString());
                 PatientBill.PaidAmount = parseFloat(PatientBill.PaidAmount.toString())
-                    + parseFloat(req.Data.AmountPaid.toString());
+                    + parseFloat((req.Data.AmountPaid || 0).toString());
                 PatientBill.IsPaidFully = PatientBill.OutStandingAmount === 0;
             } else {
                 PatientBill.IsPaidFully = true;
@@ -755,9 +587,9 @@ export class PatientPaymentDetailsBo extends BaseBo<PatientPaymentDetailsInstanc
             PatientBill.TDSAmount = PatientBill.TDSAmount !== null ? PatientBill.TDSAmount : 0;
             PatientBill.Disallowed = PatientBill.Disallowed !== null ? PatientBill.Disallowed : 0;
             PatientBill.TDSAmount = parseFloat(PatientBill.TDSAmount.toString())
-                + parseFloat(req.Data.TDSAmount.toString());
+                + parseFloat((req.Data.TDSAmount || 0).toString());
             PatientBill.Disallowed = parseFloat(PatientBill.Disallowed.toString())
-                + parseFloat(req.Data.Disallowance.toString());
+                + parseFloat((req.Data.Disallowance || 0).toString());
 
             await billdetailBO.UpdateBillingStaus(PatientBill.Id, 2);
             await billBO.Update(PatientBill);

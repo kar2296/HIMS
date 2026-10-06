@@ -6,6 +6,9 @@ import { unlinkSync } from 'fs';
 let router: Router = express.Router();
 
 router.post('/AddPatientPaymentDetails', (req: Request, res: Response, next: NextFunction): any => {
+    if (req.headers && (req.headers['x-idempotency-key'] || req.headers['idempotency-key'])) {
+        if (req.body && !req.body.IdempotencyKey) req.body.IdempotencyKey = req.headers['x-idempotency-key'] || req.headers['idempotency-key'];
+    }
     const service = ServiceFactory.CreateService(PatientPaymentDetailsService, req);
     service.AddPatientPaymentDetails(req.body)
         .then((response) => { res.send(response); })

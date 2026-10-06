@@ -1339,7 +1339,7 @@ export class PatientWorkorderdetailsBo extends BaseBo<PatientWorkorderdetailsIns
 
         // let totalCommentsQuery = this.GetSelectQuery(this.Models.WorkOrderObservation, {
         //     attributes: [this.Dal.fn('COUNT', this.Dal.col('WorkOrderObservationId'))],
-        //     where: [this.Dal.literal('`WorkOrderObservation`.`WorkOrderDetailId` = `PatientWorkorderdetails`.`Workorderdetailid`'),
+        //     where: [this.Dal.literal('"WorkOrderObservation"."WorkOrderDetailId" = "PatientWorkorderdetails"."Workorderdetailid"'),
         //     {
         //         'Status': 1
         //     }]
@@ -1350,7 +1350,7 @@ export class PatientWorkorderdetailsBo extends BaseBo<PatientWorkorderdetailsIns
 
         // let totalAttachmentQuery = this.GetSelectQuery(this.Models.WorkOrderAttachment, {
         //     attributes: [this.Dal.fn('COUNT', this.Dal.col('WorkOrderAttachmentId'))],
-        //     where: [this.Dal.literal('`WorkOrderAttachment`.`WorkOrderDetailId` = `PatientWorkorderdetails`.`Workorderdetailid`'),
+        //     where: [this.Dal.literal('"WorkOrderAttachment"."WorkOrderDetailId" = "PatientWorkorderdetails"."Workorderdetailid"'),
         //     {
         //         'Status': 1
         //     }]
@@ -1628,7 +1628,7 @@ export class PatientWorkorderdetailsBo extends BaseBo<PatientWorkorderdetailsIns
 
         let totalCommentsQuery = this.GetSelectQuery(this.Models.WorkOrderObservation, {
             attributes: [this.Dal.fn('COUNT', this.Dal.col('WorkOrderObservationId'))],
-            where: [this.Dal.literal('`WorkOrderObservation`.`WorkOrderDetailId` = `PatientWorkorderdetails`.`Workorderdetailid`'),
+            where: [this.Dal.literal('"WorkOrderObservation"."WorkOrderDetailId" = "PatientWorkorderdetails"."Workorderdetailid"'),
             {
                 'Status': 1
             }]
@@ -1639,7 +1639,7 @@ export class PatientWorkorderdetailsBo extends BaseBo<PatientWorkorderdetailsIns
 
         let totalAttachmentQuery = this.GetSelectQuery(this.Models.WorkOrderAttachment, {
             attributes: [this.Dal.fn('COUNT', this.Dal.col('WorkOrderAttachmentId'))],
-            where: [this.Dal.literal('`WorkOrderAttachment`.`WorkOrderDetailId` = `PatientWorkorderdetails`.`Workorderdetailid`'),
+            where: [this.Dal.literal('"WorkOrderAttachment"."WorkOrderDetailId" = "PatientWorkorderdetails"."Workorderdetailid"'),
             {
                 'Status': 1
             }]

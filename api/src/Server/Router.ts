@@ -2,6 +2,7 @@ import { SessionConfig, CacheConfig } from '../config/index';
 import { GetRouter, Router, AuthMiddleware, TransMiddleware, Request, Response, NextFunction } from './Core/Index';
 import * as passport from 'passport';
 import * as session from 'express-session';
+// @ts-ignore
 import * as redisStore from 'connect-redis';
 import NoUserCalls from './Modules/NoUserCalls/Router/Index';
 import API from './Modules/API/Router/Index';

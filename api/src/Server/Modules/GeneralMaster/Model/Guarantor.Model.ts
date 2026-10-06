@@ -15,6 +15,7 @@ export default function (sequelize: Sequelize, DataTypes: DataTypes):
         ContractDate: { type: DataTypes.DATE, field: 'ContractDate' },
         ContractExpiryDate: { type: DataTypes.DATE, field: 'ContractExpiryDate' },
         TPAId: { type: DataTypes.BIGINT, field: 'TPAId' },
+        TpaId: { type: DataTypes.BIGINT, field: 'TpaId' },
         ServiceRateCategoryId: { type: DataTypes.BIGINT, field: 'ServiceRateCategoryId' },
         GuarantorClientTypeId: { type: DataTypes.BIGINT, field: 'GuarantorClientTypeId' },
         AddressLine1: { type: DataTypes.STRING, field: 'AddressLine1' },
@@ -59,7 +60,7 @@ export default function (sequelize: Sequelize, DataTypes: DataTypes):
         });
 
     (Guarantor as any).associate = function (models: Models) {
-        Guarantor.belongsTo(models.ReferenceValue, { as: 'TPA', targetKey: 'ReferenceValueCodeId' });
+        Guarantor.belongsTo(models.ReferenceValue, { as: 'TPA', foreignKey: 'TPAId', targetKey: 'ReferenceValueCodeId' });
         Guarantor.belongsTo(models.ReferenceValue, { as: 'GuarantorType', targetKey: 'ReferenceValueCodeId' });
         Guarantor.belongsTo(models.ReferenceValue, { as: 'ActiveStatus', targetKey: 'ReferenceValueCodeId' });
         Guarantor.belongsTo(models.ServiceRateCategory, { foreignKey: 'ServiceRateCategoryId' });

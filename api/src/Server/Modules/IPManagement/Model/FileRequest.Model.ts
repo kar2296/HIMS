@@ -58,9 +58,9 @@ export default function (sequelize: Sequelize, DataTypes: DataTypes):
         FileRequest.belongsTo(models.ReferenceValue, { as: 'MRDRequestType', foreignKey: 'RequestTypeId' });
         FileRequest.belongsTo(models.Department, { as: 'ParentDepartment', foreignKey: 'FromDepartmentId' });
         FileRequest.belongsTo(models.Department, { as: 'SubDepartment', foreignKey: 'ToDepartmentId' });
-        FileRequest.belongsTo(models.ReferenceValue, { as: 'PRIORITY', targetKey: 'ReferenceValueCodeId' });
-        FileRequest.belongsTo(models.ReferenceValue, { as: 'MRDFileStatus', targetKey: 'ReferenceValueCodeId' });
-        FileRequest.belongsTo(models.ReferenceValue, { as: 'MRDMovementStatus', targetKey: 'ReferenceValueCodeId' });
+        FileRequest.belongsTo(models.ReferenceValue, { as: 'PRIORITY', foreignKey: 'PriorityId', targetKey: 'ReferenceValueCodeId' });
+        FileRequest.belongsTo(models.ReferenceValue, { as: 'MRDFileStatus', foreignKey: 'MRDFileStatusId', targetKey: 'ReferenceValueCodeId' });
+        FileRequest.belongsTo(models.ReferenceValue, { as: 'MRDMovementStatus', foreignKey: 'MRDMovementStatusId', targetKey: 'ReferenceValueCodeId' });
         FileRequest.belongsTo(models.ReferenceValue,
             { as: 'EncounterType', foreignKey: 'MRDTypeId', targetKey: 'ReferenceValueCodeId' });
     };

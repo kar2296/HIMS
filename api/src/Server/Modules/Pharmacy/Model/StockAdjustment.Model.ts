@@ -56,7 +56,7 @@ export default function (sequelize: Sequelize, DataTypes: DataTypes):
         StockAdjustment.belongsTo(models.User, { as: 'ApprovedUser', foreignKey: 'ApprovedBy' });
         StockAdjustment.belongsTo(models.User, { as: 'CreatedUser', foreignKey: 'CreatedBy' });
         StockAdjustment.belongsTo(models.User, { as: 'AuthorizedUser', foreignKey: 'AuthorizedBy' });
-        StockAdjustment.hasMany(models.StockAdjustmentDetail);
+        StockAdjustment.hasMany(models.StockAdjustmentDetail, { foreignKey: 'StockAdjustmentId' });
     };
 
     return StockAdjustment;

@@ -269,7 +269,7 @@ export class PatientArchiveBo extends BaseBo<PatientArchiveInstance, PatientArch
         // attributes['include'] = [];
         // let billQry = this.GetSelectQuery(this.Models.PatientBills, {
         //     attributes: [this.Dal.fn('SUM', this.Dal.col('OutStandingAmount'))],
-        //     where: [this.Dal.literal('`PatientId` = ' + req.Id),
+        //     where: [this.Dal.literal('"PatientId" = ' + req.Id),
         //     {
         //         'Status': 1,
         //         'PatientBillStatusId': 3
@@ -279,7 +279,7 @@ export class PatientArchiveBo extends BaseBo<PatientArchiveInstance, PatientArch
 
         // let paidQry = this.GetSelectQuery(this.Models.PatientPaymentDetails, {
         //     attributes: [this.Dal.fn('SUM', this.Dal.col('AmountPaid'))],
-        //     where: [this.Dal.literal('`PatientId` = ' + req.Id),
+        //     where: [this.Dal.literal('"PatientId" = ' + req.Id),
         //     {
         //         'Status': 1,
         //         'ReceiptTypeId': 1,
@@ -290,7 +290,7 @@ export class PatientArchiveBo extends BaseBo<PatientArchiveInstance, PatientArch
 
         // let adjustedQry = this.GetSelectQuery(this.Models.PatientPaymentDetails, {
         //     attributes: [this.Dal.fn('SUM', this.Dal.col('AmountAdjusted'))],
-        //     where: [this.Dal.literal('`PatientId` = ' + req.Id),
+        //     where: [this.Dal.literal('"PatientId" = ' + req.Id),
         //     {
         //         'Status': 1,
         //         'ReceiptTypeId': 1,
@@ -412,7 +412,7 @@ export class PatientArchiveBo extends BaseBo<PatientArchiveInstance, PatientArch
         attributes['include'] = [];
         let billQry = this.GetSelectQuery(this.Models.PatientBills, {
             attributes: [this.Dal.fn('SUM', this.Dal.col('OutStandingAmount'))],
-            where: [this.Dal.literal('`PatientId` = ' + req.Id),
+            where: [this.Dal.literal('"PatientId" = ' + req.Id),
             {
                 'Status': 1,
                 'PatientBillStatusId': 3,
@@ -424,7 +424,7 @@ export class PatientArchiveBo extends BaseBo<PatientArchiveInstance, PatientArch
 
         let opbillQry = this.GetSelectQuery(this.Models.PatientBills, {
             attributes: [this.Dal.fn('SUM', this.Dal.col('BillAmount'))],
-            where: [this.Dal.literal('`PatientId` = ' + req.Id),
+            where: [this.Dal.literal('"PatientId" = ' + req.Id),
             {
                 'BillTypeId': 4,
                 'Status': 1,
@@ -435,7 +435,7 @@ export class PatientArchiveBo extends BaseBo<PatientArchiveInstance, PatientArch
 
         let opbilldiscountQry = this.GetSelectQuery(this.Models.PatientBills, {
             attributes: [this.Dal.fn('SUM', this.Dal.col('BillDiscount'))],
-            where: [this.Dal.literal('`PatientId` = ' + req.Id),
+            where: [this.Dal.literal('"PatientId" = ' + req.Id),
             {
                 'BillTypeId': 4,
                 'Status': 1,
@@ -446,7 +446,7 @@ export class PatientArchiveBo extends BaseBo<PatientArchiveInstance, PatientArch
 
         let opbillroundoffQry = this.GetSelectQuery(this.Models.PatientBills, {
             attributes: [this.Dal.fn('SUM', this.Dal.col('RoundOffValue'))],
-            where: [this.Dal.literal('`PatientId` = ' + req.Id),
+            where: [this.Dal.literal('"PatientId" = ' + req.Id),
             {
                 'BillTypeId': 4,
                 'Status': 1,
@@ -457,7 +457,7 @@ export class PatientArchiveBo extends BaseBo<PatientArchiveInstance, PatientArch
 
         let ipbillQry = this.GetSelectQuery(this.Models.PatientBills, {
             attributes: [this.Dal.fn('SUM', this.Dal.col('BillAmount'))],
-            where: [this.Dal.literal('`PatientId` = ' + req.Id),
+            where: [this.Dal.literal('"PatientId" = ' + req.Id),
             {
                 'BillTypeId': 2,
                 'Status': 1,
@@ -468,7 +468,7 @@ export class PatientArchiveBo extends BaseBo<PatientArchiveInstance, PatientArch
 
         let ipbilldiscountQry = this.GetSelectQuery(this.Models.PatientBills, {
             attributes: [this.Dal.fn('SUM', this.Dal.col('BillDiscount'))],
-            where: [this.Dal.literal('`PatientId` = ' + req.Id),
+            where: [this.Dal.literal('"PatientId" = ' + req.Id),
             {
                 'BillTypeId': 2,
                 'Status': 1,
@@ -479,7 +479,7 @@ export class PatientArchiveBo extends BaseBo<PatientArchiveInstance, PatientArch
 
         let ipbillroundoffQry = this.GetSelectQuery(this.Models.PatientBills, {
             attributes: [this.Dal.fn('SUM', this.Dal.col('RoundOffValue'))],
-            where: [this.Dal.literal('`PatientId` = ' + req.Id),
+            where: [this.Dal.literal('"PatientId" = ' + req.Id),
             {
                 'BillTypeId': 2,
                 'Status': 1,
@@ -490,7 +490,7 @@ export class PatientArchiveBo extends BaseBo<PatientArchiveInstance, PatientArch
 
         let paidQry = this.GetSelectQuery(this.Models.PatientPaymentDetails, {
             attributes: [this.Dal.fn('SUM', this.Dal.col('AmountPaid'))],
-            where: [this.Dal.literal('`PatientId` = ' + req.Id),
+            where: [this.Dal.literal('"PatientId" = ' + req.Id),
             {
                 'Status': 1,
                 'ReceiptStatusId': 1
@@ -500,7 +500,7 @@ export class PatientArchiveBo extends BaseBo<PatientArchiveInstance, PatientArch
 
         let refundQry = this.GetSelectQuery(this.Models.PatientRefund, {
             attributes: [this.Dal.fn('SUM', this.Dal.col('RefundAmount'))],
-            where: [this.Dal.literal('`PatientId` = ' + req.Id),
+            where: [this.Dal.literal('"PatientId" = ' + req.Id),
             {
                 'Status': 1,
                 'RefundStatusId': 1
@@ -719,7 +719,7 @@ export class PatientArchiveBo extends BaseBo<PatientArchiveInstance, PatientArch
                     case PatientArchiveFilters.IsBillOutStanding:
                         let billQry = this.GetSelectQuery(this.Models.PatientBills, {
                             attributes: [this.Dal.fn('SUM', this.Dal.col('OutStandingAmount'))],
-                            where: [this.Dal.literal('`PatientId` = `Patient`.`PatientId`'),
+                            where: [this.Dal.literal('"PatientId" = "Patient"."PatientId"'),
                             {
                                 'Status': 1,
                                 'PatientBillStatusId': 3
