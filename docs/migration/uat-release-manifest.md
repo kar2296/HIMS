@@ -2,7 +2,7 @@
 
 > [!IMPORTANT]
 > **Release Branch**: `release/postgres-pilot-uat`
-> **Release Commit SHA**: `f3a2068f8995ad6eac23a7a5f00be6702a5704b3` (`f3a2068f`)
+> **Release Commit SHA**: `15799166ec484138df8cdb8af390662c39e6695e` (`f3a2068f`)
 > **Baseline Git HEAD**: `f7d5fc213b7e50a71dab30f485904997c47d2204`
 > **Cutover Status**: Strictly Frozen (`GATE-10` LOCKED pending human clinical & financial stakeholder UAT sign-off).
 > **Security Policy**: No plaintext passwords or production credentials stored in documentation. Outbound SMS/WhatsApp/Email strictly mock-trapped.
@@ -37,7 +37,7 @@
 
 ## 3. Working Tree Modifications & Release Branch Delta
 
-The pilot release branch `release/postgres-pilot-uat` captures the migration artifacts at commit `f3a2068f8995ad6eac23a7a5f00be6702a5704b3`:
+The pilot release branch `release/postgres-pilot-uat` captures the migration artifacts at commit `15799166ec484138df8cdb8af390662c39e6695e`:
 1. **`DEF-006` Atomic Payment Idempotency Engine:**
    - Table `idempotency_records` added in PostgreSQL (`hims_pilot_db`, `hims_recon_db`) with unique index `("IdempotencyKey", "FacilityId", "OperationType")`.
    - `HimsPatientPaymentDetailsBo.ts`/`.js` updated with SHA-256 canonical payload fingerprinting and atomic PostgreSQL `INSERT ... ON CONFLICT DO NOTHING` deduplication.
