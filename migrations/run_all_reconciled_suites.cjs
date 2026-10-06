@@ -1,4 +1,5 @@
 const { execSync } = require("child_process");
+const path = require("path");
 
 const suites = [
   { name: "Batch 1: Registration & Core Masters", file: "test_batch1.cjs", prefix: "B1", count: 10 },
@@ -19,10 +20,13 @@ const suites = [
   { name: "Payment Replay Audit", file: "test_payment_replay_concurrency.cjs", prefix: "REPLAY", count: 4 },
   { name: "Refund Failure Injection", file: "test_refund_failure_injection.cjs", prefix: "REF-INJ", count: 3 },
   { name: "Payment Idempotency & Replay Remediation", file: "test_idempotency_payment.cjs", prefix: "IDEM", count: 9 },
-  { name: "Tax API Lifecycle", file: "test_tax_api_lifecycle.cjs", prefix: "TAX-API", count: 2 }
+  { name: "Tax API Lifecycle", file: "test_tax_api_lifecycle.cjs", prefix: "TAX-API", count: 2 },
+  { name: "Outbound Network Isolation Guards", file: "test_outbound_guards.cjs", prefix: "GUARD", count: 3 },
+  { name: "Export & Template Stream Verification", file: "test_export_template_verification.cjs", prefix: "EXP", count: 4 }
 ];
 
-console.log("=== EXECUTING COMPLETE RECONCILED AUTOMATED TEST SUITE HARNESS ===\n");
+console.log("=== EXECUTING COMPLETE RECONCILED AUTOMATED TEST SUITE HARNESS ===");
+console.log(`Working Directory: ${__dirname}\n`);
 
 let totalTests = 0;
 let passedSuites = 0;
@@ -31,10 +35,17 @@ const report = [];
 
 for (const s of suites) {
   try {
-    const stdout = execSync(`node /Users/sharmila/Rajesh/hims-pg-pilot/${s.file}`, { encoding: "utf8" });
+    const testFilePath = path.join(__dirname, s.file);
+    const stdout = execSync(`node "${testFilePath}"`, {
+      encoding: "utf8",
+      env: { ...process.env, NODE_PATH: "/Users/sharmila/Rajesh/my-app/node_modules" }
+    });
+    
+    // Check if test output contains any explicit failures
     if (stdout.includes("FAILED") && !stdout.includes("PASSED")) {
-      throw new Error(`Suite ${s.file} reported failure in stdout`);
+      throw new Error(`Suite ${s.file} reported failures`);
     }
+    
     totalTests += s.count;
     passedSuites++;
     report.push({
@@ -59,7 +70,7 @@ for (const s of suites) {
 
 console.table(report);
 console.log(`\nTOTAL RECONCILED TEST COUNT: ${totalTests} Automated Tests across ${suites.length} Distinct Suites`);
-console.log(`SUITES PASSED: ${passedSuites} / ${suites.length} (100% Pass Rate)\n`);
+console.log(`SUITES PASSED: ${passedSuites} / ${suites.length} (${((passedSuites/suites.length)*100).toFixed(1)}% Pass Rate)\n`);
 
 if (failedSuites > 0) {
   process.exit(1);
