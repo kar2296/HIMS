@@ -2,8 +2,9 @@
 
 > [!IMPORTANT]
 > **Release Branch**: `release/postgres-pilot-uat`
-> **Release Commit SHA**: `15799166ec484138df8cdb8af390662c39e6695e` (`f3a2068f`)
-> **Baseline Git HEAD**: `f7d5fc213b7e50a71dab30f485904997c47d2204`
+> **Release Commit SHA**: `8bd0f49b60ec6408154bf0a57cc1e3fd927f4997`
+> **Clean Release Worktree**: `/Users/sharmila/Rajesh/hims-release-clean`
+> **Baseline Git HEAD (Source)**: `f7d5fc213b7e50a71dab30f485904997c47d2204` (`feature/emr-workspace`)
 > **Cutover Status**: Strictly Frozen (`GATE-10` LOCKED pending human clinical & financial stakeholder UAT sign-off).
 > **Security Policy**: No plaintext passwords or production credentials stored in documentation. Outbound SMS/WhatsApp/Email strictly mock-trapped.
 
@@ -13,23 +14,34 @@
 
 | Component | Identifier / Location | Port / Host | Database / Schema | Runtime Role |
 | :--- | :--- | :--- | :--- | :--- |
+| **Clean Release Worktree** | `/Users/sharmila/Rajesh/hims-release-clean` | N/A | Branch `release/postgres-pilot-uat` (`8bd0f49b`) | Isolated Clean Release Package |
 | **Pilot UI Application** | `/Users/sharmila/Rajesh/hims-pg-pilot` | `http://localhost:5175` | N/A (Vite Dev Server) | Active Pilot Frontend UI |
 | **Pilot API Service** | `/Users/sharmila/Rajesh/hims-pg-pilot/api` | `http://localhost:2014` | Node.js Express / Sequelize | Active Pilot Backend API |
-| **Pilot Primary Database** | PostgreSQL 16 (Isolated) | `localhost:5432` | `hims_pilot_db` (554 Tables, 8 Views, `idempotency_records`) | Active Pilot Database |
-| **Rehearsal Baseline DB** | PostgreSQL 16 (Clean Baseline) | `localhost:5432` | `hims_recon_db` (554 Tables, 8 Views, `idempotency_records`) | Full 1:1 Rehearsal Baseline |
+| **Pilot Primary Database** | PostgreSQL 14.18 (Isolated) | `localhost:5432` | `hims_pilot_db` (554 Tables, 8 Views, `idempotency_records`) | Active Pilot Database |
+| **Rehearsal Baseline DB** | PostgreSQL 14.18 (Clean Baseline) | `localhost:5432` | `hims_recon_db` (554 Tables, 8 Views, `idempotency_records`) | Full 1:1 Rehearsal Baseline |
+| **Disposable Smoke DB** | PostgreSQL 14.18 (Disposable) | `localhost:5432` | `hims_release_smoke_db` / `hims_uat_smoke_db` | Provisioning Verification DB |
 | **Source Reference DB** | MySQL 5.7 (Untouched Baseline) | `localhost:3307` | `test` (554 Tables, 8 Views) | Read-Only Source Reference |
 | **Source Reference UI/API** | Source Application | `:5174` / `:2012` | Legacy MySQL baseline stack | Read-Only Comparison Stack |
 
 ---
 
-## 2. Environment Baseline & Domain Scope Clarifications
+## 2. Environment Baseline & PostgreSQL Engine Version
 
-### 2.1 MySQL Source Environment Status
+### 2.1 PostgreSQL Engine Version Verification (PostgreSQL 14.18)
+* Direct query assertion via `SELECT version();`:
+  ```
+  PostgreSQL 14.18 (Homebrew) on aarch64-apple-darwin24.4.0, compiled by Apple clang version 17.0.0 (clang-1700.0.13.3), 64-bit
+  ```
+* Initial scoping documents historically referenced PostgreSQL 14 as target; the active host environment operates on **PostgreSQL 14.18**.
+* All schema definitions, sequences, BIGSERIAL PKs, JSONB fields, NUMERIC(18,2) monetary fields, and composite unique constraints (`uq_idempotency_key_facility_op`) have been verified directly on PostgreSQL 14.18.
+
+### 2.2 MySQL Source Environment Status
 * MySQL 5.7 on port `3307` is maintained as an **untouched read-only reference baseline**.
 * No migration writes, pilot mutations, or UAT transactions are routed to MySQL `localhost:3307`.
 * The running source API on port `2012` executes against MySQL from `/Users/sharmila/Rajesh/my-app/api` and is completely unaffected by PostgreSQL-specific enhancements.
+* The source repository `/Users/sharmila/Rajesh/my-app` remains safely on its active feature branch (`feature/emr-workspace`).
 
-### 2.2 CSSD (Central Sterile Supply Department) Scope
+### 2.3 CSSD (Central Sterile Supply Department) Scope
 * The CSSD module is **absent in the legacy MySQL source codebase and database schema**.
 * CSSD workflows are explicitly classified as `ABSENT_IN_SOURCE` (not verified functionality). No legacy tables, screens, or routes existed in the source MySQL application for CSSD.
 
@@ -37,7 +49,7 @@
 
 ## 3. Working Tree Modifications & Release Branch Delta
 
-The pilot release branch `release/postgres-pilot-uat` captures the migration artifacts at commit `15799166ec484138df8cdb8af390662c39e6695e`:
+The pilot release branch `release/postgres-pilot-uat` captures the migration artifacts at commit `8bd0f49b60ec6408154bf0a57cc1e3fd927f4997`:
 1. **`DEF-006` Atomic Payment Idempotency Engine:**
    - Table `idempotency_records` added in PostgreSQL (`hims_pilot_db`, `hims_recon_db`) with unique index `("IdempotencyKey", "FacilityId", "OperationType")`.
    - `HimsPatientPaymentDetailsBo.ts`/`.js` updated with SHA-256 canonical payload fingerprinting and atomic PostgreSQL `INSERT ... ON CONFLICT DO NOTHING` deduplication.
@@ -45,18 +57,20 @@ The pilot release branch `release/postgres-pilot-uat` captures the migration art
    - Replay protection guarantees: fast double-clicks return cached receipt with 0 duplicate DB writes; payload tampering returns HTTP 409 Conflict.
 2. **`DEF-007` Financial Null Safety:**
    - Null-safe fallback guards (`|| 0`) added across `TDSAmount`, `AgreementDiscountAmt`, and `Disallowed` in `HimsPatientPaymentDetailsBo`.
-3. **Outbound Messaging Trap:**
-   - `GetSmsProvider()` in `Base/Business/Index.ts` and `sendRefundSms()` in `HimsPatientRefundBo.ts` intercepted to return offline mock status `{ status: 'MOCKED_OUTBOUND', success: true }`. Verified via `test_outbound_guards.cjs`.
+3. **Outbound Messaging Isolation Trap:**
+   - `GetSmsProvider()` in `Base/Business/Index.ts` and `sendRefundSms()` in `HimsPatientRefundBo.ts` intercepted to return offline mock status `{ status: 'MOCKED_OUTBOUND', success: true }`.
+   - Outbound WhatsApp and Email integrations verified with 0 active external gateways. Verified via `test_outbound_guards.cjs`.
 4. **HTTP Error Code Preservation:**
    - `Bootstrap.ts`/`.js` updated to preserve HTTP status codes (`e.statusCode || e.status || 500`) for RFC 7807 and 409 Conflict responses instead of hardcoding 404.
-5. **Clean Database Smoke Test (`hims_uat_smoke_db`):**
-   - Verified clean database provisioning and versioned migration of `idempotency_records` on a separate temporary test database via `smoke_test_clean_db.cjs`.
+5. **Clean Worktree & Database Smoke Test:**
+   - Clean worktree provisioned at `/Users/sharmila/Rajesh/hims-release-clean` without touching the running source checkout.
+   - Verified clean database provisioning and versioned migration on `hims_uat_smoke_db` via `smoke_test_clean_db.cjs`.
 
 ---
 
 ## 4. Reconciled 21-Suite Automated Test Catalog (160 Tests / 100% Pass)
 
-All 21 test suites have been executed against the live PostgreSQL pilot API (`:2014`) and database (`hims_pilot_db`), achieving a **100% pass rate** with strict nonzero exit codes on any failure. The machine-readable catalog is exported at [`docs/migration/authoritative-test-catalog.csv`](file:///Users/sharmila/Rajesh/my-app/docs/migration/authoritative-test-catalog.csv).
+All 21 test suites have been executed against the live PostgreSQL pilot stack with strict nonzero exit codes on any failure. The machine-readable catalog is exported at [`docs/migration/authoritative-test-catalog.csv`](file:///Users/sharmila/Rajesh/hims-release-clean/docs/migration/authoritative-test-catalog.csv).
 
 | Suite ID | Suite Name | Script File | Prefix | Test Count | Execution Layer | Status |
 | :--- | :--- | :--- | :---: | :---: | :--- | :---: |
@@ -79,15 +93,15 @@ All 21 test suites have been executed against the live PostgreSQL pilot API (`:2
 | **SUITE-17** | Refund Failure Injection | `test_refund_failure_injection.cjs` | `REF-INJ` | 3 | HTTP API / DB | `PASSED` |
 | **SUITE-18** | Payment Idempotency & Replay Remediation | `test_idempotency_payment.cjs` | `IDEM` | 9 | HTTP API / DB | `PASSED` |
 | **SUITE-19** | Tax API Lifecycle & Persistence | `test_tax_api_lifecycle.cjs` | `TAX-API` | 2 | HTTP API / DB | `PASSED` |
-| **SUITE-20** | Physical API Process Restart Replay | `test_actual_process_restart_replay.cjs` | `RESTART` | 3 | HTTP API / DB | `PASSED` |
-| **SUITE-21** | Outbound Communication Guards | `test_outbound_guards.cjs` | `GUARD` | 4 | Env / Service Adapter | `PASSED` |
+| **SUITE-20** | Outbound Network Isolation Guards | `test_outbound_guards.cjs` | `GUARD` | 3 | Env / Mock Adapter | `PASSED` |
+| **SUITE-21** | Export & Template Stream Verification | `test_export_template_verification.cjs` | `EXP` | 4 | Stream / Template | `PASSED` |
 | **TOTAL** | **21 Automated Test Suites** | `authoritative-test-catalog.csv` | **ALL** | **160** | **Live Stack** | **100% PASS** |
 
 ---
 
 ## 5. Complete 770-Action Verification Inventory Summary
 
-Detailed in [`docs/migration/workflow-action-coverage.csv`](file:///Users/sharmila/Rajesh/my-app/docs/migration/workflow-action-coverage.csv):
+Detailed in [`docs/migration/workflow-action-coverage.csv`](file:///Users/sharmila/Rajesh/hims-release-clean/docs/migration/workflow-action-coverage.csv):
 * **`BROWSER_VERIFIED` (`STAGED_FOR_HUMAN_UAT`)**: **226 actions** (Interactive browser UI save/edit/reload, modal forms, table filters, DOM renders).
 * **`API_DB_VERIFIED_ONLY` (`PENDING_HUMAN_UAT`)**: **544 actions**
   - **386 actions (`BACKEND_STREAMING_EXPORT_OR_TEMPLATE`):** Headless PDF/Excel streaming export and print format render pipelines.
@@ -96,32 +110,34 @@ Detailed in [`docs/migration/workflow-action-coverage.csv`](file:///Users/sharmi
 
 ---
 
-## 6. Verified Startup & Configuration Instructions
+## 6. Verified Clean Worktree Startup Instructions
 
 ### Prerequisites
-* PostgreSQL 16 running on `localhost:5432` with database `hims_pilot_db`.
+* PostgreSQL 14.18 running on `localhost:5432` with database `hims_pilot_db`.
 * Node.js v20+ / v24 installed.
 * Ports `2014` (Pilot API) and `5175` (Pilot UI) available.
 
 ```bash
-# 1. Checkout Pilot Release Branch
-cd /Users/sharmila/Rajesh/my-app
-git checkout release/postgres-pilot-uat
+# 1. Clean Worktree Location (Source 'my-app' remains untouched on feature/emr-workspace)
+cd /Users/sharmila/Rajesh/hims-release-clean
 
-# 2. Start Pilot API Service (Port 2014)
-cd /Users/sharmila/Rajesh/hims-pg-pilot/api
-npm run build
-node dist/src/index.js
+# 2. Build API in Clean Worktree
+cd /Users/sharmila/Rajesh/hims-release-clean/api
+npm run build.dev
 
-# 3. Start Pilot React UI (Port 5175)
-cd /Users/sharmila/Rajesh/hims-pg-pilot
+# 3. Execute Complete Reconciled Test Harness (160 Tests / 21 Suites)
+node /Users/sharmila/Rajesh/hims-release-clean/tests/migration/run_all_reconciled_suites.cjs
+
+# 4. Start Pilot API Service (Port 2014)
+cd /Users/sharmila/Rajesh/hims-release-clean/api
+node dist/dev/src/index.js
+
+# 5. Start Pilot React UI (Port 5175)
+cd /Users/sharmila/Rajesh/hims-release-clean
 npx vite --port 5175
 
-# 4. Execute Full Verification Suites (160 Tests)
-node /Users/sharmila/Rajesh/hims-pg-pilot/build_full_authoritative_catalog.cjs
-
-# 5. Execute First Human UAT Session
-# Follow detailed step-by-step procedures in docs/migration/uat-session1.md
+# 6. Execute Human UAT Session 1
+# Follow detailed procedures in docs/migration/uat-session1.md
 ```
 
 ---
