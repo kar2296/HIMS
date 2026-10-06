@@ -65,24 +65,22 @@ export const RegistrationFooter: React.FC<RegistrationFooterProps> = (props: any
       display: 'flex',
       justifyContent: 'space-between',
       alignItems: 'center',
-      padding: `${spacing.md} ${spacing.xl}`,
+      padding: '8px 16px',
       backgroundColor: colors.surface,
       borderTop: '2px solid var(--premium-blue, #21008d)',
-      boxShadow: '0 -4px 20px rgba(0, 0, 0, 0.18)',
-      // Sticks to the bottom of the page area (it used to be fixed to the window from left: 0, so its
-      // first buttons slid under the side menu and it covered the last form rows).
+      boxShadow: '0 -4px 16px rgba(0, 0, 0, 0.12)',
       position: 'sticky',
       bottom: 0,
       zIndex: 30,
-      marginTop: spacing.lg,
+      marginTop: spacing.md,
       flexWrap: 'wrap',
-      gap: spacing.sm,
-      minHeight: '60px',
+      gap: spacing.xs,
+      minHeight: '46px',
       boxSizing: 'border-box'
     }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: spacing.sm, flexWrap: 'wrap' }}>
 
-        {privileges.canCrossConsult !== false && (
+        {privileges.canCrossConsult === true && Number(patientStatusId) === 2 && (
           <Button variant="secondary" onClick={() => handleAction('crossconsult')}>
             Multiple Consultation
           </Button>
@@ -94,7 +92,7 @@ export const RegistrationFooter: React.FC<RegistrationFooterProps> = (props: any
           </Button>
         )}
 
-        {privileges.canAttachment !== false && (
+        {privileges.canAttachment === true && Number(patientStatusId) === 2 && (
           <Button
             variant="secondary"
             icon="fa-paperclip"
@@ -105,7 +103,7 @@ export const RegistrationFooter: React.FC<RegistrationFooterProps> = (props: any
           </Button>
         )}
 
-        {privileges.canNewVisit !== false && (
+        {privileges.canNewVisit === true && Number(patientStatusId) === 2 && (
           <Button
             variant="warning"
             disabled={Number(patientStatusId) === 3}
@@ -115,7 +113,7 @@ export const RegistrationFooter: React.FC<RegistrationFooterProps> = (props: any
           </Button>
         )}
 
-        {privileges.canOPDBill !== false && (
+        {privileges.canOPDBill === true && Number(patientStatusId) === 2 && (
           <Button
             variant="info"
             disabled={Number(patientStatusId) === 3}
@@ -125,7 +123,7 @@ export const RegistrationFooter: React.FC<RegistrationFooterProps> = (props: any
           </Button>
         )}
 
-        {vitalsEnabled !== false && !isTempPatient && (
+        {vitalsEnabled !== false && !isTempPatient && Number(patientStatusId) === 2 && (
           <Button
             variant="primary"
             disabled={Number(patientStatusId) === 3}
@@ -136,7 +134,7 @@ export const RegistrationFooter: React.FC<RegistrationFooterProps> = (props: any
           </Button>
         )}
 
-        {visitPrintEnabled !== false && !isTempPatient && !showPrintDropdown && (
+        {visitPrintEnabled !== false && !isTempPatient && !showPrintDropdown && Number(patientStatusId) === 2 && (
           <Button
             variant="success"
             disabled={Number(patientStatusId) === 3}
@@ -146,7 +144,7 @@ export const RegistrationFooter: React.FC<RegistrationFooterProps> = (props: any
           </Button>
         )}
 
-        {showPrintDropdown !== false && (
+        {showPrintDropdown === true && Number(patientStatusId) === 2 && (
           <div style={{ position: 'relative', display: 'inline-block' }}>
             <Button
               variant="light"
@@ -172,13 +170,13 @@ export const RegistrationFooter: React.FC<RegistrationFooterProps> = (props: any
 
       </div>
 
-      <div style={{ display: 'flex', alignItems: 'center', gap: spacing.md, marginLeft: 'auto', flexShrink: 0 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: spacing.sm, marginLeft: 'auto', flexShrink: 0 }}>
         {actualProps.canShowSaveBtn && (
           <Button
             variant="warning"
-            size="lg"
+            size="md"
             onClick={() => handleAction('save')}
-            style={{ fontWeight: 700, padding: '10px 20px', fontSize: '14px' }}
+            style={{ fontWeight: 600, padding: '6px 14px', fontSize: '13px' }}
           >
             Save Draft
           </Button>
@@ -187,16 +185,16 @@ export const RegistrationFooter: React.FC<RegistrationFooterProps> = (props: any
         {Number(swosthaPatient) === 1 ? (
           <Button
             variant="success"
-            size="lg"
+            size="md"
             disabled={isDisabled}
             onClick={() => handleAction('saveSwosthaPatient')}
             style={{
               backgroundColor: '#28a745',
               color: '#ffffff',
               fontWeight: 700,
-              padding: '10px 24px',
-              fontSize: '15px',
-              boxShadow: '0 4px 14px rgba(40, 167, 69, 0.3)'
+              padding: '7px 18px',
+              fontSize: '13.5px',
+              boxShadow: '0 2px 8px rgba(40, 167, 69, 0.25)'
             }}
           >
             Save Swostha Patient
@@ -204,16 +202,16 @@ export const RegistrationFooter: React.FC<RegistrationFooterProps> = (props: any
         ) : (
           <Button
             variant="success"
-            size="lg"
+            size="md"
             disabled={isDisabled}
             onClick={() => handleAction('saveAndApprove')}
             style={{
               backgroundColor: '#28a745',
               color: '#ffffff',
               fontWeight: 700,
-              padding: '10px 24px',
-              fontSize: '15px',
-              boxShadow: '0 4px 14px rgba(40, 167, 69, 0.3)'
+              padding: '7px 18px',
+              fontSize: '13.5px',
+              boxShadow: '0 2px 8px rgba(40, 167, 69, 0.25)'
             }}
           >
             Save &amp; Activate

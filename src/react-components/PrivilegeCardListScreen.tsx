@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Pagination } from '../components/ui/Pagination';
 
 interface CardRow {
   Id?: number;
@@ -19,6 +20,8 @@ interface PrivilegeCardListScreenProps {
     currentfilter?: { MembershipNumber?: string; FromDate?: string; ToDate?: string; CardTypeId?: number };
     lookup?: { PromotionSchemeType?: LookupItem[] };
     rows?: CardRow[];
+    pager?: { totalItems: number; currentPage: number; pageSize: number };
+    loading?: boolean;
   };
   onAction?: (actionName: string, payload?: any) => void;
 }
@@ -34,6 +37,16 @@ function dotGet(obj: any, path: string): any {
   }, obj);
 }
 
+const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+// Same format as the old grid's "date : 'dd-MMM-yyyy'" filter, e.g. 01-Oct-2026.
+function formatDdMmmYyyy(value?: string): string {
+  if (!value) return '';
+  const d = new Date(value);
+  if (isNaN(d.getTime())) return '';
+  return `${String(d.getDate()).padStart(2, '0')}-${MONTHS[d.getMonth()]}-${d.getFullYear()}`;
+}
+
 function toDateInputValue(value?: string): string {
   if (!value) return '';
   const d = new Date(value);
@@ -45,18 +58,22 @@ function toDateInputValue(value?: string): string {
 // React bridge migration (single mount). Replaces privilegecardListController's
 // header/filter row and <custom-table> grid (see PromotionalSchemesListScreen.tsx
 // for the shared custom-table background). No native widgets, no
-// utl.Validator.validate. Pagination footer (uib-pagination) is kept
-// native below this mount, same rationale as promotionalschemes.
+// utl.Validator.validate. Pagination is rendered here and reported as
+// 'pageChange' (the old uib-pagination footer was removed).
 //
-// Confirmed pre-existing quirk, reproduced as-is: the MembershipNumber
-// search input (top-right, on-enter="getList()") is bound to
-// currentfilter.MembershipNumber, but getList()'s Params never include
-// it -- typing a value and pressing Enter re-fetches the exact same
-// unfiltered list. Dead-but-rendered, not fixed.
+// Search box (top-right): bound to currentfilter.MembershipNumber. It used
+// to be dead (never sent); privilegecardlist.js now sends it as the API's
+// CardNo filter when Enter is pressed, so it searches by Card#.
 export const PrivilegeCardListScreen: React.FC<PrivilegeCardListScreenProps> = ({ reactProps, onAction }) => {
   const currentfilter = reactProps?.currentfilter || {};
   const lookup = reactProps?.lookup || {};
   const rows = reactProps?.rows || [];
+  const pager = reactProps?.pager || { totalItems: 0, currentPage: 1, pageSize: 25 };
+  const loading = !!reactProps?.loading;
+  const firstIndex = (pager.currentPage - 1) * pager.pageSize;
+  const lastIndex = Math.min(pager.currentPage * pager.pageSize, pager.totalItems);
+  const fromValue = toDateInputValue(currentfilter.FromDate);
+  const toValue = toDateInputValue(currentfilter.ToDate);
   const [sort, setSort] = useState<SortState>(null);
 
   const dispatch = (actionName: string, payload?: any) => {
@@ -90,7 +107,7 @@ export const PrivilegeCardListScreen: React.FC<PrivilegeCardListScreenProps> = (
               <input
                 type="text"
                 className="form-control"
-                placeholder="Location"
+                placeholder="Search Card#"
                 value={currentfilter.MembershipNumber ?? ''}
                 onChange={(e) => dispatch('membershipNumberChange', { value: e.target.value })}
                 onKeyDown={(e) => { if (e.key === 'Enter') dispatch('fetch'); }}
@@ -110,7 +127,9 @@ export const PrivilegeCardListScreen: React.FC<PrivilegeCardListScreenProps> = (
             <input
               type="date"
               className="form-control"
-              value={toDateInputValue(currentfilter.FromDate)}
+              value={fromValue}
+              max={toValue || undefined}
+              aria-label="From Date"
               onChange={(e) => dispatch('fromDateChange', { value: e.target.value })}
             />
           </div>
@@ -121,7 +140,9 @@ export const PrivilegeCardListScreen: React.FC<PrivilegeCardListScreenProps> = (
             <input
               type="date"
               className="form-control"
-              value={toDateInputValue(currentfilter.ToDate)}
+              value={toValue}
+              min={fromValue || undefined}
+              aria-label="To Date"
               onChange={(e) => dispatch('toDateChange', { value: e.target.value })}
             />
           </div>
@@ -132,8 +153,10 @@ export const PrivilegeCardListScreen: React.FC<PrivilegeCardListScreenProps> = (
             <select
               className="form-control filter-combo"
               value={currentfilter.CardTypeId ?? ''}
-              onChange={(e) => dispatch('cardTypeChange', { value: Number(e.target.value) })}
+              onChange={(e) => dispatch('cardTypeChange', { value: e.target.value ? Number(e.target.value) : undefined })}
             >
+              {/* No scheme type selected = all types (same as the old empty ui-select). */}
+              <option value="">All</option>
               {(lookup.PromotionSchemeType || []).map((opt) => (
                 <option key={opt.Id} value={opt.Id}>{opt.Text}</option>
               ))}
@@ -154,19 +177,27 @@ export const PrivilegeCardListScreen: React.FC<PrivilegeCardListScreenProps> = (
                 <th>Actions</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody style={{ opacity: loading && sortedRows.length > 0 ? 0.5 : 1 }} aria-busy={loading}>
+              {sortedRows.length === 0 && (
+                <tr>
+                  <td colSpan={6} style={{ textAlign: 'center', padding: 16, color: '#64748b' }}>
+                    {loading ? 'Loading...' : 'No records found'}
+                  </td>
+                </tr>
+              )}
               {sortedRows.map((row, idx) => (
                 <tr key={row.Id ?? idx}>
-                  <td>{idx + 1}</td>
+                  {/* Numbered across pages (page 2 starts at 26, not 1). */}
+                  <td>{firstIndex + idx + 1}</td>
                   <td>{row.PromotionSchemeType?.Description}</td>
-                  <td>{row.ValidTo ? new Date(row.ValidTo).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : ''}</td>
+                  <td>{formatDdMmmYyyy(row.ValidTo)}</td>
                   <td>{row.CardNo}</td>
                   <td>{row.PromotionSchemeName}</td>
                   <td>
                     <span className="grid-action" onClick={() => dispatch('view', { Id: row.Id })}>
                       <img className="drhms-edit-button" src="assets/svg/edit.svg" alt="" />
                     </span>
-                    <span className="grid-action" onClick={() => dispatch('delete', { Id: row.Id, UserName: row.UserName })}>
+                    <span className="grid-action" onClick={() => dispatch('delete', { Id: row.Id, UserName: row.UserName || (row.CardNo ? `card ${row.CardNo}` : 'this card') })}>
                       <img className="drhms-edit-button" src="assets/svg/delete.svg" alt="" />
                     </span>
                   </td>
@@ -175,6 +206,13 @@ export const PrivilegeCardListScreen: React.FC<PrivilegeCardListScreenProps> = (
             </tbody>
           </table>
         </div>
+      </div>
+      <div className="row" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 8, padding: '8px 15px' }}>
+        <span style={{ fontSize: 13, color: '#64748b' }} data-testid="privilegecard-showing">
+          Showing {pager.totalItems === 0 ? 0 : firstIndex + 1}-{lastIndex} of {pager.totalItems} items
+        </span>
+        <Pagination currentPage={pager.currentPage} totalItems={pager.totalItems} pageSize={pager.pageSize}
+          onPageChange={(page) => dispatch('pageChange', { page })} />
       </div>
     </>
   );

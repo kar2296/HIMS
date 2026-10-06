@@ -323,6 +323,7 @@ export class PrivilegeHelper {
     "CanReg_Deactivate": PrivilegeHelper.CanReg_Deactivate,
     "CanReg_Attachment": PrivilegeHelper.CanReg_Attachment,
     "CanReg_BarCode": PrivilegeHelper.CanReg_BarCode,
+    "CanReg_Nobill": PrivilegeHelper.CanReg_Nobill,
     "CanIPSUM_PRINT": PrivilegeHelper.CanIPSUM_PRINT,
     "CanIPSUM_INSURANCE": PrivilegeHelper.CanIPSUM_INSURANCE,
     "CanIPSUM_PHARMACY": PrivilegeHelper.CanIPSUM_PHARMACY,
@@ -2037,6 +2038,11 @@ export class PrivilegeHelper {
   }
 
   private static CanReg_BarCode(): boolean {
+    // TODO: Implement actual session checks when SessionHelper is available
+    return false;
+  }
+
+  private static CanReg_Nobill(): boolean {
     // TODO: Implement actual session checks when SessionHelper is available
     return false;
   }

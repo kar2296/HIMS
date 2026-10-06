@@ -99,64 +99,62 @@ export const PatientSearchControl: React.FC<PatientSearchControlProps> = ({
     }
   };
 
+  const [alignRight, setAlignRight] = useState(false);
+
+  useEffect(() => {
+    if (isOpen && wrapperRef.current) {
+      const rect = wrapperRef.current.getBoundingClientRect();
+      if (rect.right > window.innerWidth / 2) {
+        setAlignRight(true);
+      } else {
+        setAlignRight(false);
+      }
+    }
+  }, [isOpen]);
+
   return (
-    <div className="typeahead-demo" style={{ position: 'relative' }} ref={wrapperRef}>
-      <div className="form-group" style={{ marginBottom: 0 }}>
-        <div className="col-sm-12" style={{ padding: 0, position: 'relative' }}>
-          {/*
-            NOTE ON DESIGN-SYSTEM USAGE: the design system's <SearchBox> only
-            accepts {value, onChange, onSubmit, placeholder, onClear, autoFocus} --
-            it has no passthrough for `id`, `disabled`, `tabIndex`, `onKeyDown`, or
-            `onFocus`. This control genuinely needs all of those (id is a real
-            legacy hook -- see `.typeahead-demo>input` in registrationcumvisit.html
-            and `.drhms-filters .search .typeahead-demo` in regcumvisitwithbill.html
-            -- disabled/tabIndex come straight from reactProps, onKeyDown drives the
-            real Up/Down/Enter/Escape result navigation, and onFocus reopens the
-            dropdown). Swapping in <SearchBox> as-is would silently drop that
-            wiring, so per the "don't distort real behavior to fit a component
-            that doesn't match" rule this keeps the real <input> and simply
-            reskins it to match SearchBox's exact visual language (icon inset,
-            tokens-based border/radius/height/type) instead.
-          */}
-          <i
-            className={isLoading ? 'fa-solid fa-circle-notch fa-spin' : 'fa-solid fa-magnifying-glass'}
-            style={{
-              position: 'absolute',
-              left: spacing.sm,
-              top: '50%',
-              transform: 'translateY(-50%)',
-              fontSize: '13px',
-              color: colors.textSubtle,
-              pointerEvents: 'none',
-            }}
-          />
-          <input
-            id={reactProps.controlId || 'pid'}
-            type="text"
-            className="premium-input pid"
-            placeholder={reactProps.placeholder}
-            value={inputValue}
-            onChange={handleInputChange}
-            onKeyDown={handleKeyDown}
-            disabled={reactProps.canDisable}
-            tabIndex={reactProps.tabIndex}
-            onFocus={() => { if (results.length > 0) setIsOpen(true); }}
-            autoComplete="off"
-            style={{
-              width: '100%',
-              height: controlHeight.md,
-              padding: `0 ${spacing.sm} 0 30px`,
-              borderRadius: radii.md,
-              border: `1px solid ${colors.border}`,
-              backgroundColor: reactProps.canDisable ? colors.surfaceMuted : colors.surface,
-              color: reactProps.canDisable ? colors.textSubtle : colors.textMain,
-              fontFamily: typography.fontFamily,
-              fontSize: typography.body.fontSize,
-              boxSizing: 'border-box',
-              cursor: reactProps.canDisable ? 'not-allowed' : 'text',
-            }}
-          />
-        </div>
+    <div className="typeahead-demo" style={{ position: 'relative', width: '100%', display: 'block' }} ref={wrapperRef}>
+      <div style={{ position: 'relative', width: '100%', display: 'flex', alignItems: 'center' }}>
+        <i
+          className={isLoading ? 'fa-solid fa-circle-notch fa-spin fas fa-spinner' : 'fa-solid fa-magnifying-glass fas fa-search'}
+          style={{
+            position: 'absolute',
+            left: '10px',
+            top: '50%',
+            transform: 'translateY(-50%)',
+            fontSize: '12px',
+            color: colors.textSubtle,
+            pointerEvents: 'none',
+            zIndex: 2,
+          }}
+        />
+        <input
+          id={reactProps.controlId || 'pid'}
+          type="text"
+          className="premium-input pid"
+          placeholder={reactProps.placeholder}
+          value={inputValue}
+          onChange={handleInputChange}
+          onKeyDown={handleKeyDown}
+          disabled={reactProps.canDisable}
+          tabIndex={reactProps.tabIndex}
+          onFocus={() => { if (results.length > 0) setIsOpen(true); }}
+          autoComplete="off"
+          style={{
+            width: '100%',
+            height: '31px',
+            lineHeight: '19px',
+            padding: '4px 10px 4px 30px',
+            borderRadius: '5px',
+            border: `1px solid ${colors.border}`,
+            backgroundColor: reactProps.canDisable ? colors.surfaceMuted : colors.surface,
+            color: reactProps.canDisable ? colors.textSubtle : colors.textMain,
+            fontFamily: typography.fontFamily,
+            fontSize: '12px',
+            boxSizing: 'border-box',
+            cursor: reactProps.canDisable ? 'not-allowed' : 'text',
+          }}
+        />
       </div>
 
       {isOpen && (results.length > 0 || isLoading) && (
@@ -165,35 +163,32 @@ export const PatientSearchControl: React.FC<PatientSearchControlProps> = ({
             display: 'block',
             position: 'absolute',
             top: '100%',
-            left: 0,
-            // Kept at the original literal 9999 (rather than the tokens.zIndex.dropdown
-            // value of 1000) deliberately: this overlay must stay above any host-page
-            // chrome it renders inside across the whole app, exactly as before --
-            // adopting the lower shared token here is a real stacking-behavior change,
-            // not a visual-only one, so it's out of scope for this pass.
-            zIndex: 9999,
-            maxHeight: '250px',
+            left: alignRight ? 'auto' : 0,
+            right: alignRight ? 0 : 'auto',
+            zIndex: 99999,
+            maxHeight: '280px',
             overflow: 'auto',
-            maxWidth: '600px',
-            marginTop: '2px',
+            minWidth: '600px',
+            maxWidth: 'min(750px, calc(100vw - 32px))',
+            marginTop: '4px',
             backgroundColor: colors.surface,
             border: `1px solid ${colors.border}`,
             borderRadius: radii.md,
-            boxShadow: shadows.lg,
+            boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.18), 0 8px 10px -6px rgba(0, 0, 0, 0.12)',
           }}
         >
           {isLoading && results.length === 0 ? (
             <Loading text="Loading..." size="sm" />
           ) : (
-            <table className="table table-bordered table-condensed" style={{ margin: 0, background: 'transparent', borderCollapse: 'collapse' }} role="listbox">
+            <table className="table table-bordered table-condensed" style={{ margin: 0, width: '100%', background: 'transparent', borderCollapse: 'collapse' }} role="listbox">
               <thead>
-                <tr style={{ backgroundColor: colors.primary }}>
-                  <th style={{ width: '120px', color: '#ffffff', ...typography.label, fontFamily: typography.fontFamily, padding: `${spacing.xs} ${spacing.sm}` }}>Title</th>
-                  <th style={{ minWidth: '100px', color: '#ffffff', ...typography.label, fontFamily: typography.fontFamily, padding: `${spacing.xs} ${spacing.sm}` }}>Name</th>
-                  <th style={{ width: '110px', color: '#ffffff', ...typography.label, fontFamily: typography.fontFamily, padding: `${spacing.xs} ${spacing.sm}` }}>DOB</th>
-                  <th style={{ width: '70px', color: '#ffffff', ...typography.label, fontFamily: typography.fontFamily, padding: `${spacing.xs} ${spacing.sm}` }}>Age/Gender</th>
-                  <th style={{ width: '100px', color: '#ffffff', ...typography.label, fontFamily: typography.fontFamily, padding: `${spacing.xs} ${spacing.sm}` }}>MRN</th>
-                  <th style={{ width: '100px', color: '#ffffff', ...typography.label, fontFamily: typography.fontFamily, padding: `${spacing.xs} ${spacing.sm}` }}>Mobile #</th>
+                <tr style={{ backgroundColor: '#1e40af' }}>
+                  <th style={{ width: '55px', whiteSpace: 'nowrap', color: '#ffffff', ...typography.label, fontFamily: typography.fontFamily, padding: '6px 10px' }}>Title</th>
+                  <th style={{ minWidth: '180px', color: '#ffffff', ...typography.label, fontFamily: typography.fontFamily, padding: '6px 10px' }}>Name</th>
+                  <th style={{ width: '100px', whiteSpace: 'nowrap', color: '#ffffff', ...typography.label, fontFamily: typography.fontFamily, padding: '6px 10px' }}>DOB</th>
+                  <th style={{ width: '85px', whiteSpace: 'nowrap', color: '#ffffff', ...typography.label, fontFamily: typography.fontFamily, padding: '6px 10px' }}>Age/Gender</th>
+                  <th style={{ width: '110px', whiteSpace: 'nowrap', color: '#ffffff', ...typography.label, fontFamily: typography.fontFamily, padding: '6px 10px' }}>MRN</th>
+                  <th style={{ width: '110px', whiteSpace: 'nowrap', color: '#ffffff', ...typography.label, fontFamily: typography.fontFamily, padding: '6px 10px' }}>Mobile #</th>
                 </tr>
               </thead>
               <tbody>
@@ -223,12 +218,12 @@ export const PatientSearchControl: React.FC<PatientSearchControlProps> = ({
                       onClick={() => handleSelect(patient)}
                       role="option"
                     >
-                      <td className="td-title" style={{ ...typography.body, fontFamily: typography.fontFamily, color: colors.textMain, padding: `${spacing.xs} ${spacing.sm}`, borderColor: colors.border }}>{patient.TitleDesc}</td>
-                      <td className="td-name" style={{ ...typography.body, fontFamily: typography.fontFamily, color: colors.textMain, padding: `${spacing.xs} ${spacing.sm}`, borderColor: colors.border }}>{patient.PatientName}</td>
-                      <td className="td-dob" style={{ ...typography.body, fontFamily: typography.fontFamily, color: colors.textMain, padding: `${spacing.xs} ${spacing.sm}`, borderColor: colors.border, whiteSpace: 'nowrap' }}>{dobDisplay}</td>
-                      <td className="td-age" style={{ ...typography.body, fontFamily: typography.fontFamily, color: colors.textMain, padding: `${spacing.xs} ${spacing.sm}`, borderColor: colors.border }}>{patient.Age}/{patient.GenderCode}</td>
-                      <td className="td-mrn" style={{ ...typography.body, fontFamily: typography.fontFamily, color: colors.textMain, padding: `${spacing.xs} ${spacing.sm}`, borderColor: colors.border }}>{patient.MRN}</td>
-                      <td className="td-mrn" style={{ ...typography.body, fontFamily: typography.fontFamily, color: colors.textMain, padding: `${spacing.xs} ${spacing.sm}`, borderColor: colors.border }}>{patient.Mobile}</td>
+                      <td className="td-title" style={{ ...typography.body, fontSize: '12px', whiteSpace: 'nowrap', color: colors.textMain, padding: '6px 10px', borderColor: colors.border }}>{patient.TitleDesc}</td>
+                      <td className="td-name" style={{ ...typography.body, fontSize: '12px', fontWeight: 600, color: colors.textMain, padding: '6px 10px', borderColor: colors.border }}>{patient.PatientName}</td>
+                      <td className="td-dob" style={{ ...typography.body, fontSize: '12px', whiteSpace: 'nowrap', color: colors.textMain, padding: '6px 10px', borderColor: colors.border }}>{dobDisplay}</td>
+                      <td className="td-age" style={{ ...typography.body, fontSize: '12px', whiteSpace: 'nowrap', color: colors.textMain, padding: '6px 10px', borderColor: colors.border }}>{patient.Age}/{patient.GenderCode}</td>
+                      <td className="td-mrn" style={{ ...typography.body, fontSize: '12px', whiteSpace: 'nowrap', fontWeight: 600, color: '#1d4ed8', padding: '6px 10px', borderColor: colors.border }}>{patient.MRN}</td>
+                      <td className="td-mobile" style={{ ...typography.body, fontSize: '12px', whiteSpace: 'nowrap', color: colors.textMain, padding: '6px 10px', borderColor: colors.border }}>{patient.Mobile}</td>
                     </tr>
                   );
                 })}

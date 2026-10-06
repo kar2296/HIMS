@@ -61,6 +61,8 @@ interface BillingBankStatementFormScreenProps {
     TotalCashAmount?: number;
     TotalCardAmount?: number;
     OverAllNetCash?: number;
+    /** True while a save is in progress; Submit is disabled so it cannot be sent twice. */
+    busy?: boolean;
   };
   onAction?: (actionName: string, payload?: any) => void;
 }
@@ -145,7 +147,7 @@ export const BillingBankStatementFormScreen: React.FC<BillingBankStatementFormSc
   const {
     currentfilter = {}, lookup, item = {}, currentcontext = {}, StatementData = [],
     DefinedDenominations = [], NetCashAmt = 0, TotalCashInHand = 0, TotalCashAmount = 0,
-    TotalCardAmount = 0, OverAllNetCash = 0,
+    TotalCardAmount = 0, OverAllNetCash = 0, busy = false,
   } = reactProps || {};
 
   const departmentOptions = lookup?.Department || [];
@@ -344,8 +346,9 @@ export const BillingBankStatementFormScreen: React.FC<BillingBankStatementFormSc
         </button>
         <div>
           {!isExisting && (
-            <button type="button" className="draftbutton" onClick={() => dispatch('submit')}>
-              Submit
+            <button type="button" className="draftbutton" disabled={busy}
+              style={busy ? { opacity: 0.5, cursor: 'wait' } : undefined} onClick={() => dispatch('submit')}>
+              {busy ? 'Submitting…' : 'Submit'}
             </button>
           )}
           {isExisting && (

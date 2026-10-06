@@ -467,7 +467,7 @@ export const FindBillModalComponent: React.FC<FindBillModalProps> = (rawProps: a
                 onChange={(value) => setStatusId(Number(value))}
                 options={[
                   { value: -1, label: 'All Statuses' },
-                  ...statusOptions.map((opt) => ({ value: opt.Id, label: opt.Description })),
+                  ...statusOptions.filter((opt) => opt.Id !== -1).map((opt) => ({ value: opt.Id, label: opt.Description })),
                 ]}
               />
             </div>
@@ -480,7 +480,7 @@ export const FindBillModalComponent: React.FC<FindBillModalProps> = (rawProps: a
                 onChange={(value) => setReferralId(Number(value))}
                 options={[
                   { value: -1, label: 'All Referrals' },
-                  ...referralOptions.map((opt) => ({ value: opt.Id, label: opt.Description })),
+                  ...referralOptions.filter((opt) => opt.Id !== -1).map((opt) => ({ value: opt.Id, label: opt.Description })),
                 ]}
               />
             </div>

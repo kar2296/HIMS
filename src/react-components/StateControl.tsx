@@ -29,8 +29,10 @@ export const StateControl: React.FC<StateControlProps> = ({
     let isMounted = true;
 
     const fetchStates = async () => {
+      // Nothing to load. Also clears a spinner left by a request that was still running when
+      // the countryid was cleared (that request's own finally no longer updates this component).
       if (!countryid) {
-        if (isMounted) setStates([]);
+        if (isMounted) { setStates([]); setLoading(false); }
         return;
       }
 

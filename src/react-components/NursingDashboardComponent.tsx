@@ -67,7 +67,7 @@ export const NursingDashboardComponent: React.FC<NursingDashboardProps> = ({ rea
   const metricCards = [
     { title: 'OP Patients', icon: 'fa-user-injured', color: '#2563eb', show: permissions.CanNursingCurrentOpPatients !== false, action: () => handleCardClick('app.oppatienttab.allcheckin', { context: 'nursing' }) },
     { title: 'IP Patients', icon: 'fa-procedures', color: '#10b981', show: permissions.CanNursingCurrentIpPatients !== false, action: () => handleCardClick('app.inpatienttab.myinpatient', { context: 'nursing' }) },
-    { title: 'Appointments', icon: 'fa-calendar-check', color: '#f59e0b', show: permissions.CanNursingAppointments !== false, action: () => handleCardClick('app.appointmentstab.details') },
+    { title: 'Appointments', icon: 'fa-calendar-check', color: '#f59e0b', show: permissions.CanNursingAppointments !== false, action: () => handleCardClick('app.appointmentstab.details', { id: 0 }) },
     { title: 'Ward Manage', icon: 'fa-building-user', color: '#8b5cf6', show: permissions.CanNursingWardManagement !== false, action: () => handleCardClick('app.bedmanagementtab.inpatient', { context: 'nursing' }) },
     { title: 'Today Admissions', count: data.admissions.length, icon: 'fa-hospital-user', color: '#0ea5e9', show: true, action: () => handleCardClick('app.admissions', { context: 'nursing' }) },
     { title: 'Available Beds', count: data.availableBeds.length, icon: 'fa-bed', color: '#64748b', show: permissions.CanNursingBedManagement !== false, action: () => handleCardClick('app.bedmanagement') },

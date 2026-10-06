@@ -5,7 +5,11 @@ import { sessionHelper } from '../services/sessionHelper';
 import { AdminDashboardComponent } from '../react-components/AdminDashboardComponent';
 import { EmrWorkspaceScreen } from '../react-components/emr-workspace/EmrWorkspaceScreen';
 import { RegisteredPatientsScreen } from '../react-components/RegisteredPatientsScreen';
+import { PatientRegistrationSelfScreen } from '../react-components/PatientRegistrationSelfScreen';
+import { IvfRegistrationTabScreen } from '../react-components/IvfRegistrationTabScreen';
+import { IvfRegistrationScreen } from '../react-components/IvfRegistrationScreen';
 import { NewRegistrationScreen } from '../react-components/NewRegistrationScreen';
+import { QuickRegistrationFormScreen } from '../react-components/QuickRegistrationFormScreen';
 import { OpdBillScreen } from '../react-components/OpdBillScreen';
 import { PrescriptionsListScreen } from '../react-components/PrescriptionsListScreen';
 import { LabDashboardComponent } from '../react-components/LabDashboardComponent';
@@ -30,6 +34,11 @@ import { EventTemplateFormScreen } from '../react-components/EventTemplateFormSc
 import { DoctorPaymentModifyScreen } from '../react-components/DoctorPaymentModifyScreen';
 import { RoleFormScreen } from '../react-components/RoleFormScreen';
 import { GroupsListScreen } from '../react-components/GroupsListScreen';
+import { UsersListScreen } from '../react-components/UsersListScreen';
+import { UserTabScreen } from '../react-components/UserTabScreen';
+import { UserFormScreen } from '../react-components/UserFormScreen';
+import { UserInfoScreen } from '../react-components/UserInfoScreen';
+import { OpVisitBillLinkScreen } from '../react-components/OpVisitBillLinkScreen';
 import { GroupTabScreen } from '../react-components/GroupTabScreen';
 import { OccupationMasterListScreen } from '../react-components/OccupationMasterListScreen';
 import { PatientIdentityFormScreen } from '../react-components/PatientIdentityFormScreen';
@@ -56,6 +65,10 @@ import { EditEmrVitalScreen } from '../react-components/emr-master/EditEmrVitalS
 import { EmrMastersHubScreen } from '../react-components/emr-master/EmrMastersHubScreen';
 import { EmrMasterGenericScreen } from '../react-components/emr-master/EmrMasterGenericScreen';
 import { EmrPrintMasterScreen } from '../react-components/emr-master/EmrPrintMasterScreen';
+import { AppointmentSessionsListScreen } from '../react-components/AppointmentSessionsListScreen';
+import { AppointmentSessionFormScreen } from '../react-components/AppointmentSessionFormScreen';
+import { AppointmentSessionFormTabScreen } from '../react-components/AppointmentSessionFormTabScreen';
+import { AppointmentMultiSessionListScreen } from '../react-components/AppointmentMultiSessionListScreen';
 
 // Route Guard component
 export const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -133,6 +146,66 @@ export const AppRoutes: React.FC = () => {
           element={
             <ProtectedRoute>
               <ShellWrapper activeTab="registration" component={<NewRegistrationScreen />} />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/registration/quick"
+          element={
+            <ProtectedRoute>
+              <ShellWrapper activeTab="registration" component={<QuickRegistrationFormScreen />} />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/quickregistration"
+          element={
+            <ProtectedRoute>
+              <ShellWrapper activeTab="registration" component={<QuickRegistrationFormScreen />} />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/patientregistration-self"
+          element={
+            <ProtectedRoute>
+              <ShellWrapper activeTab="registration" component={<PatientRegistrationSelfScreen />} />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/registration/self"
+          element={
+            <ProtectedRoute>
+              <ShellWrapper activeTab="registration" component={<PatientRegistrationSelfScreen />} />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/ivfregistrationtab"
+          element={
+            <ProtectedRoute>
+              <ShellWrapper activeTab="registration" component={<IvfRegistrationScreen />} />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/ivfregistrationtab/basic"
+          element={
+            <ProtectedRoute>
+              <ShellWrapper activeTab="registration" component={<IvfRegistrationScreen />} />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/registration/ivf"
+          element={
+            <ProtectedRoute>
+              <ShellWrapper activeTab="registration" component={<IvfRegistrationScreen />} />
             </ProtectedRoute>
           }
         />
@@ -352,6 +425,87 @@ export const AppRoutes: React.FC = () => {
           element={
             <ProtectedRoute>
               <ShellWrapper activeTab="dashboard" component={<RolesListScreen />} />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/users"
+          element={
+            <ProtectedRoute>
+              <ShellWrapper activeTab="dashboard" component={<UsersListScreen />} />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/app/users"
+          element={
+            <ProtectedRoute>
+              <ShellWrapper activeTab="dashboard" component={<UsersListScreen />} />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/usertab/:id"
+          element={
+            <ProtectedRoute>
+              <ShellWrapper activeTab="dashboard" component={<UserTabScreen />} />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/usertab/:id/general"
+          element={
+            <ProtectedRoute>
+              <ShellWrapper activeTab="dashboard" component={<UserTabScreen />} />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/app/usertab/:id"
+          element={
+            <ProtectedRoute>
+              <ShellWrapper activeTab="dashboard" component={<UserTabScreen />} />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/app/usertab/:id/general"
+          element={
+            <ProtectedRoute>
+              <ShellWrapper activeTab="dashboard" component={<UserTabScreen />} />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/userinfo"
+          element={
+            <ProtectedRoute>
+              <ShellWrapper activeTab="dashboard" component={<UserInfoScreen />} />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/app/userinfo"
+          element={
+            <ProtectedRoute>
+              <ShellWrapper activeTab="dashboard" component={<UserInfoScreen />} />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/opvisitbilllink"
+          element={
+            <ProtectedRoute>
+              <ShellWrapper activeTab="registration" component={<OpVisitBillLinkScreen />} />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/app/opvisitbilllink"
+          element={
+            <ProtectedRoute>
+              <ShellWrapper activeTab="registration" component={<OpVisitBillLinkScreen />} />
             </ProtectedRoute>
           }
         />
@@ -762,6 +916,78 @@ export const AppRoutes: React.FC = () => {
           element={
             <ProtectedRoute>
               <ShellWrapper activeTab="emr" component={<EmrFormAssemblyScreen />} />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Appointment Sessions / Configure Slots */}
+        <Route
+          path="/appointmentsessions"
+          element={
+            <ProtectedRoute>
+              <ShellWrapper activeTab="appointments" component={<AppointmentSessionsListScreen />} />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/app/appointmentsessions"
+          element={
+            <ProtectedRoute>
+              <ShellWrapper activeTab="appointments" component={<AppointmentSessionsListScreen />} />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Appointment Session Form */}
+        <Route
+          path="/appointmentsession/:id"
+          element={
+            <ProtectedRoute>
+              <ShellWrapper activeTab="appointments" component={<AppointmentSessionFormScreen />} />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/app/appointmentsession/:id"
+          element={
+            <ProtectedRoute>
+              <ShellWrapper activeTab="appointments" component={<AppointmentSessionFormScreen />} />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Appointment Session Tabs Container */}
+        <Route
+          path="/appointmentsessiontab/:id"
+          element={
+            <ProtectedRoute>
+              <ShellWrapper activeTab="appointments" component={<AppointmentSessionFormTabScreen />} />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/app/appointmentsessiontab/:id"
+          element={
+            <ProtectedRoute>
+              <ShellWrapper activeTab="appointments" component={<AppointmentSessionFormTabScreen />} />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Appointment Multi Session List */}
+        <Route
+          path="/appointmentmultisession/:id"
+          element={
+            <ProtectedRoute>
+              <ShellWrapper activeTab="appointments" component={<AppointmentMultiSessionListScreen />} />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/app/appointmentmultisession/:id"
+          element={
+            <ProtectedRoute>
+              <ShellWrapper activeTab="appointments" component={<AppointmentMultiSessionListScreen />} />
             </ProtectedRoute>
           }
         />

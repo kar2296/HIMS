@@ -65,6 +65,7 @@ interface Lookups {
   Referral?: LookupItem[];
   Remark?: LookupItem[];
   MRNType?: LookupItem[];
+  Occupation?: LookupItem[];
 }
 
 interface ServerItem {
@@ -78,6 +79,8 @@ interface CurrentContext {
   isTempPatient?: boolean;
   showfocus?: boolean;
   triedSubmit?: boolean;
+  Photo?: string;
+  file?: any;
 }
 
 interface Flags {
@@ -108,23 +111,19 @@ interface ScreenProps {
 // own control with no label prop of their own, and the Approx. Age group of
 // three plain inputs sharing one label. Matches the design-system's own
 // internal Input/Select label styling so everything lines up visually.
+// Shared compact label style
 const groupLabelStyle: React.CSSProperties = {
-  ...typography.label, color: colors.textMain, marginBottom: spacing.xs, fontFamily: typography.fontFamily, display: 'block',
+  fontSize: '11px',
+  fontWeight: 600,
+  color: '#475569',
+  marginBottom: '2px',
+  fontFamily: typography.fontFamily,
+  display: 'block',
+  textTransform: 'uppercase',
+  letterSpacing: '0.3px',
 };
 
-// Grid container used for both the "Patient Info" and "Address Info" field
-// groups -- same layout as before (auto-fit responsive columns), now driven by
-// design-system spacing tokens instead of a hardcoded pixel gap.
-const gridStyle: React.CSSProperties = {
-  display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: spacing.lg,
-};
-
-// Small reusable lookup-driven select -- avoids repeating the same
-// option-mapping boilerplate for the ~15 plain lookup selects on this screen.
-// Internally now renders the global design-system `Select` (restyled visual
-// layer only); external shape/behavior is unchanged -- callers still pass an
-// `Id`/`Text` LookupItem[] and get back a parsed number-or-null via onChange,
-// exactly like the original raw <select> version did.
+// Reusable lookup-driven select -- compact styled
 const Sel: React.FC<{
   id?: string;
   value: any;
@@ -133,10 +132,12 @@ const Sel: React.FC<{
   disabled?: boolean;
   error?: string;
   label?: string;
-}> = ({ id, value, options, onChange, disabled, error, label }) => (
+  required?: boolean;
+}> = ({ id, value, options, onChange, disabled, error, label, required }) => (
   <Select
     id={id}
     label={label}
+    required={required}
     value={value ?? ''}
     options={(options || []).map((o) => ({ value: o.Id, label: o.Text }))}
     onChange={(v) => onChange(v === '' || v === undefined || v === null ? null : parseInt(String(v), 10))}
@@ -158,8 +159,6 @@ function canShowApproxAge(titleId: number | null | undefined, titleLookup: Looku
 
 // ---------------------------------------------------------------------------
 // FullRegistrationPatientOptions -- the small header panel next to <patientbanner>
-// (Attachments badge + Admission button). Real gate: ng-if="item.PatientStatusId==2"
-// (no HasPrivilege involved here, so this one genuinely renders).
 // ---------------------------------------------------------------------------
 export const FullRegistrationPatientOptions: React.FC<ScreenProps> = ({ reactProps, onAction }) => {
   const { item = {}, currentcontext = {} } = reactProps || {};
@@ -192,29 +191,6 @@ export const FullRegistrationPatientOptions: React.FC<ScreenProps> = ({ reactPro
 
 // ---------------------------------------------------------------------------
 // FullRegistrationScreen -- the main "Patient Info" + "Address Info" form.
-//
-// Scope notes (disclosed in the completion report):
-// - Occupation (<autosearch>) is left as a real, untouched Angular directive
-//   positioned right after this component in the DOM (see fullregistration.html) --
-//   it is a genuinely complex, still-Angular-native, shared typeahead widget with real
-//   working search logic; porting it is out of scope for this pass, matching the
-//   established precedent of leaving <patientbanner>/<patientsearch> untouched.
-// - Country/State/District/City reuse the already-migrated CountryControl/
-//   StateControl/DistrictControl/CityControl React components. The real <address>
-//   component here uses pincode="'freetext'" (a hardcoded literal, confirmed by
-//   reading vendor/components/address.html) -- meaning Area and Pincode are real plain
-//   free-text inputs (not the Area/Pincode dropdown controls used on other already-
-//   migrated screens), which is exactly how they are rendered below.
-// - The freetext Pincode input is real, required, and constrained to exactly 6
-//   characters (MINLENGTH/MAXLENGTH=6) in the original template -- this is folded
-//   into $scope.isFullRegFormValid() in fullregistration.js.
-// - HasPrivilege(...) is called throughout the original template (Deactivate,
-//   FR-Deceased, Attachment, FR-OPDBill, ORIGINAL_PRINT, FR-Findpatient) but is a
-//   function that does not exist anywhere in this codebase (confirmed by exhaustive
-//   grep across public/) -- every element gated by it is therefore
-//   ALWAYS hidden in the real, currently-running app. This component preserves that
-//   real (if surprising) behavior faithfully rather than inventing privilege logic:
-//   the "Find Patient" button (gated FR-Findpatient) is omitted below.
 // ---------------------------------------------------------------------------
 export const FullRegistrationScreen: React.FC<ScreenProps> = ({ reactProps, onAction }) => {
   const { item = {}, lookup = {}, currentcontext = {} } = reactProps || {};
@@ -222,19 +198,43 @@ export const FullRegistrationScreen: React.FC<ScreenProps> = ({ reactProps, onAc
   const dispatch = (action: string, payload?: any) => { if (onAction) onAction(action, payload); };
   const setField = (field: string, value: any) => dispatch('itemFieldChange', { field, value });
 
-  const titleSelectRef = useRef<HTMLSelectElement>(null);
+  const [localFilePreview, setLocalFilePreview] = useState<string | null>(null);
+  const [occupations, setOccupations] = useState<LookupItem[]>([]);
+
   useEffect(() => {
-    // Mirrors $scope.setFocusTitle()/$scope.callTitleFocus(): auto-focus the Title
-    // field ~1s after load, but only for a brand-new registration (id<=0). The real
-    // Angular mechanism queried a ui-select DOM node that no longer exists once this
-    // section is React, so the equivalent behavior is reimplemented here directly
-    // (same real observable effect: Title gets focus on a fresh registration).
+    let isMounted = true;
+    apiFetch('generalmaster/Occupation/GetOccupations', {
+      Params: [],
+      PageContext: { PageSize: 100, PageNumber: 1 },
+      Occupations: '',
+      PageIndex: 1,
+    })
+      .then((res: any) => {
+        if (!isMounted) return;
+        const list = res?.Data || res?.rows || (Array.isArray(res) ? res : []);
+        if (Array.isArray(list)) {
+          setOccupations(list.map((o: any) => ({
+            Id: o.Id ?? o.OccupationId,
+            Text: o.Occupations ? `${o.Occupations}${o.Code ? ` (${o.Code})` : ''}` : (o.Text || `Occupation #${o.Id}`),
+            Code: o.Code,
+          })));
+        }
+      })
+      .catch((err) => console.error('Failed to load occupations', err));
+    return () => { isMounted = false; };
+  }, []);
+
+  const occupationOptions = occupations.length > 0 ? occupations : (lookup.Occupation || []);
+
+  useEffect(() => {
     if ((currentcontext.id ?? 0) <= 0) {
-      const t = setTimeout(() => titleSelectRef.current?.focus(), 1000);
+      const t = setTimeout(() => {
+        const el = document.getElementById('select-title') || document.getElementById('title');
+        el?.focus();
+      }, 1000);
       return () => clearTimeout(t);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [currentcontext.id]);
 
   // Google Places Autocomplete -- same real window.google.maps.places API/pattern
   // used on newregistration/patientregistration-form/quickregistration. On resolve,
@@ -361,8 +361,118 @@ export const FullRegistrationScreen: React.FC<ScreenProps> = ({ reactProps, onAc
 
   const showFindPatient = item.IsCouple || item.IsRecipient;
 
+  const photoSrc = item.iswebcamphoto && item.webcamphoto
+    ? `data:image/png;base64,${item.webcamphoto}`
+    : localFilePreview
+    ? localFilePreview
+    : item.PhotoPath && currentcontext.Photo
+    ? `data:image/png;base64,${currentcontext.Photo}`
+    : 'app/img/main/img.jpg';
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const previewUrl = URL.createObjectURL(file);
+      setLocalFilePreview(previewUrl);
+      dispatch('fileSelected', { file });
+      dispatch('itemFieldChange', { field: 'iswebcamphoto', value: false });
+    }
+  };
+
+  const handleClearImage = () => {
+    setLocalFilePreview(null);
+    dispatch('clearimage');
+  };
+
   return (
-    <div style={{ maxWidth: 1280, margin: '0 auto', padding: `${spacing.sm} ${spacing.xs} ${spacing.xl}`, display: 'flex', flexDirection: 'column', gap: spacing.xl }}>
+    <div
+      className="full-registration-screen"
+      style={{
+        maxWidth: 1280,
+        margin: '0 auto',
+        padding: `${spacing.xs} 0 ${spacing.md}`,
+        display: 'flex',
+        flexDirection: 'column',
+        gap: spacing.sm,
+        boxSizing: 'border-box',
+      }}
+    >
+      <style>{`
+        .full-registration-screen {
+          font-size: 12px;
+          width: 100%;
+        }
+        .full-registration-screen label {
+          font-size: 11px !important;
+          font-weight: 600 !important;
+          color: #475569 !important;
+          margin-bottom: 3px !important;
+          text-transform: uppercase !important;
+          letter-spacing: 0.3px !important;
+        }
+        .full-registration-screen input:not([type="checkbox"]),
+        .full-registration-screen select {
+          height: 32px !important;
+          min-height: 32px !important;
+          font-size: 12.5px !important;
+          padding: 0 10px !important;
+          border-radius: 6px !important;
+          border: 1px solid #cbd5e1 !important;
+          background-color: #ffffff !important;
+          box-sizing: border-box !important;
+          width: 100% !important;
+        }
+        .full-registration-screen select {
+          padding-right: 28px !important;
+        }
+        .full-registration-screen input:focus,
+        .full-registration-screen select:focus {
+          border-color: var(--hims-primary, #21008d) !important;
+          box-shadow: 0 0 0 2px rgba(33, 0, 141, 0.12) !important;
+          outline: none !important;
+        }
+        .full-reg-checkbox-wrap label {
+          display: inline-flex !important;
+          flex-direction: row !important;
+          align-items: center !important;
+          gap: 6px !important;
+          margin-bottom: 0 !important;
+          cursor: pointer !important;
+          white-space: nowrap !important;
+          font-size: 11.5px !important;
+          text-transform: none !important;
+        }
+        .full-reg-checkbox-wrap label span {
+          white-space: nowrap !important;
+        }
+        .full-registration-screen .field-sm {
+          display: flex;
+          flex-direction: column;
+        }
+        @media (max-width: 960px) {
+          .full-reg-grid {
+            grid-template-columns: repeat(2, 1fr) !important;
+          }
+          .full-reg-photo-panel {
+            grid-column: span 2 !important;
+            grid-row: auto !important;
+            min-height: auto !important;
+            flex-direction: row !important;
+            gap: 16px !important;
+            padding: 8px 16px !important;
+          }
+        }
+        @media (max-width: 600px) {
+          .full-reg-grid {
+            grid-template-columns: 1fr !important;
+          }
+          .full-reg-photo-panel {
+            grid-column: span 1 !important;
+            grid-row: auto !important;
+          }
+        }
+      `}</style>
+
       {showErrors && Object.keys(errors).length > 0 && (
         <Alert tone="danger">
           Please complete all required fields (Title, First Name, Last Name, Gender, a 10-digit Mobile number,
@@ -370,93 +480,267 @@ export const FullRegistrationScreen: React.FC<ScreenProps> = ({ reactProps, onAc
         </Alert>
       )}
 
-      <Card title="Patient Info">
-        <div style={gridStyle}>
+      {/* Patient Info Card with Integrated Top-Right Photo Box in 4-Column Grid */}
+      <Card title="Patient Info" padding="10px 14px">
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(4, 1fr)',
+            gap: '8px 12px',
+            alignItems: 'start',
+          }}
+          className="full-reg-grid"
+        >
+          {/* Row 1 - Col 1: Title */}
+          <Sel
+            id="title"
+            label="Title"
+            required
+            error={errorMessageFor('TitleId', 'Required')}
+            value={item.TitleId}
+            options={lookup.Title}
+            onChange={(v) => dispatch('titleChange', { value: v })}
+          />
 
-          <Sel label="MRN Type" value={item.MRNTypeId} options={lookup.MRNType} disabled={!!item.IsMRNTypeDisable}
-            onChange={(v) => setField('MRNTypeId', v)} />
-
-          {/* Title is kept as a native <select> (restyled with design-system tokens
-              rather than swapped for the Select component) because $scope.setFocusTitle's
-              real auto-focus-on-load behavior above depends on a live DOM node ref
-              (titleSelectRef.current?.focus()) -- the Select component doesn't forward a
-              ref, so wrapping it here would silently break that focus behavior. The
-              native browser focus outline is left in place (not overridden) for the same
-              reason -- this field is the one genuinely auto-focused on a fresh
-              registration, so its focus indicator has to stay visible. */}
-          <div>
-            <label htmlFor="title" style={groupLabelStyle}>Title <span style={{ color: colors.danger, marginLeft: 2 }}>*</span></label>
-            <select
-              id="title"
-              ref={titleSelectRef}
-              value={item.TitleId ?? ''}
-              onChange={(e) => dispatch('titleChange', { value: e.target.value ? parseInt(e.target.value, 10) : null })}
-              style={{
-                width: '100%', height: controlHeight.md, fontSize: '13px', padding: '0 30px 0 12px',
-                fontFamily: typography.fontFamily, color: colors.textMain, backgroundColor: colors.surface,
-                border: `1px solid ${showErrors && errors.TitleId ? colors.danger : colors.border}`,
-                borderRadius: radii.sm, boxSizing: 'border-box', cursor: 'pointer',
-              }}
-            >
-              <option value="">Select</option>
-              {(lookup.Title || []).map((t) => <option key={t.Id} value={t.Id}>{t.Text}</option>)}
-            </select>
-          </div>
-
+          {/* Row 1 - Col 2: First Name */}
           <Input label="First Name" required error={errorMessageFor('FirstName', 'Required')} value={item.FirstName || ''}
             onChange={(e) => setField('FirstName', e.target.value.toUpperCase())} />
 
-          <Input label="Middle Name" value={item.MiddleName || ''}
-            onChange={(e) => setField('MiddleName', e.target.value.toUpperCase())} />
-
+          {/* Row 1 - Col 3: Last Name */}
           <Input label="Last Name" required error={errorMessageFor('LastName', 'Required')} value={item.LastName || ''}
             onChange={(e) => setField('LastName', e.target.value.toUpperCase())} />
 
+          {/* Row 1-3 - Col 4: Top-Right Photo Upload Panel inside Grid */}
+          <div
+            className="full-reg-photo-panel"
+            style={{
+              gridColumn: '4',
+              gridRow: '1 / span 3',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: '8px 12px',
+              backgroundColor: '#f8fafc',
+              borderRadius: '8px',
+              border: '1px solid #e2e8f0',
+              boxShadow: '0 1px 3px rgba(0,0,0,0.03)',
+              boxSizing: 'border-box',
+              height: '100%',
+              minHeight: '154px',
+            }}
+          >
+            <div
+              style={{
+                fontSize: '11px',
+                fontWeight: 700,
+                color: '#475569',
+                textTransform: 'uppercase',
+                letterSpacing: '0.4px',
+                marginBottom: '6px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '5px',
+              }}
+            >
+              <i className="fa fa-camera" style={{ color: 'var(--hims-primary, #21008d)', fontSize: '11px' }} />
+              <span>Photo</span>
+            </div>
+
+            <div
+              style={{
+                width: '74px',
+                height: '74px',
+                borderRadius: '50%',
+                overflow: 'hidden',
+                border: '2px solid #cbd5e1',
+                backgroundColor: '#ffffff',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                boxShadow: '0 2px 4px rgba(0,0,0,0.06)',
+                marginBottom: '8px',
+              }}
+            >
+              <img
+                src={photoSrc}
+                alt="Patient Profile"
+                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                onError={(e) => {
+                  (e.currentTarget as HTMLImageElement).src = 'app/img/main/img.jpg';
+                }}
+              />
+            </div>
+
+            {/* Photo Action Buttons */}
+            <div style={{ display: 'flex', gap: '6px', width: '100%', maxWidth: '170px', justifyContent: 'center' }}>
+              <label
+                style={{
+                  flex: 1,
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '4px',
+                  padding: '0 8px',
+                  borderRadius: '5px',
+                  border: '1px solid #cbd5e1',
+                  backgroundColor: '#ffffff',
+                  color: '#1e293b',
+                  fontSize: '11px',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  boxShadow: '0 1px 2px rgba(0,0,0,0.04)',
+                  boxSizing: 'border-box',
+                  height: '26px',
+                  margin: 0,
+                  textTransform: 'none',
+                }}
+                title="Upload Photo"
+              >
+                <input type="file" onChange={handleFileChange} style={{ display: 'none' }} accept="image/*" />
+                <i className="fa fa-upload" style={{ color: 'var(--hims-primary, #21008d)', fontSize: '10px' }} />
+                <span>Upload</span>
+              </label>
+
+              <button
+                type="button"
+                onClick={() => dispatch('openWebCam')}
+                style={{
+                  flex: 1,
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '4px',
+                  padding: '0 8px',
+                  borderRadius: '5px',
+                  border: '1px solid #cbd5e1',
+                  backgroundColor: '#ffffff',
+                  color: '#334155',
+                  fontSize: '11px',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  height: '26px',
+                  boxSizing: 'border-box',
+                }}
+                title="Capture from Web Camera"
+              >
+                <i className="fa fa-camera" style={{ fontSize: '10px' }} />
+                <span>Webcam</span>
+              </button>
+
+              {(localFilePreview || item.PhotoPath || item.iswebcamphoto || (currentcontext.Photo && item.PhotoPath)) && (
+                <button
+                  type="button"
+                  onClick={handleClearImage}
+                  style={{
+                    padding: '0 8px',
+                    borderRadius: '5px',
+                    border: '1px solid #fecaca',
+                    backgroundColor: '#fef2f2',
+                    color: '#dc2626',
+                    fontSize: '11px',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    height: '26px',
+                    boxSizing: 'border-box',
+                  }}
+                  title="Remove Photo"
+                >
+                  <i className="fa fa-trash" style={{ fontSize: '10px' }} />
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* Row 2 - Col 1: Middle Name */}
+          <Input label="Middle Name" value={item.MiddleName || ''}
+            onChange={(e) => setField('MiddleName', e.target.value.toUpperCase())} />
+
+          {/* Row 2 - Col 2: Alias Name */}
           <Input label="Alias Name" value={item.AliasName || ''}
             onChange={(e) => setField('AliasName', e.target.value.toUpperCase())} />
 
+          {/* Row 2 - Col 3: MRN Type */}
+          <Sel label="MRN Type" value={item.MRNTypeId} options={lookup.MRNType} disabled={!!item.IsMRNTypeDisable}
+            onChange={(v) => setField('MRNTypeId', v)} />
+
+          {/* Row 3 - Col 1: Gender */}
           <Sel label="Gender" value={item.GenderId} options={lookup.Gender} error={errorMessageFor('GenderId', 'Required')}
             onChange={(v) => setField('GenderId', v)} />
 
-          <Input id="contactnr" label="Mobile" required error={errorMessageFor('Mobile', 'Enter a 10-digit mobile number')}
-            maxLength={10} value={item.Mobile || ''}
-            onChange={(e) => setField('Mobile', e.target.value.replace(/[^\d]/g, ''))} />
+          {showApproxAge ? (
+            <>
+              {/* Row 3 - Col 2: Birth Time */}
+              <TimePicker label="Birth Time" value={item.BabyBirthTime || ''}
+                onChange={(value) => setField('BabyBirthTime', value)} />
 
-          <Sel label="Spouse Type" value={item.GuardianTypeId} options={lookup.GuardianType}
-            onChange={(v) => setField('GuardianTypeId', v)} />
+              {/* Row 3 - Col 3: DOB */}
+              <DatePicker label="DOB" required error={errorMessageFor('DOB', 'Required')}
+                value={item.DOB ? String(item.DOB).slice(0, 10) : ''}
+                onChange={(value) => dispatch('dobChange', { value })} />
 
-          <Input label="Spouse Name" value={item.GuardianName || ''}
-            onChange={(e) => setField('GuardianName', e.target.value.toUpperCase())} />
-
-          {showApproxAge && (
-            <div>
-              <div style={groupLabelStyle}>Approx. Age</div>
-              <div style={{ display: 'flex', gap: spacing.sm }}>
-                <Input placeholder="Days" value={item.ApproxAgeDays ?? ''}
-                  onChange={(e) => dispatch('approxAgeDaysChange', { value: e.target.value })} />
-                <Input placeholder="Months" value={item.ApproxAgeMonths ?? ''}
-                  onChange={(e) => dispatch('approxAgeMonthsChange', { value: e.target.value })} />
-                <Input placeholder="Years" value={item.Age ?? ''}
-                  onChange={(e) => dispatch('ageYearsChange', { value: e.target.value })} />
+              {/* Row 4 - Cols 1-2: Approx Age */}
+              <div style={{ gridColumn: 'span 2' }}>
+                <label style={groupLabelStyle}>Approx. Age</label>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '6px' }}>
+                  <Input placeholder="Days" value={item.ApproxAgeDays ?? ''}
+                    onChange={(e) => dispatch('approxAgeDaysChange', { value: e.target.value })} />
+                  <Input placeholder="Months" value={item.ApproxAgeMonths ?? ''}
+                    onChange={(e) => dispatch('approxAgeMonthsChange', { value: e.target.value })} />
+                  <Input placeholder="Years" value={item.Age ?? ''}
+                    onChange={(e) => dispatch('ageYearsChange', { value: e.target.value })} />
+                </div>
               </div>
-            </div>
+
+              {/* Row 4 - Col 3: Age */}
+              <Input label="Age" maxLength={3} value={item.Age ?? ''}
+                onChange={(e) => dispatch('ageYearsChange', { value: e.target.value.replace(/[^\d]/g, '') })} />
+
+              {/* Row 4 - Col 4: Marital Status */}
+              <Sel label="Marital Status" value={item.MaritalStatusId} options={lookup.MaritalStatus} error={errorMessageFor('MaritalStatusId', 'Required')}
+                onChange={(v) => setField('MaritalStatusId', v)} />
+
+              {/* Row 5: Mobile, Spouse Type, Spouse Name */}
+              <Input id="contactnr" label="Mobile" required error={errorMessageFor('Mobile', 'Enter a 10-digit mobile number')}
+                maxLength={10} value={item.Mobile || ''}
+                onChange={(e) => setField('Mobile', e.target.value.replace(/[^\d]/g, ''))} />
+
+              <Sel label="Spouse Type" value={item.GuardianTypeId} options={lookup.GuardianType}
+                onChange={(v) => setField('GuardianTypeId', v)} />
+
+              <Input label="Spouse Name" value={item.GuardianName || ''}
+                onChange={(e) => setField('GuardianName', e.target.value.toUpperCase())} />
+
+              <div />
+            </>
+          ) : (
+            <>
+              {/* Row 3 - Col 2: DOB */}
+              <DatePicker label="DOB" required error={errorMessageFor('DOB', 'Required')}
+                value={item.DOB ? String(item.DOB).slice(0, 10) : ''}
+                onChange={(value) => dispatch('dobChange', { value })} />
+
+              {/* Row 3 - Col 3: Age */}
+              <Input label="Age" maxLength={3} value={item.Age ?? ''}
+                onChange={(e) => dispatch('ageYearsChange', { value: e.target.value.replace(/[^\d]/g, '') })} />
+
+              {/* Row 4: Mobile, Marital Status, Spouse Type, Spouse Name */}
+              <Input id="contactnr" label="Mobile" required error={errorMessageFor('Mobile', 'Enter a 10-digit mobile number')}
+                maxLength={10} value={item.Mobile || ''}
+                onChange={(e) => setField('Mobile', e.target.value.replace(/[^\d]/g, ''))} />
+
+              <Sel label="Marital Status" value={item.MaritalStatusId} options={lookup.MaritalStatus} error={errorMessageFor('MaritalStatusId', 'Required')}
+                onChange={(v) => setField('MaritalStatusId', v)} />
+
+              <Sel label="Spouse Type" value={item.GuardianTypeId} options={lookup.GuardianType}
+                onChange={(v) => setField('GuardianTypeId', v)} />
+
+              <Input label="Spouse Name" value={item.GuardianName || ''}
+                onChange={(e) => setField('GuardianName', e.target.value.toUpperCase())} />
+            </>
           )}
 
-          {showApproxAge && (
-            <TimePicker label="Birth Time" value={item.BabyBirthTime || ''}
-              onChange={(value) => setField('BabyBirthTime', value)} />
-          )}
-
-          <DatePicker label="DOB" required error={errorMessageFor('DOB', 'Required')}
-            value={item.DOB ? String(item.DOB).slice(0, 10) : ''}
-            onChange={(value) => dispatch('dobChange', { value })} />
-
-          <Input label="Age" maxLength={3} value={item.Age ?? ''}
-            onChange={(e) => dispatch('ageYearsChange', { value: e.target.value.replace(/[^\d]/g, '') })} />
-
-          <Sel label="Marital Status" value={item.MaritalStatusId} options={lookup.MaritalStatus} error={errorMessageFor('MaritalStatusId', 'Required')}
-            onChange={(v) => setField('MaritalStatusId', v)} />
-
+          {/* Row 5: Religion, Nationality, Nationality ID, Passport */}
           <Sel label="Religion" value={item.ReligionId} options={lookup.Religion} onChange={(v) => setField('ReligionId', v)} />
 
           <Sel label="Nationality" value={item.NationalityId} options={lookup.Nationality} error={errorMessageFor('NationalityId', 'Required')}
@@ -468,6 +752,7 @@ export const FullRegistrationScreen: React.FC<ScreenProps> = ({ reactProps, onAc
           <Input label="Passport Number" value={item.PasspostNumber || ''}
             onChange={(e) => setField('PasspostNumber', e.target.value)} />
 
+          {/* Row 6: Visa Type, Visa Number, Visa Expiry, Occupation */}
           <Sel label="Visa Type" value={item.VisaTypeId} options={lookup.VisaType} onChange={(v) => setField('VisaTypeId', v)} />
 
           <Input label="Visa Number" value={item.VisaNumber || ''}
@@ -476,20 +761,43 @@ export const FullRegistrationScreen: React.FC<ScreenProps> = ({ reactProps, onAc
           <DatePicker label="Visa Expiry" value={item.VisaExpiry ? String(item.VisaExpiry).slice(0, 10) : ''}
             onChange={(value) => setField('VisaExpiry', value)} />
 
-          {/* Occupation (<autosearch>) intentionally omitted here -- rendered as a real,
-              untouched Angular directive immediately after this component (see
-              fullregistration.html). */}
+          {/* Occupation */}
+          <div style={{ display: 'flex', gap: '6px', alignItems: 'flex-end' }}>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <Sel
+                label="Occupation"
+                value={item.OccupationId}
+                options={occupationOptions}
+                disabled={!!item.isAdmitted}
+                onChange={(v) => dispatch('itemFieldChange', { field: 'OccupationId', value: v })}
+              />
+            </div>
+            <button
+              type="button"
+              title="Add Occupation"
+              onClick={() => dispatch('addOccupation')}
+              style={{
+                height: '32px',
+                width: '32px',
+                minWidth: '32px',
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                borderRadius: '6px',
+                border: '1px solid #cbd5e1',
+                backgroundColor: '#f8fafc',
+                color: 'var(--hims-primary, #21008d)',
+                cursor: 'pointer',
+                boxShadow: '0 1px 2px rgba(0,0,0,0.04)',
+                boxSizing: 'border-box',
+                flexShrink: 0,
+              }}
+            >
+              <i className="fa fa-plus" aria-hidden="true" style={{ fontSize: '11px' }} />
+            </button>
+          </div>
 
-          {/* Remark: the real template renders this exact select TWICE (a genuine
-              copy-paste duplication, confirmed by reading fullregistration.html), both
-              bound to item.RemarkId with an ng-change/ng-disabled that reference
-              remarkChange()/canDisableRemarksDiv() -- functions confirmed (by exhaustive
-              grep across public/) to be undefined anywhere in this screen's scope. Real
-              current behavior: a plain, always-enabled select with no side effect on
-              change. Both instances are preserved below, faithfully matching the
-              duplicate appearance. */}
-          <Sel label="Remarks" value={item.RemarkId} options={lookup.Remark} onChange={(v) => setField('RemarkId', v)} />
-
+          {/* Row 7: Patient Type, Blood Group, Refer Type, Referrer */}
           <Sel label="Patient Type" value={item.PatientTypeId} options={lookup.PatientType} onChange={(v) => setField('PatientTypeId', v)} />
 
           <Sel label="Blood Group" value={item.BloodGroupId} options={lookup.BloodGroup} onChange={(v) => setField('BloodGroupId', v)} />
@@ -497,16 +805,38 @@ export const FullRegistrationScreen: React.FC<ScreenProps> = ({ reactProps, onAc
           <Sel label="Refer Type" value={item.ReferTypeId} options={lookup.ReferralType}
             onChange={(v) => dispatch('referTypeChange', { value: v })} />
 
-          <div style={{ display: 'flex', gap: spacing.sm, alignItems: 'flex-end' }}>
-            <div style={{ flex: 1 }}>
+          {/* Referrer */}
+          <div style={{ display: 'flex', gap: '6px', alignItems: 'flex-end' }}>
+            <div style={{ flex: 1, minWidth: 0 }}>
               <Sel label="Referrer" value={item.ReferrerId} options={lookup.Referral}
                 onChange={(v) => dispatch('referrerChange', { value: v })} />
             </div>
-            <Button type="button" variant="icon" title="Add Referral" onClick={() => dispatch('addReferral')}>
-              <i className="fa fa-plus" aria-hidden="true" />
-            </Button>
+            <button
+              type="button"
+              title="Add Referral"
+              onClick={() => dispatch('addReferral')}
+              style={{
+                height: '32px',
+                width: '32px',
+                minWidth: '32px',
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                borderRadius: '6px',
+                border: '1px solid #cbd5e1',
+                backgroundColor: '#f8fafc',
+                color: 'var(--hims-primary, #21008d)',
+                cursor: 'pointer',
+                boxShadow: '0 1px 2px rgba(0,0,0,0.04)',
+                boxSizing: 'border-box',
+                flexShrink: 0,
+              }}
+            >
+              <i className="fa fa-plus" aria-hidden="true" style={{ fontSize: '11px' }} />
+            </button>
           </div>
 
+          {/* Row 8: Remarks, Land Line, Email, Income */}
           <Sel label="Remarks" value={item.RemarkId} options={lookup.Remark} onChange={(v) => setField('RemarkId', v)} />
 
           <Input id="landline" label="Land Line" error={errorMessageFor('LandLine', 'Enter a 10-digit landline number')}
@@ -519,50 +849,54 @@ export const FullRegistrationScreen: React.FC<ScreenProps> = ({ reactProps, onAc
           <Input label="Income" error={errorMessageFor('Income', 'Numbers only')} value={item.Income || ''}
             onChange={(e) => setField('Income', e.target.value)} />
 
-          <Checkbox label="VIP" checked={!!item.IsVip} onChange={(checked) => setField('IsVip', checked)} />
-
-          <Sel label="VIP Type" value={item.VipTypeId} options={lookup.VipType} disabled={!item.IsVip}
-            onChange={(v) => setField('VipTypeId', v)} />
-
-          <Checkbox label="Insurance" checked={!!item.IsInsurance} onChange={(checked) => setField('IsInsurance', checked)} />
-
-          <Checkbox label="Is IVF Register" checked={!!item.IsIvfRegistration} onChange={(checked) => setField('IsIvfRegistration', checked)} />
-
-          {showFindPatient && (
-            <div>
-              {/* Find Patient button omitted: gated by HasPrivilege('FullRegistration','FR-Findpatient'),
-                  which is always hidden today (see file-level note above). */}
-              <Input label="Patient" value={item.PatientAssociate || ''} disabled />
-            </div>
-          )}
-        </div>
-      </Card>
-
-      <Card title="Address Info">
-        <div style={gridStyle}>
-          <div style={{ display: 'flex', gap: spacing.md, alignItems: 'flex-end' }}>
-            <div style={{ flex: 1 }}>
-              <Input
-                id="googleaddopt"
-                ref={googleInputRef}
-                label="Search Address (Google)"
-                disabled={!googleEnabled}
-                value={googleAddressText}
-                onChange={(e) => setGoogleAddressText(e.target.value)}
-                placeholder="Start typing an address..."
-              />
-            </div>
-            <div style={{ height: controlHeight.md, display: 'flex', alignItems: 'center' }}>
-              <Checkbox label="Use" checked={googleEnabled} onChange={toggleGoogleAddress} />
+          {/* Row 9: Flags & VIP */}
+          <div>
+            <label style={groupLabelStyle}>Flags</label>
+            <div className="full-reg-checkbox-wrap" style={{ display: 'flex', gap: '14px', alignItems: 'center', height: '32px' }}>
+              <Checkbox label="VIP" checked={!!item.IsVip} onChange={(checked) => setField('IsVip', checked)} />
+              <Checkbox label="Insurance" checked={!!item.IsInsurance} onChange={(checked) => setField('IsInsurance', checked)} />
+              <Checkbox label="IVF" checked={!!item.IsIvfRegistration} onChange={(checked) => setField('IsIvfRegistration', checked)} />
             </div>
           </div>
 
-          <Input label="Address Line 1" value={item.AddressLine1 || ''}
-            onChange={(e) => setField('AddressLine1', e.target.value.toUpperCase())} />
+          {item.IsVip ? (
+            <Sel label="VIP Type" value={item.VipTypeId} options={lookup.VipType}
+              onChange={(v) => setField('VipTypeId', v)} />
+          ) : (
+            <div />
+          )}
 
-          <Input label="Address Line 2" value={item.AddressLine2 || ''}
-            onChange={(e) => setField('AddressLine2', e.target.value.toUpperCase())} />
+          {showFindPatient ? (
+            <div style={{ gridColumn: 'span 2' }}>
+              <Input label="Patient Associate" value={item.PatientAssociate || ''} disabled />
+            </div>
+          ) : null}
+        </div>
+      </Card>
 
+      {/* Address Info Card */}
+      <Card title="Address Info" padding="10px 14px">
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(4, 1fr)',
+            gap: '8px 12px',
+            alignItems: 'start',
+          }}
+          className="full-reg-grid"
+        >
+          {/* Row 1: Address Line 1 (2 cols), Address Line 2 (2 cols) */}
+          <div style={{ gridColumn: 'span 2' }}>
+            <Input label="Address Line 1" value={item.AddressLine1 || ''}
+              onChange={(e) => setField('AddressLine1', e.target.value.toUpperCase())} />
+          </div>
+
+          <div style={{ gridColumn: 'span 2' }}>
+            <Input label="Address Line 2" value={item.AddressLine2 || ''}
+              onChange={(e) => setField('AddressLine2', e.target.value.toUpperCase())} />
+          </div>
+
+          {/* Row 2: Country, State, District, City */}
           <div>
             <label style={groupLabelStyle}>Country</label>
             <CountryControl countryid={item.CountryId} onUpdate={(u) => dispatch('itemFieldsMerge', { fields: mapFullRegAddressUpdate(u) })} />
@@ -586,15 +920,30 @@ export const FullRegistrationScreen: React.FC<ScreenProps> = ({ reactProps, onAc
               onUpdate={(u) => dispatch('itemFieldsMerge', { fields: mapFullRegAddressUpdate(u) })} />
           </div>
 
-          {/* Real <address> usage here has pincode="'freetext'" (a hardcoded literal
-              string, confirmed in fullregistration.html) -- per vendor/components/
-              address.html's freetext branch, Area and Pincode are real plain free-text
-              inputs, not the Area/Pincode dropdown controls used elsewhere. */}
+          {/* Row 3: Area/Ward, Pincode, Google Places Search (2 cols) */}
           <Input label={item.CountryId === 2 ? 'Ward No' : 'Area'} value={item.Area || ''} onChange={(e) => setField('Area', e.target.value)} />
 
           <Input label="Pincode" required error={errorMessageFor('Pincode', 'Enter a 6-digit pincode')}
             maxLength={6} value={item.Pincode || ''}
             onChange={(e) => setField('Pincode', e.target.value)} />
+
+          {/* Google Places Search */}
+          <div style={{ display: 'flex', gap: '8px', alignItems: 'flex-end', gridColumn: 'span 2' }}>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <Input
+                id="googleaddopt"
+                ref={googleInputRef}
+                label="Search Address (Google)"
+                disabled={!googleEnabled}
+                value={googleAddressText}
+                onChange={(e) => setGoogleAddressText(e.target.value)}
+                placeholder="Start typing an address..."
+              />
+            </div>
+            <div className="full-reg-checkbox-wrap" style={{ height: '32px', display: 'flex', alignItems: 'center' }}>
+              <Checkbox label="Use" checked={googleEnabled} onChange={toggleGoogleAddress} />
+            </div>
+          </div>
         </div>
       </Card>
     </div>
@@ -603,37 +952,62 @@ export const FullRegistrationScreen: React.FC<ScreenProps> = ({ reactProps, onAc
 
 // ---------------------------------------------------------------------------
 // FullRegistrationFooter -- left-hand footer button group.
-//
-// Real current visibility, traced from fullregistration.html: SaveInactive,
-// Deceased, the footer Attachments button, OPDBill, and the entire Print dropdown
-// (Registration Print/Label/Barcode, Patient Label, OP Bill) are all gated by
-// HasPrivilege(...), which is always false today (see note above) -- so none of
-// those five are rendered here, matching real behavior. Only NewVisit, Vitals, and
-// VisitPrint render unconditionally today (gated solely by real, defined booleans/
-// PatientStatusId, no HasPrivilege involved). Save/SaveAndApprove keep their real
-// alt+t/alt+a keyboard shortcuts by staying native Angular markup in
-// fullregistration.html (an Angular `hotkey` directive attribute would not work on
-// a React-rendered button) -- so they are not part of this component.
 // ---------------------------------------------------------------------------
 export const FullRegistrationFooter: React.FC<ScreenProps> = ({ reactProps, onAction }) => {
   const { item = {}, flags = {}, currentcontext = {} } = reactProps || {};
   const dispatch = (action: string, payload?: any) => { if (onAction) onAction(action, payload); };
 
   const disabledByStatus = item.PatientStatusId === 3;
+  const isRegistered = Number(item.PatientStatusId) === 2 && !currentcontext.isTempPatient;
 
   return (
-    <div style={{ display: 'flex', gap: spacing.sm, flexWrap: 'wrap' }}>
-      {item.PatientStatusId === 2 && !currentcontext.isTempPatient && (
-        <Button type="button" variant="secondary" disabled={disabledByStatus}
-          onClick={() => dispatch('visitcreate')}>New Visit</Button>
+    <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
+      <Button
+        type="button"
+        variant="light"
+        size="sm"
+        icon="fa-undo"
+        onClick={() => dispatch('clear')}
+        title="Reset form"
+        style={{ fontSize: '12px', height: '32px', borderRadius: '6px' }}
+      >
+        Reset Form
+      </Button>
+      {isRegistered && (
+        <Button
+          type="button"
+          variant="secondary"
+          size="sm"
+          disabled={disabledByStatus}
+          onClick={() => dispatch('visitcreate')}
+          style={{ fontSize: '12px', height: '32px', borderRadius: '6px' }}
+        >
+          New Visit
+        </Button>
       )}
-      {flags.Vitals && !currentcontext.isTempPatient && (
-        <Button type="button" variant="secondary" disabled={disabledByStatus}
-          onClick={() => dispatch('vitals')}>Vitals</Button>
+      {isRegistered && flags.Vitals && (
+        <Button
+          type="button"
+          variant="secondary"
+          size="sm"
+          disabled={disabledByStatus}
+          onClick={() => dispatch('vitals')}
+          style={{ fontSize: '12px', height: '32px', borderRadius: '6px' }}
+        >
+          Vitals
+        </Button>
       )}
-      {flags.Visitprint && !currentcontext.isTempPatient && (
-        <Button type="button" variant="secondary" disabled={disabledByStatus}
-          onClick={() => dispatch('visitprint')}>Visit Print</Button>
+      {isRegistered && flags.Visitprint && (
+        <Button
+          type="button"
+          variant="secondary"
+          size="sm"
+          disabled={disabledByStatus}
+          onClick={() => dispatch('visitprint')}
+          style={{ fontSize: '12px', height: '32px', borderRadius: '6px' }}
+        >
+          Visit Print
+        </Button>
       )}
     </div>
   );

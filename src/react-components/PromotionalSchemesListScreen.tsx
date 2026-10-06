@@ -39,8 +39,8 @@ function dotGet(obj: any, path: string): any {
 // columns, client-side column-header-click sorting (custom-table's
 // reOrder(), string-lowercase compare via dot-path field lookup, order
 // flips on repeated clicks of the same column), and the same edit/delete
-// action-icon visibility rules (edit shown for ActiveStatusId in
-// {1,2,3,4,5} i.e. always; delete shown only for ActiveStatusId==1).
+// action-icon visibility rules (edit shown only for ActiveStatusId in
+// {1,2,3,4,5}; delete shown only for ActiveStatusId==1).
 // No native widgets, no utl.Validator.validate -- single mount.
 export const PromotionalSchemesListScreen: React.FC<PromotionalSchemesListScreenProps> = ({ reactProps, onAction }) => {
   const currentfilter = reactProps?.currentfilter || {};
@@ -114,9 +114,12 @@ export const PromotionalSchemesListScreen: React.FC<PromotionalSchemesListScreen
                   <td>{row.PromotionSchemeName}</td>
                   <td>{row.ActiveStatus?.Description}</td>
                   <td>
-                    <span className="grid-action" onClick={() => dispatch('edit', { Id: row.Id })}>
-                      <img className="drhms-edit-button" src="assets/svg/edit.svg" alt="" />
-                    </span>
+                    {/* Same rule as the old grid: edit only for ActiveStatusId 1-5. */}
+                    {row.ActiveStatusId != null && row.ActiveStatusId >= 1 && row.ActiveStatusId <= 5 && (
+                      <span className="grid-action" onClick={() => dispatch('edit', { Id: row.Id })}>
+                        <img className="drhms-edit-button" src="assets/svg/edit.svg" alt="" />
+                      </span>
+                    )}
                     {row.ActiveStatusId === 1 && (
                       <span className="grid-action" onClick={() => dispatch('delete', { Id: row.Id })}>
                         <img className="drhms-edit-button" src="assets/svg/delete.svg" alt="" />

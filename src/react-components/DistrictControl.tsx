@@ -31,8 +31,10 @@ export const DistrictControl: React.FC<DistrictControlProps> = ({
     let isMounted = true;
 
     const fetchDistricts = async () => {
+      // Nothing to load. Also clears a spinner left by a request that was still running when
+      // the stateid was cleared (that request's own finally no longer updates this component).
       if (!stateid) {
-        if (isMounted) setDistricts([]);
+        if (isMounted) { setDistricts([]); setLoading(false); }
         return;
       }
 

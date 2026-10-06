@@ -35,11 +35,13 @@ export const AreaControl: React.FC<AreaControlProps> = ({
     let isMounted = true;
 
     const fetchAreas = async () => {
+      // Nothing to load. Also clears a spinner left by a request that was still running when
+      // the cityid was cleared (that request's own finally no longer updates this component).
       if (!cityid) {
-        if (isMounted) setAreas([]);
+        if (isMounted) { setAreas([]); setLoading(false); }
         return;
       }
-      if (pincode === 'freetext') return;
+      if (pincode === 'freetext') { if (isMounted) setLoading(false); return; }
 
       setLoading(true);
       try {

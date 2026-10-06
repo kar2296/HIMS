@@ -94,7 +94,7 @@ export const FrontOfficeDashboardComponent: React.FC<FrontOfficeDashboardProps> 
       icon: 'fa-calendar-check',
       color: '#0ea5e9',
       show: permissions.Appointments,
-      action: () => handleCardClick('app.appointmentstab.details'),
+      action: () => handleCardClick('app.appointmentstab.details', { id: 0 }),
     },
     {
       title: 'IP Admissions',

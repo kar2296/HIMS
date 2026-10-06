@@ -33,8 +33,10 @@ export const CityControl: React.FC<CityControlProps> = ({
     let isMounted = true;
 
     const fetchCities = async () => {
+      // Nothing to load. Also clears a spinner left by a request that was still running when
+      // the districtid was cleared (that request's own finally no longer updates this component).
       if (!districtid) {
-        if (isMounted) setCities([]);
+        if (isMounted) { setCities([]); setLoading(false); }
         return;
       }
 

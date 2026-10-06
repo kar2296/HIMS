@@ -45,11 +45,13 @@ export const PincodeControl: React.FC<PincodeControlProps> = ({
     let isMounted = true;
 
     const fetchPincodes = async () => {
+      // Nothing to load. Also clears a spinner left by a request that was still running when
+      // the cityid was cleared (that request's own finally no longer updates this component).
       if (!cityid) {
-        if (isMounted) setPincodes([]);
+        if (isMounted) { setPincodes([]); setLoading(false); }
         return;
       }
-      if (pincode === 'freetext') return; // Preserved legacy behavior
+      if (pincode === 'freetext') { if (isMounted) setLoading(false); return; } // Preserved legacy behavior
 
       setLoading(true);
       try {
