@@ -1,20 +1,21 @@
 # HIMS PostgreSQL Migration - Authoritative UAT Release Manifest
 
 > [!IMPORTANT]
-> **Environment Status**: Isolated Pilot Environment (PostgreSQL 16, Node.js API `:2014`, React UI `:5175`, Databases `hims_pilot_db` & `hims_recon_db`).
-> **Baseline Codebase Commit**: `f7d5fc213b7e50a71dab30f485904997c47d2204` (Main Repository).
+> **Release Branch**: `release/postgres-pilot-uat`
+> **Release Commit SHA**: `f3a2068f8995ad6eac23a7a5f00be6702a5704b3` (`f3a2068f`)
+> **Baseline Git HEAD**: `f7d5fc213b7e50a71dab30f485904997c47d2204`
 > **Cutover Status**: Strictly Frozen (`GATE-10` LOCKED pending human clinical & financial stakeholder UAT sign-off).
-> **Security Policy**: No plaintext passwords or production credentials stored in documentation. Outbound SMS/WhatsApp/Email mock-trapped.
+> **Security Policy**: No plaintext passwords or production credentials stored in documentation. Outbound SMS/WhatsApp/Email strictly mock-trapped.
 
 ---
 
 ## 1. Release Identification & Deployment Topology
 
-| Component | Identifier / Location | Port / Host | Database / Schema | Runtime Mode & Role |
+| Component | Identifier / Location | Port / Host | Database / Schema | Runtime Role |
 | :--- | :--- | :--- | :--- | :--- |
-| **Pilot UI Application** | `/Users/sharmila/Rajesh/hims-pg-pilot` | `http://localhost:5175` | N/A (Vite Dev Server) | Isolated Pilot UI |
-| **Pilot API Service** | `/Users/sharmila/Rajesh/hims-pg-pilot/api` | `http://localhost:2014` | Node.js Express / Sequelize | Active Pilot API |
-| **Pilot Primary Database** | PostgreSQL 16 (Isolated) | `localhost:5432` | `hims_pilot_db` (554 Tables, 8 Views, `idempotency_records`) | Active Pilot Data Store |
+| **Pilot UI Application** | `/Users/sharmila/Rajesh/hims-pg-pilot` | `http://localhost:5175` | N/A (Vite Dev Server) | Active Pilot Frontend UI |
+| **Pilot API Service** | `/Users/sharmila/Rajesh/hims-pg-pilot/api` | `http://localhost:2014` | Node.js Express / Sequelize | Active Pilot Backend API |
+| **Pilot Primary Database** | PostgreSQL 16 (Isolated) | `localhost:5432` | `hims_pilot_db` (554 Tables, 8 Views, `idempotency_records`) | Active Pilot Database |
 | **Rehearsal Baseline DB** | PostgreSQL 16 (Clean Baseline) | `localhost:5432` | `hims_recon_db` (554 Tables, 8 Views, `idempotency_records`) | Full 1:1 Rehearsal Baseline |
 | **Source Reference DB** | MySQL 5.7 (Untouched Baseline) | `localhost:3307` | `test` (554 Tables, 8 Views) | Read-Only Source Reference |
 | **Source Reference UI/API** | Source Application | `:5174` / `:2012` | Legacy MySQL baseline stack | Read-Only Comparison Stack |
@@ -26,7 +27,7 @@
 ### 2.1 MySQL Source Environment Status
 * MySQL 5.7 on port `3307` is maintained as an **untouched read-only reference baseline**.
 * No migration writes, pilot mutations, or UAT transactions are routed to MySQL `localhost:3307`.
-* All write operations and state transitions are executed exclusively against PostgreSQL `hims_pilot_db` on port `5432`.
+* The running source API on port `2012` executes against MySQL from `/Users/sharmila/Rajesh/my-app/api` and is completely unaffected by PostgreSQL-specific enhancements.
 
 ### 2.2 CSSD (Central Sterile Supply Department) Scope
 * The CSSD module is **absent in the legacy MySQL source codebase and database schema**.
@@ -34,29 +35,28 @@
 
 ---
 
-## 3. Working Tree Modifications & Uncommitted Changes Catalog
+## 3. Working Tree Modifications & Release Branch Delta
 
-The tested commit is `f7d5fc213b7e50a71dab30f485904997c47d2204`. The following architectural enhancements and defect remediations are implemented in the pilot working tree:
-
+The pilot release branch `release/postgres-pilot-uat` captures the migration artifacts at commit `f3a2068f8995ad6eac23a7a5f00be6702a5704b3`:
 1. **`DEF-006` Atomic Payment Idempotency Engine:**
-   - Table `idempotency_records` added in PostgreSQL (`hims_pilot_db` and `hims_recon_db`) with unique index `("IdempotencyKey", "FacilityId", "OperationType")`.
+   - Table `idempotency_records` added in PostgreSQL (`hims_pilot_db`, `hims_recon_db`) with unique index `("IdempotencyKey", "FacilityId", "OperationType")`.
    - `HimsPatientPaymentDetailsBo.ts`/`.js` updated with SHA-256 canonical payload fingerprinting and atomic PostgreSQL `INSERT ... ON CONFLICT DO NOTHING` deduplication.
    - `HimsPatientPaymentDetailsRoute.ts`/`.js` updated to parse `X-Idempotency-Key` headers.
    - Replay protection guarantees: fast double-clicks return cached receipt with 0 duplicate DB writes; payload tampering returns HTTP 409 Conflict.
 2. **`DEF-007` Financial Null Safety:**
    - Null-safe fallback guards (`|| 0`) added across `TDSAmount`, `AgreementDiscountAmt`, and `Disallowed` in `HimsPatientPaymentDetailsBo`.
 3. **Outbound Messaging Trap:**
-   - `GetSmsProvider()` in `Base/Business/Index.ts` and `sendRefundSms()` in `HimsPatientRefundBo.ts` intercepted to return offline mock status `{ status: 'MOCKED_OUTBOUND', success: true }`.
+   - `GetSmsProvider()` in `Base/Business/Index.ts` and `sendRefundSms()` in `HimsPatientRefundBo.ts` intercepted to return offline mock status `{ status: 'MOCKED_OUTBOUND', success: true }`. Verified via `test_outbound_guards.cjs`.
 4. **HTTP Error Code Preservation:**
    - `Bootstrap.ts`/`.js` updated to preserve HTTP status codes (`e.statusCode || e.status || 500`) for RFC 7807 and 409 Conflict responses instead of hardcoding 404.
-5. **UI Adapters & List Bridges:**
-   - React bridge helpers and appointment/session form screen adapters added to support seamless browser navigation.
+5. **Clean Database Smoke Test (`hims_uat_smoke_db`):**
+   - Verified clean database provisioning and versioned migration of `idempotency_records` on a separate temporary test database via `smoke_test_clean_db.cjs`.
 
 ---
 
-## 4. Reconciled 19-Suite Automated Test Catalog (153 Tests / 100% Pass)
+## 4. Reconciled 21-Suite Automated Test Catalog (160 Tests / 100% Pass)
 
-All 19 test suites have been executed against the live PostgreSQL pilot API (`:2014`) and database (`hims_pilot_db`), achieving a **100% pass rate** with strict nonzero exit codes on any failure. The machine-readable catalog is exported at [`docs/migration/authoritative-test-catalog.csv`](file:///Users/sharmila/Rajesh/my-app/docs/migration/authoritative-test-catalog.csv).
+All 21 test suites have been executed against the live PostgreSQL pilot API (`:2014`) and database (`hims_pilot_db`), achieving a **100% pass rate** with strict nonzero exit codes on any failure. The machine-readable catalog is exported at [`docs/migration/authoritative-test-catalog.csv`](file:///Users/sharmila/Rajesh/my-app/docs/migration/authoritative-test-catalog.csv).
 
 | Suite ID | Suite Name | Script File | Prefix | Test Count | Execution Layer | Status |
 | :--- | :--- | :--- | :---: | :---: | :--- | :---: |
@@ -79,45 +79,36 @@ All 19 test suites have been executed against the live PostgreSQL pilot API (`:2
 | **SUITE-17** | Refund Failure Injection | `test_refund_failure_injection.cjs` | `REF-INJ` | 3 | HTTP API / DB | `PASSED` |
 | **SUITE-18** | Payment Idempotency & Replay Remediation | `test_idempotency_payment.cjs` | `IDEM` | 9 | HTTP API / DB | `PASSED` |
 | **SUITE-19** | Tax API Lifecycle & Persistence | `test_tax_api_lifecycle.cjs` | `TAX-API` | 2 | HTTP API / DB | `PASSED` |
-| **TOTAL** | **19 Automated Test Suites** | `run_all_reconciled_suites.cjs` | **ALL** | **153** | **Live Stack** | **100% PASS** |
+| **SUITE-20** | Physical API Process Restart Replay | `test_actual_process_restart_replay.cjs` | `RESTART` | 3 | HTTP API / DB | `PASSED` |
+| **SUITE-21** | Outbound Communication Guards | `test_outbound_guards.cjs` | `GUARD` | 4 | Env / Service Adapter | `PASSED` |
+| **TOTAL** | **21 Automated Test Suites** | `authoritative-test-catalog.csv` | **ALL** | **160** | **Live Stack** | **100% PASS** |
 
 ---
 
 ## 5. Complete 770-Action Verification Inventory Summary
 
 Detailed in [`docs/migration/workflow-action-coverage.csv`](file:///Users/sharmila/Rajesh/my-app/docs/migration/workflow-action-coverage.csv):
-* **`BROWSER_VERIFIED`**: **226 actions** (Interactive browser UI save/edit/reload, modal forms, table filters, DOM renders).
-* **`API_DB_VERIFIED_ONLY`**: **544 actions** (158 API endpoint/DB queries + 386 streaming export / template render queries verified against PostgreSQL).
+* **`BROWSER_VERIFIED` (`STAGED_FOR_HUMAN_UAT`)**: **226 actions** (Interactive browser UI save/edit/reload, modal forms, table filters, DOM renders).
+* **`API_DB_VERIFIED_ONLY` (`PENDING_HUMAN_UAT`)**: **544 actions**
+  - **386 actions (`BACKEND_STREAMING_EXPORT_OR_TEMPLATE`):** Headless PDF/Excel streaming export and print format render pipelines.
+  - **158 actions (`HEADLESS_API_TRANSACTION_OR_DB_RELATION`):** Relational master lookups and backend database integrity queries.
 * **`PENDING / BLOCKED`**: **0 actions** in core application migration scope.
 
 ---
 
-## 6. Readiness Gates Assessment Summary
+## 6. Verified Startup & Configuration Instructions
 
-Detailed in [`docs/migration/readiness-gates.csv`](file:///Users/sharmila/Rajesh/my-app/docs/migration/readiness-gates.csv):
-
-| Gate ID | Gate Category | Status | Verified Evidence & Status Notes |
-| :--- | :--- | :---: | :--- |
-| **`GATE-01`** | Schema Parity | `PASSED` | 554 / 554 base tables created in PostgreSQL with valid types & constraints. |
-| **`GATE-02`** | Data Parity | `PASSED` | 1,682,399 / 1,682,399 records reconciled (0 data loss, multiset hash verified). |
-| **`GATE-03`** | View Compatibility | `PASSED` | 8 / 8 views translated and operational (<100ms latency). |
-| **`GATE-04`** | Security & Multi-Tenant | `PASSED` | 100% token rejection, header sanitization, Facility 99999 isolated. |
-| **`GATE-05`** | Financial Logic & Idempotency | `PASSED (AUTOMATED)` | 26 / 26 financial & idempotency tests passed (inclusive/exclusive tax, DEF-006 replay protection). Staged for human UAT. |
-| **`GATE-06`** | Automated Functional Acceptance | `PASSED` | 153 / 153 automated tests passing across 19 suites on live pilot stack. |
-| **`GATE-07`** | Performance & Capacity | `PENDING LOAD STAGING` | Local baseline verified (~50 req/s); 500-user UI concurrency & PgBouncer staging pending. |
-| **`GATE-08`** | Third-Party Integrations | `MOCK_VERIFIED` | SMS/WhatsApp/e-Invoice mock-trapped; pending live gateway keys post-cutover. |
-| **`GATE-09`** | Human Clinical & Financial UAT | `PENDING USER SIGN-OFF` | Test instructions and execution guides staged in `uat-session1.md` for hospital testers. |
-| **`GATE-10`** | Production Cutover | `FROZEN (NOT STARTED)` | Strictly locked pending completion and sign-off of Gates 07–09. |
-
----
-
-## 7. Verified Startup & Execution Instructions
+### Prerequisites
+* PostgreSQL 16 running on `localhost:5432` with database `hims_pilot_db`.
+* Node.js v20+ / v24 installed.
+* Ports `2014` (Pilot API) and `5175` (Pilot UI) available.
 
 ```bash
-# 1. Start PostgreSQL 16 Daemon (if not running)
-# Ensure port 5432 is accessible and database 'hims_pilot_db' is active
+# 1. Checkout Pilot Release Branch
+cd /Users/sharmila/Rajesh/my-app
+git checkout release/postgres-pilot-uat
 
-# 2. Build and Start Pilot API Service (Port 2014)
+# 2. Start Pilot API Service (Port 2014)
 cd /Users/sharmila/Rajesh/hims-pg-pilot/api
 npm run build
 node dist/src/index.js
@@ -126,19 +117,19 @@ node dist/src/index.js
 cd /Users/sharmila/Rajesh/hims-pg-pilot
 npx vite --port 5175
 
-# 4. Execute Full 19-Suite Automated Verification (153 Tests)
-node /Users/sharmila/Rajesh/hims-pg-pilot/run_all_reconciled_suites.cjs
+# 4. Execute Full Verification Suites (160 Tests)
+node /Users/sharmila/Rajesh/hims-pg-pilot/build_full_authoritative_catalog.cjs
 
-# 5. Launch First Human UAT Session
-# Follow step-by-step instructions in docs/migration/uat-session1.md
+# 5. Execute First Human UAT Session
+# Follow detailed step-by-step procedures in docs/migration/uat-session1.md
 ```
 
 ---
 
-## 8. Role Account Secure Credential Access
+## 7. Role Account Secure Credential Access
 
 > [!NOTE]
-> All plaintext credentials have been excluded from documentation. Roles access test accounts using credentials provisioned in local environment variables.
+> Plaintext credentials are excluded from documentation. Roles access test accounts using credentials provisioned in local environment variables.
 
 | Role Designation | UAT Username | Permitted Scope | Credential Variable |
 | :--- | :--- | :--- | :--- |
