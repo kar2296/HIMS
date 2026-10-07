@@ -5,7 +5,7 @@ const env = dotenv.parse(fs.readFileSync("/Users/sharmila/Rajesh/hims-pg-pilot/a
 const CryptoJS = require("crypto-js");
 const pg = require("pg");
 
-const pool = new pg.Pool({ host: "localhost", port: 5432, user: process.env.USER || "sharmila", database: "hims_pilot_db", max: 10 });
+const pool = new pg.Pool({ host: "localhost", port: 5432, user: process.env.USER || "sharmila", database: (process.env.PG_DATABASE || process.env.TEST_DB || process.env.DATABASE_NAME || "hims_release_verify_db"), max: 10 });
 
 function getBearerToken(userName, password) {
   const secret = env.JWT_SECRET;
@@ -27,7 +27,7 @@ async function apiPostWithKey(path, body, idempotencyKey) {
 
     const req = http.request({
       host: "localhost",
-      port: 2014,
+      port: parseInt(process.env.API_PORT || process.env.TEST_PORT || "2018", 10),
       path: path,
       method: "POST",
       headers: headers

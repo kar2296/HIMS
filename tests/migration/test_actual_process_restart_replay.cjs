@@ -6,7 +6,7 @@ const CryptoJS = require("crypto-js");
 const pg = require("pg");
 const { spawn, execSync } = require("child_process");
 
-const pool = new pg.Pool({ host: "localhost", port: 5432, user: process.env.USER || "sharmila", database: "hims_pilot_db", max: 10 });
+const pool = new pg.Pool({ host: "localhost", port: 5432, user: process.env.USER || "sharmila", database: (process.env.PG_DATABASE || process.env.TEST_DB || process.env.DATABASE_NAME || "hims_release_verify_db"), max: 10 });
 
 function getBearerToken(userName, password) {
   const secret = env.JWT_SECRET;
@@ -28,7 +28,7 @@ async function apiPostWithKey(path, body, idempotencyKey) {
 
     const req = http.request({
       host: "localhost",
-      port: 2014,
+      port: parseInt(process.env.API_PORT || process.env.TEST_PORT || "2018", 10),
       path: path,
       method: "POST",
       headers: headers
@@ -51,7 +51,7 @@ async function waitForApiHealth(retries = 30) {
   for (let i = 0; i < retries; i++) {
     try {
       const res = await new Promise((resolve, reject) => {
-        const r = http.get("http://localhost:2014/api-docs", res => {
+        const r = http.get("http://localhost:2018/api-docs", res => {
           resolve(res.statusCode);
         });
         r.on("error", reject);

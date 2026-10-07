@@ -5,7 +5,7 @@ const env = dotenv.parse(fs.readFileSync("/Users/sharmila/Rajesh/hims-pg-pilot/a
 const CryptoJS = require("crypto-js");
 const pg = require("pg");
 
-const pgClient = new pg.Client({ host: "localhost", port: 5432, user: process.env.USER || "sharmila", database: "hims_pilot_db" });
+const pgClient = new pg.Client({ host: "localhost", port: 5432, user: process.env.USER || "sharmila", database: (process.env.PG_DATABASE || process.env.TEST_DB || process.env.DATABASE_NAME || "hims_release_verify_db") });
 
 async function req(options, body) {
   return new Promise((resolve, reject) => {
@@ -50,7 +50,7 @@ async function runAuthzTests() {
   // 1. Authentication vs Authorization Distinction
   // - Unauthenticated (no token): 401 Unauthorized
   const unauthRes = await req({
-    host: "localhost", port: 2014, path: "/SystemSettings/Role/GetRoles", method: "POST",
+    host: "localhost", port: parseInt(process.env.API_PORT || process.env.TEST_PORT || "2018", 10), path: "/SystemSettings/Role/GetRoles", method: "POST",
     headers: { "Content-Type": "application/json" }
   }, { Params: [] });
 
@@ -63,7 +63,7 @@ async function runAuthzTests() {
   // 2. Cross-Facility Tenant Read Rejection
   // Query with Facility 1 token attempting to read Facility 2 / 99999 records
   const crossFacRes = await req({
-    host: "localhost", port: 2014, path: "/Billing/PatientBills/GetPatientBills", method: "POST",
+    host: "localhost", port: parseInt(process.env.API_PORT || process.env.TEST_PORT || "2018", 10), path: "/Billing/PatientBills/GetPatientBills", method: "POST",
     headers: { "Authorization": "Bearer " + adminToken, "Content-Type": "application/json" }
   }, { Params: [{ Key: "FacilityId", Value: 99999 }] });
 
@@ -76,7 +76,7 @@ async function runAuthzTests() {
 
   // 3. Header / Body Facility Context Override Protection
   const overrideRes = await req({
-    host: "localhost", port: 2014, path: "/Registration/Patient/GetPatients", method: "POST",
+    host: "localhost", port: parseInt(process.env.API_PORT || process.env.TEST_PORT || "2018", 10), path: "/Registration/Patient/GetPatients", method: "POST",
     headers: {
       "Authorization": "Bearer " + adminToken,
       "Content-Type": "application/json",
@@ -92,7 +92,7 @@ async function runAuthzTests() {
 
   // 4. Role-Based Privilege Query Enforcement
   const adminRolesRes = await req({
-    host: "localhost", port: 2014, path: "/SystemSettings/Role/GetRoles", method: "POST",
+    host: "localhost", port: parseInt(process.env.API_PORT || process.env.TEST_PORT || "2018", 10), path: "/SystemSettings/Role/GetRoles", method: "POST",
     headers: { "Authorization": "Bearer " + adminToken, "Content-Type": "application/json" }
   }, { Params: [] });
 

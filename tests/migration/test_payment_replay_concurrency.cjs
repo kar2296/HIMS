@@ -5,7 +5,7 @@ const env = dotenv.parse(fs.readFileSync("/Users/sharmila/Rajesh/hims-pg-pilot/a
 const CryptoJS = require("crypto-js");
 const pg = require("pg");
 
-const pool = new pg.Pool({ host: "localhost", port: 5432, user: process.env.USER || "sharmila", database: "hims_pilot_db", max: 10 });
+const pool = new pg.Pool({ host: "localhost", port: 5432, user: process.env.USER || "sharmila", database: (process.env.PG_DATABASE || process.env.TEST_DB || process.env.DATABASE_NAME || "hims_release_verify_db"), max: 10 });
 
 function getBearerToken(userName, password) {
   const secret = env.JWT_SECRET;
@@ -101,8 +101,8 @@ async function runPaymentReplayAndConcurrencyTests() {
   };
 
   const [res1, res2] = await Promise.all([
-    apiPost(2014, "/Billing/PatientPaymentDetails/AddPatientPaymentDetails", payPayload1),
-    apiPost(2014, "/Billing/PatientPaymentDetails/AddPatientPaymentDetails", payPayload2)
+    apiPost(parseInt(process.env.API_PORT || process.env.TEST_PORT || "2018", 10), "/Billing/PatientPaymentDetails/AddPatientPaymentDetails", payPayload1),
+    apiPost(parseInt(process.env.API_PORT || process.env.TEST_PORT || "2018", 10), "/Billing/PatientPaymentDetails/AddPatientPaymentDetails", payPayload2)
   ]);
 
   const receiptsRes = await pool.query(`
@@ -123,7 +123,7 @@ async function runPaymentReplayAndConcurrencyTests() {
 
   // Case 3: Replay of Exact Same Payment Request Payload
   // Replaying payPayload1 identical object
-  const replayRes = await apiPost(2014, "/Billing/PatientPaymentDetails/AddPatientPaymentDetails", payPayload1);
+  const replayRes = await apiPost(parseInt(process.env.API_PORT || process.env.TEST_PORT || "2018", 10), "/Billing/PatientPaymentDetails/AddPatientPaymentDetails", payPayload1);
 
   const receiptsAfterReplay = await pool.query(`
     SELECT "PatientReceiptId", "AmountPaid", "ReceiptNumber"
@@ -156,7 +156,7 @@ async function runPaymentReplayAndConcurrencyTests() {
       Status: 1
     }
   };
-  const excessRes = await apiPost(2014, "/Billing/PatientPaymentDetails/AddPatientPaymentDetails", excessReq);
+  const excessRes = await apiPost(parseInt(process.env.API_PORT || process.env.TEST_PORT || "2018", 10), "/Billing/PatientPaymentDetails/AddPatientPaymentDetails", excessReq);
 
   results.push({
     test: "4. Overpayment & Excess Credit Handling",

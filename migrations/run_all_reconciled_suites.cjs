@@ -1,6 +1,9 @@
 const { execSync } = require("child_process");
 const path = require("path");
 
+const API_PORT = process.env.API_PORT || process.env.TEST_PORT || "2018";
+const PG_DATABASE = process.env.PG_DATABASE || process.env.TEST_DB || process.env.DATABASE_NAME || "hims_release_verify_db";
+
 const suites = [
   { name: "Batch 1: Registration & Core Masters", file: "test_batch1.cjs", prefix: "B1", count: 10 },
   { name: "Batch 2: Billing & Cashier", file: "test_batch2.cjs", prefix: "B2", count: 12 },
@@ -26,6 +29,8 @@ const suites = [
 ];
 
 console.log("=== EXECUTING COMPLETE RECONCILED AUTOMATED TEST SUITE HARNESS ===");
+console.log(`Target API Port: ${API_PORT}`);
+console.log(`Target PostgreSQL DB: ${PG_DATABASE}`);
 console.log(`Working Directory: ${__dirname}\n`);
 
 let totalTests = 0;
@@ -38,10 +43,17 @@ for (const s of suites) {
     const testFilePath = path.join(__dirname, s.file);
     const stdout = execSync(`node "${testFilePath}"`, {
       encoding: "utf8",
-      env: { ...process.env, NODE_PATH: "/Users/sharmila/Rajesh/my-app/node_modules" }
+      env: {
+        ...process.env,
+        API_PORT: API_PORT,
+        TEST_PORT: API_PORT,
+        PG_DATABASE: PG_DATABASE,
+        TEST_DB: PG_DATABASE,
+        DATABASE_NAME: PG_DATABASE,
+        NODE_PATH: "/Users/sharmila/Rajesh/my-app/node_modules"
+      }
     });
     
-    // Check if test output contains any explicit failures
     if (stdout.includes("FAILED") && !stdout.includes("PASSED")) {
       throw new Error(`Suite ${s.file} reported failures`);
     }

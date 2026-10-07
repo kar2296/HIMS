@@ -5,7 +5,7 @@ const env = dotenv.parse(fs.readFileSync("/Users/sharmila/Rajesh/hims-pg-pilot/a
 const CryptoJS = require("crypto-js");
 const pg = require("pg");
 
-const pool = new pg.Pool({ host: "localhost", port: 5432, user: process.env.USER || "sharmila", database: "hims_pilot_db", max: 10 });
+const pool = new pg.Pool({ host: "localhost", port: 5432, user: process.env.USER || "sharmila", database: (process.env.PG_DATABASE || process.env.TEST_DB || process.env.DATABASE_NAME || "hims_release_verify_db"), max: 10 });
 
 async function req(options, body) {
   return new Promise((resolve, reject) => {
@@ -138,7 +138,7 @@ async function runFinancialConcurrencyTests() {
 
   // Step 5: Reload via HTTP API and assert JSON balance structure
   const reloadRes = await req({
-    host: "localhost", port: 2014, path: "/Billing/PatientBills/GetPatientBillsById", method: "POST", headers: authHeaders
+    host: "localhost", port: parseInt(process.env.API_PORT || process.env.TEST_PORT || "2018", 10), path: "/Billing/PatientBills/GetPatientBillsById", method: "POST", headers: authHeaders
   }, { Id: patientBillId });
 
   const isReloadOk = reloadRes.status === 200 && parseInt(reloadRes.data?.Id, 10) === patientBillId && parseFloat(reloadRes.data?.PaidAmount) === 450.00 && parseFloat(reloadRes.data?.OutStandingAmount) === 0.00;

@@ -5,7 +5,7 @@ const env = dotenv.parse(fs.readFileSync("/Users/sharmila/Rajesh/hims-pg-pilot/a
 const CryptoJS = require("crypto-js");
 const pg = require("pg");
 
-const pgClient = new pg.Client({ host: "localhost", port: 5432, user: process.env.USER || "sharmila", database: "hims_pilot_db" });
+const pgClient = new pg.Client({ host: "localhost", port: 5432, user: process.env.USER || "sharmila", database: (process.env.PG_DATABASE || process.env.TEST_DB || process.env.DATABASE_NAME || "hims_release_verify_db") });
 
 async function req(options, body) {
   return new Promise((resolve, reject) => {
@@ -46,13 +46,13 @@ async function runBatch8TestSuite() {
 
   // 1. Security & Token Authentication Rejection
   const unauthRes = await req({
-    host: "localhost", port: 2014, path: "/Visit/EncounterIPPackage/GetEncounterIPPackages", method: "POST",
+    host: "localhost", port: parseInt(process.env.API_PORT || process.env.TEST_PORT || "2018", 10), path: "/Visit/EncounterIPPackage/GetEncounterIPPackages", method: "POST",
     headers: { "Content-Type": "application/json" }
   }, { Params: [] });
 
   const invalidToken = getBearerToken("fake_user", "bad_password");
   const badRoleRes = await req({
-    host: "localhost", port: 2014, path: "/Visit/EncounterIPPackage/GetEncounterIPPackages", method: "POST",
+    host: "localhost", port: parseInt(process.env.API_PORT || process.env.TEST_PORT || "2018", 10), path: "/Visit/EncounterIPPackage/GetEncounterIPPackages", method: "POST",
     headers: { "Authorization": "Bearer " + invalidToken, "Content-Type": "application/json" }
   }, { Params: [] });
 
@@ -64,11 +64,11 @@ async function runBatch8TestSuite() {
 
   // 2. Query Guarantor & Insurance Masters (HTTP API)
   const guarRes = await req({
-    host: "localhost", port: 2014, path: "/GeneralMaster/Guarantor/GetGuarantors", method: "POST", headers: authHeaders
+    host: "localhost", port: parseInt(process.env.API_PORT || process.env.TEST_PORT || "2018", 10), path: "/GeneralMaster/Guarantor/GetGuarantors", method: "POST", headers: authHeaders
   }, { Params: [], PageContext: { PageNumber: 1, PageSize: 10 } });
 
   const wardTariffRes = await req({
-    host: "localhost", port: 2014, path: "/GeneralMaster/WardInsuranceTariff/GetWardInsuranceTariffs", method: "POST", headers: authHeaders
+    host: "localhost", port: parseInt(process.env.API_PORT || process.env.TEST_PORT || "2018", 10), path: "/GeneralMaster/WardInsuranceTariff/GetWardInsuranceTariffs", method: "POST", headers: authHeaders
   }, { Params: [], PageContext: { PageNumber: 1, PageSize: 10 } });
 
   results.push({
@@ -79,7 +79,7 @@ async function runBatch8TestSuite() {
 
   // 3. Query Patient & Encounter Insurance Coverage (HTTP API)
   const encGuarRes = await req({
-    host: "localhost", port: 2014, path: "/Registration/EncounterGuarantor/GetEncounterGuarantors", method: "POST", headers: authHeaders
+    host: "localhost", port: parseInt(process.env.API_PORT || process.env.TEST_PORT || "2018", 10), path: "/Registration/EncounterGuarantor/GetEncounterGuarantors", method: "POST", headers: authHeaders
   }, { Params: [], PageContext: { PageNumber: 1, PageSize: 5 } });
 
   results.push({
@@ -90,11 +90,11 @@ async function runBatch8TestSuite() {
 
   // 4. Query Corporate & IP Package Tariffs (HTTP API)
   const pkgTariffRes = await req({
-    host: "localhost", port: 2014, path: "/ClinicalMaster/IPPackageTariffDetail/GetIPPackageTariffDetails", method: "POST", headers: authHeaders
+    host: "localhost", port: parseInt(process.env.API_PORT || process.env.TEST_PORT || "2018", 10), path: "/ClinicalMaster/IPPackageTariffDetail/GetIPPackageTariffDetails", method: "POST", headers: authHeaders
   }, { Params: [], PageContext: { PageNumber: 1, PageSize: 5 } });
 
   const pkgMapRes = await req({
-    host: "localhost", port: 2014, path: "/ClinicalMaster/ServiceItemPackageMap/GetServiceItemPackageMaps", method: "POST", headers: authHeaders
+    host: "localhost", port: parseInt(process.env.API_PORT || process.env.TEST_PORT || "2018", 10), path: "/ClinicalMaster/ServiceItemPackageMap/GetServiceItemPackageMaps", method: "POST", headers: authHeaders
   }, { Params: [], PageContext: { PageNumber: 1, PageSize: 5 } });
 
   results.push({
@@ -105,7 +105,7 @@ async function runBatch8TestSuite() {
 
   // 5. Query Encounter IP Packages (HTTP API)
   const encPkgRes = await req({
-    host: "localhost", port: 2014, path: "/Visit/EncounterIPPackage/GetEncounterIPPackages", method: "POST", headers: authHeaders
+    host: "localhost", port: parseInt(process.env.API_PORT || process.env.TEST_PORT || "2018", 10), path: "/Visit/EncounterIPPackage/GetEncounterIPPackages", method: "POST", headers: authHeaders
   }, { Params: [], PageContext: { PageNumber: 1, PageSize: 5 } });
 
   results.push({

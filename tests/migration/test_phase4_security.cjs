@@ -5,7 +5,7 @@ const env = dotenv.parse(fs.readFileSync("/Users/sharmila/Rajesh/hims-pg-pilot/a
 const CryptoJS = require("crypto-js");
 const pg = require("pg");
 
-const pgClient = new pg.Client({ host: "localhost", port: 5432, user: process.env.USER || "sharmila", database: "hims_pilot_db" });
+const pgClient = new pg.Client({ host: "localhost", port: 5432, user: process.env.USER || "sharmila", database: (process.env.PG_DATABASE || process.env.TEST_DB || process.env.DATABASE_NAME || "hims_release_verify_db") });
 
 async function req(options, body) {
   return new Promise((resolve, reject) => {
@@ -48,7 +48,7 @@ async function runSecurityAudit() {
 
   // 1. Missing Authorization Header Rejection
   const noTokenRes = await req({
-    host: "localhost", port: 2014, path: "/Billing/PatientBills/GetPatientBills", method: "POST",
+    host: "localhost", port: parseInt(process.env.API_PORT || process.env.TEST_PORT || "2018", 10), path: "/Billing/PatientBills/GetPatientBills", method: "POST",
     headers: { "Content-Type": "application/json" }
   }, { Params: [] });
 
@@ -61,7 +61,7 @@ async function runSecurityAudit() {
   // 2. Forged / Tampered Cryptographic Token Rejection
   const forgedToken = "U2FsdGVkX19FAKE_FORGED_ENCRYPTED_TOKEN_PAYLOAD_1234567890";
   const forgedRes = await req({
-    host: "localhost", port: 2014, path: "/Billing/PatientBills/GetPatientBills", method: "POST",
+    host: "localhost", port: parseInt(process.env.API_PORT || process.env.TEST_PORT || "2018", 10), path: "/Billing/PatientBills/GetPatientBills", method: "POST",
     headers: { "Authorization": "Bearer " + forgedToken, "Content-Type": "application/json" }
   }, { Params: [] });
 

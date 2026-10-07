@@ -5,7 +5,7 @@ const env = dotenv.parse(fs.readFileSync("/Users/sharmila/Rajesh/hims-pg-pilot/a
 const CryptoJS = require("crypto-js");
 const pg = require("pg");
 
-const pgClient = new pg.Client({ host: "localhost", port: 5432, user: process.env.USER || "sharmila", database: "hims_pilot_db" });
+const pgClient = new pg.Client({ host: "localhost", port: 5432, user: process.env.USER || "sharmila", database: (process.env.PG_DATABASE || process.env.TEST_DB || process.env.DATABASE_NAME || "hims_release_verify_db") });
 
 async function req(options, body) {
   return new Promise((resolve, reject) => {
@@ -52,7 +52,7 @@ async function runPhase3TestSuite() {
 
   // 1. Security & Token Authentication Rejection
   const unauthRes = await req({
-    host: "localhost", port: 2014, path: "/AccidentEmergency/AERegistration/GetAERegistrations", method: "POST",
+    host: "localhost", port: parseInt(process.env.API_PORT || process.env.TEST_PORT || "2018", 10), path: "/AccidentEmergency/AERegistration/GetAERegistrations", method: "POST",
     headers: { "Content-Type": "application/json" }
   }, { Params: [] });
 
@@ -64,7 +64,7 @@ async function runPhase3TestSuite() {
 
   // 2. Accident & Emergency (A&E) Workflow
   const aeRes = await req({
-    host: "localhost", port: 2014, path: "/AccidentEmergency/AERegistration/GetAERegistrations", method: "POST", headers: authHeaders
+    host: "localhost", port: parseInt(process.env.API_PORT || process.env.TEST_PORT || "2018", 10), path: "/AccidentEmergency/AERegistration/GetAERegistrations", method: "POST", headers: authHeaders
   }, { Params: [], PageContext: { PageNumber: 1, PageSize: 5 } });
 
   const aeInsert = await pgClient.query(`

@@ -15,7 +15,7 @@ async function makeRequest(path, body, token) {
   return new Promise((resolve) => {
     const options = {
       host: "localhost",
-      port: 2014,
+      port: parseInt(process.env.API_PORT || process.env.TEST_PORT || "2018", 10),
       path: path,
       method: "POST",
       headers: {

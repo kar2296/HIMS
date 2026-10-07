@@ -5,7 +5,7 @@ const env = dotenv.parse(fs.readFileSync("/Users/sharmila/Rajesh/hims-pg-pilot/a
 const CryptoJS = require("crypto-js");
 const pg = require("pg");
 
-const pgClient = new pg.Client({ host: "localhost", port: 5432, user: process.env.USER || "sharmila", database: "hims_pilot_db" });
+const pgClient = new pg.Client({ host: "localhost", port: 5432, user: process.env.USER || "sharmila", database: (process.env.PG_DATABASE || process.env.TEST_DB || process.env.DATABASE_NAME || "hims_release_verify_db") });
 
 async function req(options, body) {
   return new Promise((resolve, reject) => {
@@ -46,13 +46,13 @@ async function runBatch7TestSuite() {
 
   // 1. Security & Token Authentication Rejection
   const unauthRes = await req({
-    host: "localhost", port: 2014, path: "/OtManagement/OtSchedule/GetOtSchedules", method: "POST",
+    host: "localhost", port: parseInt(process.env.API_PORT || process.env.TEST_PORT || "2018", 10), path: "/OtManagement/OtSchedule/GetOtSchedules", method: "POST",
     headers: { "Content-Type": "application/json" }
   }, { Params: [] });
 
   const invalidToken = getBearerToken("fake_user", "bad_password");
   const badRoleRes = await req({
-    host: "localhost", port: 2014, path: "/OtManagement/OtSchedule/GetOtSchedules", method: "POST",
+    host: "localhost", port: parseInt(process.env.API_PORT || process.env.TEST_PORT || "2018", 10), path: "/OtManagement/OtSchedule/GetOtSchedules", method: "POST",
     headers: { "Authorization": "Bearer " + invalidToken, "Content-Type": "application/json" }
   }, { Params: [] });
 
@@ -64,7 +64,7 @@ async function runBatch7TestSuite() {
 
   // 2. Query OT Room Masters (HTTP API)
   const roomRes = await req({
-    host: "localhost", port: 2014, path: "/OtManagement/SurgeryRoomMaster/GetSurgeryRoomMasters", method: "POST", headers: authHeaders
+    host: "localhost", port: parseInt(process.env.API_PORT || process.env.TEST_PORT || "2018", 10), path: "/OtManagement/SurgeryRoomMaster/GetSurgeryRoomMasters", method: "POST", headers: authHeaders
   }, { Params: [], PageContext: { PageNumber: 1, PageSize: 10 } });
 
   results.push({
@@ -75,7 +75,7 @@ async function runBatch7TestSuite() {
 
   // 3. Query Existing Surgery Schedules (HTTP API)
   const schedListRes = await req({
-    host: "localhost", port: 2014, path: "/OtManagement/OtSchedule/GetOtSchedules", method: "POST", headers: authHeaders
+    host: "localhost", port: parseInt(process.env.API_PORT || process.env.TEST_PORT || "2018", 10), path: "/OtManagement/OtSchedule/GetOtSchedules", method: "POST", headers: authHeaders
   }, { Params: [], PageContext: { PageNumber: 1, PageSize: 5 } });
 
   results.push({

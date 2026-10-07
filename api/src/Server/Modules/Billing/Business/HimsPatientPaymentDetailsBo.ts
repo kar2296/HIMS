@@ -31,7 +31,7 @@ import * as generalMasterBo from '../../GeneralMaster/Business/Index';
 // import { Transaction } from 'sequelize'; // Make sure you import this
 
 export class PatientPaymentDetailsBo extends BaseBo<PatientPaymentDetailsInstance, PatientPaymentDetailsAttributes> {
-    // public async AddPatientPaymentDetails(req: BaseRequest): Promise<number> {
+    public async AddPatientPaymentDetails(req: BaseRequest): Promise<number> {
         const crypto = require("crypto");
         const idempotencyKey = (this.Request && this.Request.headers && (this.Request.headers["x-idempotency-key"] || this.Request.headers["idempotency-key"]))
             || (req && (req.IdempotencyKey || (req.Data && req.Data.IdempotencyKey)));

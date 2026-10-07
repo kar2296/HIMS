@@ -5,7 +5,7 @@ async function runTaxMathParity() {
   console.log("=== EXECUTING TAX MATH & BILLING CALCULATION PARITY TEST SUITE ===\n");
   
   const mConn = await mysql.createConnection({ host: "localhost", port: 3307, user: "root", password: "root", database: "test" });
-  const pClient = new pg.Client({ host: "localhost", port: 5432, user: process.env.USER || "sharmila", database: "hims_pilot_db" });
+  const pClient = new pg.Client({ host: "localhost", port: 5432, user: process.env.USER || "sharmila", database: (process.env.PG_DATABASE || process.env.TEST_DB || process.env.DATABASE_NAME || "hims_release_verify_db") });
   await pClient.connect();
 
   const results = [];
