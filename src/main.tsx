@@ -44,6 +44,10 @@ import { FamilyLinkActionBar, FamilyLinkFooter } from './react-components/Family
 // Import PatientGuarantorList Component
 import { PatientGuarantorListScreen } from './react-components/PatientGuarantorListScreen';
 
+// Import IVF Registration Components
+import { IvfRegistrationTabScreen } from './react-components/IvfRegistrationTabScreen';
+import { IvfRegistrationScreen } from './react-components/IvfRegistrationScreen';
+
 // Import PatientKinFormScreen Component
 import { PatientKinFormScreen } from './react-components/PatientKinFormScreen';
 // Import PatientPrintsScreen Component
@@ -70,12 +74,30 @@ import { PatientDeathRecordFormScreen, DeceasedFormScreen } from './react-compon
 // Import DeactivateRemarksScreen Component
 import { DeactivateRemarksScreen } from './react-components/DeactivateRemarksScreen';
 import { BillingRemarksScreen } from './react-components/BillingRemarksScreen';
-// Import AppointmentsTabScreen Component
 import { AppointmentsTabScreen } from './react-components/AppointmentsTabScreen';
+// Import AppAppointmentsListScreen Component
+import { AppAppointmentsListScreen } from './react-components/AppAppointmentsListScreen';
+import { AppointmentBillPendingListScreen } from './react-components/AppointmentBillPendingListScreen';
+import { AdminAppointmentDashboardScreen } from './react-components/AdminAppointmentDashboardScreen';
+// Import AppointmentsFormScreen Components
+import {
+  AppointmentsFormStatusBar,
+  AppointmentsFormCategoryButtons,
+  AppointmentsFormPatientPanel,
+  AppointmentsFormAppointmentPanel,
+  AppointmentsFormSlotPicker,
+  AppointmentsFormFooter,
+} from './react-components/AppointmentsFormScreen';
 // Import AppointmentHistoryModal Component (shared by appointment-history.js and view-history.js)
 import { AppointmentHistoryModal } from './react-components/AppointmentHistoryModal';
 // Import PreviousAppointmentModal Component
 import { PreviousAppointmentModal } from './react-components/PreviousAppointmentModal';
+// Import AppointmentSessions Screens
+import { AppointmentSessionsListScreen } from './react-components/AppointmentSessionsListScreen';
+import { AppointmentSessionFormScreen } from './react-components/AppointmentSessionFormScreen';
+import { AppointmentSessionFormTabScreen } from './react-components/AppointmentSessionFormTabScreen';
+import { AppointmentMultiSessionListScreen } from './react-components/AppointmentMultiSessionListScreen';
+import { AppointmentMultiSessionModal } from './react-components/AppointmentMultiSessionModal';
 // Import DischargedPatientsScreen Component
 import { DischargedPatientsScreen } from './react-components/DischargedPatientsScreen';
 
@@ -379,6 +401,12 @@ import { SequenceMastersModal } from './react-components/SequenceMastersModal';
 import { EventTemplatesListScreen } from './react-components/EventTemplatesListScreen';
 import { EventTemplateFormScreen } from './react-components/EventTemplateFormScreen';
 import { GroupsListScreen } from './react-components/GroupsListScreen';
+import { UsersListScreen } from './react-components/UsersListScreen';
+import { UserFormScreen } from './react-components/UserFormScreen';
+import { UserTabScreen } from './react-components/UserTabScreen';
+import { UserInfoScreen } from './react-components/UserInfoScreen';
+import { OpVisitBillLinkScreen } from './react-components/OpVisitBillLinkScreen';
+import { OpConsultationBillingModal } from './react-components/OpConsultationBillingModal';
 import { GroupTabScreen } from './react-components/GroupTabScreen';
 import { GroupFormScreen } from './react-components/GroupFormScreen';
 import { GroupRoleMapScreen } from './react-components/GroupRoleMapScreen';
@@ -430,6 +458,12 @@ import { BillingCounterListScreen } from './react-components/BillingCounterListS
 import { BillingCashSubmissionHeaderScreen } from './react-components/BillingCashSubmissionHeaderScreen';
 import { BillingCashSubmissionListScreen } from './react-components/BillingCashSubmissionListScreen';
 import { BillingCashSubmissionFormScreen } from './react-components/BillingCashSubmissionFormScreen';
+import { CashCounterScreen } from './react-components/CashCounterScreen';
+import { CashCounterListScreen } from './react-components/CashCounterListScreen';
+import { MasterListScreen } from './react-components/MasterListScreen';
+import { ReferralFormScreen } from './react-components/ReferralFormScreen';
+import { DashboardTilesScreen } from './react-components/DashboardTilesScreen';
+import { attachListBridge, toInputDate, parseInputDate, translateOr } from './react-components/utils/listBridge';
 import { BillingDiscountApprovalListScreen } from './react-components/BillingDiscountApprovalListScreen';
 import { BillingEditDiscountScreen } from './react-components/BillingEditDiscountScreen';
 import { DrPaymentModifyBillNoScreen } from './react-components/DrPaymentModifyBillNoScreen';
@@ -559,12 +593,17 @@ import { MrdOtReportScreen } from './react-components/legacy-screens/MrdOtReport
 import { TestTemplateMasterScreen } from './react-components/legacy-screens/TestTemplateMasterScreen';
 import { AntibioticCultureScreen } from './react-components/legacy-screens/AntibioticCultureScreen';
 import { DispensedItemsPickerScreen } from './react-components/legacy-screens/DispensedItemsPickerScreen';
+import { BulkCheckoutScreen } from './react-components/BulkCheckoutScreen';
 // Print API for the AngularJS print controllers (window.HimsPrint); QZ Tray loads on the first print
 import './printing/himsPrint';
 
 // Register components globally so the AngularJS bridge can find them
+// Shared list-screen glue for AngularJS controllers (see utils/listBridge.ts).
+(window as any).ReactListBridge = { attach: attachListBridge, toInputDate, parseInputDate, translateOr };
+
 (window as any).ReactComponents = {
   ...(window as any).ReactComponents,
+  BulkCheckoutScreen,
   Button,
   ConfirmModal,
   BarcodeModal,
@@ -591,6 +630,8 @@ import './printing/himsPrint';
   PatientPrintsScreen,
   PatientIdentityFormScreen,
   FullRegistrationTabScreen,
+  IvfRegistrationTabScreen,
+  IvfRegistrationScreen,
   CurrentInpatientScreen,
   PatientGuarantorGLFormScreen,
   PatientIdDocumentsScreen,
@@ -600,8 +641,22 @@ import './printing/himsPrint';
   DeactivateRemarksScreen,
   BillingRemarksScreen,
   AppointmentsTabScreen,
+  AppAppointmentsListScreen,
+  AppointmentBillPendingListScreen,
+  AdminAppointmentDashboardScreen,
+  AppointmentsFormStatusBar,
+  AppointmentsFormCategoryButtons,
+  AppointmentsFormPatientPanel,
+  AppointmentsFormAppointmentPanel,
+  AppointmentsFormSlotPicker,
+  AppointmentsFormFooter,
   AppointmentHistoryModal,
   PreviousAppointmentModal,
+  AppointmentSessionsListScreen,
+  AppointmentSessionFormScreen,
+  AppointmentSessionFormTabScreen,
+  AppointmentMultiSessionListScreen,
+  AppointmentMultiSessionModal,
   DischargedPatientsScreen,
   InpatientTabScreen,
   OpdBillScreen,
@@ -712,6 +767,12 @@ import './printing/himsPrint';
   EventTemplatesListScreen,
   EventTemplateFormScreen,
   GroupsListScreen,
+  UsersListScreen,
+  UserFormScreen,
+  UserTabScreen,
+  UserInfoScreen,
+  OpVisitBillLinkScreen,
+  OpConsultationBillingModal,
   GroupTabScreen,
   GroupFormScreen,
   GroupRoleMapScreen,
@@ -764,6 +825,11 @@ import './printing/himsPrint';
   BillingCashSubmissionHeaderScreen,
   BillingCashSubmissionListScreen,
   BillingCashSubmissionFormScreen,
+  CashCounterScreen,
+  CashCounterListScreen,
+  MasterListScreen,
+  ReferralFormScreen,
+  DashboardTilesScreen,
   BillingDiscountApprovalListScreen,
   BillingEditDiscountScreen,
   DrPaymentModifyBillNoScreen,

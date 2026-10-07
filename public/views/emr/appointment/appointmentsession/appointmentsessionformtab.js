@@ -5,36 +5,58 @@
         .module('app.pages')
         .controller('apptSessionFormTabController', apptSessionFormTabController);
 
-    function apptSessionFormTabController($scope, $stateParams, $state, $translate, utl) {
+    function apptSessionFormTabController($scope, $stateParams, $state, $translate, utl, $timeout) {
+        var sessionId = parseInt($stateParams.id) || 0;
 
         $scope.tabs = [
-            { title: $translate.instant('appointment.appointmentsessionformtab.appointments.lbl'), state: 'app.appointmentsessionformtab.appointmentsession', canDisable: false },
-            { title: $translate.instant('appointment.appointmentsessionformtab.multiappointments.lbl'), state: 'app.appointmentsessionformtab.appointmentmultisession', canDisable: false }
+            {
+                title: $translate.instant('appointment.appointmentsessionformtab.appointments.lbl'),
+                state: 'app.appointmentsessionformtab.appointmentsession',
+                canDisable: false
+            },
+            {
+                title: $translate.instant('appointment.appointmentsessionformtab.multiappointments.lbl'),
+                state: 'app.appointmentsessionformtab.appointmentmultisession',
+                canDisable: sessionId === 0
+            }
         ];
-        $scope.item = {};
+
         $scope.currentcontext = {
+            id: sessionId,
             childstate: $state.current.name,
             selecteddocid: -1
         };
 
-        $scope.currentcontext.id = parseInt($stateParams.id);
-
-        $scope.canActive = function (tab) {
-            return tab.state == $scope.currentcontext.childstate;
+        $scope.reactProps = {
+            id: sessionId,
+            activeState: $state.current.name,
+            selectedDoctorId: -1,
+            tabs: $scope.tabs
         };
 
-        $scope.switchTab = function (tab) {
-            $state.go(tab.state, { id: $scope.currentcontext.id });
-        }
+        $scope.handleReactAction = function (actionName, payload) {
+            $timeout(function () {
+                if (actionName === 'backToList') {
+                    $state.go('app.appointmentsessions');
+                } else if (actionName === 'addNew') {
+                    $state.go('app.appointmentsessionformtab', { id: 0 });
+                } else if (actionName === 'switchTab') {
+                    if (payload && payload.state) {
+                        $state.go(payload.state, { id: sessionId });
+                    }
+                }
+            });
+        };
 
         $scope.getItemCallback = function (scope, data, options, hasError) {
-            if (data && data.DoctorId) {
+            if (!hasError && data && data.DoctorId) {
                 $scope.currentcontext.selecteddocid = data.DoctorId;
+                $scope.reactProps.selectedDoctorId = data.DoctorId;
             }
-            $scope.switchTab($scope.tabs[0]);
+            $scope.$applyAsync();
         };
 
-        $scope.getItem = function (pageNo) {
+        $scope.getItem = function () {
             if ($scope.currentcontext.id && $scope.currentcontext.id > 0) {
                 var options = {
                     action: 'appointment/AppointmentSession/GetAppointmentSessionById',
@@ -43,14 +65,11 @@
                     onComplete: $scope.getItemCallback
                 };
                 utl.Http.doAction(options);
-            } else {
-                $scope.switchTab($scope.tabs[0]);
             }
         };
 
         $scope.getItem();
-
     }
 
-    apptSessionFormTabController.$inject = ['$scope', '$stateParams', '$state', '$translate', 'utl'];
+    apptSessionFormTabController.$inject = ['$scope', '$stateParams', '$state', '$translate', 'utl', '$timeout'];
 })();

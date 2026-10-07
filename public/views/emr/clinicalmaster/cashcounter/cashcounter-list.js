@@ -266,6 +266,169 @@
             utl.Http.doAction(options);
         };
 
+        // ------------------------------------------------------------------
+        // React view bridge (CashCounterListScreen). New code only: no function above was
+        // changed. The view model is rebuilt from $scope on every digest; user input is routed
+        // to the same functions the AngularJS template called (getList, openAdvancedFilter,
+        // addNew, handleEvents).
+        // ------------------------------------------------------------------
+        function cclText(value) {
+            return value === null || value === undefined ? '' : String(value);
+        }
+
+        function cclId(value) {
+            return typeof value === 'number' && isFinite(value) ? value : null;
+        }
+
+        // Same output as the grid cell templates: "dd-MMM-yyyy HH:mm".
+        function cclDateTime(value) {
+            return value ? $filter('date')(value, 'dd-MMM-yyyy') + ' ' + $filter('date')(value, 'HH:mm') : '';
+        }
+
+        function cclColumn(field) {
+            var col = vm.gridConfig.columnDefs.filter(function (c) { return c.field === field; })[0];
+            return col ? col.displayName : '';
+        }
+
+        $scope.buildCashCounterListReactProps = function () {
+            var f = $scope.currentfilter;
+            return {
+                labels: {
+                    title: $translate.instant('billing.billingcounters.pagetitle.lbl'),
+                    filterTooltip: $translate.instant('clinicalmaster.serviceitem-list.filter-tooltip.lbl'),
+                    addTooltip: $translate.instant('billing.billingcounters.addnew-tooltip.lbl'),
+                    counters: $translate.instant('billing.billingcounters.billingcounters.lbl'),
+                    status: $translate.instant('billing.billingcounters.documentstatus.lbl'),
+                    documentDate: $translate.instant('billing.billingcounters.documentdate.lbl'),
+                    documentNumber: $translate.instant('billing.billingcounters.documentnumber.lbl'),
+                    edit: $translate.instant('common.editaction.lbl'),
+                    colDocumentNumber: cclColumn('DocumentNumber'),
+                    colCounter: cclColumn('BillingCounter.Description'),
+                    colOpeningDate: cclColumn('OpeningDate'),
+                    colOpeningBalance: cclColumn('OpeningBalance'),
+                    colClosingDate: cclColumn('ClosingDate'),
+                    colClosingBalance: cclColumn('ClosingBalance'),
+                    colStatus: cclColumn('BillingCounterStatus.Description'),
+                    colActions: cclColumn('Id')
+                },
+                filter: {
+                    billingCounterId: cclId(f.BillingCounterId),
+                    statusId: cclId(f.BillingCounterStatusId),
+                    documentDate: f.DocumentDate ? ($filter('date')(f.DocumentDate, 'yyyy-MM-dd') || '') : '',
+                    documentNumber: cclText(f.DocumentNumber)
+                },
+                lookup: {
+                    BillingCounter: $scope.lookup.BillingCounter || [],
+                    BillingCounterStatus: $scope.lookup.BillingCounterStatus || []
+                },
+                rows: (vm.gridConfig.data || []).map(function (e, index) {
+                    return {
+                        index: index,
+                        documentNumber: cclText(e.DocumentNumber),
+                        counter: cclText(e.BillingCounter && e.BillingCounter.Description),
+                        openingDate: cclDateTime(e.OpeningDate),
+                        openingBalance: $filter('displaycurrency')(e.OpeningBalance),
+                        closingDate: cclDateTime(e.ClosingDate),
+                        closingBalance: $filter('displaycurrency')(e.ClosingBalance),
+                        status: cclText(e.BillingCounterStatus && e.BillingCounterStatus.Description)
+                    };
+                }),
+                pager: {
+                    totalItems: vm.gridConfig.pagerObj.totalItems || 0,
+                    currentPage: vm.gridConfig.pagerObj.currentPage || 1,
+                    pageSize: vm.gridConfig.pagerObj.pageSize || 25
+                }
+            };
+        };
+
+        $scope.reactProps = $scope.buildCashCounterListReactProps();
+        $scope.$watch(function () {
+            return $scope.buildCashCounterListReactProps();
+        }, function (props) {
+            $scope.reactProps = props;
+        }, true);
+
+        // "yyyy-MM-dd" from the date input -> local-midnight Date (what the date picker stored);
+        // empty -> null, which leaves the date out of the request as before.
+        function cclParseDate(value) {
+            var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value || '');
+            return m ? new Date(+m[1], +m[2] - 1, +m[3]) : null;
+        }
+
+        $scope.handleReactAction = function (action, payload) {
+            payload = payload || {};
+            $scope.$evalAsync(function () {
+                switch (action) {
+                    case 'setCounter':
+                        $scope.currentfilter.BillingCounterId = payload.value;
+                        $scope.getList();
+                        break;
+                    case 'setStatus':
+                        $scope.currentfilter.BillingCounterStatusId = payload.value;
+                        $scope.getList();
+                        break;
+                    case 'setDocumentDate':
+                        $scope.currentfilter.DocumentDate = cclParseDate(payload.value);
+                        $scope.getList();
+                        break;
+                    case 'setDocumentNumber':
+                        $scope.currentfilter.DocumentNumber = payload.value;
+                        break;
+                    case 'search':
+                        $scope.getList();
+                        break;
+                    case 'page':
+                        vm.gridConfig.pagerObj.currentPage = payload.page;
+                        $scope.getList();
+                        break;
+                    case 'openAdvancedFilter':
+                        $scope.openAdvancedFilter();
+                        break;
+                    case 'addNew':
+                        $scope.addNew();
+                        break;
+                    case 'edit':
+                        var entity = vm.gridConfig.data[payload.index];
+                        if (entity) {
+                            $scope.handleEvents('edit', entity);
+                        }
+                        break;
+                }
+            });
+        };
+
+        // ------------------------------------------------------------------
+        // Show only the answer to the latest list request (new code; getList and
+        // getListCallback above are unchanged). Changing filters quickly sends several
+        // requests; an older answer that arrived last used to replace the newer one, so the
+        // table showed results for a filter that was no longer selected. Each request now
+        // carries a number and answers to older requests are ignored.
+        // ------------------------------------------------------------------
+        var latestListRequest = 0;
+        var latestOnlyGetList = $scope.getList;
+        $scope.getList = function () {
+            var requestNo = ++latestListRequest;
+            var originalDoAction = utl.Http.doAction;
+            utl.Http.doAction = function (options) {
+                if (options) {
+                    options.listRequestNo = requestNo;
+                }
+                return originalDoAction.apply(this, arguments);
+            };
+            try {
+                return latestOnlyGetList.apply(this, arguments);
+            } finally {
+                utl.Http.doAction = originalDoAction;
+            }
+        };
+        var latestOnlyGetListCallback = $scope.getListCallback;
+        $scope.getListCallback = function (scope, data, options, hasError) {
+            if (options && options.listRequestNo !== undefined && options.listRequestNo !== latestListRequest) {
+                return; // answer to an older request
+            }
+            return latestOnlyGetListCallback.apply(this, arguments);
+        };
+
         $scope.initLookup();
     }
 

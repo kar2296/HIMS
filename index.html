@@ -124,6 +124,28 @@
   <script src="vendor/amcharts/gantt.js"></script>
   <script src="vendor/ng-idle/angular-idle.min.js"></script>
   <script src="vendor/imagemap/jquery.imagemapster.1.1.3b5.js"></script>
+  <script>
+    // Suppress Google Maps Places Autocomplete deprecation advisory warning
+    (function () {
+      ['warn', 'error', 'info', 'log'].forEach(function (method) {
+        var orig = console[method];
+        if (typeof orig === 'function') {
+          console[method] = function () {
+            for (var i = 0; i < arguments.length; i++) {
+              var arg = arguments[i];
+              if (typeof arg === 'string' && (
+                arg.indexOf('google.maps.places.Autocomplete') !== -1 ||
+                arg.indexOf('PlaceAutocompleteElement') !== -1
+              )) {
+                return;
+              }
+            }
+            return orig.apply(console, arguments);
+          };
+        }
+      });
+    })();
+  </script>
   <script async defer
     src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDwN9N3C8bCj8EyogjKJTSD36pO0P3YZq0&libraries=geometry,places&loading=async"></script>
   <script src="https://cdn.jsdelivr.net/npm/qrcode@1.4.1/build/qrcode.min.js"></script>

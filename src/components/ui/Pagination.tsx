@@ -3,8 +3,9 @@ import { colors, radii, spacing, typography } from './tokens';
 
 export interface PaginationProps {
   currentPage: number;
-  totalItems: number;
-  pageSize: number;
+  totalItems?: number;
+  pageSize?: number;
+  totalPages?: number;
   onPageChange: (page: number) => void;
 }
 
@@ -14,8 +15,8 @@ export interface PaginationProps {
  * emits the new page number -- the caller's existing fetch function (already
  * wired to the real paginated API) decides what happens next.
  */
-export const Pagination: React.FC<PaginationProps> = ({ currentPage, totalItems, pageSize, onPageChange }) => {
-  const totalPages = Math.max(1, Math.ceil(totalItems / pageSize));
+export const Pagination: React.FC<PaginationProps> = ({ currentPage, totalItems = 0, pageSize = 25, totalPages: explicitTotalPages, onPageChange }) => {
+  const totalPages = explicitTotalPages !== undefined ? explicitTotalPages : Math.max(1, Math.ceil(totalItems / (pageSize || 1)));
   if (totalPages <= 1) return null;
 
   const pages: (number | '...')[] = [];

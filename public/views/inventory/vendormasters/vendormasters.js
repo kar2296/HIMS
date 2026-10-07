@@ -418,6 +418,104 @@
             utl.Http.doAction(options);
         };
 
+        // ------------------------------------------------------------------
+        // React view (new code only; the functions above are not changed).
+        // vendormasters.html now mounts the shared MasterListScreen; window.ReactListBridge
+        // (src/react-components/utils/listBridge.ts) connects it to this controller and adds:
+        // latest-answer-only, loading / "No records" states, page 1 on filter change and
+        // stepping back from an emptied last page.
+        //
+        // Fixes made here:
+        // 1. Changing Supply Type did nothing: the old drop-down called getMaxId(), which does not
+        //    exist in this controller. It now reloads the list like the other filters.
+        // 2. Supply Type, Vendor Type and Status can be set back to "All" (-1, ignored by the API).
+        // 3. The delete confirmation now names the vendor (handleEvents passed no name).
+        // The Home button keeps its old rule: only when opened from the inventory dashboard.
+        // ------------------------------------------------------------------
+        var bridge = window.ReactListBridge;
+        var t = function (key, fallback) { return bridge.translateOr($translate, key, fallback); };
+
+        function vmSelectFilter(key, label, lookupKey) {
+            return {
+                key: key, label: label, allLabel: 'All',
+                options: ($scope.lookup && $scope.lookup[lookupKey]) || [],
+                get: function () { var v = $scope.currentfilter[key]; return v === undefined || v === null ? -1 : v; },
+                set: function (value) { $scope.currentfilter[key] = value; }
+            };
+        }
+
+        // Same visibility rules as the old grid's action column.
+        function vmRowActions(entity) {
+            var status = entity.ActiveStatusId;
+            if (status == 1) {
+                return [{ action: 'edit', title: 'Edit', icon: 'edit' }, { action: 'delete', title: 'Delete', icon: 'delete' }];
+            }
+            if (status >= 2 && status <= 5) {
+                return [{ action: 'view', title: 'Edit', icon: 'edit' }];
+            }
+            return [];
+        }
+
+        bridge.attach($scope, utl, $translate, {
+            id: 'vendormasterlist',
+            vm: vm,
+            labels: function () {
+                return {
+                    title: t('inventory.vendormastertab.parentpagetitle.lbl', 'Vendor Masters'),
+                    addTooltip: t('inventory.vendormastertab.parentpagetitle.lbl', 'Vendor Masters'),
+                    homeTooltip: 'Dashboard',
+                    colActions: t('common.actions_col.lbl', 'Actions')
+                };
+            },
+            filters: function () {
+                return [
+                    vmSelectFilter('SupplyTypeId', t('inventory.vendormaster.supplytype.lbl', 'Supply Type'), 'SupplyType'),
+                    vmSelectFilter('VendorTypeId', t('inventory.vendormasters.filter_vendortype.lbl', 'Vendor Type'), 'VendorType'),
+                    {
+                        key: 'vendorname', label: t('inventory.vendormasters.filter_vendorname.lbl', 'Vendor Name'), type: 'text',
+                        get: function () { return $scope.currentfilter.vendorname || ''; },
+                        set: function (value) { $scope.currentfilter.vendorname = value; }
+                    },
+                    vmSelectFilter('ActiveStatusId', t('inventory.vendormasters.filter_status.lbl', 'Status'), 'ActiveStatus')
+                ];
+            },
+            columns: function () {
+                return [
+                    { key: 'code', label: t('inventory.vendormasters.code.lbl', 'Code') },
+                    { key: 'name', label: t('inventory.vendormasters.name.lbl', 'Name') },
+                    { key: 'type', label: t('inventory.vendormasters.type.lbl', 'Type') },
+                    { key: 'distributionType', label: t('inventory.vendormaster.distributiontype.lbl', 'Distribution Type') },
+                    { key: 'mobile', label: t('inventory.vendormasters.number.lbl', 'Number') },
+                    { key: 'email', label: t('inventory.vendormasters.email.lbl', 'Email') },
+                    { key: 'city', label: t('inventory.vendormasters.city.lbl', 'City') },
+                    { key: 'status', label: t('inventory.vendormasters.status.lbl', 'Status') }
+                ];
+            },
+            row: function (entity) {
+                return {
+                    cells: {
+                        code: entity.VendorCode || '',
+                        name: entity.VendorName || '',
+                        type: (entity.VendorType && entity.VendorType.Description) || '',
+                        distributionType: (entity.DistributionType && entity.DistributionType.Description) || '',
+                        mobile: entity.MobileNumber || '',
+                        email: entity.EmailAddress || '',
+                        city: entity.City || '',
+                        status: (entity.ActiveStatus && entity.ActiveStatus.Description) || ''
+                    },
+                    actions: vmRowActions(entity)
+                };
+            },
+            home: $scope.Context == 'inventory' ? function () { $scope.backtoList(); } : undefined,
+            onRowAction: function (action, entity) {
+                if (action === 'delete') {
+                    utl.Dialog.confirmDelete($scope.onDeleteConfirmed, entity.Id, entity.VendorName);
+                } else {
+                    $scope.handleEvents(action, entity);
+                }
+            }
+        });
+
         $scope.initLookup();
     }
 

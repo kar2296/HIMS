@@ -85,8 +85,10 @@ export interface FacilityFormScreenProps {
       [key: string]: any;
     };
     facilityId?: number;
+    facilityName?: string;
     logoBase64?: string;
     isSaving?: boolean;
+    [key: string]: any;
   };
   onAction?: (actionName: string, payload?: any) => void;
 }
@@ -297,7 +299,7 @@ export const FacilityFormScreen: React.FC<FacilityFormScreenProps> = ({ reactPro
   const sectionStyle: React.CSSProperties = {
     background: colors.surface,
     border: `1px solid ${colors.border}`,
-    radii: radii.lg,
+    borderRadius: radii.lg,
     padding: spacing.lg,
     marginBottom: spacing.lg,
     boxShadow: '0 1px 2px rgba(0,0,0,0.03)'
@@ -328,7 +330,7 @@ export const FacilityFormScreen: React.FC<FacilityFormScreenProps> = ({ reactPro
     padding: '8px 12px',
     fontSize: '13px',
     border: `1px solid ${colors.border}`,
-    radii: radii.md,
+    borderRadius: radii.md,
     outline: 'none',
     boxSizing: 'border-box',
     fontFamily: typography.fontFamily,
@@ -994,7 +996,7 @@ export const FacilityFormScreen: React.FC<FacilityFormScreenProps> = ({ reactPro
               style={{
                 width: 120,
                 height: 120,
-                radii: radii.md,
+                borderRadius: radii.md,
                 border: `1px solid ${colors.border}`,
                 display: 'flex',
                 alignItems: 'center',
@@ -1038,7 +1040,7 @@ export const FacilityFormScreen: React.FC<FacilityFormScreenProps> = ({ reactPro
                   color: colors.primary,
                   background: colors.primaryLight,
                   border: `1px solid ${colors.primaryMid}`,
-                  radii: radii.md,
+                  borderRadius: radii.md,
                   cursor: 'pointer'
                 }}
               >
@@ -1076,7 +1078,7 @@ export const FacilityFormScreen: React.FC<FacilityFormScreenProps> = ({ reactPro
               color: colors.textBody,
               background: colors.surfaceMuted,
               border: `1px solid ${colors.border}`,
-              radii: radii.md,
+              borderRadius: radii.md,
               cursor: 'pointer'
             }}
           >
@@ -1099,7 +1101,7 @@ export const FacilityFormScreen: React.FC<FacilityFormScreenProps> = ({ reactPro
                 color: '#ffffff',
                 background: colors.primary,
                 border: 'none',
-                radii: radii.md,
+                borderRadius: radii.md,
                 cursor: saving ? 'not-allowed' : 'pointer',
                 opacity: saving ? 0.7 : 1,
                 boxShadow: '0 1px 3px rgba(37,99,235,0.25)'
@@ -1123,7 +1125,7 @@ export const FacilityFormScreen: React.FC<FacilityFormScreenProps> = ({ reactPro
                 color: '#ffffff',
                 background: '#10b981',
                 border: 'none',
-                radii: radii.md,
+                borderRadius: radii.md,
                 cursor: saving ? 'not-allowed' : 'pointer',
                 opacity: saving ? 0.7 : 1,
                 boxShadow: '0 1px 3px rgba(16,185,129,0.25)'

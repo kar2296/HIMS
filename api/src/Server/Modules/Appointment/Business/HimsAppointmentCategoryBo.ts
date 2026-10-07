@@ -34,27 +34,29 @@ export class AppointmentCategoryBo extends BaseBo<AppointmentCategoryInstance, A
         include.push({ model: this.Models.Facility, attributes: ['FacilityName'], required: false });
         include.push(this.GetReference('AppointmentCategoryType'));
         include.push(this.GetReference('ActiveStatus'));
-        apiReq.Params.forEach((param) => {
-            if (this.IsValidParam(param)) {
-                switch (param.Key) {
-                    case AppointmentCategoryFilters.Id:
-                        where['Id'] = param.Value;
-                        break;
-                    case AppointmentCategoryFilters.Facility:
-                        where['FacilityId'] = param.Value;
-                        break;
-                    case AppointmentCategoryFilters.AppointmentCategoryType:
-                        where['AppointmentCategoryTypeId'] = param.Value;
-                        break;
-                    case AppointmentCategoryFilters.ActiveStatus:
-                        where['ActiveStatusId'] = param.Value;
-                        break;
-                    default:
-                        throw 'Not Implemented';
+        if (apiReq && apiReq.Params && Array.isArray(apiReq.Params)) {
+            apiReq.Params.forEach((param) => {
+                if (this.IsValidParam(param)) {
+                    switch (param.Key) {
+                        case AppointmentCategoryFilters.Id:
+                            where['Id'] = param.Value;
+                            break;
+                        case AppointmentCategoryFilters.Facility:
+                            where['FacilityId'] = param.Value;
+                            break;
+                        case AppointmentCategoryFilters.AppointmentCategoryType:
+                            where['AppointmentCategoryTypeId'] = param.Value;
+                            break;
+                        case AppointmentCategoryFilters.ActiveStatus:
+                            where['ActiveStatusId'] = param.Value;
+                            break;
+                        default:
+                            break;
+                    }
                 }
-            }
-        });
-        return await this.FindAndCountAll(apiReq, { where: where, include: include, attributes: apiReq.Attributes });
+            });
+        }
+        return await this.FindAndCountAll((apiReq || { PageContext: { PageSize: 100, PageNumber: 1 } }) as any, { where: where, include: include, attributes: apiReq ? apiReq.Attributes : undefined });
     }
 
     public async DeleteAppointmentCategory(req: BaseRequest): Promise<Boolean> {

@@ -165,6 +165,103 @@
             utl.Http.doAction(options);
         }
 
+        // ------------------------------------------------------------------
+        // React view (new code only; the functions above are not changed).
+        // division-list.html now mounts the shared MasterListScreen; window.ReactListBridge
+        // (src/react-components/utils/listBridge.ts) connects it to this controller and adds:
+        // latest-answer-only, loading / "No records" states, page 1 on filter change and
+        // stepping back from an emptied last page.
+        //
+        // Fixes made here:
+        // 1. Code and Name searched the wrong column: the API's DivisionFilters are 1 = Name and
+        //    2 = Code, but getList() sends the Code box as 1 and the Name box as 2. The request
+        //    is corrected before it is sent (getList itself is unchanged).
+        // 2. Status can be set to "All" (-1, which the API ignores).
+        // 3. Home went back to this same page (backtoList -> app.division) although its tooltip
+        //    says Dashboard; it now opens the Inventory Master dashboard like the other
+        //    inventory lists. backtoList itself is unchanged.
+        // ------------------------------------------------------------------
+        var bridge = window.ReactListBridge;
+        var t = function (key, fallback) { return bridge.translateOr($translate, key, fallback); };
+
+        function divFixFilterKeys(options) {
+            var params = options && options.data && options.data.Params;
+            if (!angular.isArray(params)) {
+                return;
+            }
+            params.forEach(function (param) {
+                if (param.Key === 1) {
+                    param.Value = $scope.currentfilter.DivisionName; // DivisionFilters.Name
+                } else if (param.Key === 2) {
+                    param.Value = $scope.currentfilter.DivisionCode; // DivisionFilters.DivisionCode
+                }
+            });
+        }
+
+        // Same visibility rules as the old grid's action column.
+        function divRowActions(entity) {
+            var status = entity.ActiveStatusId;
+            if (status == 1) {
+                return [{ action: 'edit', title: 'Edit', icon: 'edit' }, { action: 'delete', title: 'Delete', icon: 'delete' }];
+            }
+            if (status >= 2 && status <= 5) {
+                return [{ action: 'view', title: 'Edit', icon: 'edit' }];
+            }
+            return [];
+        }
+
+        bridge.attach($scope, utl, $translate, {
+            id: 'divisionlist',
+            vm: vm,
+            labels: function () {
+                return {
+                    title: t('Divisions', 'Divisions'),
+                    addTooltip: 'Add Division',
+                    homeTooltip: 'Dashboard',
+                    colActions: t('common.actions_col.lbl', 'Actions')
+                };
+            },
+            filters: function () {
+                return [
+                    {
+                        key: 'DivisionCode', label: t('Code', 'Code'), type: 'text',
+                        get: function () { return $scope.currentfilter.DivisionCode || ''; },
+                        set: function (value) { $scope.currentfilter.DivisionCode = value; }
+                    },
+                    {
+                        key: 'DivisionName', label: t('Name', 'Name'), type: 'text',
+                        get: function () { return $scope.currentfilter.DivisionName || ''; },
+                        set: function (value) { $scope.currentfilter.DivisionName = value; }
+                    },
+                    {
+                        key: 'ActiveStatusId', label: t('inventory.producttypes.filter_status.lbl', 'Status'), allLabel: 'All',
+                        options: ($scope.lookup && $scope.lookup.ActiveStatus) || [],
+                        get: function () { var v = $scope.currentfilter.ActiveStatusId; return v === undefined || v === null ? -1 : v; },
+                        set: function (value) { $scope.currentfilter.ActiveStatusId = value; }
+                    }
+                ];
+            },
+            columns: function () {
+                return [
+                    { key: 'code', label: t('Code', 'Code') },
+                    { key: 'name', label: t('Name', 'Name') },
+                    { key: 'status', label: t('Status', 'Status') }
+                ];
+            },
+            row: function (entity) {
+                return {
+                    cells: {
+                        code: entity.DivisionCode || '',
+                        name: entity.DivisionName || '',
+                        status: (entity.ActiveStatus && entity.ActiveStatus.Description) || ''
+                    },
+                    actions: divRowActions(entity)
+                };
+            },
+            home: function () { $state.go('app.Inventorymastermanagement'); },
+            beforeListRequest: divFixFilterKeys
+        });
+
         $scope.initLookup();
     }
 

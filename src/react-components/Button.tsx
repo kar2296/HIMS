@@ -15,6 +15,7 @@ export type ButtonVariant =
   | 'outline-danger'
   | 'outline-success'
   | 'glass'
+  | 'ghost'
   | 'icon'
   | 'link';
 
@@ -282,6 +283,13 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(({
             : '0 1px 3px rgba(0, 0, 0, 0.03)',
         };
       }
+      case 'ghost':
+        return {
+          backgroundColor: isHovered && !isActuallyDisabled ? 'rgba(0, 0, 0, 0.05)' : 'transparent',
+          color: 'inherit',
+          border: '1px solid transparent',
+          boxShadow: 'none',
+        };
       case 'link':
         return {
           backgroundColor: 'transparent',

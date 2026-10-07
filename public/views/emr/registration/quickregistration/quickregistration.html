@@ -1,56 +1,12 @@
 <!--
-  Migrated to React 2026-08-21: the patient-details + photo form section (the real
-  Angular <form id="item_form">...</form> that used to live here) is now
-  <react-component name="QuickRegistrationFormScreen">. This screen already had two
-  react-component mounts embedded directly in this template before this migration --
-  RegistrationActionBar (top filter row) and RegistrationFooter (bottom action bar) --
-  both left completely untouched below, still driven by the same real
-  vm.reactPropsActionBar/vm.reactPropsFooter + handleReactAction wiring. <patientsearch>
-  and <patientbanner> are also left as real, working Angular directives (out of scope
-  for this pass, zero risk since unmodified). All logic -- initLookup/getItem/
-  getPatientProfilePic/getEncounters/patientChange's real API calls, saveAndApprove()/
-  save()/saveItem()'s real validation (now via isQuickRegFormValid(), a faithful
-  reimplementation of the old item_form.$valid check since the real <form> DOM this
-  screen used to validate against no longer exists -- see quickregistration.js) and
-  AddPatient/UpdatePatient calls, fillGenderInfo/calculateAge/calculateDOB, openWebCam's
-  real webcam-modal, and the Google-Places address handler -- stays in
-  quickregistration.js's (hollowed) quickRegistrationFormController, reached via the
-  same handleReactAction dispatcher (its signature was extended to accept an optional
-  payload, backward compatible with ActionBar/Footer's existing no-payload calls). See
-  REACT_MIGRATION_GUIDE.md. Original markup preserved above this comment in git history
-  for reference. Confirmed reachable: app.quickregistration is a real, heavily-used
-  navigation target (opddashboard, patientsearch, fullregistrationtab, aepatient/ivf
-  registration, feedbackregistration, and both newregistration's and
-  patientregistration-form's own pickPatient() all $state.go here).
+  Migrated to unified React screen:
+  The entire Quick Registration view (PageHeader with patient search, RegistrationActionBar,
+  PatientIdentityBanner, quick registration form controls, and RegistrationFooter) is now
+  unified into <react-component name="QuickRegistrationFormScreen">.
+  All state, lookups, validations, and action dispatching remain bridged with
+  quickRegistrationFormController in quickregistration.js without breaking any existing functionality.
 -->
 <div class="hims-theme-registration">
-<div class="row">
-    <div class="drhms-filters">
-        <div class="col-sm-8">
-            <h4 class="mt0" translate="registration.registrationcumvisit.registration2.lbl"></h4>
-        </div>
-        <div class="col-sm-4">
-            <div class="filters">
-                <div class="search">
-                    <patientsearch id="drhms-patinet-search-box" ng-keyup="moveHeaderFocus('pid')"
-                        patientid="item.PatientId" class="logo" name="txtpatientsearch" patientinfo="selectedPatient"
-                        patientchange="patientChange()" aria-placeholder="Patient Search"
-                        tabindex="tabindexmap.patienttabindex" isdisabled="{{SaveCompleted}}"
-                        filterconfig="patientfilterconfig"></patientsearch>
-                    <div class="drhms-search-icon">
-                        <i class="fas fa-search" aria-hidden="true"></i>
-                    </div>
-                </div>
-                <react-component name="RegistrationActionBar" props="{ reactProps: vm.reactPropsActionBar, onAction: handleReactAction }"></react-component>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="col-lg-12">
-    <patientbanner patientid="item.PatientId"></patientbanner>
+    <react-component name="QuickRegistrationFormScreen" props="{ reactProps: vm.reactPropsForm, onAction: handleReactAction }"></react-component>
 </div>
 
-<react-component name="QuickRegistrationFormScreen" props="{ reactProps: vm.reactPropsForm, onAction: handleReactAction }"></react-component>
-
-<react-component name="RegistrationFooter" props="{ reactProps: vm.reactPropsFooter, onAction: handleReactAction }"></react-component>
-</div>

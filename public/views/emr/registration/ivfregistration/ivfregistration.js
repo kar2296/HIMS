@@ -87,6 +87,9 @@
             $scope.item = data;
             $scope.currentcontext.id = $scope.item.Id;
             $scope.getPatientProfilePic();
+            if ($scope.refreshReactProps) {
+                $scope.refreshReactProps();
+            }
         };
 
         $scope.patientChange = function (pageNo) {
@@ -474,7 +477,9 @@
 
             $scope.setFocusTitle();
             $scope.getPatients();
-
+            if ($scope.refreshReactProps) {
+                $scope.refreshReactProps();
+            }
         };
 
         $scope.setFocusTitle = function () {
@@ -1379,6 +1384,9 @@
                 }
             }
             $scope.getItem();
+            if ($scope.refreshReactProps) {
+                $scope.refreshReactProps();
+            }
         }
 
         $scope.initLookup = function () {
@@ -1469,6 +1477,102 @@
             };
             utl.Http.doAction(options);
         }
+
+        /* React bridge code starts */
+        $scope.refreshReactProps = function () {
+            $scope.reactProps = {
+                item: $scope.item,
+                lookup: $scope.lookup,
+                currentcontext: $scope.currentcontext,
+                flags: {
+                    CanShowDeceased: $scope.CanShowDeceased,
+                    isPatientDeactivated: $scope.isPatientDeactivated,
+                    EnableOPD: $scope.EnableOPD,
+                    Visitprint: $scope.Visitprint,
+                    Vitals: $scope.Vitals,
+                    canShowPatientBanner: $scope.canShowPatientBanner,
+                    adrsmandatory: $scope.adrsmandatory
+                }
+            };
+        };
+
+        $scope.handleReactAction = function (actionName, payload) {
+            switch (actionName) {
+                case 'itemFieldChange':
+                    $scope.item[payload.field] = payload.value;
+                    $scope.refreshReactProps();
+                    $scope.$applyAsync();
+                    return;
+                case 'itemFieldsMerge':
+                    angular.extend($scope.item, payload.fields);
+                    $scope.refreshReactProps();
+                    $scope.$applyAsync();
+                    return;
+                case 'titleChange':
+                    $scope.item.TitleId = payload.value;
+                    $scope.fillGenderInfo();
+                    $scope.refreshReactProps();
+                    $scope.$applyAsync();
+                    return;
+                case 'dobChange':
+                    $scope.item.DOB = payload.value;
+                    $scope.calculateAge();
+                    $scope.refreshReactProps();
+                    $scope.$applyAsync();
+                    return;
+                case 'approxAgeDaysChange':
+                    $scope.item.ApproxAgeDays = payload.value;
+                    $scope.calculateDOB(payload.value, 'days');
+                    $scope.refreshReactProps();
+                    $scope.$applyAsync();
+                    return;
+                case 'approxAgeMonthsChange':
+                    $scope.item.ApproxAgeMonths = payload.value;
+                    $scope.calculateDOB(payload.value, 'months');
+                    $scope.refreshReactProps();
+                    $scope.$applyAsync();
+                    return;
+                case 'ageYearsChange':
+                    $scope.item.Age = payload.value;
+                    $scope.calculateDOB(payload.value, 'years');
+                    $scope.refreshReactProps();
+                    $scope.$applyAsync();
+                    return;
+                case 'referTypeChange':
+                    $scope.item.ReferTypeId = payload.value;
+                    $scope.referralTypeChange();
+                    $scope.refreshReactProps();
+                    $scope.$applyAsync();
+                    return;
+                case 'referrerChange':
+                    $scope.item.ReferrerId = payload.value;
+                    $scope.referralChange();
+                    $scope.refreshReactProps();
+                    $scope.$applyAsync();
+                    return;
+                case 'fileSelected':
+                    $scope.currentcontext.file = payload && payload.file;
+                    $scope.photoFileChanged();
+                    $scope.refreshReactProps();
+                    $scope.$applyAsync();
+                    return;
+                case 'clearimage':
+                    $scope.clearimage();
+                    $scope.refreshReactProps();
+                    $scope.$applyAsync();
+                    return;
+                case 'openWebCam':
+                    $scope.openWebCam();
+                    return;
+                case 'findPatient':
+                    $scope.findPatient();
+                    return;
+            }
+            if (typeof $scope[actionName] === 'function') {
+                $scope[actionName]();
+            }
+        };
+        /* React bridge code ends */
 
         $scope.initLookup();
     }

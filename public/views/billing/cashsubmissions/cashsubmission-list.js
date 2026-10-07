@@ -306,6 +306,43 @@
             }
         };
 
+        // ------------------------------------------------------------------
+        // Show only the answer to the latest list request (new code; getList and
+        // getListCallback above are unchanged). Changing filters quickly sends several
+        // requests; an older answer that arrived last used to replace the newer one, so the
+        // table showed results for a filter that was no longer selected. Each request now
+        // carries a number and answers to older requests are ignored.
+        // ------------------------------------------------------------------
+        var latestListRequest = 0;
+        var latestOnlyGetList = $scope.getList;
+        $scope.getList = function () {
+            var requestNo = ++latestListRequest;
+            var originalDoAction = utl.Http.doAction;
+            utl.Http.doAction = function (options) {
+                if (options) {
+                    options.listRequestNo = requestNo;
+                }
+                return originalDoAction.apply(this, arguments);
+            };
+            try {
+                return latestOnlyGetList.apply(this, arguments);
+            } finally {
+                utl.Http.doAction = originalDoAction;
+            }
+        };
+        var latestOnlyGetListCallback = $scope.getListCallback;
+        $scope.getListCallback = function (scope, data, options, hasError) {
+            if (options && options.listRequestNo !== undefined && options.listRequestNo !== latestListRequest) {
+                return; // answer to an older request
+            }
+            return latestOnlyGetListCallback.apply(this, arguments);
+        };
+
+
+        // Render the filters (default status and today's date) straight away instead of
+        // waiting for the lookup answer.
+        $scope.refreshReactProps();
+
         $scope.initLookup();
     }
 

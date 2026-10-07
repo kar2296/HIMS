@@ -1380,6 +1380,145 @@
             $scope.refreshScheler($scope.appointmentList);
         }
 
+        // =========================================================
+        // React Bridge Integration for AppAppointmentsListScreen
+        // =========================================================
+        $scope.isGridLoading = false;
+
+        function refreshReactProps() {
+            $scope.reactProps = {
+                currentfilter: {
+                    FacilityId: $scope.currentfilter ? $scope.currentfilter.FacilityId : undefined,
+                    DepartmentId: $scope.currentfilter ? $scope.currentfilter.DepartmentId : undefined,
+                    AppointmentTypeId: $scope.currentfilter ? $scope.currentfilter.AppointmentTypeId : undefined,
+                    DoctorId: $scope.currentfilter ? $scope.currentfilter.DoctorId : undefined,
+                    AppointmentStatusId: $scope.currentfilter ? $scope.currentfilter.AppointmentStatusId : undefined,
+                    appointmentdate: $scope.currentfilter ? $scope.currentfilter.appointmentdate : undefined,
+                    MRN: $scope.currentfilter ? $scope.currentfilter.MRN : undefined,
+                    Mobile: $scope.currentfilter ? $scope.currentfilter.Mobile : undefined
+                },
+                currentcontext: $scope.currentcontext || {},
+                lookup: $scope.lookup || {},
+                rows: (vm.gridConfig && vm.gridConfig.data) ? vm.gridConfig.data : [],
+                pager: (vm.gridConfig && vm.gridConfig.pagerObj) ? vm.gridConfig.pagerObj : { totalItems: 0, currentPage: 1, pageSize: 25 },
+                showCalendar: vm.appointment ? !!vm.appointment.ShowCalendar : false,
+                loading: !!$scope.isGridLoading
+            };
+        }
+
+        var origLookupCallback = $scope.lookupCallback;
+        $scope.lookupCallback = function (scope, data, options, hasError) {
+            origLookupCallback(scope, data, options, hasError);
+            refreshReactProps();
+        };
+
+        var origGetListCallback = $scope.getListCallback;
+        $scope.getListCallback = function (scope, res, options, hasError) {
+            $scope.isGridLoading = false;
+            origGetListCallback(scope, res, options, hasError);
+            refreshReactProps();
+        };
+
+        var origGetList = $scope.getList;
+        $scope.getList = function () {
+            $scope.isGridLoading = true;
+            refreshReactProps();
+            origGetList();
+        };
+
+        var origToggleView = $scope.toggleView;
+        $scope.toggleView = function () {
+            origToggleView();
+            refreshReactProps();
+        };
+
+        var origDoctorFilterChange = $scope.doctorFilterChange;
+        $scope.doctorFilterChange = function () {
+            origDoctorFilterChange();
+            refreshReactProps();
+        };
+
+        var origAppointmenttypechange = $scope.appointmenttypechange;
+        $scope.appointmenttypechange = function () {
+            origAppointmenttypechange();
+            refreshReactProps();
+        };
+
+        var origGetAppointmentCategorysCallback = $scope.getAppointmentCategorysCallback;
+        if (origGetAppointmentCategorysCallback) {
+            $scope.getAppointmentCategorysCallback = function (scope, res, options, hasError) {
+                origGetAppointmentCategorysCallback(scope, res, options, hasError);
+                refreshReactProps();
+            };
+        }
+
+        $scope.handleReactAction = function (actionName, payload) {
+            $timeout(function () {
+                switch (actionName) {
+                    case 'addNew':
+                        $state.go('app.appointmentstab.details', { id: 0 });
+                        break;
+                    case 'toggleView':
+                        $scope.toggleView();
+                        break;
+                    case 'refresh':
+                        $scope.getList();
+                        break;
+                    case 'filterChange':
+                        if (payload && payload.field) {
+                            $scope.currentfilter[payload.field] = payload.value;
+                            if (payload.field === 'AppointmentTypeId') {
+                                $scope.appointmenttypechange();
+                            } else if (payload.field === 'DoctorId') {
+                                $scope.doctorFilterChange();
+                            } else {
+                                $scope.getList();
+                            }
+                        }
+                        break;
+                    case 'dateChange':
+                        if (payload && payload.value) {
+                            $scope.currentfilter.appointmentdate = payload.value;
+                            $scope.getList();
+                        }
+                        break;
+                    case 'pageChange':
+                        if (payload && payload.page && vm.gridConfig && vm.gridConfig.pagerObj) {
+                            vm.gridConfig.pagerObj.currentPage = payload.page;
+                            $scope.getList();
+                        }
+                        break;
+                    case 'resetFilters':
+                        $scope.currentfilter.AppointmentTypeId = -1;
+                        $scope.currentfilter.DoctorId = '';
+                        $scope.currentfilter.AppointmentStatusId = -1;
+                        $scope.currentfilter.MRN = '';
+                        $scope.currentfilter.appointmentdate = utl.Formatter.getCurrentDate();
+                        $scope.getList();
+                        break;
+                    case 'editAppointment':
+                        if (payload) {
+                            $scope.handleEvents('edit', payload);
+                        }
+                        break;
+                    case 'patientInfo':
+                        if (payload && payload.PatientId) {
+                            $scope.handleEvents('patientinfo', payload);
+                        }
+                        break;
+                    case 'openEmr':
+                        if (payload) {
+                            $scope.handleEvents('emr', payload);
+                        }
+                        break;
+                    default:
+                        console.warn('Unhandled React action in appointmentsFromAppController:', actionName, payload);
+                }
+                refreshReactProps();
+            });
+        };
+
+        refreshReactProps();
     }
 
     appointmentsFromAppController.$inject = ['$rootScope', '$scope', '$stateParams', '$state', '$translate', 'utl', '$timeout', '$filter'];

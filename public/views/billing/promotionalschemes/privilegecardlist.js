@@ -208,6 +208,203 @@
             $scope.$applyAsync();
         };
 
+        // ------------------------------------------------------------------
+        // Fixes for the privilege card list (new code only; the functions above are not
+        // changed).
+        //
+        // 1. Card# search: the search box at the top was bound to currentfilter.MembershipNumber
+        //    but getList() never sent it, so typing and pressing Enter returned the same list.
+        //    When the box has text it is now sent as the API's CardNo filter (Key 7, "contains").
+        //    With the box empty the request is exactly the same as before.
+        // 2. Latest answer only: changing dates or scheme type quickly sends several requests;
+        //    an older answer that arrived last used to replace the newer one, so the table showed
+        //    cards for filters that were no longer selected. Older answers are now ignored.
+        // 3. Filters start from page 1: changing a filter while on page 2 or later kept that
+        //    page number, so a smaller result showed an empty table.
+        // 4. Dates: the date box gives "yyyy-MM-dd", which new Date() reads as UTC midnight
+        //    (the previous day in time zones behind UTC). It is now read as a local date.
+        // ------------------------------------------------------------------
+        // 5. Screen not updating: the React bridge only re-renders when the props look
+        //    different, and it compares a shallow copy, so a change inside currentfilter
+        //    (a date, the scheme type, the search text) was never shown on screen. React
+        //    now gets a fresh copy of the filter each time, so every change is shown.
+        var pcOriginalRefreshReactProps = $scope.refreshReactProps;
+        $scope.refreshReactProps = function () {
+            pcOriginalRefreshReactProps.apply(this, arguments);
+            $scope.reactProps.currentfilter = angular.extend({}, $scope.currentfilter);
+        };
+
+        var pcListRequestNo = 0;
+        var pcOriginalGetList = $scope.getList;
+        $scope.getList = function () {
+            var requestNo = ++pcListRequestNo;
+            var cardNo = ($scope.currentfilter.MembershipNumber || '').toString().trim();
+            var originalDoAction = utl.Http.doAction;
+            utl.Http.doAction = function (options) {
+                if (options) {
+                    options.listRequestNo = requestNo;
+                    if (cardNo && options.data && angular.isArray(options.data.Params)) {
+                        options.data.Params.push({ Key: 7, Value: cardNo }); // PrivilegeCardFilters.CardNo
+                    }
+                }
+                return originalDoAction.apply(this, arguments);
+            };
+            try {
+                return pcOriginalGetList.apply(this, arguments);
+            } finally {
+                utl.Http.doAction = originalDoAction;
+            }
+        };
+
+        var pcOriginalGetListCallback = $scope.getListCallback;
+        $scope.getListCallback = function (scope, res, options, hasError) {
+            if (options && options.listRequestNo !== undefined && options.listRequestNo !== pcListRequestNo) {
+                return; // answer to an older request
+            }
+            return pcOriginalGetListCallback.apply(this, arguments);
+        };
+
+        // "yyyy-MM-dd" -> Date at local midnight (null when empty or invalid).
+        function pcParseInputDate(value) {
+            if (!value) {
+                return null;
+            }
+            var parts = String(value).split('-');
+            if (parts.length !== 3) {
+                return null;
+            }
+            var date = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
+            return isNaN(date.getTime()) ? null : date;
+        }
+
+        var pcOriginalHandleReactAction = $scope.handleReactAction;
+        $scope.handleReactAction = function (actionName, payload) {
+            switch (actionName) {
+                case 'fromDateChange':
+                case 'toDateChange':
+                    vm.gridConfig.pagerObj.currentPage = 1;
+                    $scope.currentfilter[actionName === 'fromDateChange' ? 'FromDate' : 'ToDate'] =
+                        pcParseInputDate(payload && payload.value);
+                    $scope.refreshReactProps();
+                    $scope.getList();
+                    $scope.$applyAsync();
+                    return;
+                case 'cardTypeChange':
+                case 'fetch':
+                    vm.gridConfig.pagerObj.currentPage = 1;
+                    break;
+            }
+            var result = pcOriginalHandleReactAction.apply(this, arguments);
+            if (actionName === 'fetch') {
+                $scope.refreshReactProps(); // the original 'fetch' case does not refresh
+            }
+            return result;
+        };
+
+        // ------------------------------------------------------------------
+        // Pagination, loading state and empty-page handling (new code only; the functions above
+        // are not changed).
+        // 6. Pagination now lives in the React screen (the old uib-pagination footer is removed
+        //    from privilegecardlist.html); it calls the same getList() with the chosen page.
+        // 7. A loading message is shown while the list is being fetched and "No records" when
+        //    nothing matches; a failed request clears the loading state and shows the error.
+        // 8. Deleting the last card on the last page moves back one page instead of showing an
+        //    empty table.
+        // ------------------------------------------------------------------
+        var pcLoading = false;
+        var pcLoadingTimer = null;
+        var pcOuterRequestNo = 0;
+
+        function pcSetLoading(loading) {
+            pcLoading = loading;
+            if (pcLoadingTimer) {
+                clearTimeout(pcLoadingTimer);
+                pcLoadingTimer = null;
+            }
+            if (loading) {
+                // Safety net: a request that fails without a response calls no callback.
+                pcLoadingTimer = setTimeout(function () {
+                    $scope.$evalAsync(function () { pcSetLoading(false); $scope.refreshReactProps(); });
+                }, 60000);
+            }
+        }
+
+        var pcPagerRefreshReactProps = $scope.refreshReactProps;
+        $scope.refreshReactProps = function () {
+            pcPagerRefreshReactProps.apply(this, arguments);
+            var pager = vm.gridConfig.pagerObj;
+            $scope.reactProps.pager = {
+                totalItems: pager.totalItems || 0,
+                currentPage: pager.currentPage || 1,
+                pageSize: pager.pageSize || 25
+            };
+            $scope.reactProps.loading = pcLoading;
+        };
+
+        // Called by the HTTP helper when the list request fails. With onError set the helper no
+        // longer shows the message for an error code itself, so it is shown here.
+        function pcListError(data, options) {
+            $scope.$evalAsync(function () {
+                if (options && options.pcOuterRequestNo !== pcOuterRequestNo) {
+                    return; // failure of an older request
+                }
+                pcSetLoading(false);
+                $scope.refreshReactProps();
+                if (data && data.Error && data.Error.Code) {
+                    utl.Alert.showErrorMsg($translate.instant('common.errors.' + data.Error.Code + '.lbl'));
+                }
+            });
+        }
+
+        var pcLoadingGetList = $scope.getList;
+        $scope.getList = function () {
+            var requestNo = ++pcOuterRequestNo;
+            pcSetLoading(true);
+            var originalDoAction = utl.Http.doAction;
+            utl.Http.doAction = function (options) {
+                if (options) {
+                    options.pcOuterRequestNo = requestNo;
+                    options.onError = pcListError;
+                }
+                return originalDoAction.apply(this, arguments);
+            };
+            try {
+                return pcLoadingGetList.apply(this, arguments);
+            } finally {
+                utl.Http.doAction = originalDoAction;
+                $scope.refreshReactProps();
+            }
+        };
+
+        var pcLoadingGetListCallback = $scope.getListCallback;
+        $scope.getListCallback = function (scope, res, options, hasError) {
+            if (options && options.pcOuterRequestNo !== undefined && options.pcOuterRequestNo !== pcOuterRequestNo) {
+                return; // answer to an older request
+            }
+            pcSetLoading(false);
+            var result = pcLoadingGetListCallback.apply(this, arguments);
+            var pager = vm.gridConfig.pagerObj;
+            var total = pager.totalItems || 0;
+            var lastPage = Math.max(1, Math.ceil(total / (pager.pageSize || 25)));
+            if ((!res || !res.Data || res.Data.length === 0) && total > 0 && pager.currentPage > lastPage) {
+                pager.currentPage = lastPage; // e.g. the only card on the last page was deleted
+                $scope.getList();
+            }
+            $scope.refreshReactProps();
+            return result;
+        };
+
+        var pcPagerHandleReactAction = $scope.handleReactAction;
+        $scope.handleReactAction = function (actionName, payload) {
+            if (actionName === 'pageChange') {
+                vm.gridConfig.pagerObj.currentPage = payload && payload.page ? payload.page : 1;
+                $scope.getList();
+                $scope.$applyAsync();
+                return;
+            }
+            return pcPagerHandleReactAction.apply(this, arguments);
+        };
+
         $scope.refreshReactProps();
         $scope.initLookup();
     }

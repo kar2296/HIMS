@@ -160,6 +160,71 @@
             $scope.$applyAsync();
         };
 
+        // ------------------------------------------------------------------
+        // Show only the answer to the latest list request (new code; getList and
+        // getListCallback above are unchanged). Changing filters quickly sends several
+        // requests; an older answer that arrived last used to replace the newer one, so the
+        // table showed results for a filter that was no longer selected. Each request now
+        // carries a number and answers to older requests are ignored.
+        // ------------------------------------------------------------------
+        var latestListRequest = 0;
+        var latestOnlyGetList = $scope.getList;
+        $scope.getList = function () {
+            var requestNo = ++latestListRequest;
+            var originalDoAction = utl.Http.doAction;
+            utl.Http.doAction = function (options) {
+                if (options) {
+                    options.listRequestNo = requestNo;
+                }
+                return originalDoAction.apply(this, arguments);
+            };
+            try {
+                return latestOnlyGetList.apply(this, arguments);
+            } finally {
+                utl.Http.doAction = originalDoAction;
+            }
+        };
+        var latestOnlyGetListCallback = $scope.getListCallback;
+        $scope.getListCallback = function (scope, data, options, hasError) {
+            if (options && options.listRequestNo !== undefined && options.listRequestNo !== latestListRequest) {
+                return; // answer to an older request
+            }
+            return latestOnlyGetListCallback.apply(this, arguments);
+        };
+
+
+        // ------------------------------------------------------------------
+        // Delete (new function; onDeleteConfirmed above is left as it was). The original
+        // called generalmaster/GuarantorPromotionalScheme/DeleteGuarantorPromotionalScheme,
+        // which does not exist in the API, so deleting a Draft scheme always failed. The API's
+        // own delete for promotional schemes is billing/PromotionalScheme/DeletePromotionalScheme
+        // (marks the scheme as deleted). handleEvents('delete') looks up
+        // $scope.onDeleteConfirmed when the confirmation is answered, so pointing it at the new
+        // function is enough.
+        // ------------------------------------------------------------------
+        $scope.deletePromotionalScheme = function (deleteId) {
+            utl.Http.doAction({
+                action: 'billing/PromotionalScheme/DeletePromotionalScheme',
+                data: { Id: deleteId },
+                type: 'post',
+                onComplete: $scope.deleteItemCallback
+            });
+        };
+        $scope.onDeleteConfirmed = $scope.deletePromotionalScheme;
+
+        // ------------------------------------------------------------------
+        // Status filter starts from page 1 (new code; handleReactAction above is unchanged).
+        // Changing the status while on page 2 or later used to keep that page number, so a
+        // status with fewer schemes showed an empty table even though it had records.
+        // ------------------------------------------------------------------
+        var pageResetHandleReactAction = $scope.handleReactAction;
+        $scope.handleReactAction = function (actionName, payload) {
+            if (actionName === 'statusChange') {
+                vm.gridConfig.pagerObj.currentPage = 1;
+            }
+            return pageResetHandleReactAction.apply(this, arguments);
+        };
+
         $scope.refreshReactProps();
         $scope.initLookup();
     }

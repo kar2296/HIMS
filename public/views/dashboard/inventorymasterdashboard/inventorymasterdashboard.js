@@ -271,6 +271,89 @@
 
 
 
+        // ------------------------------------------------------------------
+        // React view (new code only; the functions above are not changed).
+        // inventorymasterdashboard.html now mounts DashboardTilesScreen. Tiles, their order,
+        // privileges (HasAccess) and destinations are the same as the old template.
+        //
+        // Fixes made here:
+        // 1. The tiles showed numbers left over from the doctor dashboard (e.g. "Unit of
+        //    Measurement" showed today's appointment count, the others showed nothing). They are
+        //    not shown any more.
+        // 2. Opening the page sent three requests whose results were never shown: doctor
+        //    dashboard counts, facility dashboard options and today's encounter list (patient
+        //    data). They are no longer sent on open. The original functions are kept as
+        //    $scope.imdUnused.* in case anything needs them later.
+        // ------------------------------------------------------------------
+        var imdText = function (key, fallback) {
+            var text = $translate.instant(key);
+            return text && text !== key ? text : fallback;
+        };
+
+        // key, label key, fallback, icon, colour, privilege action (null = no check, as before), open
+        var imdTiles = [
+            ['producttype', 'appointment.doctordashboard.producttype.lbl', 'Product Type', 'fa fa-product-hunt', 'box-bg-color1', 'ProductType', $scope.producttype],
+            ['unitofmeasurement', 'appointment.doctordashboard.unitofmeasurement.lbl', 'Unit of Measurement', 'fa fa-percent', 'box-bg-color2', 'UnitofMeasurements', $scope.unitofmeasurement],
+            ['taxmaster', 'appointment.doctordashboard.taxmaster.lbl', 'Tax Master', 'fa fa-list', 'box-bg-color3', 'TaxMasters', $scope.taxmaster],
+            ['store', 'appointment.doctordashboard.store.lbl', 'Store', 'fa fa-file-text-o', 'box-bg-color4', 'Stores', $scope.store],
+            ['itemmaster', 'appointment.doctordashboard.itemmaster.lbl', 'Item Master', 'fa fa-scribd', 'box-bg-color5', 'InventoryItems', $scope.itemmaster],
+            ['suppliers', 'appointment.doctordashboard.suppliers.lbl', 'Suppliers', 'fa fa-money', 'box-bg-color6', 'Suplliers', $scope.suppliers],
+            ['generic', 'Generic Master', 'Generic Master', 'fa fa-bars', 'box-bg-color9', null, $scope.generic],
+            ['category', 'Category', 'Category', 'fa fa-bars', 'box-bg-color3', null, $scope.category],
+            ['subcategory', 'Sub Category', 'Sub Category', 'fa fa-bars', 'box-bg-color4', null, $scope.subcategory],
+            ['itemsupplierprices', 'appointment.doctordashboard.itemsupplierprices.lbl', 'Item Supplier Prices', 'fa fa-registered', 'box-bg-color7', 'ItemSupplierPrices', $scope.itemsupplierprices],
+            ['rack', 'appointment.doctordashboard.rack.lbl', 'Rack/Shelf/Tray', 'fa fa-briefcase', 'box-bg-color8', 'Rack/Self/Tray', $scope.rack],
+            ['reordersetup', 'appointment.doctordashboard.reordersetup.lbl', 'Reorder Setup', 'fa fa-bars', 'box-bg-color9', 'ReorderSetup', $scope.reordersetup]
+        ];
+
+        function imdVisibleTiles() {
+            return imdTiles.filter(function (tile) {
+                return !tile[5] || $scope.HasAccess('InventoryMastersDashboard', tile[5]);
+            });
+        }
+
+        $scope.buildInventoryDashboardReactProps = function () {
+            return {
+                title: imdText('appointment.doctordashboard.inventorydashboard.lbl', 'Inventory Masters'),
+                emptyText: 'You do not have access to any inventory masters.',
+                tiles: imdVisibleTiles().map(function (tile) {
+                    return { key: tile[0], label: imdText(tile[1], tile[2]), icon: tile[3], colorClass: tile[4] };
+                })
+            };
+        };
+
+        $scope.reactProps = $scope.buildInventoryDashboardReactProps();
+        $scope.$watch($scope.buildInventoryDashboardReactProps, function (props) {
+            $scope.reactProps = props;
+        }, true);
+
+        $scope.handleReactAction = function (actionName, payload) {
+            if (actionName !== 'open' || !payload) {
+                return;
+            }
+            var tile = imdVisibleTiles().filter(function (t) { return t[0] === payload.key; })[0];
+            if (!tile) {
+                return;
+            }
+            // React events arrive outside a digest; navigate inside one.
+            var phase = $scope.$root.$$phase;
+            if (phase === '$apply' || phase === '$digest') {
+                tile[6]();
+            } else {
+                $scope.$apply(tile[6]); // the same $scope function the old tile's ng-click called
+            }
+        };
+
+        // 2. Keep the unused requests out of the page load.
+        $scope.imdUnused = {
+            getddCount: $scope.getddCount,
+            GetFacilityDashboardOptions: $scope.GetFacilityDashboardOptions,
+            getOutPatientList: $scope.getOutPatientList
+        };
+        $scope.getddCount = angular.noop;
+        $scope.GetFacilityDashboardOptions = angular.noop;
+        $scope.getOutPatientList = angular.noop;
+
         $scope.getddCount();
         $scope.GetFacilityDashboardOptions();
         $scope.getOutPatientList();

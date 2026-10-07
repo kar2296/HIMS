@@ -18,6 +18,53 @@
             BillingStatusId: 1
         };
 
+        // React bridge initialization
+        $scope.refreshReactProps = function () {
+            $scope.reactProps = {
+                items: vm.gridConfig ? (vm.gridConfig.data || []) : [],
+                totalItems: (vm.gridConfig && vm.gridConfig.pagerObj) ? vm.gridConfig.pagerObj.totalItems : 0,
+                pageSize: (vm.gridConfig && vm.gridConfig.pagerObj) ? vm.gridConfig.pagerObj.pageSize : 25,
+                currentPage: (vm.gridConfig && vm.gridConfig.pagerObj) ? vm.gridConfig.pagerObj.currentPage : 1,
+                lookup: $scope.lookup || {},
+                currentfilter: angular.copy($scope.currentfilter),
+                loading: false
+            };
+        };
+        $scope.refreshReactProps();
+
+        $scope.handleReactAction = function (actionName, payload) {
+            if (actionName === 'filterChange') {
+                if (payload) {
+                    if (payload.FromDate) $scope.currentfilter.FromDate = payload.FromDate;
+                    if (payload.ToDate) $scope.currentfilter.ToDate = payload.ToDate;
+                    if (payload.DoctorId !== undefined) $scope.currentfilter.DoctorId = payload.DoctorId;
+                    if (payload.DepartmentId !== undefined) $scope.currentfilter.DepartmentId = payload.DepartmentId;
+                    if (payload.BillingStatusId !== undefined) $scope.currentfilter.BillingStatusId = payload.BillingStatusId;
+                    if (payload.patientname !== undefined) $scope.currentfilter.patientname = payload.patientname;
+                }
+                if (vm.gridConfig && vm.gridConfig.pagerObj) {
+                    vm.gridConfig.pagerObj.currentPage = 1;
+                }
+                $scope.getList();
+            } else if (actionName === 'pageChange') {
+                if (payload) {
+                    if (payload.currentPage && vm.gridConfig && vm.gridConfig.pagerObj) {
+                        vm.gridConfig.pagerObj.currentPage = payload.currentPage;
+                    }
+                    if (payload.pageSize && vm.gridConfig && vm.gridConfig.pagerObj) {
+                        vm.gridConfig.pagerObj.pageSize = payload.pageSize;
+                    }
+                }
+                $scope.getList();
+            } else if (actionName === 'billing') {
+                $scope.handleEvents('billing', payload);
+            } else if (actionName === 'patientinfo') {
+                $scope.handleEvents('patientinfo', payload);
+            } else if (actionName === 'refresh') {
+                $scope.getList();
+            }
+        };
+
 
         // $scope.getListCallback = function (scope, data, options, hasError) {
         //     vm.gridConfig.data = [];
@@ -102,7 +149,7 @@
                 }
             }
             vm.gridConfig.pagerObj.totalItems = res.PageContext.TotalRecords;
-
+            $scope.refreshReactProps();
         };
 
         // $scope.getList = function () {
@@ -349,11 +396,14 @@
 
         $scope.handleEvents = function (actionType, entity) {
             if (actionType == 'billing') {
+                var eid = entity.EncounterId || (entity.Encounter && entity.Encounter.Id) || entity.Id;
+                var pid = entity.PatientId || (entity.Patient && entity.Patient.Id);
+                var did = entity.DoctorId || (entity.Doctor && entity.Doctor.Id);
                 utl.Modal.open('app.updateconsbilling', {
                     params: {
-                        eid: entity.EncounterId,
-                        pid: entity.PatientId,
-                        did: entity.DoctorId,
+                        eid: eid,
+                        pid: pid,
+                        did: did,
                         tp: 'OP'
                     },
                     confirmCallback: $scope.getList
@@ -466,6 +516,7 @@
         }
         $scope.lookupCallback = function (scope, data, options, hasError) {
             $scope.lookup = hasError ? {} : data;
+            $scope.refreshReactProps();
             $scope.getList();
         }
 

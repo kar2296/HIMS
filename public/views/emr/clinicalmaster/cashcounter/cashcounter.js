@@ -2297,6 +2297,260 @@
             utl.Http.doAction(options);
         };
 
+        // ------------------------------------------------------------------
+        // React view bridge (CashCounterScreen). New code only: no function above was
+        // changed. The view model is rebuilt from $scope on every digest, so whatever the
+        // existing functions and HTTP callbacks change is shown without wrapping them. User
+        // input goes through handleReactAction to the same $scope functions the AngularJS
+        // template called.
+        // ------------------------------------------------------------------
+        function ccText(value) {
+            return value === null || value === undefined ? '' : String(value);
+        }
+
+        // lookupCallback builds item.UserName as Title + FirstName + LastName, so a user without a
+        // last name (or title) was shown as e.g. "Mr. Ravi null". Missing parts are dropped here.
+        function ccPersonName(value) {
+            return ccText(value).replace(/\b(null|undefined)\b/g, '').replace(/\s+/g, ' ').trim();
+        }
+
+        function ccDateTime(value) {
+            return value ? ($filter('date')(value, 'yyyy-MM-ddTHH:mm') || '') : '';
+        }
+
+        function ccCurrency(value) {
+            return $filter('displaycurrency')(value);
+        }
+
+        // Lookup id for a select: null when unset or not a number (the session department id
+        // can be NaN when parseInt gets nothing).
+        function ccId(value) {
+            return typeof value === 'number' && isFinite(value) ? value : null;
+        }
+
+        function ccLabel(key) {
+            return $translate.instant(key);
+        }
+
+        $scope.buildCashCounterReactProps = function () {
+            var item = $scope.item;
+            var cell = function (key, value, opts) {
+                return angular.extend({ label: ccLabel(key), value: ccCurrency(value) }, opts || {});
+            };
+            var neg = function (key, value) {
+                return { label: ccLabel(key), value: '-' + ccCurrency(value), negative: true };
+            };
+            return {
+                labels: {
+                    title: ccLabel('billing.cashcounter.cashcounter.lbl'),
+                    opening: ccLabel('billing.cashcounter.opening.lbl'),
+                    startDateTime: ccLabel('billing.cashcounter.startdateandtime.lbl'),
+                    department: ccLabel('billing.cashcounter.department.lbl'),
+                    counter: ccLabel('billing.cashcounter.counter.lbl'),
+                    openingBalance: ccLabel('billing.cashcounter.openingbalance.lbl'),
+                    closing: ccLabel('billing.cashcounter.closing.lbl'),
+                    endDateTime: ccLabel('billing.cashcounter.enddateandtime.lbl'),
+                    closingBalance: ccLabel('billing.cashcounter.closingbalance.lbl'),
+                    remarks: ccLabel('billing.cashcounter.remarks.lbl'),
+                    cancelBills: ccLabel('billing.cashcounter.cancelbills.lbl'),
+                    billReceiptNo: ccLabel('billing.cashcounter.billreceiptno.lbl'),
+                    cancelAmount: ccLabel('billing.cashcounter.cancelamount.lbl'),
+                    reason: ccLabel('billing.cashcounter.reason.lbl'),
+                    denominations: ccLabel('billing.cashcounter.denominations.lbl'),
+                    denomination: ccLabel('billing.cashcounter.denomination.lbl'),
+                    number: ccLabel('billing.cashcounter.number.lbl'),
+                    amount: ccLabel('billing.cashcounter.amount.lbl'),
+                    netAmount: ccLabel('billing.billingcounter.amount.lbl'),
+                    closingCash: ccLabel('billing.cashsubmission.closingcash.lbl'),
+                    difference: ccLabel('billing.cashsubmission.difference.lbl'),
+                    back: ccLabel('common.backaction.lbl'),
+                    save: ccLabel('common.saveaction.lbl'),
+                    submit: ccLabel('common.submit.lbl'),
+                    print: ccLabel('Print'),
+                    start: 'Start',
+                    stop: 'Stop',
+                    revert: 'Revert'
+                },
+                header: {
+                    userName: ccPersonName(item.UserName),
+                    counterName: ccText(item.CounterName),
+                    counterStatus: ccText(item.CounterStatus)
+                },
+                item: {
+                    openingDate: ccDateTime(item.OpeningDate),
+                    closingDate: ccDateTime(item.ClosingDate),
+                    departmentId: ccId(item.DepartmentId),
+                    billingCounterId: ccId(item.BillingCounterId),
+                    openingBalance: ccText(item.OpeningBalance),
+                    closingBalance: ccText(item.ClosingBalance),
+                    comments: ccText(item.Comments),
+                    differenceAmount: ccText(item.DifferenceAmount),
+                    denominationsNetCount: ccText(item.DenominationsNetCount),
+                    denominationsNetTotal: ccText(item.DenominationsNetTotal),
+                    submitted: !!item.SubmittedStatus
+                },
+                lookup: {
+                    Department: $scope.lookup.Department || [],
+                    BillingCounter: $scope.lookup.BillingCounter || []
+                },
+                denominations: ($scope.DefinedDenominations || []).map(function (d) {
+                    return { name: ccText(d.DenominationName), count: ccText(d.DenominationCount), total: ccText(d.DenominationTotal) };
+                }),
+                cancelled: ($scope.UserCounterCancelledReceipts || []).map(function (c) {
+                    return {
+                        billReceipt: c.BillNumber ? c.BillNumber + ' / ' + ccText(c.ReceiptNumber) : ccText(c.ReceiptNumber),
+                        amount: ccCurrency(c.CancelledAmount),
+                        reason: ccText(c.CancelledReason)
+                    };
+                }),
+                busy: !!$scope.ccBusy,
+                flags: {
+                    start: !!$scope.canShowStartBtn,
+                    close: !!$scope.canShowCloseBtn,
+                    revert: !!$scope.canShowRevertBtn,
+                    save: !!$scope.canShowSaveBtn,
+                    submit: !!$scope.canShowSubmitBtn,
+                    print: !!$scope.canShowPrintBtn
+                },
+                banner: [
+                    [cell('billing.billingcollections.totalcash.lbl', $scope.TotalCashSales), cell('billing.billingcollections.totalcard.lbl', $scope.TotalCardSales),
+                        cell('billing.billingcollections.totalcheque.lbl', $scope.TotalChequeOtherSales), cell('NetBanking Sales', $scope.TotalNetBankingSales),
+                        cell('UPI Sales', $scope.TotalUPISales), cell('Afford Sales', $scope.TotalAffordSales)],
+                    [cell('Advance Adj Cash', $scope.TotalCashAdvanceAdj), cell('Advance Adj Card', $scope.TotalCardAdvanceAdj),
+                        cell('Advance Adj Cheque', $scope.TotalChequeOtherAdvanceAdj), cell('Advance Adj NetBanking', $scope.TotalNetBankingAdvanceAdj),
+                        cell('Advance Adj UPI', $scope.TotalUPIAdvanceAdj), cell('Advance Adj Afford', $scope.TotalAffordAdvanceAdj)],
+                    [neg('billing.billingcollections.refundcash.lbl', $scope.TotalCashRefunds), neg('billing.billingcollections.refundcard.lbl', $scope.TotalCardRefunds),
+                        neg('billing.billingcollections.refundcheque.lbl', $scope.TotalChequeOtherRefunds), neg('Refunds NetBanking', $scope.TotalNetBankingRefunds),
+                        neg('Refunds UPI', $scope.TotalUPIRefunds), neg('Refunds Afford', $scope.TotalAffordRefunds)],
+                    [cell('billing.billingcollections.cashcancelled.lbl', $scope.TotalCashCancels), cell('billing.billingcollections.cardcancelled.lbl', $scope.TotalCardCancels),
+                        cell('billing.billingcollections.othercancelled.lbl', $scope.TotalChequeOtherCancels), cell('NetBanking Cancels', $scope.TotalNetBankingCancels),
+                        cell('UPI Cancels', $scope.TotalUPICancels), cell('Afford Cancels', $scope.TotalAffordCancels)],
+                    [neg('Expense Cash', $scope.TotalExpCashSales), neg('Expense Card', $scope.TotalExpCardSales),
+                        neg('Expense Others', $scope.TotalExpChequeOtherSales), neg('Expense NetBanking', $scope.TotalExpNetBankingSales),
+                        neg('Expense UPI', $scope.TotalExpUPISales), neg('Expense Afford', $scope.TotalExpAffordSales)],
+                    [cell('billing.billingcollections.netcash.lbl', $scope.NetCash), cell('billing.billingcollections.netcard.lbl', $scope.NetCard),
+                        cell('billing.billingcollections.netothers.lbl', $scope.NetChequeOther), cell('Net NetBanking', $scope.NetNetBanking),
+                        cell('Net UPI', $scope.NetUPI), cell('Net Afford', $scope.NetAfford)],
+                    [cell('billing.billingcollections.netsubmission.lbl', $scope.NetSubmission, { highlight: true }),
+                        cell('Shortage Amount', item.DifferenceAmount, { highlight: true })]
+                ]
+            };
+        };
+
+        // ------------------------------------------------------------------
+        // One save at a time. Start, Stop, Revert, Save and Submit all end in saveItem(). While a
+        // save is on its way the actions are ignored and shown disabled, so a second click (double
+        // click, slow network) can no longer send a second Add and create a duplicate running
+        // counter. The existing functions are wrapped, not changed.
+        // ------------------------------------------------------------------
+        $scope.ccBusy = false;
+        var ccBusyTimer = null;
+
+        function ccSetBusy(busy) {
+            $scope.ccBusy = busy;
+            if (ccBusyTimer) {
+                clearTimeout(ccBusyTimer);
+                ccBusyTimer = null;
+            }
+            if (busy) {
+                // Safety net: a failed request with no response body calls no callback.
+                ccBusyTimer = setTimeout(function () {
+                    $scope.$evalAsync(function () { $scope.ccBusy = false; });
+                }, 60000);
+            }
+        }
+
+        var ccOriginalSaveItem = $scope.saveItem;
+        $scope.saveItem = function () {
+            if ($scope.ccSaveInFlight) {
+                return;
+            }
+            $scope.ccSaveInFlight = true;
+            ccSetBusy(true);
+            return ccOriginalSaveItem.apply(this, arguments);
+        };
+
+        var ccOriginalSaveItemCallback = $scope.saveItemCallback;
+        $scope.saveItemCallback = function () {
+            $scope.ccSaveInFlight = false;
+            ccSetBusy(false);
+            return ccOriginalSaveItemCallback.apply(this, arguments);
+        };
+
+        // saveItem() already passes onError: $scope.errorItemCallback, which was never defined.
+        // Defining it changes one thing in the app's HTTP helper: an error that carries an
+        // Error.Code is handed here instead of being shown by the helper, so the same translated
+        // message is shown here. Errors with only a Message are still shown by the helper.
+        $scope.errorItemCallback = function (data) {
+            $scope.ccSaveInFlight = false;
+            ccSetBusy(false);
+            if (data && data.Error && data.Error.Code) {
+                utl.Alert.showErrorMsg($translate.instant('common.errors.' + data.Error.Code + '.lbl'));
+            }
+        };
+
+        // Stop runs five reads before it saves; mark the screen busy from the confirmation.
+        var ccOriginalOnCloseConfirmed = $scope.onCloseConfirmed;
+        $scope.onCloseConfirmed = function () {
+            ccSetBusy(true);
+            return ccOriginalOnCloseConfirmed.apply(this, arguments);
+        };
+
+        $scope.reactProps = $scope.buildCashCounterReactProps();
+        $scope.$watch(function () {
+            return $scope.buildCashCounterReactProps();
+        }, function (props) {
+            $scope.reactProps = props;
+        }, true);
+
+        // datetime-local value ("yyyy-MM-ddTHH:mm", local time) -> Date, as the AngularJS
+        // date-time picker stored it. An empty or invalid value is stored as null.
+        function ccParseDateTime(value) {
+            var m = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/.exec(value || '');
+            return m ? new Date(+m[1], +m[2] - 1, +m[3], +m[4], +m[5]) : null;
+        }
+
+        $scope.handleReactAction = function (action, payload) {
+            payload = payload || {};
+            var ccSaveActions = ['start', 'close', 'revert', 'save', 'submit'];
+            $scope.$evalAsync(function () {
+                if ($scope.ccBusy && ccSaveActions.indexOf(action) !== -1) {
+                    return; // a save is already in progress
+                }
+                switch (action) {
+                    case 'setOpeningDate':
+                        $scope.item.OpeningDate = ccParseDateTime(payload.value);
+                        break;
+                    case 'setClosingDate':
+                        $scope.item.ClosingDate = ccParseDateTime(payload.value);
+                        break;
+                    case 'setBillingCounter':
+                        $scope.item.BillingCounterId = payload.value;
+                        break;
+                    case 'setOpeningBalance':
+                        $scope.item.OpeningBalance = payload.value;
+                        break;
+                    case 'setComments':
+                        $scope.item.Comments = payload.value;
+                        break;
+                    case 'setDenominationCount':
+                        var denomination = $scope.DefinedDenominations[payload.index];
+                        if (denomination && !$scope.item.SubmittedStatus) {
+                            denomination.DenominationCount = payload.value;
+                            $scope.CalculateTotal(denomination);
+                        }
+                        break;
+                    case 'start': $scope.Start(); break;
+                    case 'close': $scope.Close(); break;
+                    case 'revert': $scope.Revert(); break;
+                    case 'save': $scope.Save(); break;
+                    case 'submit': $scope.Submit(); break;
+                    case 'print': $scope.print(); break;
+                    case 'back': $scope.backToList(); break;
+                }
+            });
+        };
+
         $scope.initLookup();
     }
 

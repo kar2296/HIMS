@@ -139,6 +139,211 @@
             utl.Http.doAction(options);
         }
 
+        // ------------------------------------------------------------------
+        // React view (new code only; the functions above are not changed).
+        // wardmaster-list.html now mounts the shared MasterListScreen. This controller still
+        // loads the lookups, runs GetWardMasters, confirms and runs DeleteWardMaster, and opens
+        // the ward tabs (details, user association, rooms).
+        //
+        // Fixes made here:
+        // 1. Status can be set to "All" (-1, which the API ignores); the old drop-down had no
+        //    such entry.
+        // 2. Changing the status or searching starts from page 1. Before, the page number was
+        //    kept, so a smaller result showed an empty table.
+        // 3. Only the answer to the latest list request is shown. Changing the status quickly
+        //    sends several requests; an older answer that arrived last used to replace the newer one.
+        // 4. Deleting the last ward on the last page moves back one page instead of showing an
+        //    empty table.
+        // 5. A loading message is shown while the list is being fetched, and "No records" when
+        //    nothing matches.
+        // ------------------------------------------------------------------
+        var wmLoading = false;
+        var wmLoadingTimer = null;
+        var wmRequestNo = 0;
+
+        function wmText(key, fallback) {
+            var text = $translate.instant(key);
+            return text && text !== key ? text : fallback;
+        }
+
+        function wmFilterId(value) {
+            return value === undefined || value === null || value === '' ? -1 : value;
+        }
+
+        function wmSetLoading(loading) {
+            wmLoading = loading;
+            if (wmLoadingTimer) {
+                clearTimeout(wmLoadingTimer);
+                wmLoadingTimer = null;
+            }
+            if (loading) {
+                // Safety net: a request that fails without a response calls no callback.
+                wmLoadingTimer = setTimeout(function () {
+                    $scope.$evalAsync(function () { wmSetLoading(false); });
+                }, 60000);
+            }
+        }
+
+        // Same visibility rules as the old grid's action column.
+        function wmRowActions(entity) {
+            var status = entity.ActiveStatusId;
+            var actions = [];
+            if (status == 1 || status == 2 || status == 3) {
+                actions.push({ action: 'edit', title: 'Edit', icon: 'edit' });
+            }
+            if (status == 2) {
+                actions.push({ action: 'user', title: 'User Association', icon: 'fas fa-handshake' });
+                actions.push({ action: 'room', title: 'Room', icon: 'fas fa-person-booth' });
+            }
+            if (status == 1 || status == 3) {
+                actions.push({ action: 'delete', title: 'Delete', icon: 'delete' });
+            }
+            return actions;
+        }
+
+        $scope.buildWardMasterListReactProps = function () {
+            var lookup = $scope.lookup || {};
+            var data = vm.gridConfig.data || [];
+            var pager = vm.gridConfig.pagerObj;
+            return {
+                id: 'wardmasterlist',
+                labels: {
+                    title: wmText('generalmaster.wardmaster-list.pagetitle.lbl', 'Ward Master'),
+                    searchPlaceholder: wmText('generalmaster.wardmaster-list.filter_name.lbl', 'Name/Code'),
+                    addTooltip: wmText('generalmaster.wardmaster-list.pagetitle.lbl', 'Ward Master'),
+                    colActions: wmText('common.actions_col.lbl', 'Actions'),
+                    loading: 'Loading...',
+                    noRecords: 'No records found'
+                },
+                search: { value: $scope.currentfilter.WardName || '' },
+                filters: [
+                    {
+                        key: 'ActiveStatusId', allLabel: 'All', value: wmFilterId($scope.currentfilter.ActiveStatusId),
+                        label: wmText('generalmaster.wardmaster-list.filter_status.lbl', 'Status'), options: lookup.ActiveStatus || []
+                    }
+                ],
+                columns: [
+                    { key: 'code', label: wmText('generalmaster.wardmaster-list.code.lbl', 'Code') },
+                    { key: 'wardName', label: wmText('generalmaster.wardmaster-list.name.lbl', 'Ward Name') },
+                    { key: 'location', label: wmText('generalmaster.wardmaster-list.location.lbl', 'Location') },
+                    { key: 'status', label: wmText('generalmaster.wardmaster-list.status.lbl', 'Status') }
+                ],
+                rows: data.map(function (entity, index) {
+                    return {
+                        index: index,
+                        cells: {
+                            code: entity.Code || '',
+                            wardName: entity.WardName || '',
+                            location: (entity.LocationMaster && entity.LocationMaster.LocationName) || '',
+                            status: (entity.ActiveStatus && entity.ActiveStatus.Description) || ''
+                        },
+                        actions: wmRowActions(entity)
+                    };
+                }),
+                pager: {
+                    totalItems: pager.totalItems || 0,
+                    currentPage: pager.currentPage || 1,
+                    pageSize: pager.pageSize || 25
+                },
+                loading: wmLoading
+            };
+        };
+
+        $scope.reactProps = $scope.buildWardMasterListReactProps();
+        $scope.$watch($scope.buildWardMasterListReactProps, function (props) {
+            $scope.reactProps = props;
+        }, true);
+
+        function wmSearchFromFirstPage() {
+            vm.gridConfig.pagerObj.currentPage = 1;
+            $scope.getList();
+        }
+
+        $scope.handleReactAction = function (actionName, payload) {
+            payload = payload || {};
+            $scope.$evalAsync(function () {
+                switch (actionName) {
+                    case 'setSearch':
+                        $scope.currentfilter.WardName = payload.value;
+                        break;
+                    case 'search':
+                        wmSearchFromFirstPage();
+                        break;
+                    case 'setFilter':
+                        if (payload.key === 'ActiveStatusId') {
+                            $scope.currentfilter.ActiveStatusId = payload.value;
+                            wmSearchFromFirstPage();
+                        }
+                        break;
+                    case 'page':
+                        vm.gridConfig.pagerObj.currentPage = payload.page;
+                        $scope.getList();
+                        break;
+                    case 'addNew':
+                        $scope.addNew();
+                        break;
+                    case 'rowAction':
+                        var entity = (vm.gridConfig.data || [])[payload.index];
+                        var allowed = entity ? wmRowActions(entity).map(function (a) { return a.action; }) : [];
+                        if (allowed.indexOf(payload.action) >= 0) {
+                            $scope.handleEvents(payload.action, entity);
+                        }
+                        break;
+                }
+            });
+        };
+
+        // Latest request only, plus the loading state.
+        var wmOriginalGetList = $scope.getList;
+        $scope.getList = function () {
+            var requestNo = ++wmRequestNo;
+            wmSetLoading(true);
+            var originalDoAction = utl.Http.doAction;
+            utl.Http.doAction = function (options) {
+                if (options) {
+                    options.listRequestNo = requestNo;
+                    options.onError = wmListError;
+                }
+                return originalDoAction.apply(this, arguments);
+            };
+            try {
+                return wmOriginalGetList.apply(this, arguments);
+            } finally {
+                utl.Http.doAction = originalDoAction;
+            }
+        };
+
+        // Called by the HTTP helper when the list request fails. With onError set the helper no
+        // longer shows the message for an error code itself, so it is shown here.
+        function wmListError(data, options) {
+            $scope.$evalAsync(function () {
+                if (options && options.listRequestNo !== wmRequestNo) {
+                    return; // failure of an older request
+                }
+                wmSetLoading(false);
+                if (data && data.Error && data.Error.Code) {
+                    utl.Alert.showErrorMsg($translate.instant('common.errors.' + data.Error.Code + '.lbl'));
+                }
+            });
+        }
+
+        var wmOriginalGetListCallback = $scope.getListCallback;
+        $scope.getListCallback = function (scope, res, options, hasError) {
+            if (options && options.listRequestNo !== undefined && options.listRequestNo !== wmRequestNo) {
+                return; // answer to an older request
+            }
+            wmSetLoading(false);
+            var result = wmOriginalGetListCallback.apply(this, arguments);
+            var pager = vm.gridConfig.pagerObj;
+            var total = pager.totalItems || 0;
+            var lastPage = Math.max(1, Math.ceil(total / (pager.pageSize || 25)));
+            if ((!res || !res.Data || res.Data.length === 0) && total > 0 && pager.currentPage > lastPage) {
+                pager.currentPage = lastPage; // e.g. the only ward on the last page was deleted
+                $scope.getList();
+            }
+            return result;
+        };
+
         $scope.initLookup();
     }
 

@@ -57,6 +57,171 @@
             $scope.confirmCallback = $uibModalInstance.close;
             $scope.cancelCallback = $uibModalInstance.dismiss;
         }
+
+        // React bridge initialization
+        $scope.refreshReactProps = function () {
+            $scope.reactProps = {
+                item: angular.copy($scope.item) || {},
+                currentcontext: angular.copy($scope.currentcontext) || {},
+                currentfilter: angular.copy($scope.currentfilter) || {},
+                selectedPatient: angular.copy($scope.selectedPatient) || {},
+                PatientBillDetails: angular.copy($scope.PatientBillDetails) || [],
+                lookup: $scope.lookup || {},
+                PaymentInfoDetails: $scope.PaymentInfoDetails || [],
+                canShowSaveBtn: $scope.canShowSaveBtn !== false,
+                canShowSaveapproveBtn: $scope.canShowSaveapproveBtn !== false,
+                isModal: true
+            };
+            if (!$scope.$$phase && !$rootScope.$$phase) {
+                $scope.$applyAsync();
+            }
+        };
+        $scope.refreshReactProps();
+
+        $scope.$watch('selectedPatient', function (newVal) {
+            if (newVal && newVal.FirstName) {
+                $scope.refreshReactProps();
+            }
+        }, true);
+
+        $scope.$watch('currentcontext.DoctorName', function (newVal) {
+            if (newVal) {
+                $scope.refreshReactProps();
+            }
+        });
+
+        $scope.$watch('PatientBillDetails', function (newVal) {
+            if (newVal) {
+                $scope.refreshReactProps();
+            }
+        }, true);
+
+        $scope.loadDefaultConsultationService = function () {
+            // Default service should remain empty as per requirement
+        };
+
+        $scope.handleReactAction = function (actionName, payload) {
+            if (actionName === 'close') {
+                if ($scope.cancelCallback) {
+                    $scope.cancelCallback();
+                } else if ($uibModalInstance && $uibModalInstance.dismiss) {
+                    $uibModalInstance.dismiss();
+                }
+            } else if (actionName === 'save') {
+                if (payload) {
+                    if (payload.remarks !== undefined) $scope.item.Comments = payload.remarks;
+                    if (payload.receiptAmount !== undefined) {
+                        var saveAmt = parseFloat(payload.receiptAmount) || 0;
+                        $scope.item.Received = saveAmt;
+                        $scope.currentcontext.ReceiptAmt = saveAmt;
+                        if ($scope.CalculateNetAmt) {
+                            $scope.CalculateNetAmt();
+                        } else {
+                            $scope.currentcontext.TotBalanceAmt = parseFloat($scope.currentcontext.TotNetAmount || 0) - saveAmt;
+                        }
+                    }
+                    if (payload.paymentTypeId !== undefined) $scope.currentcontext.PaymentTypeId = payload.paymentTypeId;
+                }
+                $scope.completeBill($scope.saveDraft);
+            } else if (actionName === 'saveAndApprove') {
+                if (payload) {
+                    if (payload.remarks !== undefined) $scope.item.Comments = payload.remarks;
+                    if (payload.receiptAmount !== undefined) {
+                        var approveAmt = parseFloat(payload.receiptAmount) || 0;
+                        $scope.item.Received = approveAmt;
+                        $scope.currentcontext.ReceiptAmt = approveAmt;
+                        if ($scope.CalculateNetAmt) {
+                            $scope.CalculateNetAmt();
+                        } else {
+                            $scope.currentcontext.TotBalanceAmt = parseFloat($scope.currentcontext.TotNetAmount || 0) - approveAmt;
+                        }
+                    }
+                    if (payload.paymentTypeId !== undefined) $scope.currentcontext.PaymentTypeId = payload.paymentTypeId;
+                }
+                $scope.completeBill($scope.saveAndApprove);
+            } else if (actionName === 'receiptAmountChange') {
+                var rAmt = parseFloat(payload) || 0;
+                $scope.currentcontext.ReceiptAmt = rAmt;
+                $scope.item.Received = rAmt;
+                if ($scope.CalculateNetAmt) {
+                    $scope.CalculateNetAmt();
+                } else {
+                    $scope.currentcontext.TotBalanceAmt = parseFloat($scope.currentcontext.TotNetAmount || 0) - rAmt;
+                }
+                $scope.refreshReactProps();
+            } else if (actionName === 'updateReceiptAmt') {
+                $scope.updateReceiptAmt();
+                $scope.refreshReactProps();
+            } else if (actionName === 'addNewBill') {
+                $scope.addNewBill();
+            } else if (actionName === 'findBill') {
+                $scope.findBill();
+            } else if (actionName === 'outstandingBill') {
+                $scope.outstandingBill();
+            } else if (actionName === 'deleteService') {
+                if (payload && payload.index !== undefined && $scope.PatientBillDetails) {
+                    $scope.deletePatientBillDetails(payload.index, $scope.PatientBillDetails[payload.index]);
+                    $scope.refreshReactProps();
+                }
+            } else if (actionName === 'serviceRowChange') {
+                if (payload && payload.index !== undefined && $scope.PatientBillDetails && $scope.PatientBillDetails[payload.index]) {
+                    var target = $scope.PatientBillDetails[payload.index];
+                    if (payload.row) {
+                        target.Quantity = payload.row.Quantity !== undefined ? payload.row.Quantity : target.Quantity;
+                        target.Rate = payload.row.Rate !== undefined ? payload.row.Rate : target.Rate;
+                        target.Amount = payload.row.Amount !== undefined ? payload.row.Amount : target.Amount;
+                        target.DiscountAmount = payload.row.DiscountAmount !== undefined ? payload.row.DiscountAmount : target.DiscountAmount;
+                        target.GSTAmount = payload.row.GSTAmount !== undefined ? payload.row.GSTAmount : target.GSTAmount;
+                        target.NetAmount = payload.row.NetAmount !== undefined ? payload.row.NetAmount : target.NetAmount;
+                        if (payload.row.ExecDoctorId) target.ExecDoctorId = payload.row.ExecDoctorId;
+                    }
+                    $scope.CalcualteAmt(target);
+                    $scope.refreshReactProps();
+                }
+            } else if (actionName === 'selectService') {
+                if (payload && payload.index !== undefined && payload.service) {
+                    var idx = payload.index;
+                    while ($scope.PatientBillDetails.length <= idx) {
+                        $scope.addNewLineItem();
+                    }
+                    var sRow = $scope.PatientBillDetails[idx];
+                    sRow.ServiceId = payload.service.ServiceItemId || payload.service.Id || '';
+                    sRow.SelectedItem = payload.service;
+                    sRow.ServiceName = payload.service.Name || payload.service.ServiceName || '';
+                    sRow.ServiceCode = payload.service.ItemCode || payload.service.ServiceCode || '';
+                    sRow.ServiceCategoryId = payload.service.CategoryId || payload.service.ServiceCategoryId || 0;
+                    sRow.ServiceGroupId = payload.service.GroupId || payload.service.ServiceGroupId || 0;
+                    sRow.DepartmentId = payload.service.DepartmentId || 0;
+                    sRow.Status = 1;
+                    if (payload.rate !== undefined) {
+                        sRow.Rate = payload.rate;
+                    }
+                    if (payload.service.ExecDoctorId) {
+                        sRow.ExecDoctorId = payload.service.ExecDoctorId;
+                    }
+                    $scope.ServiceItemChanged(idx, sRow);
+                    if ($scope.PatientBillDetails.length === idx + 1) {
+                        $scope.addNewLineItem();
+                    }
+                    $scope.refreshReactProps();
+                }
+            } else if (actionName === 'addNewLineItem') {
+                $scope.addNewLineItem();
+                $scope.refreshReactProps();
+            } else if (actionName === 'rateCategoryChange') {
+                if (payload) {
+                    $scope.currentfilter.ServiceRateCategoryId = payload;
+                    if ($scope.ServiceRateCatChange) {
+                        $scope.ServiceRateCatChange();
+                    }
+                    $scope.refreshReactProps();
+                }
+            } else if (actionName === 'pendingOrders') {
+                $scope.pendingOrder();
+            } else if (actionName === 'pendingBills') {
+                $scope.getBillInfoByPatientID();
+            }
+        };
         var savehitcompleted = 0;
 
         $scope.autosearchpopup = 0;
@@ -464,6 +629,7 @@
             $scope.getPatientPendingOrdersCount();
             $scope.initLookup();
             $scope.getInsurancelookup();
+            $scope.refreshReactProps();
         };
 
         $scope.patientChange = function () {
@@ -1147,6 +1313,12 @@
         };
 
         $scope.ServiceItemChanged = function (idx, item) {
+            if ($scope.PatientBillDetails && $scope.PatientBillDetails.length > 0) {
+                $scope.PatientBillDetails.forEach(function(r) {
+                    if (r.ServiceId === undefined || r.ServiceId === null) r.ServiceId = '';
+                    if (r.ServiceName === undefined || r.ServiceName === null) r.ServiceName = '';
+                });
+            }
             var isDuplicate = utl.Common.isDuplicateRec($scope.PatientBillDetails, {
                 pivotkey: 'ServiceId',
                 displaykey: 'ServiceName'
@@ -1317,7 +1489,7 @@
                 if (ServiceItemobj.IsPackage) {
                     item.ServiceItemPackageMaps = ServiceItemobj.ServiceItemPackageMaps;
                 }
-                if (ServiceItemobj.IsPackage && ServiceItemobj.IsSaveServiceDetails) {
+                if (ServiceItemobj.IsPackage && ServiceItemobj.IsSaveServiceDetails && ServiceItemobj.ServiceItemPackageMaps) {
                     for (var packid in ServiceItemobj.ServiceItemPackageMaps) {
                         var packitem = ServiceItemobj.ServiceItemPackageMaps[packid];
                         if (packitem.Formula && packitem.DoctorId) {
@@ -1360,21 +1532,24 @@
             $scope.getBillInfoDetails(ServiceItemobj);
         };
         $scope.getDuplicateordererror = function (ServiceItemobj) {
-            if ($scope.PatientBillDetails.length > 0) {
+            if ($scope.PatientBillDetails && $scope.PatientBillDetails.length > 0) {
+                var Servicepackages = [];
                 for (var pdx in $scope.PatientBillDetails) {
                     var BillDetailData = $scope.PatientBillDetails[pdx];
-                    if (BillDetailData.IsPackageItem) {
-                        var Servicepackages = BillDetailData.ServiceItemPackageMaps;
+                    if (BillDetailData && BillDetailData.IsPackageItem) {
+                        Servicepackages = BillDetailData.ServiceItemPackageMaps || [];
                     }
-                    if (!BillDetailData.IsPackageItem) {
-                        if (Servicepackages.length > 0) {
+                    if (BillDetailData && !BillDetailData.IsPackageItem) {
+                        if (Servicepackages && Servicepackages.length > 0) {
                             for (var sdx in Servicepackages) {
                                 var servicePackmapItem = Servicepackages[sdx];
-                                if (servicePackmapItem.ServiceId == BillDetailData.ServiceId) {
+                                if (servicePackmapItem && servicePackmapItem.ServiceId == BillDetailData.ServiceId) {
                                     utl.Alert.showErrorMsg($translate.instant('Item Already included in packages'));
                                     var index = $scope.PatientBillDetails.indexOf(BillDetailData);
                                     BillDetailData.Status = 2;
-                                    $scope.DeletedPatientBills.push(BillDetailData);
+                                    if ($scope.DeletedPatientBills) {
+                                        $scope.DeletedPatientBills.push(BillDetailData);
+                                    }
                                     $scope.PatientBillDetails.splice(index, 1);
                                 }
                             }
@@ -1382,7 +1557,7 @@
                     }
                 }
             }
-        }
+        };
         $scope.CalculateDoctorShare = function (DoctorClassId, DrShareDetailInfo, DrIncludeTax) {
             if ($scope.PatientBillDetails.length > 0) {
                 var itemwiseGrossAmt = 0;
@@ -3344,9 +3519,9 @@
             // $scope.GuarantorTypeChange({
             //     Id: $scope.currentfilter.GuarantorTypeId
             // })
-            // $scope.doctorChange();
             $scope.addNewLineItem();
             $scope.getAvailableAmount();
+            $scope.refreshReactProps();
         };
 
         $scope.getAvailableAmount = function () {
@@ -4226,6 +4401,15 @@
                             }
                         }
                     }
+                    if (!item.ServiceCategoryId && item.SelectedItem) {
+                        item.ServiceCategoryId = item.SelectedItem.CategoryId || item.SelectedItem.ServiceCategoryId || 0;
+                    }
+                    if (!item.ServiceGroupId && item.SelectedItem) {
+                        item.ServiceGroupId = item.SelectedItem.GroupId || item.SelectedItem.ServiceGroupId || 0;
+                    }
+                    if (!item.DepartmentId && item.SelectedItem) {
+                        item.DepartmentId = item.SelectedItem.DepartmentId || 0;
+                    }
                     item.GrossAmount = item.Amount;
                     item.DiscountAmount = item.DiscountAmount;
                     item.DoctorDiscountAmount = 0;
@@ -5080,7 +5264,7 @@
             forEach(data, function (value, key) {
                 $scope.lookup[key] = value;
             });
-
+            $scope.refreshReactProps();
         };
 
         $scope.initLookup = function () {

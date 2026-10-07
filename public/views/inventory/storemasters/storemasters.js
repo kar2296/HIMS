@@ -213,6 +213,102 @@
             utl.Http.doAction(options);
         };
 
+        // ------------------------------------------------------------------
+        // React view (new code only; the functions above are not changed).
+        // storemasters.html now mounts the shared MasterListScreen; window.ReactListBridge
+        // (src/react-components/utils/listBridge.ts) connects it to this controller and adds:
+        // latest-answer-only, loading / "No records" states, page 1 on filter change and
+        // stepping back from an emptied last page.
+        //
+        // Fixes made here:
+        // 1. Store Type, Department and Status can be set back to "All" (-1, which the API
+        //    ignores); once chosen, the old drop-downs could not be cleared.
+        // 2. Opening a store whose StoreType is missing threw an error in handleEvents
+        //    (entity.StoreType.Description) and nothing happened; such a row is now passed
+        //    with an empty store type.
+        // The Home button keeps its old rule: only when opened from the inventory dashboard.
+        // ------------------------------------------------------------------
+        var bridge = window.ReactListBridge;
+        var t = function (key, fallback) { return bridge.translateOr($translate, key, fallback); };
+
+        function smSelectFilter(key, label, lookupKey) {
+            return {
+                key: key, label: label, allLabel: 'All',
+                options: ($scope.lookup && $scope.lookup[lookupKey]) || [],
+                get: function () { var v = $scope.currentfilter[key]; return v === undefined || v === null ? -1 : v; },
+                set: function (value) { $scope.currentfilter[key] = value; }
+            };
+        }
+
+        // Same visibility rules as the old grid's action column.
+        function smRowActions(entity) {
+            var status = entity.ActiveStatusId;
+            if (status == 1) {
+                return [{ action: 'edit', title: 'Edit', icon: 'edit' }, { action: 'delete', title: 'Delete', icon: 'delete' }];
+            }
+            if (status >= 2 && status <= 5) {
+                return [{ action: 'view', title: 'Edit', icon: 'edit' }];
+            }
+            return [];
+        }
+
+        bridge.attach($scope, utl, $translate, {
+            id: 'storemasterlist',
+            vm: vm,
+            labels: function () {
+                return {
+                    title: t('inventory.storemaster.pnlstoremaster.lbl', 'Store Master'),
+                    searchPlaceholder: t('inventory.storemasters.filter_storename.lbl', 'Store Name'),
+                    addTooltip: 'Store Master',
+                    homeTooltip: 'Dashboard',
+                    colActions: t('common.actions_col.lbl', 'Actions')
+                };
+            },
+            search: {
+                get: function () { return $scope.currentfilter.storename || ''; },
+                set: function (value) { $scope.currentfilter.storename = value; }
+            },
+            filters: function () {
+                return [
+                    smSelectFilter('StoreTypeId', t('inventory.storemaster.storetype.lbl', 'Store Type'), 'StoreType'),
+                    smSelectFilter('DepartmentId', t('inventory.storemaster.department.lbl', 'Department'), 'Department'),
+                    smSelectFilter('ActiveStatusId', t('inventory.storemasters.filter_status.lbl', 'Status'), 'ActiveStatus')
+                ];
+            },
+            columns: function () {
+                return [
+                    { key: 'code', label: t('inventory.storemasters.code.lbl', 'Code') },
+                    { key: 'name', label: t('inventory.storemasters.name.lbl', 'Name') },
+                    { key: 'storeType', label: t('inventory.storemaster.storetype.lbl', 'Store Type') },
+                    { key: 'department', label: t('inventory.storemaster.department.lbl', 'Department') },
+                    { key: 'licenseNo', label: t('inventory.storemaster.licenseno.lbl', 'License No') },
+                    { key: 'tinNo', label: t('inventory.storemaster.tinno.lbl', 'TIN No') },
+                    { key: 'expiryWarningDays', label: t('inventory.storemaster.expirywarningdays.lbl', 'Expiry Warning Days') },
+                    { key: 'status', label: t('inventory.storemasters.status.lbl', 'Status') }
+                ];
+            },
+            row: function (entity) {
+                return {
+                    cells: {
+                        code: entity.StoreCode || '',
+                        name: entity.StoreName || '',
+                        storeType: (entity.StoreType && entity.StoreType.Description) || '',
+                        department: (entity.Department && entity.Department.DepartmentName) || '',
+                        licenseNo: entity.LicenseNo || '',
+                        tinNo: entity.TinNo || '',
+                        expiryWarningDays: entity.ExpiryWarningDays === undefined || entity.ExpiryWarningDays === null ? '' : String(entity.ExpiryWarningDays),
+                        status: (entity.ActiveStatus && entity.ActiveStatus.Description) || ''
+                    },
+                    actions: smRowActions(entity)
+                };
+            },
+            home: $scope.Context == 'inventory' ? function () { $scope.backtoList(); } : undefined,
+            onRowAction: function (action, entity) {
+                var row = entity.StoreType ? entity : angular.extend({}, entity, { StoreType: { Description: '' } });
+                $scope.handleEvents(action, row);
+            }
+        });
+
         $scope.initLookup();
     }
 

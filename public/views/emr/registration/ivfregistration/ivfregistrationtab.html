@@ -1,22 +1,83 @@
+<link rel="stylesheet" href="app/css/drhms.css">
 <style>
-    .patient-options {
-    border: 1px solid #B6B6B6;
-    height: 102px;
-    display: flex;
-    align-items: center;
-    margin-left: -12px;
-    justify-content: center;
-}
-.patient-options button {
-    margin-right: 10px;
-}
+    .ivf-reg-wrapper {
+        max-width: 1280px;
+        margin: 0 auto;
+        padding: 0 16px;
+        box-sizing: border-box;
+    }
+    .ivf-reg-header-bar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 12px;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+    .ivf-reg-header-actions {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    .ivf-reg-header-actions .filters,
+    .ivf-reg-header-actions .search {
+        margin: 0;
+        position: relative;
+    }
+    .ivf-reg-header-actions patientsearch input {
+        width: 280px !important;
+        max-width: 100% !important;
+        height: 36px !important;
+        font-size: 13px !important;
+        border-radius: 6px !important;
+        padding-left: 32px !important;
+        padding-right: 12px !important;
+        border: 1px solid #cbd5e1 !important;
+        box-sizing: border-box !important;
+    }
+    .ivf-reg-header-actions .drhms-search-icon {
+        position: absolute;
+        left: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        pointer-events: none;
+        color: #94a3b8;
+        font-size: 13px;
+        z-index: 2;
+    }
+    .ivf-reg-header-actions .btn-add {
+        height: 36px !important;
+        width: 36px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        background: #2563eb !important;
+        color: #ffffff !important;
+        border-radius: 6px !important;
+        border: none !important;
+        cursor: pointer !important;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.05) !important;
+        transition: background 0.15s ease !important;
+    }
+    .ivf-reg-header-actions .btn-add:hover {
+        background: #1d4ed8 !important;
+    }
 </style>
-<div class="row page-header">
-    <div class="col-sm-12">
-        <div class="col-sm-8 col-md-8 col-lg-8">
-            <h4 class="page-header mt0" translate="IVF Registration"></h4>
+<link href="app/css/regbilling.css" rel="stylesheet">
+
+<div class="ivf-reg-wrapper">
+    <div class="ivf-reg-header-bar">
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <div style="width: 38px; height: 38px; border-radius: 8px; background: rgba(37,99,235,0.08); color: #2563eb; display: flex; align-items: center; justify-content: center; font-size: 18px;">
+                <i class="fa fa-venus-mars" aria-hidden="true"></i>
+            </div>
+            <div>
+                <h3 style="margin: 0; font-size: 18px; font-weight: 700; color: #0f172a; letter-spacing: -0.2px;">IVF Registration</h3>
+                <div style="font-size: 12px; color: #64748b; margin-top: 1px;">In Vitro Fertilization Patient & Couple Registration</div>
+            </div>
         </div>
-        <div class="col-sm-4 col-md-4 col-lg-4">
+
+        <div class="ivf-reg-header-actions">
             <div class="filters">
                 <div class="search">
                     <patientsearch controlid="'pidreg'" ng-keyup="moveHeaderFocus('pid')" patientid="item.PatientId"
@@ -26,23 +87,16 @@
                         filterconfig="patientfilterconfig"></patientsearch>
                     <div class="drhms-search-icon"><i class="fas fa-search" aria-hidden="true"></i></div>
                 </div>
-                <button class="btn-add" tabindex="-1" ng-click="addNewFull()">
-                    <i class="fa fa-plus" aria-hidden="true"></i>
-                </button>
             </div>
+            <button class="btn-add" tabindex="-1" ng-click="addNewFull()" title="Add New Patient">
+                <i class="fa fa-plus" aria-hidden="true"></i>
+            </button>
         </div>
     </div>
-</div>
-<div id="receipt_tab">
-    <div class="row">
-        <div class="col-sm-12">
-            <uib-tabset active="active">
-                <uib-tab index="$index" ng-repeat="tab in tabs" heading="{{tab.title}}" ng-click="switchTab(tab)"
-                    disable="tab.canDisable">
-                </uib-tab>
-            </uib-tabset>
 
-            <div ui-view></div>
-        </div>
-    </div>
+    <!-- Modern React tab strip -->
+    <react-component name="IvfRegistrationTabScreen" props="{ reactProps: reactProps, onAction: handleReactAction }"></react-component>
+
+    <!-- Child view host for tabs (basic / spousereg) -->
+    <div ui-view></div>
 </div>

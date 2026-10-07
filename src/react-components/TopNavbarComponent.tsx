@@ -266,7 +266,14 @@ export const TopNavbarComponent: React.FC<TopNavbarComponentProps> = ({
 
               {/* Logout */}
               <div
-                onClick={() => { setUserMenuOpen(false); if (onLogout) onLogout(); }}
+                onClick={() => {
+                  setUserMenuOpen(false);
+                  try {
+                    sessionStorage.clear();
+                    localStorage.removeItem('token');
+                  } catch (e) {}
+                  if (onLogout) onLogout();
+                }}
                 style={{
                   padding: '10px 16px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '10px',
                   transition: transitions.fast,

@@ -5,21 +5,51 @@
         .module('app.pages')
         .controller('userinfoController', userinfoController);
 
-    function userinfoController($rootScope, $scope, $timeout, $filter, $stateParams, $state, $translate, utl, Upload, $uibModalInstance, modalConfig,) {
+    function userinfoController($rootScope, $scope, $timeout, $filter, $stateParams, $state, $translate, utl, Upload, $uibModalInstance, modalConfig) {
         var vm = this;
         $scope.item = {};
         $scope.currentcontext = {
             id: utl.Session.getCurrentUserId(),
             ismodal: modalConfig && modalConfig.params ? true : false
-        }
-        $scope.getUserProfilePicCallback = function (scope, data, options, hasError) {
-            $scope.currentcontext.Photo = data;
         };
-        if (modalConfig && modalConfig.params) {
 
+        // React bridge initialization
+        $scope.refreshReactProps = function () {
+            $scope.reactProps = {
+                item: angular.copy($scope.item),
+                userId: $scope.currentcontext.id,
+                photoBase64: $scope.currentcontext.Photo || null,
+                isModal: $scope.currentcontext.ismodal
+            };
+        };
+        $scope.refreshReactProps();
+
+        $scope.handleReactAction = function (actionName, payload) {
+            if (actionName === 'back') {
+                if ($scope.currentcontext.ismodal && $scope.cancelCallback) {
+                    $scope.cancelCallback();
+                } else {
+                    $state.go('app.users');
+                }
+            } else if (actionName === 'close') {
+                if ($scope.cancelCallback) {
+                    $scope.cancelCallback();
+                } else {
+                    $state.go('app.users');
+                }
+            }
+        };
+
+        if (modalConfig && modalConfig.params) {
             $scope.confirmCallback = $uibModalInstance.close;
             $scope.cancelCallback = $uibModalInstance.dismiss;
         }
+
+        $scope.getUserProfilePicCallback = function (scope, data, options, hasError) {
+            $scope.currentcontext.Photo = data;
+            $scope.refreshReactProps();
+        };
+
         $scope.getUserProfilePic = function () {
             if ($scope.item.PhotoPath) {
                 var inputData = {
@@ -42,15 +72,24 @@
             $scope.currentcontext.Photo = null;
             $scope.item.iswebcamphoto = false;
             $scope.item.PhotoPath = null;
+            $scope.refreshReactProps();
         };
 
         $scope.getItemCallback = function (scope, data, options, hasError) {
-            $scope.item = data.Data[0];
+            if (data && data.Data && data.Data.length > 0) {
+                $scope.item = data.Data[0];
+            } else {
+                $scope.item = {};
+            }
 
-            $scope.UserName = $scope.item.Title.Description + ' ' + $scope.item.UserName;
+            if ($scope.item.Title && $scope.item.Title.Description) {
+                $scope.UserName = $scope.item.Title.Description + ' ' + ($scope.item.UserName || '');
+            } else {
+                $scope.UserName = $scope.item.UserName || '';
+            }
             $scope.Mobile = $scope.item.Mobile;
             $scope.Email = $scope.item.Email;
-            $scope.Gender = $scope.item.Gender.Description;
+            $scope.Gender = $scope.item.Gender ? $scope.item.Gender.Description : '';
             $scope.Qualification = $scope.item.Qualification;
             if ($scope.item.ClinicalRole) {
                 $scope.designation = $scope.item.ClinicalRole.Description;
@@ -63,8 +102,8 @@
             $scope.Country = $scope.item.Country;
             $scope.State = $scope.item.State;
             $scope.Area = $scope.item.Area;
-            $scope.OrgName = $scope.item.Organization.OrgName;
-            $scope.Facility = $scope.item.Facility.FacilityName;
+            $scope.OrgName = $scope.item.Organization ? $scope.item.Organization.OrgName : '';
+            $scope.Facility = $scope.item.Facility ? $scope.item.Facility.FacilityName : '';
             if ($scope.item.Department) {
                 $scope.Department = $scope.item.Department.DepartmentName;
             }
@@ -79,12 +118,14 @@
             }
             $scope.LoginName = $scope.item.UserName;
 
+            $scope.refreshReactProps();
             $scope.getUserProfilePic();
         };
+
         $timeout(function () {
             removeFloatingNav();
         }, 100);
-    
+
         function removeFloatingNav() {
             $rootScope.app.layout.isCollapsed = true;
         }
@@ -95,7 +136,7 @@
                     Key: 0,
                     Value: $scope.currentcontext.id
                 }]
-            }
+            };
             var options = {
                 action: 'SystemSettings/User/GetUsers',
                 data: data,
@@ -103,10 +144,9 @@
                 onComplete: $scope.getItemCallback
             };
             utl.Http.doAction(options);
-
         };
-        $scope.getItem();
 
+        $scope.getItem();
     }
 
     userinfoController.$inject = ['$rootScope', '$scope', '$timeout', '$filter', '$stateParams', '$state', '$translate', 'utl', 'Upload', '$uibModalInstance', 'modalConfig'];

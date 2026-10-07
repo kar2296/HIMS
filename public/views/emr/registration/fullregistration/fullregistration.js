@@ -2285,6 +2285,20 @@
                     $scope.refreshReactProps();
                     $scope.$applyAsync();
                     return;
+                case 'fileSelected':
+                    $scope.currentcontext.file = payload && payload.file;
+                    $scope.photoFileChanged();
+                    $scope.refreshReactProps();
+                    $scope.$applyAsync();
+                    return;
+                case 'clearimage':
+                    $scope.clearimage();
+                    $scope.refreshReactProps();
+                    $scope.$applyAsync();
+                    return;
+                case 'openWebCam':
+                    $scope.openWebCam();
+                    return;
             }
             if (typeof $scope[actionName] === 'function') {
                 $scope[actionName]();

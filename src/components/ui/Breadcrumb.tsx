@@ -4,6 +4,7 @@ import { colors, spacing, typography } from './tokens';
 export interface BreadcrumbItem {
   label: string;
   onClick?: () => void;
+  active?: boolean;
 }
 
 export interface BreadcrumbProps {
@@ -16,7 +17,7 @@ export interface BreadcrumbProps {
 export const Breadcrumb: React.FC<BreadcrumbProps> = ({ items }) => (
   <nav style={{ display: 'flex', alignItems: 'center', gap: spacing.xs, marginBottom: spacing.sm, flexWrap: 'wrap' }}>
     {items.map((item, idx) => {
-      const isLast = idx === items.length - 1;
+      const isLast = idx === items.length - 1 || item.active;
       return (
         <React.Fragment key={idx}>
           {idx > 0 && <i className="fa-solid fa-chevron-right" style={{ fontSize: '9px', color: colors.textSubtle }} />}
@@ -44,20 +45,24 @@ export interface PageHeaderProps {
   title: string;
   subtitle?: string;
   breadcrumb?: BreadcrumbItem[];
+  breadcrumbs?: BreadcrumbItem[];
   actions?: React.ReactNode;
 }
 
 /** Global page-header block: breadcrumb + title + right-aligned page actions.
  * Every migrated screen's header should converge on this one layout. */
-export const PageHeader: React.FC<PageHeaderProps> = ({ title, subtitle, breadcrumb, actions }) => (
-  <div style={{ marginBottom: spacing.lg }}>
-    {breadcrumb && <Breadcrumb items={breadcrumb} />}
-    <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: spacing.md, flexWrap: 'wrap' }}>
-      <div>
-        <h1 style={{ ...typography.pageTitle, color: colors.textMain, margin: 0, fontFamily: typography.fontFamily }}>{title}</h1>
-        {subtitle && <p style={{ ...typography.helper, color: colors.textMuted, margin: `${spacing.xs} 0 0` }}>{subtitle}</p>}
+export const PageHeader: React.FC<PageHeaderProps> = ({ title, subtitle, breadcrumb, breadcrumbs, actions }) => {
+  const crumbs = breadcrumb || breadcrumbs;
+  return (
+    <div style={{ marginBottom: spacing.lg }}>
+      {crumbs && <Breadcrumb items={crumbs} />}
+      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: spacing.md, flexWrap: 'wrap' }}>
+        <div>
+          <h1 style={{ ...typography.pageTitle, color: colors.textMain, margin: 0, fontFamily: typography.fontFamily }}>{title}</h1>
+          {subtitle && <p style={{ ...typography.helper, color: colors.textMuted, margin: `${spacing.xs} 0 0` }}>{subtitle}</p>}
+        </div>
+        {actions && <div style={{ display: 'flex', gap: spacing.sm, alignItems: 'center' }}>{actions}</div>}
       </div>
-      {actions && <div style={{ display: 'flex', gap: spacing.sm, alignItems: 'center' }}>{actions}</div>}
     </div>
-  </div>
-);
+  );
+};

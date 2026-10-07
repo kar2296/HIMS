@@ -1739,6 +1739,9 @@
             })
             .state('app.appointmentstab', {
                 url: '/appointment/:id',
+                params: {
+                    id: '0'
+                },
                 title: 'Appointment',
                 templateUrl: helper.basepath('emr/appointment/appointmentnew/appointmentstab.html'),
                 controller: 'appointmentsTabController as vm',

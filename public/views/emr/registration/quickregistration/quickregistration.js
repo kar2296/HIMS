@@ -56,6 +56,18 @@
                     $scope.refreshFormReactProps();
                     $scope.$applyAsync();
                 }
+            } else if (actionName === 'patientSelect') {
+                if (payload && payload.patient) {
+                    $scope.selectedPatient = payload.patient;
+                    $scope.item.PatientId = payload.patient.Id;
+                    $scope.patientChange();
+                } else {
+                    $scope.selectedPatient = null;
+                    $scope.item.PatientId = 0;
+                }
+                $scope.refreshFormReactProps();
+                $scope.refreshReactProps();
+                $scope.$applyAsync();
             } else if (actionName === 'titleChange') {
                 $scope.item.TitleId = payload && payload.value;
                 $scope.fillGenderInfo();
@@ -92,13 +104,60 @@
                 $scope.refreshFormReactProps();
             } else if (actionName === 'fileSelected') {
                 $scope.currentcontext.file = (payload && payload.file) || null;
-            } else if (typeof $scope[actionName] === 'function') {
-                $scope[actionName]();
+            } else if (actionName === 'saveAndApprove') {
+                $scope.saveAndApprove();
+            } else if (actionName === 'save') {
+                $scope.save();
             } else if (actionName === 'saveAndInactive') {
                 $scope.saveAndInactive($scope.item);
             } else if (actionName === 'opdBill') {
                 $scope.OPDBill();
+            } else if (actionName === 'addNewQuick' || actionName === 'newregistration') {
+                $scope.addNewQuick();
+            } else if (actionName === 'printRegistration') {
+                $scope.print();
+            } else if (actionName === 'printRegistrationIdlabel') {
+                $scope.print3();
+            } else if (actionName === 'printRegistrationLabelA4') {
+                $scope.print2();
+            } else if (actionName === 'printVisitSlip') {
+                $scope.visitprint();
+            } else if (actionName === 'openattachments') {
+                $scope.openattachments();
+            } else if (actionName === 'newvisit') {
+                $scope.newvisit();
+            } else if (actionName === 'admission') {
+                $scope.admission();
+            } else if (actionName === 'backtoList') {
+                $scope.backtoList();
+            } else if (typeof $scope[actionName] === 'function') {
+                $scope[actionName]();
             }
+        };
+
+        // Builds the props for the unified QuickRegistrationFormScreen mount
+        $scope.refreshFormReactProps = function() {
+            vm.reactPropsForm = {
+                item: $scope.item,
+                lookup: {
+                    Title: ($scope.lookup && $scope.lookup.Title) || [],
+                    Gender: ($scope.lookup && $scope.lookup.Gender) || [],
+                    MaritalStatus: ($scope.lookup && $scope.lookup.MaritalStatus) || [],
+                    VipType: ($scope.lookup && $scope.lookup.VipType) || [],
+                    MRNType: ($scope.lookup && $scope.lookup.MRNType) || []
+                },
+                currentcontext: {
+                    id: $scope.currentcontext ? $scope.currentcontext.id : undefined,
+                    Photo: $scope.currentcontext ? $scope.currentcontext.Photo : undefined,
+                    triedSubmit: $scope.currentcontext ? $scope.currentcontext.triedSubmit : false,
+                    canDisableApprove: $scope.currentcontext ? $scope.currentcontext.canDisableApprove : false,
+                    attachmentcount: $scope.currentcontext ? $scope.currentcontext.attachmentcount : 0,
+                    isTempPatient: $scope.currentcontext ? $scope.currentcontext.isTempPatient : false
+                },
+                actionBar: vm.reactPropsActionBar,
+                footer: vm.reactPropsFooter
+            };
+            $scope.reactPropsForm = vm.reactPropsForm;
         };
 
         $scope.refreshReactProps = function() {
@@ -129,32 +188,12 @@
                 }
             };
             $scope.reactPropsFooter = vm.reactPropsFooter;
-        };
-        $scope.refreshReactProps();
-
-        // Builds the props for the new QuickRegistrationFormScreen mount (the
-        // patient-details + photo form). Kept as its own function/watch group,
-        // separate from the pre-existing refreshReactProps above (which only ever
-        // fed RegistrationActionBar/RegistrationFooter and must not be disturbed).
-        $scope.refreshFormReactProps = function() {
-            vm.reactPropsForm = {
-                item: $scope.item,
-                lookup: {
-                    Title: ($scope.lookup && $scope.lookup.Title) || [],
-                    Gender: ($scope.lookup && $scope.lookup.Gender) || [],
-                    MaritalStatus: ($scope.lookup && $scope.lookup.MaritalStatus) || [],
-                    VipType: ($scope.lookup && $scope.lookup.VipType) || [],
-                    MRNType: ($scope.lookup && $scope.lookup.MRNType) || []
-                },
-                currentcontext: {
-                    id: $scope.currentcontext ? $scope.currentcontext.id : undefined,
-                    Photo: $scope.currentcontext ? $scope.currentcontext.Photo : undefined,
-                    triedSubmit: $scope.currentcontext ? $scope.currentcontext.triedSubmit : false
-                }
-            };
-            $scope.reactPropsForm = vm.reactPropsForm;
+            if (typeof $scope.refreshFormReactProps === 'function') {
+                $scope.refreshFormReactProps();
+            }
         };
         $scope.refreshFormReactProps();
+        $scope.refreshReactProps();
 
         $scope.$watchGroup([
             'SaveCompleted',

@@ -30,6 +30,66 @@
         if (!$scope.requiredsecuritypin) $scope.requiredsecuritypin = false;
         else $scope.requiredsecuritypin = true;
 
+        // React bridge initialization
+        $scope.refreshReactProps = function () {
+            $scope.reactProps = {
+                item: angular.copy($scope.item),
+                lookup: $scope.lookup,
+                userId: $scope.currentcontext.id,
+                photoBase64: $scope.currentcontext.Photo || null,
+                signBase64: $scope.currentcontext.SignPhoto || null,
+                loginsetting: $scope.currentcontext.loginsetting || null,
+                usernamecriteriamsg: $scope.currentcontext.usernamecriteriamsg || null,
+                pwdcriteriamsg: $scope.currentcontext.pwdcriteriamsg || null,
+                isSaving: false
+            };
+        };
+
+        $scope.handleReactAction = function (actionName, payload) {
+            if (actionName === 'backToList') {
+                $scope.backToList();
+            } else if (actionName === 'save') {
+                if (payload) {
+                    angular.extend($scope.item, payload);
+                }
+                $scope.onSaveandDraftConfirmed();
+            } else if (actionName === 'saveAndApprove') {
+                if (payload) {
+                    angular.extend($scope.item, payload);
+                }
+                $scope.onSaveandApproveConfirmed();
+            } else if (actionName === 'getfacdept') {
+                if (payload && payload.facilityId) {
+                    $scope.item.FacilityId = payload.facilityId;
+                    $scope.getfacdept();
+                }
+            } else if (actionName === 'getsubdeptUsers') {
+                if (payload && payload.departmentId) {
+                    $scope.item.DepartmentId = payload.departmentId;
+                    $scope.getsubdeptUsers();
+                }
+            } else if (actionName === 'photoFileChanged') {
+                if (payload && payload.file) {
+                    $scope.currentcontext.file = payload.file;
+                }
+            } else if (actionName === 'signFileChanged') {
+                if (payload && payload.file) {
+                    $scope.currentcontext.SignatureFile = payload.file;
+                    $scope.signFileChanged();
+                }
+            } else if (actionName === 'clearimage') {
+                $scope.clearimage();
+                $scope.refreshReactProps();
+            } else if (actionName === 'clearsignfile') {
+                $scope.clearsignfile();
+                $scope.refreshReactProps();
+            } else if (actionName === 'openWebCam') {
+                $scope.openWebCam();
+            }
+        };
+
+        $scope.refreshReactProps();
+
         $scope.openSignModal = function () {
             utl.Modal.open('sign-modal', {
                 params: {},
@@ -132,6 +192,7 @@
 
         $scope.getUserProfilePicCallback = function (scope, data, options, hasError) {
             $scope.currentcontext.Photo = data.Photo;
+            $scope.refreshReactProps();
         };
 
         $scope.getUserProfilePic = function () {
@@ -154,6 +215,7 @@
         };
         $scope.getUserSignPicCallback = function (scope, data, options, hasError) {
             $scope.currentcontext.SignPhoto = data;
+            $scope.refreshReactProps();
         };
 
         $scope.getUserSignPic = function () {
@@ -174,6 +236,7 @@
             $scope.currentcontext.Photo = null;
             $scope.item.iswebcamphoto = false;
             $scope.item.PhotoPath = null;
+            $scope.refreshReactProps();
         };
 
         $scope.getItemCallback = function (scope, data, options, hasError) {
@@ -189,6 +252,7 @@
             }
             $scope.getUserProfilePic();
             $scope.getUserSignPic();
+            $scope.refreshReactProps();
         };
 
         $scope.getItem = function (pageNo) {
@@ -379,22 +443,27 @@
         $scope.ValidateLoginDetails = function () {
             if ($scope.currentcontext.loginsetting) {
                 var condition = $scope.currentcontext.loginsetting;
-                if (($scope.item.UserName.length < condition.MinLoginNameLength) || ($scope.item.UserName.length > condition.MaxLoginNameLength)) {
+                var userName = $scope.item.UserName ? String($scope.item.UserName).trim() : '';
+                var minLen = ($scope.currentcontext.id > 0) ? Math.min(condition.MinLoginNameLength || 1, 1) : (condition.MinLoginNameLength || 1);
+                if ((userName.length < minLen) || (condition.MaxLoginNameLength && userName.length > condition.MaxLoginNameLength)) {
                     utl.Alert.showErrorMsg($translate.instant('appmanager.user.invalidloginname.lbl'));
                     return false;
                 }
-                if ($scope.item.UserName.replace(/[^0-9]/g, "").length < condition.ReqNoOfLoginDigit) {
+                if (condition.ReqNoOfLoginDigit && userName.replace(/[^0-9]/g, "").length < condition.ReqNoOfLoginDigit) {
                     utl.Alert.showErrorMsg('Username should contain minimum of ' + condition.ReqNoOfLoginDigit + ' digit.');
                     return false;
                 }
-                if (($scope.item.Password.length < condition.MinPwdLength) || ($scope.item.Password.length > condition.MaxPwdLength)) {
-                    utl.Alert.showErrorMsg($translate.instant('appmanager.user.invalidpwd.lbl'));
-                    return false;
-                }
-                if (!condition.IsSpecialCharacterAllowedinPwd) {
-                    if (/^[a-zA-Z0-9- ]*$/.test($scope.item.Password) == false) {
-                        utl.Alert.showErrorMsg($translate.instant('appmanager.user.pwdspecialcharacter.lbl'));
+                var password = $scope.item.Password ? String($scope.item.Password) : '';
+                if ($scope.currentcontext.id === 0 || password.length > 0) {
+                    if ((condition.MinPwdLength && password.length < condition.MinPwdLength) || (condition.MaxPwdLength && password.length > condition.MaxPwdLength)) {
+                        utl.Alert.showErrorMsg($translate.instant('appmanager.user.invalidpwd.lbl'));
                         return false;
+                    }
+                    if (!condition.IsSpecialCharacterAllowedinPwd && password.length > 0) {
+                        if (/^[a-zA-Z0-9- ]*$/.test(password) == false) {
+                            utl.Alert.showErrorMsg($translate.instant('appmanager.user.pwdspecialcharacter.lbl'));
+                            return false;
+                        }
                     }
                 }
             }
@@ -403,10 +472,11 @@
         };
 
         $scope.getLoginDetailsCallback = function (scope, data, options, hasError) {
-            if (data.Data.length > 0) {
+            if (!hasError && data && data.Data && data.Data.length > 0) {
                 $scope.currentcontext.loginsetting = data.Data[0];
                 $scope.currentcontext.usernamecriteriamsg = 'Username should contain minimum of ' + $scope.currentcontext.loginsetting.MinLoginNameLength + ' character and should not exceed ' + $scope.currentcontext.loginsetting.MaxLoginNameLength + ' character. It should contain minimum ' + $scope.currentcontext.loginsetting.ReqNoOfLoginDigit + ' digit(s)';
                 $scope.currentcontext.pwdcriteriamsg = 'Password should contain minimum of ' + $scope.currentcontext.loginsetting.MinPwdLength + ' character and should not exceed ' + $scope.currentcontext.loginsetting.MaxPwdLength + ' character.';
+                $scope.refreshReactProps();
             }
         };
 
@@ -569,6 +639,7 @@
                 }
             }
             $scope.getLoginDetails();
+            $scope.refreshReactProps();
         };
 
         $scope.initLookup = function () {

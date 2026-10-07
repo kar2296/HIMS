@@ -154,7 +154,7 @@
             $state.go('app.oppatienttab.allcheckin', { context: 'nursing' });
         }
         $scope.appoinment = function() {
-            $state.go('app.appointmentstab.details');
+            $state.go('app.appointmentstab.details', { id: 0 });
         }
         $scope.notification = function() {
             $state.go('#');

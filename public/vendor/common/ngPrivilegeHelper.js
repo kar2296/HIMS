@@ -377,6 +377,7 @@
                     "CanReg_Deactivate": CanReg_Deactivate,
                     "CanReg_Attachment": CanReg_Attachment,
                     "CanReg_BarCode": CanReg_BarCode,
+                    "CanReg_Nobill": CanReg_Nobill,
                     //ipbilling buttons
                     "CanIPSUM_PRINT": CanIPSUM_PRINT,
                     "CanIPSUM_INSURANCE": CanIPSUM_INSURANCE,
@@ -948,6 +949,10 @@
                     ngSessionHelper.getUserTypeId();
                     ngSessionHelper.getUserGroupId();
                     return false;
+                }
+
+                function CanReg_Nobill() {
+                    return hasPrivilege('Registration', 'CanReg_Nobill');
                 }
 
                 function CanOP_Cancel() {

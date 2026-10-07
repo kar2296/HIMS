@@ -26,11 +26,12 @@ export const Card: React.FC<CardProps> = ({ title, actions, children, padding = 
 
 export interface FilterBarProps {
   children: React.ReactNode;
+  style?: React.CSSProperties;
 }
 
 /** Global filter/search row container -- consistent spacing for search boxes, dropdown filters, date ranges. */
-export const FilterBar: React.FC<FilterBarProps> = ({ children }) => (
-  <div style={{ display: 'flex', gap: spacing.md, alignItems: 'flex-end', flexWrap: 'wrap', marginBottom: spacing.lg }}>
+export const FilterBar: React.FC<FilterBarProps> = ({ children, style }) => (
+  <div style={{ display: 'flex', gap: spacing.md, alignItems: 'flex-end', flexWrap: 'wrap', marginBottom: spacing.lg, ...style }}>
     {children}
   </div>
 );

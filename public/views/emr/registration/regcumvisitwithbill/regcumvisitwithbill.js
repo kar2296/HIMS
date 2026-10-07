@@ -1283,10 +1283,16 @@
         //Reload banner code starts
 
 
-        /* Google Address code starts */
-        $scope.autocompleteModel = {};
-        $scope.disablegoogleaddopt = true;
-        $scope.chkgoogleaddopt = false;
+        /* Google & Resilient Fallback Address Search */
+        $scope.autocompleteModel = '';
+        $scope.disablegoogleaddopt = false;
+        $scope.chkgoogleaddopt = true;
+        $scope.addressSearchResults = [];
+        $scope.showAddressDropdown = false;
+        $scope.selectedAddressIndex = -1;
+        $scope.isAddressSearching = false;
+        var addressSearchTimer = null;
+
         $scope.clearpreviousaddress = function () {
             $scope.item.AddressLine1 = '';
             $scope.item.AddressLine2 = '';
@@ -1297,13 +1303,152 @@
             $scope.item.CountryId = -1;
             $scope.item.DistrictId = -1;
         };
-        // Listen to change event
+
+        // Resilient Address Selection (works for both OpenStreetMap fallback and Google Places)
+        $scope.applySelectedAddress = function (place) {
+            if (!place) return;
+            $scope.clearpreviousaddress();
+
+            var addr = place.address || {};
+            var name = place.name || '';
+            var road = addr.road || addr.pedestrian || addr.suburb || '';
+            var neighbourhood = addr.neighbourhood || addr.suburb || '';
+            var city = addr.city || addr.town || addr.village || addr.municipality || addr.county || '';
+            var state = addr.state || '';
+            var country = addr.country || '';
+            var pincode = addr.postcode || '';
+
+            var line1Parts = [name, road, neighbourhood].filter(function (p) { return p && p.trim(); });
+            var line1 = line1Parts.join(', ');
+            if (!line1) line1 = place.display_name ? place.display_name.split(',')[0] : '';
+
+            $scope.item.AddressLine1 = line1 || city || place.display_name;
+            $scope.item.AddressLine2 = [city, state, country, pincode].filter(Boolean).join(', ');
+            $scope.autocompleteModel = place.display_name;
+
+            // Default to India
+            $scope.item.CountryId = 1;
+            $scope.item.Country = 'INDIA';
+
+            // Match state in lookup.State
+            if (state && $scope.lookup && $scope.lookup.State) {
+                var cleanState = state.toLowerCase().trim();
+                var matchedState = $scope.lookup.State.find(function (s) {
+                    return s.Text && s.Text.toLowerCase().trim() === cleanState;
+                });
+                if (matchedState) {
+                    $scope.item.StateId = matchedState.Id;
+                    $scope.item.State = matchedState.Text;
+                }
+            }
+
+            // If pincode available, fetch exact pincode master data
+            if (pincode) {
+                var cleanPin = pincode.replace(/\D/g, '').substring(0, 6);
+                if (cleanPin.length === 6) {
+                    $scope.item.Pincode = cleanPin;
+                    $scope.getPincodeData(cleanPin);
+                }
+            }
+
+            if (!$scope.$$phase) {
+                $scope.$apply();
+            }
+        };
+
+        $scope.onAddressSearchKeyup = function (e) {
+            if (e.keyCode === 38 || e.keyCode === 40 || e.keyCode === 13 || e.keyCode === 27) {
+                return;
+            }
+            var query = $scope.autocompleteModel;
+            if (typeof query !== 'string' || query.trim().length < 2) {
+                $scope.addressSearchResults = [];
+                $scope.showAddressDropdown = false;
+                return;
+            }
+
+            if (addressSearchTimer) {
+                $timeout.cancel(addressSearchTimer);
+            }
+
+            addressSearchTimer = $timeout(function () {
+                $scope.isAddressSearching = true;
+                var url = 'https://nominatim.openstreetmap.org/search?q=' + encodeURIComponent(query.trim()) + '&format=json&addressdetails=1&limit=6';
+                fetch(url)
+                    .then(function (res) { return res.json(); })
+                    .then(function (data) {
+                        $scope.$apply(function () {
+                            $scope.isAddressSearching = false;
+                            if (Array.isArray(data) && data.length > 0) {
+                                $scope.addressSearchResults = data;
+                                $scope.showAddressDropdown = true;
+                                $scope.selectedAddressIndex = 0;
+                            } else {
+                                $scope.addressSearchResults = [];
+                                $scope.showAddressDropdown = false;
+                            }
+                        });
+                    })
+                    .catch(function () {
+                        $scope.$apply(function () {
+                            $scope.isAddressSearching = false;
+                        });
+                    });
+            }, 300);
+        };
+
+        $scope.onAddressSearchKeydown = function (e) {
+            if (!$scope.showAddressDropdown || !$scope.addressSearchResults.length) {
+                return;
+            }
+            if (e.keyCode === 40) { // Down
+                e.preventDefault();
+                $scope.selectedAddressIndex = Math.min($scope.selectedAddressIndex + 1, $scope.addressSearchResults.length - 1);
+            } else if (e.keyCode === 38) { // Up
+                e.preventDefault();
+                $scope.selectedAddressIndex = Math.max($scope.selectedAddressIndex - 1, 0);
+            } else if (e.keyCode === 13) { // Enter
+                e.preventDefault();
+                if ($scope.selectedAddressIndex >= 0 && $scope.selectedAddressIndex < $scope.addressSearchResults.length) {
+                    $scope.selectFallbackAddress($scope.addressSearchResults[$scope.selectedAddressIndex]);
+                }
+            } else if (e.keyCode === 27) { // Escape
+                $scope.showAddressDropdown = false;
+            }
+        };
+
+        $scope.onAddressSearchFocus = function () {
+            if ($scope.addressSearchResults && $scope.addressSearchResults.length > 0) {
+                $scope.showAddressDropdown = true;
+            }
+        };
+
+        $scope.onAddressSearchBlur = function () {
+            $timeout(function () {
+                $scope.showAddressDropdown = false;
+            }, 250);
+        };
+
+        $scope.selectFallbackAddress = function (place) {
+            $scope.showAddressDropdown = false;
+            $scope.addressSearchResults = [];
+            $scope.selectedAddressIndex = -1;
+            $scope.applySelectedAddress(place);
+        };
+
+        $scope.onVipTypeChanged = function () {
+            if ($scope.item.VipTypeId && $scope.item.VipTypeId > 0) {
+                $scope.item.IsVip = true;
+            }
+        };
+
+        // Listen to change event from Google Places if available
         $scope.$on('gmPlacesAutocomplete::placeChanged', function () {
+            if (!$scope.autocompleteModel || typeof $scope.autocompleteModel.getPlace !== 'function') return;
             var geoComponents = $scope.autocompleteModel.getPlace();
-            var latitude = geoComponents.geometry.location.lat();
-            var longitude = geoComponents.geometry.location.lng();
-            var addressComponents = geoComponents.address_components;
-            var name = geoComponents.name;
+            if (!geoComponents || !geoComponents.geometry) return;
+            var addressComponents = geoComponents.address_components || [];
+            var name = geoComponents.name || '';
             var address1 = '';
             var address2 = '';
             var city = '';
@@ -1317,30 +1462,31 @@
 
                 var addressType = addressComponents[i].types[0];
                 if (addressType) {
-                    if ('premise' == addressType) { // Address 1
+                    if ('premise' == addressType) {
                         address1 = addressComponents[i].long_name;
-                    } else if ('sublocality_level_1' == addressType) { // Address 2
+                    } else if ('sublocality_level_1' == addressType) {
                         address2 = addressComponents[i].long_name;
-                    } else if ('route' == addressType) { // Area
+                    } else if ('route' == addressType) {
                         city = addressComponents[i].long_name;
-                    } else if ('locality' == addressType) { // city
+                    } else if ('locality' == addressType) {
                         area = addressComponents[i].long_name;
-                    } else if ('administrative_area_level_1' == addressType) { // state
+                    } else if ('administrative_area_level_1' == addressType) {
                         state = addressComponents[i].long_name;
-                    } else if ('country' == addressType) { // country
+                    } else if ('country' == addressType) {
                         country = addressComponents[i].long_name;
-                    } else if ('postal_code' == addressType) { // pincode
+                    } else if ('postal_code' == addressType) {
                         pincode = addressComponents[i].long_name;
                     }
                 }
             }
-            $scope.item.AddressLine1 = name + ' ' + address1 + ' ' + address2 + ' ' + city;
-            $scope.item.AddressLine2 = area + ' ' + state + ' ' + country + ' ' + pincode;
-            $scope.$apply();
+            $scope.item.AddressLine1 = (name + ' ' + address1 + ' ' + address2 + ' ' + city).trim();
+            $scope.item.AddressLine2 = [area, state, country, pincode].filter(Boolean).join(' ');
+            if (!$scope.$$phase) {
+                $scope.$apply();
+            }
             if (pincode) {
                 $scope.getPincodeData(pincode);
             }
-
         });
 
         // Get address from Pincode Master

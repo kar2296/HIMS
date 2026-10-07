@@ -68,6 +68,7 @@ export const colors = {
   text: {
     primary:   '#0f172a',
     secondary: '#475569',
+    muted:     '#475569',
     tertiary:  '#94a3b8',
     inverse:   '#ffffff',
     disabled:  '#cbd5e1',
@@ -77,6 +78,7 @@ export const colors = {
   textMain:      '#0f172a',   // slate-900
   textBody:      '#1e293b',   // slate-800
   textMuted:     '#475569',   // slate-600
+  textSecondary: '#475569',   // slate-600
   textSubtle:    '#94a3b8',   // slate-400
   textDisabled:  '#cbd5e1',   // slate-300
   textInverse:   '#ffffff',

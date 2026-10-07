@@ -998,6 +998,197 @@
             }
         };
 
+        // ------------------------------------------------------------------
+        // Fixes for duplicated totals and duplicate statements (new code only; the original
+        // functions above are not changed).
+        //
+        // 1. Overlapping fetches: every fetch (getList) clears the per-user figures and fires
+        //    the voucher, LHRC and refund requests, whose callbacks ADD into those figures. When
+        //    two fetches overlap (Apply, then a Department or User change before the first one
+        //    finished), both sets of answers were added, doubling vouchers, LHRC and refunds.
+        //    Each fetch now gets a number; answers that belong to an older fetch are ignored.
+        // 2. Cancelled receipts: the original getListCallback used an undefined variable
+        //    (usercounterreceipt) and an uninitialised list for cancelled receipts, so a
+        //    cancelled receipt in the period stopped the callback before vouchers, LHRC and
+        //    refunds were loaded. bsGetListCallback below is the same logic with those two
+        //    mistakes corrected; it is used instead of the original.
+        // 3. One save at a time: a second Submit while the first save is on its way is ignored,
+        //    so a double click can no longer create two bank statements.
+        // ------------------------------------------------------------------
+        var bsFetchSeq = 0;
+
+        // Runs fn and stamps every request it sends with the fetch number, so its answer can
+        // be matched to the fetch that asked for it (the HTTP helper hands the same options
+        // object back to the callback).
+        function bsTagRequests(seq, fn) {
+            var originalDoAction = utl.Http.doAction;
+            utl.Http.doAction = function (options) {
+                if (options) {
+                    options.bsFetchSeq = seq;
+                }
+                return originalDoAction.apply(this, arguments);
+            };
+            try {
+                return fn();
+            } finally {
+                utl.Http.doAction = originalDoAction;
+            }
+        }
+
+        function bsIsStale(options) {
+            return !!options && options.bsFetchSeq !== undefined && options.bsFetchSeq !== bsFetchSeq;
+        }
+
+        // Same as the original getListCallback, with the two corrections described above.
+        $scope.bsGetListCallback = function (scope, res, options, hasError) {
+            $scope.clearDenominations();
+            $scope.statementdata = {};
+            $scope.UserCounterCancelledReceipts = [];
+            if (res && res.Data) {
+                for (var idx in res.Data) {
+                    var patientpaymentdetail = res.Data[idx];
+                    var UserName = ''; var UserId = -1;
+                    if (patientpaymentdetail.CreatedUser && patientpaymentdetail.CreatedUser.Title &&
+                        patientpaymentdetail.CreatedUser.Title.Description) {
+                        UserName += '' + patientpaymentdetail.CreatedUser.Title.Description;
+                    }
+                    if (patientpaymentdetail.CreatedUser && patientpaymentdetail.CreatedUser.FirstName) {
+                        UserName += ' ' + patientpaymentdetail.CreatedUser.FirstName;
+                    }
+                    if (patientpaymentdetail.CreatedUser && patientpaymentdetail.CreatedUser.LastName) {
+                        UserName += ' ' + patientpaymentdetail.CreatedUser.LastName;
+                    }
+                    if (patientpaymentdetail.CreatedBy) {
+                        UserId = patientpaymentdetail.CreatedBy;
+                    }
+                    if (UserName) {
+                        if (patientpaymentdetail.ReceiptStatusId == 3) {
+                            var BillNo = '';
+                            if (patientpaymentdetail.PatientBill) {
+                                BillNo = patientpaymentdetail.PatientBill.BillNumber;
+                            }
+                            $scope.UserCounterCancelledReceipts.push({
+                                PatientBillId: patientpaymentdetail.PatientBillId,
+                                BillNumber: BillNo,
+                                PatientReceiptId: patientpaymentdetail.PatientReceiptId,
+                                ReceiptNumber: patientpaymentdetail.ReceiptNumber,
+                                CancelledAmount: patientpaymentdetail.AmountPaid,
+                                CancelledReason: patientpaymentdetail.Comments
+                            });
+                        } else if (patientpaymentdetail.PaymentTypeId >= 1 && patientpaymentdetail.PaymentTypeId <= 6) {
+                            var usr = $scope.statementdata[UserName] = $scope.statementdata[UserName] || {};
+                            usr.users = UserName;
+                            usr.userid = UserId;
+                            if (patientpaymentdetail.PaymentTypeId == 1) {
+                                usr.cash = (usr.cash || 0) + patientpaymentdetail.AmountPaid;
+                            }
+                            if (patientpaymentdetail.PaymentTypeId == 5 || patientpaymentdetail.PaymentTypeId == 6) {
+                                usr.card = (usr.card || 0) + patientpaymentdetail.AmountPaid;
+                            }
+                            if (patientpaymentdetail.PaymentTypeId == 2 || patientpaymentdetail.PaymentTypeId == 3 ||
+                                patientpaymentdetail.PaymentTypeId == 4) {
+                                usr.others = (usr.others || 0) + patientpaymentdetail.AmountPaid;
+                            }
+                            usr.lhrc = usr.lhrc || 0;
+                            usr.voucher = usr.voucher || 0;
+                            usr.excessshort = usr.excessshort || 0;
+                        }
+                    }
+                }
+                $scope.StatementAmt();
+            }
+            $scope.getVoucherList();
+            $scope.getLHRCList();
+            $scope.getRefundsInfoBy();
+        };
+
+        var bsOriginalGetList = $scope.getList;
+        $scope.getList = function () {
+            var seq = ++bsFetchSeq;
+            var self = this, args = arguments;
+            return bsTagRequests(seq, function () { return bsOriginalGetList.apply(self, args); });
+        };
+
+        $scope.getListCallback = function (scope, res, options, hasError) {
+            if (bsIsStale(options)) {
+                return; // answer to an older fetch
+            }
+            var seq = options && options.bsFetchSeq !== undefined ? options.bsFetchSeq : bsFetchSeq;
+            return bsTagRequests(seq, function () {
+                return $scope.bsGetListCallback(scope, res, options, hasError);
+            });
+        };
+
+        ['getVoucherListCallback', 'getLHRCListCallback', 'getRefundsInfoCallback'].forEach(function (name) {
+            var original = $scope[name];
+            $scope[name] = function (scope, res, options, hasError) {
+                if (bsIsStale(options)) {
+                    return; // answer to an older fetch
+                }
+                return original.apply(this, arguments);
+            };
+        });
+
+        // One save at a time.
+        $scope.bsSaving = false;
+        var bsSavingTimer = null;
+
+        function bsSetSaving(saving) {
+            $scope.bsSaving = saving;
+            if (bsSavingTimer) {
+                clearTimeout(bsSavingTimer);
+                bsSavingTimer = null;
+            }
+            if (saving) {
+                // Safety net: a failed request with no response body calls no callback.
+                bsSavingTimer = setTimeout(function () {
+                    $scope.$evalAsync(function () { bsSetSaving(false); $scope.refreshReactProps(); });
+                }, 60000);
+            }
+        }
+
+        var bsOriginalSaveItem = $scope.saveItem;
+        $scope.saveItem = function () {
+            if ($scope.bsSaving) {
+                return;
+            }
+            bsSetSaving(true);
+            $scope.refreshReactProps();
+            return bsOriginalSaveItem.apply(this, arguments);
+        };
+
+        var bsWrappedSaveItemCallback = $scope.saveItemCallback;
+        $scope.saveItemCallback = function () {
+            bsSetSaving(false);
+            return bsWrappedSaveItemCallback.apply(this, arguments);
+        };
+
+        // saveItem() already passes onError: $scope.errorItemCallback, which was never defined.
+        // An error with an Error.Code is now handed here instead of being shown by the HTTP
+        // helper, so the same translated message is shown here.
+        $scope.errorItemCallback = function (data) {
+            bsSetSaving(false);
+            if (data && data.Error && data.Error.Code) {
+                utl.Alert.showErrorMsg($translate.instant('common.errors.' + data.Error.Code + '.lbl'));
+            }
+            $scope.refreshReactProps();
+        };
+
+        var bsOriginalSubmit = $scope.Submit;
+        $scope.Submit = function () {
+            if ($scope.bsSaving) {
+                return false; // a save is already in progress
+            }
+            return bsOriginalSubmit.apply(this, arguments);
+        };
+
+        var bsOriginalRefreshReactProps = $scope.refreshReactProps;
+        $scope.refreshReactProps = function () {
+            bsOriginalRefreshReactProps.apply(this, arguments);
+            $scope.reactProps.busy = !!$scope.bsSaving;
+        };
+        $scope.refreshReactProps();
+
         $scope.initLookup();
     }
 

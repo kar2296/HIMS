@@ -163,6 +163,22 @@
             }
         }
         //Reload banner code ends
+
+        /* React bridge code starts */
+        $scope.refreshReactProps = function () {
+            $scope.reactProps = {
+                tabs: $scope.tabs,
+                patientId: $stateParams.id ? parseInt($stateParams.id) : 0
+            };
+        };
+        $scope.refreshReactProps();
+
+        $scope.handleReactAction = function (actionName, payload) {
+            if (actionName === 'switchTab') {
+                $scope.switchTab(payload);
+            }
+        };
+        /* React bridge code ends */
     }
 
     ivfRegistrationTabController.$inject = ['$rootScope', '$scope', '$stateParams', '$state', '$translate', 'utl', '$timeout'];

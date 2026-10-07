@@ -28,6 +28,8 @@ import { SequenceMastersListScreen } from '../react-components/SequenceMastersLi
 import { EventTemplatesListScreen } from '../react-components/EventTemplatesListScreen';
 import { EventTemplateFormScreen } from '../react-components/EventTemplateFormScreen';
 import { DoctorPaymentModifyScreen } from '../react-components/DoctorPaymentModifyScreen';
+import { AppointmentBillPendingListScreen } from '../react-components/AppointmentBillPendingListScreen';
+import { AdminAppointmentDashboardScreen } from '../react-components/AdminAppointmentDashboardScreen';
 import { RoleFormScreen } from '../react-components/RoleFormScreen';
 import { GroupsListScreen } from '../react-components/GroupsListScreen';
 import { GroupTabScreen } from '../react-components/GroupTabScreen';
@@ -480,6 +482,40 @@ export const AppRoutes: React.FC = () => {
           element={
             <ProtectedRoute>
               <ShellWrapper activeTab="billing" component={<DoctorPaymentModifyScreen />} />
+            </ProtectedRoute>
+          }
+        />
+        {/* Pending Consultation Bills */}
+        <Route
+          path="/appointmentbillpendinglist"
+          element={
+            <ProtectedRoute>
+              <ShellWrapper activeTab="billing" component={<AppointmentBillPendingListScreen />} />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/app/appointmentbillpendinglist"
+          element={
+            <ProtectedRoute>
+              <ShellWrapper activeTab="billing" component={<AppointmentBillPendingListScreen />} />
+            </ProtectedRoute>
+          }
+        />
+        {/* Admin Appointment Dashboard */}
+        <Route
+          path="/adminappointmentdashboard"
+          element={
+            <ProtectedRoute>
+              <ShellWrapper activeTab="appointments" component={<AdminAppointmentDashboardScreen />} />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/app/adminappointmentdashboard"
+          element={
+            <ProtectedRoute>
+              <ShellWrapper activeTab="appointments" component={<AdminAppointmentDashboardScreen />} />
             </ProtectedRoute>
           }
         />

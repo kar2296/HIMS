@@ -3000,6 +3000,10 @@
                     path: '/'
                 });
             });
+            try {
+                sessionStorage.clear();
+                localStorage.removeItem('token');
+            } catch (e) {}
 
             $state.go('page.login');
         };
@@ -3009,7 +3013,10 @@
                 action: 'auth/logout',
                 data: null,
                 type: 'post',
-                onComplete: $scope.logoutCallback
+                onComplete: $scope.logoutCallback,
+                onError: function() {
+                    $scope.logoutCallback();
+                }
             };
 
             utl.Http.doAction(options);

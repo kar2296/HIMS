@@ -49,6 +49,8 @@
 
         $scope.getScheduledCallback = function (scope, res, options, hasError) {
             $scope.todayscheduled = res.Data || [];
+            $scope.refreshReactProps();
+            $scope.$applyAsync();
         };
 
         $scope.getScheduled = function () {
@@ -104,6 +106,8 @@
         };
         $scope.getcheckinCallback = function (scope, res, options, hasError) {
             $scope.todaycheckin = res.Data || [];
+            $scope.refreshReactProps();
+            $scope.$applyAsync();
         };
 
         $scope.getcheckin = function () {
@@ -159,6 +163,8 @@
         };
         $scope.getcancelledCallback = function (scope, res, options, hasError) {
             $scope.todaycanceled = res.Data || [];
+            $scope.refreshReactProps();
+            $scope.$applyAsync();
         };
 
         $scope.getcancelled = function () {
@@ -215,6 +221,8 @@
 
         $scope.getnoshownCallback = function (scope, res, options, hasError) {
             $scope.todayonshown = res.Data || [];
+            $scope.refreshReactProps();
+            $scope.$applyAsync();
         };
 
         $scope.getnoshown = function () {
@@ -382,7 +390,8 @@
                 }
 
             $scope.monthbranchsummarycount.Total = result.Data.length || 0;
-
+            $scope.refreshReactProps();
+            $scope.$applyAsync();
         };
 
         $scope.monthappsummary1 = function () {
@@ -561,10 +570,8 @@
 
 
             $scope.todaybranchsummarycount.Total = result.Data.length || 0;
-            // $scope.todaysummarycount.Scheduled = result.Data.filter(e => e.AppointmentStatusId === 2).length || 0;
-            // $scope.todaysummarycount.Checkin = result.Data.filter(e => e.AppointmentStatusId === 6).length || 0;
-            // $scope.todaysummarycount.Cancelled = result.Data.filter(e => e.AppointmentStatusId === 5).length || 0;
-            // $scope.todaysummarycount.Noshown = result.Data.filter(e => e.AppointmentStatusId === 12).length || 0;
+            $scope.refreshReactProps();
+            $scope.$applyAsync();
         };
 
         $scope.todayappsummary1 = function () {
@@ -645,7 +652,8 @@
             $scope.getnoshown();
             $scope.todayappsummary1();
             $scope.monthappsummary1();
-            //$scope.monthlyappsummary();
+            $scope.refreshReactProps();
+            $scope.$applyAsync();
         };
 
         $scope.getCount = function () {
@@ -704,12 +712,10 @@
         // /* Side Menu close*/
         $scope.lookupCallback = function (scope, data, options, hasError) {
             $scope.lookup = hasError ? {} : data;
+            $scope.refreshReactProps();
+            $scope.$applyAsync();
             $scope.getCount();
-            // $scope.getScheduled();
-            // $scope.getcheckin();
-            // $scope.getcancelled();
-            // $scope.getnoshown();
-        }
+        };
 
         $scope.initLookup = function () {
             var inputData = [
@@ -734,6 +740,72 @@
         }
 
         $scope.initLookup();
+
+        // ── REACT BRIDGE: AdminAppointmentDashboardScreen ──
+        $scope.isLoading = false;
+
+        $scope.refreshReactProps = function () {
+            $scope.reactProps = {
+                Items: $scope.Items || {},
+                todayscheduled: Array.isArray($scope.todayscheduled) ? $scope.todayscheduled : [],
+                todaycheckin: Array.isArray($scope.todaycheckin) ? $scope.todaycheckin : [],
+                todaycanceled: Array.isArray($scope.todaycanceled) ? $scope.todaycanceled : [],
+                todayonshown: Array.isArray($scope.todayonshown) ? $scope.todayonshown : [],
+                todayappsummary: $scope.todayappsummary || [],
+                todaysummarycount: $scope.todaysummarycount || {},
+                monthappsummary: $scope.monthappsummary || [],
+                monthsummarycount: $scope.monthsummarycount || {},
+                todaybranchsummary: $scope.todaybranchsummary || [],
+                todaybranch_facility: $scope.todaybranch_facility || [],
+                todaybranchsummarycount: $scope.todaybranchsummarycount || {},
+                monthbranchsummary: $scope.monthbranchsummary || [],
+                branch_facility: $scope.branch_facility || [],
+                monthbranchsummarycount: $scope.monthbranchsummarycount || {},
+                lookup: {
+                    Facility: ($scope.lookup && $scope.lookup.Facility) || []
+                },
+                currentfilter: $scope.currentfilter,
+                loading: $scope.isLoading
+            };
+        };
+
+        $scope.handleReactAction = function (actionName, payload) {
+            $scope.$evalAsync(function () {
+                switch (actionName) {
+                    case 'facilityFilterChange':
+                        $scope.currentfilter.FacilityId = (payload && payload.value !== undefined) ? payload.value : -1;
+                        $scope.getCount();
+                        break;
+                    case 'dateFilterChange':
+                        if (payload && payload.date) {
+                            $scope.currentfilter.FromDate = new Date(payload.date);
+                            $scope.currentfilter.ToDate = new Date(payload.date);
+                        }
+                        $scope.getCount();
+                        break;
+                    case 'refresh':
+                        $scope.getCount();
+                        break;
+                    case 'viewPatient':
+                        if (payload && payload.patientId) {
+                            utl.Modal.open('registration.patientprofile', {
+                                params: { pid: payload.patientId },
+                                confirmCallback: $scope.getCount
+                            });
+                        }
+                        break;
+                    default:
+                        if (typeof $scope[actionName] === 'function') {
+                            $scope[actionName](payload);
+                        } else {
+                            console.warn('Unhandled React action in AdminAppDashboardController:', actionName, payload);
+                        }
+                }
+                $scope.refreshReactProps();
+            });
+        };
+
+        $scope.refreshReactProps();
     }
 
     AdminAppDashboardController.$inject = ['$rootScope', '$scope', '$timeout', '$stateParams', '$state', '$translate', 'utl', '$filter'];

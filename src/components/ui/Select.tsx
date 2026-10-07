@@ -74,8 +74,8 @@ export const Select: React.FC<SelectProps> = ({
           }}
         >
           {placeholder && <option value="">{placeholder}</option>}
-          {options.map((o) => (
-            <option key={o.value} value={o.value}>{o.label}</option>
+          {options.map((o, idx) => (
+            <option key={`${o.value}-${idx}`} value={o.value}>{o.label}</option>
           ))}
         </select>
         <i

@@ -140,7 +140,7 @@ export const ConsultationPrintModal: React.FC<ConsultationPrintModalProps> = ({
 
   const patientName = [encounter?.Patient?.FirstName, encounter?.Patient?.LastName].filter(Boolean).join(' ') || 'Patient';
   const mrn = encounter?.Patient?.PatientCode || encounter?.Patient?.RegistrationNo || `MRN-${context.patientId}`;
-  const doctorName = encounter?.DoctorName || encounter?.EncounterDoctors?.[0]?.DoctorName || consultation?.Doctor?.FirstName || 'Consulting Physician';
+  const doctorName = encounter?.DoctorName || encounter?.EncounterDoctors?.[0]?.DoctorName || (consultation as any)?.Doctor?.FirstName || 'Consulting Physician';
   const visitNo = encounter?.VisitNo || encounter?.EncounterNo || '—';
   const facilityName = settings.customHospitalTitle || encounter?.Facility?.FacilityName || 'SHUVADARSINI HOSPITAL';
 

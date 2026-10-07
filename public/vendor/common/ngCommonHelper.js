@@ -1,4 +1,4 @@
-﻿(function() {
+(function() {
     'use strict';
 
     angular
@@ -366,7 +366,7 @@
                             var fieldName = fields[k];
                             if (fieldName) {
                                 //any one field value matches
-                                if (dataItem[fieldName].toString().toLowerCase().indexOf(query) > -1) {
+                                if (dataItem[fieldName] != null && dataItem[fieldName].toString().toLowerCase().indexOf(query) > -1) {
                                     found = true;
                                     break;
                                 }

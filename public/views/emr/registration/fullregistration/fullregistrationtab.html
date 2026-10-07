@@ -3,28 +3,97 @@
      SUB-WIDGET PATTERN, untouched) and the nested <div ui-view> that renders
      each child tab's own already-migrated screen. See fullregistrationtab.js
      for the real bridge wiring. -->
+
 <link rel="stylesheet" href="app/css/drhms.css">
 <style>
     patientsearch#drhms-patinet-search-box .custom-popup-wrapper {
         margin-left: -180px;
     }
+    .full-reg-wrapper {
+        max-width: 1280px;
+        margin: 0 auto;
+        padding: 0 16px;
+        box-sizing: border-box;
+    }
+    .full-reg-header-bar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 10px;
+        padding-top: 4px;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+    .full-reg-header-actions {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-left: auto;
+    }
+    .full-reg-header-actions .filters,
+    .full-reg-header-actions .search {
+        margin: 0;
+        position: relative;
+        display: flex;
+        align-items: center;
+    }
+    .full-reg-header-actions patientsearch {
+        display: block;
+        width: 280px;
+    }
+    .full-reg-header-actions patientsearch input {
+        width: 100% !important;
+        max-width: 100% !important;
+        height: 34px !important;
+        font-size: 12.5px !important;
+        border-radius: 6px !important;
+        padding-left: 32px !important;
+        padding-right: 12px !important;
+        box-sizing: border-box !important;
+    }
+    .full-reg-header-actions .btn-add {
+        float: none !important;
+        margin: 0 !important;
+        border: none !important;
+        border-radius: 50% !important;
+        width: 34px !important;
+        height: 34px !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        background: var(--hims-primary, #21008d) !important;
+        color: #ffffff !important;
+        cursor: pointer !important;
+        flex-shrink: 0 !important;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.12) !important;
+        transition: transform 0.15s ease, opacity 0.15s ease !important;
+    }
+    .full-reg-header-actions .btn-add:hover {
+        opacity: 0.92 !important;
+        transform: scale(1.05) !important;
+    }
 </style>
 <link href="app/css/regbilling.css" rel="stylesheet">
-<div class="filters" style="display: flex; justify-content: flex-end; align-items: center; margin-bottom: 8px;">
-    <div class="search">
-        <patientsearch id="drhms-patinet-search-box" ng-keyup="moveHeaderFocus('pid')"
-            patientid="item.PatientId" name="txtpatientsearch" patientinfo="selectedPatient"
-            patientchange="patientChange()" aria-placeholder="Patient Search"
-            tabindex="tabindexmap.patienttabindex" isdisabled="{{SaveCompleted}}"
-            filterconfig="patientfilterconfig"></patientsearch>
-        <div class="drhms-search-icon"><i class="fas fa-search" aria-hidden="true"></i></div>
-    </div>
-</div>
-<react-component name="FullRegistrationTabScreen" props="{ reactProps: reactProps, onAction: handleReactAction }"></react-component>
-<div id="receipt_tab" class="hims-theme-registration">
-    <div class="row">
-        <div class="col-sm-12">
-            <div ui-view></div>
+<div class="full-reg-wrapper">
+    <div class="full-reg-header-bar">
+        <h3 style="margin: 0; font-size: 18px; font-weight: 700; color: #1e293b; font-family: inherit;">Full Registration</h3>
+        <div class="full-reg-header-actions">
+            <div class="filters">
+                <div class="search">
+                    <patientsearch id="drhms-patinet-search-box" ng-keyup="moveHeaderFocus('pid')"
+                        patientid="item.PatientId" name="txtpatientsearch" patientinfo="selectedPatient"
+                        patientchange="patientChange()" aria-placeholder="Patient Search"
+                        tabindex="tabindexmap.patienttabindex" isdisabled="{{SaveCompleted}}"
+                        filterconfig="patientfilterconfig"></patientsearch>
+                </div>
+            </div>
+            <button type="button" class="btn-add" tabindex="-1" ng-click="addNewFull()" title="Add New Full Registration">
+                <i class="fa fa-plus" aria-hidden="true"></i>
+            </button>
         </div>
+    </div>
+    <react-component name="FullRegistrationTabScreen" props="{ reactProps: reactProps, onAction: handleReactAction }"></react-component>
+    <div id="receipt_tab" class="hims-theme-registration">
+        <div ui-view></div>
     </div>
 </div>

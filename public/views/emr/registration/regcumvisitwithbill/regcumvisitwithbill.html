@@ -1,237 +1,1135 @@
 <link href="app/css/regbilling.css" rel="stylesheet">
 <style>
-    .token-num input {
-        border-radius: 103px;
-        inline-size: 46px;
-        block-size: 46px !important;
-        text-align: center;
-        font-size: 13px;
-        color: #f05050;
+    /* ==========================================================================
+       ENTERPRISE CLINICAL DESIGN SYSTEM: REGISTRATION CUM VISIT WITH BILL
+       Modern SaaS / Epic / Linear-style clinical interface tokens & controls
+       Strictly preserves all AngularJS directives, ng-models, and autosearches.
+       ========================================================================== */
+
+    .reg-nd {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important;
+        color: #1e293b !important;
+        background-color: #f8fafc !important;
+        padding: 16px 24px 140px 24px !important;
+        margin: 0 !important;
     }
 
-    .form-horizontal .form-group {
-        block-size: 72px;
+    /* Clear Bootstrap 3 form-horizontal clearfix bugs */
+    .reg-nd .form-horizontal .form-group:before,
+    .reg-nd .form-horizontal .form-group:after {
+        display: none !important;
     }
 
-    /* the patient search control draws its own icon; this second one sat on top of it */
-    .drhms-filters .search patientsearch ~ .drhms-search-icon {
-        display: none;
+    /* Critical fix: Ensure AngularJS ng-hide is never overridden by !important display rules */
+    .reg-nd .ng-hide,
+    .reg-nd [ng-show].ng-hide,
+    .reg-nd [ng-hide].ng-hide,
+    .reg-nd label.control-label.ng-hide,
+    .reg-nd label.ng-hide,
+    .reg-nd .drhms-webcam-pic.ng-hide,
+    .reg-nd .drhms-user_image.ng-hide {
+        display: none !important;
     }
 
-    /* ===== New design (my-app-newdesign "Master Patient Registration"): page title, action row, section cards ===== */
-    .reg-nd > .drhms-filters { flex-direction: column; align-items: flex-start !important; gap: 14px; padding: 18px 0 18px !important;
-        background: transparent; border: 0; box-shadow: none; }
-    .reg-nd > .drhms-filters > div:first-child { gap: 14px; align-items: center !important; }
-    .reg-nd-icon { width: 52px; height: 52px; border-radius: 12px; background: #eff6ff; color: #1e3a8a; display: inline-flex;
-        align-items: center; justify-content: center; font-size: 22px; flex: none; }
-    .reg-nd > .drhms-filters h4 { font-size: 24px !important; font-weight: 800 !important; letter-spacing: -.01em; color: #0f172a !important; }
-    .reg-nd-sub { margin: 4px 0 0; font-size: 14px; color: #64748b; }
-    .reg-nd > .drhms-filters .filters { flex-wrap: wrap; gap: 10px !important; }
-    .reg-nd > .drhms-filters .filters .search { width: 300px; min-width: 240px; }
-    .reg-nd > .drhms-filters .filters input { height: 44px !important; border-radius: 8px !important; font-size: 14px !important;
-        background-color: #fff !important; border: 1px solid #cbd5e1 !important; }
-    .reg-nd > .drhms-filters .filters input#pid { background-color: #fff !important; border: 1px solid #cbd5e1 !important; height: 44px !important; }
-
-    /* header action buttons, VIP/MLC flags */
-    .reg-nd-btn { display: inline-flex; align-items: center; gap: 8px; height: 44px; padding: 0 18px; border-radius: 8px; border: 1px solid transparent;
-        font-size: 14px; font-weight: 700; cursor: pointer; white-space: nowrap; line-height: 1; transition: filter .15s, background .15s; }
-    .reg-nd-btn:focus-visible { outline: 2px solid #2563eb; outline-offset: 2px; }
-    /* regbilling.css turns every '.filters button' into a 30px round icon; these are text buttons */
-    .reg-nd .filters .reg-nd-btn { width: auto !important; height: 44px !important; padding: 0 18px !important; border-radius: 8px !important;
-        float: none !important; flex: none; font-size: 14px !important; }
-    .reg-nd .filters .reg-nd-btn.is-outline { border: 1px solid #cbd5e1 !important; }
-    .reg-nd > .drhms-filters > div:last-child { align-self: stretch; }
-    .reg-nd > .drhms-filters .filters { justify-content: flex-start !important; }
-    .reg-nd-btn.is-green { background: #3f8f5f; color: #fff; }
-    .reg-nd-btn.is-navy { background: #0b1a6b; color: #fff; }
-    .reg-nd-btn.is-green:hover, .reg-nd-btn.is-navy:hover { filter: brightness(1.1); }
-    .reg-nd-btn.is-outline { background: #fff; color: #1e293b; border-color: #cbd5e1; }
-    .reg-nd-btn.is-outline:hover { background: #f8fafc; }
-    .reg-nd-flags { margin-left: auto; display: inline-flex; gap: 22px; flex-wrap: wrap; }
-    .reg-nd-flags label { display: inline-flex !important; align-items: center; gap: 8px; margin: 0 !important; font-size: 14px; font-weight: 600;
-        color: #0f172a; cursor: pointer; }
-    .reg-nd-flags input { width: 18px; height: 18px; margin: 0 !important; accent-color: #2563eb; cursor: pointer; }
-    .reg-nd .reg-nd-moved { display: none !important; }
-
-    /* section cards */
-    .reg-nd .row:has(> .drhms-sub-header-border, > .accordian-button, > .drhms-sub-header, > .acordians) {
-        background: #fff; border: 1px solid #e2e8f0; border-radius: 14px; margin: 0 0 20px !important; padding: 4px 12px 14px;
-        box-shadow: 0 1px 3px rgba(15, 23, 42, .05); }
-    .reg-nd .row > .drhms-sub-header-border, .reg-nd .row > .accordian-button, .reg-nd .row > .drhms-sub-header,
-    .reg-nd .row > .acordians {
-        display: flex !important; align-items: center; gap: 12px; width: 100%; float: none;
-        margin: 0 0 18px !important; padding: 18px 8px 16px !important; border: 0 !important; border-bottom: 1px solid #eef2f7 !important;
-        background: transparent !important; color: #0f172a !important; font-size: 18px !important; font-weight: 700 !important;
-        text-transform: none !important; letter-spacing: 0 !important; justify-content: flex-start !important; text-align: left !important; }
-    .reg-nd .row > .accordian-button > .drhms-sub-header, .reg-nd .row > .acordians > .drhms-sub-header {
-        display: flex; align-items: center; gap: 12px; margin: 0 !important; padding: 0 !important; border: 0 !important;
-        font: inherit !important; color: inherit !important; background: transparent !important; text-transform: none !important; }
-    .reg-nd-ico { width: 36px; height: 36px; border-radius: 8px; background: #eff6ff; color: #1e3a8a; display: inline-flex;
-        align-items: center; justify-content: center; font-size: 15px; flex: none; }
-    .reg-nd-num { margin-right: -6px; }
-    .reg-nd .row > .acordians > :last-child, .reg-nd .row > .accordian-button .drhms-past-visit { margin-left: auto; }
-
-    /* fields: larger, as in the new design */
-    .reg-nd form .control-label { font-size: 14px !important; font-weight: 600 !important; color: #334155 !important;
-        margin-bottom: 8px !important; text-transform: none !important; }
-    .reg-nd form .form-control, .reg-nd form input[type="text"], .reg-nd form input[type="number"], .reg-nd form input[type="email"],
-    .reg-nd form .ui-select-container .ui-select-toggle, .reg-nd form .ui-select-container .form-control, .reg-nd form select {
-        min-height: 44px; border-radius: 8px !important; border: 1px solid #cbd5e1 !important; background-color: #fff !important;
-        font-size: 14px !important; box-shadow: none !important; background-image: none !important; }
-    .reg-nd form .ui-select-bootstrap .ui-select-toggle { display: flex !important; align-items: center; }
-    .reg-nd form .ui-select-container.ui-select-bootstrap > .ui-select-match > .btn.ui-select-toggle { background: #fff !important; color: #0f172a; }
-    .reg-nd form .ui-select-container.ui-select-bootstrap > .ui-select-match > .btn.ui-select-toggle[disabled] { background: #f8fafc !important; }
-    .reg-nd form .form-control[disabled], .reg-nd form input[disabled], .reg-nd form input[readonly] { background-color: #f8fafc !important; }
-    .reg-nd form .form-control:focus, .reg-nd form input:focus { border-color: #2563eb !important; box-shadow: 0 0 0 3px rgba(37, 99, 235, .15) !important; }
-    .reg-nd .form-horizontal .form-group { block-size: 86px; }
-    .reg-nd form textarea.reg-attender { min-height: 44px !important; height: 44px !important; padding-top: 11px !important; }
-
-    /* phones: title, the two searches and the icon buttons stack instead of running off the screen */
-    @media (max-width: 767px) {
-        .drhms-filters {
-            flex-direction: column;
-            align-items: stretch !important;
-            gap: 8px;
-        }
-
-        .drhms-filters .filters {
-            flex-wrap: wrap;
-        }
-
-        .drhms-filters .filters .search {
-            width: 100%;
-            min-width: 0;
-        }
+    .reg-nd .reg-nd-moved {
+        display: none !important;
     }
 
-    /* fits the fixed-height field row (a tall textarea ran into the Country label below) */
-    textarea.reg-attender {
-        min-height: 38px !important;
-        height: 38px !important;
-        resize: none;
-        overflow: hidden;
+    /* --------------------------------------------------------------------------
+       1. Top Header Bar & Quick Actions Toolbar
+       -------------------------------------------------------------------------- */
+    .reg-nd-header-bar {
+        background: #ffffff !important;
+        border: 1px solid #e2e8f0 !important;
+        border-radius: 8px !important;
+        box-shadow: 0 1px 3px 0 rgba(15, 23, 42, 0.05), 0 1px 2px -1px rgba(15, 23, 42, 0.03) !important;
+        padding: 10px 14px !important;
+        margin-bottom: 8px !important;
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 8px !important;
+        width: 100% !important;
+    }
+
+    .reg-nd-header-top {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        width: 100% !important;
+        gap: 12px !important;
+        flex-wrap: wrap !important;
+    }
+
+    .reg-nd-header-bottom {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        width: 100% !important;
         padding-top: 8px !important;
-        padding-bottom: 8px !important;
-        line-height: 20px;
+        border-top: 1px solid #f1f5f9 !important;
+        gap: 10px !important;
+        flex-wrap: wrap !important;
     }
 
-    .acordians {
-        display: flex;
-        align-items: center;
-        inline-size: 100%;
-        justify-content: space-between;
-        color: #042e71;
-        border-block-end: 1px solid #072a6247;
-        padding-block-end: 6px;
-        margin-block-end: 10px;
+    .reg-nd-header-left {
+        display: flex !important;
+        align-items: center !important;
+        gap: 10px !important;
     }
 
-    td.drhms-special-count {
-        color: #f44336 !important;
+    .reg-nd-icon {
+        width: 32px !important;
+        height: 32px !important;
+        border-radius: 6px !important;
+        background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%) !important;
+        color: #2563eb !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        font-size: 15px !important;
+        border: 1px solid #bfdbfe !important;
+        box-shadow: 0 1px 2px rgba(37, 99, 235, 0.08) !important;
+        flex-shrink: 0 !important;
     }
 
-    .filters {
-        margin: 5px auto;
+    .reg-nd-title {
+        font-size: 16px !important;
+        font-weight: 700 !important;
+        color: #0f172a !important;
+        margin: 0 !important;
+        letter-spacing: -0.02em !important;
+        line-height: 1.2 !important;
     }
 
-    .drhms-filters .filters .search {
-        width: 260px;
-        min-width: 260px;
+    .reg-nd-badge {
+        display: inline-flex !important;
+        align-items: center !important;
+        padding: 1px 7px !important;
+        border-radius: 12px !important;
+        background: #e0f2fe !important;
+        color: #0369a1 !important;
+        font-size: 10px !important;
+        font-weight: 700 !important;
+        letter-spacing: 0.04em !important;
+        text-transform: uppercase !important;
+        border: 1px solid #bae6fd !important;
     }
 
-    .drhms-filters .filters .search input {
+    .reg-nd-sub {
+        font-size: 11px !important;
+        color: #64748b !important;
+        margin: 1px 0 0 0 !important;
+        line-height: 1.2 !important;
+    }
+
+    .reg-nd-header-actions {
+        display: flex !important;
+        align-items: center !important;
+        gap: 6px !important;
+        flex-wrap: wrap !important;
+    }
+
+    .reg-nd-search-group {
+        display: flex !important;
+        align-items: center !important;
+        gap: 8px !important;
+        flex-wrap: wrap !important;
+    }
+
+    .reg-nd-extra-actions {
+        display: flex !important;
+        align-items: center !important;
+        gap: 6px !important;
+    }
+
+    /* Force all action buttons in reg-nd header to proper rectangular shape */
+    .reg-nd .reg-nd-header-bar button,
+    .reg-nd .reg-nd-header-bar .btn,
+    .reg-nd .filters button,
+    .reg-nd .filters .btn,
+    .reg-nd button.reg-nd-btn,
+    .reg-nd .filters .reg-nd-btn,
+    .reg-nd .filters .btn.btn-success,
+    .reg-nd .filters [class*="btn"],
+    .reg-nd .reg-nd-header-bar [class*="btn"] {
+        width: auto !important;
+        min-width: 0 !important;
+        height: 31px !important;
+        border-radius: 5px !important;
+        float: none !important;
+        padding: 0 10px !important;
+        font-size: 11.5px !important;
+        font-weight: 600 !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 5px !important;
+        white-space: nowrap !important;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03) !important;
+        transition: all 0.15s ease !important;
+    }
+
+    .reg-nd-btn.is-navy {
+        background: #0f172a !important;
+        color: #ffffff !important;
+        border: 1px solid #0f172a !important;
+    }
+    .reg-nd-btn.is-navy:hover {
+        background: #1e293b !important;
+        border-color: #1e293b !important;
+        box-shadow: 0 2px 4px rgba(15, 23, 42, 0.15) !important;
+    }
+
+    .reg-nd-btn.is-outline {
+        background: #ffffff !important;
+        color: #334155 !important;
+        border: 1px solid #cbd5e1 !important;
+    }
+    .reg-nd-btn.is-outline:hover {
+        background: #f8fafc !important;
+        border-color: #94a3b8 !important;
+        color: #0f172a !important;
+    }
+
+    .reg-nd-kbd {
+        font-size: 9.5px !important;
+        font-weight: 700 !important;
+        background: rgba(0, 0, 0, 0.07) !important;
+        color: inherit !important;
+        padding: 1px 4px !important;
+        border-radius: 3px !important;
+        margin-left: 2px !important;
+        letter-spacing: 0.02em !important;
+    }
+    .reg-nd-btn.is-navy .reg-nd-kbd {
+        background: rgba(255, 255, 255, 0.22) !important;
+        color: #ffffff !important;
+    }
+
+    /* Searches in Header */
+    .reg-nd-search-member {
+        width: 170px !important;
+        min-width: 150px !important;
+        position: relative !important;
+    }
+    .reg-nd-search-patient {
+        width: 250px !important;
+        min-width: 220px !important;
+        position: relative !important;
+    }
+
+    .reg-nd .search input,
+    .reg-nd-search-member input,
+    .reg-nd-search-patient input {
+        height: 31px !important;
+        border-radius: 5px !important;
+        font-size: 12px !important;
+        background-color: #ffffff !important;
+        border: 1px solid #cbd5e1 !important;
+        color: #0f172a !important;
+        padding: 4px 10px 4px 30px !important;
         width: 100% !important;
-        box-sizing: border-box;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02) !important;
+        transition: border-color 0.15s ease, box-shadow 0.15s ease !important;
+    }
+    .reg-nd .search input:focus,
+    .reg-nd-search-member input:focus,
+    .reg-nd-search-patient input:focus {
+        border-color: #2563eb !important;
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12) !important;
+        outline: none !important;
     }
 
-    .drhms-filters .filters .search autosearch,
-    .drhms-filters .filters .search patientsearch,
-    .drhms-filters .filters .search .autosearch-div,
-    .drhms-filters .filters .search .typeahead-demo {
+    .reg-nd .search i.fa-search,
+    .reg-nd .search .drhms-search-icon i,
+    .reg-nd-search-member i.fa-search,
+    .reg-nd-search-patient i.fa-search {
+        position: absolute !important;
+        left: 10px !important;
+        top: 50% !important;
+        transform: translateY(-50%) !important;
+        color: #94a3b8 !important;
+        font-size: 12px !important;
+        pointer-events: none !important;
+        z-index: 2 !important;
+    }
+    .reg-nd-filters .search patientsearch ~ .drhms-search-icon,
+    .reg-nd .search patientsearch ~ .drhms-search-icon {
+        display: none !important;
+    }
+
+    /* --------------------------------------------------------------------------
+       2. Enterprise Card Container & Headers
+       -------------------------------------------------------------------------- */
+    .reg-nd .reg-nd-card,
+    .reg-nd .row:has(> .drhms-sub-header-border, > .accordian-button, > .drhms-sub-header, > .acordians) {
+        background: #ffffff !important;
+        border: 1px solid #e2e8f0 !important;
+        border-radius: 8px !important;
+        box-shadow: 0 1px 3px 0 rgba(15, 23, 42, 0.04), 0 1px 2px -1px rgba(15, 23, 42, 0.02) !important;
+        padding: 10px 14px 4px 14px !important;
+        margin: 0 0 8px 0 !important;
+        display: flex !important;
+        flex-wrap: wrap !important;
         width: 100% !important;
-        display: block;
     }
 
-    autosearch.reasonsearch .custom-popup-wrapper {
-        margin-inline-start: -200px;
+    .reg-nd-card-header,
+    .reg-nd .row > .drhms-sub-header-border,
+    .reg-nd .row > .accordian-button,
+    .reg-nd .row > .drhms-sub-header,
+    .reg-nd .row > .acordians {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        width: 100% !important;
+        flex: 0 0 100% !important;
+        padding: 0 0 6px 0 !important;
+        margin: 0 0 8px 0 !important;
+        border: none !important;
+        border-bottom: 1px solid #f1f5f9 !important;
+        background: transparent !important;
+        color: #0f172a !important;
+        font-size: 13px !important;
+        font-weight: 700 !important;
+        text-transform: none !important;
+        letter-spacing: -0.01em !important;
     }
 
-    patientsearch.logo.inputsearchlogo .custom-popup-wrapper {
-        margin-inline-start: -395px !important;
+    .reg-nd-card-title,
+    .reg-nd .row > .accordian-button > .drhms-sub-header,
+    .reg-nd .row > .acordians > .drhms-sub-header {
+        display: inline-flex !important;
+        align-items: center !important;
+        gap: 8px !important;
+        font-size: 13px !important;
+        font-weight: 700 !important;
+        color: #0f172a !important;
+        background: transparent !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        border: none !important;
     }
 
-    /* table.table.table-bordered.table-condensed.dropdown-menu.align {
-        margin-inline-start: -319px;
-    } */
-    .draftbutton-billing {
-        background: #ff1981;
-        border-radius: 0px;
-        inline-size: auto;
-        padding: 0 20px;
-        block-size: 32px;
-        margin: 0 2px;
-        border: 0;
-        color: #000000 !important;
+    .reg-nd-ico {
+        width: 24px !important;
+        height: 24px !important;
+        border-radius: 5px !important;
+        background: #eff6ff !important;
+        color: #2563eb !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        font-size: 11px !important;
+        flex: none !important;
+        border: 1px solid #dbeafe !important;
     }
 
-    fieldset.fsStyle.bdrnone table.table.table-bordered th {
-        font-weight: 700;
+    .reg-nd-num {
+        background: #f1f5f9 !important;
+        color: #475569 !important;
+        font-size: 9.5px !important;
+        font-weight: 700 !important;
+        padding: 1px 5px !important;
+        border-radius: 3px !important;
+        margin-right: 0 !important;
     }
 
-    td.service-name {
-        color: blue !important;
+    /* VIP and MLC chips */
+    .reg-nd-flags {
+        display: inline-flex !important;
+        align-items: center !important;
+        gap: 8px !important;
+        margin-left: auto !important;
     }
 
-    .patient-options {
-        border: 1px solid #B6B6B6;
-        block-size: 142px;
-        display: block;
-        justify-content: space-around;
-        align-items: center;
-        margin-inline-start: -12px;
+    .reg-nd-chip-vip {
+        display: inline-flex !important;
+        align-items: center !important;
+        gap: 4px !important;
+        padding: 3px 8px !important;
+        border-radius: 12px !important;
+        background: #fffbeb !important;
+        border: 1px solid #fde68a !important;
+        color: #b45309 !important;
+        font-size: 11px !important;
+        font-weight: 600 !important;
+        cursor: pointer !important;
+        user-select: none !important;
+        transition: all 0.15s ease !important;
+        margin: 0 !important;
+    }
+    .reg-nd-chip-vip:hover {
+        background: #fef3c7 !important;
+    }
+    .reg-nd-chip-vip input {
+        margin: 0 !important;
+        accent-color: #d97706 !important;
+        cursor: pointer !important;
     }
 
-    .d-flex-btn {
-        display: flex;
-        justify-content: space-around;
-        align-items: center;
-        block-size: 50px;
+    .reg-nd-chip-mlc {
+        display: inline-flex !important;
+        align-items: center !important;
+        gap: 4px !important;
+        padding: 3px 8px !important;
+        border-radius: 12px !important;
+        background: #fef2f2 !important;
+        border: 1px solid #fecaca !important;
+        color: #b91c1c !important;
+        font-size: 11px !important;
+        font-weight: 600 !important;
+        cursor: pointer !important;
+        user-select: none !important;
+        transition: all 0.15s ease !important;
+        margin: 0 !important;
+    }
+    .reg-nd-chip-mlc:hover {
+        background: #fee2e2 !important;
+    }
+    .reg-nd-chip-mlc input {
+        margin: 0 !important;
+        accent-color: #dc2626 !important;
+        cursor: pointer !important;
+    }
+
+    .reg-nd-past-visit-btn,
+    .drhms-past-visit {
+        display: inline-flex !important;
+        align-items: center !important;
+        gap: 5px !important;
+        height: 28px !important;
+        padding: 0 10px !important;
+        border-radius: 5px !important;
+        background: #f1f5f9 !important;
+        border: 1px solid #cbd5e1 !important;
+        color: #334155 !important;
+        font-size: 11.5px !important;
+        font-weight: 600 !important;
+        cursor: pointer !important;
+        transition: all 0.15s ease !important;
+        margin-left: auto !important;
+    }
+    .reg-nd-past-visit-btn:hover,
+    .drhms-past-visit:hover {
+        background: #e2e8f0 !important;
+        color: #0f172a !important;
+    }
+
+    /* --------------------------------------------------------------------------
+       3. Form Fields, Labels, Inputs & Grid
+       -------------------------------------------------------------------------- */
+    .reg-nd .form-horizontal .form-group,
+    .reg-nd .form-group {
+        block-size: auto !important;
+        height: auto !important;
+        min-height: 0 !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        margin-bottom: 7px !important;
+        padding-left: 5px !important;
+        padding-right: 5px !important;
+    }
+
+    .reg-nd label.control-label {
+        display: block !important;
+        float: none !important;
+        width: 100% !important;
+        text-align: left !important;
+        padding: 0 !important;
+        margin: 0 0 2px 0 !important;
+        font-size: 10.5px !important;
+        font-weight: 700 !important;
+        color: #475569 !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.04em !important;
+        line-height: 1.2 !important;
+    }
+
+    /* CRITICAL ALIGNMENT FIX:
+       In Bootstrap 3, nested col-*-12 divs inherit 15px padding, which pushed
+       the input/select 15px to the right of the label text.
+       Resetting inner column padding makes input borders flush with the label. */
+    .reg-nd .form-group > div.col-lg-12,
+    .reg-nd .form-group > div.col-sm-12,
+    .reg-nd .form-group > div.col-md-12,
+    .reg-nd .form-group > div.col-xs-12,
+    .reg-nd .form-group > div[class*="col-12"],
+    .reg-nd .form-group > div.pdr0,
+    .reg-nd .form-group div[class*="col-"] > div.col-lg-12,
+    .reg-nd .form-group div[class*="col-"] > div.col-sm-12,
+    .reg-nd .form-group div[class*="col-"] > div.col-md-12 {
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+    }
+
+    .reg-nd form .form-control,
+    .reg-nd form input[type="text"],
+    .reg-nd form input[type="number"],
+    .reg-nd form input[type="email"],
+    .reg-nd form select {
+        height: 31px !important;
+        min-height: 31px !important;
+        line-height: 19px !important;
+        border-radius: 5px !important;
+        border: 1px solid #cbd5e1 !important;
+        background-color: #ffffff !important;
+        color: #0f172a !important;
+        font-size: 12px !important;
+        font-weight: 500 !important;
+        padding: 4px 8px !important;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02) !important;
+        transition: border-color 0.15s ease, box-shadow 0.15s ease !important;
+        width: 100% !important;
+    }
+
+    .reg-nd form .form-control:focus,
+    .reg-nd form input[type="text"]:focus,
+    .reg-nd form input[type="number"]:focus,
+    .reg-nd form input[type="email"]:focus,
+    .reg-nd form select:focus {
+        border-color: #2563eb !important;
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12) !important;
+        outline: none !important;
+        background-color: #ffffff !important;
+    }
+
+    .reg-nd form .form-control[disabled],
+    .reg-nd form input[disabled],
+    .reg-nd form input[readonly] {
+        background-color: #f8fafc !important;
+        color: #64748b !important;
+        border-color: #e2e8f0 !important;
+        cursor: not-allowed !important;
+    }
+
+    /* Textarea for Attender Information */
+    .reg-nd textarea.reg-attender,
+    .reg-nd textarea.form-control {
+        height: 31px !important;
+        min-height: 31px !important;
+        max-height: 31px !important;
+        resize: none !important;
+        padding: 4px 8px !important;
+        line-height: 20px !important;
+        border-radius: 5px !important;
+        border: 1px solid #cbd5e1 !important;
+        font-size: 12px !important;
+    }
+
+    /* Datepicker icon positioning */
+    .reg-nd .datepicker {
+        position: relative !important;
+        width: 100% !important;
+    }
+    .reg-nd .datepicker input {
+        padding-right: 28px !important;
+    }
+    .reg-nd .datepicker i.fa-calendar,
+    .reg-nd .datepicker i {
+        position: absolute !important;
+        right: 8px !important;
+        top: 50% !important;
+        transform: translateY(-50%) !important;
+        color: #94a3b8 !important;
+        pointer-events: none !important;
+        font-size: 12px !important;
+    }
+
+    /* DOB & Age column layout */
+    .reg-nd #datepick {
+        padding-left: 0 !important;
+        padding-right: 4px !important;
+    }
+    .reg-nd #agediv {
+        padding-left: 4px !important;
+        padding-right: 0 !important;
+    }
+
+    /* --------------------------------------------------------------------------
+       4. UI-Select Controls
+       -------------------------------------------------------------------------- */
+    .reg-nd .ui-select-container {
+        width: 100% !important;
+    }
+
+    .reg-nd .ui-select-container.ui-select-bootstrap > .ui-select-match > .btn.ui-select-toggle {
+        height: 31px !important;
+        min-height: 31px !important;
+        border-radius: 5px !important;
+        border: 1px solid #cbd5e1 !important;
+        background-color: #ffffff !important;
+        color: #0f172a !important;
+        font-size: 12px !important;
+        font-weight: 500 !important;
+        padding: 4px 8px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02) !important;
+        transition: border-color 0.15s ease, box-shadow 0.15s ease !important;
+    }
+
+    .reg-nd .ui-select-container.open > .ui-select-match > .btn.ui-select-toggle {
+        border-color: #2563eb !important;
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12) !important;
+    }
+
+    .reg-nd .ui-select-container.ui-select-bootstrap > .ui-select-match > .btn.ui-select-toggle[disabled] {
+        background-color: #f8fafc !important;
+        color: #64748b !important;
+        border-color: #e2e8f0 !important;
+        cursor: not-allowed !important;
+    }
+
+    .ui-select-bootstrap .ui-select-choices {
+        border-radius: 6px !important;
+        border: 1px solid #e2e8f0 !important;
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1) !important;
+        padding: 3px !important;
+        font-size: 12px !important;
+        z-index: 99999 !important;
+    }
+
+    .ui-select-bootstrap .ui-select-choices-row > span {
+        padding: 5px 8px !important;
+        border-radius: 4px !important;
+        color: #1e293b !important;
+        font-weight: 500 !important;
+    }
+
+    .ui-select-bootstrap .ui-select-choices-row.active > span {
+        background-color: #eff6ff !important;
+        color: #1d4ed8 !important;
+    }
+
+    /* UI-Select Placeholders - High Contrast & Visible */
+    .reg-nd .ui-select-placeholder,
+    .reg-nd .ui-select-match > .btn > .ui-select-placeholder,
+    .reg-nd .ui-select-toggle .text-muted {
+        color: #64748b !important;
+        font-weight: 500 !important;
+        display: inline-block !important;
+        opacity: 0.9 !important;
+    }
+
+    /* Address Search Dropdown */
+    .reg-address-dropdown {
+        background: #ffffff !important;
+        border: 1px solid #cbd5e1 !important;
+        border-radius: 6px !important;
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.18), 0 8px 10px -6px rgba(0, 0, 0, 0.1) !important;
+        z-index: 99999 !important;
+    }
+    .reg-address-item {
+        transition: background-color 0.15s ease !important;
+    }
+    .reg-address-item:hover,
+    .reg-address-item.active {
+        background-color: #eff6ff !important;
+    }
+
+    /* --------------------------------------------------------------------------
+       5. Address Hierarchy Directive
+       -------------------------------------------------------------------------- */
+    .reg-nd address {
+        display: contents !important;
+    }
+
+    .reg-nd address > .form-group {
+        width: 25% !important;
+        float: left !important;
+        padding-left: 5px !important;
+        padding-right: 5px !important;
+        margin-bottom: 7px !important;
+    }
+
+    /* --------------------------------------------------------------------------
+       6. Autosearch Directive & Plus Action Buttons
+       -------------------------------------------------------------------------- */
+    .reg-nd autosearch {
+        display: block !important;
+        width: 100% !important;
+    }
+
+    .reg-nd autosearch input {
+        height: 31px !important;
+        min-height: 31px !important;
+        border-radius: 5px !important;
+        border: 1px solid #cbd5e1 !important;
+        background-color: #ffffff !important;
+        color: #0f172a !important;
+        font-size: 12px !important;
+        padding: 4px 8px !important;
+        width: 100% !important;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02) !important;
+    }
+
+    .reg-nd autosearch input:focus {
+        border-color: #2563eb !important;
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12) !important;
+        outline: none !important;
+    }
+
+    .reg-nd .btn-add {
+        width: 31px !important;
+        height: 31px !important;
+        border-radius: 5px !important;
+        background: #eff6ff !important;
+        color: #2563eb !important;
+        border: 1px solid #bfdbfe !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        font-size: 11px !important;
+        cursor: pointer !important;
+        transition: all 0.15s ease !important;
+        padding: 0 !important;
+    }
+    .reg-nd .btn-add:hover {
+        background: #2563eb !important;
+        color: #ffffff !important;
+        border-color: #2563eb !important;
+    }
+
+    .reg-nd .infosummary {
+        width: 31px !important;
+        height: 31px !important;
+        border-radius: 5px !important;
+        background: #f1f5f9 !important;
+        color: #475569 !important;
+        border: 1px solid #cbd5e1 !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        font-size: 12px !important;
+        cursor: pointer !important;
+        padding: 0 !important;
+    }
+    .reg-nd .infosummary:hover {
+        background: #e2e8f0 !important;
+        color: #0f172a !important;
+    }
+
+    .reg-nd #referral,
+    .reg-nd #reason {
+        padding-left: 0 !important;
+        padding-right: 4px !important;
+        width: calc(100% - 35px) !important;
+        float: left !important;
+    }
+    .reg-nd #referral + div,
+    .reg-nd #reason + div {
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+        width: 31px !important;
+        float: right !important;
+    }
+    .reg-nd .form-group .col-sm-10,
+    .reg-nd .form-group .col-lg-10 {
+        padding-left: 0 !important;
+        padding-right: 4px !important;
+    }
+    .reg-nd .form-group .col-sm-2,
+    .reg-nd .form-group .col-lg-2 {
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+    }
+
+    /* --------------------------------------------------------------------------
+       7. Section 2: Token Num Display Card
+       -------------------------------------------------------------------------- */
+    .reg-nd .token-num,
+    .reg-nd form .token-num {
+        background: #f8fafc !important;
+        border: 1px solid #e2e8f0 !important;
+        border-radius: 6px !important;
+        padding: 4px 10px !important;
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: center !important;
+        height: 52px !important;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02) !important;
+        position: relative !important;
+    }
+    .reg-nd .token-num label,
+    .reg-nd form .token-num label {
+        font-size: 10px !important;
+        font-weight: 700 !important;
+        color: #64748b !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.05em !important;
+        margin: 0 0 1px 0 !important;
+        padding: 0 !important;
+        line-height: 1 !important;
+    }
+    .reg-nd .token-num div.col-sm-12,
+    .reg-nd .token-num div.col-lg-12 {
+        padding: 0 !important;
+    }
+    .reg-nd .token-num input,
+    .reg-nd form .token-num input,
+    .reg-nd form .token-num .form-control,
+    .reg-nd form .token-num .form-control[disabled] {
+        background: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+        color: #0f172a !important;
+        font-size: 16px !important;
+        font-weight: 800 !important;
+        height: 22px !important;
+        padding: 0 !important;
+        width: 100% !important;
+        margin: 0 !important;
+        line-height: 22px !important;
+    }
+
+    /* --------------------------------------------------------------------------
+       8. Section 3: Consultation Billing Table & Financial Summary
+       -------------------------------------------------------------------------- */
+    .reg-nd .charge.col-lg-4 {
+        background: #f8fafc !important;
+        border: 1px solid #e2e8f0 !important;
+        border-radius: 8px !important;
+        padding: 8px 10px !important;
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 6px !important;
+    }
+
+    .reg-nd-charge-item {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        padding: 6px 10px !important;
+        background: #ffffff !important;
+        border: 1px solid #e2e8f0 !important;
+        border-radius: 6px !important;
+        transition: all 0.15s ease !important;
+    }
+    .reg-nd-charge-item:hover {
+        border-color: #cbd5e1 !important;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04) !important;
+    }
+
+    .reg-nd-charge-label {
+        display: inline-flex !important;
+        align-items: center !important;
+        gap: 6px !important;
+        font-size: 11.5px !important;
+        font-weight: 600 !important;
+        color: #334155 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        cursor: pointer !important;
+        user-select: none !important;
+    }
+
+    .reg-nd-charge-icon {
+        width: 24px !important;
+        height: 24px !important;
+        border-radius: 5px !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        font-size: 11px !important;
+    }
+    .reg-nd-charge-icon.is-red {
+        background: #fef2f2 !important;
+        color: #dc2626 !important;
+    }
+    .reg-nd-charge-icon.is-blue {
+        background: #eff6ff !important;
+        color: #2563eb !important;
+    }
+    .reg-nd-charge-icon.is-purple {
+        background: #faf5ff !important;
+        color: #9333ea !important;
+    }
+
+    .reg-nd-charge-switch input[type="checkbox"],
+    .reg-nd .charge.col-lg-4 input[type="checkbox"] {
+        width: 16px !important;
+        height: 16px !important;
+        accent-color: #2563eb !important;
+        cursor: pointer !important;
+        margin: 0 !important;
+    }
+
+    .reg-nd table.table.table-bordered {
+        border-collapse: separate !important;
+        border-spacing: 0 !important;
+        width: 100% !important;
+        border: 1px solid #e2e8f0 !important;
+        border-radius: 6px !important;
+        overflow: hidden !important;
+        margin-bottom: 0 !important;
+    }
+
+    .reg-nd table.table.table-bordered th {
+        background: #f8fafc !important;
+        color: #475569 !important;
+        font-size: 11px !important;
+        font-weight: 700 !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.04em !important;
+        padding: 6px 10px !important;
+        border: none !important;
+        border-bottom: 1px solid #e2e8f0 !important;
+    }
+
+    .reg-nd table.table.table-bordered td {
+        padding: 6px 10px !important;
+        font-size: 12px !important;
+        border: none !important;
+        border-bottom: 1px solid #f1f5f9 !important;
+        color: #1e293b !important;
+    }
+
+    .reg-nd td.service-name {
+        color: #1e40af !important;
+        font-weight: 600 !important;
+    }
+
+    .reg-nd td.currency-align {
+        text-align: right !important;
+        font-variant-numeric: tabular-nums !important;
+        font-weight: 600 !important;
+        color: #0f172a !important;
+    }
+
+    /* Financial KPI Card (#bannerdetails) */
+    .reg-nd #bannerdetails {
+        background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%) !important;
+        border: 1px solid #e2e8f0 !important;
+        border-radius: 8px !important;
+        padding: 8px 12px !important;
+        width: 100% !important;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02) !important;
+    }
+
+    .reg-nd #bannerdetails td {
+        border: none !important;
+        padding: 3px 0 !important;
+        font-size: 11.5px !important;
+        font-weight: 600 !important;
+        color: #475569 !important;
+    }
+
+    .reg-nd #bannerdetails td.currency-align {
+        text-align: right !important;
+        font-size: 13.5px !important;
+        font-weight: 700 !important;
+        color: #0f172a !important;
+    }
+
+    .reg-nd #bannerdetails tr:first-child td {
+        font-size: 13px !important;
+        color: #0f172a !important;
+        font-weight: 700 !important;
+        border-bottom: 1px dashed #cbd5e1 !important;
+        padding-bottom: 5px !important;
+        margin-bottom: 3px !important;
+    }
+
+    .reg-nd #bannerdetails tr:first-child td.currency-align {
+        font-size: 16px !important;
+        color: #1e40af !important;
+        font-weight: 800 !important;
+    }
+
+    .reg-nd td.drhms-special-count {
+        color: #0f172a !important;
+    }
+
+    /* --------------------------------------------------------------------------
+       9. Photo Upload, Webcam & Audit Metadata Section
+       -------------------------------------------------------------------------- */
+    .reg-nd-photo-container {
+        padding: 0 5px 6px 5px !important;
+        margin-bottom: 7px !important;
+    }
+
+    .reg-nd-photo-card {
+        background: #f8fafc !important;
+        border: 1px solid #e2e8f0 !important;
+        border-radius: 6px !important;
+        padding: 8px 10px !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 12px !important;
+        min-height: 104px !important;
+        box-sizing: border-box !important;
+        width: 100% !important;
+    }
+
+    .reg-nd .drhms-user_image,
+    .reg-nd .drhms-webcam-pic,
+    .reg-nd-photo-card .drhms-user_image,
+    .reg-nd-photo-card .drhms-webcam-pic {
+        width: 76px !important;
+        height: 76px !important;
+        min-width: 76px !important;
+        max-width: 76px !important;
+        border-radius: 6px !important;
+        border: 1.5px dashed #cbd5e1 !important;
+        background: #ffffff !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        overflow: hidden !important;
+        margin-bottom: 0 !important;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04) !important;
+    }
+
+    .reg-nd .drhms-user_image img,
+    .reg-nd .drhms-webcam-pic img,
+    .reg-nd-photo-card .drhms-user_image img,
+    .reg-nd-photo-card .drhms-webcam-pic img {
+        width: 100% !important;
+        height: 100% !important;
+        object-fit: cover !important;
+        border-radius: 4px !important;
+    }
+
+    .reg-nd-photo-actions {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 5px !important;
+        flex: 1 !important;
+        min-width: 0 !important;
+    }
+
+    .reg-nd-photo-actions .drhms-upload-btn,
+    .reg-nd-photo-actions .drhms-webcam-btn,
+    .reg-nd-photo-actions .drhms-clear-btn {
+        height: 25px !important;
+        font-size: 11px !important;
+        font-weight: 600 !important;
+        padding: 0 8px !important;
+        border-radius: 4px !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 6px !important;
+        width: 100% !important;
+        margin: 0 !important;
+        white-space: nowrap !important;
+        cursor: pointer !important;
+        transition: all 0.15s ease !important;
+        box-sizing: border-box !important;
+    }
+
+    .reg-nd-photo-actions .drhms-upload-btn {
+        background: #eff6ff !important;
+        color: #2563eb !important;
+        border: 1px solid #bfdbfe !important;
+    }
+    .reg-nd-photo-actions .drhms-upload-btn:hover {
+        background: #dbeafe !important;
+        border-color: #93c5fd !important;
+    }
+
+    .reg-nd-photo-actions .drhms-webcam-btn {
+        background: #f1f5f9 !important;
+        color: #334155 !important;
+        border: 1px solid #cbd5e1 !important;
+    }
+    .reg-nd-photo-actions .drhms-webcam-btn:hover {
+        background: #e2e8f0 !important;
+        border-color: #94a3b8 !important;
+    }
+
+    .reg-nd-photo-actions .drhms-clear-btn {
+        background: #fef2f2 !important;
+        color: #dc2626 !important;
+        border: 1px solid #fecaca !important;
+    }
+    .reg-nd-photo-actions .drhms-clear-btn:hover {
+        background: #fee2e2 !important;
+        border-color: #fca5a5 !important;
+    }
+
+    /* Enterprise Audit Metadata Cards */
+    .reg-nd .reg-nd-meta-box {
+        background: #f8fafc !important;
+        border: 1px solid #e2e8f0 !important;
+        border-radius: 8px !important;
+        padding: 10px 14px !important;
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: center !important;
+        gap: 4px !important;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02) !important;
+    }
+    .reg-nd .reg-nd-meta-box label {
+        font-size: 10px !important;
+        font-weight: 700 !important;
+        color: #64748b !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.05em !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 5px !important;
+    }
+    .reg-nd .reg-nd-meta-box .reg-nd-meta-val {
+        font-size: 13px !important;
+        font-weight: 600 !important;
+        color: #1e293b !important;
+    }
+
+    .icon-rotate {
+        transform: rotate(180deg) !important;
+        transition: transform 0.2s ease !important;
+    }
+
+    /* --------------------------------------------------------------------------
+       10. Sticky Footer Fix
+       -------------------------------------------------------------------------- */
+    .hims-reg-footer {
+        z-index: 1000 !important;
+        border-top: 1px solid #e2e8f0 !important;
+        box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.06) !important;
+        background: rgba(255, 255, 255, 0.96) !important;
+        backdrop-filter: blur(8px) !important;
     }
 </style>
 <script>
     $(document).ready(function () {
-        $('.icon').click(function () {
-            $('.toggle').toggle();
+        $(document).off('click', '.acordians').on('click', '.acordians', function () {
+            $(this).closest('.reg-nd-card').find('.toggle').slideToggle(200);
+            $(this).find('.icon').toggleClass('icon-rotate');
         });
     });
 </script>
-<div class="row reg-nd" style="padding-bottom: 8px;">
-    <div class="drhms-filters" style="display: flex; align-items: center; justify-content: space-between; width: 100%; padding: 4px 0 10px 0;">
-        <div style="display: flex; align-items: center;">
-            <span class="reg-nd-icon" aria-hidden="true"><i class="fas fa-user-plus"></i></span>
-            <div>
-                <h4 class="mt0" style="margin: 0; font-weight: 700; color: #0f172a; font-size: 18px;" translate="registration.registrationcumvisit.registration.lbl"></h4>
-                <p class="reg-nd-sub">Register the patient, book today's visit and raise the consultation bill in one step.</p>
+<div class="row reg-nd">
+    <div class="drhms-filters reg-nd-header-bar">
+        <div class="reg-nd-header-top">
+            <div class="reg-nd-header-left">
+                <span class="reg-nd-icon" aria-hidden="true"><i class="fas fa-user-plus"></i></span>
+                <div>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <h4 class="mt0 reg-nd-title" translate="registration.registrationcumvisit.registration.lbl">Registration</h4>
+                        <span class="reg-nd-badge">OPD Desk</span>
+                    </div>
+                    <p class="reg-nd-sub">Register the patient, book today's visit and raise the consultation bill in one unified workflow.</p>
+                </div>
             </div>
-        </div>
-        <div>
-            <div class="filters" style="display: flex; align-items: center; gap: 8px; margin: 0;">
+            <div class="reg-nd-header-actions">
                 <react-component name="TodayOpdVisits" props="{ facilityId: currentFacilityId, onSelectPatient: loadPatientById }"></react-component>
                 <button type="button" class="reg-nd-btn is-navy" ng-click="focusPatientSearch()" title="Find a registered patient (F2)">
-                    <i class="fas fa-search" aria-hidden="true"></i> Find / Search Patient (F2)
+                    <i class="fas fa-search" aria-hidden="true"></i> Find Patient <span class="reg-nd-kbd">F2</span>
                 </button>
                 <button type="button" class="reg-nd-btn is-outline" ng-click="resetRegistrationForm()" title="Clear the form and start again (F3)">
-                    <i class="fas fa-rotate-left" aria-hidden="true"></i> Reset Form (F3)
+                    <i class="fas fa-rotate-left" aria-hidden="true"></i> Reset Form <span class="reg-nd-kbd">F3</span>
                 </button>
-                <div class="search">
-                    <autosearch class="reasonsearch" itemid="item.PatientId" iteminfo="item.SelectedItem" rowdata="item"
-                        config="vm.membernocontrolconfig" itemchange="patientChange()" name="'patient'"
-                        isrequired="true" placeholder="'Membership#'" focus-if>
-                    </autosearch>
-                    <i class="fas fa-search" aria-hidden="true"></i>
-                </div>
-
-                <div class="search">
+            </div>
+        </div>
+        <div class="reg-nd-header-bottom">
+            <div class="reg-nd-search-group">
+                <div class="search reg-nd-search-patient">
                     <patientsearch ng-keyup="moveHeaderFocus('pid')" patientid="item.PatientId"
                         class="logo inputsearchlogo" name="txtpatientsearch" patientinfo="selectedPatient"
                         patientchange="patientChange()" aria-placeholder="Patient Search"
@@ -241,6 +1139,15 @@
                         <i class="fas fa-search" aria-hidden="true"></i>
                     </div>
                 </div>
+                <div class="search reg-nd-search-member">
+                    <autosearch class="reasonsearch" itemid="item.PatientId" iteminfo="item.SelectedItem" rowdata="item"
+                        config="vm.membernocontrolconfig" itemchange="patientChange()" name="'patient'"
+                        isrequired="true" placeholder="'Membership#'" focus-if>
+                    </autosearch>
+                    <i class="fas fa-search" aria-hidden="true"></i>
+                </div>
+            </div>
+            <div class="reg-nd-extra-actions">
                 <button type="button" tabindex="-1" class="drhms-billing-btn drhms-add-btn"
                     ng-if="swosthaintegration == true" ng-click="findSwostha()" ng-show="true"
                     uib-tooltip="Find Swostha Patient" tooltip-placement="bottom">
@@ -253,127 +1160,181 @@
     <div class="col-sm-12" style="padding-left: 0; padding-right: 0; margin-bottom: 8px;">
         <patientbanner patientid="item.PatientId"></patientbanner>
     </div>
-    <div class="col-sm-12">
+    <div class="col-sm-12" style="padding-left: 0; padding-right: 0;">
         <form id="item_form" name="item_form" class="form-horizontal" role="form">
-            <div class="row">
-                <div class="drhms-sub-header-border"><span class="reg-nd-ico" aria-hidden="true"><i class="fas fa-id-card"></i></span><span class="reg-nd-num">1.</span><span translate="registration.registrationcumvisit.patientinfo.lbl"></span><span class="reg-nd-flags"><label><input type="checkbox" ng-model="item.IsVip" tabindex="-1"> VIP Patient</label><label><input type="checkbox" ng-model="item.IsMLC" ng-disabled="SaveCompleted" tabindex="-1"> Medico-Legal (MLC)</label></span></div>
-                <div class="form-group col-lg-3">
-                    <label class="col-lg-12 control-label" for="tittle"
-                        translate="registration.registrationcumvisit.title.lbl"></label>
-                    <div class="col-lg-12 pdr0">
-                        <ui-select append-to-body="true" id="title" ng-model="item.TitleId" aria-placeholder="Please Select" name="tittle"
-                            ng-change="fillGenderInfo()" tabindex="tabindexmap.patienttabindex"
-                            on-select="SelectedTitle($select.selected)" required>
-                            <ui-select-match>
-                                {{$select.selected.Text | limitTo : 20 : 0}}
-                                <span ng-if="$select.selected.Text.length>20">...</span>
-                            </ui-select-match>
-                            <ui-select-choices
-                                repeat="lookupitem.Id as lookupitem in lookup.Title | filter: { Text: $select.search }">
-                                <div ng-bind-html="lookupitem.Text | highlight: $select.search">
-                                </div>
-                            </ui-select-choices>
-                        </ui-select>
+            <div class="row reg-nd-card">
+                <div class="reg-nd-card-header">
+                    <div class="reg-nd-card-title">
+                        <span class="reg-nd-ico" aria-hidden="true"><i class="fas fa-id-card"></i></span>
+                        <span class="reg-nd-num">1</span>
+                        <span translate="registration.registrationcumvisit.patientinfo.lbl">Patient Information</span>
+                    </div>
+                    <div class="reg-nd-flags">
+                        <label class="reg-nd-chip-vip"><input type="checkbox" ng-model="item.IsVip" tabindex="-1"> <i class="fas fa-crown"></i> VIP Patient</label>
+                        <label class="reg-nd-chip-mlc"><input type="checkbox" ng-model="item.IsMLC" ng-disabled="SaveCompleted" tabindex="-1"> <i class="fas fa-shield-alt"></i> Medico-Legal (MLC)</label>
                     </div>
                 </div>
-                <div class="form-group col-lg-3">
-                    <label class="col-lg-12 control-label" for="firstname"
-                        translate="registration.fullregistration.firstname.lbl"></label>
-                    <div class="col-lg-12 pdr0">
-                        <input type="text" name="firstname" class="form-control" tabindex="tabindexmap.patienttabindex"
-                            ng-model="item.FirstName" placeholder="First Name" required uppercase>
+                <!-- Primary Demographics & Photo Row -->
+                <div class="col-lg-9 col-md-8 col-sm-12" style="padding: 0; display: flex; flex-wrap: wrap;">
+                    <div class="form-group col-sm-3 col-xs-12">
+                        <label class="col-lg-12 control-label" for="tittle"
+                            translate="registration.registrationcumvisit.title.lbl"></label>
+                        <div class="col-lg-12 pdr0">
+                            <ui-select append-to-body="true" id="title" ng-model="item.TitleId" aria-placeholder="Please Select" name="tittle"
+                                ng-change="fillGenderInfo()" tabindex="tabindexmap.patienttabindex"
+                                on-select="SelectedTitle($select.selected)" required>
+                                <ui-select-match>
+                                    {{$select.selected.Text | limitTo : 20 : 0}}
+                                    <span ng-if="$select.selected.Text.length>20">...</span>
+                                </ui-select-match>
+                                <ui-select-choices
+                                    repeat="lookupitem.Id as lookupitem in lookup.Title | filter: { Text: $select.search }">
+                                    <div ng-bind-html="lookupitem.Text | highlight: $select.search">
+                                    </div>
+                                </ui-select-choices>
+                            </ui-select>
+                        </div>
                     </div>
-                </div>
-                <div class="form-group col-lg-3">
-                    <label class="col-lg-12 control-label" for="lastname"
-                        translate="registration.fullregistration.lastname.lbl"></label>
-                    <div class="col-lg-12">
-                        <input type="text" tabindex="tabindexmap.patienttabindex" class="form-control" name="lastname"
-                            ng-model="item.LastName" placeholder="Last Name" required uppercase>
+                    <div class="form-group col-sm-4 col-xs-12">
+                        <label class="col-lg-12 control-label" for="firstname"
+                            translate="registration.fullregistration.firstname.lbl"></label>
+                        <div class="col-lg-12 pdr0">
+                            <input type="text" name="firstname" class="form-control" tabindex="tabindexmap.patienttabindex"
+                                ng-model="item.FirstName" placeholder="First Name" required uppercase>
+                        </div>
                     </div>
-                </div>
+                    <div class="form-group col-sm-5 col-xs-12">
+                        <label class="col-lg-12 control-label" for="lastname"
+                            translate="registration.fullregistration.lastname.lbl"></label>
+                        <div class="col-lg-12">
+                            <input type="text" tabindex="tabindexmap.patienttabindex" class="form-control" name="lastname"
+                                ng-model="item.LastName" placeholder="Last Name" required uppercase>
+                        </div>
+                    </div>
 
-                <div class="form-group col-lg-3" ng-show="canShowApproxAge(item.TitleId)">
-                    <label class="col-lg-12 control-label"
-                        translate="registration.fullregistration.approxage.lbl"></label>
-                    <div class="col-lg-12 approxagediv">
-                        <div class="col-lg-4">
-                            <input type="text" class="form-control" tabindex="tabindexmap.patienttabindex"
-                                ng-model="item.ApproxAgeDays" placeholder="Days"
-                                ng-change="calculateDOB(item.ApproxAgeDays, 'days')">
-                        </div>
-                        <div class="col-lg-4">
-                            <input type="text" class="form-control" tabindex="tabindexmap.patienttabindex"
-                                ng-model="item.ApproxAgeMonths" placeholder="Months"
-                                ng-change="calculateDOB(item.ApproxAgeMonths, 'months')">
-                        </div>
-                        <div class="col-lg-4">
-                            <input type="text" class="form-control" tabindex="tabindexmap.patienttabindex"
-                                ng-model="item.Age" placeholder="Years" ng-change="calculateDOB(item.Age, 'years')">
-                        </div>
-                    </div>
-                </div>
-                <div class="form-group col-lg-3" ng-show="canShowApproxAge(item.TitleId)">
-                    <label class="col-lg-12 control-label" translate="Birth Time"></label>
-                    <div class="col-lg-12 approxagediv">
-                        <uib-timepicker name="birthtime" ng-model="item.BabyBirthTime" ng-time-object>
-                        </uib-timepicker>
-                    </div>
-                </div>
-                <div class="form-group col-lg-3 no-pad">
-                    <div class="col-lg-7" id="datepick">
-                        <label class="col-lg-2 control-label" for="dob"
-                            translate="registration.quickregistration.dob.lbl"></label>
-                        <div class="col-lg-12 col-md-12 col-lg-12">
-                            <div class="datepicker">
-                                <input type="text" class="form-control" name="dob" ng-date-object
-                                    datepicker-options="datePickerOptions"
-                                    show-button-bar="{{datePickerOptions.showButtonBar}}"
-                                    uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
-                                    placeholder="{{datePickerOptions.placeholder}}"
-                                    ng-click="dobPopup = { opened: true }" is-open="dobPopup.opened" ng-model="item.DOB"
-                                    ng-change="calculateAge()" tabindex="tabindexmap.patienttabindex">
-                                <i class="fa fa-calendar" aria-hidden="true"></i>
+                    <div class="form-group col-sm-6 col-xs-12" ng-show="canShowApproxAge(item.TitleId)">
+                        <label class="col-lg-12 control-label"
+                            translate="registration.fullregistration.approxage.lbl"></label>
+                        <div class="col-lg-12 approxagediv">
+                            <div class="col-lg-4">
+                                <input type="text" class="form-control" tabindex="tabindexmap.patienttabindex"
+                                    ng-model="item.ApproxAgeDays" placeholder="Days"
+                                    ng-change="calculateDOB(item.ApproxAgeDays, 'days')">
+                            </div>
+                            <div class="col-lg-4">
+                                <input type="text" class="form-control" tabindex="tabindexmap.patienttabindex"
+                                    ng-model="item.ApproxAgeMonths" placeholder="Months"
+                                    ng-change="calculateDOB(item.ApproxAgeMonths, 'months')">
+                            </div>
+                            <div class="col-lg-4">
+                                <input type="text" class="form-control" tabindex="tabindexmap.patienttabindex"
+                                    ng-model="item.Age" placeholder="Years" ng-change="calculateDOB(item.Age, 'years')">
                             </div>
                         </div>
                     </div>
-                    <div class="col-lg-5">
-                        <label class="col-lg-12 col-md-12 col-lg-12 control-label" for="age"
-                            translate="registration.quickregistration.age.lbl"></label>
+                    <div class="form-group col-sm-6 col-xs-12" ng-show="canShowApproxAge(item.TitleId)">
+                        <label class="col-lg-12 control-label" translate="Birth Time"></label>
+                        <div class="col-lg-12 approxagediv">
+                            <uib-timepicker name="birthtime" ng-model="item.BabyBirthTime" ng-time-object>
+                            </uib-timepicker>
+                        </div>
+                    </div>
+
+                    <div class="form-group col-sm-4 col-xs-12">
+                        <div class="col-lg-7" id="datepick">
+                            <label class="control-label" for="dob"
+                                translate="registration.quickregistration.dob.lbl"></label>
+                            <div class="col-lg-12">
+                                <div class="datepicker">
+                                    <input type="text" class="form-control" name="dob" ng-date-object
+                                        datepicker-options="datePickerOptions"
+                                        show-button-bar="{{datePickerOptions.showButtonBar}}"
+                                        uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                                        placeholder="{{datePickerOptions.placeholder}}"
+                                        ng-click="dobPopup = { opened: true }" is-open="dobPopup.opened" ng-model="item.DOB"
+                                        ng-change="calculateAge()" tabindex="tabindexmap.patienttabindex">
+                                    <i class="fa fa-calendar" aria-hidden="true"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-5" id="agediv">
+                            <label class="control-label" for="age"
+                                translate="registration.quickregistration.age.lbl"></label>
+                            <div class="col-lg-12">
+                                <input type="text" class="form-control" name="age" tabindex="tabindexmap.patienttabindex"
+                                    ng-model="item.Age" placeholder="Age" required uppercase
+                                    ng-change="calculateDOB(item.Age, 'years')">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group col-sm-4 col-xs-12">
+                        <label class="col-lg-12 control-label" for="gender"
+                            translate="registration.registrationcumvisit.gender.lbl"></label>
                         <div class="col-lg-12">
-                            <input type="text" class="form-control" name="age" tabindex="tabindexmap.patienttabindex"
-                                ng-model="item.Age" placeholder="Age" required uppercase
-                                ng-change="calculateDOB(item.Age, 'years')">
+                            <ui-select append-to-body="true" ng-model="item.GenderId" name="gender" tabindex="tabindexmap.patienttabindex"
+                                on-select="SelectedGender($select.selected)" required>
+                                <ui-select-match>
+                                    {{$select.selected.Text | limitTo : 20 : 0}}
+                                    <span ng-if="$select.selected.Text.length>20">...</span>
+                                </ui-select-match>
+                                <ui-select-choices
+                                    repeat="lookupitem.Id as lookupitem in lookup.Gender | filter: { Text: $select.search }">
+                                    <div ng-bind-html="lookupitem.Text | highlight: $select.search">
+                                    </div>
+                                </ui-select-choices>
+                            </ui-select>
+                        </div>
+                    </div>
+                    <div class="form-group col-sm-4 col-xs-12">
+                        <label class="col-lg-12 control-label" for="mobile"
+                            translate="registration.registrationcumvisit.mobile.lbl"></label>
+                        <div class="col-lg-12">
+                            <input type="text" tabindex="tabindexmap.patienttabindex"
+                                ng-keyup="keyPress($event, 0, 'contactnr', 'aadharnr')" class="form-control" id="contactnr"
+                                MINLENGTH="10" MAXLENGTH="10" size="10" value="" name="mobile" onChange="numberonly($event)"
+                                onKeyUp="numberonly($event)" ng-keypress="numberonly($event)" ng-model="item.Mobile"
+                                required>
                         </div>
                     </div>
                 </div>
-                <div class="form-group col-lg-3">
-                    <label class="col-lg-12 control-label" for="gender"
-                        translate="registration.registrationcumvisit.gender.lbl"></label>
-                    <div class="col-lg-12">
-                        <ui-select append-to-body="true" ng-model="item.GenderId" name="gender" tabindex="tabindexmap.patienttabindex"
-                            on-select="SelectedGender($select.selected)" required>
-                            <ui-select-match>
-                                {{$select.selected.Text | limitTo : 20 : 0}}
-                                <span ng-if="$select.selected.Text.length>20">...</span>
-                            </ui-select-match>
-                            <ui-select-choices
-                                repeat="lookupitem.Id as lookupitem in lookup.Gender | filter: { Text: $select.search }">
-                                <div ng-bind-html="lookupitem.Text | highlight: $select.search">
+
+                <!-- Top Right Patient Photo Card -->
+                <div class="col-lg-3 col-md-4 col-sm-12 reg-nd-photo-container">
+                    <div class="reg-nd-photo-card">
+                        <div>
+                            <div class="drhms-user_image" ng-show="!item.iswebcamphoto">
+                                <img class="patient-img drhms-img-thumbnail" tabindex="-1" ng-show="!!currentcontext.file"
+                                    ngf-thumbnail="currentcontext.file" />
+                                <img ng-show="!currentcontext.file && item.PhotoPath"
+                                    data-ng-src="data:image/png;base64,{{currentcontext.Photo}}" tabindex="-1"
+                                    class="patient-img drhms-img-thumbnail" />
+                                <div ng-show="!currentcontext.file && !item.PhotoPath" style="display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; background: #f8fafc; color: #94a3b8;">
+                                    <i class="fas fa-user" style="font-size: 28px;"></i>
                                 </div>
-                            </ui-select-choices>
-                        </ui-select>
-                    </div>
-                </div>
-                <div class="form-group col-lg-3">
-                    <label class="col-lg-12 control-label" for="mobile"
-                        translate="registration.registrationcumvisit.mobile.lbl"></label>
-                    <div class="col-lg-12">
-                        <input type="text" tabindex="tabindexmap.patienttabindex"
-                            ng-keyup="keyPress($event, 0, 'contactnr', 'aadharnr')" class="form-control" id="contactnr"
-                            MINLENGTH="10" MAXLENGTH="10" size="10" value="" name="mobile" onChange="numberonly($event)"
-                            onKeyUp="numberonly($event)" ng-keypress="numberonly($event)" ng-model="item.Mobile"
-                            required>
+                            </div>
+                            <div class="drhms-webcam-pic" ng-show="item.iswebcamphoto">
+                                <img data-ng-src="data:image/png;base64,{{item.webcamphoto}}" tabindex="-1"
+                                    class="patient-img drhms-img-thumbnail" />
+                            </div>
+                        </div>
+                        <div class="reg-nd-photo-actions">
+                            <input type="file" ngf-select ng-model="currentcontext.file" tabindex="-1" name="file"
+                                id="drhms-input-file" class="inputfile" ngf-max-size="200MB"
+                                ng-change="photoFileChanged()" style="display: none;" />
+                            <label for="drhms-input-file" class="drhms-upload-btn" tabindex="-1" uib-tooltip="Upload"
+                                tooltip-placement="bottom">
+                                <i class="fas fa-upload"></i> <span class="drhms-registration-btn">Upload Photo</span>
+                            </label>
+                            <button type="button" class="drhms-webcam-btn" tabindex="-1" ng-click="openWebCam()"
+                                uib-tooltip="webcam" tooltip-placement="bottom">
+                                <i class="fas fa-camera"></i> <span class="drhms-registration-btn">Web Camera</span>
+                            </button>
+                            <button type="button" class="drhms-clear-btn" tabindex="-1" ng-click="clearimage()"
+                                ng-show="currentcontext.file || item.PhotoPath || item.iswebcamphoto"
+                                uib-tooltip="Clear" tooltip-placement="bottom">
+                                <i class="fas fa-trash-alt"></i> <span class="drhms-registration-btn">Remove</span>
+                            </button>
+                        </div>
                     </div>
                 </div>
                 <div class="form-group col-lg-3">
@@ -501,18 +1462,43 @@
                             ng-disabled="item.candisable" placeholder="" required>
                     </div>
                 </div>
-                <div class="form-group col-lg-3" ng-show="item.IsAddressSearch==true">
+                <div class="form-group col-lg-3" ng-show="item.IsAddressSearch==true" style="position: relative;">
                     <label class="col-lg-12 control-label"
-                        translate="registration.fullregistration.googleaddress.lbl"></label>
-                    <div class="col-lg-10">
-                        <input type="text" id="googleaddopt" tabindex="-1" ng-disabled="disablegoogleaddopt"
-                            class="form-control" gm-places-autocomplete="autocompleteOptions"
-                            ng-model="autocompleteModel" />
-                    </div>
-                    <div class="col-lg-1 col-md-1 col-lg-1">
-                        <input type="checkbox" name="googleaddressoption" tabindex="-1" class="custom-checkbox"
-                            tabindex="tabindexmap.patienttabindex" ng-click="enablegoogleaddopt()"
-                            ng-model="chkgoogleaddopt">
+                        translate="registration.fullregistration.googleaddress.lbl">Address Search</label>
+                    <div class="col-lg-12">
+                        <div style="display: flex; align-items: center; gap: 6px;">
+                            <div style="position: relative; flex: 1;">
+                                <input type="text" id="googleaddopt" tabindex="-1" ng-disabled="disablegoogleaddopt"
+                                    class="form-control" gm-places-autocomplete="autocompleteOptions"
+                                    placeholder="Search location / city / area..."
+                                    ng-model="autocompleteModel"
+                                    ng-keyup="onAddressSearchKeyup($event)"
+                                    ng-keydown="onAddressSearchKeydown($event)"
+                                    ng-focus="onAddressSearchFocus()"
+                                    ng-blur="onAddressSearchBlur()"
+                                    autocomplete="off" />
+                                <i ng-show="isAddressSearching" class="fas fa-circle-notch fa-spin" style="position: absolute; right: 8px; top: 9px; color: #2563eb; font-size: 12px; pointer-events: none;"></i>
+                            </div>
+                            <label style="margin: 0; display: inline-flex; align-items: center; cursor: pointer;" uib-tooltip="Enable / Disable Address Search" tooltip-placement="top">
+                                <input type="checkbox" name="googleaddressoption" tabindex="-1" class="custom-checkbox"
+                                    tabindex="tabindexmap.patienttabindex" ng-click="enablegoogleaddopt()"
+                                    ng-model="chkgoogleaddopt" style="margin: 0; width: 16px; height: 16px;">
+                            </label>
+                        </div>
+                        <!-- Fallback Address Search Suggestions Dropdown -->
+                        <div class="reg-address-dropdown" ng-show="addressSearchResults.length > 0 && showAddressDropdown" style="position: absolute; top: 100%; left: 5px; right: 28px; z-index: 99999; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 6px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.18), 0 8px 10px -6px rgba(0,0,0,0.1); max-height: 220px; overflow-y: auto; margin-top: 3px;">
+                            <div ng-repeat="place in addressSearchResults"
+                                 ng-mousedown="selectFallbackAddress(place)"
+                                 ng-class="{'active': $index === selectedAddressIndex}"
+                                 class="reg-address-item"
+                                 style="padding: 6px 10px; cursor: pointer; border-bottom: 1px solid #f1f5f9; display: flex; align-items: flex-start; gap: 8px; font-size: 11.5px; line-height: 1.3;">
+                                <i class="fas fa-map-marker-alt" style="color: #ef4444; margin-top: 2px; font-size: 12px; flex-shrink: 0;"></i>
+                                <div style="flex: 1; min-width: 0;">
+                                    <div style="font-weight: 600; color: #1e293b;">{{place.name || place.display_name.split(',')[0]}}</div>
+                                    <div style="color: #64748b; font-size: 10.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{place.display_name}}</div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -544,7 +1530,7 @@
                     <label class="col-lg-12 control-label" for="patienttype" translate="Patient Type"></label>
                     <div class="col-lg-12">
                         <ui-select append-to-body="true" ng-model="item.PatientTypeId" tabindex="tabindexmap.patienttabindex">
-                            <ui-select-match>
+                            <ui-select-match placeholder="Select Patient Type">
                                 {{$select.selected.Text | limitTo : 20 : 0}}
                                 <span ng-if="$select.selected.Text.length>20">...</span>
                             </ui-select-match>
@@ -560,7 +1546,7 @@
                     <label class="col-lg-12 control-label" for="patienttype" translate="Covid Vaccine"></label>
                     <div class="col-lg-12">
                         <ui-select append-to-body="true" ng-model="item.CovidVaccineId" tabindex="tabindexmap.patienttabindex">
-                            <ui-select-match>
+                            <ui-select-match placeholder="Select Vaccine Dose">
                                 {{$select.selected.Text | limitTo : 20 : 0}}
                                 <span ng-if="$select.selected.Text.length>20">...</span>
                             </ui-select-match>
@@ -581,10 +1567,10 @@
                 </div>
                 <div class="form-group col-lg-3">
                     <label class="col-lg-12 control-label"
-                        translate="registration.fullregistration.viptype.lbl"></label>
+                        translate="registration.fullregistration.viptype.lbl">VIP Type</label>
                     <div class="col-lg-12">
-                        <ui-select append-to-body="true" ng-model="item.VipTypeId" tabindex="-1" ng-disabled="!item.IsVip">
-                            <ui-select-match>
+                        <ui-select append-to-body="true" ng-model="item.VipTypeId" tabindex="tabindexmap.patienttabindex" ng-change="onVipTypeChanged()">
+                            <ui-select-match placeholder="Select VIP Type">
                                 {{$select.selected.Text | limitTo : 20 : 0}}
                                 <span ng-if="$select.selected.Text.length>20">...</span>
                             </ui-select-match>
@@ -600,7 +1586,7 @@
                     <label class="col-lg-12 control-label" translate="Occupation"></label>
                     <div class="col-lg-12">
                         <ui-select append-to-body="true" ng-model="item.OccupationId" tabindex="-1">
-                            <ui-select-match>
+                            <ui-select-match placeholder="Select Occupation">
                                 {{$select.selected.Text | limitTo : 20 : 0}}
                                 <span ng-if="$select.selected.Text.length>20">...</span>
                             </ui-select-match>
@@ -613,12 +1599,16 @@
                     </div>
                 </div>
             </div>
-            <div class="row">
-                <div class="accordian-button">
-                    <div class="drhms-sub-header"><span class="reg-nd-ico" aria-hidden="true"><i class="fas fa-calendar-check"></i></span><span class="reg-nd-num">2.</span><span translate="Visit"></span></div>
-                    <button type="button" class="drhms-past-visit" tabindex="-1" ng-click="openPastVisit()"
+            <div class="row reg-nd-card">
+                <div class="reg-nd-card-header">
+                    <div class="reg-nd-card-title">
+                        <span class="reg-nd-ico" aria-hidden="true"><i class="fas fa-calendar-check"></i></span>
+                        <span class="reg-nd-num">2</span>
+                        <span translate="Visit">Visit Details</span>
+                    </div>
+                    <button type="button" class="reg-nd-past-visit-btn" tabindex="-1" ng-click="openPastVisit()"
                         uib-tooltip="{{ 'Past Visits'}}" tooltip-placement="top">
-                        <i class="fas fa-undo" aria-hidden="true"></i>
+                        <i class="fas fa-history" aria-hidden="true"></i> Past Visits
                     </button>
                 </div>
                 <div class="form-group col-lg-3">
@@ -854,8 +1844,14 @@
                     </div>
                 </div>
             </div>
-            <div class="row">
-                <div class="drhms-sub-header text item"><span class="reg-nd-ico" aria-hidden="true"><i class="fas fa-file-invoice-dollar"></i></span><span class="reg-nd-num">3.</span><span translate="registration.registrationcumvisit.visitinfo2.lbl"></span></div>
+            <div class="row reg-nd-card">
+                <div class="reg-nd-card-header">
+                    <div class="reg-nd-card-title">
+                        <span class="reg-nd-ico" aria-hidden="true"><i class="fas fa-file-invoice-dollar"></i></span>
+                        <span class="reg-nd-num">3</span>
+                        <span translate="registration.registrationcumvisit.visitinfo2.lbl">Consultation Bill & Payment</span>
+                    </div>
+                </div>
                 <!--    <div class="accordion">
                    <div class="item">
                         <div class="drhms-sub-header text" translate="registration.registrationcumvisit.visitinfo2.lbl">
@@ -927,34 +1923,39 @@
                     </div>
                     <div class="col-lg-9 billingpart pd0 bill_tbl">
                         <div class="col-lg-4 charge">
-                            <label class="col-lg-12 control-label ng-scope "
-                                translate="registration.quickregistration.emergency.lbl">
-                                <span class="ng-scope">Emergency Charge</span>
-                            </label>
-                            <div class="col-lg-12">
-                                <input ng-disabled="SaveCompleted" type="checkbox" name="comnmrd" tabindex="-1"
-                                    class="custom-checkbox cstmckbx ng-pristine ng-untouched ng-valid ng-empty"
-                                    tabindex="tabindexmap.patienttabindex" ng-model="item.IsEmergency"
-                                    ng-click="EmergencyCharge()">
+                            <div class="reg-nd-charge-item">
+                                <label class="reg-nd-charge-label" for="cb-emergency">
+                                    <span class="reg-nd-charge-icon is-red"><i class="fas fa-bolt"></i></span>
+                                    <span translate="registration.quickregistration.emergency.lbl">Emergency Charge</span>
+                                </label>
+                                <div class="reg-nd-charge-switch">
+                                    <input id="cb-emergency" ng-disabled="SaveCompleted" type="checkbox" name="comnmrd" tabindex="-1"
+                                        class="custom-checkbox cstmckbx ng-pristine ng-untouched ng-valid ng-empty"
+                                        tabindex="tabindexmap.patienttabindex" ng-model="item.IsEmergency"
+                                        ng-click="EmergencyCharge()">
+                                </div>
                             </div>
-                            <label class="col-lg-12 control-label ng-scope "
-                                ng-if="HasAccess('Registration', 'CanReg_Nobill')"
-                                translate="registration.quickregistration.nobill.lbl">
-                                <span class="ng-scope">No Bill</span>
-                            </label>
-                            <div class="col-lg-12" ng-if="HasAccess('Registration', 'CanReg_Nobill')">
-                                <input ng-disabled="SaveCompleted" type="checkbox" name="comnmrd" tabindex="-1"
-                                    class="custom-checkbox cstmckbx ng-pristine ng-untouched ng-valid ng-empty"
-                                    tabindex="tabindexmap.patienttabindex" ng-model="item.IsNoBill" ng-click="NoBill()">
+                            <div class="reg-nd-charge-item" ng-if="HasAccess('Registration', 'CanReg_Nobill')">
+                                <label class="reg-nd-charge-label" for="cb-nobill">
+                                    <span class="reg-nd-charge-icon is-blue"><i class="fas fa-ban"></i></span>
+                                    <span translate="registration.quickregistration.nobill.lbl">No Bill</span>
+                                </label>
+                                <div class="reg-nd-charge-switch">
+                                    <input id="cb-nobill" ng-disabled="SaveCompleted" type="checkbox" name="comnmrd" tabindex="-1"
+                                        class="custom-checkbox cstmckbx ng-pristine ng-untouched ng-valid ng-empty"
+                                        tabindex="tabindexmap.patienttabindex" ng-model="item.IsNoBill" ng-click="NoBill()">
+                                </div>
                             </div>
-                            <label class="col-lg-12 control-label ng-scope "
-                                translate="registration.quickregistration.IsOPD.lbl">
-                                <span class="ng-scope">Is OPD</span>
-                            </label>
-                            <div class="col-lg-12">
-                                <input ng-disabled="SaveCompleted" type="checkbox" name="comnmrd" tabindex="-1"
-                                    class="custom-checkbox cstmckbx ng-pristine ng-untouched ng-valid ng-empty"
-                                    tabindex="tabindexmap.patienttabindex" ng-model="item.IsOPD" ng-click="IsOPD()">
+                            <div class="reg-nd-charge-item">
+                                <label class="reg-nd-charge-label" for="cb-isopd">
+                                    <span class="reg-nd-charge-icon is-purple"><i class="fas fa-stethoscope"></i></span>
+                                    <span translate="registration.quickregistration.IsOPD.lbl">Is OPD</span>
+                                </label>
+                                <div class="reg-nd-charge-switch">
+                                    <input id="cb-isopd" ng-disabled="SaveCompleted" type="checkbox" name="comnmrd" tabindex="-1"
+                                        class="custom-checkbox cstmckbx ng-pristine ng-untouched ng-valid ng-empty"
+                                        tabindex="tabindexmap.patienttabindex" ng-model="item.IsOPD" ng-click="IsOPD()">
+                                </div>
                             </div>
                         </div>
                         <div class="col-lg-8 charge" style="padding:0">
@@ -1311,13 +2312,19 @@
                     </div>
                 </div> -->
             </div>
-            <div class="row">
-                <div class="acordians">
-                    <div class="drhms-sub-header text"><span class="reg-nd-ico" aria-hidden="true"><i class="fas fa-tags"></i></span><span class="reg-nd-num">4.</span><span translate="billing.promotionalscheme.scheme.lbl"></span></div>
-                    <div> <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                            stroke="currentColor" class="icon">
+            <div class="row reg-nd-card">
+                <div class="reg-nd-card-header acordians" style="cursor: pointer;">
+                    <div class="reg-nd-card-title">
+                        <span class="reg-nd-ico" aria-hidden="true"><i class="fas fa-tags"></i></span>
+                        <span class="reg-nd-num">4</span>
+                        <span translate="billing.promotionalscheme.scheme.lbl">Promotional Scheme</span>
+                    </div>
+                    <div>
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
+                            stroke="currentColor" class="icon" style="width: 18px; height: 18px; color: #64748b; cursor: pointer;">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
-                        </svg> </div>
+                        </svg>
+                    </div>
                 </div>
                 <div class="col-lg-12 no-pad toggle" style="display: none;">
                     <form id="item_form" name="item_form" class="form-horizontal" role="form">
@@ -1399,69 +2406,32 @@
                     </div>
                 </div> -->
             </div>
-            <div class="row">
-                <div class="drhms-sub-header-border"><span class="reg-nd-ico" aria-hidden="true"><i class="fas fa-camera"></i></span><span class="reg-nd-num">5.</span><span translate="Upload & Image Preview"></span></div>
-                <div class="col-sm-6">
-                    <div class="drhms-user_image" ng-show="!item.iswebcamphoto">
-                        <img class="patient-img drhms-img-thumbnail" tabindex="-1" ng-show="!!currentcontext.file"
-                            ngf-thumbnail="currentcontext.file" />
-                        <img ng-show="!currentcontext.file && item.PhotoPath"
-                            data-ng-src="data:image/png;base64,{{currentcontext.Photo}}" tabindex="-1"
-                            class="patient-img drhms-img-thumbnail" />
-                        <img ng-show="!currentcontext.file && !item.PhotoPath" src="app/img/main/img.jpg" tabindex="-1"
-                            class="drhms-img-thumbnail ">
+            <div class="row reg-nd-card">
+                <div class="reg-nd-card-header">
+                    <div class="reg-nd-card-title">
+                        <span class="reg-nd-ico" aria-hidden="true"><i class="fas fa-history"></i></span>
+                        <span class="reg-nd-num">5</span>
+                        <span translate="Registration & Audit Information">Registration & Audit Information</span>
                     </div>
-                    <div class="drhms-webcam-pic" ng-show="item.iswebcamphoto">
-                        <img data-ng-src="data:image/png;base64,{{item.webcamphoto}}" tabindex="-1"
-                            class="patient-img drhms-img-thumbnail" />
-                    </div>
-                    <div class="drhms-outer_ilayer">
-                        <div class="drhms-profile-upload-btn">
-                            <input type="file" ngf-select ng-model="currentcontext.file" tabindex="-1" name="file"
-                                id="drhms-input-file" class="inputfile" ngf-max-size="200MB"
-                                ng-change="photoFileChanged()" />
-                            <label for="drhms-input-file" class="drhms-upload-btn" tabindex="-1" uib-tooltip="Upload"
-                                tooltip-placement="bottom">
-                                <span class="drhms-registration-btn">Upload</span>
-                            </label>
-                            <button type="button" class="drhms-webcam-btn" tabindex="-1" ng-click="openWebCam()"
-                                uib-tooltip="webcam" tooltip-placement="bottom">
-                                <span class="drhms-registration-btn">Web Camera</span>
-                            </button>
-                            <button type="button" class="drhms-clear-btn" tabindex="-1" ng-click="clearimage()"
-                                uib-tooltip="Clear" tooltip-placement="bottom">
-                                <span class="drhms-registration-btn">Remove</span>
-                            </button>
+                </div>
+                <div class="col-sm-6" style="padding-left: 5px; padding-right: 5px; margin-bottom: 7px;">
+                    <div class="reg-nd-meta-box">
+                        <label translate="Registered Date"><i class="far fa-calendar-alt" style="margin-right: 6px; color: #3b82f6;"></i> Registered Date</label>
+                        <div class="reg-nd-meta-val">
+                            <displaydate date-val="item.RegisteredDate"></displaydate>
                         </div>
                     </div>
                 </div>
-                <div class="form-group col-lg-3">
-                    <label class="col-lg-12 control-label" for="regdate" translate="Registered Date"></label>
-                    <div class="col-lg-12">
-                        <displaydate date-val="item.RegisteredDate"></displaydate>
-                        <!-- <input type="text" class="form-control" name="regdate" tabindex="tabindexmap.patienttabindex" ng-date-object uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
-                            placeholder="{{datePickerOptions.placeholder}}" ng-click="expirydatePopup = { opened: true }" is-open="expirydatePopup.opened"
-                            ng-disabled="true" ng-model="item.RegisteredDate" ng-disabled="true"> -->
-                    </div>
-                </div>
-                <div class="form-group col-lg-3">
-                    <label class="col-lg-12 control-label" for="regby" translate="Registered By"></label>
-                    <div class="col-lg-12">
-                        {{item.CreatedUser.Title.Description}}&nbsp;{{item.CreatedUser.FirstName}}&nbsp;{{item.CreatedUser.LastName}}
+                <div class="col-sm-6" style="padding-left: 5px; padding-right: 5px; margin-bottom: 7px;">
+                    <div class="reg-nd-meta-box">
+                        <label translate="Registered By"><i class="far fa-user" style="margin-right: 6px; color: #3b82f6;"></i> Registered By</label>
+                        <div class="reg-nd-meta-val">
+                            {{item.CreatedUser.Title.Description}}&nbsp;{{item.CreatedUser.FirstName}}&nbsp;{{item.CreatedUser.LastName}}
+                        </div>
                     </div>
                 </div>
             </div>
             <react-component name="RegistrationFooter" props="{ reactProps: vm.reactPropsFooter, onAction: handleReactAction }"></react-component>
         </form>
     </div>
-</div>
-
-<script>
-    const iconUpDown = document.querySelectorAll(".icon");
-    iconUpDown.forEach((icon) => {
-        icon.addEventListener("click", (e) => {
-            icon.classList.toggle("icon-rotate");
-            icon.parentElement.classList.toggle("open");
-        });
-    });
-</script>
+</div>

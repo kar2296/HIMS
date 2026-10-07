@@ -9,6 +9,7 @@ export interface InputProps extends Omit<React.InputHTMLAttributes<HTMLInputElem
   fullWidth?: boolean;
   size?: 'sm' | 'md' | 'lg';
   leftIcon?: string;
+  icon?: string;
   containerStyle?: React.CSSProperties;
 }
 
@@ -20,12 +21,13 @@ const sizeMap = {
 
 /** Global text/number/password input. Purely presentational -- value/onChange/name stay whatever the caller already wires to its real state/dispatch. */
 export const Input = forwardRef<HTMLInputElement, InputProps>(({
-  label, required, error, helperText, fullWidth = true, size = 'md', leftIcon,
+  label, required, error, helperText, fullWidth = true, size = 'md', leftIcon, icon,
   disabled, readOnly, style, containerStyle, id, ...rest
 }, ref) => {
   const [focused, setFocused] = useState(false);
   const dims = sizeMap[size];
   const inputId = id || (label ? `input-${label.replace(/\s+/g, '-').toLowerCase()}` : undefined);
+  const effectiveIcon = leftIcon || icon;
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', width: fullWidth ? '100%' : undefined, ...containerStyle }}>
@@ -36,8 +38,8 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(({
         </label>
       )}
       <div style={{ position: 'relative', width: '100%' }}>
-        {leftIcon && (
-          <i className={leftIcon} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: colors.textSubtle, fontSize: '13px' }} />
+        {effectiveIcon && (
+          <i className={effectiveIcon} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: colors.textSubtle, fontSize: '13px' }} />
         )}
         <input
           ref={ref}

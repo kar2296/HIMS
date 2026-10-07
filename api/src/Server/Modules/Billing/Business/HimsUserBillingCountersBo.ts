@@ -12,6 +12,9 @@ import * as userbo from '../../SystemSettings/Business/Index';
 
 export class UserBillingCountersBo extends BaseBo<UserBillingCountersInstance, UserBillingCountersAttributes> {
     public async AddUserBillingCounters(req: BaseRequest): Promise<number> {
+        if (req.Data.Header.BillingCounterStatusId === 1) {
+            await this.AssertNoOtherRunningCounter(req.Data.Header.UserId, 0);
+        }
         if (req.Data.Header.BillingCounterStatusId === 1 && req.Data.Header.DocumentNumber === null) {
             req.Data.Header.DocumentNumber = await Sequence.Next(SequenceKeys.UserBillingCounterNo);
             req.Data.Header.DocumentDate = new Date();
@@ -34,6 +37,9 @@ export class UserBillingCountersBo extends BaseBo<UserBillingCountersInstance, U
     }
 
     public async UpdateUserBillingCounters(req: BaseRequest): Promise<boolean> {
+        if (req.Data.Header.BillingCounterStatusId === 1) {
+            await this.AssertNoOtherRunningCounter(req.Data.Header.UserId, req.Data.Header.Id);
+        }
         if (req.Data.Header.BillingCounterStatusId === 2) {
             req.Data.Header.ClosingDate = new Date();
         } else if (req.Data.Header.BillingCounterStatusId === 3) {
@@ -57,6 +63,30 @@ export class UserBillingCountersBo extends BaseBo<UserBillingCountersInstance, U
         }
 
         return result;
+    }
+
+    /**
+     * A user may have only one running cash counter (BillingCounterStatusId 1): the Cash Counter
+     * screen loads "the" running counter with GetBillingCounters(UserId, status 1) and uses the
+     * first row. Without this check, a second Start (double click, slow network, two tabs)
+     * created a second running counter, which then showed as a duplicate in the list.
+     * The user's row is locked first so two simultaneous requests are checked one after the other.
+     */
+    private async AssertNoOtherRunningCounter(userId: number, excludeId: number): Promise<void> {
+        const ownerId = Number(userId) > 0 ? Number(userId) : this.Session.UserId;
+        const tx = (this as any).transaction;
+        await this.Models.User.findOne({ where: { Id: ownerId }, attributes: ['Id'], transaction: tx, lock: tx ? (tx as any).LOCK.UPDATE : undefined } as any);
+        const where: any = { UserId: ownerId, BillingCounterStatusId: 1, Status: 1 };
+        if (Number(excludeId) > 0) {
+            where.Id = { $ne: Number(excludeId) };
+        }
+        const running = await this.Items.findOne({ where, attributes: ['Id', 'DocumentNumber'], transaction: tx } as any);
+        if (running) {
+            const doc = (running as any).dataValues.DocumentNumber || (running as any).dataValues.Id;
+            const err: any = new Error('A cash counter is already running for this user (' + doc + '). Open it from the Cash Counter list and close it before starting another.');
+            err.status = 409;
+            throw err;
+        }
     }
 
     public async GetUserBillingCountersById(req: BaseRequest): Promise<UserBillingCountersAttributes> {

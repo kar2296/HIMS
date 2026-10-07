@@ -935,6 +935,155 @@
         };
 
 
+        // ------------------------------------------------------------------
+        // React view (new code only; the functions above are not changed).
+        // itemmasters.html now mounts the shared MasterListScreen; window.ReactListBridge
+        // (src/react-components/utils/listBridge.ts) connects it to this controller and adds:
+        // latest-answer-only, loading / "No records" states, page 1 on filter change and
+        // stepping back from an emptied last page.
+        //
+        // Fixes made here:
+        // 1. Paging never worked: getListCallback() does not store the total number of records,
+        //    so the pager always had 0 items and only the first 25 items could be seen. The
+        //    total is now stored after the original callback runs.
+        // 2. The delete confirmation used entity.GstName (not an item field); it now names the item.
+        // 3. Edit rights: the old icon rule "showEdit==1 && status==2 || status==3 || 4 || 5"
+        //    let users without the ItemmasterEdit privilege edit Inactive (3) and status 4/5
+        //    items. The privilege now applies to every non-draft status; Draft items keep edit
+        //    and delete for everyone, as before.
+        // 4. Changing Type reset Main Category but kept the old Sub Category and Product Type,
+        //    which belong to the previous type and could leave the list empty; they are reset too.
+        // 5. Every filter can be set back to "All" (-1, which the API ignores).
+        // Filter changes still go through the original functions (getSubCategory, getSubType,
+        // getProductSubType, getList), so the dependent drop-downs reload exactly as before.
+        // ------------------------------------------------------------------
+        var bridge = window.ReactListBridge;
+        var t = function (key, fallback) { return bridge.translateOr($translate, key, fallback); };
+
+        // 1. Store the total (wrapped before the bridge wraps it again).
+        var imOriginalGetListCallback = $scope.getListCallback;
+        $scope.getListCallback = function (scope, data, options, hasError) {
+            var result = imOriginalGetListCallback.apply(this, arguments);
+            if (data && data.PageContext) {
+                vm.gridConfig.pagerObj.totalItems = data.PageContext.TotalRecords || 0;
+            }
+            return result;
+        };
+
+        function imFilterValue(key) {
+            var v = $scope.currentfilter[key];
+            return v === undefined || v === null || v === 0 ? -1 : v;
+        }
+
+        // Each filter keeps the old ng-change behaviour.
+        function imSelectFilter(key, label, lookupKey, onChange) {
+            return {
+                key: key, label: label, allLabel: 'All',
+                fetch: !onChange, // the old handler reloads the list through its lookup callback
+                options: ($scope.lookup && $scope.lookup[lookupKey]) || [],
+                get: function () { return imFilterValue(key); },
+                set: function (value) {
+                    $scope.currentfilter[key] = value;
+                    if (onChange) {
+                        onChange();
+                    }
+                }
+            };
+        }
+
+        // 3. Same icons as before, with the privilege applied to every non-draft status.
+        function imRowActions(entity) {
+            var status = entity.ActiveStatusId;
+            if (status == 1) {
+                return [{ action: 'edit', title: 'Edit', icon: 'edit' }, { action: 'delete', title: 'Delete', icon: 'delete' }];
+            }
+            if (status >= 2 && status <= 5 && entity.showEdit == 1) {
+                return [{ action: 'edit', title: 'Edit', icon: 'edit' }];
+            }
+            return [];
+        }
+
+        function imMoney(value) {
+            return value === undefined || value === null || value === '' ? '' : String(value);
+        }
+
+        bridge.attach($scope, utl, $translate, {
+            id: 'itemmasterlist',
+            vm: vm,
+            labels: function () {
+                return {
+                    title: t('Inventory Items', 'Inventory Items'),
+                    searchPlaceholder: 'Item Code',
+                    addTooltip: t('Inventory Items', 'Inventory Items'),
+                    homeTooltip: t('Dashboard', 'Dashboard'),
+                    colActions: t('common.actions_col.lbl', 'Actions')
+                };
+            },
+            search: {
+                get: function () { return $scope.currentfilter.ItemCode || ''; },
+                set: function (value) { $scope.currentfilter.ItemCode = value; }
+            },
+            filters: function () {
+                return [
+                    // The old drop-downs' ng-change handlers (they reload the dependent lists,
+                    // which then reload the item list); Sub Category, Hospital and Status reloaded
+                    // the list directly, which the bridge already does.
+                    imSelectFilter('FacilityId', t('Hospital', 'Hospital'), 'Facility'),
+                    imSelectFilter('CategoryId', t('Type', 'Type'), 'ItemCategory', function () {
+                        $scope.currentfilter.SubTypeId = -1;      // 4.
+                        $scope.currentfilter.ProductTypeId = -1;  // 4.
+                        $scope.getSubCategory();
+                    }),
+                    imSelectFilter('SubCategoryId', t('Main category', 'Main Category'), 'ItemSubCategory', function () { $scope.getSubType(); }),
+                    imSelectFilter('SubTypeId', t('Sub Category', 'Sub Category'), 'ItemSubType'),
+                    imSelectFilter('ProductTypeId', t('Product Type', 'Product Type'), 'ProductType', function () { $scope.getProductSubType(); }),
+                    imSelectFilter('ActiveStatusId', t('inventory.itemmasters.filter_status.lbl', 'Status'), 'ActiveStatus')
+                ];
+            },
+            columns: function () {
+                return [
+                    { key: 'code', label: t('inventory.itemmasters.code.lbl', 'Code') },
+                    { key: 'name', label: t('inventory.itemmasters.name.lbl', 'Name') },
+                    { key: 'type', label: t('Type', 'Type') },
+                    { key: 'mainCategory', label: t('Main Category', 'Main Category') },
+                    { key: 'subCategory', label: t('Sub Category', 'Sub Category') },
+                    { key: 'productType', label: t('Product Type', 'Product Type') },
+                    { key: 'generic', label: t('inventory.itemmasters.genericid.lbl', 'Generic') },
+                    { key: 'isActive', label: t('inventory.itemmasters.isactive.lbl', 'Is Active') },
+                    { key: 'packQty', label: t('Pack Qty', 'Pack Qty') },
+                    { key: 'itemPrice', label: t('Item Price', 'Item Price') },
+                    { key: 'mrp', label: t('MRP', 'MRP') }
+                ];
+            },
+            row: function (entity) {
+                return {
+                    cells: {
+                        code: entity.ItemCode || '',
+                        name: entity.ItemName || '',
+                        type: (entity.ItemCategory && entity.ItemCategory.CategoryName) || '',
+                        mainCategory: (entity.ItemSubCategory && entity.ItemSubCategory.SubCategoryName) || '',
+                        subCategory: (entity.ItemSubType && entity.ItemSubType.SubTypeName) || '',
+                        productType: (entity.ProductType && entity.ProductType.ProductTypeName) || '',
+                        generic: (entity.GenericMaster && entity.GenericMaster.GenericName) || '',
+                        isActive: entity.IsActive === true ? 'Yes' : entity.IsActive === false ? 'No' : '',
+                        packQty: imMoney(entity.PurConQty),
+                        itemPrice: imMoney(entity.ItemPrice),
+                        mrp: imMoney(entity.MrPrice)
+                    },
+                    actions: imRowActions(entity)
+                };
+            },
+            home: $scope.Context == 'inventory' ? function () { $scope.backtoList(); } : undefined,
+            onRowAction: function (action, entity) {
+                if (action === 'delete') {
+                    utl.Dialog.confirmDelete($scope.onDeleteConfirmed, entity.Id, entity.ItemName); // 2.
+                } else {
+                    $scope.handleEvents(action, entity);
+                }
+            }
+        });
+
+
         $scope.initLookup();
     }
 

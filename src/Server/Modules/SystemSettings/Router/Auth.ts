@@ -525,9 +525,13 @@ router.post('/getClientToken', (req: Request, res: Response, next: NextFunction)
 
                 let validTill = new Date();
                 validTill.setMinutes(validTill.getMinutes() + 20);
-                reqData.nonce = validTill.toUTCString();
+                const tokenPayload = {
+                    userName: reqData.userName,
+                    password: reqData.password,
+                    nonce: validTill.toUTCString()
+                };
 
-                const tokenInfo = CryptoJS.AES.encrypt(JSON.stringify(reqData), secret);
+                const tokenInfo = CryptoJS.AES.encrypt(JSON.stringify(tokenPayload), secret);
                 res.status(200).send({ token: tokenInfo.toString() });
             }
         }).catch((err) => {

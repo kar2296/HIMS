@@ -378,7 +378,7 @@ export const ServicesPanel: React.FC<EmrPanelProps> = ({ context, canEdit, openL
                     alignItems: 'center',
                     gap: '6px',
                     padding: '6px 14px',
-                    borderRadius: radii.pill,
+                    borderRadius: radii.full,
                     border: `1px solid ${selected ? colors.primary : colors.border}`,
                     backgroundColor: selected ? colors.primary : '#fff',
                     color: selected ? '#fff' : colors.textBody,
@@ -394,7 +394,7 @@ export const ServicesPanel: React.FC<EmrPanelProps> = ({ context, canEdit, openL
                     style={{
                       fontSize: '11px',
                       padding: '1px 6px',
-                      borderRadius: radii.pill,
+                      borderRadius: radii.full,
                       backgroundColor: selected ? 'rgba(255, 255, 255, 0.25)' : colors.surfaceMuted,
                       color: selected ? '#fff' : colors.textMuted,
                       marginLeft: 2,
@@ -536,7 +536,7 @@ export const ServicesPanel: React.FC<EmrPanelProps> = ({ context, canEdit, openL
                       item.kind === 'investigation'
                         ? { tone: 'info' as const, label: 'Investigation / Lab' }
                         : item.kind === 'radiology'
-                          ? { tone: 'primary' as const, label: 'Radiology / Imaging' }
+                          ? { tone: 'info' as const, label: 'Radiology / Imaging' }
                           : { tone: 'neutral' as const, label: 'Procedure / Nursing' };
 
                     return (
