@@ -393,6 +393,28 @@ export class PatientPaymentDetailsBo extends BaseBo<PatientPaymentDetailsInstanc
             }
 
 
+                        if (idempotencyKey && PatientReceiptId > 0) {
+                try {
+                    const sequelize = (this.Models.PatientPaymentDetails as any).sequelize;
+                    await sequelize.query(
+                        `UPDATE idempotency_records ` +
+                        `SET "Status" = :status, "ResponseCode" = 200, "ResponseBody" = :body, "EntityId" = :eid, "UpdatedAt" = NOW() ` +
+                        `WHERE "IdempotencyKey" = :key AND "FacilityId" = :fac AND "OperationType" = :op`,
+                        {
+                            replacements: {
+                                status: "COMPLETED",
+                                body: JSON.stringify({ PatientReceiptId: PatientReceiptId, Status: "SUCCESS" }),
+                                eid: PatientReceiptId,
+                                key: String(idempotencyKey),
+                                fac: facilityId,
+                                op: "CASHIER_PAYMENT"
+                            }
+                        }
+                    );
+                } catch (e) {
+                    console.error("Failed to update idempotency record to COMPLETED:", e);
+                }
+            }
             return PatientReceiptId;
         }
         return 0;

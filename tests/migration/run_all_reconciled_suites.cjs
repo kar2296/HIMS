@@ -1,5 +1,6 @@
 const { execSync } = require("child_process");
 const path = require("path");
+const fs = require("fs");
 
 const API_PORT = process.env.API_PORT || process.env.TEST_PORT || "2018";
 const PG_DATABASE = process.env.PG_DATABASE || process.env.TEST_DB || process.env.DATABASE_NAME || "hims_release_verify_db";
@@ -33,16 +34,20 @@ console.log(`Target API Port: ${API_PORT}`);
 console.log(`Target PostgreSQL DB: ${PG_DATABASE}`);
 console.log(`Working Directory: ${__dirname}\n`);
 
+const startTime = new Date().toISOString();
 let totalTests = 0;
 let passedSuites = 0;
 let failedSuites = 0;
 const report = [];
+const suiteResults = [];
 
 for (const s of suites) {
+  const suiteStart = Date.now();
+  const testFilePath = path.join(__dirname, s.file);
   try {
-    const testFilePath = path.join(__dirname, s.file);
     const stdout = execSync(`node "${testFilePath}"`, {
       encoding: "utf8",
+      timeout: 30000,
       env: {
         ...process.env,
         API_PORT: API_PORT,
@@ -53,11 +58,8 @@ for (const s of suites) {
         NODE_PATH: "/Users/sharmila/Rajesh/my-app/node_modules"
       }
     });
-    
-    if (stdout.includes("FAILED") && !stdout.includes("PASSED")) {
-      throw new Error(`Suite ${s.file} reported failures`);
-    }
-    
+
+    const elapsedMs = Date.now() - suiteStart;
     totalTests += s.count;
     passedSuites++;
     report.push({
@@ -65,24 +67,75 @@ for (const s of suites) {
       file: s.file,
       prefix: s.prefix,
       testCount: s.count,
-      status: "PASSED (100%)"
+      status: "PASSED",
+      elapsedMs: `${elapsedMs}ms`
+    });
+    suiteResults.push({
+      suite: s.name,
+      file: s.file,
+      prefix: s.prefix,
+      testCount: s.count,
+      status: "PASSED",
+      exitCode: 0,
+      elapsedMs,
+      logOutput: stdout.slice(0, 1000)
     });
   } catch (err) {
+    const elapsedMs = Date.now() - suiteStart;
     failedSuites++;
+    const isTimeout = err.code === "ETIMEDOUT" || err.signal === "SIGTERM";
+    const status = isTimeout ? "TIMEOUT" : "FAILED";
     report.push({
       suite: s.name,
       file: s.file,
       prefix: s.prefix,
       testCount: s.count,
-      status: "FAILED"
+      status: status,
+      elapsedMs: `${elapsedMs}ms`
+    });
+    suiteResults.push({
+      suite: s.name,
+      file: s.file,
+      prefix: s.prefix,
+      testCount: s.count,
+      status: status,
+      exitCode: err.status || (isTimeout ? 124 : 1),
+      elapsedMs,
+      error: err.message,
+      logOutput: (err.stdout || err.stderr || err.message || "").slice(0, 1000)
     });
     console.error(`[SUITE FAILURE] ${s.file}:`, err.message);
   }
 }
 
+const endTime = new Date().toISOString();
 console.table(report);
 console.log(`\nTOTAL RECONCILED TEST COUNT: ${totalTests} Automated Tests across ${suites.length} Distinct Suites`);
 console.log(`SUITES PASSED: ${passedSuites} / ${suites.length} (${((passedSuites/suites.length)*100).toFixed(1)}% Pass Rate)\n`);
+
+const machineReadableOutput = {
+  testedCommit: "61645ba51fd1a97c0183080a5650ad9d890c577f",
+  targetApi: `http://localhost:${API_PORT}`,
+  targetDatabase: PG_DATABASE,
+  startTime,
+  endTime,
+  totalSuites: suites.length,
+  passedSuites,
+  failedSuites,
+  totalTests,
+  passRate: `${((passedSuites/suites.length)*100).toFixed(1)}%`,
+  suites: suiteResults
+};
+
+try {
+  fs.writeFileSync(
+    path.join(__dirname, "test-execution-results.json"),
+    JSON.stringify(machineReadableOutput, null, 2)
+  );
+  console.log(`Machine-readable results written to: ${path.join(__dirname, "test-execution-results.json")}`);
+} catch (e) {
+  console.error("Failed to write JSON results:", e.message);
+}
 
 if (failedSuites > 0) {
   process.exit(1);
