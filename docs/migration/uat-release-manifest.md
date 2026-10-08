@@ -2,7 +2,7 @@
 
 > [!IMPORTANT]
 > **Release Branch**: `release/postgres-pilot-uat`
-> **Release Commit SHA**: `6365d4040070143a075690d9a939a0dcce8eb4b3`
+> **Release Commit SHA**: `a5199ec1c97a9c06b9639a44685f1d1f81700dca`
 > **Clean Release Worktree**: `/Users/sharmila/Rajesh/hims-release-clean`
 > **Baseline Git HEAD (Source)**: `f7d5fc213b7e50a71dab30f485904997c47d2204` (`feature/emr-workspace`)
 > **Cutover Status**: Strictly Frozen (`GATE-10` LOCKED pending human clinical & financial stakeholder UAT sign-off).
