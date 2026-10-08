@@ -1,14 +1,14 @@
 # Role-Specific Human UAT Execution Guide & Synthetic Fixtures
 
 > [!IMPORTANT]
-> **Pilot Application Portal**: `http://localhost:5175`
-> **Target Environment**: PostgreSQL 14 (`hims_pilot_db`), API on `:2014`.
+> **Clean Release UAT Application Portal**: `http://localhost:5177` (Proxied to API `http://localhost:2018`)
+> **Target Database**: PostgreSQL 14 (`hims_clean_prov_db`).
 > **Scope**: Validation of all 10 Hospital Roles across 42 Core Workflows.
-> **Execution Rule**: All tests must be executed by designated clinical, financial, and administrative hospital stakeholders. Record actual observations, defect tickets, and results in `uat-execution-tracker.csv`.
+> **Execution Rule**: All tests must be executed by designated clinical, financial, and administrative hospital stakeholders using the dedicated `uat_*` accounts. Record actual observations, defect tickets, and results in `uat-execution-tracker.csv`.
 
 ---
 
-## 1. Registration & Front Desk (Role: `cashier1` / `admin`)
+## 1. Registration & Front Desk (Role: `uat_registration`)
 
 ### Synthetic Test Fixture
 - **Patient Name**: `Ananya Sharma` | **Gender**: Female | **DOB**: `1992-05-14` (Age: 34)
@@ -31,7 +31,7 @@
 
 ---
 
-## 2. Consulting Physician / OPD EMR (Role: `doctor1`)
+## 2. Consulting Physician / OPD EMR (Role: `uat_doctor`)
 
 ### Synthetic Test Fixture
 - **Doctor**: `Dr. Rajesh Kumar (Cardiology)` | **Department**: Cardiology (Dept ID: 1)
@@ -58,7 +58,7 @@
 
 ---
 
-## 3. Cashier & OP Billing (Role: `cashier1`)
+## 3. Cashier & OP Billing (Role: `uat_cashier`)
 
 ### Synthetic Test Fixture
 - **Service Items**:
@@ -89,7 +89,7 @@
 
 ---
 
-## 4. Inpatient & Nursing Bed Management (Role: `nurse1`)
+## 4. Inpatient & Nursing Bed Management (Role: `uat_nurse`)
 
 ### Synthetic Test Fixture
 - **Admission Type**: Inpatient (Emergency/Elective) | **Admitting Doctor**: Dr. Rajesh Kumar
@@ -118,7 +118,7 @@
 
 ---
 
-## 5. Pharmacy & Stock Management (Role: `pharmacy1`)
+## 5. Pharmacy & Stock Management (Role: `uat_pharmacy`)
 
 ### Synthetic Test Fixture
 - **Store**: `Central Main Pharmacy` (Store ID: 1)
@@ -144,7 +144,7 @@
 
 ---
 
-## 6. Laboratory Information System - LIS (Role: `labtech1`)
+## 6. Laboratory Information System - LIS (Role: `uat_lab`)
 
 ### Synthetic Test Fixture
 - **Test Ordered**: `Complete Blood Count (CBC) with Differential`
@@ -170,7 +170,7 @@
 
 ---
 
-## 7. Operation Theatre - OT (Role: `otadmin1`)
+## 7. Operation Theatre - OT (Role: `uat_ot`)
 
 ### Synthetic Test Fixture
 - **Procedure**: `Diagnostic Coronary Angiography`
@@ -190,7 +190,7 @@
 
 ---
 
-## 8. Insurance & TPA Desk (Role: `insurance1`)
+## 8. Insurance & TPA Desk (Role: `uat_insurance`)
 
 ### Synthetic Test Fixture
 - **TPA / Payer**: `Star Health Insurance Corp` | **Policy No**: `SH-2026-88990`
@@ -213,7 +213,7 @@
 
 ---
 
-## 9. Medical Records Department - MRD (Role: `mrduser1`)
+## 9. Medical Records Department - MRD (Role: `uat_mrd`)
 
 ### Synthetic Test Fixture
 - **Discharge Summary Type**: `Cardiology Inpatient Summary`
@@ -233,7 +233,7 @@
 
 ---
 
-## 10. Hospital Administration & MIS (Role: `admin`)
+## 10. Hospital Administration & MIS (Role: `uat_admin`)
 
 ### Synthetic Test Scenarios
 1. **Generate Revenue MIS Reports**:
