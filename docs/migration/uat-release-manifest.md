@@ -51,20 +51,27 @@
 
 ## 3. Database Views & Schema Parity Audit
 
-### 3.1 Exact 8 Source Views Comparison
-The legacy MySQL database defines 8 views. In PostgreSQL `hims_clean_prov_db`, all 8 views are translated, plus 1 target compatibility view (`bedtransfers`), totaling 9 active views:
+### 3.1 Exact 8 Source Views Comparison & Schema Classification
+The legacy MySQL database defines 8 views. In PostgreSQL `hims_clean_prov_db`, all 8 views are present along with 1 target compatibility view (`bedtransfers`), totaling 9 active views:
 
-| View Name | Source MySQL Definition | Target PostgreSQL `hims_clean_prov_db` Definition | Functional Role & Parity |
+| View Name | Source MySQL Definition | Target PostgreSQL `hims_clean_prov_db` Definition | Classification & Functional Role |
 | :--- | :--- | :--- | :--- |
-| `ippatientbilldetails` | 37-column stub view | 37-column translated multi-table reporting join | Full encounter, guarantor, and billing detail reporting. |
-| `opandippaymentdetails` | 26-column stub view | 26-column translated payment & receipt join | Real-time cashier collection and receipt tracking. |
-| `opandiprefunddetails` | 26-column stub view | 26-column translated refund detail join | Patient billing refund audit trail. |
-| `tally_collection_view` | Staging projection on `tally_collection` | 23-column typed view on `tally_collection` | Tally ERP cashier receipt batch export. |
-| `tally_purchase_view` | 41-column stub view | 41-column typed view on `tally_purchase` | Tally ERP purchase voucher batch export. |
-| `tally_p_return_view` | Staging projection on `tally_p_return` | 41-column typed view on `tally_p_return` | Tally ERP purchase return batch export. |
-| `tally_sale_ret_view` | Staging projection on `tally_sale_ret` | 30-column typed view on `tally_sale_ret` | Tally ERP sales return batch export. |
-| `tally_sale_view` | Staging projection on `tally_sale` | 30-column typed view on `tally_sale` | Tally ERP sales invoice batch export. |
-| `bedtransfers` *(Target-Only)* | N/A (Source base table: `bedtransfer`) | Full 40-column compatibility alias view on `bedtransfer` | Backward compatibility for pluralized model queries. |
+| `ippatientbilldetails` | 37-column stub (`SELECT 1 AS ...`) | 37-column relational join (`patientbills` $\bowtie$ `encounters` $\bowtie$ `patients` $\bowtie$ `patientbilldetails` $\bowtie$ `users` $\bowtie$ `guarantors`) | **Target Schema Enhancement**: Replaces dummy MySQL stub with a functional multi-table reporting join. |
+| `opandippaymentdetails` | 26-column stub (`SELECT 1 AS ...`) | 26-column relational join (`patientpaymentdetails` $\bowtie$ `patientbills` $\bowtie$ `encounters` $\bowtie$ `facilities` $\bowtie$ `referencevalues`) | **Target Schema Enhancement**: Replaces dummy MySQL stub with a functional cashier payment tracking query. |
+| `opandiprefunddetails` | 26-column stub (`SELECT 1 AS ...`) | 26-column relational join (`patientrefund` $\bowtie$ `patientbills` $\bowtie$ `encounters` $\bowtie$ `patients` $\bowtie$ `facilities`) | **Target Schema Enhancement**: Replaces dummy MySQL stub with a functional refund audit query. |
+| `tally_collection_view` | Staging projection on `tally_collection` | 23-column typed view on `tally_collection` | **Strict Translation Parity**: Tally ERP cashier receipt batch export. |
+| `tally_purchase_view` | 41-column stub (`SELECT 1 AS ...`) | 41-column typed view on `tally_purchase` | **Target Schema Enhancement**: Replaces dummy MySQL stub with typed projection on `tally_purchase`. |
+| `tally_p_return_view` | Staging projection on `tally_p_return` | 41-column typed view on `tally_p_return` | **Strict Translation Parity**: Tally ERP purchase return batch export with date fallback. |
+| `tally_sale_ret_view` | Staging projection on `tally_sale_ret` | 30-column typed view on `tally_sale_ret` | **Strict Translation Parity**: Tally ERP sales return batch export (`billtypeid` normalized). |
+| `tally_sale_view` | Staging projection on `tally_sale` | 30-column typed view on `tally_sale` | **Strict Translation Parity**: Tally ERP sales invoice batch export with computed net `BillAmount`. |
+| `bedtransfers` *(Target-Only)* | N/A (Source base table: `bedtransfer`) | Full 40-column compatibility alias view on `bedtransfer` | **Compatibility View**: Backward compatibility for pluralized model queries. |
+
+### 3.2 Tally Projections Synthetic Fixture Verification
+Because the source Tally staging tables contained 0 rows at cutover baseline, synthetic test fixtures were executed in an isolated transaction to verify view calculation and mapping logic:
+* **`tally_sale_view`**: Computed net bill amount `BillAmount = (BillAmount - BillDiscount)` verified (e.g., ₹1000 gross - ₹100 discount = ₹900 net; ₹2500 gross - ₹250 discount = ₹2250 net).
+* **`tally_sale_ret_view`**: Normalized `billtypeid in (1,4,6)` to `4` verified.
+* **`tally_collection_view`**: Multi-instrument receipt projection (`Cash`, `CARD_APPROVALNO`, `UPI_NO`) verified.
+* *Note: Final accounting XML export acceptance remains pending financial stakeholder verification during human UAT.*
 
 > [!NOTE]
 > **Clarification on `v_patient_master` and `v_op_billing_summary`**:
@@ -103,12 +110,13 @@ All 21 test suites in the authoritative regression harness have been executed ag
 
 ### 4.1 Standalone Verification Suites (Executed Outside In-Band 160 Tests)
 1. **Authentication Error Handling & Controlled Failure (`test_auth_error_handling.cjs` - 5 Tests)**:
-   - Evaluates Express error middleware and socket connection lifecycle on forced rejection.
-   - Verified 5/5 assertions passed (3ms bounded error response, 0 socket/transaction leaks).
+   * Target: `http://localhost:2018` / `hims_clean_prov_db`.
+   * Evaluates Express error middleware and socket connection lifecycle on forced rejection.
+   * Verified 5/5 assertions passed (3ms bounded error response, 0 socket/transaction leaks).
 2. **Physical OS Process Restart Replay (`test_actual_process_restart_replay.cjs`)**:
-   - Sends `SIGTERM` / physically restarts the live Node.js daemon process on port `:2014`.
-   - Verified 100% persistence and idempotency recovery across physical process lifecycles.
-   - Maintained as a standalone test because process termination disrupts concurrent suite runners.
+   * Target: **Pilot API on Port `:2014` (`hims_pilot_db`)**.
+   * Sends `SIGTERM` / physically restarts the live Node.js daemon process on port `:2014` to prove transaction persistence across physical OS restarts.
+   * *Note on Port Distinction: This physical kill/spawn test was executed strictly against Pilot API on port `:2014`. It was intentionally not executed destructively against Release API on port `:2018` to maintain an uninterrupted verification listener.*
 
 ---
 
@@ -121,7 +129,7 @@ All 21 test suites in the authoritative regression harness have been executed ag
 | **GATE-03** | View Compatibility | 8 source views translated + 1 compatibility view (`bedtransfers`) | 9 / 9 Views Active | **PASSED** | Database Developer: 100% view compilation and query resolution |
 | **GATE-04** | Security & Multi-Tenant | Token validation, cross-facility isolation, bounded error responses | 5 / 5 Security Tests Passed | **PASSED** | Security Officer: Deep authentication & tenant isolation audited |
 | **GATE-05** | Financial Logic & Idempotency | DEF-006 idempotency engine, DEF-007 null safety, rollback guards | 29 / 29 Financial & Idempotency Tests Passed | **PASSED** | Financial Controller: Atomic replay protection & balance parity verified |
-| **GATE-06** | Automated Functional Acceptance | 21 test suites across all hospital functional domains | 160 / 160 Automated Tests Passed | **PASSED** | QA Automation Lead: 100% pass rate on release commit `0163271d` |
+| **GATE-06** | Automated Functional Acceptance | 21 test suites across all hospital functional domains | 160 / 160 Automated Tests Passed | **PASSED** | QA Automation Lead: 100% pass rate on release commit `79ce2550` |
 | **GATE-07** | Performance & Scale Capacity | 500-1000 concurrent sessions, PgBouncer pool sizing (50-100 conn) | Load Testing Staged | **PENDING LOAD STAGING** | Infrastructure Lead: Requires dedicated PgBouncer sizing in production staging |
 | **GATE-08** | Third-Party External Integrations | Live e-Invoice, external payment gateway, live SMS/WhatsApp dispatch | Mocked / Offline Mode Active | **PENDING LIVE GATEWAYS** | Integration Lead: Outbound delivery mock-trapped for pilot isolation |
 | **GATE-09** | Human Clinical & Financial UAT | Stakeholder operational validation across 10 roles & 42 workflows | Human UAT Execution Staged | **PENDING USER SIGN-OFF** | Clinical & Operations Directors: Staged in `uat-session1.md` |
@@ -129,7 +137,7 @@ All 21 test suites in the authoritative regression harness have been executed ag
 
 ---
 
-## 6. UAT UI Access & Tester Instructions
+## 6. UAT UI Access, Tester Instructions & Privilege Audit
 
 ### 6.1 UAT Access Endpoints
 * **UAT Frontend Portal**: `http://localhost:5177/`
@@ -138,21 +146,35 @@ All 21 test suites in the authoritative regression harness have been executed ag
 * **Isolated Redis**: `localhost:6379` (Namespace DB 5, Prefix `RELEASE_VERIFY_`)
 * **Outbound Isolation**: Active (`DISABLE_OUTBOUND_SMS=true`, `DISABLE_OUTBOUND_EMAIL=true`, `DISABLE_OUTBOUND_WHATSAPP=true`)
 
-### 6.2 Tester Credentials & Hospital Roles
-To perform human UAT without using production passwords, testers should use the synthetic credentials and fixtures defined in [`docs/migration/uat-session1.md`](file:///Users/sharmila/Rajesh/hims-release-clean/docs/migration/uat-session1.md) and [`docs/migration/uat-role-instructions.md`](file:///Users/sharmila/Rajesh/hims-release-clean/docs/migration/uat-role-instructions.md):
+### 6.2 Tester Account Privileges & Distinction
 
-| Role ID | Role Name | System Username | Target Workflow Area |
-| :--- | :--- | :--- | :--- |
-| **ROLE-01** | System Administrator | `sdh` | Global Configuration, Roles, Auditing |
-| **ROLE-02** | Consulting Physician | `DR. ANUP DUKANIYA` | OPD EMR, Clinical SOAP Notes, E-Prescriptions |
-| **ROLE-03** | Consulting Physician | `DR. BIBHUTI BHUSAN` | Inpatient Consultations & Clinical Orders |
-| **ROLE-04** | Consulting Physician | `DR.ANKUR RAI` | Surgical & Diagnostic Requisitions |
-| **ROLE-05** | Senior Consultant | `DR. BIJON KUMAR MUKHOPADHYA` | Specialist EMR & Referral Notes |
-| **ROLE-06** | Billing Cashier / Front Desk | `sunil` | Registration, OP Billing, Cashier Collections |
-| **ROLE-07** | Inpatient Nurse / Ward Admin | `SH0027` | IP Admission, Bed Transfers, Ward Clearance |
-| **ROLE-08** | Laboratory Technologist | `SH0032` | LIS Accessioning, Result Entry, Verification |
-| **ROLE-09** | Pharmacist / Store Incharge | `SH0029` | GRN Inwarding, FIFO Dispensing, Transfers |
-| **ROLE-10** | MRD / Medical Records Officer | `SH00100` | Discharge Summary Review, File Tracking |
+#### Copied Source Hospital Accounts (Baseline Accounts)
+These accounts were migrated from the baseline hospital database with intact role-privilege assignments:
+
+| Role ID | Hospital Role | Username | User ID | Assigned Group & Role | Assigned Facilities | Assigned Stores / Counters |
+| :--- | :--- | :--- | :---: | :--- | :--- | :--- |
+| **`ROLE-01`** | System Administrator | `sdh` | `1` | `APPLICATION ADMIN` / `ADMINISTRATOR` | `SHUVADARSINI HOSPITAL (ID: 1)` | 13 Stores (Central, Pharmacy, OT, CSSD, etc.), Counter: All |
+| **`ROLE-02`** | Consulting Physician | `DR. ANUP DUKANIYA` | `2` | `Doctor` / `Doctor` | `SHUVADARSINI HOSPITAL (ID: 1)` | OPD Consultations, E-Prescriptions |
+| **`ROLE-03`** | Consulting Physician | `DR. BIBHUTI BHUSAN` | `3` | `Doctor` / `Doctor` | `SHUVADARSINI HOSPITAL (ID: 1)` | Inpatient Rounds & Orders |
+| **`ROLE-04`** | Consulting Physician | `DR.ANKUR RAI` | `4` | `Doctor` / `Doctor` | `SHUVADARSINI HOSPITAL (ID: 1)` | Surgical & Diagnostic Requisitions |
+| **`ROLE-05`** | Senior Consultant | `DR. BIJON KUMAR MUKHOPADHYA` | `5` | `Doctor` / `Doctor` | `SHUVADARSINI HOSPITAL (ID: 1)` | Specialist EMR & Referral Notes |
+| **`ROLE-06`** | Billing Cashier / Front Desk | `sunil` | `6` | `Doctor` / `Doctor` | `SHUVADARSINI HOSPITAL (ID: 1)` | Front Desk & Consultation |
+| **`ROLE-07`** | Inpatient Nurse / Ward Admin | `SH0027` | `7` | `FronOffice` / `Front Office Executive` | `SHUVADARSINI HOSPITAL (ID: 1)` | Billing Counter 1 |
+| **`ROLE-08`** | Laboratory Technologist | `SH0032` | `10` | `FronOffice` / `Front Office Executive` | `SHUVADARSINI HOSPITAL (ID: 1)` | Billing Counter 4 |
+| **`ROLE-09`** | Pharmacist / Store Incharge | `SH0029` | `11` | `General indent` / `General indent` | `SHUVADARSINI HOSPITAL (ID: 1)` | Stores: `WARD (ID: 8)`, `HRD (ID: 62)` |
+| **`ROLE-10`** | MRD Officer | `SH00100` | `17` | `FronOffice` / `Front Office Executive` | `SHUVADARSINI HOSPITAL (ID: 1)` | Billing Counter 3, Store: `HOUSE KEEPING (ID: 77)` |
+
+#### Synthetic Test Fixture Accounts (Automated Test Artifacts)
+The following accounts were generated exclusively for automated tenant and permission boundary testing:
+* `UAT_B1_ALLOWED` (Group: `UAT_B1_ALLOWED_GRP` / Role: `UAT_B1_ALLOWED`) — Access allowed testing.
+* `UAT_B1_DENIED` (Group: `UAT_B1_DENIED_GRP` / Role: `UAT_B1_DENIED`) — Access rejection testing.
+* `UAT_B1_NOGRANT` (Group: `UAT_B1_NOGRANT_GRP` / Role: `UAT_B1_NOGRANT`) — Missing privilege testing.
+* `UAT_B1_QRONLY` (Group: `UAT_B1_QRONLY_GRP` / Role: `UAT_B1_QRONLY`) — QR code scope isolation testing.
+
+### 6.3 Secure Credential Management
+* In compliance with security policy, **no plaintext passwords are published in documentation or repositories**.
+* Passwords stored in the PostgreSQL `users` table are encrypted with AES-256 (`AES_PASSWORD_KEY`).
+* Authorized human UAT testers obtain their testing session access credentials through the secure UAT administrator (`sdh`) or the internal testing credential vault, or log in via the authenticated portal session.
 
 ---
 
@@ -175,4 +197,5 @@ node tests/migration/run_all_reconciled_suites.cjs
 # 4. Run Standalone Auth Error Handling Resilience Suite
 node tests/migration/test_auth_error_handling.cjs
 ```
+
 
