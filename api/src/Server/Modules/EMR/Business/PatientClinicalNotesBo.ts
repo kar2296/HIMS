@@ -1,12 +1,19 @@
 import * as SStatic from 'sequelize';
 import { BaseBo } from '../../Base/Index';
-import { WhereOptions, IncludeOptions } from '../../../Core/Index';
+import { WhereOptions, IncludeOptions, AuthorizationService } from '../../../Core/Index';
 import { ApiResponse, BaseRequest, ApiRequest } from '../../../Common/Index';
 import { PatientClinicalNotesInstance, PatientClinicalNotesAttributes } from '../Model/Interface/Index';
 import { PatientClinicalNotesFilters } from '../Common/Filters.e';
 
 export class PatientClinicalNotesBo extends BaseBo<PatientClinicalNotesInstance, PatientClinicalNotesAttributes>  {
+    private checkAuthorization(facilityId?: number): void {
+        const session = this.GetSession();
+        const allowed = AuthorizationService.hasClinicalEditPermission(session, facilityId);
+        AuthorizationService.assertPermission(allowed, 'Access Denied: You do not have clinical edit permissions');
+    }
+
     public async AddPatientClinicalNotes(req: BaseRequest): Promise<number> {
+        this.checkAuthorization(req.Data?.FacilityId);
         if (!req.Data.NoteStatus) {
             req.Data.NoteStatus = 1; // Default to Draft
         }
@@ -15,10 +22,14 @@ export class PatientClinicalNotesBo extends BaseBo<PatientClinicalNotesInstance,
     }
 
     public async UpdatePatientClinicalNotes(req: BaseRequest): Promise<boolean> {
+        this.checkAuthorization(req.Data?.FacilityId);
         if (req.Data && req.Data.Id) {
             let existing = await this.GetById(req.Data.Id);
             if (existing && existing.dataValues && existing.dataValues.NoteStatus >= 2) {
-                throw new Error('Cannot update a signed or amended clinical note. Use AmendPatientClinicalNote to record amendments.');
+                const err: any = new Error('Cannot update a signed or amended clinical note. Use AmendPatientClinicalNote to record amendments.');
+                err.statusCode = 409;
+                err.code = 'NOTE_ALREADY_SIGNED';
+                throw err;
             }
         }
         let result = await this.Update(req.Data);
@@ -26,13 +37,20 @@ export class PatientClinicalNotesBo extends BaseBo<PatientClinicalNotesInstance,
     }
 
     public async SignPatientClinicalNote(req: BaseRequest): Promise<boolean> {
+        this.checkAuthorization(req.Data?.FacilityId);
         const noteId = req.Data ? (req.Data.Id || req.Id) : req.Id;
         let existing = await this.GetById(noteId);
         if (!existing) {
-            throw new Error('Clinical note not found.');
+            const err: any = new Error('Clinical note not found.');
+            err.statusCode = 404;
+            err.code = 'NOT_FOUND';
+            throw err;
         }
         if (existing.dataValues.NoteStatus >= 2) {
-            throw new Error('Clinical note is already signed.');
+            const err: any = new Error('Clinical note is already signed.');
+            err.statusCode = 409;
+            err.code = 'NOTE_ALREADY_SIGNED';
+            throw err;
         }
 
         const noteData = existing.dataValues;
@@ -67,13 +85,20 @@ export class PatientClinicalNotesBo extends BaseBo<PatientClinicalNotesInstance,
     }
 
     public async AmendPatientClinicalNote(req: BaseRequest): Promise<number> {
+        this.checkAuthorization(req.Data?.FacilityId);
         const originalId = req.Data.OriginalNoteId || req.Data.Id || req.Id;
         let originalNote = await this.GetById(originalId);
         if (!originalNote) {
-            throw new Error('Original signed clinical note not found.');
+            const err: any = new Error('Original signed clinical note not found.');
+            err.statusCode = 404;
+            err.code = 'NOT_FOUND';
+            throw err;
         }
         if (!originalNote.dataValues.NoteStatus || originalNote.dataValues.NoteStatus < 2) {
-            throw new Error('Can only create amendments for a signed clinical note.');
+            const err: any = new Error('Can only create amendments for a signed clinical note.');
+            err.statusCode = 409;
+            err.code = 'INVALID_LIFECYCLE_STATE';
+            throw err;
         }
 
         const amendmentData: any = { ...req.Data };

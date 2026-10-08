@@ -1,7 +1,7 @@
 import * as SStatic from 'sequelize';
 import { Op } from 'sequelize';
 import { BaseBo, BoFactory } from '../../Base/Index';
-import { WhereOptions, IncludeOptions, Report, Template } from '../../../Core/Index';
+import { WhereOptions, IncludeOptions, Report, Template, AuthorizationService } from '../../../Core/Index';
 import { ApiResponse, BaseRequest, ApiRequest } from '../../../Common/Index';
 import { OtScheduleInstance, OtScheduleAttributes } from '../Model/Interface/Index';
 import { OtScheduleFilters } from '../Common/Filters.e';
@@ -16,7 +16,14 @@ import { UserAttributes } from '../../SystemSettings/Model/Interface/Index';
 import { ReferenceValueFilters } from '../../SystemSettings/Common/Filters.e';
 
 export class OtScheduleBo extends BaseBo<OtScheduleInstance, OtScheduleAttributes> {
+    private checkAuthorization(facilityId?: number): void {
+        const session = this.GetSession();
+        const allowed = AuthorizationService.hasOtSchedulePermission(session, facilityId);
+        AuthorizationService.assertPermission(allowed, 'Access Denied: You do not have OT surgery scheduling permissions');
+    }
+
     public async AddOtSchedule(req: BaseRequest): Promise<number> {
+        this.checkAuthorization(req.Data?.FacilityId);
         let result = await this.Save(req.Data);
         if (result) {
             let OtScheduleId = result.dataValues.Id;
@@ -235,6 +242,7 @@ export class OtScheduleBo extends BaseBo<OtScheduleInstance, OtScheduleAttribute
     }
 
     public async UpdateOtSchedule(req: BaseRequest): Promise<boolean> {
+        this.checkAuthorization(req.Data?.FacilityId);
         let result = await this.Update(req.Data);
         if (result) {
             let OtScheduleId = req.Data.Id;

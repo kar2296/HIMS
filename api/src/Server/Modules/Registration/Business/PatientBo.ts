@@ -38,8 +38,28 @@ import { WhatsappNotificationService } from '../../../WhatsappNotification/Whats
 import * as facilityBo from '../../SystemSettings/Business/Index';
 
 export class PatientBo extends BaseBo<PatientInstance, PatientAttributes> implements IOptionProvider {
+    private validateMobile(mobile: any, isRequired = false): void {
+        if (mobile === undefined || mobile === null || mobile === '' || (typeof mobile === 'string' && mobile.trim() === '')) {
+            if (isRequired) {
+                const err: any = new Error('Mobile number is required');
+                err.statusCode = 400;
+                err.code = 'INVALID_MOBILE';
+                throw err;
+            }
+            return;
+        }
+        const mobStr = String(mobile).trim();
+        if (!/^\d{10}$/.test(mobStr)) {
+            const err: any = new Error('Invalid mobile number format: "' + mobile + '". Mobile number must be exactly 10 digits.');
+            err.statusCode = 400;
+            err.code = 'INVALID_MOBILE';
+            throw err;
+        }
+    }
+
 
     public async AddPatient(req: BaseRequest): Promise<number> {
+        this.validateMobile(req.Data?.Mobile);
         let generateMRN: string = null;
 
         if (await this.IsAlreadyExist(req) <= -1) throw { error: 'Patient already exists' };
@@ -171,6 +191,7 @@ export class PatientBo extends BaseBo<PatientInstance, PatientAttributes> implem
     }
 
     public async AddSpousePatient(req: BaseRequest): Promise<any> {
+        this.validateMobile(req.Data?.Mobile);
         let generateMRN: string = null;
 
         if (await this.IsAlreadyExist(req) <= -1) return -1;
@@ -277,6 +298,7 @@ export class PatientBo extends BaseBo<PatientInstance, PatientAttributes> implem
 
 
     public async AddSelfPatient(req: BaseRequest): Promise<number> {
+        this.validateMobile(req.Data?.Mobile);
         let generateMRN: string = null;
         if (await this.IsAlreadyExist(req) <= -1) return -1;
         if (req.Data.PatientStatus === 'Active') {
@@ -320,6 +342,7 @@ export class PatientBo extends BaseBo<PatientInstance, PatientAttributes> implem
     }
 
     public async AddSelfPatientWithoutSession(req: BaseRequest): Promise<number> {
+        this.validateMobile(req.Data?.Mobile);
         let generateMRN: string = null;
         if (await this.IsAlreadyExist(req) <= -1) return -1;
         if (req.Data.PatientStatus === 'Active') {
@@ -479,6 +502,7 @@ export class PatientBo extends BaseBo<PatientInstance, PatientAttributes> implem
     }
 
     public async AddPharmacyPatient(req: BaseRequest): Promise<number> {
+        this.validateMobile(req.Data?.Mobile);
         let generateMRN: string = null;
 
         if (await this.IsAlreadyExist(req) <= -1) return -1;
@@ -549,6 +573,7 @@ export class PatientBo extends BaseBo<PatientInstance, PatientAttributes> implem
     }
 
     public async UpdatePatient(req: BaseRequest): Promise<boolean> {
+        if (req.Data?.Mobile !== undefined) this.validateMobile(req.Data?.Mobile);
         let generateMRN: string = null;
         let mrnAttrs = await this.GetById(req.Data.Id, { attributes: ['MRNTypeId', 'MRN'] });
         // console.log(req.Data);
@@ -3278,6 +3303,7 @@ export class PatientBo extends BaseBo<PatientInstance, PatientAttributes> implem
     }
 
     public async AddDayCarePatient(req: BaseRequest): Promise<number> {
+        this.validateMobile(req.Data?.Mobile);
         let PatientId: number;
         PatientId = await this.ManagePatientWithBill(req);
         if (PatientId <= 0) {

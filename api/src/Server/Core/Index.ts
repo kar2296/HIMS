@@ -6,3 +6,4 @@ export * from './WebServer';
 export * from './Vendor';
 export * from './Util/Index';
 export * from './Middleware/Index';
+export * from './Security/AuthorizationService';

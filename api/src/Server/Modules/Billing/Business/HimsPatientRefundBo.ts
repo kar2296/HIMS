@@ -1,6 +1,6 @@
 import * as SStatic from 'sequelize';
 import { BaseBo } from '../../Base/Index';
-import { WhereOptions, IncludeOptions, Report, FileInfo, Template } from '../../../Core/Index';
+import { WhereOptions, IncludeOptions, Report, FileInfo, Template, AuthorizationService } from '../../../Core/Index';
 import { ApiResponse, BaseRequest, ApiRequest } from '../../../Common/Index';
 import { PatientRefundInstance, PatientRefundAttributes } from '../Model/Interface/Index';
 import { SequenceKeys } from '../../General/Common/Sequence.s';
@@ -18,7 +18,14 @@ import { ReferenceValueFilters } from '../../SystemSettings/Common/Filters.e';
 import * as generalMasterBo from '../../GeneralMaster/Business/Index';
 
 export class PatientRefundBo extends BaseBo<PatientRefundInstance, PatientRefundAttributes> {
+    private checkAuthorization(facilityId?: number): void {
+        const session = this.GetSession();
+        const allowed = AuthorizationService.hasRefundPermission(session, facilityId);
+        AuthorizationService.assertPermission(allowed, 'Access Denied: You do not have financial refund permissions');
+    }
+
     public async AddPatientRefund(req: BaseRequest, creditNote?: number): Promise<number> {
+        this.checkAuthorization(req.Data?.Header?.FacilityId);
         let generateRefund = 0;
         if (!req.Data.Header.RefundIdentifier && req.Data.Header.RefundStatusId === 1) {
             generateRefund = 1;
@@ -171,6 +178,7 @@ export class PatientRefundBo extends BaseBo<PatientRefundInstance, PatientRefund
     }
 
     public async UpdatePatientRefund(req: BaseRequest, creditNote?: number): Promise<boolean> {
+        this.checkAuthorization(req.Data?.Header?.FacilityId);
         let generateRefund = 0;
         if (!req.Data.Header.RefundIdentifier && req.Data.Header.RefundStatusId === 1) {
             generateRefund = 1;
