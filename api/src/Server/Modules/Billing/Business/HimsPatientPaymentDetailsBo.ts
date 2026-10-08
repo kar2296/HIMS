@@ -34,7 +34,7 @@ export class PatientPaymentDetailsBo extends BaseBo<PatientPaymentDetailsInstanc
     public async AddPatientPaymentDetails(req: BaseRequest): Promise<number> {
         const crypto = require("crypto");
         const idempotencyKey = (this.Request && this.Request.headers && (this.Request.headers["x-idempotency-key"] || this.Request.headers["idempotency-key"]))
-            || (req && (req.IdempotencyKey || (req.Data && req.Data.IdempotencyKey)));
+            || (req && ((req as any).IdempotencyKey || (req.Data && (req.Data as any).IdempotencyKey)));
 
         let facilityId = (req && req.Data && req.Data.FacilityId) || (this.Session && this.Session.FacilityId) || 1;
         let fingerprint = null;
@@ -50,7 +50,7 @@ export class PatientPaymentDetailsBo extends BaseBo<PatientPaymentDetailsInstanc
                 ReceiptTypeId: (req && req.Data && req.Data.ReceiptTypeId) || 0
             });
             fingerprint = crypto.createHash("sha256").update(normalizedPayload).digest("hex");
-            const sequelize = this.Models.PatientPaymentDetails.sequelize;
+            const sequelize = (this.Models.PatientPaymentDetails as any).sequelize;
 
             const insertResult = await sequelize.query(
                 `INSERT INTO idempotency_records ("IdempotencyKey", "FacilityId", "OperationType", "RequestFingerprint", "Status", "CreatedAt", "UpdatedAt") ` +
@@ -78,7 +78,7 @@ export class PatientPaymentDetailsBo extends BaseBo<PatientPaymentDetailsInstanc
                 if (existing && existing.length > 0) {
                     const rec = existing[0];
                     if (rec.RequestFingerprint !== fingerprint) {
-                        const err = new Error("IDEMPOTENCY_KEY_PAYLOAD_MISMATCH: The idempotency key was previously used with a different request payload");
+                        const err: any = new Error("IDEMPOTENCY_KEY_PAYLOAD_MISMATCH: The idempotency key was previously used with a different request payload");
                         err.statusCode = 409;
                         err.status = 409;
                         throw err;
@@ -104,7 +104,7 @@ export class PatientPaymentDetailsBo extends BaseBo<PatientPaymentDetailsInstanc
                                 return parseInt(pollEid, 10);
                             }
                         }
-                        const err = new Error("CONCURRENT_OPERATION_IN_PROGRESS: A request with this idempotency key is already in progress");
+                        const err: any = new Error("CONCURRENT_OPERATION_IN_PROGRESS: A request with this idempotency key is already in progress");
                         err.statusCode = 409;
                         err.status = 409;
                         throw err;

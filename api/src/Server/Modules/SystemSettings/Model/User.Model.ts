@@ -66,7 +66,7 @@ export default function (sequelize: Sequelize, DataTypes: DataTypes):
         LoginPermission: { type: DataTypes.BOOLEAN, field: 'LoginPermission' },
         BillingCounterId: { type: DataTypes.INTEGER, field: 'BillingCounterId' },
         BillingCounterStatusId: { type: DataTypes.INTEGER, field: 'BillingCounterStatusId' },
-        GenderId: { type: DataTypes.BOOLEAN, field: 'GenderId' },
+        GenderId: { type: DataTypes.BIGINT, field: 'GenderId' },
         PhotoPath: { type: DataTypes.STRING, field: 'PhotoPath' },
         SignPath: { type: DataTypes.STRING, field: 'SignPath' },
         IsActive: { type: DataTypes.BOOLEAN, field: 'IsActive' },

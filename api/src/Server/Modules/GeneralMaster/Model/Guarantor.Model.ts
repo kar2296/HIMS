@@ -15,7 +15,6 @@ export default function (sequelize: Sequelize, DataTypes: DataTypes):
         ContractDate: { type: DataTypes.DATE, field: 'ContractDate' },
         ContractExpiryDate: { type: DataTypes.DATE, field: 'ContractExpiryDate' },
         TPAId: { type: DataTypes.BIGINT, field: 'TPAId' },
-        TpaId: { type: DataTypes.BIGINT, field: 'TpaId' },
         ServiceRateCategoryId: { type: DataTypes.BIGINT, field: 'ServiceRateCategoryId' },
         GuarantorClientTypeId: { type: DataTypes.BIGINT, field: 'GuarantorClientTypeId' },
         AddressLine1: { type: DataTypes.STRING, field: 'AddressLine1' },

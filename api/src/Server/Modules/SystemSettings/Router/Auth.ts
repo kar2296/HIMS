@@ -414,7 +414,10 @@ passport.use(new local.Strategy({ usernameField: 'UserName', passwordField: 'Pas
                         }
                     }
                 });
-            }).catch(err => console.log(err));
+            }).catch((err: any) => {
+            console.error("Local strategy auth error:", err);
+            done(err);
+        });
     }));
 
 passport.use(new bearer.Strategy(
@@ -435,6 +438,10 @@ passport.use(new bearer.Strategy(
                     } else {
                         authHandler(token.userName, token.password, done);
                     }
+                })
+                .catch((err: any) => {
+                    console.error("Redis session lookup error:", err);
+                    authHandler(token.userName, token.password, done);
                 });
         } catch (err) {
             // Expired / tampered token (decrypts to nothing): reject with 401 so the client returns to login,
@@ -549,7 +556,10 @@ function authHandler(userName: String, password: String, done: Function): void {
                     }
                 }
             });
-        }).catch(err => console.log(err));
+        }).catch((err: any) => {
+            console.error("Authentication database query error:", err);
+            done(err);
+        });
 }
 
 router.post('/getActiveUsers', (req: Request, res: Response, next: NextFunction): void => {
@@ -590,9 +600,7 @@ router.post('/getClientToken', (req: Request, res: Response, next: NextFunction)
                 const tokenInfo = CryptoJS.AES.encrypt(JSON.stringify(reqData), secret);
                 res.status(200).send({ token: tokenInfo.toString() });
             }
-        }).catch((err) => {
-            console.log(err);
-        });
+        }).catch(next);
 });
 router.post('/login-with-secret',
     passport.authenticate('custom'),
@@ -653,9 +661,7 @@ router.post('/getTokenForAutoLogin', (req: Request, res: Response, next: NextFun
                 const tokenInfo = CryptoJS.AES.encrypt(JSON.stringify(tokenData), secret);
                 res.status(200).send({ token: tokenInfo.toString() });
             }
-        }).catch((err) => {
-            console.log(err);
-        });
+        }).catch(next);
 });
 router.post('/encryptJSON', (req: Request, res: Response, next: NextFunction): void => {
     const reqData = req.body;

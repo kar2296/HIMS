@@ -14,13 +14,14 @@
 
 | Component | Identifier / Location | Port / Host | Database / Schema | Runtime Role | Status |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| **Clean Release API** | `/Users/sharmila/Rajesh/hims-release-clean/api` | `http://localhost:2018` | `hims_release_verify_db` (Redis DB 5) | Isolated Verification Daemon | **Active (100% Passed)** |
+| **Clean Release API** | `/Users/sharmila/Rajesh/hims-release-clean/api` | `http://localhost:2018` | `hims_clean_prov_db` (Redis DB 5) | Isolated Verification Daemon | **Active (100% Passed)** |
 | **Clean Release Worktree** | `/Users/sharmila/Rajesh/hims-release-clean` | N/A | Branch `release/postgres-pilot-uat` | Isolated Clean Release Package | **Verified** |
 | **Pilot UI Application** | `/Users/sharmila/Rajesh/hims-pg-pilot` | `http://localhost:5175` | N/A (Vite Dev Server) | Active Pilot Frontend UI | **Running** |
 | **Pilot API Service** | `/Users/sharmila/Rajesh/hims-pg-pilot/api` | `http://localhost:2014` | Node.js Express / Sequelize | Active Pilot Backend API | **Running** |
-| **Pilot Primary Database** | PostgreSQL 14.18 (Isolated) | `localhost:5432` | `hims_pilot_db` (554 Tables, 8 Views, `idempotency_records`) | Active Pilot Database | **Active** |
-| **Release Verification DB** | PostgreSQL 14.18 (Isolated) | `localhost:5432` | `hims_release_verify_db` (554 Tables, 8 Views, `idempotency_records`) | Isolated Verification DB | **100% Schema Parity** |
-| **Rehearsal Baseline DB** | PostgreSQL 14.18 (Clean Baseline) | `localhost:5432` | `hims_recon_db` (554 Tables, 8 Views, `idempotency_records`) | Full 1:1 Rehearsal Baseline | **Active** |
+| **Pilot Primary Database** | PostgreSQL 14.18 (Isolated) | `localhost:5432` | `hims_pilot_db` (555 Tables, 9 Views, `idempotency_records`) | Active Pilot Database | **Active** |
+| **Clean Provisioned DB** | PostgreSQL 14.18 (Isolated) | `localhost:5432` | `hims_clean_prov_db` (555 Tables, 9 Views, `idempotency_records`) | Clean Provisioned DB via Migrations | **100% Schema Parity (160/160 Tests Pass)** |
+| **Release Verification DB** | PostgreSQL 14.18 (Isolated) | `localhost:5432` | `hims_release_verify_db` (555 Tables, 9 Views, `idempotency_records`) | Isolated Verification DB | **100% Schema Parity** |
+| **Rehearsal Baseline DB** | PostgreSQL 14.18 (Clean Baseline) | `localhost:5432` | `hims_recon_db` (555 Tables, 9 Views, `idempotency_records`) | Full 1:1 Rehearsal Baseline | **Active** |
 | **Source Reference DB** | MySQL 5.7 (Untouched Baseline) | `localhost:3307` | `test` (554 Tables, 8 Views) | Read-Only Source Reference | **Untouched** |
 | **Source Reference UI/API** | `/Users/sharmila/Rajesh/my-app` | `:5174` / `:2012` | Legacy MySQL baseline stack | Read-Only Comparison Stack | **Untouched** |
 
