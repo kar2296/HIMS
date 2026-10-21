@@ -4,6 +4,7 @@
 > **Clean Release UAT Application Portal**: `http://localhost:5177` (Proxied to API `http://localhost:2018`)
 > **Target Database**: PostgreSQL 14 (`hims_clean_prov_db`).
 > **Scope**: Validation of all 10 Hospital Roles across 42 Core Workflows.
+> **Security Policy**: No plaintext credentials or password patterns are published in documentation. Pilot UAT credentials have been rotated with secure random keys and are managed via the secure administrative vault.
 > **Execution Rule**: All tests must be executed by designated clinical, financial, and administrative hospital stakeholders using the dedicated `uat_*` accounts. Record actual observations, defect tickets, and results in `uat-execution-tracker.csv`.
 
 ---
@@ -11,13 +12,13 @@
 ## 1. Registration & Front Desk (Role: `uat_registration`)
 
 ### Synthetic Test Fixture
-- **Patient Name**: `Ananya Sharma` | **Gender**: Female | **DOB**: `1992-05-14` (Age: 34)
+- **Patient Name**: `Ananya Sharma - UAT-REG-[SessionID]` (e.g. `Ananya Sharma - UAT-REG-01`) | **Gender**: Female | **DOB**: `1992-05-14` (Age: 34)
 - **Mobile**: `9876543210` | **Address**: `42 MG Road, Indiranagar, Bangalore - 560038`
-- **Guardian Name**: `Vikram Sharma` (Spouse) | **Govt ID (Aadhar)**: `XXXX-XXXX-9012`
+- **Guardian Name**: `Vikram Sharma` (Spouse) | **Govt ID (Aadhaar)**: `XXXX-XXXX-9012`
 
 ### Step-by-Step Test Scenarios
 1. **New Patient Registration (Save & MRN Generation)**:
-   - Navigate to `Registration -> New Patient`.
+   - Navigate to `Registration -> New Patient` (`/registration`).
    - Fill in demographic details using synthetic fixture above. Click **Save**.
    - **Assertion**: System generates unique MRN (e.g., `MRN-2026-XXXX`). Record persisted in PostgreSQL `patients` table.
 2. **Patient Search & Reopen (Edit & Update)**:
@@ -42,7 +43,7 @@
 
 ### Step-by-Step Test Scenarios
 1. **Book Appointment & Open Consultation**:
-   - Navigate to `OPD -> Appointment Roster`. Select Dr. Rajesh Kumar and book patient `Ananya Sharma`.
+   - Navigate to `OPD -> Appointment Roster` (`/emr`). Select Dr. Rajesh Kumar and book patient `Ananya Sharma`.
    - Open patient clinical encounter.
 2. **Record Vitals & SOAP Notes**:
    - Enter Vitals: BP `130/85`, Pulse `78`, SpO2 `99%`. Save Vitals.
@@ -60,25 +61,28 @@
 
 ## 3. Cashier & OP Billing (Role: `uat_cashier`)
 
+> [!NOTE]
+> **Synthetic Arithmetic Tax Fixture**: Under Indian GST law, clinical healthcare services are generally exempt from GST. The 5% GST configuration below is a synthetic arithmetic test fixture used to verify the PostgreSQL tax calculation engine and ledger accounting.
+
 ### Synthetic Test Fixture
 - **Service Items**:
   - `Cardiology Specialist Consultation` (Rate: ₹500.00, Qty: 1)
   - `ECG 12-Lead Investigation` (Rate: ₹300.00, Qty: 1)
 - **Gross Amount**: ₹800.00 | **Concession / Discount**: ₹50.00 (Doctor Concession)
-- **Tax Mode**: Exclusive 5% GST (on Net ₹750.00 = ₹37.50 GST) | **Net Payable**: ₹787.50
+- **Tax Mode**: Exclusive 5% GST Synthetic Test Fixture (on Net Base ₹750.00 = ₹37.50 GST) | **Net Payable**: ₹787.50
 
 ### Step-by-Step Test Scenarios
 1. **Generate Outpatient Service Bill**:
-   - Navigate to `Billing -> OP Billing`. Select patient `Ananya Sharma`.
+   - Navigate to `Billing -> OP Billing` (`/billing`). Select patient `Ananya Sharma`.
    - Add Consultation (₹500) and ECG (₹300). Apply Discount (₹50).
    - Click **Generate Bill**.
-   - **Assertion**: Bill generated with Net ₹750.00 (+ GST ₹37.50). Status = Unpaid (1).
+   - **Assertion**: Bill generated with Net ₹750.00 (+ Synthetic GST ₹37.50). Status = Unpaid (1).
 2. **Collect Multi-Mode Payment**:
    - Navigate to `Cashier Counter`. Select generated bill.
    - Tender Payment: Cash ₹400.00 + UPI / Card ₹387.50. Click **Submit Payment**.
    - **Assertion**: Receipt generated in `patientpaymentdetails`; Outstanding balance becomes ₹0.00; Status = Settled (2).
 3. **Bill Cancellation & Audit-Logged Refund**:
-   - Select bill, navigate to `Billing -> Refund / Cancellation`.
+   - Select bill, navigate to `Billing -> Refund / Cancellation` (`/billing/refunds`).
    - Enter Refund Amount: ₹300.00 (ECG Cancelled). Select Reason: `Patient opted for external ECG`.
    - Click **Process Refund**.
    - **Assertion**: Refund recorded in `patientrefund` with audit user timestamp; Bill balance adjusted.

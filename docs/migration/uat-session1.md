@@ -22,85 +22,93 @@
 > [!IMPORTANT]
 > 1. **Outbound Messaging Trapped:** External SMS, WhatsApp, and Email integrations are strictly disabled/mocked in the pilot environment (`DISABLE_OUTBOUND_SMS=true`, `DISABLE_OUTBOUND_EMAIL=true`, `DISABLE_OUTBOUND_WHATSAPP=true`). No external messages or emails will be dispatched during this session.
 > 2. **Source MySQL Baseline Intact:** Zero writes are routed to MySQL port `3307` or source directory `/Users/sharmila/Rajesh/my-app`.
-> 3. **Synthetic Data Policy:** Human testers MUST utilize the synthetic patient persona detailed below. Do not enter real patient personal identifiable information (PII).
+> 3. **Synthetic Data Policy:** Human testers MUST utilize a session-unique synthetic patient persona (detailed below). Do not enter real patient personal identifiable information (PII).
 > 4. **Production Cutover Frozen:** This session is strictly for user acceptance verification. Cutover Gate `GATE-10` remains locked.
-> 5. **Security Finding SEC-AUTH-01:** Passwords in database `users.Password` are evaluated via direct string comparison with transport-layer AES encryption. Risk acceptance or post-cutover hashing remediation roadmap is tracked under `SEC-AUTH-01`.
+> 5. **Security Policy & Vault Credentials:** No plaintext passwords or patterns are published in documentation. All pilot UAT account credentials have been rotated with secure random keys and are distributed exclusively through the secure administrative vault.
+> 6. **Security Finding SEC-AUTH-01:** Passwords in database `users.Password` are evaluated via direct string comparison with transport-layer AES encryption. Risk acceptance or post-cutover hashing remediation roadmap is tracked under `SEC-AUTH-01`.
 
 ---
 
 ## 3. Synthetic Test Persona & Master Data
+
+To avoid record collisions across repeated UAT runs, each session appends a session suffix:
+
 | Field Name | Synthetic Value | Notes |
 | :--- | :--- | :--- |
-| **Full Name** | `Aarav Sharma` | Synthetic UAT Persona |
+| **Full Name** | `Aarav Sharma - UAT-S1-[SessionID]` | Unique Synthetic UAT Persona per run (e.g. `Aarav Sharma - UAT-S1-01`) |
 | **Gender / Age** | Male / 38 Years | DOB: `1988-04-15` |
-| **Phone Number** | `+91 98765 43210` | Mock Contact (No SMS dispatched) |
+| **Phone Number** | `9876543210` (or `987654[SessionID]`) | 10-Digit Synthetic Mobile (No external SMS dispatched) |
 | **National ID / Aadhaar** | `XXXX-XXXX-9012` | Synthetic Identifier |
-| **Address** | `12/4, MG Road, Sector 4, Indiranagar` | Bangalore, Karnataka |
-| **Assigned Doctor** | `Dr. Rajesh Varma` | Speciality: General Medicine |
-| **Department** | `General Medicine` | Facility ID: `1` (Main Hospital) |
-| **Encounter Type** | `Outpatient (OP)` | Tariff Category: General / Standard |
+| **Address** | `12/4, MG Road, Sector 4, Indiranagar` | Bangalore, Karnataka - 560038 |
+| **Assigned Department** | `General Medicine` (Dept ID: 1) | Facility ID: `1` (Main Hospital) |
+| **Assigned Doctor** | `Dr. Rajesh Varma` (Doctor ID: 1) | Speciality: General Medicine |
+| **Encounter Type** | `Outpatient (OP)` | Tariff Category: Standard / General |
 
 ---
 
 ## 4. End-to-End Test Procedure & Expected Financial Outcomes
 
 ```
-[Patient Registration] -> [OP Encounter] -> [Clinical EMR] -> [OP Bill Generated]
-       |                       |                   |                   |
-   Unique MRN              OP Token #          Finalized Rx      ₹472.50 (Excl 5% GST)
-                                                                 or ₹450.00 (Incl 5% GST)
-                                                                        |
-[Refund / Cancellation] <- [Page Reload Audit] <- [Full Settle] <- [Double-Click Pay]
-    Refund: ₹100.00          Persisted Data          Pay: ₹222.50       Pay: ₹250.00
-    Net: ₹372.50             100% Retained           Due: ₹0.00         Due: ₹222.50 (1 Write)
+[1. Patient Registration] -> [2. OP Encounter & Token] -> [3. Doctor Consultation] -> [4. OP Billing & GST]
+     Unique MRN Generated          Dept: Gen Med              Vitals + SOAP Note          Gross ₹500 - Disc ₹50
+     10-Digit Mobile Valid         Doctor: Dr. Rajesh Varma   Rx: Paracetamol 650mg       Base ₹450 + 5% GST ₹22.50*
+                                   Token: OP-3055 Sequential  Signed & Immutable (409)    Total Due: ₹472.50
+                                                                                                 |
+[8. Partial Refund]      <- [7. Screen Reload Audit] <- [6. Full Settlement]      <- [5. Double-Click Pay]
+     Refund: ₹100.00               100% Persisted             Pay ₹222.50 via UPI         Pay ₹250.00 (Cash)
+     Net: ₹372.50, Due: ₹0         Zero Data Drift            Due: ₹0.00, Paid: Fully     Due: ₹222.50 (1 Receipt)
 ```
+
+> [!NOTE]
+> **Synthetic Arithmetic Tax Fixture Rationale**:
+> Under statutory Indian GST regulations, clinical healthcare and doctor consultation services are generally exempt from GST. The 5% GST configuration applied on the `CONSULTATION FEE - GENERAL MEDICINE` service item in this UAT session is purely a **synthetic arithmetic test fixture** designed to verify the PostgreSQL migration's automated tax engine (exclusive vs inclusive math, split CGST/SGST rounding, and financial ledger persistence). It does not represent a statutory tax rule for clinical consultations.
 
 ### Step 1: Patient Search & New Registration
 1. Open browser at `http://localhost:5177/`.
 2. Log in using `uat_registration`.
-3. Navigate to **Patient Registration** screen (`/registration`).
-4. Search for synthetic patient `Aarav Sharma` or phone `9876543210` to confirm no duplicate exists.
+3. Navigate to **Patient Registration** (`/registration`).
+4. Search for synthetic patient `Aarav Sharma` or phone `9876543210` to confirm no prior duplicate exists for this session.
 5. Click **New Registration** and enter demographic fields:
    - First Name: `Aarav`, Last Name: `Sharma`
-   - Gender: `Male`, DOB: `1988-04-15`
-   - Mobile: `9876543210`
+   - Gender: `Male`, DOB: `1988-04-15` (Age 38)
+   - Mobile: `9876543210` *(Test negative validation: enter `987653055` to confirm the backend rejects 9-digit input with HTTP 400)*
 6. Click **Save Patient**.
-7. **Expected Outcome:** System assigns a new unique Medical Record Number (`MRN`) sequentially. Patient header displays active status in PostgreSQL `patients` table.
+7. **Expected Outcome:** System assigns a new sequential Medical Record Number (`MRN`). Patient header displays active status in PostgreSQL `patients` table.
 
-### Step 2: Outpatient Encounter Creation
-1. From the registered patient screen, click **Create Visit / Encounter**.
-2. Select:
-   - Encounter Type: `Outpatient (OP)`
-   - Department: `General Medicine`
-   - Consulting Doctor: `Dr. Rajesh Varma`
-3. Click **Generate OP Token / Visit**.
-4. **Expected Outcome:** System creates OP Encounter record, issues OP Token number, and links encounter to patient `MRN`.
+### Step 2: OP Encounter & Visit Token Generation (Doctor Assignment)
+1. From the registered patient screen, click **Create Visit / OP Encounter** (`/visit` or Registration-Cum-Visit).
+2. Enter Encounter Details:
+   - **Encounter Type**: `Outpatient (OP)`
+   - **Department**: `General Medicine`
+   - **Consulting Doctor**: `Dr. Rajesh Varma`
+3. Click **Generate OP Token / Save Visit**.
+4. **Expected Outcome:** System generates OP Encounter record, issues sequential OP Token number (e.g. `OP-3055`), and routes patient to the designated doctor's consultation queue.
 
 ### Step 3: Clinical Consultation & Prescription Entry
 1. Log in or switch role to **Doctor** (`uat_doctor`).
 2. Open **Doctor Workstation / EMR** (`/emr`).
-3. Select patient `Aarav Sharma` from Today's OP Visits list.
+3. Select patient `Aarav Sharma` from Today's OP Visits list (filtered by assigned doctor/token).
 4. Record clinical entries:
    - **Vitals Flowsheet:** Pulse: `76 bpm`, BP: `120/80 mmHg`, Temp: `98.4 F`, SpO2: `99%`
    - **Chief Complaint:** `Fever and dry cough for 3 days`
    - **Diagnosis (ICD-10):** `J06.9 - Acute upper respiratory infection, unspecified`
    - **Prescription:** `Tab. Paracetamol 650mg` (1-0-1, 3 days, oral)
-5. Click **Finalize Consultation**.
-6. **Expected Outcome:** Consultation status transitions to `FINALIZED`. Clinical note is saved and locked from inadvertent non-physician editing.
+5. Click **Sign / Finalize Consultation**.
+6. **Expected Outcome:** Consultation transitions to `FINALIZED` (Status 2). Note is saved and locked; subsequent edit attempts return HTTP 409 (`NOTE_ALREADY_SIGNED`).
 
-### Step 4: Outpatient Billing Generation & Tax Breakdown
+### Step 4: Outpatient Billing Generation & Synthetic Tax Breakdown
 1. Log in or switch role to **Cashier / Billing User** (`uat_cashier`).
 2. Open **OP Billing** screen (`/billing`).
 3. Select Encounter for `Aarav Sharma`.
-4. Add Service Item: `CONSULTATION FEE - GENERAL MEDICINE` (Gross Rate: ₹500.00, Discount: ₹50.00, Taxable Net: ₹450.00).
-5. **Deterministic Tax Mode Calculations:**
-   - **Scenario A (Exclusive 5% GST):**
+4. Add Service Item: `CONSULTATION FEE - GENERAL MEDICINE` (Gross Rate: ₹500.00, Discount: ₹50.00, Taxable Net Base: ₹450.00).
+5. **Deterministic Synthetic Tax Fixture Calculations:**
+   - **Scenario A (Exclusive 5% GST Test Fixture):**
      - Gross Amount: `₹500.00`
      - Discount: `₹50.00`
      - Taxable Base: `₹450.00`
-     - GST (5%): `₹22.50`
+     - Synthetic GST (5% on full base): `₹22.50` (CGST ₹11.25 + SGST ₹11.25)
      - **Total Payable Amount Due:** `₹472.50`
-   - **Scenario B (Inclusive 5% GST):**
+   - **Scenario B (Inclusive 5% GST Test Fixture):**
      - Total Gross Amount: `₹450.00`
      - Base Taxable Amount: `₹428.57`
      - Calculated GST (5%): `₹21.43`
