@@ -369,7 +369,9 @@
             $scope.reactProps = {
                 currentfilter: $scope.currentfilter,
                 lookup: $scope.lookup,
-                rows: vm.gridConfig.data
+                rows: vm.gridConfig.data,
+                totalAmount: $scope.TotalNetamount || 0,
+                totalRecords: vm.gridConfig.pagerObj ? vm.gridConfig.pagerObj.totalItems : 0
             };
         };
 

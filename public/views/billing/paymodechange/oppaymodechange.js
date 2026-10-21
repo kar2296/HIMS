@@ -111,8 +111,10 @@
         };
 
         $scope.getDateDiffInHours = function (Date1, Date2) {
+            if (!Date1 || !Date2) return 0;
             var startTime = new Date(Date1);
             var endTime = new Date(Date2);
+            if (isNaN(startTime.getTime()) || isNaN(endTime.getTime())) return 0;
             var difference = endTime.getTime() - startTime.getTime();
             var resultInHours = Math.round(difference / (1000 * 60 * 60));
             return resultInHours;
@@ -166,18 +168,28 @@
         }
 
         $scope.getList = function () {
+            if (!$scope.currentfilter.FromBillDate || !$scope.currentfilter.ToBillDate) {
+                utl.Alert.showErrorMsg("Please select From Date and To Date");
+                return false;
+            }
             var resultInHours = $scope.getDateDiffInHours(
                 $scope.currentfilter.FromBillDate,
                 $scope.currentfilter.ToBillDate
             );
-            if (!(resultInHours >= 0 && resultInHours < 72)) {
-                utl.Alert.showSuccessMsg("From and To Date Difference should be less than 3 days...");
-                $scope.currentfilter.FromBillDate = $filter('date')(new Date(), 'yyyy-MM-dd 00:00:00');
-                $scope.currentfilter.ToBillDate = $filter('date')(new Date(), 'yyyy-MM-dd 23:59:59');
+            if (resultInHours < 0) {
+                utl.Alert.showErrorMsg("From Date cannot be greater than To Date");
                 return false;
-            } else {
-                $scope.getSystemDBDate();
             }
+            var hasSpecificFilter = Boolean(
+                $scope.currentfilter.ReceiptNumber ||
+                $scope.currentfilter.BillNo ||
+                ($scope.currentfilter.PatientId && $scope.currentfilter.PatientId > 0)
+            );
+            if (resultInHours > 72 && !hasSpecificFilter) {
+                utl.Alert.showErrorMsg("From and To Date Difference should be less than or equal to 3 days");
+                return false;
+            }
+            $scope.getSystemDBDate();
         };
 
         $scope.lookupCallback = function (scope, data, options, hasError) {
@@ -235,11 +247,21 @@
         $scope.handleReactAction = function (actionName, payload) {
             switch (actionName) {
                 case 'fromBillDateChange':
-                    $scope.currentfilter.FromBillDate = payload.value ? new Date(payload.value) : null;
+                    if (payload && payload.value) {
+                        var dateStr = typeof payload.value === 'string' ? payload.value.slice(0, 10) : $filter('date')(payload.value, 'yyyy-MM-dd');
+                        $scope.currentfilter.FromBillDate = dateStr + ' 00:00:00';
+                    } else {
+                        $scope.currentfilter.FromBillDate = null;
+                    }
                     $scope.refreshReactProps();
                     break;
                 case 'toBillDateChange':
-                    $scope.currentfilter.ToBillDate = payload.value ? new Date(payload.value) : null;
+                    if (payload && payload.value) {
+                        var dateStr = typeof payload.value === 'string' ? payload.value.slice(0, 10) : $filter('date')(payload.value, 'yyyy-MM-dd');
+                        $scope.currentfilter.ToBillDate = dateStr + ' 23:59:59';
+                    } else {
+                        $scope.currentfilter.ToBillDate = null;
+                    }
                     $scope.refreshReactProps();
                     break;
                 case 'filterFieldChange':

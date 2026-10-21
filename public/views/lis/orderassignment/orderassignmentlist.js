@@ -20,23 +20,53 @@
             status: -1
         };
 
-        var parentdeptid = $state.params.parentdeptid;
-        console.log("parentdeptid" + parentdeptid);
+        var parentdeptid = $state.params.parentdeptid || 1;
         $scope.currentfilter.OrderReqDate = new Date();
 
+        $scope.pagerObj = { totalItems: 0, currentPage: 1, pageSize: 25 };
+
+        $scope.reactProps = {
+            items: [],
+            totalItems: 0,
+            currentPage: 1,
+            pageSize: 25,
+            departmentId: parentdeptid,
+            currentfilter: $scope.currentfilter,
+            lookup: {}
+        };
+
+        $scope.syncReactProps = function () {
+            $scope.reactProps = {
+                items: $scope.Items,
+                totalItems: $scope.pagerObj.totalItems,
+                currentPage: $scope.pagerObj.currentPage,
+                pageSize: $scope.pagerObj.pageSize,
+                departmentId: parentdeptid,
+                currentfilter: $scope.currentfilter,
+                lookup: $scope.lookup || {}
+            };
+        };
+
+        $scope.handleReactAction = function (actionName, payload) {
+            if ($scope.handleEvents) {
+                $scope.handleEvents(actionName, payload);
+            }
+        };
 
         $scope.searchdt = function () {
             if ($scope.currentfilter.OrderReqDate == null)
                 $scope.currentfilter.OrderReqDate = new Date();
-            // if (reqdt == null)
-            //    reqdt = $filter('date')(reqdt, 'yyyy-MM-dd 00:00:00');
 
             $scope.getList();
         };
 
-
         $scope.getListCallback = function (scope, data, options, hasError) {
-            vm.gridConfig.data = (data && data.Data) || [];
+            $scope.Items = (data && data.Data) || [];
+            $scope.pagerObj.totalItems = (data && data.PageContext) ? data.PageContext.TotalRecords : $scope.Items.length;
+            if (vm.gridConfig) {
+                vm.gridConfig.data = $scope.Items;
+            }
+            $scope.syncReactProps();
         };
 
         $scope.getList = function (pageNo) {
@@ -143,6 +173,7 @@
 
         $scope.lookupCallback = function (scope, data, options, hasError) {
             $scope.lookup = hasError ? {} : data;
+            $scope.syncReactProps();
             $scope.getList();
         }
 

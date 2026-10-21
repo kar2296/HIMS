@@ -42,6 +42,7 @@ export const OPBillingSaveBar: React.FC<OPBillingSaveBarProps> = (props: any) =>
     canShowSaveBtn = true,
     canShowSaveapproveBtn = true,
     isFromIPBill = 0,
+    patientBillStatusId = 0,
     privileges = {}
   } = actualProps;
 
@@ -53,8 +54,9 @@ export const OPBillingSaveBar: React.FC<OPBillingSaveBarProps> = (props: any) =>
 
   const showAttachment = privileges?.canAttachment === true;
 
-  const isSaveAllowed = canShowSaveBtn !== false && canShowSaveBtn !== 0 && canShowSaveBtn !== 'false';
-  const isSaveApproveAllowed = canShowSaveapproveBtn !== false && canShowSaveapproveBtn !== 0 && canShowSaveapproveBtn !== 'false';
+  const isCompletedOrApproved = patientBillStatusId === 2 || patientBillStatusId === 3;
+  const isSaveAllowed = canShowSaveBtn !== false && canShowSaveBtn !== 0 && canShowSaveBtn !== 'false' && !isCompletedOrApproved;
+  const isSaveApproveAllowed = canShowSaveapproveBtn !== false && canShowSaveapproveBtn !== 0 && canShowSaveapproveBtn !== 'false' && !isCompletedOrApproved;
 
   const ipBillNum = isFromIPBill !== undefined && isFromIPBill !== null ? Number(isFromIPBill) : 0;
   const showSave = isSaveAllowed && (privileges?.canSave !== false) && (isNaN(ipBillNum) || ipBillNum === 0);

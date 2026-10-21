@@ -305,6 +305,7 @@
                 } catch (ex) { console.log(ex); }
             }
 
+            $scope.refreshReactProps();
             $timeout(function () {
                 $('#txt1').focus();
             }, 300);
@@ -365,9 +366,57 @@
                     bnotselectedflag = true;
             }
             return bnotselectedflag;
-        }
+        };
+
+        $scope.refreshReactProps = function () {
+            $scope.reactProps = {
+                id: $scope.currentcontext.id,
+                patientId: $scope.currentcontext.PatientId,
+                sampleId: $scope.currentcontext.Sampleid,
+                isModal: $scope.currentcontext.ismodal,
+                results: angular.copy($scope.ResultInfo || []),
+                isSaved: $scope.currentcontext.IsSaved
+            };
+            $scope.$applyAsync();
+        };
+
+        $scope.handleModalClose = function () {
+            $scope.backToList();
+        };
+
+        $scope.handleReactAction = function (actionName, payload) {
+            if (actionName === 'close') {
+                $scope.backToList();
+            } else if (actionName === 'acceptAll') {
+                $scope.currentcontext.AcceptedAll = payload.accepted;
+                $scope.AcceptAllItems();
+            } else if (actionName === 'rejectAll') {
+                $scope.currentcontext.RejectedAll = payload.rejected;
+                $scope.RejectAllItems();
+            } else if (actionName === 'acceptItem') {
+                if (payload && payload.index !== undefined && $scope.ResultInfo[payload.index]) {
+                    $scope.ResultInfo[payload.index].Approved = true;
+                    $scope.ResultInfo[payload.index].Rejected = false;
+                    $scope.Acceptitem($scope.ResultInfo[payload.index]);
+                }
+            } else if (actionName === 'rejectItem') {
+                if (payload && payload.index !== undefined && $scope.ResultInfo[payload.index]) {
+                    $scope.ResultInfo[payload.index].Rejected = true;
+                    $scope.ResultInfo[payload.index].Approved = false;
+                    $scope.Rejectitem($scope.ResultInfo[payload.index]);
+                }
+            } else if (actionName === 'save') {
+                if (payload && payload.results) {
+                    $scope.ResultInfo = payload.results;
+                }
+                $scope.save();
+            }
+            $scope.refreshReactProps();
+            $scope.$applyAsync();
+        };
 
         $scope.getAnalyzerMapping();
+        $scope.refreshReactProps();
     }
 
     lisInterfaceResultController.$inject = ['$scope', '$stateParams', '$state', '$translate', 'utl', '$filter', 'uibButtonConfig', '$uibModalInstance', 'modalConfig', '$timeout'];

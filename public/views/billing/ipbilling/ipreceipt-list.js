@@ -21,7 +21,7 @@
         $scope.currentfilter = {
             // ReceiptStatusId: 1,
             ReceiptDate: utl.Formatter.getCurrentDate(),
-            AdmissionDate: $scope.$parent.Data.AdmissionDate
+            AdmissionDate: ($scope.$parent && $scope.$parent.Data) ? $scope.$parent.Data.AdmissionDate : null
         };
 
         $scope.currentcontext.id = parseInt($stateParams.id);
@@ -30,7 +30,16 @@
             ReceiptDateTime: utl.Formatter.getCurrentDate()
 
         };
-        $scope.IsLocked = $scope.$parent.Islocked;
+        $scope.IsLocked = ($scope.$parent && $scope.$parent.Islocked) || false;
+
+        if ($scope.$parent) {
+            $scope.$watch('$parent.Data.AdmissionDate', function (newVal) {
+                if (newVal && !$scope.currentfilter.AdmissionDate) {
+                    $scope.currentfilter.AdmissionDate = newVal;
+                    $scope.getList();
+                }
+            });
+        }
 
         $scope.BillInfo = {};
 
@@ -521,6 +530,30 @@
                 },
                 onAction: $scope.handleGridAction
             };
+
+            $scope.reactPropsReceiptsScreen = {
+                gridProps: $scope.reactPropsGridContainer.reactProps,
+                TotalAmt: $scope.TotalAmt || 0,
+                canAdvance: $scope.HasAccess ? $scope.HasAccess('IPRECEIPT_DETAILS', 'IPRECEIPT_ADVANCE') : true,
+                canAdjustments: true,
+                isDisabled: $scope.IsDisabled,
+                pagerObj: vm.gridConfig ? vm.gridConfig.pagerObj : null
+            };
+        };
+
+        $scope.handleReactAction = function (actionType, payload) {
+            if (actionType === 'adjustments') {
+                $scope.AdjustAgainstFund();
+            } else if (actionType === 'advance') {
+                $scope.addReceipt();
+            } else if (actionType === 'pageChange') {
+                if (payload && vm.gridConfig && vm.gridConfig.pagerObj) {
+                    vm.gridConfig.pagerObj.currentPage = payload;
+                    $scope.getList();
+                }
+            } else if (actionType === 'rowAction') {
+                $scope.handleGridAction('rowAction', payload);
+            }
         };
 
         $scope.handleEvents = function (actionType, entity) {

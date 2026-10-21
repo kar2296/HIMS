@@ -21,11 +21,23 @@
 
 
 
+        $scope.updateActiveTab = function() {
+            var current = $state.current.name;
+            for (var i = 0; i < $scope.tabs.length; i++) {
+                $scope.tabs[i].active = ($scope.tabs[i].state === current);
+            }
+        };
+
         $scope.switchTab = function (tab) {
             if (!canDisableTab) {
                 $state.go(tab.state);
             }
-        }
+        };
+
+        $scope.updateActiveTab();
+        $scope.$on('$stateChangeSuccess', function() {
+            $scope.updateActiveTab();
+        });
     }
     externalProviderTabController.$inject = ['$scope', '$stateParams', '$state', '$translate', 'utl'];
 })();

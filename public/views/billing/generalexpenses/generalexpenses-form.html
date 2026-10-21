@@ -1,244 +1,279 @@
-<link rel="stylesheet" href="app/css/drhms.css">
-<style>
-    .form-horizontal .form-group {
-        height: 62px;
-    }
-</style>
-<div class="modal-header custom-modal-header">
-    <div class="col-sm-10">
-        <h4 class="modal-title custom-modal-title" translate="billing.generalexpenses.pagetitle1.lbl"></h4>
-    </div>
-    <div class="col-sm-2">
-        <div class="filters">
-            <img src="../../../../../assets/svg/close.svg" ng-click="cancelCallback()">
+<link rel="stylesheet" href="views/billing/generalexpenses/generalexpenses-modern.css">
+
+<div class="ge-voucher-modal">
+    <!-- Modern Header -->
+    <div class="ge-modal-header">
+        <div class="ge-modal-header-left">
+            <div class="ge-modal-header-icon">
+                <i class="fa-solid fa-file-invoice-dollar"></i>
+            </div>
+            <div>
+                <h4 class="ge-modal-header-title">
+                    <span ng-if="!item.VoucherNo || item.VoucherNo == ''" translate="billing.generalexpenses.pagetitle1.lbl"></span>
+                    <span ng-if="item.VoucherNo && item.VoucherNo != ''">Voucher: {{item.VoucherNo}}</span>
+                </h4>
+                <div class="ge-modal-header-subtitle">Record and approve general operational disbursements & petty cash</div>
+            </div>
+        </div>
+        <div>
+            <button type="button" class="ge-modal-close-btn" ng-click="cancelCallback()" title="Close dialog">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
         </div>
     </div>
-</div>
 
-<div class="row">
-    <div class="col-sm-12">
-        <form id="item_form" name="item_form" class="form-horizontal" role="form">
-            <div class="form-group col-sm-3">
-                <label class="col-sm-12 control-label" for="code"
-                    translate="billing.generalexpenses.voucherno.lbl"></label>
-                <div class="col-sm-12">
-                    <input type="text" class="form-control" name="code" ng-model="item.VoucherNo" ng-disabled="true"
-                        placeholder="">
+    <!-- Modal Form Body -->
+    <div class="ge-modal-body">
+        <form id="item_form" name="item_form" role="form" novalidate>
+            <!-- Section 1: Expense Details -->
+            <div class="ge-form-section-card">
+                <div class="ge-form-section-title">
+                    <i class="fa-solid fa-receipt"></i>
+                    <span>Voucher & Expense Details</span>
                 </div>
-            </div>
-            <div class="form-group col-sm-3">
-                <label class="col-sm-12 control-label" for="date" translate="billing.generalexpenses.date.lbl"></label>
-                <div class="col-sm-12">
-                    <input type="text" class="form-control" name="date" ng-change="getList()" ng-date-object
-                        uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
-                        placeholder="{{datePickerOptions.placeholder}}" ng-click="expensedatePopup = { opened: true }"
-                        is-open="expensedatePopup.opened" ng-model="item.ExpenseDate" required ng-disabled="true">
-                </div>
-            </div>
-            <div class="form-group col-sm-3">
-                <label class="col-sm-12 control-label" for="name" translate="billing.generalexpenses.name.lbl"></label>
-                <div class="col-sm-12">
-                    <input type="text" class="form-control" name="name" ng-model="item.Name" ng-disabled="IsDisabled"
-                        placeholder="">
-                </div>
-            </div>
-            <div class="form-group col-sm-3">
-                <label class="col-sm-12 control-label" for="type" translate="billing.generalexpenses.type.lbl"></label>
-                <div class="col-sm-12">
-                    <react-component name="BridgeLookupSelectScreen" props="{ reactProps: reactPropsExpenseTypeContainer.reactProps, onAction: reactPropsExpenseTypeContainer.onAction }"></react-component>
-                </div>
-            </div>
-            <div class="form-group col-sm-3">
-                <label class="col-sm-12 control-label" for="amount"
-                    translate="billing.generalexpenses.amount.lbl"></label>
-                <div class="col-sm-12">
-                    <input type="number" class="form-control" name="amount" ng-model="item.ExpenseAmount"
-                        ng-keyup="MaxAmountValidation()" ng-keypress="numberonly($event)" required placeholder=""
-                        ng-disabled="IsDisabled">
-                </div>
-            </div>
-            <div class="form-group col-sm-3">
-                <label class="col-sm-12 control-label" for="paytype" translate="Remarks"></label>
-                <div class="col-sm-12">
-                    <textarea class="text-box form-control" ng-model="item.Remarks" name="subject" required
-                        style="height: 50px;">
-                        </textarea>
-                </div>
-            </div>
-            <div class="form-group col-sm-3">
-                <label class="col-sm-12 control-label" for="paytype"
-                    translate="billing.generalexpenses.paytype.lbl"></label>
-                <div class="col-sm-12">
-                    <react-component name="BridgeLookupSelectScreen" props="{ reactProps: reactPropsPaymentTypeContainer.reactProps, onAction: reactPropsPaymentTypeContainer.onAction }"></react-component>
-                </div>
-            </div>
-            <div class="form-group col-sm-3"
-                ng-if="item.PaymentTypeId > 1 && item.PaymentTypeId != 7 && item.PaymentTypeId != 12">
-                <label class="col-sm-12 control-label" for="bankname"
-                    translate="billing.receipt-form.bankname.lbl"></label>
-                <div class="col-sm-12 toprightbankname">
-                    <react-component name="BridgeLookupSelectScreen" props="{ reactProps: reactPropsBankContainer.reactProps, onAction: reactPropsBankContainer.onAction }"></react-component>
-                </div>
-            </div>
-            <div class="form-group col-sm-3" ng-if="item.PaymentTypeId == 2">
-                <label class="col-sm-12 control-label" for="chequeno"
-                    translate="billing.receipt-form.chequeno.lbl"></label>
-                <div class="col-sm-12">
-                    <input type="text" class="form-control" name="chequeno" id="chequeno"
-                        ng-keyup="FooterFocus('chequeno')" ng-model="item.ChequeNo" ng-disabled="item.isCompleted"
-                        placeholder="" required>
-                </div>
-            </div>
-            <div class="form-group col-sm-3" ng-if="item.PaymentTypeId == 3">
-                <label class="col-sm-12 control-label" for="ddno" translate="billing.receipt-form.ddno.lbl"></label>
-                <div class="col-sm-12">
-                    <input type="text" class="form-control" name="ddno" id="ddno" ng-keyup="FooterFocus('ddno')"
-                        ng-model="item.DDNumber" ng-disabled="item.isCompleted" placeholder="" ng-minlength=""
-                        ng-pattern="/^\d+$/" required>
-                </div>
-            </div>
-            <div class="form-group col-sm-3" ng-if="item.PaymentTypeId == 4">
-                <label class="col-sm-12 control-label" for="transationno"
-                    translate="billing.receipt-form.transationno.lbl"></label>
-                <div class="col-sm-12">
-                    <input type="text" class="form-control" name="transationno" id="transationno"
-                        ng-keyup="FooterFocus('transationno')" ng-model="item.WireTransferId" placeholder=""
-                        ng-disabled="item.isCompleted" required>
-                </div>
-            </div>
-            <div class="form-group col-sm-3" ng-if="item.PaymentTypeId == 5 || item.PaymentTypeId == 6">
-                <label class="col-sm-12 control-label" for="cardno"
-                    translate="billing.receipt-form.authorisedcode.lbl"></label>
-                <div class="col-sm-12">
-                    <input type="text" class="form-control" name="cardno" id="cardno" ng-keyup="FooterFocus('cardno')"
-                        ng-model="item.AuthorizeNumber" maxlength="8" ng-disabled="item.isCompleted" placeholder="" required>
-                </div>
-            </div>
-            <div class="form-group col-sm-4" ng-if="item.PaymentTypeId==11||item.PaymentTypeId==12">
-                <label class="col-sm-12 control-label" for="upirefno" translate="Ref Number"></label>
-                <div class="col-sm-12">
-                    <input type="text" class="form-control" name="upirefno" ng-model="item.UPIRefNumber"
-                        ng-disabled="item.isCompleted" placeholder="" required>
-                </div>
-            </div>
-            <div class="form-group col-sm-3"
-                ng-if="item.PaymentTypeId == 4 || item.PaymentTypeId == 3 || item.PaymentTypeId == 2">
-                <label class="col-sm-12 control-label" translate="billing.receipt-form.Collected On.lbl"></label>
-                <div class="col-sm-12 toprightcollectedon">
-                    <input type="text" class="form-control" name="Collected On" id="CollectedOn"
-                        ng-keyup="FooterFocus('CollectedOn')" ng-date-object datepicker-options="datePickerOptions"
-                        show-button-bar="{{datePickerOptions.showButtonBar}}"
-                        uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
-                        placeholder="{{datePickerOptions.placeholder}}" ng-click="activefromPopup = { opened: true }"
-                        is-open="activefromPopup.opened" ng-model="item.CollectedOn" ng-disabled="item.isCompleted">
-                </div>
-            </div>
-            <!-- <div class="form-group col-sm-6" ng-if="item.PaymentTypeId == 5 || item.PaymentTypeId == 6">
-                    <label class="col-sm-12 control-label" translate="billing.receipt-form.terminalno.lbl" for="terminalno"></label>
-                    <div class="col-sm-12 toprightterminateno">
-                        <react-component name="BridgeLookupSelectScreen" props="{ reactProps: reactPropsTerminalContainer.reactProps, onAction: reactPropsTerminalContainer.onAction }"></react-component>
+                <div class="ge-form-grid">
+                    <!-- Voucher No -->
+                    <div class="ge-form-field">
+                        <label class="ge-form-label" for="code">
+                            <i class="fa-solid fa-hashtag" style="color: #64748b; font-size: 11px;"></i>
+                            <span translate="billing.generalexpenses.voucherno.lbl"></span>
+                        </label>
+                        <input type="text" class="form-control" name="code" id="code" ng-model="item.VoucherNo" ng-disabled="true"
+                            placeholder="Auto-generated on approval">
                     </div>
-                </div> -->
-            <div class="form-group col-sm-3" ng-if="item.PaymentTypeId == 2">
-                <label class="col-sm-12 control-label" translate="billing.receipt-form.Chequedate.lbl"></label>
-                <div class="col-sm-12 toprightchequedate">
-                    <input type="text" class="form-control" name="Chequedate" ng-date-object
-                        datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}"
-                        uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
-                        placeholder="{{datePickerOptions.placeholder}}" ng-click="activefromPopup = { opened: true }"
-                        is-open="activefromPopup.opened" id="Chequedate" ng-keyup="FooterFocus('Chequedate')"
-                        ng-model="item.ChequeDate" ng-disabled="item.isCompleted">
-                </div>
-            </div>
-            <div class="form-group col-sm-3" ng-if="item.PaymentTypeId == 3">
-                <label class="col-sm-12 control-label" translate="billing.receipt-form.dddate.lbl"></label>
-                <div class="col-sm-12 toprightchequedate">
-                    <input type="text" class="form-control" name="dddate" ng-date-object
-                        datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}"
-                        uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
-                        placeholder="{{datePickerOptions.placeholder}}" ng-click="activetoPopup = { opened: true }"
-                        is-open="activetoPopup.opened" id="dddate" ng-keyup="FooterFocus('dddate')"
-                        ng-model="item.DDDate" ng-disabled="item.isCompleted">
-                </div>
-            </div>
-            <div class="form-group col-sm-3" ng-if="item.PaymentTypeId == 4">
-                <label class="col-sm-12 control-label" translate="billing.receipt-form.transferredon.lbl"></label>
-                <div class="col-sm-12  toprightchequedate">
-                    <input type="text" class="form-control" name="transferredon" ng-date-object
-                        datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}"
-                        uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
-                        placeholder="{{datePickerOptions.placeholder}}"
-                        ng-click="transationfromPopup = { opened: true }" is-open="transationfromPopup.opened"
-                        id="transferredon" ng-keyup="FooterFocus('transferredon')" ng-model="item.WireTransferDate"
-                        ng-disabled="item.isCompleted">
-                </div>
-            </div>
-            <div class="form-group col-sm-3" ng-if="item.PaymentTypeId == 5 || item.PaymentTypeId == 6">
-                <label class="col-sm-12 control-label" for="cardtype"
-                    translate="billing.receipt-form.cardtype.lbl"></label>
-                <div class="col-sm-12 toprightchequedate">
-                    <react-component name="BridgeLookupSelectScreen" props="{ reactProps: reactPropsCardTypeContainer.reactProps, onAction: reactPropsCardTypeContainer.onAction }"></react-component>
-                </div>
-            </div>
-            <!-- <div class="form-group col-sm-3">
-                    <label class="col-sm-12 control-label" for="vehiclename" translate="billing.generalexpenses.vehiclename.lbl"></label>
-                    <div class="col-sm-12">
-                        <input type="text" class="form-control" name="vehiclename" ng-model="item.VehicleName" ng-disabled="IsDisabled" placeholder="">
+
+                    <!-- Date -->
+                    <div class="ge-form-field">
+                        <label class="ge-form-label" for="date">
+                            <i class="fa-regular fa-calendar" style="color: #2563eb; font-size: 11px;"></i>
+                            <span>Expense Date</span>
+
+                        </label>
+                        <input type="text" class="form-control" name="date" id="date" ng-change="getList()" ng-date-object
+                            uib-datepicker-popup="{{datePickerOptions.dateFormat || 'dd/MM/yyyy'}}"
+                            placeholder="{{datePickerOptions.placeholder || 'DD/MM/YYYY'}}" ng-click="expensedatePopup = { opened: true }"
+                            is-open="expensedatePopup.opened" ng-model="item.ExpenseDate" required ng-disabled="true">
                     </div>
-                </div>
-                <div class="form-group col-sm-3">
-                    <label class="col-sm-12 control-label" for="drivername" translate="billing.generalexpenses.drivername.lbl"></label>
-                    <div class="col-sm-12">
-                        <input type="text" class="form-control" name="drivername" ng-model="item.DriverName" ng-disabled="IsDisabled" placeholder="">
+
+                    <!-- Name / Payee -->
+                    <div class="ge-form-field">
+                        <label class="ge-form-label" for="name">
+                            <i class="fa-regular fa-user" style="color: #64748b; font-size: 11px;"></i>
+                            <span translate="billing.generalexpenses.name.lbl"></span>
+                        </label>
+                        <input type="text" class="form-control" name="name" id="name" ng-model="item.Name" ng-disabled="IsDisabled"
+                            placeholder="Enter payee / vendor name">
                     </div>
-                </div>
-                <div class="form-group col-sm-3">
-                    <label class="col-sm-12 control-label" for="vehicleno" translate="billing.generalexpenses.vehicleno.lbl"></label>
-                    <div class="col-sm-12">
-                        <input type="text" class="form-control" name="vehicleno" ng-model="item.VehicleNo" ng-disabled="IsDisabled" placeholder="">
+
+                    <!-- Expense Type -->
+                    <div class="ge-form-field">
+                        <label class="ge-form-label" for="type">
+                            <i class="fa-solid fa-tag" style="color: #2563eb; font-size: 11px;"></i>
+                            <span>Expense Type</span>
+
+                        </label>
+                        <react-component name="BridgeLookupSelectScreen" props="{ reactProps: reactPropsExpenseTypeContainer.reactProps, onAction: reactPropsExpenseTypeContainer.onAction }"></react-component>
                     </div>
-                </div> -->
-            <div class="form-group col-sm-3">
-                <label class="col-sm-12 control-label" for="mobile"
-                    translate="billing.generalexpenses.mobile.lbl"></label>
-                <div class="col-sm-12">
-                    <input type="text" class="form-control" name="mobile" ng-model="item.Mobile"
-                        ng-disabled="IsDisabled" MINLENGTH="10" MAXLENGTH="10" size="10" onChange="numberonly($event)"
-                        onKeyUp="numberonly($event)" ng-keypress="numberonly($event)" placeholder="">
-                </div>
-            </div>
-            <!-- <div class="form-group col-sm-3">
-                        <label class="col-sm-12 control-label" translate="billing.generalexpenses.remarks.lbl"></label>
-                        <div class="col-sm-12">
-                            <textarea rows="3" name="remarks" ng-model="item.Remarks" maxlength="4000" style="width:100%;" class="notes-textarea" ng-disabled="IsDisabled"></textarea>
-                        </div>
-                    </div> -->
-            <div class="form-group col-sm-3">
-                <label class="col-sm-12 control-label" translate="billing.generalexpenses.username.lbl"></label>
-                <div class="col-sm-12">
-                    <autosearch itemid="item.UserId" itemchange="getList()" onenter="getList()"
-                        iteminfo="item.SelectedItem" rowdata="item" config="vm.usercontrolconfig"
-                        class="inputsearchlogo" isrequired="true" candisable="IsDisabled"></autosearch>
+
+                    <!-- Expense Amount -->
+                    <div class="ge-form-field">
+                        <label class="ge-form-label" for="amount">
+                            <i class="fa-solid fa-indian-rupee-sign" style="color: #059669; font-size: 11px;"></i>
+                            <span>Amount</span>
+
+                        </label>
+                        <input type="number" class="form-control" name="amount" id="amount" ng-model="item.ExpenseAmount"
+                            ng-keyup="MaxAmountValidation()" ng-keypress="numberonly($event)" required placeholder="0.00"
+                            ng-disabled="IsDisabled" style="font-weight: 700; font-size: 14px;">
+                    </div>
+
+                    <!-- Remarks -->
+                    <div class="ge-form-field" style="grid-column: 1 / -1;">
+                        <label class="ge-form-label" for="subject">
+                            <i class="fa-regular fa-message" style="color: #64748b; font-size: 11px;"></i>
+                            <span>Remarks</span>
+
+                        </label>
+                        <textarea class="form-control" ng-model="item.Remarks" name="subject" id="subject" required
+                            placeholder="Provide reason or justification for this operational expense..."></textarea>
+                    </div>
                 </div>
             </div>
 
+            <!-- Section 2: Payment & Beneficiary Details -->
+            <div class="ge-form-section-card">
+                <div class="ge-form-section-title">
+                    <i class="fa-solid fa-wallet"></i>
+                    <span>Payment & Beneficiary Details</span>
+                </div>
+                <div class="ge-form-grid">
+                    <!-- Payment Mode -->
+                    <div class="ge-form-field">
+                        <label class="ge-form-label">
+                            <i class="fa-solid fa-credit-card" style="color: #2563eb; font-size: 11px;"></i>
+                            <span translate="billing.generalexpenses.paytype.lbl"></span>
+
+                        </label>
+                        <react-component name="BridgeLookupSelectScreen" props="{ reactProps: reactPropsPaymentTypeContainer.reactProps, onAction: reactPropsPaymentTypeContainer.onAction }"></react-component>
+                    </div>
+
+                    <!-- Requested By / User -->
+                    <div class="ge-form-field">
+                        <label class="ge-form-label">
+                            <i class="fa-solid fa-user-doctor" style="color: #64748b; font-size: 11px;"></i>
+                            <span translate="billing.generalexpenses.username.lbl"></span>
+
+                        </label>
+                        <autosearch itemid="item.UserId" itemchange="getList()" onenter="getList()"
+                            iteminfo="item.SelectedItem" rowdata="item" config="vm.usercontrolconfig"
+                            class="inputsearchlogo" isrequired="true" candisable="IsDisabled"></autosearch>
+                    </div>
+
+                    <!-- Mobile -->
+                    <div class="ge-form-field">
+                        <label class="ge-form-label" for="mobile">
+                            <i class="fa-solid fa-phone" style="color: #64748b; font-size: 11px;"></i>
+                            <span translate="billing.generalexpenses.mobile.lbl"></span>
+                        </label>
+                        <input type="text" class="form-control" name="mobile" id="mobile" ng-model="item.Mobile"
+                            ng-disabled="IsDisabled" minlength="10" maxlength="10" placeholder="10-digit mobile number"
+                            ng-keypress="numberonly($event)">
+                    </div>
+
+                    <!-- Bank Name (For Cheque, DD, Wire, Card) -->
+                    <div class="ge-form-field" ng-if="item.PaymentTypeId > 1 && item.PaymentTypeId != 7 && item.PaymentTypeId != 12">
+                        <label class="ge-form-label">
+                            <i class="fa-solid fa-building-columns" style="color: #64748b; font-size: 11px;"></i>
+                            <span translate="billing.receipt-form.bankname.lbl"></span>
+                        </label>
+                        <react-component name="BridgeLookupSelectScreen" props="{ reactProps: reactPropsBankContainer.reactProps, onAction: reactPropsBankContainer.onAction }"></react-component>
+                    </div>
+
+                    <!-- Cheque Details -->
+                    <div class="ge-form-field" ng-if="item.PaymentTypeId == 2">
+                        <label class="ge-form-label" for="chequeno">
+                            <span translate="billing.receipt-form.chequeno.lbl"></span>
+
+                        </label>
+                        <input type="text" class="form-control" name="chequeno" id="chequeno"
+                            ng-model="item.ChequeNo" ng-disabled="item.isCompleted" placeholder="Enter cheque number" required>
+                    </div>
+                    <div class="ge-form-field" ng-if="item.PaymentTypeId == 2">
+                        <label class="ge-form-label" for="Chequedate">
+                            <span translate="billing.receipt-form.Chequedate.lbl"></span>
+                        </label>
+                        <input type="text" class="form-control" name="Chequedate" id="Chequedate" ng-date-object
+                            datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}"
+                            uib-datepicker-popup="{{datePickerOptions.dateFormat || 'dd/MM/yyyy'}}"
+                            placeholder="{{datePickerOptions.placeholder || 'DD/MM/YYYY'}}" ng-click="activefromPopup = { opened: true }"
+                            is-open="activefromPopup.opened" ng-model="item.ChequeDate" ng-disabled="item.isCompleted">
+                    </div>
+
+                    <!-- DD Details -->
+                    <div class="ge-form-field" ng-if="item.PaymentTypeId == 3">
+                        <label class="ge-form-label" for="ddno">
+                            <span translate="billing.receipt-form.ddno.lbl"></span>
+
+                        </label>
+                        <input type="text" class="form-control" name="ddno" id="ddno"
+                            ng-model="item.DDNumber" ng-disabled="item.isCompleted" placeholder="Enter DD number"
+                            ng-pattern="/^\d+$/" required>
+                    </div>
+                    <div class="ge-form-field" ng-if="item.PaymentTypeId == 3">
+                        <label class="ge-form-label" for="dddate">
+                            <span translate="billing.receipt-form.dddate.lbl"></span>
+                        </label>
+                        <input type="text" class="form-control" name="dddate" id="dddate" ng-date-object
+                            datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}"
+                            uib-datepicker-popup="{{datePickerOptions.dateFormat || 'dd/MM/yyyy'}}"
+                            placeholder="{{datePickerOptions.placeholder || 'DD/MM/YYYY'}}" ng-click="activetoPopup = { opened: true }"
+                            is-open="activetoPopup.opened" ng-model="item.DDDate" ng-disabled="item.isCompleted">
+                    </div>
+
+                    <!-- Wire Transfer / NEFT Details -->
+                    <div class="ge-form-field" ng-if="item.PaymentTypeId == 4">
+                        <label class="ge-form-label" for="transationno">
+                            <span translate="billing.receipt-form.transationno.lbl"></span>
+
+                        </label>
+                        <input type="text" class="form-control" name="transationno" id="transationno"
+                            ng-model="item.WireTransferId" placeholder="Transaction / UTR number"
+                            ng-disabled="item.isCompleted" required>
+                    </div>
+                    <div class="ge-form-field" ng-if="item.PaymentTypeId == 4">
+                        <label class="ge-form-label" for="transferredon">
+                            <span translate="billing.receipt-form.transferredon.lbl"></span>
+                        </label>
+                        <input type="text" class="form-control" name="transferredon" id="transferredon" ng-date-object
+                            datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}"
+                            uib-datepicker-popup="{{datePickerOptions.dateFormat || 'dd/MM/yyyy'}}"
+                            placeholder="{{datePickerOptions.placeholder || 'DD/MM/YYYY'}}"
+                            ng-click="transationfromPopup = { opened: true }" is-open="transationfromPopup.opened"
+                            ng-model="item.WireTransferDate" ng-disabled="item.isCompleted">
+                    </div>
+
+                    <!-- Card Details -->
+                    <div class="ge-form-field" ng-if="item.PaymentTypeId == 5 || item.PaymentTypeId == 6">
+                        <label class="ge-form-label">
+                            <span translate="billing.receipt-form.cardtype.lbl"></span>
+                        </label>
+                        <react-component name="BridgeLookupSelectScreen" props="{ reactProps: reactPropsCardTypeContainer.reactProps, onAction: reactPropsCardTypeContainer.onAction }"></react-component>
+                    </div>
+                    <div class="ge-form-field" ng-if="item.PaymentTypeId == 5 || item.PaymentTypeId == 6">
+                        <label class="ge-form-label" for="cardno">
+                            <span translate="billing.receipt-form.authorisedcode.lbl"></span>
+
+                        </label>
+                        <input type="text" class="form-control" name="cardno" id="cardno"
+                            ng-model="item.AuthorizeNumber" maxlength="8" ng-disabled="item.isCompleted"
+                            placeholder="Enter authorisation code" required>
+                    </div>
+
+                    <!-- UPI Details -->
+                    <div class="ge-form-field" ng-if="item.PaymentTypeId == 11 || item.PaymentTypeId == 12">
+                        <label class="ge-form-label" for="upirefno">
+                            <span>UPI Reference Number</span>
+                        </label>
+                        <input type="text" class="form-control" name="upirefno" id="upirefno" ng-model="item.UPIRefNumber"
+                            ng-disabled="item.isCompleted" placeholder="Enter UPI Ref / Transaction ID" required>
+                    </div>
+
+                    <!-- Collected On (For Cheque, DD, Wire) -->
+                    <div class="ge-form-field" ng-if="item.PaymentTypeId == 4 || item.PaymentTypeId == 3 || item.PaymentTypeId == 2">
+                        <label class="ge-form-label" for="CollectedOn">
+                            <span translate="billing.receipt-form.Collected On.lbl"></span>
+                        </label>
+                        <input type="text" class="form-control" name="Collected On" id="CollectedOn"
+                            ng-date-object datepicker-options="datePickerOptions"
+                            show-button-bar="{{datePickerOptions.showButtonBar}}"
+                            uib-datepicker-popup="{{datePickerOptions.dateFormat || 'dd/MM/yyyy'}}"
+                            placeholder="{{datePickerOptions.placeholder || 'DD/MM/YYYY'}}" ng-click="collectedOnPopup = { opened: true }"
+                            is-open="collectedOnPopup.opened" ng-model="item.CollectedOn" ng-disabled="item.isCompleted">
+                    </div>
+                </div>
+            </div>
         </form>
     </div>
 
-    <div class="row">
-        <div class="pull-left">
-            <!-- <button type="button" id="printbtnsubmit"  class="draftbutton" translate="common.printaction.lbl" ng-click="print()"
-                ng-show="EnablePrintButton"></button> -->
+    <!-- Modal Footer -->
+    <div class="ge-modal-footer">
+        <div class="ge-modal-footer-note">
+            <i class="fa-solid fa-shield-halved" style="color: #2563eb;"></i>
+            <span>Disbursement will be posted to the facility general expenses ledger</span>
         </div>
-        <div class="pull-right">
-            <!-- <button type="submit" class="draftbutton" ng-click="save()" ng-if="!item.isRequested"
-            translate="common.saveaction.lbl" ng-show="EnableSaveButton"></button> -->
-            <button type="button" id="printbtnsubmit" class="drhms-common-btn" translate="common.printaction.lbl"
-                ng-click="print()" ng-show="EnablePrintButton"></button>
-            <button type="button" class="drhms-common-btn" translate="common.saveapprove-action.lbl"
-                ng-click="saveandApprove()" ng-show="EnableSaveButton"></button>
-            <!-- <button id="btnCancelForm" type="button" class="draftbutton" ng-click="backToList()"
-            translate="common.cancelaction.lbl"></button> -->
+        <div class="ge-modal-btn-group">
+            <button type="button" class="ge-btn-cancel" ng-click="cancelCallback()">
+                <i class="fa-solid fa-xmark"></i>
+                <span>Cancel</span>
+            </button>
+            <button type="button" id="printbtnsubmit" class="ge-btn-print" ng-click="print()" ng-show="EnablePrintButton">
+                <i class="fa-solid fa-print"></i>
+                <span translate="common.printaction.lbl">Print</span>
+            </button>
+            <button type="button" class="ge-btn-submit" ng-click="saveandApprove()" ng-show="EnableSaveButton">
+                <i class="fa-solid fa-check"></i>
+                <span translate="common.saveapprove-action.lbl">Approve & Record</span>
+            </button>
         </div>
     </div>
 </div>

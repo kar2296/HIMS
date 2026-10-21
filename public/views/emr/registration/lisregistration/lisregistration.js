@@ -83,6 +83,106 @@
             $scope.item.DepartmentId = parseInt($scope.departmentid);
         }
 
+        $scope.reactProps = {
+            item: $scope.item,
+            lookup: $scope.lookup,
+            currentcontext: $scope.currentcontext,
+            SaveCompleted: $scope.SaveCompleted,
+            EncounterStatus: $scope.EncounterStatus
+        };
+
+        $scope.syncReactProps = function () {
+            $scope.reactProps = {
+                item: $scope.item,
+                lookup: $scope.lookup,
+                currentcontext: $scope.currentcontext,
+                SaveCompleted: $scope.SaveCompleted,
+                EncounterStatus: $scope.EncounterStatus
+            };
+        };
+
+        $scope.handleAction = function (actionName, payload) {
+            $scope.$evalAsync(function () {
+                switch (actionName) {
+                    case 'itemChange':
+                        if (payload && payload.item) {
+                            angular.extend($scope.item, payload.item);
+                            $scope.syncReactProps();
+                        }
+                        break;
+                    case 'patientSelected':
+                        if (payload && payload.Id) {
+                            $scope.item.PatientId = payload.Id;
+                            $scope.item.BannerPatientId = payload.Id;
+                            $scope.selectedPatient = payload;
+                            $scope.patientChange();
+                            $scope.syncReactProps();
+                        }
+                        break;
+                    case 'saveAndApprove':
+                        if (payload) {
+                            angular.extend($scope.item, payload);
+                        }
+                        $scope.saveAndApprove();
+                        break;
+                    case 'clear':
+                        $scope.clear();
+                        break;
+                    case 'addNew':
+                        $scope.addNew();
+                        break;
+                    case 'backToList':
+                        $scope.backToList();
+                        break;
+                    case 'checkout':
+                        $scope.checkout();
+                        break;
+                    case 'openattachments':
+                        $scope.openattachments();
+                        break;
+                    case 'orderrequest':
+                        $scope.orderrequest();
+                        break;
+                    case 'pendingorders':
+                        $scope.pendingorders();
+                        break;
+                    case 'OPDBill':
+                        $scope.OPDBill();
+                        break;
+                    case 'dgbilling':
+                        $scope.dgbilling();
+                        break;
+                    case 'b2bbilling':
+                        $scope.b2bbilling();
+                        break;
+                    case 'order_dashboard':
+                        $scope.order_dashboard();
+                        break;
+                    case 'printRegistrationIdCard':
+                        $scope.printRegistrationIdCard();
+                        break;
+                    case 'printPatientLabel':
+                        $scope.printPatientLabel();
+                        break;
+                    case 'openWebCam':
+                        $scope.openWebCam();
+                        break;
+                    case 'clearimage':
+                        $scope.clearimage();
+                        break;
+                    case 'addReferral':
+                        $scope.addReferral();
+                        break;
+                    case 'viewScheduleAppt':
+                        $scope.viewScheduleAppt();
+                        break;
+                    case 'pickPatient':
+                        $scope.pickPatient();
+                        break;
+                }
+            });
+        };
+
         $scope.viewScheduleAppt = function () {
             if ($scope.item.PatientId > 0) {
                 utl.Modal.open('app.appointmentschedule', {
@@ -631,6 +731,7 @@
             }
             $scope.getMRDFlowRequired();
             $scope.getPatientAttachments();
+            $scope.syncReactProps();
         };
 
         $scope.getPatient = function () {
@@ -1194,6 +1295,7 @@
                 $scope.EnableOPD = true;
                 $scope.PatientGuarantor = 1;
             }
+            $scope.syncReactProps();
 
             // $timeout(function () {
             //     $scope.printOPBill();
@@ -1755,6 +1857,7 @@
                 }
             }
             $scope.getDefaultReferral();
+            $scope.syncReactProps();
         };
 
         $scope.getPrintNoOfCopies = function () {

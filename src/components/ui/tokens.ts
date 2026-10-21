@@ -154,6 +154,8 @@ export const colors = {
     '#f97316', // Orange
     '#84cc16', // Lime
   ],
+  white:         '#ffffff',
+  black:         '#000000',
 };
 
 // ─────────────────────────────────────────────────────────────
@@ -178,7 +180,10 @@ export const typography = {
   },
 
   // Font families
-  fontFamily:     '"Inter", "Poppins", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+  fontFamily:     makeColorToken('"Inter", "Poppins", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif', {
+    sans: '"Inter", "Poppins", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+    mono: 'ui-monospace, "JetBrains Mono", Consolas, "Courier New", monospace',
+  }),
   fontFamilyMono: 'ui-monospace, "JetBrains Mono", Consolas, "Courier New", monospace',
 
   // Scale
@@ -266,6 +271,7 @@ export const transitions = {
   instant: 'all 0.05s linear',
   fast:    'all 0.12s cubic-bezier(0.4, 0, 0.2, 1)',
   base:    'all 0.18s cubic-bezier(0.4, 0, 0.2, 1)',
+  default: 'all 0.18s cubic-bezier(0.4, 0, 0.2, 1)',
   slow:    'all 0.28s cubic-bezier(0.4, 0, 0.2, 1)',
   spring:  'all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1)',
 } as const;

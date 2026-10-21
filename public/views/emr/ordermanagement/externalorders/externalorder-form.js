@@ -26,6 +26,46 @@
             $scope.cancelCallback = $uibModalInstance.dismiss;
         }
 
+        $scope.refreshReactProps = function () {
+            $scope.reactProps = {
+                worderid: $scope.currentcontext.worderid,
+                pid: $scope.currentcontext.pid,
+                oid: $scope.currentcontext.oid,
+                item: angular.copy($scope.item),
+                ordDetails: angular.copy($scope.OrdDetails),
+                canShowAssign: $scope.CanshowAssign,
+                canShowComplete: $scope.CanshowComplete,
+                lookup: angular.copy($scope.lookup || {})
+            };
+            $scope.$applyAsync();
+        };
+
+        $scope.handleModalClose = function () {
+            if ($scope.cancelCallback) {
+                $scope.cancelCallback();
+            } else if ($uibModalInstance && $uibModalInstance.dismiss) {
+                $uibModalInstance.dismiss();
+            }
+        };
+
+        $scope.handleReactAction = function (actionName, payload) {
+            if (actionName === 'providerChange' && payload) {
+                $scope.SelectedProvider(payload);
+            } else if (actionName === 'assign') {
+                if (payload) {
+                    angular.extend($scope.item, payload);
+                }
+                $scope.Assign();
+            } else if (actionName === 'complete') {
+                if (payload) {
+                    angular.extend($scope.item, payload);
+                }
+                $scope.complete();
+            } else if (actionName === 'close') {
+                $scope.handleModalClose();
+            }
+        };
+
         $scope.getItemCallback = function (scope, data, options, hasError) {
             $scope.item = data;
             if ($scope.item.UserId) {
@@ -47,6 +87,7 @@
                 $scope.CanshowComplete = true;
             }
             $scope.getordDetails();
+            $scope.refreshReactProps();
         };
         $scope.getItem = function (pageNo) {
             if ($scope.currentcontext.worderid && $scope.currentcontext.worderid > 0) {
@@ -63,6 +104,7 @@
         };
         $scope.getordDetailsCallback = function (scope, res, options, hasError) {
             $scope.OrdDetails = res.Data[0];
+            $scope.refreshReactProps();
         };
 
         $scope.getordDetails = function () {
@@ -96,6 +138,7 @@
             if (res.Data.length > 0) {
                 $scope.item.ExternalPrice = $scope.PriceData.Price;
             }
+            $scope.refreshReactProps();
         };
 
         $scope.getPriceInfo = function (extItem) {
@@ -271,6 +314,7 @@
         $scope.lookupCallback = function (scope, data, options, hasError) {
             $scope.lookup = hasError ? {} : data;
             $scope.getItem();
+            $scope.refreshReactProps();
         }
         $scope.initLookup = function () {
             var inputData = [{

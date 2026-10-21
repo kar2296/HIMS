@@ -126,78 +126,82 @@
         //Dynamic form  ends
         //getList
         $scope.getListCallback = function (scope, res, options, hasError) {
-            $scope.gridData = res.Data;
-            var items = $scope.gridData;
+            var rawItems = res.Data || [];
+            // Ensure only draft, unapproved bills appear in Pending Bills list
+            var items = rawItems.filter(function(b) {
+                var status = b.PatientBillStatusId || b.BillStatusId;
+                if (status === 2 || status === 3) return false;
+                return true;
+            });
+            $scope.gridData = items;
             vm.gridConfig.data = items;
             $scope.refreshReactProps();
         };
 
         $scope.getList = function (pageNo) {
-            var FrmDate = $filter('date')($scope.currentcontext.FromBillDate, 'yyyy-MM-dd 00:00:00');
-            var ToDate = $filter('date')($scope.currentcontext.ToBillDate, 'yyyy-MM-dd 23:59:59');
+            var params = [];
+
+            if ($scope.currentcontext.pid && $scope.currentcontext.pid > 0) {
+                params.push({
+                    Key: 12,
+                    Value: $scope.currentcontext.pid
+                });
+            }
+
+            if ($scope.currentcontext.BillType) {
+                params.push({
+                    Key: 6,
+                    Value: $scope.currentcontext.BillType
+                });
+            }
+
+            params.push({
+                Key: 4,
+                Value: 1 // Only Draft Bills (Pending Bills)
+            });
+
+            if ($scope.modeldata && $scope.modeldata.PatBillNum) {
+                params.push({
+                    Key: 49,
+                    Value: $scope.modeldata.PatBillNum
+                });
+            }
+
+            if ($scope.modeldata && $scope.modeldata.MRN) {
+                params.push({
+                    Key: 13,
+                    Value: $scope.modeldata.MRN
+                });
+            }
+
+            if ($scope.modeldata && $scope.modeldata.MobileNo) {
+                params.push({
+                    Key: 14,
+                    Value: $scope.modeldata.MobileNo
+                });
+            }
+
+            if ($scope.modeldata && ($scope.modeldata.FromDate || $scope.modeldata.ToDate)) {
+                var fDate = $scope.modeldata.FromDate;
+                var tDate = $scope.modeldata.ToDate;
+                if (fDate && tDate && fDate > tDate) {
+                    var tmp = fDate;
+                    fDate = tDate;
+                    tDate = tmp;
+                }
+                var FrmDate = $filter('date')(fDate || tDate, 'yyyy-MM-dd 00:00:00');
+                var ToDate = $filter('date')(tDate || fDate, 'yyyy-MM-dd 23:59:59');
+                params.push({
+                    Key: 1,
+                    Value: [FrmDate, ToDate]
+                });
+            }
+
             var inputData = {
-                Params: [
-
-                    {
-                        Key: 12,
-                        Value: $scope.currentcontext.pid
-                    },
-                    {
-                        Key: 6,
-                        Value: $scope.currentcontext.BillType
-                    },
-                    // {
-                    //     Key: 4,
-                    //     Value: 1
-                    // },
-
-                    // {
-                    //     Key: 1,
-                    //     Value: [FrmDate, ToDate]
-                    // },
-                    // {
-                    //     Key: 6,
-                    //     Value:  $scope.currentcontext.BillType
-                    // },
-
-                    // {
-                    //     Key: 7,
-                    //     Value: $scope.modeldata.DoctorId
-                    // },
-                    // {
-                    //     Key: 9,
-                    //     Value: $scope.modeldata.GuarantorTypeId
-                    // },
-                    // {
-                    //     Key: 10,
-                    //     Value: $scope.modeldata.GuarantorId
-                    // },
-
-                    // {
-                    //     Key: 12,
-                    //     Value: $scope.currentcontext.pid
-                    // },
-                    {
-                        Key: 13,
-                        Value: $scope.modeldata.MRN
-                    },
-                    {
-                        Key: 14,
-                        Value: $scope.modeldata.MobileNo
-                    },
-                    // {
-                    //     Key: 12,
-                    //     Value: $scope.currentcontext.id
-                    // },
-                    // {
-                    //     Key: 15,
-                    //     Value: $scope.modeldata.PatientName
-                    // }
-
-                ],
+                Params: params,
                 PageContext: {
                     PageSize: 50,
-                    PageNumber: 1
+                    PageNumber: pageNo || 1
                 }
             };
             var options = {

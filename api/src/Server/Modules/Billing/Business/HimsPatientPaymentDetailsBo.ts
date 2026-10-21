@@ -872,14 +872,14 @@ export class PatientPaymentDetailsBo extends BaseBo<PatientPaymentDetailsInstanc
                 detail.ReceiptDateTime = new Date();
                 detail.ReferenceNumber = billInfo.ReferenceNumber;
                 detail.ErpTransactionId = billInfo.ErpTransactionId;
-                detail.UPIRefNumber = billInfo.UPIRefNumber || details[0].UPIRefNumber;
-                detail.AuthorizedCode = billInfo.AuthorizedCode || details[0].AuthorizedCode;
+                detail.UPIRefNumber = detail.UPIRefNumber || billInfo.UPIRefNumber || (details[0] && details[0].UPIRefNumber);
+                detail.AuthorizedCode = detail.AuthorizedCode || billInfo.AuthorizedCode || (details[0] && details[0].AuthorizedCode);
                 if (detail.Status === 2 && detail.Id !== 0) {
                     await this.MarkAsDelete(detail.Id);
                 } else if (detail.Id === 0) {
                     // let totamt = 0;
                     // totamt = billInfo.BillAmount + billInfo.RoundOffValue;
-                    if (detail.AmountPaid > billInfo.NetAmount) {
+                    if (detail.AmountPaid > (billInfo.NetAmount + 0.5)) {
                         // return;
                         return Promise.reject(new Error('Error in Generating Receipt'));
                     } else {

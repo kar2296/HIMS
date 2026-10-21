@@ -14,27 +14,22 @@
             { title: $translate.instant('OP Bills'), state: 'app.creditapprovaltab.creditapproval', billtype: 1 },
             { title: $translate.instant('IP Bills'), state: 'app.creditapprovaltab.creditapproval', billtype: 2 },
             { title: $translate.instant('Pharmacy Bills'), state: 'app.creditapprovaltab.creditapproval', billtype: 4 },
+            { title: $translate.instant('Direct Bills'), state: 'app.creditapprovaltab.creditapproval', billtype: 5 },
         ];
 
         $scope.switchTab = function (tab, opt) {
-            if(opt && opt == 'reload') {
-                $state.go(tab.state, {
-                    billtypeid: tab.billtype
-                });
-            } else {
-                $state.go(tab.state, {
-                    billtypeid: tab.billtype
-                });
+            if ($state.current.name === tab.state && $stateParams.billtypeid == tab.billtype) {
+                return;
             }
-
-            // $state.reload(tab.state, {
-            //     billtypeid: tab.billtype
-            // });
+            $state.go(tab.state, {
+                billtypeid: tab.billtype
+            });
         };
 
         $scope.refreshReactProps = function () {
             $scope.reactProps = {
-                tabs: $scope.tabs
+                tabs: $scope.tabs,
+                activeBillTypeId: $stateParams && $stateParams.billtypeid ? Number($stateParams.billtypeid) : 1
             };
         };
 
@@ -60,7 +55,9 @@
         function removeFloatingNav() {
             $rootScope.app.layout.isCollapsed = true;
         }
-        $scope.switchTab($scope.tabs[0]);
+        if (!$stateParams.billtypeid || $state.current.name !== 'app.creditapprovaltab.creditapproval') {
+            $scope.switchTab($scope.tabs[0]);
+        }
 
         $scope.refreshReactProps();
 

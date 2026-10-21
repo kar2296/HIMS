@@ -11,7 +11,15 @@
 
     function routesConfig($stateProvider, $locationProvider, $urlRouterProvider,
         helper, modalStateProvider, modalConfigProvider) {
+        $urlRouterProvider.when('/orderassignmentlist', '/orderassignmentlist/');
+        $urlRouterProvider.when('/orderacknowledgelist', '/orderacknowledgelist/');
+        $urlRouterProvider.when('/samplecollectlist', '/samplecollectlist/');
+        $urlRouterProvider.when('/orderprocesslist', '/orderprocesslist/');
+        $urlRouterProvider.when('/resultapprovallist', '/resultapprovallist/');
+        $urlRouterProvider.when('/resultdispatchlist', '/resultdispatchlist/');
+
         $stateProvider
+
 
             .state('app.containertypes', {
                 url: '/containertypes',
@@ -634,7 +642,18 @@
                 }
             })
             .state('app.organismsisolations', {
-                url: '/organismisolations:/',
+                url: '/organismsisolations',
+                title: 'Organism Isolation',
+                templateUrl: helper.basepath('lis/organismisolation/organismisolated-list.html'),
+                controller: 'OrganismIsolatedListController as vm',
+                resolve: {
+                    loadCtrl: ['$ocLazyLoad', function($ocLazyLoad) {
+                        return $ocLazyLoad.load(helper.basepath('lis/organismisolation/organismisolated-list.js'));
+                    }]
+                }
+            })
+            .state('app.organismisolations', {
+                url: '/organismisolations',
                 title: 'Organism Isolation',
                 templateUrl: helper.basepath('lis/organismisolation/organismisolated-list.html'),
                 controller: 'OrganismIsolatedListController as vm',

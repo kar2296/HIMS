@@ -16,45 +16,61 @@
         $scope.currentfilter.FromBillDate = $filter('date')(new Date(), 'yyyy-MM-dd 00:00:00');
         $scope.currentfilter.ToBillDate = $filter('date')(new Date(), 'yyyy-MM-dd 23:59:59');
 
+        $scope.isLoading = false;
+
         $scope.getListCallback = function (scope, res, options, hasError) {
-            $scope.OPBills = res.Data;
+            $scope.isLoading = false;
+            $scope.OPBills = (res && res.Data) ? res.Data : [];
             $scope.refreshReactProps();
         };
 
         $scope.getList = function (pageNo) {
-            // var FrmDate = $filter('date')($scope.currentfilter.FromDate, 'yyyy-MM-dd 00:00:00');
-            // var ToDate = $filter('date')($scope.currentfilter.ToDate, 'yyyy-MM-dd 23:59:59');
+            $scope.isLoading = true;
+            $scope.refreshReactProps();
+
+            var billNumVal = $scope.currentfilter.BillNo || $scope.currentfilter.PatBillNum || null;
+
+            var params = [{
+                    Key: 49,
+                    Value: billNumVal
+                },
+                {
+                    Key: 4,
+                    Value: 3
+                },
+                {
+                    Key: 17,
+                    Value: $scope.currentfilter.FromBillDate
+                },
+                {
+                    Key: 18,
+                    Value: $scope.currentfilter.ToBillDate
+                },
+                {
+                    Key: 6,
+                    Value: 1
+                },
+                {
+                    Key: 8,
+                    Value: $scope.currentfilter.FacilityId
+                },
+                {
+                    Key: 11,
+                    Value: true
+                }
+            ];
+
+            if ($scope.currentfilter.PatientId) {
+                params.push({
+                    Key: 0,
+                    Value: $scope.currentfilter.PatientId
+                });
+            }
+
             var inputData = {
-                Params: [{
-                        Key: 49,
-                        Value: $scope.currentfilter.PatBillNum
-                    },
-                    {
-                        Key: 4,
-                        Value: 3
-                    },
-                    {
-                        Key: 17,
-                        Value: $scope.currentfilter.FromBillDate
-                    },
-                    {
-                        Key: 18,
-                        Value: $scope.currentfilter.ToBillDate
-                    },
-                    {
-                        Key: 6,
-                        Value: 1
-                    },
-                    {
-                        Key: 8,
-                        Value: $scope.currentfilter.FacilityId
-                    },
-                    {
-                        Key: 11,
-                        Value: true
-                    }
-                ]
+                Params: params
             };
+
             var options = {
                 action: 'billing/patientbills/GetPatientBills',
                 data: inputData,
@@ -80,7 +96,9 @@
         $scope.refreshReactProps = function () {
             $scope.reactProps = {
                 currentfilter: $scope.currentfilter,
-                rows: $scope.OPBills
+                rows: $scope.OPBills,
+                isLoading: $scope.isLoading,
+                facilityName: utl.Session.getCurrentFacilityName()
             };
         };
 
@@ -95,10 +113,25 @@
                     $scope.refreshReactProps();
                     break;
                 case 'billNoChange':
-                    $scope.currentfilter.BillNo = payload.value;
+                    $scope.currentfilter.BillNo = payload.value || '';
+                    $scope.currentfilter.PatBillNum = payload.value || '';
+                    $scope.refreshReactProps();
+                    break;
+                case 'patientChange':
+                    $scope.currentfilter.PatientId = payload.patientId || null;
+                    $scope.selectedPatient = payload.patient || null;
                     $scope.refreshReactProps();
                     break;
                 case 'fetch':
+                    $scope.getList();
+                    break;
+                case 'reset':
+                    $scope.currentfilter.FromBillDate = $filter('date')(new Date(), 'yyyy-MM-dd 00:00:00');
+                    $scope.currentfilter.ToBillDate = $filter('date')(new Date(), 'yyyy-MM-dd 23:59:59');
+                    $scope.currentfilter.BillNo = '';
+                    $scope.currentfilter.PatBillNum = '';
+                    $scope.currentfilter.PatientId = null;
+                    $scope.selectedPatient = null;
                     $scope.getList();
                     break;
                 case 'edit':

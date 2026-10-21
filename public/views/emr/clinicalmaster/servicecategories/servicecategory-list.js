@@ -7,8 +7,9 @@
 
     function serviceCategoryListController($rootScope, $scope, $stateParams, $state, $translate, utl, $filter, $timeout) {
         var vm = this;
+        vm.items = [];
         $scope.Items = [];
-        $scope.item = {}
+        $scope.item = {};
         $scope.currentfilter = {
             Name: '',
             FacilityId: [-1, utl.Session.getCurrentFacilityId()],

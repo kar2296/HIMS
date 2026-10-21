@@ -28,7 +28,7 @@
         };
 
         $scope.currentcontext.id = parseInt($stateParams.id);
-        $scope.IsLocked = $scope.$parent.Islocked;
+        $scope.IsLocked = ($scope.$parent && $scope.$parent.Islocked) || false;
         $scope.currentcontext.isdaycare = $stateParams.isdaycare;
         $scope.getListCallback = function (scope, data, options, hasError) {
             $scope.TotalAmt = 0;
@@ -317,22 +317,7 @@
             });
         }
 
-        $scope.refreshReactProps();
-
-
         //React bridge for the <custom-table config="vm.gridConfig"> grid only.
-        //
-        //PRIVILEGE GATING IS DELIBERATELY NOT TOUCHED: the Refund and Partial
-        //Refund buttons in the template are native AngularJS <button>s gated by
-        //ng-if="HasAccess('IPBILLING_REFUND','IPREF_REFUND')" /
-        //ng-if="HasAccess('IPBILLING_REFUND','IPREF_PARTIAL_REFUND')" (from
-        //utl.Ctrl.getPrivilegeCtrl), and they stay exactly as they were, so
-        //addRefund()/addPartialRefund() and their IsDisabled/BillFinalized
-        //guards keep running unchanged in this controller.
-        //
-        //Columns are read back off vm.gridConfig.columnDefs rather than
-        //hardcoded, so the facility-setting-driven composition ($scope.iprefund
-        //== 1 pushes an extra "Refund Approval" column) is preserved as-is.
         $scope.handleGridAction = function (actionType, payload) {
             var items = vm.gridConfig.data || [];
             var entity = null;
@@ -415,7 +400,35 @@
                 },
                 onAction: $scope.handleGridAction
             };
+
+            $scope.reactPropsRefundsScreen = {
+                gridProps: $scope.reactPropsGridContainer.reactProps,
+                TotalAmt: $scope.TotalAmt || 0,
+                canRefund: $scope.HasAccess ? $scope.HasAccess('IPBILLING_REFUND', 'IPREF_REFUND') : true,
+                canPartialRefund: $scope.HasAccess ? $scope.HasAccess('IPBILLING_REFUND', 'IPREF_PARTIAL_REFUND') : true,
+                isDisabled: $scope.IsDisabled,
+                pagerObj: vm.gridConfig ? vm.gridConfig.pagerObj : null
+            };
         };
+
+        $scope.handleReactAction = function (actionType, payload) {
+            if (actionType === 'addRefund') {
+                $scope.addRefund();
+            } else if (actionType === 'addPartialRefund') {
+                $scope.addPartialRefund();
+            } else if (actionType === 'backToList') {
+                $scope.backToList();
+            } else if (actionType === 'pageChange') {
+                if (payload && vm.gridConfig && vm.gridConfig.pagerObj) {
+                    vm.gridConfig.pagerObj.currentPage = payload;
+                    $scope.getList();
+                }
+            } else if (actionType === 'rowAction') {
+                $scope.handleGridAction('rowAction', payload);
+            }
+        };
+
+        $scope.refreshReactProps();
 
         $scope.lookupCallback = function (scope, data, options, hasError) {
             $scope.lookup = hasError ? {} : data;

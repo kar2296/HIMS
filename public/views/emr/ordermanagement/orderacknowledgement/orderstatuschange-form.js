@@ -37,6 +37,44 @@
         $scope.currentcontext.filter_encType = $stateParams.filter_encType;
         $scope.currentcontext.filter_OrdStatus = $stateParams.filter_OrdStatus;
 
+        $scope.refreshReactProps = function () {
+            $scope.reactProps = {
+                orderid: $scope.currentcontext.orderid,
+                pid: $scope.currentcontext.pid,
+                item: angular.copy($scope.item || {}),
+                orderList: angular.copy($scope.OrderList || []),
+                lookup: angular.copy($scope.lookup || {})
+            };
+            $scope.$applyAsync();
+        };
+
+        $scope.handleModalClose = function () {
+            if ($scope.cancelCallback) {
+                $scope.cancelCallback();
+            } else {
+                $scope.backToList();
+            }
+        };
+
+        $scope.handleReactAction = function (actionName, payload) {
+            if (actionName === 'save') {
+                if (payload && payload.orderList) {
+                    $scope.OrderList = payload.orderList;
+                }
+                $scope.Accept();
+            } else if (actionName === 'cancel') {
+                if (payload && payload.selectedList) {
+                    for (var i = 0; i < $scope.OrderList.length; i++) {
+                        var o = $scope.OrderList[i];
+                        o.IsSelected = payload.selectedList.some(function (s) { return s.Id === o.Id; });
+                    }
+                }
+                $scope.cancel();
+            } else if (actionName === 'back' || actionName === 'close') {
+                $scope.handleModalClose();
+            }
+        };
+
         $scope.enablesamplecollect = 0;
         $scope.enablesamplecollect =
             utl.FacilitySetting.getFacilitySettingValue('billing', 'samplecollectafterapprove');
@@ -94,10 +132,7 @@
             if (acceptCancelCount == result.length) {
                 $scope.currentcontext.canDisableAcceptCancel = true;
             }
-
-            // vm.gridConfig.data = result;
-            // $scope.OrderList = vm.gridConfig.data;
-            //vm.gridConfig.pagerObj.totalItems = res.PageContext.TotalRecords;
+            $scope.refreshReactProps();
         };
 
         $scope.getList = function () {
@@ -172,6 +207,7 @@
                     return false;
                 }
             }
+            $scope.refreshReactProps();
         };
 
         $scope.getItem = function (pageNo) {
@@ -422,6 +458,7 @@
         };
         $scope.lookupCallback = function (scope, data, options, hasError) {
             $scope.lookup = hasError ? {} : data;
+            $scope.refreshReactProps();
         }
 
         $scope.initLookup = function () {
@@ -441,6 +478,7 @@
         function loadData() {
             $scope.getItem();
             $scope.getList();
+            $scope.refreshReactProps();
         }
 
         loadData();

@@ -30,10 +30,48 @@
             $scope.currentcontext.deptcode = 60;
         }
 
+        $scope.refreshReactProps = function () {
+            var dataList = vm.gridConfig.data || [];
+            var pager = vm.gridConfig.pagerObj || { totalItems: 0, currentPage: 1, pageSize: 25 };
+
+            $scope.reactProps = {
+                rows: dataList,
+                items: dataList,
+                totalItems: pager.totalItems || dataList.length,
+                currentPage: pager.currentPage || 1,
+                pageSize: pager.pageSize || 25,
+                currentfilter: angular.copy($scope.currentfilter),
+                lookup: angular.copy($scope.lookup || {})
+            };
+            $scope.$applyAsync();
+        };
+
+        $scope.handleReactAction = function (actionName, payload) {
+            if (actionName === 'back') {
+                $scope.backtoList();
+            } else if (actionName === 'filter' && payload) {
+                if (payload.FromDate) $scope.currentfilter.FromDate = payload.FromDate;
+                if (payload.ToDate) $scope.currentfilter.ToDate = payload.ToDate;
+                if (payload.PatWoNum !== undefined) $scope.currentfilter.PatWoNum = payload.PatWoNum;
+                if (payload.EncounterTypeId !== undefined) $scope.currentfilter.EncounterTypeId = payload.EncounterTypeId;
+                if (payload.SubDepartmentId !== undefined) $scope.currentfilter.SubDepartmentId = payload.SubDepartmentId;
+                if (payload.currentPage) vm.gridConfig.pagerObj.currentPage = payload.currentPage;
+                if (payload.pageSize) vm.gridConfig.pagerObj.pageSize = payload.pageSize;
+                $scope.getList();
+            } else if (actionName === 'view' && payload) {
+                $state.go('app.processallorders', { tp: 2 });
+            }
+        };
+
+        $scope.handleNavigate = function (stateName, params) {
+            $state.go(stateName, params);
+        };
+
         $scope.getListCallback = function(scope, res, options, hasError) {
             vm.gridConfig.data = res.Data;
             vm.gridConfig.pagerObj.totalItems = res.PageContext.TotalRecords;
             $scope.disabledept();
+            $scope.refreshReactProps();
         };
 
         $scope.getList = function() {
@@ -196,6 +234,7 @@
         }
 
         $scope.initLookup();
+        $scope.refreshReactProps();
     }
     RadiologyCriticalValuesController.$inject = ['$rootScope', '$timeout', '$scope', '$filter', '$stateParams', '$state', '$translate', 'utl'];
 

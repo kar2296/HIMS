@@ -11,15 +11,20 @@
             $scope: $scope
         }));
 
+        var defaultFrom = new Date();
+        defaultFrom.setDate(defaultFrom.getDate() - 7);
+
         $scope.Items = [];
         $scope.canOrderableSubDeptSplit = false;
         $scope.currentfilter = {
             OrderNumber: '',
             BillNumber: '',
             PatientMRN: '',
+            PatName: '',
+            BillOrderNumber: '',
             OrderPriorityId: -1,
             OrderStatusId: ['1', '15', '16', '17'],
-            FromDate: utl.Formatter.getCurrentDate(),
+            FromDate: defaultFrom,
             ToDate: utl.Formatter.getCurrentDate(),
             TestTypeId: $stateParams.tp ? parseInt($stateParams.tp) : -1,
             VisitIdentifier: '',
@@ -252,6 +257,7 @@
             }
 
             vm.gridConfig.pagerObj.totalItems = res.PageContext.TotalRecords;
+            $scope.refreshReactProps();
         };
 
         $scope.getList = function () {
@@ -322,7 +328,7 @@
 
                         {
                             Key: 27,
-                            Value: utl.Session.getCurrentFacilityId()
+                            Value: (utl.Session.getCurrentFacilityId && utl.Session.getCurrentFacilityId() > 0) ? utl.Session.getCurrentFacilityId() : null
                         },
                         {
                             Key: 30,
@@ -447,6 +453,13 @@
         $scope.handleEvents = function (actionType, entity) {
 
             if (actionType == 'edit') {
+                try {
+                    sessionStorage.setItem('last_order_ack_context', JSON.stringify({
+                        id: entity.Id,
+                        pid: entity.PatientId,
+                        tp: entity.TestTypeId
+                    }));
+                } catch (e) {}
                 $state.go('app.orderacknowledgementform', {
                     id: entity.Id,
                     pid: entity.PatientId,
@@ -614,6 +627,7 @@
             } else {
                 $scope.getList();
             }
+            $scope.refreshReactProps();
             // else {
             //     $scope.getDateDiff();
             // }
@@ -638,43 +652,6 @@
                 {
                     "Key": "EncounterType"
                 },
-                // {
-                //     "Key": "OrderPriority"
-                // },
-                // {
-                //     "Key": "EncounterType"
-                // },
-                // {
-                //     "Key": "Doctor"
-                // },
-                // {
-                //     "Key": "Department"
-                // },
-                // {
-                //     "Key": "Ward"
-                // },
-                // {
-                //     "Key": "Guarantor",
-                //     Request: {
-                //         Params: [{
-                //             Key: 7,
-                //             Value: utl.Session.getCurrentFacilityId()
-                //         }]
-                //     }
-                // },
-                // {
-                //     "Key": "GuarantorType"
-                // },
-                // {
-                //     "Key": "SubDepartment",
-                //     Request: {
-                //         Params: [{
-                //             Key: 6,
-                //             Value: $scope.ParentDepartmentId
-                //         }]
-                //     }
-                // },
-
             ];
 
             var options = {
@@ -686,6 +663,63 @@
             utl.Http.doAction(options);
         }
 
+        $scope.refreshReactProps = function () {
+            var dataList = (vm.gridConfig && vm.gridConfig.data) || [];
+            var pager = (vm.gridConfig && vm.gridConfig.pagerObj) || { totalItems: 0, currentPage: 1, pageSize: 25 };
+            $scope.reactProps = {
+                rows: dataList,
+                items: dataList,
+                totalItems: pager.totalItems || dataList.length,
+                currentPage: pager.currentPage || 1,
+                pageSize: pager.pageSize || 25,
+                pagerObj: {
+                    totalItems: pager.totalItems || dataList.length,
+                    currentPage: pager.currentPage || 1,
+                    pageSize: pager.pageSize || 25,
+                    startIndex: ((pager.currentPage || 1) - 1) * (pager.pageSize || 25)
+                },
+                currentfilter: angular.copy($scope.currentfilter),
+                lookup: angular.copy($scope.lookup || {}),
+                tp: $stateParams.tp || $scope.currentfilter.TestTypeId || 1,
+                facilityName: utl.Session.getCurrentFacilityName ? utl.Session.getCurrentFacilityName() : 'SHUVADARSINI HOSPITAL'
+            };
+            $scope.$applyAsync();
+        };
+
+        $scope.handleReactAction = function (actionName, payload) {
+            if (actionName === 'edit') {
+                $scope.handleEvents('edit', payload);
+            } else if (actionName === 'patientinfo') {
+                $scope.patientprofiledetails(payload.PatientId);
+            } else if (actionName === 'search') {
+                if (payload) {
+                    if (payload.PatName !== undefined) $scope.currentfilter.PatName = payload.PatName;
+                    if (payload.BillOrderNumber !== undefined) $scope.currentfilter.BillOrderNumber = payload.BillOrderNumber;
+                    if (payload.FromDate !== undefined) $scope.currentfilter.FromDate = payload.FromDate;
+                    if (payload.ToDate !== undefined) $scope.currentfilter.ToDate = payload.ToDate;
+                    if (payload.EncounterTypeId !== undefined) $scope.currentfilter.EncounterTypeId = payload.EncounterTypeId;
+                }
+                vm.gridConfig.pagerObj.currentPage = 1;
+                $scope.getList();
+            } else if (actionName === 'resetFilters') {
+                var resetFrom = new Date();
+                resetFrom.setDate(resetFrom.getDate() - 7);
+                $scope.currentfilter.PatName = '';
+                $scope.currentfilter.BillOrderNumber = '';
+                $scope.currentfilter.FromDate = resetFrom;
+                $scope.currentfilter.ToDate = utl.Formatter.getCurrentDate();
+                $scope.currentfilter.EncounterTypeId = -1;
+                vm.gridConfig.pagerObj.currentPage = 1;
+                $scope.getList();
+            } else if (actionName === 'pageChange') {
+                vm.gridConfig.pagerObj.currentPage = payload && payload.page ? payload.page : 1;
+                $scope.getList();
+            }
+            $scope.refreshReactProps();
+            $scope.$applyAsync();
+        };
+
+        $scope.refreshReactProps();
         $scope.initLookup();
     }
 

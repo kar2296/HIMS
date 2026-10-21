@@ -40,6 +40,40 @@
         $scope.showsubdept =
             utl.FacilitySetting.getFacilitySettingValue('billing', 'showsubdept');
 
+        $scope.refreshReactProps = function () {
+            var dataList = vm.gridConfig.data || [];
+            var pager = vm.gridConfig.pagerObj || { totalItems: 0, currentPage: 1, pageSize: 25 };
+
+            $scope.reactProps = {
+                rows: dataList,
+                items: dataList,
+                totalItems: pager.totalItems || dataList.length,
+                currentPage: pager.currentPage || 1,
+                pageSize: pager.pageSize || 25,
+                pagerObj: {
+                    totalItems: pager.totalItems || dataList.length,
+                    currentPage: pager.currentPage || 1,
+                    pageSize: pager.pageSize || 25,
+                    startIndex: ((pager.currentPage || 1) - 1) * (pager.pageSize || 25)
+                },
+                currentfilter: angular.copy($scope.currentfilter),
+                lookup: angular.copy($scope.lookup || {}),
+                facilityName: utl.Session.getCurrentFacilityName ? utl.Session.getCurrentFacilityName() : 'SHUVADARSINI HOSPITAL',
+                facilityId: utl.Session.getCurrentFacilityId ? utl.Session.getCurrentFacilityId() : 1,
+                showsubdept: $scope.showsubdept,
+                context: 'myorder'
+            };
+            $scope.$applyAsync();
+        };
+
+        $scope.handleReactAction = function (actionName, payload) {
+            if ($scope.handleEvents && payload) {
+                $scope.handleEvents(actionName, payload);
+            } else if (actionName === 'dashboard') {
+                $scope.backtoList();
+            }
+        };
+
         $scope.getListCallback = function(scope, res, options, hasError) {
             vm.gridConfig.data = [];
             for (var idx in res.Data) {
@@ -55,6 +89,7 @@
             }
             vm.gridConfig.pagerObj.totalItems = res.PageContext.TotalRecords;
             $scope.disabledept();
+            $scope.refreshReactProps();
         };
 
         $scope.getList = function() {
@@ -280,8 +315,7 @@
         var wonum = {
             field: "WorkOrderdid",
             displayName: $translate.instant('ordermanagement.myorderprocess-list.workordernumber.lbl'),
-            cellTemplate: "<div class='ui-grid-cell-contents'>\<div style='color: #4407ff;' class='col-sm-2'><span>{{entity.WorkOrderdid || entity.WorkOrderId}}</span></div>\
-                       &nbsp;\</div>"
+            cellTemplate: "<div class='ui-grid-cell-contents'><div style='color: #4407ff; white-space: nowrap;'><span>{{entity.WorkOrderdid || entity.WorkOrderId}}</span></div></div>"
         };
         var ordnum = {
             field: "OrderNumber",
@@ -320,14 +354,10 @@
             width: '40%',
             cellTemplate: "<div class='ui-grid-cell-contents'>" +
                 '<a ng-click="handleEvents(\'patientinfo\',entity)">' +
-                "<span ><b>{{entity.Patient.Title.Description}}&nbsp;</b></span>" +
-                "<span ><b>{{entity.Patient.FirstName}}&nbsp;</b></span>" +
-                "<span ><b>{{entity.Patient.LastName}}</b></span>" +
-                "<span >/<span>" +
-                "<span ng-if='entity.Patient.Title && entity.Patient.Title.Description' >" +
-                "<span >{{entity.Patient.Age}}</span>" +
-                "<span >/</span>" +
-                "<span >{{entity.Patient.Gender.Description}}</span>" +
+                "<span ng-if='entity.Patient.Title.Description'><b>{{entity.Patient.Title.Description}}&nbsp;</b></span>" +
+                "<span ng-if='entity.Patient.FirstName'><b>{{entity.Patient.FirstName}}&nbsp;</b></span>" +
+                "<span ng-if='entity.Patient.LastName'><b>{{entity.Patient.LastName}}</b></span>" +
+                "<span ng-if='entity.Patient.Age || entity.Patient.Gender.Description'> / {{entity.Patient.Age}}<span ng-if='entity.Patient.Age && entity.Patient.Gender.Description'> / </span>{{entity.Patient.Gender.Description}}</span>" +
                 "</a></div>",
             handleEvent: $scope.handleEvents
         };

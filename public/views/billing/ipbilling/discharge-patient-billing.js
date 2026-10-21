@@ -220,9 +220,11 @@
             }
             vm.gridConfig.pagerObj.totalItems = data.PageContext.TotalRecords;
             $scope.refreshDischargeGridProps();
+            updateReactProps();
         };
 
         $scope.getList = function() {
+            if ($scope.reactProps) { $scope.reactProps.loading = true; }
             // if ($scope.currentfilter.doddate == null) {
 
             //     utl.Alert.showErrorMsg('Please Select any DOD date');
@@ -662,6 +664,7 @@
             } else {
                 $scope.getList();
             }
+            updateReactProps();
         };
 
         $scope.initLookup = function() {
@@ -921,6 +924,113 @@
             function() { return $scope.lookup && $scope.lookup.Doctor; },
             function() { return $scope.currentfilter.DoctorId; }
         ], $scope.refreshDoctorFilterProps);
+
+        // ------------------------------------------------------------------
+        // React Bridge for DischargePatientBillingScreen
+        // ------------------------------------------------------------------
+        function toIsoDate(d) {
+            if (!d) return '';
+            var dt = (d instanceof Date) ? d : new Date(d);
+            if (isNaN(dt.getTime())) return '';
+            var y = dt.getFullYear();
+            var m = ('0' + (dt.getMonth() + 1)).slice(-2);
+            var day = ('0' + dt.getDate()).slice(-2);
+            return y + '-' + m + '-' + day;
+        }
+
+        function parseIsoDate(s) {
+            if (!s) return null;
+            var parts = String(s).split('-');
+            if (parts.length !== 3) return null;
+            return new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
+        }
+
+        function updateReactProps() {
+            $scope.reactProps = {
+                items: (vm.gridConfig && vm.gridConfig.data) || [],
+                lookup: {
+                    Ward: ($scope.lookup && $scope.lookup.Ward) || [],
+                    Guarantor: ($scope.lookup && $scope.lookup.Guarantor) || [],
+                    Doctor: ($scope.lookup && $scope.lookup.Doctor) || []
+                },
+                currentfilter: {
+                    fromdate: toIsoDate($scope.currentfilter.fromdate),
+                    todate: toIsoDate($scope.currentfilter.todate),
+                    PatientMRN: $scope.currentfilter.PatientMRN || '',
+                    BillNumber: $scope.currentfilter.BillNumber || '',
+                    VisitIdentifier: $scope.currentfilter.VisitIdentifier || '',
+                    WardId: $scope.currentfilter.WardId,
+                    GuarantorId: $scope.currentfilter.GuarantorId,
+                    DoctorId: $scope.currentfilter.DoctorId,
+                    IsPaidFully: $scope.currentfilter.IsPaidFully === true
+                },
+                pager: {
+                    totalItems: (vm.gridConfig && vm.gridConfig.pagerObj && vm.gridConfig.pagerObj.totalItems) || 0,
+                    currentPage: (vm.gridConfig && vm.gridConfig.pagerObj && vm.gridConfig.pagerObj.currentPage) || 1,
+                    pageSize: (vm.gridConfig && vm.gridConfig.pagerObj && vm.gridConfig.pagerObj.pageSize) || 25
+                },
+                context: $scope.Context || '',
+                loading: false
+            };
+        }
+
+        $scope.handleReactAction = function(actionName, payload) {
+            payload = payload || {};
+            switch (actionName) {
+                case 'filterChange':
+                    $scope.currentfilter[payload.field] = payload.value;
+                    updateReactProps();
+                    break;
+                case 'filterChangeAndSearch':
+                    if (payload.field === 'fromdate') {
+                        $scope.currentfilter.fromdate = parseIsoDate(payload.value);
+                    } else if (payload.field === 'todate') {
+                        $scope.currentfilter.todate = parseIsoDate(payload.value);
+                    } else {
+                        $scope.currentfilter[payload.field] = payload.value;
+                    }
+                    if (vm.gridConfig && vm.gridConfig.pagerObj) {
+                        vm.gridConfig.pagerObj.currentPage = 1;
+                    }
+                    updateReactProps();
+                    $scope.getList();
+                    break;
+                case 'search':
+                    if (vm.gridConfig && vm.gridConfig.pagerObj) {
+                        vm.gridConfig.pagerObj.currentPage = 1;
+                    }
+                    $scope.getList();
+                    break;
+                case 'isduebill':
+                    $scope.currentfilter.IsPaidFully = payload.value;
+                    $scope.isduebill();
+                    updateReactProps();
+                    break;
+                case 'pageChange':
+                    if (vm.gridConfig && vm.gridConfig.pagerObj) {
+                        vm.gridConfig.pagerObj.currentPage = payload.page;
+                    }
+                    $scope.getList();
+                    break;
+                case 'edit':
+                    $scope.handleEvents('edit', payload.entity);
+                    break;
+                case 'cancelrequest':
+                    $scope.onCancelRequest(payload.entity);
+                    break;
+                case 'cancel':
+                    $scope.onCancelBill(payload.entity);
+                    break;
+                case 'patientinfo':
+                    $scope.handleEvents('patientinfo', payload.entity);
+                    break;
+                case 'home':
+                    $scope.backtoList();
+                    break;
+            }
+        };
+
+        updateReactProps();
 
         $scope.initLookup();
     }

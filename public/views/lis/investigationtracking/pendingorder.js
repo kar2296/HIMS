@@ -15,12 +15,35 @@
             OrderStatusId:[1,6,8]
         };
 
+        $scope.reactProps = {
+            items: [],
+            totalItems: 0,
+            currentPage: 1,
+            pageSize: 25,
+            currentfilter: $scope.currentfilter
+        };
 
+        $scope.syncReactProps = function () {
+            $scope.reactProps = {
+                items: vm.gridConfig ? vm.gridConfig.data : [],
+                totalItems: (vm.gridConfig && vm.gridConfig.pagerObj) ? vm.gridConfig.pagerObj.totalItems : 0,
+                currentPage: (vm.gridConfig && vm.gridConfig.pagerObj) ? vm.gridConfig.pagerObj.currentPage : 1,
+                pageSize: (vm.gridConfig && vm.gridConfig.pagerObj) ? vm.gridConfig.pagerObj.pageSize : 25,
+                currentfilter: angular.copy($scope.currentfilter)
+            };
+            $scope.$applyAsync();
+        };
+
+        $scope.handleReactAction = function (actionName, payload) {
+            if ($scope.handleEvents && payload) {
+                $scope.handleEvents(actionName, payload);
+            }
+        };
 
         $scope.getListCallback = function (scope, res, options, hasError) {
             vm.gridConfig.data = res.Data;
-
             vm.gridConfig.pagerObj.totalItems = res.PageContext.TotalRecords;
+            $scope.syncReactProps();
         };
 
         $scope.getList = function () {

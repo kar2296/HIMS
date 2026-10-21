@@ -1,4 +1,4 @@
-(function() {
+(function () {
     'use strict';
 
     angular
@@ -10,26 +10,57 @@
 
         $scope.Items = [];
         $scope.currentfilter = {
-            ActiveStatusId: 2
+            ActiveStatusId: 2,
+            codemnemonicsnamedesc: '',
+            Code: '',
+            MnemonicName: ''
         };
         $scope.currentcontext = {};
-        $scope.currentcontext.id = parseInt($stateParams.id);
+        $scope.currentcontext.id = parseInt($stateParams.id || 0);
 
-        $scope.getListCallback = function(scope, res, options, hasError) {
-            vm.gridConfig.data = res.Data;
-            vm.gridConfig.pagerObj.totalItems = res.PageContext.TotalRecords;
+        $scope.pagerObj = { totalItems: 0, currentPage: 1, startIndex: 0, pageSize: 25 };
+
+        $scope.reactProps = {
+            items: [],
+            totalItems: 0,
+            currentPage: 1,
+            pageSize: 25,
+            currentfilter: $scope.currentfilter,
+            lookup: {}
         };
 
-        $scope.getList = function() {
+        $scope.syncReactProps = function () {
+            $scope.reactProps = {
+                items: $scope.Items,
+                totalItems: $scope.pagerObj.totalItems,
+                currentPage: $scope.pagerObj.currentPage,
+                pageSize: $scope.pagerObj.pageSize,
+                currentfilter: $scope.currentfilter,
+                lookup: $scope.lookup
+            };
+        };
+
+        $scope.getListCallback = function (scope, res, options, hasError) {
+            $scope.Items = res.Data || [];
+            $scope.pagerObj.totalItems = res.PageContext ? res.PageContext.TotalRecords : (res.Data ? res.Data.length : 0);
+            if (vm.gridConfig) {
+                vm.gridConfig.data = res.Data;
+                vm.gridConfig.pagerObj.totalItems = $scope.pagerObj.totalItems;
+            }
+            $scope.syncReactProps();
+        };
+
+        $scope.getList = function () {
+            var searchVal = $scope.currentfilter.codemnemonicsnamedesc || $scope.currentfilter.Code || '';
             var inputData = {
                 Params: [
-                    { Key: 1, Value: $scope.currentfilter.Code },
-                    { Key: 2, Value: $scope.currentfilter.MnemonicName },
+                    { Key: 1, Value: searchVal },
+                    { Key: 2, Value: searchVal },
                     { Key: 3, Value: $scope.currentfilter.ActiveStatusId }
                 ],
                 PageContext: {
-                    PageSize: vm.gridConfig.pagerObj.pageSize,
-                    PageNumber: vm.gridConfig.pagerObj.currentPage
+                    PageSize: $scope.pagerObj.pageSize,
+                    PageNumber: $scope.pagerObj.currentPage
                 }
             };
 
@@ -41,28 +72,26 @@
             };
 
             utl.Http.doAction(options);
-
         };
 
-        $scope.openModal = function(Id) {
-                utl.Modal.open('app.orgisolted-form', {
-                    params: { id: Id },
-                    confirmCallback: $scope.initLookup
-                });
-            }
-            //Grid Actions
-        $scope.addNew = function() {
+        $scope.openModal = function (Id) {
+            utl.Modal.open('app.orgisolted-form', {
+                params: { id: Id },
+                confirmCallback: $scope.initLookup
+            });
+        };
+
+        // Grid Actions
+        $scope.addNew = function () {
             $state.go('app.organismtab.orgisolted-form', { id: 0 });
-            // $scope.openModal(0);
-        }
+        };
 
-
-        $scope.deleteItemCallback = function(scope, data, options, hasError) {
+        $scope.deleteItemCallback = function (scope, data, options, hasError) {
             utl.Alert.showSuccessMsg($translate.instant('common.delete_successmsg.lbl'));
             $scope.getList();
         };
 
-        $scope.onDeleteConfirmed = function(deleteId) {
+        $scope.onDeleteConfirmed = function (deleteId) {
             var options = {
                 action: 'lis/OrgIsolation/DeleteOrgIsolation',
                 data: { Id: deleteId },
@@ -70,53 +99,70 @@
                 onComplete: $scope.deleteItemCallback
             };
             utl.Http.doAction(options);
-        }
-
-        $scope.handleEvents = function(actionType, entity) {
-
-            if (actionType == 'edit') {
-                $state.go('app.organismtab.orgisolted-form', { id: entity.Id });
-                // $scope.openModal(entity.Id);
-            } else if (actionType == 'delete') {
-                utl.Dialog.confirmDelete($scope.onDeleteConfirmed, entity.Id, entity.ProviderName);
-            } else if (actionType == 'view') {
-                $state.go('app.organismtab.orgisolted-form', { id: entity.Id });
-            }
-        }
-
-        vm.gridConfig = {
-            enableColumnResizing: true,
-            columnDefs: [
-                { field: "Code", displayName: $translate.instant('lis.analyzer.code.lbl') },
-                { field: "OrgIsolationName", displayName: $translate.instant('lis.analyzer.name.lbl') },
-                { field: "Mnemonic", displayName: $translate.instant('lis.testmaster.Mnemonics.lbl') },
-                { field: "ActiveStatus.Description", displayName: $translate.instant('lis.analyzer.status.lbl') },
-                {
-                    field: "Id",
-                    displayName: $translate.instant('common.actions_col.lbl'),
-                    cellTemplate: '<div class="ui-grid-cell-contents">\
-                    <span class="grid-action" ng-click="handleEvents(\'view\',entity)" ng-show="entity.ActiveStatusId==2||entity.ActiveStatusId==3||entity.ActiveStatusId==4||entity.ActiveStatusId==5"><i class="fas fa-eye" aria-hidden="true"></i></span>\
-                    <span class="grid-action" ng-click="handleEvents(\'edit\',entity)"ng-show="entity.ActiveStatusId==1"><img class="drhms-edit-button" src="assets/svg/edit.svg" aria-hidden="true"></span>\
-                    <span class="grid-action" ng-click="handleEvents(\'delete\',entity)" ng-show="entity.ActiveStatusId==1"><img class="drhms-edit-button" src="assets/svg/delete.svg" alt=""></span>\
-                </div>',
-                    handleEvent: $scope.handleEvents,
-                    actions: [
-                        { actiontype: 'edit', display: 'common.editaction.lbl' },
-                        { actiontype: 'delete', display: 'common.deleteaction.lbl' }
-                    ]
-                }
-            ],
-            pagerObj: { totalItems: 0, currentPage: 1, startIndex: 0, pageSize: 25 }
         };
 
-        $scope.lookupCallback = function(scope, data, options, hasError) {
-            $scope.lookup = hasError ? {} : data;
-            $scope.getList();
-        }
+        $scope.handleEvents = function (actionType, entity) {
+            if (actionType == 'edit' || actionType == 'view') {
+                $state.go('app.organismtab.orgisolted-form', { id: entity.Id });
+            } else if (actionType == 'delete') {
+                utl.Dialog.confirmDelete($scope.onDeleteConfirmed, entity.Id, entity.OrgIsolationName || entity.ProviderName);
+            }
+        };
 
-        $scope.initLookup = function() {
+        // React component action bridge
+        $scope.handleAction = function (actionName, payload) {
+            $scope.$evalAsync(function () {
+                switch (actionName) {
+                    case 'search':
+                        if (payload) {
+                            $scope.currentfilter.codemnemonicsnamedesc = payload.codemnemonicsnamedesc || payload.Code || '';
+                            $scope.currentfilter.Code = payload.Code || '';
+                            $scope.currentfilter.MnemonicName = payload.MnemonicName || '';
+                        }
+                        $scope.pagerObj.currentPage = 1;
+                        $scope.getList();
+                        break;
+                    case 'filterChange':
+                        if (payload) {
+                            if (payload.ActiveStatusId !== undefined) $scope.currentfilter.ActiveStatusId = payload.ActiveStatusId;
+                            if (payload.codemnemonicsnamedesc !== undefined) $scope.currentfilter.codemnemonicsnamedesc = payload.codemnemonicsnamedesc;
+                        }
+                        $scope.pagerObj.currentPage = 1;
+                        $scope.getList();
+                        break;
+                    case 'pageChange':
+                        if (payload && payload.page) {
+                            $scope.pagerObj.currentPage = payload.page;
+                            $scope.getList();
+                        }
+                        break;
+                    case 'addNew':
+                        $scope.addNew();
+                        break;
+                    case 'view':
+                    case 'edit':
+                        if (payload && payload.Id !== undefined) {
+                            $state.go('app.organismtab.orgisolted-form', { id: payload.Id });
+                        }
+                        break;
+                    case 'delete':
+                        if (payload && payload.Id !== undefined) {
+                            utl.Dialog.confirmDelete($scope.onDeleteConfirmed, payload.Id, payload.OrgIsolationName);
+                        }
+                        break;
+                }
+            });
+        };
+
+        $scope.lookupCallback = function (scope, data, options, hasError) {
+            $scope.lookup = hasError ? {} : data;
+            $scope.syncReactProps();
+            $scope.getList();
+        };
+
+        $scope.initLookup = function () {
             var inputData = [
-                { "Key": "ActiveStatus" },
+                { "Key": "ActiveStatus" }
             ];
 
             var options = {
@@ -126,11 +172,10 @@
                 onComplete: $scope.lookupCallback
             };
             utl.Http.doAction(options);
-        }
+        };
 
         $scope.initLookup();
     }
 
     OrganismIsolatedListController.$inject = ['$scope', '$stateParams', '$state', '$translate', 'utl'];
-
 })();

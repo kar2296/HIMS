@@ -1319,6 +1319,54 @@
             utl.Http.doAction(options);
         };
 
+        // ------------------------------------------------------------------
+        // React Bridge: IpBillingCorrectionsActionBar
+        // ------------------------------------------------------------------
+        $scope.refreshActionBarProps = function () {
+            var canUpdate = !$scope.IsDisabled;
+            if ($scope.HasAccess) {
+                canUpdate = canUpdate && $scope.HasAccess('IPPharmacyBillcorrection', 'PharmacyBillcorrection_Update');
+            }
+            $scope.reactPropsActionBar = {
+                canBack: true,
+                canExcel: true,
+                canUpdate: canUpdate,
+                canDoctorShareUpdate: false,
+                isDisabled: Boolean($scope.IsDisabled),
+                updateLabel: 'Update Pharmacy Bill',
+                totalNet: $scope.TotalNet,
+                itemCount: $scope.PatientBillDetails ? $scope.PatientBillDetails.length : 0
+            };
+            if ($scope.$root && !$scope.$root.$$phase) {
+                $scope.$evalAsync();
+            }
+        };
+
+        $scope.handleActionBarAction = function (actionName, payload) {
+            switch (actionName) {
+                case 'back':
+                    $scope.backToList();
+                    break;
+                case 'excelDownload':
+                    $scope.excelDownload();
+                    break;
+                case 'completeBill':
+                    $scope.completeBill();
+                    break;
+                default:
+                    console.warn('Unhandled action in IpBillingCorrectionsActionBar (pharmacy):', actionName);
+            }
+        };
+
+        $scope.$watchGroup([
+            function () { return $scope.TotalNet; },
+            function () { return $scope.IsDisabled; },
+            function () { return $scope.PatientBillDetails ? $scope.PatientBillDetails.length : 0; }
+        ], function () {
+            $scope.refreshActionBarProps();
+        });
+
+        $scope.refreshActionBarProps();
         $scope.initLookup();
     }
 

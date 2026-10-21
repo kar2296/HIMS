@@ -41,6 +41,7 @@
         $scope.getListCallback = function (scope, res, options, hasError) {
             vm.gridConfig.data = res.Data;
             vm.gridConfig.pagerObj.totalItems = res.PageContext.TotalRecords;
+            $scope.refreshReactProps();
         };
 
         $scope.getList = function (pageNo) {
@@ -226,8 +227,63 @@
             utl.Http.doAction(options);
         }
 
-        $scope.initLookup();
+        $scope.refreshReactProps = function () {
+            var dataList = (vm.gridConfig && vm.gridConfig.data) || [];
+            var pager = (vm.gridConfig && vm.gridConfig.pagerObj) || { totalItems: 0, currentPage: 1, pageSize: 25 };
+            $scope.reactProps = {
+                rows: dataList,
+                items: dataList,
+                totalItems: (pager.totalItems !== undefined && pager.totalItems !== null) ? pager.totalItems : dataList.length,
+                currentPage: pager.currentPage || 1,
+                pageSize: pager.pageSize || 25,
+                pagerObj: {
+                    totalItems: (pager.totalItems !== undefined && pager.totalItems !== null) ? pager.totalItems : dataList.length,
+                    currentPage: pager.currentPage || 1,
+                    pageSize: pager.pageSize || 25,
+                    startIndex: ((pager.currentPage || 1) - 1) * (pager.pageSize || 25)
+                },
+                currentfilter: angular.copy($scope.currentfilter),
+                lookup: angular.copy($scope.lookup || {}),
+                tp: $stateParams.parentdeptid || $scope.currentfilter.OrdDeptId || 1,
+                facilityName: utl.Session.getCurrentFacilityName ? utl.Session.getCurrentFacilityName() : 'SHUVADARSINI HOSPITAL'
+            };
+            $scope.$applyAsync();
+        };
 
+        $scope.handleReactAction = function (actionName, payload) {
+            if (actionName === 'edit') {
+                $scope.handleEvents('action', payload);
+            } else if (actionName === 'patientinfo') {
+                $scope.handleEvents('patientinfo', payload);
+            } else if (actionName === 'history') {
+                $scope.handleEvents('history', payload);
+            } else if (actionName === 'search') {
+                if (payload) {
+                    if (payload.PatName !== undefined) $scope.currentfilter.mrn = payload.PatName;
+                    if (payload.BillOrderNumber !== undefined) $scope.currentfilter.ordernumber = payload.BillOrderNumber;
+                    if (payload.OrderStatusId !== undefined) $scope.currentfilter.orderstatusid = payload.OrderStatusId;
+                    if (payload.FromDate !== undefined) $scope.currentfilter.OrderReqDate = new Date(payload.FromDate);
+                }
+                vm.gridConfig.pagerObj.currentPage = 1;
+                $scope.getList();
+            } else if (actionName === 'resetFilters') {
+                $scope.currentfilter.mrn = '';
+                $scope.currentfilter.ordernumber = '';
+                $scope.currentfilter.orderstatusid = -1;
+                $scope.currentfilter.prioritystatusid = -1;
+                $scope.currentfilter.OrderReqDate = new Date();
+                vm.gridConfig.pagerObj.currentPage = 1;
+                $scope.getList();
+            } else if (actionName === 'pageChange') {
+                vm.gridConfig.pagerObj.currentPage = payload && payload.page ? payload.page : 1;
+                $scope.getList();
+            }
+            $scope.refreshReactProps();
+            $scope.$applyAsync();
+        };
+
+        $scope.initLookup();
+        $scope.refreshReactProps();
 
     }
 

@@ -22,23 +22,11 @@ function shallowEqual(objA: any, objB: any): boolean {
   return true;
 }
 
-function clonePropsSnapshot(obj: any): any {
-  if (!obj || typeof obj !== 'object') return obj;
-  const clone: any = { ...obj };
-  if (obj.reactProps && typeof obj.reactProps === 'object') {
-    clone.reactProps = { ...obj.reactProps };
-    if (obj.reactProps.privileges && typeof obj.reactProps.privileges === 'object') {
-      clone.reactProps.privileges = { ...obj.reactProps.privileges };
-    }
-  }
-  return clone;
-}
-
-function isPropsSnapshotEqual(objA: any, objB: any): boolean {
+function getPropsJsonString(obj: any): string | null {
   try {
-    return JSON.stringify(objA) === JSON.stringify(objB);
+    return JSON.stringify(obj);
   } catch (e) {
-    return false;
+    return null;
   }
 }
 
@@ -60,15 +48,19 @@ angular.module('app.reactBridge', [])
         }
 
         const root = createRoot(element[0]);
-        let prevSnapshot: any = null;
+        let prevSnapshotString: string | null = null;
 
         const renderComponent = (currentProps: any) => {
           const validProps = currentProps || {};
-          const newSnapshot = clonePropsSnapshot(validProps);
-          if (prevSnapshot && isPropsSnapshotEqual(prevSnapshot, newSnapshot)) {
+          const currentSnapshotString = getPropsJsonString(validProps);
+          if (
+            currentSnapshotString !== null &&
+            prevSnapshotString !== null &&
+            prevSnapshotString === currentSnapshotString
+          ) {
             return;
           }
-          prevSnapshot = newSnapshot;
+          prevSnapshotString = currentSnapshotString;
           root.render(
             <HashRouter>
               <Component {...validProps} />

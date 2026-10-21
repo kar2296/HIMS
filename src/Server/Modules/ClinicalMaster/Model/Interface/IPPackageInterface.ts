@@ -27,8 +27,6 @@ export interface IPPackageAttributes extends IAttributes {
     DiscountModeId: number;
     DiscountValue: number;
     DiscountAmount: number;
-    CreditAmount: string;
-    DebitAmount: string;
     ActiveFrom: Date;
     ActiveTo: Date;
     ActiveStatusId: number;

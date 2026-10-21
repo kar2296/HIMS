@@ -1,51 +1,67 @@
 <style>
-    button.draftbutton {
-        margin-top: 30px;
+    .paymode-filter-card {
+        background: #ffffff !important;
+        border: 1px solid #e2e8f0 !important;
+        border-radius: 12px !important;
+        padding: 16px 20px !important;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.04) !important;
+        margin-bottom: 18px !important;
+        display: flex !important;
+        flex-wrap: wrap !important;
+        align-items: flex-end !important;
+        gap: 16px !important;
+        box-sizing: border-box !important;
+        width: 100% !important;
+    }
+    .paymode-filter-card > react-component {
+        display: contents !important;
+    }
+    .paymode-filter-card .patientsearch-wrapper {
+        flex: 1 1 200px !important;
+        min-width: 180px !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+    .paymode-filter-card .patientsearch-wrapper > label {
+        display: flex !important;
+        align-items: center !important;
+        gap: 6px !important;
+        font-size: 11.5px !important;
+        font-weight: 600 !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.04em !important;
+        color: #475569 !important;
+        margin-bottom: 6px !important;
+        padding: 0 !important;
+    }
+    .paymode-filter-card .patientsearch-wrapper > div {
+        padding: 0 !important;
+    }
+    .paymode-filter-card input.premium-input.pid {
+        height: 38px !important;
+        border-radius: 8px !important;
+        border: 1.5px solid #cbd5e1 !important;
+        font-size: 13px !important;
+        box-sizing: border-box !important;
+    }
+    .paymode-filter-card input.premium-input.pid:focus {
+        border-color: #2563eb !important;
+    }
+    .fooder-bgs {
+        display: none !important;
     }
 </style>
-<!--
-  React bridge migration (hybrid, shared design across the three
-  payment-mode-change list screens -- oppaymodechange, pharpaymodechange,
-  advreptpaymodechange -- which are copy-pasted OP/Pharmacy/Advance-receipt
-  variants of the same controller/template pair, differing only in the
-  filter-field name (BillNo vs ReceiptNumber), whether that field
-  auto-refetches, and whether a Bill Number results column applies.
-  Classified HYBRID because of the live <patientsearch> widget in the
-  filter row, whose value IS read by getPaymentDetailList() (Params Key
-  2) -- left untouched, native AngularJS markup below, sandwiched between
-  the three React mounts: PaymodeChangeFilterScreen (part="dates"),
-  PaymodeChangeFilterScreen (part="filterfield"), then the widget, then
-  PaymodeChangeFilterScreen (part="fetch"). Results table replaced with
-  PaymodeChangeListScreen.
 
-  Preserved real API calls (unchanged): billing/patientpaymentdetails/
-  GetPatientPaymentDetails, billing/patientpaymentdetails/
-  GetSystemDatetime, General/Options/getoptions, billing/patientbills/
-  Print*Bills (via paymodechangeprint).
-
-  DELIBERATELY NOT MIGRATED: showPaymentChanger()/paymodechange() open the
-  "app.paychanger" modal (paychangerController), a payment-method-change
-  form gated by utl.Validator.validate($scope) across nearly all of its
-  fields (Bank/Cheque/DD/UPI/CardType/Terminal/CardNumber/AuthCode) and
-  mutating billing/PatientPaymentDetails/ManagePaymodeChange. Per the
-  strict hybrid-classification rule, any utl.Validator.validate($scope)
-  screen keeps its native AngularJS form fields; here that is effectively
-  the whole form, so paychanger.js/.html is left as pure AngularJS,
-  called exactly as before -- classified AngularJS-fallback, not
-  React-bridged, given its financial/validation-heavy risk profile.
-
-  Confirmed pre-existing quirk, reproduced as-is: the last results-table
-  header column is labelled "Status" (billing.paymodechange.status.lbl)
-  in all three original templates, but its data cell actually renders
-  the edit/print action buttons, never a status value.
--->
-<div class="row">
-    <form id="item_form" name="item_form" class="form-horizontal" role="form">
+<div class="row" style="margin-left: 0; margin-right: 0;">
+    <form id="item_form" name="item_form" class="paymode-filter-card" role="form">
         <react-component name="PaymodeChangeFilterScreen" props="{ part: 'dates', reactProps: reactProps, onAction: handleReactAction }"></react-component>
         <react-component name="PaymodeChangeFilterScreen" props="{ part: 'filterfield', filterFieldKey: 'BillNo', filterFieldLabel: 'Bill Number', autoRefetch: true, reactProps: reactProps, onAction: handleReactAction }"></react-component>
-        <div class="col-sm-2">
-            <label class="col-sm-12" translate="billing.opbilling-list.patientsearch.lbl"></label>
-            <div class="col-sm-12">
+        <div class="patientsearch-wrapper">
+            <label>
+                <i class="fa-solid fa-user" style="color: #2563eb; font-size: 11px; margin-right: 6px;"></i>
+                <span translate="billing.opbilling-list.patientsearch.lbl"></span>
+            </label>
+            <div>
                 <patientsearch controlid="'pid'" patientid="currentfilter.PatientId" name="txtpatientsearch"
                     patientinfo="selectedPatient" isdisabled="" filterconfig="patientfilterconfig" patientchange="getPaymentDetailList()"></patientsearch>
             </div>
@@ -54,8 +70,6 @@
         <react-component name="PaymodeChangeFilterScreen" props="{ part: 'fetch', reactProps: reactProps, onAction: handleReactAction }"></react-component>
     </form>
 </div>
-<div class="row">
+<div class="row" style="margin-left: 0; margin-right: 0;">
     <react-component name="PaymodeChangeListScreen" props="{ showBillNoColumn: true, reactProps: reactProps, onAction: handleReactAction }"></react-component>
-</div>
-<div class="fooder-bgs">
 </div>

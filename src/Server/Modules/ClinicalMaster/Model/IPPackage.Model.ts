@@ -41,8 +41,6 @@ export default function (sequelize: Sequelize, DataTypes: DataTypes):
         UpdatedAt: { type: DataTypes.DATE, field: 'UpdatedAt' },
         IsUnlimitedServices: { type: DataTypes.BOOLEAN, field: 'IsUnlimitedServices' },
         ICUDays: { type: DataTypes.INTEGER, field: 'ICUDays' },
-        CreditAmount: { type: DataTypes.DECIMAL, field: 'CreditAmount' },
-        DebitAmount: { type: DataTypes.DECIMAL, field: 'DebitAmount' },
     },
         {
             indexes: [],

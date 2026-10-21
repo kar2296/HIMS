@@ -33,23 +33,87 @@
             for (var idx in $scope.PatientOPBills) {
                 $scope.PatientOPBills[idx].select = chk;
             }
+            $scope.selectionChangedCal();
         };
 
         $scope.getPatientInfo = function (scope, data, options, hasError) {
             $scope.selectedPatient = data;
         };
 
+        $scope.getPatient = function () {
+            $scope.patientChange();
+        };
+
         $scope.patientChange = function () {
             if ($scope.currentfilter.PatientId > 0) {
+                $scope.currentcontext.pid = $scope.currentfilter.PatientId;
+                if ($scope.$parent && $scope.$parent.currentcontext) {
+                    $scope.$parent.currentcontext.pid = $scope.currentfilter.PatientId;
+                }
                 var options = {
                     action: 'registration/patient/GetPatientById',
                     data: {
                         Id: $scope.currentfilter.PatientId
                     },
                     type: 'post',
-                    onComplete: $scope.getPatientInfo
+                    onComplete: function(s, data, opt, err) {
+                        $scope.getPatientInfo(s, data, opt, err);
+                        $scope.getopBills();
+                    }
                 };
                 utl.Http.doAction(options);
+            } else {
+                $scope.clearPatient();
+            }
+        };
+
+        $scope.clearPatient = function () {
+            $scope.currentfilter.PatientId = null;
+            $scope.selectedPatient = null;
+            $scope.currentcontext.pid = null;
+            if ($scope.$parent && $scope.$parent.currentcontext) {
+                $scope.$parent.currentcontext.pid = null;
+            }
+            $scope.PatientOPBills = [];
+            $scope.canShowDMPrintBtn = false;
+        };
+
+        $scope.getSelectedCount = function () {
+            if (!$scope.PatientOPBills) return 0;
+            return $scope.PatientOPBills.filter(function(b) { return b.select; }).length;
+        };
+
+        $scope.getTotalNetAmount = function () {
+            if (!$scope.PatientOPBills) return 0;
+            var total = 0;
+            for (var i = 0; i < $scope.PatientOPBills.length; i++) {
+                if ($scope.PatientOPBills[i].select) {
+                    total += Number($scope.PatientOPBills[i].NetAmount || 0);
+                }
+            }
+            return total;
+        };
+
+        $scope.getTotalPaidAmount = function () {
+            if (!$scope.PatientOPBills) return 0;
+            var total = 0;
+            for (var i = 0; i < $scope.PatientOPBills.length; i++) {
+                if ($scope.PatientOPBills[i].select) {
+                    total += Number($scope.PatientOPBills[i].PaidAmount || 0);
+                }
+            }
+            return total;
+        };
+
+        $scope.getTotalOutstanding = function () {
+            return Math.max(0, $scope.getTotalNetAmount() - $scope.getTotalPaidAmount());
+        };
+
+        $scope.selectionChangedCal = function () {
+            var selected = getSelectionRows();
+            $scope.canShowDMPrintBtn = selected.length > 0;
+            if ($scope.PatientOPBills && $scope.PatientOPBills.length > 0) {
+                $scope.currentcontext.selectallchk = selected.length === $scope.PatientOPBills.length;
             }
         };
 
@@ -59,11 +123,12 @@
                 var item = data.Data[pdx];
                 item.NetAmount = item.BillAmount - item.BillDiscount;
                 item.NetAmount = Math.round(item.NetAmount);
+                item.select = true;
                 $scope.PatientOPBills.push(item);
             }
 
             $scope.SelectAll($scope.currentcontext.selectallchk);
-            $scope.canShowDMPrintBtn = true;
+            $scope.canShowDMPrintBtn = $scope.PatientOPBills.length > 0;
             $scope.currentfilter.TotalAmount = $scope.currentfilter.TotalSalesAmount - $scope.currentfilter.TotalReturnAmount;
         };
 
@@ -110,7 +175,7 @@
 
                 utl.Http.doAction(options);
             } else {
-                utl.Alert.showSuccessMsg('Successful');
+                utl.Alert.showWarningMsg('Please search and select a patient first to load bills.');
             }
         };
 

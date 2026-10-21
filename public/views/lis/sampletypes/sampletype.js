@@ -17,9 +17,37 @@ function sampleTypeFormController($scope, $stateParams, $state, $translate, utl)
     $scope.currentcontext =  {};
     $scope.currentcontext.id = parseInt($stateParams.id);
 
-    $scope.getItemCallback = function (scope, data, options, hasError) {
-        $scope.item = data;
-    };
+        $scope.reactProps = {
+            id: $scope.currentcontext.id,
+            item: $scope.item,
+            lookup: $scope.lookup
+        };
+
+        $scope.syncReactProps = function () {
+            $scope.reactProps = {
+                id: $scope.currentcontext.id,
+                item: $scope.item,
+                lookup: $scope.lookup
+            };
+        };
+
+        $scope.handleAction = function (actionName, payload) {
+            $scope.$evalAsync(function () {
+                if (actionName === 'back') {
+                    $scope.backToList();
+                } else if (actionName === 'save') {
+                    if (payload && payload.Data) {
+                        $scope.item = payload.Data;
+                        $scope.saveItem();
+                    }
+                }
+            });
+        };
+
+        $scope.getItemCallback = function (scope, data, options, hasError) {
+            $scope.item = data;
+            $scope.syncReactProps();
+        };
 
     $scope.getItem = function (pageNo) {
         if ($scope.currentcontext.id && $scope.currentcontext.id > 0) {

@@ -494,7 +494,8 @@ export class ServiceItemBo extends BaseBo<ServiceItemInstance, ServiceItemAttrib
                         break;
                     case ServiceItemFilters.Code:
                         (where as any)['$or'] = [{ 'Name': { '$like': '%' + (param.Value || '') + '%' } },
-                        { 'ShortCode': { '$like': '%' + (param.Value || '') + '%' } }];
+                        { 'ShortCode': { '$like': '%' + (param.Value || '') + '%' } },
+                        { 'ItemCode': { '$like': '%' + (param.Value || '') + '%' } }];
                         break;
                     case ServiceItemFilters.DepartmentId:
                         where['DepartmentId'] = param.Value;
@@ -700,7 +701,8 @@ export class ServiceItemBo extends BaseBo<ServiceItemInstance, ServiceItemAttrib
                         break;
                     case ServiceItemFilters.Code:
                         (where as any)['$or'] = [{ 'Name': { '$like': '%' + (param.Value || '') + '%' } },
-                        { 'ShortCode': { '$like': '%' + (param.Value || '') + '%' } }];
+                        { 'ShortCode': { '$like': '%' + (param.Value || '') + '%' } },
+                        { 'ItemCode': { '$like': '%' + (param.Value || '') + '%' } }];
                         break;
                     case ServiceItemFilters.DepartmentId:
                         where['DepartmentId'] = param.Value;

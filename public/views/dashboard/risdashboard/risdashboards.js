@@ -197,6 +197,40 @@
         $scope.radiologyreports = function () {
             $state.go('app.radiologyreports',{ context: 'lab' });
         }
+
+        $scope.handleNavigate = function (stateName, params) {
+            if (stateName === 'app.orderacknowledgements' || stateName === 'acceptances') {
+                $scope.acceptances();
+            } else if (stateName === 'app.processallorders' || stateName === 'resultentries' || stateName === 'app.allorders') {
+                $scope.resultentries();
+            } else if (stateName === 'app.approvalallorders' || stateName === 'resultapprovals') {
+                $scope.resultapprovals();
+            } else if (stateName === 'app.resultdispatches' || stateName === 'resultreleases') {
+                $scope.resultreleases();
+            } else if (stateName === 'app.notetemplates' || stateName === 'resulttemplates') {
+                $scope.resulttemplates();
+            } else if (stateName === 'app.testmasters' || stateName === 'managetests') {
+                $scope.managetests();
+            } else if (stateName === 'app.analytemasters' || stateName === 'manageparam') {
+                $scope.manageparam();
+            } else if (stateName === 'app.radiologyreports' || stateName === 'radiologyreports') {
+                $scope.radiologyreports();
+            } else if (stateName === 'app.radiologycriticals') {
+                $state.go('app.radiologycriticals');
+            } else if (stateName && $scope[stateName]) {
+                $scope[stateName](params);
+            } else if (stateName) {
+                $state.go(stateName, params);
+            }
+        };
+
+        $scope.refreshReactProps = function () {
+            $scope.reactProps = {
+                items: angular.copy($scope.Items || {}),
+                currentcontext: angular.copy($scope.currentcontext || {})
+            };
+            $scope.$applyAsync();
+        };
         /* Side Menu close*/
         $timeout(function () {
             removeFloatingNav();

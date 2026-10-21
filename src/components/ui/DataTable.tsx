@@ -82,6 +82,7 @@ export function DataTable<T>({
     backgroundColor: colors.surfaceMuted, cursor: col.sortable ? 'pointer' : 'default',
     userSelect: 'none', whiteSpace: 'nowrap', fontFamily: typography.fontFamily,
     width: col.width,
+    minWidth: col.width,
   });
   const tdStyle = (col: DataTableColumn<T>): React.CSSProperties => ({
     textAlign: col.align || 'left',

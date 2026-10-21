@@ -43,11 +43,73 @@
             for (var idx in $scope.PatientPharmacyBills) {
                 $scope.PatientPharmacyBills[idx].select = chk;
             }
+            $scope.selectionChangedCal();
         };
 
         $scope.SelectAll1 = function (chk) {
             for (var idx in $scope.PatientPharmacyReturns) {
                 $scope.PatientPharmacyReturns[idx].select1 = chk;
+            }
+            $scope.selectionChangedCal();
+        };
+
+        $scope.getPatientInfo = function (scope, data, options, hasError) {
+            $scope.selectedPatient = data;
+        };
+
+        $scope.getPatient = function () {
+            $scope.patientChange();
+        };
+
+        $scope.patientChange = function () {
+            if ($scope.currentfilter.PatientId > 0) {
+                $scope.currentcontext.pid = $scope.currentfilter.PatientId;
+                if ($scope.$parent && $scope.$parent.currentcontext) {
+                    $scope.$parent.currentcontext.pid = $scope.currentfilter.PatientId;
+                }
+                var options = {
+                    action: 'registration/patient/GetPatientById',
+                    data: {
+                        Id: $scope.currentfilter.PatientId
+                    },
+                    type: 'post',
+                    onComplete: function(s, data, opt, err) {
+                        $scope.getPatientInfo(s, data, opt, err);
+                        $scope.getPharmacyBills();
+                    }
+                };
+                utl.Http.doAction(options);
+            } else {
+                $scope.clearPatient();
+            }
+        };
+
+        $scope.clearPatient = function () {
+            $scope.currentfilter.PatientId = null;
+            $scope.selectedPatient = null;
+            $scope.currentcontext.pid = null;
+            if ($scope.$parent && $scope.$parent.currentcontext) {
+                $scope.$parent.currentcontext.pid = null;
+            }
+            $scope.PatientPharmacyBills = [];
+            $scope.PatientPharmacyReturns = [];
+            $scope.canShowDMPrintBtn = false;
+        };
+
+        $scope.getSelectedCount = function () {
+            if (!$scope.PatientPharmacyBills) return 0;
+            return $scope.PatientPharmacyBills.filter(function(b) { return b.select; }).length;
+        };
+
+        $scope.selectionChangedCal = function () {
+            var selectedSales = getSelectionRows();
+            var selectedReturns = getSelectionRowsForReturn();
+            $scope.canShowDMPrintBtn = (selectedSales.length > 0 || selectedReturns.length > 0);
+            if ($scope.PatientPharmacyBills && $scope.PatientPharmacyBills.length > 0) {
+                $scope.currentcontext.selectallchk = selectedSales.length === $scope.PatientPharmacyBills.length;
+            }
+            if ($scope.PatientPharmacyReturns && $scope.PatientPharmacyReturns.length > 0) {
+                $scope.currentcontext.selectallchk1 = selectedReturns.length === $scope.PatientPharmacyReturns.length;
             }
         };
 
@@ -81,6 +143,7 @@
                     item.NetReturnAmount = item.ReturnAmount - item.DiscountAmount;
                     item.NetReturnAmount = Math.round(item.NetReturnAmount);
                     $scope.currentfilter.TotalReturnAmount = $scope.currentfilter.TotalReturnAmount + item.NetReturnAmount;
+                    item.select1 = true;
                     $scope.PatientPharmacyReturns.push(item);
                     $scope.ReturnSerialNo++;
                 } else {
@@ -88,13 +151,14 @@
                     item.NetAmount = item.BillAmount - item.BillDiscount;
                     item.NetAmount = Math.round(item.NetAmount);
                     $scope.currentfilter.TotalSalesAmount = $scope.currentfilter.TotalSalesAmount + item.NetAmount;
+                    item.select = true;
                     $scope.PatientPharmacyBills.push(item);
                     $scope.SalesSerialNo++;
                 }
             }
             $scope.SelectAll($scope.currentcontext.selectallchk);
             $scope.SelectAll1($scope.currentcontext.selectallchk1);
-            $scope.canShowDMPrintBtn = true;
+            $scope.canShowDMPrintBtn = ($scope.PatientPharmacyBills.length > 0 || $scope.PatientPharmacyReturns.length > 0);
             $scope.currentfilter.TotalAmount = $scope.currentfilter.TotalSalesAmount - $scope.currentfilter.TotalReturnAmount;
         };
 
@@ -124,7 +188,7 @@
 
                 utl.Http.doAction(options);
             } else {
-                utl.Alert.showSuccessMsg('Successful');
+                utl.Alert.showWarningMsg('Please search and select a patient first to load bills.');
             }
         };
 

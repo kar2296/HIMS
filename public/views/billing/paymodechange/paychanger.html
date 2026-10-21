@@ -1,226 +1,653 @@
 <style>
-    .form-group .col-sm-12 {
-        margin-bottom: 10px;
+    /* Scope modal dialog width and position for Paymode Changer */
+    .modal-dialog:has(.paymode-changer-modal),
+    .modal-dialog.modal-lg:has(.paymode-changer-modal) {
+        max-width: 880px !important;
+        width: 92% !important;
+        margin: 36px auto !important;
+    }
+    .modal-content:has(.paymode-changer-modal) {
+        border-radius: 16px !important;
+        overflow: hidden !important;
+        border: 1px solid #e2e8f0 !important;
+        box-shadow: 0 25px 60px -15px rgba(15, 23, 42, 0.28) !important;
+        background: #ffffff !important;
+        padding: 0 !important;
+    }
+
+    .paymode-changer-modal {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        color: #0f172a;
+        background: #ffffff;
+    }
+
+    /* Modal Header */
+    .pm-modal-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 18px 24px;
+        background: #ffffff;
+        border-bottom: 1px solid #e2e8f0;
+    }
+    .pm-modal-header-left {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+    }
+    .pm-modal-icon-badge {
+        width: 42px;
+        height: 42px;
+        border-radius: 10px;
+        background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+        color: #ffffff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+        box-shadow: 0 3px 8px rgba(37, 99, 235, 0.3);
+        flex-shrink: 0;
+    }
+    .pm-modal-title {
+        font-size: 18px;
+        font-weight: 700;
+        color: #0f172a;
+        margin: 0;
+        line-height: 1.25;
+        letter-spacing: -0.01em;
+    }
+    .pm-modal-subtitle {
+        font-size: 12.5px;
+        color: #64748b;
+        margin: 3px 0 0 0;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .pm-modal-close-btn {
+        width: 34px;
+        height: 34px;
+        border-radius: 8px;
+        border: 1px solid #e2e8f0;
+        background: #f8fafc;
+        color: #64748b;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.15s ease;
+        outline: none;
+        font-size: 14px;
+    }
+    .pm-modal-close-btn:hover {
+        background: #fee2e2;
+        border-color: #fca5a5;
+        color: #ef4444;
+        transform: scale(1.05);
+    }
+
+    /* Modal Body */
+    .pm-modal-body {
+        padding: 22px 24px;
+        background: #f8fafc;
+    }
+
+    /* Summary Card */
+    .pm-summary-card {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 16px 18px;
+        margin-bottom: 20px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    }
+    .pm-summary-title {
+        font-size: 11.5px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        color: #64748b;
+        margin-bottom: 12px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+    .pm-info-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 14px;
+        margin-bottom: 14px;
+    }
+    .pm-info-item {
+        display: flex;
+        flex-direction: column;
+        gap: 3px;
+    }
+    .pm-info-label {
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        color: #94a3b8;
+        letter-spacing: 0.03em;
+    }
+    .pm-info-value {
+        font-size: 13.5px;
+        font-weight: 600;
+        color: #1e293b;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        flex-wrap: wrap;
+    }
+    .pm-badge-uhid {
+        font-size: 11px;
+        font-weight: 700;
+        color: #475569;
+        background: #f1f5f9;
+        padding: 2px 7px;
+        border-radius: 4px;
+        border: 1px solid #cbd5e1;
+    }
+    .pm-badge-enc {
+        font-size: 11px;
+        font-weight: 700;
+        color: #7c3aed;
+        background: #f5f3ff;
+        padding: 2px 7px;
+        border-radius: 4px;
+        border: 1px solid #ddd6fe;
+    }
+    .pm-badge-receipt {
+        font-size: 12px;
+        font-weight: 700;
+        color: #2563eb;
+        background: #eff6ff;
+        padding: 2px 8px;
+        border-radius: 5px;
+        border: 1px solid #bfdbfe;
+    }
+
+    /* Settlement Summary Strip */
+    .pm-settlement-strip {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 10px 14px;
+        background: #f8fafc;
+        border-radius: 8px;
+        border: 1px solid #e2e8f0;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+    .pm-settlement-item {
+        font-size: 12px;
+        color: #475569;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+    .pm-settlement-val {
+        font-weight: 700;
+        color: #0f172a;
+    }
+    .pm-total-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 13px;
+        font-weight: 700;
+        color: #059669;
+        background: #ecfdf5;
+        border: 1.5px solid #a7f3d0;
+        padding: 4px 12px;
+        border-radius: 6px;
+    }
+
+    /* Change Form Card */
+    .pm-form-card {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 20px 22px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    }
+    .pm-form-section-title {
+        font-size: 13px;
+        font-weight: 700;
+        color: #1e293b;
+        margin-bottom: 16px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #f1f5f9;
+    }
+    .pm-form-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 16px;
+    }
+    .pm-field-col {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+    .pm-field-label {
+        font-size: 12px;
+        font-weight: 600;
+        color: #475569;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        margin: 0;
+    }
+    .pm-field-label span.req {
+        color: #ef4444;
+        font-weight: 700;
+    }
+    .pm-input-text {
+        height: 38px;
+        width: 100%;
+        border-radius: 8px;
+        border: 1.5px solid #cbd5e1;
+        background: #ffffff;
+        padding: 0 12px;
+        font-size: 13px;
+        color: #0f172a;
+        outline: none;
+        box-sizing: border-box;
+        transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+    .pm-input-text:focus {
+        border-color: #2563eb;
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+    }
+
+    /* Modal Footer */
+    .pm-modal-footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 16px 24px;
+        background: #ffffff;
+        border-top: 1px solid #e2e8f0;
+    }
+    .pm-footer-audit {
+        font-size: 12px;
+        color: #64748b;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+    .pm-footer-actions {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    .pm-btn-cancel {
+        height: 38px;
+        padding: 0 18px;
+        border-radius: 8px;
+        border: 1.5px solid #cbd5e1;
+        background: #ffffff;
+        color: #475569;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.15s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        outline: none;
+    }
+    .pm-btn-cancel:hover {
+        background: #f1f5f9;
+        color: #0f172a;
+        border-color: #94a3b8;
+    }
+    .pm-btn-submit {
+        height: 38px;
+        padding: 0 22px;
+        border-radius: 8px;
+        border: none;
+        background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+        color: #ffffff;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.15s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        box-shadow: 0 2px 6px rgba(37, 99, 235, 0.3);
+        outline: none;
+    }
+    .pm-btn-submit:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4);
     }
 </style>
-<div class="modal-header custom-modal-header">
-    <div class="col-sm-10">
-        <h4 class="modal-title custom-modal-title" translate="Paymode Changer"></h4>
-    </div>
-    <div class="col-sm-2">
-        <div class="filters">
-            <img src="../../../../../assets/svg/close.svg" ng-click="cancelCallback()">
-        </div>
-    </div>
-</div>
-<div class="row">
-    <form id="item_form" name="item_form" class="form-horizontal" role="form">
-        <div class="table-control formRoot" id="mainresponsivetablecontrol">
-            <table class="table table-hover table-responsive table-bordered">
-                <thead class="bg-subhead" ng-if="items">
-                    <tr>
-                        <th>
-                            <span translate="billing.paymodechange.billdate.lbl"></span>
-                        </th>
-                        <th>
-                            <span translate="billing.paymodechange.receiptno.lbl"></span>
-                        </th>
-                        <th>
-                            <span translate="billing.paymodechange.patientname.lbl"></span>
-                        </th>
-                        <th>
-                            <span translate="billing.paymodechange.doctor.lbl"></span>
-                        </th>
-                        <th>
-                            <span translate="billing.paymodechange.cash.lbl"></span>
-                        </th>
-                        <th>
-                            <span translate="billing.paymodechange.card.lbl"></span>
-                        </th>
-                        <th>
-                            <span translate="billing.paymodechange.chequeothers.lbl"></span>
-                        </th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr ng-repeat="item in items">
-                        <td class="text-left">
-                            <span>
-                                {{item.ReceiptDateTime | date : 'dd/MMM/yyyy' }}&nbsp;
-                                {{item.ReceiptDateTime | date:'HH:mm'}}
-                            </span>
-                        </td>
-                        <td class="text-left">
-                            <span> {{ item.ReceiptNumber }}</span>
-                        </td>
-                        <td class="text-left">
-                            <span> {{ item.Patient.MRN }} {{ item.Patient.FirstName }}</span>
-                            <span ng-if="item.EncounterTypeId == 2"> IP </span>
-                            <span ng-if="item.EncounterTypeId != 2"> OP </span>
-                        </td>
-                        <td class="text-left">
-                            <span> {{ item.PatientBill.DoctorName }}</span>
-                        </td>
-                        <td class="text-right">
-                            <span ng-if="item.PaymentTypeId==1">{{ item.AmountPaid | displaycurrency
-                                }}</span>
-                            <span ng-if="item.PaymentTypeId!=1">{{ 0 | displaycurrency }}</span>
-                        </td>
-                        <td class="text-right">
-                            <span ng-if="item.PaymentTypeId==5 || item.PaymentTypeId==6">
-                                {{ item.AmountPaid | displaycurrency }}</span>
-                            <span ng-if="item.PaymentTypeId!=5 && item.PaymentTypeId!=6">
-                                {{ 0 | displaycurrency }}</span>
-                        </td>
-                        <td class="text-right">
-                            <span ng-if="item.PaymentTypeId!=1 &&
-                        item.PaymentTypeId!=5 && item.PaymentTypeId!=6">
-                                {{ item.AmountPaid | displaycurrency }}</span>
-                            <span ng-if="item.PaymentTypeId==1 ||
-                        item.PaymentTypeId==5 || item.PaymentTypeId==6">
-                                {{ 0 | displaycurrency }}</span>
-                        </td>
-                    </tr>
-                </tbody>
 
-            </table>
-        </div>
-    </form>
-</div>
-<div class="row">
-    <div class="col-sm-6">
-        <div class="form-group">
-            <label class="col-sm-12 control-label" for="payments"
-                translate="billing.receipt-form.paymentmode.lbl"></label>
-            <div class="col-sm-8">
-                <react-component name="BridgeLookupSelectScreen" props="{ reactProps: reactPropsPaymentTypeContainer.reactProps, onAction: reactPropsPaymentTypeContainer.onAction }"></react-component>
+<div class="paymode-changer-modal">
+    <!-- Modal Header -->
+    <div class="pm-modal-header">
+        <div class="pm-modal-header-left">
+            <div class="pm-modal-icon-badge">
+                <i class="fa-solid fa-money-bill-transfer"></i>
+            </div>
+            <div>
+                <h4 class="pm-modal-title">Payment Mode Changer</h4>
+                <p class="pm-modal-subtitle">
+                    <span>Receipt #{{ items[0].ReceiptNumber || item.ReceiptNumber }}</span>
+                    <span>•</span>
+                    <span>{{ items[0].Patient.FirstName || item.Patient.FirstName }} ({{ items[0].Patient.MRN || item.Patient.MRN }})</span>
+                </p>
             </div>
         </div>
+        <button type="button" class="pm-modal-close-btn" ng-click="cancelCallback()" title="Close dialog">
+            <i class="fa-solid fa-xmark"></i>
+        </button>
     </div>
-    <div class="col-sm-6">
-        <!-- <div class="form-group" ng-if="item.PaymentTypeId > 1 && item.PaymentTypeId ==12"> -->
-            <div class="form-group" ng-if="item.PaymentTypeId==5||item.PaymentTypeId == 6">
-            <div class="col-sm-12">
-                <label class="col-sm-4 control-label" for="bankname"
-                    translate="billing.receipt-form.bankname.lbl"></label>
-                <div class="col-sm-8">
-                    <react-component name="BridgeLookupSelectScreen" props="{ reactProps: reactPropsBankContainer.reactProps, onAction: reactPropsBankContainer.onAction }"></react-component>
+
+    <!-- Modal Body -->
+    <div class="pm-modal-body">
+        <form id="item_form" name="item_form" class="form-horizontal" role="form" novalidate ng-fab-form-options="customFabOptions">
+            <!-- Transaction Summary Card -->
+            <div class="pm-summary-card" ng-if="items && items.length > 0">
+                <div class="pm-summary-title">
+                    <i class="fa-solid fa-receipt" style="color: #2563eb;"></i>
+                    <span>Original Transaction Details</span>
+                </div>
+                <div class="pm-info-grid">
+                    <div class="pm-info-item">
+                        <span class="pm-info-label">Bill / Receipt Date</span>
+                        <div class="pm-info-value">
+                            <i class="fa-regular fa-calendar-check" style="color: #64748b; font-size: 12px;"></i>
+                            <span>{{ items[0].ReceiptDateTime | date:'dd-MMM-yyyy' }}</span>
+                            <span style="color: #64748b; font-size: 12px;">{{ items[0].ReceiptDateTime | date:'HH:mm' }}</span>
+                        </div>
+                    </div>
+                    <div class="pm-info-item">
+                        <span class="pm-info-label">Receipt Number</span>
+                        <div class="pm-info-value">
+                            <span class="pm-badge-receipt">{{ items[0].ReceiptNumber }}</span>
+                        </div>
+                    </div>
+                    <div class="pm-info-item">
+                        <span class="pm-info-label">Patient Details</span>
+                        <div class="pm-info-value">
+                            <span>{{ items[0].Patient.FirstName }} {{ items[0].Patient.LastName }}</span>
+                            <span class="pm-badge-uhid">{{ items[0].Patient.MRN }}</span>
+                            <span class="pm-badge-enc" ng-if="items[0].EncounterTypeId == 2">IP</span>
+                            <span class="pm-badge-enc" ng-if="items[0].EncounterTypeId != 2">OP</span>
+                        </div>
+                    </div>
+                    <div class="pm-info-item">
+                        <span class="pm-info-label">Doctor</span>
+                        <div class="pm-info-value">
+                            <i class="fa-solid fa-user-doctor" style="color: #64748b; font-size: 12px;"></i>
+                            <span>{{ items[0].PatientBill.DoctorName || items[0].User.FirstName || '—' }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Existing Settlement Mode Breakdown Strip -->
+                <div class="pm-settlement-strip">
+                    <div class="pm-settlement-item">
+                        <span>Cash:</span>
+                        <span class="pm-settlement-val">
+                            {{ (items[0].PaymentTypeId == 1 ? items[0].AmountPaid : 0) | displaycurrency }}
+                        </span>
+                    </div>
+                    <div class="pm-settlement-item">
+                        <span>Card:</span>
+                        <span class="pm-settlement-val">
+                            {{ (items[0].PaymentTypeId == 5 || items[0].PaymentTypeId == 6 ? items[0].AmountPaid : 0) | displaycurrency }}
+                        </span>
+                    </div>
+                    <div class="pm-settlement-item">
+                        <span>Cheque / Others:</span>
+                        <span class="pm-settlement-val">
+                            {{ (items[0].PaymentTypeId != 1 && items[0].PaymentTypeId != 5 && items[0].PaymentTypeId != 6 ? items[0].AmountPaid : 0) | displaycurrency }}
+                        </span>
+                    </div>
+                    <div class="pm-total-chip">
+                        <i class="fa-solid fa-circle-check"></i>
+                        <span>Paid: {{ items[0].AmountPaid | displaycurrency }}</span>
+                    </div>
                 </div>
             </div>
-        </div>
-        <div class="form-group" ng-if="item.PaymentTypeId==2">
-            <div class="col-sm-12">
-                <label class="col-sm-4 control-label" for="chequeno"
-                    translate="billing.receipt-form.chequeno.lbl"></label>
-                <div class="col-sm-8">
-                    <input type="text" class="form-control" name="chequeno" ng-model="item.ChequeNo" placeholder=""
-                        required>
+
+            <!-- New Payment Mode Selection Card -->
+            <div class="pm-form-card">
+                <div class="pm-form-section-title">
+                    <i class="fa-solid fa-credit-card" style="color: #2563eb;"></i>
+                    <span>Select New Payment Mode</span>
+                </div>
+
+                <div class="pm-form-grid">
+                    <!-- Left: Payment Mode Selector -->
+                    <div class="pm-field-col">
+                        <label class="pm-field-label" for="payments">
+                            <i class="fa-solid fa-wallet" style="color: #2563eb; font-size: 12px;"></i>
+                            <span>New Payment Mode</span>
+                            <span class="req">*</span>
+                        </label>
+                        <div>
+                            <react-component name="BridgeLookupSelectScreen" props="{ reactProps: reactPropsPaymentTypeContainer.reactProps, onAction: reactPropsPaymentTypeContainer.onAction }"></react-component>
+                        </div>
+                    </div>
+
+                    <!-- Right: Dynamic Conditional Details -->
+                    <div class="pm-field-col">
+                        <!-- Card Fields (Credit Card / Debit Card) -->
+                        <div ng-if="item.PaymentTypeId == 5 || item.PaymentTypeId == 6" style="display: flex; flex-direction: column; gap: 12px;">
+                            <div class="pm-field-col">
+                                <label class="pm-field-label" for="bankname">
+                                    <i class="fa-solid fa-building-columns" style="color: #2563eb; font-size: 12px;"></i>
+                                    <span>Bank Name</span>
+                                    <span class="req">*</span>
+                                </label>
+                                <div>
+                                    <react-component name="BridgeLookupSelectScreen" props="{ reactProps: reactPropsBankContainer.reactProps, onAction: reactPropsBankContainer.onAction }"></react-component>
+                                </div>
+                            </div>
+                            <div class="pm-field-col">
+                                <label class="pm-field-label" for="cardtype">
+                                    <i class="fa-solid fa-credit-card" style="color: #2563eb; font-size: 12px;"></i>
+                                    <span>Card Type</span>
+                                    <span class="req">*</span>
+                                </label>
+                                <div>
+                                    <react-component name="BridgeLookupSelectScreen" props="{ reactProps: reactPropsCardTypeContainer.reactProps, onAction: reactPropsCardTypeContainer.onAction }"></react-component>
+                                </div>
+                            </div>
+                            <div class="pm-field-col">
+                                <label class="pm-field-label" for="authorisedcode">
+                                    <i class="fa-solid fa-key" style="color: #2563eb; font-size: 12px;"></i>
+                                    <span>Authorization Code</span>
+                                    <span class="req">*</span>
+                                </label>
+                                <input type="text" class="pm-input-text" name="authorisedcode" ng-model="item.AuthorizedCode" placeholder="e.g. AUTH123456" required>
+                            </div>
+                        </div>
+
+                        <!-- Cheque Fields -->
+                        <div ng-if="item.PaymentTypeId == 2" style="display: flex; flex-direction: column; gap: 12px;">
+                            <div class="pm-field-col">
+                                <label class="pm-field-label" for="chequeno">
+                                    <i class="fa-solid fa-money-check" style="color: #2563eb; font-size: 12px;"></i>
+                                    <span>Cheque Number</span>
+                                    <span class="req">*</span>
+                                </label>
+                                <input type="text" class="pm-input-text" name="chequeno" ng-model="item.ChequeNo" placeholder="e.g. CHQ004512" required>
+                            </div>
+                            <div class="pm-field-col">
+                                <label class="pm-field-label">
+                                    <i class="fa-regular fa-calendar" style="color: #2563eb; font-size: 12px;"></i>
+                                    <span>Cheque Date</span>
+                                </label>
+                                <div class="input-group" style="width: 100%;">
+                                    <input type="text" class="form-control pm-input-text" name="Chequedate" ng-date-object
+                                        datepicker-options="datePickerOptions"
+                                        uib-datepicker-popup="dd/MMM/yyyy"
+                                        placeholder="DD/MMM/YYYY" ng-click="chequeDatePopup = { opened: true }"
+                                        is-open="chequeDatePopup.opened" ng-model="item.ChequeDate"
+                                        style="border-top-right-radius: 0; border-bottom-right-radius: 0;">
+                                    <span class="input-group-addon" ng-click="chequeDatePopup = { opened: true }" style="cursor: pointer; background: #f8fafc; border: 1.5px solid #cbd5e1; border-left: none; border-top-right-radius: 8px; border-bottom-right-radius: 8px;">
+                                        <i class="fa-regular fa-calendar" style="color: #2563eb;"></i>
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="pm-field-col">
+                                <label class="pm-field-label">
+                                    <i class="fa-regular fa-calendar-check" style="color: #2563eb; font-size: 12px;"></i>
+                                    <span>Collected On</span>
+                                </label>
+                                <div class="input-group" style="width: 100%;">
+                                    <input type="text" class="form-control pm-input-text" name="CollectedOn" ng-date-object
+                                        datepicker-options="datePickerOptions"
+                                        uib-datepicker-popup="dd/MMM/yyyy"
+                                        placeholder="DD/MMM/YYYY" ng-click="collectedOnPopup = { opened: true }"
+                                        is-open="collectedOnPopup.opened" ng-model="item.CollectedOn"
+                                        style="border-top-right-radius: 0; border-bottom-right-radius: 0;">
+                                    <span class="input-group-addon" ng-click="collectedOnPopup = { opened: true }" style="cursor: pointer; background: #f8fafc; border: 1.5px solid #cbd5e1; border-left: none; border-top-right-radius: 8px; border-bottom-right-radius: 8px;">
+                                        <i class="fa-regular fa-calendar" style="color: #2563eb;"></i>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- UPI / Digital Wallet Fields -->
+                        <div ng-if="item.PaymentTypeId == 11 || item.PaymentTypeId == 12" style="display: flex; flex-direction: column; gap: 12px;">
+                            <div class="pm-field-col">
+                                <label class="pm-field-label" for="upirefno">
+                                    <i class="fa-solid fa-qrcode" style="color: #2563eb; font-size: 12px;"></i>
+                                    <span>UPI / UTR Reference Number</span>
+                                    <span class="req">*</span>
+                                </label>
+                                <input type="text" class="pm-input-text" name="upirefno" ng-model="item.UPIRefNumber" placeholder="e.g. 328409124802" required>
+                            </div>
+                        </div>
+
+                        <!-- Demand Draft (DD) Fields -->
+                        <div ng-if="item.PaymentTypeId == 3" style="display: flex; flex-direction: column; gap: 12px;">
+                            <div class="pm-field-col">
+                                <label class="pm-field-label" for="ddno">
+                                    <i class="fa-solid fa-file-invoice-dollar" style="color: #2563eb; font-size: 12px;"></i>
+                                    <span>DD Number</span>
+                                    <span class="req">*</span>
+                                </label>
+                                <input type="text" class="pm-input-text" name="ddno" ng-model="item.DDNumber" placeholder="e.g. DD786102" ng-pattern="/^\d+$/" required>
+                            </div>
+                            <div class="pm-field-col">
+                                <label class="pm-field-label">
+                                    <i class="fa-regular fa-calendar" style="color: #2563eb; font-size: 12px;"></i>
+                                    <span>DD Date</span>
+                                </label>
+                                <div class="input-group" style="width: 100%;">
+                                    <input type="text" class="form-control pm-input-text" name="dddate" ng-date-object
+                                        datepicker-options="datePickerOptions"
+                                        uib-datepicker-popup="dd/MMM/yyyy"
+                                        placeholder="DD/MMM/YYYY" ng-click="ddDatePopup = { opened: true }"
+                                        is-open="ddDatePopup.opened" ng-model="item.DDDate"
+                                        style="border-top-right-radius: 0; border-bottom-right-radius: 0;">
+                                    <span class="input-group-addon" ng-click="ddDatePopup = { opened: true }" style="cursor: pointer; background: #f8fafc; border: 1.5px solid #cbd5e1; border-left: none; border-top-right-radius: 8px; border-bottom-right-radius: 8px;">
+                                        <i class="fa-regular fa-calendar" style="color: #2563eb;"></i>
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="pm-field-col">
+                                <label class="pm-field-label">
+                                    <i class="fa-regular fa-calendar-check" style="color: #2563eb; font-size: 12px;"></i>
+                                    <span>Collected On</span>
+                                </label>
+                                <div class="input-group" style="width: 100%;">
+                                    <input type="text" class="form-control pm-input-text" name="CollectedOn" ng-date-object
+                                        datepicker-options="datePickerOptions"
+                                        uib-datepicker-popup="dd/MMM/yyyy"
+                                        placeholder="DD/MMM/YYYY" ng-click="collectedOnPopup = { opened: true }"
+                                        is-open="collectedOnPopup.opened" ng-model="item.CollectedOn"
+                                        style="border-top-right-radius: 0; border-bottom-right-radius: 0;">
+                                    <span class="input-group-addon" ng-click="collectedOnPopup = { opened: true }" style="cursor: pointer; background: #f8fafc; border: 1.5px solid #cbd5e1; border-left: none; border-top-right-radius: 8px; border-bottom-right-radius: 8px;">
+                                        <i class="fa-regular fa-calendar" style="color: #2563eb;"></i>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Wire Transfer Fields -->
+                        <div ng-if="item.PaymentTypeId == 4" style="display: flex; flex-direction: column; gap: 12px;">
+                            <div class="pm-field-col">
+                                <label class="pm-field-label" for="transationno">
+                                    <i class="fa-solid fa-arrow-right-arrow-left" style="color: #2563eb; font-size: 12px;"></i>
+                                    <span>Transaction / Reference Number</span>
+                                    <span class="req">*</span>
+                                </label>
+                                <input type="text" class="pm-input-text" name="transationno" ng-model="item.WireTransferId" placeholder="e.g. TXN98765432" required>
+                            </div>
+                            <div class="pm-field-col">
+                                <label class="pm-field-label">
+                                    <i class="fa-regular fa-calendar" style="color: #2563eb; font-size: 12px;"></i>
+                                    <span>Transferred On</span>
+                                </label>
+                                <div class="input-group" style="width: 100%;">
+                                    <input type="text" class="form-control pm-input-text" name="transferredon" ng-date-object
+                                        datepicker-options="datePickerOptions"
+                                        uib-datepicker-popup="dd/MMM/yyyy"
+                                        placeholder="DD/MMM/YYYY" ng-click="wireDatePopup = { opened: true }"
+                                        is-open="wireDatePopup.opened" ng-model="item.WireTransferDate"
+                                        style="border-top-right-radius: 0; border-bottom-right-radius: 0;">
+                                    <span class="input-group-addon" ng-click="wireDatePopup = { opened: true }" style="cursor: pointer; background: #f8fafc; border: 1.5px solid #cbd5e1; border-left: none; border-top-right-radius: 8px; border-bottom-right-radius: 8px;">
+                                        <i class="fa-regular fa-calendar" style="color: #2563eb;"></i>
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="pm-field-col">
+                                <label class="pm-field-label">
+                                    <i class="fa-regular fa-calendar-check" style="color: #2563eb; font-size: 12px;"></i>
+                                    <span>Collected On</span>
+                                </label>
+                                <div class="input-group" style="width: 100%;">
+                                    <input type="text" class="form-control pm-input-text" name="CollectedOn" ng-date-object
+                                        datepicker-options="datePickerOptions"
+                                        uib-datepicker-popup="dd/MMM/yyyy"
+                                        placeholder="DD/MMM/YYYY" ng-click="collectedOnPopup = { opened: true }"
+                                        is-open="collectedOnPopup.opened" ng-model="item.CollectedOn"
+                                        style="border-top-right-radius: 0; border-bottom-right-radius: 0;">
+                                    <span class="input-group-addon" ng-click="collectedOnPopup = { opened: true }" style="cursor: pointer; background: #f8fafc; border: 1.5px solid #cbd5e1; border-left: none; border-top-right-radius: 8px; border-bottom-right-radius: 8px;">
+                                        <i class="fa-regular fa-calendar" style="color: #2563eb;"></i>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Cash Mode Hint -->
+                        <div ng-if="item.PaymentTypeId == 1" style="display: flex; align-items: center; gap: 8px; padding: 12px 14px; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; color: #166534; font-size: 12.5px;">
+                            <i class="fa-solid fa-circle-info" style="color: #16a34a; font-size: 14px;"></i>
+                            <span>No additional information required for Cash collections.</span>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>
-        <div class="form-group" ng-if="item.PaymentTypeId == 11||item.PaymentTypeId == 12">
-            <div class="col-sm-12">
-                <label class="col-sm-4 control-label" for="upirefno" translate="Ref Number"></label>
-                <div class="col-sm-8">
-                    <input type="text" class="form-control" name="upirefno" ng-model="item.UPIRefNumber"
-                        ng-disabled="item.isCompleted" placeholder="" required>
-                </div>
-            </div>
-        </div>
-        <div class="form-group" ng-if="item.PaymentTypeId==3">
-            <div class="col-sm-12">
-                <label class="col-sm-4 control-label" for="ddno" translate="billing.receipt-form.ddno.lbl"></label>
-                <div class="col-sm-8">
-                    <input type="text" class="form-control" name="ddno" ng-model="item.DDNumber" placeholder=""
-                        ng-minlength="" ng-pattern="/^\d+$/" required>
-                </div>
-            </div>
-        </div>
-        <div class="form-group" ng-if="item.PaymentTypeId == 4||item.PaymentTypeId == 3||item.PaymentTypeId == 2">
-            <div class="col-sm-12">
-                <label class="col-sm-4 control-label" translate="billing.receipt-form.Collected On.lbl"></label>
-                <div class="col-sm-8">
-                    <input type="text" class="form-control" name="Collected On" ng-date-object
-                        datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}"
-                        uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
-                        placeholder="{{datePickerOptions.placeholder}}" ng-click="activefromPopup = { opened: true }"
-                        is-open="activefromPopup.opened" ng-model="item.CollectedOn">
-                </div>
-            </div>
-        </div>
-        <div class="form-group" ng-if="item.PaymentTypeId==2">
-            <div class="col-sm-12">
-                <label class="col-sm-4 control-label" translate="billing.receipt-form.Chequedate.lbl"></label>
-                <div class="col-sm-8">
-                    <input type="text" class="form-control" name="Chequedate" ng-date-object
-                        datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}"
-                        uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
-                        placeholder="{{datePickerOptions.placeholder}}" ng-click="activefromPopup = { opened: true }"
-                        is-open="activefromPopup.opened" ng-model="item.ChequeDate">
-                </div>
-            </div>
-        </div>
-        <div class="form-group" ng-if="item.PaymentTypeId==3">
-            <div class="col-sm-12">
-                <label class="col-sm-4 control-label" translate="billing.receipt-form.dddate.lbl"></label>
-                <div class="col-sm-8">
-                    <input type="text" class="form-control" name="dddate" ng-date-object
-                        datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}"
-                        uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
-                        placeholder="{{datePickerOptions.placeholder}}" ng-click="activetoPopup = { opened: true }"
-                        is-open="activetoPopup.opened" ng-model="item.DDDate">
-                </div>
-            </div>
-        </div>
-        <div class="form-group" ng-if="item.PaymentTypeId==4">
-            <div class="col-sm-12">
-                <label class="col-sm-4 control-label" for="transationno"
-                    translate="billing.receipt-form.transationno.lbl"></label>
-                <div class="col-sm-8">
-                    <input type="text" class="form-control" name="transationno" ng-model="item.WireTransferId"
-                        placeholder="" required>
-                </div>
-            </div>
-        </div>
-        <div class="form-group" ng-if="item.PaymentTypeId==4">
-            <div class="col-sm-12">
-                <label class="col-sm-4 control-label" translate="billing.receipt-form.transferredon.lbl"></label>
-                <div class="col-sm-8">
-                    <input type="text" class="form-control" name="transferredon" ng-date-object
-                        datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}"
-                        uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
-                        placeholder="{{datePickerOptions.placeholder}}"
-                        ng-click="transationfromPopup = { opened: true }" is-open="transationfromPopup.opened"
-                        ng-model="item.WireTransferDate">
-                </div>
-            </div>
-        </div>
-        <div class="form-group" ng-if="item.PaymentTypeId==5||item.PaymentTypeId == 6">
-            <div class="col-sm-12">
-                <label class="col-sm-4 control-label" for="cardtype"
-                    translate="billing.receipt-form.cardtype.lbl"></label>
-                <div class="col-sm-8">
-                    <react-component name="BridgeLookupSelectScreen" props="{ reactProps: reactPropsCardTypeContainer.reactProps, onAction: reactPropsCardTypeContainer.onAction }"></react-component>
-                </div>
-            </div>
-        </div>
-        <div class="form-group" ng-if="item.PaymentTypeId==5||item.PaymentTypeId == 6">
-            <div class="col-sm-12">
-                <label class="col-sm-4 control-label" for="authorisedcode"
-                    translate="billing.receipt-form.authorisedcode.lbl"></label>
-                <div class="col-sm-8">
-                    <input type="text" class="form-control" name="authorisedcode" ng-model="item.AuthorizedCode"
-                        placeholder="">
-                </div>
-            </div>
-        </div>
+        </form>
     </div>
-</div>
-<div class="">
-    <div class="row">
-        <div class="pull-right">
-            <button id="btnCancelForm" type="button" class="draftbutton" ng-click="saveitem()"
-                translate="common.saveapprove-action.lbl"></button>
+
+    <!-- Modal Footer -->
+    <div class="pm-modal-footer">
+        <div class="pm-footer-audit">
+            <i class="fa-solid fa-shield-halved" style="color: #2563eb;"></i>
+            <span>Mode change will be permanently logged in audit history</span>
+        </div>
+        <div class="pm-footer-actions">
+            <button type="button" class="pm-btn-cancel" ng-click="cancelCallback()">
+                <i class="fa-solid fa-xmark"></i>
+                <span>Cancel</span>
+            </button>
+            <button id="btnCancelForm" type="button" class="pm-btn-submit" ng-click="saveitem()">
+                <i class="fa-solid fa-check"></i>
+                <span>Approve &amp; Update</span>
+            </button>
         </div>
     </div>
 </div>

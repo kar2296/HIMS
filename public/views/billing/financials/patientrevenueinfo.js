@@ -23,6 +23,10 @@
             ToDate: utl.Formatter.getCurrentDate()
         };
 
+        $scope.getPatient = function () {
+            $scope.patientChange();
+        };
+
         $scope.patientChange = function () {
             if ($scope.currentfilter.PatientId > 0) {
                 var options = {
@@ -32,8 +36,22 @@
                     onComplete: $scope.getPatientInfo
                 };
                 utl.Http.doAction(options);
+            } else {
+                $scope.clearPatient();
             }
-        }
+        };
+
+        $scope.clearPatient = function () {
+            $scope.currentfilter.PatientId = 0;
+            $scope.currentfilter.PatientName = '';
+            $scope.selectedPatient = null;
+            $scope.currentcontext.EncounterId = 0;
+            $scope.currentcontext.VisitNumber = '';
+            $scope.currentcontext.TotalCredit = 0;
+            $scope.currentcontext.TotalDebit = 0;
+            $scope.ServiceCategories = [];
+            $scope.refreshReactProps();
+        };
 
         $scope.getPatientInfo = function (scope, data, options, hasError) {
             $scope.selectedPatient = data;
@@ -285,6 +303,7 @@
             $scope.reactProps = {
                 currentfilter: $scope.currentfilter,
                 currentcontext: $scope.currentcontext,
+                selectedPatient: $scope.selectedPatient,
                 rows: $scope.ServiceCategories
             };
         };
@@ -300,6 +319,12 @@
                     $scope.currentfilter.ToDate = payload.value ? new Date(payload.value) : null;
                     $scope.refreshReactProps();
                     $scope.getList();
+                    break;
+                case 'refresh':
+                    $scope.getList();
+                    break;
+                case 'clearPatient':
+                    $scope.clearPatient();
                     break;
             }
             $scope.$applyAsync();

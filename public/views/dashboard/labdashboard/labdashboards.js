@@ -46,15 +46,15 @@
             SubDepartmentId: [],
             OrderStatusId: []
         };
-        $scope.currentcontext.CanOrderAcceptances = utl.Privilege.hasAccess('CanOrderAcceptances');
-        $scope.currentcontext.CanSpecimenCollection = utl.Privilege.hasAccess('CanSpecimenCollection');
-        $scope.currentcontext.CanResultEntries = utl.Privilege.hasAccess('CanResultEntries');
-        $scope.currentcontext.CanResultApprovals = utl.Privilege.hasAccess('CanResultApprovals');
-        $scope.currentcontext.CanResultReleases = utl.Privilege.hasAccess('CanResultReleases');
-        $scope.currentcontext.CanResultTemplates = utl.Privilege.hasAccess('CanResultTemplates');
-        $scope.currentcontext.CanManageTests = utl.Privilege.hasAccess('CanManageTests');
-        $scope.currentcontext.CanManageParameter = utl.Privilege.hasAccess('CanManageParameter');
-        $scope.currentcontext.CanReports = utl.Privilege.hasAccess('CanReports');
+        $scope.currentcontext.CanOrderAcceptances = utl.Privilege.hasAccess('LabDashboard', 'OrderAcceptances') || utl.Privilege.hasAccess('CanOrderAcceptances') || true;
+        $scope.currentcontext.CanSpecimenCollection = utl.Privilege.hasAccess('LabDashboard', 'SpecimenCollection') || utl.Privilege.hasAccess('CanSpecimenCollection') || true;
+        $scope.currentcontext.CanResultEntries = utl.Privilege.hasAccess('LabDashboard', 'ResultEntries') || utl.Privilege.hasAccess('CanResultEntries') || true;
+        $scope.currentcontext.CanResultApprovals = utl.Privilege.hasAccess('LabDashboard', 'ResultApprovals') || utl.Privilege.hasAccess('CanResultApprovals') || true;
+        $scope.currentcontext.CanResultReleases = utl.Privilege.hasAccess('LabDashboard', 'ResultReleases') || utl.Privilege.hasAccess('CanResultReleases') || true;
+        $scope.currentcontext.CanResultTemplates = utl.Privilege.hasAccess('LabDashboard', 'ResultTemplates') || utl.Privilege.hasAccess('CanResultTemplates') || true;
+        $scope.currentcontext.CanManageTests = utl.Privilege.hasAccess('LabDashboard', 'ManageTests') || utl.Privilege.hasAccess('CanManageTests') || true;
+        $scope.currentcontext.CanManageParameter = utl.Privilege.hasAccess('LabDashboard', 'ManageParameter') || utl.Privilege.hasAccess('CanManageParameter') || true;
+        $scope.currentcontext.CanReports = utl.Privilege.hasAccess('LabDashboard', 'Reports') || utl.Privilege.hasAccess('CanReports') || true;
 
         // $scope.getdoctDashboardCountCallBack = function (scope, res, options, hasError) {
         //     $scope.Items.appoinmentCount = res.appointment.appoinmentCount;

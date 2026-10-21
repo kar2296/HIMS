@@ -39,10 +39,60 @@
                     // vm.gridConfig.data = res.Data;
                 }
             }
-            // vm.gridConfig.pagerObj.totalItems = res.PageContext.TotalRecords;
-            // vm.gridConfig.pagerObj.totalItems = vm.gridConfig.data.length;
-            vm.gridConfig.pagerObj.totalItems = res.PageContext.TotalRecords.length;
-        }
+            vm.gridConfig.pagerObj.totalItems = (res && res.PageContext && res.PageContext.TotalRecords) ? res.PageContext.TotalRecords : vm.gridConfig.data.length;
+            $scope.refreshReactProps();
+        };
+
+        $scope.refreshReactProps = function () {
+            var dataList = vm.gridConfig.data || [];
+            var pager = vm.gridConfig.pagerObj || {};
+            $scope.reactProps = {
+                items: angular.copy(dataList),
+                totalItems: (pager.totalItems !== undefined && pager.totalItems !== null) ? pager.totalItems : dataList.length,
+                currentPage: pager.currentPage || 1,
+                pageSize: pager.pageSize || 25,
+                currentfilter: angular.copy($scope.currentfilter || {}),
+                lookup: angular.copy($scope.lookup || {})
+            };
+            $scope.$applyAsync();
+        };
+
+        $scope.handleReactAction = function (actionName, payload) {
+            if (actionName === 'edit') {
+                $scope.handleEvents('edit', payload);
+            } else if (actionName === 'view') {
+                $scope.handleEvents('view', payload);
+            } else if (actionName === 'patientinfo') {
+                $scope.handleEvents('patientinfo', payload);
+            } else if (actionName === 'search') {
+                if (payload) {
+                    if (payload.sampleId !== undefined) $scope.currentfilter.Sampleid = payload.sampleId;
+                    if (payload.patientSearch !== undefined) $scope.currentfilter.PatientName = payload.patientSearch;
+                    if (payload.mrnNo !== undefined) $scope.currentfilter.MRNNo = payload.mrnNo;
+                    if (payload.statusFilter !== undefined) {
+                        $scope.currentfilter.StatusId = payload.statusFilter === 'APPROVED' ? 1 : payload.statusFilter === 'REJECTED' ? 2 : 0;
+                    }
+                    if (payload.fromDate !== undefined) $scope.currentfilter.FromDate = new Date(payload.fromDate);
+                    if (payload.toDate !== undefined) $scope.currentfilter.ToDate = new Date(payload.toDate);
+                }
+                vm.gridConfig.pagerObj.currentPage = 1;
+                $scope.getList();
+            } else if (actionName === 'resetFilters') {
+                $scope.currentfilter.Sampleid = null;
+                $scope.currentfilter.PatientName = null;
+                $scope.currentfilter.MRNNo = null;
+                $scope.currentfilter.StatusId = 0;
+                $scope.currentfilter.FromDate = new Date();
+                $scope.currentfilter.ToDate = new Date();
+                vm.gridConfig.pagerObj.currentPage = 1;
+                $scope.getList();
+            } else if (actionName === 'pageChange') {
+                vm.gridConfig.pagerObj.currentPage = payload && payload.page ? payload.page : 1;
+                $scope.getList();
+            }
+            $scope.refreshReactProps();
+            $scope.$applyAsync();
+        };
 
         $scope.WithPatientInfo = function () {
             $scope.getList();
@@ -229,6 +279,7 @@
         }
 
         $scope.initLookup();
+        $scope.refreshReactProps();
     }
 
     lisInterfaceListController.$inject = ['$rootScope', '$timeout', '$scope', '$filter', '$stateParams', '$state', '$translate', 'utl'];

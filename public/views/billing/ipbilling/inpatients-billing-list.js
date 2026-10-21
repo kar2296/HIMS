@@ -216,12 +216,14 @@
                 case 'guarantor':
                     if (val === 0) {
                         $scope.getList('listGovt');
+                        $scope.updateReactProps();
                         return;
                     }
                     $scope.advancedfilter.GuarantorTypeId = val;
                     break;
             }
             $scope.getList();
+            $scope.updateReactProps();
         };
         // $scope.applyFilter = function (type, val, index) {
         //     $scope.activeFilter = index; // Set the active filter index
@@ -356,14 +358,22 @@
                 vm.gridConfig.data.push(item);
             }
             // $scope.getPagination();
-            vm.gridConfig.pagerObj.totalItems = data.PageContext.TotalRecords;
+            vm.gridConfig.pagerObj.totalItems = data.PageContext ? data.PageContext.TotalRecords : (data.Data ? data.Data.length : 0);
+            $scope.isLoading = false;
             $scope.refreshIpBillGridProps();
+            if (typeof $scope.updateReactProps === 'function') {
+                $scope.updateReactProps();
+            }
             // $scope.totalOccupancy = data.PageContext.TotalRecords;
             // vm.gridConfig.pagerObj.totalItems = data.Data.length;
             // vm.gridConfig.pagerObj.totalItems = data.Data.length;
         };
 
         $scope.getList = function (val) {
+            $scope.isLoading = true;
+            if (typeof $scope.updateReactProps === 'function') {
+                $scope.updateReactProps();
+            }
             // var FrmDate = $filter('date')($scope.advancedfilter.DOA, 'yyyy-MM-dd 00:00:00') || null;
             // var ToDate = $filter('date')($scope.advancedfilter.DOA, 'yyyy-MM-dd 23:59:59') || null;
             var FrmDate = $filter('date')($scope.advancedfilter.BillFromDate, 'yyyy-MM-dd 00:00:00') || null;
@@ -967,6 +977,9 @@
                 console.log($scope.corporate);
                 console.log($scope.government);
             }
+            if (typeof $scope.updateReactProps === 'function') {
+                $scope.updateReactProps();
+            }
         };
 
         $scope.getDashboard = function (val) {
@@ -1121,6 +1134,9 @@
             } else {
                 $scope.getList();
                 $scope.getDashboard();
+            }
+            if (typeof $scope.updateReactProps === 'function') {
+                $scope.updateReactProps();
             }
         };
 
@@ -1448,6 +1464,101 @@
             function () { return $scope.lookup && $scope.lookup.TPA; },
             function () { return $scope.currentfilter.TPAId; }
         ], $scope.refreshTPAFilterProps);
+
+        // ------------------------------------------------------------------
+        // Full React Screen Bridge: InpatientBillingListScreen
+        // ------------------------------------------------------------------
+        $scope.updateReactProps = function () {
+            $scope.reactProps = {
+                items: (vm.gridConfig && vm.gridConfig.data) || [],
+                metrics: {
+                    totalOccupancy: $scope.totalOccupancy || 0,
+                    todayAdmission: $scope.todayAdmission || 0,
+                    todayDischarge: $scope.todayDischarge || 0,
+                    pendingDischarge: $scope.pendingDischarge || 0,
+                    self: $scope.self || 0,
+                    insurance: $scope.insurance || 0,
+                    corporate: $scope.corporate || 0,
+                    government: $scope.government || 0,
+                    activeFilter: $scope.activeFilter
+                },
+                currentfilter: $scope.currentfilter,
+                advancedfilter: $scope.advancedfilter,
+                lookup: $scope.lookup || {},
+                pager: (vm.gridConfig && vm.gridConfig.pagerObj) || { totalItems: 0, currentPage: 1, pageSize: 25 },
+                isLoading: $scope.isLoading || false,
+                context: $scope.Context
+            };
+            $timeout(function () {
+                $scope.$evalAsync();
+            });
+        };
+
+        $scope.handleReactAction = function (actionName, payload) {
+            payload = payload || {};
+            switch (actionName) {
+                case 'applyFilter':
+                    $scope.applyFilter(payload.type, payload.val, payload.index);
+                    break;
+                case 'filterChange':
+                    if (payload.field === 'FindLockedBills') {
+                        $scope.currentfilter.FindLockedBills = payload.value;
+                        $scope.getLockedPatients($scope.currentfilter);
+                    } else if (payload.field === 'FindPackageAssigned') {
+                        $scope.currentfilter.FindPackageAssigned = payload.value;
+                        $scope.getPackageassigned($scope.currentfilter);
+                    } else {
+                        $scope.currentfilter[payload.field] = payload.value;
+                        if (['WardId', 'GuarantorId', 'AdmissionStatusId', 'TPAId', 'admissiondate'].indexOf(payload.field) >= 0) {
+                            vm.gridConfig.pagerObj.currentPage = 1;
+                            $scope.getList();
+                        }
+                    }
+                    $scope.updateReactProps();
+                    break;
+                case 'search':
+                    vm.gridConfig.pagerObj.currentPage = 1;
+                    $scope.getList();
+                    break;
+                case 'clearFilter':
+                    $scope.activeFilter = -1;
+                    $scope.clearFilter();
+                    vm.gridConfig.pagerObj.currentPage = 1;
+                    $scope.getList();
+                    $scope.updateReactProps();
+                    break;
+                case 'openAdvancedFilter':
+                    $scope.openAdvancedFilter();
+                    break;
+                case 'backToList':
+                    $scope.backtoList();
+                    break;
+                case 'pageChange':
+                    vm.gridConfig.pagerObj.currentPage = payload.page;
+                    $scope.getList();
+                    break;
+                case 'pageSizeChange':
+                    vm.gridConfig.pagerObj.pageSize = payload.pageSize;
+                    vm.gridConfig.pagerObj.currentPage = 1;
+                    $scope.getList();
+                    break;
+                case 'edit':
+                    $scope.handleEvents('edit', payload.entity);
+                    break;
+                case 'packages':
+                    $scope.handleEvents('packages', payload.entity);
+                    break;
+                case 'patientInfo':
+                    $scope.patientprofiledetails(payload.entity.PatientId || (payload.entity.Patient && payload.entity.Patient.Id));
+                    break;
+                case 'refresh':
+                    $scope.getList();
+                    $scope.getDashboard();
+                    break;
+            }
+        };
+
+        $scope.updateReactProps();
 
         $scope.initLookup();
         if ($scope.executeautobilllock == 1) {

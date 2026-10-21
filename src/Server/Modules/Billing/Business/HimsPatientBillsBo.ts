@@ -86,6 +86,10 @@ export class PatientBillsBo extends BaseBo<PatientBillsInstance, PatientBillsAtt
                 req.Data.Header.BillDateTime = new Date();
             }
         }
+        if (Number(req.Data.Header.OutStandingAmount) === 0 || req.Data.Header.IsPaidFully) {
+            req.Data.Header.IsPaidFully = 1;
+            req.Data.Header.CreditApprovalStatusId = 2;
+        }
         for (let i = 0, len = req.Data.paymentDetail.length; i < len; i++) {
             if (req.Data.paymentDetail[i].Id <= 0) {
                 req.Data.paymentDetail[i].ReceiptNumber = null; // await Sequence.Next(SequenceKeys.ReceiptNrId);
@@ -4054,6 +4058,10 @@ export class PatientBillsBo extends BaseBo<PatientBillsInstance, PatientBillsAtt
         }
         if (req.Data.Header.IsMultiplePayment === true) {
             receipttypeid = 2;
+        }
+        if (Number(req.Data.Header.OutStandingAmount) === 0 || req.Data.Header.IsPaidFully) {
+            req.Data.Header.IsPaidFully = 1;
+            req.Data.Header.CreditApprovalStatusId = 2;
         }
         for (let i = 0, len = req.Data.paymentDetail.length; i < len; i++) {
             if (req.Data.paymentDetail[i].Id <= 0) {
@@ -10156,7 +10164,25 @@ export class PatientBillsBo extends BaseBo<PatientBillsInstance, PatientBillsAtt
                         (where['BillDateTime'] as any)['$lte'] = param.Value;
                         break;
                     case PatientBillsFilters.PatBillDt:
-                        where['BillDateTime'] = { '$between': param.Value || '' };
+                        if (Array.isArray(param.Value) && param.Value.length === 2) {
+                            let d0 = param.Value[0];
+                            let d1 = param.Value[1];
+                            if (d0 && d1) {
+                                if (d0 > d1) {
+                                    where['BillDateTime'] = { '$between': [d1, d0] };
+                                } else {
+                                    where['BillDateTime'] = { '$between': [d0, d1] };
+                                }
+                            } else if (d0) {
+                                where['BillDateTime'] = where['BillDateTime'] || {};
+                                (where['BillDateTime'] as any)['$gte'] = d0;
+                            } else if (d1) {
+                                where['BillDateTime'] = where['BillDateTime'] || {};
+                                (where['BillDateTime'] as any)['$lte'] = d1;
+                            }
+                        } else if (param.Value) {
+                            where['BillDateTime'] = { '$between': param.Value };
+                        }
                         break;
                     case PatientBillsFilters.PatBillNr:
                         where['BillNumber'] = { '$like': '%' + ('' || param.Value || '') };
@@ -10474,16 +10500,17 @@ export class PatientBillsBo extends BaseBo<PatientBillsInstance, PatientBillsAtt
             where: admissionWhere
         });
 
-        // if (!issortbydiscount && !issortbyoutstanding)
-        //     order.push(['BillDateTime', 'DESC']);
-
-        // if (issortbydiscount)
-        //     order.push(['BillDiscount', 'DESC']);
-
-        // if (issortbyoutstanding)
-        //     order.push(['OutStandingAmount', 'DESC']);
-
-        return await this.FindAndCountAll(apiReq, { where: where, include: include, attributes: apiReq.Attributes, order: order });
+        let res = await this.FindAndCountAll(apiReq, { where: where, include: include, attributes: apiReq.Attributes });
+        if (res && res.Data && Array.isArray(res.Data)) {
+            if (issortbydiscount) {
+                res.Data.sort((a: any, b: any) => (Number(b.BillDiscount) || 0) - (Number(a.BillDiscount) || 0));
+            } else if (issortbyoutstanding) {
+                res.Data.sort((a: any, b: any) => (Number(b.OutStandingAmount) || 0) - (Number(a.OutStandingAmount) || 0));
+            } else {
+                res.Data.sort((a: any, b: any) => (Number(b.Id) || 0) - (Number(a.Id) || 0));
+            }
+        }
+        return res;
     }
     public async GetPatientBillsemrbillingservice(apiReq?: ApiRequest<PatientBillsFilters>):
         Promise<ApiResponse<PatientBillsAttributes[]>> {
@@ -13676,7 +13703,25 @@ export class PatientBillsBo extends BaseBo<PatientBillsInstance, PatientBillsAtt
                         (where['BillDateTime'] as any)['$lte'] = param.Value;
                         break;
                     case PatientBillsFilters.PatBillDt:
-                        where['BillDateTime'] = { '$between': param.Value || '' };
+                        if (Array.isArray(param.Value) && param.Value.length === 2) {
+                            let d0 = param.Value[0];
+                            let d1 = param.Value[1];
+                            if (d0 && d1) {
+                                if (d0 > d1) {
+                                    where['BillDateTime'] = { '$between': [d1, d0] };
+                                } else {
+                                    where['BillDateTime'] = { '$between': [d0, d1] };
+                                }
+                            } else if (d0) {
+                                where['BillDateTime'] = where['BillDateTime'] || {};
+                                (where['BillDateTime'] as any)['$gte'] = d0;
+                            } else if (d1) {
+                                where['BillDateTime'] = where['BillDateTime'] || {};
+                                (where['BillDateTime'] as any)['$lte'] = d1;
+                            }
+                        } else if (param.Value) {
+                            where['BillDateTime'] = { '$between': param.Value };
+                        }
                         break;
                     case PatientBillsFilters.PatBillNr:
                         where['BillNumber'] = { '$like': '%' + ('' || param.Value || '') };
@@ -13813,7 +13858,11 @@ export class PatientBillsBo extends BaseBo<PatientBillsInstance, PatientBillsAtt
             required: isGuarantorRequired,
             where: guarantorWhere
         });
-        return await this.FindAndCountAll(apiReq, { where: where, include: include, attributes: apiReq.Attributes });
+        let res = await this.FindAndCountAll(apiReq, { where: where, include: include, attributes: apiReq.Attributes });
+        if (res && res.Data && Array.isArray(res.Data)) {
+            res.Data.sort((a: any, b: any) => (Number(b.Id) || 0) - (Number(a.Id) || 0));
+        }
+        return res;
     }
 
     public async DeletePatientBills(req: BaseRequest): Promise<Boolean> {

@@ -16,14 +16,18 @@
             modalParams: modalConfig ? modalConfig.params : {},
             facilityId: facilityId,
             onSelect: function (data) {
-                if ($uibModalInstance && $uibModalInstance.close) {
-                    $uibModalInstance.close(data);
-                }
+                $scope.$evalAsync(function () {
+                    if ($uibModalInstance && $uibModalInstance.close) {
+                        $uibModalInstance.close(data);
+                    }
+                });
             },
             onClose: function () {
-                if ($uibModalInstance && $uibModalInstance.dismiss) {
-                    $uibModalInstance.dismiss('cancel');
-                }
+                $scope.$evalAsync(function () {
+                    if ($uibModalInstance && $uibModalInstance.dismiss) {
+                        $uibModalInstance.dismiss('cancel');
+                    }
+                });
             },
             onPatientInfo: function (patientId) {
                 utl.Modal.open('registration.patientprofile', {

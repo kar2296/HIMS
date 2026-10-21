@@ -82,10 +82,16 @@
         }
 
         $scope.CanDisableApproveRejectButton = function () {
-            if (this.item.WorkOrderStatusId == 6 || this.item.WorkOrderStatusId == 7 || this.item.WorkOrderStatusId == 8)
+            var currItem = ($scope && $scope.item) || (this && this.item) || {};
+            var statusId = Number(currItem.WorkOrderStatusId);
+            if (statusId === 6 || statusId === 7 || statusId === 8) {
                 $scope.IsDisabled = true;
-            //REJECTED, APPROVED, RELEASED
-        }
+                return true;
+            } else {
+                $scope.IsDisabled = false;
+                return false;
+            }
+        };
 
         $scope.CanShowLISTable = function () {
             return $scope.item.TestTypeId == 1;

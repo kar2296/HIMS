@@ -1,137 +1,118 @@
 <link rel="stylesheet" href="app/css/drhms.css">
-<div class="summary-bill-lock">
-    <button type="button" class="drhms-common-btn" ng-click="previousOrders()"
-        ng-if="HasAccess('IPBILLING_DETAILS','IPDEL_PREVIOUS_ORDER')">Previous Orders</button>
-    <button type="button" class="drhms-common-btn" ng-click="ipbillingprofiles()"
-        ng-if="HasAccess('IPBILLING_DETAILS','IPDEL_ADDNEW')">Add New</button>
-    <button type="button" class="drhms-common-btn" ng-click="ipbillingorders()">
-        Add Investigations
-    </button>
-</div>
-<div class="custom-table">
-    <react-component name="BridgeGridScreen" props="{ reactProps: reactPropsGridContainer.reactProps, onAction: reactPropsGridContainer.onAction }"></react-component>
-    <div style="margin-top: 20px;">
-        <ul uib-pagination total-items="vm.gridConfig.pagerObj.totalItems"
-            items-per-page="vm.gridConfig.pagerObj.pageSize" start-index="vm.gridConfig.pagerObj.startIndex"
-            ng-model="vm.gridConfig.pagerObj.currentPage" ng-change="getList()"></ul>
-    </div>
-</div>
-<div class="table-count">
-    <table id="bannerdetails">
-        <tr>
-            <td>
-                <span class="drhms-special-count" translate="billing.ip-insurancebill.total.lbl"></span>
-            </td>
-            <td class="drhms-drhms-currency-align">
-                <span class="drhms-currency-align drhms-special-count" class="fontbold">{{BillsGross || 0|
-                    displaycurrency}}</span>
-            </td>
-            <td>
-                <span translate="billing.ip-insurancebill.discount.lbl"></span>
-            </td>
-            <td class="drhms-drhms-currency-align">
-                <span class="total-count">{{BillsDiscount || 0| displaycurrency}}</span>
-            </td>
-            <td>
-                <span class="drhms-special-count" translate="billing.ip-insurancebill.netamount.lbl"></span>
-            </td>
-            <td class="drhms-drhms-currency-align">
-                <span class="drhms-currency-align drhms-special-count">{{BillsNetAmount || 0| displaycurrency}}</span>
-            </td>
-        </tr>
-    </table>
-</div>
-<div class="table-count">
-    <p>Bill Details</p>
-    <table class="table table-bordered bordered table-striped table-condensed datatable ng-isolate-scope rz-table">
-        <thead class="bg-subhead">
-            <tr>
-                <th class="col-sm-4">
-                    <span translate="billing.billing-details.itemname.lbl"></span>
-                </th>
-                <th>
-                    <span translate="billing.billing-details.qty.lbl"></span>
-                </th>
-                <th>
-                    <span translate="billing.billing-details.rate.lbl"></span>
-                </th>
-                <th class="col-sm-2">
-                    <span translate="billing.billing-details.doctor.lbl"></span>
-                </th>
-                <th ng-show="ShowDoctorShare">
-                    <span translate="billing.billing-details.doctorshare.lbl"></span>
-                </th>
-                <th>
-                    <span translate="billing.billing-details.discount.lbl"></span>
-                </th>
-                <th ng-show="CanShowIns">
-                    <span translate="Insurance Amount"></span>
-                </th>
-                <th ng-show="CanShowIns">
-                    <span translate="Patient Amount"></span>
-                </th>
-                <th class="col-sm-1">
-                    <span translate="billing.billing-details.netamount.lbl"></span>
-                </th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr ng-repeat="item in PatientBillDetails | filter: billingFilter">
-                <td>
-                    {{item.ServiceName}}
-                </td>
-                <td>
-                    {{item.Quantity}}
-                </td>
-                <td class="drhms-currency-align">
-                    <span disabled>{{item.Rate||0 | displaycurrency}}</span>
-                </td>
-                <td>
-                    {{item.DocName}}
-                    <!-- <ui-select ng-model="item.DoctorId" ng-change="" name="" ng-disabled="true">
-                        <ui-select-match>
-                            {{$select.selected.Text | limitTo : 20 : 0}}
-                            <span ng-if="$select.selected.Text.length>20">...</span>
-                        </ui-select-match>
-                        <ui-select-choices
-                            repeat="lookupitem.Id as lookupitem in lookup.Doctor | filter: { Text: $select.search }">
-                            <span ng-bind-html="lookupitem.Title.Description | highlight: $select.search"></span>
-                            <span ng-bind-html="lookupitem.Text | highlight: $select.search"></span>
-                        </ui-select-choices>
-                    </ui-select> -->
-                </td>
-                <td ng-show="ShowDoctorShare" class="drhms-currency-align">
-                    <span disabled>{{item.DoctorShare || 0 | displaycurrency}}</span>
-                </td>
-                <td class="drhms-currency-align">
-                    <span disabled>{{item.DiscountAmount || 0 | displaycurrency}}</span>
-                </td>               
-                <td ng-show="CanShowIns">
-                    <span disabled>{{item.InsNetAmount || 0 | displaycurrency}}</span>
-                </td>
-                <td ng-show="CanShowIns">
-                    <span disabled>{{item.PatNetAmount || 0 | displaycurrency}}</span>
-                </td>
-                <td class="drhms-currency-align">
-                    <span disabled>{{item.NetAmount || 0 | displaycurrency}}</span>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-</div>
-<div class="">
-    <div class="drhms-currency-align">
-        <span class="drhms-due-amount" translate="billing.ip-insurancebill.total.lbl">
-        </span>
-        <span class="drhms-due-amount">&nbsp;:&nbsp;{{BillAmount || 0 | displaycurrency}}
-        </span>
+<link rel="stylesheet" href="views/billing/ipbilling/ipbill-modern-ui.css">
+
+<div class="hims-billdetails-page">
+    <!-- Top Action Bar -->
+    <div class="hims-billdetails-action-bar">
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <div style="width: 34px; height: 34px; border-radius: 8px; background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 15px; box-shadow: 0 2px 6px rgba(30,64,175,0.2);">
+                <i class="fas fa-file-invoice"></i>
+            </div>
+            <div>
+                <h3 style="margin: 0; font-size: 15px; font-weight: 700; color: #0f172a;">Inpatient Invoices & Service Orders</h3>
+                <div style="font-size: 11.5px; color: #64748b;">Manage approved bills, previous orders, and diagnostic requisitions</div>
+            </div>
+        </div>
+
+        <div class="hims-billdetails-buttons">
+            <button type="button" class="hims-btn-secondary-action" ng-click="previousOrders()"
+                ng-if="HasAccess('IPBILLING_DETAILS','IPDEL_PREVIOUS_ORDER')">
+                <i class="fas fa-history" style="color: #64748b;"></i>
+                <span>Previous Orders</span>
+            </button>
+            <button type="button" class="hims-btn-secondary-action" ng-click="ipbillingorders()">
+                <i class="fas fa-flask" style="color: #7c3aed;"></i>
+                <span>Add Investigations</span>
+            </button>
+            <button type="button" class="hims-btn-primary-action" ng-click="ipbillingprofiles()"
+                ng-if="HasAccess('IPBILLING_DETAILS','IPDEL_ADDNEW')">
+                <i class="fas fa-plus"></i>
+                <span translate="Add New">Add New</span>
+            </button>
+        </div>
     </div>
 
-    <!-- <table id="bannerdetails">
-        <tr>
-            <td class="drhms-special-count" translate="billing.ip-insurancebill.total.lbl"></td>
-            <td class="drhms-currency-align drhms-special-count"> {{BillAmount || 0 | displaycurrency}}</td>
-        </tr>
-    </table> -->
+    <!-- Main Grid Table -->
+    <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 10px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.04); margin-bottom: 14px;">
+        <react-component name="BridgeGridScreen" props="{ reactProps: reactPropsGridContainer.reactProps, onAction: reactPropsGridContainer.onAction }"></react-component>
+        <div style="padding: 10px 16px; background: #f8fafc; border-top: 1px solid #e2e8f0; display: flex; justify-content: flex-end;">
+            <ul uib-pagination total-items="vm.gridConfig.pagerObj.totalItems"
+                items-per-page="vm.gridConfig.pagerObj.pageSize" start-index="vm.gridConfig.pagerObj.startIndex"
+                ng-model="vm.gridConfig.pagerObj.currentPage" ng-change="getList()" style="margin: 0;"></ul>
+        </div>
+    </div>
+
+    <!-- Financial Stat Cards Banner -->
+    <div class="hims-stats-banner">
+        <div class="hims-stat-card-box gross-box">
+            <div>
+                <div class="stat-label" translate="billing.ip-insurancebill.total.lbl">Total Gross</div>
+                <div class="stat-val">{{BillsGross || 0 | displaycurrency}}</div>
+            </div>
+            <div style="width: 36px; height: 36px; border-radius: 8px; background: #eff6ff; color: #2563eb; display: flex; align-items: center; justify-content: center; font-size: 16px;">
+                <i class="fas fa-coins"></i>
+            </div>
+        </div>
+        <div class="hims-stat-card-box discount-box">
+            <div>
+                <div class="stat-label" translate="billing.ip-insurancebill.discount.lbl">Total Discount</div>
+                <div class="stat-val">{{BillsDiscount || 0 | displaycurrency}}</div>
+            </div>
+            <div style="width: 36px; height: 36px; border-radius: 8px; background: #fffbeb; color: #d97706; display: flex; align-items: center; justify-content: center; font-size: 16px;">
+                <i class="fas fa-tags"></i>
+            </div>
+        </div>
+        <div class="hims-stat-card-box net-box">
+            <div>
+                <div class="stat-label" translate="billing.ip-insurancebill.netamount.lbl">Net Invoiced Amount</div>
+                <div class="stat-val" style="color: #059669;">{{BillsNetAmount || 0 | displaycurrency}}</div>
+            </div>
+            <div style="width: 36px; height: 36px; border-radius: 8px; background: #ecfdf5; color: #059669; display: flex; align-items: center; justify-content: center; font-size: 16px;">
+                <i class="fas fa-check-double"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bill Details Itemized Subtable -->
+    <div class="hims-subtable-section" ng-if="PatientBillDetails && PatientBillDetails.length > 0">
+        <div class="hims-subtable-header">
+            <h4 class="hims-subtable-title">
+                <i class="fas fa-list-ul" style="color: #2563eb;"></i>
+                <span>Itemized Bill Details</span>
+            </h4>
+            <span style="font-size: 12px; font-weight: 600; color: #64748b;">
+                Total: {{BillAmount || 0 | displaycurrency}}
+            </span>
+        </div>
+        <div style="overflow-x: auto;">
+            <table class="table hims-modern-table">
+                <thead>
+                    <tr>
+                        <th style="min-width: 200px;"><span translate="billing.billing-details.itemname.lbl"></span></th>
+                        <th style="width: 70px; text-align: center;"><span translate="billing.billing-details.qty.lbl"></span></th>
+                        <th style="width: 100px; text-align: right;"><span translate="billing.billing-details.rate.lbl"></span></th>
+                        <th style="min-width: 160px;"><span translate="billing.billing-details.doctor.lbl"></span></th>
+                        <th style="width: 90px; text-align: right;" ng-show="ShowDoctorShare"><span translate="billing.billing-details.doctorshare.lbl"></span></th>
+                        <th style="width: 90px; text-align: right;"><span translate="billing.billing-details.discount.lbl"></span></th>
+                        <th style="width: 100px; text-align: right;" ng-show="CanShowIns"><span translate="Insurance Amount"></span></th>
+                        <th style="width: 100px; text-align: right;" ng-show="CanShowIns"><span translate="Patient Amount"></span></th>
+                        <th style="width: 110px; text-align: right;"><span translate="billing.billing-details.netamount.lbl"></span></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="item in PatientBillDetails | filter: billingFilter">
+                        <td><strong>{{item.ServiceName}}</strong></td>
+                        <td style="text-align: center;">{{item.Quantity}}</td>
+                        <td class="num-cell">{{item.Rate || 0 | displaycurrency}}</td>
+                        <td>{{item.DocName}}</td>
+                        <td class="num-cell" ng-show="ShowDoctorShare">{{item.DoctorShare || 0 | displaycurrency}}</td>
+                        <td class="num-cell">{{item.DiscountAmount || 0 | displaycurrency}}</td>
+                        <td class="num-cell" ng-show="CanShowIns">{{item.InsNetAmount || 0 | displaycurrency}}</td>
+                        <td class="num-cell" ng-show="CanShowIns">{{item.PatNetAmount || 0 | displaycurrency}}</td>
+                        <td class="net-cell">{{item.NetAmount || 0 | displaycurrency}}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>
-<div class="fooder-bgs"></div>

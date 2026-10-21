@@ -64,13 +64,15 @@
                 }
                 var result = false;
                 var iscomputed = false;
-                for (var idx in currentRoles) {
-                    var role = currentRoles[idx];
-                    if ($scope.privilegeMap[role]
-                        && $scope.privilegeMap[role][entity]
-                        && typeof $scope.privilegeMap[role][entity][action] == 'boolean') {
-                        iscomputed = true;
-                        result |= $scope.privilegeMap[role][entity][action];
+                if ($scope.privilegeMap && currentRoles) {
+                    for (var idx in currentRoles) {
+                        var role = currentRoles[idx];
+                        if ($scope.privilegeMap[role]
+                            && $scope.privilegeMap[role][entity]
+                            && typeof $scope.privilegeMap[role][entity][action] == 'boolean') {
+                            iscomputed = true;
+                            result |= $scope.privilegeMap[role][entity][action];
+                        }
                     }
                 }
                 if (iscomputed == true) {

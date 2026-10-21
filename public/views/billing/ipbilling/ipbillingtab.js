@@ -5,7 +5,7 @@
         .module('app.pages')
         .controller('ipbillingTabController', ipbillingTabController);
 
-    function ipbillingTabController($scope, $stateParams, $state, $translate, utl) {
+    function ipbillingTabController($scope, $stateParams, $state, $translate, utl, $timeout) {
         angular.extend(this, utl.Ctrl.getPrivilegeCtrl({
             $scope: $scope
         }));
@@ -250,6 +250,7 @@
 
         $scope.getPatientInfo = function(scope, data, options, hasError) {
             $scope.selectedPatient = data;
+            $scope.updateReactProps();
         }
 
         $scope.patientChange = function() {
@@ -294,6 +295,7 @@
         $scope.GetPatientBillSummaryCallback = function(scope, res, options, hasError) {
             if (res.FinalBillInfo && res.FinalBillInfo.Id > 0) {
                 $scope.FinalBillInfo = res.FinalBillInfo;
+                $scope.updateReactProps();
             }
         }
 
@@ -346,6 +348,7 @@
             $scope.GetPatientBillSummary();
             $scope.clinicalDischarge();
             $scope.patientBills();
+            $scope.updateReactProps();
         };
 
         $scope.addDoctor = function() {
@@ -631,8 +634,99 @@
             }
         };
 
+        // ------------------------------------------------------------------
+        // Full React Screen Bridge: IpBillingTabScreen
+        // ------------------------------------------------------------------
+        $scope.updateReactProps = function () {
+            $scope.reactProps = {
+                Data: $scope.Data || {},
+                selectedPatient: $scope.selectedPatient || {},
+                EncounterDetails: $scope.EncounterDetails || {},
+                item: $scope.item || {},
+                FinalBillInfo: $scope.FinalBillInfo || {},
+                Islocked: $scope.Islocked,
+                tabs: $scope.tabs || [],
+                activeTabState: $scope.currentTabState || ($state && $state.current ? $state.current.name : ''),
+                patientAlertsCount: $scope.currentcontext ? $scope.currentcontext.patientAlertsCount : 0,
+                currentcontext: $scope.currentcontext || {},
+            };
+            if ($timeout) {
+                $timeout(function () {
+                    $scope.$evalAsync();
+                });
+            }
+        };
+
+        $scope.handleReactAction = function (actionName, payload) {
+            switch (actionName) {
+                case 'switchTab':
+                    $scope.switchTab(payload);
+                    break;
+                case 'getIPClearence':
+                    $scope.getIPClearence();
+                    break;
+                case 'patientDischarge':
+                    $scope.patientDischarge();
+                    break;
+                case 'addAttachment':
+                    $scope.addAttachment();
+                    break;
+                case 'patientprofiledetails':
+                    $scope.patientprofiledetails(payload || $scope.selectedPatient);
+                    break;
+                case 'patcmnts':
+                    $scope.patcmnts();
+                    break;
+                case 'Bedoccupancy':
+                    $scope.Bedoccupancy();
+                    break;
+                case 'addDoctor':
+                    $scope.addDoctor();
+                    break;
+                case 'addGuarantor':
+                    $scope.addGuarantor();
+                    break;
+                case 'editdischarge':
+                    $scope.editdischarge();
+                    break;
+                case 'lockctrl':
+                    if ($scope.$$childHead && typeof $scope.$$childHead.lockctrl === 'function') {
+                        $scope.$$childHead.lockctrl();
+                    }
+                    break;
+                case 'pendingorders':
+                    if ($scope.$$childHead && typeof $scope.$$childHead.pendingorders === 'function') {
+                        $scope.$$childHead.pendingorders();
+                    } else {
+                        utl.Modal.open('app.pendingorders', {
+                            params: { eid: $scope.currentcontext.id, pid: $scope.Data ? $scope.Data.PatientId : 0 }
+                        });
+                    }
+                    break;
+                default:
+                    console.warn('Unhandled action in IpBillingTabScreen:', actionName);
+            }
+        };
+
+        $scope.$watchGroup([
+            function () { return $scope.Data; },
+            function () { return $scope.selectedPatient; },
+            function () { return $scope.item; },
+            function () { return $scope.FinalBillInfo; },
+            function () { return $scope.tabs; },
+            function () { return $scope.Islocked; }
+        ], $scope.updateReactProps);
+
+        $scope.$on('$stateChangeSuccess', function (event, toState) {
+            if (toState && toState.name) {
+                $scope.currentTabState = toState.name;
+                $scope.updateReactProps();
+            }
+        });
+
+        $scope.updateReactProps();
         $scope.getinfo();
     }
 
-    ipbillingTabController.$inject = ['$scope', '$stateParams', '$state', '$translate', 'utl'];
+    ipbillingTabController.$inject = ['$scope', '$stateParams', '$state', '$translate', 'utl', '$timeout'];
 })();

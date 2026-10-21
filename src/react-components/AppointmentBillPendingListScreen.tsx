@@ -497,7 +497,7 @@ export const AppointmentBillPendingListScreen: React.FC<AppointmentBillPendingLi
       <div
         style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+          gridTemplateColumns: 'repeat(4, minmax(0, 1fr))',
           gap: spacing.md,
           marginBottom: spacing.lg,
         }}

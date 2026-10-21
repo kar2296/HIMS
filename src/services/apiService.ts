@@ -9,9 +9,34 @@ export interface ApiRequestOptions {
   type?: 'get' | 'post' | 'put' | 'delete';
 }
 
-export async function callBackendApi<T = any>(options: ApiRequestOptions): Promise<T> {
-  const { action, data, type = 'post' } = options;
-  const url = `${API_BASE_URL}/${action.startsWith('/') ? action.slice(1) : action}`;
+export async function callBackendApi<T = any>(
+  optionsOrAction: ApiRequestOptions | string,
+  arg2?: any,
+  arg3?: any
+): Promise<T> {
+  let action: string;
+  let data: any;
+  let type: 'get' | 'post' | 'put' | 'delete' = 'post';
+
+  if (typeof optionsOrAction === 'string') {
+    action = optionsOrAction;
+    if (typeof arg2 === 'string' && ['get', 'post', 'put', 'delete'].includes(arg2.toLowerCase())) {
+      type = arg2.toLowerCase() as any;
+      data = arg3;
+    } else {
+      data = arg2;
+      if (typeof arg3 === 'string' && ['get', 'post', 'put', 'delete'].includes(arg3.toLowerCase())) {
+        type = arg3.toLowerCase() as any;
+      }
+    }
+  } else {
+    action = optionsOrAction?.action || '';
+    data = optionsOrAction?.data;
+    type = optionsOrAction?.type || 'post';
+  }
+
+  const cleanAction = action.startsWith('/') ? action.slice(1) : action;
+  const url = `${API_BASE_URL}/${cleanAction}`;
 
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',

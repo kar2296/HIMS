@@ -1,4 +1,4 @@
-(function() {
+ (function() {
     'use strict';
 
     angular
@@ -118,18 +118,18 @@
             }
 
             var getDOBFromAgeConfig = function(options) {
-                var result = moment().format('LL');
-                if (options.y) {
-                    result = moment(result).subtract(options.y, 'years').toDate();
+                options = options || {};
+                var m = moment();
+                if (options.y && !isNaN(options.y)) {
+                    m = m.subtract(Number(options.y), 'years');
                 }
-                if (options.m) {
-                    result = moment(result).subtract(options.m, 'months').toDate();
+                if (options.m && !isNaN(options.m)) {
+                    m = m.subtract(Number(options.m), 'months');
                 }
-                if (options.d) {
-                    result = moment(result).subtract(options.d, 'days').toDate();
+                if (options.d && !isNaN(options.d)) {
+                    m = m.subtract(Number(options.d), 'days');
                 }
-
-                return result;
+                return m.toDate();
             }
 
 

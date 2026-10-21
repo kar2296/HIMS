@@ -18,7 +18,13 @@
         } else if ($scope.currentcontext.TestTypeId == 4) { //endoscopy
             $scope.DeptId = 60;
         }
-        // $scope.DeptId = 8; // LABORATORY
+        $scope.DeptId = 8; // LABORATORY
+
+        $scope.handleNavigation = function (stateName, params) {
+            if ($state) {
+                $state.go(stateName, params);
+            }
+        };
 
         $scope.rows = [];
         $scope.row = { cols: [] };

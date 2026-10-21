@@ -41,6 +41,9 @@ export class ProcedureBo extends BaseBo<ProcedureInstance, ProcedureAttributes> 
                         where['Id'] = param.Value;
                         break;
 
+                    case ProcedureFilters.Name:
+                        where['ProcedureName'] = { '$like': '%' + (param.Value || '') + '%' };
+                        break;
                     case ProcedureFilters.Code:
                         (where as any)['$or'] = [{ 'ProcedureName': { '$like': '%' + (param.Value || '') + '%' } },
                         { 'Code': { '$like': '%' + (param.Value || '') + '%' } }];

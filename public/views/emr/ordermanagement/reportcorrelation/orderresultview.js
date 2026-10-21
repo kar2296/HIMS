@@ -101,6 +101,12 @@
             });
         };
 
+        $scope.CanDisableApproveRejectButton = function () {
+            var currItem = ($scope && $scope.item) || (this && this.item) || {};
+            var statusId = Number(currItem.WorkOrderStatusId);
+            return statusId === 7 || statusId === 8;
+        };
+
         //getItem
         $scope.getItemCallback = function (scope, data, options, hasError) {
             $scope.item = data;

@@ -761,6 +761,9 @@
             $scope.getPatientBillDetails();
             var bill = res.BillInfo.Data[0];
             $scope.plusopensupplementary(bill, false);
+            if (typeof $scope.updateReactProps === 'function') {
+                $scope.updateReactProps();
+            }
         };
 
         $scope.GetPatientBillSummary = function () {
@@ -2058,6 +2061,9 @@
             }
             // }, 1000);
             $scope.TotSupplementAmt = TotalSupplementAmt;
+            if (typeof $scope.updateReactProps === 'function') {
+                $scope.updateReactProps();
+            }
         };
 
         $scope.getSupplementaryDetails = function (bill, issupplementary) {
@@ -4726,6 +4732,281 @@
             function () { return $scope.currentcontext.RdoGuarantorDue; }
         ], $scope.refreshSummarySelectProps);
 
+        // ------------------------------------------------------------------
+        // Full React Screen Bridge: IpBillingSummaryScreen
+        // ------------------------------------------------------------------
+        $scope.updateReactProps = function () {
+            $scope.reactProps = {
+                EncounterInfo: $scope.EncounterInfo || {},
+                Data: $scope.Data || {},
+                selectedPatient: $scope.selectedPatient || {},
+                item: $scope.item || {},
+                currentcontext: $scope.currentcontext || {},
+                PatientSummaryDetails: $scope.PatientSummaryDetails || [],
+                SupplementaryDetails: $scope.SupplementaryDetails || [],
+                PackageDetails: $scope.PackageDetails || [],
+                lookup: $scope.lookup || {},
+                currentfilter: $scope.currentfilter || {},
+                isFinalized: !!$scope.isFinalized,
+                MultiPay: !!$scope.MultiPay,
+                moudiscount: $scope.moudisc || ($scope.currentcontext && $scope.currentcontext.moudiscount) || 0,
+                candisabledischargebtn: !!$scope.candisabledischargebtn,
+                canShowSaveBtn: !!$scope.canShowSaveBtn,
+                isSaving: !!$scope.isSaving,
+                privileges: {
+                    CanIPSUM_PRINT: $scope.currentcontext ? $scope.currentcontext.CanIPSUM_PRINT : false,
+                    CanIPSUM_INSURANCE: $scope.currentcontext ? $scope.currentcontext.CanIPSUM_INSURANCE : false,
+                    CanIPSUM_PHARMACY: $scope.currentcontext ? $scope.currentcontext.CanIPSUM_PHARMACY : false,
+                    CanIPSUM_DISCHARGE: $scope.currentcontext ? $scope.currentcontext.CanIPSUM_DISCHARGE : false,
+                    CanIPSUM_FINALIZE: $scope.currentcontext ? $scope.currentcontext.CanIPSUM_FINALIZE : false,
+                    CanIPSUM_BILL_LOCK: $scope.currentcontext ? $scope.currentcontext.CanIPSUM_BILL_LOCK : false,
+                    CanIPBillsummaryPrint_Btn: $scope.currentcontext ? $scope.currentcontext.CanIPBillsummaryPrint_Btn : false,
+                    CanIPBillDetailPrint_Btn: $scope.currentcontext ? $scope.currentcontext.CanIPBillDetailPrint_Btn : false,
+                    CanIPPackagedetailsPrint_Btn: $scope.currentcontext ? $scope.currentcontext.CanIPPackagedetailsPrint_Btn : false,
+                    CanIPPackageInclusionPrint_Btn: $scope.currentcontext ? $scope.currentcontext.CanIPPackageInclusionPrint_Btn : false,
+                    CanIPDailywisePrint_Btn: $scope.currentcontext ? $scope.currentcontext.CanIPDailywisePrint_Btn : false,
+                    CanIPNonMedicalPrint_Btn: $scope.currentcontext ? $scope.currentcontext.CanIPNonMedicalPrint_Btn : false,
+                    IPDiscount: typeof $scope.HasAccess === 'function' ? $scope.HasAccess('IPBILLING_SUMMARY', 'IPDiscount') : true
+                }
+            };
+            $timeout(function () {
+                if (!$scope.$$phase) {
+                    $scope.$evalAsync();
+                }
+            });
+        };
+
+        $scope.handleReactAction = function (actionName, payload) {
+            if (!actionName) return;
+            $timeout(function () {
+                switch (actionName) {
+                    case 'editBill':
+                        if (typeof $scope.editBill === 'function') {
+                            $scope.editBill(payload || $scope.item);
+                        }
+                        break;
+                    case 'supplementaryDetails':
+                        if (typeof $scope.supplementaryDetails === 'function') {
+                            $scope.supplementaryDetails(payload, false);
+                        }
+                        break;
+                    case 'print3':
+                        if (typeof $scope.print3 === 'function') {
+                            var encId = (payload && payload.bill && payload.bill.EncounterId) || (payload && payload.EncounterId) || $scope.currentcontext.EncounterId;
+                            var catId = payload ? (payload.CategoryId || payload.ServiceCategoryId) : 0;
+                            var catName = payload ? (payload.CategoryName || payload.ServiceName) : '';
+                            $scope.print3(encId, catId, catName);
+                        }
+                        break;
+                    case 'plusopensupplementary':
+                        if (typeof $scope.plusopensupplementary === 'function') {
+                            $scope.plusopensupplementary(payload, false);
+                        }
+                        break;
+                    case 'plusopenselfsupplementary':
+                        if (typeof $scope.plusopenselfsupplementary === 'function') {
+                            $scope.plusopenselfsupplementary(payload, true);
+                        }
+                        break;
+                    case 'intermediateBillDetails':
+                        if (typeof $scope.intermediateBillDetails === 'function') {
+                            $scope.intermediateBillDetails(payload, false);
+                        }
+                        break;
+                    case 'lockctrl':
+                        if (typeof $scope.lockctrl === 'function') {
+                            $scope.lockctrl();
+                        }
+                        break;
+                    case 'pendingorders':
+                        if (typeof $scope.pendingorders === 'function') {
+                            $scope.pendingorders();
+                        }
+                        break;
+                    case 'discountChange':
+                        $scope.currentcontext.BillDiscount = Number(payload) || 0;
+                        $scope.currentcontext.RdoBillDiscount = true;
+                        if (typeof $scope.CalculateNetAmt === 'function') {
+                            $scope.CalculateNetAmt();
+                        }
+                        $scope.updateReactProps();
+                        break;
+                    case 'mouDiscountChange':
+                        $scope.currentcontext.moudiscount = Number(payload) || 0;
+                        $scope.moudisc = Number(payload) || 0;
+                        if (typeof $scope.CalculateNetAmt === 'function') {
+                            $scope.CalculateNetAmt();
+                        }
+                        $scope.updateReactProps();
+                        break;
+                    case 'receiptAmtChange':
+                        $scope.currentcontext.ReceiptAmt = Number(payload) || 0;
+                        if (typeof $scope.calcFinaldue === 'function') {
+                            $scope.calcFinaldue();
+                        }
+                        $scope.updateReactProps();
+                        break;
+                    case 'selectChange':
+                        if (payload && payload.type) {
+                            switch (payload.type) {
+                                case 'DiscountMode':
+                                    $scope.currentfilter.DiscountModeId = payload.value;
+                                    $scope.currentcontext.BillDiscountModeId = payload.value;
+                                    if (typeof $scope.DiscountModeChange === 'function') {
+                                        $scope.DiscountModeChange(sumObject('DiscountMode', payload.value));
+                                    } else if (typeof $scope.CalculateNetAmt === 'function') {
+                                        $scope.CalculateNetAmt();
+                                    }
+                                    break;
+                                case 'DiscountApprover':
+                                    $scope.currentcontext.ApprovedById = payload.value;
+                                    $scope.currentcontext.DiscountApprovedBy = payload.value;
+                                    if (typeof $scope.setDiscountLimit === 'function') {
+                                        $scope.setDiscountLimit(sumObject('DiscountApprover', payload.value));
+                                    }
+                                    break;
+                                case 'GuarantorType':
+                                    $scope.currentfilter.GuarantorTypeId = payload.value;
+                                    $scope.item.GuarantorTypeId = payload.value;
+                                    if (typeof $scope.getPatientBillDetails === 'function') {
+                                        $scope.getPatientBillDetails();
+                                    }
+                                    break;
+                                case 'SettlementType':
+                                    $scope.currentcontext.FSTypeId = payload.value;
+                                    if (typeof $scope.changeFSTType === 'function') {
+                                        $scope.changeFSTType();
+                                    }
+                                    break;
+                                case 'PaymentType':
+                                    $scope.currentcontext.PaymentTypeId = payload.value;
+                                    $scope.item.PaymentTypeId = payload.value;
+                                    break;
+                                case 'FamilyLink':
+                                    $scope.item.FamilyLinkId = payload.value;
+                                    if (typeof $scope.onFamilyLinkChange === 'function') {
+                                        $scope.onFamilyLinkChange(sumObject('FamilyLink', payload.value));
+                                    }
+                                    break;
+                                case 'Guarantor':
+                                    $scope.item.GuarantorDueId = payload.value;
+                                    break;
+                                case 'PrivateDueApprover':
+                                    $scope.item.PrivateDueId = payload.value;
+                                    break;
+                                case 'Bank':
+                                    $scope.item.BankId = payload.value;
+                                    break;
+                                case 'CardType':
+                                    $scope.item.CardTypeId = payload.value;
+                                    break;
+                            }
+                            if (typeof $scope.refreshSummarySelectProps === 'function') {
+                                $scope.refreshSummarySelectProps();
+                            }
+                            $scope.updateReactProps();
+                        }
+                        break;
+                    case 'fieldChange':
+                        if (payload && payload.field) {
+                            $scope.item[payload.field] = payload.value;
+                            if (payload.field === 'Comments') {
+                                $scope.currentcontext.Comments = payload.value;
+                            }
+                            $scope.updateReactProps();
+                        }
+                        break;
+                    case 'addPay':
+                        if (typeof $scope.addPay === 'function') {
+                            $scope.addPay();
+                        }
+                        break;
+                    case 'backToList':
+                        if (typeof $scope.backToList === 'function') {
+                            $scope.backToList();
+                        } else {
+                            $state.go('app.inpatientsbillinglist');
+                        }
+                        break;
+                    case 'printPharmacy':
+                        if (typeof $scope.print7 === 'function') {
+                            $scope.print7();
+                        }
+                        break;
+                    case 'printDischargeSlip':
+                        if (typeof $scope.printDischargeSlip === 'function') {
+                            $scope.printDischargeSlip();
+                        }
+                        break;
+                    case 'printBillSummary':
+                        if (typeof $scope.print === 'function') {
+                            $scope.print();
+                        }
+                        break;
+                    case 'printBillDetails':
+                        if (typeof $scope.print2 === 'function') {
+                            $scope.print2();
+                        }
+                        break;
+                    case 'printPackageDetails':
+                        if (typeof $scope.printPackageDetails === 'function') {
+                            $scope.printPackageDetails();
+                        }
+                        break;
+                    case 'printPackageInclusion':
+                        if (typeof $scope.printIncPackageDetails === 'function') {
+                            $scope.printIncPackageDetails();
+                        }
+                        break;
+                    case 'printDailywise':
+                        if (typeof $scope.dailyprint === 'function') {
+                            $scope.dailyprint();
+                        }
+                        break;
+                    case 'printNonMedical':
+                        if (typeof $scope.printnonmedical === 'function') {
+                            $scope.printnonmedical();
+                        }
+                        break;
+                    case 'excelDownload':
+                        if (typeof $scope.excelDownload === 'function') {
+                            $scope.excelDownload();
+                        }
+                        break;
+                    case 'patientDischarge':
+                        if (typeof $scope.patientDischarge === 'function') {
+                            $scope.patientDischarge();
+                        }
+                        break;
+                    case 'saveAndApprove':
+                        if (typeof $scope.saveAndApprove === 'function') {
+                            $scope.saveAndApprove();
+                        }
+                        break;
+                    default:
+                        console.warn('Unhandled React action in summary:', actionName, payload);
+                }
+            });
+        };
+
+        $scope.$watchGroup([
+            function () { return $scope.PatientSummaryDetails; },
+            function () { return $scope.SupplementaryDetails; },
+            function () { return $scope.PackageDetails; },
+            function () { return $scope.currentcontext.TotNetAmount; },
+            function () { return $scope.currentcontext.TotBalanceAmt; },
+            function () { return $scope.currentcontext.ReceiptAmt; },
+            function () { return $scope.currentcontext.BillDiscount; },
+            function () { return $scope.currentcontext.TotGrossAmount; },
+            function () { return $scope.currentcontext.TotDiscAmount; },
+            function () { return $scope.currentcontext.TotPaidAmount; },
+            function () { return $scope.EncounterInfo; },
+            function () { return $scope.Data; }
+        ], function () {
+            $scope.updateReactProps();
+        });
+
+        $scope.updateReactProps();
         $scope.initLookup();
     }
 

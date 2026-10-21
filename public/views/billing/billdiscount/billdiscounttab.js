@@ -59,7 +59,9 @@
         function removeFloatingNav() {
             $rootScope.app.layout.isCollapsed = true;
         }
-        $scope.switchTab($scope.tabs[0]);
+        if ($state.current.name === 'app.billdscnttab') {
+            $scope.switchTab($scope.tabs[0]);
+        }
 
         $scope.refreshReactProps();
 

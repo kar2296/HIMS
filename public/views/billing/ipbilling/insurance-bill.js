@@ -1593,6 +1593,61 @@
             utl.Http.doAction(options);
         };
 
+        // ------------------------------------------------------------------
+        // React Bridge: IpBillingCorrectionsActionBar
+        // ------------------------------------------------------------------
+        $scope.refreshActionBarProps = function () {
+            var canUpdate = !$scope.IsDisabled;
+            if ($scope.HasAccess) {
+                canUpdate = canUpdate && $scope.HasAccess('IPBILLING_BILLCORRECTION', 'IPBilling_BillCorrection_Update');
+            }
+            var canDoctorShare = false;
+            if ($scope.HasAccess && $scope.currentcontext) {
+                canDoctorShare = !$scope.currentcontext.isFinalBillClosed && $scope.HasAccess('IPBILLING_BILLCORRECTION', 'IPBilling_DoctorShareUpdate');
+            }
+            $scope.reactPropsActionBar = {
+                canBack: true,
+                canExcel: true,
+                canUpdate: canUpdate,
+                canDoctorShareUpdate: canDoctorShare,
+                isDisabled: Boolean($scope.IsDisabled),
+                updateLabel: 'Update Bill',
+                totalNet: $scope.TotalNet,
+                itemCount: $scope.PatientBillDetails ? $scope.PatientBillDetails.length : 0
+            };
+            if ($scope.$root && !$scope.$root.$$phase) {
+                $scope.$evalAsync();
+            }
+        };
+
+        $scope.handleActionBarAction = function (actionName, payload) {
+            switch (actionName) {
+                case 'back':
+                    $scope.backToList();
+                    break;
+                case 'excelDownload':
+                    $scope.excelDownload();
+                    break;
+                case 'updateDoctorshare':
+                    $scope.updateDoctorshare();
+                    break;
+                case 'completeBill':
+                    $scope.completeBill();
+                    break;
+                default:
+                    console.warn('Unhandled action in IpBillingCorrectionsActionBar:', actionName);
+            }
+        };
+
+        $scope.$watchGroup([
+            function () { return $scope.TotalNet; },
+            function () { return $scope.IsDisabled; },
+            function () { return $scope.PatientBillDetails ? $scope.PatientBillDetails.length : 0; }
+        ], function () {
+            $scope.refreshActionBarProps();
+        });
+
+        $scope.refreshActionBarProps();
         $scope.initLookup();
     }
 

@@ -73,9 +73,12 @@
             $state.go('app.resultamendment');
         };
         $scope.CanDisableApproveRejectButton = function () {
-            return this.item.WorkOrderStatusId == 7 || this.item.WorkOrderStatusId == 8;
-            //REJECTED, APPROVED, RELEASED
-        }
+            var currItem = ($scope && $scope.item) || (this && this.item) || {};
+            var statusId = Number(currItem.WorkOrderStatusId);
+            // Once fully approved (7: Approved, 8: Released) -> disable/hide approval button
+            // If partially approved (9: Partially Approved) -> do not disable (need to show)
+            return statusId === 7 || statusId === 8;
+        };
 
         $scope.CanShowLISTable = function () {
             return $scope.item.TestTypeId == 1;

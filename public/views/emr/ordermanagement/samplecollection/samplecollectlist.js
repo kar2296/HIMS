@@ -188,11 +188,61 @@
                 handleDynamicFormEvents: handleDynamicFormEvents
             });
         }
-        //Dynamic form  ends
+        $scope.reactProps = {
+            items: [],
+            totalItems: 0,
+            currentPage: 1,
+            pageSize: 25,
+            currentfilter: $scope.currentfilter,
+            lookup: $scope.lookup
+        };
+
+        $scope.syncReactProps = function () {
+            $scope.reactProps = {
+                items: $scope.Items,
+                totalItems: vm.gridConfig ? vm.gridConfig.pagerObj.totalItems : $scope.Items.length,
+                currentPage: vm.gridConfig ? vm.gridConfig.pagerObj.currentPage : 1,
+                pageSize: vm.gridConfig ? vm.gridConfig.pagerObj.pageSize : 25,
+                currentfilter: $scope.currentfilter,
+                lookup: $scope.lookup
+            };
+        };
+
+        $scope.handleAction = function (actionName, payload) {
+            $scope.$evalAsync(function () {
+                if (actionName === 'edit' || actionName === 'view') {
+                    $scope.handleEvents('edit', payload);
+                } else if (actionName === 'patientinfo') {
+                    $scope.handleEvents('patientinfo', payload);
+                } else if (actionName === 'ordertat') {
+                    $scope.handleEvents('ordertat', payload);
+                } else if (actionName === 'filter') {
+                    if (payload) {
+                        angular.extend($scope.currentfilter, payload);
+                        if (vm.gridConfig) vm.gridConfig.pagerObj.currentPage = 1;
+                        $scope.getList();
+                    }
+                } else if (actionName === 'page') {
+                    if (vm.gridConfig) vm.gridConfig.pagerObj.currentPage = payload;
+                    $scope.getList();
+                } else if (actionName === 'pageSize') {
+                    if (vm.gridConfig) {
+                        vm.gridConfig.pagerObj.pageSize = payload;
+                        vm.gridConfig.pagerObj.currentPage = 1;
+                    }
+                    $scope.getList();
+                }
+            });
+        };
+
         $scope.getListCallback = function (scope, res, options, hasError) {
-            vm.gridConfig.data = res.Data;
-            vm.gridConfig.pagerObj.totalItems = res.PageContext.TotalRecords;
+            $scope.Items = res.Data || [];
+            if (vm.gridConfig) {
+                vm.gridConfig.data = res.Data;
+                vm.gridConfig.pagerObj.totalItems = res.PageContext ? res.PageContext.TotalRecords : (res.Data ? res.Data.length : 0);
+            }
             $scope.disabledept();
+            $scope.syncReactProps();
         };
 
         $scope.getList = function (pageNo) {

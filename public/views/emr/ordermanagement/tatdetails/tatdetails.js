@@ -15,26 +15,63 @@
         $scope.currentcontext = {
             ismodal: modalConfig && modalConfig.params ? true : false
         };
-        $scope.currentcontext.pid = parseInt(modalConfig.params.pid);
-        $scope.currentcontext.oid = parseInt(modalConfig.params.oid);
-        $scope.currentcontext.odid = parseInt(modalConfig.params.odid);
-        $scope.currentcontext.TestId = parseInt(modalConfig.params.tid);
+        if (modalConfig && modalConfig.params) {
+            $scope.currentcontext.pid = modalConfig.params.pid ? parseInt(modalConfig.params.pid) : null;
+            $scope.currentcontext.oid = modalConfig.params.oid ? parseInt(modalConfig.params.oid) : null;
+            $scope.currentcontext.odid = modalConfig.params.odid ? parseInt(modalConfig.params.odid) : null;
+            $scope.currentcontext.TestId = modalConfig.params.tid ? parseInt(modalConfig.params.tid) : null;
+        }
+
         $scope.confirmCallback = $uibModalInstance.close;
         $scope.cancelCallback = $uibModalInstance.dismiss;
 
+        $scope.isLoading = false;
+
+        function updateReactProps() {
+            $scope.reactProps = {
+                ordertat: $scope.ordertat || [],
+                isLoading: !!$scope.isLoading,
+                currentcontext: $scope.currentcontext
+            };
+        }
+
+        $scope.handleReactAction = function (actionName, payload) {
+            switch (actionName) {
+                case 'close':
+                    if ($scope.cancelCallback) {
+                        $scope.cancelCallback();
+                    }
+                    break;
+                case 'refresh':
+                    $scope.getList();
+                    break;
+                default:
+                    break;
+            }
+            $scope.$applyAsync();
+        };
+
         $scope.getListCallback = function (scope, res, options, hasError) {
-            $scope.ordertat = res.Data;
+            $scope.ordertat = (res && res.Data) ? res.Data : [];
+            $scope.isLoading = false;
+            updateReactProps();
         };
 
         $scope.getList = function () {
+            $scope.isLoading = true;
+            updateReactProps();
+
+            var params = [];
+            if ($scope.currentcontext.pid) params.push({ Key: 4, Value: $scope.currentcontext.pid });
+            if ($scope.currentcontext.oid) params.push({ Key: 5, Value: $scope.currentcontext.oid });
+            if ($scope.currentcontext.TestId) params.push({ Key: 7, Value: $scope.currentcontext.TestId });
 
             var inputData = {
-                Params: [
-                    { Key: 4, Value: $scope.currentcontext.pid },
-                    { Key: 5, Value: $scope.currentcontext.oid },
-                    { Key: 6, Value: $scope.currentcontext.odid },
-                    // { Key: 7, Value: $scope.currentcontext.TestId }
-                ],
+                Params: params,
+                PageContext: {
+                    PageSize: 500,
+                    PageNumber: 1
+                }
             };
 
             var options = {
@@ -72,6 +109,7 @@
             utl.Http.doAction(options);
         }
         $scope.initLookup();
+        updateReactProps();
         loadData();
     }
 

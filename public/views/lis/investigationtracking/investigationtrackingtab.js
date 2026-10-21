@@ -40,7 +40,16 @@
             if (!canDisableTab) {
                 $state.go(tab.state);
             }
+        };
+
+        function updateActiveTab() {
+            for (var i = 0; i < $scope.tabs.length; i++) {
+                $scope.tabs[i].active = $state.includes($scope.tabs[i].state) || $state.is($scope.tabs[i].state);
+            }
         }
+
+        $scope.$on('$stateChangeSuccess', updateActiveTab);
+        $timeout(updateActiveTab, 50);
     }
 
     investigationtrackingtabController.$inject = ['$rootScope', '$scope', '$stateParams', '$state', '$translate', '$timeout'];

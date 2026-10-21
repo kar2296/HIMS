@@ -32,16 +32,52 @@
         }
 
         $scope.item.WorkOrderdId = $scope.currentcontext.oid;
-        if (modalConfig && modalConfig.params.eid) {
+        if (modalConfig && modalConfig.params && modalConfig.params.eid) {
             $scope.item.EncounterId = modalConfig.params.eid;
         }
 
-        if (modalConfig && modalConfig.params.pid) {
+        if (modalConfig && modalConfig.params && modalConfig.params.pid) {
             $scope.item.PatientId = modalConfig.params.pid;
         }
+
+        $scope.refreshReactProps = function () {
+            $scope.reactProps = {
+                id: $scope.currentcontext.id,
+                eid: $scope.currentcontext.eid,
+                oid: $scope.currentcontext.oid,
+                pid: $scope.currentcontext.pid,
+                item: angular.copy($scope.item),
+                lookup: angular.copy($scope.lookup || {})
+            };
+            $scope.$applyAsync();
+        };
+
+        $scope.handleModalClose = function () {
+            if ($scope.cancelCallback) {
+                $scope.cancelCallback();
+            } else if ($uibModalInstance && $uibModalInstance.dismiss) {
+                $uibModalInstance.dismiss();
+            }
+        };
+
+        $scope.handleReactAction = function (actionName, payload) {
+            if (actionName === 'save' && payload) {
+                if (payload.item) {
+                    angular.extend($scope.item, payload.item);
+                }
+                if (payload.file) {
+                    $scope.currentcontext.file = payload.file;
+                }
+                $scope.saveItem();
+            } else if (actionName === 'close') {
+                $scope.handleModalClose();
+            }
+        };
+
         $scope.getItemCallback = function (scope, data, options, hasError) {
             $scope.item = data;
             $scope.getImages(data);
+            $scope.refreshReactProps();
         };
 
         $scope.getItem = function (pageNo) {
@@ -140,6 +176,7 @@
         $scope.lookupCallback = function (scope, data, options, hasError) {
             $scope.lookup = hasError ? {} : data;
             $scope.getItem();
+            $scope.refreshReactProps();
         }
 
         $scope.initLookup = function () {
@@ -162,6 +199,7 @@
         }
 
         $scope.initLookup();
+        $scope.refreshReactProps();
     }
 
     ExternalClinicalDocumentFormController.$inject = ['$scope', '$stateParams', '$state', '$translate', 'Upload', 'utl', '$uibModalInstance', 'modalConfig'];

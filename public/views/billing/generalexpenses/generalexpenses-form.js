@@ -21,10 +21,10 @@
         $scope.carddetailsmandatory = utl.FacilitySetting.getFacilitySettingValue('billing', 'carddetailsmandatory');
         $scope.EnableSaveButton = true;
         $scope.EnablePrintButton = false;
+        $scope.confirmCallback = ($uibModalInstance && $uibModalInstance.close) ? $uibModalInstance.close : function () {};
+        $scope.cancelCallback = ($uibModalInstance && $uibModalInstance.dismiss) ? $uibModalInstance.dismiss : function () {};
         if (modalConfig && modalConfig.params) {
             $scope.currentcontext.id = parseInt(modalConfig.params.id);
-            $scope.confirmCallback = $uibModalInstance.close;
-            $scope.cancelCallback = $uibModalInstance.dismiss;
         }
 
         $scope.MaxExpenseAmount = utl.FacilitySetting.getFacilitySettingValue('billing', 'maxexpenseamount');

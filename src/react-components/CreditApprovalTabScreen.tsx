@@ -9,23 +9,27 @@ interface Tab {
 interface CreditApprovalTabScreenProps {
   reactProps?: {
     tabs?: Tab[];
+    activeBillTypeId?: number;
   };
   onAction?: (actionName: string, payload?: any) => void;
 }
 
-// React bridge migration (single mount): replaces the <uib-tabset> tab
-// header in creditapprovaltab.html. Unlike PaymodeTabScreen/
-// BillDiscountTabScreen, all 3 tabs here route to the SAME state
-// ('app.creditapprovaltab.creditapproval') with a different `billtype`
-// param -- $state.current.name can never distinguish them. The original
-// AngularUI Bootstrap <uib-tabset active="active"> never had $scope.active
-// wired up either, so its active-highlight was already purely
-// click-driven (index-based), decoupled from the route. Reproduced here
-// with the same semantics: a local useState<number> defaulting to 0
-// (matching switchTab($scope.tabs[0]) called unconditionally on init).
 export const CreditApprovalTabScreen: React.FC<CreditApprovalTabScreenProps> = ({ reactProps, onAction }) => {
   const tabs = reactProps?.tabs || [];
-  const [activeIndex, setActiveIndex] = useState(0);
+  const activeBillTypeId = reactProps?.activeBillTypeId;
+  const computedIndex = activeBillTypeId != null
+    ? Math.max(0, tabs.findIndex((t) => t.billtype === Number(activeBillTypeId)))
+    : 0;
+  const [activeIndex, setActiveIndex] = useState(computedIndex);
+
+  React.useEffect(() => {
+    if (activeBillTypeId != null) {
+      const idx = tabs.findIndex((t) => t.billtype === Number(activeBillTypeId));
+      if (idx !== -1) {
+        setActiveIndex(idx);
+      }
+    }
+  }, [activeBillTypeId, tabs]);
 
   const dispatch = (actionName: string, payload?: any) => {
     onAction?.(actionName, payload);

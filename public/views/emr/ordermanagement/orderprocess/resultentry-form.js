@@ -83,9 +83,12 @@
         //     $state.go('app.labdashboard');
         // };
         $scope.CanDisableApproveRejectButton = function () {
-            return this.item.WorkOrderStatusId == 7 || this.item.WorkOrderStatusId == 8;
-            //REJECTED, APPROVED, RELEASED
-        }
+            var currItem = ($scope && $scope.item) || (this && this.item) || {};
+            var statusId = Number(currItem.WorkOrderStatusId);
+            // Once fully approved (7: Approved, 8: Released) -> disable/hide approval button
+            // If partially approved (9: Partially Approved) -> do not disable (need to show)
+            return statusId === 7 || statusId === 8;
+        };
 
         $scope.CanShowLISTable = function () {
             return $scope.item.TestTypeId == 1;
@@ -289,6 +292,9 @@
             $scope.getUserBills();
             $scope.getAttachementImgList();
             $scope.getEncounters();
+            if ($scope.updateReactProps) {
+                $scope.updateReactProps();
+            }
 
         };
 
@@ -313,6 +319,9 @@
 
         $scope.getEncounterCallback = function (scope, res, options, hasError) {
             $scope.EncounterInfo = res.Data[0];
+            if ($scope.updateReactProps) {
+                $scope.updateReactProps();
+            }
         };
 
         $scope.getEncounters = function () {
@@ -519,6 +528,9 @@
 
             $scope.currentcontext.testList = finalArr;
             vm.details = result;
+            if ($scope.updateReactProps) {
+                $scope.updateReactProps();
+            }
         };
 
         $scope.selectAllItems = function () {
@@ -1341,6 +1353,9 @@
         $scope.saveItemCallback = function (scope, data, options, hasError) {
             utl.Alert.showSuccessMsg($translate.instant('common.successmsg.lbl'));
             loadData();
+            if ($scope.updateReactProps) {
+                $scope.updateReactProps();
+            }
         };
 
         $scope.saveItem = function (computeStatus, actionType) {
@@ -1537,6 +1552,9 @@
 
             $('#mySidenav').addClass('hidden');
             loadData();
+            if ($scope.updateReactProps) {
+                $scope.updateReactProps();
+            }
         }
 
         $scope.initLookup = function () {
@@ -1701,6 +1719,9 @@
                 'filename': options.data.Data.FileName,
                 'filepath': options.data.Data.PhotoPath,
             });
+            if ($scope.updateReactProps) {
+                $scope.updateReactProps();
+            }
         };
         $scope.getAttachementImgs = function (Id_, WOId, WODId, FilePath_, FileName_) {
             if (FilePath_) {
@@ -1775,8 +1796,237 @@
             if (iVal == 2) {
                 $scope.item.WithHeader = false;
             }
+            if ($scope.updateReactProps) {
+                $scope.updateReactProps();
+            }
         };
-        document.getElementById("withheader").checked = true;
+        var hdrElem = document.getElementById("withheader");
+        if (hdrElem) {
+            hdrElem.checked = true;
+        }
+
+        $scope.updateReactProps = function () {
+            $scope.reactProps = {
+                item: $scope.item || {},
+                testList: $scope.currentcontext.testList || [],
+                lookup: $scope.lookup || {},
+                AttachementImgs: $scope.AttachementImgs || [],
+                PackageName: $scope.currentcontext.PackageName || '',
+                isFromApproval: isFromApproval(),
+                isLoading: false,
+                permissions: {
+                    canApprove: $scope.CanApprove,
+                    canSave: $scope.CanSave,
+                    canReject: $scope.CanReject,
+                    canSendForApproval: $scope.Cansendforapproval,
+                    canPrint: $scope.CanPrint,
+                    canPrintWithoutHeader: $scope.CanPrintWithoutHeader,
+                    canDisableApproveReject: $scope.CanDisableApproveRejectButton ? $scope.CanDisableApproveRejectButton() : false
+                }
+            };
+            $scope.$applyAsync();
+        };
+
+        function syncTestListToVmDetails(testList) {
+            if (!testList || !Array.isArray(testList)) return;
+            for (var i = 0; i < testList.length; i++) {
+                var group = testList[i];
+                for (var j = 0; j < (group.details || []).length; j++) {
+                    var d = group.details[j];
+                    for (var k = 0; k < (vm.details || []).length; k++) {
+                        if (vm.details[k].Id === d.Id) {
+                            vm.details[k].Resultvalue = d.Resultvalue;
+                            if (d.Qualifier) vm.details[k].Qualifier = d.Qualifier;
+                            if (d.QualifierId) vm.details[k].QualifierId = d.QualifierId;
+                            if (d.IsCriticalValue !== undefined) vm.details[k].IsCriticalValue = d.IsCriticalValue;
+                            if (d.IsSelected !== undefined) vm.details[k].IsSelected = d.IsSelected;
+                            if (d.IsAllOrderSelected !== undefined) vm.details[k].IsAllOrderSelected = d.IsAllOrderSelected;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+        $scope.handleReactAction = function (actionName, payload) {
+            switch (actionName) {
+                case 'back':
+                    $scope.backToList();
+                    break;
+                case 'save':
+                    if (payload && payload.testList) {
+                        syncTestListToVmDetails(payload.testList);
+                    }
+                    $scope.saveOrder();
+                    break;
+                case 'approve':
+                    if (payload && payload.testList) {
+                        syncTestListToVmDetails(payload.testList);
+                    }
+                    $scope.approveOrder();
+                    break;
+                case 'reject':
+                    $scope.rejectOrder(payload && payload.item ? payload.item : $scope.item);
+                    break;
+                case 'sendForApproval':
+                    if (payload && payload.testList) {
+                        syncTestListToVmDetails(payload.testList);
+                    }
+                    $scope.sendForApproval();
+                    break;
+                case 'print':
+                    if (payload && payload.withoutHeader) {
+                        $scope.printwithoutheader();
+                    } else {
+                        $scope.print();
+                    }
+                    break;
+                case 'printWithoutHeader':
+                    $scope.printwithoutheader();
+                    break;
+                case 'openLabtests':
+                    $scope.openLabtests();
+                    break;
+                case 'openLabResults':
+                    $scope.openLabResults();
+                    break;
+                case 'openRadiologyResults':
+                    $scope.openRadiologyResults();
+                    break;
+                case 'openAttachments':
+                    $scope.openAttachments(payload);
+                    break;
+                case 'downloadAttachment':
+                    if (payload) {
+                        $scope.downloadAttachment(payload.filepath, payload.filename, payload.Id);
+                    }
+                    break;
+                case 'testtat':
+                    $scope.testtat(payload || $scope.item);
+                    break;
+                case 'graphView':
+                    if (payload) $scope.graphView(payload);
+                    break;
+                case 'openObservations':
+                    if (payload) $scope.openObservations(payload);
+                    break;
+                case 'testprofiledetails':
+                    if (payload) $scope.testprofiledetails(payload);
+                    break;
+                case 'analyteprofiledetails':
+                    if (payload) $scope.analyteprofiledetails(payload);
+                    break;
+                case 'openRichTextEditor':
+                    if (payload) $scope.openRichTextEditor(payload);
+                    break;
+                case 'toggleSelectAll':
+                    $scope.currentcontext.selectall = payload ? Boolean(payload.isSelected) : !$scope.currentcontext.selectall;
+                    $scope.selectAllItems();
+                    $scope.updateReactProps();
+                    break;
+                case 'toggleTestSelect':
+                    if (payload) {
+                        var testId = payload.testId;
+                        var isSelected = Boolean(payload.isSelected);
+                        for (var i = 0; i < ($scope.currentcontext.testList || []).length; i++) {
+                            var t = $scope.currentcontext.testList[i];
+                            if (t.Testid === testId) {
+                                t.IsSelected = isSelected;
+                                t.IsAllOrderSelected = isSelected;
+                                for (var j = 0; j < (t.details || []).length; j++) {
+                                    t.details[j].IsAllOrderSelected = isSelected;
+                                    t.details[j].IsSelected = isSelected;
+                                }
+                            }
+                        }
+                    }
+                    $scope.updateReactProps();
+                    break;
+                case 'toggleItemSelect':
+                    if (payload) {
+                        var detailId = payload.detailId;
+                        var isSel = Boolean(payload.isSelected);
+                        for (var i = 0; i < ($scope.currentcontext.testList || []).length; i++) {
+                            var t = $scope.currentcontext.testList[i];
+                            for (var j = 0; j < (t.details || []).length; j++) {
+                                if (t.details[j].Id === detailId) {
+                                    t.details[j].IsAllOrderSelected = isSel;
+                                    t.details[j].IsSelected = isSel;
+                                }
+                            }
+                        }
+                    }
+                    $scope.updateReactProps();
+                    break;
+                case 'updateDetailValue':
+                    if (payload) {
+                        var detailId = payload.detailId;
+                        var val = payload.value;
+                        var qual = payload.qualifier;
+                        var qualId = payload.qualifierId;
+                        for (var i = 0; i < (vm.details || []).length; i++) {
+                            if (vm.details[i].Id === detailId) {
+                                vm.details[i].Resultvalue = val;
+                                if (qual) vm.details[i].Qualifier = qual;
+                                if (qualId) vm.details[i].QualifierId = qualId;
+                                vm.details[i].IsSelected = true;
+                                vm.details[i].IsAllOrderSelected = true;
+                                $scope.testvaluechange(vm.details[i]);
+                                break;
+                            }
+                        }
+                        for (var i = 0; i < ($scope.currentcontext.testList || []).length; i++) {
+                            var t = $scope.currentcontext.testList[i];
+                            for (var j = 0; j < (t.details || []).length; j++) {
+                                if (t.details[j].Id === detailId) {
+                                    t.details[j].Resultvalue = val;
+                                    if (qual) t.details[j].Qualifier = qual;
+                                    if (qualId) t.details[j].QualifierId = qualId;
+                                    t.details[j].IsSelected = true;
+                                    t.details[j].IsAllOrderSelected = true;
+                                    t.IsSelected = true;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    $scope.updateReactProps();
+                    break;
+                case 'updateDetailCritical':
+                    if (payload) {
+                        var detailId = payload.detailId;
+                        var isCrit = Boolean(payload.isCritical);
+                        for (var i = 0; i < (vm.details || []).length; i++) {
+                            if (vm.details[i].Id === detailId) {
+                                vm.details[i].IsCriticalValue = isCrit;
+                                break;
+                            }
+                        }
+                        for (var i = 0; i < ($scope.currentcontext.testList || []).length; i++) {
+                            var t = $scope.currentcontext.testList[i];
+                            for (var j = 0; j < (t.details || []).length; j++) {
+                                if (t.details[j].Id === detailId) {
+                                    t.details[j].IsCriticalValue = isCrit;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    $scope.updateReactProps();
+                    break;
+                case 'updateHeaderField':
+                    if (payload && payload.field) {
+                        $scope.item[payload.field] = payload.value;
+                    }
+                    $scope.updateReactProps();
+                    break;
+                default:
+                    break;
+            }
+            $scope.$applyAsync();
+        };
+
+        $scope.updateReactProps();
         $scope.initLookup();
     }
 

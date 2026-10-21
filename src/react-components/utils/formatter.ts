@@ -92,11 +92,11 @@ export const formatter = {
   },
 
   getDOBFromAgeConfig: (options: { y?: number, m?: number, d?: number }) => {
-    let result: string | Date = moment().format('LL');
-    if (options.y) result = moment(result).subtract(options.y, 'years').toDate();
-    if (options.m) result = moment(result).subtract(options.m, 'months').toDate();
-    if (options.d) result = moment(result).subtract(options.d, 'days').toDate();
-    return result;
+    let m = moment();
+    if (options.y && !isNaN(options.y)) m = m.subtract(Number(options.y), 'years');
+    if (options.m && !isNaN(options.m)) m = m.subtract(Number(options.m), 'months');
+    if (options.d && !isNaN(options.d)) m = m.subtract(Number(options.d), 'days');
+    return m.toDate();
   },
 
   getDateStringForVitalChart: (inputDate: Date | string) => {

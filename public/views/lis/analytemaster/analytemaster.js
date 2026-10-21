@@ -21,22 +21,59 @@
         $scope.currentcontext = {
             ismodal: modalConfig && modalConfig.params ? true : false
         };
-        $scope.currentcontext.id = -1;
         $scope.lookup = {};
-        $scope.currentcontext.id = parseInt($stateParams.id);
+        
+        var parsedId = parseInt($stateParams.id);
+        if (isNaN(parsedId) || parsedId <= 0) {
+            parsedId = parseInt($stateParams.AnalyteId);
+        }
+        if (isNaN(parsedId) || parsedId <= 0) {
+            var m = window.location.hash.match(/[?&]id=(\d+)/) || window.location.hash.match(/analytemaster\/(\d+)/);
+            if (m && m[1]) {
+                parsedId = parseInt(m[1]);
+            }
+        }
+        $scope.currentcontext.id = (!isNaN(parsedId) && parsedId > 0) ? parsedId : -1;
         if (modalConfig && modalConfig.params) {
             $scope.currentcontext.id = modalConfig.params.id;
             $scope.confirmCallback = $uibModalInstance.close;
             $scope.cancelCallback = $uibModalInstance.dismiss;
         }
-        // $scope.item.ActionFrom = utl.Formatter.getCurrentDate();
+
+        // React bridge helper
+        $scope.refreshReactProps = function () {
+            $scope.reactProps = {
+                id: $scope.currentcontext.id,
+                item: angular.copy($scope.item),
+                lookup: $scope.lookup,
+                isModal: $scope.currentcontext.ismodal,
+                facilityName: utl.Session.getCurrentFacilityName ? utl.Session.getCurrentFacilityName() : ''
+            };
+        };
+
+        $scope.handleReactAction = function (actionName, payload) {
+            if (actionName === 'backToList') {
+                $scope.backToList();
+            } else if (actionName === 'saveAndApprove' || actionName === 'save') {
+                if (payload) {
+                    var targetId = payload.Id || (payload.id ? parseInt(payload.id) : 0) || $scope.currentcontext.id;
+                    angular.extend($scope.item, payload);
+                    if (targetId && targetId > 0) {
+                        $scope.currentcontext.id = targetId;
+                        $scope.item.Id = targetId;
+                    }
+                }
+                $scope.saveItem();
+            }
+        };
+
         $scope.getItemCallback = function (scope, data, options, hasError) {
             $scope.item = data;
+            $scope.refreshReactProps();
         };
 
         $scope.getItem = function (pageNo) {
             if ($scope.currentcontext.id && $scope.currentcontext.id > 0) {
-
                 var options = {
                     action: 'lis/analytemaster/GetAnalytemasterById',
                     data: {
@@ -49,22 +86,22 @@
             }
         };
 
-        // $scope.backToList = function () {
-        //     $state.go('app.analytemasters');
-        // }
         $scope.backToList = function () {
             if ($scope.currentcontext.ismodal) {
                 $scope.confirmCallback();
-            } else
+            } else {
                 $state.go('app.analytemasters');
-        }
+            }
+        };
+
         $scope.errorItemCallback = function (data, options) {
             if (data.Error && data.Error.Code == 'ALREADYEXIST') {
-                utl.Alert.showErrorMsg($translate.instant('lis.analytemasters.excode.lbl'));
+                utl.Alert.showErrorMsg($translate.instant('lis.analytemasters.excode.lbl') || 'Parameter code already exists.');
             }
-        }
+        };
+
         $scope.saveItemCallback = function (scope, data, options, hasError) {
-            utl.Alert.showSuccessMsg($translate.instant('common.successmsg.lbl'));
+            utl.Alert.showSuccessMsg($translate.instant('common.successmsg.lbl') || 'Saved successfully.');
             if (typeof (data) == "boolean") {
                 if ($scope.currentcontext.ismodal) {
                     $scope.confirmCallback();
@@ -73,43 +110,43 @@
                     $scope.getItem();
                 }
             } else if (typeof (data) == "number") {
-                //  $state.go('app.usertab.general');
                 $state.go('app.analytetab.analytemaster', {
                     id: data,
                     IsProfile: null,
                     AnalyteName: options.data.Data.Code + ' - ' + options.data.Data.Name
                 });
             } else {
-                $scope.backToList(); // Safer side added
+                $scope.backToList();
             }
         };
 
         $scope.clear = function () {
             $scope.item = {};
+            $scope.refreshReactProps();
         };
 
         $scope.saveItem = function () {
-
-            if (!utl.Validator.validate($scope)) {
-                return;
-            }
-
             if ($scope.item.Valuetype_e == 7) {
                 if (!$scope.item.Formula) {
-                    utl.Alert.showErrorMsg($translate.instant('Please Enter Formula'));
+                    utl.Alert.showErrorMsg($translate.instant('Please Enter Formula') || 'Please enter formula');
                     return;
                 }
             }
             if ($scope.item.Valuetype_e == 4) {
                 if (!$scope.item.Listofvalue) {
-                    utl.Alert.showErrorMsg($translate.instant('Please Enter Listofvalue'));
+                    utl.Alert.showErrorMsg($translate.instant('Please Enter Listofvalue') || 'Please enter list of values');
                     return;
                 }
             }
 
+            var itemId = ($scope.currentcontext.id && $scope.currentcontext.id > 0)
+                ? $scope.currentcontext.id
+                : ($scope.item && $scope.item.Id && $scope.item.Id > 0 ? $scope.item.Id : 0);
+
             var actionName = 'lis/analytemaster/AddAnalytemaster';
-            if ($scope.currentcontext.id && $scope.currentcontext.id > 0) {
+            if (itemId > 0) {
                 actionName = 'lis/analytemaster/UpdateAnalytemaster';
+                $scope.item.Id = itemId;
             }
 
             var options = {
@@ -125,8 +162,8 @@
         };
 
         $scope.IsAutoCalculationType = function () {
-            return $scope.item.Valuetype_e == 7 // Auto Calculation
-        }
+            return $scope.item.Valuetype_e == 7;
+        };
 
         $scope.lookupCallback = function (scope, data, options, hasError) {
             $scope.lookup = hasError ? {} : data;
@@ -136,8 +173,8 @@
                 $scope.item.Activefrom = new Date();
 
             $scope.getMaxId();
-
-        }
+            $scope.refreshReactProps();
+        };
 
         $scope.getMaxId = function () {
             $scope.analytemastercode =
@@ -153,7 +190,7 @@
                 };
                 utl.Http.doAction(options);
             }
-        }
+        };
 
         function ZeroPadding(num, size) {
             var s = num + "";
@@ -176,7 +213,8 @@
             if (StartingNr)
                 $scope.item.Code = StartingNr;
 
-        }
+            $scope.refreshReactProps();
+        };
 
         $scope.initLookup = function () {
             var inputData = [{
@@ -212,8 +250,7 @@
                 {
                     "Key": "GRAPHTYPE"
                 }
-
-            ]
+            ];
             var options = {
                 action: 'General/Options/getoptions',
                 data: inputData,
@@ -221,8 +258,9 @@
                 onComplete: $scope.lookupCallback
             };
             utl.Http.doAction(options);
-        }
+        };
 
+        $scope.refreshReactProps();
         $scope.initLookup();
     }
 

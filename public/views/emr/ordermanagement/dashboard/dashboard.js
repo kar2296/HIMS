@@ -147,7 +147,7 @@ function DashboardController($scope, $stateParams, $state, $translate, $filter, 
 
         
         $scope.getSubDeptList();
-
+        $scope.refreshReactProps();
     };
 
     $scope.getList = function () { 
@@ -313,8 +313,42 @@ function DashboardController($scope, $stateParams, $state, $translate, $filter, 
         utl.Http.doAction(options);
     }
     
-    $scope.initLookup();
+    $scope.handleNavigate = function (stateName, params) {
+        if (stateName === 'app.orderacknowledgements' || stateName === 'acceptances') {
+            $state.go('app.orderacknowledgements', { tp: 2 });
+        } else if (stateName === 'app.processallorders' || stateName === 'resultentries' || stateName === 'app.allorders') {
+            $state.go('app.allorders', { tp: 2 });
+        } else if (stateName === 'app.approvalallorders' || stateName === 'resultapprovals') {
+            $state.go('app.approvalallorders', { tp: 2 });
+        } else if (stateName === 'app.resultdispatches' || stateName === 'resultreleases') {
+            $state.go('app.resultdispatches', { tp: 2 });
+        } else if (stateName === 'app.notetemplates' || stateName === 'resulttemplates') {
+            $state.go('app.notetemplates', { context: 'lab' });
+        } else if (stateName === 'app.testmasters' || stateName === 'managetests') {
+            $state.go('app.testmasters');
+        } else if (stateName === 'app.analytemasters' || stateName === 'manageparam') {
+            $state.go('app.analytemasters');
+        } else if (stateName === 'app.radiologyreports' || stateName === 'radiologyreports') {
+            $state.go('app.radiologyreports', { context: 'lab' });
+        } else if (stateName === 'app.radiologycriticals') {
+            $state.go('app.radiologycriticals');
+        } else if (stateName && $scope[stateName]) {
+            $scope[stateName](params);
+        } else if (stateName) {
+            $state.go(stateName, params);
+        }
+    };
 
+    $scope.refreshReactProps = function () {
+        $scope.reactProps = {
+            items: angular.copy($scope.Items || {}),
+            currentcontext: angular.copy($scope.currentcontext || {})
+        };
+        $scope.$applyAsync();
+    };
+
+    $scope.initLookup();
+    $scope.refreshReactProps();
 }
 
 DashboardController.$inject = ['$scope', '$stateParams', '$state', '$translate', '$filter', 'utl'];

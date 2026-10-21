@@ -36,59 +36,78 @@ export class WorkOrderSampleDetailBo extends BaseBo<WorkOrderSampleDetailInstanc
     public async ManageWorkOrderSampleDetails(details: any[]): Promise<boolean> {
         let orderTATBO = BoFactory.GetBo(lisbo.OrderTATBo, this.Request);
         details = details || [];
-        let sampleTypeMap: any = {};
-        let SelectedTest: any = [];
-        await Promise.all(details.map((DetailItem): Promise<void> => {
-            return (async (detail): Promise<void> => {
-                if (detail.Id > 0 && !detail.SampleIdentifier && detail.IsSelected) {
-                    SelectedTest.push(detail.TestId);
+
+        // Group details being collected that do not yet have a SampleIdentifier.
+        // Items sharing the same specimen/SampleTypeId (and without a separate sample ID requirement)
+        // share the sequence key within this collection batch.
+        let groupMap: { [key: string]: any[] } = {};
+        for (let detail of details) {
+            if (detail.Id > 0 && !detail.IsReadOnly && !detail.SampleIdentifier && detail.Status !== 2) {
+                let groupKey = '';
+                if (detail.IsSeparateSampleId && Number(detail.IsSeparateSampleId) > 0) {
+                    groupKey = 'sep_' + detail.IsSeparateSampleId;
+                } else {
+                    groupKey = 'type_' + (detail.SampleTypeId || 0);
                 }
-            })(DetailItem);
-        }));
+                if (!groupMap[groupKey]) {
+                    groupMap[groupKey] = [];
+                }
+                groupMap[groupKey].push(detail);
+            }
+        }
+
+        // For each group being collected, defer sequence generation once and update ONLY the items in that group
+        for (let groupKey in groupMap) {
+            let groupItems = groupMap[groupKey];
+            let firstDetail = groupItems[0];
+            let detailIds = groupItems.map(d => d.Id);
+            let orderDetailIds = groupItems.map(d => d.OrderDetailId);
+            let testIds = groupItems.map(d => d.TestId);
+
+            const afterO: any = () => {
+                return ((bo, request: any) => {
+                    return {
+                        updateSampleTypeInfo: async (code: string) => {
+                            request['code'] = code;
+                            await bo.UpdateSampleTypeInfo(request);
+                        },
+                        UpdatePatientWorkOrderInfo: async (code: string) => {
+                            request['code'] = code;
+                            await bo.UpdatePatientWorkOrderInfo(request);
+                        },
+                        AddLisInterfaceData: async (code: string) => {
+                            request['code'] = code;
+                            await bo.AddLisInterfaceData(request);
+                        }
+                    };
+                })(this, {
+                    sampleId: firstDetail.Id,
+                    detailIds: detailIds,
+                    orderDetailIds: orderDetailIds,
+                    woId: firstDetail.WorkOrderSampleId,
+                    isSeparateSampleId: firstDetail.IsSeparateSampleId,
+                    sampleTypeId: firstDetail.SampleTypeId,
+                    patientWorkOrderId: firstDetail.PatientWorkOrderId,
+                    testId: testIds,
+                    collectedDate: firstDetail.CollectedDate,
+                    IsCulture: firstDetail.Testmaster ? firstDetail.Testmaster.IsCulture : false
+                });
+            };
+
+            this.deferSequenceKey(firstDetail.Id, 'SampleIdentifier',
+                this.getSequenceIdentifier(SequenceKeys.SampleDetailIdentifier), [
+                afterO().updateSampleTypeInfo,
+                afterO().UpdatePatientWorkOrderInfo,
+                afterO().AddLisInterfaceData
+            ]);
+        }
+
+        // Update each item in details (marking status, date, etc.)
         await Promise.all(details.map((DetailItem): Promise<void> => {
             return (async (detail): Promise<void> => {
                 if (detail.Status === 2 && detail.Id !== 0) {
                     await this.MarkAsDelete(detail.Id);
-                } else if (detail.Id > 0 && !detail.SampleIdentifier && !detail.IsReadOnly) {
-                    if (!detail.SampleIdentifier) {
-                        if (!sampleTypeMap[detail.IsSeparateSampleId]) {
-                            sampleTypeMap[detail.IsSeparateSampleId] = detail.TestId;
-                            const afterO: any = () => {
-                                return ((bo, request: any) => {
-                                    return {
-                                        updateSampleTypeInfo: async (code: string) => {
-                                            request['code'] = code;
-                                            await bo.UpdateSampleTypeInfo(request);
-                                        },
-                                        UpdatePatientWorkOrderInfo: async (code: string) => {
-                                            request['code'] = code;
-                                            await bo.UpdatePatientWorkOrderInfo(request);
-                                        },
-                                        AddLisInterfaceData: async (code: string) => {
-                                            request['code'] = code;
-                                            await bo.AddLisInterfaceData(request);
-                                        }
-                                    };
-                                })(this, {
-                                    sampleId: detail.Id,
-                                    woId: detail.WorkOrderSampleId,
-                                    isSeparateSampleId: detail.IsSeparateSampleId,
-                                    sampleTypeId: detail.SampleTypeId,
-                                    patientWorkOrderId: detail.PatientWorkOrderId,
-                                    testId: SelectedTest,
-                                    collectedDate: detail.CollectedDate,
-                                    IsCulture: detail.Testmaster.IsCulture
-                                });
-                            };
-
-                            this.deferSequenceKey(detail.Id, 'SampleIdentifier',
-                                this.getSequenceIdentifier(SequenceKeys.SampleDetailIdentifier), [
-                                afterO().updateSampleTypeInfo,
-                                afterO().UpdatePatientWorkOrderInfo,
-                                afterO().AddLisInterfaceData
-                            ]);
-                        }
-                    }
+                } else if (detail.Id > 0 && !detail.IsReadOnly) {
                     await this.Update(detail);
                     if (detail.CollectedDate) {
                         let ordertat: any = { sampleCollectedDate: detail.CollectedDate, sampleReceivedDate: null };
@@ -339,18 +358,22 @@ export class WorkOrderSampleDetailBo extends BaseBo<WorkOrderSampleDetailInstanc
     }
 
     private async UpdateSampleTypeInfo(req: any) {
-        // console.log('NEWLY GENERATED ' + req.code);
-        // console.log('Sample Type' + req.sampleType);
-        // console.log('Sample Id' + req.sampleId);
-        let vTestId = req.testId;
         let siInfo: any = { Id: 1, SampleIdentifier: req.code };
+        let whereCondition: any = {
+            WorkOrderSampleId: req.woId,
+            SampleIdentifier: null
+        };
+        if (req.detailIds && req.detailIds.length > 0) {
+            whereCondition['Id'] = req.detailIds;
+        } else if (req.sampleId) {
+            whereCondition['Id'] = req.sampleId;
+        } else if (req.isSeparateSampleId !== undefined) {
+            whereCondition['IsSeparateSampleId'] = req.isSeparateSampleId;
+        }
+
         await this.Update(siInfo, {
             fields: ['SampleIdentifier'],
-            where: {
-                IsSeparateSampleId: req.isSeparateSampleId,
-                WorkOrderSampleId: req.woId,
-                SampleIdentifier: null
-            }
+            where: whereCondition
         });
     }
 
@@ -358,24 +381,28 @@ export class WorkOrderSampleDetailBo extends BaseBo<WorkOrderSampleDetailInstanc
         let vSampleid = req.code;
         let vSampleCollectionDt = req.collectedDate;
         let vPatientWorkOrderId = req.patientWorkOrderId;
-        let vTestId = req.testId;
         let isculture = req.IsCulture;
-        // console.log('NEWLY GENERATED ' + vSampleid);
-        // console.log('collected Date ' + vSampleCollectionDt);
-        // console.log('patientWorkOrderId ' + vPatientWorkOrderId);
-        // console.log('testId' + vTestId);
         let SampleidCodition: any = { Id: 1, Sampleid: vSampleid, Samplecollectiondate: vSampleCollectionDt };
         let Sampledata: any = { Id: vPatientWorkOrderId, SampleIdentifier: vSampleid };
         let workorderDetailBO = BoFactory.GetBo(lisbo.PatientWorkorderdetailsBo, this.Request);
         let workorderBO = BoFactory.GetBo(lisbo.PatientWorkorderBo, this.Request);
+
+        let whereCondition: any = {
+            Workorderid: vPatientWorkOrderId,
+            Sampleid: null
+        };
+        if (req.testId && req.testId.length > 0) {
+            whereCondition['Testid'] = req.testId;
+        } else if (req.orderDetailIds && req.orderDetailIds.length > 0) {
+            whereCondition['Orderdetailid'] = req.orderDetailIds;
+        } else if (req.isSeparateSampleId !== undefined) {
+            whereCondition['IsSeparateSampleId'] = req.isSeparateSampleId;
+        }
+
         if (!isculture) {
             await workorderDetailBO.Update(SampleidCodition, {
                 fields: ['Sampleid', 'Samplecollectiondate'],
-                where: {
-                    Workorderid: vPatientWorkOrderId,
-                    IsSeparateSampleId: req.isSeparateSampleId,
-                    Sampleid: null
-                }
+                where: whereCondition
             });
             await workorderBO.Update(Sampledata, {
                 fields: ['SampleIdentifier', 'ManualBarcode'],
@@ -411,15 +438,11 @@ export class WorkOrderSampleDetailBo extends BaseBo<WorkOrderSampleDetailInstanc
             if (WoIds.length > 0) {
                 for (let ix in WoIds) {
                     let wId = WoIds[ix];
+                    let cultWhere = { ...whereCondition, Workorderid: wId };
                     await workorderDetailBO.Update(SampleidCodition, {
                         fields: ['Sampleid', 'Samplecollectiondate'],
-                        where: {
-                            Workorderid: wId,
-                            IsSeparateSampleId: req.isSeparateSampleId,
-                            Sampleid: null
-                        }
+                        where: cultWhere
                     });
-                    Sampledata.Id = wId;
                     await workorderBO.Update(Sampledata, {
                         fields: ['SampleIdentifier', 'ManualBarcode'],
                         where: {
@@ -435,10 +458,7 @@ export class WorkOrderSampleDetailBo extends BaseBo<WorkOrderSampleDetailInstanc
 
     private async AddLisInterfaceData(req: any) {
         let vSampleid = req.code;
-        // let vSampleCollectionDt = req.collectedDate;
         let vPatientWorkOrderId = req.patientWorkOrderId;
-        // let vTestId = req.testId;
-        // let SampleidCodition: any = { Sampleid: vSampleid, Samplecollectiondate: vSampleCollectionDt };
         let patientBo = BoFactory.GetBo(regbo.PatientBo, this.Request);
         let patwDetBO = BoFactory.GetBo(lisbo.PatientWorkorderdetailsBo, this.Request);
         let listReq = {
@@ -450,8 +470,16 @@ export class WorkOrderSampleDetailBo extends BaseBo<WorkOrderSampleDetailInstanc
         let lisInpatDetBo = BoFactory.GetBo(lisbo.LISInterfacePatientDetailsBo, this.Request);
         let lisIntResBo = BoFactory.GetBo(lisbo.LISInterfaceResultsBo, this.Request);
         let patInfo: any = {};
-        for (let idx in wdetails.Data) {
-            let wDetData = wdetails.Data[idx];
+
+        let targetDetails = wdetails.Data || [];
+        if (req.testId && req.testId.length > 0) {
+            targetDetails = targetDetails.filter((w: any) => req.testId.includes(w.Testid));
+        } else if (req.orderDetailIds && req.orderDetailIds.length > 0) {
+            targetDetails = targetDetails.filter((w: any) => req.orderDetailIds.includes(w.Orderdetailid));
+        }
+
+        for (let idx in targetDetails) {
+            let wDetData = targetDetails[idx];
             let patReq = {
                 Id: 0,
                 PageContext: { PageSize: 1000, PageNumber: 1 },
@@ -500,15 +528,6 @@ export class WorkOrderSampleDetailBo extends BaseBo<WorkOrderSampleDetailInstanc
             };
             await lisIntResBo.Save(InterfaceResData);
         }
-        // await lisInpatDetBo.Save(SampleidCodition, {
-        //     fields: ['Sampleid', 'Samplecollectiondate'],
-        //     where: {
-        //         Workorderid: vPatientWorkOrderId,
-        //         IsSeparateSampleId: req.isSeparateSampleId,
-        //         Sampleid: null,
-        //         Testid: [vTestId]
-        //     }
-        // });
         return true;
     }
 

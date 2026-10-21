@@ -12,6 +12,14 @@
         $scope.currentcontext = {};
         $scope.carddetailsmandatory = 0;
         $scope.carddetailsmandatory = utl.FacilitySetting.getFacilitySettingValue('billing', 'carddetailsmandatory');
+        $scope.datePickerOptions = {
+            dateFormat: 'dd/MMM/yyyy',
+            showButtonBar: false,
+            placeholder: 'dd/MMM/yyyy'
+        };
+        $scope.customFabOptions = {
+            setAsteriskForRequiredLabel: false
+        };
         if (modalConfig && modalConfig.params) {
             if (modalConfig.params.items &&
                 modalConfig.params.items.PaymentTypeId) {
@@ -80,9 +88,17 @@
 
 
             }
-            $scope.confirmCallback = $uibModalInstance.close;
-            $scope.cancelCallback = $uibModalInstance.dismiss;
         }
+        $scope.confirmCallback = function (result) {
+            if ($uibModalInstance && $uibModalInstance.close) {
+                $uibModalInstance.close(result);
+            }
+        };
+        $scope.cancelCallback = function () {
+            if ($uibModalInstance && $uibModalInstance.dismiss) {
+                $uibModalInstance.dismiss('cancel');
+            }
+        };
 
         $scope.paymodevarchange = function (item) {
             $scope.item.BankId = null;

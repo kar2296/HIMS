@@ -61,13 +61,15 @@ export class IPPackageBo extends BaseBo<IPPackageInstance, IPPackageAttributes> 
         include.push({
             model: this.Models.Guarantor,
             attributes: ['Id', 'GuarantorId', 'GuarantorName', 'GuarantorTypeId', 'TpaId'],
-            include: [this.GetReference('GuarantorType')]
+            include: [this.GetReference('GuarantorType')],
+            required: false
         });
         include.push({ model: this.Models.Department, attributes: ['DepartmentName'], required: false });
         include.push(this.GetReference('ActiveStatus'));
         include.push({
             model: this.Models.ServiceRateCategory,
             attributes: ['Id', 'ServiceRateCategory', 'Description'],
+            required: false
         });
         apiReq.Params.forEach((param) => {
             if (this.IsValidParam(param)) {

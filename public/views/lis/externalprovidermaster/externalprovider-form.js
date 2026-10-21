@@ -24,9 +24,32 @@
             $scope.item = data;
             if (data.ActiveStatusId == 2)
                 $scope.item.isRequested = true;
+            $scope.refreshReactProps();
+        };
 
-            /*   if ($scope.item.Activefrom == null)
-                  $scope.item.Activefrom = new Date();*/
+        $scope.refreshReactProps = function () {
+            $scope.reactProps = {
+                id: $scope.currentcontext.id,
+                item: angular.copy($scope.item || {}),
+                lookup: angular.copy($scope.lookup || {})
+            };
+            $scope.$applyAsync();
+        };
+
+        $scope.handleReactAction = function (actionName, payload) {
+            if (actionName === 'backToList') {
+                $scope.backToList();
+            } else if (actionName === 'clear') {
+                $scope.clear();
+            } else if (actionName === 'save') {
+                if (payload) angular.extend($scope.item, payload);
+                $scope.save();
+            } else if (actionName === 'saveAndApprove') {
+                if (payload) angular.extend($scope.item, payload);
+                $scope.saveandApprove();
+            }
+            $scope.refreshReactProps();
+            $scope.$applyAsync();
         };
 
         $scope.getItem = function(pageNo) {
@@ -137,6 +160,7 @@
         }
 
         $scope.initLookup();
+        $scope.refreshReactProps();
     }
 
     externalProviderFormController.$inject = ['$scope', '$stateParams', '$state', '$translate', 'utl'];

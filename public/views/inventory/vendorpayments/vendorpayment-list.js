@@ -21,9 +21,52 @@
         }
         $scope.lookup = {};
 
+        $scope.refreshReactProps = function () {
+            var dataList = vm.gridConfig ? vm.gridConfig.data || [] : [];
+            var pager = vm.gridConfig ? vm.gridConfig.pagerObj || { totalItems: 0, currentPage: 1, pageSize: 25 } : { totalItems: 0, currentPage: 1, pageSize: 25 };
+
+            $scope.reactProps = {
+                rows: dataList,
+                items: dataList,
+                totalItems: pager.totalItems || dataList.length,
+                currentPage: pager.currentPage || 1,
+                pageSize: pager.pageSize || 25,
+                currentfilter: angular.copy($scope.currentfilter),
+                lookup: angular.copy($scope.lookup || {}),
+                context: $scope.Context
+            };
+            $scope.$applyAsync();
+        };
+
+        $scope.handleReactAction = function (actionName, payload) {
+            if (actionName === 'addNew') {
+                $scope.addNew();
+            } else if (actionName === 'edit' && payload) {
+                $scope.handleEvents('edit', payload);
+            } else if (actionName === 'view' && payload) {
+                $scope.handleEvents('view', payload);
+            } else if (actionName === 'delete' && payload) {
+                $scope.handleEvents('delete', payload);
+            } else if (actionName === 'filter' && payload) {
+                if (payload.FromDate) $scope.currentfilter.FromDate = payload.FromDate;
+                if (payload.ToDate) $scope.currentfilter.ToDate = payload.ToDate;
+                if (payload.VendorMasterId !== undefined) $scope.currentfilter.VendorMasterId = payload.VendorMasterId;
+                if (payload.VendorPaymentStatusId !== undefined) $scope.currentfilter.VendorPaymentStatusId = payload.VendorPaymentStatusId;
+                if (payload.VendorPaymentIdentifier !== undefined) $scope.currentfilter.VendorPaymentIdentifier = payload.VendorPaymentIdentifier;
+                if (payload.currentPage && vm.gridConfig && vm.gridConfig.pagerObj) vm.gridConfig.pagerObj.currentPage = payload.currentPage;
+                if (payload.pageSize && vm.gridConfig && vm.gridConfig.pagerObj) vm.gridConfig.pagerObj.pageSize = payload.pageSize;
+                $scope.getList();
+            }
+        };
+
+        $scope.handleNavigate = function (stateName, params) {
+            $state.go(stateName, params);
+        };
+
         $scope.getListCallback = function (scope, res, options, hasError) {
             vm.gridConfig.data = res.Data;
             vm.gridConfig.pagerObj.totalItems = res.PageContext.TotalRecords;
+            $scope.refreshReactProps();
         };
         $scope.getList = function (pageNo) {
             var From = $filter('date')($scope.currentfilter.FromDate, 'yyyy-MM-dd 00:00:00') || null;
@@ -229,6 +272,7 @@
         $scope.lookupCallback = function (scope, data, options, hasError) {
             $scope.lookup = hasError ? {} : data;
             $scope.getList();
+            $scope.refreshReactProps();
         };
         $scope.backtoList = function () {
             $state.go('app.storedashboard');

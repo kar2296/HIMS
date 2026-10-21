@@ -18,12 +18,17 @@
         $scope.currentfilter.ToBillDate = $filter('date')(new Date(), 'yyyy-MM-dd 23:59:59');
         $scope.currentfilter.PatientId = -1;
 
+        $scope.isLoading = false;
+        $scope.selectedPlan = null;
+        $scope.selectedPatient = null;
+
         $scope.getListCallback = function(scope, res, options, hasError) {
+            $scope.isLoading = false;
             $scope.TreatmentPlan = [];
             if (res && res.Data && res.Data.length > 0) {
                 for (var idx in res.Data) {
                     var planData = res.Data[idx];
-                    if (planData.TreatmentPlanDetails.length > 0) {
+                    if (planData.TreatmentPlanDetails && planData.TreatmentPlanDetails.length > 0) {
                         planData.TreatmentName = planData.TreatmentPlanDetails[0].ServiceName;
                     }
                     $scope.TreatmentPlan.push(planData);
@@ -33,41 +38,49 @@
         };
 
         $scope.getList = function() {
-            if ($scope.currentfilter.PatientId > 0) {
-                var FrmDate = $filter('date')($scope.currentfilter.FromBillDate, 'yyyy-MM-dd HH:mm:ss');
-                var ToDate = $filter('date')($scope.currentfilter.ToBillDate, 'yyyy-MM-dd HH:mm:ss');
-                var inputData = {
-                    Params: [{
-                            Key: 1,
-                            Value: $scope.currentfilter.PatientId
-                        },
-                        {
-                            Key: 3,
-                            Value: $scope.currentfilter.PlanStatusId
-                        },
-                        {
-                            Key: 7,
-                            Value: FrmDate
-                        },
-                        {
-                            Key: 8,
-                            Value: ToDate
-                        },
-                    ],
-                    PageContext: {
-                        PageSize: -1,
-                        PageNumber: 1
-                    }
-                };
+            $scope.isLoading = true;
+            $scope.refreshReactProps();
 
-                var options = {
-                    action: 'emr/TreatmentPlan/GetTreatmentPlans',
-                    data: inputData,
-                    type: 'post',
-                    onComplete: $scope.getListCallback
-                };
-                utl.Http.doAction(options);
+            var patId = $scope.currentfilter.PatientId && $scope.currentfilter.PatientId > 0 ? $scope.currentfilter.PatientId : -1;
+            var FrmDate = $filter('date')($scope.currentfilter.FromBillDate, 'yyyy-MM-dd HH:mm:ss');
+            var ToDate = $filter('date')($scope.currentfilter.ToBillDate, 'yyyy-MM-dd HH:mm:ss');
+
+            var params = [{
+                    Key: 1,
+                    Value: patId
+                },
+                {
+                    Key: 7,
+                    Value: FrmDate
+                },
+                {
+                    Key: 8,
+                    Value: ToDate
+                }
+            ];
+
+            if ($scope.currentfilter.PlanStatusId && $scope.currentfilter.PlanStatusId > 0) {
+                params.push({
+                    Key: 3,
+                    Value: $scope.currentfilter.PlanStatusId
+                });
             }
+
+            var inputData = {
+                Params: params,
+                PageContext: {
+                    PageSize: -1,
+                    PageNumber: 1
+                }
+            };
+
+            var options = {
+                action: 'emr/TreatmentPlan/GetTreatmentPlans',
+                data: inputData,
+                type: 'post',
+                onComplete: $scope.getListCallback
+            };
+            utl.Http.doAction(options);
         };
 
         $scope.getDetailsCallback = function(scope, data, options, hasError) {
@@ -153,12 +166,14 @@
 
         $scope.viewDetailsCallback = function(scope, data, options, hasError) {
             $scope.TreatmentPlanDetails = [];
-            $scope.TreatmentPlanDetails = data.Data;
+            $scope.TreatmentPlanDetails = (data && data.Data) ? data.Data : [];
             $scope.refreshReactProps();
         };
 
         $scope.viewDetails = function(plan) {
             if (plan.Id) {
+                $scope.selectedPlan = plan;
+                $scope.refreshReactProps();
                 var inputData = {
                     Params: [{
                         Key: 1,
@@ -177,8 +192,8 @@
 
         $scope.lookupCallback = function(scope, data, options, hasError) {
             $scope.lookup = data;
-            // $scope.getDetails();
-        }
+            $scope.getList();
+        };
 
         $scope.initLookup = function() {
             var inputData = [{
@@ -195,13 +210,15 @@
             utl.Http.doAction(options);
         };
 
-
         $scope.refreshReactProps = function () {
             $scope.reactProps = {
                 currentfilter: $scope.currentfilter,
                 lookup: $scope.lookup,
                 treatmentPlans: $scope.TreatmentPlan,
-                treatmentPlanDetails: $scope.TreatmentPlanDetails
+                treatmentPlanDetails: $scope.TreatmentPlanDetails,
+                selectedPlan: $scope.selectedPlan,
+                selectedPatient: $scope.selectedPatient,
+                isLoading: $scope.isLoading || false
             };
         };
 
@@ -216,10 +233,25 @@
                     $scope.refreshReactProps();
                     break;
                 case 'statusChange':
-                    $scope.currentfilter.PlanStatusId = payload.value;
+                    $scope.currentfilter.PlanStatusId = (payload.value !== undefined && payload.value !== null) ? Number(payload.value) : -1;
+                    $scope.refreshReactProps();
+                    break;
+                case 'patientChange':
+                    $scope.currentfilter.PatientId = payload.patientId ? Number(payload.patientId) : -1;
+                    $scope.selectedPatient = payload.patient || null;
                     $scope.refreshReactProps();
                     break;
                 case 'fetch':
+                    $scope.getList();
+                    break;
+                case 'reset':
+                    $scope.currentfilter.FromBillDate = $filter('date')(new Date(), 'yyyy-MM-dd 00:00:00');
+                    $scope.currentfilter.ToBillDate = $filter('date')(new Date(), 'yyyy-MM-dd 23:59:59');
+                    $scope.currentfilter.PlanStatusId = -1;
+                    $scope.currentfilter.PatientId = -1;
+                    $scope.selectedPatient = null;
+                    $scope.selectedPlan = null;
+                    $scope.TreatmentPlanDetails = [];
                     $scope.getList();
                     break;
                 case 'viewDetails':

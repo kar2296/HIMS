@@ -1,26 +1,51 @@
 <link rel="stylesheet" href="app/css/drhms.css">
-<div class="row">
-    <h3 class="col-sm-9 mt0" translate="Consolidate Bills"></h3>
-    <div class="col-sm-3">
-        <span class="drhms-billing-btn drhms-outstandingbill-btn" ng-click="doctor_dashboard()"
-            uib-tooltip="{{'patientemr.mock.emrdashboard.lbl' | translate}}" tooltip-placement="bottom">
-            <i class="fas fa-th-large" aria-hidden="true"></i>
-        </span>
-    </div>
-</div>
-<emrpatientbanner patientid="currentcontext.pid" encounterid="currentcontext.eid">
-</emrpatientbanner>
+<link rel="stylesheet" href="views/pharmacy/consolidatedbills/consolidatedbills-modern.css">
 
-<!-- <div class="page-header-list">
-    <h4 class="header-name-litle" translate="Consolidate Bills"></h4>
-</div> -->
-<div class="row tablebox" id="receipt_tab">
-    <div class="col-sm-12">
-        <uib-tabset active="active" id="assettabs">
-            <uib-tab index="$index" ng-repeat="tab in tabs" heading="{{tab.title}}" ng-click="switchTab(tab)"
-                disable="tab.canDisable">
-            </uib-tab>
-        </uib-tabset>
-        <div ui-view class="tabview"></div>
+<div class="cb-root-wrapper">
+    <!-- Executive Header Card -->
+    <div class="cb-header-card">
+        <div class="cb-header-left">
+            <div class="cb-header-icon">
+                <i class="fa-solid fa-file-invoice-dollar" aria-hidden="true"></i>
+            </div>
+            <div>
+                <div class="cb-header-title-row">
+                    <h1 class="cb-header-title" translate="Consolidate Bills">Consolidate Bills</h1>
+                    <span class="cb-header-tag">Multi-Module Clearance</span>
+                </div>
+                <p class="cb-header-subtitle">
+                    Consolidate, review and print combined bills across OP consultations and Pharmacy sales
+                </p>
+            </div>
+        </div>
+
+        <div class="cb-header-right">
+            <button type="button" class="cb-btn-secondary" ng-click="doctor_dashboard()"
+                uib-tooltip="{{'patientemr.mock.emrdashboard.lbl' | translate}}" tooltip-placement="bottom">
+                <i class="fas fa-th-large" aria-hidden="true"></i>
+                <span translate="patientemr.mock.emrdashboard.lbl">Doctor Dashboard</span>
+            </button>
+        </div>
     </div>
+
+    <!-- Active Patient Banner (conditionally displayed only when a patient is selected) -->
+    <div ng-if="currentcontext.pid" style="margin-bottom: 14px;">
+        <emrpatientbanner patientid="currentcontext.pid" encounterid="currentcontext.eid"></emrpatientbanner>
+    </div>
+
+    <!-- Segmented Navigation Tab Switcher -->
+    <div class="cb-tabs-bar" role="tablist">
+        <button type="button" class="cb-tab-btn" ng-repeat="tab in tabs"
+            ng-class="{'active': isTabActive(tab)}"
+            ng-click="switchTab(tab)"
+            ng-disabled="tab.canDisable"
+            role="tab"
+            aria-selected="{{isTabActive(tab)}}">
+            <i class="{{tab.icon}}" aria-hidden="true"></i>
+            <span>{{tab.title}}</span>
+        </button>
+    </div>
+
+    <!-- Child View Container -->
+    <div ui-view class="tabview"></div>
 </div>

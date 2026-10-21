@@ -26,6 +26,7 @@
         $scope.lookup = {};
         $scope.currentcontext = {};
         $scope.details = [];
+        $scope.TotalAmount = 0;
 
         $scope.currentcontext.id = parseInt($stateParams.id);
 
@@ -84,31 +85,26 @@
         };
 
         $scope.packageChanged = function(idx, item) {
+            if (!item) return;
             var isDuplicate = utl.Common.isDuplicateRec($scope.details, { pivotkey: 'ServiceCategoryId', displaykey: 'ServiceCategoryName' });
             if (isDuplicate) {
                 item.ServiceCategoryName = '';
-                item.ServiceCategoryId = '';
+                item.ServiceCategoryId = -1;
+                item.SelectedItem = null;
                 return;
             }
 
-            item.ServiceCategoryName = item.SelectedItem.ServiceCategoryName;
-            item.ServiceCategoryCode = item.SelectedItem.ServiceCategoryCode;
+            if (item.SelectedItem) {
+                item.ServiceCategoryName = item.SelectedItem.ServiceCategoryName || item.SelectedItem.Name || '';
+                item.ServiceCategoryCode = item.SelectedItem.ServiceCategoryCode || item.SelectedItem.Code || '';
+            }
 
             var lastIndex = $scope.details.length - 1;
             if (idx == lastIndex) {
                 $scope.addNewLineItem();
-                $scope.calAmt(idx, item)
-                $scope.calpackageAmt(idx, item)
             }
-            // utl.Modal.open('app.servicepackagedetails', {
-            //     params: {
-            //         index: idx,
-            //         IPPackageServiceExclusions: item.IPPackageServiceExclusions,
-            //         ServiceCategoryId: item.ServiceCategoryId,
-            //         ServiceRateCategoryId: $scope.item.ServiceRateCategoryId
-            //     },
-            //     confirmCallback: $scope.servicePackageDetail
-            // });
+            $scope.calAmt(idx, item);
+            $scope.calpackageAmt(idx, item);
         };
 
         $scope.servicePackageDetail = function(response) {
@@ -120,11 +116,29 @@
 
         $scope.onDeleteConfirmed = function(item) {
             item.Status = 2;
+            var activeItems = $scope.details.filter(function(d) { return d.Status === 1; });
+            if (activeItems.length === 0) {
+                $scope.addNewLineItem();
+            }
+            $scope.calAmt();
+            $scope.calpackageAmt();
         };
 
         $scope.deleteDetail = function(idx, item) {
-            var name = item.TestName || '';
-            utl.Dialog.confirmDelete($scope.onDeleteConfirmed, item, name);
+            if (item.ServiceCategoryId > 0 || (item.Id && item.Id > 0)) {
+                var name = item.ServiceCategoryName || (item.SelectedItem && (item.SelectedItem.ServiceCategoryName || item.SelectedItem.Name)) || 'Category';
+                utl.Dialog.confirmDelete($scope.onDeleteConfirmed, item, name);
+            } else {
+                var activeItems = $scope.details.filter(function(d) { return d.Status === 1; });
+                if (activeItems.length > 1) {
+                    var arrayIdx = $scope.details.indexOf(item);
+                    if (arrayIdx > -1) {
+                        $scope.details.splice(arrayIdx, 1);
+                    }
+                }
+                $scope.calAmt();
+                $scope.calpackageAmt();
+            }
         };
 
         $scope.getDetailsCallback = function(scope, res, options, hasError) {
@@ -135,6 +149,12 @@
             }
 
             $scope.details = result;
+            var activeItems = $scope.details.filter(function(d) { return d.Status === 1; });
+            if (activeItems.length === 0) {
+                $scope.addNewLineItem();
+            }
+            $scope.calAmt();
+            $scope.calpackageAmt();
         };
 
         $scope.getDetails = function(pageNo) {
@@ -305,14 +325,28 @@
         $scope.calAmt = function(index, item) {
             $scope.TotalAmount = 0;
             for (var idx in $scope.details) {
-                $scope.TotalAmount += parseFloat($scope.details[idx].ActualAmount);
+                if ($scope.details[idx].Status === 1) {
+                    var val = parseFloat($scope.details[idx].ActualAmount);
+                    if (!isNaN(val)) {
+                        $scope.TotalAmount += val;
+                    }
+                }
             }
         };
 
         $scope.calpackageAmt = function(index, item) {
-            $scope.item.ActualAmount = 0;
+            var totalPkg = 0;
             for (var idx in $scope.details) {
-                $scope.item.ActualAmount += parseFloat($scope.details[idx].PackageAmount);
+                if ($scope.details[idx].Status === 1) {
+                    var val = parseFloat($scope.details[idx].PackageAmount);
+                    if (!isNaN(val)) {
+                        totalPkg += val;
+                    }
+                }
+            }
+            if ($scope.item) {
+                $scope.item.ActualAmount = totalPkg;
+                $scope.caldisc($scope.item);
             }
         };
 
@@ -400,11 +434,15 @@
             var selectedItem = vm.packagecontrolconfig.selected;
             var result = '';
             if (selectedItem && !utl.Common.isEmptyJSONObject(selectedItem)) {
-                result = [selectedItem.ServiceCategoryName + '(' + selectedItem.ServiceCategoryCode + ')'].join('  ');
+                var name = selectedItem.ServiceCategoryName || selectedItem.Name || '';
+                var code = selectedItem.ServiceCategoryCode || selectedItem.Code || '';
+                result = code ? name + ' (' + code + ')' : name;
             } else if (vm.packagecontrolconfig.rowdata) {
-                result = [vm.packagecontrolconfig.rowdata.ServiceCategoryName, vm.packagecontrolconfig.rowdata.ServiceCategoryCode, ].join(' ');
+                var row = vm.packagecontrolconfig.rowdata;
+                var rowName = row.ServiceCategoryName || (row.SelectedItem && (row.SelectedItem.ServiceCategoryName || row.SelectedItem.Name)) || '';
+                var rowCode = row.ServiceCategoryCode || (row.SelectedItem && (row.SelectedItem.ServiceCategoryCode || row.SelectedItem.Code)) || '';
+                result = rowCode ? rowName + ' (' + rowCode + ')' : rowName;
             }
-
             return result;
         }
 
@@ -412,13 +450,13 @@
             var query = vm.packagecontrolconfig.query;
             var inputData = {
                 Params: [],
-                PageContext: { PageSize: 25, PageNumber: 1 }
+                PageContext: { PageSize: 50, PageNumber: 1 }
             };
 
             if (vm.packagecontrolconfig.searchbyid == true) {
                 inputData.Params.push({ Key: 0, Value: query });
-            } else if (query && query.length > 2) {
-                inputData.Params.push({ Key: 1, Value: query });
+            } else if (query && String(query).trim().length > 0) {
+                inputData.Params.push({ Key: 1, Value: String(query).trim() });
             }
             vm.packagecontrolconfig.searchparams = inputData;
         }

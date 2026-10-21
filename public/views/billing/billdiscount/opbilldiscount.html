@@ -1,51 +1,5 @@
-<!--
-  React bridge migration (hybrid). This screen has 2 native, live
-  business-search widgets left untouched: <patientsearch> (below), and
-  no other native controls otherwise. No utl.Validator.validate call.
-
-  Migrated via 3 <react-component> mounts sharing generalized
-  BillDiscountFilterScreen / BillDiscountListScreen components (also
-  used by the pharmacy variant of this screen):
-    1. BillDiscountFilterScreen (part: 'dates') - From/To Bill Date
-       inputs, BEFORE the native <patientsearch> in the same row.
-    2. BillDiscountFilterScreen (part: 'actions') - Bill Number input
-       + Fetch button, AFTER the native <patientsearch>.
-    3. BillDiscountListScreen (variant: 'op') - the plain
-       ng-repeat results table (no custom-table/ui-grid, no sort).
-
-  Preserved real API call (unchanged): billing/patientbills/GetPatientBills
-  via getList(); edit opens the untouched app.opbilldiscount-form modal (4600+/7400+
-  line form, deferred to the high-risk queue, not touched).
-
-  Confirmed pre-existing quirks, reproduced as-is (not "fixed"):
-  - The From/To Bill Date inputs have no ng-change in the original --
-    they do NOT auto-refetch; only the Fetch button calls getList().
-  - The visible "Bill Number" input binds to currentfilter.BillNo, but
-    getList() actually reads currentfilter.PatBillNum (Key 49) -- a
-    different, never-populated property. Typing here has no effect on
-    results, both before and after this migration.
-  - <patientsearch> binds currentfilter.PatientId, which getList()
-    never reads either -- selecting a patient also has no effect on
-    results.
--->
-<div class="row">
-    <form id="item_form" name="item_form" class="form-horizontal" role="form">
-        <div class="drhms-list-filters">
-            <react-component name="BillDiscountFilterScreen" props="{ part: 'dates', reactProps: reactProps, onAction: handleReactAction }"></react-component>
-            <div class="col-sm-4">
-                <label class="col-sm-4" translate="billing.opbilling-list.patientsearch.lbl"></label>
-                <div class="col-sm-8">
-                    <patientsearch  patientid="currentfilter.PatientId" class="logo" name="txtpatientsearch" patientinfo="selectedPatient"
-                        isdisabled="" filterconfig="patientfilterconfig"></patientsearch>
-                </div>
-            </div>
-            <react-component name="BillDiscountFilterScreen" props="{ part: 'actions', reactProps: reactProps, onAction: handleReactAction }"></react-component>
-        </div>
-    </form>
-</div>
-<div class="row">
-    <form id="item_form" name="item_form" class="form-horizontal" role="form">
-        <react-component name="BillDiscountListScreen" props="{ variant: 'op', reactProps: reactProps, onAction: handleReactAction }"></react-component>
-    </form>
+<link rel="stylesheet" href="app/css/drhms.css">
+<div class="hims-theme-billing-discount" style="padding: 4px 0 24px 0; width: 100%;">
+    <react-component name="BillDiscountListScreen" props="{ variant: 'op', reactProps: reactProps, onAction: handleReactAction }" style="display: block; width: 100%;"></react-component>
 </div>
 <div class="fooder-bgs"></div>

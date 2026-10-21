@@ -30,6 +30,38 @@
         $scope.VendorPaymentDetail = [];
         $scope.grnitem = [];
 
+        $scope.refreshReactProps = function () {
+            $scope.reactProps = {
+                id: $scope.currentcontext.id,
+                item: angular.copy($scope.item || {}),
+                VendorPaymentDetail: angular.copy($scope.VendorPaymentDetail || []),
+                lookup: angular.copy($scope.lookup || {})
+            };
+            $scope.$applyAsync();
+        };
+
+        $scope.handleReactAction = function (actionName, payload) {
+            if (actionName === 'back') {
+                $scope.backToList();
+            } else if (actionName === 'print') {
+                $scope.print();
+            } else if (actionName === 'saveAndApprove' && payload) {
+                if (payload.Header) {
+                    angular.extend($scope.item, payload.Header);
+                }
+                if (payload.Details) {
+                    $scope.VendorPaymentDetail = payload.Details;
+                }
+                $scope.save();
+            } else if (actionName === 'openPicklist') {
+                $scope.PickList();
+            }
+        };
+
+        $scope.handleNavigate = function (stateName, params) {
+            $state.go(stateName, params);
+        };
+
         $scope.getvendorpaymentCallback = function (scope, data, options, hasError) {
             $scope.item = data;
             if (data.VendorPaymentStatusId == 1) {
@@ -46,6 +78,7 @@
                 $scope.item.isDisabled = true;
                 $scope.item.DisplayVendorPaymentStatus = 'Cancelled';
             }
+            $scope.refreshReactProps();
         };
 
         $scope.getvendorpayment = function () {
@@ -72,7 +105,7 @@
                 $scope.VendorPaymentDetail.push(VenpayDetail);
             }
             $scope.addNewLineItem();
-
+            $scope.refreshReactProps();
         };
 
         $scope.getvendorpaymentDetails = function (pageNo) {

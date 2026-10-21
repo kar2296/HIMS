@@ -11,6 +11,8 @@
 
         $scope.Items = [];
         $scope.currentfilter = {
+            ServiceGroup: '',
+            BedTypeId: -1,
             ActiveStatusId: 2
         };
 
@@ -177,24 +179,57 @@
         }
 
         $scope.refreshReactProps = function () {
+            var dataList = (vm.gridConfig && vm.gridConfig.data) || [];
+            var pager = (vm.gridConfig && vm.gridConfig.pagerObj) || { totalItems: 0, currentPage: 1, pageSize: 25 };
             $scope.reactProps = {
-                rows: (vm.gridConfig && vm.gridConfig.data) || []
+                rows: dataList,
+                items: dataList,
+                totalItems: pager.totalItems || dataList.length,
+                currentPage: pager.currentPage || 1,
+                pageSize: pager.pageSize || 25,
+                pagerObj: {
+                    totalItems: pager.totalItems || dataList.length,
+                    currentPage: pager.currentPage || 1,
+                    pageSize: pager.pageSize || 25,
+                    startIndex: ((pager.currentPage || 1) - 1) * (pager.pageSize || 25)
+                },
+                currentfilter: angular.copy($scope.currentfilter),
+                lookup: angular.copy($scope.lookup || {})
             };
             $scope.$applyAsync();
         };
 
         $scope.handleReactAction = function (actionName, payload) {
-            switch (actionName) {
-                case 'addNew':
-                    $scope.addNew();
-                    break;
-                case 'edit':
-                    $scope.handleEvents('edit', { Id: payload.Id });
-                    break;
-                case 'delete':
-                    $scope.handleEvents('delete', { Id: payload.Id, ServiceRateCategory: payload.ServiceRateCategory });
-                    break;
+            if (actionName === 'addNew') {
+                $scope.addNew();
+            } else if (actionName === 'edit') {
+                $scope.handleEvents('edit', { Id: payload.Id });
+            } else if (actionName === 'delete') {
+                if (payload && payload.Id) {
+                    $scope.onDeleteConfirmed(payload.Id);
+                } else {
+                    $scope.handleEvents('delete', payload);
+                }
+            } else if (actionName === 'search') {
+                if (payload) {
+                    if (payload.ServiceGroup !== undefined) $scope.currentfilter.ServiceGroup = payload.ServiceGroup;
+                    if (payload.BedTypeId !== undefined) $scope.currentfilter.BedTypeId = payload.BedTypeId;
+                    if (payload.ActiveStatusId !== undefined) $scope.currentfilter.ActiveStatusId = payload.ActiveStatusId;
+                }
+                vm.gridConfig.pagerObj.currentPage = 1;
+                $scope.getList();
+            } else if (actionName === 'resetFilters') {
+                $scope.currentfilter.ServiceGroup = '';
+                $scope.currentfilter.BedTypeId = -1;
+                $scope.currentfilter.ActiveStatusId = 2;
+                vm.gridConfig.pagerObj.currentPage = 1;
+                $scope.getList();
+            } else if (actionName === 'pageChange') {
+                vm.gridConfig.pagerObj.currentPage = payload && payload.page ? payload.page : 1;
+                $scope.getList();
             }
+            $scope.refreshReactProps();
+            $scope.$applyAsync();
         };
 
         $scope.initLookup();

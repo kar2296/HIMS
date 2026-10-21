@@ -1,57 +1,56 @@
 <!--
-  React bridge migration (hybrid). Native <patientsearch> stays
-  untouched (genuinely feeds patientChange() -> fnencounter() ->
-  getVisitIndentifier() -> getList() chain). No utl.Validator.validate
-  call.
-
-  Migrated via 2 <react-component> mounts:
-    1. PatientFinanceFilterScreen - From/To Date inputs (shared with
-       patientrevenueinfo.html -- identical markup/behavior in both
-       originals), mounted AFTER the native <patientsearch> in the
-       same row.
-    2. PatientAdjustmentInfoListScreen - replaces the <custom-table>
-       grid (column-sort emulated client-side) + the Total/
-       PaidAmount/Adjusted/UnAdjusted/Due totals banner. The real
-       native <ul uib-pagination> stays untouched below (its pagerObj
-       is genuinely used by getList()'s PageContext).
-
-  Preserved real API calls (unchanged):
-  registration/patient/GetPatientById, Visit/Visit/GetEncounters,
-  Billing/PatientAccounts/GetPatientAccounts, General/Options/getoptions.
-
-  Confirmed pre-existing quirks, reproduced as-is (not "fixed"):
-  - The "Bill / Receipt No#" column's link dispatches to
-    grid.appScope.handleEvents('transaction', row) in the original --
-    handleEvents is never defined anywhere in this controller, so
-    clicking it has always done nothing. No handler wired up here
-    either (same no-op).
-  - $scope.currentcontext.Total* fields are only reset to 0 once, at
-    controller init -- NOT inside getListCallback -- so every
-    subsequent search ADDS to the previous totals rather than
-    replacing them. This is a genuine pre-existing bug, left unfixed;
-    the banner just displays whatever currentcontext currently holds.
+  MediFlow Enterprise Design System - Patient Payment Adjustment Info
+  Search & filter card with patient search, demographic badge, From/To date filters, and financial metrics table
 -->
-<style>
-    .pull-right-table {
-        display: flex;
-        justify-content: flex-end;
-    }
-</style>
-<div class="row">
-    <div class="col-sm-4">
-        <label class="col-sm-4" translate="billing.patientadjustmentinfo.patientsearch.lbl"></label>
-        <div class="col-sm-8">
+<div class="pf-filter-card">
+    <div class="pf-filter-header">
+        <h3 class="pf-filter-header-title">
+            <i class="fa-solid fa-sliders" aria-hidden="true"></i>
+            <span>Search & Filter Financial Accounts</span>
+        </h3>
+        <span class="pf-filter-header-badge">Ledger Reconciliations</span>
+    </div>
+
+    <!-- Patient Search Row with Clearfix -->
+    <div class="pf-patient-search-row">
+        <label class="pf-field-label">
+            <i class="fa-solid fa-user-plus" aria-hidden="true"></i>
+            <span translate="billing.patientadjustmentinfo.patientsearch.lbl">Search & Select Patient</span>
+        </label>
+        <div class="pf-patient-search-input-wrap">
             <patientsearch controlid="'pid'" ng-keyup="moveHeaderFocus('pid')" patientid="currentfilter.PatientId"
                 name="txtpatientsearch" patientinfo="selectedPatient" patientchange="patientChange()"
                 tabindex="tabindexmap.patienttabindex" isdisabled="" filterconfig="patientfilterconfig">
             </patientsearch>
         </div>
+
+        <!-- Quick Patient Summary Badge (Visible once a patient is selected) -->
+        <div class="pf-selected-patient-badge" ng-if="selectedPatient && selectedPatient.Id">
+            <i class="fa-solid fa-circle-check" aria-hidden="true"></i>
+            <span>
+                <strong>Selected:</strong> {{selectedPatient.Title.Description}} {{selectedPatient.FirstName}} {{selectedPatient.LastName}}
+                <span class="pf-meta-sep">|</span> UHID: <strong>{{selectedPatient.MRN}}</strong>
+                <span class="pf-meta-sep" ng-if="selectedPatient.Mobile">|</span> Phone: <strong>{{selectedPatient.Mobile}}</strong>
+                <span class="pf-meta-sep" ng-if="selectedPatient.Age">|</span> Age: <strong>{{selectedPatient.Age}} Y</strong>
+            </span>
+            <button type="button" class="pf-clear-patient-btn" ng-click="clearPatient()" title="Clear Patient Selection">
+                <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+            </button>
+        </div>
     </div>
-    <react-component name="PatientFinanceFilterScreen" props="{ reactProps: reactProps, onAction: handleReactAction }"></react-component>
+
+    <!-- Filter Controls Row (From/To Date + Refresh Button) -->
+    <div class="pf-filters-grid">
+        <react-component name="PatientFinanceFilterScreen" props="{ reactProps: reactProps, onAction: handleReactAction }"></react-component>
+    </div>
 </div>
+
+<!-- Financial KPI Cards & Adjustment Ledger Table -->
 <react-component name="PatientAdjustmentInfoListScreen" props="{ reactProps: reactProps, onAction: handleReactAction }"></react-component>
-<div class="fooder-bgs">
-    <div class="row">
+
+<!-- Modernized Pagination Bar -->
+<div class="pf-pagination-card" ng-show="vm.gridConfig.pagerObj.totalItems > 0">
+    <div class="pf-pagination-wrapper">
         <ul uib-pagination total-items="vm.gridConfig.pagerObj.totalItems"
             items-per-page="vm.gridConfig.pagerObj.pageSize" start-index="vm.gridConfig.pagerObj.startIndex"
             ng-model="vm.gridConfig.pagerObj.currentPage" ng-change="getList()"></ul>

@@ -1,298 +1,371 @@
-<link rel="stylesheet" href="app/css/drhms.css">
-<style>
-    .form-horizontal .form-group {
-        height: 60px;
-    }
-</style>
-<div class="row">
-    <div class="col-sm-10">
-        <h4 translate="clinicalmaster.package-form.pagetitle.lbl"></h4>
-    </div>
-    <div class="col-sm-2">
-        <button class="btn-add" ng-click="addNew()"
-            uib-tooltip="{{ 'inventory.package-list.addnew-tooltip.lbl' | translate }}" tooltip-placement="bottom">
-            <i class="fas fa-plus" aria-hidden="true"></i>
-        </button>
-    </div>
-</div>
-<div class="row">
-    <form id="item_form" name="item_form" class="form-horizontal" role="form">
-        <div class="form-group col-sm-3">
-            <label class="col-sm-12 control-label" for="ippackagename"
-                translate="clinicalmaster.package-form.packagename.lbl"></label>
-            <div class="col-sm-12">
-                <input type="text" class="form-control" ng-model="item.IPPackageName" name="ippackagename"
-                    placeholder="" required>
-            </div>
-        </div>
-        <div class="form-group col-sm-3">
-            <label class="col-sm-12 control-label" for="guarantortype"
-                translate="clinicalmaster.package-form.guarantortype.lbl"></label>
-            <div class="col-sm-12">
-                <ui-select ng-model="item.GuarantorTypeId" ng-change="GuarantorTypeChange($select.selected)"
-                    name="guarantortype" required>
-                    <ui-select-match>
-                        {{$select.selected.Text | limitTo : 20 : 0}}
-                        <span ng-if="$select.selected.Text.length>20">...</span>
-                    </ui-select-match>
-                    <ui-select-choices
-                        repeat="lookupitem.Id as lookupitem in lookup.GuarantorType | filter: { Text: $select.search }">
-                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
-                    </ui-select-choices>
-                </ui-select>
-            </div>
-        </div>
-        <div class="form-group col-sm-3">
-            <label class="col-sm-12 control-label" for="guarantor"
-                translate="clinicalmaster.package-form.guarantorname.lbl"></label>
-            <div class="col-sm-12">
-                <ui-select ng-model="item.GuarantorId" ng-change="GuarantorChange($select.selected)" name="guarantor"
-                    required>
-                    <ui-select-match>
-                        {{$select.selected.Text | limitTo : 20 : 0}}
-                        <span ng-if="$select.selected.Text.length>20">...</span>
-                    </ui-select-match>
-                    <ui-select-choices
-                        repeat="lookupitem.Id as lookupitem in lookup.Guarantor | filter: { Text: $select.search }">
-                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
-                    </ui-select-choices>
-                </ui-select>
-            </div>
-        </div>
-        <div class="form-group col-sm-3">
-            <label class="col-sm-12 control-label" for="ippackagecode"
-                translate="clinicalmaster.package-form.packagecode.lbl"></label>
-            <div class="col-sm-12">
-                <input type="text" class="form-control" ng-model="item.IPPackageCode" name="ippackagecode"
-                    placeholder="" required>
-            </div>
-        </div>
-        <div class="form-group col-sm-3">
-            <label class="col-sm-12 control-label" for="activefrom"
-                translate="clinicalmaster.package-form.validfrom.lbl"></label>
-            <div class="col-sm-12">
-                <input type="text" class="form-control" name="activefrom" ng-date-object
-                    datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}"
-                    uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
-                    placeholder="{{datePickerOptions.placeholder}}" ng-click="activefromPopup = { opened: true }"
-                    is-open="activefromPopup.opened" ng-model="item.ActiveFrom" ng-disabled="item.isCompleted" required>
-            </div>
-        </div>
-        <div class="form-group col-sm-3">
-            <label class="col-sm-12 control-label" translate="clinicalmaster.package-form.discountin.lbl"></label>
-            <div class="col-sm-12">
-                <ui-select ng-model="item.DisountModeId" ng-change="getList()" class="filter-combo">
-                    <ui-select-match>
-                        {{$select.selected.Text | limitTo : 15 : 0}}
-                        <span ng-if="$select.selected.Text.length>15">...</span>
-                    </ui-select-match>
-                    <ui-select-choices
-                        repeat="lookupitem.Id as lookupitem in lookup.DiscountMode | filter: { Text: $select.search }">
-                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
-                    </ui-select-choices>
-                </ui-select>
-            </div>
-        </div>
-        <div class="form-group col-sm-3">
-            <label class="col-sm-12 control-label" translate="clinicalmaster.package-form.description.lbl"></label>
-            <div class="col-sm-12">
-                <input type="text" class="form-control" ng-model="item.IPPackageDescription" placeholder="">
-            </div>
-        </div>
-        <div class="form-group col-sm-3">
-            <label class="col-sm-12 control-label" for="activeto"
-                translate="clinicalmaster.package-form.validto.lbl"></label>
-            <div class="col-sm-12">
-                <input type="text" class="form-control" name="activeto" ng-date-object
-                    datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}"
-                    uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
-                    placeholder="{{datePickerOptions.placeholder}}" ng-click="activetoPopup = { opened: true }"
-                    is-open="activetoPopup.opened" ng-model="item.ActiveTo" ng-disabled="item.isCompleted" required>
-            </div>
-        </div>
-        <div class="form-group col-sm-3">
-            <label class="col-sm-12 control-label" translate="clinicalmaster.package-form.packagedays.lbl"></label>
-            <div class="col-sm-12">
-                <input type="text" class="form-control" ng-model="item.IPPackageDays" placeholder="">
-            </div>
-        </div>
-        <div class="form-group col-sm-3">
-            <label class="col-sm-12 control-label" translate="clinicalmaster.package-form.servicerate.lbl"></label>
-            <div class="col-sm-12">
-                <ui-select ng-model="item.ServiceRateCategoryId" ng-change="ServiceRateCatChange($select.selected)"
-                    class="filter-combo">
-                    <ui-select-match>
-                        {{$select.selected.Text | limitTo : 15 : 0}}
-                        <span ng-if="$select.selected.Text.length>15">...</span>
-                    </ui-select-match>
-                    <ui-select-choices
-                        repeat="lookupitem.Id as lookupitem in lookup.ServiceRateCategory | filter: { Text: $select.search }">
-                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
-                    </ui-select-choices>
-                </ui-select>
-            </div>
-        </div>
-        <div class="form-group col-sm-3">
-            <label class="col-sm-12 control-label" translate="clinicalmaster.package-form.discounttype.lbl"></label>
-            <div class="col-sm-12">
-                <ui-select ng-model="item.DisocuntTypeId" ng-change="getList()" class="filter-combo">
-                    <ui-select-match>
-                        {{$select.selected.Text | limitTo : 15 : 0}}
-                        <span ng-if="$select.selected.Text.length>15">...</span>
-                    </ui-select-match>
-                    <ui-select-choices
-                        repeat="lookupitem.Id as lookupitem in lookup.DiscountType | filter: { Text: $select.search }">
-                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
-                    </ui-select-choices>
-                </ui-select>
-            </div>
-        </div>
-        <div class="form-group col-sm-3">
-            <label class="col-sm-12 control-label" translate="ICU Days"></label>
-            <div class="col-sm-12">
-                <input type="text" class="form-control" ng-model="item.ICUDays" placeholder="">
-            </div>
-        </div>
-        <div class="form-group col-sm-3">
-            <label class="col-sm-12 control-label" for="department"
-                translate="clinicalmaster.package-form.department.lbl"></label>
-            <div class="col-sm-12">
-                <ui-select ng-model="item.DepartmentId" ng-change="getList()" name="department" class="filter-combo"
-                    required>
-                    <ui-select-match>
-                        {{$select.selected.Text | limitTo : 15 : 0}}
-                        <span ng-if="$select.selected.Text.length>15">...</span>
-                    </ui-select-match>
-                    <ui-select-choices
-                        repeat="lookupitem.Id as lookupitem in lookup.Department | filter: { Text: $select.search }">
-                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
-                    </ui-select-choices>
-                </ui-select>
-            </div>
-        </div>
-        <div class="form-group col-sm-3">
-            <label class="col-sm-12 control-label" for="packagamount"
-                translate="clinicalmaster.package-form.packageamount.lbl"></label>
-            <div class="col-sm-12">
-                <input type="number" class="form-control" ng-model="item.PackageAmount" ng-change="caldisc(item)"
-                    name="packagamount" placeholder="" required>
+<link rel="stylesheet" href="views/emr/clinicalmaster/packages/package-modern.css">
 
+<div class="pkg-form-container">
+    <!-- Executive Header Card -->
+    <div class="pkg-form-header-card">
+        <div class="pkg-form-header-left">
+            <div class="pkg-form-header-icon">
+                <i class="fa fa-cubes"></i>
+            </div>
+            <div>
+                <h3 class="pkg-form-title" translate="clinicalmaster.package-form.pagetitle.lbl">Manage Packages</h3>
+                <div class="pkg-form-subtitle">
+                    <span>IP Package Master Configuration</span>
+                    <span class="pkg-form-code-pill" ng-if="item.IPPackageCode">{{item.IPPackageCode}}</span>
+                    <span class="pkg-form-code-pill" ng-if="item.IPPackageName">{{item.IPPackageName}}</span>
+                </div>
             </div>
         </div>
-        <div class="form-group col-sm-3">
-            <label class="col-sm-12 control-label" translate="clinicalmaster.package-form.discount.lbl"></label>
-            <div class="col-sm-12">
-                <input type="number" class="form-control" ng-model="item.DiscountValue" placeholder=""
-                    ng-disabled="true">
-            </div>
+        <div class="pkg-header-right">
+            <button type="button" class="pkg-btn-back" ng-click="backToList()">
+                <i class="fa fa-arrow-left"></i> Back to Catalog
+            </button>
+            <button type="button" class="pkg-btn-add-line" ng-click="addNew()" title="Create New Package">
+                <i class="fa fa-plus"></i> New Package
+            </button>
         </div>
-        <div class="form-group col-sm-3">
-            <label class="col-sm-12 control-label" translate="clinicalmaster.package-form.actualtotal.lbl"></label>
-            <div class="col-sm-12">
-                <input type="number" class="form-control" ng-model="item.ActualAmount" ng-change="caldisc(item)"
-                    placeholder="" ng-disabled="true">
+    </div>
 
+    <!-- Form & Fields Card -->
+    <form id="item_form" name="item_form" role="form">
+        <div class="pkg-card">
+            <div class="pkg-card-header">
+                <div class="pkg-card-title">
+                    <i class="fa fa-info-circle text-primary"></i>
+                    <span>Package Information & Parameters</span>
+                </div>
+            </div>
+            <div class="pkg-card-body">
+                <div class="pkg-form-grid">
+                    <!-- Package Name -->
+                    <div class="pkg-field-group">
+                        <label class="pkg-label" for="ippackagename">
+                            <span translate="clinicalmaster.package-form.packagename.lbl">Package Name</span>
+                        </label>
+                        <input type="text" class="pkg-input" ng-model="item.IPPackageName" name="ippackagename"
+                            placeholder="Enter Package Name" required>
+                    </div>
+
+                    <!-- Payer Type -->
+                    <div class="pkg-field-group">
+                        <label class="pkg-label" for="guarantortype">
+                            <span translate="clinicalmaster.package-form.guarantortype.lbl">Payer Type</span>
+                        </label>
+                        <ui-select ng-model="item.GuarantorTypeId" ng-change="GuarantorTypeChange($select.selected)"
+                            name="guarantortype" required>
+                            <ui-select-match placeholder="Select Payer Type...">
+                                {{$select.selected.Text | limitTo : 25 : 0}}
+                                <span ng-if="$select.selected.Text.length > 25">...</span>
+                            </ui-select-match>
+                            <ui-select-choices
+                                repeat="lookupitem.Id as lookupitem in lookup.GuarantorType | filter: { Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+
+                    <!-- Payer Name -->
+                    <div class="pkg-field-group">
+                        <label class="pkg-label" for="guarantor">
+                            <span translate="clinicalmaster.package-form.guarantorname.lbl">Payer Name</span>
+                        </label>
+                        <ui-select ng-model="item.GuarantorId" ng-change="GuarantorChange($select.selected)" name="guarantor"
+                            required>
+                            <ui-select-match placeholder="Select Payer Name...">
+                                {{$select.selected.Text | limitTo : 25 : 0}}
+                                <span ng-if="$select.selected.Text.length > 25">...</span>
+                            </ui-select-match>
+                            <ui-select-choices
+                                repeat="lookupitem.Id as lookupitem in lookup.Guarantor | filter: { Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+
+                    <!-- Package Code -->
+                    <div class="pkg-field-group">
+                        <label class="pkg-label" for="ippackagecode">
+                            <span translate="clinicalmaster.package-form.packagecode.lbl">Package Code</span>
+                        </label>
+                        <input type="text" class="pkg-input" ng-model="item.IPPackageCode" name="ippackagecode"
+                            placeholder="e.g. PKG-001" required>
+                    </div>
+
+                    <!-- Valid From -->
+                    <div class="pkg-field-group">
+                        <label class="pkg-label" for="activefrom">
+                            <span translate="clinicalmaster.package-form.validfrom.lbl">Valid From</span>
+                        </label>
+                        <input type="text" class="pkg-input" name="activefrom" ng-date-object
+                            datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}"
+                            uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                            placeholder="DD/MM/YYYY" ng-click="activefromPopup = { opened: true }"
+                            is-open="activefromPopup.opened" ng-model="item.ActiveFrom" ng-disabled="item.isCompleted" required>
+                    </div>
+
+                    <!-- Discount In -->
+                    <div class="pkg-field-group">
+                        <label class="pkg-label">
+                            <span translate="clinicalmaster.package-form.discountin.lbl">Discount In</span>
+                        </label>
+                        <ui-select ng-model="item.DisountModeId" ng-change="getList()" class="filter-combo">
+                            <ui-select-match placeholder="Discount In...">
+                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                <span ng-if="$select.selected.Text.length > 20">...</span>
+                            </ui-select-match>
+                            <ui-select-choices
+                                repeat="lookupitem.Id as lookupitem in lookup.DiscountMode | filter: { Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+
+                    <!-- Description -->
+                    <div class="pkg-field-group">
+                        <label class="pkg-label">
+                            <span translate="clinicalmaster.package-form.description.lbl">Description</span>
+                        </label>
+                        <input type="text" class="pkg-input" ng-model="item.IPPackageDescription" placeholder="Package description...">
+                    </div>
+
+                    <!-- Valid To -->
+                    <div class="pkg-field-group">
+                        <label class="pkg-label" for="activeto">
+                            <span translate="clinicalmaster.package-form.validto.lbl">Valid To</span>
+                        </label>
+                        <input type="text" class="pkg-input" name="activeto" ng-date-object
+                            datepicker-options="datePickerOptions" show-button-bar="{{datePickerOptions.showButtonBar}}"
+                            uib-datepicker-popup="{{datePickerOptions.dateFormat}}"
+                            placeholder="DD/MM/YYYY" ng-click="activetoPopup = { opened: true }"
+                            is-open="activetoPopup.opened" ng-model="item.ActiveTo" ng-disabled="item.isCompleted" required>
+                    </div>
+
+                    <!-- Package Days -->
+                    <div class="pkg-field-group">
+                        <label class="pkg-label">
+                            <span translate="clinicalmaster.package-form.packagedays.lbl">Package Days</span>
+                        </label>
+                        <input type="text" class="pkg-input" ng-model="item.IPPackageDays" placeholder="0">
+                    </div>
+
+                    <!-- Service Rate -->
+                    <div class="pkg-field-group">
+                        <label class="pkg-label">
+                            <span translate="clinicalmaster.package-form.servicerate.lbl">Service Rate</span>
+                        </label>
+                        <ui-select ng-model="item.ServiceRateCategoryId" ng-change="ServiceRateCatChange($select.selected)"
+                            class="filter-combo">
+                            <ui-select-match placeholder="Select Rate Category...">
+                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                <span ng-if="$select.selected.Text.length > 20">...</span>
+                            </ui-select-match>
+                            <ui-select-choices
+                                repeat="lookupitem.Id as lookupitem in lookup.ServiceRateCategory | filter: { Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+
+                    <!-- Discount Type -->
+                    <div class="pkg-field-group">
+                        <label class="pkg-label">
+                            <span translate="clinicalmaster.package-form.discounttype.lbl">Discount Type</span>
+                        </label>
+                        <ui-select ng-model="item.DisocuntTypeId" ng-change="getList()" class="filter-combo">
+                            <ui-select-match placeholder="Select Discount Type...">
+                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                <span ng-if="$select.selected.Text.length > 20">...</span>
+                            </ui-select-match>
+                            <ui-select-choices
+                                repeat="lookupitem.Id as lookupitem in lookup.DiscountType | filter: { Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+
+                    <!-- ICU Days -->
+                    <div class="pkg-field-group">
+                        <label class="pkg-label">
+                            <span translate="ICU Days">ICU Days</span>
+                        </label>
+                        <input type="text" class="pkg-input" ng-model="item.ICUDays" placeholder="0">
+                    </div>
+
+                    <!-- Department -->
+                    <div class="pkg-field-group">
+                        <label class="pkg-label" for="department">
+                            <span translate="clinicalmaster.package-form.department.lbl">Department</span>
+                        </label>
+                        <ui-select ng-model="item.DepartmentId" ng-change="getList()" name="department" class="filter-combo"
+                            required>
+                            <ui-select-match placeholder="Select Department...">
+                                {{$select.selected.Text | limitTo : 20 : 0}}
+                                <span ng-if="$select.selected.Text.length > 20">...</span>
+                            </ui-select-match>
+                            <ui-select-choices
+                                repeat="lookupitem.Id as lookupitem in lookup.Department | filter: { Text: $select.search }">
+                                <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+
+                    <!-- Package Amount -->
+                    <div class="pkg-field-group">
+                        <label class="pkg-label" for="packagamount">
+                            <span translate="clinicalmaster.package-form.packageamount.lbl">Package Amount</span>
+                        </label>
+                        <input type="number" class="pkg-input" ng-model="item.PackageAmount" ng-change="caldisc(item)"
+                            name="packagamount" placeholder="0.00" required>
+                    </div>
+
+                    <!-- Discount Value -->
+                    <div class="pkg-field-group">
+                        <label class="pkg-label">
+                            <span translate="clinicalmaster.package-form.discount.lbl">Discount</span>
+                        </label>
+                        <input type="number" class="pkg-input" ng-model="item.DiscountValue" placeholder="0.00"
+                            ng-disabled="true">
+                    </div>
+
+                    <!-- Actual Amount -->
+                    <div class="pkg-field-group">
+                        <label class="pkg-label">
+                            <span translate="clinicalmaster.package-form.actualtotal.lbl">Actual Amount</span>
+                        </label>
+                        <input type="number" class="pkg-input" ng-model="item.ActualAmount" ng-change="caldisc(item)"
+                            placeholder="0.00" ng-disabled="true">
+                    </div>
+
+                    <!-- Status Toggles -->
+                    <div class="pkg-field-group" style="justify-content: flex-end;">
+                        <label class="pkg-label">Flags & Settings</label>
+                        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                            <label class="pkg-toggle-pill" ng-class="{'active': item.IsActive}">
+                                <input type="checkbox" name="isactive" ng-model="item.IsActive">
+                                <span>Active</span>
+                            </label>
+                            <label class="pkg-toggle-pill" ng-class="{'active': item.IsUnlimitedServices}">
+                                <input type="checkbox" name="IsUnlimitedServices" ng-model="item.IsUnlimitedServices">
+                                <span>Unlimited Services</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
-        <div class="form-group col-sm-3">
-            <label class="col-sm-12 control-label" translate="clinicalmaster.package-form.active.lbl"></label>
-            <div class="col-sm-12">
-                <input type="checkbox" name="isactive" class="custom-checkbox" ng-model="item.IsActive">
+
+        <!-- Service Breakdown Card -->
+        <div class="pkg-card">
+            <div class="pkg-card-header">
+                <div class="pkg-card-title">
+                    <i class="fa fa-list-alt text-primary"></i>
+                    <span>Service Breakdown by Category</span>
+                </div>
+                <div>
+                    <button type="button" class="pkg-btn-add-line" ng-click="addNewLineItem()">
+                        <i class="fa fa-plus"></i> Add Category Line
+                    </button>
+                </div>
+            </div>
+
+            <div class="pkg-details-table-wrap" id="mainresponsivetablecontrol">
+                <table class="pkg-details-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 32%;">
+                                <span translate="clinicalmaster.package-form.itemcategorytype.lbl">ITEM CATEGORY TYPE</span>
+                            </th>
+                            <th style="width: 14%; text-align: center;">
+                                <span translate="clinicalmaster.package-form.includedservices.lbl">INCLUDED SERVICES</span>
+                            </th>
+                            <th style="width: 14%; text-align: center;">
+                                <span>EXCLUDED SERVICES</span>
+                            </th>
+                            <th style="width: 16%;">
+                                <span translate="clinicalmaster.package-form.actualamount.lbl">ACTUAL AMOUNT</span>
+                            </th>
+                            <th style="width: 16%;">
+                                <span translate="clinicalmaster.package-form.packageamount.lbl">PACKAGE AMOUNT</span>
+                            </th>
+                            <th style="width: 8%; text-align: center;">
+                                <span translate="common.actions_col.lbl">ACTIONS</span>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="item in details | filter:{Status:1}">
+                            <td>
+                                <div class="autosearch-div">
+                                    <autosearch itemid="item.ServiceCategoryId" name="'category'" iteminfo="item.SelectedItem"
+                                        rowdata="item" config="vm.packagecontrolconfig" itemchange="packageChanged($index,item)"
+                                        class="inputsearchlogo" isrequired="true" placeholder="'Category Name or Code'">
+                                    </autosearch>
+                                </div>
+                            </td>
+                            <td style="text-align: center;">
+                                <button type="button" class="pkg-action-pill" ng-click="serviceinclusion(item,$index)"
+                                    ng-disabled="item.isl || !item.ServiceCategoryId || item.ServiceCategoryId <= 0"
+                                    uib-tooltip="{{'clinicalmaster.package-form.includedservices.lbl' | translate }}"
+                                    tooltip-placement="bottom">
+                                    <i class="fa fa-file-text-o"></i> Inclusions
+                                </button>
+                            </td>
+                            <td style="text-align: center;">
+                                <button type="button" class="pkg-action-pill exclusion" ng-click="serviceexclusiondetails(item,$index)"
+                                    ng-disabled="item.isl || !item.ServiceCategoryId || item.ServiceCategoryId <= 0"
+                                    uib-tooltip="{{'clinicalmaster.package-form.excludedservices.lbl' | translate }}"
+                                    tooltip-placement="bottom">
+                                    <i class="fa fa-ban"></i> Exclusions
+                                </button>
+                            </td>
+                            <td>
+                                <input type="number" class="pkg-input" ng-model="item.ActualAmount" ng-disabled="item.isl"
+                                    ng-change="calAmt($index,item)" placeholder="0.00">
+                            </td>
+                            <td>
+                                <input type="number" class="pkg-input" ng-model="item.PackageAmount"
+                                    ng-change="calpackageAmt($index,item)" placeholder="0.00">
+                            </td>
+                            <td style="text-align: center;">
+                                <button type="button" class="pkg-btn-del-line" ng-click="deleteDetail($index,item)"
+                                    title="Delete Line">
+                                    <i class="fa fa-trash-o"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Table Total Bar -->
+            <div class="pkg-table-total-bar">
+                <div class="pkg-total-chip">
+                    <span>Lines Configured:</span>
+                    <strong>{{(details | filter:{Status:1}).length}}</strong>
+                </div>
+                <div class="pkg-total-chip">
+                    <span translate="clinicalmaster.package-form.totalamount.lbl">Total Actual Amount</span>:
+                    <span class="pkg-total-amount-val">₹ {{ (TotalAmount || 0) | number:2 }}</span>
+                </div>
             </div>
         </div>
-        <div class="form-group col-sm-3">
-            <label class="col-sm-12 control-label" translate="Unlimited Services"></label>
-            <div class="col-sm-12">
-                <input type="checkbox" name="IsUnlimitedServices" class="custom-checkbox"
-                    ng-model="item.IsUnlimitedServices">
+
+        <!-- Sticky Action Footer Bar -->
+        <div class="pkg-form-bottom-bar">
+            <button type="button" class="pkg-btn-back" ng-click="backToList()">
+                <i class="fa fa-angle-left"></i>
+                <span>Back</span>
+            </button>
+            <div style="display: flex; gap: 12px; align-items: center;">
+                <button type="button" class="pkg-btn-draft" ng-click="SaveandDraft()">
+                    <i class="fa fa-save"></i>
+                    <span translate="common.saveaction.lbl">Save as Draft</span>
+                </button>
+                <button type="submit" class="pkg-btn-approve" ng-click="SaveandApprove()">
+                    <i class="fa fa-check"></i>
+                    <span translate="common.saveapprove-action.lbl">Approve</span>
+                </button>
             </div>
         </div>
     </form>
-</div>
-
-<div class="row" id="mainresponsivetablecontrol">
-    <table class="table table-hover table-responsive table-bordered">
-        <thead class="bg-subhead">
-            <tr>
-                <th class="">
-                    <span translate="clinicalmaster.package-form.itemcategorytype.lbl" for="diet"></span>
-                    <span class="mandatory-asterix">*</span>
-                </th>
-                <th class="">
-                    <span translate="clinicalmaster.package-form.includedservices.lbl"></span>
-                </th>
-                <th class="">
-                    <span translate="clinicalmaster.package-form.excludedservices.lbl"></span>
-                </th>
-                <th class="">
-                    <span translate="clinicalmaster.package-form.actualamount.lbl"></span>
-                </th>
-                <th class="">
-                    <span translate="clinicalmaster.package-form.packageamount.lbl"></span>
-                    <span class="mandatory-asterix">*</span>
-                </th>
-                <th class="fs-12 ">
-                    <span translate="common.actions_col.lbl"></span>
-                </th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr ng-repeat="item in details | filter:{Status:1}">
-                <td class="fs-12">
-                    <autosearch itemid="item.ServiceCategoryId" name="'category'" iteminfo="item.SelectedItem"
-                        rowdata="item" config="vm.packagecontrolconfig" itemchange="packageChanged($index,item)"
-                        class="inputsearchlogo" isrequired="true">
-                    </autosearch>
-                </td>
-                <td align="center">
-                    <i class="fa fa-file-text" aria-hidden="true" ng-click="serviceinclusion(item,$index)"
-                        ng-disabled="item.isl"
-                        uib-tooltip="{{'clinicalmaster.package-form.includedservices.lbl' | translate }}"
-                        tooltip-placement="bottom"></i>
-                </td>
-                <td align="center">
-                    <i class="fa fa-file-text" aria-hidden="true" ng-disabled="item.isl"
-                        ng-click="serviceexclusiondetails(item,$index)"
-                        uib-tooltip="{{'clinicalmaster.package-form.excludedservices.lbl' | translate }}"
-                        tooltip-placement="bottom"></i>
-                </td>
-                <td>
-                    <input type="number" class="form-control" ng-model="item.ActualAmount" ng-disabled="item.isl"
-                        ng-change="calAmt($index,item)" placeholder="">
-                </td>
-                <td>
-                    <input type="number" class="form-control" ng-model="item.PackageAmount"
-                        ng-change="calpackageAmt($index,item)" placeholder="">
-                </td>
-                <td>
-                    <!-- <button class="btn btn-danger btn-xs" tabindex="-1" ng-click="deleteDetail($index,item)" ng-disabled="IsDisabled">
-                                        <i class="fa fa-trash" aria-hidden="true"></i>
-                                    </button> -->
-                    <img src="assets/svg/delete.svg" ng-click="deleteDetail($index,item)">
-                </td>
-            </tr>
-        </tbody>
-    </table>
-</div>
-<div class="row" style="margin-top: 2%;">
-    <div class="pull-right">
-        <span for="total" translate="clinicalmaster.package-form.totalamount.lbl"></span> :
-        <span class="countbg">{{TotalAmount}}</span>
-    </div>
-</div>
-<div class="fooder-bgs">
-    <div class="row">
-        <div class="pull-left">
-            <button type="button" class="btn pyr-color10 btn-sm" ng-click="backToList()">
-                <i class="fa fa-angle-left" aria-hidden="true"></i>
-                <span class="btn-fontsize"> &nbsp; Back</span>
-            </button>
-        </div>
-        <div class="pull-right">
-            <button type="button" class="draftbutton" translate="common.saveaction.lbl"
-                ng-click="SaveandDraft()"></button>
-            <button type="submit" class="draftbutton" translate="common.saveapprove-action.lbl"
-                ng-click="SaveandApprove()"></button>
-        </div>
-    </div>
 </div>

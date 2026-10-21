@@ -14,15 +14,24 @@ export interface CheckboxProps {
 /** Global checkbox. `checked`/`onChange` map straight onto whatever real
  * boolean/status field the caller already binds -- no new business meaning. */
 export const Checkbox: React.FC<CheckboxProps> = ({ label, checked, onChange, disabled, id, name, error }) => {
-  const boxId = id || (typeof label === 'string' ? `chk-${label.replace(/\s+/g, '-').toLowerCase()}` : undefined);
+  const generatedId = React.useId();
+  const boxId = id || (typeof label === 'string' ? `chk-${label.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase()}-${generatedId}` : generatedId);
   return (
     <div>
       <label
         htmlFor={boxId}
-        style={{ display: 'inline-flex', alignItems: 'center', gap: spacing.sm, cursor: disabled ? 'not-allowed' : 'pointer', opacity: disabled ? 0.6 : 1 }}
+        style={{ display: 'inline-flex', alignItems: 'center', gap: spacing.sm, cursor: disabled ? 'not-allowed' : 'pointer', opacity: disabled ? 0.6 : 1, userSelect: 'none' }}
       >
+        <input
+          id={boxId}
+          name={name}
+          type="checkbox"
+          checked={checked}
+          disabled={disabled}
+          onChange={(e) => onChange(e.target.checked)}
+          style={{ position: 'absolute', opacity: 0, width: 0, height: 0, pointerEvents: 'none' }}
+        />
         <span
-          onClick={() => !disabled && onChange(!checked)}
           style={{
             width: 18, height: 18, flexShrink: 0, borderRadius: radii.sm,
             border: `1.5px solid ${checked ? colors.primary : error ? colors.danger : colors.borderStrong}`,
@@ -33,15 +42,6 @@ export const Checkbox: React.FC<CheckboxProps> = ({ label, checked, onChange, di
         >
           {checked && <i className="fa-solid fa-check" style={{ fontSize: '11px', color: '#fff' }} />}
         </span>
-        <input
-          id={boxId}
-          name={name}
-          type="checkbox"
-          checked={checked}
-          disabled={disabled}
-          onChange={(e) => onChange(e.target.checked)}
-          style={{ position: 'absolute', opacity: 0, width: 0, height: 0 }}
-        />
         {label && <span style={{ ...typography.body, color: colors.textMain, fontFamily: typography.fontFamily }}>{label}</span>}
       </label>
       {error && <div style={{ ...typography.helper, color: colors.danger, marginTop: spacing.xs }}>{error}</div>}

@@ -170,6 +170,23 @@
             return rst;
         }
 
+        $scope.canShowApprove = function () {
+            if (!vm.gridConfig.data || vm.gridConfig.data.length === 0) {
+                return false;
+            }
+            var hasPending = false;
+            angular.forEach(vm.gridConfig.data, function (value) {
+                if (value.Orderstatuse == 1 && !value.IsDisabled) {
+                    hasPending = true;
+                }
+            });
+            return hasPending;
+        };
+
+        $scope.canShowCancel = function () {
+            return $scope.canShowApprove();
+        };
+
         $scope.onApproveAction = function (Selecteddata) {
             var Items = []; 
             var indx = 0;

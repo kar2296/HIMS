@@ -26,6 +26,10 @@
             ToDate: utl.Formatter.getCurrentDate()
         };
 
+        $scope.getPatient = function () {
+            $scope.patientChange();
+        };
+
         $scope.patientChange = function () {
             if ($scope.currentfilter.PatientId > 0) {
                 var options = {
@@ -35,8 +39,26 @@
                     onComplete: $scope.getPatientInfo
                 };
                 utl.Http.doAction(options);
+            } else {
+                $scope.clearPatient();
             }
-        }
+        };
+
+        $scope.clearPatient = function () {
+            $scope.currentfilter.PatientId = 0;
+            $scope.currentfilter.PatientName = '';
+            $scope.selectedPatient = null;
+            $scope.currentcontext.EncounterId = 0;
+            $scope.currentcontext.VisitNumber = '';
+            $scope.currentcontext.TotalBillAmount = 0;
+            $scope.currentcontext.TotalPaidAmount = 0;
+            $scope.currentcontext.TotalAdjustedAmount = 0;
+            $scope.currentcontext.TotalUnAdjustedAmount = 0;
+            $scope.currentcontext.TotalDueAmount = 0;
+            vm.gridConfig.data = [];
+            vm.gridConfig.pagerObj.totalItems = 0;
+            $scope.refreshReactProps();
+        };
 
         $scope.getPatientInfo = function (scope, data, options, hasError) {
             $scope.selectedPatient = data;
@@ -107,16 +129,23 @@
 
         $scope.getListCallback = function (scope, data, options, hasError) {
             vm.gridConfig.data = [];
-            for (var idx in data.Data) {
-                var item = data.Data[idx];
-                $scope.currentcontext.TotalBillAmount = $scope.currentcontext.TotalBillAmount + item.BillAmount;
-                $scope.currentcontext.TotalPaidAmount = $scope.currentcontext.TotalPaidAmount + item.PaidAmount;
-                $scope.currentcontext.TotalAdjustedAmount = $scope.currentcontext.TotalAdjustedAmount + item.AdjustedAmount;
-                $scope.currentcontext.TotalUnAdjustedAmount = $scope.currentcontext.TotalUnAdjustedAmount + item.UnAdjustedAmount;
-                $scope.currentcontext.TotalDueAmount = $scope.currentcontext.TotalDueAmount + item.DueAmount;
-                vm.gridConfig.data.push(item);
+            $scope.currentcontext.TotalBillAmount = 0;
+            $scope.currentcontext.TotalPaidAmount = 0;
+            $scope.currentcontext.TotalAdjustedAmount = 0;
+            $scope.currentcontext.TotalUnAdjustedAmount = 0;
+            $scope.currentcontext.TotalDueAmount = 0;
+            if (data && data.Data) {
+                for (var idx in data.Data) {
+                    var item = data.Data[idx];
+                    $scope.currentcontext.TotalBillAmount += (Number(item.BillAmount) || 0);
+                    $scope.currentcontext.TotalPaidAmount += (Number(item.PaidAmount) || 0);
+                    $scope.currentcontext.TotalAdjustedAmount += (Number(item.AdjustedAmount) || 0);
+                    $scope.currentcontext.TotalUnAdjustedAmount += (Number(item.UnAdjustedAmount) || 0);
+                    $scope.currentcontext.TotalDueAmount += (Number(item.DueAmount) || 0);
+                    vm.gridConfig.data.push(item);
+                }
             }
-            vm.gridConfig.pagerObj.totalItems = vm.gridConfig.data.length;
+            vm.gridConfig.pagerObj.totalItems = (data && data.PageContext && data.PageContext.TotalCount) || vm.gridConfig.data.length;
             $scope.refreshReactProps();
         };
 
@@ -167,6 +196,7 @@
             $scope.reactProps = {
                 currentfilter: $scope.currentfilter,
                 currentcontext: $scope.currentcontext,
+                selectedPatient: $scope.selectedPatient,
                 rows: vm.gridConfig.data
             };
         };
@@ -182,6 +212,12 @@
                     $scope.currentfilter.ToDate = payload.value ? new Date(payload.value) : null;
                     $scope.refreshReactProps();
                     $scope.getList();
+                    break;
+                case 'refresh':
+                    $scope.getList();
+                    break;
+                case 'clearPatient':
+                    $scope.clearPatient();
                     break;
             }
             $scope.$applyAsync();

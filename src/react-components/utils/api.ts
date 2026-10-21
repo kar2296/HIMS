@@ -19,9 +19,18 @@ function getUtl(): any {
   return injector.get('utl');
 }
 
-export const apiFetch = async <T = any>(action: string | { action: string, data: any }, payload?: any): Promise<T> => {
+export const apiFetch = async <T = any>(
+  action: string | { action: string, data: any, silent?: boolean },
+  payload?: any,
+  options?: { silent?: boolean }
+): Promise<T> => {
   let urlAction: string;
   let requestData: any;
+  const isSilent = Boolean(
+    (typeof action === 'object' && action.silent) ||
+    options?.silent ||
+    (typeof action === 'string' && action.includes('ServiceItem/GetServiceItems'))
+  );
 
   // Support both overloaded signatures:
   // 1. apiFetch('Action/Path', { ...payload })
@@ -50,14 +59,15 @@ export const apiFetch = async <T = any>(action: string | { action: string, data:
         action: urlAction,
         data: requestData,
         type: 'post',
-        onComplete: (_err: any, data: any) => {
-          resolve(data);
+        silent: isSilent,
+        onComplete: (...args: any[]) => {
+          const result = (args.length > 1 && args[1] !== undefined && args[1] !== null)
+            ? args[1]
+            : args[0];
+          resolve(result);
         },
         onError: (data: any) => {
-          // Mirrors ngAPIHelper's own Error.Message toast (the branch it always shows
-          // regardless of a caller-supplied onError) so this stays visible to the user
-          // exactly like every other real screen's failed call, not just logged.
-          if (data && data.Error && data.Error.Message) {
+          if (!isSilent && data && data.Error && data.Error.Message) {
             try { utl.Alert.showErrorMsg(data.Error.Message); } catch (e) { /* noop */ }
           }
           console.error('API Error:', data);
@@ -66,8 +76,7 @@ export const apiFetch = async <T = any>(action: string | { action: string, data:
       });
     } catch (e) {
       // Angular injector unavailable (e.g. component rendered outside the bootstrapped
-      // app, such as standalone React Router routes) -- fall back to callBackendApi
-      // so standalone screens can fetch from the backend proxy cleanly.
+      // app, such as standalone React Router routes) -- fall back to callBackendApi or fetch
       import('../../services/apiService').then(({ callBackendApi }) => {
         callBackendApi({
           action: urlAction,
@@ -76,9 +85,25 @@ export const apiFetch = async <T = any>(action: string | { action: string, data:
         })
           .then(resolve)
           .catch(reject);
-      }).catch(err => {
-        console.error('apiFetch: could not reach Angular utl service or apiService fallback', err);
-        reject(err);
+      }).catch(async (err) => {
+        try {
+          const root = (window as any).appPath?.apiroot || '/api/';
+          const token = localStorage.getItem('token');
+          const response = await fetch(root + urlAction.replace(/^\//, ''), {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              ...(token ? { 'Authorization': `bearer ${token}` } : {})
+            },
+            credentials: 'include',
+            body: JSON.stringify(requestData)
+          });
+          const data = await response.json();
+          resolve(data as T);
+        } catch (fetchErr) {
+          console.error('apiFetch fallback failed:', fetchErr);
+          reject(err);
+        }
       });
     }
   });

@@ -6,7 +6,8 @@
             function ($http, ngAlertHelper, $translate) {
 
                 var doAction = function (options) {
-                    $("#divgifLoading").show();
+                    var showSpinner = !options.silent;
+                    if (showSpinner) $("#divgifLoading").show();
                     options.action = window.appPath.apiroot + options.action;
                     switch (options.type) {
                         case "post":
@@ -17,13 +18,13 @@
                                     //headers: options.headers
                                 })
                                 .success(function (data) {
-                                    $("#divgifLoading").hide();
+                                    if (showSpinner) $("#divgifLoading").hide();
                                     if (typeof options['onComplete'] === 'function') {
                                         options['onComplete'](null, data, options, false); 
                                     }
                                 })
                                 .error(function (data) {
-                                    $("#divgifLoading").hide();
+                                    if (showSpinner) $("#divgifLoading").hide();
                                     console.log('post api - error');
                                     console.log(data);
                                     if (data && data.Error && data.Error.Code) {
@@ -174,8 +175,42 @@
                         .then(function (response) {
                             var blob = new Blob([response.data], { type: response.headers('Content-Type') });
                             var fileURL = URL.createObjectURL(blob);
-                            var printwWindow = window.open(fileURL);
-                            printwWindow.print();
+                            var printwWindow = null;
+                            try {
+                                printwWindow = window.open(fileURL);
+                            } catch (e) {
+                                printwWindow = null;
+                            }
+                            if (printwWindow && typeof printwWindow.print === 'function') {
+                                try {
+                                    printwWindow.print();
+                                } catch (e) {
+                                    console.warn('printwWindow.print error:', e);
+                                }
+                            } else {
+                                // Fallback when popup blocker blocks window.open
+                                try {
+                                    var iframe = document.createElement('iframe');
+                                    iframe.style.position = 'fixed';
+                                    iframe.style.right = '0';
+                                    iframe.style.bottom = '0';
+                                    iframe.style.width = '0';
+                                    iframe.style.height = '0';
+                                    iframe.style.border = '0';
+                                    iframe.src = fileURL;
+                                    document.body.appendChild(iframe);
+                                    iframe.onload = function () {
+                                        try {
+                                            iframe.contentWindow.focus();
+                                            iframe.contentWindow.print();
+                                        } catch (e) {
+                                            console.warn('iframe.print error:', e);
+                                        }
+                                    };
+                                } catch (e) {
+                                    console.warn('Print iframe fallback error:', e);
+                                }
+                            }
 
                             if (typeof options['onComplete'] === 'function') {
                                 options['onComplete'](null, response.data, options, false);

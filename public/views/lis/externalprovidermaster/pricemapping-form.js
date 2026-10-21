@@ -27,14 +27,41 @@
         }
 
         // var IsProfile = $state.params.IsProfile;
-        var ProviderName = $state.params.ProviderName;
         $scope.getItemCallback = function (scope, data, options, hasError) {
             $scope.item = data;
             if (data.ActiveStatusId == 2)
                 $scope.item.isRequested = true;
             if (data.ActiveStatusId == 2)
                 $scope.item.IsActive = true;
+            $scope.refreshReactProps();
+        };
 
+        $scope.refreshReactProps = function () {
+            $scope.reactProps = {
+                id: $scope.currentcontext.id,
+                externalproviderid: $scope.currentcontext.externalproviderid,
+                providerName: $state.params.ProviderName || $scope.item.ProviderName || '',
+                item: angular.copy($scope.item || {}),
+                lookup: angular.copy($scope.lookup || {})
+            };
+            $scope.$applyAsync();
+        };
+
+        $scope.handleModalClose = function () {
+            $scope.backToList();
+        };
+
+        $scope.handleReactAction = function (actionName, payload) {
+            if (actionName === 'close') {
+                $scope.backToList();
+            } else if (actionName === 'clear') {
+                $scope.clear();
+            } else if (actionName === 'save') {
+                if (payload) angular.extend($scope.item, payload);
+                $scope.saveItem();
+            }
+            $scope.refreshReactProps();
+            $scope.$applyAsync();
         };
 
         $scope.getItem = function (pageNo) {
@@ -216,6 +243,7 @@
         }
 
         $scope.initLookup();
+        $scope.refreshReactProps();
     }
 
     pricemappingFormController.$inject = ['$scope', '$stateParams', '$state', '$translate', 'utl', '$uibModalInstance', 'modalConfig'];

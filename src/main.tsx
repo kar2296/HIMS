@@ -1,3 +1,8 @@
+// Polyfill math on window for legacy AngularJS controllers that call math.round
+if (typeof window !== 'undefined') {
+  (window as any).math = Math;
+}
+
 // Import React and standard Vite entry stuff
 import React from 'react';
 
@@ -106,6 +111,9 @@ import { InpatientTabScreen } from './react-components/InpatientTabScreen';
 
 // Import OpdBillScreen Component
 import { OpdBillScreen } from './react-components/OpdBillScreen';
+// Import OpBillingListScreen Component
+import { OpBillingListScreen } from './react-components/OpBillingListScreen';
+import { DirectBillingListScreen } from './react-components/DirectBillingListScreen';
 
 // Import VisitCreateFormScreen Components (visitcreateform.js/.html --
 // six mounts sharing one reactProps/handleReactAction; see the disclosure
@@ -175,6 +183,8 @@ import { PatientPickerArchiveScreen } from './react-components/PatientPickerArch
 
 // Import PatientFeedbackScreen Component
 import { PatientFeedbackScreen } from './react-components/PatientFeedbackScreen';
+// Import FeedbackMasterListScreen Component (General Master -> Feedback Masters)
+import { FeedbackMasterListScreen } from './react-components/FeedbackMasterListScreen';
 
 // Import PatientTrackerScreen Component
 import { PatientTrackerScreen } from './react-components/PatientTrackerScreen';
@@ -379,6 +389,11 @@ import { GenericMasterListScreen } from './react-components/GenericMasterListScr
 import { ImmunizationListScreen } from './react-components/ImmunizationListScreen';
 import { ServiceCategoryListScreen } from './react-components/ServiceCategoryListScreen';
 import { ServiceRateCategoryListScreen } from './react-components/ServiceRateCategoryListScreen';
+import { GuarantorListScreen } from './react-components/GuarantorListScreen';
+import { ServiceItemListScreen } from './react-components/ServiceItemListScreen';
+import { PackageListScreen } from './react-components/PackageListScreen';
+import { MultiPackageListScreen } from './react-components/MultiPackageListScreen';
+import { SurgeryOrderListScreen } from './react-components/SurgeryOrderListScreen';
 import { ServiceGroupListScreen } from './react-components/ServiceGroupListScreen';
 import { ServiceSubCategoryListScreen } from './react-components/ServiceSubCategoryListScreen';
 import { ProcedureListScreen } from './react-components/ProcedureListScreen';
@@ -515,6 +530,12 @@ import { PhysioTreatmentPlanFilterScreen } from './react-components/PhysioTreatm
 import { PhysioTreatmentPlanListScreen } from './react-components/PhysioTreatmentPlanListScreen';
 import { TreatmentPlanBillingFilterScreen } from './react-components/TreatmentPlanBillingFilterScreen';
 import { TreatmentPlanBillingListScreen } from './react-components/TreatmentPlanBillingListScreen';
+import { InpatientBillingListScreen } from './react-components/InpatientBillingListScreen';
+import { IpBillingTabScreen } from './react-components/IpBillingTabScreen';
+import { IpBillingSummaryScreen } from './react-components/IpBillingSummaryScreen';
+import { IpBillingReceiptsScreen } from './react-components/IpBillingReceiptsScreen';
+import { IpBillingRefundsScreen } from './react-components/IpBillingRefundsScreen';
+import { IpBillingCorrectionsActionBar } from './react-components/IpBillingCorrectionsActionBar';
 import { ClaimHistoryScreen } from './react-components/ClaimHistoryScreen';
 import { ClaimProcessFilterScreen } from './react-components/ClaimProcessFilterScreen';
 import { ClaimProcessListScreen } from './react-components/ClaimProcessListScreen';
@@ -533,6 +554,21 @@ import { ClaimSubmissionFormBillsScreen } from './react-components/ClaimSubmissi
 import { EstimationBillingFilterScreen } from './react-components/EstimationBillingFilterScreen';
 import { EstimationBillingListScreen } from './react-components/EstimationBillingListScreen';
 import { ServiceGroupRateMappingListScreen } from './react-components/ServiceGroupRateMappingListScreen';
+import { OrderAcknowledgementListScreen } from './react-components/OrderAcknowledgementListScreen';
+import { OrderAcknowledgementFormScreen } from './react-components/OrderAcknowledgementFormScreen';
+import { OrderAssignmentListScreen } from './react-components/OrderAssignmentListScreen';
+import { SampleCollectListScreen } from './react-components/SampleCollectListScreen';
+import { SampleCollectFormScreen } from './react-components/SampleCollectFormScreen';
+import { SampleReviewListScreen } from './react-components/SampleReviewListScreen';
+import { SampleReviewFormScreen } from './react-components/SampleReviewFormScreen';
+import { AllOrdersProcessListScreen } from './react-components/AllOrdersProcessListScreen';
+import { AllResultApprovalListScreen } from './react-components/AllResultApprovalListScreen';
+import { ResultDispatchListScreen } from './react-components/ResultDispatchListScreen';
+import { ContainerTypesListScreen } from './react-components/ContainerTypesListScreen';
+import { ContainerTypeFormScreen } from './react-components/ContainerTypeFormScreen';
+import { SampleTypesListScreen } from './react-components/SampleTypesListScreen';
+import { SampleTypeFormScreen } from './react-components/SampleTypeFormScreen';
+import { AntibioticMasterFormScreen } from './react-components/AntibioticMasterFormScreen';
 import { PrivilegeCardFormScreen } from './react-components/PrivilegeCardFormScreen';
 import { PrivilegeCardRegScreen } from './react-components/PrivilegeCardRegScreen';
 import { RefundListFilterScreen } from './react-components/RefundListFilterScreen';
@@ -594,6 +630,41 @@ import { TestTemplateMasterScreen } from './react-components/legacy-screens/Test
 import { AntibioticCultureScreen } from './react-components/legacy-screens/AntibioticCultureScreen';
 import { DispensedItemsPickerScreen } from './react-components/legacy-screens/DispensedItemsPickerScreen';
 import { BulkCheckoutScreen } from './react-components/BulkCheckoutScreen';
+import { DischargePatientBillingScreen } from './react-components/DischargePatientBillingScreen';
+import { TatDetailsModalScreen } from './react-components/TatDetailsModalScreen';
+import { ResultEntryFormScreen } from './react-components/ResultEntryFormScreen';
+import { TestMastersListScreen } from './react-components/TestMastersListScreen';
+import { AnalyteMastersListScreen } from './react-components/AnalyteMastersListScreen';
+import { TestMasterTabScreen } from './react-components/TestMasterTabScreen';
+import { TestMasterFormScreen } from './react-components/TestMasterFormScreen';
+import { AnalyteTabScreen } from './react-components/AnalyteTabScreen';
+import { AnalyteMasterFormScreen } from './react-components/AnalyteMasterFormScreen';
+import { NoteTemplatesListScreen } from './react-components/NoteTemplatesListScreen';
+import { NoteTemplateFormModal } from './react-components/NoteTemplateFormModal';
+import { VoiceTranslatorModal } from './react-components/VoiceTranslatorModal';
+import { TemplateScreenTab } from './react-components/TemplateScreenTab';
+import { AntibioticMastersListScreen } from './react-components/AntibioticMastersListScreen';
+import { OrganismIsolatedListScreen } from './react-components/OrganismIsolatedListScreen';
+import { OrganismTabScreen } from './react-components/OrganismTabScreen';
+import { OrganismIsolatedFormScreen } from './react-components/OrganismIsolatedFormScreen';
+import { AntibioticOrganismMapScreen } from './react-components/AntibioticOrganismMapScreen';
+import { LisRegistrationScreen } from './react-components/LisRegistrationScreen';
+import { LisInterfaceScreen } from './react-components/LisInterfaceScreen';
+import { ExternalProvidersListScreen } from './react-components/ExternalProvidersListScreen';
+import { ExternalLabOrdersListScreen } from './react-components/ExternalLabOrdersListScreen';
+import { OrderStatusChangeScreen } from './react-components/OrderStatusChangeScreen';
+import { LisInterfaceResultModalScreen } from './react-components/LisInterfaceResultModalScreen';
+import { ExternalProviderFormScreen } from './react-components/ExternalProviderFormScreen';
+import { ExternalProviderPriceMappingListScreen } from './react-components/ExternalProviderPriceMappingListScreen';
+import { ExternalProviderPriceMappingModalScreen } from './react-components/ExternalProviderPriceMappingModalScreen';
+import { ExternalOrderAssignmentModalScreen } from './react-components/ExternalOrderAssignmentModalScreen';
+import { ExternalClinicalDocumentModalScreen } from './react-components/ExternalClinicalDocumentModalScreen';
+import { OrderStatusChangeFormScreen } from './react-components/OrderStatusChangeFormScreen';
+import { RisDashboardComponent } from './react-components/RisDashboardComponent';
+import { RadiologyReportsScreen } from './react-components/RadiologyReportsScreen';
+import { RadiologyCriticalValuesScreen } from './react-components/RadiologyCriticalValuesScreen';
+import { VendorPaymentListScreen } from './react-components/VendorPaymentListScreen';
+import { VendorPaymentFormScreen } from './react-components/VendorPaymentFormScreen';
 // Print API for the AngularJS print controllers (window.HimsPrint); QZ Tray loads on the first print
 import './printing/himsPrint';
 
@@ -603,6 +674,8 @@ import './printing/himsPrint';
 
 (window as any).ReactComponents = {
   ...(window as any).ReactComponents,
+  ResultEntryFormScreen,
+  TatDetailsModalScreen,
   BulkCheckoutScreen,
   Button,
   ConfirmModal,
@@ -660,6 +733,8 @@ import './printing/himsPrint';
   DischargedPatientsScreen,
   InpatientTabScreen,
   OpdBillScreen,
+  OpBillingListScreen,
+  DirectBillingListScreen,
   VisitCreateFormPatientHeader,
   VisitCreateFormTopFields,
   VisitCreateFormMidFields,
@@ -687,6 +762,7 @@ import './printing/himsPrint';
   OrderTrackerScreen,
   PatientPickerArchiveScreen,
   PatientFeedbackScreen,
+  FeedbackMasterListScreen,
   PatientTrackerScreen,
   PatientFollowupTabScreen,
   PendingFollowupNameFilterScreen,
@@ -745,6 +821,11 @@ import './printing/himsPrint';
   ImmunizationListScreen,
   ServiceCategoryListScreen,
   ServiceRateCategoryListScreen,
+  GuarantorListScreen,
+  ServiceItemListScreen,
+  PackageListScreen,
+  MultiPackageListScreen,
+  SurgeryOrderListScreen,
   ServiceGroupListScreen,
   ServiceSubCategoryListScreen,
   ProcedureListScreen,
@@ -883,6 +964,12 @@ import './printing/himsPrint';
   PhysioTreatmentPlanListScreen,
   TreatmentPlanBillingFilterScreen,
   TreatmentPlanBillingListScreen,
+  InpatientBillingListScreen,
+  IpBillingTabScreen,
+  IpBillingSummaryScreen,
+  IpBillingReceiptsScreen,
+  IpBillingRefundsScreen,
+  IpBillingCorrectionsActionBar,
   ClaimHistoryScreen,
   ClaimProcessFilterScreen,
   ClaimProcessListScreen,
@@ -901,6 +988,21 @@ import './printing/himsPrint';
   EstimationBillingFilterScreen,
   EstimationBillingListScreen,
   ServiceGroupRateMappingListScreen,
+  OrderAcknowledgementListScreen,
+  OrderAcknowledgementFormScreen,
+  OrderAssignmentListScreen,
+  SampleCollectListScreen,
+  SampleCollectFormScreen,
+  SampleReviewListScreen,
+  SampleReviewFormScreen,
+  AllOrdersProcessListScreen,
+  AllResultApprovalListScreen,
+  ResultDispatchListScreen,
+  ContainerTypesListScreen,
+  ContainerTypeFormScreen,
+  SampleTypesListScreen,
+  SampleTypeFormScreen,
+  AntibioticMasterFormScreen,
   PrivilegeCardFormScreen,
   PrivilegeCardRegScreen,
   RefundListFilterScreen,
@@ -948,6 +1050,7 @@ import './printing/himsPrint';
   IpFileTransferReceiveListScreen,
   BridgeGridScreen,
   BridgeLookupSelectScreen,
+  DischargePatientBillingScreen,
   ClaimReceiptBillsTableScreen,
   NewReceiptBillsTableScreen,
   ItemwiseOpBillCancelSelectScreen,
@@ -982,7 +1085,39 @@ import './printing/himsPrint';
   WardFluidBalanceScreen,
   WardNursingNotesScreen,
   ClinicalAuditTrailScreen,
-  ClinicalCdsAlertsScreen
+  ClinicalCdsAlertsScreen,
+  TestMastersListScreen,
+  AnalyteMastersListScreen,
+  TestMasterTabScreen,
+  TestMasterFormScreen,
+  AnalyteTabScreen,
+  AnalyteMasterFormScreen,
+  NoteTemplatesListScreen,
+  NoteTemplateFormModal,
+  VoiceTranslatorModal,
+  TemplateScreenTab,
+  AntibioticMastersListScreen,
+  OrganismIsolatedListScreen,
+  OrganismTabScreen,
+  OrganismIsolatedFormScreen,
+  AntibioticOrganismMapScreen,
+  LisRegistrationScreen,
+  LisInterfaceScreen,
+  ExternalProvidersListScreen,
+  ExternalLabOrdersListScreen,
+  OrderStatusChangeScreen,
+  LisInterfaceResultModalScreen,
+  ExternalProviderFormScreen,
+  ExternalProviderPriceMappingListScreen,
+  ExternalProviderPriceMappingModalScreen,
+  ExternalOrderAssignmentModalScreen,
+  ExternalClinicalDocumentModalScreen,
+  OrderStatusChangeFormScreen,
+  RisDashboardComponent,
+  RadiologyReportsScreen,
+  RadiologyCriticalValuesScreen,
+  VendorPaymentListScreen,
+  VendorPaymentFormScreen
 };
 
 console.log('React runtime and components loaded. ReactBridge initialized.');
@@ -990,7 +1125,41 @@ console.log('React runtime and components loaded. ReactBridge initialized.');
 import { AppRoutes } from './routes/AppRoutes';
 
 const path = window.location.pathname;
-const isReactRoute = path && path !== '/' && path !== '/index.html';
+if (path === '/servicecategories' || path === '/servicecategories/') {
+  window.location.replace('/#/app/servicecategories');
+}
+if (path === '/serviceratecategories' || path === '/serviceratecategories/') {
+  window.location.replace('/#/app/serviceratecategories');
+}
+if (path === '/guarantors' || path === '/guarantors/') {
+  window.location.replace('/#/app/guarantors');
+}
+if (path === '/serviceitems' || path === '/serviceitems/') {
+  window.location.replace('/#/app/serviceitems');
+}
+if (path === '/packages' || path === '/packages/') {
+  window.location.replace('/#/app/packages');
+}
+if (path === '/surgeryorder' || path === '/surgeryorder/') {
+  window.location.replace('/#/app/surgeryorder');
+}
+const isExcludedFromReactStrangler = [
+  '/',
+  '/index.html',
+  '/servicecategories',
+  '/servicecategories/',
+  '/serviceratecategories',
+  '/serviceratecategories/',
+  '/guarantors',
+  '/guarantors/',
+  '/serviceitems',
+  '/serviceitems/',
+  '/packages',
+  '/packages/',
+  '/surgeryorder',
+  '/surgeryorder/',
+].includes(path);
+const isReactRoute = path && !isExcludedFromReactStrangler;
 
 if (isReactRoute) {
   const mountReactApp = () => {

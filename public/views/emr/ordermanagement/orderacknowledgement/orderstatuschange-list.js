@@ -219,6 +219,60 @@
             }
 
             vm.gridConfig.pagerObj.totalItems = res.PageContext.TotalRecords;
+            $scope.refreshReactProps();
+        };
+
+        $scope.refreshReactProps = function () {
+            var dataList = vm.gridConfig.data || [];
+            var pager = vm.gridConfig.pagerObj || {};
+            $scope.reactProps = {
+                items: angular.copy(dataList),
+                totalItems: (pager.totalItems !== undefined && pager.totalItems !== null) ? pager.totalItems : dataList.length,
+                currentPage: pager.currentPage || 1,
+                pageSize: pager.pageSize || 25,
+                currentfilter: angular.copy($scope.currentfilter || {}),
+                lookup: angular.copy($scope.lookup || {})
+            };
+            $scope.$applyAsync();
+        };
+
+        $scope.handleReactAction = function (actionName, payload) {
+            if (actionName === 'backtoList') {
+                $scope.backtoList();
+            } else if (actionName === 'edit') {
+                $scope.handleEvents('edit', payload);
+            } else if (actionName === 'patientinfo') {
+                $scope.handleEvents('patientinfo', payload);
+            } else if (actionName === 'token') {
+                $scope.handleEvents('token', payload);
+            } else if (actionName === 'ordertat') {
+                $scope.handleEvents('ordertat', payload);
+            } else if (actionName === 'search') {
+                if (payload) {
+                    if (payload.PatName !== undefined) $scope.currentfilter.PatName = payload.PatName;
+                    if (payload.BillOrderNumber !== undefined) $scope.currentfilter.BillOrderNumber = payload.BillOrderNumber;
+                    if (payload.FromDate !== undefined) $scope.currentfilter.FromDate = new Date(payload.FromDate);
+                    if (payload.ToDate !== undefined) $scope.currentfilter.ToDate = new Date(payload.ToDate);
+                    if (payload.OrderStatusId !== undefined) $scope.currentfilter.OrderStatusId = payload.OrderStatusId;
+                    if (payload.EncounterTypeId !== undefined) $scope.currentfilter.EncounterTypeId = payload.EncounterTypeId;
+                }
+                vm.gridConfig.pagerObj.currentPage = 1;
+                $scope.getList();
+            } else if (actionName === 'resetFilters') {
+                $scope.currentfilter.PatName = '';
+                $scope.currentfilter.BillOrderNumber = '';
+                $scope.currentfilter.FromDate = utl.Formatter.getCurrentDate();
+                $scope.currentfilter.ToDate = utl.Formatter.getCurrentDate();
+                $scope.currentfilter.OrderStatusId = '1';
+                $scope.currentfilter.EncounterTypeId = -1;
+                vm.gridConfig.pagerObj.currentPage = 1;
+                $scope.getList();
+            } else if (actionName === 'pageChange') {
+                vm.gridConfig.pagerObj.currentPage = payload && payload.page ? payload.page : 1;
+                $scope.getList();
+            }
+            $scope.refreshReactProps();
+            $scope.$applyAsync();
         };
 
         $scope.getList = function () {
@@ -638,6 +692,7 @@
         }
 
         $scope.initLookup();
+        $scope.refreshReactProps();
     }
 
     orderstatuschangeController.$inject = ['$rootScope', '$scope', '$filter', '$stateParams', '$state', '$translate', 'utl', '$timeout'];

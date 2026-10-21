@@ -75,6 +75,8 @@
             vm.gridConfig.data = res.Data;
             // vm.gridConfig.pagerObj.totalItems = vm.gridConfig.data.length;
             vm.gridConfig.pagerObj.totalItems = res.PageContext.TotalRecords;
+            $scope.refreshReactProps();
+            $scope.$applyAsync();
         };
 
         $scope.getList = function () {
@@ -233,8 +235,79 @@
         $scope.lookupCallback = function (scope, data, options, hasError) {
             $scope.lookup = hasError ? {} : data;
             initDynamicForm();
+            $scope.refreshReactProps();
             $scope.getList();
-        }
+        };
+
+        $scope.refreshReactProps = function () {
+            $scope.reactProps = {
+                items: vm.gridConfig.data || [],
+                totalItems: vm.gridConfig.pagerObj.totalItems || 0,
+                currentPage: vm.gridConfig.pagerObj.currentPage || 1,
+                pageSize: vm.gridConfig.pagerObj.pageSize || 25,
+                pagerObj: {
+                    totalItems: vm.gridConfig.pagerObj.totalItems || 0,
+                    currentPage: vm.gridConfig.pagerObj.currentPage || 1,
+                    pageSize: vm.gridConfig.pagerObj.pageSize || 25,
+                    startIndex: (vm.gridConfig.pagerObj.currentPage - 1) * vm.gridConfig.pagerObj.pageSize
+                },
+                currentfilter: angular.copy($scope.currentfilter),
+                advancedfilter: angular.copy($scope.advancedfilter || {}),
+                lookup: angular.copy($scope.lookup || {})
+            };
+        };
+
+        $scope.handleReactAction = function (actionName, payload) {
+            if (actionName === 'search') {
+                if (payload) {
+                    if (payload.Code !== undefined) $scope.currentfilter.Code = payload.Code;
+                    if (payload.DepartmentId !== undefined) $scope.currentfilter.DepartmentId = payload.DepartmentId;
+                    if (payload.CategoryId !== undefined) $scope.currentfilter.CategoryId = payload.CategoryId;
+                    if (payload.ActiveStatusId !== undefined) $scope.currentfilter.ActiveStatusId = payload.ActiveStatusId;
+                    if (payload.FacilityId !== undefined) $scope.currentfilter.FacilityId = payload.FacilityId;
+                    if (payload.advancedfilter) {
+                        $scope.advancedfilter = angular.extend($scope.advancedfilter || {}, payload.advancedfilter);
+                    }
+                }
+                vm.gridConfig.pagerObj.currentPage = 1;
+                $scope.getList();
+            } else if (actionName === 'resetFilters') {
+                $scope.currentfilter.Code = '';
+                $scope.currentfilter.DepartmentId = -1;
+                $scope.currentfilter.CategoryId = -1;
+                $scope.currentfilter.ActiveStatusId = 2;
+                $scope.currentfilter.FacilityId = utl.Session.getCurrentFacilityId();
+                if ($scope.advancedfilterDefault) {
+                    $scope.advancedfilter = angular.copy($scope.advancedfilterDefault);
+                } else {
+                    $scope.advancedfilter = {};
+                }
+                vm.gridConfig.pagerObj.currentPage = 1;
+                $scope.getList();
+            } else if (actionName === 'pageChange') {
+                vm.gridConfig.pagerObj.currentPage = payload && payload.page ? payload.page : 1;
+                $scope.getList();
+            } else if (actionName === 'addNew') {
+                $scope.addNew();
+            } else if (actionName === 'edit') {
+                $scope.handleEvents('edit', payload);
+            } else if (actionName === 'delete') {
+                $scope.handleEvents('delete', payload);
+            } else if (actionName === 'export') {
+                $scope.exportServiceItem();
+            } else if (typeof $scope[actionName] === 'function') {
+                $scope[actionName](payload);
+            }
+            $scope.refreshReactProps();
+            $scope.$applyAsync();
+        };
+
+        var _origLookupCallback = $scope.lookupCallback;
+        $scope.lookupCallback = function (scope, data, options, hasError) {
+            _origLookupCallback(scope, data, options, hasError);
+            $scope.refreshReactProps();
+            $scope.$applyAsync();
+        };
 
         $scope.initLookup = function () {
             var inputData = [
@@ -255,8 +328,9 @@
                 onComplete: $scope.lookupCallback
             };
             utl.Http.doAction(options);
-        }
+        };
 
+        $scope.refreshReactProps();
         $scope.initLookup();
     }
 

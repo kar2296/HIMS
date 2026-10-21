@@ -21,7 +21,52 @@
         $scope.getListCallback = function (scope, res, options, hasError) {
             vm.gridConfig.data = res.Data;
             vm.gridConfig.pagerObj.totalItems = res.PageContext.TotalRecords;
+            $scope.refreshReactProps();
+        };
 
+        $scope.refreshReactProps = function () {
+            var dataList = vm.gridConfig.data || [];
+            var pager = vm.gridConfig.pagerObj || {};
+            $scope.reactProps = {
+                items: angular.copy(dataList),
+                totalItems: (pager.totalItems !== undefined && pager.totalItems !== null) ? pager.totalItems : dataList.length,
+                currentPage: pager.currentPage || 1,
+                pageSize: pager.pageSize || 25,
+                currentfilter: angular.copy($scope.currentfilter || {}),
+                lookup: angular.copy($scope.lookup || {})
+            };
+            $scope.$applyAsync();
+        };
+
+        $scope.handleReactAction = function (actionName, payload) {
+            if (actionName === 'addNew') {
+                $scope.addNew();
+            } else if (actionName === 'edit') {
+                $scope.handleEvents('edit', payload);
+            } else if (actionName === 'view') {
+                $scope.handleEvents('view', payload);
+            } else if (actionName === 'delete') {
+                $scope.handleEvents('delete', payload);
+            } else if (actionName === 'search') {
+                if (payload) {
+                    if (payload.ProviderName !== undefined) $scope.currentfilter.ProviderName = payload.ProviderName;
+                    if (payload.TESTMASTERTYPId !== undefined) $scope.currentfilter.TESTMASTERTYPId = payload.TESTMASTERTYPId;
+                    if (payload.ActiveStatusId !== undefined) $scope.currentfilter.ActiveStatusId = payload.ActiveStatusId;
+                }
+                vm.gridConfig.pagerObj.currentPage = 1;
+                $scope.getList();
+            } else if (actionName === 'resetFilters') {
+                $scope.currentfilter.ProviderName = '';
+                $scope.currentfilter.TESTMASTERTYPId = -1;
+                $scope.currentfilter.ActiveStatusId = 2;
+                vm.gridConfig.pagerObj.currentPage = 1;
+                $scope.getList();
+            } else if (actionName === 'pageChange') {
+                vm.gridConfig.pagerObj.currentPage = payload && payload.page ? payload.page : 1;
+                $scope.getList();
+            }
+            $scope.refreshReactProps();
+            $scope.$applyAsync();
         };
 
         $scope.getList = function () {
@@ -136,6 +181,7 @@
         }
 
         $scope.initLookup();
+        $scope.refreshReactProps();
     }
 
     externalProviderListController.$inject = ['$scope', '$stateParams', '$state', '$translate', 'utl'];

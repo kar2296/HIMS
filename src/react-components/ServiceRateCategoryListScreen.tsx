@@ -434,36 +434,83 @@ export const ServiceRateCategoryListScreen: React.FC<ServiceRateCategoryListScre
   };
 
   return (
-    <div
-      style={{
-        padding: spacing.lg,
-        backgroundColor: '#f8fafc',
-        minHeight: '100vh',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: spacing.md,
-      }}
-    >
-      {/* Header */}
-      <PageHeader
-        title="Service Rate Categories"
-        breadcrumb={[
-          { label: 'EMR' },
-          { label: 'Clinical Masters' },
-          { label: 'Service Rate Categories' },
-        ]}
-        actions={
-          <Button
-            variant="primary"
-            onClick={handleOpenAdd}
-            style={{ display: 'flex', alignItems: 'center', gap: spacing.xs }}
-            id="btnAddServiceRateCategory"
-          >
-            <i className="fa fa-plus" />
-            <span>Add Rate Category</span>
-          </Button>
-        }
-      />
+    <div className="src-page-container">
+      {/* ─────────────────────────────────────────────────────────────
+          1. EXECUTIVE HEADER CARD
+      ───────────────────────────────────────────────────────────── */}
+      <div className="src-header-card">
+        <div className="src-header-left">
+          <div className="src-header-icon">
+            <i className="fa fa-calculator fa-solid fa-calculator" />
+          </div>
+          <div>
+            <div className="src-header-title-row">
+              <h1 className="src-header-title">Service Rate Categories</h1>
+              <span className="src-header-tag">Clinical Masters</span>
+            </div>
+            <p className="src-header-subtitle">
+              Configure clinical rate categories, tariff associations, percentages and billing defaults
+            </p>
+          </div>
+        </div>
+
+        <div className="src-header-right">
+          <div className="src-header-chip">
+            <span className="src-header-chip-dot" />
+            <span>Rate Category Registry</span>
+          </div>
+          <div className="src-header-actions">
+            <button
+              type="button"
+              className="src-btn src-btn-primary"
+              onClick={handleOpenAdd}
+              id="btnAddServiceRateCategory"
+            >
+              <i className="fa fa-plus fa-solid fa-plus" />
+              <span>Add Rate Category</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* ─────────────────────────────────────────────────────────────
+          2. KPI SUMMARY CARDS (3 Cards)
+      ───────────────────────────────────────────────────────────── */}
+      <div className="src-stats-grid">
+        <div className="src-stat-card">
+          <div className="src-stat-icon blue">
+            <i className="fa fa-th-list fa-solid fa-layer-group" />
+          </div>
+          <div className="src-stat-info">
+            <span className="src-stat-label">Total Rate Categories</span>
+            <span className="src-stat-value">{totalItems || items.length}</span>
+          </div>
+        </div>
+
+        <div className="src-stat-card">
+          <div className="src-stat-icon emerald">
+            <i className="fa fa-check-circle fa-solid fa-circle-check" />
+          </div>
+          <div className="src-stat-info">
+            <span className="src-stat-label">Active Categories</span>
+            <span className="src-stat-value">
+              {items.filter((i) => i.ActiveStatusId === 2 || i.ActiveStatus?.Id === 2 || i.IsActive === true).length}
+            </span>
+          </div>
+        </div>
+
+        <div className="src-stat-card">
+          <div className="src-stat-icon indigo">
+            <i className="fa fa-tag fa-solid fa-tag" />
+          </div>
+          <div className="src-stat-info">
+            <span className="src-stat-label">Basic Categories</span>
+            <span className="src-stat-value">
+              {items.filter((i) => Boolean(i.IsBasic)).length}
+            </span>
+          </div>
+        </div>
+      </div>
 
       {/* Toast Alert */}
       {toastMessage && (
@@ -479,6 +526,7 @@ export const ServiceRateCategoryListScreen: React.FC<ServiceRateCategoryListScre
             justifyContent: 'space-between',
             fontSize: typography.body.fontSize,
             boxShadow: '0 2px 4px rgba(0,0,0,0.05)',
+            marginBottom: 14,
           }}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: spacing.sm }}>
@@ -495,307 +543,248 @@ export const ServiceRateCategoryListScreen: React.FC<ServiceRateCategoryListScre
         </div>
       )}
 
-      {/* Filter Bar */}
-      <Card style={{ padding: spacing.md }}>
-        <FilterBar>
-          <form
-            onSubmit={handleFilterSearch}
-            style={{
-              display: 'flex',
-              flexWrap: 'wrap',
-              gap: spacing.md,
-              alignItems: 'flex-end',
-              width: '100%',
-            }}
-          >
-            {/* Facility Filter */}
-            <div style={{ minWidth: 200, flex: '1 1 200px' }}>
-              <label
-                style={{
-                  display: 'block',
-                  marginBottom: spacing.xs,
-                  fontSize: '0.85rem',
-                  fontWeight: 600,
-                  color: colors.textMain,
-                }}
-              >
-                Facility
-              </label>
-              <Select
+      {/* ─────────────────────────────────────────────────────────────
+          3. SEARCH & FILTER CARD
+      ───────────────────────────────────────────────────────────── */}
+      <div className="src-filter-card">
+        <div className="src-filter-header">
+          <h3 className="src-filter-header-title">
+            <i className="fa fa-filter fa-solid fa-sliders" />
+            <span>Search & Filter Rate Categories</span>
+          </h3>
+          <span className="src-filter-header-badge">Master Directory</span>
+        </div>
+
+        <form onSubmit={handleFilterSearch} className="src-filters-grid">
+          {/* Facility Filter */}
+          <div className="src-field-group">
+            <label className="src-field-label">
+              <i className="fa-solid fa-hospital" />
+              <span>Facility</span>
+            </label>
+            <div className="src-input-wrapper">
+              <select
+                className="src-select-control"
                 value={filterFacilityId}
-                onChange={(val) => setFilterFacilityId(Number(val))}
-                options={[
-                  { value: -1, label: 'All Facilities' },
-                  ...(lookups.Facility?.map((f) => ({ value: f.Id, label: f.Text })) || []),
-                ]}
+                onChange={(e) => setFilterFacilityId(Number(e.target.value))}
                 id="filterFacility"
-              />
-            </div>
-
-            {/* Tariff Type Filter */}
-            <div style={{ minWidth: 200, flex: '1 1 200px' }}>
-              <label
-                style={{
-                  display: 'block',
-                  marginBottom: spacing.xs,
-                  fontSize: '0.85rem',
-                  fontWeight: 600,
-                  color: colors.textMain,
-                }}
               >
-                Tariff Type
-              </label>
-              <Select
+                <option value={-1}>All Facilities</option>
+                {lookups.Facility?.map((f) => (
+                  <option key={f.Id} value={f.Id}>
+                    {f.Text}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          {/* Tariff Type Filter */}
+          <div className="src-field-group">
+            <label className="src-field-label">
+              <i className="fa-solid fa-receipt" />
+              <span>Tariff Type</span>
+            </label>
+            <div className="src-input-wrapper">
+              <select
+                className="src-select-control"
                 value={filterTariffTypeId}
-                onChange={(val) => setFilterTariffTypeId(Number(val))}
-                options={[
-                  { value: -1, label: 'All Tariff Types' },
-                  ...(lookups.GuarantorType?.map((g) => ({ value: g.Id, label: g.Text || g.Description || '' })) || []),
-                ]}
+                onChange={(e) => setFilterTariffTypeId(Number(e.target.value))}
                 id="filterTariffType"
-              />
-            </div>
-
-            {/* Status Filter */}
-            <div style={{ minWidth: 160, flex: '1 1 160px' }}>
-              <label
-                style={{
-                  display: 'block',
-                  marginBottom: spacing.xs,
-                  fontSize: '0.85rem',
-                  fontWeight: 600,
-                  color: colors.textMain,
-                }}
               >
-                Status
-              </label>
-              <Select
+                <option value={-1}>All Tariff Types</option>
+                {lookups.GuarantorType?.map((g) => (
+                  <option key={g.Id} value={g.Id}>
+                    {g.Text || g.Description || ''}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          {/* Status Filter */}
+          <div className="src-field-group">
+            <label className="src-field-label">
+              <i className="fa-solid fa-toggle-on" />
+              <span>Status</span>
+            </label>
+            <div className="src-input-wrapper">
+              <select
+                className="src-select-control"
                 value={filterStatusId}
-                onChange={(val) => setFilterStatusId(Number(val))}
-                options={[
-                  { value: -1, label: 'All Statuses' },
-                  ...(lookups.ActiveStatus?.map((s) => ({ value: s.Id, label: s.Text || s.Description || '' })) || []),
-                ]}
+                onChange={(e) => setFilterStatusId(Number(e.target.value))}
                 id="filterStatus"
+              >
+                <option value={-1}>All Statuses</option>
+                {lookups.ActiveStatus?.map((s) => (
+                  <option key={s.Id} value={s.Id}>
+                    {s.Text || s.Description || ''}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          {/* Name Search */}
+          <div className="src-field-group">
+            <label className="src-field-label">
+              <i className="fa-solid fa-magnifying-glass" />
+              <span>Search Name</span>
+            </label>
+            <div className="src-input-wrapper">
+              <input
+                type="text"
+                className="src-input-control"
+                placeholder="Rate category name..."
+                value={filterName}
+                onChange={(e) => setFilterName(e.target.value)}
+                id="filterSearchName"
               />
+              {filterName && (
+                <button
+                  type="button"
+                  className="src-input-clear-btn"
+                  onClick={() => setFilterName('')}
+                  title="Clear search"
+                >
+                  <i className="fa fa-times fa-solid fa-xmark" />
+                </button>
+              )}
             </div>
+          </div>
 
-            {/* Name Search */}
-            <div style={{ minWidth: 220, flex: '2 1 220px' }}>
-              <label
-                style={{
-                  display: 'block',
-                  marginBottom: spacing.xs,
-                  fontSize: '0.85rem',
-                  fontWeight: 600,
-                  color: colors.textMain,
-                }}
-              >
-                Search Name
-              </label>
-              <div style={{ position: 'relative' }}>
-                <Input
-                  type="text"
-                  placeholder="Rate category name..."
-                  value={filterName}
-                  onChange={(e) => setFilterName(e.target.value)}
-                  style={{ width: '100%', paddingRight: '2rem' }}
-                  id="filterSearchName"
-                />
-                {filterName && (
-                  <button
-                    type="button"
-                    onClick={() => setFilterName('')}
-                    style={{
-                      position: 'absolute',
-                      right: 10,
-                      top: '50%',
-                      transform: 'translateY(-50%)',
-                      background: 'transparent',
-                      border: 'none',
-                      color: colors.textMuted,
-                      cursor: 'pointer',
-                    }}
-                  >
-                    <i className="fa fa-times" />
-                  </button>
-                )}
-              </div>
-            </div>
+          {/* Action Buttons */}
+          <div className="src-filter-actions">
+            <button type="submit" className="src-btn src-btn-primary" id="btnFilterSearchRateCategory">
+              <i className="fa fa-search fa-solid fa-magnifying-glass" />
+              <span>Search</span>
+            </button>
+            <button
+              type="button"
+              className="src-btn src-btn-outline"
+              onClick={handleResetFilters}
+              id="btnFilterResetRateCategory"
+            >
+              <i className="fa fa-refresh fa-solid fa-rotate" />
+              <span>Reset</span>
+            </button>
+          </div>
+        </form>
+      </div>
 
-            {/* Action Buttons */}
-            <div style={{ display: 'flex', gap: spacing.sm }}>
-              <Button type="submit" variant="primary" id="btnFilterSearchRateCategory">
-                <i className="fa fa-search" style={{ marginRight: spacing.xs }} />
-                Search
-              </Button>
-              <Button type="button" variant="outline" onClick={handleResetFilters} id="btnFilterResetRateCategory">
-                <i className="fa fa-refresh" style={{ marginRight: spacing.xs }} />
-                Reset
-              </Button>
-            </div>
-          </form>
-        </FilterBar>
-      </Card>
-
-      {/* Grid Table Card */}
-      <Card style={{ padding: 0, overflow: 'hidden' }}>
-        <div style={{ overflowX: 'auto' }}>
-          <table
-            style={{
-              width: '100%',
-              borderCollapse: 'collapse',
-              fontSize: '0.875rem',
-              color: colors.textMain,
-            }}
+      {/* ─────────────────────────────────────────────────────────────
+          4. ENTERPRISE TABLE CARD
+      ───────────────────────────────────────────────────────────── */}
+      <div className="src-table-card">
+        <div className="src-table-header-bar">
+          <h3 className="src-table-title">
+            <i className="fa fa-list-alt fa-solid fa-table-list" />
+            <span>Service Rate Categories Directory</span>
+            <span className="src-table-count-pill">
+              Showing {items.length} of {totalItems || items.length} {items.length === 1 ? 'Record' : 'Records'}
+            </span>
+          </h3>
+          <button
+            type="button"
+            className="src-btn src-btn-outline"
+            style={{ height: 32, padding: '0 12px', fontSize: 12 }}
+            onClick={handleOpenAdd}
           >
+            <i className="fa fa-plus fa-solid fa-plus" />
+            <span>Add Rate Category</span>
+          </button>
+        </div>
+
+        <div className="src-table-wrapper">
+          <table className="src-table">
             <thead>
-              <tr
-                style={{
-                  backgroundColor: '#f1f5f9',
-                  borderBottom: `2px solid ${colors.border || '#e2e8f0'}`,
-                  textAlign: 'left',
-                }}
-              >
-                <th style={{ padding: `${spacing.sm} ${spacing.md}`, width: '30%' }}>Service Rate Category</th>
-                <th style={{ padding: `${spacing.sm} ${spacing.md}`, width: '15%', textAlign: 'center' }}>Is Basic</th>
-                <th style={{ padding: `${spacing.sm} ${spacing.md}`, width: '20%' }}>Tariff Type</th>
-                <th style={{ padding: `${spacing.sm} ${spacing.md}`, width: '15%' }}>Status</th>
-                <th style={{ padding: `${spacing.sm} ${spacing.md}`, width: '20%', textAlign: 'center' }}>Actions</th>
+              <tr>
+                <th style={{ width: 44, textAlign: 'center' }}>#</th>
+                <th style={{ width: '32%' }}>Service Rate Category</th>
+                <th style={{ width: '14%', textAlign: 'center' }}>Is Basic</th>
+                <th style={{ width: '22%' }}>Tariff Type</th>
+                <th style={{ width: '16%' }}>Status</th>
+                <th style={{ width: '12%', textAlign: 'center' }}>Actions</th>
               </tr>
             </thead>
             <tbody>
               {isLoading ? (
                 <tr>
-                  <td colSpan={5} style={{ textAlign: 'center', padding: spacing.xl, color: colors.textMuted }}>
-                    <i className="fa fa-spinner fa-spin fa-2x" style={{ marginBottom: spacing.sm, display: 'block' }} />
+                  <td colSpan={6} style={{ textAlign: 'center', padding: '48px 16px', color: '#64748b' }}>
+                    <i className="fa fa-spinner fa-spin fa-2x" style={{ marginBottom: 8, display: 'block', color: '#0284c7' }} />
                     Loading service rate categories...
                   </td>
                 </tr>
               ) : items.length === 0 ? (
                 <tr>
-                  <td colSpan={5} style={{ textAlign: 'center', padding: spacing.xl, color: colors.textMuted }}>
-                    No service rate categories found. Click &quot;Add Rate Category&quot; to create one.
+                  <td colSpan={6}>
+                    <div className="src-empty-state">
+                      <div className="src-empty-icon">
+                        <i className="fa fa-folder-open-o fa-solid fa-folder-open" />
+                      </div>
+                      <h4 className="src-empty-title">No Service Rate Categories Found</h4>
+                      <p className="src-empty-desc">
+                        {filterName || filterFacilityId !== -1 || filterTariffTypeId !== -1 || filterStatusId !== -1
+                          ? 'No rate categories match the active filter criteria. Try resetting filters.'
+                          : 'No rate categories exist yet. Click "Add Rate Category" to create one.'}
+                      </p>
+                      <button
+                        type="button"
+                        className="src-btn src-btn-primary"
+                        onClick={handleOpenAdd}
+                      >
+                        <i className="fa fa-plus fa-solid fa-plus" />
+                        <span>Add First Rate Category</span>
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ) : (
                 items.map((item, index) => {
                   const isActive = item.ActiveStatusId === 2 || item.ActiveStatus?.Id === 2 || item.IsActive === true;
-                  const canDelete = true;
 
                   return (
-                    <tr
-                      key={item.Id || index}
-                      style={{
-                        borderBottom: `1px solid ${colors.border || '#e2e8f0'}`,
-                        backgroundColor: index % 2 === 0 ? '#ffffff' : '#f8fafc',
-                        transition: 'background-color 0.15s ease',
-                      }}
-                    >
-                      <td style={{ padding: `${spacing.sm} ${spacing.md}`, fontWeight: 500 }}>
+                    <tr key={item.Id || index}>
+                      <td className="src-cell-idx">
+                        {(currentPage - 1) * pageSize + index + 1}
+                      </td>
+                      <td className="src-category-name">
                         {item.ServiceRateCategory}
                       </td>
-
-                      <td style={{ padding: `${spacing.sm} ${spacing.md}`, textAlign: 'center' }}>
+                      <td className="text-center">
                         {item.IsBasic ? (
-                          <span
-                            style={{
-                              backgroundColor: '#dbeafe',
-                              color: '#1e40af',
-                              padding: '2px 8px',
-                              borderRadius: radii.full,
-                              fontSize: '0.75rem',
-                              fontWeight: 600,
-                            }}
-                          >
-                            Yes
-                          </span>
+                          <span className="src-badge src-badge-yes">Yes</span>
                         ) : (
-                          <span
-                            style={{
-                              backgroundColor: '#f1f5f9',
-                              color: '#64748b',
-                              padding: '2px 8px',
-                              borderRadius: radii.full,
-                              fontSize: '0.75rem',
-                              fontWeight: 600,
-                            }}
-                          >
-                            No
-                          </span>
+                          <span className="src-badge src-badge-no">No</span>
                         )}
                       </td>
-
-                      <td style={{ padding: `${spacing.sm} ${spacing.md}`, color: colors.textMuted }}>
-                        {item.GuarantorType?.Description || item.GuarantorType?.Text || '-'}
+                      <td style={{ color: '#475569' }}>
+                        {item.GuarantorType?.Description || item.GuarantorType?.Text || '—'}
                       </td>
-
-                      <td style={{ padding: `${spacing.sm} ${spacing.md}` }}>
-                        <span
-                          style={{
-                            backgroundColor: isActive ? '#ecfdf5' : '#fef2f2',
-                            color: isActive ? '#065f46' : '#991b1b',
-                            padding: '3px 8px',
-                            borderRadius: radii.full,
-                            fontSize: '0.75rem',
-                            fontWeight: 600,
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            gap: 4,
-                          }}
-                        >
-                          <span
-                            style={{
-                              width: 6,
-                              height: 6,
-                              borderRadius: '50%',
-                              backgroundColor: isActive ? '#10b981' : '#ef4444',
-                            }}
-                          />
+                      <td>
+                        <span className={`src-badge ${isActive ? 'src-badge-active' : 'src-badge-inactive'}`}>
+                          <span className={isActive ? 'src-badge-active-dot' : 'src-badge-inactive-dot'} />
                           {item.ActiveStatus?.Description || item.ActiveStatus?.Text || (isActive ? 'Active' : 'Inactive')}
                         </span>
                       </td>
-
-                      <td style={{ padding: `${spacing.sm} ${spacing.md}`, textAlign: 'center' }}>
-                        <div style={{ display: 'inline-flex', gap: spacing.xs }}>
+                      <td className="text-center">
+                        <div style={{ display: 'inline-flex', gap: 6, justifyContent: 'center' }}>
                           <button
                             type="button"
+                            className="src-action-btn src-action-edit"
                             onClick={() => handleOpenEdit(item)}
                             title="Edit Rate Category"
-                            style={{
-                              background: 'transparent',
-                              border: 'none',
-                              cursor: 'pointer',
-                              padding: '6px 8px',
-                              borderRadius: radii.sm,
-                              color: colors.primary,
-                              transition: 'background-color 0.15s ease',
-                            }}
-                            onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#eff6ff')}
-                            onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
                           >
-                            <i className="fa fa-edit" />
+                            <i className="fa fa-pencil fa-solid fa-pen-to-square" />
                           </button>
-                          {canDelete && (
-                            <button
-                              type="button"
-                              onClick={() => handleDeleteClick(item)}
-                              title="Delete Rate Category"
-                              style={{
-                                background: 'transparent',
-                                border: 'none',
-                                cursor: 'pointer',
-                                padding: '6px 8px',
-                                borderRadius: radii.sm,
-                                color: '#ef4444',
-                                transition: 'background-color 0.15s ease',
-                              }}
-                              onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#fee2e2')}
-                              onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
-                            >
-                              <i className="fa fa-trash-alt" />
-                            </button>
-                          )}
+                          <button
+                            type="button"
+                            className="src-action-btn src-action-del"
+                            onClick={() => handleDeleteClick(item)}
+                            title="Delete Rate Category"
+                          >
+                            <i className="fa fa-trash-o fa-solid fa-trash-can" />
+                          </button>
                         </div>
                       </td>
                     </tr>
@@ -807,18 +796,9 @@ export const ServiceRateCategoryListScreen: React.FC<ServiceRateCategoryListScre
         </div>
 
         {/* Pagination Bar */}
-        <div
-          style={{
-            padding: `${spacing.sm} ${spacing.md}`,
-            borderTop: `1px solid ${colors.border || '#e2e8f0'}`,
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            backgroundColor: '#ffffff',
-          }}
-        >
-          <div style={{ fontSize: '0.875rem', color: colors.textMuted }}>
-            Showing {items.length} of {totalItems} records
+        <div className="src-pagination-bar">
+          <div className="src-pagination-info">
+            Showing <strong>{items.length}</strong> of <strong>{totalItems}</strong> records
           </div>
           <Pagination
             currentPage={currentPage}
@@ -827,7 +807,7 @@ export const ServiceRateCategoryListScreen: React.FC<ServiceRateCategoryListScre
             onPageChange={handlePageChange}
           />
         </div>
-      </Card>
+      </div>
 
       {/* Add / Edit Modal */}
       <Modal

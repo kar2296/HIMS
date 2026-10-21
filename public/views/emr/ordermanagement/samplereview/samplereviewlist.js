@@ -1,293 +1,282 @@
-(function() {
+(function () {
     'use strict';
 
     angular
         .module('app.pages')
         .controller('samplereviewlistController', samplereviewlistController);
 
-    function samplereviewlistController($scope, $filter, $stateParams, $state, $translate, utl) {
+    function samplereviewlistController($scope, $filter, $stateParams, $state, $translate, utl, $timeout) {
         var vm = this;
+
+        var defaultFrom = new Date();
+        defaultFrom.setDate(defaultFrom.getDate() - 7);
 
         $scope.Items = [];
 
         $scope.currentfilter = {
             OrdDeptId: -1,
+            PatNameOrderNo: '',
             ordernrbillnr: '',
-            OrderRequestDate: utl.Formatter.getCurrentDate(),
-            // FrmOrderReqDate: '',
-            // ToOrderReqDate: '',
+            namemrn: '',
+            FromDate: defaultFrom,
+            ToDate: utl.Formatter.getCurrentDate(),
+            OrderRequestDate: defaultFrom,
             orderstatusid: -1,
             patienttypeid: -1,
             samplestatusid: -1,
-            SubDepartmentId: parseInt(utl.Session.getCurrentSubDepartmentId()),
+            SubDepartmentId: -1,
+            VisitIdentifier: '',
+            WorkOrderdid: ''
         };
+
+        if (utl.Session.getCurrentSubDepartmentId()) {
+            var sDept = parseInt(utl.Session.getCurrentSubDepartmentId());
+            if (!isNaN(sDept) && sDept > 0) {
+                $scope.currentfilter.SubDepartmentId = sDept;
+            }
+        }
+
         $scope.SubdeptDisable = true;
-        $scope.disabledept = function() {
+        $scope.disabledept = function () {
             if ($scope.currentfilter.SubDepartmentId == -1 || ($scope.currentfilter.SubDepartmentId != parseInt(utl.Session.getCurrentSubDepartmentId())))
                 $scope.SubdeptDisable = false;
-        }
-        $scope.currentcontext = {};
-        if ($scope.currentfilter.TestTypeId == 1) { //lab
-            $scope.currentcontext.deptcode = 8;
-        } else if ($scope.currentfilter.TestTypeId == 2) { //radiology
-            $scope.currentcontext.deptcode = 62;
-        } else if ($scope.currentfilter.TestTypeId == 4) { //endoscopy
-            $scope.currentcontext.deptcode = 60;
-        }
-        //Dynamic form starts
-        function initDynamicForm() {
-            $scope.advancedfilter = {};
-            $scope.advancedfilterDefault = {
-                PatientId: -1,
-                DoctorId: -1,
-                DepartmentId: -1,
-                AdmissionTypeId: -1,
-                ServiceRateCategoryId: -1,
-                DiagnosisId: -1,
-                // From: utl.Formatter.getCurrentDate(),
-                // To: utl.Formatter.getCurrentDate(),
-            };
+        };
 
-            $scope.advancedFilterSchema = {
-                layout: 'grid',
-                title: 'common.advancedfilter-title.lbl',
-                controls: [
-                    { type: 'date', translate: 'ordermanagement.orderacknowledgement-form.from.lbl', model: 'From', position: { r: 0, c: 0 } },
-                    { type: 'date', translate: 'ordermanagement.orderacknowledgement-form.to.lbl', model: 'To', position: { r: 0, c: 1 } },
-                    { type: 'text', translate: 'ordermanagement.orderacknowledgement-form.workorder.lbl', model: 'ordernrbillnr', position: { r: 0, c: 2 } },
-                    { type: 'select', translate: 'patientemr.patientorder-list.orderedby.lbl', model: 'DoctorId', options: $scope.lookup.Doctor, position: { r: 1, c: 0 } },
-                    { type: 'select', translate: 'patientemr.patientorder-list.orderfrom.lbl', model: 'OrderFromId', options: $scope.lookup.Department, position: { r: 1, c: 1 } },
-                    { type: 'select', translate: 'admissions.filter_ward.lbl', model: 'WardId', options: $scope.lookup.Ward, position: { r: 1, c: 2 } },
-                    { type: 'select', translate: 'admissions.filter_guarantor.lbl', model: 'GuarantorId', options: $scope.lookup.Guarantor, position: { r: 2, c: 0 } },
-                    { type: 'select', translate: 'ordermanagement.orderacknowledgement-form.gtype.lbl', model: 'GuarantorTypeId', options: $scope.lookup.GuarantorType, position: { r: 2, c: 1 } },
-                    { type: 'select', translate: 'ordermanagement.orderacknowledgement-list.orderstatus.lbl', model: 'orderstatusid', options: $scope.lookup.WorkOrderStatus, position: { r: 2, c: 2 } },
-                ],
-                actions: [
-                    { type: 'apply', translate: 'common.applyaction.lbl', cls: 'btn-primary' },
-                    { type: 'reset', translate: 'common.resetaction.lbl', cls: 'btn-danger' }
-                ]
-            };
-        }
-        $scope.dashboard = function() {
+        $scope.currentcontext = {
+            deptcode: 8 // LIS Department ID
+        };
+
+        $scope.dashboard = function () {
             $state.go('app.lisdashboard');
         };
 
-        function handleDynamicFormEvents(actionType, formData) {
-            $scope.advancedfilter = formData;
-            $scope.getList();
-        }
-
-        $scope.openAdvancedFilter = function() {
-
-                utl.Modal.openDynamicForm({
-                    modeldata: $scope.advancedfilter,
-                    defaultdata: $scope.advancedfilterDefault,
-                    schema: $scope.advancedFilterSchema,
-                    relativeto: '#btnadvanced',
-                    handleDynamicFormEvents: handleDynamicFormEvents
-                });
-            }
-            //Dynamic form  ends
-        $scope.getListCallback = function(scope, res, options, hasError) {
-            vm.gridConfig.data = res.Data;
-            vm.gridConfig.pagerObj.totalItems = res.PageContext.TotalRecords;
-            $scope.disabledept();
-        };
-
-        $scope.getList = function(pageNo) {
-            if (!$scope.currentfilter.OrderRequestDate) {
-                utl.Alert.showErrorMsg($translate.instant('Please select any Date'));
-                return;
-            } else {
-                var From = $filter('date')($scope.currentfilter.OrderRequestDate, 'yyyy-MM-dd 00:00:00') || null;
-                var To = $filter('date')($scope.currentfilter.OrderRequestDate, 'yyyy-MM-dd 23:59:59') || null;
-                if ($scope.currentfilter.PatOrdNo) {
-                    var From = null;
-                    var To = null;
-                    $scope.currentfilter.samplestatusid = null;
-                }
-                var inputData = {
-                    Params: [
-                        // {
-                        //     Key: 2,
-                        //     Value: $scope.currentfilter.ordernrbillnr
-                        // },
-                        {
-                            Key: 4,
-                            Value: $scope.currentfilter.Patient
-                        },
-                        {
-                            Key: 3,
-                            Value: $scope.currentfilter.patienttypeid
-                        },
-                        {
-                            Key: 20,
-                            Value: $scope.currentfilter.PatOrdNo
-                        },
-                        {
-                            Key: 21,
-                            Value: $scope.currentfilter.samplestatusid
-                        },
-                        {
-                            Key: 7,
-                            Value: $scope.currentfilter.orderstatusid
-                        },
-                        {
-                            Key: 7,
-                            Value: $scope.advancedfilter.orderstatusid
-                        },
-                        {
-                            Key: 8,
-                            Value: $scope.advancedfilter.DoctorId
-                        },
-                        {
-                            Key: 10,
-                            Value: From
-                        },
-                        {
-                            Key: 11,
-                            Value: To
-                        },
-                        {
-                            Key: 16,
-                            Value: $scope.currentfilter.WorkOrderdid
-                        },
-                        {
-                            Key: 17,
-                            Value: utl.Session.getCurrentFacilityId()
-                        },
-                        {
-                            Key: 18,
-                            Value: $scope.currentfilter.VisitIdentifier
-                        }
-                    ],
-                    PageContext: {
-                        PageSize: vm.gridConfig.pagerObj.pageSize,
-                        PageNumber: vm.gridConfig.pagerObj.currentPage
-                    }
-                };
-
-                var options = {
-                    action: 'lis/workordersample/GetWorkOrderSamples',
-                    data: inputData,
-                    type: 'post',
-                    onComplete: $scope.getListCallback
-                };
-
-                utl.Http.doAction(options);
-            }
-        };
-
-        $scope.deleteItemCallback = function(scope, data, options, hasError) {
-            utl.Alert.showSuccessMsg($translate.instant('common.delete_successmsg.lbl'));
-            $scope.getList();
-        };
-
-        $scope.onDeleteConfirmed = function(deleteId) {
-            var options = {
-                action: '',
-                data: { Id: deleteId },
-                type: 'post',
-                onComplete: $scope.deleteItemCallback
-            };
-            utl.Http.doAction(options);
-        }
-
-        $scope.handleEvents = function(actionType, entity) {
-            if (actionType == 'edit' || actionType == 'view') {
-                $state.go('app.samplereview', { id: entity.Id });
-            } else if (actionType == 'patientinfo') {
-                utl.Modal.open('registration.patientprofile', {
-                    params: { pid: entity.PatientId }
-                });
-            } else if (actionType == 'ordertat') {
-                utl.Modal.open('app.patientorderhistory', {
-                    params: { pid: entity.PatientId, oid: entity.Id },
-                    confirmCallback: $scope.onDetailSave
-                });
-            }
-        }
-
+        // Grid Config
         vm.gridConfig = {
-            enableColumnResizing: true,
-            columnDefs: [{
-                    field: "OrderRequestDate",
-                    displayName: $translate.instant('ordermanagement.samplecollection.orderreqdate.lbl'),
-                    cellTemplate: "<ngformatdate datetime-val='entity.PatientOrder.OrderRequestDate'></ngformatdate>"
-                },
-                {
-                    field: "OrderNumber",
-                    width: "10%",
-                    displayName: $translate.instant('ordermanagement.samplecollection.ordernr.lbl'),
-                    cellTemplate: '<div class="ui-grid-cell-contents" > {{entity.PatientOrder.OrderNumber}} </div>'
-                },
-                {
-                    field: "PatientMRN",
-                    displayName: $translate.instant('ordermanagement.samplecollection.patientinfo.lbl'),
-                    width: '15%',
-                    cellTemplate: "<div class='ui-grid-cell-contents'>" +
-                        '<a ng-click="grid.appScope.handleEvents(\'patientinfo\',row)" uib-tooltip="{{entity.Patient.Title.Description}}&nbsp; .{{entity.Patient.FirstName}} / {{entity.Patient.MRN}}  / {{entity.Patient.Age}} / {{entity.Patient.Gender.Description}}" tooltip-placement="right" >' +
-                        "{{entity.Patient.Title.Description}}&nbsp;</span>" +
-                        "<span >{{entity.Patient.FirstName}}&nbsp;</span>" +
-                        "<span >{{entity.Patient.LastName}}</span>" +
-                        "<span >/</span>" +
-                        "<span >{{entity.Patient.MRN}}</span>" +
-                        "<span >/<span>" +
-                        "<span ng-if='entity.Patient.Title && entity.Patient.Title.Description' >" +
-                        "<span >{{entity.Patient.Age}}</span>" +
-                        "<span >/</span>" +
-                        "<span >{{entity.Patient.Gender.Description}}</span>" +
-                        "</a></div>"
-                },
-                {
-                    field: "OrderPriority",
-                    displayName: $translate.instant('ordermanagement.samplecollection.priority.lbl'),
-                    cellTemplate: '<div class="ui-grid-cell-contents " > {{entity.OrderPriority.Description}} </div>'
-                },
-                { field: "PatientWorkorder.WorkOrderdid", displayName: $translate.instant('ordermanagement.orderacknowledgement-form.workorder.lbl') },
-                {
-                    field: "Encounter.VisitIdentifier",
-                    displayName: $translate.instant('ordermanagement.samplecollection.visitid.lbl')
-                },
-                {
-                    field: "SampleStatus",
-                    displayName: $translate.instant('ordermanagement.samplecollection.samplestatuse.lbl'),
-                    cellTemplate: '<div class="ui-grid-cell-contents " >{{entity.SampleStatus.Description}}</div>'
-                },
-                {
-                    field: "SampleStatus",
-                    displayName: $translate.instant('ordermanagement.samplecollection.orderstatus.lbl'),
-                    cellTemplate: '<div class="ui-grid-cell-contents " >{{entity.PatientOrder.OrderStatus.DisplayName}}</div>'
-                },
-                {
-                    field: "LabAssignType",
-                    displayName: $translate.instant('ordermanagement.samplecollection.labtype.lbl'),
-                    cellTemplate: '<div class="ui-grid-cell-contents " >{{entity.LabAssignType.Description}}</div>'
-                },
-                {
-                    field: "Id",
-                    displayName: $translate.instant('common.actions_col.lbl'),
-                    cellTemplate: '<div class="ui-grid-cell-contents">\
-                    <span class="grid-action" ng-click="handleEvents(\'edit\',entity)"   ng-hide="entity.SampleStatusId == 5"><img class="drhms-edit-button" src="assets/svg/edit.svg" aria-hidden="true"></span>\
-                    <span class="grid-action" ng-click="handleEvents(\'view\',entity)" ng-show="entity.SampleStatusId == 5"><img class="drhms-edit-button" src="assets/svg/edit.svg" aria-hidden="true"></span>\
-                    <span class="grid-action" ng-click="handleEvents(\'ordertat\',entity)" ><i class="btn btn-info btn-rounded fa fa-list" aria-hidden="true"uib-tooltip="Order TAT"\
-                    tooltip-placement="bottom"></i></span>\
-                    </div>',
-                    handleEvent: $scope.handleEvents,
-                    actions: []
-                }
-
-            ],
+            data: [],
             pagerObj: { totalItems: 0, currentPage: 1, startIndex: 0, pageSize: 25 }
         };
 
-        $scope.lookupCallback = function(scope, data, options, hasError) {
-            $scope.lookup = hasError ? {} : data;
-            initDynamicForm();
-            $scope.getList();
-        }
+        // React Bridge Props
+        $scope.refreshReactProps = function () {
+            var dataList = vm.gridConfig.data || [];
+            var pager = vm.gridConfig.pagerObj || { totalItems: 0, currentPage: 1, pageSize: 25 };
 
-        $scope.initLookup = function() {
+            $scope.reactProps = {
+                rows: dataList,
+                items: dataList,
+                totalItems: pager.totalItems || dataList.length,
+                currentPage: pager.currentPage || 1,
+                pageSize: pager.pageSize || 25,
+                pagerObj: {
+                    totalItems: pager.totalItems || dataList.length,
+                    currentPage: pager.currentPage || 1,
+                    pageSize: pager.pageSize || 25,
+                    startIndex: ((pager.currentPage || 1) - 1) * (pager.pageSize || 25)
+                },
+                currentfilter: angular.copy($scope.currentfilter),
+                lookup: angular.copy($scope.lookup || {}),
+                facilityName: utl.Session.getCurrentFacilityName ? utl.Session.getCurrentFacilityName() : 'SHUVADARSINI HOSPITAL',
+                facilityId: utl.Session.getCurrentFacilityId ? utl.Session.getCurrentFacilityId() : 1
+            };
+            $scope.$applyAsync();
+        };
+
+        // Handle Actions from React Component
+        $scope.handleReactAction = function (actionName, payload) {
+            switch (actionName) {
+                case 'edit':
+                case 'view':
+                    if (payload && payload.Id) {
+                        $state.go('app.samplereview', { id: payload.Id });
+                    }
+                    break;
+
+                case 'patientinfo':
+                    if (payload && payload.PatientId) {
+                        utl.Modal.open('registration.patientprofile', {
+                            params: { pid: payload.PatientId }
+                        });
+                    }
+                    break;
+
+                case 'ordertat':
+                    if (payload) {
+                        var patientId = payload.PatientId;
+                        var orderId = payload.PatientOrderId || payload.Id;
+                        utl.Modal.open('app.tatdetails', {
+                            params: {
+                                pid: patientId,
+                                oid: orderId
+                            },
+                            confirmCallback: $scope.getList
+                        });
+                    }
+                    break;
+
+                case 'dashboard':
+                    $state.go('app.lisdashboard');
+                    break;
+
+                case 'orderack':
+                    $state.go('app.orderacknowledgementlist');
+                    break;
+
+                case 'samplecollect':
+                    $state.go('app.samplecollectionlist');
+                    break;
+
+                case 'search':
+                    if (payload) {
+                        if (payload.PatNameOrderNo !== undefined) $scope.currentfilter.PatNameOrderNo = payload.PatNameOrderNo;
+                        if (payload.ordernrbillnr !== undefined) $scope.currentfilter.ordernrbillnr = payload.ordernrbillnr;
+                        if (payload.namemrn !== undefined) $scope.currentfilter.namemrn = payload.namemrn;
+                        if (payload.FromDate !== undefined) $scope.currentfilter.FromDate = payload.FromDate;
+                        if (payload.ToDate !== undefined) $scope.currentfilter.ToDate = payload.ToDate;
+                        if (payload.patienttypeid !== undefined) $scope.currentfilter.patienttypeid = payload.patienttypeid;
+                        else if (payload.EncounterTypeId !== undefined) $scope.currentfilter.patienttypeid = payload.EncounterTypeId;
+                        if (payload.SubDepartmentId !== undefined) $scope.currentfilter.SubDepartmentId = payload.SubDepartmentId;
+                        if (payload.samplestatusid !== undefined) $scope.currentfilter.samplestatusid = payload.samplestatusid;
+                        if (payload.orderstatusid !== undefined) $scope.currentfilter.orderstatusid = payload.orderstatusid;
+                        if (payload.VisitIdentifier !== undefined) $scope.currentfilter.VisitIdentifier = payload.VisitIdentifier;
+                    }
+                    vm.gridConfig.pagerObj.currentPage = 1;
+                    $scope.getList();
+                    break;
+
+                case 'resetFilters':
+                    var resetFrom = new Date();
+                    resetFrom.setDate(resetFrom.getDate() - 7);
+                    $scope.currentfilter.PatNameOrderNo = '';
+                    $scope.currentfilter.ordernrbillnr = '';
+                    $scope.currentfilter.namemrn = '';
+                    $scope.currentfilter.FromDate = resetFrom;
+                    $scope.currentfilter.ToDate = utl.Formatter.getCurrentDate();
+                    $scope.currentfilter.patienttypeid = -1;
+                    $scope.currentfilter.SubDepartmentId = -1;
+                    $scope.currentfilter.samplestatusid = -1;
+                    $scope.currentfilter.orderstatusid = -1;
+                    $scope.currentfilter.VisitIdentifier = '';
+                    vm.gridConfig.pagerObj.currentPage = 1;
+                    $scope.getList();
+                    break;
+
+                case 'pageChange':
+                    vm.gridConfig.pagerObj.currentPage = payload && payload.page ? payload.page : 1;
+                    $scope.getList();
+                    break;
+
+                case 'pageSizeChange':
+                    vm.gridConfig.pagerObj.pageSize = payload && payload.pageSize ? payload.pageSize : 25;
+                    vm.gridConfig.pagerObj.currentPage = 1;
+                    $scope.getList();
+                    break;
+
+                default:
+                    break;
+            }
+            $scope.refreshReactProps();
+            $scope.$applyAsync();
+        };
+
+        $scope.getListCallback = function (scope, res, options, hasError) {
+            if (hasError || !res) {
+                vm.gridConfig.data = [];
+                vm.gridConfig.pagerObj.totalItems = 0;
+            } else {
+                vm.gridConfig.data = res.Data || [];
+                vm.gridConfig.pagerObj.totalItems = (res.PageContext && res.PageContext.TotalRecords !== undefined)
+                    ? res.PageContext.TotalRecords
+                    : (res.Data ? res.Data.length : 0);
+            }
+            $scope.disabledept();
+            $scope.refreshReactProps();
+        };
+
+        $scope.getList = function (pageNo) {
+            if (pageNo) {
+                vm.gridConfig.pagerObj.currentPage = pageNo;
+            }
+
+            var fromDateStr = null;
+            var toDateStr = null;
+
+            if ($scope.currentfilter.FromDate) {
+                fromDateStr = $filter('date')($scope.currentfilter.FromDate, 'yyyy-MM-dd 00:00:00');
+            }
+            if ($scope.currentfilter.ToDate) {
+                toDateStr = $filter('date')($scope.currentfilter.ToDate, 'yyyy-MM-dd 23:59:59');
+            }
+
+            var searchVal = $scope.currentfilter.PatNameOrderNo ||
+                $scope.currentfilter.ordernrbillnr ||
+                $scope.currentfilter.namemrn ||
+                '';
+
+            var params = [
+                {
+                    Key: 17, // FacilityId
+                    Value: utl.Session.getCurrentFacilityId ? utl.Session.getCurrentFacilityId() : 1
+                }
+            ];
+
+            if (fromDateStr) {
+                params.push({ Key: 10, Value: fromDateStr }); // From
+            }
+            if (toDateStr) {
+                params.push({ Key: 11, Value: toDateStr }); // To
+            }
+            if (searchVal && searchVal.trim() !== '') {
+                params.push({ Key: 20, Value: searchVal.trim() }); // PatNameOrderNo
+            }
+            if ($scope.currentfilter.patienttypeid && $scope.currentfilter.patienttypeid != -1) {
+                params.push({ Key: 3, Value: $scope.currentfilter.patienttypeid }); // PatientType
+            }
+            if ($scope.currentfilter.SubDepartmentId && $scope.currentfilter.SubDepartmentId != -1) {
+                params.push({ Key: 15, Value: $scope.currentfilter.SubDepartmentId }); // SubDepartmentId
+            }
+            if ($scope.currentfilter.samplestatusid && $scope.currentfilter.samplestatusid != -1 && $scope.currentfilter.samplestatusid !== '') {
+                params.push({ Key: 21, Value: $scope.currentfilter.samplestatusid }); // MultiSampleStatus
+            }
+            if ($scope.currentfilter.orderstatusid && $scope.currentfilter.orderstatusid != -1 && $scope.currentfilter.orderstatusid !== '') {
+                params.push({ Key: 7, Value: $scope.currentfilter.orderstatusid }); // OrderStatus
+            }
+            if ($scope.currentfilter.VisitIdentifier && $scope.currentfilter.VisitIdentifier.trim() !== '') {
+                params.push({ Key: 18, Value: $scope.currentfilter.VisitIdentifier.trim() }); // VisitIdentifier
+            }
+            if ($scope.currentfilter.WorkOrderdid && $scope.currentfilter.WorkOrderdid.trim() !== '') {
+                params.push({ Key: 16, Value: $scope.currentfilter.WorkOrderdid.trim() }); // WorkOrderdid
+            }
+
+            var inputData = {
+                Params: params,
+                PageContext: {
+                    PageSize: vm.gridConfig.pagerObj.pageSize || 25,
+                    PageNumber: vm.gridConfig.pagerObj.currentPage || 1
+                }
+            };
+
+            var options = {
+                action: 'lis/workordersample/GetWorkOrderSamples',
+                data: inputData,
+                type: 'post',
+                onComplete: $scope.getListCallback
+            };
+
+            utl.Http.doAction(options);
+        };
+
+        // Backward compatibility handlers
+        $scope.handleEvents = function (actionType, entity) {
+            $scope.handleReactAction(actionType, entity);
+        };
+
+        $scope.lookupCallback = function (scope, data, options, hasError) {
+            $scope.lookup = hasError ? {} : data;
+            $scope.refreshReactProps();
+            $scope.getList();
+        };
+
+        $scope.initLookup = function () {
             var inputData = [
                 { "Key": "OrderStatus" },
                 { "Key": "SampleStatus" },
@@ -297,22 +286,12 @@
                     Request: {
                         Params: [{
                             Key: 2,
-                            Value: [-1, utl.Session.getCurrentFacilityId()]
+                            Value: [-1, utl.Session.getCurrentFacilityId ? utl.Session.getCurrentFacilityId() : 1]
                         }]
                     }
                 },
                 { "Key": "Department" },
                 { "Key": "Ward" },
-                {
-                    "Key": "Guarantor",
-                    Request: {
-                        Params: [{
-                            Key: 7,
-                            Value: [-1, utl.Session.getCurrentFacilityId()]
-                        }]
-                    }
-                },
-                { "Key": "GuarantorType" },
                 {
                     "Key": "SubDepartment",
                     Request: {
@@ -320,8 +299,9 @@
                             { Key: 6, Value: $scope.currentcontext.deptcode }
                         ]
                     }
-                },
-            ]
+                }
+            ];
+
             var options = {
                 action: 'General/Options/getoptions',
                 data: inputData,
@@ -329,13 +309,12 @@
                 onComplete: $scope.lookupCallback
             };
             utl.Http.doAction(options);
-        }
+        };
 
+        $scope.refreshReactProps();
         $scope.initLookup();
-
-
     }
 
-    samplereviewlistController.$inject = ['$scope', '$filter', '$stateParams', '$state', '$translate', 'utl'];
+    samplereviewlistController.$inject = ['$scope', '$filter', '$stateParams', '$state', '$translate', 'utl', '$timeout'];
 
 })();

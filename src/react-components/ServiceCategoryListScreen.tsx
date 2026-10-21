@@ -363,57 +363,102 @@ export const ServiceCategoryListScreen: React.FC<ServiceCategoryListScreenProps>
   const visibleItems = items.filter((it) => it.Status !== 2);
 
   return (
-    <div
-      style={{
-        padding: spacing.lg,
-        backgroundColor: '#f8fafc',
-        minHeight: '100vh',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: spacing.md,
-      }}
-    >
-      {/* Page Header */}
-      <PageHeader
-        title="Service Categories"
-        breadcrumb={[
-          { label: 'EMR' },
-          { label: 'Clinical Masters' },
-          { label: 'Service Categories' },
-        ]}
-        actions={
-          <div style={{ display: 'flex', gap: spacing.sm, alignItems: 'center' }}>
-            <Button
-              variant="outline"
+    <div className="sc-page-container">
+      {/* ─────────────────────────────────────────────────────────────
+          1. EXECUTIVE HEADER CARD
+      ───────────────────────────────────────────────────────────── */}
+      <div className="sc-header-card">
+        <div className="sc-header-left">
+          <div className="sc-header-icon">
+            <i className="fa fa-th-list fa-solid fa-layer-group" />
+          </div>
+          <div>
+            <div className="sc-header-title-row">
+              <h1 className="sc-header-title">Service Categories</h1>
+              <span className="sc-header-tag">Clinical Masters</span>
+            </div>
+            <p className="sc-header-subtitle">
+              Manage clinical service classifications, doctor shares, ordering and facility permissions
+            </p>
+          </div>
+        </div>
+
+        <div className="sc-header-right">
+          <div className="sc-header-chip">
+            <span className="sc-header-chip-dot" />
+            <span>Master Directory</span>
+          </div>
+          <div className="sc-header-actions">
+            <button
+              type="button"
+              className="sc-btn sc-btn-outline"
               onClick={handleAddNew}
-              style={{ display: 'flex', alignItems: 'center', gap: spacing.xs }}
               id="btnAddNewServiceCategory"
             >
-              <i className="fa fa-plus" aria-hidden="true" />
+              <i className="fa fa-plus fa-solid fa-plus" />
               <span>Add Row</span>
-            </Button>
-            <Button
-              variant="primary"
+            </button>
+            <button
+              type="button"
+              className="sc-btn sc-btn-primary"
               onClick={handleSave}
               disabled={isSaving}
-              style={{ display: 'flex', alignItems: 'center', gap: spacing.xs }}
               id="btnSaveServiceCategoriesTop"
             >
               {isSaving ? (
                 <>
-                  <i className="fa fa-spinner fa-spin" />
+                  <i className="fa fa-spinner fa-spin fa-solid fa-spinner" />
                   <span>Saving...</span>
                 </>
               ) : (
                 <>
-                  <i className="fa fa-save" />
+                  <i className="fa fa-save fa-solid fa-floppy-disk" />
                   <span>Save All</span>
                 </>
               )}
-            </Button>
+            </button>
           </div>
-        }
-      />
+        </div>
+      </div>
+
+      {/* ─────────────────────────────────────────────────────────────
+          2. KPI SUMMARY CARDS (3 Cards)
+      ───────────────────────────────────────────────────────────── */}
+      <div className="sc-stats-grid">
+        <div className="sc-stat-card">
+          <div className="sc-stat-icon blue">
+            <i className="fa fa-sitemap fa-solid fa-folder-tree" />
+          </div>
+          <div className="sc-stat-info">
+            <span className="sc-stat-label">Total Categories</span>
+            <span className="sc-stat-value">{visibleItems.length}</span>
+          </div>
+        </div>
+
+        <div className="sc-stat-card">
+          <div className="sc-stat-icon emerald">
+            <i className="fa fa-check-circle fa-solid fa-circle-check" />
+          </div>
+          <div className="sc-stat-info">
+            <span className="sc-stat-label">Active Categories</span>
+            <span className="sc-stat-value">
+              {visibleItems.filter((i) => Boolean(i.StatusId)).length}
+            </span>
+          </div>
+        </div>
+
+        <div className="sc-stat-card">
+          <div className="sc-stat-icon indigo">
+            <i className="fa fa-user-md fa-solid fa-user-doctor" />
+          </div>
+          <div className="sc-stat-info">
+            <span className="sc-stat-label">Doctor Share Eligible</span>
+            <span className="sc-stat-value">
+              {visibleItems.filter((i) => Boolean(i.IsDoctorShare)).length}
+            </span>
+          </div>
+        </div>
+      </div>
 
       {/* Toast Alert */}
       {toastMessage && (
@@ -429,6 +474,7 @@ export const ServiceCategoryListScreen: React.FC<ServiceCategoryListScreenProps>
             justifyContent: 'space-between',
             fontSize: typography.body.fontSize,
             boxShadow: '0 2px 4px rgba(0,0,0,0.05)',
+            marginBottom: 14,
           }}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: spacing.sm }}>
@@ -451,368 +497,295 @@ export const ServiceCategoryListScreen: React.FC<ServiceCategoryListScreenProps>
         </div>
       )}
 
-      {/* Filter Bar */}
-      <Card style={{ padding: spacing.md }}>
-        <FilterBar>
-          <form
-            onSubmit={handleFilterSearch}
-            style={{
-              display: 'flex',
-              flexWrap: 'wrap',
-              gap: spacing.md,
-              alignItems: 'flex-end',
-              width: '100%',
-            }}
-          >
-            {/* Facility Filter */}
-            <div style={{ minWidth: 220, flex: '1 1 220px' }}>
-              <label
-                style={{
-                  display: 'block',
-                  marginBottom: spacing.xs,
-                  fontSize: '0.85rem',
-                  fontWeight: 600,
-                  color: colors.textMain,
-                }}
-              >
-                Facility
-              </label>
-              <Select
+      {/* ─────────────────────────────────────────────────────────────
+          3. SEARCH & FILTER CARD
+      ───────────────────────────────────────────────────────────── */}
+      <div className="sc-filter-card">
+        <div className="sc-filter-header">
+          <h3 className="sc-filter-header-title">
+            <i className="fa fa-filter fa-solid fa-sliders" />
+            <span>Search & Filter Categories</span>
+          </h3>
+          <span className="sc-filter-header-badge">Clinical Directory</span>
+        </div>
+
+        <form onSubmit={handleFilterSearch} className="sc-filters-grid">
+          {/* Facility Filter */}
+          <div className="sc-field-group">
+            <label className="sc-field-label">
+              <i className="fa-solid fa-hospital" />
+              <span>Facility</span>
+            </label>
+            <div className="sc-input-wrapper">
+              <select
+                className="sc-select-control"
                 value={filterFacilityId}
-                onChange={(val) => setFilterFacilityId(Number(val))}
-                options={[
-                  { value: -1, label: 'All Facilities' },
-                  ...(lookupFacility?.map((fac) => ({ value: fac.Id, label: fac.Text })) || []),
-                ]}
+                onChange={(e) => setFilterFacilityId(Number(e.target.value))}
                 id="selectFacilityFilter"
+              >
+                <option value={-1}>All Facilities</option>
+                {lookupFacility?.map((fac) => (
+                  <option key={fac.Id} value={fac.Id}>
+                    {fac.Text}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          {/* Search Category */}
+          <div className="sc-field-group">
+            <label className="sc-field-label">
+              <i className="fa-solid fa-magnifying-glass" />
+              <span>Search Category (Code / Name)</span>
+            </label>
+            <div className="sc-input-wrapper">
+              <input
+                type="text"
+                className="sc-input-control"
+                placeholder="Type code or category name..."
+                value={filterName}
+                onChange={(e) => setFilterName(e.target.value)}
+                id="inputSearchCategory"
               />
+              {filterName && (
+                <button
+                  type="button"
+                  className="sc-input-clear-btn"
+                  onClick={() => setFilterName('')}
+                  title="Clear search"
+                >
+                  <i className="fa-solid fa-xmark" />
+                </button>
+              )}
             </div>
+          </div>
 
-            {/* Code / Name Search */}
-            <div style={{ minWidth: 260, flex: '2 1 260px' }}>
-              <label
-                style={{
-                  display: 'block',
-                  marginBottom: spacing.xs,
-                  fontSize: '0.85rem',
-                  fontWeight: 600,
-                  color: colors.textMain,
-                }}
-              >
-                Search Category (Code / Name)
-              </label>
-              <div style={{ position: 'relative' }}>
-                <Input
-                  type="text"
-                  placeholder="Type code or category name..."
-                  value={filterName}
-                  onChange={(e) => setFilterName(e.target.value)}
-                  style={{ width: '100%', paddingRight: '2rem' }}
-                  id="inputSearchCategory"
-                />
-                {filterName && (
-                  <button
-                    type="button"
-                    onClick={() => setFilterName('')}
-                    style={{
-                      position: 'absolute',
-                      right: 10,
-                      top: '50%',
-                      transform: 'translateY(-50%)',
-                      background: 'transparent',
-                      border: 'none',
-                      color: colors.textMuted,
-                      cursor: 'pointer',
-                    }}
-                  >
-                    <i className="fa fa-times" />
-                  </button>
-                )}
-              </div>
-            </div>
+          {/* Action Buttons */}
+          <div className="sc-filter-actions">
+            <button type="submit" className="sc-btn sc-btn-primary" id="btnFilterSearch">
+              <i className="fa fa-search fa-solid fa-magnifying-glass" />
+              <span>Search</span>
+            </button>
+            <button
+              type="button"
+              className="sc-btn sc-btn-outline"
+              onClick={handleResetFilters}
+              id="btnFilterReset"
+            >
+              <i className="fa fa-refresh fa-solid fa-rotate" />
+              <span>Reset</span>
+            </button>
+          </div>
+        </form>
+      </div>
 
-            {/* Actions */}
-            <div style={{ display: 'flex', gap: spacing.sm }}>
-              <Button type="submit" variant="primary" id="btnFilterSearch">
-                <i className="fa fa-search" style={{ marginRight: spacing.xs }} />
-                Search
-              </Button>
-              <Button type="button" variant="outline" onClick={handleResetFilters} id="btnFilterReset">
-                <i className="fa fa-refresh" style={{ marginRight: spacing.xs }} />
-                Reset
-              </Button>
-            </div>
-          </form>
-        </FilterBar>
-      </Card>
-
-      {/* Main Grid Card */}
-      <Card style={{ padding: 0, overflow: 'hidden' }}>
-        <div style={{ overflowX: 'auto' }}>
-          <table
-            style={{
-              width: '100%',
-              borderCollapse: 'collapse',
-              fontSize: '0.875rem',
-              color: colors.textMain,
-            }}
+      {/* ─────────────────────────────────────────────────────────────
+          4. ENTERPRISE TABLE CARD
+      ───────────────────────────────────────────────────────────── */}
+      <div className="sc-table-card">
+        <div className="sc-table-header-bar">
+          <h3 className="sc-table-title">
+            <i className="fa fa-list-alt fa-solid fa-table-list" />
+            <span>Service Categories List</span>
+            <span className="sc-table-count-pill">
+              {visibleItems.length} {visibleItems.length === 1 ? 'Record' : 'Records'}
+            </span>
+          </h3>
+          <button
+            type="button"
+            className="sc-btn sc-btn-outline"
+            style={{ height: 32, padding: '0 12px', fontSize: 12 }}
+            onClick={handleAddNew}
           >
+            <i className="fa fa-plus fa-solid fa-plus" />
+            <span>Add Row</span>
+          </button>
+        </div>
+
+        <div className="sc-table-wrapper">
+          <table className="sc-table">
             <thead>
-              <tr
-                style={{
-                  backgroundColor: '#f1f5f9',
-                  borderBottom: `2px solid ${colors.border || '#e2e8f0'}`,
-                  textAlign: 'left',
-                }}
-              >
-                <th style={{ padding: `${spacing.sm} ${spacing.md}`, width: '16%' }}>
-                  <span>Code</span>
-                  <span style={{ color: '#ef4444', marginLeft: 4 }}>*</span>
+              <tr>
+                <th style={{ width: 44, textAlign: 'center' }}>#</th>
+                <th style={{ width: '18%' }}>
+                  Code <span style={{ color: '#ef4444' }}>*</span>
                 </th>
-                <th style={{ padding: `${spacing.sm} ${spacing.md}`, width: '28%' }}>
-                  <span>Category Name</span>
-                  <span style={{ color: '#ef4444', marginLeft: 4 }}>*</span>
+                <th style={{ width: '30%' }}>
+                  Category Name <span style={{ color: '#ef4444' }}>*</span>
                 </th>
-                <th style={{ padding: `${spacing.sm} ${spacing.md}`, width: '12%' }}>Display Order</th>
-                <th style={{ padding: `${spacing.sm} ${spacing.md}`, width: '12%' }}>Print Order</th>
-                <th style={{ padding: `${spacing.sm} ${spacing.md}`, width: '8%', textAlign: 'center' }}>
-                  Status
-                </th>
-                <th style={{ padding: `${spacing.sm} ${spacing.md}`, width: '10%', textAlign: 'center' }}>
-                  All Facility
-                </th>
-                <th style={{ padding: `${spacing.sm} ${spacing.md}`, width: '10%', textAlign: 'center' }}>
-                  Doctor Share
-                </th>
-                <th style={{ padding: `${spacing.sm} ${spacing.md}`, width: '6%', textAlign: 'center' }}>
-                  Actions
-                </th>
+                <th style={{ width: '11%', textAlign: 'center' }}>Display Order</th>
+                <th style={{ width: '11%', textAlign: 'center' }}>Print Order</th>
+                <th style={{ width: '9%', textAlign: 'center' }}>Status</th>
+                <th style={{ width: '10%', textAlign: 'center' }}>All Facility</th>
+                <th style={{ width: '11%', textAlign: 'center' }}>Doctor Share</th>
+                <th style={{ width: '6%', textAlign: 'center' }}>Action</th>
               </tr>
             </thead>
             <tbody>
               {isLoading ? (
                 <tr>
-                  <td colSpan={8} style={{ textAlign: 'center', padding: spacing.xl, color: colors.textMuted }}>
-                    <i className="fa fa-spinner fa-spin fa-2x" style={{ marginBottom: spacing.sm, display: 'block' }} />
+                  <td colSpan={9} style={{ textAlign: 'center', padding: '48px 16px', color: '#64748b' }}>
+                    <i className="fa fa-spinner fa-spin fa-2x" style={{ marginBottom: 8, display: 'block', color: '#0284c7' }} />
                     Loading service categories...
                   </td>
                 </tr>
               ) : visibleItems.length === 0 ? (
                 <tr>
-                  <td colSpan={8} style={{ textAlign: 'center', padding: spacing.xl, color: colors.textMuted }}>
-                    No service categories found. Click &quot;Add Row&quot; to create one.
+                  <td colSpan={9}>
+                    <div className="sc-empty-state">
+                      <div className="sc-empty-icon">
+                        <i className="fa fa-folder-open-o fa-solid fa-folder-open" />
+                      </div>
+                      <h4 className="sc-empty-title">No Service Categories Found</h4>
+                      <p className="sc-empty-desc">
+                        {filterName || filterFacilityId !== -1
+                          ? 'No categories match the active search criteria. Try resetting filters.'
+                          : 'No categories exist yet. Click "Add Row" below to create the first record.'}
+                      </p>
+                      <button
+                        type="button"
+                        className="sc-btn sc-btn-primary"
+                        onClick={handleAddNew}
+                      >
+                        <i className="fa fa-plus fa-solid fa-plus" />
+                        <span>Add First Category</span>
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ) : (
-                visibleItems.map((item, index) => {
-                  return (
-                    <tr
-                      key={item.Id ? `id-${item.Id}` : `new-${index}`}
-                      style={{
-                        borderBottom: `1px solid ${colors.border || '#e2e8f0'}`,
-                        backgroundColor: index % 2 === 0 ? '#ffffff' : '#f8fafc',
-                        transition: 'background-color 0.15s ease',
-                      }}
-                    >
-                      {/* Code */}
-                      <td style={{ padding: `${spacing.xs} ${spacing.sm}` }}>
-                        <input
-                          type="text"
-                          className="form-control"
-                          value={item.ServiceCategoryCode || ''}
-                          onChange={(e) => handleCellChange(index, 'ServiceCategoryCode', e.target.value)}
-                          placeholder="Code"
-                          style={{
-                            width: '100%',
-                            padding: '6px 10px',
-                            borderRadius: radii.sm,
-                            border: `1px solid ${colors.border || '#cbd5e1'}`,
-                            fontSize: '0.875rem',
-                          }}
-                        />
-                      </td>
-
-                      {/* Category Name */}
-                      <td style={{ padding: `${spacing.xs} ${spacing.sm}` }}>
-                        <input
-                          type="text"
-                          className="form-control"
-                          value={item.ServiceCategoryName || ''}
-                          onChange={(e) => handleCellChange(index, 'ServiceCategoryName', e.target.value)}
-                          placeholder="Category Name"
-                          style={{
-                            width: '100%',
-                            padding: '6px 10px',
-                            borderRadius: radii.sm,
-                            border: `1px solid ${colors.border || '#cbd5e1'}`,
-                            fontSize: '0.875rem',
-                          }}
-                        />
-                      </td>
-
-                      {/* Display Order */}
-                      <td style={{ padding: `${spacing.xs} ${spacing.sm}` }}>
-                        <input
-                          type="number"
-                          className="form-control"
-                          value={item.DisplayOrder ?? ''}
-                          onChange={(e) => handleCellChange(index, 'DisplayOrder', e.target.value)}
-                          placeholder="0"
-                          style={{
-                            width: '100%',
-                            padding: '6px 10px',
-                            borderRadius: radii.sm,
-                            border: `1px solid ${colors.border || '#cbd5e1'}`,
-                            fontSize: '0.875rem',
-                          }}
-                        />
-                      </td>
-
-                      {/* Print Order */}
-                      <td style={{ padding: `${spacing.xs} ${spacing.sm}` }}>
-                        <input
-                          type="number"
-                          className="form-control"
-                          value={item.PrintOrder ?? ''}
-                          onChange={(e) => handleCellChange(index, 'PrintOrder', e.target.value)}
-                          placeholder="0"
-                          style={{
-                            width: '100%',
-                            padding: '6px 10px',
-                            borderRadius: radii.sm,
-                            border: `1px solid ${colors.border || '#cbd5e1'}`,
-                            fontSize: '0.875rem',
-                          }}
-                        />
-                      </td>
-
-                      {/* Status */}
-                      <td style={{ padding: `${spacing.xs} ${spacing.sm}`, textAlign: 'center' }}>
+                visibleItems.map((item, index) => (
+                  <tr key={item.Id ? `id-${item.Id}` : `new-${index}`} className={!item.Id ? 'new-row' : ''}>
+                    <td className="sc-cell-idx">{index + 1}</td>
+                    <td>
+                      <input
+                        type="text"
+                        className="sc-cell-input code-input"
+                        value={item.ServiceCategoryCode || ''}
+                        onChange={(e) => handleCellChange(index, 'ServiceCategoryCode', e.target.value)}
+                        placeholder="e.g. LAB01"
+                      />
+                    </td>
+                    <td>
+                      <input
+                        type="text"
+                        className="sc-cell-input"
+                        value={item.ServiceCategoryName || ''}
+                        onChange={(e) => handleCellChange(index, 'ServiceCategoryName', e.target.value)}
+                        placeholder="Category Name"
+                      />
+                    </td>
+                    <td>
+                      <input
+                        type="number"
+                        className="sc-cell-input number-input"
+                        value={item.DisplayOrder ?? ''}
+                        onChange={(e) => handleCellChange(index, 'DisplayOrder', e.target.value)}
+                        placeholder="0"
+                      />
+                    </td>
+                    <td>
+                      <input
+                        type="number"
+                        className="sc-cell-input number-input"
+                        value={item.PrintOrder ?? ''}
+                        onChange={(e) => handleCellChange(index, 'PrintOrder', e.target.value)}
+                        placeholder="0"
+                      />
+                    </td>
+                    <td className="text-center">
+                      <label className="sc-checkbox-wrap">
                         <input
                           type="checkbox"
+                          className="sc-checkbox"
                           checked={Boolean(item.StatusId)}
                           onChange={(e) => handleCellChange(index, 'StatusId', e.target.checked)}
-                          style={{
-                            cursor: 'pointer',
-                            width: 18,
-                            height: 18,
-                            accentColor: colors.primary,
-                          }}
                           title="Active Status"
                         />
-                      </td>
-
-                      {/* Is All Facility */}
-                      <td style={{ padding: `${spacing.xs} ${spacing.sm}`, textAlign: 'center' }}>
+                      </label>
+                    </td>
+                    <td className="text-center">
+                      <label className="sc-checkbox-wrap">
                         <input
                           type="checkbox"
+                          className="sc-checkbox"
                           checked={Boolean(item.IsAllFacility)}
                           onChange={(e) => handleCellChange(index, 'IsAllFacility', e.target.checked)}
-                          style={{
-                            cursor: 'pointer',
-                            width: 18,
-                            height: 18,
-                            accentColor: colors.primary,
-                          }}
                           title="Applicable to All Facilities"
                         />
-                      </td>
-
-                      {/* Doctor Share */}
-                      <td style={{ padding: `${spacing.xs} ${spacing.sm}`, textAlign: 'center' }}>
+                      </label>
+                    </td>
+                    <td className="text-center">
+                      <label className="sc-checkbox-wrap">
                         <input
                           type="checkbox"
+                          className="sc-checkbox"
                           checked={Boolean(item.IsDoctorShare)}
                           onChange={(e) => handleCellChange(index, 'IsDoctorShare', e.target.checked)}
-                          style={{
-                            cursor: 'pointer',
-                            width: 18,
-                            height: 18,
-                            accentColor: colors.primary,
-                          }}
                           title="Doctor Share Eligible"
                         />
-                      </td>
-
-                      {/* Actions */}
-                      <td style={{ padding: `${spacing.xs} ${spacing.sm}`, textAlign: 'center' }}>
-                        <button
-                          type="button"
-                          onClick={() => handleDeleteClick(item, index)}
-                          title="Delete Category"
-                          style={{
-                            background: 'transparent',
-                            border: 'none',
-                            cursor: 'pointer',
-                            padding: '6px 8px',
-                            borderRadius: radii.sm,
-                            color: '#ef4444',
-                            transition: 'background-color 0.15s ease',
-                          }}
-                          onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#fee2e2')}
-                          onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
-                        >
-                          <i className="fa fa-trash-alt" />
-                        </button>
-                      </td>
-                    </tr>
-                  );
-                })
+                      </label>
+                    </td>
+                    <td className="text-center">
+                      <button
+                        type="button"
+                        className="sc-btn-del"
+                        onClick={() => handleDeleteClick(item, index)}
+                        title="Delete Category"
+                      >
+                        <i className="fa fa-trash-o fa-solid fa-trash-can" />
+                      </button>
+                    </td>
+                  </tr>
+                ))
               )}
             </tbody>
           </table>
         </div>
-      </Card>
+      </div>
 
-      {/* Sticky Bottom Bar */}
-      <div
-        style={{
-          position: 'sticky',
-          bottom: 0,
-          backgroundColor: '#ffffff',
-          padding: `${spacing.sm} ${spacing.lg}`,
-          borderRadius: radii.md,
-          boxShadow: '0 -2px 10px rgba(0, 0, 0, 0.06)',
-          border: `1px solid ${colors.border || '#e2e8f0'}`,
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          marginTop: 'auto',
-          zIndex: 10,
-        }}
-      >
-        <div style={{ fontSize: '0.875rem', color: colors.textMuted }}>
-          Total rows:{' '}
-          <strong style={{ color: colors.textMain }}>{visibleItems.length}</strong>
+      {/* ─────────────────────────────────────────────────────────────
+          5. STICKY FOOTER BAR
+      ───────────────────────────────────────────────────────────── */}
+      <div className="sc-footer-bar">
+        <div className="sc-footer-summary">
+          Total categories:{' '}
+          <strong>{visibleItems.length}</strong>
+          {items.some((i) => !i.Id) && (
+            <span style={{ marginLeft: 12, color: '#059669', fontWeight: 600 }}>
+              (Unsaved new records present)
+            </span>
+          )}
         </div>
-        <div style={{ display: 'flex', gap: spacing.md }}>
-          <Button
-            variant="outline"
+        <div style={{ display: 'flex', gap: 10 }}>
+          <button
+            type="button"
+            className="sc-btn sc-btn-outline"
             onClick={handleAddNew}
-            style={{ display: 'flex', alignItems: 'center', gap: spacing.xs }}
           >
-            <i className="fa fa-plus" />
+            <i className="fa fa-plus fa-solid fa-plus" />
             <span>Add Row</span>
-          </Button>
-          <Button
-            variant="primary"
+          </button>
+          <button
+            type="button"
+            className="sc-btn sc-btn-primary"
             onClick={handleSave}
             disabled={isSaving}
-            style={{ display: 'flex', alignItems: 'center', gap: spacing.xs }}
             id="btnSaveServiceCategoriesBottom"
           >
             {isSaving ? (
               <>
-                <i className="fa fa-spinner fa-spin" />
+                <i className="fa fa-spinner fa-spin fa-solid fa-spinner" />
                 <span>Saving...</span>
               </>
             ) : (
               <>
-                <i className="fa fa-save" />
-                <span>Save Categories</span>
+                <i className="fa fa-save fa-solid fa-floppy-disk" />
+                <span>Save All Categories</span>
               </>
             )}
-          </Button>
+          </button>
         </div>
       </div>
 

@@ -14,8 +14,11 @@
         $scope.currentfilter = {};
         $scope.currentfilter.CreditApprovalStatusId = 1;
         $scope.currentfilter.BillTypeId = 1;
-        $scope.currentfilter.FromBillDate = $filter('date')(new Date(), 'yyyy-MM-dd 00:00:00');
+        var defaultFrom = new Date();
+        defaultFrom.setDate(defaultFrom.getDate() - 30);
+        $scope.currentfilter.FromBillDate = $filter('date')(defaultFrom, 'yyyy-MM-dd 00:00:00');
         $scope.currentfilter.ToBillDate = $filter('date')(new Date(), 'yyyy-MM-dd 23:59:59');
+        $scope.currentfilter.BillNo = '';
         $scope.currentfilter.UserId = -1;
         $scope.currentfilter.PatientId = -1;
         $scope.currentfilter.ReceiptNumber = null;
@@ -23,58 +26,94 @@
 
         console.log($stateParams);
         if($stateParams && $stateParams.billtypeid) {
-            $scope.currentfilter.BillTypeId = $stateParams.billtypeid;
+            $scope.currentfilter.BillTypeId = Number($stateParams.billtypeid);
         }
+        $scope.$on('$stateChangeSuccess', function(event, toState, toParams) {
+            if (toParams && toParams.billtypeid && Number(toParams.billtypeid) !== $scope.currentfilter.BillTypeId) {
+                $scope.currentfilter.BillTypeId = Number(toParams.billtypeid);
+                $scope.refreshReactProps();
+                $scope.getPatientBillList();
+            }
+        });
         $scope.getPatientBillListCallback = function(scope, res, options, hasError) {
             $scope.PatientBills = [];
-            if (res && res.Data && res.Data.length > 0) {
+            if (res && res.Data && Array.isArray(res.Data)) {
                 $scope.PatientBills = res.Data;
+            } else if (Array.isArray(res)) {
+                $scope.PatientBills = res;
             }
             $scope.refreshReactProps();
+            $scope.$applyAsync();
         };
 
         $scope.getPatientBillList = function() {
-            var FrmDate = $filter('date')($scope.currentfilter.FromBillDate, 'yyyy-MM-dd HH:mm:ss');
-            var ToDate = $filter('date')($scope.currentfilter.ToBillDate, 'yyyy-MM-dd HH:mm:ss');
+            var params = [
+                {
+                    Key: 50,
+                    Value: false
+                } // IsPaidFully: false (Due bills)
+            ];
+
+            if ($scope.currentfilter.BillTypeId && Number($scope.currentfilter.BillTypeId) > 0) {
+                params.push({
+                    Key: 33,
+                    Value: [Number($scope.currentfilter.BillTypeId)]
+                });
+            }
+
+            var FrmDate = $scope.currentfilter.FromBillDate;
+            var ToDate = $scope.currentfilter.ToBillDate;
+            if (FrmDate) {
+                if (typeof FrmDate === 'string' && FrmDate.length === 10) {
+                    FrmDate = FrmDate + ' 00:00:00';
+                }
+                params.push({
+                    Key: 17,
+                    Value: $filter('date')(FrmDate, 'yyyy-MM-dd HH:mm:ss')
+                });
+            }
+            if (ToDate) {
+                if (typeof ToDate === 'string' && ToDate.length === 10) {
+                    ToDate = ToDate + ' 23:59:59';
+                }
+                params.push({
+                    Key: 18,
+                    Value: $filter('date')(ToDate, 'yyyy-MM-dd HH:mm:ss')
+                });
+            }
+
+            if ($scope.currentfilter.CreditApprovalStatusId && Number($scope.currentfilter.CreditApprovalStatusId) > 0) {
+                params.push({
+                    Key: 82,
+                    Value: Number($scope.currentfilter.CreditApprovalStatusId)
+                });
+            }
+
+            var facId = utl.Session.getCurrentFacilityId();
+            if (!facId || facId <= 0) {
+                facId = 1;
+            }
+            params.push({
+                Key: 8,
+                Value: facId
+            });
+
+            if ($scope.currentfilter.BillNo && $scope.currentfilter.BillNo.trim()) {
+                params.push({
+                    Key: 2,
+                    Value: $scope.currentfilter.BillNo.trim()
+                });
+            }
+
+            if ($scope.currentfilter.PrivateDueId && Number($scope.currentfilter.PrivateDueId) > 0) {
+                params.push({
+                    Key: 30,
+                    Value: Number($scope.currentfilter.PrivateDueId)
+                });
+            }
+
             var inputData = {
-                Params: [
-                    {
-                        Key: 50,
-                        Value: false
-                    }, // IsPaidFully
-                    {
-                        Key: 33,
-                        Value: [$scope.currentfilter.BillTypeId]
-                    }, // OP, IP, Pharmacy
-                    // {
-                    //     Key: 1,
-                    //     Value: FrmDate
-                    // }, // From
-                    // {
-                    //     Key: 2,
-                    //     Value: ToDate
-                    // }, // To
-                    {
-                        Key: 17,
-                        Value: FrmDate
-                    }, // From
-                    {
-                        Key: 18,
-                        Value: ToDate
-                    }, // To
-                    {
-                        Key: 82,
-                        Value: $scope.currentfilter.CreditApprovalStatusId
-                    },
-                    {
-                        Key: 8,
-                        Value: utl.Session.getCurrentFacilityId()
-                    },
-                    {
-                        Key: 30,
-                        Value: utl.Session.getCurrentUserId()
-                    },
-                ],
+                Params: params,
                 PageContext: {
                     PageSize: 100000,
                     PageNumber: 1
@@ -114,16 +153,17 @@
             var difference = endTime.getTime() - startTime.getTime();
             var resultInHours = Math.round(difference / (1000 * 60 * 60));
             return resultInHours;
-        }
+        };
 
         $scope.EditBillingRequest = function(PatientBill) {
-            if (PatientBill.Id) {
+            var billId = PatientBill.Id || PatientBill.PatientBillId;
+            if (billId) {
                 utl.Modal.open('app.editcreditapproval', {
                     params: {
-                        id: PatientBill.Id,
+                        id: billId,
                         pid: PatientBill.PatientId,
                         billnumber: PatientBill.BillNumber,
-                        patientbillid: PatientBill.PatientBillId,
+                        patientbillid: billId,
                         item: PatientBill
                     },
                     confirmCallback: $scope.getPatientBillList
@@ -140,13 +180,14 @@
         };
 
         $scope.handleReactAction = function (actionName, payload) {
+            payload = payload || {};
             switch (actionName) {
                 case 'fromDateChange':
-                    $scope.currentfilter.FromBillDate = payload.value || null;
+                    $scope.currentfilter.FromBillDate = payload.value ? (payload.value.length === 10 ? payload.value + ' 00:00:00' : payload.value) : null;
                     $scope.refreshReactProps();
                     break;
                 case 'toDateChange':
-                    $scope.currentfilter.ToBillDate = payload.value || null;
+                    $scope.currentfilter.ToBillDate = payload.value ? (payload.value.length === 10 ? payload.value + ' 23:59:59' : payload.value) : null;
                     $scope.refreshReactProps();
                     break;
                 case 'billNoChange':
@@ -154,46 +195,81 @@
                     $scope.refreshReactProps();
                     break;
                 case 'billTypeChange':
-                    $scope.currentfilter.BillTypeId = payload.value;
+                    $scope.currentfilter.BillTypeId = Number(payload.value);
                     $scope.refreshReactProps();
                     $scope.getPatientBillList();
                     break;
                 case 'statusChange':
-                    $scope.currentfilter.CreditApprovalStatusId = payload.value;
+                    $scope.currentfilter.CreditApprovalStatusId = Number(payload.value);
                     $scope.refreshReactProps();
                     $scope.getPatientBillList();
+                    break;
+                case 'presetDates':
+                    var now = new Date();
+                    if (payload.preset === 'today') {
+                        $scope.currentfilter.FromBillDate = $filter('date')(now, 'yyyy-MM-dd 00:00:00');
+                        $scope.currentfilter.ToBillDate = $filter('date')(now, 'yyyy-MM-dd 23:59:59');
+                    } else if (payload.preset === 'yesterday') {
+                        var yest = new Date();
+                        yest.setDate(yest.getDate() - 1);
+                        $scope.currentfilter.FromBillDate = $filter('date')(yest, 'yyyy-MM-dd 00:00:00');
+                        $scope.currentfilter.ToBillDate = $filter('date')(yest, 'yyyy-MM-dd 23:59:59');
+                    } else if (payload.preset === 'last7days') {
+                        var d7 = new Date();
+                        d7.setDate(d7.getDate() - 7);
+                        $scope.currentfilter.FromBillDate = $filter('date')(d7, 'yyyy-MM-dd 00:00:00');
+                        $scope.currentfilter.ToBillDate = $filter('date')(now, 'yyyy-MM-dd 23:59:59');
+                    } else if (payload.preset === 'last30days') {
+                        var d30 = new Date();
+                        d30.setDate(d30.getDate() - 30);
+                        $scope.currentfilter.FromBillDate = $filter('date')(d30, 'yyyy-MM-dd 00:00:00');
+                        $scope.currentfilter.ToBillDate = $filter('date')(now, 'yyyy-MM-dd 23:59:59');
+                    } else if (payload.preset === 'all') {
+                        var dAll = new Date();
+                        dAll.setFullYear(dAll.getFullYear() - 2);
+                        $scope.currentfilter.FromBillDate = $filter('date')(dAll, 'yyyy-MM-dd 00:00:00');
+                        $scope.currentfilter.ToBillDate = $filter('date')(now, 'yyyy-MM-dd 23:59:59');
+                    }
+                    $scope.refreshReactProps();
+                    $scope.getList();
+                    break;
+                case 'reset':
+                    var dReset = new Date();
+                    dReset.setDate(dReset.getDate() - 30);
+                    $scope.currentfilter.FromBillDate = $filter('date')(dReset, 'yyyy-MM-dd 00:00:00');
+                    $scope.currentfilter.ToBillDate = $filter('date')(new Date(), 'yyyy-MM-dd 23:59:59');
+                    $scope.currentfilter.BillNo = '';
+                    $scope.currentfilter.CreditApprovalStatusId = 1;
+                    $scope.refreshReactProps();
+                    $scope.getList();
                     break;
                 case 'fetch':
                     $scope.getList();
                     break;
                 case 'edit':
-                    $scope.EditBillingRequest(payload.item);
+                    $scope.EditBillingRequest(payload.item || payload);
                     break;
             }
             $scope.$applyAsync();
         };
 
-
-
         $scope.getList = function() {
-            var resultInHours = $scope.getDateDiffInHours(
-                $scope.currentfilter.FromBillDate,
-                $scope.currentfilter.ToBillDate
-            );
-            if (!(resultInHours >= 0 && resultInHours <= 72)) {
-                utl.Alert.showSuccessMsg("From and To Date Difference should be less than 3 days...");
-                $scope.currentfilter.FromBillDate = $filter('date')(new Date(), 'yyyy-MM-dd 00:00:00');
-                $scope.currentfilter.ToBillDate = $filter('date')(new Date(), 'yyyy-MM-dd 23:59:59');
-                return false;
-            } else {
-                $scope.getSystemDBDate();
+            if ($scope.currentfilter.FromBillDate && $scope.currentfilter.ToBillDate) {
+                var d1 = new Date($scope.currentfilter.FromBillDate).getTime();
+                var d2 = new Date($scope.currentfilter.ToBillDate).getTime();
+                if (d1 > d2) {
+                    utl.Alert.showSuccessMsg("From Date cannot be greater than To Date");
+                    return false;
+                }
             }
+            $scope.getPatientBillList();
         };
 
         $scope.lookupCallback = function(scope, data, options, hasError) {
-            $scope.lookup = data;
-            $scope.getList();
-        }
+            $scope.lookup = data || {};
+            $scope.refreshReactProps();
+            $scope.$applyAsync();
+        };
 
         $scope.refreshReactProps();
 
@@ -204,15 +280,6 @@
                 {
                     "Key": "ReceiptType"
                 },
-                // {
-                //     "Key": "User"
-                // },
-                // {
-                //     "Key": "PaymentType"
-                // },
-                // {
-                //     "Key": "Bank"
-                // },
                 {
                     "Key": "CardType"
                 },
@@ -225,19 +292,6 @@
                 {
                     "Key": "CreditApprovalStatus"
                 },
-                // {
-                //     "Key": "SettlementType"
-                // },
-                // {
-                //     "Key": "Terminal"
-                // },
-                // {
-                //     "Key": "BillingRequestStatus"
-                // },
-                // {
-                //     "Key": "BillingRequestType"
-                // },
-
             ];
 
             var options = {
@@ -251,6 +305,7 @@
         };
 
         $scope.initLookup();
+        $scope.getPatientBillList();
 
 
     }

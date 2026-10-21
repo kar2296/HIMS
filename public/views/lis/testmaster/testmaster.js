@@ -16,7 +16,6 @@
             FacilityId: utl.Session.getCurrentFacilityId(),
             OrganizationId: utl.Session.getCurrentFacilityId(),
             TESTMASTERTYPId: 1
-            // ActiveFrom : utl.Formatter.getCurrentDate()
         };
         $scope.selectediteminfo = {};
         $scope.currentcontext = {
@@ -31,6 +30,43 @@
             $scope.cancelCallback = $uibModalInstance.dismiss;
         }
         $scope.item.ActionFrom = utl.Formatter.getCurrentDate();
+
+        // React bridge helper
+        $scope.refreshReactProps = function () {
+            $scope.reactProps = {
+                id: $scope.currentcontext.id,
+                item: angular.copy($scope.item),
+                lookup: $scope.lookup,
+                isModal: $scope.currentcontext.ismodal,
+                facilityName: utl.Session.getCurrentFacilityName ? utl.Session.getCurrentFacilityName() : ''
+            };
+        };
+
+        $scope.handleReactAction = function (actionName, payload) {
+            if (actionName === 'backToList') {
+                $scope.backToList();
+            } else if (actionName === 'save') {
+                if (payload) {
+                    angular.extend($scope.item, payload);
+                }
+                $scope.onSaveandDraftConfirmed();
+            } else if (actionName === 'saveAndApprove') {
+                if (payload) {
+                    angular.extend($scope.item, payload);
+                }
+                $scope.onSaveandApproveConfirmed();
+            } else if (actionName === 'getsubdeptUsers') {
+                if (payload && payload.DepartmentId) {
+                    $scope.item.DepartmentId = payload.DepartmentId;
+                    $scope.getsubdeptUsers();
+                }
+            } else if (actionName === 'getSampleVolume') {
+                if (payload && payload.selected) {
+                    $scope.getSampleVolume(payload.selected);
+                    $scope.refreshReactProps();
+                }
+            }
+        };
 
         function setDefaults() {
             if ($scope.currentcontext.id == 0) {
@@ -57,12 +93,15 @@
                 $scope.item.ScheduleFR = false;
                 $scope.item.ScheduleSA = false;
             }
-        }
+        };
 
         $scope.getItemCallback = function (scope, data, options, hasError) {
             $scope.item = data;
-            $scope.$parent.IsProfile = $scope.item.IsProfile;
-            $scope.$parent.TestType = $scope.item.TESTMASTERTYPId;
+            if ($scope.$parent) {
+                $scope.$parent.IsProfile = $scope.item.IsProfile;
+                $scope.$parent.TestType = $scope.item.TESTMASTERTYPId;
+            }
+            $scope.refreshReactProps();
         };
 
         $scope.getItem = function (pageNo) {
@@ -81,35 +120,41 @@
                 utl.Http.doAction(options);
             }
         };
+
         $scope.backToList = function () {
             if ($scope.currentcontext.ismodal) {
                 $scope.confirmCallback();
-            } else
+            } else {
                 $state.go('app.testmasters');
-        }
+            }
+        };
+
         vm.AssignToOptions = [{
                 Id: 1,
-                Text: $translate.instant('lis.testmaster.inhouse.lbl')
+                Text: $translate.instant('lis.testmaster.inhouse.lbl') || 'In-House'
             },
             {
                 Id: 2,
-                Text: $translate.instant('lis.testmaster.external.lbl')
+                Text: $translate.instant('lis.testmaster.external.lbl') || 'External'
             }
-        ]
+        ];
+
         $scope.profile = function () {
-            $scope.$parent.IsProfile = $scope.item.IsProfile;
-            $scope.$parent.TestType = $scope.item.TESTMASTERTYPId;
-        }
-        // $scope.backToList = function () {
-        //     $state.go('app.testmasters');
-        // }
+            if ($scope.$parent) {
+                $scope.$parent.IsProfile = $scope.item.IsProfile;
+                $scope.$parent.TestType = $scope.item.TESTMASTERTYPId;
+            }
+            $scope.refreshReactProps();
+        };
+
         $scope.errorItemCallback = function (data, options) {
             if (data.Error && data.Error.Code == 'ALREADYEXIST') {
-                utl.Alert.showErrorMsg('lis.testmaster.excode.lbl');
+                utl.Alert.showErrorMsg($translate.instant('lis.testmaster.excode.lbl') || 'Code already exists.');
             }
-        }
+        };
+
         $scope.saveItemCallback = function (scope, data, options, hasError) {
-            utl.Alert.showSuccessMsg($translate.instant('common.successmsg.lbl'));
+            utl.Alert.showSuccessMsg($translate.instant('common.successmsg.lbl') || 'Saved successfully.');
             if (typeof (data) == "boolean") {
                 if ($scope.currentcontext.ismodal) {
                     $scope.confirmCallback();
@@ -126,50 +171,26 @@
                     TestCode: options.data.Data.Name,
                 });
             } else {
-                $scope.backToList(); // Safer side added
+                $scope.backToList();
             }
         };
 
         $scope.clear = function () {
             $scope.item = {};
+            $scope.refreshReactProps();
         };
 
         $scope.getSampleVolume = function (Selected) {
-            if (Selected.Id > 0) {
-                $scope.item.SampleVolume = "" + Selected.Volume + " " + Selected.SampleUnits.Description;
-            } else $scope.item.SampleVolume = "";
-        }
-        $scope.save = function () {
-            if (!utl.Validator.validate($scope)) {
-                return;
+            if (Selected && Selected.Id > 0) {
+                $scope.item.SampleVolume = "" + Selected.Volume + " " + (Selected.SampleUnits ? Selected.SampleUnits.Description : '');
+            } else {
+                $scope.item.SampleVolume = "";
             }
-            var confirmOptions = {
-                headingKey: 'common.confirm-modal-header.lbl',
-                messageKey: 'Do you want to save testmaster?',
-                yesKey: 'common.yeskey.lbl',
-                noKey: 'common.nokey.lbl',
-                onSuccessMethod: $scope.onSaveandDraftConfirmed,
-            };
-            utl.Dialog.confirmMessage(confirmOptions);
         };
 
         $scope.onSaveandDraftConfirmed = function () {
             $scope.item.ActiveStatusId = 1;
             $scope.saveItem();
-        };
-
-        $scope.saveAndApprove = function () {
-            if (!utl.Validator.validate($scope)) {
-                return;
-            }
-            var confirmOptions = {
-                headingKey: 'common.confirm-modal-header.lbl',
-                messageKey: 'Do you want to approve testmaster?',
-                yesKey: 'common.yeskey.lbl',
-                noKey: 'common.nokey.lbl',
-                onSuccessMethod: $scope.onSaveandApproveConfirmed,
-            };
-            utl.Dialog.confirmMessage(confirmOptions);
         };
 
         $scope.onSaveandApproveConfirmed = function () {
@@ -182,11 +203,6 @@
         };
 
         $scope.saveItem = function () {
-
-            if (!utl.Validator.validate($scope)) {
-                return;
-            }
-
             var actionName = 'lis/testmaster/AddTestmaster';
             if ($scope.currentcontext.id && $scope.currentcontext.id > 0) {
                 actionName = 'lis/testmaster/UpdateTestmaster';
@@ -203,26 +219,29 @@
             };
             utl.Http.doAction(options);
         };
+
         $scope.onDeptSelected = function (selectedItem) {
             $scope.item.SubDepartmentId = selectedItem.Id;
+            $scope.refreshReactProps();
         };
 
         $scope.deptChange = function () {
             var deptObj = utl.Lookup.getObject($scope.lookup.Department, $scope.item.SubDepartmentId);
             $scope.item.DepartmentId = deptObj.DepartmentId;
-            setAssignToDetails();
             $scope.getList();
+            $scope.refreshReactProps();
         };
+
         $scope.lookupCallback = function (scope, data, options, hasError) {
-            forEach(data, function (value, key) {
+            angular.forEach(data, function (value, key) {
                 $scope.lookup[key] = value;
             });
             if ($scope.item.ActiveFrom == null)
                 $scope.item.ActiveFrom = new Date();
 
             $scope.getMaxId();
-
-        }
+            $scope.refreshReactProps();
+        };
 
         $scope.getMaxId = function () {
             $scope.testmasertcode =
@@ -238,7 +257,7 @@
                 };
                 utl.Http.doAction(options);
             }
-        }
+        };
 
         function ZeroPadding(num, size) {
             var s = num + "";
@@ -261,7 +280,8 @@
             if (StartingNr)
                 $scope.item.Code = StartingNr;
 
-        }
+            $scope.refreshReactProps();
+        };
 
         $scope.initLookup = function () {
             var inputData = [{
@@ -283,10 +303,7 @@
                     "Key": "SubDepartment"
                 },
                 {
-                    "Key": 'Department',
-                    // Request: {
-                    //     Params: [{ Key: 4, Value: 1 }]
-                    // }
+                    "Key": 'Department'
                 },
                 {
                     "Key": "LOCATION"
@@ -322,11 +339,11 @@
                 {
                     "Key": "TestMasterPosition",
                     Default: false
-                },
-
+                }
             ];
             $scope.getLookUp(inputData);
-        }
+        };
+
         $scope.getLookUp = function (inputData) {
             var options = {
                 action: 'General/Options/getoptions',
@@ -337,8 +354,6 @@
 
             utl.Http.doAction(options);
         };
-        $scope.initLookup();
-        $scope.getItem();
 
         $scope.getsubdeptUsers = function () {
             var inputData = [{
@@ -353,6 +368,9 @@
             $scope.getLookUp(inputData);
         };
 
+        $scope.refreshReactProps();
+        $scope.initLookup();
+        $scope.getItem();
     }
 
     testMasterFormController.$inject = ['$scope', '$stateParams', '$state', '$translate', 'utl', '$uibModalInstance', 'modalConfig'];

@@ -1,111 +1,130 @@
-<!-- <link href="app/css/billing-pharmacy-customs.css" rel="stylesheet"> -->
-<div class="modal-header custom-modal-header">
-    <div class="col-sm-10">
-        <h4 class="modal-title custom-modal-title" translate="surgeryorder.pagetitle2.lbl"></h4>
-    </div>
-    <div class="col-sm-2">
-        <div class="filters">
-            <img src="../../../../../assets/svg/close.svg" ng-click="cancelCallback()">
-        </div>
-    </div>
-</div>
+<link rel="stylesheet" href="views/emr/surgerymanagement/Surgeryorderset/surgeryorder-modern.css">
 
-<!---Header-->
-<!-- <div id="opbillingcontrol"> -->
-<!-- <div class="modal-header custom-modal-header">
-        <h4 class="col-sm-6 modal-title custom-modal-title" translate="surgeryorder.pagetitle2.lbl"></h4>
-        <div class="col-sm-6">
-            <div class="filters">
-                <img src="../../../../../assets/svg/close.svg"  ng-click="cancelCallback()">
+<div class="so-modal-wrapper">
+    <!-- Executive Modal Header -->
+    <div class="so-modal-header">
+        <div class="so-modal-header-left">
+            <div class="so-modal-header-icon">
+                <i class="fa fa-stethoscope"></i>
+            </div>
+            <div>
+                <h3 class="so-modal-title" translate="surgeryorder.pagetitle2.lbl">Surgery Order Set</h3>
+                <div class="so-modal-subtitle" ng-if="currentcontext.ProcedureName">
+                    <span>Procedure:</span>
+                    <span class="so-modal-proc-tag">{{currentcontext.ProcedureName}}</span>
+                </div>
             </div>
         </div>
-    </div> -->
-<div class="row">
-    <div class="col-sm-12">
-        <div class=" table-control">
-            <div class=" bg-pattern">
-                <table class="table table-hover table-responsive table-bordered cust_dropdwn">
-                    <thead class="bg-subhead">
-                        <tr>
-                            <th style="width:29%"><span translate="surgeryorder.billing.lbl"></span>
-                                <span class="mandatory-asterix">*</span>
-                            </th>
-                            <th style="width:5%"><span translate="surgeryorder.y/n.lbl"></span></th>
-                            <th style="width: 13%;"><span translate="surgeryorder.charge%.lbl"></span>
-                                <span class="mandatory-asterix">*</span>
-                            </th>
-                            <th style="width: 13%;"><span for="rate" translate="Doc.Share(%)"></span>
-                            <th><span for="rate" translate="surgeryorder.doc.lbl"></span>
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr ng-repeat="item in vm.items | filter:{Status:1}">
-                            <td class="cust_servicename">
+        <button type="button" class="so-modal-close-btn" ng-click="cancelCallback()" title="Close dialog" aria-label="Close">
+            <i class="fa fa-times"></i>
+        </button>
+    </div>
 
+    <!-- Modal Body -->
+    <div class="so-modal-body">
+        <div class="so-modal-table-container">
+            <table class="so-modal-table">
+                <thead>
+                    <tr>
+                        <th style="width: 32%;">
+                            <span translate="surgeryorder.billing.lbl">BILLING SERVICE</span>
+                            <span class="mandatory-asterix" style="color: #ef4444; font-weight: bold;">*</span>
+                        </th>
+                        <th style="width: 6%; text-align: center;">
+                            <span translate="surgeryorder.y/n.lbl">Y/N</span>
+                        </th>
+                        <th style="width: 12%;">
+                            <span translate="surgeryorder.charge%.lbl">CHARGE %</span>
+                            <span class="mandatory-asterix" style="color: #ef4444; font-weight: bold;">*</span>
+                        </th>
+                        <th style="width: 13%;">
+                            <span translate="Doc.Share(%)">DOC. SHARE (%)</span>
+                        </th>
+                        <th style="width: 31%;">
+                            <span translate="surgeryorder.doc.lbl">DOCTOR & OT ALLOCATIONS</span>
+                        </th>
+                        <th style="width: 6%; text-align: center;">
+                            <span>ACTION</span>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="item in vm.items | filter:{Status:1}">
+                        <td>
+                            <div class="so-modal-search-wrap">
                                 <autosearch itemid="item.ServiceItemId" iteminfo="item.SelectedItem" name="'service'"
                                     rowdata="item" config="vm.serviceitemcontrolconfig"
                                     itemchange="ServiceItemChanged(item)" class="inputsearchlogo"
-                                    candisable="item.RdoServiceId" isrequired="true" tabindex="item.tabindex">
+                                    candisable="item.RdoServiceId" isrequired="true" tabindex="item.tabindex"
+                                    placeholder="'Service Name or Code'">
                                 </autosearch>
-                            </td>
-                            <td class="text-center">
-                                <input type="checkbox" class="custom-checkbox" ng-model="item.IsProcedureCharge"
-                                    disabled>
-                            </td>
-                            <td>
-                                <input type="text" class="form-control" name="rate" ng-model="item.Percent"
-                                    placeholder="" ng-pattern="/^\d+$/" ng-keypress="numberonly($event)" required>
-                            </td>
-                            <td>
-                                <input type="text" class="form-control" name="rate" ng-model="item.DoctorSharePercent"
-                                    placeholder="" ng-pattern="/^\d+$/">
-                            </td>
-                            <td>
-                                <div class="form-group col-sm-3">
-                                    <label class="col-sm-12 control-label"> Surgeon</label>
-                                    <div class="col-sm-2">
-                                        <input type="checkbox" class="custom-checkbox" ng-model="item.IsCheifSurgeon">
-                                    </div>
-                                </div>
-                                <div class="form-group col-sm-3">
-                                    <label class="col-sm-12 control-label">Second Surgeon</label>
-                                    <div class="col-sm-2">
-                                        <input type="checkbox" class="custom-checkbox"
-                                            ng-model="item.IsAssistantSurgeon">
-                                    </div>
-                                </div>
-                                <div class="form-group col-sm-3">
-                                    <label class="col-sm-12 control-label"> Anesthetist</label>
-                                    <div class="col-sm-2">
-                                        <input type="checkbox" class="custom-checkbox" ng-model="item.IsAnesthetist">
-                                    </div>
-                                </div>
-                                <div class="form-group col-sm-3" ng-if="item.ServiceItem.IsOTHourlyCharge == true">
-                                    <label class="col-sm-12 control-label"> OT Charge</label>
-                                    <div class="col-sm-2">
-                                        <input type="checkbox" class="custom-checkbox" ng-model="item.IsOTHourlyCharge">
-                                    </div>
-                                </div>
-                                <div class="form-group col-sm-3">
-                                    <label class="col-sm-12 control-label"> IsActive</label>
-                                    <div class="col-sm-2">
-                                        <input type="checkbox" class="custom-checkbox" ng-model="item.IsActive">
-                                    </div>
-                                </div>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+                            </div>
+                        </td>
+                        <td style="text-align: center;">
+                            <input type="checkbox" class="custom-checkbox" ng-model="item.IsProcedureCharge" disabled title="Is Procedure Charge">
+                        </td>
+                        <td>
+                            <div class="so-input-percent-wrap">
+                                <input type="text" class="so-input-percent" name="rate" ng-model="item.Percent"
+                                    placeholder="100" ng-pattern="/^\d+$/" ng-keypress="numberonly($event)" required>
+                                <span class="so-input-percent-suffix">%</span>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="so-input-percent-wrap">
+                                <input type="text" class="so-input-percent" name="doctorShare" ng-model="item.DoctorSharePercent"
+                                    placeholder="0" ng-pattern="/^\d+$/" ng-keypress="numberonly($event)">
+                                <span class="so-input-percent-suffix">%</span>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="so-roles-group">
+                                <label class="so-role-pill" ng-class="{'active': item.IsCheifSurgeon}">
+                                    <input type="checkbox" ng-model="item.IsCheifSurgeon">
+                                    <span>Surgeon</span>
+                                </label>
+                                <label class="so-role-pill" ng-class="{'active': item.IsAssistantSurgeon}">
+                                    <input type="checkbox" ng-model="item.IsAssistantSurgeon">
+                                    <span>2nd Surgeon</span>
+                                </label>
+                                <label class="so-role-pill" ng-class="{'active': item.IsAnesthetist}">
+                                    <input type="checkbox" ng-model="item.IsAnesthetist">
+                                    <span>Anesthetist</span>
+                                </label>
+                                <label class="so-role-pill" ng-class="{'active': item.IsOTHourlyCharge}" ng-if="item.ServiceItem.IsOTHourlyCharge == true">
+                                    <input type="checkbox" ng-model="item.IsOTHourlyCharge">
+                                    <span>OT Charge</span>
+                                </label>
+                                <label class="so-role-pill" ng-class="{'active': item.IsActive}">
+                                    <input type="checkbox" ng-model="item.IsActive">
+                                    <span>Active</span>
+                                </label>
+                            </div>
+                        </td>
+                        <td style="text-align: center;">
+                            <button type="button" class="so-btn-del-line" ng-click="deleteDetail(item)" title="Remove service line">
+                                <i class="fa fa-trash-o"></i>
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
     </div>
-</div>
-<!-- </div> -->
 
-<div class="row">
-    <div class="pull-right">
-        <button type="button" class="draftbutton" translate="common.saveapprove-action.lbl"
-            ng-click="saveItem()"></button>
+    <!-- Modal Footer -->
+    <div class="so-modal-footer">
+        <div>
+            <button type="button" class="so-btn-add-line" ng-click="addNew()">
+                <i class="fa fa-plus"></i> Add Line Item
+            </button>
+        </div>
+        <div class="so-modal-footer-actions">
+            <button type="button" class="so-btn-cancel" ng-click="cancelCallback()">Cancel</button>
+            <button type="button" class="so-btn-save" ng-click="saveItem()">
+                <i class="fa fa-check"></i>
+                <span translate="common.saveapprove-action.lbl">Approve</span>
+            </button>
+        </div>
     </div>
 </div>

@@ -10,59 +10,90 @@
   Everything else is migrated via 2 <react-component> mounts, both reading/
   writing the same $scope.reactProps / $scope.handleReactAction bridge
   added to generalexpenses-list.js:
-    1. GeneralExpensesFilterScreen (part: 'addbutton') - the bare Add New
-       button, mounted as a sibling of the native <autosearch> inside the
-       same native col-sm-6/filters wrapper (preserves original layout;
-       cannot be one mount since autosearch must stay native in between).
+    1. GeneralExpensesFilterScreen (part: 'addbutton') - the New Voucher
+       button.
     2. GeneralExpensesFilterScreen (part: 'filters') - From/To date inputs
-       + Payment Mode/Status selects row, each dispatching a *Change action
-       with auto-refetch (matches original ng-change="getList()" on every
-       field).
-    3. GeneralExpensesListScreen - the custom-table results table only.
-       The real native <ul uib-pagination> stays as a literal DOM sibling
-       inside the same .fooder-bgs/.row wrapper (kept native here, not
-       rendered by React, so Bootstrap grid + uib-pagination continue to
-       function exactly as before).
-
-  Preserved real API calls (unchanged): whatever getList()/addNew()/
-  handleEvents() already call (billing/generalexpenses/* endpoints) --
-  untouched, only the DOM/bridge plumbing changed.
-
-  Confirmed pre-existing quirks, reproduced as-is (not "fixed"):
-  - vm.gridConfig.rowTemplate / enableColumnResizing are set in the JS but
-    silently ignored by the shared custom-table directive (confirmed via
-    custom-table.html, which only reads columnDefs/data/background/
-    package/pagerObj) -- not reproduced in React since they never had any
-    effect.
-  - Column-header-click sort emulated client-side in
-    GeneralExpensesListScreen via the same dotGet()/reOrder() semantics
-    used elsewhere (sort is display-only, non-mutating, non-API-calling).
+       + Payment Mode/Status selects row.
+    3. GeneralExpensesListScreen - the results table and empty state.
 -->
-<div class="row">
-    <div class="col-sm-6">
-        <h4 translate="billing.generalexpenses.pagetitle.lbl"></h4>
-    </div>
-    <div class="col-sm-6">
-        <div class="filters">
-            <div class="col-sm-10">
-                <div class="search">
-                    <autosearch itemid="currentfilter.UserId" itemchange="getList()" onenter="getList()"
-                        iteminfo="item.SelectedItem" rowdata="item" config="vm.usercontrolconfig"
-                        class="inputsearchlogo" isrequired="true"></autosearch>
-                </div>
+<link rel="stylesheet" href="views/billing/generalexpenses/generalexpenses-modern.css">
+
+<div class="ge-page-container">
+    <!-- Executive Top Header Card -->
+    <div class="ge-header-card">
+        <div class="ge-header-left">
+            <div class="ge-header-icon-badge">
+                <i class="fa-solid fa-receipt"></i>
             </div>
-            <div class="col-sm-2">
+            <div>
+                <h4 class="ge-header-title" translate="billing.generalexpenses.pagetitle.lbl"></h4>
+                <div class="ge-header-subtitle">Track operational expenditures, petty cash, and manage approved disbursements</div>
+            </div>
+        </div>
+        <div class="ge-header-actions">
+            <div class="ge-user-search-wrapper" title="Filter by user or doctor">
+                <autosearch itemid="currentfilter.UserId" itemchange="getList()" onenter="getList()"
+                    iteminfo="item.SelectedItem" rowdata="item" config="vm.usercontrolconfig"
+                    class="inputsearchlogo" isrequired="true"></autosearch>
+            </div>
+            <div>
                 <react-component name="GeneralExpensesFilterScreen" props="{ part: 'addbutton', reactProps: reactProps, onAction: handleReactAction }"></react-component>
             </div>
         </div>
     </div>
-</div>
-<react-component name="GeneralExpensesFilterScreen" props="{ part: 'filters', reactProps: reactProps, onAction: handleReactAction }"></react-component>
-<div class="fooder-bgs">
-    <div class="row">
+
+    <!-- Live KPI Summary Stats -->
+    <div class="ge-stats-grid">
+        <div class="ge-stat-card">
+            <div class="ge-stat-icon emerald">
+                <i class="fa-solid fa-indian-rupee-sign"></i>
+            </div>
+            <div class="ge-stat-info">
+                <div class="ge-stat-label">Total Net Expenses</div>
+                <div class="ge-stat-value">₹ {{ (TotalNetamount || 0) | number:2 }}</div>
+            </div>
+        </div>
+        <div class="ge-stat-card">
+            <div class="ge-stat-icon blue">
+                <i class="fa-solid fa-file-invoice"></i>
+            </div>
+            <div class="ge-stat-info">
+                <div class="ge-stat-label">Total Records</div>
+                <div class="ge-stat-value">{{ vm.gridConfig.pagerObj.totalItems || 0 }} Vouchers</div>
+            </div>
+        </div>
+        <div class="ge-stat-card">
+            <div class="ge-stat-icon indigo">
+                <i class="fa-regular fa-calendar-days"></i>
+            </div>
+            <div class="ge-stat-info">
+                <div class="ge-stat-label">Date Filter Period</div>
+                <div class="ge-stat-value" style="font-size: 14px;">
+                    {{ (currentfilter.FromDate | date:'dd MMM yyyy') || '—' }} – {{ (currentfilter.ToDate | date:'dd MMM yyyy') || '—' }}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filter Card -->
+    <div class="ge-filters-card">
+        <div class="ge-filters-card-header">
+            <i class="fa-solid fa-sliders" style="color: #2563eb;"></i>
+            <span>Filter Criteria</span>
+        </div>
+        <react-component name="GeneralExpensesFilterScreen" props="{ part: 'filters', reactProps: reactProps, onAction: handleReactAction }"></react-component>
+    </div>
+
+    <!-- Results Table & Pagination -->
+    <div>
         <react-component name="GeneralExpensesListScreen" props="{ reactProps: reactProps, onAction: handleReactAction }"></react-component>
-        <ul uib-pagination total-items="vm.gridConfig.pagerObj.totalItems"
-            items-per-page="vm.gridConfig.pagerObj.pageSize" start-index="vm.gridConfig.pagerObj.startIndex"
-            ng-model="vm.gridConfig.pagerObj.currentPage" ng-change="getList()"></ul>
+        <div class="ge-pagination-bar" ng-if="vm.gridConfig.pagerObj.totalItems > 0">
+            <div class="ge-pagination-summary">
+                Showing {{ (vm.gridConfig.pagerObj.currentPage - 1) * vm.gridConfig.pagerObj.pageSize + 1 }} to {{ ((vm.gridConfig.pagerObj.currentPage * vm.gridConfig.pagerObj.pageSize) > vm.gridConfig.pagerObj.totalItems) ? vm.gridConfig.pagerObj.totalItems : (vm.gridConfig.pagerObj.currentPage * vm.gridConfig.pagerObj.pageSize) }} of {{ vm.gridConfig.pagerObj.totalItems }} records
+            </div>
+            <ul uib-pagination total-items="vm.gridConfig.pagerObj.totalItems"
+                items-per-page="vm.gridConfig.pagerObj.pageSize" start-index="vm.gridConfig.pagerObj.startIndex"
+                ng-model="vm.gridConfig.pagerObj.currentPage" ng-change="getList()"></ul>
+        </div>
     </div>
 </div>

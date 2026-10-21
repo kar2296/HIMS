@@ -177,12 +177,76 @@ enableColumnResizing: true,
         $scope.getList();
     }
 
+    // React Bridge
+    $scope.refreshReactProps = function () {
+        $scope.reactProps = {
+            items: vm.gridConfig.data || [],
+            totalItems: vm.gridConfig.pagerObj.totalItems || 0,
+            currentPage: vm.gridConfig.pagerObj.currentPage || 1,
+            pageSize: vm.gridConfig.pagerObj.pageSize || 25,
+            pagerObj: vm.gridConfig.pagerObj,
+            currentfilter: $scope.currentfilter,
+            lookup: {
+                GuarantorType: ($scope.lookup && $scope.lookup.GuarantorType) || [],
+                TPA: ($scope.lookup && $scope.lookup.TPA) || [],
+                ActiveStatus: ($scope.lookup && $scope.lookup.ActiveStatus) || []
+            }
+        };
+    };
+
+    var _origGetListCallback = $scope.getListCallback;
+    $scope.getListCallback = function (scope, res, options, hasError) {
+        _origGetListCallback(scope, res, options, hasError);
+        $scope.refreshReactProps();
+        $scope.$applyAsync();
+    };
+
+    var _origLookupCallback = $scope.lookupCallback;
+    $scope.lookupCallback = function (scope, data, options, hasError) {
+        _origLookupCallback(scope, data, options, hasError);
+        $scope.refreshReactProps();
+        $scope.$applyAsync();
+    };
+
+    $scope.handleReactAction = function (actionName, payload) {
+        if (actionName === 'search') {
+            if (payload) {
+                if (payload.GuarantorName !== undefined) $scope.currentfilter.GuarantorName = payload.GuarantorName;
+                if (payload.GuarantorTypeId !== undefined) $scope.currentfilter.GuarantorTypeId = payload.GuarantorTypeId;
+                if (payload.ActiveStatusId !== undefined) $scope.currentfilter.ActiveStatusId = payload.ActiveStatusId;
+            }
+            vm.gridConfig.pagerObj.currentPage = 1;
+            $scope.getList();
+        } else if (actionName === 'resetFilters') {
+            $scope.currentfilter.GuarantorName = '';
+            $scope.currentfilter.GuarantorTypeId = -1;
+            $scope.currentfilter.ActiveStatusId = 2;
+            vm.gridConfig.pagerObj.currentPage = 1;
+            $scope.getList();
+        } else if (actionName === 'pageChange') {
+            vm.gridConfig.pagerObj.currentPage = payload && payload.page ? payload.page : 1;
+            $scope.getList();
+        } else if (actionName === 'addNew') {
+            $scope.addNew();
+        } else if (actionName === 'edit') {
+            $scope.handleEvents('edit', payload);
+        } else if (actionName === 'view') {
+            $scope.handleEvents('view', payload);
+        } else if (actionName === 'delete') {
+            $scope.handleEvents('delete', payload);
+        } else if (typeof $scope[actionName] === 'function') {
+            $scope[actionName](payload);
+        }
+        $scope.refreshReactProps();
+        $scope.$applyAsync();
+    };
+
     $scope.initLookup = function () {
         var inputData = [
-                            {'Key' : 'GuarantorType'},
-                            {'Key' : 'TPA'},
-                            {'Key': 'ActiveStatus' }
-                        ];
+            { 'Key': 'GuarantorType' },
+            { 'Key': 'TPA' },
+            { 'Key': 'ActiveStatus' }
+        ];
 
         var options = {
             action: 'General/Options/getoptions',
@@ -191,8 +255,9 @@ enableColumnResizing: true,
             onComplete: $scope.lookupCallback
         };
         utl.Http.doAction(options);
-    }
+    };
 
+    $scope.refreshReactProps();
     $scope.initLookup();
 }
 

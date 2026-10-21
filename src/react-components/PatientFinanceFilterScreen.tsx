@@ -3,21 +3,37 @@ import React from 'react';
 interface PatientFinanceFilterScreenProps {
   reactProps?: {
     currentfilter?: {
-      FromDate?: string;
-      ToDate?: string;
+      FromDate?: any;
+      ToDate?: any;
     };
   };
   onAction?: (actionName: string, payload?: any) => void;
 }
 
-// React bridge migration, shared between patientadjustmentinfo.html and
-// patientrevenueinfo.html (identical From/To Date filter markup and
-// behavior in both originals: ng-change="getList()" on each -- both
-// auto-refetch, using whatever currentfilter.PatientId currently is,
-// even 0/unselected). Mounted as a sibling AFTER the native
-// <patientsearch> widget, which stays untouched native markup in both
-// screens (genuinely feeds patientChange() -> the encounter/bill fetch
-// chain).
+function toInputDateString(val?: any): string {
+  if (!val) return '';
+  if (val instanceof Date) {
+    if (isNaN(val.getTime())) return '';
+    const y = val.getFullYear();
+    const m = String(val.getMonth() + 1).padStart(2, '0');
+    const d = String(val.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
+  }
+  if (typeof val === 'string') {
+    if (/^\d{4}-\d{2}-\d{2}/.test(val)) {
+      return val.slice(0, 10);
+    }
+    const parsed = new Date(val);
+    if (!isNaN(parsed.getTime())) {
+      const y = parsed.getFullYear();
+      const m = String(parsed.getMonth() + 1).padStart(2, '0');
+      const d = String(parsed.getDate()).padStart(2, '0');
+      return `${y}-${m}-${d}`;
+    }
+  }
+  return '';
+}
+
 export const PatientFinanceFilterScreen: React.FC<PatientFinanceFilterScreenProps> = ({ reactProps, onAction }) => {
   const currentfilter = reactProps?.currentfilter || {};
 
@@ -25,30 +41,55 @@ export const PatientFinanceFilterScreen: React.FC<PatientFinanceFilterScreenProp
     onAction?.(actionName, payload);
   };
 
+  const fromDateStr = toInputDateString(currentfilter.FromDate);
+  const toDateStr = toInputDateString(currentfilter.ToDate);
+
   return (
-    <>
-      <div className="col-sm-4">
-        <label className="col-sm-4">From Date</label>
-        <div className="col-sm-8">
+    <div className="pf-filter-controls-row">
+      {/* From Date */}
+      <div className="pf-field-group">
+        <label className="pf-field-label">
+          <i className="fa-solid fa-calendar-days" aria-hidden="true" />
+          <span>From Date</span>
+        </label>
+        <div className="pf-input-wrapper">
           <input
             type="date"
-            className="form-control"
-            value={currentfilter.FromDate ? currentfilter.FromDate.slice(0, 10) : ''}
+            className="pf-form-control"
+            value={fromDateStr}
             onChange={(e) => dispatch('fromDateChange', { value: e.target.value })}
           />
         </div>
       </div>
-      <div className="col-sm-4">
-        <label className="col-sm-4">To Date</label>
-        <div className="col-sm-8">
+
+      {/* To Date */}
+      <div className="pf-field-group">
+        <label className="pf-field-label">
+          <i className="fa-solid fa-calendar-days" aria-hidden="true" />
+          <span>To Date</span>
+        </label>
+        <div className="pf-input-wrapper">
           <input
             type="date"
-            className="form-control"
-            value={currentfilter.ToDate ? currentfilter.ToDate.slice(0, 10) : ''}
+            className="pf-form-control"
+            value={toDateStr}
             onChange={(e) => dispatch('toDateChange', { value: e.target.value })}
           />
         </div>
       </div>
-    </>
+
+      {/* Action Buttons */}
+      <div className="pf-btn-actions-cell">
+        <button
+          type="button"
+          className="pf-btn-primary"
+          onClick={() => dispatch('refresh')}
+          title="Refresh Ledger"
+        >
+          <i className="fa-solid fa-arrows-rotate" aria-hidden="true" />
+          <span>Refresh</span>
+        </button>
+      </div>
+    </div>
   );
 };

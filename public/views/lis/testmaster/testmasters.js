@@ -18,60 +18,61 @@
             code: '',
             name: '',
             FacilityId: -1
-            // FacilityId: utl.Session.getCurrentFacilityId()
         };
-        //Dynamic form starts
-        function initDynamicForm() {
-            $scope.advancedfilter = {};
-            $scope.advancedfilterDefault = {
-                PatientId: -1,
-                DoctorId: -1,
-                DiagnosisId: -1,
-                FacilityId: utl.Session.getCurrentFacilityId(),
+
+        $scope.advancedfilter = {
+            IsProfile: undefined,
+            IsSeparateWorkOrder: undefined,
+            IsDirectBill: undefined,
+            IsSeparateSampleId: undefined,
+            Methodology: ''
+        };
+
+        $scope.lookup = {
+            Department: [],
+            SubDepartment: [],
+            Facility: [],
+            ActiveStatus: [],
+            TESTMASTERTYP: []
+        };
+
+        vm.gridConfig = {
+            data: [],
+            pagerObj: { totalItems: 0, currentPage: 1, startIndex: 0, pageSize: 25 }
+        };
+
+        $scope.refreshReactProps = function () {
+            var dataList = vm.gridConfig.data || [];
+            var pager = vm.gridConfig.pagerObj || { totalItems: 0, currentPage: 1, pageSize: 25 };
+            $scope.reactProps = {
+                items: dataList,
+                totalItems: pager.totalItems || dataList.length,
+                currentPage: pager.currentPage || 1,
+                pageSize: pager.pageSize || 25,
+                currentfilter: angular.copy($scope.currentfilter),
+                advancedfilter: angular.copy($scope.advancedfilter),
+                lookup: angular.copy($scope.lookup || {}),
+                facilityName: (utl.Session && utl.Session.getCurrentFacilityName) ? utl.Session.getCurrentFacilityName() : 'SHUVADARSINI HOSPITAL'
             };
+            $scope.$applyAsync();
+        };
 
-            $scope.advancedFilterSchema = {
-                layout: 'grid',
-                title: 'common.advancedfilter-title.lbl',
-                controls: [
-                    { type: 'checkbox', translate: 'lis.testmaster.isProfile.lbl', model: 'IsProfile', position: { r: 0, c: 0 } },
-                    { type: 'checkbox', translate: 'lis.testmaster.isseparateworkorder.lbl', model: 'IsSeparateWorkOrder', position: { r: 0, c: 1 } },
-                    { type: 'checkbox', translate: 'lis.testmaster.isdirectbill.lbl', model: 'IsDirectBill', position: { r: 1, c: 0 } },
-                    { type: 'checkbox', translate: 'lis.testmaster.isseparatesampleid.lbl', model: 'IsSeparateSampleId', position: { r: 1, c: 1 } },
-                    { type: 'text', translate: 'lis.testmaster.Methodology.lbl', model: 'Methodology', position: { r: 2, c: 0 } },
-                    { position: { r: 2, c: 1 } },
-                ],
-                actions: [
-                    { type: 'apply', translate: 'common.applyaction.lbl', cls: 'btn-primary' },
-                    { type: 'reset', translate: 'common.resetaction.lbl', cls: 'btn-danger' }
-                ]
-            };
-        }
-
-        function handleDynamicFormEvents(actionType, formData) {
-            $scope.advancedfilter = formData;
-            $scope.getList();
-        }
-
-        $scope.openAdvancedFilter = function () {
-            utl.Modal.openDynamicForm({
-                modeldata: $scope.advancedfilter,
-                defaultdata: $scope.advancedfilterDefault,
-                schema: $scope.advancedFilterSchema,
-                relativeto: '#btnadvanced',
-                handleDynamicFormEvents: handleDynamicFormEvents
-            });
-        }
-        //Dynamic form  ends
         $scope.backtoList = function () {
             $state.go('app.labdashboard');
         };
+
         $scope.getListCallback = function (scope, res, options, hasError) {
-            vm.gridConfig.data = res.Data;
-            vm.gridConfig.pagerObj.totalItems = res.PageContext.TotalRecords;
+            if (!hasError && res) {
+                vm.gridConfig.data = res.Data || [];
+                vm.gridConfig.pagerObj.totalItems = res.PageContext ? res.PageContext.TotalRecords : (res.Data ? res.Data.length : 0);
+            }
+            $scope.refreshReactProps();
         };
 
         $scope.getList = function (pageNo) {
+            if (pageNo) {
+                vm.gridConfig.pagerObj.currentPage = pageNo;
+            }
 
             var inputData = {
                 Params: [
@@ -85,7 +86,7 @@
                     { Key: 10, Value: $scope.advancedfilter.IsSeparateWorkOrder },
                     { Key: 11, Value: $scope.advancedfilter.IsDirectBill },
                     { Key: 12, Value: $scope.advancedfilter.IsSeparateSampleId },
-                    { Key: 13, Value: $scope.advancedfilter.Methodology },
+                    { Key: 13, Value: $scope.advancedfilter.Methodology }
                 ],
                 PageContext: {
                     PageSize: vm.gridConfig.pagerObj.pageSize,
@@ -103,13 +104,13 @@
             utl.Http.doAction(options);
         };
 
-        //Grid Actions
+        // Grid Actions
         $scope.addNew = function () {
             $state.go('app.testmastertab.testmaster', { id: 0 });
-        }
+        };
 
         $scope.deleteItemCallback = function (scope, data, options, hasError) {
-            utl.Alert.showSuccessMsg($translate.instant('common.delete_successmsg.lbl'));
+            utl.Alert.showSuccessMsg($translate.instant('common.delete_successmsg.lbl') || 'Deleted successfully');
             $scope.getList();
         };
 
@@ -121,50 +122,72 @@
                 onComplete: $scope.deleteItemCallback
             };
             utl.Http.doAction(options);
-        }
+        };
 
         $scope.handleEvents = function (actionType, entity) {
-
-            if (actionType == 'edit') {
-                $state.go('app.testmastertab.testmaster', { id: entity.Id, IsProfile: entity.IsProfile, TestName: entity.Code + ' - ' + entity.Name, TestCode: entity.Code });
-            }
-            else if (actionType == 'delete') {
+            if (actionType === 'edit') {
+                $state.go('app.testmastertab.testmaster', {
+                    id: entity.Id,
+                    IsProfile: entity.IsProfile,
+                    TestName: entity.Code + ' - ' + entity.Name,
+                    TestCode: entity.Code
+                });
+            } else if (actionType === 'delete') {
                 utl.Dialog.confirmDelete($scope.onDeleteConfirmed, entity.Id, entity.Name);
             }
-        }
+        };
 
-        vm.gridConfig = {
-            enableColumnResizing: true,
-            columnDefs: [
-                { field: "Code", displayName: $translate.instant('lis.testmasters.code.lbl') },
-                { field: "Name", displayName: $translate.instant('lis.testmasters.name.lbl') },
-                { field: "Sampletype.Name", displayName: $translate.instant('lis.testmasters.sampletypeId.lbl') },
-                { field: "Methodology", displayName: $translate.instant('lis.testmasters.methodology.lbl') },
-                { field: "TESTMASTERTYP.Description", displayName: $translate.instant('lis.testmasters.type.lbl') },
-                { field: "Department.DepartmentName", displayName: $translate.instant('lis.testmasters.departmentId.lbl') },
-                { field: "SubDepartment.DepartmentName", displayName: $translate.instant('lis.testmasters.subDepartmentId.lbl') },
-                { field: "ActiveStatus.Description", displayName: $translate.instant('lis.testmasters.status.lbl') },
-                {
-                    field: "Id", displayName: $translate.instant('common.actions_col.lbl'),
-                    cellTemplate: '<div class="ui-grid-cell-contents">\
-                                                    <span class="grid-action" ng-click="handleEvents(\'edit\',entity)"><img class="drhms-edit-button" src="assets/svg/edit.svg" aria-hidden="true"></span>\
-                                                    <span class="grid-action" ng-click="handleEvents(\'delete\',entity)"  ng-show="entity.ActiveStatusId == 1"><img class="drhms-edit-button" src="assets/svg/delete.svg" alt=""></span>\
-                                                </div>',
-                    handleEvent: $scope.handleEvents,
-                    // actions: 'ActiveStatusId' == 1 ? [
-                    //     { actiontype: 'edit', display: 'common.editaction.lbl' },
-                    //     { actiontype: 'delete', display: 'common.deleteaction.lbl' }
-                    // ] : [{ actiontype: 'edit', display: 'common.editaction.lbl' }]
+        // React bridge handler
+        $scope.handleReactAction = function (actionName, payload) {
+            if (actionName === 'addNew') {
+                $scope.addNew();
+            } else if (actionName === 'backtoList') {
+                $scope.backtoList();
+            } else if (actionName === 'edit') {
+                $scope.handleEvents('edit', payload);
+            } else if (actionName === 'delete') {
+                $scope.handleEvents('delete', payload);
+            } else if (actionName === 'search') {
+                if (payload) {
+                    if (payload.codemnemonicsnamedesc !== undefined) $scope.currentfilter.codemnemonicsnamedesc = payload.codemnemonicsnamedesc;
+                    if (payload.dept !== undefined) $scope.currentfilter.dept = payload.dept;
+                    if (payload.subdept !== undefined) $scope.currentfilter.subdept = payload.subdept;
+                    if (payload.FacilityId !== undefined) $scope.currentfilter.FacilityId = payload.FacilityId;
+                    if (payload.ActiveStatusId !== undefined) $scope.currentfilter.ActiveStatusId = payload.ActiveStatusId;
+                    if (payload.IsProfile !== undefined) $scope.advancedfilter.IsProfile = payload.IsProfile ? true : undefined;
+                    if (payload.IsSeparateWorkOrder !== undefined) $scope.advancedfilter.IsSeparateWorkOrder = payload.IsSeparateWorkOrder ? true : undefined;
+                    if (payload.IsDirectBill !== undefined) $scope.advancedfilter.IsDirectBill = payload.IsDirectBill ? true : undefined;
+                    if (payload.IsSeparateSampleId !== undefined) $scope.advancedfilter.IsSeparateSampleId = payload.IsSeparateSampleId ? true : undefined;
+                    if (payload.Methodology !== undefined) $scope.advancedfilter.Methodology = payload.Methodology || '';
                 }
-            ],
-            pagerObj: { totalItems: 0, currentPage: 1, startIndex: 0, pageSize: 25 }
+                vm.gridConfig.pagerObj.currentPage = 1;
+                $scope.getList();
+            } else if (actionName === 'resetFilters') {
+                $scope.currentfilter.codemnemonicsnamedesc = '';
+                $scope.currentfilter.dept = -1;
+                $scope.currentfilter.subdept = -1;
+                $scope.currentfilter.FacilityId = -1;
+                $scope.currentfilter.ActiveStatusId = 2;
+                $scope.advancedfilter.IsProfile = undefined;
+                $scope.advancedfilter.IsSeparateWorkOrder = undefined;
+                $scope.advancedfilter.IsDirectBill = undefined;
+                $scope.advancedfilter.IsSeparateSampleId = undefined;
+                $scope.advancedfilter.Methodology = '';
+                vm.gridConfig.pagerObj.currentPage = 1;
+                $scope.getList();
+            } else if (actionName === 'pageChange') {
+                var p = (payload && payload.page) ? payload.page : 1;
+                vm.gridConfig.pagerObj.currentPage = p;
+                $scope.getList(p);
+            }
+            $scope.refreshReactProps();
         };
 
         $scope.lookupCallback = function (scope, data, options, hasError) {
             $scope.lookup = hasError ? {} : data;
-            initDynamicForm();
+            $scope.refreshReactProps();
             $scope.getList();
-        }
+        };
 
         $scope.initLookup = function () {
             var inputData = [
@@ -190,9 +213,8 @@
                 },
                 { "Key": "SAMPLEVOLUME" },
                 { "Key": "TATGROUP" },
-                { "Key": "TATGROUP" },
                 { "Key": "ActiveStatus" }
-            ]
+            ];
             var options = {
                 action: 'General/Options/getoptions',
                 data: inputData,
@@ -200,12 +222,11 @@
                 onComplete: $scope.lookupCallback
             };
             utl.Http.doAction(options);
-        }
+        };
 
         $scope.initLookup();
-
+        $scope.refreshReactProps();
     }
 
     testMastersListController.$inject = ['$rootScope', '$scope', '$stateParams', '$state', '$translate', 'utl', '$timeout'];
-
 })();

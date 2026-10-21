@@ -1,0 +1,210 @@
+const http = require('http');
+const WebSocket = require('ws');
+const fs = require('fs');
+
+async function main() {
+  const targets = await new Promise((resolve, reject) => {
+    http.get('http://localhost:9222/json', res => {
+      let data = '';
+      res.on('data', chunk => data += chunk);
+      res.on('end', () => resolve(JSON.parse(data)));
+    }).on('error', reject);
+  });
+
+  const pageTarget = targets.find(t => t.url.includes('localhost:5174'));
+  if (!pageTarget) {
+    console.error('No localhost:5174 tab found');
+    return;
+  }
+  const ws = new WebSocket(pageTarget.webSocketDebuggerUrl);
+  await new Promise(r => ws.on('open', r));
+
+  let id = 1;
+  const send = (method, params = {}) => new Promise((resolve, reject) => {
+    const msgId = id++;
+    const handler = (data) => {
+      const msg = JSON.parse(data);
+      if (msg.id === msgId) {
+        ws.off('message', handler);
+        if (msg.error) reject(msg.error);
+        else resolve(msg.result);
+      }
+    };
+    ws.on('message', handler);
+    ws.send(JSON.stringify({ id: msgId, method, params }));
+  });
+
+  console.log('Navigating and reloading packages...');
+  await send('Page.navigate', { url: 'http://localhost:5174/#/app/packages' });
+  await new Promise(r => setTimeout(r, 4000));
+
+  // Inspect React State
+  const inspectResult = await send('Runtime.evaluate', {
+    returnByValue: true,
+    expression: `(() => {
+      const container = document.querySelector('.pkg-page-container');
+      const title = document.querySelector('.pkg-header-title')?.innerText;
+      const stats = Array.from(document.querySelectorAll('.pkg-stat-card')).map(c => ({
+        label: c.querySelector('.pkg-stat-label')?.innerText,
+        val: c.querySelector('.pkg-stat-value')?.innerText
+      }));
+      const rows = Array.from(document.querySelectorAll('.pkg-table tbody tr')).map(r => ({
+        idx: r.querySelector('.pkg-col-idx')?.innerText,
+        code: r.querySelector('.pkg-code-badge')?.innerText,
+        name: r.querySelector('.pkg-name-primary')?.innerText,
+        dept: r.querySelector('.pkg-dept-text')?.innerText,
+        payerType: r.querySelector('.pkg-payer-type-badge')?.innerText,
+        payerName: r.querySelector('.pkg-payer-name-text')?.innerText,
+        amount: r.querySelector('.pkg-amount-val')?.innerText,
+        status: r.querySelector('.pkg-status-pill')?.innerText?.trim()
+      }));
+      const paginationInfo = document.querySelector('.pkg-pagination-info')?.innerText;
+      return {
+        hasContainer: !!container,
+        title,
+        stats,
+        rowCount: rows.length,
+        firstThreeRows: rows.slice(0, 3),
+        paginationInfo
+      };
+    })()`
+  });
+
+  console.log('Initial Packages React State:', JSON.stringify(inspectResult.result.value, null, 2));
+
+  // Screenshot 1: React Verified Screen
+  const shot1 = await send('Page.captureScreenshot', { format: 'png' });
+  fs.writeFileSync('packages_react_verified.png', Buffer.from(shot1.data, 'base64'));
+  console.log('Saved packages_react_verified.png');
+
+  // Test 1: Search for "CABG"
+  console.log('Testing search for CABG...');
+  await send('Runtime.evaluate', {
+    expression: `(() => {
+      const inp = document.getElementById('inputSearchPackage');
+      const setter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value').set;
+      setter.call(inp, 'CABG');
+      inp.dispatchEvent(new Event('input', { bubbles: true }));
+      const btn = document.getElementById('btnFilterSearch');
+      if (btn) btn.click();
+    })()`
+  });
+  await new Promise(r => setTimeout(r, 2500));
+
+  const searchResults = await send('Runtime.evaluate', {
+    returnByValue: true,
+    expression: `(() => {
+      const rows = Array.from(document.querySelectorAll('.pkg-table tbody tr')).map(r => ({
+        code: r.querySelector('.pkg-code-badge')?.innerText,
+        name: r.querySelector('.pkg-name-primary')?.innerText,
+        amount: r.querySelector('.pkg-amount-val')?.innerText
+      }));
+      const paginationInfo = document.querySelector('.pkg-pagination-info')?.innerText;
+      return {
+        rowCount: rows.length,
+        paginationInfo,
+        sample: rows.slice(0, 3)
+      };
+    })()`
+  });
+  console.log('Search Results for CABG:', JSON.stringify(searchResults.result.value, null, 2));
+
+  const shotSearch = await send('Page.captureScreenshot', { format: 'png' });
+  fs.writeFileSync('packages_search_verified.png', Buffer.from(shotSearch.data, 'base64'));
+  console.log('Saved packages_search_verified.png');
+
+  // Test 2: Reset Filters
+  console.log('Testing Reset Filters...');
+  await send('Runtime.evaluate', {
+    expression: `(() => {
+      const btn = document.getElementById('btnFilterReset');
+      if (btn) btn.click();
+    })()`
+  });
+  await new Promise(r => setTimeout(r, 2500));
+
+  const resetResults = await send('Runtime.evaluate', {
+    returnByValue: true,
+    expression: `(() => {
+      const rows = Array.from(document.querySelectorAll('.pkg-table tbody tr')).map(r => ({
+        code: r.querySelector('.pkg-code-badge')?.innerText,
+        name: r.querySelector('.pkg-name-primary')?.innerText
+      }));
+      const paginationInfo = document.querySelector('.pkg-pagination-info')?.innerText;
+      return {
+        rowCount: rows.length,
+        paginationInfo,
+        firstRow: rows[0]
+      };
+    })()`
+  });
+  console.log('Reset Results:', JSON.stringify(resetResults.result.value, null, 2));
+
+  // Test 3: Pagination to Page 2
+  console.log('Testing Pagination to Page 2...');
+  await send('Runtime.evaluate', {
+    expression: `(() => {
+      const pageButtons = Array.from(document.querySelectorAll('.pkg-pagination-controls button'));
+      const p2 = pageButtons.find(b => b.innerText.trim() === '2');
+      if (p2) p2.click();
+    })()`
+  });
+  await new Promise(r => setTimeout(r, 2500));
+
+  const p2Results = await send('Runtime.evaluate', {
+    returnByValue: true,
+    expression: `(() => {
+      const rows = Array.from(document.querySelectorAll('.pkg-table tbody tr')).map(r => ({
+        idx: r.querySelector('.pkg-col-idx')?.innerText,
+        code: r.querySelector('.pkg-code-badge')?.innerText,
+        name: r.querySelector('.pkg-name-primary')?.innerText
+      }));
+      const paginationInfo = document.querySelector('.pkg-pagination-info')?.innerText;
+      return {
+        rowCount: rows.length,
+        paginationInfo,
+        firstRow: rows[0]
+      };
+    })()`
+  });
+  console.log('Page 2 Results:', JSON.stringify(p2Results.result.value, null, 2));
+
+  // Test 4: Click Edit button on the first row of current page
+  console.log('Testing Edit button navigation...');
+  const editTarget = await send('Runtime.evaluate', {
+    returnByValue: true,
+    expression: `(() => {
+      const editBtn = document.querySelector('.pkg-action-edit');
+      const itemCode = document.querySelector('.pkg-code-badge')?.innerText;
+      if (editBtn) {
+        editBtn.click();
+        return { clicked: true, itemCode };
+      }
+      return { clicked: false };
+    })()`
+  });
+  console.log('Edit clicked:', JSON.stringify(editTarget.result.value));
+  await new Promise(r => setTimeout(r, 2000));
+
+  const postNavUrl = await send('Runtime.evaluate', {
+    returnByValue: true,
+    expression: `window.location.href`
+  });
+  console.log('Navigated URL after Edit click:', postNavUrl.result.value);
+
+  const shotNav = await send('Page.captureScreenshot', { format: 'png' });
+  fs.writeFileSync('packages_edit_navigated.png', Buffer.from(shotNav.data, 'base64'));
+  console.log('Saved packages_edit_navigated.png');
+
+  // Navigate back to packages
+  await send('Page.navigate', { url: 'http://localhost:5174/#/app/packages' });
+  await new Promise(r => setTimeout(r, 3000));
+
+  const shotFinal = await send('Page.captureScreenshot', { format: 'png' });
+  fs.writeFileSync('packages_final_presentation.png', Buffer.from(shotFinal.data, 'base64'));
+  console.log('Saved packages_final_presentation.png');
+
+  ws.close();
+}
+
+main().catch(console.error);

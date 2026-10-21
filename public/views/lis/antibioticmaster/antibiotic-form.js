@@ -21,8 +21,38 @@
             $scope.confirmCallback = $uibModalInstance.close;
             $scope.cancelCallback = $uibModalInstance.dismiss;
         }
+        $scope.reactProps = {
+            id: $scope.currentcontext.id,
+            item: $scope.item,
+            lookup: $scope.lookup
+        };
+
+        $scope.syncReactProps = function() {
+            $scope.reactProps = {
+                id: $scope.currentcontext.id,
+                item: $scope.item,
+                lookup: $scope.lookup
+            };
+        };
+
+        $scope.handleAction = function(actionName, payload) {
+            $scope.$evalAsync(function() {
+                if (actionName === 'cancel') {
+                    if ($scope.cancelCallback) $scope.cancelCallback();
+                    else if ($scope.confirmCallback) $scope.confirmCallback();
+                    else $state.go('app.antibioticmasters');
+                } else if (actionName === 'save') {
+                    if (payload && payload.Data) {
+                        $scope.item = payload.Data;
+                        $scope.saveItem();
+                    }
+                }
+            });
+        };
+
         $scope.getItemCallback = function(scope, data, options, hasError) {
             $scope.item = data;
+            $scope.syncReactProps();
         };
 
         $scope.getItem = function(pageNo) {

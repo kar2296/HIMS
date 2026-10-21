@@ -15,6 +15,12 @@
 (function() {
     'use strict';
 
+    try {
+        angular.module('app.reactBridge');
+    } catch (e) {
+        angular.module('app.reactBridge', []);
+    }
+
     angular
         .module('angularApp', [
             'app.core',

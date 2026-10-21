@@ -69,12 +69,16 @@
             }
         }
         $scope.getSamplesCallback = function (scope, res, options, hasError) {
-            for (var idx in res.Data) {
-                var samples = res.Data[idx];
-                if (samples.SampleStatusId == 1) {
-                    $scope.currentcontext.id = samples.Id;
-                    loadData();
-                }
+            if (!res || !res.Data || res.Data.length === 0) {
+                return;
+            }
+            var targetSample = res.Data.find(function (s) {
+                return s.SampleStatusId == 1 || s.SampleStatusId == 2;
+            }) || res.Data[0];
+
+            if (targetSample) {
+                $scope.currentcontext.id = targetSample.Id;
+                loadData();
             }
         };
 
@@ -118,19 +122,39 @@
                     testArr.push(found);
                 }
 
-                item.IsAllSampleTypeSelected = true;
-                item.IsAllSampleTypeReadOnly = true;
-                //3 - Collected
-                if ($scope.item.SampleStatusId == 7) {
-                    item.IsSelected =
-                        (item.SampleDetailStatusId == 3) ? true : false;
-                    item.IsReadOnly =
-                        (item.SampleDetailStatusId == 3) ? true : false;
+                // 3 - Collected, 5 - Received/Approved, 6 - Rejected
+                var hasValidDate = Boolean(item.CollectedDate) && (
+                    typeof item.CollectedDate === 'string'
+                        ? item.CollectedDate.trim().length > 0
+                        : typeof item.CollectedDate === 'object' && Object.keys(item.CollectedDate).length > 0
+                );
+                var isCollectedOrApproved = (
+                    item.SampleDetailStatusId == 3 ||
+                    item.SampleDetailStatusId == 5 ||
+                    item.SampleDetailStatusId == 6 ||
+                    (item.SampleStatus && item.SampleStatus.Description === 'Collected') ||
+                    (Boolean(item.SampleIdentifier) && hasValidDate && ($scope.item && $scope.item.SampleStatusId == 3))
+                );
+                if (item.SampleDetailStatusId == 1 || (item.SampleStatus && item.SampleStatus.Description === 'Pending')) {
+                    isCollectedOrApproved = false;
+                }
+
+                if (isCollectedOrApproved) {
+                    item.IsSelected = false;
+                    item.IsReadOnly = true;
+                    item.IsAllSampleTypeSelected = false;
+                    item.IsAllSampleTypeReadOnly = true;
                 } else {
-                    item.IsSelected =
-                        (item.SampleDetailStatusId == 5) ? true : false;
-                    item.IsReadOnly =
-                        (item.SampleDetailStatusId == 5) ? true : false;
+                    if (item.SampleDetailStatusId == 1) {
+                        item.SampleIdentifier = null;
+                    }
+                    item.IsSelected = true;
+                    item.IsReadOnly = false;
+                    item.IsAllSampleTypeSelected = true;
+                    item.IsAllSampleTypeReadOnly = false;
+                    if (!item.CollectedDate) {
+                        item.CollectedDate = utl.Formatter.getCurrentDate();
+                    }
                 }
                 item.SampleTypeIndex = 0;
                 found.details.push(item);
@@ -149,22 +173,49 @@
 
                     if (detail.SampleIdentifier)
                         $scope.canShowBarcodeButton = true;
-                    if (detail.SampleDetailStatusId != 5) {
-                        detail.IsAllSampleTypeSelected = false;
-                        detail.IsAllSampleTypeReadOnly = false;
-                    }
-                    if ($scope.item.SampleStatusId == 7) {
-                        if (detail.SampleDetailStatusId != 6) {
-                            detail.IsAllSampleTypeSelected = false;
-                            detail.IsAllSampleTypeReadOnly = false;
-                        }
-                    }
 
+                    var isDetCollected = (
+                        detail.SampleDetailStatusId == 3 ||
+                        detail.SampleDetailStatusId == 5 ||
+                        detail.SampleDetailStatusId == 6 ||
+                        ($scope.item && $scope.item.SampleStatusId == 3) ||
+                        (detail.SampleStatus && detail.SampleStatus.Description === 'Collected')
+                    );
+
+                    if (isDetCollected) {
+                        detail.IsAllSampleTypeSelected = false;
+                        detail.IsAllSampleTypeReadOnly = true;
+                    }
                 }
+            }
+
+            // Check if any items are pending collection
+            var hasPendingItems = result.some(function (d) {
+                return (
+                    d.SampleDetailStatusId != 3 &&
+                    d.SampleDetailStatusId != 5 &&
+                    d.SampleDetailStatusId != 6 &&
+                    !($scope.item && $scope.item.SampleStatusId == 3) &&
+                    !(d.SampleStatus && d.SampleStatus.Description === 'Collected')
+                );
+            });
+
+            if (!hasPendingItems) {
+                $scope.CanShowSave = false;
+            } else if ($scope.item.PatientWorkorder && $scope.item.PatientWorkorder.WorkOrderStatusId >= 7) {
+                $scope.CanShowSave = false;
+            } else {
+                $scope.CanShowSave = true;
+            }
+
+            // Always enable barcode buttons if sample or identifier exists
+            if ($scope.currentcontext.id || result.some(function (d) { return Boolean(d.SampleIdentifier); })) {
+                $scope.canShowBarcodeButton = true;
             }
 
             console.log(result);
             $scope.details = result;
+            $scope.refreshReactProps();
         };
 
         $scope.getDetails = function (pageNo) {
@@ -211,6 +262,7 @@
                 }
             }
             $scope.getEncounters();
+            $scope.refreshReactProps();
         };
 
         $scope.getItem = function (pageNo) {
@@ -310,10 +362,26 @@
                 }
                 var lines = getLinesForSave();
 
-                if ($scope.details.length == lines.length) {
-                    $scope.item.SampleStatusId = 3; //Collected
+                // Compute if all details will be collected/finalized after this save
+                var remainingPending = 0;
+                for (var i = 0; i < ($scope.details || []).length; i++) {
+                    var d = $scope.details[i];
+                    var willBeCollected = lines.some(function (l) { return l.Id === d.Id; });
+                    var alreadyDone = (
+                        d.SampleDetailStatusId == 3 ||
+                        d.SampleDetailStatusId == 5 ||
+                        d.SampleDetailStatusId == 6 ||
+                        (d.SampleStatus && d.SampleStatus.Description === 'Collected')
+                    );
+                    if (!willBeCollected && !alreadyDone) {
+                        remainingPending++;
+                    }
+                }
+
+                if (remainingPending === 0) {
+                    $scope.item.SampleStatusId = 3; // Fully Collected
                 } else {
-                    $scope.item.SampleStatusId = 2; //Partially Collected
+                    $scope.item.SampleStatusId = 2; // Partially Collected
                 }
                 if ($scope.syncwithlis == 1) {
                     $scope.item.SyncLisInterface = true;
@@ -364,7 +432,10 @@
             var result = [];
             for (var idx in $scope.details) {
                 var item = $scope.details[idx];
-                if (item.CollectedDate && !item.IsReadOnly && item.IsSelected) {
+                if (!item.IsReadOnly && item.IsSelected) {
+                    if (!item.CollectedDate) {
+                        item.CollectedDate = utl.Formatter.getCurrentDate();
+                    }
                     item.SampleDetailStatusId = 3; //Collected
                     result.push(item);
                 }
@@ -400,12 +471,38 @@
         };
 
         function loadData() {
+            if (!$scope.currentcontext.id && !$scope.currentcontext.ordid) {
+                var inputData = {
+                    Params: [
+                        { Key: 17, Value: utl.Session.getCurrentFacilityId() },
+                        { Key: 21, Value: '1,2' }
+                    ],
+                    PageContext: { PageSize: 1, PageNumber: 1 }
+                };
+                utl.Http.doAction({
+                    action: 'lis/workordersample/GetWorkOrderSamples',
+                    data: inputData,
+                    type: 'post',
+                    onComplete: function (scope, res) {
+                        if (res && res.Data && res.Data.length > 0) {
+                            $scope.currentcontext.id = res.Data[0].Id;
+                            $scope.getItem();
+                            $scope.getDetails();
+                        } else {
+                            $scope.refreshReactProps();
+                        }
+                    }
+                });
+                return;
+            }
             $scope.getItem();
             $scope.getDetails();
+            $scope.refreshReactProps();
         }
 
         $scope.getEncounterCallback = function (scope, res, options, hasError) {
             $scope.EncounterInfo = res.Data[0];
+            $scope.refreshReactProps();
         };
 
         $scope.getEncounters = function () {
@@ -1059,6 +1156,171 @@
             utl.Http.doAction(options);
         }
 
+        $scope.refreshReactProps = function () {
+            var pat = ($scope.EncounterInfo && $scope.EncounterInfo.Patient) || {};
+            var ref = ($scope.EncounterInfo && $scope.EncounterInfo.Referral) || {};
+            var fac = ($scope.EncounterInfo && $scope.EncounterInfo.Facility) || {};
+            var ward = ($scope.EncounterInfo && $scope.EncounterInfo.WardMaster) || {};
+            var bed = ($scope.EncounterInfo && $scope.EncounterInfo.WardRoomBedMaster) || {};
+            var room = ($scope.EncounterInfo && $scope.EncounterInfo.WardRoomMaster) || {};
+
+            var patientData = {
+                Title: pat.Title ? pat.Title.Description : '',
+                FirstName: pat.FirstName || '',
+                LastName: pat.LastName || '',
+                MRN: pat.MRN || '',
+                Age: pat.Age,
+                Gender: pat.Gender ? (typeof pat.Gender === 'object' ? pat.Gender.Description : pat.Gender) : '',
+                PatientName: ((pat.Title && pat.Title.Description) ? pat.Title.Description + ' ' : '') +
+                             (pat.FirstName || '') + (pat.LastName ? ' ' + pat.LastName : '')
+            };
+
+            var encounterData = {
+                ReferralName: ref.ReferralName || 'SELF',
+                FacilityName: fac.FacilityName || (utl.Session.getCurrentFacilityName ? utl.Session.getCurrentFacilityName() : 'SHUVADARSINI HOSPITAL'),
+                WardName: ward.WardName || 'HDU',
+                BedNo: bed.BedNo || '',
+                RoomNo: room.RoomNo || ''
+            };
+
+            var orderInfoData = {};
+            if ($scope.item) {
+                orderInfoData = {
+                    OrderNumber: $scope.item.PatientOrder ? $scope.item.PatientOrder.OrderNumber : '',
+                    BillNumber: $scope.item.PatientOrder ? $scope.item.PatientOrder.BillNumber : '',
+                    OrderDate: $scope.item.PatientOrder ? $scope.item.PatientOrder.OrderRequestDate : null,
+                    SampleStatus: $scope.item.SampleStatus ? $scope.item.SampleStatus.Description : 'Pending',
+                    SampleStatusId: $scope.item.SampleStatusId || 1,
+                    RejectionComments: $scope.item.RejectionComments || '',
+                    WorkOrderDID: $scope.item.PatientWorkorder ? $scope.item.PatientWorkorder.WorkOrderdid : ''
+                };
+            }
+
+            var hasPendingItems = false;
+            var cleanDetails = ($scope.details || []).map(function (d) {
+                var hasDate = Boolean(d.CollectedDate) && (
+                    typeof d.CollectedDate === 'string'
+                        ? d.CollectedDate.trim().length > 0
+                        : typeof d.CollectedDate === 'object' && Object.keys(d.CollectedDate).length > 0
+                );
+                var isCollected = Boolean(
+                    d.SampleDetailStatusId == 3 ||
+                    d.SampleDetailStatusId == 5 ||
+                    d.SampleDetailStatusId == 6 ||
+                    (d.SampleStatus && d.SampleStatus.Description === 'Collected') ||
+                    (Boolean(d.SampleIdentifier) && hasDate && ($scope.item && $scope.item.SampleStatusId == 3))
+                );
+                if (d.SampleDetailStatusId == 1 || (d.SampleStatus && d.SampleStatus.Description === 'Pending')) {
+                    isCollected = false;
+                }
+
+                if (!isCollected && !d.IsReadOnly) {
+                    hasPendingItems = true;
+                }
+
+                return {
+                    Id: d.Id,
+                    WorkOrderSampleId: d.WorkOrderSampleId,
+                    OrderDetailId: d.OrderDetailId,
+                    TestId: d.TestId,
+                    TestName: d.TestName,
+                    TestCode: d.Testmaster ? d.Testmaster.Code : '',
+                    SampleType: d.SampleType,
+                    SampleIdentifier: d.SampleIdentifier || null,
+                    SamplePriority: d.OrderPriority ? d.OrderPriority.Description : 'Routine',
+                    SampleStatus: d.SampleStatus ? d.SampleStatus.Description : (isCollected ? 'Collected' : 'Pending'),
+                    SampleStatusId: d.SampleStatusId,
+                    SampleDetailStatusId: d.SampleDetailStatusId,
+                    CollectedDate: d.CollectedDate,
+                    IsSelected: isCollected ? false : Boolean(d.IsSelected),
+                    IsReadOnly: isCollected ? true : Boolean(d.IsReadOnly),
+                    IsAllSampleTypeSelected: isCollected ? false : Boolean(d.IsAllSampleTypeSelected),
+                    IsAllSampleTypeReadOnly: isCollected ? true : Boolean(d.IsAllSampleTypeReadOnly),
+                    SampleVolume: d.Testmaster ? d.Testmaster.SampleVolume : '',
+                    SubDepartmentName: d.SubDepartmentName,
+                    IsSeparateSampleId: d.IsSeparateSampleId
+                };
+            });
+
+            var canBarcode = Boolean(
+                $scope.canShowBarcodeButton ||
+                $scope.currentcontext.id ||
+                ($scope.details && $scope.details.some(function (d) { return Boolean(d.SampleIdentifier); }))
+            );
+
+            var isWorkOrderClosed = Boolean($scope.item && $scope.item.PatientWorkorder && $scope.item.PatientWorkorder.WorkOrderStatusId >= 7);
+            var canSaveAllowed = hasPendingItems && !isWorkOrderClosed;
+            $scope.CanShowSave = canSaveAllowed;
+
+            $scope.reactProps = {
+                sampleId: $scope.currentcontext.id,
+                orderId: $scope.item ? $scope.item.PatientOrderId : null,
+                patient: patientData,
+                encounter: encounterData,
+                orderInfo: orderInfoData,
+                details: cleanDetails,
+                canShowSave: canSaveAllowed,
+                canShowBarcodeButton: canBarcode,
+                canShowReject: $scope.item && ($scope.item.SampleStatusId == 3 || $scope.item.SampleStatusId == 2),
+                facilityName: utl.Session.getCurrentFacilityName ? utl.Session.getCurrentFacilityName() : 'SHUVADARSINI HOSPITAL'
+            };
+            $scope.$applyAsync();
+        };
+
+        $scope.handleReactAction = function (actionName, payload) {
+            if (actionName === 'back') {
+                $scope.backToList();
+            } else if (actionName === 'toggleSelectAll') {
+                $scope.currentcontext.selectall = payload ? Boolean(payload.selectAll) : true;
+                $scope.selectAllItems();
+                $scope.refreshReactProps();
+            } else if (actionName === 'toggleSampleType') {
+                if (payload) {
+                    var targetItem = ($scope.details || []).find(function (d) {
+                        return d.SampleType === payload.sampleType;
+                    });
+                    if (targetItem) {
+                        targetItem.IsAllSampleTypeSelected = Boolean(payload.isSelected);
+                        $scope.sampletypeSelectionChange($scope.details, targetItem);
+                    }
+                }
+                $scope.refreshReactProps();
+            } else if (actionName === 'toggleItem') {
+                if (payload && payload.item) {
+                    var target = ($scope.details || []).find(function (d) {
+                        return d.Id === payload.item.Id;
+                    });
+                    if (target) {
+                        target.IsSelected = Boolean(payload.isSelected);
+                        $scope.detailSelectionChanged(target);
+                    }
+                }
+                $scope.refreshReactProps();
+            } else if (actionName === 'updateRejectionRemarks') {
+                if ($scope.item && payload) {
+                    $scope.item.RejectionComments = payload.remarks;
+                }
+            } else if (actionName === 'save') {
+                $scope.saveItem();
+            } else if (actionName === 'reject') {
+                $scope.rejectSample();
+            } else if (actionName === 'tat') {
+                if (payload) {
+                    var target = ($scope.details || []).find(function (d) {
+                        return d.Id === payload.Id;
+                    });
+                    $scope.testtat(target || payload);
+                }
+            } else if (actionName === 'generateBarcode') {
+                $scope.generatebarcode();
+            } else if (actionName === 'pathologistBarcode') {
+                $scope.pathologistbarcode();
+            } else if (actionName === 'histoBarcode') {
+                $scope.histobarcode();
+            }
+        };
+
+        $scope.refreshReactProps();
         $scope.initLookup();
     }
 

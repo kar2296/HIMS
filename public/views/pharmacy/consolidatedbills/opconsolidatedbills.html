@@ -1,129 +1,202 @@
-<div class="row">
-    <div class="filters">
-        <div class="search">
+<!-- Modern Filter Card -->
+<div class="cb-filter-card">
+    <div class="cb-filter-header">
+        <h3 class="cb-filter-header-title">
+            <i class="fa-solid fa-sliders" aria-hidden="true"></i>
+            <span>Search &amp; Filter Outpatient Bills</span>
+        </h3>
+        <span class="cb-header-tag" style="font-size: 11px;">OP Consultation &amp; Procedures</span>
+    </div>
+
+    <!-- Patient Search Input Row -->
+    <div class="cb-patient-search-row">
+        <label class="cb-field-label">
+            <i class="fa-solid fa-user" aria-hidden="true"></i>
+            <span>Search &amp; Select Patient</span>
+        </label>
+        <div class="cb-patient-search-wrapper">
             <patientsearch controlid="'pid'" ng-keyup="moveHeaderFocus('pid')" patientid="currentfilter.PatientId"
-                class="col-sm-9 logo patient-right-box-search" name="txtpatientsearch" patientinfo="selectedPatient" patientchange="getPatient()"
+                name="txtpatientsearch" patientinfo="selectedPatient" patientchange="getPatient()"
                 tabindex="tabindexmap.patienttabindex" style="width:100%;">
             </patientsearch>
-            <i class="fas fa-search" aria-hidden="true"></i>
+        </div>
+
+        <!-- Selected Patient Quick Info Badge -->
+        <div class="cb-selected-patient-badge" ng-if="selectedPatient && selectedPatient.FirstName">
+            <i class="fa-solid fa-circle-check" aria-hidden="true"></i>
+            <span>
+                Selected: <strong>{{selectedPatient.Title.Description}} {{selectedPatient.FirstName}} {{selectedPatient.LastName}}</strong>
+                <span ng-if="selectedPatient.MRN">&nbsp;| UHID: <strong>{{selectedPatient.MRN}}</strong></span>
+                <span ng-if="selectedPatient.Mobile">&nbsp;| Phone: <strong>{{selectedPatient.Mobile}}</strong></span>
+                <span ng-if="selectedPatient.Age">&nbsp;| Age: <strong>{{selectedPatient.Age}} Y</strong></span>
+            </span>
+            <button type="button" class="cb-clear-patient-btn" ng-click="clearPatient()" title="Clear Patient Selection">
+                <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+            </button>
         </div>
     </div>
-</div>
-<div class="row">
-    <div class="drhms-list-filters">
-        <div class="col-sm-3">
-            <label class="col-sm-4" translate="billing.pharmacy-billdetails.fromdate.lbl"></label>
-            <div class="col-sm-8">
+
+    <!-- Filter Fields Grid -->
+    <div class="cb-filters-grid">
+        <!-- From Date -->
+        <div class="cb-field-group">
+            <label class="cb-field-label">
+                <i class="fa-solid fa-calendar-days" aria-hidden="true"></i>
+                <span translate="billing.pharmacy-billdetails.fromdate.lbl">From Date</span>
+            </label>
+            <div class="cb-input-wrapper">
                 <input type="text" class="form-control" datepicker-options="datePickerOptions"
                     show-button-bar="{{datePickerOptions.showButtonBar}}"
                     ng-date-object datetime-picker="{{datePickerOptions.dateTimeFormat}}"
-                    placeholder="{{datePickerOptions.placeholder}}" ng-change="getPharmacyBills()"
+                    placeholder="{{datePickerOptions.placeholder}}" ng-change="getopBills()"
                     ng-click="fromdatePopup = { opened: true }" is-open="fromdatePopup.opened"
                     ng-model="currentfilter.FromBillDate">
+                <i class="fa-regular fa-calendar cb-input-icon" aria-hidden="true"></i>
             </div>
         </div>
-        <div class="col-sm-3">
-            <label class="col-sm-4" translate="billing.pharmacy-billdetails.todate.lbl"></label>
-            <div class="col-sm-8">
+
+        <!-- To Date -->
+        <div class="cb-field-group">
+            <label class="cb-field-label">
+                <i class="fa-solid fa-calendar-days" aria-hidden="true"></i>
+                <span translate="billing.pharmacy-billdetails.todate.lbl">To Date</span>
+            </label>
+            <div class="cb-input-wrapper">
                 <input type="text" class="form-control" datepicker-options="datePickerOptions"
                     show-button-bar="{{datePickerOptions.showButtonBar}}"
                     ng-date-object datetime-picker="{{datePickerOptions.dateTimeFormat}}"
-                    placeholder="{{datePickerOptions.placeholder}}" ng-change="getPharmacyBills()"
+                    placeholder="{{datePickerOptions.placeholder}}" ng-change="getopBills()"
                     ng-click="todatePopup = { opened: true }" is-open="todatePopup.opened"
                     ng-model="currentfilter.ToBillDate">
+                <i class="fa-regular fa-calendar cb-input-icon" aria-hidden="true"></i>
             </div>
         </div>
-        <div class="col-sm-3">
-            <label class="col-sm-4" translate="billing.pharmacy-billdetails.approvedby.lbl"></label>
-            <div class="col-sm-8">
-                <ui-select ng-model="currentfilter.DueApprovedById" class="filter-combo" ng-change="getPharmacyBills()">
-                    <ui-select-match>
-                        {{$select.selected.Text | limitTo : 10 : 0}}
-                        <span ng-if="$select.selected.Text.length>10">...</span>
-                    </ui-select-match>
-                    <ui-select-choices
-                        repeat="lookupitem.Id as lookupitem in lookup.PrivateDueApprover | filter: { Text: $select.search }">
-                        <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
-                    </ui-select-choices>
-                </ui-select>
-            </div>
+
+        <!-- Approved By -->
+        <div class="cb-field-group">
+            <label class="cb-field-label">
+                <i class="fa-solid fa-user-shield" aria-hidden="true"></i>
+                <span translate="billing.pharmacy-billdetails.approvedby.lbl">Approved By</span>
+            </label>
+            <ui-select ng-model="currentfilter.DueApprovedById" class="filter-combo" ng-change="getopBills()">
+                <ui-select-match placeholder="Select Approver...">
+                    {{$select.selected.Text | limitTo : 18 : 0}}
+                    <span ng-if="$select.selected.Text.length>18">...</span>
+                </ui-select-match>
+                <ui-select-choices
+                    repeat="lookupitem.Id as lookupitem in lookup.PrivateDueApprover | filter: { Text: $select.search }">
+                    <div ng-bind-html="lookupitem.Text | highlight: $select.search"></div>
+                </ui-select-choices>
+            </ui-select>
         </div>
-        <div class="col-sm-3">
-            <div align="center">
-                <button id="btnSearch" type="button" class="draftbutton"
-                    translate="billing.pharmacy-billdetails.loadbill.lbl" ng-click="getopBills()"></button>
-                <button id="btnprint" type="button" class="draftbutton"
-                    translate="billing.pharmacy-billdetails.print.lbl" ng-click="Print()"
-                    ng-show="canShowDMPrintBtn"></button>
-            </div>
+
+        <!-- Action Buttons -->
+        <div class="cb-btn-actions-cell">
+            <button id="btnSearch" type="button" class="cb-btn-primary" ng-click="getopBills()">
+                <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+                <span translate="billing.pharmacy-billdetails.loadbill.lbl">Load Bills</span>
+            </button>
+            <button id="btnprint" type="button" class="cb-btn-print" ng-click="Print()" ng-show="canShowDMPrintBtn">
+                <i class="fa-solid fa-print" aria-hidden="true"></i>
+                <span translate="billing.pharmacy-billdetails.print.lbl">Print Consolidated</span>
+                <span ng-if="getSelectedCount() > 0">({{getSelectedCount()}})</span>
+            </button>
         </div>
     </div>
 </div>
 
-<div class="row">
-    <div class="container-fluid">
-        <table class="table table-bordered bordered table-striped table-condensed datatable rz-table">
+<!-- KPI Summary Metrics (Visible when bills are loaded) -->
+<div class="cb-stats-bar" ng-if="PatientOPBills.length > 0">
+    <div class="cb-stat-item">
+        <span>Total Bills:</span>
+        <strong>{{PatientOPBills.length}}</strong>
+    </div>
+    <div class="cb-stat-item highlight-blue">
+        <span>Selected for Print:</span>
+        <strong>{{getSelectedCount()}} / {{PatientOPBills.length}}</strong>
+    </div>
+    <div class="cb-stat-item highlight-blue">
+        <span>Total Net Amount:</span>
+        <strong>₹ {{getTotalNetAmount() | number:2}}</strong>
+    </div>
+    <div class="cb-stat-item highlight-emerald">
+        <span>Total Paid Amount:</span>
+        <strong>₹ {{getTotalPaidAmount() | number:2}}</strong>
+    </div>
+    <div class="cb-stat-item">
+        <span>Outstanding Balance:</span>
+        <strong>₹ {{getTotalOutstanding() | number:2}}</strong>
+    </div>
+</div>
+
+<!-- Data Table Card (Visible when bills are loaded) -->
+<div class="cb-table-card" ng-if="PatientOPBills.length > 0">
+    <div class="cb-table-header-bar">
+        <h4 class="cb-table-header-title">
+            <i class="fa-solid fa-table-list" aria-hidden="true"></i>
+            <span>Outpatient Bills Details</span>
+            <span class="cb-table-count-badge">{{PatientOPBills.length}} Bills Found</span>
+        </h4>
+        <div>
+            <label style="font-size: 12px; color: #475569; margin: 0; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                <input type="checkbox" class="cb-custom-checkbox" ng-model="currentcontext.selectallchk"
+                    ng-click="SelectAll(currentcontext.selectallchk)">
+                <span>Select All Bills</span>
+            </label>
+        </div>
+    </div>
+
+    <div class="cb-table-responsive">
+        <table class="cb-table">
             <thead>
                 <tr>
-                    <th>
-                        <span translate="billing.pharmacy-billdetails.billno.lbl"></span>
-                    </th>
-                    <th>
-                        <span translate="billing.pharmacy-billdetails.billdate.lbl"></span>
-                    </th>
-                    <th class="col-sm-3">
-                        <span translate="billing.pharmacy-billdetails.patient.lbl"></span>
-                    </th>
-                    <th>
-                        <span translate="billing.pharmacy-billdetails.opipno.lbl"></span>
-                    </th>
-                    <th>
-                        <span translate="billing.pharmacy-billdetails.doctor.lbl"></span>
-                    </th>
-                    <th>
-                        <span translate="billing.pharmacy-billdetails.billamount.lbl"></span>
-                    </th>
-                    <th>
-                        <span translate="billing.pharmacy-billdetails.discount.lbl"></span>
-                    </th>
-                    <th>
-                        <span translate="billing.pharmacy-billdetails.roundoff.lbl"></span>
-                    </th>
-                    <th>
-                        <span translate="billing.pharmacy-billdetails.netamount.lbl"></span>
-                    </th>
-                    <th>
-                        <span translate="billing.pharmacy-billdetails.paidamount.lbl"></span>
-                    </th>
-                    <th>
-                        <span translate="">
-                            <input type="checkbox" ng-model="currentcontext.selectallchk"
-                                ng-click="SelectAll(currentcontext.selectallchk)" />
-                        </span>
+                    <th style="width: 45px; text-align: center;">#</th>
+                    <th><span translate="billing.pharmacy-billdetails.billno.lbl">Bill No</span></th>
+                    <th><span translate="billing.pharmacy-billdetails.billdate.lbl">Bill Date</span></th>
+                    <th style="min-width: 220px;"><span translate="billing.pharmacy-billdetails.patient.lbl">Patient Details</span></th>
+                    <th><span translate="billing.pharmacy-billdetails.opipno.lbl">OP/IP No</span></th>
+                    <th><span translate="billing.pharmacy-billdetails.doctor.lbl">Doctor</span></th>
+                    <th style="text-align: right;"><span translate="billing.pharmacy-billdetails.billamount.lbl">Bill Amt</span></th>
+                    <th style="text-align: right;"><span translate="billing.pharmacy-billdetails.discount.lbl">Discount</span></th>
+                    <th style="text-align: right;"><span translate="billing.pharmacy-billdetails.roundoff.lbl">Round Off</span></th>
+                    <th style="text-align: right;"><span translate="billing.pharmacy-billdetails.netamount.lbl">Net Amt</span></th>
+                    <th style="text-align: right;"><span translate="billing.pharmacy-billdetails.paidamount.lbl">Paid Amt</span></th>
+                    <th style="width: 50px; text-align: center;">
+                        <input type="checkbox" class="cb-custom-checkbox" ng-model="currentcontext.selectallchk"
+                            ng-click="SelectAll(currentcontext.selectallchk)" title="Select All" />
                     </th>
                 </tr>
             </thead>
             <tbody>
-                <tr ng-repeat="detail in PatientOPBills">
-                    <td>{{detail.BillNumber}}</td>
+                <tr ng-repeat="detail in PatientOPBills" ng-class="{'row-selected': detail.select}">
+                    <td style="text-align: center; color: #94a3b8; font-weight: 500;">{{$index + 1}}</td>
+                    <td>
+                        <span class="cb-bill-badge">{{detail.BillNumber}}</span>
+                    </td>
                     <td>
                         <displaydate date-val="detail.BillDateTime"></displaydate>
                     </td>
-                    <td>{{detail.Patient.Title.Description}}&nbsp; {{detail.Patient.FirstName}}&nbsp;
-                        {{detail.Patient.LastName}}/ {{detail.Patient.MRN}}/ {{detail.Patient.Age}}/
-                        {{detail.Patient.Gender.Description}}
-                    </td>
-                    <td>{{detail.Encounter.VisitIdentifier}}</td>
-                    <td>{{detail.User.Title.Description}}&nbsp; {{detail.User.FirstName}}&nbsp;
-                        {{detail.User.LastName}}
-                    </td>
-                    <td>{{detail.BillAmount}}</td>
-                    <td>{{detail.BillDiscount}}</td>
-                    <td>{{detail.RoundOffValue}}</td>
-                    <td>{{detail.NetAmount}}</td>
-                    <td>{{detail.PaidAmount}}</td>
                     <td>
-                        <input type="checkbox" id="select{{$index}}" ng-model="detail.select"
+                        <span class="cb-patient-cell-name">
+                            {{detail.Patient.Title.Description}} {{detail.Patient.FirstName}} {{detail.Patient.LastName}}
+                        </span>
+                        <span class="cb-patient-cell-sub">
+                            UHID: {{detail.Patient.MRN}} | Age: {{detail.Patient.Age}} | {{detail.Patient.Gender.Description}}
+                        </span>
+                    </td>
+                    <td>
+                        <span style="font-weight: 600; color: #334155;">{{detail.Encounter.VisitIdentifier}}</span>
+                    </td>
+                    <td>
+                        {{detail.User.Title.Description}} {{detail.User.FirstName}} {{detail.User.LastName}}
+                    </td>
+                    <td class="cb-currency-cell">₹ {{detail.BillAmount | number:2}}</td>
+                    <td class="cb-currency-cell" style="color: #64748b;">₹ {{detail.BillDiscount | number:2}}</td>
+                    <td class="cb-currency-cell" style="color: #94a3b8;">₹ {{detail.RoundOffValue | number:2}}</td>
+                    <td class="cb-currency-cell cb-net-amount">₹ {{detail.NetAmount | number:2}}</td>
+                    <td class="cb-currency-cell cb-paid-amount">₹ {{detail.PaidAmount | number:2}}</td>
+                    <td style="text-align: center;">
+                        <input type="checkbox" class="cb-custom-checkbox" id="select{{$index}}" ng-model="detail.select"
                             ng-change="selectionChangedCal()" />
                     </td>
                 </tr>
@@ -131,5 +204,25 @@
         </table>
     </div>
 </div>
-<!-- <div class="fooder-bgs"></div> -->
-<!-- </main> -->
+
+<!-- Illustrated Empty State (Visible when no bills loaded) -->
+<div class="cb-empty-state" ng-if="!PatientOPBills || PatientOPBills.length === 0">
+    <div class="cb-empty-icon">
+        <i class="fa-solid fa-receipt" aria-hidden="true"></i>
+    </div>
+    <h3 class="cb-empty-title">No Outpatient Bills Loaded</h3>
+    <p class="cb-empty-desc">
+        Search and select a patient in the filter card above, select your desired date range, and click <strong>Load Bills</strong> to review, select, and print consolidated outpatient bills.
+    </p>
+    <div class="cb-empty-tips">
+        <span class="cb-empty-tip-tag">
+            <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i> Search by UHID or Patient Name
+        </span>
+        <span class="cb-empty-tip-tag">
+            <i class="fa-solid fa-calendar" aria-hidden="true"></i> Flexible Date Range
+        </span>
+        <span class="cb-empty-tip-tag">
+            <i class="fa-solid fa-print" aria-hidden="true"></i> One-Click Consolidated Print
+        </span>
+    </div>
+</div>

@@ -31,29 +31,90 @@
         $scope.currentcontext.selectallchk = true;
 
         $scope.SelectAll = function (chk) {
-            // for (var idx in $scope.PatientOPBills) {
-            //     $scope.PatientOPBills[idx].select = chk;
-            // }
             for (var idx in $scope.PatallBills) {
                 $scope.PatallBills[idx].select = chk;
             }
+            $scope.selectionChangedCal();
         };
 
         $scope.getPatientInfo = function (scope, data, options, hasError) {
             $scope.selectedPatient = data;
         };
 
+        $scope.getPatient = function () {
+            $scope.patientChange();
+        };
+
         $scope.patientChange = function () {
             if ($scope.currentfilter.PatientId > 0) {
+                $scope.currentcontext.pid = $scope.currentfilter.PatientId;
+                if ($scope.$parent && $scope.$parent.currentcontext) {
+                    $scope.$parent.currentcontext.pid = $scope.currentfilter.PatientId;
+                }
                 var options = {
                     action: 'registration/patient/GetPatientById',
                     data: {
                         Id: $scope.currentfilter.PatientId
                     },
                     type: 'post',
-                    onComplete: $scope.getPatientInfo
+                    onComplete: function(s, data, opt, err) {
+                        $scope.getPatientInfo(s, data, opt, err);
+                        $scope.loadallbills();
+                    }
                 };
                 utl.Http.doAction(options);
+            } else {
+                $scope.clearPatient();
+            }
+        };
+
+        $scope.clearPatient = function () {
+            $scope.currentfilter.PatientId = null;
+            $scope.selectedPatient = null;
+            $scope.currentcontext.pid = null;
+            if ($scope.$parent && $scope.$parent.currentcontext) {
+                $scope.$parent.currentcontext.pid = null;
+            }
+            $scope.PatallBills = [];
+            $scope.canShowDMPrintBtn = false;
+        };
+
+        $scope.getSelectedCount = function () {
+            if (!$scope.PatallBills) return 0;
+            return $scope.PatallBills.filter(function(b) { return b.select; }).length;
+        };
+
+        $scope.getTotalNetAmount = function () {
+            if (!$scope.PatallBills) return 0;
+            var total = 0;
+            for (var i = 0; i < $scope.PatallBills.length; i++) {
+                if ($scope.PatallBills[i].select) {
+                    total += Number($scope.PatallBills[i].NetAmount || 0);
+                }
+            }
+            return total;
+        };
+
+        $scope.getTotalPaidAmount = function () {
+            if (!$scope.PatallBills) return 0;
+            var total = 0;
+            for (var i = 0; i < $scope.PatallBills.length; i++) {
+                if ($scope.PatallBills[i].select) {
+                    total += Number($scope.PatallBills[i].PaidAmount || 0);
+                }
+            }
+            return total;
+        };
+
+        $scope.getTotalOutstanding = function () {
+            return Math.max(0, $scope.getTotalNetAmount() - $scope.getTotalPaidAmount());
+        };
+
+        $scope.selectionChangedCal = function () {
+            var selected = getSelectionRows();
+            $scope.canShowDMPrintBtn = selected.length > 0;
+            if ($scope.PatallBills && $scope.PatallBills.length > 0) {
+                $scope.currentcontext.selectallchk = selected.length === $scope.PatallBills.length;
             }
         };
 
@@ -187,10 +248,14 @@
 
 
         $scope.loadallbills = function () {
+            if (!$scope.currentfilter.PatientId || $scope.currentfilter.PatientId <= 0) {
+                utl.Alert.showWarningMsg('Please search and select a patient first to load bills.');
+                return;
+            }
             $scope.PatallBills = [];
             $scope.getopBills();
             $scope.getPharmacyBills();
-        }
+        };
         function getSelectionRows() {
             var currentSelection = [];
             for (var idx in $scope.PatallBills) {

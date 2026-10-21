@@ -139,3 +139,20 @@ Reply "Option 2" if you want a complete physical merge (High risk of breaking th
 * **File Modified:** `public/views/billing/opbilling/opbilling-list.js`
 * **Change:** Replaced the incorrect `utl.Privilege.hasAccess(...)` implementation inside `refreshReactProps` with the correct `$scope.HasAccess(...)` method.
 * **Reason:** The `utl.Privilege.hasAccess` method only accepts a single string parameter (e.g., `'OPBilling'`), while the older system uses a two-parameter tuple (e.g., `'OPBilling', 'OPBilling_Save_Button'`). Because the second parameter was ignored, the system looked for the root key `OPBilling` in the privilege map (which does not exist), and erroneously returned `false`. This effectively hid all Save buttons for logged-in users like `sdh`. Using `$scope.HasAccess` correctly evaluates the dual-parameter privilege, restoring the buttons.
+
+### 16. Work Order Number Vertical Stacking & Search Icon Overlap Fix
+* **Date:** Oct 13, 2026, 11:45 PM (IST)
+* **Files Modified:**
+  - `public/views/emr/ordermanagement/orderprocess/allorderprocess-list.js`
+  - `public/views/emr/ordermanagement/orderprocess/allorderprocess-list.html`
+  - `public/views/emr/ordermanagement/orderprocess/myorderprocess-list.js`
+  - `public/views/emr/ordermanagement/orderprocess/myorderprocess-list.html`
+  - `public/views/emr/ordermanagement/resultapproval/allresultapproval-list.js`
+  - `public/views/emr/ordermanagement/resultapproval/resultapproved-amendment.js`
+  - `public/views/emr/ordermanagement/externalresultentry/externalresultentry.js`
+  - `public/views/emr/ordermanagement/otherhospitalorders/otherhsptlorderprocess-list.js`
+* **Changes & Causes:**
+  1. **Work Order No Vertical Wrapping:** In `wonum` grid column definitions, `class='col-sm-2'` inside `<div class='ui-grid-cell-contents'>` applied Bootstrap's 16.6% width restriction and 30px lateral padding inside a table cell, compressing the container to ~10px wide and forcing each character of `LIS10101` onto a new line. Removed `col-sm-2` and ensured inline nowrap rendering.
+  2. **Search Icon Overlap:** `.search input.form-control.bill` lacked left padding, causing the magnifying glass icon (`.drhms-search-icon`) to overlap the placeholder text in `SampleId`, `Search Name`, `Search UHID`, and `Order#/Bill#`. Added `padding-left: 28px !important` and positioned `.drhms-search-icon` neatly.
+  3. **Patient Name Trailing Slash:** In `PatInfo`, fixed malformed HTML (`<span>/<span>`) and dangling slash when age/gender are not present.
+

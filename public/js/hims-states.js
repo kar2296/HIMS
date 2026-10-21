@@ -834,7 +834,7 @@
                 }
             })
             .state('app.org', {
-                url: '/org:id',
+                url: '/org/:id',
                 title: 'Organization',
                 templateUrl: helper.basepath('emr/appmanager/orgs/org.html'),
                 controller: 'orgFormController as vm',
@@ -7988,7 +7988,7 @@
                 }
             })
             .state('app.orderacknowledgementform', {
-                url: '/orderacknowledgementform/:tp',
+                url: '/orderacknowledgementform/:tp?id&pid',
                 title: 'Order Acknowledgements',
                 templateUrl: helper.basepath('emr/ordermanagement/orderacknowledgement/orderacknowledgement-form.html'),
                 controller: 'orderAcknowledgementFormController as vm',
@@ -19677,9 +19677,9 @@
             size: 'full'
         });
         modalConfigProvider.add('app.lisordertat', {
-            templateUrl: helper.basepath('emr/patientemr/patientorders/lisordertat.html'),
-            controller: 'lisordertatController',
-            controllerUrl: helper.basepath('emr/patientemr/patientorders/lisordertat.js'),
+            templateUrl: helper.basepath('emr/ordermanagement/tatdetails/tatdetails.html'),
+            controller: 'tatDetailsController',
+            controllerUrl: helper.basepath('emr/ordermanagement/tatdetails/tatdetails.js'),
             size: 'lg'
         });
         modalConfigProvider.add('app.patientorder', {

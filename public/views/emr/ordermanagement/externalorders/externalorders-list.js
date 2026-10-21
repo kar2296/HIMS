@@ -25,6 +25,63 @@
         $scope.getListCallback = function (scope, res, options, hasError) {
             vm.gridConfig.data = res.Data;
             vm.gridConfig.pagerObj.totalItems = res.PageContext.TotalRecords;
+            $scope.refreshReactProps();
+        };
+
+        $scope.refreshReactProps = function () {
+            var dataList = vm.gridConfig.data || [];
+            var pager = vm.gridConfig.pagerObj || {};
+            $scope.reactProps = {
+                items: angular.copy(dataList),
+                totalItems: (pager.totalItems !== undefined && pager.totalItems !== null) ? pager.totalItems : dataList.length,
+                currentPage: pager.currentPage || 1,
+                pageSize: pager.pageSize || 25,
+                currentfilter: angular.copy($scope.currentfilter || {}),
+                lookup: angular.copy($scope.lookup || {})
+            };
+            $scope.$applyAsync();
+        };
+
+        $scope.handleReactAction = function (actionName, payload) {
+            if (actionName === 'backtoList') {
+                $scope.backtoList();
+            } else if (actionName === 'assign') {
+                $scope.handleEvents('assign', payload);
+            } else if (actionName === 'upload') {
+                $scope.handleEvents('upload', payload);
+            } else if (actionName === 'print') {
+                $scope.handleEvents('print', payload);
+            } else if (actionName === 'patientinfo') {
+                if (payload && payload.Patient && payload.Patient.Id) {
+                    utl.Modal.open('registration.patientprofile', {
+                        params: { pid: payload.Patient.Id },
+                        confirmCallback: $scope.getList
+                    });
+                }
+            } else if (actionName === 'search') {
+                if (payload) {
+                    if (payload.PatWoNum !== undefined) $scope.currentfilter.PatWoNum = payload.PatWoNum;
+                    if (payload.OrderBillNo !== undefined) $scope.currentfilter.OrderBillNo = payload.OrderBillNo;
+                    if (payload.WorkOrderStatusId !== undefined) $scope.currentfilter.WorkOrderStatusId = payload.WorkOrderStatusId;
+                    if (payload.ExternalProviderId !== undefined) $scope.currentfilter.ExternalProviderId = payload.ExternalProviderId;
+                    if (payload.Ordereddate !== undefined) $scope.currentfilter.Ordereddate = new Date(payload.Ordereddate);
+                }
+                vm.gridConfig.pagerObj.currentPage = 1;
+                $scope.getList();
+            } else if (actionName === 'resetFilters') {
+                $scope.currentfilter.PatWoNum = '';
+                $scope.currentfilter.OrderBillNo = '';
+                $scope.currentfilter.WorkOrderStatusId = 1;
+                $scope.currentfilter.ExternalProviderId = -1;
+                $scope.currentfilter.Ordereddate = utl.Formatter.getCurrentDate();
+                vm.gridConfig.pagerObj.currentPage = 1;
+                $scope.getList();
+            } else if (actionName === 'pageChange') {
+                vm.gridConfig.pagerObj.currentPage = payload && payload.page ? payload.page : 1;
+                $scope.getList();
+            }
+            $scope.refreshReactProps();
+            $scope.$applyAsync();
         };
         $scope.backtoList = function () {
             $state.go('app.labdashboard');
@@ -264,6 +321,7 @@
         }
 
         $scope.initLookup();
+        $scope.refreshReactProps();
     }
 
     ExternalOrdersListController.$inject = ['$rootScope', '$timeout', '$scope', '$filter', '$stateParams', '$state', '$translate', 'utl'];

@@ -73,8 +73,8 @@ export class ServiceCategoryBo extends BaseBo<ServiceCategoryInstance, ServiceCa
                         where['Id'] = param.Value;
                         break;
                     case ServiceCategoryFilters.Name:
-                        (where as any)['$or'] = [{ 'ServiceCategoryCode': { '$like': (param.Value || '') + '%' } },
-                        { 'ServiceCategoryName': { '$like': (param.Value || '') + '%' } }];
+                        (where as any)['$or'] = [{ 'ServiceCategoryCode': { '$like': '%' + (param.Value || '') + '%' } },
+                        { 'ServiceCategoryName': { '$like': '%' + (param.Value || '') + '%' } }];
                         break;
                     case ServiceCategoryFilters.Facility:
                         where['FacilityId'] = param.Value;

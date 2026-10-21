@@ -1198,7 +1198,25 @@ export class OPModifyPatBillsBo extends BaseBo<OPModifyPatBillsInstance,
                         (where['BillDateTime'] as any)['$lte'] = param.Value;
                         break;
                     case PatientBillsFilters.PatBillDt:
-                        where['BillDateTime'] = { '$between': param.Value || '' };
+                        if (Array.isArray(param.Value) && param.Value.length === 2) {
+                            let d0 = param.Value[0];
+                            let d1 = param.Value[1];
+                            if (d0 && d1) {
+                                if (d0 > d1) {
+                                    where['BillDateTime'] = { '$between': [d1, d0] };
+                                } else {
+                                    where['BillDateTime'] = { '$between': [d0, d1] };
+                                }
+                            } else if (d0) {
+                                where['BillDateTime'] = where['BillDateTime'] || {};
+                                (where['BillDateTime'] as any)['$gte'] = d0;
+                            } else if (d1) {
+                                where['BillDateTime'] = where['BillDateTime'] || {};
+                                (where['BillDateTime'] as any)['$lte'] = d1;
+                            }
+                        } else if (param.Value) {
+                            where['BillDateTime'] = { '$between': param.Value };
+                        }
                         break;
                     case PatientBillsFilters.PatBillNr:
                         where['BillNumber'] = { '$like': '%' + ('' || param.Value || '') };
@@ -1321,7 +1339,11 @@ export class OPModifyPatBillsBo extends BaseBo<OPModifyPatBillsInstance,
             required: isGuarantorRequired,
             where: guarantorWhere
         });
-        return await this.FindAndCountAll(apiReq, { where: where, include: include, attributes: apiReq.Attributes });
+        let res = await this.FindAndCountAll(apiReq, { where: where, include: include, attributes: apiReq.Attributes });
+        if (res && res.Data && Array.isArray(res.Data)) {
+            res.Data.sort((a: any, b: any) => (Number(b.Id) || 0) - (Number(a.Id) || 0));
+        }
+        return res;
     }
 
     public async DeletePatientBills(req: BaseRequest): Promise<Boolean> {

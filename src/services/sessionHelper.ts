@@ -33,6 +33,10 @@ export const sessionHelper = {
     const v = ss.getItem('Session-FacilityId');
     return v ? parseInt(v, 10) : -1;
   },
+  getFacilityId: (): number => {
+    const v = ss.getItem('Session-FacilityId');
+    return v ? parseInt(v, 10) : -1;
+  },
   getCurrentFacilityName: (): string | null => ss.getItem('Session-FacilityName'),
   getCurrentFacilityCode: (): string | null => ss.getItem('Session-FacilityCode'),
 

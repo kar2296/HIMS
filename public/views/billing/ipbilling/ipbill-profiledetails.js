@@ -581,6 +581,18 @@
                     item.DoctorShare = ServiceTraiffobj[0].DoctorShare;
                     item.DrShareTypeId = ServiceTraiffobj[0].ShareTypeId;
                 }
+            } else {
+                var defaultRate = selectedItem.Rate || (selectedItem.ServiceItemTariffDetails && selectedItem.ServiceItemTariffDetails[0] ? selectedItem.ServiceItemTariffDetails[0].Rate : 0);
+                item.UnitPrice = defaultRate;
+                item.Rate = defaultRate;
+                if (selectedItem.ServiceItemTariffDetails && selectedItem.ServiceItemTariffDetails[0]) {
+                    item.ServiceRateCategoryId = selectedItem.ServiceItemTariffDetails[0].ServiceRateCategoryId;
+                    if (!$scope.allowipdrshare || $scope.allowipdrshare == 0) {
+                        item.DoctorShareValue = selectedItem.ServiceItemTariffDetails[0].DoctorShareValue;
+                        item.DoctorShare = selectedItem.ServiceItemTariffDetails[0].DoctorShare;
+                        item.DrShareTypeId = selectedItem.ServiceItemTariffDetails[0].ShareTypeId;
+                    }
+                }
             }
             var selectedGuarantor = utl.Lookup.getObject($scope.lookup.PatientGuarantor, $scope.Encounter.GuarantorId);
             if (selectedGuarantor && selectedGuarantor.GuarantorId) {
@@ -1658,10 +1670,6 @@
                 {
                     Key: 6,
                     Value: $scope.GuarantorMasterId
-                },
-                {
-                    Key: 15,
-                    Value: false
                 }
                 ],
                 PageContext: {
@@ -1683,7 +1691,7 @@
             } else if (query && query.length > 2) {
                 var otherservicemiddlesearch =
                     utl.FacilitySetting.getFacilitySettingValue('billing', 'otherservicemiddlesearch');
-                if (otherservicemiddlesearch) {
+                if (otherservicemiddlesearch || otherservicemiddlesearch === undefined) {
                     inputData.Params.push({
                         Key: 1,
                         Value: query
@@ -1712,6 +1720,12 @@
                         item.ServiceItemRate = ServiceTraiffobj[0].Rate;
                         item.DoctorShareValue = ServiceTraiffobj[0].DoctorShareValue;
                         item.DoctorShare = ServiceTraiffobj[0].DoctorShare;
+                    } else {
+                        item.ServiceItemRate = item.Rate || (item.ServiceItemTariffDetails && item.ServiceItemTariffDetails[0] ? item.ServiceItemTariffDetails[0].Rate : 0);
+                        if (item.ServiceItemTariffDetails && item.ServiceItemTariffDetails[0]) {
+                            item.DoctorShareValue = item.ServiceItemTariffDetails[0].DoctorShareValue;
+                            item.DoctorShare = item.ServiceItemTariffDetails[0].DoctorShare;
+                        }
                     }
                     var selectedGuarantor = utl.Lookup.getObject($scope.lookup.PatientGuarantor, $scope.Encounter.GuarantorId);
                     if (selectedGuarantor && selectedGuarantor.GuarantorId) {
